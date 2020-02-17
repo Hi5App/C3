@@ -2,10 +2,19 @@ package com.example.myapplication__volume;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ActivityManager;
+import android.content.pm.ConfigurationInfo;
 import android.net.Uri;
 import android.os.Bundle;
 
-
+import android.R.integer;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Paint.Style;
+import android.graphics.Path;
+import android.util.AttributeSet;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -21,6 +30,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -33,7 +43,9 @@ public class MainActivity extends AppCompatActivity {
     private long length;
     private InputStream is;
     private String filepath = "";
-
+    private boolean ifPainting = false;
+    private boolean ifPoint = false;
+    private ArrayList<Float> lineDrawed = new ArrayList<Float>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +80,47 @@ public class MainActivity extends AppCompatActivity {
         myGLSurfaceView = new MyGLSurfaceView(this);
         setContentView(myGLSurfaceView);
 
+        LinearLayout ll = new LinearLayout(this);
+        ll.setOrientation(LinearLayout.VERTICAL);
+
+        final Button button_1 = new Button(this);
+        button_1.setText("draw");
+        ll.addView(button_1);
+        this.addContentView(ll, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT , ViewGroup.LayoutParams.WRAP_CONTENT));
+        button_1.setOnClickListener(new Button.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                ifPainting = !ifPainting;
+                if(ifPainting) {
+                    button_1.setTextColor(Color.RED);
+                }
+                else {
+                    button_1.setTextColor(Color.BLACK);
+                }
+            }
+        });
+
+        final Button button_2 = new Button(this);
+        button_2.setText("point");
+        ll.addView(button_2);
+        button_2.setOnClickListener(new Button.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                ifPoint = !ifPoint;
+                if(ifPoint) {
+                    button_2.setTextColor(Color.RED);
+                }
+                else {
+                    button_2.setTextColor(Color.BLACK);
+                }
+            }
+        });
+
+
         context = getApplicationContext();
+
     }
 
 
@@ -126,10 +178,20 @@ public class MainActivity extends AppCompatActivity {
         public MyGLSurfaceView(Context context) {
             super(context);
 
+            ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
+            ConfigurationInfo info = am.getDeviceConfigurationInfo();
+            String v = info.getGlEsVersion(); //判断是否为3.0 ，一般4.4就开始支持3.0版本了。
+
+            Log.v("MainActivity","GLES-version: " + v );
+
             //设置一下opengl版本；
-            setEGLContextClientVersion(2);
+            setEGLContextClientVersion(3);
+
+//            myrenderer.setLineDrawed(lineDrawed);
 
             setRenderer(myrenderer);
+
+
 
             //调用 onPause 的时候保存EGLContext
             setPreserveEGLContextOnPause(true);
@@ -156,6 +218,20 @@ public class MainActivity extends AppCompatActivity {
                     case MotionEvent.ACTION_DOWN:
                         X=normalizedX;
                         Y=normalizedY;
+                        if(ifPainting){
+                            lineDrawed.add(X);
+                            lineDrawed.add(Y);
+                            lineDrawed.add(-1.0f);
+                            myrenderer.setIfPainting(true);
+                            requestRender();
+                            Log.v("actionPointerDown", "Paintinggggggggggg");
+                        }
+                        if(ifPoint){
+                            Log.v("actionPointerDown", "Pointinggggggggggg");
+                            myrenderer.setMarkerDrawed(X, Y);
+                            Log.v("actionPointerDown", "(" + X + "," + Y +")");
+
+                        }
                         break;
                     case MotionEvent.ACTION_POINTER_DOWN:
                         isZooming=true;
@@ -165,36 +241,64 @@ public class MainActivity extends AppCompatActivity {
 //                        float x1=motionEvent.getX(1);
 //                        float y1=motionEvent.getY(1);
                         dis_start=computeDis(normalizedX,x1,normalizedY,y1);
+
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        if(isZooming){
-                            float x2=toOpenGLCoord(this,motionEvent.getX(1),true);
-                            float y2=toOpenGLCoord(this,motionEvent.getY(1),false);
+                        if (!ifPainting) {
+                            if (isZooming) {
+                                float x2 = toOpenGLCoord(this, motionEvent.getX(1), true);
+                                float y2 = toOpenGLCoord(this, motionEvent.getY(1), false);
 
 //                            float x2=motionEvent.getX(1);
 //                            float y2=motionEvent.getY(1);
-                            double dis=computeDis(normalizedX,x2,normalizedY,y2);
-                            double scale=dis/dis_start;
-                            myrenderer.zoom((float) scale);
+                                double dis = computeDis(normalizedX, x2, normalizedY, y2);
+                                double scale = dis / dis_start;
+                                myrenderer.zoom((float) scale);
 
-                            //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
-                            requestRender();
-                            dis_start=dis;
-                        }else {
-                            myrenderer.rotate(normalizedX - X, normalizedY - Y, (float)(computeDis(normalizedX, X, normalizedY, Y)));
+                                //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
+                                requestRender();
+                                dis_start = dis;
+                            } else {
+                                myrenderer.rotate(normalizedX - X, normalizedY - Y, (float) (computeDis(normalizedX, X, normalizedY, Y)));
 
-                            //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
+                                //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
+                                requestRender();
+                                X = normalizedX;
+                                Y = normalizedY;
+                            }
+                        } else {
+                            lineDrawed.add(normalizedX);
+                            lineDrawed.add(normalizedY);
+                            lineDrawed.add(-1.0f);
+
+                            myrenderer.setLineDrawed(lineDrawed);
                             requestRender();
-                            X = normalizedX;
-                            Y = normalizedY;
+
+                            invalidate();
                         }
                         break;
                     case MotionEvent.ACTION_POINTER_UP:
                         isZooming=false;
                         X = normalizedX;
                         Y = normalizedY;
+//                        if (ifPainting){
+//                            lineDrawed.clear();
+//                            myrenderer.setLineDrawed(lineDrawed);
+//                            requestRender();
+//
+//                            myrenderer.setIfPainting(false);
+//                            requestRender();
+//
+//                        }
                         break;
                     case MotionEvent.ACTION_UP:
+                        if (ifPainting){
+                            myrenderer.setIfPainting(false);
+                            lineDrawed.clear();
+                            myrenderer.setLineDrawed(lineDrawed);
+                            requestRender();
+//                            requestRender();
+                        }
                         break;
                     default:break;
                 }
@@ -202,6 +306,8 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         }
+
+
 
         //坐标系变换
         private float toOpenGLCoord(View view,float value,boolean isWidth){

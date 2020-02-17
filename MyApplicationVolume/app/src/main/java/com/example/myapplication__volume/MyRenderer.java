@@ -4,17 +4,28 @@ package com.example.myapplication__volume;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.net.Uri;
 import android.opengl.GLES10;
-import android.opengl.GLES20;
+import android.opengl.GLES30;
+import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
+import android.os.ParcelFileDescriptor;
+import android.renderscript.Matrix4f;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Vector;
+import java.lang.Math;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -29,6 +40,8 @@ import static javax.microedition.khronos.opengles.GL10.GL_SRC_ALPHA;
 //@android.support.annotation.RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
 public class MyRenderer implements GLSurfaceView.Renderer {
     private MyPattern myPattern;
+    private MyAxis myAxis;
+    private MyDraw myDraw;
 
     private ByteBuffer imageBuffer;
 
@@ -39,6 +52,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private float angleX = 0.0f;
     private float angleY = 0.0f;
     private int mTextureId;
+
+    private int vol_w;
+    private int vol_h;
+    private int vol_d;
+    private int[] sz = new int[3];
 
     private int[] texture = new int[1]; //生成纹理id
 
@@ -59,27 +77,40 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private final float[] zoomMatrix = new float[16];//缩放矩阵
     private final float[] zoomAfterMatrix = new float[16];
     private final float[] finalMatrix = new float[16];//缩放矩阵
+    private float[] linePoints = {
+
+    };
+
+    private ArrayList<Float> lineDrawed = new ArrayList<Float>();
+
+    private ArrayList<Float> markerDrawed = new ArrayList<Float>();
+
 
     private String filepath = ""; //文件路径
     private InputStream is;
     private long length;
 
+    private boolean ifPainting = false;
 
     private int screen_w;
     private int screen_h;
     private float cur_scale = 1.0f;
+
+    private int[][][] grayscale;
 
 
     //初次渲染画面
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
         // Set the background frame color
-        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        GLES30.glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 
         Log.v("onSurfaceCreated:","successfully");
 
 
-        initTexture(getContext());
+//        initTexture(getContext());
+
+        setImage();
 
         Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
 
@@ -96,11 +127,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     //画面大小发生改变后
     public void onSurfaceChanged(GL10 gl,int width, int height){
         //设置视图窗口
-        GLES20.glViewport(0, 0, width, height);
+        GLES30.glViewport(0, 0, width, height);
 
         screen_w = width;
         screen_h = height;
         myPattern = new MyPattern(filepath, is, length, width, height);
+        myAxis = new MyAxis();
+        myDraw = new MyDraw();
+
+
         float ratio = (float) width / height;
 
         // this projection matrix is applied to object coordinates
@@ -125,36 +160,110 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl){
 
-        GLES20.glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+        GLES30.glClearColor(0.5f, 0.4f, 0.3f, 1.0f);
 
-//        GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+//        GLES30.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 
         //把颜色缓冲区设置为我们预设的颜色
-        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-        GLES20.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
-//        GLES20.glEnable(GL_BLEND);
-//        GLES20.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+        GLES30.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
+//        GLES30.glEnable(GL_BLEND);
+//        GLES30.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         GLES10.glEnable(GL_ALPHA_TEST);
 //        glAlphaFunc(GL_GREATER, 0.05f);
-//        GLES20.glDisable(GLES20.GL_DEPTH_TEST);
+//        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
 
-        GLES20.glEnable(GL_BLEND);
-        GLES20.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        GLES30.glEnable(GL_BLEND);
+        GLES30.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         setMatrix();
 
-//                Log.v("roatation",Arrays.toString(finalMatrix));
+//        Log.v("rotation",Arrays.toString(finalMatrix));
 
 
-        myPattern.drawVolume(finalMatrix, translateAfterMatrix, screen_w, screen_h, texture[0]);
+
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        float [] result_1 = new float[4];
+        float [] result_2 = new float[4];
+
+
+
+        float [] invert_result_1 = new float[4];
+        float [] invert_result_2 = new float[4];
+
+        float [] invertfinalMatrix = new float[16];
+
+//        float [] input_1 = {60/128.0f, 63/128.0f, 64/128.0f, 1f};
+        float [] input_1 = {0f, 0f, 0f, 1f};
+        float [] input_2 = {1f, 1f, 1f, 1f};
+
+
+        Matrix.multiplyMV(result_1, 0, finalMatrix, 0, input_1,0);
+
+        Log.v("result_1",Arrays.toString(result_1));
+
+        Matrix.multiplyMV(result_2, 0, finalMatrix, 0, input_2,0);
+
+        Log.v("result_2",Arrays.toString(result_2));
+
+
+        //
+//        Matrix.invertM(invertfinalMatrix, 0, finalMatrix, 0);
+//
+//        Log.v("invert_rotation",Arrays.toString(invertfinalMatrix));
+//
+//        Matrix.multiplyMV(invert_result_1, 0, invertfinalMatrix, 0, input_1,0);
+//
+//        Log.v("invert_result_1",Arrays.toString(invert_result_1));
+//
+//        Matrix.multiplyMV(invert_result_2, 0, invertfinalMatrix, 0, input_2,0);
+//
+//        Log.v("invert_result_2",Arrays.toString(invert_result_2));
+
+
+//        solveMarkerCenter(0.03125f, -0.005022317f);
+
+
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+//        Log.v("onDrawFrame", "draw_axis");
+
+        myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, screen_w, screen_h, texture[0]);
+
+        if(markerDrawed.size() > 0){
+            for (int i = 0; i < markerDrawed.size(); i = i + 3)
+            myDraw.drawMarker(finalMatrix, markerDrawed.get(i), markerDrawed.get(i+1), markerDrawed.get(i+2));
+        }
+
+        myAxis.draw(finalMatrix);
+
+//        myPattern.draw_axis(finalMatrix);
+
+        if (ifPainting) {
+            if(linePoints.length > 0){
+//                Log.v("drawline", "trueeeeeeeeeeeee");
+//                String s = "";
+//                for (int i = 0; i < linePoints.length; i++){
+//                    s = s + " " + Float.toString(linePoints[i]);
+//                }
+//                Log.v("linePoints", s);
+                int num = linePoints.length / 3;
+                myPattern.draw_points(linePoints, num);
+            }
+        }
 
 
 //        angle += 1.0f;
 //        angleX += 1.0f;
 
-        GLES20.glDisable(GL_BLEND);
-        GLES20.glDisable(GL_ALPHA_TEST);
+        GLES30.glDisable(GL_BLEND);
+        GLES30.glDisable(GL_ALPHA_TEST);
 
     }
 
@@ -180,6 +289,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Matrix.setIdentityM(translateAfterMatrix, 0);
 
         Matrix.translateM(translateAfterMatrix, 0, 0, 0, cur_scale);
+//        Matrix.translateM(translateAfterMatrix, 0, 0, 0, -cur_scale);
+
         // Combine the rotation matrix with the projection and camera view
         // Note that the vPMatrix factor *must be first* in order
         // for the matrix multiplication product to be correct.
@@ -191,7 +302,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         Matrix.multiplyMM(ZRTMatrix, 0, translateAfterMatrix, 0, RTMatrix, 0);
 
-        Matrix.multiplyMM(finalMatrix, 0, vPMatrix, 0, ZRTMatrix, 0);
+        Matrix.multiplyMM(finalMatrix, 0, vPMatrix, 0, ZRTMatrix, 0);      //ZRTMatrix代表modelMatrix
 
 //        Matrix.multiplyMM(finalMatrix, 0, zoomMatrix, 0, scratch, 0);
 
@@ -207,7 +318,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private void initTexture(Context context){
 
-        GLES20.glGenTextures(  //创建纹理对象
+        GLES30.glGenTextures(  //创建纹理对象
                 1, //产生纹理id的数量
                 texture, //纹理id的数组
                 0  //偏移量
@@ -217,30 +328,30 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 context.getResources(), R.drawable.aorta);
 
         //绑定纹理id，将对象绑定到环境的纹理单元
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,texture[0]);
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,texture[0]);
 
-        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-                GLES20.GL_TEXTURE_MIN_FILTER,GLES20.GL_NEAREST);//设置MIN 采样方式
-        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-                GLES20.GL_TEXTURE_MAG_FILTER,GLES20.GL_LINEAR);//设置MAG采样方式
-        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-                GLES20.GL_TEXTURE_WRAP_S,GLES20.GL_CLAMP_TO_EDGE);//设置S轴拉伸方式
-        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-                GLES20.GL_TEXTURE_WRAP_T,GLES20.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
+                GLES30.GL_TEXTURE_MIN_FILTER,GLES30.GL_NEAREST);//设置MIN 采样方式
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
+                GLES30.GL_TEXTURE_MAG_FILTER,GLES30.GL_LINEAR);//设置MAG采样方式
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
+                GLES30.GL_TEXTURE_WRAP_S,GLES30.GL_CLAMP_TO_EDGE);//设置S轴拉伸方式
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
+                GLES30.GL_TEXTURE_WRAP_T,GLES30.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
 
 
-        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+        GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, bitmap, 0);
 
-        GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
+        GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D);
 
         bitmap.recycle();
 
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,0);
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,0);
 
     }
 
     private byte[][] getIntensity(){
-        rawreader rr = new rawreader();
+        Rawreader rr = new Rawreader();
         String fileName = filepath;
         int[][][] grayscale =  rr.run(length, is);
         byte[][] data_image = new byte[128][128 * 128 * 4];
@@ -282,15 +393,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     //设置文件路径
     public void SetPath(String message){
+
         filepath = message;
     }
 
 
     public void setInputStream(InputStream Is){
+
         is = Is;
     }
 
     public void setLength(long Length){
+
         length = Length;
     }
 
@@ -312,15 +426,16 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 ////        finalRotateMatrix = multiplyMatrix(currentRotateM, finalRotateMatrix);
 //        Log.v("rotation", Arrays.toString(currentRotateM));
 ////        Matrix.multiplyMM(rotationMatrix, 0, currentRotateM, 0, rotationMatrix, 0);
-        angleX = dy * 20;
-        angleY = dx * 20;
+        angleX = dy * 30;
+        angleY = dx * 30;
         Matrix.setRotateM(rotationXMatrix, 0, angleX, 1.0f, 0.0f, 0.0f);
         Matrix.setRotateM(rotationYMatrix, 0, angleY, 0.0f, 1.0f, 0.0f);
         float [] curRotationMatrix = new float[16];
         Matrix.multiplyMM(curRotationMatrix, 0, rotationXMatrix, 0, rotationYMatrix, 0);
         Matrix.multiplyMM(rotationMatrix, 0, curRotationMatrix, 0, rotationMatrix, 0);
-        Log.v("angleX = ", Float.toString(angleX));
-        Log.v("angleY = ", Float.toString(angleY));
+
+//        Log.v("angleX = ", Float.toString(angleX));
+//        Log.v("angleY = ", Float.toString(angleY));
     }
 
 
@@ -363,6 +478,438 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         imageBuffer.position(0);
     }
 
+    public void setLineDrawed(ArrayList<Float> lineDrawed){
+//        Float [] linePoints = lineDrawed.toArray(new Float[lineDrawed.size()]);
+        linePoints = new float[lineDrawed.size()];
+        for (int i =0; i < lineDrawed.size(); i++){
+            linePoints[i] = lineDrawed.get(i);
+        }
+    }
+
+    public void setIfPainting(boolean b){
+        ifPainting = b;
+    }
+
+
+
+
+    public void setMarkerDrawed(float x, float y){
+
+        if(solveMarkerCenter(x, y) != null) {
+            float[] new_marker = solveMarkerCenter(x, y);
+
+            markerDrawed.add(new_marker[0]);
+            markerDrawed.add(new_marker[1]);
+            markerDrawed.add(new_marker[2]);
+        }
+    }
+
+
+
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //To set the marker
+
+    private void setImage(){
+        Rawreader rr = new Rawreader();
+        String fileName = filepath;
+
+        Uri uri = Uri.parse(fileName);
+
+        try {
+            ParcelFileDescriptor parcelFileDescriptor =
+                    MainActivity.getContext().getContentResolver().openFileDescriptor(uri, "r");
+
+            is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+
+            length = (int)parcelFileDescriptor.getStatSize();
+
+            Log.v("MyPattern","Successfully load intensity");
+
+        }catch (Exception e){
+            Log.v("MyPattern","Some problems in the MyPattern when load intensity");
+        }
+
+
+        grayscale =  rr.run(length, is);
+
+        vol_w = rr.get_w();
+        vol_h = rr.get_h();
+        vol_d = rr.get_d();
+
+        for (int i = 0; i < vol_w; i++){
+            for (int j = 0; j < vol_h; j++){
+                for (int k = 0; k < vol_h; k++){
+                    if(grayscale[i][j][k]>100)
+                        Log.v("greater than 50 at:", "[" + i + "]" + "[" + j + "]" + "[" + k + "]: " + grayscale[i][j][k]);
+                }
+            }
+        }
+
+        sz[0] = vol_w;
+        sz[1] = vol_h;
+        sz[2] = vol_d;
+    }
+
+
+
+
+    //寻找marker点的位置~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    public float[] solveMarkerCenter(float x, float y){
+
+        float [] result = new float[3];
+        float [] loc1 = new float[3];
+        float [] loc2 = new float[3];
+
+        get_NearFar_Marker(x, y, loc1, loc2);
+
+        Log.v("loc1",Arrays.toString(loc1));
+        Log.v("loc2",Arrays.toString(loc2));
+
+        float steps = 512;
+        float [] step = devide(minus(loc1, loc2), steps);
+        Log.v("step",Arrays.toString(step));
+
+
+        if(make_Point_near(loc1, loc2)){
+            Log.v("loc1",Arrays.toString(loc1));
+            Log.v("loc2",Arrays.toString(loc2));
+
+            float [] Marker = getCenterOfLineProfile(loc1, loc2);
+//            float [] Marker = {60.1f, 63.2f, 63.6f};
+
+            Log.v("Marker",Arrays.toString(Marker));
+
+            float intensity = Sample3d(Marker[0], Marker[1], Marker[2]);
+            Log.v("intensity",Float.toString(intensity));
+
+            return VolumetoModel(Marker);
+        }else {
+            Log.v("solveMarkerCenter","please make sure the point inside the bounding box");
+            Toast.makeText(getContext(), "please make sure the point inside the bounding box", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+
+    }
+
+
+
+
+    //类似于光线投射，找直线上强度最大的一点
+    // in Image space (model space)
+    private float[] getCenterOfLineProfile(float[] loc1, float[] loc2){
+
+        float[] result = new float[3];
+        float[] loc1_index = new float[3];
+        float[] loc2_index = new float[3];
+
+//        for(int i=0; i<3; i++){
+//            loc1_index[i] = loc1[i] * sz[i];
+//            loc2_index[i] = loc2[i] * sz[i];
+//        }
+
+        for(int i=0; i<2; i++){
+            loc1_index[i] = (1.0f - loc1[i]) * sz[i];
+            loc2_index[i] = (1.0f - loc2[i]) * sz[i];
+        }
+
+
+        loc1_index[2] = loc1[2] * sz[2];
+        loc2_index[2] = loc2[2] * sz[2];
+
+        result = devide(plus(loc1_index, loc2_index), 2);
+        float max_value = 0f;
+
+        //单位向量
+        float[] d = minus(loc1_index, loc2_index);
+        normalize(d);
+
+        //判断是不是一个像素
+        float length = distance(loc1_index, loc2_index);
+        if(length < 0.5)
+            return  result;
+
+        int nstep = (int)(length+0.5);
+        float one_step = length/nstep;
+
+        float[][] dim = new float[3][2];
+        for(int i=0; i<3; i++){
+            dim[i][0]=0;
+            dim[i][1]=sz[i];
+        }
+
+        float[] poc;
+        for(int i = 0; i<=nstep; i++){
+
+            float value = 0;
+            poc = plus(loc1_index, multiply(d, one_step));
+
+            if(IsInBoundingBox(poc, dim)){
+                value = Sample3d(poc[0], poc[1], poc[2]);
+
+                if(value > max_value){
+                    for (int j = 0; j < 3; j++){
+                        result[j] = poc[j];
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+
+
+
+    //
+    private void get_NearFar_Marker(float x, float y, float [] res1, float [] res2){
+
+        //mvp矩阵的逆矩阵
+        float [] invertfinalMatrix = new float[16];
+
+        Matrix.invertM(invertfinalMatrix, 0, finalMatrix, 0);
+        Log.v("invert_rotation",Arrays.toString(invertfinalMatrix));
+
+        float [] near = new float[4];
+        float [] far = new float[4];
+
+        Matrix.multiplyMV(near, 0, invertfinalMatrix, 0, new float [] {x, y, -1, 1}, 0);
+        Matrix.multiplyMV(far, 0, invertfinalMatrix, 0, new float [] {x, y, 0, 1}, 0);
+
+        Log.v("near",Arrays.toString(near));
+        Log.v("far",Arrays.toString(far));
+
+        for(int i=0; i<3; i++){
+            res1[i] = near[i];
+            res2[i] = far[i];
+        }
+
+    }
+
+
+
+
+
+    //找到靠近boundingbox的两处端点
+    private boolean make_Point_near(float[] loc1, float[] loc2){
+
+        float steps = 512;
+        float [] near = loc1;
+        float [] far = loc2;
+        float [] step = devide(minus(near, far), steps);
+
+        float[][] dim = new float[3][2];
+        for(int i=0; i<3; i++){
+            dim[i][0]=0;
+            dim[i][1]=1;
+        }
+
+        int num = 0;
+        while(num<steps && !IsInBoundingBox(near, dim)){
+            near = minus(near, step);
+            num++;
+        }
+        if(num == steps)
+            return false;
+
+
+        while(!IsInBoundingBox(far, dim)){
+            far = plus(far, step);
+        }
+
+        near = plus(near, step);
+        far = minus(far, step);
+
+        for(int i=0; i<3; i++){
+            loc1[i] = near[i];
+            loc2[i] = far[i];
+        }
+
+        Log.v("make_point_near","here we are");
+        return true;
+
+    }
+
+
+    //判断是否在图像内部了
+    private boolean IsInBoundingBox(float[] x, float[][] dim){
+        int length = x.length;
+
+        for(int i=0; i<length; i++){
+//            Log.v("IsInBoundingBox", Float.toString(x[i]));
+            if(x[i]>dim[i][1] || x[i]<dim[i][0])
+                return false;
+        }
+        return true;
+    }
+
+
+
+    float Sample3d(float x, float y, float z){
+        int x0, x1, y0, y1, z0, z1;
+        x0 = (int) Math.floor(x);         x1 = (int) Math.ceil(x);
+        y0 = (int) Math.floor(y);         y1 = (int) Math.ceil(y);
+        z0 = (int) Math.floor(z);         z1 = (int) Math.ceil(z);
+
+        float xf, yf, zf;
+        xf = x-x0;
+        yf = y-y0;
+        zf = z-z0;
+
+        float [][][] is = new float[2][2][2];
+        is[0][0][0] = grayscale[x0][y0][z0];
+        is[0][0][1] = grayscale[x0][y0][z1];
+        is[0][1][0] = grayscale[x0][y1][z0];
+        is[0][1][1] = grayscale[x0][y1][z1];
+        is[1][0][0] = grayscale[x1][y0][z0];
+        is[1][0][1] = grayscale[x1][y0][z1];
+        is[1][1][0] = grayscale[x1][y1][z0];
+        is[1][1][1] = grayscale[x1][y1][z1];
+
+        float [][][] sf = new float[2][2][2];
+        sf[0][0][0] = (1-xf)*(1-yf)*(1-zf);
+        sf[0][0][1] = (1-xf)*(1-yf)*(  zf);
+        sf[0][1][0] = (1-xf)*(  yf)*(1-zf);
+        sf[0][1][1] = (1-xf)*(  yf)*(  zf);
+        sf[1][0][0] = (  xf)*(1-yf)*(1-zf);
+        sf[1][0][1] = (  xf)*(1-yf)*(  zf);
+        sf[1][1][0] = (  xf)*(  yf)*(1-zf);
+        sf[1][1][1] = (  xf)*(  yf)*(  zf);
+
+        float result = 0f;
+
+        for(int i=0; i<2; i++)
+            for(int j=0; j<2; j++)
+                for(int k=0; k<2; k++)
+                    result +=  is[i][j][k] * sf[i][j][k];
+
+//        for(int i=0; i<2; i++)
+//            for(int j=0; j<2; j++)
+//                for(int k=0; k<2; k++)
+//                    Log.v("Sample3d", Float.toString(is[i][j][k]));
+
+        return result;
+    }
+
+
+    private float distance(float[] x, float[] y){
+        int length = x.length;
+        float sum = 0;
+
+        for(int i=0; i<length; i++){
+            sum += Math.pow(x[i]-y[i], 2);
+        }
+        return (float)Math.sqrt(sum);
+    }
+
+    private void normalize(float[] x){
+        int length = x.length;
+        float sum = 0;
+
+        for(int i=0; i<length; i++)
+            sum += Math.pow(x[i], 2);
+
+        for(int i=0; i<length; i++)
+            x[i] = x[i] / (float)Math.sqrt(sum);
+    }
+
+
+
+    private float[] ModeltoVolume(float[] input){
+        float[] result = new float[3];
+
+        result[0] = (1.0f - input[0]) * sz[0];
+        result[1] = (1.0f - input[1]) * sz[1];
+        result[2] =      input[2]     * sz[2];
+
+        return result;
+    }
+
+    private float[] VolumetoModel(float[] input){
+        float[] result = new float[3];
+
+        result[0] = (sz[0] - input[0]) / sz[0];
+        result[1] = (sz[1] - input[1]) / sz[1];
+        result[2] =      input[2]      / sz[2];
+
+        return result;
+    }
+
+
+    //减法运算
+    private float [] minus(float[] x, float[] y){
+        if(x.length != y.length){
+            Log.v("minus","length is not the same!");
+            return null;
+        }
+
+        int length = x.length;
+        float [] result = new float[length];
+
+        for (int i=0; i<length; i++)
+            result[i] = x[i] - y[i];
+        return result;
+    }
+
+    //加法运算
+    private float [] plus(float[] x, float[] y){
+        if(x.length != y.length){
+            Log.v("plus","length is not the same!");
+            return null;
+        }
+
+        int length = x.length;
+        float [] result = new float[length];
+
+        for (int i=0; i<length; i++)
+            result[i] = x[i] + y[i];
+        return result;
+    }
+
+    //除法运算
+    private float [] devide(float[] x, float num){
+        if(num == 0){
+            Log.v("devide","can not be devided by 0");
+        }
+
+        int length = x.length;
+        float [] result = new float[length];
+
+        for(int i=0; i<length; i++)
+            result[i] = x[i]/num;
+
+        return result;
+    }
+
+    //除法运算
+    private float [] multiply(float[] x, float num){
+        if(num == 0){
+            Log.v("devide","can not be multiply by 0");
+        }
+
+        int length = x.length;
+        float [] result = new float[length];
+
+        for(int i=0; i<length; i++)
+            result[i] = x[i]*num;
+
+        return result;
+    }
+
+
+
+
+    class XYZ{
+        private float this_x;
+
+        public XYZ(float x, float y, float z){
+
+        }
+    }
+
+
 }
 
 
@@ -397,7 +944,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //
 //    private void initTexture(Context context){
 //
-//        GLES20.glGenTextures(  //创建纹理对象
+//        GLES30.glGenTextures(  //创建纹理对象
 //                128, //产生纹理id的数量
 //                textures, //纹理id的数组
 //                0  //偏移量
@@ -405,7 +952,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //
 ////        int textures[] = new int[1]; //生成纹理id
 ////
-////        GLES20.glGenTextures(  //创建纹理对象
+////        GLES30.glGenTextures(  //创建纹理对象
 ////                1, //产生纹理id的数量
 ////                textures, //纹理id的数组
 ////                0  //偏移量
@@ -418,33 +965,33 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            mTextureId = textures[nID];
 //
 //            //绑定纹理id，将对象绑定到环境的纹理单元
-//            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,mTextureId);
+//            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,mTextureId);
 //
-//            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-//                    GLES20.GL_TEXTURE_MIN_FILTER,GLES20.GL_NEAREST);//设置MIN 采样方式
-//            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-//                    GLES20.GL_TEXTURE_MAG_FILTER,GLES20.GL_LINEAR);//设置MAG采样方式
-//            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-//                    GLES20.GL_TEXTURE_WRAP_S,GLES20.GL_CLAMP_TO_EDGE);//设置S轴拉伸方式
-//            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-//                    GLES20.GL_TEXTURE_WRAP_T,GLES20.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
+//            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
+//                    GLES30.GL_TEXTURE_MIN_FILTER,GLES30.GL_NEAREST);//设置MIN 采样方式
+//            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
+//                    GLES30.GL_TEXTURE_MAG_FILTER,GLES30.GL_LINEAR);//设置MAG采样方式
+//            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
+//                    GLES30.GL_TEXTURE_WRAP_S,GLES30.GL_CLAMP_TO_EDGE);//设置S轴拉伸方式
+//            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
+//                    GLES30.GL_TEXTURE_WRAP_T,GLES30.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
 //
 //
 //            CreateBuffer(image_data[nID]);
 //
-//            GLES20.glTexImage2D(
-//                    GLES20.GL_TEXTURE_2D, //纹理类型
+//            GLES30.glTexImage2D(
+//                    GLES30.GL_TEXTURE_2D, //纹理类型
 //                    0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
-//                    GLES20.GL_RGBA, //图片的格式
+//                    GLES30.GL_RGBA, //图片的格式
 //                    128,   //
 //                    128,   //
 //                    0, //纹理边框尺寸();
-//                    GLES20.GL_RGBA,
-//                    GLES20.GL_UNSIGNED_BYTE,
+//                    GLES30.GL_RGBA,
+//                    GLES30.GL_UNSIGNED_BYTE,
 //                    imageBuffer
 //            );
 //
-//            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,mTextureId);
+//            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,mTextureId);
 //        }
 //
 //
@@ -457,7 +1004,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //    //初始化纹理
 //    private void initTexture(Context context){
 //
-//        GLES20.glGenTextures(  //创建纹理对象
+//        GLES30.glGenTextures(  //创建纹理对象
 //                224, //产生纹理id的数量
 //                textures, //纹理id的数组
 //                0  //偏移量
@@ -471,33 +1018,33 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            mTextureId = textures[nID];
 //
 //            //绑定纹理id，将对象绑定到环境的纹理单元
-//            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,mTextureId);
+//            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,mTextureId);
 //
-//            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-//                    GLES20.GL_TEXTURE_MIN_FILTER,GLES20.GL_NEAREST);//设置MIN 采样方式
-//            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-//                    GLES20.GL_TEXTURE_MAG_FILTER,GLES20.GL_LINEAR);//设置MAG采样方式
-//            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-//                    GLES20.GL_TEXTURE_WRAP_S,GLES20.GL_CLAMP_TO_EDGE);//设置S轴拉伸方式
-//            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-//                    GLES20.GL_TEXTURE_WRAP_T,GLES20.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
+//            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
+//                    GLES30.GL_TEXTURE_MIN_FILTER,GLES30.GL_NEAREST);//设置MIN 采样方式
+//            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
+//                    GLES30.GL_TEXTURE_MAG_FILTER,GLES30.GL_LINEAR);//设置MAG采样方式
+//            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
+//                    GLES30.GL_TEXTURE_WRAP_S,GLES30.GL_CLAMP_TO_EDGE);//设置S轴拉伸方式
+//            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
+//                    GLES30.GL_TEXTURE_WRAP_T,GLES30.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
 //
 //
 //            CreateBuffer(image_data[nID]);
 //
-//            GLES20.glTexImage2D(
-//                    GLES20.GL_TEXTURE_2D, //纹理类型
+//            GLES30.glTexImage2D(
+//                    GLES30.GL_TEXTURE_2D, //纹理类型
 //                    0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
-//                    GLES20.GL_RGBA, //图片的格式
+//                    GLES30.GL_RGBA, //图片的格式
 //                    224,   //
 //                    224,   //
 //                    0, //纹理边框尺寸();
-//                    GLES20.GL_RGBA,
-//                    GLES20.GL_UNSIGNED_BYTE,
+//                    GLES30.GL_RGBA,
+//                    GLES30.GL_UNSIGNED_BYTE,
 //                    imageBuffer
 //            );
 //
-//            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,mTextureId);
+//            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,mTextureId);
 //        }
 //
 //    }
