@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">My Application--Volume</string>
+    <string name="Button">Open File</string>
+    <string name="text">filename</string>
+
+</resources>
