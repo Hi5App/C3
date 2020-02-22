@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private String filepath = "";
     private boolean ifPainting = false;
     private boolean ifPoint = false;
+//    private int Paintmode = 0;
     private ArrayList<Float> lineDrawed = new ArrayList<Float>();
 
     @Override
@@ -87,30 +88,35 @@ public class MainActivity extends AppCompatActivity {
         button_1.setText("draw");
         ll.addView(button_1);
         this.addContentView(ll, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT , ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        final Button button_2 = new Button(this);
+        button_2.setText("point");
+        ll.addView(button_2);
+
         button_1.setOnClickListener(new Button.OnClickListener()
         {
             public void onClick(View v)
             {
                 ifPainting = !ifPainting;
+                ifPoint = false;
                 if(ifPainting) {
                     button_1.setTextColor(Color.RED);
+                    button_2.setTextColor(Color.BLACK);
                 }
                 else {
                     button_1.setTextColor(Color.BLACK);
                 }
             }
         });
-
-        final Button button_2 = new Button(this);
-        button_2.setText("point");
-        ll.addView(button_2);
         button_2.setOnClickListener(new Button.OnClickListener()
         {
             public void onClick(View v)
             {
                 ifPoint = !ifPoint;
+                ifPainting = false;
                 if(ifPoint) {
                     button_2.setTextColor(Color.RED);
+                    button_1.setTextColor(Color.BLACK);
                 }
                 else {
                     button_2.setTextColor(Color.BLACK);
