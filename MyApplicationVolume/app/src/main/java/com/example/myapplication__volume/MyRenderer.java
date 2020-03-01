@@ -277,7 +277,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         if (eswcDrawed.size() > 0){
-
+            myDraw.drawEswc(finalMatrix, eswcDrawed);
         }
 
 
