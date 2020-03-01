@@ -283,6 +283,40 @@ public class MyDraw {
         GLES30.glEnable(GLES30.GL_DEPTH_TEST);
     }
 
+    public void drawEswc(float [] mvpMatrix, ArrayList<Float> lineDrawed){
+        float [] line = new float[lineDrawed.size()];
+        for (int i = 0; i < lineDrawed.size(); i++){
+            line[i] = lineDrawed.get(i);
+        }
+        BufferSet_Line(line);
+
+        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
+
+        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
+
+        GLES30.glUseProgram(mProgram_line);
+
+        //准备坐标数据
+        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_line);
+        //启用顶点的句柄
+        GLES30.glEnableVertexAttribArray(0);
+
+        // get handle to vertex shader's uMVPMatrix member
+        int vPMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_line,"uMVPMatrix");
+
+        // Pass the projection and view transformation to the shader
+        GLES30.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
+
+        GLES30.glLineWidth(3);
+
+        GLES30.glDrawArrays(GLES30.GL_LINES, 0, line.length/3);
+
+        //禁止顶点数组的句柄
+        GLES30.glDisableVertexAttribArray(0);
+
+        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+    }
+
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //创建着色器程序

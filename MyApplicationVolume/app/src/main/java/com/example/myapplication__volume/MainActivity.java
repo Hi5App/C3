@@ -1,5 +1,6 @@
 package com.example.myapplication__volume;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ActivityManager;
@@ -28,6 +29,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -45,6 +47,11 @@ public class MainActivity extends AppCompatActivity {
     private String filepath = "";
     private boolean ifPainting = false;
     private boolean ifPoint = false;
+    private boolean ifImport = false;
+
+    private int eswc_length;
+    private static int REQUEST_PERMISSION_CODE = 1;
+
 //    private int Paintmode = 0;
     private ArrayList<Float> lineDrawed = new ArrayList<Float>();
 
@@ -93,6 +100,10 @@ public class MainActivity extends AppCompatActivity {
         button_2.setText("point");
         ll.addView(button_2);
 
+        final Button button_3 = new Button(this);
+        button_3.setText("import");
+        ll.addView(button_3);
+
         button_1.setOnClickListener(new Button.OnClickListener()
         {
             public void onClick(View v)
@@ -108,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
         button_2.setOnClickListener(new Button.OnClickListener()
         {
             public void onClick(View v)
@@ -124,11 +136,92 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        button_3.setOnClickListener(new Button.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                if (!ifImport) {
+                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    startActivityForResult(intent, 1);
+                    ifImport = !ifImport;
+                }
+            }
+        });
+
 
         context = getApplicationContext();
 
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_PERMISSION_CODE) {
+            for (int i = 0; i < permissions.length; i++) {
+                Log.i("MainActivity", "申请的权限为：" + permissions[i] + ",申请结果：" + grantResults[i]);
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        Log.v("MainActivity","dfdsfsdfsdfsdfvxcxv");
+
+        if (resultCode == RESULT_OK) {
+            Uri uri = data.getData();
+            String filePath= uri.toString();
+//            String filePath = uri.getPath();
+//            String filePath = Uri2PathUtil.getRealPathFromUri(getApplicationContext(), uri);
+//            String filePath = FilePath.substring(14);
+//            String filePath = "/storage/emulated/0/Download/image.v3draw";
+
+
+
+            Log.v("MainActivity",filePath);
+            Log.v("Uri_Scheme:",uri.getScheme());
+
+            Toast.makeText(this, "Open" + filePath + "--successfully", Toast.LENGTH_SHORT).show();
+
+            try{
+
+                Log.v("MainActivity","123456");
+//                Log.v("MainActivity",String.valueOf(fileSize));
+
+                Uri uri_1 = Uri.parse((String) filePath);
+
+                Log.v("Uri_1: ", uri_1.toString());
+
+                ParcelFileDescriptor parcelFileDescriptor =
+                        getContentResolver().openFileDescriptor(uri_1, "r");
+
+                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+
+                eswc_length = (int)parcelFileDescriptor.getStatSize();
+
+                Log.v("Legth: ", Integer.toString(eswc_length));
+
+                ArrayList<ArrayList<Float>> eswc = new ArrayList<ArrayList<Float>>();
+                EswcReader eswcReader = new EswcReader();
+
+                eswc = eswcReader.read(eswc_length, is);
+
+                myrenderer.importEswc(eswc);
+
+
+//                File f = new File(filePath);
+//                FileInputStream fid = new FileInputStream(f);
+
+//                fid.write(message.getBytes());
+//                long fileSize = f.length();
+            }catch (Exception e){
+                Toast.makeText(this, " dddddd  ", Toast.LENGTH_SHORT).show();
+                Log.v("MainActivity","111222");
+            }
+        }
+    }
 
     public static Context getContext() {
         return context;

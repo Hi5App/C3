@@ -86,6 +86,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private ArrayList<Float> markerDrawed = new ArrayList<Float>();
 
+    private ArrayList<Float> eswcDrawed = new ArrayList<Float>();
 
     private String filepath = ""; //文件路径
     private InputStream is;
@@ -273,6 +274,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 int num = linePoints.length / 3;
                 myPattern.draw_points(linePoints, num);
             }
+        }
+
+        if (eswcDrawed.size() > 0){
+
         }
 
 
@@ -1068,6 +1073,23 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             lineDrawed.add(lineAdded);
         else
             Log.v("draw line:::::", "nulllllllllllllllllll");
+    }
+
+    public void importEswc(ArrayList<ArrayList<Float>> eswc){
+        for (int i = 0; i < eswc.size(); i++){
+            ArrayList<Float> currentLine = eswc.get(i);
+            int parent = currentLine.get(6).intValue();
+            if (parent == -1){
+                continue;
+            }
+            ArrayList<Float> parentLine = eswc.get(parent - 1);
+            eswcDrawed.add((sz[0] - parentLine.get(2)) / sz[0]);
+            eswcDrawed.add((sz[1] - parentLine.get(3)) / sz[1]);
+            eswcDrawed.add(parentLine.get(4) / sz[2]);
+            eswcDrawed.add((sz[0] - currentLine.get(2)) / sz[0]);
+            eswcDrawed.add((sz[1] - currentLine.get(3)) / sz[1]);
+            eswcDrawed.add(currentLine.get(4) / sz[2]);
+        }
     }
 
 
