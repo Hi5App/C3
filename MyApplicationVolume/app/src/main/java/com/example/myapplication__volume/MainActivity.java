@@ -2,10 +2,14 @@ package com.example.myapplication__volume;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.content.pm.ConfigurationInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import android.R.integer;
@@ -50,6 +54,10 @@ public class MainActivity extends AppCompatActivity {
     private boolean ifImport = false;
 
     private int eswc_length;
+    //读写权限
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE};
     private static int REQUEST_PERMISSION_CODE = 1;
 
 //    private int Paintmode = 0;
@@ -150,7 +158,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
+            }
+        }
         context = getApplicationContext();
 
     }
