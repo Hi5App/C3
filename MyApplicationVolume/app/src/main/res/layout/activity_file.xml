@@ -10,11 +10,11 @@
         android:id="@+id/button"
         android:layout_width="136dp"
         android:layout_height="52dp"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="60dp"
         android:onClick="ReadFile"
         android:text="@string/Button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.845"
+        app:layout_constraintHorizontal_bias="0.941"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -22,9 +22,36 @@
         android:id="@+id/textView3"
         android:layout_width="255dp"
         android:layout_height="47dp"
-        android:layout_marginBottom="552dp"
+        android:layout_marginBottom="556dp"
         android:text="@string/text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.812" />
+
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="192dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="200dp"
+        android:ems="10"
+        android:hint="@string/edit_message"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="107dp"
+        android:layout_height="50dp"
+        android:onClick="DownloadFile"
+        android:text="@string/Button_2"
+        app:layout_constraintBaseline_toBaselineOf="@+id/editText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.437"
+        app:layout_constraintStart_toEndOf="@+id/editText" />
 </androidx.constraintlayout.widget.ConstraintLayout>

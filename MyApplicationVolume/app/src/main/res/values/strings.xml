@@ -2,5 +2,7 @@
     <string name="app_name">My Application--Volume</string>
     <string name="Button">Open File</string>
     <string name="text">filename</string>
+    <string name="edit_message">Enter a http address</string>
+    <string name="Button_2">Download</string>
 
 </resources>

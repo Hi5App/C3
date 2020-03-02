@@ -2,15 +2,21 @@ package com.example.myapplication__volume;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +47,7 @@ public class FileActivity extends AppCompatActivity {
 
     private InputStream is;
     private int length;
+    private CompleteReceiver completeReceiver;
 
     TextView tv;
     @Override
@@ -55,6 +62,11 @@ public class FileActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
             }
         }
+
+        completeReceiver = new CompleteReceiver();
+        // register download success broadcast
+        registerReceiver(completeReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
     }
 
 
@@ -69,6 +81,7 @@ public class FileActivity extends AppCompatActivity {
     }
 
 
+    // Open the local file
     public void ReadFile(View view) {
         Log.v("MainActivity","Log.v输入日志信息");
 
@@ -77,6 +90,68 @@ public class FileActivity extends AppCompatActivity {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         startActivityForResult(intent,1);
     }
+
+
+    //Download file from the server
+    public void DownloadFile(View v){
+
+        EditText editText = (EditText) findViewById(R.id.editText);
+        String message = editText.getText().toString();
+
+        Log.v("DownloadFile", message+"LLLLLLLLLLLLL");
+
+//        //创建下载任务,downloadUrl就是下载链接
+//        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadUrl));
+//        //指定下载路径和下载文件名
+//        request.setDestinationInExternalPublicDir("/download/", fileName);
+//        //获取下载管理器
+//        DownloadManager downloadManager= (DownloadManager) this.getSystemService(Context.DOWNLOAD_SERVICE);
+//        //将下载任务加入下载队列，否则不会进行下载
+//        downloadManager.enqueue(request);
+
+        String downloadpath = "https://qd.myapp.com/myapp/qqteam/AndroidQQ/mobileqq_android.apk";
+//        String downloadpath = "https://www.globalgreyebooks.com/content/books/ebooks/game-of-life.pdf";
+
+        if (message != "")
+            downloadpath = message;
+
+
+        // Path where you want to download file.
+        Uri uri = Uri.parse(downloadpath);
+
+        DownloadManager.Request request = new DownloadManager.Request(uri);
+
+        // Tell on which network you want to download file.
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
+
+        // This will show notification on top when downloading the file.
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+        // Title for notification.
+        request.setTitle(uri.getLastPathSegment());
+
+        //request.setMimeType("application/cn.trinea.download.file");
+
+        //创建目录
+//        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdir() ;
+
+        //设置文件存放路径
+//        request.setDestinationInExternalPublicDir(  Environment.DIRECTORY_DOWNLOADS  , "weixin.apk" ) ;
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, uri.getLastPathSegment());
+
+//        DownloadManager downloadManager = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
+
+//        downloadManager.enqueue(request);
+
+        Toast.makeText(this, "Start to download the file", Toast.LENGTH_SHORT).show();
+
+
+//        ((DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE)).enqueue(request); // This will start downloading
+
+        Log.v("MainActivity", "DownloadFile  successfully");
+
+    }
+
 
 
     @Override
@@ -144,4 +219,15 @@ public class FileActivity extends AppCompatActivity {
     public long getlength(){
         return length;
     }
+
+    class CompleteReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // get complete download id
+            long completeDownloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+            // to do here
+            Toast.makeText(getApplicationContext(),"Download successfully!!!", Toast.LENGTH_SHORT).show();
+        }
+    };
 }

@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        Log.v("MainActivity","dfdsfsdfsdfsdfvxcxv");
+        Log.v("MainActivity","read the eswc now~~~~~~~~~~~~~~~~");
 
         if (resultCode == RESULT_OK) {
             Uri uri = data.getData();
