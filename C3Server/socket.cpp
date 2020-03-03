@@ -532,7 +532,7 @@ void Socket::setSwcInBB(QString name, int x1, int x2, int y1, int y2, int z1, in
 {
     V_NeuronSWC_list testVNL;
     V_NeuronSWC_list resVNL;
-    resVNL=testVNL;
+    testVNL.seg.clear();
     resVNL.seg.clear();
     int n=5;
     __START:
@@ -573,6 +573,7 @@ void Socket::setSwcInBB(QString name, int x1, int x2, int y1, int y2, int z1, in
                 }
             }
         }
+
         qDebug()<<"before remove nt number :"<<testVNL.seg.size();
         for(int i=0;i<testVNL.seg.size();i++)
         {
@@ -610,7 +611,12 @@ void Socket::setSwcInBB(QString name, int x1, int x2, int y1, int y2, int z1, in
     }
     QFile f(QCoreApplication::applicationDirPath()+"/tmp/"+BBSWCNAME);
     qDebug()<<"set file size:"<<f.fileName()<<":"<<f.size();
-    f.remove();
+    {
+        bool tag=f.remove();
+        qDebug()<<f.fileName()<<tag<<(tag?"":f.errorString());
+    }
+
+
 }
 
 void Socket::getAndSendArborBlock(QString msg)
