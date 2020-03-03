@@ -1480,10 +1480,12 @@ public class Remote_Socket extends Socket {
                     setoffset_Remote(offset, filename_new, mContext);
                     setNeuronNumber_Remote(Neuron_Number_Selected, filename_new, mContext);
 
-                    String ArborNum = getArborNum(mContext,filename.split("/")[0] + "_" + Neuron_Number_Selected);
-                    String boundingbox = getBoundingBox(mContext,filename + "/" + Neuron_Number_Selected + "/" + ArborNum.split(":")[0].replace(" ","_"));
-                    String boundingbox_new = getNewBoundingBox(boundingbox, ratio);
-                    setBoundingBox(boundingbox_new, filename_new + "/" + Neuron_Number_Selected + "/" + ArborNum.split(":")[0].replace(" ","_"), mContext);
+                    if (!isDrawMode){
+                        String ArborNum = getArborNum(mContext,filename.split("/")[0] + "_" + Neuron_Number_Selected);
+                        String boundingbox = getBoundingBox(mContext,filename + "/" + Neuron_Number_Selected + "/" + ArborNum.split(":")[0].replace(" ","_"));
+                        String boundingbox_new = getNewBoundingBox(boundingbox, ratio);
+                        setBoundingBox(boundingbox_new, filename_new + "/" + Neuron_Number_Selected + "/" + ArborNum.split(":")[0].replace(" ","_"), mContext);
+                    }
 
                     PullImageBlock(input[0], input[1], input[2], input[3], true);
                 }else {
