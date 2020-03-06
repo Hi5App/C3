@@ -57,7 +57,7 @@ public class EswcReader {
 //            }
 
         }catch (Exception e){
-            Log.v("ReadESWC", e.getMessage());
+            Log.v("ReadESWCException", e.getMessage());
             return null;
         }
     }

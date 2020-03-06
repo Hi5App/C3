@@ -1,13 +1,17 @@
 package com.example.myapplication__volume;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.app.ActivityManager;
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,6 +23,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Path;
+import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -183,17 +190,22 @@ public class MainActivity extends AppCompatActivity {
         Log.v("MainActivity","read the eswc now~~~~~~~~~~~~~~~~");
 
         if (resultCode == RESULT_OK) {
+            data.getDataString();
             Uri uri = data.getData();
             String filePath= uri.toString();
-//            String filePath = uri.getPath();
+//            String filePath= getpath(this, uri);
+
+//            String filePath = uri.getPath().substring(14);
 //            String filePath = Uri2PathUtil.getRealPathFromUri(getApplicationContext(), uri);
 //            String filePath = FilePath.substring(14);
 //            String filePath = "/storage/emulated/0/Download/image.v3draw";
 
 
 
-            Log.v("MainActivity",filePath);
+//            Log.v("MainActivity",filePath);
+            Log.v("uri.getPath()",filePath);
             Log.v("Uri_Scheme:",uri.getScheme());
+//            Log.v("Uri_Scheme:", DocumentsContract.getDocumentId(uri));
 
             Toast.makeText(this, "Open" + filePath + "--successfully", Toast.LENGTH_SHORT).show();
 
@@ -202,25 +214,109 @@ public class MainActivity extends AppCompatActivity {
                 Log.v("MainActivity","123456");
 //                Log.v("MainActivity",String.valueOf(fileSize));
 
-                Uri uri_1 = Uri.parse((String) filePath);
-
-                Log.v("Uri_1: ", uri_1.toString());
+//                Uri uri_1 = Uri.parse((String) filePath);
+//                Log.v("Uri_1: ", uri_1.toString());
 
                 ParcelFileDescriptor parcelFileDescriptor =
-                        getContentResolver().openFileDescriptor(uri_1, "r");
-
+                        getContentResolver().openFileDescriptor(uri, "r");
                 is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+                int length = (int)parcelFileDescriptor.getStatSize();
 
-                eswc_length = (int)parcelFileDescriptor.getStatSize();
+                Log.v("Legth: ", Integer.toString(length));
+//
+//                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+//
+//                eswc_length = (int)parcelFileDescriptor.getStatSize();
+//
+//                Log.v("Legth: ", Integer.toString(eswc_length));
+//
+//                ArrayList<ArrayList<Float>> eswc = new ArrayList<ArrayList<Float>>();
+//                EswcReader eswcReader = new EswcReader();
+//
+//                eswc = eswcReader.read(eswc_length, is);
+//
+//                myrenderer.importEswc(eswc);
 
-                Log.v("Legth: ", Integer.toString(eswc_length));
+                String filetype = filePath.substring(filePath.length()-4);
+                switch (filetype){
+                    case ".apo":
+                        Log.v("Mainctivity", uri.toString());
+                        ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
+                        ApoReader apoReader = new ApoReader();
+                        apo = apoReader.read(uri);
+                        myrenderer.importApo(apo);
+                        break;
+                    case ".swc":
+                        ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
+                        SwcReader swcReader = new SwcReader();
+                        swc = swcReader.read(uri);
+                        myrenderer.importSwc(swc);
+                        break;
+                    case ".ano":
+                        ArrayList<ArrayList<Float>> ano_swc = new ArrayList<ArrayList<Float>>();
+                        ArrayList<ArrayList<Float>> ano_apo = new ArrayList<ArrayList<Float>>();
+                        AnoReader anoReader = new AnoReader();
+                        SwcReader swcReader_1 = new SwcReader();
+                        ApoReader apoReader_1 = new ApoReader();
+                        anoReader.read(uri);
+                        Uri swc_uri = anoReader.getSwc_result();
+                        Uri apo_uri = anoReader.getApo_result();
 
-                ArrayList<ArrayList<Float>> eswc = new ArrayList<ArrayList<Float>>();
-                EswcReader eswcReader = new EswcReader();
+                        ParcelFileDescriptor parcelFileDescriptor_swc =
+                                getContentResolver().openFileDescriptor(swc_uri, "r");
+                        InputStream is_swc = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor_swc);
+                        int length_swc = (int)parcelFileDescriptor_swc.getStatSize();
 
-                eswc = eswcReader.read(eswc_length, is);
+                        ParcelFileDescriptor parcelFileDescriptor_apo =
+                                getContentResolver().openFileDescriptor(apo_uri, "r");
+                        InputStream is_apo = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor_apo);
+                        int length_apo = (int)parcelFileDescriptor_apo.getStatSize();
 
-                myrenderer.importEswc(eswc);
+                        ano_swc = swcReader_1.read(length_swc, is_swc);
+                        ano_apo = apoReader_1.read(length_apo, is_apo);
+
+//                        ano_swc = swcReader_1.read(swc_uri);
+//                        ano_apo = apoReader_1.read(apo_uri);
+                        myrenderer.importSwc(ano_swc);
+                        myrenderer.importApo(ano_apo);
+                        break;
+                    default :
+                        ArrayList<ArrayList<Float>> eswc = new ArrayList<ArrayList<Float>>();
+                        EswcReader eswcReader = new EswcReader();
+
+                        eswc = eswcReader.read(length, is);
+                        myrenderer.importEswc(eswc);
+
+                }
+
+
+
+
+
+
+
+//
+//                ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
+//                SwcReader swcReader = new SwcReader();
+//
+//                swc = swcReader.read(uri);
+////                apo = apoReader.read(filePath);
+//
+//                myrenderer.importSwc(swc);
+
+//                ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
+//                ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
+//                AnoReader anoReader = new AnoReader();
+//
+//                anoReader.read(uri);
+//
+//                swc = anoReader.getSwc_result();
+//                apo = anoReader.getApo_result();
+////                apo = apoReader.read(filePath);
+//
+//                myrenderer.importSwc(swc);
+//                myrenderer.importApo(apo);
+
 
 
 //                File f = new File(filePath);
@@ -231,9 +327,88 @@ public class MainActivity extends AppCompatActivity {
             }catch (Exception e){
                 Toast.makeText(this, " dddddd  ", Toast.LENGTH_SHORT).show();
                 Log.v("MainActivity","111222");
+                Log.v("Exception",e.getMessage());
             }
         }
     }
+
+
+
+
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    public static String getpath(Context context, Uri uri){
+        if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
+            if (DocumentsContract.isDocumentUri(context, uri)) {
+                if (isExternalStorageDocument(uri)) {
+                    // ExternalStorageProvider
+                    final String docId = DocumentsContract.getDocumentId(uri);
+                    final String[] split = docId.split(":");
+                    final String type = split[0];
+                    if ("primary".equalsIgnoreCase(type)) {
+                        String path = Environment.getExternalStorageDirectory() +  "/" +  split[1];
+                        return path;
+                    }
+                } else if (isDownloadsDocument(uri)) {
+                    // DownloadsProvider
+                    final String id = DocumentsContract.getDocumentId(uri);
+                    final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"),
+                            Long.valueOf(id));
+                    String path = getDataColumn(context, contentUri, null, null);
+                    return path;
+                } else if (isMediaDocument(uri)) {
+                    // MediaProvider
+                    final String docId = DocumentsContract.getDocumentId(uri);
+                    final String[] split = docId.split(":");
+                    final String type = split[0];
+                    Uri contentUri = null;
+                    if ("image".equals(type)) {
+                        contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                    } else if ("video".equals(type)) {
+                        contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                    } else if ("audio".equals(type)) {
+                        contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                    }
+                    final String selection = "_id=?";
+                    final String[] selectionArgs = new String[]{split[1]};
+                    String path = getDataColumn(context, contentUri, selection, selectionArgs);
+                    return path;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
+        Cursor cursor = null;
+        final String column = "_data";
+        final String[] projection = {column};
+        try {
+            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                final int column_index = cursor.getColumnIndexOrThrow(column);
+                return cursor.getString(column_index);
+            }
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+        return null;
+    }
+
+    private static boolean isExternalStorageDocument(Uri uri) {
+        return "com.android.externalstorage.documents".equals(uri.getAuthority());
+    }
+
+    private static boolean isDownloadsDocument(Uri uri) {
+        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+    }
+
+    private static boolean isMediaDocument(Uri uri) {
+        return "com.android.providers.media.documents".equals(uri.getAuthority());
+    }
+
 
     public static Context getContext() {
         return context;

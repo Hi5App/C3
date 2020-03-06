@@ -88,6 +88,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private ArrayList<Float> eswcDrawed = new ArrayList<Float>();
 
+    private ArrayList<Float> apoDrawed = new ArrayList<Float>();
+
+    private ArrayList<Float> swcDrawed = new ArrayList<Float>();
+
+
     private String filepath = ""; //文件路径
     private InputStream is;
     private long length;
@@ -278,6 +283,20 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         if (eswcDrawed.size() > 0){
             myDraw.drawEswc(finalMatrix, eswcDrawed);
+        }
+
+        if (swcDrawed.size() > 0){
+            myDraw.drawEswc(finalMatrix, swcDrawed);
+        }
+
+        if (apoDrawed.size() > 0){
+
+            Log.v("MyRender", "Load data successfully!");
+            for (int i = 0; i < apoDrawed.size(); i = i + 3){
+                myDraw.drawMarker(finalMatrix, modelMatrix, apoDrawed.get(i), apoDrawed.get(i+1), apoDrawed.get(i+2));
+//                Log.v("onDrawFrame: ", "(" + markerDrawed.get(i) + ", " + markerDrawed.get(i+1) + ", " + markerDrawed.get(i+2) + ")");
+
+            }
         }
 
 
@@ -1089,6 +1108,33 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             eswcDrawed.add((sz[0] - currentLine.get(2)) / sz[0]);
             eswcDrawed.add((sz[1] - currentLine.get(3)) / sz[1]);
             eswcDrawed.add(currentLine.get(4) / sz[2]);
+        }
+    }
+
+    public void importSwc(ArrayList<ArrayList<Float>> swc){
+        for (int i = 0; i < swc.size(); i++){
+            ArrayList<Float> currentLine = swc.get(i);
+            int parent = currentLine.get(6).intValue();
+            if (parent == -1){
+                continue;
+            }
+            ArrayList<Float> parentLine = swc.get(parent - 1);
+            swcDrawed.add((sz[0] - parentLine.get(2)) / sz[0]);
+            swcDrawed.add((sz[1] - parentLine.get(3)) / sz[1]);
+            swcDrawed.add(parentLine.get(4) / sz[2]);
+            swcDrawed.add((sz[0] - currentLine.get(2)) / sz[0]);
+            swcDrawed.add((sz[1] - currentLine.get(3)) / sz[1]);
+            swcDrawed.add(currentLine.get(4) / sz[2]);
+        }
+    }
+
+
+    public void importApo(ArrayList<ArrayList<Float>> apo){
+        for (int i = 0; i < apo.size(); i++){
+            ArrayList<Float> currentLine = apo.get(i);
+            apoDrawed.add((sz[0] - currentLine.get(4)) / sz[0]);
+            apoDrawed.add((sz[1] - currentLine.get(5)) / sz[1]);
+            apoDrawed.add(currentLine.get(6) / sz[2]);
         }
     }
 
