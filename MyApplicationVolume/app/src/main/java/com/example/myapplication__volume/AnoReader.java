@@ -24,6 +24,9 @@ public class AnoReader {
     Uri apo_uri;
     Uri swc_uri;
 
+    String apo_path;
+    String swc_path;
+
     Context context;
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
 
@@ -83,11 +86,14 @@ public class AnoReader {
                 String filetype = s[1].substring(s[1].length()-4);
                 switch(filetype){
                     case ".apo":
-                        apo_uri = getUri(uri, s[1]);
-                        Log.v("AnoReader apofilepath", apo_uri.toString());
+//                        apo_uri = getUri(uri, s[1]);
+                        apo_path = getFilePath(uri, s[1]);
+                        Log.v("AnoReader apofilepath", apo_path);
                         break;
                     case ".swc":
-                        swc_uri = getUri(uri, s[1]);
+//                        swc_uri = getUri(uri, s[1]);
+                        swc_path = getFilePath(uri, s[1]);
+                        Log.v("AnoReader swcfilepath", swc_path);
                         break;
                 }
             }
@@ -103,10 +109,35 @@ public class AnoReader {
         int index = uri_string.lastIndexOf("/");
 
         String filepath = uri_string.substring(0, index+1) + filename;
-
         Uri result = Uri.parse((String) filepath);
+
         return result;
     }
+
+    private String getFilePath(Uri uri, String filename){
+        String filepath = uri.getPath();
+        String path_result = "";
+
+        //Xiao mi
+        if(filepath.contains("/external_files/")) {
+            String path_old = filepath.replace("/external_files/", "/storage/emulated/0/");
+
+            int index = path_old.lastIndexOf("/");
+            path_result = path_old.substring(0, index+1) + filename;
+        }
+
+        if(filepath.contains("/storage")){
+
+            int index_per = filepath.indexOf("/storage");
+            int index_post = filepath.lastIndexOf("/");
+            path_result = filepath.substring(index_per, index_post+1) + filename;
+        }
+
+
+        return path_result;
+    }
+
+
 
     public void CallApoReader(Uri uri){
 
@@ -145,12 +176,22 @@ public class AnoReader {
         }
     }
 
+
+
     public Uri getApo_result(){
         return apo_uri;
     }
 
     public Uri getSwc_result(){
         return swc_uri;
+    }
+
+    public String getApo_Path(){
+        return apo_path;
+    }
+
+    public String getSwc_Path(){
+        return swc_path;
     }
 
 }

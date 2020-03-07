@@ -192,9 +192,12 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             data.getDataString();
             Uri uri = data.getData();
+//            Uri uri_old = data.getData();
+
             String filePath= uri.toString();
 //            String filePath= getpath(this, uri);
 
+            String filePath_getPath = uri.getPath();
 //            String filePath = uri.getPath().substring(14);
 //            String filePath = Uri2PathUtil.getRealPathFromUri(getApplicationContext(), uri);
 //            String filePath = FilePath.substring(14);
@@ -202,12 +205,15 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-//            Log.v("MainActivity",filePath);
-            Log.v("uri.getPath()",filePath);
+            Log.v("MainActivity",filePath);
+            Log.v("uri.getPath()",filePath_getPath);
             Log.v("Uri_Scheme:",uri.getScheme());
+
 //            Log.v("Uri_Scheme:", DocumentsContract.getDocumentId(uri));
 
-            Toast.makeText(this, "Open" + filePath + "--successfully", Toast.LENGTH_SHORT).show();
+//            Uri uri_old = data.getData();
+
+//            Toast.makeText(this, "Open" + filePath + "--successfully", Toast.LENGTH_SHORT).show();
 
             try{
 
@@ -217,13 +223,23 @@ public class MainActivity extends AppCompatActivity {
 //                Uri uri_1 = Uri.parse((String) filePath);
 //                Log.v("Uri_1: ", uri_1.toString());
 
+
+                //用于测试能不能修改uri
+//                String uri_string = uri_old.toString();
+//                int index = uri_string.lastIndexOf("/");
+//
+//                String filePath = uri_string.substring(0, index+1) + "1pic1.v3draw.apo";
+//
+//                Uri uri = Uri.parse((String) filePath);
+
+
                 ParcelFileDescriptor parcelFileDescriptor =
                         getContentResolver().openFileDescriptor(uri, "r");
                 is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
                 int length = (int)parcelFileDescriptor.getStatSize();
 
                 Log.v("Legth: ", Integer.toString(length));
-//
+
 //                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
 //
 //                eswc_length = (int)parcelFileDescriptor.getStatSize();
@@ -259,24 +275,40 @@ public class MainActivity extends AppCompatActivity {
                         SwcReader swcReader_1 = new SwcReader();
                         ApoReader apoReader_1 = new ApoReader();
                         anoReader.read(uri);
-                        Uri swc_uri = anoReader.getSwc_result();
-                        Uri apo_uri = anoReader.getApo_result();
+                        String swc_path = anoReader.getSwc_Path();
+                        String apo_path = anoReader.getApo_Path();
 
-                        ParcelFileDescriptor parcelFileDescriptor_swc =
-                                getContentResolver().openFileDescriptor(swc_uri, "r");
-                        InputStream is_swc = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor_swc);
-                        int length_swc = (int)parcelFileDescriptor_swc.getStatSize();
+//                        Uri swc_uri = anoReader.getSwc_result();
+//                        Uri apo_uri = anoReader.getApo_result();
 
-                        ParcelFileDescriptor parcelFileDescriptor_apo =
-                                getContentResolver().openFileDescriptor(apo_uri, "r");
-                        InputStream is_apo = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor_apo);
-                        int length_apo = (int)parcelFileDescriptor_apo.getStatSize();
+////                        requestPermissions(PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
+//                        grantUriPermission(getPackageName(), swc_uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                        ParcelFileDescriptor parcelFileDescriptor_swc =
+//                                getContentResolver().openFileDescriptor(swc_uri, "r");
+//                        InputStream is_swc = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor_swc);
+//                        int length_swc = (int)parcelFileDescriptor_swc.getStatSize();
+//
+//                        Log.v("Length of swc: ", Integer.toString(length_swc));
+//
+//
+////                        requestPermissions(PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
+//                        grantUriPermission(getPackageName(), apo_uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                        ParcelFileDescriptor parcelFileDescriptor_apo =
+//                                getContentResolver().openFileDescriptor(apo_uri, "r");
+//                        InputStream is_apo = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor_apo);
+//                        int length_apo = (int)parcelFileDescriptor_apo.getStatSize();
+//
+//                        Log.v("Length of apo: ", Integer.toString(length_apo));
 
-                        ano_swc = swcReader_1.read(length_swc, is_swc);
-                        ano_apo = apoReader_1.read(length_apo, is_apo);
+
+//                        ano_swc = swcReader_1.read(length_swc, is_swc);
+//                        ano_apo = apoReader_1.read(length_apo, is_apo);
 
 //                        ano_swc = swcReader_1.read(swc_uri);
 //                        ano_apo = apoReader_1.read(apo_uri);
+
+                        ano_swc = swcReader_1.read(swc_path);
+                        ano_apo = apoReader_1.read(apo_path);
                         myrenderer.importSwc(ano_swc);
                         myrenderer.importApo(ano_apo);
                         break;

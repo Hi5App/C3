@@ -164,7 +164,7 @@ public class FileActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             Uri uri = data.getData();
             String filePath= uri.toString();
-//            String filePath = uri.getPath();
+            String filePath_getPath = uri.getPath();
 //            String filePath = Uri2PathUtil.getRealPathFromUri(getApplicationContext(), uri);
 //            String filePath = FilePath.substring(14);
 //            String filePath = "/storage/emulated/0/Download/image.v3draw";
@@ -172,6 +172,7 @@ public class FileActivity extends AppCompatActivity {
 
 
             Log.v("MainActivity",filePath);
+            Log.v("filePath_getPath",filePath_getPath);
             Log.v("Uri_Scheme:",uri.getScheme());
             tv.setText(filePath);
             Toast.makeText(this, "Open" + filePath + "--successfully", Toast.LENGTH_SHORT).show();

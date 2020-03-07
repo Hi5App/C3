@@ -245,15 +245,16 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 //        Log.v("onDrawFrame: ", Integer.toString(markerDrawed.size()));
 
+        //现画的marker
         if(markerDrawed.size() > 0){
             for (int i = 0; i < markerDrawed.size(); i = i + 3){
-
                 myDraw.drawMarker(finalMatrix, modelMatrix, markerDrawed.get(i), markerDrawed.get(i+1), markerDrawed.get(i+2));
 //                Log.v("onDrawFrame: ", "(" + markerDrawed.get(i) + ", " + markerDrawed.get(i+1) + ", " + markerDrawed.get(i+2) + ")");
 
             }
         }
 
+        //现画的curve
         if (lineDrawed.size() > 0){
             for (int i = 0; i < lineDrawed.size(); i++){
                 myDraw.drawLine(finalMatrix, lineDrawed.get(i));
@@ -264,10 +265,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        myAxis.draw(finalMatrix);
 
-//        myPattern.draw_axis(finalMatrix);
 
+        //画curve留下的痕迹
         if (ifPainting) {
             if(linePoints.length > 0){
 //                Log.v("drawline", "trueeeeeeeeeeeee");
@@ -281,14 +281,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
 
+        //导入的eswc
         if (eswcDrawed.size() > 0){
             myDraw.drawEswc(finalMatrix, eswcDrawed);
         }
 
+        //导入的swc
         if (swcDrawed.size() > 0){
             myDraw.drawEswc(finalMatrix, swcDrawed);
         }
 
+        //导入的apo
         if (apoDrawed.size() > 0){
 
             Log.v("MyRender", "Load data successfully!");
@@ -298,6 +301,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             }
         }
+
+
+        //
+        myAxis.draw(finalMatrix);
 
 
 //        angle += 1.0f;
@@ -1132,9 +1139,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public void importApo(ArrayList<ArrayList<Float>> apo){
         for (int i = 0; i < apo.size(); i++){
             ArrayList<Float> currentLine = apo.get(i);
-            apoDrawed.add((sz[0] - currentLine.get(4)) / sz[0]);
-            apoDrawed.add((sz[1] - currentLine.get(5)) / sz[1]);
-            apoDrawed.add(currentLine.get(6) / sz[2]);
+            apoDrawed.add((sz[0] - currentLine.get(5)) / sz[0]);
+            apoDrawed.add((sz[1] - currentLine.get(6)) / sz[1]);
+            apoDrawed.add(currentLine.get(4) / sz[2]);
         }
     }
 

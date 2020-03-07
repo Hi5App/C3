@@ -8,7 +8,6 @@
         android:required="true" />
 
 
-<!--    android:requestLegacyExternalStorage="true"-->
     <application
         android:name="com.example.myapplication__volume.Myapplication"
         android:allowBackup="true"
@@ -18,6 +17,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:exported="true"
+        android:requestLegacyExternalStorage="true"
+
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
         <activity android:name=".FileActivity">
             <intent-filter>
