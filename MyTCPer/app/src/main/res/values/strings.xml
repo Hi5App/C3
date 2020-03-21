@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">My TCPer</string>
+    <string name="Button">Connect</string>
+    <string name="Button2">Logout</string>
+    <string name="Button3">Download</string>
+    <string name="Button4">ImageBlock</string>
+</resources>
