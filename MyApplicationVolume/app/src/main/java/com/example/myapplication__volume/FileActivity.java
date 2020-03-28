@@ -153,33 +153,43 @@ public class FileActivity extends AppCompatActivity {
     }
 
 
+    // Open the local file
+    public void Connect(View view) {
+        Log.v("MainActivity","Log.v输入日志信息");
+
+        Intent intent = new Intent(this, ConnectActivity.class);
+        startActivity(intent);
+
+    }
+
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
+        super.onActivityResult(requestCode, resultCode, data);
         String message = "Hello World";
 
-        Log.v("MainActivity","dfdsfsdfsdfsdfvxcxv");
+        Log.v("MainActivity", "dfdsfsdfsdfsdfvxcxv");
 
         if (resultCode == RESULT_OK) {
             Uri uri = data.getData();
-            String filePath= uri.toString();
+            String filePath = uri.toString();
             String filePath_getPath = uri.getPath();
 //            String filePath = Uri2PathUtil.getRealPathFromUri(getApplicationContext(), uri);
 //            String filePath = FilePath.substring(14);
 //            String filePath = "/storage/emulated/0/Download/image.v3draw";
 
 
-
-            Log.v("MainActivity",filePath);
-            Log.v("filePath_getPath",filePath_getPath);
-            Log.v("Uri_Scheme:",uri.getScheme());
+            Log.v("MainActivity", filePath);
+            Log.v("filePath_getPath", filePath_getPath);
+            Log.v("Uri_Scheme:", uri.getScheme());
             tv.setText(filePath);
             Toast.makeText(this, "Open" + filePath + "--successfully", Toast.LENGTH_SHORT).show();
 
-            try{
+            try {
 
-                Log.v("MainActivity","123456");
+                Log.v("MainActivity", "123456");
 //                Log.v("MainActivity",String.valueOf(fileSize));
 
                 Intent intent = new Intent(this, MainActivity.class);
@@ -196,7 +206,7 @@ public class FileActivity extends AppCompatActivity {
 
                 is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
 
-                length = (int)parcelFileDescriptor.getStatSize();
+                length = (int) parcelFileDescriptor.getStatSize();
 
                 Log.v("Legth: ", Integer.toString(length));
 
@@ -206,9 +216,9 @@ public class FileActivity extends AppCompatActivity {
 
 //                fid.write(message.getBytes());
 //                long fileSize = f.length();
-            }catch (Exception e){
+            } catch (Exception e) {
                 Toast.makeText(this, " dddddd  ", Toast.LENGTH_SHORT).show();
-                Log.v("MainActivity","111222");
+                Log.v("MainActivity", "111222");
             }
         }
     }

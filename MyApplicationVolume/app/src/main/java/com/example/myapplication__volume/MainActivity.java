@@ -42,6 +42,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 
@@ -198,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
 //            String filePath= getpath(this, uri);
 
             String filePath_getPath = uri.getPath();
+
 //            String filePath = uri.getPath().substring(14);
 //            String filePath = Uri2PathUtil.getRealPathFromUri(getApplicationContext(), uri);
 //            String filePath = FilePath.substring(14);
@@ -275,11 +277,17 @@ public class MainActivity extends AppCompatActivity {
                         SwcReader swcReader_1 = new SwcReader();
                         ApoReader apoReader_1 = new ApoReader();
                         anoReader.read(uri);
-                        String swc_path = anoReader.getSwc_Path();
-                        String apo_path = anoReader.getApo_Path();
 
 //                        Uri swc_uri = anoReader.getSwc_result();
 //                        Uri apo_uri = anoReader.getApo_result();
+
+                        String swc_path = anoReader.getSwc_Path();
+                        String apo_path = anoReader.getApo_Path();
+
+//                        String swc_path = getPath(this, swc_uri);
+//                        String apo_path = getPath(this, apo_uri);
+
+
 
 ////                        requestPermissions(PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
 //                        grantUriPermission(getPackageName(), swc_uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -364,6 +372,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    private String getPath(Context context, Uri uri) {
+        String path = null;
+        Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+        if (cursor == null) {
+            return null;
+        }
+        if (cursor.moveToFirst()) {
+            try {
+                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        cursor.close();
+        return path;
+    }
 
 
 

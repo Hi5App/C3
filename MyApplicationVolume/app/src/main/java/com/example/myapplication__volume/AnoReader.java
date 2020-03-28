@@ -86,12 +86,12 @@ public class AnoReader {
                 String filetype = s[1].substring(s[1].length()-4);
                 switch(filetype){
                     case ".apo":
-//                        apo_uri = getUri(uri, s[1]);
+                        apo_uri = getUri(uri, s[1]);
                         apo_path = getFilePath(uri, s[1]);
                         Log.v("AnoReader apofilepath", apo_path);
                         break;
                     case ".swc":
-//                        swc_uri = getUri(uri, s[1]);
+                        swc_uri = getUri(uri, s[1]);
                         swc_path = getFilePath(uri, s[1]);
                         Log.v("AnoReader swcfilepath", swc_path);
                         break;

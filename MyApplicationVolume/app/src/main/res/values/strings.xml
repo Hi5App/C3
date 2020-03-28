@@ -5,4 +5,10 @@
     <string name="edit_message">Enter a http address</string>
     <string name="Button_2">Download</string>
 
+    <string name="Button0">Connect</string>
+    <string name="Button1">Login</string>
+    <string name="Button2">Logout</string>
+    <string name="Button3">Download</string>
+    <string name="Button4">ImageBlock</string>
+
 </resources>
