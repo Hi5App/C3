@@ -2,6 +2,8 @@ package com.example.myapplication__volume;
 
 import android.util.Log;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,6 +19,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+
 
 public class Filesocket_receive {
     public long totalsize;
@@ -44,6 +47,7 @@ public class Filesocket_receive {
             public void run(){
                 try {
 
+                    Log.v("readFile", "start to read file");
                     DataInputStream in = new DataInputStream((FileInputStream)(filesocket.getInputStream()));
 
                     //前两个 uint64 记录传输内容的总长度 和 文件名的长度
@@ -58,18 +62,22 @@ public class Filesocket_receive {
 
                     //读取文件名和内容
                     byte [] filename_qstring = new byte[filename__size];
-                    byte [] file_content = new byte[filecontent__size];
+//                    byte [] file_content = new byte[filecontent__size];
+
                     in.read(filename_qstring, 0, filename__size);
-                    in.read(file_content, 0, filecontent__size);
+//                    in.read(file_content, 0, filecontent__size);
 
                     String filename_string = new String(filename_qstring, StandardCharsets.UTF_8);
-                    String filecontent_string = new String(file_content, StandardCharsets.UTF_8);
-                    Log.v("readFile", Long.toString(bytesToLong(file_size)));
-                    Log.v("readFile", Long.toString(bytesToLong(filename_size)));
+//                    String filecontent_string = new String(file_content, StandardCharsets.UTF_8);
+                    Log.v("readFile: file_size", Long.toString(bytesToLong(file_size)));
+                    Log.v("readFile: filename_size", Long.toString(bytesToLong(filename_size)));
                     Log.v("readFile", filename_string);
-                    Log.v("readFile", filecontent_string);
+//                    Log.v("readFile", filecontent_string);
 
-//                    in.close();
+
+                    int loop = filecontent__size / 1024;
+                    int end  = filecontent__size % 1024;
+
 
                     //打开文件，如果没有，则新建文件
                     File file = new File(path + "/" + filename);
@@ -78,11 +86,39 @@ public class Filesocket_receive {
                         Log.v("readFile", "Create file successfully");
                     }
 
+                    FileOutputStream outputStream = new FileOutputStream(file);
+
+
+//                    IOUtils.copy(in, outputStream);
+
+                    byte [] file_content = new byte[1024];
+                    byte [] file_content_end = new byte[end];
+
+                    for(int i = 0; i< loop; i++){
+                        in.read(file_content, 0, 1024);
+                        outputStream.write(file_content);
+                    }
+
+
+                    in.read(file_content_end, 0, end);
+                    outputStream.write(file_content_end);
+
+                    outputStream.close();
+
+
+
+
+
+
+
 
                     //对文件进行写入操作
-                    FileOutputStream outputStream = new FileOutputStream(file);
-                    outputStream.write(file_content);
-                    outputStream.close();
+//                    FileOutputStream outputStream = new FileOutputStream(file);
+//                    outputStream.write(file_content);
+//                    outputStream.close();
+
+
+
 
 
                     //发送消息，已获得文件
@@ -229,16 +265,91 @@ public class Filesocket_receive {
         }.start();
     }
 
-//    public static long byteArrayToLong(byte[] b) {
-//        return   b[7] & 0xFF |
-//                (b[6] & 0xFF) << 8 |
-//                (b[5] & 0xFF) << 16 |
-//                (b[4] & 0xFF) << 24 |
-//                (b[3] & 0xFF) << 32 |
-//                (b[2] & 0xFF) << 40 |
-//                (b[1] & 0xFF) << 48 |
-//                (b[0] & 0xFF) << 54;
-//    }
+
+
+
+    public void readImg(final String filename){
+        new Thread()  {
+            public void run(){
+                try {
+
+                    Log.v("readFile", "start to read file");
+                    DataInputStream in = new DataInputStream((FileInputStream)(filesocket.getInputStream()));
+
+                    //前两个 uint64 记录传输内容的总长度 和 文件名的长度
+                    byte [] file_size = new byte[8];
+                    byte [] filename_size = new byte[8];
+                    in.read(file_size, 0, 8);
+                    in.read(filename_size, 0, 8);
+
+
+                    int filename__size = (int) bytesToLong(filename_size) + 4;
+                    int filecontent__size = (int) bytesToLong(file_size) - filename__size;
+
+                    //读取文件名和内容
+                    byte [] filename_qstring = new byte[filename__size];
+//                    byte [] file_content = new byte[filecontent__size];
+
+                    in.read(filename_qstring, 0, filename__size);
+//                    in.read(file_content, 0, filecontent__size);
+
+                    String filename_string = new String(filename_qstring, StandardCharsets.UTF_8);
+//                    String filecontent_string = new String(file_content, StandardCharsets.UTF_8);
+                    Log.v("readFile: file_size", Long.toString(bytesToLong(file_size)));
+                    Log.v("readFile: filename_size", Long.toString(bytesToLong(filename_size)));
+                    Log.v("readFile", filename_string);
+//                    Log.v("readFile", filecontent_string);
+
+
+                    int loop = filecontent__size / 1024;
+                    int end  = filecontent__size % 1024;
+
+
+                    //打开文件，如果没有，则新建文件
+                    File file = new File(path + "/" + filename);
+                    if(!file.exists()){
+                        file.createNewFile();
+                        Log.v("readFile", "Create file successfully");
+                    }
+
+                    FileOutputStream outputStream = new FileOutputStream(file);
+
+
+                    IOUtils.copy(in, outputStream);
+
+//                    byte [] file_content = new byte[1024];
+//                    byte [] file_content_end = new byte[end];
+//
+//                    for(int i = 0; i< loop; i++){
+//                        in.read(file_content, 0, 1024);
+//                        outputStream.write(file_content);
+//                    }
+//
+//
+//                    in.read(file_content_end, 0, end);
+//                    outputStream.write(file_content_end);
+//
+//                    outputStream.close();
+
+
+
+                    //对文件进行写入操作
+//                    FileOutputStream outputStream = new FileOutputStream(file);
+//                    outputStream.write(file_content);
+//                    outputStream.close();
+
+
+
+
+
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
 
     public static long bytesToLong(byte[] bytes) {
         ByteBuffer buffer = ByteBuffer.allocate(8);

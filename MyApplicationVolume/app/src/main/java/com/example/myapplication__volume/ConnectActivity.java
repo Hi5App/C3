@@ -98,7 +98,7 @@ public class ConnectActivity extends AppCompatActivity {
 //                        et0.setText("223.3.33.234");
                         et0.setText("192.168.2.108");
                         et1.setText("9999");
-                        et2.setText("1");
+                        et2.setText("xf");
 
 //                        et0.tex("input ip of server");
                     }
@@ -202,7 +202,7 @@ public class ConnectActivity extends AppCompatActivity {
                     if (manageSocket!=null && manageSocket.mSocket.isConnected()) {
                         if (!manageSocket.mSocket.isOutputShutdown()) {
                             Log.v("Logout", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                            manageSocket.mPWriter.println( manageSocket.id+":logout."+"\n" );
+                            manageSocket.mPWriter.println( manageSocket.id+":logout." );
                             manageSocket.mPWriter.flush();
 
                             Looper.prepare();
@@ -246,7 +246,7 @@ public class ConnectActivity extends AppCompatActivity {
                         if (!manageSocket.mSocket.isOutputShutdown()) {
 
                             Log.v("Import", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                            manageSocket.mPWriter.println( manageSocket.id+":import."+"\n" );
+                            manageSocket.mPWriter.println( manageSocket.id+":import." );
                             manageSocket.mPWriter.flush();
 
                             Looper.prepare();
@@ -295,7 +295,7 @@ public class ConnectActivity extends AppCompatActivity {
 
                             Log.v("Download", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 //                            manageSocket.mPWriter.println( manageSocket.id+":down."+"\n" );
-                            manageSocket.mPWriter.println( manageSocket.id+":load."+"\n" );
+                            manageSocket.mPWriter.println( manageSocket.id+":load.");
                             manageSocket.mPWriter.flush();
 
                             Looper.prepare();
@@ -333,11 +333,13 @@ public class ConnectActivity extends AppCompatActivity {
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
                     @Override
                     public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+                        EditText et = (EditText) contentView.findViewById(R.id.edit);
                         EditText et0 = (EditText) contentView.findViewById(R.id.edit0);
                         EditText et1 = (EditText) contentView.findViewById(R.id.edit1);
                         EditText et2 = (EditText) contentView.findViewById(R.id.edit2);
                         EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
-                        et0.setHint("filename of image");
+                        et.setText("192.168.2.108");
+                        et0.setText("1pic1");
                         et1.setText("0");
                         et2.setText("0");
                         et3.setText("0");
@@ -360,11 +362,13 @@ public class ConnectActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View clickedView, View contentView) {
                         //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
+                        EditText et = (EditText) contentView.findViewById(R.id.edit);
                         EditText et0 = (EditText) contentView.findViewById(R.id.edit0);
                         EditText et1 = (EditText) contentView.findViewById(R.id.edit1);
                         EditText et2 = (EditText) contentView.findViewById(R.id.edit2);
                         EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
 
+                        String ip         = et.getText().toString();
                         String filename   = et0.getText().toString();
                         String offset_x   = et1.getText().toString();
                         String offset_y   = et2.getText().toString();
@@ -374,10 +378,10 @@ public class ConnectActivity extends AppCompatActivity {
 //                        String port = "9999";
 //                        String id   = "xf";
 
-                        if(!filename.isEmpty() && !offset_x.isEmpty() && !offset_y.isEmpty() && !offset_z.isEmpty()){
+                        if(!ip.isEmpty() && !filename.isEmpty() && !offset_x.isEmpty() && !offset_y.isEmpty() && !offset_z.isEmpty()){
 
                             //输入的信息全，就可以进行连接操作
-                            Image(filename, offset_x, offset_y, offset_z);
+                            Image(ip, filename, offset_x, offset_y, offset_z);
                         }else{
 
                             Toast.makeText(getApplicationContext(), "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
@@ -398,49 +402,125 @@ public class ConnectActivity extends AppCompatActivity {
 
     }
 
-    private void Image(final String filename, final String offset_x, final String offset_y, final String offset_z){
-        new Thread() {
+    private void Image(final String ip, final String filename, final String offset_x, final String offset_y, final String offset_z){
 
+        //新建一个线程，用于初始化socket和检测是否有接收到新的消息
+        Thread thread = new Thread() {
+            @Override
             public void run() {
+
+
                 try {
+                    manageSocket.ImgSocket = new Socket(ip, Integer.parseInt("9999"));
+                    manageSocket.ImgReader = new BufferedReader(new InputStreamReader(manageSocket.ImgSocket.getInputStream(), "UTF-8"));
+//                    mWriter = new BufferedWriter(new OutputStreamWriter(mSocket.getOutputStream(), "utf-8"));
+                    manageSocket.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(manageSocket.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
 
-                    if (manageSocket.mSocket == null) {
+//                    Toast.makeText(getApplicationContext(), "InitSocket", Toast.LENGTH_SHORT).show();
+                    Log.v("Image", "ImgSocket successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
-                        Log.v("Download", "mSocket == null");
-//                        return;
+                    Filesocket_receive filesocket_receive = new Filesocket_receive();
+                    filesocket_receive.filesocket = new Socket(ip, 9997);
+                    filesocket_receive.mReader = new BufferedReader(new InputStreamReader(filesocket_receive.filesocket.getInputStream(), "UTF-8"));
+                    filesocket_receive.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_receive.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    filesocket_receive.path = getExternalFilesDir(null).toString();
+
+
+                    if(manageSocket.ImgSocket.isConnected()){
+
+                        manageSocket.ImgPWriter.println( "http:// " + filename + " " + offset_x + " " + offset_y + " " +offset_z + ":imgblock.");
+                        manageSocket.ImgPWriter.flush();
+
+                        Log.v("Image", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                     }
 
 
-                    if (manageSocket!=null && manageSocket.mSocket.isConnected()) {
-                        if (!manageSocket.mSocket.isOutputShutdown()) {
+                    filesocket_receive.readImg(filename + ".v3draw");
 
-//                            Log.v("Image", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-//                            manageSocket.mPWriter.println( manageSocket.id+":down."+"\n" );
-                            manageSocket.mPWriter.println( filename + ";" + offset_x + ";" + offset_y + ";" +offset_z);
-                            manageSocket.mPWriter.flush();
 
-                            Looper.prepare();
+                    //接收来自服务器的消息
+                    while(manageSocket.ImgSocket.isConnected()) {
 
-                            while ((content = manageSocket.mReader.readLine()) != null) {
+                        Log.v("Image", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
-                                Log.v("Image", content);
+//                        if(manageSocket.mReader.ready()) {
+                        if(!manageSocket.ImgSocket.isInputShutdown()) {
+                        /*读取一行字符串，读取的内容来自于客户机
+                        reader.readLine()方法是一个阻塞方法，
+                        从调用这个方法开始，该线程会一直处于阻塞状态，
+                        直到接收到新的消息，代码才会往下走*/
+                            //String data = mReader.readLine();
+                            String txt = "";
 
-                                if (!((Activity) context).isFinishing()){
-                                    manageSocket.onReadyRead(content, context);
-                                    Looper.loop();
-                                }
+                            Log.v("InitSocket", "Reply successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                            while ((content = manageSocket.ImgReader.readLine()) != null) {
 
+                                Log.v("InitSocket", content);
                             }
 
+                            Log.v("InitSocket", "Start to receive file ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+//                            filesocket_receive.readFile(filename + ".v3draw");
+
                         }
-                    }else {
-                        Toast.makeText(getApplicationContext(), "You have been logout", Toast.LENGTH_SHORT).show();
+                        Thread.sleep(200);
                     }
+
+
                 } catch (Exception e) {
                     e.printStackTrace();
+                    Looper.prepare();
+                    Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+                    Looper.loop();
                 }
             }
-        }.start();
+        };
+        thread.start();
+
+
+//        new Thread() {
+//
+//            public void run() {
+//                try {
+//
+//                    if (manageSocket.mSocket == null) {
+//
+//                        Log.v("Download", "mSocket == null");
+////                        return;
+//                    }
+//
+//
+//                    if (manageSocket!=null && manageSocket.mSocket.isConnected()) {
+//                        if (!manageSocket.mSocket.isOutputShutdown()) {
+//
+////                            Log.v("Image", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+////                            manageSocket.mPWriter.println( manageSocket.id+":down."+"\n" );
+//                            manageSocket.mPWriter.println( filename + ";" + offset_x + ";" + offset_y + ";" +offset_z);
+//                            manageSocket.mPWriter.flush();
+//
+//                            Looper.prepare();
+//
+//                            while ((content = manageSocket.mReader.readLine()) != null) {
+//
+//                                Log.v("Image", content);
+//
+//                                if (!((Activity) context).isFinishing()){
+//                                    manageSocket.onReadyRead(content, context);
+//                                    Looper.loop();
+//                                }
+//
+//                            }
+//
+//                        }
+//                    }else {
+//                        Toast.makeText(getApplicationContext(), "You have been logout", Toast.LENGTH_SHORT).show();
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }.start();
+
+
     }
 
 
@@ -514,7 +594,7 @@ public class ConnectActivity extends AppCompatActivity {
 
                     if(manageSocket.mSocket.isConnected()){
 
-                        manageSocket.mPWriter.println(id +":login."+"\n");
+                        manageSocket.mPWriter.println(id +":login.");
 
 //                        manageSocket.mPWriter.println( manageSocket.id+":down."+"\n" );
                         manageSocket.mPWriter.flush();

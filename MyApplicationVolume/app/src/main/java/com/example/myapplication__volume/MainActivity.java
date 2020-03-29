@@ -188,14 +188,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        Log.v("MainActivity","read the eswc now~~~~~~~~~~~~~~~~");
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.v("MainActivity", "read the eswc now~~~~~~~~~~~~~~~~");
 
         if (resultCode == RESULT_OK) {
             data.getDataString();
             Uri uri = data.getData();
 //            Uri uri_old = data.getData();
 
-            String filePath= uri.toString();
+            String filePath = uri.toString();
 //            String filePath= getpath(this, uri);
 
             String filePath_getPath = uri.getPath();
@@ -206,10 +207,9 @@ public class MainActivity extends AppCompatActivity {
 //            String filePath = "/storage/emulated/0/Download/image.v3draw";
 
 
-
-            Log.v("MainActivity",filePath);
-            Log.v("uri.getPath()",filePath_getPath);
-            Log.v("Uri_Scheme:",uri.getScheme());
+            Log.v("MainActivity", filePath);
+            Log.v("uri.getPath()", filePath_getPath);
+            Log.v("Uri_Scheme:", uri.getScheme());
 
 //            Log.v("Uri_Scheme:", DocumentsContract.getDocumentId(uri));
 
@@ -217,9 +217,9 @@ public class MainActivity extends AppCompatActivity {
 
 //            Toast.makeText(this, "Open" + filePath + "--successfully", Toast.LENGTH_SHORT).show();
 
-            try{
+            try {
 
-                Log.v("MainActivity","123456");
+                Log.v("MainActivity", "123456");
 //                Log.v("MainActivity",String.valueOf(fileSize));
 
 //                Uri uri_1 = Uri.parse((String) filePath);
@@ -238,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
                 ParcelFileDescriptor parcelFileDescriptor =
                         getContentResolver().openFileDescriptor(uri, "r");
                 is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-                int length = (int)parcelFileDescriptor.getStatSize();
+                int length = (int) parcelFileDescriptor.getStatSize();
 
                 Log.v("Legth: ", Integer.toString(length));
 
@@ -255,8 +255,8 @@ public class MainActivity extends AppCompatActivity {
 //
 //                myrenderer.importEswc(eswc);
 
-                String filetype = filePath.substring(filePath.length()-4);
-                switch (filetype){
+                String filetype = filePath.substring(filePath.length() - 4);
+                switch (filetype) {
                     case ".apo":
                         Log.v("Mainctivity", uri.toString());
                         ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
@@ -286,7 +286,6 @@ public class MainActivity extends AppCompatActivity {
 
 //                        String swc_path = getPath(this, swc_uri);
 //                        String apo_path = getPath(this, apo_uri);
-
 
 
 ////                        requestPermissions(PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
@@ -320,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
                         myrenderer.importSwc(ano_swc);
                         myrenderer.importApo(ano_apo);
                         break;
-                    default :
+                    default:
                         ArrayList<ArrayList<Float>> eswc = new ArrayList<ArrayList<Float>>();
                         EswcReader eswcReader = new EswcReader();
 
@@ -328,11 +327,6 @@ public class MainActivity extends AppCompatActivity {
                         myrenderer.importEswc(eswc);
 
                 }
-
-
-
-
-
 
 
 //
@@ -358,16 +352,15 @@ public class MainActivity extends AppCompatActivity {
 //                myrenderer.importApo(apo);
 
 
-
 //                File f = new File(filePath);
 //                FileInputStream fid = new FileInputStream(f);
 
 //                fid.write(message.getBytes());
 //                long fileSize = f.length();
-            }catch (Exception e){
+            } catch (Exception e) {
                 Toast.makeText(this, " dddddd  ", Toast.LENGTH_SHORT).show();
-                Log.v("MainActivity","111222");
-                Log.v("Exception",e.getMessage());
+                Log.v("MainActivity", "111222");
+                Log.v("Exception", e.getMessage());
             }
         }
     }

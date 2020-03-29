@@ -22,8 +22,13 @@ public class ManageSocket extends Socket {
     public String port;
     public String id;
     public Socket mSocket;
+    public Socket ImgSocket;
     public BufferedReader mReader;//BufferedWriter 用于推送消息
     public PrintWriter mPWriter;  //PrinterWriter  用于接收消息
+
+    public BufferedReader ImgReader;//BufferedWriter 用于推送消息
+    public PrintWriter ImgPWriter;  //PrinterWriter  用于接收消息
+
     public String path;
 //    public PrintWriter mPWriter;
 

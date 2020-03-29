@@ -112,8 +112,8 @@ public class FileActivity extends AppCompatActivity {
         String downloadpath = "https://qd.myapp.com/myapp/qqteam/AndroidQQ/mobileqq_android.apk";
 //        String downloadpath = "https://www.globalgreyebooks.com/content/books/ebooks/game-of-life.pdf";
 
-        if (message != "")
-            downloadpath = message;
+//        if (message != "")
+//            downloadpath = message;
 
 
         // Path where you want to download file.
@@ -138,6 +138,8 @@ public class FileActivity extends AppCompatActivity {
         //设置文件存放路径
 //        request.setDestinationInExternalPublicDir(  Environment.DIRECTORY_DOWNLOADS  , "weixin.apk" ) ;
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, uri.getLastPathSegment());
+
+        request.setDestinationInExternalFilesDir(this, getExternalFilesDir(null).toString(), "My-download");
 
 //        DownloadManager downloadManager = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
 
