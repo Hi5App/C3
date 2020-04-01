@@ -107,47 +107,47 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout ll = new LinearLayout(this);
         ll.setOrientation(LinearLayout.VERTICAL);
 
-        final Button button_1 = new Button(this);
-        button_1.setText("draw");
-        ll.addView(button_1);
+        final Button button_curve = new Button(this);
+        button_curve.setText("draw curve");
+        ll.addView(button_curve);
         this.addContentView(ll, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT , ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        final Button button_2 = new Button(this);
-        button_2.setText("point");
-        ll.addView(button_2);
+        final Button button_pinpoint = new Button(this);
+        button_pinpoint.setText("pinpoint");
+        ll.addView(button_pinpoint);
 
         final Button button_3 = new Button(this);
         button_3.setText("import");
         ll.addView(button_3);
 
-        button_1.setOnClickListener(new Button.OnClickListener()
+        button_curve.setOnClickListener(new Button.OnClickListener()
         {
             public void onClick(View v)
             {
                 ifPainting = !ifPainting;
                 ifPoint = false;
                 if(ifPainting) {
-                    button_1.setTextColor(Color.RED);
-                    button_2.setTextColor(Color.BLACK);
+                    button_curve.setTextColor(Color.RED);
+                    button_pinpoint.setTextColor(Color.BLACK);
                 }
                 else {
-                    button_1.setTextColor(Color.BLACK);
+                    button_curve.setTextColor(Color.BLACK);
                 }
             }
         });
 
-        button_2.setOnClickListener(new Button.OnClickListener()
+        button_pinpoint.setOnClickListener(new Button.OnClickListener()
         {
             public void onClick(View v)
             {
                 ifPoint = !ifPoint;
                 ifPainting = false;
                 if(ifPoint) {
-                    button_2.setTextColor(Color.RED);
-                    button_1.setTextColor(Color.BLACK);
+                    button_pinpoint.setTextColor(Color.RED);
+                    button_curve.setTextColor(Color.BLACK);
                 }
                 else {
-                    button_2.setTextColor(Color.BLACK);
+                    button_pinpoint.setTextColor(Color.BLACK);
                 }
             }
         });
