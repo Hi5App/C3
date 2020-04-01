@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         ll.addView(button_pinpoint);
 
         final Button button_3 = new Button(this);
-        button_3.setText("import");
+        button_3.setText("overlay objects from a file"); //this would need a more meaningful button text later
         ll.addView(button_3);
 
         button_curve.setOnClickListener(new Button.OnClickListener()
