@@ -3,6 +3,7 @@ package com.example.myapplication__volume;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,6 +14,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.View;
@@ -24,11 +26,20 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+
+import cn.carbs.android.library.MDDialog;
 
 
 //打开文件管理器读取文件
@@ -48,6 +59,8 @@ public class FileActivity extends AppCompatActivity {
     private InputStream is;
     private int length;
     private CompleteReceiver completeReceiver;
+    private ManageSocket manageSocket;
+
 
     TextView tv;
     @Override
@@ -66,6 +79,7 @@ public class FileActivity extends AppCompatActivity {
         completeReceiver = new CompleteReceiver();
         // register download success broadcast
         registerReceiver(completeReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        context = getApplicationContext();
 
     }
 
@@ -155,7 +169,7 @@ public class FileActivity extends AppCompatActivity {
     }
 
 
-    // Open the local file
+
     public void Connect(View view) {
         Log.v("MainActivity","Log.v输入日志信息");
 
@@ -163,6 +177,167 @@ public class FileActivity extends AppCompatActivity {
         startActivity(intent);
 
     }
+
+
+    // Open the server file
+    public void ImageBlock(View v){
+        context = v.getContext();
+        manageSocket = new ManageSocket();
+
+        new MDDialog.Builder(this)
+//              .setContentView(customizedView)
+                .setContentView(R.layout.image_select)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+                        EditText et0 = (EditText) contentView.findViewById(R.id.edit0);
+                        EditText et1 = (EditText) contentView.findViewById(R.id.edit1);
+                        EditText et2 = (EditText) contentView.findViewById(R.id.edit2);
+                        EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
+                        et0.setText("192.168.2.108");
+                        et1.setText("0");
+                        et2.setText("0");
+                        et3.setText("0");
+
+//                        et0.tex("input ip of server");
+                    }
+                })
+                .setTitle("Download image")
+                .setNegativeButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
+                        EditText et0 = (EditText) contentView.findViewById(R.id.edit0);
+                        EditText et1 = (EditText) contentView.findViewById(R.id.edit1);
+                        EditText et2 = (EditText) contentView.findViewById(R.id.edit2);
+                        EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
+
+                        String ip         = et0.getText().toString();
+                        String offset_x   = et1.getText().toString();
+                        String offset_y   = et2.getText().toString();
+                        String offset_z   = et3.getText().toString();
+
+//                        String ip   = "192.168.2.108";
+//                        String port = "9999";
+//                        String id   = "xf";
+
+                        if(!ip.isEmpty() && !offset_x.isEmpty() && !offset_y.isEmpty() && !offset_z.isEmpty()){
+
+                            //输入的信息全，就可以进行连接操作
+                            Image(ip, offset_x, offset_y, offset_z, context);
+                        }else{
+
+                            Toast.makeText(getApplicationContext(), "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+//                        EditText et = (EditText) contentView.findViewById(R.id.edit1);
+//                        Toast.makeText(getApplicationContext(), "edittext 1 : " + et.getText(), Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setWidthMaxDp(600)
+                .create()
+                .show();
+
+    }
+
+
+
+    private void Image(final String ip, final String offset_x, final String offset_y, final String offset_z, final Context context){
+
+        //新建一个线程，用于初始化socket和检测是否有接收到新的消息
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+
+                try {
+                    manageSocket.ip = ip;
+                    manageSocket.ImgSocket = new Socket(ip, Integer.parseInt("9999"));
+                    manageSocket.ImgReader = new BufferedReader(new InputStreamReader(manageSocket.ImgSocket.getInputStream(), "UTF-8"));
+//                    mWriter = new BufferedWriter(new OutputStreamWriter(mSocket.getOutputStream(), "utf-8"));
+                    manageSocket.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(manageSocket.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+
+//                    Toast.makeText(getApplicationContext(), "InitSocket", Toast.LENGTH_SHORT).show();
+                    Log.v("Image", "ImgSocket successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+//
+//                    Filesocket_receive filesocket_receive = new Filesocket_receive();
+//                    filesocket_receive.filesocket = new Socket(ip, 9997);
+//                    filesocket_receive.mReader = new BufferedReader(new InputStreamReader(filesocket_receive.filesocket.getInputStream(), "UTF-8"));
+//                    filesocket_receive.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_receive.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
+//                    filesocket_receive.path = getExternalFilesDir(null).toString();
+
+
+                    if(manageSocket.ImgSocket.isConnected()){
+
+                        manageSocket.ImgPWriter.println( "http:// " + " " + offset_x + " " + offset_y + " " +offset_z + ":imgblock.");
+//                        manageSocket.ImgPWriter.println( "http://" + " " + "1pic1.v3draw" + " " + ":choose3.");
+                        manageSocket.ImgPWriter.flush();
+
+                        Log.v("Image", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                    }
+
+//                    filesocket_receive.readImg("1pic1.v3draw", context);
+
+
+                    Looper.prepare();
+
+                    //接收来自服务器的消息
+                    while(manageSocket.ImgSocket.isConnected()) {
+
+                        Log.v("Image", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
+//                        if(manageSocket.mReader.ready()) {
+                        if(!manageSocket.ImgSocket.isInputShutdown()) {
+                        /*读取一行字符串，读取的内容来自于客户机
+                        reader.readLine()方法是一个阻塞方法，
+                        从调用这个方法开始，该线程会一直处于阻塞状态，
+                        直到接收到新的消息，代码才会往下走*/
+                            String content = "";
+
+                            Log.v("Image", "Reply successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                            while ((content = manageSocket.ImgReader.readLine()) != null) {
+
+                                Log.v("Image", content);
+                                if (!((Activity) context).isFinishing()){
+                                    manageSocket.onReadyRead(content, context);
+                                    Looper.loop();
+                                }
+                            }
+
+                        }
+                        Thread.sleep(200);
+                    }
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Looper.prepare();
+                    Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+                    Looper.loop();
+                }
+            }
+        };
+        thread.start();
+
+    }
+
+
+
+
 
 
 
@@ -224,6 +399,7 @@ public class FileActivity extends AppCompatActivity {
             }
         }
     }
+
 
     public InputStream getInputStream(){
         return is;

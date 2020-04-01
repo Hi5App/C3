@@ -1,9 +1,12 @@
 package com.example.myapplication__volume;
 
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -19,6 +22,9 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+
+import static com.example.myapplication__volume.FileActivity.EXTRA_MESSAGE;
+import static java.lang.Thread.State.TERMINATED;
 
 
 public class Filesocket_receive {
@@ -108,22 +114,9 @@ public class Filesocket_receive {
 
 
 
-
-
-
-
-                    //对文件进行写入操作
-//                    FileOutputStream outputStream = new FileOutputStream(file);
-//                    outputStream.write(file_content);
-//                    outputStream.close();
-
-
-
-
-
                     //发送消息，已获得文件
                     Log.v("readFile","filename:" + filename);
-                    mPWriter.println("received " + filename + "\n");
+                    mPWriter.println("received " + filename );
                     mPWriter.flush();
 
 
@@ -268,19 +261,27 @@ public class Filesocket_receive {
 
 
 
-    public void readImg(final String filename){
-        new Thread()  {
+    public void readImg(final String filename, final Context context) throws InterruptedException {
+        Boolean stop = false;
+
+        Thread thread = new Thread()  {
             public void run(){
                 try {
 
                     Log.v("readFile", "start to read file");
                     DataInputStream in = new DataInputStream((FileInputStream)(filesocket.getInputStream()));
 
+                    Log.v("readFile", "start to read Datainputstream");
+
+                    Log.v("readfile", Integer.toString(in.available()));
+
                     //前两个 uint64 记录传输内容的总长度 和 文件名的长度
                     byte [] file_size = new byte[8];
                     byte [] filename_size = new byte[8];
                     in.read(file_size, 0, 8);
                     in.read(filename_size, 0, 8);
+
+                    Log.v("readFile", "start to read content");
 
 
                     int filename__size = (int) bytesToLong(filename_size) + 4;
@@ -301,8 +302,6 @@ public class Filesocket_receive {
 //                    Log.v("readFile", filecontent_string);
 
 
-                    int loop = filecontent__size / 1024;
-                    int end  = filecontent__size % 1024;
 
 
                     //打开文件，如果没有，则新建文件
@@ -313,9 +312,38 @@ public class Filesocket_receive {
                     }
 
                     FileOutputStream outputStream = new FileOutputStream(file);
+                    BufferedOutputStream out = new BufferedOutputStream(outputStream);
+                    BufferedInputStream in_bf = new BufferedInputStream(in);
 
 
-                    IOUtils.copy(in, outputStream);
+                    Log.v("send2", Integer.toString(IOUtils.copy(in, outputStream)));
+
+//                    int loop = filecontent__size / 1024;
+//                    int end  = filecontent__size % 1024;
+
+//                    Log.v("readImg",Integer.toString(loop) + "   " +Integer.toString(end));
+
+//                    byte [] file_content = new byte[1024];
+//                    byte [] file_content_end = new byte[end];
+//
+//                    int len = -1;
+//                    int count = 0;
+//                    while((len=in_bf.read(file_content))!=-1){
+//                        out.write(file_content,0,len);
+//                        Log.v("readImg", Integer.toString(count));
+//                        count += 1;
+//                    }
+
+
+//                    in.read(file_content_end, 0, end);
+//                    outputStream.write(file_content_end);
+
+                    outputStream.close();
+
+
+
+
+                    Log.v("readFile", "Jump to the mainactivity successfully");
 
 //                    byte [] file_content = new byte[1024];
 //                    byte [] file_content_end = new byte[end];
@@ -329,8 +357,7 @@ public class Filesocket_receive {
 //                    in.read(file_content_end, 0, end);
 //                    outputStream.write(file_content_end);
 //
-//                    outputStream.close();
-
+                    outputStream.close();
 
 
                     //对文件进行写入操作
@@ -347,7 +374,20 @@ public class Filesocket_receive {
                     e.printStackTrace();
                 }
             }
-        }.start();
+        };
+        thread.start();
+
+        thread.sleep(2000);
+
+        thread.interrupt();
+
+        while (thread.getState() != TERMINATED);
+
+        Intent intent = new Intent(context, MainActivity.class);
+        String message = path + "/" + filename;
+        intent.putExtra(EXTRA_MESSAGE, message);
+        context.startActivity(intent);
+
     }
 
 

@@ -149,11 +149,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         // in the onDrawFrame() method
 //        Matrix.orthoM(projectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
 
+//        if(width>height) {
+//            Matrix.orthoM(projectionMatrix, 0, -ratio, ratio, -1,1,1, 100);
+//        }
+//        else{
+//            Matrix.orthoM(projectionMatrix, 0, -1, 1, -1/ratio, 1/ratio,1, 100);
+//        }
+
         if(width>height) {
-            Matrix.orthoM(projectionMatrix, 0, -ratio, ratio, -1,1,1, 100);
+            Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1,1,2f, 100);
         }
         else{
-            Matrix.orthoM(projectionMatrix, 0, -1, 1, -1/ratio, 1/ratio,1, 100);
+            Matrix.frustumM(projectionMatrix, 0, -1, 1, -1/ratio, 1/ratio,2f, 100);
         }
 
 //        Matrix.perspectiveM(projectionMatrix,0,45,1,0.1f,100f);
@@ -495,8 +502,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
     public void zoom(float f){
-        Matrix.scaleM(zoomMatrix, 0, f, f, f);
-        cur_scale *= f;
+
+        if (cur_scale > 0.2 && cur_scale < 15) {
+            Matrix.scaleM(zoomMatrix, 0, f, f, f);
+            cur_scale *= f;
+        }else if(cur_scale < 0.2 && f > 1){
+            Matrix.scaleM(zoomMatrix, 0, f, f, f);
+            cur_scale *= f;
+        }else if (cur_scale > 15 && f < 1){
+            Matrix.scaleM(zoomMatrix, 0, f, f, f);
+            cur_scale *= f;
+        }
+
 //        Matrix.scaleM(zoomAfterMatrix, 0, f-1, f-1, f-1);
 //        float d = (f - 1) * 0.5f;
 //        Matrix.translateM(translateAfterMatrix, 0, 0.0f, 0.0f, d);
@@ -540,6 +557,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public void setIfPainting(boolean b){
+
         ifPainting = b;
     }
 

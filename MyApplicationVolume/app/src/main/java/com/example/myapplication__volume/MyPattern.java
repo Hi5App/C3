@@ -6,6 +6,9 @@ import android.opengl.GLES30;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -1093,25 +1096,42 @@ public class MyPattern{
 
         Rawreader rr = new Rawreader();
         String fileName = filepath;
+        int[][][] grayscale= null;
 
-        Uri uri = Uri.parse(fileName);
+        if (filepath.contains("storage")){
+            try {
+                File file = new File(filepath);
+                length = file.length();
+                is = new FileInputStream(file);
+                grayscale =  rr.run(length, is);
 
-        try {
-            ParcelFileDescriptor parcelFileDescriptor =
-                    getContext().getContentResolver().openFileDescriptor(uri, "r");
-
-            is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-
-            length = (int)parcelFileDescriptor.getStatSize();
-
-            Log.v("MyPattern","Successfully load intensity");
-
-        }catch (Exception e){
-            Log.v("MyPattern","Some problems in the MyPattern when load intensity");
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
 
+        else {
+            Uri uri = Uri.parse(fileName);
 
-        int[][][] grayscale =  rr.run(length, is);
+            try {
+                ParcelFileDescriptor parcelFileDescriptor =
+                        getContext().getContentResolver().openFileDescriptor(uri, "r");
+
+                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+
+                length = (int)parcelFileDescriptor.getStatSize();
+
+                Log.v("MyPattern","Successfully load intensity");
+
+            }catch (Exception e){
+                Log.v("MyPattern","Some problems in the MyPattern when load intensity");
+            }
+
+
+             grayscale =  rr.run(length, is);
+
+        }
+
 
         vol_w = rr.get_w();
         vol_h = rr.get_h();

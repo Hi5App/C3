@@ -46,6 +46,7 @@ public class ManageSocket extends Socket {
         String ImportRex = ":import port.";
         String CurrentDirDownExp = ":currentDir_down.";
         String CurrentDirLoadExp = ":currentDir_load.";
+        String CurrentDirImgDownExp = ":currentDirImg_down.";
         String MessagePortExp = ":messageport.\n";
 
 
@@ -79,7 +80,8 @@ public class ManageSocket extends Socket {
                 for (int i = 0; i < file_list.length; i++)
                     Log.v("onReadyRead", file_list[i]);
 
-                ShowListDialog(context, file_list);
+                ShowListDialog(context, file_list, "CurrentDirDownExp");
+
             }else if (information.contains(CurrentDirLoadExp)){
                 String [] file_string = information.split(":");
                 String [] file_list = file_string[0].split(";");
@@ -87,7 +89,15 @@ public class ManageSocket extends Socket {
                 for (int i = 0; i < file_list.length; i++)
                     Log.v("onReadyRead", file_list[i]);
 
-                ShowListDialog(context, file_list);
+                ShowListDialog(context, file_list, "CurrentDirLoadExp");
+            }else if (information.contains(CurrentDirImgDownExp)){
+                String [] file_string = information.split(":");
+                String [] file_list = file_string[0].split(";");
+
+                for (int i = 0; i < file_list.length; i++)
+                    Log.v("onReadyRead", file_list[i]);
+
+                ShowListDialog(context, file_list, "CurrentDirImgDownExp");
             }
         }
     }
@@ -154,12 +164,81 @@ public class ManageSocket extends Socket {
     }
 
 
+
+
+    private void send2(final String item, final Context context){
+        new Thread() {
+
+            public void run() {
+                try {
+
+                    Log.v("send1", "here we are");
+                    Log.v("send2", ip);
+
+                    Filesocket_receive filesocket_receive = new Filesocket_receive();
+                    filesocket_receive.filesocket = new Socket(ip, 9997);
+                    filesocket_receive.mReader = new BufferedReader(new InputStreamReader(filesocket_receive.filesocket.getInputStream(), "UTF-8"));
+                    filesocket_receive.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_receive.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    filesocket_receive.path = context.getExternalFilesDir(null).toString();
+
+                    if (ImgSocket.isConnected()) {
+                        if (!ImgSocket.isOutputShutdown()) {
+                            Log.v("send2", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                            Log.v("send2", item);
+
+                            ImgPWriter.println("http" + " " + item + " " + ":choose3.");
+                            ImgPWriter.flush();
+
+                        }
+
+//                        Looper.prepare();
+                        if (filesocket_receive.filesocket.isConnected())
+                            filesocket_receive.readImg(item, context);
+
+//                        //接收来自服务器的消息
+//                        while(ImgSocket.isConnected()) {
+//
+//                            Log.v("Image", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+//
+////                        if(manageSocket.mReader.ready()) {
+//                            if(!ImgSocket.isInputShutdown()) {
+//                        /*读取一行字符串，读取的内容来自于客户机
+//                        reader.readLine()方法是一个阻塞方法，
+//                        从调用这个方法开始，该线程会一直处于阻塞状态，
+//                        直到接收到新的消息，代码才会往下走*/
+//                                //String data = mReader.readLine();
+//                                String content = "";
+//
+//                                Log.v("InitSocket", "Reply successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+//                                while ((content = ImgReader.readLine()) != null) {
+//
+//                                    Log.v("InitSocket", content);
+//                                }
+//
+//                                Log.v("InitSocket", "Start to receive file ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+//
+//                            }
+//                            Thread.sleep(200);
+//                        }
+
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
+
+
     /**
-     * show the choice of files
+     * choice the file you want down
      * @param context
      * @param items
+     * @param type
      */
-    private void ShowListDialog(final Context context, final String[] items) {
+    private void ShowListDialog(final Context context, final String[] items, final String type) {
 
 //        final String[] items = { "我是1","我是2","我是3","我是4" };
         AlertDialog.Builder listDialog =
@@ -171,7 +250,12 @@ public class ManageSocket extends Socket {
                 // which 下标从0开始
                 // ...To-do
                 Toast.makeText(context,"你点击了" + items[which], Toast.LENGTH_SHORT).show();
-                send1(items[which], context);
+                if (type.equals("CurrentDirDownExp"))
+                    send1(items[which], context);
+                if (type.equals("CurrentDirLoadExp"))
+                    send1(items[which], context);
+                if (type.equals("CurrentDirImgDownExp"))
+                    send2(items[which], context);
             }
         });
         listDialog.show();

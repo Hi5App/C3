@@ -381,7 +381,7 @@ public class ConnectActivity extends AppCompatActivity {
                         if(!ip.isEmpty() && !filename.isEmpty() && !offset_x.isEmpty() && !offset_y.isEmpty() && !offset_z.isEmpty()){
 
                             //输入的信息全，就可以进行连接操作
-                            Image(ip, filename, offset_x, offset_y, offset_z);
+                            Image(ip, filename, offset_x, offset_y, offset_z, context);
                         }else{
 
                             Toast.makeText(getApplicationContext(), "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
@@ -402,7 +402,7 @@ public class ConnectActivity extends AppCompatActivity {
 
     }
 
-    private void Image(final String ip, final String filename, final String offset_x, final String offset_y, final String offset_z){
+    private void Image(final String ip, final String filename, final String offset_x, final String offset_y, final String offset_z, final Context context){
 
         //新建一个线程，用于初始化socket和检测是否有接收到新的消息
         Thread thread = new Thread() {
@@ -435,7 +435,7 @@ public class ConnectActivity extends AppCompatActivity {
                     }
 
 
-                    filesocket_receive.readImg(filename + ".v3draw");
+                    filesocket_receive.readImg(filename + ".v3draw", context);
 
 
                     //接收来自服务器的消息
