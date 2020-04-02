@@ -200,6 +200,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
+
 //        float [] result_1 = new float[4];
 //        float [] result_2 = new float[4];
 //
@@ -211,34 +213,45 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        float [] invertfinalMatrix = new float[16];
 //
 ////        float [] input_1 = {60/128.0f, 63/128.0f, 64/128.0f, 1f};
-//        float [] input_1 = {0.296f, 0.656f, 0.562f, 1f};
-//        float [] input_2 = {1f, 1f, 1f, 1f};
+//        float [] input_1 = {1f, 1f, 1f, 1f};
+//        float [] input_2 = {1f, 1f, 0f, 1f};
 //
 //
 //        Matrix.multiplyMV(result_1, 0, finalMatrix, 0, input_1,0);
 //
+//        float w1 = result_1[3];
+//
 //        Log.v("result_1",Arrays.toString(result_1));
+//
+//        Log.v("result_1",Arrays.toString(devide(result_1, w1)));
 //
 //        Matrix.multiplyMV(result_2, 0, finalMatrix, 0, input_2,0);
 //
+//        float w2 = result_2[3];
+//
 //        Log.v("result_2",Arrays.toString(result_2));
-
-
-        //
+//
+//        Log.v("result_2",Arrays.toString(devide(result_2, w2)));
+//
+//
+//
 //        Matrix.invertM(invertfinalMatrix, 0, finalMatrix, 0);
 //
 //        Log.v("invert_rotation",Arrays.toString(invertfinalMatrix));
 //
-//        Matrix.multiplyMV(invert_result_1, 0, invertfinalMatrix, 0, input_1,0);
+//        Matrix.multiplyMV(invert_result_1, 0, invertfinalMatrix, 0, result_1,0);
 //
 //        Log.v("invert_result_1",Arrays.toString(invert_result_1));
 //
-//        Matrix.multiplyMV(invert_result_2, 0, invertfinalMatrix, 0, input_2,0);
+//        Matrix.multiplyMV(invert_result_2, 0, invertfinalMatrix, 0, result_2,0);
 //
 //        Log.v("invert_result_2",Arrays.toString(invert_result_2));
 
 
 //        solveMarkerCenter(0.03125f, -0.005022317f);
+
+
+
 
 
 

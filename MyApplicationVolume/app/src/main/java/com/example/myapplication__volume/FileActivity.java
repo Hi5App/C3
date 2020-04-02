@@ -374,6 +374,8 @@ public class FileActivity extends AppCompatActivity {
                 intent.putExtra(EXTRA_MESSAGE, message);
                 startActivity(intent);
 
+                File file = new File(filePath);
+
                 Uri uri_1 = Uri.parse((String) filePath);
 
                 Log.v("Uri_1: ", uri_1.toString());

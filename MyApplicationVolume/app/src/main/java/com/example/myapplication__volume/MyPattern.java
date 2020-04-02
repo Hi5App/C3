@@ -1098,12 +1098,17 @@ public class MyPattern{
         String fileName = filepath;
         int[][][] grayscale= null;
 
-        if (filepath.contains("storage")){
+//        Log.v("getIntensity_3d", filepath);
+
+        File file = new File(filepath);
+
+        if (file.exists()){
             try {
-                File file = new File(filepath);
                 length = file.length();
                 is = new FileInputStream(file);
                 grayscale =  rr.run(length, is);
+
+                Log.v("getIntensity_3d", filepath);
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
