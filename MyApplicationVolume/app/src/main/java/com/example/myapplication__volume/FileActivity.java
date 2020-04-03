@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -194,7 +195,8 @@ public class FileActivity extends AppCompatActivity {
                         EditText et1 = (EditText) contentView.findViewById(R.id.edit1);
                         EditText et2 = (EditText) contentView.findViewById(R.id.edit2);
                         EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
-                        et0.setText("192.168.2.108");
+//                        et0.setText("192.168.2.108");
+                        et0.setText(getip());
                         et1.setText("0");
                         et2.setText("0");
                         et3.setText("0");
@@ -227,9 +229,10 @@ public class FileActivity extends AppCompatActivity {
                         String offset_y   = et2.getText().toString();
                         String offset_z   = et3.getText().toString();
 
-//                        String ip   = "192.168.2.108";
-//                        String port = "9999";
-//                        String id   = "xf";
+                        if (ip != getip()){
+                            setip(ip);
+                        }
+
 
                         if(!ip.isEmpty() && !offset_x.isEmpty() && !offset_y.isEmpty() && !offset_z.isEmpty()){
 
@@ -409,6 +412,74 @@ public class FileActivity extends AppCompatActivity {
 
     public long getlength(){
         return length;
+    }
+
+    private String getip(){
+        String ip = null;
+
+        String filepath = getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/ip.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "223.3.33.234";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("getip", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                //分行读取
+                while ((line = buffreader.readLine()) != null) {
+                    ip = line;
+                }
+                inputStream.close();//关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get ip", ip);
+        return ip;
+    }
+
+    private void setip(String ip){
+        String filepath = getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/ip.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("getip", "Fail to create file");
+            }
+        }
+
+        try {
+
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(ip.getBytes());
+            outStream.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     class CompleteReceiver extends BroadcastReceiver {
