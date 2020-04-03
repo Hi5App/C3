@@ -14,6 +14,7 @@ import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
+import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.renderscript.Matrix4f;
 import android.util.Log;
@@ -201,7 +202,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-
+//
 //        float [] result_1 = new float[4];
 //        float [] result_2 = new float[4];
 //
@@ -234,6 +235,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Log.v("result_2",Arrays.toString(devide(result_2, w2)));
 //
 //
+//        result_1 = new float[]{-0.4f, 0.209f, -1, 1};
+//        result_2 = new float[]{-0.4f, 0.209f, 1, 1};
 //
 //        Matrix.invertM(invertfinalMatrix, 0, finalMatrix, 0);
 //
@@ -241,15 +244,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //
 //        Matrix.multiplyMV(invert_result_1, 0, invertfinalMatrix, 0, result_1,0);
 //
+//        devideByw(invert_result_1);
+//
 //        Log.v("invert_result_1",Arrays.toString(invert_result_1));
 //
 //        Matrix.multiplyMV(invert_result_2, 0, invertfinalMatrix, 0, result_2,0);
 //
+//        devideByw(invert_result_2);
+//
 //        Log.v("invert_result_2",Arrays.toString(invert_result_2));
-
-
-//        solveMarkerCenter(0.03125f, -0.005022317f);
-
+//
+//
+////        solveMarkerCenter(-0.4f, -0.209f);
+//
 
 
 
@@ -661,7 +668,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         float [] loc1 = new float[3];
         float [] loc2 = new float[3];
 
-        get_NearFar_Marker(x, y, loc1, loc2);
+//        get_NearFar_Marker(x, y, loc1, loc2);
+        get_NearFar_Marker_2(x, y, loc1, loc2);
 
         Log.v("loc1",Arrays.toString(loc1));
         Log.v("loc2",Arrays.toString(loc2));
@@ -672,20 +680,21 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
         if(make_Point_near(loc1, loc2)){
-            Log.v("loc1",Arrays.toString(loc1));
-            Log.v("loc2",Arrays.toString(loc2));
+//            Log.v("loc1",Arrays.toString(loc1));
+//            Log.v("loc2",Arrays.toString(loc2));
 
             float [] Marker = getCenterOfLineProfile(loc1, loc2);
 //            float [] Marker = {60.1f, 63.2f, 63.6f};
 
-            Log.v("Marker",Arrays.toString(Marker));
+//            Log.v("Marker",Arrays.toString(Marker));
 
             float intensity = Sample3d(Marker[0], Marker[1], Marker[2]);
-            Log.v("intensity",Float.toString(intensity));
+//            Log.v("intensity",Float.toString(intensity));
 
             return VolumetoModel(Marker);
         }else {
             Log.v("solveMarkerCenter","please make sure the point inside the bounding box");
+//            Looper.prepare();
             Toast.makeText(getContext(), "please make sure the point inside the bounding box", Toast.LENGTH_SHORT).show();
             return null;
         }
@@ -804,6 +813,36 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 
+    //用于透视投影中获取近平面和远平面的焦点
+    private void get_NearFar_Marker_2(float x, float y, float [] res1, float [] res2){
+
+        //mvp矩阵的逆矩阵
+        float [] invertfinalMatrix = new float[16];
+
+        Matrix.invertM(invertfinalMatrix, 0, finalMatrix, 0);
+//        Log.v("invert_rotation",Arrays.toString(invertfinalMatrix));
+
+        float [] near = new float[4];
+        float [] far = new float[4];
+
+        Matrix.multiplyMV(near, 0, invertfinalMatrix, 0, new float [] {x, y, -1, 1}, 0);
+        Matrix.multiplyMV(far, 0, invertfinalMatrix, 0, new float [] {x, y, 1, 1}, 0);
+
+        devideByw(near);
+        devideByw(far);
+
+//        Log.v("near",Arrays.toString(near));
+//        Log.v("far",Arrays.toString(far));
+
+        for(int i=0; i<3; i++){
+            res1[i] = near[i];
+            res2[i] = far[i];
+        }
+
+    }
+
+
+
 
 
     //找到靠近boundingbox的两处端点
@@ -841,7 +880,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             loc2[i] = far[i];
         }
 
-        Log.v("make_point_near","here we are");
+//        Log.v("make_point_near","here we are");
         return true;
 
     }
@@ -997,10 +1036,23 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return result;
     }
 
+
+    //除法运算
+    private void devideByw(float[] x){
+        if(Math.abs(x[3]) < 0.000001f){
+            Log.v("devideByw","can not be devided by 0");
+            return;
+        }
+
+        for(int i=0; i<3; i++)
+            x[i] = x[i]/x[3];
+
+    }
+
     //除法运算
     private float [] multiply(float[] x, float num){
         if(num == 0){
-            Log.v("devide","can not be multiply by 0");
+            Log.v("multiply","can not be multiply by 0");
         }
 
         int length = x.length;
@@ -1011,6 +1063,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         return result;
     }
+
+
 
     private ArrayList<Float> getLineDrawed(float [] line){
         float head_x = line[0];
@@ -1066,6 +1120,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float value = 0;
             float [] result_pos = new float[3];
             for (int j = 0; j < 128; j++){
+//                Log.v("getLineDrawed","~~~~~~~~~~~~~~");
                 float [] pos = minus(mid_point_pixel, multiply(dir, (float)(j)));
 
                 if (IsInBoundingBox(pos, dim)){
@@ -1118,6 +1173,124 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return result;
     }
 
+
+
+
+
+    private ArrayList<Float> getLineDrawed_2(float [] line){
+        float head_x = line[0];
+        float head_y = line[1];
+//        float [] result = new float[line.length];
+        ArrayList<Float> result = new ArrayList<Float>();
+        float [] head_result = solveMarkerCenter(head_x, head_y);
+        if (head_result == null){
+            return null;
+        }
+        for (int i = 0; i < 3; i++){
+//            result[i] = head_result[i];
+            result.add(head_result[i]);
+        }//计算第一个点在物体坐标系的位置并保存
+
+        float [] ex_head_result  = {head_result[0], head_result[1], head_result[2], 1.0f};
+        float [] head_point = new float[4];
+        Matrix.multiplyMV(head_point, 0, finalMatrix, 0,ex_head_result, 0);
+        float current_z = head_point[2]/head_point[3];
+
+        for (int i = 1; i < line.length/3; i++){
+            float x = line[i * 3];
+            float y = line[i * 3 + 1];
+            float [] mid_point = {x, y, current_z, 1.0f};
+            float [] front_point = {x, y, -1.0f, 1.0f};
+
+            float [] invertfinalMatrix = new float[16];
+            Matrix.invertM(invertfinalMatrix, 0, finalMatrix, 0);
+
+            float [] temp1 = new float[4];
+            float [] temp2 = new float[4];
+            Matrix.multiplyMV(temp1, 0, invertfinalMatrix, 0, mid_point, 0);
+            Matrix.multiplyMV(temp2, 0, invertfinalMatrix, 0, front_point, 0);
+
+            devideByw(temp1);
+            devideByw(temp2);
+
+            float [] mid_point_pixel = new float[3];
+            float [] front_point_pixel = new float[3];
+            mid_point_pixel = ModeltoVolume(temp1);
+            front_point_pixel = ModeltoVolume(temp2);
+//            for (int j = 0; j < 3; j++){
+//                mid_point_pixel[j] = temp1[j] * sz[j];
+//                front_point_pixel[j] = temp2[j] * sz[j];
+//            }
+
+            float [] dir = minus(front_point_pixel, mid_point_pixel);
+            normalize(dir);
+
+            float[][] dim = new float[3][2];
+            for(int j = 0; j < 3; j++){
+                dim[j][0] = 0;
+                dim[j][1] = sz[j] - 1;
+            }
+
+            float value = 0;
+            float [] result_pos = new float[3];
+            for (int j = 0; j < 128; j++){
+//                Log.v("getLineDrawed","~~~~~~~~~~~~~~");
+                float [] pos = minus(mid_point_pixel, multiply(dir, (float)(j)));
+
+                if (IsInBoundingBox(pos, dim)){
+                    float current_value = Sample3d(pos[0], pos[1], pos[2]);
+                    if (current_value > value){
+                        value = current_value;
+                        result_pos[0] = pos[0];
+                        result_pos[1] = pos[1];
+                        result_pos[2] = pos[2];
+                    }
+                }else{
+                    break;
+                }
+            }
+            for (int j = 0; j < 128; j++){
+                float [] pos = plus(mid_point_pixel, multiply(dir, (float)(j)));
+
+                if (IsInBoundingBox(pos, dim)){
+                    float current_value = Sample3d(pos[0], pos[1], pos[2]);
+                    if (current_value > value){
+                        value = current_value;
+                        result_pos[0] = pos[0];
+                        result_pos[1] = pos[1];
+                        result_pos[2] = pos[2];
+                    }
+                }else{
+                    break;
+                }
+            }
+            if (value == 0){
+                break;
+            }
+
+            result_pos = VolumetoModel(result_pos);
+
+            for (int j = 0; j < 3; j++){
+                result.add(result_pos[j]);
+            }
+
+            float [] ex_result_pos = {result_pos[0], result_pos[1], result_pos[2], 1.0f};
+            float [] current_pos = new float[4];
+            Matrix.multiplyMV(current_pos, 0, finalMatrix, 0, ex_result_pos, 0);
+            current_z = current_pos[2]/current_pos[3];
+//            for (int j = 0; j < 3; j++){
+////                result[i * 3 + j] = result_pos[j];
+//                result.add(result_pos[j] / sz[j]);
+//            }
+//            current_z = result_pos[2];
+        }
+        return result;
+    }
+
+
+
+
+
     public void addLineDrawed(ArrayList<Float> line){
         ArrayList<Float> lineAdded;
         float [] lineCurrent = new float[line.size()];
@@ -1125,12 +1298,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         for (int i = 0; i < line.size(); i++){
             lineCurrent[i] = line.get(i);
         }
-        lineAdded = getLineDrawed(lineCurrent);
-        if (lineAdded != null)
+//        lineAdded = getLineDrawed(lineCurrent);
+        lineAdded = getLineDrawed_2(lineCurrent);
+
+        if (lineAdded != null){
             lineDrawed.add(lineAdded);
+//            Log.v("addLineDrawed", Integer.toString(lineAdded.size()));
+        }
         else
             Log.v("draw line:::::", "nulllllllllllllllllll");
     }
+
+
 
     public void importEswc(ArrayList<ArrayList<Float>> eswc){
         for (int i = 0; i < eswc.size(); i++){
