@@ -209,7 +209,7 @@ public class Rawreader{
                                 int y = i / w;
                                 int z = (int)layer;
 //                                grayscale[x][y][z] = imtmp[i];
-                                grayscale_try[x][y][z] = imtmp[i];
+                                grayscale_try[z][y][x] = imtmp[i];
                             }
 //                            cF.setPixels(imtmp);
 //                            imStack.addSlice(null,cF);
