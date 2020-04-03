@@ -444,10 +444,13 @@ public class FileActivity extends AppCompatActivity {
                 BufferedReader buffreader = new BufferedReader(inputreader);
                 String line = "";
 
-                //分行读取
-                while ((line = buffreader.readLine()) != null) {
-                    ip = line;
-                }
+                line = buffreader.readLine();
+                ip = line;
+
+//                //分行读取
+//                while ((line = buffreader.readLine()) != null) {
+//                    ip = line;
+//                }
                 inputStream.close();//关闭输入流
             }
         } catch (Exception e) {
