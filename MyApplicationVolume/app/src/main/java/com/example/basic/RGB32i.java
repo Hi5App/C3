@@ -1,6 +1,6 @@
 package com.example.basic;
 
-public class RGB32i {
+public class RGB32i implements Cloneable{
     public int r;
     public int g;
     public int b;
@@ -15,5 +15,10 @@ public class RGB32i {
         r = (int)a.x;
         g = (int)a.y;
         b = (int)a.z;
+    }
+
+    @Override
+    public RGB32i clone() throws CloneNotSupportedException {
+        return (RGB32i) super.clone();
     }
 }

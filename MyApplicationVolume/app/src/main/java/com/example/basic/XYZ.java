@@ -1,6 +1,6 @@
 package com.example.basic;
 
-public class XYZ {
+public class XYZ implements Cloneable{
     public float x;
     public float y;
     public float z;
@@ -46,6 +46,8 @@ public class XYZ {
         z = c.b;
     }
 
-
-
+    @Override
+    public XYZ clone() throws CloneNotSupportedException {
+        return (XYZ) super.clone();
+    }
 }

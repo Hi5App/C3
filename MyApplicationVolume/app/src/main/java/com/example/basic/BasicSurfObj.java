@@ -1,6 +1,6 @@
 package com.example.basic;
 
-public class BasicSurfObj {
+public class BasicSurfObj implements Cloneable{
     public long n;				// index
     public RGBA8 color;
     public boolean on;
@@ -8,4 +8,12 @@ public class BasicSurfObj {
     public String name;
     public String comment;
     public BasicSurfObj() {n=0; color.r=color.g=color.b=color.a=255; on=true;selected=false; name=comment="";}
+
+    @Override
+    public BasicSurfObj clone() throws CloneNotSupportedException {
+        BasicSurfObj b = null;
+        b = (BasicSurfObj) super.clone();
+        b.color = this.color.clone();
+        return b;
+    }
 }

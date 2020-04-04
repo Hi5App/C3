@@ -1,6 +1,9 @@
 package com.tracingfunc.gd;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Vector;
+import com.example.basic.*;
 
 public class V3dNeuronGDTracing {
 
@@ -10,7 +13,7 @@ public class V3dNeuronGDTracing {
     public static NeuronTree v3dneuron_GD_tracing(int[][][][] p4d, long[] sz, LocationSimple p0, Vector<LocationSimple> pp, CurveTracePara  trace_para, double trace_z_thickness)
             throws Exception
     {
-        NeuronTree nt;
+        NeuronTree nt = new NeuronTree();
         if (p4d == null || p4d.length == 0 || sz == null || sz.length == 0 || sz[0]<=0 || sz[1]<=0 || sz[2]<=0 || sz[3]<=0 || trace_para.channo<0 || trace_para.channo>=sz[3])
         {
             System.out.println("Invalid image or sz for v3dneuron_GD_tracing().");
@@ -219,9 +222,9 @@ public class V3dNeuronGDTracing {
 
 
 
-    NeuronTree convertNeuronTreeFormat(V_NeuronSWC_list  tracedNeuron)
+    public static NeuronTree convertNeuronTreeFormat(V_NeuronSWC_list  tracedNeuron) throws Exception
     {
-        NeuronTree SS;
+        NeuronTree SS = new NeuronTree();
 
         //first conversion
 
@@ -231,8 +234,8 @@ public class V3dNeuronGDTracing {
 
         //second conversion
 
-        QList <NeuronSWC> listNeuron;
-        QHash <int, int>  hashNeuron;
+        ArrayList<NeuronSWC> listNeuron = new ArrayList<NeuronSWC>();
+        HashMap<Integer, Integer> hashNeuron = new HashMap<Integer, Integer>();
         listNeuron.clear();
         hashNeuron.clear();
 
@@ -241,38 +244,38 @@ public class V3dNeuronGDTracing {
             for (int k=0;k<seg.row.size();k++)
             {
                 count++;
-                NeuronSWC S;
+                NeuronSWC S = new NeuronSWC();
 
-                S.n 	= seg.row.at(k).data[0];
+                S.n 	= (long)seg.row.elementAt(k).n;
                 if (S.type<=0) S.type 	= 2; //seg.row.at(k).data[1];
-                S.x 	= seg.row.at(k).data[2];
-                S.y 	= seg.row.at(k).data[3];
-                S.z 	= seg.row.at(k).data[4];
-                S.r 	= seg.row.at(k).data[5];
-                S.pn 	= seg.row.at(k).data[6];
+                S.x 	= (float) seg.row.elementAt(k).x;
+                S.y 	= (float) seg.row.elementAt(k).y;
+                S.z 	= (float) seg.row.elementAt(k).z;
+                S.radius 	= (float) seg.row.elementAt(k).r;
+                S.parent 	= (long) seg.row.elementAt(k).parent;
 
                 //for hit & editing
-                S.seg_id       = seg.row.at(k).seg_id;
-                S.nodeinseg_id = seg.row.at(k).nodeinseg_id;
+                S.seg_id       = (long)seg.row.elementAt(k).seg_id;
+                S.nodeinseg_id = (long) seg.row.elementAt(k).nodeinseg_id;
 
                 //qDebug("%s  ///  %d %d (%g %g %g) %g %d", buf, S.n, S.type, S.x, S.y, S.z, S.r, S.pn);
 
                 //if (! listNeuron.contains(S)) // 081024
                 {
-                    listNeuron.append(S);
-                    hashNeuron.insert(S.n, listNeuron.size()-1);
+                    listNeuron.add(S.clone());
+                    hashNeuron.put((int)S.n, listNeuron.size()-1);
                 }
             }
-            System.out.println("---------------------read %d lines, %d remained lines", count, listNeuron.size());
+            System.out.printf("---------------------read %d lines, %d remained lines\n", count, listNeuron.size());
 
             SS.n = -1;
-            SS.color = XYZW(seg.color_uc[0],seg.color_uc[1],seg.color_uc[2],seg.color_uc[3]);
+            SS.color = new RGBA8((char)seg.color_uc[0],(char)seg.color_uc[1],(char)seg.color_uc[2],(char)seg.color_uc[3]);
             SS.on = true;
             SS.listNeuron = listNeuron;
             SS.hashNeuron = hashNeuron;
 
-            SS.name = seg.name.c_str();
-            SS.file = seg.file.c_str();
+            SS.name = seg.name;
+            SS.file = seg.file;
         }
 
         return SS;

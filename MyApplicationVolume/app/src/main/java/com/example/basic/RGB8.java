@@ -1,6 +1,6 @@
 package com.example.basic;
 
-public class RGB8 {
+public class RGB8 implements Cloneable{
     public char r;
     public char g;
     public char b;
@@ -15,5 +15,10 @@ public class RGB8 {
         r = (char)a.x;
         g = (char)a.y;
         b = (char)a.z;
+    }
+
+    @Override
+    public RGB8 clone() throws CloneNotSupportedException {
+        return (RGB8) super.clone();
     }
 }

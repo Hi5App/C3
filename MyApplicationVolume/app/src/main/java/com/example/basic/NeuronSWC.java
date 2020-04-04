@@ -3,7 +3,7 @@ package com.example.basic;
 import java.util.ArrayList;
 
 
-public class NeuronSWC extends BasicSurfObj {
+public class NeuronSWC extends BasicSurfObj implements Cloneable{
     public int type;
     public float x, y, z;
 
@@ -33,6 +33,17 @@ public class NeuronSWC extends BasicSurfObj {
         creatmode = 0;
         timestamp = 0;
         tfresindex = 0;
+    }
+
+    @Override
+    public NeuronSWC clone() throws CloneNotSupportedException {
+        NeuronSWC n = null;
+        n = (NeuronSWC) super.clone();
+        n.fea_val = new ArrayList<Float>(this.fea_val.size());
+        for(int i=0; i<this.fea_val.size(); i++){
+            n.fea_val.set(i,this.fea_val.get(i));
+        }
+        return n;
     }
 }
 
