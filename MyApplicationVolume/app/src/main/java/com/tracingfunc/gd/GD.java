@@ -1,12 +1,14 @@
 package com.tracingfunc.gd;
 
-import javafx.util.Pair;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+//import javafx.util.Pair;
+
 import static java.lang.Math.sqrt;
+
+//import com.sun.tools.javac.util..Pair;
 
 public class GD {
     public static int ITER_POSITION = 10;
