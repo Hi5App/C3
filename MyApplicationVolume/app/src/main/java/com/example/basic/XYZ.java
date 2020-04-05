@@ -50,4 +50,20 @@ public class XYZ implements Cloneable{
     public XYZ clone() throws CloneNotSupportedException {
         return (XYZ) super.clone();
     }
+
+    public static float norm(XYZ a){
+        return (float)Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+    }
+
+    public static XYZ normalize(XYZ a){
+        float m = norm(a);
+        if (m > 0){
+            a.x /= m;
+            a.y /= m;
+            a.z /= m;
+        }
+        return a;
+    }
+
+
 }

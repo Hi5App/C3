@@ -1,5 +1,9 @@
 package com.example.basic;
 
+import java.util.Random;
+
+import static com.example.basic.RGB8.random_rgb8;
+
 public class RGBA8 implements Cloneable{
     public char r;
     public char g;
@@ -12,5 +16,12 @@ public class RGBA8 implements Cloneable{
     @Override
     protected RGBA8 clone() throws CloneNotSupportedException {
         return (RGBA8) super.clone();
+    }
+
+    public static RGBA8 random_rgba8(char a, Random rd){
+        RGB8 c = new RGB8();
+        c = random_rgb8(rd);
+        RGBA8 cc = new RGBA8(c.r, c.g, c.b, a);
+        return cc;
     }
 }

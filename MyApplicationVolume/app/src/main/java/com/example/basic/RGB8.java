@@ -1,5 +1,9 @@
 package com.example.basic;
 
+import java.util.Random;
+
+import static com.example.basic.XYZ.normalize;
+
 public class RGB8 implements Cloneable{
     public char r;
     public char g;
@@ -20,5 +24,15 @@ public class RGB8 implements Cloneable{
     @Override
     public RGB8 clone() throws CloneNotSupportedException {
         return (RGB8) super.clone();
+    }
+
+    public static RGB8 random_rgb8(Random rd){
+        XYZ d = new XYZ(rd.nextInt(255), rd.nextInt(255), rd.nextInt(255));
+        normalize(d);
+        RGB8 c = new RGB8();
+        c.r = (char)(d.x * 255);
+        c.g = (char)(d.y * 255);
+        c.b = (char)(d.z * 255);
+        return c;
     }
 }

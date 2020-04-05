@@ -1,5 +1,9 @@
 package com.example.basic;
 
+import java.util.Random;
+
+import static com.example.basic.RGBA8.random_rgba8;
+
 enum PxLocationUsefulness
 {
     pxUnknown, pxLocaNotUseful, pxLocaUseful, pxLocaUnsure, pxTemp
@@ -54,8 +58,8 @@ public class LocationSimple {
         category = 0;
         //color.r = color.g = color.b = color.a = 255;
 
-        srand(clock()); //time(NULL));
-        color = random_rgba8(255);
+        Random rd = new Random();
+        color = random_rgba8((char)255,rd);
 
         ave = sdev = skew = curt = 0;
         size = mass = 0;
