@@ -6,8 +6,8 @@ import java.util.HashMap;
 
 
 public class NeuronTree extends BasicSurfObj {
-    public ArrayList<NeuronSWC> listNeuron;
-    public HashMap<Integer, Integer> hashNeuron;
+    public ArrayList<NeuronSWC> listNeuron = new ArrayList<>();
+    public HashMap<Integer, Integer> hashNeuron = new HashMap<>();
     public String file;
     public boolean editable;
     public int linemode;

@@ -9,6 +9,10 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.ArrayList;
 
+/*
+    Just for debug...
+    This file is to create a Input data for "Morphology features Calculation".
+ */
 public class readSWC_file_nt {
     NeuronTree readSWC_file(String filename) {
         ArrayList<String> arraylist = new ArrayList<String>();
@@ -41,39 +45,39 @@ public class readSWC_file_nt {
         hashNeuron.clear();
         // String name = "";
         // String comment = "";
-        for (int i = 0; i < arraylist.size() - 2; i++) {
+        for (int i = 0; i < arraylist.size() - 1; i++) {
             NeuronSWC S = new NeuronSWC();
-            String current = arraylist.get(i + 2);
+            String current = arraylist.get(i + 1);
             String[] s = current.split(" ");
             for (int j = 0; j < 7; j++) {
-                if (i == 0)
-                    S.nodeinseg_id = Integer.parseInt(arraylist.get(i));
-                else if (i == 1)
-                    S.type = Integer.parseInt(arraylist.get(i));
-                else if (i == 2)
-                    S.x = Float.parseFloat(arraylist.get(i));
-                else if (i == 3)
-                    S.y = Float.parseFloat(arraylist.get(i));
-                else if (i == 4)
-                    S.z = Float.parseFloat(arraylist.get(i));
-                else if (i == 5)
-                    S.radius = Float.parseFloat(arraylist.get(i));
-                else if (i == 6)
-                    S.parent = Integer.parseInt(arraylist.get(i));
+                if (j == 0)
+                    S.nodeinseg_id = Integer.parseInt(s[j]);
+                else if (j == 1)
+                    S.type = Integer.parseInt(s[j]);
+                else if (j == 2)
+                    S.x = Float.parseFloat(s[j]);
+                else if (j == 3)
+                    S.y = Float.parseFloat(s[j]);
+                else if (j == 4)
+                    S.z = Float.parseFloat(s[j]);
+                else if (j == 5)
+                    S.radius = Float.parseFloat(s[j]);
+                else if (j == 6)
+                    S.parent = Integer.parseInt(s[j]);
                 // the ESWC extension, by PHC, 20120217
-                else if (i == 7)
-                    S.seg_id = Integer.parseInt(arraylist.get(i));
-                else if (i == 8)
-                    S.level = Integer.parseInt(arraylist.get(i));
-                else if (i == 9)
-                    S.creatmode = Integer.parseInt(arraylist.get(i));
-                else if (i == 10)
-                    S.timestamp = Integer.parseInt(arraylist.get(i));
-                else if (i == 11)
-                    S.tfresindex = Integer.parseInt(arraylist.get(i));
+                else if (j == 7)
+                    S.seg_id = Integer.parseInt(s[j]);
+                else if (j == 8)
+                    S.level = Integer.parseInt(s[j]);
+                else if (j == 9)
+                    S.creatmode = Integer.parseInt(s[j]);
+                else if (j == 10)
+                    S.timestamp = Integer.parseInt(s[j]);
+                else if (j == 11)
+                    S.tfresindex = Integer.parseInt(s[j]);
                 // change ESWC format to adapt to flexible feature number, by WYN, 20150602
                 else
-                    S.fea_val.add(Float.parseFloat(arraylist.get(i)));
+                    S.fea_val.add(Float.parseFloat(s[j]));
             }
 
             // if (! listNeuron.contains(S)) // 081024
@@ -100,4 +104,5 @@ public class readSWC_file_nt {
 
         return nt;
     }
+
 }

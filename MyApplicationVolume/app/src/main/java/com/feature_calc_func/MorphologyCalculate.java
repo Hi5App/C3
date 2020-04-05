@@ -45,7 +45,7 @@ public class MorphologyCalculate {
         Fragmentation = 0;
         rootidx = 0;
 
-        int neuronNum = new ArrayList<String>().size();//
+        int neuronNum = nt.listNeuron.size();//
 
         childs = new Vector<Vector<Integer>>(neuronNum);
         for (int i = 0; i < neuronNum; i++) {
@@ -57,7 +57,7 @@ public class MorphologyCalculate {
             Long par = nt.listNeuron.get(i).parent;
             if (par < 0)
                 continue;
-            childs.get(nt.hashNeuron.get(par)).addElement(i);
+            childs.get(nt.hashNeuron.get(par.intValue())).addElement(i);
         }
 
         // find the root
@@ -127,6 +127,10 @@ public class MorphologyCalculate {
         features[20] = BifA_remote;
         // feature # 21: Hausdorr Dimension
         features[21] = Hausdorff; // Hausdorff program crash when running on complex neuron data, we don't use it
+
+        for (int i = 0; i < features.length; i++) {
+            System.out.println(features[i]);
+        }
     }
 
     Vector<Integer> getRemoteChild(int t) {
@@ -299,7 +303,7 @@ public class MorphologyCalculate {
     }
 
     int getParent(int n, NeuronTree nt) {
-        return (nt.listNeuron.get(n).parent < 0) ? (VOID) : (nt.hashNeuron.get(nt.listNeuron.get(n).parent));
+        return (nt.listNeuron.get(n).parent < 0) ? (VOID) : (nt.hashNeuron.get((int)nt.listNeuron.get(n).parent));
     }
 
     double angle(NeuronSWC a, NeuronSWC b, NeuronSWC c) {
@@ -498,6 +502,11 @@ public class MorphologyCalculate {
     }
 
     public static void main(String[] args) {
-        System.out.println("kujijijiji...");
+        readSWC_file_nt reader = new readSWC_file_nt();
+        MorphologyCalculate MC = new MorphologyCalculate();
+        //test data
+        NeuronTree nt = reader.readSWC_file("F:\\XiScience\\SEU\\bishe\\L2_data\\17302_00001.ano.swc");
+        double[] ff = new double[22];
+        MC.computeFeature(nt, ff);
     }
 }

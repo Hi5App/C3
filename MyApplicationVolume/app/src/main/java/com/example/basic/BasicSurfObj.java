@@ -2,7 +2,7 @@ package com.example.basic;
 
 public class BasicSurfObj implements Cloneable{
     public long n;				// index
-    public RGBA8 color;
+    public RGBA8 color = new RGBA8((char)255,(char)255,(char)255,(char)255);
     public boolean on;
     public boolean selected;
     public String name;
