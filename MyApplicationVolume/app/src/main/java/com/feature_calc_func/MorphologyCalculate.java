@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
+
 import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
 
@@ -20,7 +21,7 @@ public class MorphologyCalculate {
 
     Vector<Vector<Integer>> childs;
 
-    void computeFeature(NeuronTree nt, double[] features) {
+    double[] computeFeature(NeuronTree nt, double[] features) {
         Width = 0;
         Height = 0;
         Depth = 0;
@@ -72,7 +73,7 @@ public class MorphologyCalculate {
         }
         if (rootidx == VOID) {
             System.out.println("the input neuron tree does not have a root, please check your data");
-            return;
+            return null;
         }
 
         N_node = list.size();
@@ -131,6 +132,7 @@ public class MorphologyCalculate {
         for (int i = 0; i < features.length; i++) {
             System.out.println(features[i]);
         }
+        return features;
     }
 
     Vector<Integer> getRemoteChild(int t) {
@@ -303,7 +305,7 @@ public class MorphologyCalculate {
     }
 
     int getParent(int n, NeuronTree nt) {
-        return (nt.listNeuron.get(n).parent < 0) ? (VOID) : (nt.hashNeuron.get((int)nt.listNeuron.get(n).parent));
+        return (nt.listNeuron.get(n).parent < 0) ? (VOID) : (nt.hashNeuron.get((int) nt.listNeuron.get(n).parent));
     }
 
     double angle(NeuronSWC a, NeuronSWC b, NeuronSWC c) {
@@ -468,8 +470,7 @@ public class MorphologyCalculate {
 
     void free_matrix(int mat[][], int n, int m)
 
-    /* Free a float matrix allocated by matrix(). */
-    {
+        /* Free a float matrix allocated by matrix(). */ {
         int i;
 
         for (i = 0; i < n; i++) {
@@ -501,12 +502,25 @@ public class MorphologyCalculate {
         return (m + 1);
     }
 
-    public static void main(String[] args) {
+    /**
+     * compute morphology features from a .swc file.
+     * Input: path: absolute path of .swc file
+     * Output:
+     */
+    double[] Compute_from_file(String path) {
         readSWC_file_nt reader = new readSWC_file_nt();
         MorphologyCalculate MC = new MorphologyCalculate();
+        NeuronTree nt = reader.readSWC_file(path);
+        double[] feature_list = new double[22];
+        MC.computeFeature(nt, feature_list);
+
+        return feature_list;
+    }
+
+    public static void main(String[] args) {
+        MorphologyCalculate MC = new MorphologyCalculate();
         //test data
-        NeuronTree nt = reader.readSWC_file("F:\\XiScience\\SEU\\bishe\\L2_data\\17302_00001.ano.swc");
-        double[] ff = new double[22];
-        MC.computeFeature(nt, ff);
+        //System.out.println(MC.Compute_from_file("F:\\XiScience\\SEU\\bishe\\L2_data\\17302_00001.ano.swc")[0]);
+
     }
 }
