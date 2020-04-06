@@ -1,12 +1,16 @@
 package com.feature_calc_func;
 
+import android.net.Uri;
+import android.util.Log;
+
+import com.example.basic.NeuronSWC;
+import com.example.basic.NeuronTree;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
-import com.example.basic.NeuronSWC;
-import com.example.basic.NeuronTree;
 
 
 public class MorphologyCalculate {
@@ -502,20 +506,20 @@ public class MorphologyCalculate {
         return (m + 1);
     }
 
-    /**
-     * compute morphology features from a .swc file.
-     * Input: path: absolute path of .swc file
-     * Output:
-     */
-    double[] Compute_from_file(String path) {
-        readSWC_file_nt reader = new readSWC_file_nt();
-        MorphologyCalculate MC = new MorphologyCalculate();
-        NeuronTree nt = reader.readSWC_file(path);
-        double[] feature_list = new double[22];
-        MC.computeFeature(nt, feature_list);
-
-        return feature_list;
-    }
+//    /**
+//     * compute morphology features from a .swc file.
+//     * Input: path: absolute path of .swc file
+//     * Output:
+//     */
+//    double[] Compute_from_file(String path) {
+//        readSWC_file_nt reader = new readSWC_file_nt();
+//        MorphologyCalculate MC = new MorphologyCalculate();
+//        NeuronTree nt = reader.readSWC_file(path);
+//        double[] feature_list = new double[22];
+//        MC.computeFeature(nt, feature_list);
+//
+//        return feature_list;
+//    }
 
     public static void main(String[] args) {
         MorphologyCalculate MC = new MorphologyCalculate();
@@ -523,4 +527,23 @@ public class MorphologyCalculate {
         //System.out.println(MC.Compute_from_file("F:\\XiScience\\SEU\\bishe\\L2_data\\17302_00001.ano.swc")[0]);
 
     }
+
+
+    public double[] Calculate(Uri uri){
+        readSWC_file_nt reader = new readSWC_file_nt();
+        MorphologyCalculate MC = new MorphologyCalculate();
+        //test data
+//        NeuronTree nt = reader.readSWC_file("F:\\XiScience\\SEU\\bishe\\L2_data\\17302_00001.ano.swc");
+        NeuronTree nt = reader.readSWC_file(uri);
+        double[] ff = new double[22];
+        MC.computeFeature(nt, ff);
+
+        for ( int i = 0; i < ff.length; i++){
+            Log.v("Calculate", Double.toString(ff[i]));
+        }
+
+        return ff;
+
+    }
+
 }

@@ -29,4 +29,6 @@ dependencies {
     implementation 'cn.carbs.android:MDDialog:1.0.0'
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'org.apache.commons.io:commonsIO:2.5.0'
+
+    implementation 'com.lxj:xpopup:1.6.9'
 }

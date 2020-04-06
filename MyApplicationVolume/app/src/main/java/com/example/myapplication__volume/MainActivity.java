@@ -1,53 +1,48 @@
 package com.example.myapplication__volume;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
+import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
-
-import android.R.integer;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Paint.Style;
-import android.graphics.Path;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.util.AttributeSet;
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
-import android.opengl.GLSurfaceView;
-import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import java.io.File;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
+import com.feature_calc_func.MorphologyCalculate;
+import com.lxj.xpopup.XPopup;
+import com.lxj.xpopup.interfaces.OnSelectListener;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
+
 
 public class MainActivity extends AppCompatActivity {
     private MyGLSurfaceView myGLSurfaceView;
@@ -60,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean ifPainting = false;
     private boolean ifPoint = false;
     private boolean ifImport = false;
+    private boolean ifAnalyze = false;
 
     private int eswc_length;
     //读写权限
@@ -120,6 +116,10 @@ public class MainActivity extends AppCompatActivity {
         button_3.setText("load");
         ll.addView(button_3);
 
+        final Button button_4 = new Button(this);
+        button_4.setText("Analyze");
+        ll.addView(button_4);
+
         button_1.setOnClickListener(new Button.OnClickListener()
         {
             public void onClick(View v)
@@ -163,6 +163,18 @@ public class MainActivity extends AppCompatActivity {
                     startActivityForResult(intent, 1);
                     ifImport = !ifImport;
                 }
+            }
+        });
+
+        button_4.setOnClickListener(new Button.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                startActivityForResult(intent, 1);
+                ifAnalyze = true;
             }
         });
 
@@ -255,34 +267,36 @@ public class MainActivity extends AppCompatActivity {
 //
 //                myrenderer.importEswc(eswc);
 
-                String filetype = filePath.substring(filePath.length() - 4);
-                switch (filetype) {
-                    case ".apo":
-                        Log.v("Mainctivity", uri.toString());
-                        ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
-                        ApoReader apoReader = new ApoReader();
-                        apo = apoReader.read(uri);
-                        myrenderer.importApo(apo);
-                        break;
-                    case ".swc":
-                        ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
-                        SwcReader swcReader = new SwcReader();
-                        swc = swcReader.read(uri);
-                        myrenderer.importSwc(swc);
-                        break;
-                    case ".ano":
-                        ArrayList<ArrayList<Float>> ano_swc = new ArrayList<ArrayList<Float>>();
-                        ArrayList<ArrayList<Float>> ano_apo = new ArrayList<ArrayList<Float>>();
-                        AnoReader anoReader = new AnoReader();
-                        SwcReader swcReader_1 = new SwcReader();
-                        ApoReader apoReader_1 = new ApoReader();
-                        anoReader.read(uri);
+                if (ifImport){
+
+                    String filetype = filePath.substring(filePath.length() - 4);
+                    switch (filetype) {
+                        case ".apo":
+                            Log.v("Mainctivity", uri.toString());
+                            ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
+                            ApoReader apoReader = new ApoReader();
+                            apo = apoReader.read(uri);
+                            myrenderer.importApo(apo);
+                            break;
+                        case ".swc":
+                            ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
+                            SwcReader swcReader = new SwcReader();
+                            swc = swcReader.read(uri);
+                            myrenderer.importSwc(swc);
+                            break;
+                        case ".ano":
+                            ArrayList<ArrayList<Float>> ano_swc = new ArrayList<ArrayList<Float>>();
+                            ArrayList<ArrayList<Float>> ano_apo = new ArrayList<ArrayList<Float>>();
+                            AnoReader anoReader = new AnoReader();
+                            SwcReader swcReader_1 = new SwcReader();
+                            ApoReader apoReader_1 = new ApoReader();
+                            anoReader.read(uri);
 
 //                        Uri swc_uri = anoReader.getSwc_result();
 //                        Uri apo_uri = anoReader.getApo_result();
 
-                        String swc_path = anoReader.getSwc_Path();
-                        String apo_path = anoReader.getApo_Path();
+                            String swc_path = anoReader.getSwc_Path();
+                            String apo_path = anoReader.getApo_Path();
 
 //                        String swc_path = getPath(this, swc_uri);
 //                        String apo_path = getPath(this, apo_uri);
@@ -314,19 +328,30 @@ public class MainActivity extends AppCompatActivity {
 //                        ano_swc = swcReader_1.read(swc_uri);
 //                        ano_apo = apoReader_1.read(apo_uri);
 
-                        ano_swc = swcReader_1.read(swc_path);
-                        ano_apo = apoReader_1.read(apo_path);
-                        myrenderer.importSwc(ano_swc);
-                        myrenderer.importApo(ano_apo);
-                        break;
-                    default:
-                        ArrayList<ArrayList<Float>> eswc = new ArrayList<ArrayList<Float>>();
-                        EswcReader eswcReader = new EswcReader();
+                            ano_swc = swcReader_1.read(swc_path);
+                            ano_apo = apoReader_1.read(apo_path);
+                            myrenderer.importSwc(ano_swc);
+                            myrenderer.importApo(ano_apo);
+                            break;
+                        default:
+                            ArrayList<ArrayList<Float>> eswc = new ArrayList<ArrayList<Float>>();
+                            EswcReader eswcReader = new EswcReader();
 
-                        eswc = eswcReader.read(length, is);
-                        myrenderer.importEswc(eswc);
+                            eswc = eswcReader.read(length, is);
+                            myrenderer.importEswc(eswc);
+
+                    }
 
                 }
+
+
+                if (ifAnalyze){
+                    MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
+                    double [] features = morphologyCalculate.Calculate(uri);
+
+                    displayResult(features);
+                }
+
 
 
 //
@@ -364,6 +389,84 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+
+    /**
+     * display the result of morphology calculate
+     * @param result the features of result
+     */
+
+
+    @SuppressLint("DefaultLocale")
+    private void displayResult(double[] result){
+
+
+        String[] content = {
+                "number of nodes",
+                "soma surface",
+                "number of stems",
+                "number of bifurcations",
+                "number of branches",
+                "number of tips",
+                "overall width",
+                "overall height",
+                "overall depth",
+                "average diameter",
+                "total length",
+                "total surface",
+                "total volume",
+                "mac euclidean distance",
+                "max path distance",
+                "max branch order",
+                "average contraction",
+                "average fragmentation",
+                "average parent-daughter ratio",
+                "average bifurcation angle local",
+                "average bifurcation angle remote",
+                "Hausdorff dimension"
+        };
+
+        String[] result_display = new String[22];
+
+        for (int i = 0; i < result_display.length; i++){
+            int num = (33 - content[i].length());
+            result_display[i] = AddSpace(content[i], num) + ":" + String.format("%-8.5f", (float)result[i]);
+        }
+
+        new XPopup.Builder(this)
+                .maxWidth(960)
+                .maxHeight(1350)
+                .asCenterList("请选择一项", result_display,
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+//                                toast("click " + text);
+                            }
+                        })
+                .show();
+
+    }
+
+
+    /**
+     * add space at the end of string
+     * @param str original string
+     * @param count num of space
+     * @return result string
+     */
+    private String AddSpace(String str, int count){
+        String result = str;
+//        for (int i = 0; i < str.length(); i++) {
+//            if (str.charAt(i) == ' ') {
+//                count = count + 1;
+//            }
+//        }
+        for (int i = 0; i < count; i++){
+            result = result + " ";
+        }
+        return result;
+    }
+
 
 
     private String getPath(Context context, Uri uri) {
