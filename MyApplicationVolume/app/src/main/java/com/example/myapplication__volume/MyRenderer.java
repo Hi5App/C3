@@ -1,35 +1,22 @@
 package com.example.myapplication__volume;
 
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.net.Uri;
 import android.opengl.GLES10;
 import android.opengl.GLES30;
-import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
-import android.opengl.GLUtils;
 import android.opengl.Matrix;
-import android.os.Looper;
-import android.os.ParcelFileDescriptor;
-import android.renderscript.Matrix4f;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.example.basic.Image4DSimple;
+import com.example.basic.ImageMarker;
 
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Vector;
-import java.lang.Math;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -95,6 +82,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private ArrayList<Float> apoDrawed = new ArrayList<Float>();
 
     private ArrayList<Float> swcDrawed = new ArrayList<Float>();
+
+    private ArrayList<ImageMarker> MarkerList = new ArrayList<ImageMarker>();
 
 
     private String filepath = ""; //文件路径
@@ -275,10 +264,21 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 //        Log.v("onDrawFrame: ", Integer.toString(markerDrawed.size()));
 
+//        //现画的marker
+//        if(markerDrawed.size() > 0){
+//            for (int i = 0; i < markerDrawed.size(); i = i + 3){
+//                myDraw.drawMarker(finalMatrix, modelMatrix, markerDrawed.get(i), markerDrawed.get(i+1), markerDrawed.get(i+2));
+////                Log.v("onDrawFrame: ", "(" + markerDrawed.get(i) + ", " + markerDrawed.get(i+1) + ", " + markerDrawed.get(i+2) + ")");
+//
+//            }
+//        }
+
+
         //现画的marker
-        if(markerDrawed.size() > 0){
-            for (int i = 0; i < markerDrawed.size(); i = i + 3){
-                myDraw.drawMarker(finalMatrix, modelMatrix, markerDrawed.get(i), markerDrawed.get(i+1), markerDrawed.get(i+2));
+        if(MarkerList.size() > 0){
+            for (int i = 0; i < MarkerList.size(); i++){
+                ImageMarker imageMarker = MarkerList.get(i);
+                myDraw.drawMarker(finalMatrix, modelMatrix, imageMarker.x, imageMarker.y, imageMarker.z);
 //                Log.v("onDrawFrame: ", "(" + markerDrawed.get(i) + ", " + markerDrawed.get(i+1) + ", " + markerDrawed.get(i+2) + ")");
 
             }
@@ -587,14 +587,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 
+    // add the marker drawed into markerlist
     public void setMarkerDrawed(float x, float y){
 
         if(solveMarkerCenter(x, y) != null) {
             float[] new_marker = solveMarkerCenter(x, y);
 
-            markerDrawed.add(new_marker[0]);
-            markerDrawed.add(new_marker[1]);
-            markerDrawed.add(new_marker[2]);
+            ImageMarker imageMarker_drawed = new ImageMarker(new_marker[0],
+                                                             new_marker[1],
+                                                             new_marker[2]);
+
+            MarkerList.add(imageMarker_drawed);
         }
     }
 
