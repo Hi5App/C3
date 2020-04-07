@@ -280,7 +280,7 @@ public class Rawreader{
             image.setSz1(sz[1]);
             image.setSz2(sz[2]);
             image.setSz3(sz[3]);
-            image.setDatatype(datatype);
+            image.setDatatype(Image4DSimple.ImagePixelType.values()[datatype]);
             image.setData(grayscale_try);
             return image;
 

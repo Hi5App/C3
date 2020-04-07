@@ -73,7 +73,7 @@ public class MyPattern{
     private int vol_h;
     private int vol_d;
 
-
+    private Image4DSimple image;
 
 
     private final float[] vertexPoints={
@@ -604,7 +604,9 @@ public class MyPattern{
 
 
 
-    public MyPattern(String filepath, InputStream is, long length, int width, int height) {
+    public MyPattern(String filepath, InputStream is, long length, int width, int height, Image4DSimple img) {
+
+        image = img;
 
         //创建两个着色器程序
         mProgram_simple = initProgram(vertexShaderCode_1, fragmentShaderCode_1);
@@ -1096,12 +1098,12 @@ public class MyPattern{
 
         Log.v("getIntensity_3d:", "here we are!!!!!!!");
 
-        Rawreader rr = new Rawreader();
-        String fileName = filepath;
-//        int[][][] grayscale= null;
-        Image4DSimple image = new Image4DSimple();
-//        Log.v("getIntensity_3d", filepath);
-        image = Image4DSimple.loadImage(filepath);
+//        Rawreader rr = new Rawreader();
+//        String fileName = filepath;
+////        int[][][] grayscale= null;
+//        Image4DSimple image = new Image4DSimple();
+////        Log.v("getIntensity_3d", filepath);
+//        image = Image4DSimple.loadImage(filepath);
 //        File file = new File(filepath);
 //
 //        if (file.exists()){

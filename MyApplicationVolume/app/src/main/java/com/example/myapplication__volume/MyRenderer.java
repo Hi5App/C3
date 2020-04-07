@@ -20,6 +20,8 @@ import android.renderscript.Matrix4f;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.basic.Image4DSimple;
+
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
@@ -45,6 +47,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private MyAxis myAxis;
     private MyDraw myDraw;
 
+    private Image4DSimple img;
     private ByteBuffer imageBuffer;
 
     private int mProgram;
@@ -139,7 +142,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         screen_w = width;
         screen_h = height;
-        myPattern = new MyPattern(filepath, is, length, width, height);
+        myPattern = new MyPattern(filepath, is, length, width, height, img);
         myAxis = new MyAxis();
         myDraw = new MyDraw();
 
@@ -606,32 +609,35 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         String fileName = filepath;
 
         Uri uri = Uri.parse(fileName);
+        img = Image4DSimple.loadImage(filepath);
+//        try {
+//            ParcelFileDescriptor parcelFileDescriptor =
+//                    MainActivity.getContext().getContentResolver().openFileDescriptor(uri, "r");
+//
+//            is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+//
+//            length = (int)parcelFileDescriptor.getStatSize();
+//
+//            Log.v("MyPattern","Successfully load intensity");
+//
+//        }catch (Exception e){
+//            Log.v("MyPattern","Some problems in the MyPattern when load intensity");
+//        }
 
-        try {
-            ParcelFileDescriptor parcelFileDescriptor =
-                    MainActivity.getContext().getContentResolver().openFileDescriptor(uri, "r");
 
-            is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+        grayscale =  img.getData()[0];
 
-            length = (int)parcelFileDescriptor.getStatSize();
+//        vol_w = rr.get_w();
+//        vol_h = rr.get_h();
+//        vol_d = rr.get_d();
 
-            Log.v("MyPattern","Successfully load intensity");
+//        sz[0] = vol_w;
+//        sz[1] = vol_h;
+//        sz[2] = vol_d;
 
-        }catch (Exception e){
-            Log.v("MyPattern","Some problems in the MyPattern when load intensity");
-        }
-
-
-        grayscale =  rr.run(length, is);
-
-        vol_w = rr.get_w();
-        vol_h = rr.get_h();
-        vol_d = rr.get_d();
-
-        sz[0] = vol_w;
-        sz[1] = vol_h;
-        sz[2] = vol_d;
-
+        sz[0] = (int)img.getSz0();
+        sz[1] = (int)img.getSz1();
+        sz[2] = (int)img.getSz2();
         int count = 0;
 
 //        for (int i = 0; i < vol_w; i++){
