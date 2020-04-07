@@ -430,7 +430,12 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i = 0; i < result_display.length; i++){
             int num = (33 - content[i].length());
-            result_display[i] = AddSpace(content[i], num) + ":" + String.format("%-8.5f", (float)result[i]);
+            if (content[i].substring(0, 6).equals("number") || content[i].substring(0, 6).equals("max br")){
+                result_display[i] = ":" + AddSpace(content[i], num) + String.format("%-8d", (int)result[i]);
+            }
+            else{
+                result_display[i] = ":" + AddSpace(content[i], num) + String.format("%-8.5f", (float)result[i]);
+            }
         }
 
         new XPopup.Builder(this)
