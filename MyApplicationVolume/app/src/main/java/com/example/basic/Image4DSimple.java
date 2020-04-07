@@ -1,5 +1,18 @@
 package com.example.basic;
 
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import android.util.Log;
+
+import com.example.myapplication__volume.Rawreader;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+
+import static com.example.myapplication__volume.MainActivity.getContext;
+
 enum ImagePixelType {V3D_UNKNOWN, V3D_UINT8, V3D_UINT16, V3D_THREEBYTE, V3D_FLOAT32}
 enum TimePackType {TIME_PACK_NONE,TIME_PACK_Z,TIME_PACK_C}
 
@@ -220,6 +233,10 @@ public class Image4DSimple {
         this.datatype = datatype;
     }
 
+    public void setDatatype(int i){
+        this.datatype = ImagePixelType.values()[i];
+    }
+
     public void setTimepacktype(TimePackType timepacktype) {
         this.timepacktype = timepacktype;
     }
@@ -306,7 +323,51 @@ public class Image4DSimple {
         return imgSrcFile;
     }
 
-    public void loadImage(String filename){
+//    public void loadImage(String filename){
+//
+//    }
 
+    public static Image4DSimple loadImage(String filepath){
+        Image4DSimple image = new Image4DSimple();
+        Rawreader rr = new Rawreader();
+        File file = new File(filepath);
+        long length = 0;
+        InputStream is = null;
+        if (file.exists()){
+            try {
+                length = file.length();
+                is = new FileInputStream(file);
+//                grayscale =  rr.run(length, is);
+                image = rr.run(length, is);
+
+                Log.v("getIntensity_3d", filepath);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        else {
+            Uri uri = Uri.parse(filepath);
+
+            try {
+                ParcelFileDescriptor parcelFileDescriptor =
+                        getContext().getContentResolver().openFileDescriptor(uri, "r");
+
+                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+
+                length = (int)parcelFileDescriptor.getStatSize();
+
+                Log.v("MyPattern","Successfully load intensity");
+
+            }catch (Exception e){
+                Log.v("MyPattern","Some problems in the MyPattern when load intensity");
+            }
+
+
+            image =  rr.run(length, is);
+
+        }
+        return image;
     }
 }

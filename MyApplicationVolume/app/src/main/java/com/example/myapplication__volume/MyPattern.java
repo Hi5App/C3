@@ -6,6 +6,8 @@ import android.opengl.GLES30;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
+import com.example.basic.Image4DSimple;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -1096,52 +1098,55 @@ public class MyPattern{
 
         Rawreader rr = new Rawreader();
         String fileName = filepath;
-        int[][][] grayscale= null;
-
+//        int[][][] grayscale= null;
+        Image4DSimple image = new Image4DSimple();
 //        Log.v("getIntensity_3d", filepath);
+        image = Image4DSimple.loadImage(filepath);
+//        File file = new File(filepath);
+//
+//        if (file.exists()){
+//            try {
+//                length = file.length();
+//                is = new FileInputStream(file);
+////                grayscale =  rr.run(length, is);
+//                image = rr.run(length, is);
+//
+//                Log.v("getIntensity_3d", filepath);
+//
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        else {
+//            Uri uri = Uri.parse(fileName);
+//
+//            try {
+//                ParcelFileDescriptor parcelFileDescriptor =
+//                        getContext().getContentResolver().openFileDescriptor(uri, "r");
+//
+//                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+//
+//                length = (int)parcelFileDescriptor.getStatSize();
+//
+//                Log.v("MyPattern","Successfully load intensity");
+//
+//            }catch (Exception e){
+//                Log.v("MyPattern","Some problems in the MyPattern when load intensity");
+//            }
+//
+//
+//             image =  rr.run(length, is);
+//
+//        }
 
-        File file = new File(filepath);
-
-        if (file.exists()){
-            try {
-                length = file.length();
-                is = new FileInputStream(file);
-                grayscale =  rr.run(length, is);
-
-                Log.v("getIntensity_3d", filepath);
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-
-        else {
-            Uri uri = Uri.parse(fileName);
-
-            try {
-                ParcelFileDescriptor parcelFileDescriptor =
-                        getContext().getContentResolver().openFileDescriptor(uri, "r");
-
-                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-
-                length = (int)parcelFileDescriptor.getStatSize();
-
-                Log.v("MyPattern","Successfully load intensity");
-
-            }catch (Exception e){
-                Log.v("MyPattern","Some problems in the MyPattern when load intensity");
-            }
-
-
-             grayscale =  rr.run(length, is);
-
-        }
-
-
-        vol_w = rr.get_w();
-        vol_h = rr.get_h();
-        vol_d = rr.get_d();
-
+//
+//        vol_w = rr.get_w();
+//        vol_h = rr.get_h();
+//        vol_d = rr.get_d();
+        vol_w = (int)image.getSz0();
+        vol_h = (int)image.getSz1();
+        vol_d = (int)image.getSz2();
 //        vol_w = 128;
 //        vol_h = 128;
 //        vol_d = 128;
@@ -1150,6 +1155,7 @@ public class MyPattern{
         Log.v("vol_h", Integer.toString(vol_h));
         Log.v("vol_d", Integer.toString(vol_d));
 
+        int [][][][] grayscale = image.getData();
 
         byte[] data_image = new byte[vol_w * vol_h * vol_d * 4];
 
@@ -1159,9 +1165,9 @@ public class MyPattern{
 
             for (int y = 0; y < vol_h; ++y){
                 for (int x = 0; x < vol_w; x++) {
-                    data_image[(layeroffset * z + vol_w * y + x) * 4] = intToByteArray(grayscale[x][y][z])[3];
-                    data_image[(layeroffset * z + vol_w * y + x) * 4 + 1] = intToByteArray(grayscale[x][y][z])[3];
-                    data_image[(layeroffset * z + vol_w * y + x) * 4 + 2] = intToByteArray(grayscale[x][y][z])[3];
+                    data_image[(layeroffset * z + vol_w * y + x) * 4] = intToByteArray(grayscale[0][x][y][z])[3];
+                    data_image[(layeroffset * z + vol_w * y + x) * 4 + 1] = intToByteArray(grayscale[0][x][y][z])[3];
+                    data_image[(layeroffset * z + vol_w * y + x) * 4 + 2] = intToByteArray(grayscale[0][x][y][z])[3];
                     data_image[(layeroffset * z + vol_w * y + x) * 4 + 3] = intToByteArray(1)[3];
 
 //                    if(grayscale[x][y][z] > 50){

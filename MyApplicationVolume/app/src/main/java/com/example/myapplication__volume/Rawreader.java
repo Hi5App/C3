@@ -36,6 +36,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.example.basic.Image4DSimple;
+
+
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -52,7 +55,7 @@ public class Rawreader{
 
     private static String formatkey = "raw_image_stack_by_hpeng";
 //    public static int[][][] run(String fileName) {
-    public int[][][] run(long length , InputStream is) {
+    public Image4DSimple run(long length , InputStream is) {
 //        OpenDialog od = new OpenDialog("Open V3D's Raw Image...", arg);
 //        String fileName = od.getFileName();
 //        if (fileName==null)       return;
@@ -60,7 +63,7 @@ public class Rawreader{
 //        IJ.showStatus("Opening: " + directory + fileName);
 
 
-        int[][][] grayscale = new int[128][128][128];
+//        int[][][] grayscale = new int[128][128][128];
 
 
         // Read in the header values...
@@ -184,7 +187,7 @@ public class Rawreader{
 
 
 
-            int[][][] grayscale_try = new int[img_w][img_h][img_d];
+            int[][][][] grayscale_try = new int[nChannel][img_d][img_h][img_w];
 
 
             int layerOffset = w*h;
@@ -209,7 +212,7 @@ public class Rawreader{
                                 int y = i / w;
                                 int z = (int)layer;
 //                                grayscale[x][y][z] = imtmp[i];
-                                grayscale_try[z][y][x] = imtmp[i];
+                                grayscale_try[colorChannel][z][y][x] = imtmp[i];
                             }
 //                            cF.setPixels(imtmp);
 //                            imStack.addSlice(null,cF);
@@ -225,6 +228,10 @@ public class Rawreader{
                                 bytmp[0] = img.get(colorChannel*colorOffset*2+layer*layerOffset*2+i*2);
                                 bytmp[1] = img.get(colorChannel*colorOffset*2+layer*layerOffset*2+i*2+1);
                                 im16[i] = (short)bytes2int(bytmp,isBig);
+                                int x = i % w;
+                                int y = i / w;
+                                int z = (int)layer;
+                                grayscale_try[colorChannel][z][y][x] = im16[i];
                             }
 //                            cF16.setPixels(im16);
 //                            imStack.addSlice(null,cF16);
@@ -235,14 +242,19 @@ public class Rawreader{
                         bytmp = new byte[4];
                         for (long layer=0;layer<sz[2];layer++)
                         {
-                            float[] im32 = new float[layerOffset];
+//                            float[] im32 = new float[layerOffset];
+                            int[] im32 = new int[layerOffset];
 //                            FloatProcessor cF32 = new FloatProcessor(w,h);
                             for (int i=0;i<layerOffset;i++){
                                 bytmp[0] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4);
                                 bytmp[1] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4+1);
                                 bytmp[2] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4+2);
                                 bytmp[3] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4+3);
-                                im32[i] = Float.intBitsToFloat(bytes2int(bytmp,isBig));
+                                im32[i] = bytes2int(bytmp,isBig);
+                                int x = i % w;
+                                int y = i / w;
+                                int z = (int)layer;
+                                grayscale_try[colorChannel][z][y][x] = im32[i];
                             }
 //                            cF32.setPixels(im32);
 //                            imStack.addSlice(null,cF32);
@@ -263,8 +275,14 @@ public class Rawreader{
 //            else imps[0].show();
 
             fid.close();
-
-            return grayscale_try;
+            Image4DSimple image = new Image4DSimple();
+            image.setSz0(sz[0]);
+            image.setSz1(sz[1]);
+            image.setSz2(sz[2]);
+            image.setSz3(sz[3]);
+            image.setDatatype(datatype);
+            image.setData(grayscale_try);
+            return image;
 
         } catch ( Exception e ) {
 //            IJ.error("Error:" + e.toString());
