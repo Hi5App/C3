@@ -67,7 +67,8 @@ public class LocationSimple {
 
         ev_pc1=ev_pc2=ev_pc3 = -9999; //set as invalid value
 
-        mcenter.x=0; mcenter.y=0; mcenter.z=0;
+        mcenter = new XYZ(0, 0, 0);
+//        mcenter.x=0; mcenter.y=0; mcenter.z=0;
 
         on=true;
     }

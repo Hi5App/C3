@@ -26,6 +26,7 @@ public class V_NeuronSWC implements Cloneable{
         to_be_deleted = false;
         to_be_broken = false;
         on = true;
+        row = new Vector<V_NeuronSWC_unit>();
     }
 
     public V_NeuronSWC(String new_name, boolean is_linegraph)
