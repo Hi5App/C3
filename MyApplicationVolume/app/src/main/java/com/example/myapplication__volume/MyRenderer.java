@@ -1374,7 +1374,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
+    public Image4DSimple getImg() {
+        return img;
+    }
 
+    public ArrayList<ImageMarker> getMarkerList() {
+        return MarkerList;
+    }
 }
 
 

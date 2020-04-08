@@ -33,12 +33,19 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.example.basic.Image4DSimple;
+import com.example.basic.ImageMarker;
+import com.example.basic.LocationSimple;
+import com.example.basic.NeuronTree;
 import com.feature_calc_func.MorphologyCalculate;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnSelectListener;
+import com.tracingfunc.gd.CurveTracePara;
+import com.tracingfunc.gd.V3dNeuronGDTracing;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Vector;
 
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -56,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean ifPoint = false;
     private boolean ifImport = false;
     private boolean ifAnalyze = false;
+    private boolean ifGDTracing = false;
 
     private int eswc_length;
     //读写权限
@@ -120,6 +128,10 @@ public class MainActivity extends AppCompatActivity {
         button_4.setText("Analyze");
         ll.addView(button_4);
 
+        final Button button_5 = new Button(this);
+        button_5.setText("GD_Tracing");
+        ll.addView(button_5);
+
         button_1.setOnClickListener(new Button.OnClickListener()
         {
             public void onClick(View v)
@@ -175,6 +187,16 @@ public class MainActivity extends AppCompatActivity {
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 startActivityForResult(intent, 1);
                 ifAnalyze = true;
+            }
+        });
+
+        button_5.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                try {
+                    GDTraing();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -390,12 +412,45 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void GDTraing() throws Exception{
+        Image4DSimple img = myrenderer.getImg();
+        if(!img.valid()){
+            Log.v("GDTracing","Please load img first!");
+        }
+        ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
+        if(markers.size()<=1){
+            Log.v("GDTracing","Please get two marker at least!");
+        }
+        LocationSimple p0 = new LocationSimple(markers.get(0).x,markers.get(0).y,markers.get(0).z);
+        Vector<LocationSimple> pp = new Vector<LocationSimple>();
+        for(int i=1; i<markers.size(); i++){
+            LocationSimple p = new LocationSimple(markers.get(i).x,markers.get(i).y,markers.get(i).z);
+            pp.add(p);
+        }
+
+        NeuronTree outswc;
+        long[] sz = new long[]{img.getSz0(),img.getSz1(),img.getSz2(),img.getSz3()};
+        CurveTracePara curveTracePara = new CurveTracePara();
+        outswc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img.getData(),sz,p0,pp,curveTracePara,1.0);
+        ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
+        for(int i=0; i<outswc.listNeuron.size(); i++){
+            ArrayList<Float> s = new ArrayList<Float>();
+            s.add((float)outswc.listNeuron.get(i).n);
+            s.add((float)outswc.listNeuron.get(i).type);
+            s.add((float)outswc.listNeuron.get(i).x);
+            s.add((float)outswc.listNeuron.get(i).y);
+            s.add((float)outswc.listNeuron.get(i).z);
+            s.add((float)outswc.listNeuron.get(i).radius);
+            s.add((float)outswc.listNeuron.get(i).parent);
+            swc.add(s);
+        }
+        myrenderer.importSwc(swc);
+    }
 
     /**
      * display the result of morphology calculate
      * @param result the features of result
      */
-
 
     @SuppressLint("DefaultLocale")
     private void displayResult(double[] result){
