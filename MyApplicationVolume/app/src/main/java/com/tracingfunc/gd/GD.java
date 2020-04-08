@@ -1,6 +1,8 @@
 package com.tracingfunc.gd;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -305,7 +307,7 @@ public class GD {
         // #define _do_shortest_path_algorithm_
         //========================================================================================================
 
-        int code_select = 1; // BGL has the best speed and correctness
+        int code_select = 2; // BGL has the best speed and correctness
         switch(code_select)
         {
             case 0:
@@ -317,8 +319,10 @@ public class GD {
                 s_error = phc_shortest_path(edge_array, (int) num_edges, weights, (int) num_nodes,	(int) start_nodeind, plist);
                 break;
             case 2:
-                System.out.println("mst_shortest_path() ");
+//                System.out.println("mst_shortest_path() ");
                 // s_error = mst_shortest_path(&edge_array[0], num_edges, &weights[0], num_nodes,	start_nodeind, &plist[0]);
+                System.out.println("my_shortest_path()");
+                s_error = my_shortest_path(edge_array, (int) num_edges, weights, (int) num_nodes,	(int) start_nodeind, plist);
                 break;
         }
         if (s_error != "" && s_error != null)
@@ -328,6 +332,10 @@ public class GD {
         }
         //=========================================================================================================
         //for (i=0;i<num_nodes;i++)	std::cout<<"p("<<i<<")="<<plist[i]<<";   ";  std::cout<<std::endl;
+
+        for(i = 0; i<plist.length; i++){
+            System.out.println(plist[i]);
+        }
 
 
         // output node coordinates of the shortest path
@@ -477,21 +485,21 @@ public class GD {
             System.out.println("done with the SP step. ");
         }
 
-        else
-            for (int npath=0; npath<n_end_nodes; npath++) // n path of back tracing end-.start
+        else {
+            for (int npath = 0; npath < n_end_nodes; npath++) // n path of back tracing end-.start
             {
                 // #define _output_shortest_path_N_
-                System.out.printf("the #%d path of back tracing end-.start \n", npath+1);
+                System.out.printf("the #%d path of back tracing end-.start \n", npath + 1);
                 mUnit.clear();
 
                 j = (int) end_nodeind[npath]; //search from the last one
                 cc.x = x1[npath];
                 cc.y = y1[npath];
                 cc.z = z1[npath];
-                cc.n = nexist +1+mUnit.size();
-                cc.parent = cc.n +1; //父节点n属性比自己大1
+                cc.n = nexist + 1 + mUnit.size();
+                cc.parent = cc.n + 1; //父节点n属性比自己大1
                 System.out.printf("[end: x y z] %d: %g %g %g \n", j, cc.x, cc.y, cc.z);
-                if (j<0 || j>=num_nodes) // for the end_node out of ROI
+                if (j < 0 || j >= num_nodes) // for the end_node out of ROI
                 {
                     System.out.println(" end_node is out of ROI, ignored.");
                     continue;
@@ -500,46 +508,48 @@ public class GD {
 
                 mUnit.add(cc.clone());
 
-                for (k=0;k<n;k++) //at most n edge links
+                for (k = 0; k < n; k++) //at most n edge links
                 {
-                    long jj = j;	j = plist[j];
+                    long jj = j;
+                    j = plist[j];
 
-                    if (j==jj)
-                    {
+                    if (j == jj) {
                         mUnit.clear();
-                        System.out.println(s_error="Error happens: this path is broken because a node has a self-link!"); System.out.printf(" [j.p(j)] %d.%d \n", jj, j);
+                        System.out.println(s_error = "Error happens: this path is broken because a node has a self-link!");
+                        System.out.printf(" [j.p(j)] %d.%d \n", jj, j);
                         break;
-                    }
-                    else if (j>=num_nodes)
-                    {
+                    } else if (j >= num_nodes) {
                         mUnit.clear();
-                        System.out.println(s_error="Error happens: this node's parent has an index out of range!"); System.out.printf(" [j.p(j)] %d.%d \n", jj, j);
+                        System.out.println(s_error = "Error happens: this node's parent has an index out of range!");
+                        System.out.printf(" [j.p(j)] %d.%d \n", jj, j);
                         break;
-                    }
-                    else if (j<0) // should not be reached, because stop back trace at his child node
+                    } else if (j < 0) // should not be reached, because stop back trace at his child node
                     {
                         mUnit.clear();
-                        System.out.println(s_error="find the negative node, which should indicate the root has been over-reached."); System.out.printf(" [j.p(j)] %d.%d \n", jj, j);
+                        System.out.println(s_error = "find the negative node, which should indicate the root has been over-reached.");
+                        System.out.printf(" [j.p(j)] %d.%d \n", jj, j);
                         break;
                     }
 
-                    if (j!=start_nodeind)
-                    {
+                    if (j != start_nodeind) {
                         // NODE_TO_XYZ(j, cc.x, cc.y, cc.z);
-                        cc.z = (j)/(nx*ny); 		cc.y = ((j)-(long)(cc.z)*nx*ny)/nx; 	cc.x = ((j)-(long)(cc.z)*nx*ny-(long)(cc.y)*nx);
-                        cc.x = xmin+(cc.x)*xstep; 	cc.y = ymin+(cc.y)*ystep; 			cc.z = zmin+(cc.z)*zstep;
+                        cc.z = (j) / (nx * ny);
+                        cc.y = ((j) - (long) (cc.z) * nx * ny) / nx;
+                        cc.x = ((j) - (long) (cc.z) * nx * ny - (long) (cc.y) * nx);
+                        cc.x = xmin + (cc.x) * xstep;
+                        cc.y = ymin + (cc.y) * ystep;
+                        cc.z = zmin + (cc.z) * zstep;
 
-                        cc.n = nexist +1+mUnit.size();
-                        cc.parent = cc.n +1;
+                        cc.n = nexist + 1 + mUnit.size();
+                        cc.parent = cc.n + 1;
                         mUnit.add(cc.clone());
                         //System.out.println("[node: x y z] %ld: %g %g %g ", j, cc.x, cc.y, cc.z);
-                    }
-                    else //j==start_nodeind
+                    } else //j==start_nodeind
                     {
                         cc.x = x0;
                         cc.y = y0;
                         cc.z = z0;
-                        cc.n = nexist +1+mUnit.size();
+                        cc.n = nexist + 1 + mUnit.size();
                         cc.parent = -1;
                         mUnit.add(cc.clone());
                         System.out.printf("[start: x y z] %d: %g %g %g \n", j, cc.x, cc.y, cc.z);
@@ -549,15 +559,16 @@ public class GD {
                 }
                 nexist += mUnit.size();
 
-                if (mUnit.size()>=2) {
+                if (mUnit.size() >= 2) {
                     Vector<V_NeuronSWC_unit> mUnit_tmp = new Vector<V_NeuronSWC_unit>();
                     mUnit_tmp.clear();
-                    for(k=0; k<mUnit.size(); k++){
+                    for (k = 0; k < mUnit.size(); k++) {
                         mUnit_tmp.add(mUnit.elementAt(k).clone());
                     }
                     mmUnit.add(mUnit_tmp);
                 }
             }
+        }
 
         //	//also can do smoothing outside in proj_trace_smooth_dwonsample_last_traced_neuron
         //	System.out.println("smooth_curve + downsample_curve ");
@@ -748,7 +759,7 @@ public class GD {
     }
 
     //090512 PHC: add function phc_shortest_path()
-    String phc_shortest_path(Vector<Pair<Integer,Integer>> edge_array, int n_edges, Vector<Float> weights, int n_nodes, //input graph
+    public String phc_shortest_path(Vector<Pair<Integer,Integer>> edge_array, int n_edges, Vector<Float> weights, int n_nodes, //input graph
                              int start_nodeind, //input source
                              int[] plist) //output path
     {
@@ -806,6 +817,40 @@ public class GD {
         //free memory and return
 
         // if (p) {delete p; p=0;}
+        return s_error;
+    }
+
+    public String my_shortest_path(Vector<Pair<Integer,Integer>> edge_array, int n_edges, Vector<Float> weights, int n_nodes, //input graph
+                                   int start_nodeind, //input source
+                                   int[] plist){
+        String s_error = "";
+
+        //check data
+        if (edge_array.isEmpty() || n_edges<=0 || weights.isEmpty() || n_nodes<=0 ||
+                start_nodeind<0 || start_nodeind>=n_nodes ||
+                plist == null || plist.length == 0)
+        {
+            System.out.println(s_error="Invalid parameters to phc_shortest_path(). do nothing");
+            return s_error;
+        }
+
+        List<Vertex> vertexs = new ArrayList<Vertex>();
+        for(int i=0; i<n_nodes; i++){
+            Vertex v;
+            if(i==start_nodeind){
+                v = new Vertex(i,0);
+                v.setParent(-1);
+            }
+            v = new Vertex(i);
+            vertexs.add(v);
+        }
+        Gragh g = new Gragh(vertexs,edge_array,weights);
+        g.search();
+        List<Vertex> vs = g.getVertexs();
+        for(int i=0; i<vs.size(); i++){
+            plist[i] = vs.get(i).getParent();
+        }
+
         return s_error;
     }
 
