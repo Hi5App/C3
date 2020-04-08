@@ -846,9 +846,8 @@ public class GD {
         }
         Gragh g = new Gragh(vertexs,edge_array,weights);
         g.search(start_nodeind);
-        List<Vertex> vs = g.getVertexs();
-        for(int i=0; i<vs.size(); i++){
-            plist[i] = vs.get(i).getParent();
+        for(int i=0; i<g.plist.length; i++){
+            plist[i] = g.plist[i];
         }
 
         return s_error;
