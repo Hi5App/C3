@@ -16,6 +16,7 @@ public class Gragh {
         this.vertexs = vertexs;
         this.edge_array = edge_array;
         this.weights = weights;
+        initUnVisited();
     }
 
     public List<Vertex> getVertexs() {
