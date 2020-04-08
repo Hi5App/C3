@@ -31,6 +31,7 @@ public class GD {
                 {0,0,1, 1,1,0, sqrt(3.0)},
         };
         for(int i=0; i<edge_table.length; i++){
+            edge_table[i] = new Edge_table_item();
             edge_table[i].i0 = (int) tmp[i][0];
             edge_table[i].j0 = (int) tmp[i][1];
             edge_table[i].k0 = (int) tmp[i][2];
@@ -60,7 +61,7 @@ public class GD {
         final double dd = 0.5;
 
         // System.out.println("sizeof(Weight) = %d, sizeof(Node) = %d ", sizeof(Weight), sizeof(Node));
-        System.out.printf("bounding (%ld %ld %ld)--(%ld %ld %ld) in image (%ld x %ld x %ld)\n", bx0,by0,bz0, bx1,by1,bz1, dim0,dim1,dim2);
+        System.out.printf("bounding (%d %d %d)--(%d %d %d) in image (%d x %d x %d)\n", bx0,by0,bz0, bx1,by1,bz1, dim0,dim1,dim2);
         if (img3d == null || img3d.length == 0 || dim0<=0 || dim1<=0 || dim2<=0)
         {
             System.out.println(s_error="Error happens: no image data!");
@@ -70,7 +71,7 @@ public class GD {
                 || (bx1<0-dd || bx1>=dim0-dd || by1<0-dd || by1>=dim1-dd || bz1<0-dd || bz1>=dim2-dd))
         {
             System.out.println(s_error="Error happens: bounding box out of image bound!");
-            System.out.printf("inside z1=%ld\n", bz1);;
+            System.out.printf("inside z1=%d\n", bz1);;
             return s_error;
         }
 
@@ -94,8 +95,8 @@ public class GD {
 
         long num_edge_table = (edge_select==0)? 3:13; // exclude/include diagonal-edge
 
-        System.out.printf("valid bounding (%ld %ld %ld)--(%ld %ld %ld) ......  \n", xmin,ymin,zmin, xmax,ymax,zmax);
-        System.out.printf("%ld x %ld x %ld nodes, step = %d, connect = %d \n", nx, ny, nz, min_step, num_edge_table*2);
+        System.out.printf("valid bounding (%d %d %d)--(%d %d %d) ......  \n", xmin,ymin,zmin, xmax,ymax,zmax);
+        System.out.printf("%d x %d x %d nodes, step = %d, connect = %d \n", nx, ny, nz, min_step, num_edge_table*2);
 
         long num_nodes = nx*ny*nz;
         int i,j,k,n,m;
@@ -293,10 +294,10 @@ public class GD {
         long num_edges = n; // back to undirectEdge for less memory consumption
 
         //System.out.println("image average =%g, std =%g, max =%g.  select %ld out of %ld links ", imgAve, imgStd, imgMax, n, m);
-        System.out.printf("select %ld out of %ld links \n", n, m);
-        System.out.printf("total %ld nodes, total %ld edges \n", num_nodes, num_edges);
-        System.out.printf("start from #%ld to \n", start_nodeind);
-        for(i=0; i<n_end_nodes; i++) System.out.printf("#%ld ", end_nodeind[i]); System.out.println("");
+        System.out.printf("select %d out of %d links \n", n, m);
+        System.out.printf("total %d nodes, total %d edges \n", num_nodes, num_edges);
+        System.out.printf("start from #%d to \n", start_nodeind);
+        for(i=0; i<n_end_nodes; i++) System.out.printf("#%d ", end_nodeind[i]); System.out.println("");
         System.out.println("---------------------------------------------------------------");
 
 
@@ -357,7 +358,7 @@ public class GD {
                     mUnit.add(cc.clone());
                     // index_map[cc.n] = mUnit.size()-1; //fix the missing line bug by PHC, 2010-12-30
                     index_map.put(cc.n,mUnit.size()-1);
-                    System.out.printf("[start: x y z] %ld: %g %g %g \n", j, cc.x, cc.y, cc.z);
+                    System.out.printf("[start: x y z] %d: %g %g %g \n", j, cc.x, cc.y, cc.z);
                 }
                 else if ( (k=plist[j]) != j ) // has parent
                     if (k>=0 && k<num_nodes)  // is valid
@@ -392,7 +393,7 @@ public class GD {
             if (true)
             {
                 System.out.println("labeling to remove bark leaf child ");
-                System.out.printf("before dark-pruning there are %ld nodes in total, from %ld nodes in the initial graph. \n", mUnit.size(), num_nodes);
+                System.out.printf("before dark-pruning there are %d nodes in total, from %d nodes in the initial graph. \n", mUnit.size(), num_nodes);
                 //remove leaf node (nchild==0)
 
                 for (k=0; ; k++)
@@ -462,7 +463,7 @@ public class GD {
 //                            }
 //                        }
 
-                    System.out.printf("dark prune loop %ld. remove %ld nodes.\n", k, nprune);
+                    System.out.printf("dark prune loop %d. remove %d nodes.\n", k, nprune);
                     if (nprune==0)
                         break;
                 }
@@ -489,7 +490,7 @@ public class GD {
                 cc.z = z1[npath];
                 cc.n = nexist +1+mUnit.size();
                 cc.parent = cc.n +1; //父节点n属性比自己大1
-                System.out.printf("[end: x y z] %ld: %g %g %g \n", j, cc.x, cc.y, cc.z);
+                System.out.printf("[end: x y z] %d: %g %g %g \n", j, cc.x, cc.y, cc.z);
                 if (j<0 || j>=num_nodes) // for the end_node out of ROI
                 {
                     System.out.println(" end_node is out of ROI, ignored.");
@@ -506,19 +507,19 @@ public class GD {
                     if (j==jj)
                     {
                         mUnit.clear();
-                        System.out.println(s_error="Error happens: this path is broken because a node has a self-link!"); System.out.printf(" [j.p(j)] %ld.%ld \n", jj, j);
+                        System.out.println(s_error="Error happens: this path is broken because a node has a self-link!"); System.out.printf(" [j.p(j)] %d.%d \n", jj, j);
                         break;
                     }
                     else if (j>=num_nodes)
                     {
                         mUnit.clear();
-                        System.out.println(s_error="Error happens: this node's parent has an index out of range!"); System.out.printf(" [j.p(j)] %ld.%ld \n", jj, j);
+                        System.out.println(s_error="Error happens: this node's parent has an index out of range!"); System.out.printf(" [j.p(j)] %d.%d \n", jj, j);
                         break;
                     }
                     else if (j<0) // should not be reached, because stop back trace at his child node
                     {
                         mUnit.clear();
-                        System.out.println(s_error="find the negative node, which should indicate the root has been over-reached."); System.out.printf(" [j.p(j)] %ld.%ld \n", jj, j);
+                        System.out.println(s_error="find the negative node, which should indicate the root has been over-reached."); System.out.printf(" [j.p(j)] %d.%d \n", jj, j);
                         break;
                     }
 
@@ -541,7 +542,7 @@ public class GD {
                         cc.n = nexist +1+mUnit.size();
                         cc.parent = -1;
                         mUnit.add(cc.clone());
-                        System.out.printf("[start: x y z] %ld: %g %g %g \n", j, cc.x, cc.y, cc.z);
+                        System.out.printf("[start: x y z] %d: %g %g %g \n", j, cc.x, cc.y, cc.z);
 
                         break; //STOP back tracing
                     }
@@ -823,7 +824,7 @@ public class GD {
             if (edge_array.elementAt(i).getKey()<0 || edge_array.elementAt(i).getKey()>=n_nodes
                     || edge_array.elementAt(i).getValue()<0 || edge_array.elementAt(i).getValue()>=n_nodes)
             {
-                System.out.printf("illegal edge parent and child node info found in copyEdgeSparseData2Adj(). [%ld %ld w=%5.3f] n_nodes=%ld. do nothing\n",
+                System.out.printf("illegal edge parent and child node info found in copyEdgeSparseData2Adj(). [%d %d w=%5.3f] n_nodes=%d. do nothing\n",
                         edge_array.elementAt(i).getKey(), edge_array.elementAt(i).getValue(), weights.elementAt(i), n_nodes);
                 return s_error = "illegal edge parent and child node info found in copyEdgeSparseData2Adj().";
             }
@@ -867,7 +868,7 @@ public class GD {
 
         for (k=0; k<mmUnit.size(); k++)
         {
-            System.out.printf("....... removing the [%ld] segment children that have been labeled to delete (i.e. nchild < 0).\n", k);
+            System.out.printf("....... removing the [%d] segment children that have been labeled to delete (i.e. nchild < 0).\n", k);
             Vector<V_NeuronSWC_unit>  mUnit = mmUnit.elementAt(k);
             index_map.clear();
 
@@ -906,9 +907,9 @@ public class GD {
                 if (mUnit.elementAt(j).parent<0)
                 {
                     if (root_id!=-1)
-                        System.out.printf("== [segment %ld] ================== detect a non-unique root!\n", k);
+                        System.out.printf("== [segment %d] ================== detect a non-unique root!\n", k);
                     root_id = (long)(mUnit.elementAt(j).n);
-                    System.out.printf("== [segment %ld] ================== nchild of root [%ld, id=%ld] = %ld\n",
+                    System.out.printf("== [segment %d] ================== nchild of root [%d, id=%d] = %d\n",
                             k, j, (long)(mUnit.elementAt(j).n), (long)(mUnit.elementAt(j).nchild));
                 }
 
@@ -1050,7 +1051,7 @@ public class GD {
                     same_segment.clear();
                     if (ipath > -1)
                     {
-                        System.out.printf("add a valid segment form path %d(%ld -- %ld)\n", ipath+1, path_start[ipath], path_try[ipath]);
+                        System.out.printf("add a valid segment form path %d(%d -- %d)\n", ipath+1, path_start[ipath], path_try[ipath]);
                         for (jj = path_start[ipath]; jj >= path_try[ipath]; jj--)
                         {
                             same_node = mmUnit.elementAt(ipath).elementAt((int) jj).clone();

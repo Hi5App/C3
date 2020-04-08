@@ -30,7 +30,10 @@ public class DijkstraClass {
         nodeDistEst = new double[nodenum];
         nodeParent = new int[nodenum];
 
-        adjMatrix = new Vector<Vector<ConnectionVal>>(nodenum);
+        adjMatrix = new Vector<Vector<ConnectionVal>>();
+        for(int i=0; i<nodenum; i++){
+            adjMatrix.add(new Vector<ConnectionVal>());
+        }
     }
 
     public static int extractWhiteMin(byte[] colorQ, Vector<Vector<ConnectionVal>> adjMatrix, int len)

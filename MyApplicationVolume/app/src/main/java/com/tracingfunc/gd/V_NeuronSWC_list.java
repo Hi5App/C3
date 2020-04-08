@@ -17,6 +17,7 @@ public class V_NeuronSWC_list implements Cloneable{
             color_uc[i] = 0;
         }
         b_traced=true;
+        seg = new Vector<V_NeuronSWC>();
     }
 
     public long nsegs() {return seg.size();}
