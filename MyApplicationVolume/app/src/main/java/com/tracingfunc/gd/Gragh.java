@@ -16,6 +16,7 @@ public class Gragh {
         this.vertexs = vertexs;
         dis = new float[vertexs.size()];
         plist = new int[vertexs.size()];
+        edges = new Vector<Vector<Vertex>>();
         for(int i=0; i<vertexs.size(); i++){
             edges.add(new Vector<Vertex>());
             dis[i] = Integer.MAX_VALUE;
@@ -40,10 +41,11 @@ public class Gragh {
         dis[ori] = 0;
         plist[ori] = -1;
         q.add(new Vertex(ori,dis[ori]));
+
+        int count = 0;
         while (!q.isEmpty()){
             Vertex x = q.element();
             q.poll();
-            int count = 0;
             for(int i=0; i<edges.elementAt(x.getIndex()).size(); i++){
                 Vertex y = edges.elementAt(x.getIndex()).elementAt(i);
                 if(dis[y.getIndex()]>x.getPath()+y.getPath()){
