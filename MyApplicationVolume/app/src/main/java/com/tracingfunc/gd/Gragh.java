@@ -1,6 +1,5 @@
 package com.tracingfunc.gd;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -44,6 +43,7 @@ public class Gragh {
         while (!q.isEmpty()){
             Vertex x = q.element();
             q.poll();
+            int count = 0;
             for(int i=0; i<edges.elementAt(x.getIndex()).size(); i++){
                 Vertex y = edges.elementAt(x.getIndex()).elementAt(i);
                 if(dis[y.getIndex()]>x.getPath()+y.getPath()){
@@ -51,6 +51,11 @@ public class Gragh {
                     plist[y.getIndex()] = x.getIndex();
                     q.add(new Vertex(y.getIndex(),dis[y.getIndex()]));
                 }
+            }
+
+            count++;
+            if (count % 500 == 0){
+                System.out.println(count);
             }
         }
     }

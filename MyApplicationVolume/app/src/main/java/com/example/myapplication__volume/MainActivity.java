@@ -489,9 +489,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         new XPopup.Builder(this)
-                .maxWidth(960)
+//                .maxWidth(960)
                 .maxHeight(1350)
-                .asCenterList("请选择一项", result_display,
+                .asBottomList("请选择一项", result_display,
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
