@@ -2,7 +2,6 @@ package com.example.myapplication__volume;
 
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
@@ -29,9 +28,7 @@ import androidx.core.app.ActivityCompat;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -350,7 +347,7 @@ public class FileActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         String message = "Hello World";
 
-        Log.v("MainActivity", "dfdsfsdfsdfsdfvxcxv");
+        Log.v("FileActivity", "dfdsfsdfsdfsdfvxcxv");
 
         if (resultCode == RESULT_OK) {
             Uri uri = data.getData();
@@ -361,7 +358,7 @@ public class FileActivity extends AppCompatActivity {
 //            String filePath = "/storage/emulated/0/Download/image.v3draw";
 
 
-            Log.v("MainActivity", filePath);
+            Log.v("FileActivity", filePath);
             Log.v("filePath_getPath", filePath_getPath);
             Log.v("Uri_Scheme:", uri.getScheme());
             tv.setText(filePath);

@@ -1,14 +1,16 @@
 package com.tracingfunc.gd;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-//import javafx.util.Pair;
-
 import static java.lang.Math.sqrt;
+
+//import javafx.util.Pair;
 
 //import com.sun.tools.javac.util..Pair;
 
@@ -153,6 +155,9 @@ public class GD {
                 continue; //ignore this end_node out of ROI
             }
             end_nodeind[i]   = (long)((z1[i]+0.5)-zmin)/zstep*ny*nx + (long)((y1[i]+0.5)-ymin)/ystep*nx + (long)((x1[i]+0.5)-xmin)/xstep;
+
+            Log.v("end_nodeind", Long.toString(end_nodeind[i]));
+
             if (end_nodeind[i]<0 || end_nodeind[i]>=num_nodes)
             {
                 end_nodeind[i] = -1;
@@ -333,6 +338,8 @@ public class GD {
         //=========================================================================================================
         //for (i=0;i<num_nodes;i++)	std::cout<<"p("<<i<<")="<<plist[i]<<";   ";  std::cout<<std::endl;
 
+
+
         for(i = 0; i<plist.length; i++){
             System.out.println(plist[i]);
         }
@@ -512,6 +519,16 @@ public class GD {
                 {
                     long jj = j;
                     j = plist[j];
+
+                    Log.v("j: ", Long.toString(j));
+                    Log.v("jj: ", Long.toString(jj));
+                    Log.v("start_nodeind: ", Long.toString(start_nodeind));
+                    Log.v("mUnit.size(): ", Long.toString(mUnit.size()));
+
+//                    System.out.println(j);
+//                    System.out.println(jj);
+//                    System.out.println(start_nodeind);
+//                    System.out.println(mUnit.size());
 
                     if (j == jj) {
                         mUnit.clear();
@@ -845,10 +862,9 @@ public class GD {
             vertexs.add(v);
         }
         Gragh g = new Gragh(vertexs,edge_array,weights);
-        g.search();
-        List<Vertex> vs = g.getVertexs();
-        for(int i=0; i<vs.size(); i++){
-            plist[i] = vs.get(i).getParent();
+        g.search(start_nodeind);
+        for(int i=0; i<g.plist.length; i++){
+            plist[i] = g.plist[i];
         }
 
         return s_error;

@@ -1379,7 +1379,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public ArrayList<ImageMarker> getMarkerList() {
-        return MarkerList;
+
+        ArrayList<ImageMarker> Marker_volume_List = new ArrayList<ImageMarker>();
+
+        for (int i = 0; i < MarkerList.size(); i++){
+            ImageMarker marker_model = MarkerList.get(i);
+            float[] model = {marker_model.x, marker_model.y, marker_model.z};
+            float[] volume = ModeltoVolume(model);
+            ImageMarker marker_volume = new ImageMarker(volume[0], volume[1], volume[2]);
+            Marker_volume_List.add(marker_volume);
+        }
+        return Marker_volume_List;
     }
 }
 
