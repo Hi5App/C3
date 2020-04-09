@@ -61,35 +61,35 @@ public class V_NeuronSWC implements Cloneable{
 
     // void printInfo();
 
-    long nrows() {return row.size();}
+    int nrows() {return row.size();}
 
     // V_SWCNodes unique_nodes_info(); //determine the unique nodes
 
-    // vector<long> unique_nid(); //unique node id (id is the first column value in SWC)
-    // long n_unique_nid(); //number of unique node ids
+    // vector<int> unique_nid(); //unique node id (id is the first column value in SWC)
+    // int n_unique_nid(); //number of unique node ids
     // vector<V_NeuronSWC_coord> unique_ncoord(); //unique node coordinates (coordinates are the 3rd to 5th column)
-    // long n_unique_ncoord(); //number of unique node coords
+    // int n_unique_ncoord(); //number of unique node coords
 
-    long maxnoden() //091029 change maxnoden from >=-1 to >=0 for base_n in set_simple_path...
+    int maxnoden() //091029 change maxnoden from >=-1 to >=0 for base_n in set_simple_path...
     {
-        long maxn=0;	for (int i=0;i<row.size();i++) if (row.elementAt(i).n > maxn) maxn = (long)row.elementAt(i).n;		return maxn;
+        int maxn=0;	for (int i=0;i<row.size();i++) if (row.elementAt(i).n > maxn) maxn = (int)row.elementAt(i).n;		return maxn;
     }
-    // long getIndexofParent(long j)
+    // int getIndexofParent(int j)
     // {
-    // 	long res=-1; long parent = row.at(j).parent;
-    //             for (long i=0;i<(long)row.size();i++) if (row[i].n==parent)	{res=i; break;}
+    // 	int res=-1; int parent = row.at(j).parent;
+    //             for (int i=0;i<(int)row.size();i++) if (row[i].n==parent)	{res=i; break;}
     // 	return res;
     // }
-    // vector<long> getIndexofParent_nodeid(long nid) //return the array of of node "nid"'s parents' nid
+    // vector<int> getIndexofParent_nodeid(int nid) //return the array of of node "nid"'s parents' nid
     // {
-    // 	vector<long> res;
-    //             for (long i=0;i<(long)row.size();i++)
+    // 	vector<int> res;
+    //             for (int i=0;i<(int)row.size();i++)
     // 	{
     // 		if (row[i].n==nid)
     // 		{
-    // 			long curparent = row[i].parent;
+    // 			int curparent = row[i].parent;
     // 			boolean b_exist=false;
-    //                             for (long j=0;j<(long)res.size();j++)
+    //                             for (int j=0;j<(int)res.size();j++)
     // 				if (res.at(j)==curparent) {	b_exist=true; break;}
     // 			if (!b_exist)
     // 				res.add(curparent);
@@ -105,21 +105,21 @@ public class V_NeuronSWC implements Cloneable{
 
     // boolean isLineGraph() {return b_linegraph;} //just return the "claimed" property is a line graph
     // //check if a 3D location is contained in the swc
-    // long getFirstIndexof3DPos(double x,double y,double z) //return -1 is no included, othwise return the first detected index
+    // int getFirstIndexof3DPos(double x,double y,double z) //return -1 is no included, othwise return the first detected index
     // {
-    // 	long res=-1;
-    //             for (long i=0;i<(long)row.size();i++) if (row[i].data[2]==x && row[i].data[3]==y && row[i].data[4]==z)	{res=i; break;}
+    // 	int res=-1;
+    //             for (int i=0;i<(int)row.size();i++) if (row[i].data[2]==x && row[i].data[3]==y && row[i].data[4]==z)	{res=i; break;}
     // 	return res;
     // }
-    // long getFirstIndexof3DPos(const V_NeuronSWC_unit & subject_node) {return getFirstIndexof3DPos(subject_node.data[2], subject_node.data[3], subject_node.data[4]);}
-    // long getFirstIndexof3DPos(const V_NeuronSWC_unit * subject_node) {return getFirstIndexof3DPos(subject_node->data[2], subject_node->data[3], subject_node->data[4]);}
+    // int getFirstIndexof3DPos(const V_NeuronSWC_unit & subject_node) {return getFirstIndexof3DPos(subject_node.data[2], subject_node.data[3], subject_node.data[4]);}
+    // int getFirstIndexof3DPos(const V_NeuronSWC_unit * subject_node) {return getFirstIndexof3DPos(subject_node->data[2], subject_node->data[3], subject_node->data[4]);}
 
-    // vector<long> getAllIndexof3DPos(double x,double y,double z, long noninclude_ind) //return all indexes except the one indicated as noninclude_ind
+    // vector<int> getAllIndexof3DPos(double x,double y,double z, int noninclude_ind) //return all indexes except the one indicated as noninclude_ind
     // {
-    // 	vector<long> res;
-    //             for (long i=0;i<(long)row.size();i++) if (row[i].data[2]==x && row[i].data[3]==y && row[i].data[4]==z)	{ if (i!=noninclude_ind) res.add(i); }
+    // 	vector<int> res;
+    //             for (int i=0;i<(int)row.size();i++) if (row[i].data[2]==x && row[i].data[3]==y && row[i].data[4]==z)	{ if (i!=noninclude_ind) res.add(i); }
     // 	return res;
     // }
-    // vector <long> getAllIndexof3DPos(const V_NeuronSWC_unit & subject_node, long noninclude_ind) {return getAllIndexof3DPos(subject_node.data[2], subject_node.data[3], subject_node.data[4], noninclude_ind);}
-    // vector <long> getAllIndexof3DPos(const V_NeuronSWC_unit * subject_node, long noninclude_ind) {return getAllIndexof3DPos(subject_node->data[2], subject_node->data[3], subject_node->data[4], noninclude_ind);}
+    // vector <int> getAllIndexof3DPos(const V_NeuronSWC_unit & subject_node, int noninclude_ind) {return getAllIndexof3DPos(subject_node.data[2], subject_node.data[3], subject_node.data[4], noninclude_ind);}
+    // vector <int> getAllIndexof3DPos(const V_NeuronSWC_unit * subject_node, int noninclude_ind) {return getAllIndexof3DPos(subject_node->data[2], subject_node->data[3], subject_node->data[4], noninclude_ind);}
 }

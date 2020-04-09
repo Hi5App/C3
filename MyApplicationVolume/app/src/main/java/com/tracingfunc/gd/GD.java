@@ -3,6 +3,8 @@ package com.tracingfunc.gd;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,10 +51,10 @@ public class GD {
 
     // return error message, 0 is no error
     //
-    String find_shortest_path_graphimg(int[][][] img3d, long dim0, long dim1, long dim2, //image
+    String find_shortest_path_graphimg(int[][][] img3d, int dim0, int dim1, int dim2, //image
                                        float zthickness, // z-thickness for weighted edge
-                                       //final long box[6],  //bounding box
-                                       long bx0, long by0, long bz0, long bx1, long by1, long bz1, //bounding box (ROI)
+                                       //final int box[6],  //bounding box
+                                       int bx0, int by0, int bz0, int bx1, int by1, int bz1, //bounding box (ROI)
                                        float x0, float y0, float z0,       // start node
                                        int n_end_nodes,                    // n_end_nodes == (0 for shortest path tree) (1 for shortest path) (n-1 for n pair path)
                                        float[] x1, float[] y1, float[] z1,    // all end nodes
@@ -91,25 +93,25 @@ public class GD {
         if (smooth_winsize<1) smooth_winsize =1;
 
         //bounding box volume
-        long xmin = bx0, xmax = bx1, ymin = by0, ymax = by1, zmin = bz0, zmax = bz1;
+        int xmin = bx0, xmax = bx1, ymin = by0, ymax = by1, zmin = bz0, zmax = bz1;
 
-        long nx=((xmax-xmin)/min_step)+1, 	xstep=min_step,
+        int nx=((xmax-xmin)/min_step)+1, 	xstep=min_step,
                 ny=((ymax-ymin)/min_step)+1, 	ystep=min_step,
                 nz=((zmax-zmin)/min_step)+1, 	zstep=min_step;
 
-        long num_edge_table = (edge_select==0)? 3:13; // exclude/include diagonal-edge
+        int num_edge_table = (edge_select==0)? 3:13; // exclude/include diagonal-edge
 
         System.out.printf("valid bounding (%d %d %d)--(%d %d %d) ......  \n", xmin,ymin,zmin, xmax,ymax,zmax);
         System.out.printf("%d x %d x %d nodes, step = %d, connect = %d \n", nx, ny, nz, min_step, num_edge_table*2);
 
-        long num_nodes = nx*ny*nz;
+        int num_nodes = nx*ny*nz;
         int i,j,k,n,m;
 
         // ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // #define NODE_FROM_XYZ(x,y,z) 	(long((z+.5)-zmin)/zstep*ny*nx + long((y+.5)-ymin)/ystep*nx + long((x+.5)-xmin)/xstep)
+        // #define NODE_FROM_XYZ(x,y,z) 	(int((z+.5)-zmin)/zstep*ny*nx + int((y+.5)-ymin)/ystep*nx + int((x+.5)-xmin)/xstep)
         // #define NODE_TO_XYZ(j, x,y,z) \
         // { \
-        //     z = (j)/(nx*ny); 		y = ((j)-long(z)*nx*ny)/nx; 	x = ((j)-long(z)*nx*ny-long(y)*nx); \
+        //     z = (j)/(nx*ny); 		y = ((j)-int(z)*nx*ny)/nx; 	x = ((j)-int(z)*nx*ny-int(y)*nx); \
         //     x = xmin+(x)*xstep; 	y = ymin+(y)*ystep; 			z = zmin+(z)*zstep; \
         // }
         // #define NODE_FROM_IJK(i,j,k) 	((k)*ny*nx+(j)*nx+(i))
@@ -122,10 +124,10 @@ public class GD {
         // #define NODE_XYZ_OUT_OF_BOUND(x0,y0,z0)		(x0<xmin-dd || x0>xmax+dd || y0<ymin-dd || y0>ymax+dd || z0<zmin-dd || z0>zmax+dd)
         // #define NODE_INDEX_OUT_OF_BOUND(ind) 		(ind<0 || ind>=num_nodes)
 
-        long start_nodeind;
-        long[] end_nodeind = new long[n_end_nodes];
+        int start_nodeind;
+        int[] end_nodeind = new int[n_end_nodes];
 //        if (n_end_nodes>0) //101210 PHC
-//            end_nodeind = new long [n_end_nodes]; //100520, PHC
+//            end_nodeind = new int [n_end_nodes]; //100520, PHC
 //        else
 //            System.out.println("**************** n_end_nodes is 0, and thus do not need to allocate memory. *********************");
 
@@ -136,7 +138,7 @@ public class GD {
             return s_error;
         }
         // start_nodeind = NODE_FROM_XYZ(x0,y0,z0);
-        start_nodeind = (long)((z0+0.5)-zmin)/zstep*ny*nx + (long)((y0+0.5)-ymin)/ystep*nx + (long)((x0+0.5)-xmin)/xstep;
+        start_nodeind = (int)((z0+0.5)-zmin)/zstep*ny*nx + (int)((y0+0.5)-ymin)/ystep*nx + (int)((x0+0.5)-xmin)/xstep;
         if (start_nodeind<0 || start_nodeind>=num_nodes)
         {
             System.out.println(s_error="Error happens: start_node index out of range! ");
@@ -144,7 +146,7 @@ public class GD {
             return s_error;
         }
 
-        long n_end_outbound = 0;
+        int n_end_outbound = 0;
         for (i=0; i<n_end_nodes; i++)
         {
             if (x1[i]<xmin-dd || x1[i]>xmax+dd || y1[i]<ymin-dd || y1[i]>ymax+dd || z1[i]<zmin-dd || z1[i]>zmax+dd)
@@ -154,9 +156,9 @@ public class GD {
                 n_end_outbound ++;
                 continue; //ignore this end_node out of ROI
             }
-            end_nodeind[i]   = (long)((z1[i]+0.5)-zmin)/zstep*ny*nx + (long)((y1[i]+0.5)-ymin)/ystep*nx + (long)((x1[i]+0.5)-xmin)/xstep;
+            end_nodeind[i]   = (int)((z1[i]+0.5)-zmin)/zstep*ny*nx + (int)((y1[i]+0.5)-ymin)/ystep*nx + (int)((x1[i]+0.5)-xmin)/xstep;
 
-            Log.v("end_nodeind", Long.toString(end_nodeind[i]));
+            Log.v("end_nodeind", Integer.toString(end_nodeind[i]));
 
             if (end_nodeind[i]<0 || end_nodeind[i]>=num_nodes)
             {
@@ -238,9 +240,9 @@ public class GD {
                         }else if(dowsample_method == 1)
                         {
                             va = getBlockMaxValue(img3d, dim0, dim1, dim2, (xmin+(ii)*xstep),(ymin+(jj)*ystep),(zmin+(kk)*zstep),
-                                    (int) xstep, (int) ystep, (int) (zstep/zthickness)); //zthickness
+                                    xstep, ystep, (int) (zstep/zthickness)); //zthickness
                             vb = getBlockMaxValue(img3d, dim0, dim1, dim2, (xmin+(ii1)*xstep),(ymin+(jj1)*ystep),(zmin+(kk1)*zstep),
-                                    (int) xstep, (int) ystep, (int) (zstep/zthickness)); //zthickness
+                                    xstep, ystep, (int) (zstep/zthickness)); //zthickness
                         }
 
                         if (va<=imgTH || vb<=imgTH)
@@ -298,7 +300,7 @@ public class GD {
             // if (end_nodeind) {delete []end_nodeind; end_nodeind=0;} //100520, by PHC
             return s_error;
         }
-        long num_edges = n; // back to undirectEdge for less memory consumption
+        int num_edges = n; // back to undirectEdge for less memory consumption
 
         //System.out.println("image average =%g, std =%g, max =%g.  select %ld out of %ld links ", imgAve, imgStd, imgMax, n, m);
         System.out.printf("select %d out of %d links \n", n, m);
@@ -347,7 +349,7 @@ public class GD {
 
         // output node coordinates of the shortest path
         mmUnit.clear();
-        long nexist = 0;
+        int nexist = 0;
 
         V_NeuronSWC_unit cc = new V_NeuronSWC_unit();
         Vector<V_NeuronSWC_unit> mUnit = new Vector<V_NeuronSWC_unit>();
@@ -379,7 +381,7 @@ public class GD {
                     if (k>=0 && k<num_nodes)  // is valid
                     {
                         // NODE_TO_XYZ(j, cc.x, cc.y, cc.z);
-                        cc.z = (j)/(nx*ny); 		cc.y = ((j)-(long)(cc.z)*nx*ny)/nx; 	cc.x = ((j)-(long)(cc.z)*nx*ny-(long)(cc.y)*nx);
+                        cc.z = (j)/(nx*ny); 		cc.y = ((j)-(int)(cc.z)*nx*ny)/nx; 	cc.x = ((j)-(int)(cc.z)*nx*ny-(int)(cc.y)*nx);
                         cc.x = xmin+(cc.x)*xstep; 	cc.y = ymin+(cc.y)*ystep; 			cc.z = zmin+(cc.z)*zstep;
 
                         cc.n = 1+j;
@@ -398,7 +400,7 @@ public class GD {
             for (j=0; j<mUnit.size(); j++)
             {
                 double parent = mUnit.elementAt(j).parent;
-                // long i = index_map[parent]; // this is very fast
+                // int i = index_map[parent]; // this is very fast
                 Integer index = index_map.get(parent);
 
                 mUnit.elementAt(index).nchild++;
@@ -413,7 +415,7 @@ public class GD {
 
                 for (k=0; ; k++)
                 {
-                    long nprune=0;
+                    int nprune=0;
                     for (j=0; j<mUnit.size(); j++)
                     {
                         if (mUnit.elementAt(j).nchild ==0)
@@ -425,7 +427,7 @@ public class GD {
                             if (min_cut_level<1) min_cut_level=1;
                             //double va = getBlockAveValue(img3d, dim0, dim1, dim2, mUnit.elementAt(i).x,mUnit.elementAt(i).y,mUnit.elementAt(i).z,
                             //		min_cut_level, min_cut_level, min_cut_level);
-                            va = getBlockAveValue(img3d, dim0, dim1, dim2, (long)mUnit.elementAt(j).x,(long)mUnit.elementAt(j).y,(long) mUnit.elementAt(j).z,
+                            va = getBlockAveValue(img3d, dim0, dim1, dim2, (int)mUnit.elementAt(j).x,(int)mUnit.elementAt(j).y,(int) mUnit.elementAt(j).z,
                                     min_cut_level, min_cut_level, min_cut_level);
 
                             //if (k<min_cut_level || va <= imgAve+imgStd*min_cut_level)
@@ -461,8 +463,8 @@ public class GD {
 //                            if (mUnit[j].nchild ==0)
 //                            {
 //                                double parent = mUnit[j].parent;
-//                                // long i = index_map[parent];
-//                                long i = index_map.get(parent);
+//                                // int i = index_map[parent];
+//                                int i = index_map.get(parent);
 //
 //                                int min_cut_level = 10/min_step;	if (min_cut_level<1) min_cut_level=1;
 //                                double va = getBlockAveValue(img3d, dim0, dim1, dim2, mUnit[i].x,mUnit[i].y,mUnit[i].z,
@@ -517,13 +519,13 @@ public class GD {
 
                 for (k = 0; k < n; k++) //at most n edge links
                 {
-                    long jj = j;
+                    int jj = j;
                     j = plist[j];
 
-                    Log.v("j: ", Long.toString(j));
-                    Log.v("jj: ", Long.toString(jj));
-                    Log.v("start_nodeind: ", Long.toString(start_nodeind));
-                    Log.v("mUnit.size(): ", Long.toString(mUnit.size()));
+                    Log.v("j: ", Integer.toString(j));
+                    Log.v("jj: ", Integer.toString(jj));
+                    Log.v("start_nodeind: ", Integer.toString(start_nodeind));
+                    Log.v("mUnit.size(): ", Integer.toString(mUnit.size()));
 
 //                    System.out.println(j);
 //                    System.out.println(jj);
@@ -551,8 +553,8 @@ public class GD {
                     if (j != start_nodeind) {
                         // NODE_TO_XYZ(j, cc.x, cc.y, cc.z);
                         cc.z = (j) / (nx * ny);
-                        cc.y = ((j) - (long) (cc.z) * nx * ny) / nx;
-                        cc.x = ((j) - (long) (cc.z) * nx * ny - (long) (cc.y) * nx);
+                        cc.y = ((j) - (int) (cc.z) * nx * ny) / nx;
+                        cc.x = ((j) - (int) (cc.z) * nx * ny - (int) (cc.y) * nx);
                         cc.x = xmin + (cc.x) * xstep;
                         cc.y = ymin + (cc.y) * ystep;
                         cc.z = zmin + (cc.z) * zstep;
@@ -598,8 +600,8 @@ public class GD {
         return s_error;
     }
 
-    public static double getBlockMaxValue(int[][][] img3d, long dim0, long dim1, long dim2,
-                                          long x0, long y0, long z0,
+    public static double getBlockMaxValue(int[][][] img3d, int dim0, int dim1, int dim2,
+                                          int x0, int y0, int z0,
                                           int xstep, int ystep, int zstep)
     {
         if (img3d == null || img3d.length == 0 || dim0<=0 || dim1<=0 || dim2<=0 ||
@@ -626,8 +628,8 @@ public class GD {
         return mv;
     }
 
-    public static double getBlockAveValue(int[][][] img3d, long dim0, long dim1, long dim2,
-                                          long x0, long y0, long z0,
+    public static double getBlockAveValue(int[][][] img3d, int dim0, int dim1, int dim2,
+                                          int x0, int y0, int z0,
                                           int xstep, int ystep, int zstep)
     {
         if (img3d == null || img3d.length == 0 || dim0<=0 || dim1<=0 || dim2<=0 ||
@@ -657,8 +659,8 @@ public class GD {
 
 
 
-    public static boolean setBlockAveValue(int[][][] img3d, long dim0, long dim1, long dim2,
-                                           long x0, long y0, long z0,
+    public static boolean setBlockAveValue(int[][][] img3d, int dim0, int dim1, int dim2,
+                                           int x0, int y0, int z0,
                                            int xstep, int ystep, int zstep, int target_val)
     {
         if (img3d == null || img3d.length == 0 || dim0<=0 || dim1<=0 || dim2<=0 ||
@@ -683,8 +685,8 @@ public class GD {
     }
 
 
-    public static double getBlockStdValue(int[][][] img3d, long dim0, long dim1, long dim2,
-                                          long x0, long y0, long z0,
+    public static double getBlockStdValue(int[][][] img3d, int dim0, int dim1, int dim2,
+                                          int x0, int y0, int z0,
                                           int xstep, int ystep, int zstep)
     {
         if (img3d == null || img3d.length == 0 || dim0<=0 || dim1<=0 || dim2<=0 ||
@@ -716,21 +718,21 @@ public class GD {
         return (n==0)?0: Math.sqrt(v/n);
     }
 
-    public static double getImageMaxValue(int[][][] img3d, long dim0, long dim1, long dim2)
+    public static double getImageMaxValue(int[][][] img3d, int dim0, int dim1, int dim2)
     {
-        long x0 = dim0/2;
-        long y0 = dim1/2;
-        long z0 = dim2/2;
+        int x0 = dim0/2;
+        int y0 = dim1/2;
+        int z0 = dim2/2;
         int xstep = (int) dim0;
         int ystep = (int) dim1;
         int zstep = (int) dim2;
         return getBlockMaxValue(img3d, dim0, dim1, dim2, x0, y0, z0, xstep, ystep, zstep);
     }
-    public static double getImageAveValue(int[][][] img3d, long dim0, long dim1, long dim2)
+    public static double getImageAveValue(int[][][] img3d, int dim0, int dim1, int dim2)
     {
-        long x0 = dim0/2;
-        long y0 = dim1/2;
-        long z0 = dim2/2;
+        int x0 = dim0/2;
+        int y0 = dim1/2;
+        int z0 = dim2/2;
         int xstep = (int) dim0;
         int ystep = (int) dim1;
         int zstep = (int) dim2;
@@ -738,11 +740,11 @@ public class GD {
     }
 
 
-    public static double getImageStdValue(int[][][] img3d, long dim0, long dim1, long dim2)
+    public static double getImageStdValue(int[][][] img3d, int dim0, int dim1, int dim2)
     {
-        long x0 = dim0/2;
-        long y0 = dim1/2;
-        long z0 = dim2/2;
+        int x0 = dim0/2;
+        int y0 = dim1/2;
+        int z0 = dim2/2;
         int xstep = (int) dim0;
         int ystep = (int) dim1;
         int zstep = (int) dim2;
@@ -808,7 +810,7 @@ public class GD {
             return s_error;
         }
 
-        // char* copyEdgeSparseData2Adj(Edge *edge_array, long n_edges, Weight *weights, long n_nodes,
+        // char* copyEdgeSparseData2Adj(Edge *edge_array, int n_edges, Weight *weights, int n_nodes,
         //                         vector <connectionVal> * adjMatrix,
         //                         float &minn,  float &maxx);
 
@@ -870,7 +872,7 @@ public class GD {
         return s_error;
     }
 
-    public static String copyEdgeSparseData2Adj(Vector<Pair<Integer,Integer>> edge_array, int n_edges, Vector<Float> weights, long n_nodes,
+    public static String copyEdgeSparseData2Adj(Vector<Pair<Integer,Integer>> edge_array, int n_edges, Vector<Float> weights, int n_nodes,
                                                 Vector<Vector<ConnectionVal>> adjMatrix,
                                                 Float minn,
                                                 Float maxx)
@@ -957,7 +959,7 @@ public class GD {
             }
 
             Vector<V_NeuronSWC_unit> mUnit_new = new Vector<V_NeuronSWC_unit>();
-            long root_id=-1;
+            int root_id=-1;
             for (j=0; j<mUnit.size(); j++)
             {
                 if (mUnit.elementAt(j).nchild >= 0)
@@ -969,9 +971,9 @@ public class GD {
                 {
                     if (root_id!=-1)
                         System.out.printf("== [segment %d] ================== detect a non-unique root!\n", k);
-                    root_id = (long)(mUnit.elementAt(j).n);
+                    root_id = (int)(mUnit.elementAt(j).n);
                     System.out.printf("== [segment %d] ================== nchild of root [%d, id=%d] = %d\n",
-                            k, j, (long)(mUnit.elementAt(j).n), (long)(mUnit.elementAt(j).nchild));
+                            k, j, (int)(mUnit.elementAt(j).n), (int)(mUnit.elementAt(j).nchild));
                 }
 
             }
@@ -995,14 +997,14 @@ public class GD {
         Vector< Vector<V_NeuronSWC_unit> > all_segment = new Vector<Vector<V_NeuronSWC_unit>>();
 
 
-//        Vector<long> path_start(npath); // 0-based index
-//        Vector<long> path_try(npath);   // 0-based index
-        long[] path_start = new long[npath];
-        long[] path_try = new long[npath];
+//        Vector<int> path_start(npath); // 0-based index
+//        Vector<int> path_try(npath);   // 0-based index
+        int[] path_start = new int[npath];
+        int[] path_try = new int[npath];
         for (int i=0; i<npath; i++)
             path_try[i] = path_start[i] = mmUnit.elementAt(i).size()-1;
 
-        long nexist = 0; // count output node index
+        int nexist = 0; // count output node index
         int lastn_same_node;
 
         int[] flag_skipped = new int [npath];; //added by PHC, 2010-05-22. // 0--searching path, 1--connected branch, 2--separated branch, 3--over searched
@@ -1024,13 +1026,13 @@ public class GD {
                 break; /// STOP iteration when every path is over searched
             /////////////////////////////////////////////////////////////////////////
 
-            long jj;
+            int jj;
             V_NeuronSWC_unit same_node = new V_NeuronSWC_unit();
             int n_same_node;
             int ipath = -1;
             lastn_same_node = 0;
 
-            for (long j=0; true; j++) //searching same_segment along 1 path with other paths
+            for (int j=0; true; j++) //searching same_segment aint 1 path with other paths
             {
                 n_same_node = 0;
 
@@ -1150,7 +1152,7 @@ public class GD {
 
                 lastn_same_node = n_same_node;
 
-            }//j -- along 1 branch
+            }//j -- aint 1 branch
         }//all branch & path
 
         // if (flag_skipped) {delete []flag_skipped; flag_skipped=0;} //added by PHC, 2010-05-22
@@ -1169,6 +1171,770 @@ public class GD {
         return s_error;
     }
 
+    public static boolean smooth_radius(Vector <V_NeuronSWC_unit>  mCoord, int winsize, boolean median_filter) throws Exception
+    {
+        //std::cout<<" smooth_radius ";
+        if (winsize < 2) return true;
+
+        // Vector<T> mC = mCoord; // a copy
+        Vector<V_NeuronSWC_unit> mC = new Vector<V_NeuronSWC_unit>();
+        for(int s=0; s<mCoord.size(); s++){
+            mC.add(mCoord.elementAt(s));
+        }
+        int N = mCoord.size();
+        int halfwin = winsize / 2;
+
+        for (int i = 1; i < N - 1; i++) // don't move start & end point
+        {
+            Vector<V_NeuronSWC_unit> winC = new Vector<V_NeuronSWC_unit>();
+            Vector<Double> winW = new Vector<Double>();
+            winC.clear();
+            winW.clear();
+
+            winC.add(mC.elementAt(i));
+            winW.add(1.0 + halfwin);
+            for (int j = 1; j <= halfwin; j++)
+            {
+                int k1 = i + j;	if (k1<0) k1 = 0;	if (k1>N - 1) k1 = N - 1;
+                int k2 = i - j;	if (k2<0) k2 = 0;	if (k2>N - 1) k2 = N - 1;
+                winC.add(mC.elementAt(k1).clone());
+                winC.add(mC.elementAt(k2).clone());
+                winW.add(1.0 + halfwin - j);
+                winW.add(1.0 + halfwin - j);
+            }
+            //std::cout<<"winC.size = "<<winC.size()<<"\n";
+
+            double r = 0;
+            if (median_filter)
+            {
+                // sort(winC.begin(), winC.end(), less_r);
+                Collections.sort(winC, new Comparator<V_NeuronSWC_unit>() {
+                    @Override
+                    public int compare(V_NeuronSWC_unit o1, V_NeuronSWC_unit o2) {
+                        return o1.r<o2.r?1:-1;
+                    }
+                });
+                r = winC.elementAt(halfwin).r;
+            }
+            else
+            {
+                double s = r = 0;
+                for (int j = 0; j < winC.size(); j++)
+                {
+                    r += winW.elementAt(j) * winC.elementAt(j).r;
+                    s += winW.elementAt(j);
+                }
+                if (s>0)	r /= s;
+            }
+
+            mCoord.elementAt(i).r = r; // output
+        }
+        return true;
+    }
+
+    public static void curve_bending_vector(Vector<V_NeuronSWC_unit> mCoord, int i, V_NeuronSWC_unit Coord_new)
+    {
+        float[] D = new float[3];
+        // DIFF(D[0], mCoord, i, x, 5);
+        // DIFF(D[1], mCoord, i, y, 5);
+        // DIFF(D[2], mCoord, i, z, 5);
+        DIFF(D,mCoord,i,5);
+        //printf("[%g,%g,%g]	", D[0],D[1],D[2]);
+
+        float x = (float) mCoord.elementAt(i).x;
+        float y = (float) mCoord.elementAt(i).y;
+        float z = (float) mCoord.elementAt(i).z;
+        float cx = (float) Coord_new.x;
+        float cy = (float) Coord_new.y;
+        float cz = (float) Coord_new.z;
+        {
+            // make normal vector
+            double len = sqrt(D[0] * D[0] + D[1] * D[1] + D[2] * D[2]);
+            if (len>0)
+            {
+                D[0] /= len;
+                D[1] /= len;
+                D[2] /= len;
+                // displacement
+                cx = cx - x;
+                cy = cy - y;
+                cz = cz - z;
+                //printf("<%g,%g,%g>	", cx,cy,cz);
+                float proj = cx*D[0] + cy*D[1] + cz*D[2];
+                cx = cx - proj*D[0];
+                cy = cy - proj*D[1];
+                cz = cz - proj*D[2];
+                //printf("<<%g,%g,%g>>	", cx,cy,cz);
+                x += cx;
+                y += cy;
+                z += cz;
+            }
+        }
+        Coord_new.x = x;
+        Coord_new.y = y;
+        Coord_new.z = z;
+    }
+
+    public static double I(int[][][] img3d, int dim0, int dim1, int dim2, int ix, int iy, int iz){
+        if ((ix<0) || (ix>dim0 - 1)) return 0;
+        if ((iy<0) || (iy>dim1 - 1)) return 0;
+        if ((iz<0) || (iz>dim2 - 1)) return 0;
+        return (double)(img3d[iz][iy][ix]);
+    }
+
+    // 090520: create according to point_bdb_minus_3d_localwinmass()
+    // 090619: move from bdb_minus.h to here
+    // And combined with adaptive radius estimation & orthogonal shift
+    // 090621: add bending_code
+    public static boolean point_bdb_minus_3d_localwinmass_prior(int[][][] img3d, int dim0, int dim1, int dim2,
+                                                                   Vector <V_NeuronSWC_unit>  mCoord, BDB_Minus_Prior_Parameter  bdb_para, boolean b_fix_end,
+                                                                   Vector <V_NeuronSWC_unit>  mCoord_prior, int bending_code, float zthickness, boolean b_est_in_xyplaneonly) throws Exception// 0--no bending, 1--bending M_term, 2--bending mCoord
+    {
+        boolean b_use_M_term = true; //for switch
+        boolean b_use_P_term = true; //for switch
+        boolean b_use_G_term = false; //for switch
 
 
+        double f_image = 1;
+        double f_length = bdb_para.f_length;
+        double f_smooth = bdb_para.f_smooth;
+        double f_prior = bdb_para.f_prior; //0.2;
+        double f_gradient = 0;/// gradient is not stable
+        int max_loops = bdb_para.nloops;
+
+        double TH = 1; //pixel/node, the threshold to judge convergence
+
+        double AR = 0;
+        for (int i = 0; i < mCoord.size() - 1; i++)
+        {
+            double x = mCoord.elementAt(i).x;
+            double y = mCoord.elementAt(i).y;
+            double z = mCoord.elementAt(i).z;
+            double x1 = mCoord.elementAt(i+1).x;
+            double y1 = mCoord.elementAt(i+1).y;
+            double z1 = mCoord.elementAt(i+1).z;
+            AR += sqrt((x - x1)*(x - x1) + (y - y1)*(y - y1) + (z - z1)*(z - z1));
+        }
+        AR /= mCoord.size() - 1; // average distance between nodes
+        double radius = AR * 2;
+        double imgAve = getImageAveValue(img3d, dim0, dim1, dim2);
+        double imgStd = getImageStdValue(img3d, dim0, dim1, dim2);
+        double imgTH = imgAve + imgStd;
+
+
+        int M = mCoord.size(); // number of control points / centers of k_means
+        if (M <= 2) return true; //in this case no adjusting is needed. by PHC, 090119. also prevent a memory crash
+        int M_prior = mCoord_prior.size(); // number of prior control points
+
+        int i, j;
+        V_NeuronSWC_unit F_1_term = new V_NeuronSWC_unit();
+        V_NeuronSWC_unit F_2_term = new V_NeuronSWC_unit();
+        V_NeuronSWC_unit M_term = new V_NeuronSWC_unit();
+        V_NeuronSWC_unit P_term = new V_NeuronSWC_unit();
+        V_NeuronSWC_unit G_term = new V_NeuronSWC_unit();
+        // Vector <E> mCoord_new = mCoord; // temporary out
+        // Vector <E> mCoord_old = mCoord; // a constant copy
+        Vector <V_NeuronSWC_unit> mCoord_new = new Vector<V_NeuronSWC_unit>(), mCoord_old = new Vector<V_NeuronSWC_unit>();
+        for(int s=0; s<mCoord.size(); s++){
+            mCoord_new.add(mCoord.elementAt(s).clone());
+            mCoord_old.add(mCoord.elementAt(s).clone());
+        }
+
+        double lastscore = 0;
+
+        int wp_start = 0;
+        int wp_end = 0;
+//        int wp_radius = 10;
+//        if (mCoord[0].timestamp == 99999){
+//            wp_start = wp_radius;
+//            System.out.println("yes");
+//        }
+//        else{
+//            System.out.println("no");
+//        }
+//
+//        if (mCoord[M - 1].timestamp == 99999){
+//            wp_end = wp_radius;
+//            System.out.println("yes");
+//        }
+//        else{
+//            System.out.println("no");
+//        }
+
+
+        double org_x, org_y, org_z;
+        org_x = mCoord.elementAt(M-1).x;
+        org_y = mCoord.elementAt(M-1).y;
+        org_z = mCoord.elementAt(M-1).z;
+        for (int nloop = 0; nloop < max_loops; nloop++)
+        {
+            // for each control point
+            double average_radius = 0;
+            for (j = 0 + wp_start; j < M - wp_end; j++)
+            {
+                //mCoord_new[j].timestamp = 66666;
+                //==================================================================
+                // external force term initialization
+                M_term = mCoord.elementAt(j).clone();
+                P_term = mCoord.elementAt(j).clone();
+                G_term = mCoord.elementAt(j).clone(); // 090623 RZC
+
+                //------------------------------------------------------------------
+                //image force: M_term
+
+                if (img3d != null && (b_use_M_term))
+                {
+                    double xc = mCoord.elementAt(j).x;
+                    double yc = mCoord.elementAt(j).y;
+                    double zc = mCoord.elementAt(j).z;
+
+                    //090621 RZC: dynamic radius estimation
+                    radius = 2*fitRadiusPercent(img3d, dim0, dim1, dim2, imgTH, AR * 2, (float) xc, (float) yc, (float) zc, zthickness, b_est_in_xyplaneonly);
+                    //radius = radius / 2;
+                    if (radius > 10){
+                        radius = 10;
+                    }
+                    if (radius < 2){
+                        radius = 2;
+                    }
+                    //mCoord_new[j].r = radius;
+
+                    //System.out.println(radius);
+                    average_radius += radius / M;
+                    //                                System.out.println(radius);
+
+                    int x0 = (int) (xc - radius); x0 = (x0 < 0) ? 0 : x0;
+                    int x1 = (int) (xc + radius); x1 = (x1 > dim0 - 1) ? (dim0 - 1) : x1;
+                    int y0 = (int) (yc - radius); y0 = (y0 < 0) ? 0 : y0;
+                    int y1 = (int) (yc + radius); y1 = (y1 > dim1 - 1) ? (dim1 - 1) : y1;
+                    int z0 = (int) (zc - radius / zthickness); z0 = (z0 < 0) ? 0 : z0;
+                    int z1 = (int) (zc + radius / zthickness); z1 = (z1 > dim2 - 1) ? (dim2 - 1) : z1;
+
+                    double sum_x = 0, sum_y = 0, sum_z = 0, sum_px = 0, sum_py = 0, sum_pz = 0;
+                    int ix, iy, iz;
+                    //use a sphere region, as this is easiest to compute the unbiased center of mass
+                    double dx, dy, dz, r2 = (double)(radius)*(radius);
+                    for (iz = z0; iz <= z1; iz++)
+                    {
+                        dz = Math.abs(iz - zc) * zthickness; dz *= dz;
+                        for (iy = y0; iy <= y1; iy++)
+                        {
+                            dy = Math.abs(iy - yc); dy *= dy;
+                            if (dy + dz > r2) continue;
+                            dy += dz;
+
+                            for (ix = x0; ix < x1; ix++)
+                            {
+                                dx = Math.abs(ix - xc); dx *= dx;
+                                if (dx + dy > r2) continue;
+
+                                //register unsigned char tmpval = img3d[iz][iy][ix];
+
+                                double tmpval = img3d[iz][iy][ix];
+
+
+                                tmpval = Math.pow(tmpval / 10.0,2);
+                                //if (tmpval>240) {
+                                //
+                                //	//System.out.println((tmpval*tmpval) << " " << (tmpval ^ 2));
+                                //	System.out.println(tmpval);
+                                //}
+                                //tmpval = tmpval ^ 2;
+                                if (tmpval>0)
+                                {
+                                    sum_x += tmpval;
+                                    sum_y += tmpval;
+                                    sum_z += tmpval;
+                                    sum_px += tmpval * ix;
+                                    sum_py += tmpval * iy;
+                                    sum_pz += tmpval * iz;
+                                }
+                            }
+                        }
+                    }
+                    if (sum_x>0 && sum_y>0 && sum_z>0)
+                    {
+                        M_term.x = sum_px / sum_x;
+                        M_term.y = sum_py / sum_y;
+                        M_term.z = sum_pz / sum_z;
+                    }
+                    else
+                    {
+                        M_term.x = xc;
+                        M_term.y = yc;
+                        M_term.z = zc;
+                    }
+                    /////////////////////////////////////////////
+                    //std::System.out.println("wp_debug: " << __LINE__ << " " << bending_code);
+                    //090621 RZC
+                    if (bending_code == 1)	curve_bending_vector(mCoord, j, M_term);
+                    /////////////////////////////////////////////
+                }
+
+
+                //----------------------------------------------------------------
+                // image prior G_term (grident)
+                if (img3d != null && b_use_G_term)
+                {
+                    double xc = mCoord.elementAt(j).x;
+                    double yc = mCoord.elementAt(j).y;
+                    double zc = mCoord.elementAt(j).z;
+
+                    int ix = (int) (xc + 0.5);
+                    int iy = (int) (yc + 0.5);
+                    int iz = (int) (zc + 0.5);
+
+                    double gx = 0;
+                    for (int jj = -1; jj <= 1; jj++) for (int k = -1; k <= 1; k++)
+                    {
+                        gx += I(img3d, dim0, dim1, dim2, ix + 1, iy + jj, iz + k);
+                        gx -= I(img3d, dim0, dim1, dim2, ix - 1, iy + jj, iz + k);
+                    }
+                    double gy = 0;
+                    for (int jj = -1; jj <= 1; jj++) for (int k = -1; k <= 1; k++)
+                    {
+                        gy += I(img3d, dim0, dim1, dim2, ix + jj, iy + 1, iz + k);
+                        gy -= I(img3d, dim0, dim1, dim2, ix + jj, iy - 1, iz + k);
+                    }
+                    double gz = 0;
+                    for (int jj = -1; jj <= 1; jj++) for (int k = -1; k <= 1; k++)
+                    {
+                        gz += I(img3d, dim0, dim1, dim2, ix + k, iy + jj, iz + 1);
+                        gz -= I(img3d, dim0, dim1, dim2, ix + k, iy + jj, iz - 1);
+                    }
+                    double Im = I(img3d, dim0, dim1, dim2, ix, iy, iz);
+
+                    // factor to connect grayscle with pixel step for G_term
+                    double gradient_step = (imgStd>0) ? 1 / (imgStd*imgStd) : 0;
+                    Im = gradient_step*(255 - Im);
+
+                    G_term.x += gx*Im;
+                    G_term.y += gy*Im;
+                    G_term.z += gz*Im;
+                }
+
+                //------------------------------------------------------------------
+                // geometric prior P_term
+                if (mCoord_prior.size() > 0 && (b_use_P_term))
+                {
+                    P_term = mCoord_prior.elementAt(0);
+                    double dx, dy, dz;
+                    dx = mCoord.elementAt(j).x - mCoord_prior.elementAt(0).x;
+                    dy = mCoord.elementAt(j).y - mCoord_prior.elementAt(0).y;
+                    dz = mCoord.elementAt(j).z - mCoord_prior.elementAt(0).z;
+                    double d0 = sqrt(dx*dx + dy*dy + dz*dz);
+
+                    for (int ip = 1; ip < mCoord_prior.size(); ip++)
+                    {
+                        dx = mCoord.elementAt(j).x - mCoord_prior.elementAt(ip).x;
+                        dy = mCoord.elementAt(j).y - mCoord_prior.elementAt(ip).y;
+                        dz = mCoord.elementAt(j).z - mCoord_prior.elementAt(ip).z;
+                        double d1 = sqrt(dx*dx + dy*dy + dz*dz);
+
+                        if (d1 < d0)
+                        {
+                            P_term = mCoord_prior.elementAt(ip);
+                            d0 = d1;
+                        }
+                    }
+                }
+
+                //printf("M_term : [%5.3f, %5.3f, %5.3f], %d\n", M_term.x, M_term.y, M_term.z, j);
+                //printf("P_term : [%5.3f, %5.3f, %5.3f], %d\n", P_term.x, P_term.y, P_term.z, j);
+                //printf("G_term : [%5.3f, %5.3f, %5.3f], %d\n", G_term.x, G_term.y, G_term.z, j);
+
+
+                //========================================================================================================================
+                //           b{Ckm1 + Ckp1} + c{Ckm1 + Ckp1 - 0.25 Ckm2 - 0.25 Ckp2} + a{Mk} + d{Pk} + e{Ck + (1 - I[Ck] / Imax) I'[Ck]}
+                // Ck_new = ---------------------------------------------------------------------------------------------------------------------
+                //                                              (2 b + 1.5 c + a + d + e)
+                //========================================================================================================================
+                //internal force: F_1_term F_2_term for smoothing
+                // new_coord = { f_length*F_1_term + f_smooth*F_2_term + f_image*M_term +
+                //               f_prior*P_term + f_gradient*(G_term) } /(2*f_length + 1.5*f_smooth + f_image + f_prior + f_gradient)
+                // boundary nodes have simple format
+                double f;
+                if (j == 0 || j == M - 1)
+                {
+                    f = (f_image + f_prior + f_gradient);
+                    if (f == 0) f = 1;
+                    mCoord_new.elementAt(j).x = (f_image*M_term.x + f_prior*P_term.x + f_gradient*G_term.x) / f;
+                    mCoord_new.elementAt(j).y = (f_image*M_term.y + f_prior*P_term.y + f_gradient*G_term.y) / f;
+                    mCoord_new.elementAt(j).z = (f_image*M_term.z + f_prior*P_term.z + f_gradient*G_term.z) / f;
+                }
+                else if (j == 1 || j == M - 2)
+                {
+                    F_1_term.x = mCoord.elementAt(j - 1).x + mCoord.elementAt(j + 1).x;
+                    F_1_term.y = mCoord.elementAt(j - 1).y + mCoord.elementAt(j + 1).y;
+                    F_1_term.z = mCoord.elementAt(j - 1).z + mCoord.elementAt(j + 1).z;
+
+                    f = (2 * f_length + f_image + f_prior + f_gradient);
+                    if (f == 0) f = 1;
+                    mCoord_new.elementAt(j).x = (f_length*F_1_term.x + f_image*M_term.x + f_prior*P_term.x + f_gradient*G_term.x) / f;
+                    mCoord_new.elementAt(j).y = (f_length*F_1_term.y + f_image*M_term.y + f_prior*P_term.y + f_gradient*G_term.y) / f;
+                    mCoord_new.elementAt(j).z = (f_length*F_1_term.z + f_image*M_term.z + f_prior*P_term.z + f_gradient*G_term.z) / f;
+                }
+                else // not boundary nodes
+                {
+                    F_1_term.x = mCoord.elementAt(j - 1).x + mCoord.elementAt(j + 1).x;
+                    F_1_term.y = mCoord.elementAt(j - 1).y + mCoord.elementAt(j + 1).y;
+                    F_1_term.z = mCoord.elementAt(j - 1).z + mCoord.elementAt(j + 1).z;
+
+                    F_2_term.x = (mCoord.elementAt(j - 1).x + mCoord.elementAt(j + 1).x) - 0.25* (mCoord.elementAt(j + 2).x + mCoord.elementAt(j - 2).x);
+                    F_2_term.y = (mCoord.elementAt(j - 1).y + mCoord.elementAt(j + 1).y) - 0.25* (mCoord.elementAt(j + 2).y + mCoord.elementAt(j - 2).y);
+                    F_2_term.z = (mCoord.elementAt(j - 1).z + mCoord.elementAt(j + 1).z) - 0.25* (mCoord.elementAt(j + 2).z + mCoord.elementAt(j - 2).z);
+
+                    f = (2 * f_length + 1.5*f_smooth + f_image + f_prior + f_gradient);
+                    if (f == 0) f = 1;
+                    mCoord_new.elementAt(j).x = (f_length*F_1_term.x + f_smooth*F_2_term.x + f_image*M_term.x + f_prior*P_term.x + f_gradient*G_term.x) / f;
+                    mCoord_new.elementAt(j).y = (f_length*F_1_term.y + f_smooth*F_2_term.y + f_image*M_term.y + f_prior*P_term.y + f_gradient*G_term.y) / f;
+                    mCoord_new.elementAt(j).z = (f_length*F_1_term.z + f_smooth*F_2_term.z + f_image*M_term.z + f_prior*P_term.z + f_gradient*G_term.z) / f;
+                }
+                //cout<<"image w: "<<f_image*M_term.x<<endl;
+                //cout<<"smooth w: "<<f_smooth*F_2_term.x<<endl;
+
+
+                //printf("[%5.3f, %5.3f, %5.3f], %d\n", mCoord_new.elementAt(j).x, mCoord_new.elementAt(j).y, mCoord_new.elementAt(j).z, j);
+            }
+            //cout<<"Radius: "<<average_radius<<endl;
+
+
+            ///////////////////////////////////////////////////////
+            //090621 RZC
+            if (bending_code == 2)
+                for (j = 0; j < M; j++)		curve_bending_vector(mCoord, j, mCoord_new.elementAt(j));
+
+            /////////////////////////////////////////////////////
+            // compute curve score
+            double score = 0.0;
+            for (j = 0; j < M; j++)
+                score += Math.abs(mCoord_new.elementAt(j).x - mCoord.elementAt(j).x) + Math.abs(mCoord_new.elementAt(j).y - mCoord.elementAt(j).y) + Math.abs(mCoord_new.elementAt(j).z - mCoord.elementAt(j).z);
+
+            System.out.printf("score[%d]=%g \n", nloop, score);
+
+            // update the coordinates of the control points
+//            mCoord = mCoord_new;
+            mCoord.clear();
+            for(i=0;i<mCoord_new.size();i++){
+                mCoord.add(mCoord_new.elementAt(i).clone());
+            }
+            /////////////////////////////////////////////////////
+            if (b_fix_end)
+            {
+                //without changing the start and end points
+                mCoord.elementAt(0).x = mCoord_old.elementAt(0).x;
+                mCoord.elementAt(M-1).x = mCoord_old.elementAt(M-1).x;
+                mCoord.elementAt(0).y = mCoord_old.elementAt(0).y;
+                mCoord.elementAt(M-1).y = mCoord_old.elementAt(M-1).y;
+                mCoord.elementAt(0).z = mCoord_old.elementAt(0).z;
+                mCoord.elementAt(M-1).z = mCoord_old.elementAt(M-1).z;
+            }
+
+
+            //////////////////////////////////////////////////////
+            // Can the iteration be terminated ?
+            if (score < TH )
+            break;
+            if (nloop > 0)
+            {
+                if (Math.abs(lastscore - score) < TH*0.5 / M) // to prevent jumping around
+                    break;
+            }
+
+            lastscore = score;
+        }
+
+
+
+        //mCoord[M - 1].timestamp == 77777;
+//        for (j = 0; j < M; j++)
+//            mCoord.elementAt(j).z += 1;
+        /*mCoord[M - 1].r = 1;
+        mCoord[0].r = 1;*/
+//        if (mCoord[M - 1].timestamp == 88888 && (org_x != mCoord[M - 1].x || org_y != mCoord[M - 1].y || org_z != mCoord[M - 1].z)){
+//            mCoord[M - 1].timestamp = -mCoord[M - 1].timestamp;
+//        }
+        return true;
+    }
+
+    public static Vector<V_NeuronSWC_unit> downsample_curve(Vector<V_NeuronSWC_unit> mCoord, int step) throws Exception
+    {
+        //std::cout<<" downsample_curve ";
+        if (step < 1) return mCoord;
+
+        Vector<V_NeuronSWC_unit> mC = new Vector<V_NeuronSWC_unit>(); // for out put
+        mC.clear();
+
+        int N = mCoord.size();
+
+        if (N > 0)	mC.add(mCoord.elementAt(0).clone()); // output
+        for (int i = 1; i < N - 1; i += step) // don't move start & end point
+        {
+            mC.add(mCoord.elementAt(i)); // output
+        }
+        if (N > 1)	mC.add(mCoord.elementAt(N-1)); // output
+
+        return mC;
+    }
+
+//    public static<E> double cosangle_two_vectors(E[] a, E[] b) //in case an error, return -2
+//    {
+//        double vab=0,vaa=0,vbb=0;
+//        for (int i=0;i<3;i++)
+//        {
+//            vab += a[i]*b[i];
+//            vaa += a[i]*a[i];
+//            vbb += b[i]*b[i];
+//        }
+//        return (vaa*vbb<1e-10) ? -2 : vab/sqrt(vaa*vbb);
+//    }
+
+
+    public static double fitRadiusPercent(int[][][] img3d, int dim0, int dim1, int dim2, double imgTH, double bound_r,
+                                          float x, float y, float z, float zthickness, boolean b_est_in_xyplaneonly)
+    {
+        if (zthickness<=0) { zthickness=1.0f; System.out.println("Your zthickness value in fitRadiusPercent() is invalid. disable it (i.e. reset it to 1) in computation."); }//if it an invalid value then reset
+
+        double max_r = dim0/2;
+        if (max_r > dim1/2) max_r = dim1/2;
+        if (!b_est_in_xyplaneonly)
+        {
+            if (max_r > (dim2*zthickness)/2) max_r = (dim2*zthickness)/2;
+        }
+        //max_r = bound_r; //unused as of now (comment added by PHC, 2010-Dec-21)
+
+        double total_num, background_num;
+        double ir;
+        end: for (ir=1; ir<=max_r; ir++)
+        {
+            total_num = background_num = 0;
+
+            double dz, dy, dx;
+            double zlower = -ir/zthickness, zupper = +ir/zthickness;
+            if (b_est_in_xyplaneonly)
+                zlower = zupper = 0;
+            for (dz= zlower; dz <= zupper; ++dz)
+                for (dy= -ir; dy <= +ir; ++dy)
+                    for (dx= -ir; dx <= +ir; ++dx)
+                    {
+                        total_num++;
+
+                        double r = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                        if (r>ir-1 && r<=ir)
+                        {
+                            int i = (int) (x+dx);	if (i<0 || i>=dim0) break end;
+                            int j = (int) (y+dy);	if (j<0 || j>=dim1) break end;
+                            int k = (int) (z+dz);	if (k<0 || k>=dim2) break end;
+
+                            if (img3d[k][j][i] <= imgTH)
+                            {
+                                background_num++;
+
+                                if ((background_num/total_num) > 0.001)	break end; //change 0.01 to 0.001 on 100104
+                            }
+                        }
+                    }
+        }
+
+        return ir;
+    }
+
+
+    public static void fitPosition(int[][][] img3d, int dim0, int dim1, int dim2, double imgTH, double ir,
+                                   float[] xyz,  float[] D, float zthickness) // 090602: add tangent D to remove movement of tangent direction
+    {
+        if (zthickness<=0) { zthickness=1.0f; System.out.println("Your zthickness value in fitPosition() is invalid. disable it (i.e. reset it to 1) in computation."); }//if it an invalid value then reset
+
+        double s, cx,cy,cz;
+        s = cx = cy = cz = 0;
+
+        double r2= ir * ir;
+        for (double dz= -ir/zthickness; dz <= +ir/zthickness; ++dz)
+        {
+            double rtmpz = dz*dz;
+            for (double dy= -ir; dy <= +ir; ++dy)
+            {
+                double rtmpy = rtmpz+dy*dy;
+                if (rtmpy>r2)
+                    continue;
+
+                for (double dx= -ir; dx <= +ir; ++dx)
+                {
+                    double rtmpx = rtmpy+dx*dx;
+                    if (rtmpx>r2)
+                        continue;
+
+                    double r = Math.sqrt(rtmpx);
+                    if (r<=ir)
+                    {
+                        int i = (int) (xyz[0]+dx);	if (i<0 || i>=dim0) continue;
+                        int j = (int) (xyz[1]+dy);	if (j<0 || j>=dim1) continue;
+                        int k = (int) (xyz[2]+dz);	if (k<0 || k>=dim2) continue;
+                        double f = (img3d[k][j][i]);
+
+                        if (f > imgTH)
+                        {
+                            s += f;
+                            cx += f*(xyz[0]+dx);
+                            cy += f*(xyz[1]+dy);
+                            cz += f*(xyz[2]+dz);
+                        }
+                    }
+                }
+            }
+        }
+        if (s>0)
+        {
+            cx = cx/s;
+            cy = cy/s;
+            cz = cz/s;
+
+            if (D.length == 3)
+            {
+                // make unit vector
+                double len = Math.sqrt(D[0]*D[0] + D[1]*D[1] + D[2]*D[2]);
+                if (len>0)
+                {
+                    D[0] /= len;
+                    D[1] /= len;
+                    D[2] /= len;
+                    // displacement
+                    cx = cx-xyz[0];
+                    cy = cy-xyz[1];
+                    cz = cz-xyz[2];
+                    double proj = cx*D[0] + cy*D[1] + cz*D[2];
+                    // remove movement of tangent direction
+                    cx = cx - proj*D[0];
+                    cy = cy - proj*D[1];
+                    cz = cz - proj*D[2];
+                    xyz[0] += (float)cx;
+                    xyz[1] += (float)cy;
+                    xyz[2] += (float)cz;
+                }
+            }
+            else //by PHC, 2010-12-29
+            {
+                xyz[0] = (float)cx;
+                xyz[1] = (float)cy;
+                xyz[2] = (float)cz;
+            }
+        }
+    }
+
+    //#define fitRadius fitRadiusPCA
+    // #define fitRadius fitRadiusPercent
+    //////////////////////////////////////////////////
+    // #define DIFF(diff, mCoord, i, xyz, HW) \
+    // { \
+    //         diff = 0; \
+    //         int kk; \
+    //         int N = mCoord.size(); \
+    //         for (int k=1;k<=HW;k++) \
+    //         { \
+    //             kk = i+k; if (kk<0) kk=0; if (kk>N-1) kk=N-1; \
+    //             diff += mCoord[kk].xyz; \
+    //             kk = i-k; if (kk<0) kk=0; if (kk>N-1) kk=N-1; \
+    //             diff -= mCoord[kk].xyz; \
+    //         } \
+    // }
+    //////////////////////////////////////////////////
+    public static void DIFF(float[] diff,Vector <V_NeuronSWC_unit>  mCoord,int i,int Hw)
+    {
+        for(int item=0; item<3; item++){
+            diff[item] = 0;
+            int kk;
+            int N = mCoord.size();
+            for (int k=1;k<=Hw;k++)
+            {
+                kk = i+k;
+                if (kk<0) kk=0;
+                if (kk>N-1) kk=N-1;
+                float tmp = 0;
+                if(item == 0){
+                    tmp = (float) mCoord.elementAt(kk).x;
+                }
+                else if(item == 1){
+                    tmp = (float) mCoord.elementAt(kk).y;
+                }
+                else if(item == 2){
+                    tmp = (float) mCoord.elementAt(kk).z;
+                }
+                diff[item] += tmp;
+                kk = i-k;
+                if (kk<0) kk=0;
+                if (kk>N-1) kk=N-1;
+                diff[item] -= tmp;
+            }
+        }
+    }
+
+    // #define ITER_POSITION 10
+    public static boolean fit_radius_and_position(int[][][] img3d, int dim0, int dim1, int dim2,
+                                                  Vector <V_NeuronSWC_unit>  mCoord, boolean b_move_position, float zthickness, boolean b_est_in_xyplaneonly, double vis_threshold)
+    //template <class T>
+    //boolean fit_radius_and_position(unsigned char ***img3d, int dim0, int dim1, int dim2,
+    //							vector <T> & mCoord, boolean b_move_position)
+    {
+        if (zthickness<=0) { zthickness=1.0f; System.out.println("Your zthickness value in fit_radius_and_position() is invalid. disable it (i.e. reset it to 1) in computation."); }//if it an invalid value then reset
+
+        if (mCoord.size()<2)
+            return false;
+
+        double AR = 0;
+        for (int i=0; i<mCoord.size()-1; i++)
+        {
+            float x = (float) mCoord.elementAt(i).x;
+            float y = (float) mCoord.elementAt(i).y;
+            float z = (float) mCoord.elementAt(i).z;
+            float x1 = (float) mCoord.elementAt(i+1).x;
+            float y1 = (float) mCoord.elementAt(i+1).y;
+            float z1 = (float) mCoord.elementAt(i+1).z;
+            AR += Math.sqrt((x-x1)*(x-x1) + (y-y1)*(y-y1) + (z-z1)*(z-z1));
+        }
+        AR /= mCoord.size()-1; // average distance between nodes
+
+        double imgAve = getImageAveValue(img3d, dim0, dim1, dim2);
+        double imgStd = getImageStdValue(img3d, dim0, dim1, dim2);
+        double imgTH = imgAve + imgStd; //change to VISIBLE_THRESHOLD 2011-01-21 but the result is not good
+        //if (imgTH < vis_threshold) imgTH = vis_threshold; //added by PHC 20121016. consistent with APP2 improvement
+
+        for (int i=0; i<mCoord.size(); i++)
+        {
+            float[] xyz = new float[]{(float) mCoord.elementAt(i).x,(float) mCoord.elementAt(i).y,(float) mCoord.elementAt(i).z};
+
+            double r;
+            if (i==0 || i==mCoord.size()-1) // don't move start && end point
+            {
+                r = fitRadiusPercent(img3d, dim0, dim1, dim2, imgTH, AR*2, xyz[0], xyz[1], xyz[2], zthickness, b_est_in_xyplaneonly);
+            }
+            else
+            {
+                if (! b_move_position)
+                {
+                    r = fitRadiusPercent(img3d, dim0, dim1, dim2, imgTH, AR*2, xyz[0], xyz[1], xyz[2], zthickness, b_est_in_xyplaneonly);
+                }
+                else
+                {
+                    float[] axdir = new float[3];
+                    // DIFF(axdir[0], mCoord, i, x, 5);
+                    // DIFF(axdir[1], mCoord, i, y, 5);
+                    // DIFF(axdir[2], mCoord, i, z, 5);
+                    DIFF(axdir,mCoord,i,5);
+
+                    r = AR;
+                    for (int j=0; j<ITER_POSITION; j++)
+                    {
+                        fitPosition(img3d, dim0, dim1, dim2,   0,   r*2, xyz,  axdir, zthickness);
+                        r = fitRadiusPercent(img3d, dim0, dim1, dim2, imgTH,  AR*2, xyz[0], xyz[1], xyz[2], zthickness, b_est_in_xyplaneonly);
+                    }
+                }
+            }
+
+            mCoord.elementAt(i).r = r;
+            mCoord.elementAt(i).x = xyz[0];
+            mCoord.elementAt(i).y = xyz[1];
+            mCoord.elementAt(i).z = xyz[2];
+        }
+        return true;
+    }
 }

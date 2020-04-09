@@ -7,7 +7,7 @@ public class CurveTracePara {
     public double internal_force_weight;
     public double internal_force2_weight;
     public double prior_force_weight;
-    public long nloops;
+    public int nloops;
     public int channo; //which data channel the trace will be applied to
     public int n_points; //# of control points
     public boolean b_adaptiveCtrlPoints;
@@ -36,7 +36,7 @@ public class CurveTracePara {
     public boolean b_use_favorite_direction;//whether or not use the favorite direction to trace. // by PHC 170606
     public double[] favorite_direction = new double[3]; //170606. add by PHC to introduce a favorite tracing direction
 
-    public long landmark_id_start, landmark_id_end;
+    public int landmark_id_start, landmark_id_end;
 
     public CurveTracePara()
     {
