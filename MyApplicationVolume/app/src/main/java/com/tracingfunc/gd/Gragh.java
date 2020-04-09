@@ -1,6 +1,8 @@
 package com.tracingfunc.gd;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Vector;
@@ -38,6 +40,7 @@ public class Gragh {
         q.add(new Vertex(ori,dis[ori]));
 
         int count = 0;
+        Map<Integer,Vertex> indexVertexMap = new HashMap<Integer, Vertex>();
         while (!q.isEmpty()){
             Vertex x = q.element();
             q.poll();
@@ -49,8 +52,13 @@ public class Gragh {
                 if(dis[y.getIndex()]>x.getPath()+y.getPath()){
                     dis[y.getIndex()] = x.getPath()+y.getPath();
                     plist[y.getIndex()] = x.getIndex();
-                    q.remove(y);
-                    q.add(new Vertex(y.getIndex(),dis[y.getIndex()]));
+                    if(indexVertexMap.get(y.getIndex())!=null){
+                        q.remove(indexVertexMap.get(y.getIndex()));
+                        indexVertexMap.remove(y.getIndex());
+                    }
+                    Vertex v = new Vertex(y.getIndex(),dis[y.getIndex()]);
+                    indexVertexMap.put(y.getIndex(),v);
+                    q.add(v);
                 }
             }
 
