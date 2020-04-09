@@ -49,6 +49,7 @@ public class Gragh {
                 if(dis[y.getIndex()]>x.getPath()+y.getPath()){
                     dis[y.getIndex()] = x.getPath()+y.getPath();
                     plist[y.getIndex()] = x.getIndex();
+                    q.remove(y);
                     q.add(new Vertex(y.getIndex(),dis[y.getIndex()]));
                 }
             }
