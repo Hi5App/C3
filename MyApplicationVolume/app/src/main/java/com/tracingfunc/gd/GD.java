@@ -853,17 +853,7 @@ public class GD {
             return s_error;
         }
 
-        List<Vertex> vertexs = new ArrayList<Vertex>();
-        for(int i=0; i<n_nodes; i++){
-            Vertex v;
-            if(i==start_nodeind){
-                v = new Vertex(i,0);
-                v.setParent(-1);
-            }
-            v = new Vertex(i);
-            vertexs.add(v);
-        }
-        Gragh g = new Gragh(vertexs,edge_array,weights);
+        Gragh g = new Gragh(n_nodes,edge_array,weights);
         g.search(start_nodeind);
         for(int i=0; i<g.plist.length; i++){
             plist[i] = g.plist[i];
