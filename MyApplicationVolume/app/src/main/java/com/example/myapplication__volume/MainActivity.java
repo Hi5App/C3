@@ -435,7 +435,7 @@ public class MainActivity extends AppCompatActivity {
         CurveTracePara curveTracePara = new CurveTracePara();
 
 //        curveTracePara.sp_graph_resolution_step = 1;
-        curveTracePara.imgTH = 20;
+//        curveTracePara.imgTH = 20;
 //        Log.v("GDTraing", Double.toString(curveTracePara.imgTH));
 
         outswc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img.getData(),sz,p0,pp,curveTracePara,1.0);
