@@ -17,6 +17,7 @@ import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
@@ -45,6 +46,8 @@ import com.tracingfunc.gd.V3dNeuronGDTracing;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 import static java.lang.Math.pow;
@@ -193,7 +196,23 @@ public class MainActivity extends AppCompatActivity {
         button_5.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 try {
-                    GDTraing();
+                    Log.v("Mainactivity", "GD-Tracing start~");
+                    Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
+                    Timer timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            /**
+                             * 延时执行的代码
+                             */
+                            try {
+                                GDTraing();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    },1000); // 延时1秒
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -455,8 +474,13 @@ public class MainActivity extends AppCompatActivity {
 //                                s.get(3)  + ", " + s.get(4)  + ", " + s.get(5)  + ", " + s.get(6));
         }
         Log.v("MainActivity--GD", Integer.toString(swc.size()));
+
+        Looper.prepare();
+        Toast.makeText(this, "GD-Tracing finish, size of result swc: " + Integer.toString(swc.size()), Toast.LENGTH_SHORT).show();
         myrenderer.importSwc(swc);
         myGLSurfaceView.requestRender();
+        Looper.loop();
+
     }
 
     /**
