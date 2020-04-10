@@ -429,11 +429,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         NeuronTree outswc;
-        long[] sz = new long[]{img.getSz0(),img.getSz1(),img.getSz2(),img.getSz3()};
+//        long[] sz = new long[]{img.getSz0(),img.getSz1(),img.getSz2(),img.getSz3()};
+
+        int[] sz = new int[]{(int)img.getSz0(), (int)img.getSz1(), (int)img.getSz2(), (int)img.getSz3()};
         CurveTracePara curveTracePara = new CurveTracePara();
 
 //        curveTracePara.sp_graph_resolution_step = 1;
-        
+        curveTracePara.imgTH = 20;
+//        Log.v("GDTraing", Double.toString(curveTracePara.imgTH));
+
         outswc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img.getData(),sz,p0,pp,curveTracePara,1.0);
         ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
         for(int i=0; i<outswc.listNeuron.size(); i++){
