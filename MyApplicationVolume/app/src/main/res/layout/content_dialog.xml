@@ -14,11 +14,12 @@
 
         <TextView
             android:id="@+id/title0"
-            android:layout_width="wrap_content"
+            android:layout_width="70dp"
             android:layout_height="48dp"
             android:layout_alignParentLeft="true"
-            android:gravity="center"
-            android:text="ip:            "
+            android:gravity="center|left"
+            android:paddingLeft="0dp"
+            android:text="IP:"
             android:textColor="#bb333333" />
 
         <EditText
@@ -50,11 +51,12 @@
 
         <TextView
             android:id="@+id/title1"
-            android:layout_width="wrap_content"
+            android:layout_width="70dp"
             android:layout_height="48dp"
             android:layout_alignParentLeft="true"
-            android:gravity="center"
-            android:text="port:       "
+            android:gravity="center|left"
+            android:paddingLeft="0dp"
+            android:text="port:"
             android:textColor="#bb333333" />
 
         <EditText
@@ -86,11 +88,12 @@
 
         <TextView
             android:id="@+id/title2"
-            android:layout_width="wrap_content"
+            android:layout_width="70dp"
             android:layout_height="48dp"
             android:layout_alignParentLeft="true"
-            android:gravity="center"
-            android:text="id：        "
+            android:gravity="center|left"
+            android:paddingLeft="0dp"
+            android:text="ID:"
             android:textColor="#bb333333" />
 
         <EditText

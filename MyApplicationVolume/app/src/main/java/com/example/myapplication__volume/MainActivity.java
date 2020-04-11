@@ -26,6 +26,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -112,12 +113,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(myGLSurfaceView);
 
         LinearLayout ll = new LinearLayout(this);
-        ll.setOrientation(LinearLayout.VERTICAL);
+        HorizontalScrollView hs = new HorizontalScrollView(this);
+
+        this.addContentView(hs, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT , ViewGroup.LayoutParams.WRAP_CONTENT));
+        hs.addView(ll);
 
         final Button button_1 = new Button(this);
         button_1.setText("draw curve");
         ll.addView(button_1);
-        this.addContentView(ll, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT , ViewGroup.LayoutParams.WRAP_CONTENT));
 
         final Button button_2 = new Button(this);
         button_2.setText("pinpoint");
@@ -493,28 +496,28 @@ public class MainActivity extends AppCompatActivity {
 
 
         String[] content = {
-                "number of nodes",
-                "soma surface",
-                "number of stems",
-                "number of bifurcations",
-                "number of branches",
-                "number of tips",
-                "overall width",
-                "overall height",
-                "overall depth",
-                "average diameter",
-                "total length",
-                "total surface",
-                "total volume",
-                "mac euclidean distance",
-                "max path distance",
-                "max branch order",
-                "average contraction",
-                "average fragmentation",
-                "average parent-daughter ratio",
-                "average bifurcation angle local",
-                "average bifurcation angle remote",
-                "Hausdorff dimension"
+                "number of nodes\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+                "soma surface\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+                "number of stems\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+                "number of bifurcations\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+                "number of branches\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+                "number of tips\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+                "overall width\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+                "overall height\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+                "overall depth\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+                "average diameter\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+                "total length\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+                "total surface\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+                "total volume\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+                "mac euclidean distance\t\t\t\t\t\t\t\t\t\t\t\t\t",
+                "max path distance\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+                "max branch order\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+                "average contraction\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+                "average fragmentation\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+                "average parent-daughter ratio\t\t\t\t\t\t\t\t",
+                "average bifurcation angle local\t\t\t\t\t\t\t",
+                "average bifurcation angle remote\t\t\t\t",
+                "Hausdorff dimension\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
         };
 
         String[] result_display = new String[22];
@@ -522,17 +525,17 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < result_display.length; i++){
             int num = (33 - content[i].length());
             if (content[i].substring(0, 6).equals("number") || content[i].substring(0, 6).equals("max br")){
-                result_display[i] = ":" + AddSpace(content[i], num) + String.format("%-8d", (int)result[i]);
+                result_display[i] = content[i] + String.format("%d", (int)result[i]);
             }
             else{
-                result_display[i] = ":" + AddSpace(content[i], num) + String.format("%-8.5f", (float)result[i]);
+                result_display[i] = content[i] + String.format("%.5f", (float)result[i]);
             }
         }
 
         new XPopup.Builder(this)
 //                .maxWidth(960)
                 .maxHeight(1350)
-                .asBottomList("请选择一项", result_display,
+                .asBottomList("Global features of the neuron", result_display,
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
