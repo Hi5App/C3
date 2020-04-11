@@ -37,7 +37,8 @@
         </activity>
 
         <activity android:name=".ConnectActivity"
-            android:parentActivityName=".FileActivity">
+            android:parentActivityName=".FileActivity"
+            android:label="Connect">
                 <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value=".ConnectActivity" />

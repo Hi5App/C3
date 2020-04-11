@@ -15,11 +15,11 @@
 
         <TextView
             android:id="@+id/title0"
-            android:layout_width="wrap_content"
+            android:layout_width="80dp"
             android:layout_height="48dp"
             android:layout_alignParentLeft="true"
-            android:gravity="center"
-            android:text="ip:            "
+            android:gravity="center|left"
+            android:text="IP:"
             android:textColor="#bb333333" />
 
         <EditText
@@ -51,11 +51,11 @@
 
         <TextView
             android:id="@+id/title1"
-            android:layout_width="wrap_content"
+            android:layout_width="80dp"
             android:layout_height="48dp"
             android:layout_alignParentLeft="true"
-            android:gravity="center"
-            android:text="offset_x       "
+            android:gravity="center|left"
+            android:text="offset_x"
             android:textColor="#bb333333" />
 
         <EditText
@@ -87,11 +87,11 @@
 
         <TextView
             android:id="@+id/title2"
-            android:layout_width="wrap_content"
+            android:layout_width="80dp"
             android:layout_height="48dp"
             android:layout_alignParentLeft="true"
-            android:gravity="center"
-            android:text="offset_y        "
+            android:gravity="center|left"
+            android:text="offset_y"
             android:textColor="#bb333333" />
 
         <EditText
@@ -123,11 +123,11 @@
 
         <TextView
             android:id="@+id/title3"
-            android:layout_width="wrap_content"
+            android:layout_width="80dp"
             android:layout_height="48dp"
             android:layout_alignParentLeft="true"
-            android:gravity="center"
-            android:text="offset_z        "
+            android:gravity="center|left"
+            android:text="offset_z"
             android:textColor="#bb333333" />
 
         <EditText

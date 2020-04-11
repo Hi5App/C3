@@ -53,10 +53,11 @@ public class readSWC_file_nt {
         hashNeuron.clear();
         // String name = "";
         // String comment = "";
-        for (int i = 0; i < arraylist.size() - 1; i++) {
+        for (int i = 0; i < arraylist.size(); i++) {
             NeuronSWC S = new NeuronSWC();
-            String current = arraylist.get(i + 1);
+            String current = arraylist.get(i);
             String[] s = current.split(" ");
+            if (s[0].substring(0, 1).equals("#")) continue;
             for (int j = 0; j < 7; j++) {
                 if (j == 0)
                     S.nodeinseg_id = Integer.parseInt(s[j]);
@@ -72,7 +73,7 @@ public class readSWC_file_nt {
                     S.radius = Float.parseFloat(s[j]);
                 else if (j == 6)
                     S.parent = Integer.parseInt(s[j]);
-                // the ESWC extension, by PHC, 20120217
+                    // the ESWC extension, by PHC, 20120217
                 else if (j == 7)
                     S.seg_id = Integer.parseInt(s[j]);
                 else if (j == 8)
@@ -83,7 +84,7 @@ public class readSWC_file_nt {
                     S.timestamp = Integer.parseInt(s[j]);
                 else if (j == 11)
                     S.tfresindex = Integer.parseInt(s[j]);
-                // change ESWC format to adapt to flexible feature number, by WYN, 20150602
+                    // change ESWC format to adapt to flexible feature number, by WYN, 20150602
                 else
                     S.fea_val.add(Float.parseFloat(s[j]));
             }
@@ -114,7 +115,6 @@ public class readSWC_file_nt {
     }
 
 
-
     NeuronTree readSWC_file(Uri uri) {
         Context context = getContext();
 
@@ -134,7 +134,7 @@ public class readSWC_file_nt {
                     context.getContentResolver().openFileDescriptor(uri, "r");
 
             InputStream is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-            FileInputStream fid = (FileInputStream)(is);
+            FileInputStream fid = (FileInputStream) (is);
             InputStreamReader isr = new InputStreamReader(fid);
             BufferedReader br = new BufferedReader(isr);
             String str;
@@ -152,10 +152,11 @@ public class readSWC_file_nt {
         hashNeuron.clear();
         // String name = "";
         // String comment = "";
-        for (int i = 0; i < arraylist.size() - 1; i++) {
+        for (int i = 0; i < arraylist.size(); i++) {
             NeuronSWC S = new NeuronSWC();
-            String current = arraylist.get(i + 1);
+            String current = arraylist.get(i);
             String[] s = current.split(" ");
+            if (s[0].substring(0, 1).equals("#")) continue;
             for (int j = 0; j < 7; j++) {
                 if (j == 0)
                     S.nodeinseg_id = Integer.parseInt(s[j]);

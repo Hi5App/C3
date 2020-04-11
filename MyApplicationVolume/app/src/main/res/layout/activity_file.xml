@@ -10,74 +10,72 @@
         android:id="@+id/button"
         android:layout_width="91dp"
         android:layout_height="52dp"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="48dp"
         android:onClick="ReadFile"
         android:text="@string/Button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.858"
+        app:layout_constraintHorizontal_bias="0.181"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textView3"
-        android:layout_width="255dp"
-        android:layout_height="47dp"
-        android:layout_marginBottom="556dp"
+        android:layout_width="299dp"
+        android:layout_height="73dp"
+        android:layout_marginBottom="530dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
         android:text="@string/text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.992" />
+        app:layout_constraintTop_toBottomOf="@+id/button"
+        app:layout_constraintVertical_bias="0.65" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="107dp"
+        android:layout_height="48dp"
+        android:onClick="DownloadFile"
+        android:text="@string/Button_2"
+        app:layout_constraintBaseline_toBaselineOf="@+id/editText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.035"
+        app:layout_constraintStart_toEndOf="@+id/editText" />
 
     <EditText
         android:id="@+id/editText"
         android:layout_width="192dp"
         android:layout_height="45dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="200dp"
+        android:layout_marginStart="56dp"
+        android:autofillHints=""
         android:ems="10"
         android:hint="@string/edit_message"
         android:inputType="textPersonName"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        android:autofillHints="" />
-
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="107dp"
-        android:layout_height="50dp"
-        android:onClick="DownloadFile"
-        android:text="@string/Button_2"
-        app:layout_constraintBaseline_toBaselineOf="@+id/editText"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.437"
-        app:layout_constraintStart_toEndOf="@+id/editText" />
+        app:layout_constraintTop_toBottomOf="@+id/button7"
+        app:layout_constraintVertical_bias="0.062" />
 
     <Button
         android:id="@+id/button5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="160dp"
+        android:layout_height="46dp"
+        android:layout_marginBottom="315dp"
         android:onClick="Connect"
         android:text="@string/Button0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.801"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button2"
-        app:layout_constraintVertical_bias="0.096" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/button7"
         android:layout_width="100dp"
         android:layout_height="52dp"
-        android:layout_marginTop="60dp"
+        android:layout_marginStart="56dp"
+        android:layout_marginTop="8dp"
         android:onClick="ImageBlock"
         android:text="@string/Button_remote"
-        app:layout_constraintEnd_toStartOf="@+id/button"
-        app:layout_constraintHorizontal_bias="0.309"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/textView3" />
 </androidx.constraintlayout.widget.ConstraintLayout>
