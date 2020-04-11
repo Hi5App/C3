@@ -727,14 +727,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            loc2_index[i] = loc2[i] * sz[i];
 //        }
 
-        for(int i=0; i<2; i++){
-            loc1_index[i] = (1.0f - loc1[i]) * sz[2 - i];
-            loc2_index[i] = (1.0f - loc2[i]) * sz[2 - i];
-        }
+        loc1_index = ModeltoVolume(loc1);
+        loc2_index = ModeltoVolume(loc2);
 
-
-        loc1_index[2] = loc1[2] * sz[0];
-        loc2_index[2] = loc2[2] * sz[0];
+//        for(int i=0; i<2; i++){
+//            loc1_index[i] = (1.0f - loc1[i]) * sz[2 - i];
+//            loc2_index[i] = (1.0f - loc2[i]) * sz[2 - i];
+//        }
+//
+//
+//        loc1_index[2] = loc1[2] * sz[0];
+//        loc2_index[2] = loc2[2] * sz[0];
 
 
         result = devide(plus(loc1_index, loc2_index), 2);
@@ -759,7 +762,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         float[][] dim = new float[3][2];
         for(int i=0; i<3; i++){
             dim[i][0] = 0;
-            dim[i][1] = sz[i] - 1;
+            dim[i][1] = sz[2-i] - 1;
         }
 
         float[] poc;

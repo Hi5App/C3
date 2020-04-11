@@ -1,23 +1,15 @@
 package com.example.myapplication__volume;
 
-import android.net.Uri;
-import android.opengl.GLES20;
 import android.opengl.GLES30;
-import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 import com.example.basic.Image4DSimple;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
-import java.util.Arrays;
-import static com.example.myapplication__volume.MainActivity.getContext;
 
 
 public class MyPattern{
