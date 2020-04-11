@@ -10,11 +10,10 @@
         android:id="@+id/button"
         android:layout_width="91dp"
         android:layout_height="52dp"
-        android:layout_marginTop="48dp"
+        android:layout_marginStart="56dp"
+        android:layout_marginTop="44dp"
         android:onClick="ReadFile"
         android:text="@string/Button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.181"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -22,15 +21,15 @@
         android:id="@+id/textView3"
         android:layout_width="299dp"
         android:layout_height="73dp"
+        android:layout_marginStart="56dp"
         android:layout_marginBottom="530dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:text="@string/text"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button"
-        app:layout_constraintVertical_bias="0.65" />
+        app:layout_constraintVertical_bias="0.11" />
 
     <Button
         android:id="@+id/button2"
@@ -48,14 +47,13 @@
         android:layout_width="192dp"
         android:layout_height="45dp"
         android:layout_marginStart="56dp"
+        android:layout_marginTop="28dp"
         android:autofillHints=""
         android:ems="10"
         android:hint="@string/edit_message"
         android:inputType="textPersonName"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button7"
-        app:layout_constraintVertical_bias="0.062" />
+        app:layout_constraintTop_toBottomOf="@+id/button7" />
 
     <Button
         android:id="@+id/button5"
@@ -73,7 +71,7 @@
         android:layout_width="100dp"
         android:layout_height="52dp"
         android:layout_marginStart="56dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:onClick="ImageBlock"
         android:text="@string/Button_remote"
         app:layout_constraintStart_toStartOf="parent"
