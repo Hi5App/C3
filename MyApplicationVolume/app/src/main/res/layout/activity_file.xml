@@ -59,12 +59,13 @@
         android:id="@+id/button5"
         android:layout_width="160dp"
         android:layout_height="46dp"
-        android:layout_marginBottom="315dp"
+        android:layout_marginTop="52dp"
         android:onClick="Connect"
         android:text="@string/Button0"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editText" />
 
     <Button
         android:id="@+id/button7"
