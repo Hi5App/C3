@@ -102,7 +102,7 @@ public class DijkstraClass {
         localQueue_node = new int[nnode];
         // if (!localQueue_node)
         // {
-        //     System.out.println("Fail to do: long * localQueue_node = new long [nnode];");
+        //     System.out.println("Fail to do: int * localQueue_node = new int [nnode];");
         //     goto Label_FreeMemory_Return;
         // }
 

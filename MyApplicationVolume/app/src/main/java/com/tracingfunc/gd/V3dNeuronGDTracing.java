@@ -10,7 +10,7 @@ public class V3dNeuronGDTracing {
     public static String TRACED_NAME = "APP1_Tracing";
     public static String TRACED_FILE = "v3d_traced_neuron";
 
-    public static NeuronTree v3dneuron_GD_tracing(int[][][][] p4d, long[] sz, LocationSimple p0, Vector<LocationSimple> pp, CurveTracePara  trace_para, double trace_z_thickness)
+    public static NeuronTree v3dneuron_GD_tracing(int[][][][] p4d, int[] sz, LocationSimple p0, Vector<LocationSimple> pp, CurveTracePara  trace_para, double trace_z_thickness)
             throws Exception
     {
         NeuronTree nt = new NeuronTree();
@@ -23,11 +23,19 @@ public class V3dNeuronGDTracing {
         Vector<Vector<V_NeuronSWC_unit>> mmUnit = new Vector<Vector<V_NeuronSWC_unit>>();
 
         tracedNeuron = trace_one_pt_to_N_points_shortestdist(p4d, sz, p0, pp, trace_para, trace_z_thickness, mmUnit);
+
+        if (pp.size()>0) //trace to some selected markers
+        {
+            if (trace_para.b_deformcurve==false && tracedNeuron.nsegs()>=1)	proj_trace_smooth_downsample_last_traced_neuron(p4d, sz, tracedNeuron, trace_para, 0, tracedNeuron.nsegs()-1);
+            if (trace_para.b_estRadii==true) proj_trace_compute_radius_of_last_traced_neuron(p4d, sz, tracedNeuron, trace_para, 0, tracedNeuron.nsegs()-1, (float) trace_z_thickness, true);
+//            if (trace_para.b_postMergeClosebyBranches && tracedNeuron.nsegs()>=2) proj_trace_mergeAllClosebyNeuronNodes(tracedNeuron);
+        }
+
         nt = convertNeuronTreeFormat(tracedNeuron);
         return nt;
     }
 
-    public static V_NeuronSWC_list trace_one_pt_to_N_points_shortestdist(int[][][][] p4d, long[] sz,
+    public static V_NeuronSWC_list trace_one_pt_to_N_points_shortestdist(int[][][][] p4d, int[] sz,
                                                                          LocationSimple  p0, Vector<LocationSimple> pp,
                                                                          CurveTracePara  trace_para, double trace_z_thickness,
                                                                          Vector<Vector<V_NeuronSWC_unit> > mmUnit) throws Exception
@@ -75,9 +83,9 @@ public class V3dNeuronGDTracing {
         trace_bounding_box.x1 = sz[0]-1;
         trace_bounding_box.y1 = sz[1]-1;
         trace_bounding_box.z1 = sz[2]-1;
-        System.out.println("set z1"+ (long)(trace_bounding_box.z1));
+        System.out.println("set z1"+ (int)(trace_bounding_box.z1));
 
-        System.out.println("z1="+(long)(trace_bounding_box.z1));
+        System.out.println("z1="+(int)(trace_bounding_box.z1));
 
 //        float pxp = 0, pyp=0, pzp=0;
 //        if (n_end_nodes>0)
@@ -94,8 +102,8 @@ public class V3dNeuronGDTracing {
 
             s_error = gd.find_shortest_path_graphimg(p4d[chano], sz[0], sz[1], sz[2],
                     (float) trace_z_thickness,
-                    (long)trace_bounding_box.x0, (long)trace_bounding_box.y0, (long) trace_bounding_box.z0,
-                    (long)trace_bounding_box.x1, (long)trace_bounding_box.y1, (long) trace_bounding_box.z1,
+                    (int)trace_bounding_box.x0, (int)trace_bounding_box.y0, (int) trace_bounding_box.z0,
+                    (int)trace_bounding_box.x1, (int)trace_bounding_box.y1, (int) trace_bounding_box.z1,
                         p0.x, p0.y, p0.z,
                         n_end_nodes,
                         px, py, pz, //fix this bug 100624
@@ -138,7 +146,7 @@ public class V3dNeuronGDTracing {
         //put into tNeuron /////////////////////////////////////////////////////////
         if (n_end_nodes<=0) // entire image, direct copy
         {
-            long nexist = tNeuron.maxnoden();
+            int nexist = tNeuron.maxnoden();
 
             V_NeuronSWC cur_seg = new V_NeuronSWC();
             cur_seg.clear();
@@ -167,7 +175,7 @@ public class V3dNeuronGDTracing {
         {
             for (int ii=0;ii<mmUnit.size();ii++)
             {
-                long nexist = tNeuron.maxnoden();
+                int nexist = tNeuron.maxnoden();
 
                 V_NeuronSWC cur_seg = new V_NeuronSWC();
                 cur_seg.clear();
@@ -196,10 +204,10 @@ public class V3dNeuronGDTracing {
         return mmUnit.size();
     }
 
-    public static void set_simple_path_unit (V_NeuronSWC_unit  v, long base_n, Vector<V_NeuronSWC_unit> mUnit, int i, boolean link_order)
+    public static void set_simple_path_unit (V_NeuronSWC_unit  v, int base_n, Vector<V_NeuronSWC_unit> mUnit, int i, boolean link_order)
     {
         double r=1; double default_type=3; double creatmode=0; double default_timestamp=10; double default_tfresindex = 0;
-        long N = mUnit.size();
+        int N = mUnit.size();
         v.type	= default_type;
         v.x 	= mUnit.elementAt(i).x;
         v.y 	= mUnit.elementAt(i).y;
@@ -246,17 +254,17 @@ public class V3dNeuronGDTracing {
                 count++;
                 NeuronSWC S = new NeuronSWC();
 
-                S.n 	= (long)seg.row.elementAt(k).n;
+                S.n 	= (int)seg.row.elementAt(k).n;
                 if (S.type<=0) S.type 	= 2; //seg.row.at(k).data[1];
                 S.x 	= (float) seg.row.elementAt(k).x;
                 S.y 	= (float) seg.row.elementAt(k).y;
                 S.z 	= (float) seg.row.elementAt(k).z;
                 S.radius 	= (float) seg.row.elementAt(k).r;
-                S.parent 	= (long) seg.row.elementAt(k).parent;
+                S.parent 	= (int) seg.row.elementAt(k).parent;
 
                 //for hit & editing
-                S.seg_id       = (long)seg.row.elementAt(k).seg_id;
-                S.nodeinseg_id = (long) seg.row.elementAt(k).nodeinseg_id;
+                S.seg_id       = (int)seg.row.elementAt(k).seg_id;
+                S.nodeinseg_id = (int) seg.row.elementAt(k).nodeinseg_id;
 
                 //qDebug("%s  ///  %d %d (%g %g %g) %g %d", buf, S.n, S.type, S.x, S.y, S.z, S.r, S.pn);
 
@@ -279,6 +287,95 @@ public class V3dNeuronGDTracing {
         }
 
         return SS;
+    }
+
+    public static boolean proj_trace_smooth_downsample_last_traced_neuron(int[][][][] p4d, int[] sz, V_NeuronSWC_list  tracedNeuron,
+                                                                          CurveTracePara  trace_para, int seg_begin, int seg_end)throws Exception
+    {
+        System.out.println("proj_trace_smooth_downsample_last_traced_neuron(). ");
+        // CHECK_DATA_GD_TRACING(false);  //check
+
+        int nexist = 0; // re-create index number
+
+        // (VneuronSWC_list tracedNeuron).(V_neuronSWC seg[]).(V_nueronSWC_unit row[])
+        for(int iseg=0; iseg<tracedNeuron.seg.size(); iseg++)
+        {
+            if (iseg <seg_begin || iseg >seg_end) continue; //091023
+
+            V_NeuronSWC  cur_seg = (tracedNeuron.seg.elementAt(iseg));
+            System.out.printf("#seg=%d(%d)\n", iseg, cur_seg.row.size());
+
+            Vector<V_NeuronSWC_unit>  mUnit = cur_seg.row; // do in place
+            {
+                //------------------------------------------------------------
+                // Vector<V_NeuronSWC_unit> mUnit_prior = mUnit; // a copy as prior
+                Vector<V_NeuronSWC_unit> mUnit_prior = new Vector<V_NeuronSWC_unit>();
+                for(int s=0;s<mUnit.size();s++){
+                    mUnit_prior.add(mUnit.elementAt(s).clone());
+                }
+
+                //smooth_curve(mCoord, trace_para.sp_smoothing_win_sz);
+                mUnit = GD.downsample_curve(mUnit, trace_para.sp_downsample_step);
+
+                //------------------------------------------------------------
+                BDB_Minus_Prior_Parameter bdbp_para = new BDB_Minus_Prior_Parameter();
+                bdbp_para.nloops   =trace_para.nloops;
+                bdbp_para.f_smooth =trace_para.internal_force2_weight;
+                bdbp_para.f_length =trace_para.internal_force_weight;
+                bdbp_para.f_prior  = 0.2;
+                int chano = trace_para.channo;
+
+                GD.point_bdb_minus_3d_localwinmass_prior(p4d[chano], sz[0], sz[1], sz[2],
+                        mUnit, bdbp_para, true,
+                        mUnit_prior,1,1.0f,false);// 090618: add constraint to fix 2 ends
+                //-------------------------------------------------------------
+
+            }
+            System.out.printf(">>%d(%d) \n", iseg, mUnit.size());
+
+            V_NeuronSWC_unit.reset_simple_path_index (nexist, mUnit);
+            nexist += mUnit.size();
+        }
+        System.out.println("");
+
+        return true;
+    }
+
+    public static boolean proj_trace_compute_radius_of_last_traced_neuron(int[][][][] p4d, int[] sz, V_NeuronSWC_list  tracedNeuron,
+                                                                          CurveTracePara  trace_para, int seg_begin, int seg_end,
+                                                                          float myzthickness, boolean b_smooth)throws Exception
+    {
+        System.out.println("proj_trace_compute_radius_of_last_traced_neuron(). ");
+        // CHECK_DATA_GD_TRACING(false); //check
+
+        //int chano = trace_para.channo; //20110917. the multichannel and single channel tracing can be distinguished based sz[3].
+        int smoothing_win_sz = trace_para.sp_smoothing_win_sz;
+
+        for(int iseg=0; iseg<tracedNeuron.seg.size(); iseg++)
+        {
+            if (iseg <seg_begin || iseg >seg_end) continue;
+
+            V_NeuronSWC cur_seg = tracedNeuron.seg.elementAt(iseg);
+            System.out.printf("#seg=%d(%d) ", iseg, cur_seg.row.size());
+
+            Vector<V_NeuronSWC_unit> mUnit = cur_seg.row; // do in place
+            {
+                if (sz[3]==1)
+                {
+                    GD.fit_radius_and_position(p4d[0], sz[0], sz[1], sz[2],
+                            mUnit,
+                            false,       // do not move points here
+                            myzthickness,
+                            trace_para.b_3dcurve_width_from_xyonly,trace_para.visible_thresh);
+                }
+
+                if (b_smooth)
+                    GD.smooth_radius(mUnit, smoothing_win_sz, false);
+            }
+        }
+        System.out.println("");
+
+        return true;
     }
 
 }

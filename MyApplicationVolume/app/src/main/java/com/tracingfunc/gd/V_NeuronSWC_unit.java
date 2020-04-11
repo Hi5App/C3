@@ -22,21 +22,21 @@ public class V_NeuronSWC_unit implements Cloneable {
     public void setType(double t) {type = t;}
 
     //should be a struct at least included members (n, parent)
-//    public static<E> void reset_simple_path_index (long base_n, Vector<E>  mUnit)
-//    {
-//        long N = mUnit.size();
-//        for (int i=0; i<mUnit.size(); i++)
-//        {
-//            if (mUnit.elementAt(0).parent >=1) // same as index order
-//            {
-//                mUnit.elementAt(i).n = base_n +1+i;
-//                mUnit.elementAt(i).parent = (i>=N-1)? -1: (mUnit.elementAt(i).n +1);
-//            }
-//            else                    // reversed link order
-//            {
-//                mUnit.elementAt(i).n = base_n +1+i;
-//                mUnit.elementAt(i).parent = (i<=0)? -1: (mUnit.elementAt(i).n -1);
-//            }
-//        }
-//    }
+    public static void reset_simple_path_index (int base_n, Vector<V_NeuronSWC_unit>  mUnit)
+    {
+        int N = mUnit.size();
+        for (int i=0; i<mUnit.size(); i++)
+        {
+            if (mUnit.elementAt(0).parent >=1) // same as index order
+            {
+                mUnit.elementAt(i).n = base_n +1+i;
+                mUnit.elementAt(i).parent = (i>=N-1)? -1: (mUnit.elementAt(i).n +1);
+            }
+            else                    // reversed link order
+            {
+                mUnit.elementAt(i).n = base_n +1+i;
+                mUnit.elementAt(i).parent = (i<=0)? -1: (mUnit.elementAt(i).n -1);
+            }
+        }
+    }
 }

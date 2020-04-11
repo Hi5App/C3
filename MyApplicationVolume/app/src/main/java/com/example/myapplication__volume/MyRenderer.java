@@ -695,10 +695,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float [] Marker = getCenterOfLineProfile(loc1, loc2);
 //            float [] Marker = {60.1f, 63.2f, 63.6f};
 
-//            Log.v("Marker",Arrays.toString(Marker));
+            Log.v("Marker",Arrays.toString(Marker));
 
             float intensity = Sample3d(Marker[0], Marker[1], Marker[2]);
-//            Log.v("intensity",Float.toString(intensity));
+            Log.v("intensity",Float.toString(intensity));
 
             return VolumetoModel(Marker);
         }else {

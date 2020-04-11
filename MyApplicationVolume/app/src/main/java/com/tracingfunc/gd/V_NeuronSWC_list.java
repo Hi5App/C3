@@ -4,7 +4,7 @@ import java.util.Vector;
 
 public class V_NeuronSWC_list implements Cloneable{
     Vector<V_NeuronSWC> seg; //since each seg could be a complete neuron or multiple paths, thus I call it "seg", but not "path"
-    long last_seg_num; //?? for what purpose? seems only used once in v3d_core.cpp. Questioned by Hanchuan, 20100210
+    int last_seg_num; //?? for what purpose? seems only used once in v3d_core.cpp. Questioned by Hanchuan, 20100210
     String name;
     String comment;
     String file;
@@ -20,11 +20,11 @@ public class V_NeuronSWC_list implements Cloneable{
         seg = new Vector<V_NeuronSWC>();
     }
 
-    public long nsegs() {return seg.size();}
-    public long nrows() {long n=0; for (int i=0;i<seg.size();i++) n+=(long)seg.elementAt(i).nrows(); return n;}
-    public long maxnoden()
+    public int nsegs() {return seg.size();}
+    public int nrows() {int n=0; for (int i=0;i<seg.size();i++) n+=(int)seg.elementAt(i).nrows(); return n;}
+    public int maxnoden()
     {
-        long max_n=0;	for (int i=0;i<seg.size();i++) if (seg.elementAt(i).maxnoden() > max_n) max_n = (long)seg.elementAt(i).maxnoden();	return max_n;
+        int max_n=0;	for (int i=0;i<seg.size();i++) if (seg.elementAt(i).maxnoden() > max_n) max_n = (int)seg.elementAt(i).maxnoden();	return max_n;
     }
     public boolean isJointed() {return nsegs()==1 && seg.elementAt(0).b_jointed;}
 
@@ -39,13 +39,13 @@ public class V_NeuronSWC_list implements Cloneable{
     // void merge();
     // void decompose();
     // boolean reverse();
-    // boolean split(long seg_id, long nodeinseg_id);
-    // boolean deleteSeg(long seg_id);
+    // boolean split(int seg_id, int nodeinseg_id);
+    // boolean deleteSeg(int seg_id);
 
     // // @ADDED by Alessandro on 2015-05-08. Needed to support late delete of multiple neuron segments.
     // void                                            // no value returned
     //     deleteMultiSeg(                             // by default, deletes neuron segments having 'to_be_deleted' field set to 'true'
-    //         std::vector <long> *seg_ids = 0);    // if provided, deletes the corresponding neuron segments.
+    //         std::vector <int> *seg_ids = 0);    // if provided, deletes the corresponding neuron segments.
 
     public static V_NeuronSWC merge_V_NeuronSWC_list(V_NeuronSWC_list  in_swc_list) throws Exception
     {

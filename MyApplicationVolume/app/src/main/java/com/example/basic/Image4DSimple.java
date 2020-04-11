@@ -540,7 +540,7 @@ public class Image4DSimple {
         return true;
     }
 
-    public int[] getMinMaxValue(){
+    public int[] getMinMaxValue(long channel){
         int[] minMax = null;
         if(!this.valid()){
             return minMax;
@@ -548,15 +548,15 @@ public class Image4DSimple {
             minMax = new int[2];
             minMax[0] = Integer.MAX_VALUE;
             minMax[1] = 0;
-            int c,k,j,i;
-            for (c=0;c<this.getSz3();c++)
-                for (k=0;k<this.getSz2();k++)
-                    for (j=0;j<this.getSz1();j++)
-                        for (i=0;i<this.getSz0();i++)
-                        {
-                            minMax[0] = (this.getValue(i,j,k,c)<minMax[0])?this.getValue(i,j,k,c):minMax[0];
-                            minMax[1] = (this.getValue(i,j,k,c)>minMax[0])?this.getValue(i,j,k,c):minMax[1];
-                        }
+            int k,j,i;
+            for (k=0;k<this.getSz2();k++)
+                for (j=0;j<this.getSz1();j++)
+                    for (i=0;i<this.getSz0();i++)
+                    {
+                        minMax[0] = (this.getValue(i,j,k,channel)<minMax[0])?this.getValue(i,j,k,channel):minMax[0];
+                        minMax[1] = (this.getValue(i,j,k,channel)>minMax[0])?this.getValue(i,j,k,channel):minMax[1];
+                    }
+
             return minMax;
         }
     }
@@ -606,7 +606,7 @@ public class Image4DSimple {
 
         if (lower_th==-9999 && higher_th==-9999)
         {
-            int[] minMax = p4dImage.getMinMaxValue();
+            int[] minMax = p4dImage.getMinMaxValue(channo);
             lower_th = minMax[0];
             higher_th = minMax[1];
         }
