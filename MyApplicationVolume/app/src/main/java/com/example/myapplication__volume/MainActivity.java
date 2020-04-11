@@ -518,9 +518,47 @@ public class MainActivity extends AppCompatActivity {
                 "average bifurcation angle local\t\t\t\t\t\t\t",
                 "average bifurcation angle remote\t\t\t\t",
                 "Hausdorff dimension\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
+
+                //>>>>>>>
+//                "number of nodes",
+//                "soma surface",
+//                "number of stems",
+//                "number of bifurcations",
+//                "number of branches",
+//                "number of tips",
+////                "name",
+////                "ip",
+////                "address",
+////                "female",
+////                "age",
+////                "ttttt",
+//                "overall width",
+//                "overall height",
+//                "overall depth",
+//                "average diameter",
+//                "total length",
+//                "total surface",
+//                "total volume",
+//                "mac euclidean distance",
+//                "max path distance",
+//                "max branch order",
+//                "average contraction",
+//                "average fragmentation",
+//                "average parent-daughter ratio",
+//                "average bifurcation angle local",
+//                "average bifurcation angle remote",
+//                "Hausdorff dimension"
+//>>>>>>> Stashed changes
         };
 
         String[] result_display = new String[22];
+        int[] length = { 26, 20, 27, 36, 31};
+
+//        for (int i = 0; i < 5; i++){
+//            int num = (36 - length[i]);
+//            result_display[i] = AddSpace(content[i], num) + ":" + String.format("%-8.5f", (float)result[i]);
+//        }
+
 
         for (int i = 0; i < result_display.length; i++){
             int num = (33 - content[i].length());
@@ -531,6 +569,7 @@ public class MainActivity extends AppCompatActivity {
                 result_display[i] = content[i] + String.format("%.5f", (float)result[i]);
             }
         }
+
 
         new XPopup.Builder(this)
 //                .maxWidth(960)
@@ -543,6 +582,32 @@ public class MainActivity extends AppCompatActivity {
                             }
                         })
                 .show();
+
+//=======
+////        new XPopup.Builder(this)
+//////                .maxWidth(960)
+////                .maxHeight(1350)
+////                .asBottomList("请选择一项", result_display,
+////                        new OnSelectListener() {
+////                            @Override
+////                            public void onSelect(int position, String text) {
+//////                                toast("click " + text);
+////                            }
+////                        })
+////                .show();
+//
+//        final String[] items = {"我是1","我是2","我是3"};
+//        AlertDialog.Builder listDialog = new AlertDialog.Builder(this);
+//        listDialog.setTitle("我就是个列表Dialog");
+//        listDialog.setItems(result_display, new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                Toast.makeText(MainActivity.this,"点击了"+items[which],Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//        listDialog.setView(R.layout.analysis_result);
+//        listDialog.show();
+//>>>>>>> Stashed changes
 
     }
 
