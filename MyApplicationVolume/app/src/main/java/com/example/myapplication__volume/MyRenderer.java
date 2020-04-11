@@ -727,14 +727,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            loc2_index[i] = loc2[i] * sz[i];
 //        }
 
-        for(int i=0; i<2; i++){
-            loc1_index[i] = (1.0f - loc1[i]) * sz[i];
-            loc2_index[i] = (1.0f - loc2[i]) * sz[i];
+        for(int i=1; i<3; i++){
+            loc1_index[i] = (1.0f - loc1[i]) * sz[2 - i];
+            loc2_index[i] = (1.0f - loc2[i]) * sz[2 - i];
         }
 
 
-        loc1_index[2] = loc1[2] * sz[2];
-        loc2_index[2] = loc2[2] * sz[2];
+        loc1_index[0] = loc1[0] * sz[2];
+        loc2_index[0] = loc2[0] * sz[2];
 
 
         result = devide(plus(loc1_index, loc2_index), 2);
@@ -982,9 +982,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private float[] ModeltoVolume(float[] input){
         float[] result = new float[3];
 
-        result[0] = (1.0f - input[0]) * sz[0];
+        result[0] = input[0] * sz[2];
         result[1] = (1.0f - input[1]) * sz[1];
-        result[2] =      input[2]     * sz[2];
+        result[2] = (1.0f - input[2]) * sz[0];
 
         return result;
     }
@@ -992,9 +992,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private float[] VolumetoModel(float[] input){
         float[] result = new float[3];
 
-        result[0] = (sz[0] - input[0]) / sz[0];
+        result[0] = input[0] / sz[2];
         result[1] = (sz[1] - input[1]) / sz[1];
-        result[2] =      input[2]      / sz[2];
+        result[2] = (sz[0] - input[2]) / sz[0];
 
         return result;
     }
@@ -1328,12 +1328,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 continue;
             }
             ArrayList<Float> parentLine = eswc.get(parent - 1);
-            eswcDrawed.add((sz[0] - parentLine.get(2)) / sz[0]);
+            eswcDrawed.add((parentLine.get(2)) / sz[2]);
             eswcDrawed.add((sz[1] - parentLine.get(3)) / sz[1]);
-            eswcDrawed.add(parentLine.get(4) / sz[2]);
-            eswcDrawed.add((sz[0] - currentLine.get(2)) / sz[0]);
+            eswcDrawed.add((sz[0] - parentLine.get(4)) / sz[0]);
+            eswcDrawed.add((currentLine.get(2)) / sz[2]);
             eswcDrawed.add((sz[1] - currentLine.get(3)) / sz[1]);
-            eswcDrawed.add(currentLine.get(4) / sz[2]);
+            eswcDrawed.add((sz[0] - currentLine.get(4)) / sz[0]);
         }
     }
 
@@ -1345,12 +1345,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 continue;
             }
             ArrayList<Float> parentLine = swc.get(parent - 1);
-            swcDrawed.add((sz[0] - parentLine.get(2)) / sz[0]);
+            swcDrawed.add((parentLine.get(2)) / sz[2]);
             swcDrawed.add((sz[1] - parentLine.get(3)) / sz[1]);
-            swcDrawed.add(parentLine.get(4) / sz[2]);
-            swcDrawed.add((sz[0] - currentLine.get(2)) / sz[0]);
+            swcDrawed.add((sz[0] - parentLine.get(4)) / sz[0]);
+            swcDrawed.add((currentLine.get(2)) / sz[2]);
             swcDrawed.add((sz[1] - currentLine.get(3)) / sz[1]);
-            swcDrawed.add(currentLine.get(4) / sz[2]);
+            swcDrawed.add((sz[0] - currentLine.get(4)) / sz[0]);
         }
     }
 
@@ -1358,9 +1358,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public void importApo(ArrayList<ArrayList<Float>> apo){
         for (int i = 0; i < apo.size(); i++){
             ArrayList<Float> currentLine = apo.get(i);
-            apoDrawed.add((sz[0] - currentLine.get(5)) / sz[0]);
+            apoDrawed.add((currentLine.get(5)) / sz[2]);
             apoDrawed.add((sz[1] - currentLine.get(6)) / sz[1]);
-            apoDrawed.add(currentLine.get(4) / sz[2]);
+            apoDrawed.add((sz[0] - currentLine.get(4)) / sz[0]);
         }
     }
 

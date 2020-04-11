@@ -1167,9 +1167,9 @@ public class MyPattern{
 
             for (int y = 0; y < vol_h; ++y){
                 for (int x = 0; x < vol_w; x++) {
-                    data_image[(layeroffset * z + vol_w * y + x) * 4] = intToByteArray(grayscale[0][x][y][z])[3];
-                    data_image[(layeroffset * z + vol_w * y + x) * 4 + 1] = intToByteArray(grayscale[0][x][y][z])[3];
-                    data_image[(layeroffset * z + vol_w * y + x) * 4 + 2] = intToByteArray(grayscale[0][x][y][z])[3];
+                    data_image[(layeroffset * z + vol_w * y + x) * 4] = intToByteArray(grayscale[0][z][y][x])[3];
+                    data_image[(layeroffset * z + vol_w * y + x) * 4 + 1] = intToByteArray(grayscale[0][z][y][x])[3];
+                    data_image[(layeroffset * z + vol_w * y + x) * 4 + 2] = intToByteArray(grayscale[0][z][y][x])[3];
                     data_image[(layeroffset * z + vol_w * y + x) * 4 + 3] = intToByteArray(1)[3];
 
 //                    if(grayscale[x][y][z] > 50){
