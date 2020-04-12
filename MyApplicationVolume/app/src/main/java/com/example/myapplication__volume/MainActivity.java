@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -40,8 +41,6 @@ import com.example.basic.ImageMarker;
 import com.example.basic.LocationSimple;
 import com.example.basic.NeuronTree;
 import com.feature_calc_func.MorphologyCalculate;
-import com.lxj.xpopup.XPopup;
-import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.tracingfunc.gd.CurveTracePara;
 import com.tracingfunc.gd.V3dNeuronGDTracing;
 
@@ -175,12 +174,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v)
             {
                 if (!ifImport) {
-                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                    intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
-                    intent.addCategory(Intent.CATEGORY_OPENABLE);
-                    startActivityForResult(intent, 1);
+
                     ifImport = !ifImport;
                 }
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                startActivityForResult(intent, 1);
             }
         });
 
@@ -313,22 +313,24 @@ public class MainActivity extends AppCompatActivity {
 
                 if (ifImport){
 
-                    String filetype = filePath.substring(filePath.length() - 4);
+                    String filetype = filePath.substring(filePath.lastIndexOf(".")).toUpperCase();
+                    Log.v("load file", filetype);
+                    
                     switch (filetype) {
-                        case ".apo":
+                        case ".APO":
                             Log.v("Mainctivity", uri.toString());
                             ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
                             ApoReader apoReader = new ApoReader();
                             apo = apoReader.read(uri);
                             myrenderer.importApo(apo);
                             break;
-                        case ".swc":
+                        case ".SWC":
                             ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
                             SwcReader swcReader = new SwcReader();
                             swc = swcReader.read(uri);
                             myrenderer.importSwc(swc);
                             break;
-                        case ".ano":
+                        case ".ANO":
                             ArrayList<ArrayList<Float>> ano_swc = new ArrayList<ArrayList<Float>>();
                             ArrayList<ArrayList<Float>> ano_apo = new ArrayList<ArrayList<Float>>();
                             AnoReader anoReader = new AnoReader();
@@ -377,12 +379,16 @@ public class MainActivity extends AppCompatActivity {
                             myrenderer.importSwc(ano_swc);
                             myrenderer.importApo(ano_apo);
                             break;
-                        default:
+                        case ".ESWC":
                             ArrayList<ArrayList<Float>> eswc = new ArrayList<ArrayList<Float>>();
                             EswcReader eswcReader = new EswcReader();
 
                             eswc = eswcReader.read(length, is);
                             myrenderer.importEswc(eswc);
+                            break;
+
+                        default:
+                            Toast.makeText(this, "do not support this file", Toast.LENGTH_SHORT).show();
 
                     }
 
@@ -496,58 +502,52 @@ public class MainActivity extends AppCompatActivity {
 
 
         String[] content = {
-                "number of nodes\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-                "soma surface\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-                "number of stems\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-                "number of bifurcations\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-                "number of branches\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-                "number of tips\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-                "overall width\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-                "overall height\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-                "overall depth\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-                "average diameter\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-                "total length\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-                "total surface\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-                "total volume\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-                "mac euclidean distance\t\t\t\t\t\t\t\t\t\t\t\t\t",
-                "max path distance\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-                "max branch order\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-                "average contraction\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-                "average fragmentation\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-                "average parent-daughter ratio\t\t\t\t\t\t\t\t",
-                "average bifurcation angle local\t\t\t\t\t\t\t",
-                "average bifurcation angle remote\t\t\t\t",
-                "Hausdorff dimension\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
+//                "number of nodes\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+//                "soma surface\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+//                "number of stems\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+//                "number of bifurcations\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+//                "number of branches\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+//                "number of tips\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+//                "overall width\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+//                "overall height\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+//                "overall depth\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+//                "average diameter\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+//                "total length\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+//                "total surface\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+//                "total volume\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+//                "mac euclidean distance\t\t\t\t\t\t\t\t\t\t\t\t\t",
+//                "max path distance\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+//                "max branch order\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+//                "average contraction\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+//                "average fragmentation\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+//                "average parent-daughter ratio\t\t\t\t\t\t\t\t",
+//                "average bifurcation angle local\t\t\t\t\t\t\t",
+//                "average bifurcation angle remote\t\t\t\t",
+//                "Hausdorff dimension\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
 
                 //>>>>>>>
-//                "number of nodes",
-//                "soma surface",
-//                "number of stems",
-//                "number of bifurcations",
-//                "number of branches",
-//                "number of tips",
-////                "name",
-////                "ip",
-////                "address",
-////                "female",
-////                "age",
-////                "ttttt",
-//                "overall width",
-//                "overall height",
-//                "overall depth",
-//                "average diameter",
-//                "total length",
-//                "total surface",
-//                "total volume",
-//                "mac euclidean distance",
-//                "max path distance",
-//                "max branch order",
-//                "average contraction",
-//                "average fragmentation",
-//                "average parent-daughter ratio",
-//                "average bifurcation angle local",
-//                "average bifurcation angle remote",
-//                "Hausdorff dimension"
+                "number of nodes",
+                "soma surface",
+                "number of stems",
+                "number of bifurcations",
+                "number of branches",
+                "number of tips",
+                "overall width",
+                "overall height",
+                "overall depth",
+                "average diameter",
+                "total length",
+                "total surface",
+                "total volume",
+                "mac euclidean distance",
+                "max path distance",
+                "max branch order",
+                "average contraction",
+                "average fragmentation",
+                "average parent-daughter ratio",
+                "average bifurcation angle local",
+                "average bifurcation angle remote",
+                "Hausdorff dimension"
 //>>>>>>> Stashed changes
         };
 
@@ -560,28 +560,82 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
 
-        for (int i = 0; i < result_display.length; i++){
-            int num = (33 - content[i].length());
-            if (content[i].substring(0, 6).equals("number") || content[i].substring(0, 6).equals("max br")){
-                result_display[i] = content[i] + String.format("%d", (int)result[i]);
-            }
-            else{
-                result_display[i] = content[i] + String.format("%.5f", (float)result[i]);
-            }
-        }
+//        for (int i = 0; i < result_display.length; i++){
+//            int num = (33 - content[i].length());
+//            if (content[i].substring(0, 6).equals("number") || content[i].substring(0, 6).equals("max br")){
+//                result_display[i] = content[i] + String.format("%d", (int)result[i]);
+//            }
+//            else{
+//                result_display[i] = content[i] + String.format("%.5f", (float)result[i]);
+//            }
+//        }
 
 
-        new XPopup.Builder(this)
-//                .maxWidth(960)
-                .maxHeight(1350)
-                .asBottomList("Global features of the neuron", result_display,
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-//                                toast("click " + text);
-                            }
-                        })
+//        new XPopup.Builder(this)
+////                .maxWidth(960)
+//                .maxHeight(1350)
+//                .asBottomList("Global features of the neuron", result_display,
+//                        new OnSelectListener() {
+//                            @Override
+//                            public void onSelect(int position, String text) {
+////                                toast("click " + text);
+//                            }
+//                        })
+//                .show();
+
+        new AlertDialog.Builder(this)
+                .setView(R.layout.analysis_result)
+                .create()
                 .show();
+
+
+//        new MDDialog.Builder(this)
+////              .setContentView(customizedView)
+//                .setContentView(R.layout.analysis_result)
+//                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+//                    @Override
+//                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+////                        EditText et = (EditText) contentView.findViewById(R.id.edit);
+////                        EditText et0 = (EditText) contentView.findViewById(R.id.edit0);
+////                        EditText et1 = (EditText) contentView.findViewById(R.id.edit1);
+////                        EditText et2 = (EditText) contentView.findViewById(R.id.edit2);
+////                        EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
+////                        et.setText("192.168.2.108");
+////                        et0.setText("1pic1");
+////                        et1.setText("0");
+////                        et2.setText("0");
+////                        et3.setText("0");
+//
+////                        et0.tex("input ip of server");
+//                    }
+//                })
+//                .setTitle("Download image")
+//                .setNegativeButton(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                    }
+//                })
+//                .setPositiveButton(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                    }
+//                })
+//                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+//                    @Override
+//                    public void onClick(View clickedView, View contentView) {
+//
+//                    }
+//                })
+//                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+//                    @Override
+//                    public void onClick(View clickedView, View contentView) {
+////                        EditText et = (EditText) contentView.findViewById(R.id.edit1);
+////                        Toast.makeText(getApplicationContext(), "edittext 1 : " + et.getText(), Toast.LENGTH_SHORT).show();
+//                    }
+//                })
+//                .setWidthMaxDp(600)
+//                .create()
+//                .show();
 
 //=======
 ////        new XPopup.Builder(this)

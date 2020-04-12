@@ -220,6 +220,7 @@ public class Rawreader{
 //                            cF.setPixels(imtmp);
 //                            imStack.addSlice(null,cF);
                         }
+                        bytmp = null;
                         break;
                     case 2:
                         bytmp = new byte[2];
