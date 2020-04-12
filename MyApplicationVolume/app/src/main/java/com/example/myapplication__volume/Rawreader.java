@@ -171,8 +171,9 @@ public class Rawreader{
             //read the pixel info
 
 
-            ByteArray64 img = new ByteArray64(totalUnit*unitSize);
-            img.read(fid);
+//            ByteArray64 img = new ByteArray64(totalUnit*unitSize);
+//            img.read(fid);
+
 
 
             //construct img into an array of ImageStacks, the length of array equals number of color channels.
@@ -202,31 +203,34 @@ public class Rawreader{
 
                 switch (unitSize) {
                     case 1:
+                        byte [] bytmp = new byte[1];
                         for (long layer=0;layer<sz[2];layer++)
                         {
 //                            ByteProcessor cF = new ByteProcessor(w,h);
                             byte[] imtmp = new byte[layerOffset];
                             for (int i=0;i<layerOffset;i++) {
-                                imtmp[i] = img.get(colorChannel * colorOffset + layer * layerOffset + i);
+                                fid.read(bytmp);
+//                                imtmp[i] = img.get(colorChannel * colorOffset + layer * layerOffset + i);
                                 int x = i % w;
                                 int y = i / w;
                                 int z = (int)layer;
 //                                grayscale[x][y][z] = imtmp[i];
-                                grayscale_try[colorChannel][z][y][x] = imtmp[i];
+                                grayscale_try[colorChannel][z][y][x] = bytmp[0];
                             }
 //                            cF.setPixels(imtmp);
 //                            imStack.addSlice(null,cF);
                         }
                         break;
                     case 2:
-                        byte[] bytmp = new byte[2];
+                        bytmp = new byte[2];
                         for (long layer=0;layer<sz[2];layer++)
                         {
                             short[] im16 = new short[layerOffset];
 //                            ShortProcessor cF16 = new ShortProcessor(w,h);
                             for (int i=0;i<layerOffset;i++){
-                                bytmp[0] = img.get(colorChannel*colorOffset*2+layer*layerOffset*2+i*2);
-                                bytmp[1] = img.get(colorChannel*colorOffset*2+layer*layerOffset*2+i*2+1);
+                                fid.read(bytmp);
+//                                bytmp[0] = img.get(colorChannel*colorOffset*2+layer*layerOffset*2+i*2);
+//                                bytmp[1] = img.get(colorChannel*colorOffset*2+layer*layerOffset*2+i*2+1);
                                 im16[i] = (short)bytes2int(bytmp,isBig);
                                 int x = i % w;
                                 int y = i / w;
@@ -246,10 +250,11 @@ public class Rawreader{
                             int[] im32 = new int[layerOffset];
 //                            FloatProcessor cF32 = new FloatProcessor(w,h);
                             for (int i=0;i<layerOffset;i++){
-                                bytmp[0] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4);
-                                bytmp[1] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4+1);
-                                bytmp[2] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4+2);
-                                bytmp[3] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4+3);
+                                fid.read(bytmp);
+//                                bytmp[0] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4);
+//                                bytmp[1] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4+1);
+//                                bytmp[2] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4+2);
+//                                bytmp[3] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4+3);
                                 im32[i] = bytes2int(bytmp,isBig);
                                 int x = i % w;
                                 int y = i / w;

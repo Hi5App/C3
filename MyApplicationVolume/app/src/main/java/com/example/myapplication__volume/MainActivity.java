@@ -896,6 +896,7 @@ public class MainActivity extends AppCompatActivity {
 //                        }
                         break;
                     case MotionEvent.ACTION_UP:
+                        isZooming = false;
                         if (ifPainting){
                             myrenderer.setIfPainting(false);
                             myrenderer.addLineDrawed(lineDrawed);
