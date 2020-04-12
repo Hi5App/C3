@@ -26,8 +26,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -49,6 +51,8 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
+
+import cn.carbs.android.library.MDDialog;
 
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -315,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
 
                     String filetype = filePath.substring(filePath.lastIndexOf(".")).toUpperCase();
                     Log.v("load file", filetype);
-                    
+
                     switch (filetype) {
                         case ".APO":
                             Log.v("Mainctivity", uri.toString());
@@ -498,34 +502,10 @@ public class MainActivity extends AppCompatActivity {
      */
 
     @SuppressLint("DefaultLocale")
-    private void displayResult(double[] result){
+    private void displayResult(final double[] result){
 
 
-        String[] content = {
-//                "number of nodes\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-//                "soma surface\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-//                "number of stems\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-//                "number of bifurcations\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-//                "number of branches\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-//                "number of tips\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-//                "overall width\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-//                "overall height\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-//                "overall depth\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-//                "average diameter\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-//                "total length\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-//                "total surface\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-//                "total volume\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-//                "mac euclidean distance\t\t\t\t\t\t\t\t\t\t\t\t\t",
-//                "max path distance\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-//                "max branch order\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-//                "average contraction\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-//                "average fragmentation\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
-//                "average parent-daughter ratio\t\t\t\t\t\t\t\t",
-//                "average bifurcation angle local\t\t\t\t\t\t\t",
-//                "average bifurcation angle remote\t\t\t\t",
-//                "Hausdorff dimension\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
-
-                //>>>>>>>
+        final String[] title = {
                 "number of nodes",
                 "soma surface",
                 "number of stems",
@@ -548,27 +528,19 @@ public class MainActivity extends AppCompatActivity {
                 "average bifurcation angle local",
                 "average bifurcation angle remote",
                 "Hausdorff dimension"
-//>>>>>>> Stashed changes
         };
 
-        String[] result_display = new String[22];
-        int[] length = { 26, 20, 27, 36, 31};
+        final int[] id_title = new int[] { R.id.title0, R.id.title1, R.id.title2, R.id.title3, R.id.title4,
+                                     R.id.title5, R.id.title6, R.id.title7, R.id.title8, R.id.title9,
+                                     R.id.title10, R.id.title11, R.id.title12, R.id.title13, R.id.title14,
+                                     R.id.title15, R.id.title16, R.id.title17, R.id.title18, R.id.title19,
+                                     R.id.title20, R.id.title21};
 
-//        for (int i = 0; i < 5; i++){
-//            int num = (36 - length[i]);
-//            result_display[i] = AddSpace(content[i], num) + ":" + String.format("%-8.5f", (float)result[i]);
-//        }
-
-
-//        for (int i = 0; i < result_display.length; i++){
-//            int num = (33 - content[i].length());
-//            if (content[i].substring(0, 6).equals("number") || content[i].substring(0, 6).equals("max br")){
-//                result_display[i] = content[i] + String.format("%d", (int)result[i]);
-//            }
-//            else{
-//                result_display[i] = content[i] + String.format("%.5f", (float)result[i]);
-//            }
-//        }
+        final int[] id_content = new int[] { R.id.content0, R.id.content1, R.id.content2, R.id.content3, R.id.content4,
+                                       R.id.content5, R.id.content6, R.id.content7, R.id.content8, R.id.content9,
+                                       R.id.content10, R.id.content11, R.id.content12, R.id.content13, R.id.content14,
+                                       R.id.content15, R.id.content16, R.id.content17, R.id.content18, R.id.content19,
+                                       R.id.content20, R.id.content21};
 
 
 //        new XPopup.Builder(this)
@@ -583,85 +555,30 @@ public class MainActivity extends AppCompatActivity {
 //                        })
 //                .show();
 
-        new AlertDialog.Builder(this)
-                .setView(R.layout.analysis_result)
-                .create()
-                .show();
 
+       MDDialog mdDialog = new MDDialog.Builder(this)
+                .setContentView(R.layout.analysis_result)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
 
-//        new MDDialog.Builder(this)
-////              .setContentView(customizedView)
-//                .setContentView(R.layout.analysis_result)
-//                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-//                    @Override
-//                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-////                        EditText et = (EditText) contentView.findViewById(R.id.edit);
-////                        EditText et0 = (EditText) contentView.findViewById(R.id.edit0);
-////                        EditText et1 = (EditText) contentView.findViewById(R.id.edit1);
-////                        EditText et2 = (EditText) contentView.findViewById(R.id.edit2);
-////                        EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
-////                        et.setText("192.168.2.108");
-////                        et0.setText("1pic1");
-////                        et1.setText("0");
-////                        et2.setText("0");
-////                        et3.setText("0");
-//
-////                        et0.tex("input ip of server");
-//                    }
-//                })
-//                .setTitle("Download image")
-//                .setNegativeButton(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButton(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//
-//                    }
-//                })
-//                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-////                        EditText et = (EditText) contentView.findViewById(R.id.edit1);
-////                        Toast.makeText(getApplicationContext(), "edittext 1 : " + et.getText(), Toast.LENGTH_SHORT).show();
-//                    }
-//                })
-//                .setWidthMaxDp(600)
-//                .create()
-//                .show();
+                        for (int i = 0; i < 22; i++){
+                            TextView tx = contentView.findViewById(id_title[i]);
+                            tx.setText(title[i]);
 
-//=======
-////        new XPopup.Builder(this)
-//////                .maxWidth(960)
-////                .maxHeight(1350)
-////                .asBottomList("请选择一项", result_display,
-////                        new OnSelectListener() {
-////                            @Override
-////                            public void onSelect(int position, String text) {
-//////                                toast("click " + text);
-////                            }
-////                        })
-////                .show();
-//
-//        final String[] items = {"我是1","我是2","我是3"};
-//        AlertDialog.Builder listDialog = new AlertDialog.Builder(this);
-//        listDialog.setTitle("我就是个列表Dialog");
-//        listDialog.setItems(result_display, new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                Toast.makeText(MainActivity.this,"点击了"+items[which],Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//        listDialog.setView(R.layout.analysis_result);
-//        listDialog.show();
-//>>>>>>> Stashed changes
+                            TextView ct = contentView.findViewById(id_content[i]);
+//                            String result_str = ": " + String.format("%d", (int)result[i]);
+                            String result_str = ": " + String.format("%.2f", (float)result[i]);
+                            ct.setText(result_str);
+
+                        }
+                    }
+                })
+                .setTitle("Global features of the neuron")
+                .create();
+
+                mdDialog.show();
+                mdDialog.getWindow().setLayout(1000, 1500);
 
     }
 
@@ -674,11 +591,6 @@ public class MainActivity extends AppCompatActivity {
      */
     private String AddSpace(String str, int count){
         String result = str;
-//        for (int i = 0; i < str.length(); i++) {
-//            if (str.charAt(i) == ' ') {
-//                count = count + 1;
-//            }
-//        }
         for (int i = 0; i < count; i++){
             result = result + " ";
         }
