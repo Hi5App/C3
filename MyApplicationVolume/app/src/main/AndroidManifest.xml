@@ -18,6 +18,7 @@
         android:theme="@style/AppTheme"
         android:exported="true"
         android:requestLegacyExternalStorage="true"
+        android:largeHeap="true"
 
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
         <activity android:name=".FileActivity">

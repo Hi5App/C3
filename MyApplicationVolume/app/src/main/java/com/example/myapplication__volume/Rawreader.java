@@ -171,8 +171,8 @@ public class Rawreader{
             //read the pixel info
 
 
-//            ByteArray64 img = new ByteArray64(totalUnit*unitSize);
-//            img.read(fid);
+            ByteArray64 img = new ByteArray64(totalUnit*unitSize);
+            img.read(fid);
 
 
 
@@ -186,11 +186,19 @@ public class Rawreader{
             img_h = (int)sz[1];
             img_d = (int)sz[2];
 
-
+//            boolean ifWhole = true;
+//            int num = 20;
+//            int per = img_d / num;
+//            int rmn = img_d % num;
+//
+//            if (rmn != 0){
+//                num = num + 1;
+//                ifWhole = false;
+//            }
 
             int[][][][] grayscale_try = new int[nChannel][img_d][img_h][img_w];
 
-
+//            int numPerRead = w * h * per;
             int layerOffset = w*h;
             long colorOffset = layerOffset*sz[2];
 
@@ -203,40 +211,34 @@ public class Rawreader{
 
                 switch (unitSize) {
                     case 1:
-                        byte [] bytmp = new byte[1];
-                        for (long layer=0;layer<sz[2];layer++)
-                        {
+                        for (long layer=0;layer<sz[2];layer++) {
 //                            ByteProcessor cF = new ByteProcessor(w,h);
-                            byte[] imtmp = new byte[layerOffset];
-                            for (int i=0;i<layerOffset;i++) {
-                                fid.read(bytmp);
-//                                imtmp[i] = img.get(colorChannel * colorOffset + layer * layerOffset + i);
+                            byte [] imtmp = new byte[layerOffset];
+                            for (int i = 0; i < layerOffset; i++) {
+                               imtmp[i] = img.get(colorChannel * colorOffset + layer * layerOffset + i);
                                 int x = i % w;
                                 int y = i / w;
                                 int z = (int)layer;
 //                                grayscale[x][y][z] = imtmp[i];
-                                grayscale_try[colorChannel][z][y][x] = bytmp[0];
+                                grayscale_try[colorChannel][z][y][x] = imtmp[i];
                             }
+
 //                            cF.setPixels(imtmp);
 //                            imStack.addSlice(null,cF);
                         }
-                        bytmp = null;
                         break;
                     case 2:
-                        bytmp = new byte[2];
-                        for (long layer=0;layer<sz[2];layer++)
-                        {
-                            short[] im16 = new short[layerOffset];
+                        byte [] bytmp = new byte[2];
+                        for (long layer=0;layer<sz[2];layer++) {
 //                            ShortProcessor cF16 = new ShortProcessor(w,h);
-                            for (int i=0;i<layerOffset;i++){
-                                fid.read(bytmp);
-//                                bytmp[0] = img.get(colorChannel*colorOffset*2+layer*layerOffset*2+i*2);
-//                                bytmp[1] = img.get(colorChannel*colorOffset*2+layer*layerOffset*2+i*2+1);
-                                im16[i] = (short)bytes2int(bytmp,isBig);
+                            for (int i = 0; i < layerOffset; i++) {
+                                bytmp[0] = img.get(colorChannel*colorOffset*2+layer*layerOffset*2+i*2);
+                                bytmp[1] = img.get(colorChannel*colorOffset*2+layer*layerOffset*2+i*2+1);
+//                                im16[i] = (short) bytes2int(bytmp, isBig);
                                 int x = i % w;
                                 int y = i / w;
-                                int z = (int)layer;
-                                grayscale_try[colorChannel][z][y][x] = im16[i];
+                                int z = (int) layer;
+                                grayscale_try[colorChannel][z][y][x] = bytes2int(bytmp,isBig);
                             }
 //                            cF16.setPixels(im16);
 //                            imStack.addSlice(null,cF16);
@@ -245,26 +247,27 @@ public class Rawreader{
                         break;
                     case 4:
                         bytmp = new byte[4];
-                        for (long layer=0;layer<sz[2];layer++)
-                        {
+                        for (long layer=0;layer<sz[2];layer++) {
 //                            float[] im32 = new float[layerOffset];
-                            int[] im32 = new int[layerOffset];
+
 //                            FloatProcessor cF32 = new FloatProcessor(w,h);
-                            for (int i=0;i<layerOffset;i++){
-                                fid.read(bytmp);
-//                                bytmp[0] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4);
-//                                bytmp[1] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4+1);
-//                                bytmp[2] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4+2);
-//                                bytmp[3] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4+3);
-                                im32[i] = bytes2int(bytmp,isBig);
+                            for (int i = 0; i < layerOffset; i++) {
+
+                                bytmp[0] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4);
+                                bytmp[1] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4+1);
+                                bytmp[2] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4+2);
+                                bytmp[3] = img.get(colorChannel*colorOffset*4+layer*layerOffset*4+i*4+3);
+//                                    im32[i] = bytes2int(bytmp, isBig);
+
                                 int x = i % w;
                                 int y = i / w;
-                                int z = (int)layer;
-                                grayscale_try[colorChannel][z][y][x] = im32[i];
+                                int z = (int) layer;
+                                grayscale_try[colorChannel][z][y][x] = bytes2int(bytmp, isBig);
                             }
 //                            cF32.setPixels(im32);
 //                            imStack.addSlice(null,cF32);
                         }
+//                            im32 = null;
                         bytmp = null;
                         break;
                     default:
@@ -335,7 +338,7 @@ public class Rawreader{
 
 class ByteArray64 {
 
-    private final long CHUNK_SIZE = 1024*1024*1024; //1GiB
+    private final long CHUNK_SIZE = 128*128*128; //1GiB
 
     long size;
     byte [][] data;
