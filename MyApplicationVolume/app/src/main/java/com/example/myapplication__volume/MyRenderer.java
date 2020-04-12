@@ -17,6 +17,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -49,6 +50,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private int vol_h;
     private int vol_d;
     private int[] sz = new int[3];
+    private float[] mz = new float[3];
+
 
     private int[] texture = new int[1]; //生成纹理id
 
@@ -131,8 +134,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         screen_w = width;
         screen_h = height;
-        myPattern = new MyPattern(filepath, is, length, width, height, img);
-        myAxis = new MyAxis();
+        myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
+        myAxis = new MyAxis(mz);
         myDraw = new MyDraw();
 
 
@@ -363,7 +366,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
 
 
-        Matrix.translateM(translateMatrix,0,-0.5f,-0.5f,-0.5f);
+        Matrix.translateM(translateMatrix,0,-0.5f * mz[2],-0.5f * mz[1],-0.5f * mz[0]);
 //        Matrix.multiplyMM(translateMatrix, 0, zoomMatrix, 0, translateMatrix, 0);
         Matrix.setIdentityM(translateAfterMatrix, 0);
 
@@ -641,7 +644,16 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         sz[0] = (int)img.getSz0();
         sz[1] = (int)img.getSz1();
         sz[2] = (int)img.getSz2();
-        int count = 0;
+
+        Integer[] num = {sz[0], sz[1], sz[2]};
+        float max_dim = (float) Collections.max(Arrays.asList(num));
+        Log.v("MyRenderer", Float.toString(max_dim));
+
+        mz[0] = (float) sz[0]/max_dim;
+        mz[1] = (float) sz[1]/max_dim;
+        mz[2] = (float) sz[2]/max_dim;
+
+        Log.v("MyRenderer", Arrays.toString(mz));
 
 //        for (int i = 0; i < vol_w; i++){
 //            for (int j = 0; j < vol_h; j++){

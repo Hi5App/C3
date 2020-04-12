@@ -21,6 +21,9 @@ public class MyAxis {
     private FloatBuffer vertexBuffer_border;
     private ShortBuffer ListBuffer_border;
 
+    private float[] vertexAxis;
+    private float[] vertexBorder;
+
 
     //坐标系
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -42,20 +45,20 @@ public class MyAxis {
 
 
 
-    private final float[] vertexAxis={
-            // x axis
-            1.0f - 0.0f, 1.0f - 0.0f, 0.0f,
-            1.0f - 1.1f, 1.0f - 0.0f, 0.0f,
-
-            // y axis
-            1.0f - 0.0f, 1.0f - 0.0f, 0.0f,
-            1.0f - 0.0f, 1.0f - 1.1f, 0.0f,
-
-            // z axis
-            1.0f - 0.0f, 1.0f - 0.0f, 0.0f,
-            1.0f - 0.0f, 1.0f - 0.0f, 1.1f,
-
-    };
+//    private final float[] vertexAxis={
+//            // x axis
+//            1.0f - 0.0f, 1.0f - 0.0f, 0.0f,
+//            1.0f - 1.1f, 1.0f - 0.0f, 0.0f,
+//
+//            // y axis
+//            1.0f - 0.0f, 1.0f - 0.0f, 0.0f,
+//            1.0f - 0.0f, 1.0f - 1.1f, 0.0f,
+//
+//            // z axis
+//            1.0f - 0.0f, 1.0f - 0.0f, 0.0f,
+//            1.0f - 0.0f, 1.0f - 0.0f, 1.1f,
+//
+//    };
 
 
     private final float[] colorAxis={
@@ -74,17 +77,17 @@ public class MyAxis {
     };
 
 
-    private final float[] vertexBorder= {
-            // x axis
-            0f, 0f, 0f,  // num 0
-            0f, 0f, 1f,  // num 1
-            0f, 1f, 0f,  // num 2
-            0f, 1f, 1f,  // num 3
-            1f, 0f, 0f,  // num 4
-            1f, 1f, 0f,  // num 5
-            1f, 0f, 1f,  // num 6
-            1f, 1f, 1f,  // num 7
-    };
+//    private final float[] vertexBorder= {
+//            // x axis
+//            0f, 0f, 0f,  // num 0
+//            0f, 0f, 1f,  // num 1
+//            0f, 1f, 0f,  // num 2
+//            0f, 1f, 1f,  // num 3
+//            1f, 0f, 0f,  // num 4
+//            1f, 1f, 0f,  // num 5
+//            1f, 0f, 1f,  // num 6
+//            1f, 1f, 1f,  // num 7
+//    };
 
 
     private final short[] BorderList= {
@@ -154,7 +157,7 @@ public class MyAxis {
                     "}\n";
 
 
-    public MyAxis(){
+    public MyAxis(float[] dim){
 
         mProgram_axis = initProgram(vertexShaderCode_axis, fragmentShaderCode_axis);
         Log.v("mProgram_line", Integer.toString(mProgram_axis));
@@ -162,7 +165,41 @@ public class MyAxis {
         mProgram_border = initProgram(vertexShaderCode_border, fragmentShaderCode_border);
         Log.v("mProgram_border", Integer.toString(mProgram_border));
 
+        setPoints(dim);
+
         BufferSet();
+
+    }
+
+
+    private void setPoints(float[] mz){
+
+        vertexAxis = new float[]{
+                // x axis
+                (1.0f - 0.0f) * mz[2], (1.0f - 0.0f) * mz[1], 0.0f,
+                (1.0f - 1.1f) * mz[2], (1.0f - 0.0f) * mz[1], 0.0f,
+
+                // y axis
+                (1.0f - 0.0f) * mz[2], (1.0f - 0.0f) * mz[1], 0.0f,
+                (1.0f - 0.0f) * mz[2], (1.0f - 1.1f) * mz[1], 0.0f,
+
+                // z axis
+                (1.0f - 0.0f) * mz[2], (1.0f - 0.0f) * mz[1], 0.0f * mz[0],
+                (1.0f - 0.0f) * mz[2], (1.0f - 0.0f) * mz[1], 1.1f * mz[0],
+
+        };
+
+        vertexBorder = new float[]{
+                // x axis
+                0f,     0f,     0f,  // num 0
+                0f,     0f,     mz[0],  // num 1
+                0f,     mz[1],  0f,  // num 2
+                0f,     mz[1],  mz[0],  // num 3
+                mz[2],  0f,     0f,  // num 4
+                mz[2],  mz[1],  0f,  // num 5
+                mz[2],  0f,     mz[0],  // num 6
+                mz[2],  mz[1],  mz[0],  // num 7
+        };
 
     }
 

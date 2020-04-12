@@ -68,6 +68,12 @@ public class FileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_file);
         tv = (TextView)findViewById(R.id.textView3);
 
+        String http = gethttp();
+        EditText editText = (EditText) findViewById(R.id.editText);
+        if (!http.equals("")){
+            editText.setText(http);
+        }
+
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
@@ -78,6 +84,8 @@ public class FileActivity extends AppCompatActivity {
         // register download success broadcast
         registerReceiver(completeReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         context = getApplicationContext();
+
+//        sethttp();
 
     }
 
@@ -104,13 +112,26 @@ public class FileActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * set the http address to EditText
+     */
+    private void sethttp(){
+
+        String http = gethttp();
+        EditText editText = (EditText) findViewById(R.id.editText);
+        if (!http.equals("")){
+            editText.setText(http);
+        }
+    }
+
+
     //Download file from the server
     public void DownloadFile(View v){
 
         EditText editText = (EditText) findViewById(R.id.editText);
-        String message = editText.getText().toString();
+        String http = editText.getText().toString();
 
-        Log.v("DownloadFile", message+"LLLLLLLLLLLLL");
+        Log.v("DownloadFile", http+"   LLLLLLLLLLLLL");
 
 //        //创建下载任务,downloadUrl就是下载链接
 //        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadUrl));
@@ -121,6 +142,7 @@ public class FileActivity extends AppCompatActivity {
 //        //将下载任务加入下载队列，否则不会进行下载
 //        downloadManager.enqueue(request);
 
+//        String downloadpath = "https://penglab.com/temp/test1.raw";
         String downloadpath = "https://qd.myapp.com/myapp/qqteam/AndroidQQ/mobileqq_android.apk";
 //        String downloadpath = "https://www.globalgreyebooks.com/content/books/ebooks/game-of-life.pdf";
 
@@ -142,7 +164,7 @@ public class FileActivity extends AppCompatActivity {
         // Title for notification.
         request.setTitle(uri.getLastPathSegment());
 
-        //request.setMimeType("application/cn.trinea.download.file");
+        request.setMimeType("application/cn.trinea.download.file");
 
         //创建目录
 //        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdir() ;
@@ -151,7 +173,7 @@ public class FileActivity extends AppCompatActivity {
 //        request.setDestinationInExternalPublicDir(  Environment.DIRECTORY_DOWNLOADS  , "weixin.apk" ) ;
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, uri.getLastPathSegment());
 
-        request.setDestinationInExternalFilesDir(this, getExternalFilesDir(null).toString(), "My-download");
+//        request.setDestinationInExternalFilesDir(this, null, "My-download");
 
 //        DownloadManager downloadManager = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
 
@@ -411,6 +433,11 @@ public class FileActivity extends AppCompatActivity {
         return length;
     }
 
+
+    /**
+     * get the ip address from local file
+     * @return ip latest address you input
+     */
     private String getip(){
         String ip = null;
 
@@ -428,7 +455,7 @@ public class FileActivity extends AppCompatActivity {
                 outStream.close();
 
             }catch (Exception e){
-                Log.v("getip", "Fail to create file");
+                Log.v("get ip", "Fail to create file");
                 e.printStackTrace();
             }
         }
@@ -457,6 +484,10 @@ public class FileActivity extends AppCompatActivity {
         return ip;
     }
 
+    /**
+     * put the ip address you input to local file
+     * @param ip the ip address currently input
+     */
     private void setip(String ip){
         String filepath = getExternalFilesDir(null).toString();
         File file = new File(filepath + "/config/ip.txt");
@@ -466,7 +497,7 @@ public class FileActivity extends AppCompatActivity {
                 dir.mkdirs();
                 file.createNewFile();
             }catch (Exception e){
-                Log.v("getip", "Fail to create file");
+                Log.v("get ip", "Fail to create file");
             }
         }
 
@@ -474,6 +505,85 @@ public class FileActivity extends AppCompatActivity {
 
             FileOutputStream outStream = new FileOutputStream(file);
             outStream.write(ip.getBytes());
+            outStream.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    /**
+     * get the http address from local file
+     * @return http latest address you input
+     */
+    private String gethttp(){
+        String http = null;
+
+        String filepath = getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/http.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                if (!dir.exists()){
+                    dir.mkdirs();
+                }
+                file.createNewFile();
+
+                String str = "https address";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get http", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                line = buffreader.readLine();
+                http = line;
+                inputStream.close();//关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.v("get http", "Fail to read file");
+        }
+//        Log.v("get http", http);
+        return http;
+    }
+
+
+    /**
+     * put the http address you input to local file
+     * @param http the http address currently input
+     */
+    private void sethttp(String http){
+        String filepath = getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/http.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("get http", "Fail to create file");
+            }
+        }
+
+        try {
+
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(http.getBytes());
             outStream.close();
 
         } catch (Exception e) {

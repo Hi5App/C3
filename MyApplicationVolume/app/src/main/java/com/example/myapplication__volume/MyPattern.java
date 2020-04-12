@@ -1,5 +1,6 @@
 package com.example.myapplication__volume;
 
+import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.util.Log;
 
@@ -26,6 +27,7 @@ public class MyPattern{
     private FloatBuffer vertexBuffer;
     private FloatBuffer colorBuffer;
     private ShortBuffer drawListBuffer;
+    private FloatBuffer dimBuffer;
 
     private FloatBuffer vertexBuffer_curve;
 
@@ -38,6 +40,7 @@ public class MyPattern{
     private int positionHandle = 0;
     private int colorHandle = 1;
     private int vPMatrixHandle;
+    private int dimHandle;
     private int trAMatrixHandle;
 
     private int positionHandle_suqre;
@@ -67,84 +70,90 @@ public class MyPattern{
 
     private Image4DSimple image;
 
-
-    private final float[] vertexPoints={
-            // Front face
-            0.0f, 0.0f, 1.0f,
-            1.0f, 0.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-            0.0f, 1.0f, 1.0f,
-
-            // Back face
-            0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-
-            // Top face
-            0.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f, 0.0f,
-
-            // Bottom face
-            0.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f,
-
-            // Right face
-            1.0f, 0.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 1.0f,
-            1.0f, 0.0f, 1.0f,
-
-            // Left face
-            0.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f,
-            0.0f, 1.0f, 1.0f,
-            0.0f, 1.0f, 0.0f,
-    };
+    private float[] vertexPoints;
+    private float[] Colors;
+    private float[] dim;
 
 
+//    private final float[] vertexPoints={
+//            // Front face
+//            0.0f, 0.0f, 1.0f,
+//            1.0f, 0.0f, 1.0f,
+//            1.0f, 1.0f, 1.0f,
+//            0.0f, 1.0f, 1.0f,
+//
+//            // Back face
+//            0.0f, 0.0f, 0.0f,
+//            0.0f, 1.0f, 0.0f,
+//            1.0f, 1.0f, 0.0f,
+//            1.0f, 0.0f, 0.0f,
+//
+//            // Top face
+//            0.0f, 1.0f, 0.0f,
+//            0.0f, 1.0f, 1.0f,
+//            1.0f, 1.0f, 1.0f,
+//            1.0f, 1.0f, 0.0f,
+//
+//            // Bottom face
+//            0.0f, 0.0f, 0.0f,
+//            1.0f, 0.0f, 0.0f,
+//            1.0f, 0.0f, 1.0f,
+//            0.0f, 0.0f, 1.0f,
+//
+//            // Right face
+//            1.0f, 0.0f, 0.0f,
+//            1.0f, 1.0f, 0.0f,
+//            1.0f, 1.0f, 1.0f,
+//            1.0f, 0.0f, 1.0f,
+//
+//            // Left face
+//            0.0f, 0.0f, 0.0f,
+//            0.0f, 0.0f, 1.0f,
+//            0.0f, 1.0f, 1.0f,
+//            0.0f, 1.0f, 0.0f,
+//    };
+//
+//
+//
+//    private final float[] Colors={
+//            // Front face
+//            0.0f, 0.0f, 1.0f, 1.0f,
+//            1.0f, 0.0f, 1.0f, 1.0f,
+//            1.0f, 1.0f, 1.0f, 1.0f,
+//            0.0f, 1.0f, 1.0f, 1.0f,
+//
+//            // Back face
+//            0.0f, 0.0f, 0.0f, 1.0f,
+//            0.0f, 1.0f, 0.0f, 1.0f,
+//            1.0f, 1.0f, 0.0f, 1.0f,
+//            1.0f, 0.0f, 0.0f, 1.0f,
+//
+//            // Top face
+//            0.0f, 1.0f, 0.0f, 1.0f,
+//            0.0f, 1.0f, 1.0f, 1.0f,
+//            1.0f, 1.0f, 1.0f, 1.0f,
+//            1.0f, 1.0f, 0.0f, 1.0f,
+//
+//            // Bottom face
+//            0.0f, 0.0f, 0.0f, 1.0f,
+//            1.0f, 0.0f, 0.0f, 1.0f,
+//            1.0f, 0.0f, 1.0f, 1.0f,
+//            0.0f, 0.0f, 1.0f, 1.0f,
+//
+//            // Right face
+//            1.0f, 0.0f, 0.0f, 1.0f,
+//            1.0f, 1.0f, 0.0f, 1.0f,
+//            1.0f, 1.0f, 1.0f, 1.0f,
+//            1.0f, 0.0f, 1.0f, 1.0f,
+//
+//            // Left face
+//            0.0f, 0.0f, 0.0f, 1.0f,
+//            0.0f, 0.0f, 1.0f, 1.0f,
+//            0.0f, 1.0f, 1.0f, 1.0f,
+//            0.0f, 1.0f, 0.0f, 1.0f,
+//    };
 
-    private final float[] Colors={
-            // Front face
-            0.0f, 0.0f, 1.0f, 1.0f,
-            1.0f, 0.0f, 1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f, 1.0f,
-            0.0f, 1.0f, 1.0f, 1.0f,
 
-            // Back face
-            0.0f, 0.0f, 0.0f, 1.0f,
-            0.0f, 1.0f, 0.0f, 1.0f,
-            1.0f, 1.0f, 0.0f, 1.0f,
-            1.0f, 0.0f, 0.0f, 1.0f,
-
-            // Top face
-            0.0f, 1.0f, 0.0f, 1.0f,
-            0.0f, 1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f, 0.0f, 1.0f,
-
-            // Bottom face
-            0.0f, 0.0f, 0.0f, 1.0f,
-            1.0f, 0.0f, 0.0f, 1.0f,
-            1.0f, 0.0f, 1.0f, 1.0f,
-            0.0f, 0.0f, 1.0f, 1.0f,
-
-            // Right face
-            1.0f, 0.0f, 0.0f, 1.0f,
-            1.0f, 1.0f, 0.0f, 1.0f,
-            1.0f, 1.0f, 1.0f, 1.0f,
-            1.0f, 0.0f, 1.0f, 1.0f,
-
-            // Left face
-            0.0f, 0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f, 1.0f,
-            0.0f, 1.0f, 1.0f, 1.0f,
-            0.0f, 1.0f, 0.0f, 1.0f,
-    };
 
     private final short[] drawlist = {
 
@@ -414,6 +423,7 @@ public class MyPattern{
                     "uniform sampler2D uBackCoord;" +
                     "uniform highp sampler3D uVolData;" +
                     "uniform sampler2D uTransferFunction;" +
+                    "uniform highp float dim[3];" +
                     "layout (location = 0) out vec4 fragColor;" +
 
 //                    "const float numberOfSlices = 128.0;" +
@@ -449,7 +459,8 @@ public class MyPattern{
 
                     "     vec4 tf_value;" +
 //                    "     tf_value = texture(uVolData, vpos.xyz);" +
-                    "     tf_value = texture(uVolData, vec3(1.0 - vpos.x, 1.0 - vpos.y, vpos.z));" +
+                    "     tf_value = texture(uVolData, vec3(1.0 - vpos.x/dim[2], 1.0 - vpos.y/dim[1], vpos.z/dim[0]));" +
+//                    "     tf_value = texture(uVolData, vec3(1.0 - vpos.x, 1.0 - vpos.y, vpos.z));" +
 //                    "     tf_value = texture(uVolData, vec3(vpos.x, 1.0 - vpos.y, vpos.z));" +
 //                    "     value = vec4(tf_value.x);" +
                     " value = vec4(tf_value.x, tf_value.y, tf_value.z, tf_value.x);" +
@@ -596,9 +607,15 @@ public class MyPattern{
 
 
 
-    public MyPattern(String filepath, InputStream is, long length, int width, int height, Image4DSimple img) {
+    public MyPattern(String filepath, InputStream is, long length, int width, int height, Image4DSimple img, float[] mz) {
 
         image = img;
+
+        dim = mz;
+
+        setPoint(mz);
+
+//        setPoint_2();
 
         //创建两个着色器程序
         mProgram_simple = initProgram(vertexShaderCode_1, fragmentShaderCode_1);
@@ -642,6 +659,209 @@ public class MyPattern{
 
         fboBackCoord = initFBO(width, height);
 
+    }
+
+
+
+
+    private void setPoint(float[] mz){
+
+            vertexPoints = new float[]{
+                    // Front face
+                    0.0f,  0.0f,  mz[0],
+                    mz[2], 0.0f,  mz[0],
+                    mz[2], mz[1], mz[0],
+                    0.0f,  mz[1], mz[0],
+
+                    // Back face
+                    0.0f,  0.0f,  0.0f,
+                    0.0f,  mz[1], 0.0f,
+                    mz[2], mz[1], 0.0f,
+                    mz[2], 0.0f,  0.0f,
+
+                    // Top face
+                    0.0f, mz[1],  0.0f,
+                    0.0f, mz[1],  mz[0],
+                    mz[2], mz[1], mz[0],
+                    mz[2], mz[1], 0.0f,
+
+                    // Bottom face
+                    0.0f,  0.0f, 0.0f,
+                    mz[2], 0.0f, 0.0f,
+                    mz[2], 0.0f, mz[0],
+                    0.0f,  0.0f, mz[0],
+
+                    // Right face
+                    mz[2], 0.0f,  0.0f,
+                    mz[2], mz[1], 0.0f,
+                    mz[2], mz[1], mz[0],
+                    mz[2], 0.0f,  mz[0],
+
+                    // Left face
+                    0.0f, 0.0f,  0.0f,
+                    0.0f, 0.0f,  mz[0],
+                    0.0f, mz[1], mz[0],
+                    0.0f, mz[1], 0.0f,
+            };
+
+            Colors= new float[]{
+                    // Front face
+                    0.0f,  0.0f,  mz[0], 1.0f,
+                    mz[2], 0.0f,  mz[0], 1.0f,
+                    mz[2], mz[1], mz[0], 1.0f,
+                    0.0f,  mz[1], mz[0], 1.0f,
+
+                    // Back face
+                    0.0f,  0.0f,  0.0f, 1.0f,
+                    0.0f,  mz[1], 0.0f, 1.0f,
+                    mz[2], mz[1], 0.0f, 1.0f,
+                    mz[2], 0.0f,  0.0f, 1.0f,
+
+                    // Top face
+                    0.0f, mz[1],  0.0f,  1.0f,
+                    0.0f, mz[1],  mz[0], 1.0f,
+                    mz[2], mz[1], mz[0], 1.0f,
+                    mz[2], mz[1], 0.0f,  1.0f,
+
+                    // Bottom face
+                    0.0f,  0.0f, 0.0f,  1.0f,
+                    mz[2], 0.0f, 0.0f,  1.0f,
+                    mz[2], 0.0f, mz[0], 1.0f,
+                    0.0f,  0.0f, mz[0], 1.0f,
+
+                    // Right face
+                    mz[2], 0.0f,  0.0f,  1.0f,
+                    mz[2], mz[1], 0.0f,  1.0f,
+                    mz[2], mz[1], mz[0], 1.0f,
+                    mz[2], 0.0f,  mz[0], 1.0f,
+
+                    // Left face
+                    0.0f, 0.0f,  0.0f,  1.0f,
+                    0.0f, 0.0f,  mz[0], 1.0f,
+                    0.0f, mz[1], mz[0], 1.0f,
+                    0.0f, mz[1], 0.0f,  1.0f,
+            };
+
+//        Colors= new float[]{
+//                // Front face
+//                0.0f, 0.0f, 1.0f, 1.0f,
+//                1.0f, 0.0f, 1.0f, 1.0f,
+//                1.0f, 1.0f, 1.0f, 1.0f,
+//                0.0f, 1.0f, 1.0f, 1.0f,
+//
+//                // Back face
+//                0.0f, 0.0f, 0.0f, 1.0f,
+//                0.0f, 1.0f, 0.0f, 1.0f,
+//                1.0f, 1.0f, 0.0f, 1.0f,
+//                1.0f, 0.0f, 0.0f, 1.0f,
+//
+//                // Top face
+//                0.0f, 1.0f, 0.0f, 1.0f,
+//                0.0f, 1.0f, 1.0f, 1.0f,
+//                1.0f, 1.0f, 1.0f, 1.0f,
+//                1.0f, 1.0f, 0.0f, 1.0f,
+//
+//                // Bottom face
+//                0.0f, 0.0f, 0.0f, 1.0f,
+//                1.0f, 0.0f, 0.0f, 1.0f,
+//                1.0f, 0.0f, 1.0f, 1.0f,
+//                0.0f, 0.0f, 1.0f, 1.0f,
+//
+//                // Right face
+//                1.0f, 0.0f, 0.0f, 1.0f,
+//                1.0f, 1.0f, 0.0f, 1.0f,
+//                1.0f, 1.0f, 1.0f, 1.0f,
+//                1.0f, 0.0f, 1.0f, 1.0f,
+//
+//                // Left face
+//                0.0f, 0.0f, 0.0f, 1.0f,
+//                0.0f, 0.0f, 1.0f, 1.0f,
+//                0.0f, 1.0f, 1.0f, 1.0f,
+//                0.0f, 1.0f, 0.0f, 1.0f,
+//        };
+
+    }
+
+
+    private void setPoint_2(){
+
+            vertexPoints= new float[]{
+                    // Front face
+                    0.0f, 0.0f, 1.0f,
+                    1.0f, 0.0f, 1.0f,
+                    1.0f, 1.0f, 1.0f,
+                    0.0f, 1.0f, 1.0f,
+
+                    // Back face
+                    0.0f, 0.0f, 0.0f,
+                    0.0f, 1.0f, 0.0f,
+                    1.0f, 1.0f, 0.0f,
+                    1.0f, 0.0f, 0.0f,
+
+                    // Top face
+                    0.0f, 1.0f, 0.0f,
+                    0.0f, 1.0f, 1.0f,
+                    1.0f, 1.0f, 1.0f,
+                    1.0f, 1.0f, 0.0f,
+
+                    // Bottom face
+                    0.0f, 0.0f, 0.0f,
+                    1.0f, 0.0f, 0.0f,
+                    1.0f, 0.0f, 1.0f,
+                    0.0f, 0.0f, 1.0f,
+
+                    // Right face
+                    1.0f, 0.0f, 0.0f,
+                    1.0f, 1.0f, 0.0f,
+                    1.0f, 1.0f, 1.0f,
+                    1.0f, 0.0f, 1.0f,
+
+                    // Left face
+                    0.0f, 0.0f, 0.0f,
+                    0.0f, 0.0f, 1.0f,
+                    0.0f, 1.0f, 1.0f,
+                    0.0f, 1.0f, 0.0f,
+            };
+
+
+
+            Colors= new float[]{
+                    // Front face
+                    0.0f, 0.0f, 1.0f, 1.0f,
+                    1.0f, 0.0f, 1.0f, 1.0f,
+                    1.0f, 1.0f, 1.0f, 1.0f,
+                    0.0f, 1.0f, 1.0f, 1.0f,
+
+                    // Back face
+                    0.0f, 0.0f, 0.0f, 1.0f,
+                    0.0f, 1.0f, 0.0f, 1.0f,
+                    1.0f, 1.0f, 0.0f, 1.0f,
+                    1.0f, 0.0f, 0.0f, 1.0f,
+
+                    // Top face
+                    0.0f, 1.0f, 0.0f, 1.0f,
+                    0.0f, 1.0f, 1.0f, 1.0f,
+                    1.0f, 1.0f, 1.0f, 1.0f,
+                    1.0f, 1.0f, 0.0f, 1.0f,
+
+                    // Bottom face
+                    0.0f, 0.0f, 0.0f, 1.0f,
+                    1.0f, 0.0f, 0.0f, 1.0f,
+                    1.0f, 0.0f, 1.0f, 1.0f,
+                    0.0f, 0.0f, 1.0f, 1.0f,
+
+                    // Right face
+                    1.0f, 0.0f, 0.0f, 1.0f,
+                    1.0f, 1.0f, 0.0f, 1.0f,
+                    1.0f, 1.0f, 1.0f, 1.0f,
+                    1.0f, 0.0f, 1.0f, 1.0f,
+
+                    // Left face
+                    0.0f, 0.0f, 0.0f, 1.0f,
+                    0.0f, 0.0f, 1.0f, 1.0f,
+                    0.0f, 1.0f, 1.0f, 1.0f,
+                    0.0f, 1.0f, 0.0f, 1.0f,
+            };
     }
 
 
@@ -791,6 +1011,9 @@ public class MyPattern{
         GLES30.glClearDepthf(50.0f);
         GLES30.glDepthFunc(GLES30.GL_LEQUAL);
 
+
+        dimHandle = GLES30.glGetUniformLocation(mProgram_raycasting, "dim");
+        GLES20.glUniform1fv(dimHandle,3, dimBuffer);
 
 
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0); //设置使用的纹理编号
@@ -1304,6 +1527,15 @@ public class MyPattern{
         //传入指定的索引数据
         drawListBuffer.put(drawlist);
         drawListBuffer.position(0);
+
+
+        //分配内存空间,每个浮点型占4字节空间
+        dimBuffer = ByteBuffer.allocateDirect(dim.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        //传入指定的颜色数据
+        dimBuffer.put(dim);
+        dimBuffer.position(0);
 
     }
 
