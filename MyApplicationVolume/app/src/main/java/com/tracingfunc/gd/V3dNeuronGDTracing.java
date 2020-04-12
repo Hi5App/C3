@@ -79,10 +79,34 @@ public class V3dNeuronGDTracing {
         BoundingBox trace_bounding_box = new BoundingBox();
         System.out.println("find_shortest_path_graphimg >>> ");
 
-        trace_bounding_box.x0 = trace_bounding_box.y0 = trace_bounding_box.z0 = 0;
-        trace_bounding_box.x1 = sz[0]-1;
-        trace_bounding_box.y1 = sz[1]-1;
-        trace_bounding_box.z1 = sz[2]-1;
+//        trace_bounding_box.x0 = trace_bounding_box.y0 = trace_bounding_box.z0 = 0;
+//        trace_bounding_box.x1 = sz[0]-1;
+//        trace_bounding_box.y1 = sz[1]-1;
+//        trace_bounding_box.z1 = sz[2]-1;
+        trace_bounding_box.x0 = trace_bounding_box.x1 = p0.x;
+        trace_bounding_box.y0 = trace_bounding_box.y1 = p0.y;
+        trace_bounding_box.z0 = trace_bounding_box.z1 = p0.z;
+        for(int i=0; i<pp.size();i++){
+            if(trace_bounding_box.x0>pp.get(i).x)
+                trace_bounding_box.x0 = pp.get(i).x;
+            if(trace_bounding_box.x1<pp.get(i).x)
+                trace_bounding_box.x1 = pp.get(i).x;
+            if(trace_bounding_box.y0>pp.get(i).y)
+                trace_bounding_box.y0 = pp.get(i).y;
+            if(trace_bounding_box.y1<pp.get(i).y)
+                trace_bounding_box.y1 = pp.get(i).y;
+            if(trace_bounding_box.z0>pp.get(i).z)
+                trace_bounding_box.z0 = pp.get(i).z;
+            if(trace_bounding_box.z1<pp.get(i).z)
+                trace_bounding_box.z1 = pp.get(i).z;
+        }
+        trace_bounding_box.x0 = trace_bounding_box.x0-20>=0?trace_bounding_box.x0-20:0;
+        trace_bounding_box.y0 = trace_bounding_box.y0-20>=0?trace_bounding_box.y0-20:0;
+        trace_bounding_box.z0 = trace_bounding_box.z0-20>=0?trace_bounding_box.z0-20:0;
+        trace_bounding_box.x1 = trace_bounding_box.x1+20<=sz[0]-1?trace_bounding_box.x1+20:sz[0]-1;
+        trace_bounding_box.y1 = trace_bounding_box.y1+20<=sz[1]-1?trace_bounding_box.y1+20:sz[1]-1;
+        trace_bounding_box.z1 = trace_bounding_box.z1+20<=sz[2]-1?trace_bounding_box.z1+20:sz[2]-1;
+
         System.out.println("set z1"+ (int)(trace_bounding_box.z1));
 
         System.out.println("z1="+(int)(trace_bounding_box.z1));

@@ -86,8 +86,10 @@ public class GD {
         int smooth_winsize = para.smooth_winsize;
         int edge_select    = para.edge_select;  //0 -- only use length 1 edge(optimal for small step), 1 -- plus diagonal edge
         double imgTH = para.imgTH; //anything <= imgTH will NOT be traced!
+        int background_select = para.background_select;
 
         int dowsample_method = para.downsample_method; //0 for average, 1 for max
+//        min_step = 4;
 
         if (min_step<1)       min_step =1;
         if (smooth_winsize<1) smooth_winsize =1;
@@ -131,6 +133,13 @@ public class GD {
 //        else
 //            System.out.println("**************** n_end_nodes is 0, and thus do not need to allocate memory. *********************");
 
+//        System.out.println("start_nodeind: "+start_nodeind);
+//        System.out.println("x0,y0,z0: "+x0+y0+z0);
+//        System.out.println("num_nodes: "+num_nodes);
+//        System.out.println("xm,ym,zm: "+xmin+ymin+zmin);
+//        System.out.println("nx,ny,nz: "+nx+ny+nz);
+
+
 
         if (x0<xmin-dd || x0>xmax+dd || y0<ymin-dd || y0>ymax+dd || z0<zmin-dd || z0>zmax+dd)
         {
@@ -139,6 +148,8 @@ public class GD {
         }
         // start_nodeind = NODE_FROM_XYZ(x0,y0,z0);
         start_nodeind = (int)((z0+0.5)-zmin)/zstep*ny*nx + (int)((y0+0.5)-ymin)/ystep*nx + (int)((x0+0.5)-xmin)/xstep;
+
+
         if (start_nodeind<0 || start_nodeind>=num_nodes)
         {
             System.out.println(s_error="Error happens: start_node index out of range! ");
@@ -178,6 +189,15 @@ public class GD {
         }
 
 
+        double imgMax = getImageMaxValue(img3d, dim0, dim1, dim2);
+        double imgAve = getImageAveValue(img3d, dim0, dim1, dim2);
+        double imgStd = getImageStdValue(img3d, dim0, dim1, dim2);
+        System.out.println("background: "+background_select);
+        System.out.println("imgave: "+imgAve);
+        System.out.println("imgstd: "+imgStd);
+//        double imgTH = 0;
+        if (background_select==1) imgTH = (imgAve < imgStd)? imgAve : (imgAve+imgStd)*0.5;
+        System.out.println("imgth: "+imgTH);
         // #define _creating_graph_
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -187,6 +207,7 @@ public class GD {
         // std::vector<Weight>	weights;				weights.clear();
 
         int[] plist = new int[(int)num_nodes];                                                  for (i=0;i<num_nodes;i++) plist[i]=i;
+//        Vector<Integer> plist = new Vector<Integer>();
         Vector<Pair<Integer,Integer>> edge_array = new Vector<Pair<Integer, Integer>>();        edge_array.clear();
         Vector<Float> weights = new Vector<Float>();                                            weights.clear();
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -234,15 +255,15 @@ public class GD {
                         if(dowsample_method == 0)
                         {
                             va = getBlockAveValue(img3d, dim0, dim1, dim2, (xmin+(ii)*xstep),(ymin+(jj)*ystep),(zmin+(kk)*zstep),
-                                    (int) xstep, (int) ystep, (int) (zstep/zthickness)); //zthickness
+                                    xstep, ystep, (int) ((double)zstep/zthickness)); //zthickness
                             vb = getBlockAveValue(img3d, dim0, dim1, dim2, (xmin+(ii1)*xstep),(ymin+(jj1)*ystep),(zmin+(kk1)*zstep),
-                                    (int) xstep, (int) ystep, (int) (zstep/zthickness)); //zthickness
+                                    xstep, ystep, (int) ((double)zstep/zthickness)); //zthickness
                         }else if(dowsample_method == 1)
                         {
                             va = getBlockMaxValue(img3d, dim0, dim1, dim2, (xmin+(ii)*xstep),(ymin+(jj)*ystep),(zmin+(kk)*zstep),
-                                    xstep, ystep, (int) (zstep/zthickness)); //zthickness
+                                    xstep, ystep, (int) ((double)zstep/zthickness)); //zthickness
                             vb = getBlockMaxValue(img3d, dim0, dim1, dim2, (xmin+(ii1)*xstep),(ymin+(jj1)*ystep),(zmin+(kk1)*zstep),
-                                    xstep, ystep, (int) (zstep/zthickness)); //zthickness
+                                    xstep, ystep, (int) ((double)zstep/zthickness)); //zthickness
                         }
 
                         if (va<=imgTH || vb<=imgTH)
@@ -251,7 +272,7 @@ public class GD {
                         Pair<Integer,Integer> e = new Pair<Integer,Integer>(node_a, node_b);
                         edge_array.add(e);
 
-                        Float w = (float) edge_weight_func(it, va,vb, 255);
+                        Float w = (float) edge_weight_func(it, va,vb, 255.0);
 
                         //now try to use favorite direction if literally specified. by PHC 20170606
                         if (para.b_use_favorite_direction)
@@ -318,12 +339,14 @@ public class GD {
         switch(code_select)
         {
             case 0:
-                System.out.println("bgl_shortest_path() ");
+//                System.out.println("bgl_shortest_path() ");
                 // s_error = bgl_shortest_path(edge_array[0], num_edges, &weights[0], num_nodes, start_nodeind, &plist[0]);
+                System.out.println("j_shortest_path ");
+//                s_error = Jgragh.j_shortest_path(edge_array, (int) num_edges, weights, (int) num_nodes,	(int) start_nodeind, (int) end_nodeind[0], plist);
                 break;
             case 1:
                 System.out.println("phc_shortest_path() ");
-                s_error = phc_shortest_path(edge_array, (int) num_edges, weights, (int) num_nodes,	(int) start_nodeind, plist);
+//                s_error = phc_shortest_path(edge_array, (int) num_edges, weights, (int) num_nodes,	(int) start_nodeind, plist);
                 break;
             case 2:
 //                System.out.println("mst_shortest_path() ");
@@ -342,9 +365,9 @@ public class GD {
 
 
 
-        for(i = 0; i<plist.length; i++){
-            System.out.println(plist[i]);
-        }
+//        for(i = 0; i<plist.size(); i++){
+//            System.out.println(plist.get(i));
+//        }
 
 
         // output node coordinates of the shortest path
@@ -353,6 +376,42 @@ public class GD {
 
         V_NeuronSWC_unit cc = new V_NeuronSWC_unit();
         Vector<V_NeuronSWC_unit> mUnit = new Vector<V_NeuronSWC_unit>();
+
+//        if(code_select == 0){
+//            mUnit.clear();
+//            for(i=plist.size()-1; i>0; i--){
+//                j = plist.get(i);
+//                cc.z = (double) (j / (nx * ny));
+//                cc.y = (double) ((j % (nx * ny)) / nx);//(j - (int) (cc.z) * nx * ny) / nx;
+//                cc.x = (double) ((j % (nx * ny)) % nx);//(j - (int) (cc.z) * nx * ny - (int) (cc.y) * nx);((j % (nx * ny)) % nx);
+//                cc.x = xmin + (cc.x) * xstep;
+//                cc.y = ymin + (cc.y) * ystep;
+//                cc.z = zmin + (cc.z) * zstep;
+//
+//                cc.n = nexist + 1 + mUnit.size();
+//                cc.parent = cc.n + 1;
+//                mUnit.add(cc.clone());
+//            }
+//            cc.x = x0;
+//            cc.y = y0;
+//            cc.z = z0;
+//            cc.n = nexist + 1 + mUnit.size();
+//            cc.parent = -1;
+//            mUnit.add(cc.clone());
+//            System.out.printf("[start: x y z] %d: %g %g %g \n", start_nodeind, cc.x, cc.y, cc.z);
+//
+//            nexist += mUnit.size();
+//
+//            if (mUnit.size() >= 2) {
+//                Vector<V_NeuronSWC_unit> mUnit_tmp = new Vector<V_NeuronSWC_unit>();
+//                mUnit_tmp.clear();
+//                for (k = 0; k < mUnit.size(); k++) {
+//                    mUnit_tmp.add(mUnit.elementAt(k).clone());
+//                }
+//                mmUnit.add(mUnit_tmp);
+//            }
+//            return s_error;
+//        }
 
         if (n_end_nodes==0) // trace from start-.each possible node
         {
@@ -552,9 +611,9 @@ public class GD {
 
                     if (j != start_nodeind) {
                         // NODE_TO_XYZ(j, cc.x, cc.y, cc.z);
-                        cc.z = (j) / (nx * ny);
-                        cc.y = ((j) - (int) (cc.z) * nx * ny) / nx;
-                        cc.x = ((j) - (int) (cc.z) * nx * ny - (int) (cc.y) * nx);
+                        cc.z = (double) (j / (nx * ny));
+                        cc.y = (double) ((j % (nx * ny)) / nx);//(j - (int) (cc.z) * nx * ny) / nx;
+                        cc.x = (double) ((j % (nx * ny)) % nx);//(j - (int) (cc.z) * nx * ny - (int) (cc.y) * nx);((j % (nx * ny)) % nx);
                         cc.x = xmin + (cc.x) * xstep;
                         cc.y = ymin + (cc.y) * ystep;
                         cc.z = zmin + (cc.z) * zstep;
@@ -608,7 +667,7 @@ public class GD {
                 x0<0 || x0>=dim0 || y0<0 || y0>=dim1 || z0<0 || z0>=dim2)
             return 0;
 
-        double xsteph=Math.abs(xstep)/2, ysteph=Math.abs(ystep)/2, zsteph=Math.abs(zstep)/2;
+        double xsteph=(double) Math.abs(xstep)/2, ysteph=(double) Math.abs(ystep)/2, zsteph=(double) Math.abs(zstep)/2;
         int xs=(int) (x0-xsteph), xe=(int) (x0+xsteph),ys=(int) (y0-ysteph), ye=(int) (y0+ysteph),zs=(int) (z0-zsteph), ze=(int) (z0+zsteph);
 
         if (xs<0) xs=0; if (xe>=dim0) xe=(int) dim0-1;
@@ -636,7 +695,7 @@ public class GD {
                 x0<0 || x0>=dim0 || y0<0 || y0>=dim1 || z0<0 || z0>=dim2)
             return 0;
 
-        double xsteph=Math.abs(xstep)/2, ysteph=Math.abs(ystep)/2, zsteph=Math.abs(zstep)/2;
+        double xsteph=(double) Math.abs(xstep)/2, ysteph=(double) Math.abs(ystep)/2, zsteph=(double) Math.abs(zstep)/2;
         int xs=(int) (x0-xsteph), xe=(int) (x0+xsteph),ys=(int) (y0-ysteph), ye=(int) (y0+ysteph),zs=(int) (z0-zsteph), ze=(int) (z0+zsteph);
 
         if (xs<0) xs=0; if (xe>=dim0) xe=(int) dim0-1;
@@ -667,7 +726,7 @@ public class GD {
                 x0<0 || x0>=dim0 || y0<0 || y0>=dim1 || z0<0 || z0>=dim2)
             return false;
 
-        double xsteph=Math.abs(xstep)/2, ysteph=Math.abs(ystep)/2, zsteph=Math.abs(zstep)/2;
+        double xsteph=(double) Math.abs(xstep)/2, ysteph=(double) Math.abs(ystep)/2, zsteph=(double) Math.abs(zstep)/2;
         int xs=(int) (x0-xsteph), xe=(int) (x0+xsteph),ys=(int) (y0-ysteph), ye=(int) (y0+ysteph),zs=(int) (z0-zsteph), ze=(int) (z0+zsteph);
 
         if (xs<0) xs=0; if (xe>=dim0) xe=(int) dim0-1;
@@ -697,7 +756,7 @@ public class GD {
                 x0, y0, z0,
                 xstep, ystep, zstep);
 
-        double xsteph=Math.abs(xstep)/2, ysteph=Math.abs(ystep)/2, zsteph=Math.abs(zstep)/2;
+        double xsteph=(double) Math.abs(xstep)/2, ysteph=(double) Math.abs(ystep)/2, zsteph=(double) Math.abs(zstep)/2;
         int xs=(int) (x0-xsteph), xe=(int) (x0+xsteph),ys=(int) (y0-ysteph), ye=(int) (y0+ysteph),zs=(int) (z0-zsteph), ze=(int) (z0+zsteph);
 
         if (xs<0) xs=0; if (xe>=dim0) xe=(int) dim0-1;
@@ -753,7 +812,7 @@ public class GD {
 
     public static double metric_func(double v, double max_v)
     {
-        double tmpv = 1-v/max_v;
+        double tmpv = 1.0-v/max_v;
         return	Math.exp((tmpv*tmpv)*10); //float min-step:1e-6, min:1e-37, max:1e38
     }
 
