@@ -126,6 +126,8 @@ public class DijkstraClass {
         nleftnode = nnode;
         while (nleftnode>0)
         {
+            if(nleftnode%500==0)
+                System.out.println(nleftnode);
             i = extractWhiteMin(nodeColor,adjMatrix,nnode);
             if (i==-1)
             { //for the first node

@@ -12,6 +12,50 @@ import static java.lang.Math.sqrt;
 
 public class FM {
     enum Type{ALIVE,TRIAL,FAR};
+
+    public final static double[] givals = new double[]{
+            22026.5,   20368, 18840.3, 17432.5, 16134.8, 14938.4, 13834.9, 12816.8,
+            11877.4, 11010.2, 10209.4,  9469.8, 8786.47, 8154.96, 7571.17, 7031.33,
+            6531.99, 6069.98, 5642.39, 5246.52, 4879.94, 4540.36, 4225.71, 3934.08,
+            3663.7, 3412.95, 3180.34,  2964.5, 2764.16, 2578.14, 2405.39,  2244.9,
+            2095.77, 1957.14, 1828.24, 1708.36, 1596.83, 1493.05, 1396.43, 1306.47,
+            1222.68, 1144.62, 1071.87, 1004.06, 940.819, 881.837, 826.806, 775.448,
+            727.504, 682.734, 640.916, 601.845, 565.329, 531.193, 499.271, 469.412,
+            441.474, 415.327, 390.848, 367.926, 346.454, 326.336, 307.481, 289.804,
+            273.227, 257.678, 243.089, 229.396, 216.541, 204.469, 193.129, 182.475,
+            172.461, 163.047, 154.195, 145.868, 138.033, 130.659, 123.717, 117.179,
+            111.022,  105.22, 99.7524, 94.5979, 89.7372, 85.1526,  80.827, 76.7447,
+            72.891, 69.2522, 65.8152, 62.5681, 59.4994, 56.5987,  53.856, 51.2619,
+            48.8078, 46.4854, 44.2872, 42.2059, 40.2348, 38.3676, 36.5982, 34.9212,
+            33.3313, 31.8236, 30.3934, 29.0364, 27.7485,  26.526,  25.365, 24.2624,
+            23.2148, 22.2193,  21.273, 20.3733, 19.5176, 18.7037, 17.9292,  17.192,
+            16.4902,  15.822, 15.1855,  14.579, 14.0011, 13.4503, 12.9251, 12.4242,
+            11.9464, 11.4905, 11.0554, 10.6401, 10.2435, 9.86473, 9.50289, 9.15713,
+            8.82667, 8.51075, 8.20867, 7.91974, 7.64333, 7.37884, 7.12569, 6.88334,
+            6.65128, 6.42902,  6.2161, 6.01209, 5.81655, 5.62911, 5.44938, 5.27701,
+            5.11167, 4.95303, 4.80079, 4.65467, 4.51437, 4.37966, 4.25027, 4.12597,
+            4.00654, 3.89176, 3.78144, 3.67537, 3.57337, 3.47528, 3.38092, 3.29013,
+            3.20276, 3.11868, 3.03773,  2.9598, 2.88475, 2.81247, 2.74285, 2.67577,
+            2.61113, 2.54884, 2.48881, 2.43093, 2.37513, 2.32132, 2.26944, 2.21939,
+            2.17111, 2.12454, 2.07961, 2.03625, 1.99441, 1.95403, 1.91506, 1.87744,
+            1.84113, 1.80608, 1.77223, 1.73956, 1.70802, 1.67756, 1.64815, 1.61976,
+            1.59234, 1.56587, 1.54032, 1.51564, 1.49182, 1.46883, 1.44664, 1.42522,
+            1.40455,  1.3846, 1.36536,  1.3468,  1.3289, 1.31164, 1.29501, 1.27898,
+            1.26353, 1.24866, 1.23434, 1.22056,  1.2073, 1.19456, 1.18231, 1.17055,
+            1.15927, 1.14844, 1.13807, 1.12814, 1.11864, 1.10956, 1.10089, 1.09262,
+            1.08475, 1.07727, 1.07017, 1.06345, 1.05709, 1.05109, 1.04545, 1.04015,
+            1.03521,  1.0306, 1.02633, 1.02239, 1.01878,  1.0155, 1.01253, 1.00989,
+            1.00756, 1.00555, 1.00385, 1.00246, 1.00139, 1.00062, 1.00015,       1
+    };
+
+    public static double GI(int[][][] img, int x, int y, int z, double min_int, double max_int){
+        return FM.givals[(int) ((img[z][y][x]-min_int)/max_int*255)];
+    }
+
+    public static double GI(float[][][] img, int x, int y, int z, double min_int, double max_int){
+        return FM.givals[(int) ((img[z][y][x]-min_int)/max_int*255)];
+    }
+
     public static boolean fastmarching_dt(int[][][] inimg, float[][][] phi, int[] sz, int cnn_type, int bkg_thresh){
         //int cnn_type = 3;  // ?
 
@@ -43,7 +87,7 @@ public class FM {
         PriorityQueue<HeapElem> minHeap = new PriorityQueue<HeapElem>(total_sz, new Comparator<HeapElem>() {
             @Override
             public int compare(HeapElem o1, HeapElem o2) {
-                return (int) Math.ceil(o1.value - o2.value);
+                return (o1.value - o2.value)>0?1:-1;
             }
         });
         Map<int[],HeapElem> elems = new HashMap<int[], HeapElem>();
@@ -169,19 +213,20 @@ public class FM {
         return true;
     }
 
-    public static boolean fastmarching_dt_tree(int[][][] inimg, Vector<MyMarker> outtree, int[] sz, int cnn_type, int bkg_thresh){
+    public static boolean fastmarching_dt_tree(int[][][] inimg, Vector<MyMarker> outTree, int[] sz,
+                                               int cnn_type, int bkg_thresh){
         int szx = sz[0], szy = sz[1], szz = sz[2];
         int total_sz = szx*szy*szz;
 
         float[][][] phi = new float[szz][szy][szx];
         Type[][][] state = new Type[szz][szy][szx];
-        Map<int[],int[]> parnent = new HashMap<int[], int[]>();
+        Map<int[],int[]> parent = new HashMap<int[], int[]>();
         int k,j,i;
         for (k=0;k<szz;k++) {
             for (j=0;j<szy;j++)
                 for (i=0;i<szx;i++)
                 {
-                    parnent.put(new int[]{k,j,i},new int[]{k,j,i});
+                    parent.put(new int[]{k,j,i},new int[]{k,j,i});
                 }
         }
 
@@ -206,7 +251,7 @@ public class FM {
         PriorityQueue<HeapElem> minHeap = new PriorityQueue<HeapElem>(total_sz, new Comparator<HeapElem>() {
             @Override
             public int compare(HeapElem o1, HeapElem o2) {
-                return (int) Math.ceil(o1.value - o2.value);
+                return (o1.value - o2.value)>0?1:-1;
             }
         });
         Map<int[],HeapElem> elems = new HashMap<int[], HeapElem>();
@@ -261,8 +306,8 @@ public class FM {
                                             phi[k2][j2][i2] = phi[min_ind[0]][min_ind[1]][min_ind[2]] + inimg[k2][j2][i2];
                                             state[k2][j2][i2] = TRIAL;
 
-                                            parnent.remove(new int[]{k2,j2,i2});
-                                            parnent.put(new int[]{k2,j2,i2},min_ind);
+                                            parent.remove(new int[]{k2,j2,i2});
+                                            parent.put(new int[]{k2,j2,i2},min_ind);
 
                                             HeapElem  elem = new HeapElem(new int[]{k2,j2,i2}, phi[k2][j2][i2]);
                                             minHeap.add(elem);
@@ -316,8 +361,8 @@ public class FM {
                                 elems.put(new int[]{d,h,w},elem);
                                 state[d][h][w] = TRIAL;
 
-                                parnent.remove(new int[]{d,h,w});
-                                parnent.put(new int[]{d,h,w},min_index);
+                                parent.remove(new int[]{d,h,w});
+                                parent.put(new int[]{d,h,w},min_index);
                             }
                             else if(state[d][h][w] == TRIAL){
                                 if(phi[d][h][w]>new_dist){
@@ -327,8 +372,8 @@ public class FM {
                                     elem.value = phi[d][h][w];
                                     minHeap.add(elem);
 
-                                    parnent.remove(new int[]{d,h,w});
-                                    parnent.put(new int[]{d,h,w},min_index);
+                                    parent.remove(new int[]{d,h,w});
+                                    parent.put(new int[]{d,h,w},min_index);
                                 }
                             }
                         }
@@ -338,27 +383,719 @@ public class FM {
             }
         }
 
-        Map<int[],MyMarker> marke_map = new HashMap<int[], MyMarker>();
+        Map<int[],MyMarker> marker_map = new HashMap<int[], MyMarker>();
         for (k=0;k<szz;k++) {
             for (j=0;j<szy;j++)
                 for (i=0;i<szx;i++)
                 {
-                    int[] p = parnent.get(new int[]{k,j,i});
+                    int[] p = parent.get(new int[]{k,j,i});
                     if(inimg[k][j][i]<bkg_thresh || (p[0]==k && p[1]==j && p[2]==i)){
                         continue;
                     }
                     MyMarker myMarker = new MyMarker(i,j,k);
-                    outtree.add(myMarker);
-                    marke_map.put(new int[]{k,j,i},myMarker);
+                    outTree.add(myMarker);
+                    marker_map.put(new int[]{k,j,i},myMarker);
                 }
         }
-        for (int m=0; m<outtree.size(); m++){
-            MyMarker child_marker = outtree.elementAt(m);
+        for (int m=0; m<outTree.size(); m++){
+            MyMarker child_marker = outTree.elementAt(m);
             int[] c = new int[]{(int) child_marker.z,(int) child_marker.y,(int) child_marker.x};
-            MyMarker parent_marker = marke_map.get(parnent.get(c));
+            MyMarker parent_marker = marker_map.get(parent.get(c));
             child_marker.parent = parent_marker;
         }
 
         return true;
     }
+
+    public static boolean fastmarching_linear_tree(){
+        return true;
+    }
+
+    public static boolean fastmarching_tree(MyMarker root, int[][][] inimg, Vector<MyMarker> outTree, int[] sz,
+                                            int cnn_type, double bkg_thresh, boolean is_break_accept){
+        int szx = sz[0], szy = sz[1], szz = sz[2];
+        int total_sz = szx*szy*szz;
+
+        float[][][] phi = new float[szz][szy][szx];
+        Type[][][] state = new Type[szz][szy][szx];
+        Map<int[],int[]> parent = new HashMap<int[], int[]>();
+        //GI parameter min_int, max_int, li
+        double max_int = 0;
+        double min_int = Integer.MAX_VALUE;
+        double li = 10;
+
+        int k,j,i;
+        for (k=0;k<szz;k++) {
+            for (j=0;j<szy;j++)
+                for (i=0;i<szx;i++)
+                {
+                    if(inimg[k][j][i]>max_int) max_int = inimg[k][j][i];
+                    if(inimg[k][j][i]<min_int) min_int = inimg[k][j][i];
+                    phi[k][j][i] = Integer.MAX_VALUE;
+                    state[k][j][i] = FAR;
+                    parent.put(new int[]{k,j,i},new int[]{k,j,i});
+                }
+        }
+        max_int -= min_int;
+
+        // initialization
+
+        // init state and phi for root
+        int rootx = (int) (root.x +0.5);
+        int rooty = (int) (root.y +0.5);
+        int rootz = (int) (root.z +0.5);
+
+        state[rootz][rooty][rootx] = ALIVE;
+        phi[rootz][rooty][rootx] = 0.0f;
+
+        PriorityQueue<HeapElemX> minHeap = new PriorityQueue<HeapElemX>(total_sz, new Comparator<HeapElemX>() {
+            @Override
+            public int compare(HeapElemX o1, HeapElemX o2) {
+                return (o1.value - o2.value)>0?1:-1;
+            }
+        });
+        Map<int[],HeapElemX> elems = new HashMap<int[], HeapElemX>();
+
+        // init heap
+        {
+            int[] img_index = new int[]{rootz,rooty,rootx};
+            int[] prev_index = new int[]{rootz,rooty,rootx};
+            HeapElemX elem = new HeapElemX(img_index,prev_index,phi[rootz][rooty][rootx]);
+            minHeap.add(elem);
+            elems.put(new int[]{rootz,rooty,rootx},elem);
+        }
+
+        // loop
+        while(!minHeap.isEmpty())
+        {
+            HeapElemX min_elem = minHeap.poll();
+            elems.remove(min_elem.img_index);
+
+            int[] min_index = new int[3];
+            int[] prev_index = new int[3];
+            for (i=0; i<min_index.length; i++){
+                min_index[i] = min_elem.img_index[i];
+                prev_index[i] = min_elem.prev_index[i];
+            }
+
+            parent.remove(min_index);
+            parent.put(min_index,prev_index);
+
+            state[min_index[0]][min_index[1]][min_index[2]] = ALIVE;
+
+            int w,h,d;
+            for(int kk=-1; kk<=1; kk++){
+                d = min_index[0] + kk;
+                if(d < 0 || d >= szz) continue;
+                for(int jj=-1; jj<=1; jj++){
+                    h = min_index[1] + jj;
+                    if(h < 0 || h >= szy) continue;
+                    for(int ii=-1; ii<=1; ii++){
+                        w = min_index[2] + ii;
+                        if(w < 0 || w >= szx) continue;
+                        int offset = abs(ii) + abs(jj) + abs(kk);
+                        if(offset == 0 || offset > cnn_type) continue;
+                        double factor = (offset == 1) ? 1.0 : ((offset == 2) ? 1.414214 : ((offset == 3) ? 1.732051 : 0.0));
+                        if(is_break_accept){
+                            if(inimg[d][h][w] <= bkg_thresh && inimg[min_index[0]][min_index[1]][min_index[2]] <=bkg_thresh)
+                                continue;
+                        }
+                        else {
+                            if(inimg[d][h][w] <= bkg_thresh)
+                                continue;
+                        }
+                        if(state[d][h][w] != ALIVE){
+                            float new_dist = (float) (phi[min_index[0]][min_index[1]][min_index[2]] +
+                                    (GI(inimg,w,h,d,min_int,max_int) + GI(inimg,min_index[2],min_index[1],min_index[0],min_int,max_int))*factor*0.5);
+                            int[] prev_index1 = new int[3];
+                            System.arraycopy(min_index,0,prev_index1,0,prev_index1.length);
+
+                            if(state[d][h][w] == FAR){
+                                phi[d][h][w] = new_dist;
+                                HeapElemX elem = new HeapElemX(new int[]{d,h,w},prev_index1,phi[d][h][w]);
+                                minHeap.add(elem);
+                                elems.put(new int[]{d,h,w},elem);
+                                state[d][h][w] = TRIAL;
+
+                                parent.remove(new int[]{d,h,w});
+                                parent.put(new int[]{d,h,w},min_index);
+                            }
+                            else if(state[d][h][w] == TRIAL){
+                                if(phi[d][h][w]>new_dist){
+                                    phi[d][h][w] = new_dist;
+                                    HeapElemX elem = elems.get(new int[]{d,h,w});
+                                    minHeap.remove(elem);
+                                    elem.value = phi[d][h][w];
+                                    elem.setPrev_index(prev_index1);
+                                    minHeap.add(elem);
+
+                                    parent.remove(new int[]{d,h,w});
+                                    parent.put(new int[]{d,h,w},min_index);
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
+        Map<int[],MyMarker> marker_map = new HashMap<int[], MyMarker>();
+        for (k=0;k<szz;k++) {
+            for (j=0;j<szy;j++)
+                for (i=0;i<szx;i++)
+                {
+                    int[] p = parent.get(new int[]{k,j,i});
+                    if(state[k][j][i] != ALIVE){
+                        continue;
+                    }
+                    MyMarker myMarker = new MyMarker(i,j,k);
+                    outTree.add(myMarker);
+                    marker_map.put(new int[]{k,j,i},myMarker);
+                }
+        }
+        for (int m=0; m<outTree.size(); m++){
+            MyMarker child_marker = outTree.elementAt(m);
+            int[] c = new int[]{(int) child_marker.z,(int) child_marker.y,(int) child_marker.x};
+            MyMarker parent_marker = marker_map.get(parent.get(c));
+            if(!child_marker.equals(parent_marker))
+                child_marker.parent = parent_marker;
+            else
+                child_marker.parent = null;
+        }
+        return true;
+    }
+
+    public static boolean fastmarching_tree(MyMarker root, float[][][] inimg, Vector<MyMarker> outTree, int[] sz,
+                                            int cnn_type, double bkg_thresh, boolean is_break_accept){
+        int szx = sz[0], szy = sz[1], szz = sz[2];
+        int total_sz = szx*szy*szz;
+
+        float[][][] phi = new float[szz][szy][szx];
+        Type[][][] state = new Type[szz][szy][szx];
+        Map<int[],int[]> parent = new HashMap<int[], int[]>();
+        //GI parameter min_int, max_int, li
+        double max_int = 0;
+        double min_int = Integer.MAX_VALUE;
+        double li = 10;
+
+        int k,j,i;
+        for (k=0;k<szz;k++) {
+            for (j=0;j<szy;j++)
+                for (i=0;i<szx;i++)
+                {
+                    if(inimg[k][j][i]>max_int) max_int = inimg[k][j][i];
+                    if(inimg[k][j][i]<min_int) min_int = inimg[k][j][i];
+                    phi[k][j][i] = Integer.MAX_VALUE;
+                    state[k][j][i] = FAR;
+                    parent.put(new int[]{k,j,i},new int[]{k,j,i});
+                }
+        }
+        max_int -= min_int;
+
+        // initialization
+
+        // init state and phi for root
+        int rootx = (int) (root.x +0.5);
+        int rooty = (int) (root.y +0.5);
+        int rootz = (int) (root.z +0.5);
+
+        state[rootz][rooty][rootx] = ALIVE;
+        phi[rootz][rooty][rootx] = 0.0f;
+
+        PriorityQueue<HeapElemX> minHeap = new PriorityQueue<HeapElemX>(total_sz, new Comparator<HeapElemX>() {
+            @Override
+            public int compare(HeapElemX o1, HeapElemX o2) {
+                return (o1.value - o2.value)>0?1:-1;
+            }
+        });
+        Map<int[],HeapElemX> elems = new HashMap<int[], HeapElemX>();
+
+        // init heap
+        {
+            int[] img_index = new int[]{rootz,rooty,rootx};
+            int[] prev_index = new int[]{rootz,rooty,rootx};
+            HeapElemX elem = new HeapElemX(img_index,prev_index,phi[rootz][rooty][rootx]);
+            minHeap.add(elem);
+            elems.put(new int[]{rootz,rooty,rootx},elem);
+        }
+
+        // loop
+        while(!minHeap.isEmpty())
+        {
+            HeapElemX min_elem = minHeap.poll();
+            elems.remove(min_elem.img_index);
+
+            int[] min_index = new int[3];
+            int[] prev_index = new int[3];
+            for (i=0; i<min_index.length; i++){
+                min_index[i] = min_elem.img_index[i];
+                prev_index[i] = min_elem.prev_index[i];
+            }
+
+            parent.remove(min_index);
+            parent.put(min_index,prev_index);
+
+            state[min_index[0]][min_index[1]][min_index[2]] = ALIVE;
+
+            int w,h,d;
+            for(int kk=-1; kk<=1; kk++){
+                d = min_index[0] + kk;
+                if(d < 0 || d >= szz) continue;
+                for(int jj=-1; jj<=1; jj++){
+                    h = min_index[1] + jj;
+                    if(h < 0 || h >= szy) continue;
+                    for(int ii=-1; ii<=1; ii++){
+                        w = min_index[2] + ii;
+                        if(w < 0 || w >= szx) continue;
+                        int offset = abs(ii) + abs(jj) + abs(kk);
+                        if(offset == 0 || offset > cnn_type) continue;
+                        double factor = (offset == 1) ? 1.0 : ((offset == 2) ? 1.414214 : ((offset == 3) ? 1.732051 : 0.0));
+                        if(is_break_accept){
+                            if(inimg[d][h][w] <= bkg_thresh && inimg[min_index[0]][min_index[1]][min_index[2]] <=bkg_thresh)
+                                continue;
+                        }
+                        else {
+                            if(inimg[d][h][w] <= bkg_thresh)
+                                continue;
+                        }
+                        if(state[d][h][w] != ALIVE){
+                            float new_dist = (float) (phi[min_index[0]][min_index[1]][min_index[2]] +
+                                    (GI(inimg,w,h,d,min_int,max_int) + GI(inimg,min_index[2],min_index[1],min_index[0],min_int,max_int))*factor*0.5);
+                            int[] prev_index1 = new int[3];
+                            System.arraycopy(min_index,0,prev_index1,0,prev_index1.length);
+
+                            if(state[d][h][w] == FAR){
+                                phi[d][h][w] = new_dist;
+                                HeapElemX elem = new HeapElemX(new int[]{d,h,w},prev_index1,phi[d][h][w]);
+                                minHeap.add(elem);
+                                elems.put(new int[]{d,h,w},elem);
+                                state[d][h][w] = TRIAL;
+
+                                parent.remove(new int[]{d,h,w});
+                                parent.put(new int[]{d,h,w},min_index);
+                            }
+                            else if(state[d][h][w] == TRIAL){
+                                if(phi[d][h][w]>new_dist){
+                                    phi[d][h][w] = new_dist;
+                                    HeapElemX elem = elems.get(new int[]{d,h,w});
+                                    minHeap.remove(elem);
+                                    elem.value = phi[d][h][w];
+                                    elem.setPrev_index(prev_index1);
+                                    minHeap.add(elem);
+
+                                    parent.remove(new int[]{d,h,w});
+                                    parent.put(new int[]{d,h,w},min_index);
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
+        Map<int[],MyMarker> marker_map = new HashMap<int[], MyMarker>();
+        for (k=0;k<szz;k++) {
+            for (j=0;j<szy;j++)
+                for (i=0;i<szx;i++)
+                {
+                    int[] p = parent.get(new int[]{k,j,i});
+                    if(state[k][j][i] != ALIVE){
+                        continue;
+                    }
+                    MyMarker myMarker = new MyMarker(i,j,k);
+                    outTree.add(myMarker);
+                    marker_map.put(new int[]{k,j,i},myMarker);
+                }
+        }
+        for (int m=0; m<outTree.size(); m++){
+            MyMarker child_marker = outTree.elementAt(m);
+            int[] c = new int[]{(int) child_marker.z,(int) child_marker.y,(int) child_marker.x};
+            MyMarker parent_marker = marker_map.get(parent.get(c));
+            if(!child_marker.equals(parent_marker))
+                child_marker.parent = parent_marker;
+            else
+                child_marker.parent = null;
+        }
+        return true;
+    }
+
+    public static boolean fastmarching_tree(MyMarker root, Vector<MyMarker> target, int[][][] inimg,
+                                            Vector<MyMarker> outTree, int[] sz, int cnn_type){
+        int szx = sz[0], szy = sz[1], szz = sz[2];
+        int total_sz = szx*szy*szz;
+
+        float[][][] phi = new float[szz][szy][szx];
+        Type[][][] state = new Type[szz][szy][szx];
+        Map<int[],int[]> parent = new HashMap<int[], int[]>();
+        //GI parameter min_int, max_int, li
+        double max_int = 0;
+        double min_int = Integer.MAX_VALUE;
+        double li = 10;
+
+        int[][] index = new int[total_sz][3];
+
+        int k,j,i;
+        for (k=0;k<szz;k++) {
+            for (j=0;j<szy;j++)
+                for (i=0;i<szx;i++)
+                {
+                    index[k*szy*szx+j*szx+i][0] = k;
+                    index[k*szy*szx+j*szx+i][1] = j;
+                    index[k*szy*szx+j*szx+i][2] = i;
+                    if(inimg[k][j][i]>max_int) max_int = inimg[k][j][i];
+                    if(inimg[k][j][i]<min_int) min_int = inimg[k][j][i];
+                    phi[k][j][i] = Integer.MAX_VALUE;
+                    state[k][j][i] = FAR;
+                    parent.put(index[k*szy*szx+j*szx+i],index[k*szy*szx+j*szx+i]);
+                }
+        }
+        max_int -= min_int;
+        System.out.println("----------------ccccccc---------------------------");
+
+        // initialization
+
+        // init state and phi for root
+        int rootx = (int) (root.x +0.5);
+        int rooty = (int) (root.y +0.5);
+        int rootz = (int) (root.z +0.5);
+
+        state[rootz][rooty][rootx] = ALIVE;
+        phi[rootz][rooty][rootx] = 0.0f;
+
+        int[][] target_index = new int[target.size()][3];
+        for(i=0;i<target.size(); i++){
+            target_index[i][0] = (int) (target.elementAt(i).z + 0.5);
+            target_index[i][1] = (int) (target.elementAt(i).y + 0.5);
+            target_index[i][2] = (int) (target.elementAt(i).x + 0.5);
+        }
+        System.out.println("----------------ddddddd---------------------------");
+
+        PriorityQueue<HeapElemX> minHeap = new PriorityQueue<HeapElemX>(total_sz, new Comparator<HeapElemX>() {
+            @Override
+            public int compare(HeapElemX o1, HeapElemX o2) {
+                return (o1.value - o2.value)>0?1:-1;
+            }
+        });
+        Map<int[],HeapElemX> elems = new HashMap<int[], HeapElemX>();
+
+        System.out.println("------------------------------eeeeeeeeeeeeeeeeeeee----------------------");
+
+        // init heap
+        {
+//            int[] img_index = new int[]{rootz,rooty,rootx};
+//            int[] prev_index = new int[]{rootz,rooty,rootx};
+            HeapElemX elem = new HeapElemX(index[rootz*szy*szx+rooty*szx+rootx],index[rootz*szy*szx+rooty*szx+rootx],phi[rootz][rooty][rootx]);
+            minHeap.add(elem);
+            elems.put(index[rootz*szy*szx+rooty*szx+rootx],elem);
+        }
+
+        System.out.println("-----------------------init------------------------");
+
+        // loop
+        int time_counter = 1;
+        double process1 = 0;
+        while(!minHeap.isEmpty())
+        {
+            double process2 = (time_counter++)*100000.0/total_sz;
+            if(process2 - process1>=1){
+                boolean is_break = true;
+                for(int t=0; t<target_index.length; t++){
+                    i = target_index[t][2]; j = target_index[t][1]; k = target_index[t][0];
+                    int[] ptind = parent.get(index[k*szy*szx+j*szx+i]);
+                    if(ptind[0]==target_index[t][0] &&
+                            ptind[1]==target_index[t][2] &&
+                            ptind[1]==target_index[t][2] &&
+                            (ptind[0]!=rootz || ptind[1]!=rooty || ptind[1]!=rootx)){
+                        is_break = false;
+                        break;
+                    }
+                }
+                if(is_break)
+                    break;
+            }
+
+            System.out.println(time_counter);
+
+            HeapElemX min_elem = minHeap.poll();
+            elems.remove(min_elem.img_index);
+
+            int[] min_index = new int[3];
+            int[] prev_index = new int[3];
+            for (i=0; i<min_index.length; i++){
+                min_index[i] = min_elem.img_index[i];
+                prev_index[i] = min_elem.prev_index[i];
+            }
+
+            parent.remove(index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]]);
+            parent.put(index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]],index[prev_index[0]*szy*szx+prev_index[1]*szx+prev_index[2]]);
+
+            state[min_index[0]][min_index[1]][min_index[2]] = ALIVE;
+
+            int w,h,d;
+            for(int kk=-1; kk<=1; kk++){
+                d = min_index[0] + kk;
+                if(d < 0 || d >= szz) continue;
+                for(int jj=-1; jj<=1; jj++){
+                    h = min_index[1] + jj;
+                    if(h < 0 || h >= szy) continue;
+                    for(int ii=-1; ii<=1; ii++){
+                        w = min_index[2] + ii;
+                        if(w < 0 || w >= szx) continue;
+                        int offset = abs(ii) + abs(jj) + abs(kk);
+                        if(offset == 0 || offset > cnn_type) continue;
+                        double factor = (offset == 1) ? 1.0 : ((offset == 2) ? 1.414214 : ((offset == 3) ? 1.732051 : 0.0));
+
+                        if(state[d][h][w] != ALIVE){
+                            float new_dist = (float) (phi[min_index[0]][min_index[1]][min_index[2]] +
+                                    (GI(inimg,w,h,d,min_int,max_int) + GI(inimg,min_index[2],min_index[1],min_index[0],min_int,max_int))*factor*0.5);
+                            int[] prev_index1 = new int[3];
+                            System.arraycopy(min_index,0,prev_index1,0,prev_index1.length);
+
+                            if(state[d][h][w] == FAR){
+                                phi[d][h][w] = new_dist;
+                                HeapElemX elem = new HeapElemX(index[d*szy*szx+h*szx+w],index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]],phi[d][h][w]);
+                                minHeap.add(elem);
+                                elems.put(index[d*szy*szx+h*szx+w],elem);
+                                state[d][h][w] = TRIAL;
+
+                                parent.remove(index[d*szy*szx+h*szx+w]);
+                                parent.put(index[d*szy*szx+h*szx+w],index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]]);
+                            }
+                            else if(state[d][h][w] == TRIAL){
+                                if(phi[d][h][w]>new_dist){
+                                    phi[d][h][w] = new_dist;
+                                    System.out.println("---------zxdebug0----------------");
+                                    HeapElemX elem = elems.get(index[d*szy*szx+h*szx+w]);
+                                    minHeap.remove(elem);
+                                    elem.value = phi[d][h][w];
+                                    elem.setPrev_index(index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]]);
+                                    minHeap.add(elem);
+                                    System.out.println("---------zxdebug1----------------");
+
+                                    parent.remove(index[d*szy*szx+h*szx+w]);
+                                    parent.put(index[d*szy*szx+h*szx+w],index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]]);
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
+        System.out.println("--------------------------loop------------------------------");
+
+        Map<int[],MyMarker> marker_map = new HashMap<int[], MyMarker>();
+        for (k=0;k<szz;k++) {
+            for (j=0;j<szy;j++)
+                for (i=0;i<szx;i++)
+                {
+                    int[] p = parent.get(index[k*szy*szx+j*szx+i]);
+                    if(state[k][j][i] != ALIVE){
+                        continue;
+                    }
+                    MyMarker myMarker = new MyMarker(i,j,k);
+                    outTree.add(myMarker);
+                    marker_map.put(index[k*szy*szx+j*szx+i],myMarker);
+                }
+        }
+        for (int m=0; m<outTree.size(); m++){
+            MyMarker child_marker = outTree.elementAt(m);
+            int[] c = new int[]{(int) child_marker.z,(int) child_marker.y,(int) child_marker.x};
+            MyMarker parent_marker = marker_map.get(parent.get(index[c[0]*szy*szx+c[1]*szx+c[2]]));
+            if(!child_marker.equals(parent_marker))
+                child_marker.parent = parent_marker;
+            else
+                child_marker.parent = null;
+        }
+        System.out.println("----------------------------convert-----------------------------");
+        return true;
+    }
+
+    public static boolean fastmarching_tree(MyMarker root, Vector<MyMarker> target, float[][][] inimg,
+                                            Vector<MyMarker> outTree, int[] sz, int cnn_type){
+        int szx = sz[0], szy = sz[1], szz = sz[2];
+        int total_sz = szx*szy*szz;
+
+        float[][][] phi = new float[szz][szy][szx];
+        Type[][][] state = new Type[szz][szy][szx];
+        Map<int[],int[]> parent = new HashMap<int[], int[]>();
+        //GI parameter min_int, max_int, li
+        double max_int = 0;
+        double min_int = Integer.MAX_VALUE;
+        double li = 10;
+
+        int k,j,i;
+        for (k=0;k<szz;k++) {
+            for (j=0;j<szy;j++)
+                for (i=0;i<szx;i++)
+                {
+                    if(inimg[k][j][i]>max_int) max_int = inimg[k][j][i];
+                    if(inimg[k][j][i]<min_int) min_int = inimg[k][j][i];
+                    phi[k][j][i] = Integer.MAX_VALUE;
+                    state[k][j][i] = FAR;
+                    parent.put(new int[]{k,j,i},new int[]{k,j,i});
+                }
+        }
+        max_int -= min_int;
+        System.out.println("----------------ccccccc---------------------------");
+
+        // initialization
+
+        // init state and phi for root
+        int rootx = (int) (root.x +0.5);
+        int rooty = (int) (root.y +0.5);
+        int rootz = (int) (root.z +0.5);
+
+        state[rootz][rooty][rootx] = ALIVE;
+        phi[rootz][rooty][rootx] = 0.0f;
+
+        int[][] target_index = new int[target.size()][3];
+        for(i=0;i<target.size(); i++){
+            target_index[i][0] = (int) (target.elementAt(i).z + 0.5);
+            target_index[i][1] = (int) (target.elementAt(i).y + 0.5);
+            target_index[i][2] = (int) (target.elementAt(i).x + 0.5);
+        }
+        System.out.println("---------------------ddddddddd-----------------------");
+
+        PriorityQueue<HeapElemX> minHeap = new PriorityQueue<HeapElemX>(total_sz, new Comparator<HeapElemX>() {
+            @Override
+            public int compare(HeapElemX o1, HeapElemX o2) {
+                return (o1.value - o2.value)>0?1:-1;
+            }
+        });
+        Map<int[],HeapElemX> elems = new HashMap<int[], HeapElemX>();
+
+        System.out.println("--------------init heap-----------------");
+
+        // init heap
+        {
+            int[] img_index = new int[]{rootz,rooty,rootx};
+            int[] prev_index = new int[]{rootz,rooty,rootx};
+            HeapElemX elem = new HeapElemX(img_index,prev_index,phi[rootz][rooty][rootx]);
+            minHeap.add(elem);
+            elems.put(new int[]{rootz,rooty,rootx},elem);
+        }
+
+        System.out.println("------------------loop----------------------");
+
+        // loop
+        int time_counter = 1;
+        double process1 = 0;
+        while(!minHeap.isEmpty())
+        {
+            double process2 = (time_counter++)*100000.0/total_sz;
+            if(process2 - process1>=1){
+                boolean is_break = true;
+                for(int t=0; t<target_index.length; t++){
+                    int[] ptind = parent.get(target_index[t]);
+                    if(ptind[0]==target_index[t][0] &&
+                            ptind[1]==target_index[t][2] &&
+                            ptind[1]==target_index[t][2] &&
+                            (ptind[0]!=rootz || ptind[1]!=rooty || ptind[1]!=rootx)){
+                        is_break = false;
+                        break;
+                    }
+                }
+                if(is_break)
+                    break;
+            }
+
+            HeapElemX min_elem = minHeap.poll();
+            elems.remove(min_elem.img_index);
+
+            int[] min_index = new int[3];
+            int[] prev_index = new int[3];
+            for (i=0; i<min_index.length; i++){
+                min_index[i] = min_elem.img_index[i];
+                prev_index[i] = min_elem.prev_index[i];
+            }
+
+            parent.remove(min_index);
+            parent.put(min_index,prev_index);
+
+            state[min_index[0]][min_index[1]][min_index[2]] = ALIVE;
+
+            int w,h,d;
+            for(int kk=-1; kk<=1; kk++){
+                d = min_index[0] + kk;
+                if(d < 0 || d >= szz) continue;
+                for(int jj=-1; jj<=1; jj++){
+                    h = min_index[1] + jj;
+                    if(h < 0 || h >= szy) continue;
+                    for(int ii=-1; ii<=1; ii++){
+                        w = min_index[2] + ii;
+                        if(w < 0 || w >= szx) continue;
+                        int offset = abs(ii) + abs(jj) + abs(kk);
+                        if(offset == 0 || offset > cnn_type) continue;
+                        double factor = (offset == 1) ? 1.0 : ((offset == 2) ? 1.414214 : ((offset == 3) ? 1.732051 : 0.0));
+
+                        if(state[d][h][w] != ALIVE){
+                            float new_dist = (float) (phi[min_index[0]][min_index[1]][min_index[2]] +
+                                    (GI(inimg,w,h,d,min_int,max_int) + GI(inimg,min_index[2],min_index[1],min_index[0],min_int,max_int))*factor*0.5);
+                            int[] prev_index1 = new int[3];
+                            System.arraycopy(min_index,0,prev_index1,0,prev_index1.length);
+
+                            if(state[d][h][w] == FAR){
+                                phi[d][h][w] = new_dist;
+                                HeapElemX elem = new HeapElemX(new int[]{d,h,w},prev_index1,phi[d][h][w]);
+                                minHeap.add(elem);
+                                elems.put(new int[]{d,h,w},elem);
+                                state[d][h][w] = TRIAL;
+
+                                parent.remove(new int[]{d,h,w});
+                                parent.put(new int[]{d,h,w},min_index);
+                            }
+                            else if(state[d][h][w] == TRIAL){
+                                if(phi[d][h][w]>new_dist){
+                                    phi[d][h][w] = new_dist;
+                                    HeapElemX elem = elems.get(new int[]{d,h,w});
+                                    minHeap.remove(elem);
+                                    elem.value = phi[d][h][w];
+                                    elem.setPrev_index(prev_index1);
+                                    minHeap.add(elem);
+
+                                    parent.remove(new int[]{d,h,w});
+                                    parent.put(new int[]{d,h,w},min_index);
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+        System.out.println("----------------------convert-----------------------");
+
+        Map<int[],MyMarker> marker_map = new HashMap<int[], MyMarker>();
+        for (k=0;k<szz;k++) {
+            for (j=0;j<szy;j++)
+                for (i=0;i<szx;i++)
+                {
+                    int[] p = parent.get(new int[]{k,j,i});
+                    if(state[k][j][i] != ALIVE){
+                        continue;
+                    }
+                    MyMarker myMarker = new MyMarker(i,j,k);
+                    outTree.add(myMarker);
+                    marker_map.put(new int[]{k,j,i},myMarker);
+                }
+        }
+        for (int m=0; m<outTree.size(); m++){
+            MyMarker child_marker = outTree.elementAt(m);
+            int[] c = new int[]{(int) child_marker.z,(int) child_marker.y,(int) child_marker.x};
+            MyMarker parent_marker = marker_map.get(parent.get(c));
+            if(!child_marker.equals(parent_marker))
+                child_marker.parent = parent_marker;
+            else
+                child_marker.parent = null;
+        }
+        return true;
+    }
+
+
+
+
 }

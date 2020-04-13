@@ -107,7 +107,7 @@ public class V3dNeuronGDTracing {
 //        trace_bounding_box.y1 = trace_bounding_box.y1+20<=sz[1]-1?trace_bounding_box.y1+20:sz[1]-1;
 //        trace_bounding_box.z1 = trace_bounding_box.z1+20<=sz[2]-1?trace_bounding_box.z1+20:sz[2]-1;
 
-        System.out.println("set z1"+ (int)(trace_bounding_box.z1));
+        System.out.println("set z1 "+ (int)(trace_bounding_box.z1));
 
         System.out.println("z1="+(int)(trace_bounding_box.z1));
 
@@ -121,6 +121,15 @@ public class V3dNeuronGDTracing {
 
         String s_error = null;
         GD gd = new GD();
+//        s_error = gd.find_shortest_path_graghing_FM(p4d[chano], sz[0], sz[1], sz[2],
+//                (float) trace_z_thickness,
+//                (int)trace_bounding_box.x0, (int)trace_bounding_box.y0, (int) trace_bounding_box.z0,
+//                (int)trace_bounding_box.x1, (int)trace_bounding_box.y1, (int) trace_bounding_box.z1,
+//                p0.x, p0.y, p0.z,
+//                n_end_nodes,
+//                px, py, pz, //fix this bug 100624
+//                mmUnit,
+//                sp_para);
         if (sz[3]==1)
         {
 

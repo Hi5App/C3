@@ -1,17 +1,22 @@
 package com.tracingfunc.app2;
 
 public class HeapElem {
-    int heap_id;
-    int[] img_index = new int[3];
-    double value;
+    public int[] img_index;
+    public double value;
     public HeapElem(int[] img_index, double value){
+        this.img_index = new int[3];
         if(img_index.length!=this.img_index.length){
             throw new ExceptionInInitializerError();
         }
-        for(int i = 0;i<this.img_index.length;i++) {
-            this.img_index[i] = img_index[i];
-        }
+        System.arraycopy(img_index, 0, this.img_index, 0, this.img_index.length);
         this.value = value;
-        this.heap_id = -1;
+    }
+
+    public double getValue() {
+        return value;
+    }
+
+    public int[] getImg_index() {
+        return img_index;
     }
 }

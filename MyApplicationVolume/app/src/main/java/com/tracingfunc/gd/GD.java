@@ -2,14 +2,21 @@ package com.tracingfunc.gd;
 
 import android.util.Log;
 
+import com.tracingfunc.app2.MyMarker;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
+import static com.tracingfunc.app2.FM.fastmarching_dt;
+import static com.tracingfunc.app2.FM.fastmarching_tree;
+import static com.tracingfunc.app2.HierarchyPruning.getLeafMarkers;
 import static java.lang.Math.sqrt;
 
 //import javafx.util.Pair;
@@ -273,7 +280,15 @@ public class GD {
                             Pair<Integer,Integer> e = new Pair<Integer,Integer>(node_a, node_b);
                             edge_array.add(e);
 
-                            Float w = (float) edge_weight_func(it, va,vb, 255.0);
+                            Float w =(float) edge_weight_func(it, va,vb, imgMax);
+
+                            if(m<500){
+                                System.out.println("it: "+it+" i0: "+edge_table[it].i0+" j0: "+edge_table[it].j0+
+                                        " k0: "+edge_table[it].k0+" i1: "+edge_table[it].i1+" j1: "+edge_table[it].j1+
+                                        " k1: "+edge_table[it].k1+" dist: "+edge_table[it].dist);
+                                System.out.println("ii: "+ii+" jj: "+jj+" kk: "+kk+" ii1: "+ii1+" jj1: "+jj1+" kk1: "+kk1);
+                                System.out.println("node_a: "+node_a+" node_b: "+node_b+" va: "+va+" vb: "+vb+" w: "+w);
+                            }
 
                             //now try to use favorite direction if literally specified. by PHC 20170606
                             if (para.b_use_favorite_direction)
@@ -354,7 +369,7 @@ public class GD {
                 break;
             case 1:
                 System.out.println("phc_shortest_path() ");
-//                s_error = phc_shortest_path(edge_array, (int) num_edges, weights, (int) num_nodes,	(int) start_nodeind, plist);
+                s_error = phc_shortest_path(edge_array, (int) num_edges, weights, (int) num_nodes,	(int) start_nodeind, plist);
                 break;
             case 2:
 //                System.out.println("mst_shortest_path() ");
@@ -892,7 +907,11 @@ public class GD {
             return s_error;
         }
 
+        System.out.println("prepare dosearch----------------------------");
+
         p.dosearch(start_nodeind); //set root as the first node
+
+        System.out.println("search end-----------------------------");
 
         //copy the output plist
         for (int i=0;i<n_nodes;i++)
@@ -1999,4 +2018,116 @@ public class GD {
         }
         return true;
     }
+
+    public boolean swc_to_segments(Vector<MyMarker> inmarkers, Vector<Vector<V_NeuronSWC_unit> > segments)throws Exception
+    {
+        Map<MyMarker, Integer>  child_num = new HashMap<MyMarker, Integer>();
+        Vector<MyMarker> leaf_markers = getLeafMarkers(inmarkers, child_num);
+        Map<MyMarker, Integer> node_index = new HashMap<MyMarker, Integer>();
+        for(int i = 0; i < inmarkers.size(); i++) {
+            node_index.put(inmarkers.get(i),i+1);
+        }
+
+        Set<MyMarker> start_markers = new HashSet<MyMarker>();
+        for(int i = 0; i < leaf_markers.size(); i++)
+        {
+            MyMarker start_marker = leaf_markers.get(i);
+            while(!start_markers.contains(start_marker))
+            {
+                start_markers.add(start_marker);
+                Vector<V_NeuronSWC_unit> segment = new Vector<V_NeuronSWC_unit>();
+                MyMarker p = start_marker;
+                do
+                {
+                    V_NeuronSWC_unit m2 = new V_NeuronSWC_unit();
+                    m2.x = p.x;
+                    m2.y = p.y;
+                    m2.z = p.z;
+                    m2.r = p.radius;
+                    m2.nchild = child_num.get(p);
+                    m2.n = node_index.get(p);
+                    m2.parent = (p.parent != null) ? node_index.get(p.parent) : -1;
+                    segment.add(m2.clone());
+                    p = p.parent;
+                }while(p != null && child_num.get(p) == 1);
+                if(true && p != null) // add branch or root node to segment
+                {
+                    V_NeuronSWC_unit m2 = new V_NeuronSWC_unit();
+                    m2.x = p.x;
+                    m2.y = p.y;
+                    m2.z = p.z;
+                    m2.r = p.radius;
+                    m2.nchild = child_num.get(p);
+                    m2.n = node_index.get(p);
+                    m2.parent = (p.parent != null) ? node_index.get(p.parent) : -1;
+                    segment.add(m2.clone());
+                }
+                segments.add(segment);
+                if(p != null) start_marker = p;
+                else break;
+            }
+        }
+        return true;
+    }
+
+    public String find_shortest_path_graghing_FM(int[][][] img3d, int dim0, int dim1, int dim2, //image
+                                                 float zthickness, // z-thickness for weighted edge
+                                                 //final int box[6],  //bounding box
+                                                 int bx0, int by0, int bz0, int bx1, int by1, int bz1, //bounding box (ROI)
+                                                 float x0, float y0, float z0,       // start node
+                                                 int n_end_nodes,                    // n_end_nodes == (0 for shortest path tree) (1 for shortest path) (n-1 for n pair path)
+                                                 float[] x1, float[] y1, float[] z1,    // all end nodes
+                                                 Vector< Vector<V_NeuronSWC_unit> > mmUnit, // change from Coord3D for shortest path tree
+                                                 ParaShortestPath  para)throws Exception{
+        boolean is_gsdt = false;
+        double bkg_thres = para.imgTH;
+        double length_thresh = 2.0;
+        int cnn_type = 2; // default connection type 2
+        int channel = 0;
+
+//        cout<<"bkg_thresh = "<<bkg_thresh<<endl;
+//        cout<<"length_thresh = "<<length_thresh<<endl;
+//        cout<<"is_gsdt = "<<is_gsdt<<endl;
+//        cout<<"cnn_type = "<<cnn_type<<endl;
+//        cout<<"channel = "<<channel<<endl;
+
+//        unsigned char * indata1d = img3d[0][0];
+        int[]  in_sz = new int[]{dim0, dim1, dim2, 1};
+
+        Vector<MyMarker> inmarkers = new Vector<MyMarker>();
+        Vector<MyMarker> outtree = new Vector<MyMarker>();;
+        Vector<MyMarker> target = new Vector<MyMarker>();;
+
+        inmarkers.add(new MyMarker(x0, y0, z0));
+        for(int i = 0; i < n_end_nodes; i++)
+        {
+            target.add(new MyMarker(x1[i], y1[i], z1[i]));
+        }
+
+
+        if(is_gsdt)
+        {
+            float[][][] phi = null;
+            System.out.println("processing fastmarching distance transformation ...");
+            fastmarching_dt(img3d, phi, in_sz, cnn_type, (int) bkg_thres);
+            System.out.println("constructing fastmarching tree ...");
+            fastmarching_tree(inmarkers.get(0), target, phi, outtree, in_sz, cnn_type);
+
+        }
+        else
+        {
+            System.out.println("constructing fastmarching tree ...");
+            fastmarching_tree(inmarkers.get(0), target, img3d, outtree, in_sz, cnn_type);
+            System.out.println("constructing fastmarching tree end...");
+        }
+//        cout<<"======================================="<<endl;
+
+        swc_to_segments(outtree, mmUnit);
+        //rearrange_and_remove_labeled_deletion_nodes_mmUnit(mmUnit);
+        //int nSegsTrace = mergeback_mmunits_to_neuron_path(pp.size(), mmUnit, tracedNeuron);
+        System.out.println("===== Finish FM tree construction ====");
+        return "";
+    }
+
+
 }
