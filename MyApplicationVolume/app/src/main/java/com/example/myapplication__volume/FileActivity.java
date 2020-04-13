@@ -59,6 +59,7 @@ public class FileActivity extends AppCompatActivity {
     private int length;
     private CompleteReceiver completeReceiver;
     private ManageSocket manageSocket;
+    private BroadcastReceiver broadcastReceiver;
 
 
     TextView tv;
@@ -88,10 +89,6 @@ public class FileActivity extends AppCompatActivity {
             }
         }
 
-        completeReceiver = new CompleteReceiver();
-        // register download success broadcast
-        registerReceiver(completeReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-        context = getApplicationContext();
 
 //        sethttp();
 
@@ -139,62 +136,97 @@ public class FileActivity extends AppCompatActivity {
         EditText editText = (EditText) findViewById(R.id.editText);
         String http = editText.getText().toString();
 
+        String downloadpath = "";
+
         Log.v("DownloadFile", http+"   LLLLLLLLLLLLL");
 
 //        //创建下载任务,downloadUrl就是下载链接
 //        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadUrl));
 //        //指定下载路径和下载文件名
 //        request.setDestinationInExternalPublicDir("/download/", fileName);
-//        //获取下载管理器
-//        DownloadManager downloadManager= (DownloadManager) this.getSystemService(Context.DOWNLOAD_SERVICE);
-//        //将下载任务加入下载队列，否则不会进行下载
-//        downloadManager.enqueue(request);
 
 //        String downloadpath = "https://penglab.com/temp/test1.raw";
-        String downloadpath = "https://qd.myapp.com/myapp/qqteam/AndroidQQ/mobileqq_android.apk";
-//        String downloadpath = "https://www.globalgreyebooks.com/content/books/ebooks/game-of-life.pdf";
+//        downloadpath = "https://qd.myapp.com/myapp/qqteam/AndroidQQ/mobileqq_android.apk";
 
-//        if (message != "")
-//            downloadpath = message;
-
+        if (http.startsWith("https://")){
+            downloadpath = http;
+        }else {
+            downloadpath = "https://" + http;
+        }
 
         // Path where you want to download file.
         Uri uri = Uri.parse(downloadpath);
 
-        DownloadManager.Request request = new DownloadManager.Request(uri);
+        try {
+            DownloadManager.Request request = new DownloadManager.Request(uri);
 
-        // Tell on which network you want to download file.
-        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
+            // Tell on which network you want to download file.
+            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
 
-        // This will show notification on top when downloading the file.
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            // This will show notification on top when downloading the file.
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 
-        // Title for notification.
-        request.setTitle(uri.getLastPathSegment());
+            // Title for notification.
+            request.setTitle(uri.getLastPathSegment());
+            request.setDescription("Download from C3");
 
-        request.setMimeType("application/cn.trinea.download.file");
+            //设置文件类型
+//            request.setMimeType("application/cn.trinea.download.file");
 
-        //创建目录
+            //创建目录
 //        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdir() ;
 
-        //设置文件存放路径
+            //设置文件存放路径
 //        request.setDestinationInExternalPublicDir(  Environment.DIRECTORY_DOWNLOADS  , "weixin.apk" ) ;
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, uri.getLastPathSegment());
+//        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, uri.getLastPathSegment());
 
-//        request.setDestinationInExternalFilesDir(this, null, "My-download");
-
-//        DownloadManager downloadManager = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
-
-//        downloadManager.enqueue(request);
-
-        Toast.makeText(this, "Start to download the file", Toast.LENGTH_SHORT).show();
+            request.setDestinationInExternalFilesDir( this , Environment.DIRECTORY_DOWNLOADS ,  uri.getLastPathSegment() );
 
 
-//        ((DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE)).enqueue(request); // This will start downloading
+            //获取下载管理器
+            DownloadManager downloadManager = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
+            //将下载任务加入下载队列，否则不会进行下载
+            long ID = downloadManager.enqueue(request);
+            Toast.makeText(this, "Start to download the file", Toast.LENGTH_SHORT).show();
 
-        Log.v("MainActivity", "DownloadFile  successfully");
+            listener(ID);
+
+        }catch (Exception e){
+            Toast.makeText(this, "make sure the address is legal", Toast.LENGTH_SHORT).show();
+        }
 
     }
+
+
+    /**
+     * inform when the file is downloaded
+     * @param Id the id of download request
+     */
+    private void listener(final long Id) {
+
+        // 注册广播监听系统的下载完成事件。
+        IntentFilter intentFilter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                long ID = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+                if (ID == Id) {
+                    Toast.makeText(getApplicationContext(), "文件下载完成!", Toast.LENGTH_LONG).show();
+                    Log.v("MainActivity", "DownloadFile  successfully");
+
+                }
+            }
+        };
+
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(broadcastReceiver);
+    }
+
 
 
 

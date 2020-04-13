@@ -817,7 +817,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
             }
         }
-        
+
         if(!isInBoundingBox){
             Toast.makeText(getContext(), "please make sure the point inside the bounding box", Toast.LENGTH_SHORT).show();
             return null;
