@@ -713,11 +713,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             float [] Marker = getCenterOfLineProfile(loc1, loc2);
 //            float [] Marker = {60.1f, 63.2f, 63.6f};
+            if (Marker == null){
+                return null;
+            }
 
             Log.v("Marker",Arrays.toString(Marker));
 
-            float intensity = Sample3d(Marker[0], Marker[1], Marker[2]);
-            Log.v("intensity",Float.toString(intensity));
+//            float intensity = Sample3d(Marker[0], Marker[1], Marker[2]);
+//            Log.v("intensity",Float.toString(intensity));
 
             return VolumetoModel(Marker);
         }else {
@@ -740,6 +743,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         float[] result = new float[3];
         float[] loc1_index = new float[3];
         float[] loc2_index = new float[3];
+        boolean isInBoundingBox = false;
 
 //        for(int i=0; i<3; i++){
 //            loc1_index[i] = loc1[i] * sz[i];
@@ -760,6 +764,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
         result = devide(plus(loc1_index, loc2_index), 2);
+
         float max_value = 0f;
 
         //单位向量
@@ -798,6 +803,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
             if(IsInBoundingBox(poc, dim)){
+
                 value = Sample3d(poc[0], poc[1], poc[2]);
 
                 if(value > max_value){
@@ -807,8 +813,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     for (int j = 0; j < 3; j++){
                         result[j] = poc[j];
                     }
+                    isInBoundingBox = true;
                 }
             }
+        }
+        
+        if(!isInBoundingBox){
+            Toast.makeText(getContext(), "please make sure the point inside the bounding box", Toast.LENGTH_SHORT).show();
+            return null;
         }
 
         return result;
@@ -923,9 +935,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         for(int i=0; i<length; i++){
 //            Log.v("IsInBoundingBox", Float.toString(x[i]));
-            if(x[i]>dim[i][1] || x[i]<dim[i][0])
+            if(x[i]>=dim[i][1] || x[i]<=dim[i][0])
                 return false;
         }
+//        Log.v("IsInBoundingBox", Arrays.toString(x));
+//        Log.v("IsInBoundingBox", Arrays.toString(dim));
         return true;
     }
 
