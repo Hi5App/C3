@@ -879,8 +879,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         float[][] dim = new float[3][2];
         for(int i=0; i<3; i++){
-            dim[i][0]=0;
-            dim[i][1]=1;
+            dim[i][0]= 0;
+            dim[i][1]= mz[2-i];
         }
 
         int num = 0;
@@ -997,9 +997,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private float[] ModeltoVolume(float[] input){
         float[] result = new float[3];
 
-        result[0] = (1.0f - input[0]) * sz[2];
-        result[1] = (1.0f - input[1]) * sz[1];
-        result[2] = input[2] * sz[0];
+        result[0] = (1.0f - input[0] / mz[2]) * sz[2];
+        result[1] = (1.0f - input[1] / mz[1]) * sz[1];
+        result[2] = input[2] / mz[0] * sz[0];
 
         return result;
     }
@@ -1007,9 +1007,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private float[] VolumetoModel(float[] input){
         float[] result = new float[3];
 
-        result[0] = (sz[2] - input[0]) / sz[2];
-        result[1] = (sz[1] - input[1]) / sz[1];
-        result[2] = input[2] / sz[0];
+        result[0] = (sz[2] - input[0]) / sz[2] * mz[2];
+        result[1] = (sz[1] - input[1]) / sz[1] * mz[1];
+        result[2] = input[2] / sz[0] * mz[0];
 
         return result;
     }
@@ -1252,12 +1252,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float[][] dim = new float[3][2];
             for(int j = 0; j < 3; j++){
                 dim[j][0] = 0;
-                dim[j][1] = sz[j] - 1;
+                dim[j][1] = sz[2 - j] - 1;
             }
 
             float value = 0;
             float [] result_pos = new float[3];
-            for (int j = 0; j < 128; j++){
+            for (int j = 1; j < 30; j++){
 //                Log.v("getLineDrawed","~~~~~~~~~~~~~~");
                 float [] pos = minus(mid_point_pixel, multiply(dir, (float)(j)));
 
@@ -1273,7 +1273,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     break;
                 }
             }
-            for (int j = 0; j < 128; j++){
+            for (int j = 1; j < 30; j++){
                 float [] pos = plus(mid_point_pixel, multiply(dir, (float)(j)));
 
                 if (IsInBoundingBox(pos, dim)){
