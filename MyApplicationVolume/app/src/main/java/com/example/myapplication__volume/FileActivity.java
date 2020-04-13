@@ -16,6 +16,7 @@ import android.os.Environment;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -65,6 +66,13 @@ public class FileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Intent intent = getIntent();
+        String message = intent.getStringExtra(MyRenderer.OUTOFMEM_MESSAGE);
+        if (message != null){
+            Toast toast = Toast.makeText(FileActivity.this, message, Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+        }
         setContentView(R.layout.activity_file);
         tv = (TextView)findViewById(R.id.textView3);
 

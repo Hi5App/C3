@@ -1,5 +1,7 @@
 package com.example.myapplication__volume;
 
+import android.content.Context;
+import android.content.Intent;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.util.Log;
@@ -11,6 +13,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+
+import static com.example.myapplication__volume.MainActivity.getContext;
 
 
 public class MyPattern{
@@ -652,8 +656,17 @@ public class MyPattern{
 //        setLength(length);
 
         //加载纹理
-        initTexture_3d();
-//        initTexture();
+        try {
+            initTexture_3d();
+        }catch (Exception e){
+            Context context = getContext();
+            Intent intent = new Intent(context, FileActivity.class);
+            String message = "out of memory when load file";
+            intent.putExtra(MyRenderer.OUTOFMEM_MESSAGE, message);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }
+        //        initTexture();
 
         Log.v("init()","success!!!!!!!!!!!!!!!");
 
@@ -1267,6 +1280,7 @@ public class MyPattern{
 
         byte [] image_data = getIntensity_3d();
 
+
 //        createMarker(image_data, vol_w, vol_h, vol_d, 60, 60, 60);
 
 
@@ -1367,6 +1381,7 @@ public class MyPattern{
 //        vol_w = 128;
 //        vol_h = 128;
 //        vol_d = 128;
+
 
         Log.v("vol_w", Integer.toString(vol_w));
         Log.v("vol_h", Integer.toString(vol_h));

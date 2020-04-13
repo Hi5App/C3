@@ -45,6 +45,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import static com.example.myapplication__volume.MainActivity.getContext;
+
 
 //读取v3draw文件
 public class Rawreader{

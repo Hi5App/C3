@@ -419,9 +419,9 @@ public class Image4DSimple {
             image =  rr.run(length, is);
 
         }
-
-        image.setImgSrcFile(filepath);
-
+        if (image != null) {
+            image.setImgSrcFile(filepath);
+        }
         return image;
     }
 

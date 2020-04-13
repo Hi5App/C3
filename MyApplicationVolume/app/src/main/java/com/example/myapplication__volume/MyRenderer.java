@@ -1,6 +1,8 @@
 package com.example.myapplication__volume;
 
 
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.opengl.GLES10;
 import android.opengl.GLES30;
@@ -22,7 +24,7 @@ import java.util.Collections;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import static com.example.myapplication__volume.Myapplication.getContext;
+import static com.example.myapplication__volume.MainActivity.getContext;
 import static javax.microedition.khronos.opengles.GL10.GL_ALPHA_TEST;
 import static javax.microedition.khronos.opengles.GL10.GL_BLEND;
 import static javax.microedition.khronos.opengles.GL10.GL_ONE_MINUS_SRC_ALPHA;
@@ -31,6 +33,8 @@ import static javax.microedition.khronos.opengles.GL10.GL_SRC_ALPHA;
 
 //@android.support.annotation.RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
 public class MyRenderer implements GLSurfaceView.Renderer {
+    public static final String OUTOFMEM_MESSAGE = "OutOfMemory";
+
     private MyPattern myPattern;
     private MyAxis myAxis;
     private MyDraw myDraw;
@@ -611,11 +615,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     //To set the marker
 
     private void setImage(){
-        Rawreader rr = new Rawreader();
+//        Rawreader rr = new Rawreader();
         String fileName = filepath;
 
-        Uri uri = Uri.parse(fileName);
+//        Uri uri = Uri.parse(fileName);
         img = Image4DSimple.loadImage(filepath);
+        if (img == null){
+            return;
+        }
 //        try {
 //            ParcelFileDescriptor parcelFileDescriptor =
 //                    MainActivity.getContext().getContentResolver().openFileDescriptor(uri, "r");
