@@ -89,7 +89,7 @@ public class GD {
         int background_select = para.background_select;
 
         int dowsample_method = para.downsample_method; //0 for average, 1 for max
-//        min_step = 4;
+//        min_step = 1;
 
         if (min_step<1)       min_step =1;
         if (smooth_winsize<1) smooth_winsize =1;
@@ -227,57 +227,58 @@ public class GD {
         double va = 0, vb = 0;
         double maxw=0, minw=1e+6; //for debug info
         n=0; m=0;
-        for (k=0;k<nz;k++)
-        {
-            for (j=0;j<ny;j++)
+        try{
+            for (k=0;k<nz;k++)
             {
-                for (i=0;i<nx;i++)
+                for (j=0;j<ny;j++)
                 {
-                    for (int it=0; it<num_edge_table; it++)
+                    for (i=0;i<nx;i++)
                     {
-                        // take an edge
-                        int ii = i+ edge_table[it].i0;
-                        int jj = j+ edge_table[it].j0;
-                        int kk = k+ edge_table[it].k0;
-                        int ii1 = i+ edge_table[it].i1;
-                        int jj1 = j+ edge_table[it].j1;
-                        int kk1 = k+ edge_table[it].k1;
-
-                        if (ii>=nx || jj>=ny || kk>=nz || ii1>=nx || jj1>=ny || kk1>=nz) continue;//for boundary condition
-
-                        Integer node_a = (int) ((kk) * ny * nx + (jj) * nx + (ii));//index
-                        Integer node_b = (int) ((kk1) * ny * nx + (jj1) * nx + (ii1));
-
-                        m++;
-
-                        //=========================================================================================
-                        // edge link
-                        if(dowsample_method == 0)
+                        for (int it=0; it<num_edge_table; it++)
                         {
-                            va = getBlockAveValue(img3d, dim0, dim1, dim2, (xmin+(ii)*xstep),(ymin+(jj)*ystep),(zmin+(kk)*zstep),
-                                    xstep, ystep, (int) ((double)zstep/zthickness)); //zthickness
-                            vb = getBlockAveValue(img3d, dim0, dim1, dim2, (xmin+(ii1)*xstep),(ymin+(jj1)*ystep),(zmin+(kk1)*zstep),
-                                    xstep, ystep, (int) ((double)zstep/zthickness)); //zthickness
-                        }else if(dowsample_method == 1)
-                        {
-                            va = getBlockMaxValue(img3d, dim0, dim1, dim2, (xmin+(ii)*xstep),(ymin+(jj)*ystep),(zmin+(kk)*zstep),
-                                    xstep, ystep, (int) ((double)zstep/zthickness)); //zthickness
-                            vb = getBlockMaxValue(img3d, dim0, dim1, dim2, (xmin+(ii1)*xstep),(ymin+(jj1)*ystep),(zmin+(kk1)*zstep),
-                                    xstep, ystep, (int) ((double)zstep/zthickness)); //zthickness
-                        }
+                            // take an edge
+                            int ii = i+ edge_table[it].i0;
+                            int jj = j+ edge_table[it].j0;
+                            int kk = k+ edge_table[it].k0;
+                            int ii1 = i+ edge_table[it].i1;
+                            int jj1 = j+ edge_table[it].j1;
+                            int kk1 = k+ edge_table[it].k1;
 
-                        if (va<=imgTH || vb<=imgTH)
-                            continue; //skip background node link
+                            if (ii>=nx || jj>=ny || kk>=nz || ii1>=nx || jj1>=ny || kk1>=nz) continue;//for boundary condition
 
-                        Pair<Integer,Integer> e = new Pair<Integer,Integer>(node_a, node_b);
-                        edge_array.add(e);
+                            Integer node_a = (int) ((kk) * ny * nx + (jj) * nx + (ii));//index
+                            Integer node_b = (int) ((kk1) * ny * nx + (jj1) * nx + (ii1));
 
-                        Float w = (float) edge_weight_func(it, va,vb, 255.0);
+                            m++;
 
-                        //now try to use favorite direction if literally specified. by PHC 20170606
-                        if (para.b_use_favorite_direction)
-                        {
-                            //do nothing
+                            //=========================================================================================
+                            // edge link
+                            if(dowsample_method == 0)
+                            {
+                                va = getBlockAveValue(img3d, dim0, dim1, dim2, (xmin+(ii)*xstep),(ymin+(jj)*ystep),(zmin+(kk)*zstep),
+                                        xstep, ystep, (int) ((double)zstep/zthickness)); //zthickness
+                                vb = getBlockAveValue(img3d, dim0, dim1, dim2, (xmin+(ii1)*xstep),(ymin+(jj1)*ystep),(zmin+(kk1)*zstep),
+                                        xstep, ystep, (int) ((double)zstep/zthickness)); //zthickness
+                            }else if(dowsample_method == 1)
+                            {
+                                va = getBlockMaxValue(img3d, dim0, dim1, dim2, (xmin+(ii)*xstep),(ymin+(jj)*ystep),(zmin+(kk)*zstep),
+                                        xstep, ystep, (int) ((double)zstep/zthickness)); //zthickness
+                                vb = getBlockMaxValue(img3d, dim0, dim1, dim2, (xmin+(ii1)*xstep),(ymin+(jj1)*ystep),(zmin+(kk1)*zstep),
+                                        xstep, ystep, (int) ((double)zstep/zthickness)); //zthickness
+                            }
+
+                            if (va<=imgTH || vb<=imgTH)
+                                continue; //skip background node link
+
+                            Pair<Integer,Integer> e = new Pair<Integer,Integer>(node_a, node_b);
+                            edge_array.add(e);
+
+                            Float w = (float) edge_weight_func(it, va,vb, 255.0);
+
+                            //now try to use favorite direction if literally specified. by PHC 20170606
+                            if (para.b_use_favorite_direction)
+                            {
+                                //do nothing
 //                            double x_mid = (double)((xmin+(ii)*xstep) + xmin+(ii1)*xstep)/2.0;
 //                            double y_mid = (double)((ymin+(jj)*ystep) + ymin+(jj1)*ystep)/2.0;
 //                            double z_mid = (double)((zmin+(kk)*zstep) + zmin+(kk1)*zstep)/2.0;
@@ -299,19 +300,26 @@ public class GD {
 //                            {
 //                                //do nothing here.
 //                            }
-                            //also in the furture we may not need to divide Math.sqrt(vqq) because it is finalant, and this should also avoid the extra-exception when vqq=0
+                                //also in the furture we may not need to divide Math.sqrt(vqq) because it is finalant, and this should also avoid the extra-exception when vqq=0
+                            }
+
+                            weights.add( w );
+                            //=========================================================================================
+
+                            n++; // that is the correct position of n++
+
+                            if (w>maxw) maxw=w;	if (w<minw) minw=w;
                         }
-
-                        weights.add( w );
-                        //=========================================================================================
-
-                        n++; // that is the correct position of n++
-
-                        if (w>maxw) maxw=w;	if (w<minw) minw=w;
                     }
                 }
             }
+        }catch (OutOfMemoryError e){
+            System.out.println("-----------------start to print error info---------------");
+            System.out.println(e.getMessage());
+//            System.exit(1);
+            return (s_error = e.getMessage());
         }
+
         System.out.printf(" minw=%g maxw=%g \n", minw,maxw);
         System.out.println(" graph defined! ");
 
@@ -912,10 +920,15 @@ public class GD {
             return s_error;
         }
 
-        Gragh g = new Gragh(n_nodes,edge_array,weights);
-        g.search(start_nodeind);
-        for(int i=0; i<g.plist.length; i++){
-            plist[i] = g.plist[i];
+        try{
+            Gragh g = new Gragh(n_nodes,edge_array,weights);
+            g.search(start_nodeind);
+            for(int i=0; i<g.plist.length; i++){
+                plist[i] = g.plist[i];
+            }
+        }catch (OutOfMemoryError e){
+            s_error = e.getMessage();
+            System.out.println(e.getMessage());
         }
 
         return s_error;

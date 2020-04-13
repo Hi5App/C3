@@ -460,7 +460,7 @@ public class MainActivity extends AppCompatActivity {
             pp.add(p);
         }
 
-        NeuronTree outswc;
+        NeuronTree outswc = new NeuronTree();
 //        long[] sz = new long[]{img.getSz0(),img.getSz1(),img.getSz2(),img.getSz3()};
 
         int[] sz = new int[]{(int)img.getSz0(), (int)img.getSz1(), (int)img.getSz2(), (int)img.getSz3()};
@@ -470,7 +470,14 @@ public class MainActivity extends AppCompatActivity {
 //        curveTracePara.imgTH = 20;
 //        Log.v("GDTraing", Double.toString(curveTracePara.imgTH));
 
-        outswc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img.getData(),sz,p0,pp,curveTracePara,1.0);
+        try{
+            outswc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img.getData(),sz,p0,pp,curveTracePara,1.0);
+        }catch (Exception e){
+            Looper.prepare();
+            Toast.makeText(this,e.getMessage(),Toast.LENGTH_LONG).show();
+            Looper.loop();
+        }
+
         ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
         for(int i=0; i<outswc.listNeuron.size(); i++){
             ArrayList<Float> s = new ArrayList<Float>();
