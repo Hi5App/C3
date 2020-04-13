@@ -437,9 +437,9 @@ public class MainActivity extends AppCompatActivity {
 //                fid.write(message.getBytes());
 //                long fileSize = f.length();
             } catch (Exception e) {
-                Toast.makeText(this, " dddddd  ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, " dddddd  "+e, Toast.LENGTH_LONG).show();
                 Log.v("MainActivity", "111222");
-                Log.v("Exception", e.getMessage());
+                Log.v("Exception", e.toString());
             }
         }
     }
@@ -526,7 +526,7 @@ public class MainActivity extends AppCompatActivity {
                 "total length",
                 "total surface",
                 "total volume",
-                "mac euclidean distance",
+                "max euclidean distance",
                 "max path distance",
                 "max branch order",
                 "average contraction",
@@ -569,13 +569,20 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
 
+                        String result_str;
+                        int num = 2 ;
                         for (int i = 0; i < 22; i++){
                             TextView tx = contentView.findViewById(id_title[i]);
                             tx.setText(title[i]);
 
                             TextView ct = contentView.findViewById(id_content[i]);
-//                            String result_str = ": " + String.format("%d", (int)result[i]);
-                            String result_str = ": " + String.format("%.2f", (float)result[i]);
+                            if (title[i].substring(0, 6).equals("number")||title[i].substring(0, 6).equals("max br")) {
+                                result_str = ": " + String.format("%d", (int) result[i]);
+                            }
+                            else{
+                                num = Value_Display_Length(result[i]);
+                                result_str = ": " + String.format("%."+String.format("%d", num)+"f", (float)result[i]);
+                            }
                             ct.setText(result_str);
 
                         }
@@ -589,6 +596,20 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private int Value_Display_Length(double value){
+        String s_value = (value + "").split("\\.")[0];
+        int len = s_value.length();
+        if (len>=8){
+            return 0;
+        }
+        else if((8-len)>4){
+            return 4;
+        }
+        else {
+            return 8-len;
+        }
+
+    }
 
     /**
      * add space at the end of string

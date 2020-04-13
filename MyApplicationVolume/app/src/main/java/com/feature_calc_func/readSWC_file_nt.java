@@ -155,7 +155,7 @@ public class readSWC_file_nt {
         for (int i = 0; i < arraylist.size(); i++) {
             NeuronSWC S = new NeuronSWC();
             String current = arraylist.get(i);
-            String[] s = current.split(" ");
+            String[] s = current.split("\\s+");
             if (s[0].substring(0, 1).equals("#")) continue;
             for (int j = 0; j < 7; j++) {
                 if (j == 0)
