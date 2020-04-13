@@ -295,7 +295,13 @@ public class Rawreader{
             image.setData(grayscale_try);
             return image;
 
-        } catch ( Exception e ) {
+        } catch (OutOfMemoryError e){
+
+            System.out.println(e.toString() + "error!!!");
+            return null;
+
+
+        }catch ( Exception e ) {
 //            IJ.error("Error:" + e.toString());
             System.out.println(e.toString() + "error!!!");
             return null;

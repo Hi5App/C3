@@ -70,7 +70,7 @@ public class FileActivity extends AppCompatActivity {
         String message = intent.getStringExtra(MyRenderer.OUTOFMEM_MESSAGE);
         if (message != null){
             Toast toast = Toast.makeText(FileActivity.this, message, Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.CENTER, 0, 0);
+//            toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
         }
         setContentView(R.layout.activity_file);
