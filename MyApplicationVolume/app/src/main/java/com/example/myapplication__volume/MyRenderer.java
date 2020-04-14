@@ -11,8 +11,10 @@ import android.opengl.Matrix;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.basic.MyAnimation;
 import com.example.basic.Image4DSimple;
 import com.example.basic.ImageMarker;
+import com.example.basic.MyAnimation;
 import com.example.basic.XYZ;
 
 import java.io.InputStream;
@@ -39,6 +41,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private MyPattern myPattern;
     private MyAxis myAxis;
     private MyDraw myDraw;
+    private MyAnimation myAnimation;
 
     private Image4DSimple img;
     private ByteBuffer imageBuffer;
@@ -142,6 +145,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
         myAxis = new MyAxis(mz);
         myDraw = new MyDraw();
+        myAnimation = new MyAnimation();
 
 
         float ratio = (float) width / height;
@@ -499,6 +503,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
+    public void Animation(){
+
+    }
+
 
 
     public void rotate(float dx, float dy, float dis){
@@ -617,7 +625,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             position[0] = tobeDeleted.x;
             position[1] = tobeDeleted.y;
             position[2] = tobeDeleted.z;
-            position[4] = 1.0f;
+            position[3] = 1.0f;
 
             float [] positionVolumne = new float[4];
             Matrix.multiplyMV(positionVolumne, 0, finalMatrix, 0, position, 0);
@@ -626,7 +634,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float dx = Math.abs(positionVolumne[0] - x);
             float dy = Math.abs(positionVolumne[1] - y);
 
-            if (dx < 0.01 && dy < 0.01){
+            if (dx < 0.08 && dy < 0.08){
                 MarkerList.remove(i);
                 break;
             }
@@ -1388,12 +1396,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 continue;
             }
             ArrayList<Float> parentLine = eswc.get(parent - 1);
-            eswcDrawed.add((sz[2] - parentLine.get(2)) / sz[2]);
-            eswcDrawed.add((sz[1] - parentLine.get(3)) / sz[1]);
-            eswcDrawed.add((parentLine.get(4)) / sz[0]);
-            eswcDrawed.add((sz[2] - currentLine.get(2)) / sz[2]);
-            eswcDrawed.add((sz[1] - currentLine.get(3)) / sz[1]);
-            eswcDrawed.add((currentLine.get(4)) / sz[0]);
+            eswcDrawed.add((sz[0] - parentLine.get(2)) / sz[0] * mz[0]);
+            eswcDrawed.add((sz[1] - parentLine.get(3)) / sz[1] * mz[1]);
+            eswcDrawed.add((parentLine.get(4)) / sz[2] * mz[2]);
+            eswcDrawed.add((sz[0] - currentLine.get(2)) / sz[0] * mz[0]);
+            eswcDrawed.add((sz[1] - currentLine.get(3)) / sz[1] * mz[1]);
+            eswcDrawed.add((currentLine.get(4)) / sz[2] * mz[2]);
         }
     }
 
@@ -1405,12 +1413,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 continue;
             }
             ArrayList<Float> parentLine = swc.get(parent - 1);
-            swcDrawed.add((sz[2] - parentLine.get(2)) / sz[2]);
-            swcDrawed.add((sz[1] - parentLine.get(3)) / sz[1]);
-            swcDrawed.add((parentLine.get(4)) / sz[0]);
-            swcDrawed.add((sz[2] - currentLine.get(2)) / sz[2]);
-            swcDrawed.add((sz[1] - currentLine.get(3)) / sz[1]);
-            swcDrawed.add((currentLine.get(4)) / sz[0]);
+            swcDrawed.add((sz[0] - parentLine.get(2)) / sz[0] * mz[0]);
+            swcDrawed.add((sz[1] - parentLine.get(3)) / sz[1] * mz[1]);
+            swcDrawed.add((parentLine.get(4)) / sz[2] * mz[2]);
+            swcDrawed.add((sz[0] - currentLine.get(2)) / sz[0] * mz[0]);
+            swcDrawed.add((sz[1] - currentLine.get(3)) / sz[1] * mz[1]);
+            swcDrawed.add((currentLine.get(4)) / sz[2] * mz[2]);
         }
     }
 
@@ -1418,9 +1426,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public void importApo(ArrayList<ArrayList<Float>> apo){
         for (int i = 0; i < apo.size(); i++){
             ArrayList<Float> currentLine = apo.get(i);
-            apoDrawed.add((sz[2] - currentLine.get(5)) / sz[2]);
-            apoDrawed.add((sz[1] - currentLine.get(6)) / sz[1]);
-            apoDrawed.add((currentLine.get(4)) / sz[0]);
+            apoDrawed.add((sz[0] - currentLine.get(5)) / sz[0] * mz[0]);
+            apoDrawed.add((sz[1] - currentLine.get(6)) / sz[1] * mz[1]);
+            apoDrawed.add((currentLine.get(4)) / sz[2] * mz[2]);
         }
     }
 
