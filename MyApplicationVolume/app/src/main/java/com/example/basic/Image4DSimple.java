@@ -318,7 +318,7 @@ public class Image4DSimple {
     }
 
     public int[][][][] getDataCZYX(){
-        int[][][][] czyxdata = new int[(int) this.getSz3()][(int) this.getSz0()][(int) this.getSz1()][(int) this.getSz2()];
+        int[][][][] czyxdata = new int[(int) this.getSz3()][(int) this.getSz2()][(int) this.getSz1()][(int) this.getSz0()];
         int i,j,k,c;
         for (c=0;c<sz3;c++) {
             for (k = 0; k < sz2; k++)

@@ -13,6 +13,7 @@ public class V3dNeuronGDTracing {
     public static NeuronTree v3dneuron_GD_tracing(int[][][][] p4d, int[] sz, LocationSimple p0, Vector<LocationSimple> pp, CurveTracePara  trace_para, double trace_z_thickness)
             throws Exception
     {
+        System.out.println("---------------------------------------in gd------------------------------");
         NeuronTree nt = new NeuronTree();
         if (p4d == null || p4d.length == 0 || sz == null || sz.length == 0 || sz[0]<=0 || sz[1]<=0 || sz[2]<=0 || sz[3]<=0 || trace_para.channo<0 || trace_para.channo>=sz[3])
         {
@@ -41,6 +42,7 @@ public class V3dNeuronGDTracing {
                                                                          Vector<Vector<V_NeuronSWC_unit> > mmUnit) throws Exception
     {
         V_NeuronSWC_list tracedNeuron = new V_NeuronSWC_list();
+        System.out.println("in trace_one_pt_to_N_points_shortestdist-----------");
         // CHECK_DATA_GD_TRACING(tracedNeuron); //check
 
         ParaShortestPath sp_para = new ParaShortestPath();

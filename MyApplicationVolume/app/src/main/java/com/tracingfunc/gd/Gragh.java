@@ -34,9 +34,6 @@ public class Gragh {
                 int a = edge_array.elementAt(i).getKey();
                 int b = edge_array.elementAt(i).getValue();
                 Float w = weights.elementAt(i);
-                if(i<500){
-                    System.out.println("a: "+a+" b: "+b+" w: "+w);
-                }
                 edges[a].add(new Vertex(b,w));
                 edges[b].add(new Vertex(a,w));
             }
@@ -58,47 +55,19 @@ public class Gragh {
         Map<Integer,Vertex> indexVertexMap = new HashMap<Integer, Vertex>();
         while (!q.isEmpty()){
             Vertex x =q.poll();
-//            if(count<500){
-//                System.out.println(count+":");
-//                for (Vertex i : q ){
-//                    System.out.println("index: "+i.getIndex()+" weight: "+i.getPath()+" childweight: "+i.getChildpath());
-//                }
-//                System.out.println("x index: "+x.getIndex()+" x weight: "+x.getPath()+" childweight: "+x.getChildpath());
-//            }
-//            q.poll();
             visited[x.getIndex()] = true;
             for(int i=0; i<edges[x.getIndex()].size(); i++){
                 Vertex y = edges[x.getIndex()].get(i);
-//                if(visited[y.getIndex()])
-//                    continue;
                 if(!visited[y.getIndex()] && dis[y.getIndex()]>y.getPath()+dis[x.getIndex()] && y.getPath()>0){
                     dis[y.getIndex()] = y.getPath()+dis[x.getIndex()];
                     plist[y.getIndex()] = x.getIndex();
                     if(indexVertexMap.get(y.getIndex())!=null){
                         q.remove(indexVertexMap.get(y.getIndex()));
                         indexVertexMap.remove(y.getIndex());
-//                        if(count<500){
-//                            System.out.println("before: "+y.getIndex());
-//                            System.out.println(q.size());
-//                        }
                     }
-//                    float childpath = 0;
-//                    for(int j=0; j<edges[y.getIndex()].size(); j++){
-//                        Vertex z = edges[y.getIndex()].get(j);
-//                        if(visited[z.getIndex()])
-//                            continue;
-//                        if(childpath<z.getPath()){
-//                            childpath += z.getPath();
-//                        }
-//                    }
-//                    childpath /= edges[y.getIndex()].size();
                     Vertex v = new Vertex(y.getIndex(),dis[y.getIndex()]);
                     indexVertexMap.put(y.getIndex(),v);
                     q.add(v);
-//                    if(count<500){
-//                        System.out.println("after: "+dis[y.getIndex()]);
-//                        System.out.println(q.size());
-//                    }
                 }
             }
 
