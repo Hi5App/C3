@@ -249,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
                     button_2.setTextColor(Color.BLACK);
                     buttonDeleteMarker.setTextColor(Color.RED);
                 }else{
-                    buttonDeleteMarker.setTextColor(Color.RED);
+                    buttonDeleteMarker.setTextColor(Color.BLACK);
                 }
             }
         });

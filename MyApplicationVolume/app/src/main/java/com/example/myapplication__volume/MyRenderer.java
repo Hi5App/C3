@@ -534,13 +534,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public void zoom(float f){
 
-        if (cur_scale > 0.2 && cur_scale < 15) {
+        if (cur_scale > 0.2 && cur_scale < 30) {
             Matrix.scaleM(zoomMatrix, 0, f, f, f);
             cur_scale *= f;
         }else if(cur_scale < 0.2 && f > 1){
             Matrix.scaleM(zoomMatrix, 0, f, f, f);
             cur_scale *= f;
-        }else if (cur_scale > 15 && f < 1){
+        }else if (cur_scale > 30 && f < 1){
             Matrix.scaleM(zoomMatrix, 0, f, f, f);
             cur_scale *= f;
         }
@@ -617,7 +617,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             position[0] = tobeDeleted.x;
             position[1] = tobeDeleted.y;
             position[2] = tobeDeleted.z;
-            position[4] = 1.0f;
+            position[3] = 1.0f;
 
             float [] positionVolumne = new float[4];
             Matrix.multiplyMV(positionVolumne, 0, finalMatrix, 0, position, 0);
@@ -626,7 +626,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float dx = Math.abs(positionVolumne[0] - x);
             float dy = Math.abs(positionVolumne[1] - y);
 
-            if (dx < 0.01 && dy < 0.01){
+            if (dx < 0.08 && dy < 0.08){
                 MarkerList.remove(i);
                 break;
             }
