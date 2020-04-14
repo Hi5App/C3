@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
     private static int REQUEST_PERMISSION_CODE = 1;
 
-//    private int Paintmode = 0;
+    //    private int Paintmode = 0;
     private ArrayList<Float> lineDrawed = new ArrayList<Float>();
 
     @Override
@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
 
-        Log.v("filepath-mainactivity",filepath);
+        Log.v("filepath-mainactivity", filepath);
 
         myGLSurfaceView = new MyGLSurfaceView(this);
         setContentView(myGLSurfaceView);
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout ll = new LinearLayout(this);
         HorizontalScrollView hs = new HorizontalScrollView(this);
 
-        this.addContentView(hs, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT , ViewGroup.LayoutParams.WRAP_CONTENT));
+        this.addContentView(hs, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         hs.addView(ll);
 
         final Button button_1 = new Button(this);
@@ -141,42 +141,34 @@ public class MainActivity extends AppCompatActivity {
         button_5.setText("GD_Tracing");
         ll.addView(button_5);
 
-        button_1.setOnClickListener(new Button.OnClickListener()
-        {
-            public void onClick(View v)
-            {
+        button_1.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
                 ifPainting = !ifPainting;
                 ifPoint = false;
-                if(ifPainting) {
+                if (ifPainting) {
                     button_1.setTextColor(Color.RED);
                     button_2.setTextColor(Color.BLACK);
-                }
-                else {
+                } else {
                     button_1.setTextColor(Color.BLACK);
                 }
             }
         });
 
-        button_2.setOnClickListener(new Button.OnClickListener()
-        {
-            public void onClick(View v)
-            {
+        button_2.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
                 ifPoint = !ifPoint;
                 ifPainting = false;
-                if(ifPoint) {
+                if (ifPoint) {
                     button_2.setTextColor(Color.RED);
                     button_1.setTextColor(Color.BLACK);
-                }
-                else {
+                } else {
                     button_2.setTextColor(Color.BLACK);
                 }
             }
         });
 
-        button_3.setOnClickListener(new Button.OnClickListener()
-        {
-            public void onClick(View v)
-            {
+        button_3.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
                 if (!ifImport) {
 
                     ifImport = !ifImport;
@@ -188,10 +180,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        button_4.setOnClickListener(new Button.OnClickListener()
-        {
-            public void onClick(View v)
-            {
+        button_4.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -219,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                         }
-                    },1000); // 延时1秒
+                    }, 1000); // 延时1秒
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -315,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
 //
 //                myrenderer.importEswc(eswc);
 
-                if (ifImport){
+                if (ifImport) {
 
                     String filetype = filePath.substring(filePath.lastIndexOf(".")).toUpperCase();
                     Log.v("load file", filetype);
@@ -399,14 +389,11 @@ public class MainActivity extends AppCompatActivity {
                 }
 
 
-                if (ifAnalyze){
+                if (ifAnalyze) {
                     MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
-                    double [] features = morphologyCalculate.Calculate(uri);
-
-                    displayResult(features);
+                    double[] features = morphologyCalculate.Calculate(uri);
+                    if (features != null) displayResult(features);
                 }
-
-
 
 //
 //                ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
@@ -437,57 +424,57 @@ public class MainActivity extends AppCompatActivity {
 //                fid.write(message.getBytes());
 //                long fileSize = f.length();
             } catch (Exception e) {
-                Toast.makeText(this, " dddddd  "+e, Toast.LENGTH_LONG).show();
+                Toast.makeText(this, " dddddd  ", Toast.LENGTH_SHORT).show();
                 Log.v("MainActivity", "111222");
                 Log.v("Exception", e.toString());
             }
         }
     }
 
-    private void GDTraing() throws Exception{
+    private void GDTraing() throws Exception {
         Image4DSimple img = myrenderer.getImg();
-        if(!img.valid()){
-            Log.v("GDTracing","Please load img first!");
+        if (!img.valid()) {
+            Log.v("GDTracing", "Please load img first!");
         }
         ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
-        if(markers.size()<=1){
-            Log.v("GDTracing","Please get two marker at least!");
+        if (markers.size() <= 1) {
+            Log.v("GDTracing", "Please get two marker at least!");
         }
-        LocationSimple p0 = new LocationSimple(markers.get(0).x,markers.get(0).y,markers.get(0).z);
+        LocationSimple p0 = new LocationSimple(markers.get(0).x, markers.get(0).y, markers.get(0).z);
         Vector<LocationSimple> pp = new Vector<LocationSimple>();
-        for(int i=1; i<markers.size(); i++){
-            LocationSimple p = new LocationSimple(markers.get(i).x,markers.get(i).y,markers.get(i).z);
+        for (int i = 1; i < markers.size(); i++) {
+            LocationSimple p = new LocationSimple(markers.get(i).x, markers.get(i).y, markers.get(i).z);
             pp.add(p);
         }
 
         NeuronTree outswc = new NeuronTree();
 //        long[] sz = new long[]{img.getSz0(),img.getSz1(),img.getSz2(),img.getSz3()};
 
-        int[] sz = new int[]{(int)img.getSz0(), (int)img.getSz1(), (int)img.getSz2(), (int)img.getSz3()};
+        int[] sz = new int[]{(int) img.getSz0(), (int) img.getSz1(), (int) img.getSz2(), (int) img.getSz3()};
         CurveTracePara curveTracePara = new CurveTracePara();
 
 //        curveTracePara.sp_graph_resolution_step = 1;
 //        curveTracePara.imgTH = 20;
 //        Log.v("GDTraing", Double.toString(curveTracePara.imgTH));
 
-        try{
-            outswc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img.getData(),sz,p0,pp,curveTracePara,1.0);
-        }catch (Exception e){
+        try {
+            outswc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img.getData(), sz, p0, pp, curveTracePara, 1.0);
+        } catch (Exception e) {
             Looper.prepare();
-            Toast.makeText(this,e.getMessage(),Toast.LENGTH_LONG).show();
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             Looper.loop();
         }
 
         ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
-        for(int i=0; i<outswc.listNeuron.size(); i++){
+        for (int i = 0; i < outswc.listNeuron.size(); i++) {
             ArrayList<Float> s = new ArrayList<Float>();
-            s.add((float)outswc.listNeuron.get(i).n);
-            s.add((float)outswc.listNeuron.get(i).type);
-            s.add((float)outswc.listNeuron.get(i).x);
-            s.add((float)outswc.listNeuron.get(i).y);
-            s.add((float)outswc.listNeuron.get(i).z);
-            s.add((float)outswc.listNeuron.get(i).radius);
-            s.add((float)outswc.listNeuron.get(i).parent);
+            s.add((float) outswc.listNeuron.get(i).n);
+            s.add((float) outswc.listNeuron.get(i).type);
+            s.add((float) outswc.listNeuron.get(i).x);
+            s.add((float) outswc.listNeuron.get(i).y);
+            s.add((float) outswc.listNeuron.get(i).z);
+            s.add((float) outswc.listNeuron.get(i).radius);
+            s.add((float) outswc.listNeuron.get(i).parent);
             swc.add(s);
 
 //            Log.v("listNeuron ",i + ":" + s.get(0) + ", " + s.get(1) + ", " + s.get(2) + ", " +
@@ -505,11 +492,12 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * display the result of morphology calculate
+     *
      * @param result the features of result
      */
 
     @SuppressLint("DefaultLocale")
-    private void displayResult(final double[] result){
+    private void displayResult(final double[] result) {
 
 
         final String[] title = {
@@ -537,17 +525,17 @@ public class MainActivity extends AppCompatActivity {
                 "Hausdorff dimension"
         };
 
-        final int[] id_title = new int[] { R.id.title0, R.id.title1, R.id.title2, R.id.title3, R.id.title4,
-                                     R.id.title5, R.id.title6, R.id.title7, R.id.title8, R.id.title9,
-                                     R.id.title10, R.id.title11, R.id.title12, R.id.title13, R.id.title14,
-                                     R.id.title15, R.id.title16, R.id.title17, R.id.title18, R.id.title19,
-                                     R.id.title20, R.id.title21};
+        final int[] id_title = new int[]{R.id.title0, R.id.title1, R.id.title2, R.id.title3, R.id.title4,
+                R.id.title5, R.id.title6, R.id.title7, R.id.title8, R.id.title9,
+                R.id.title10, R.id.title11, R.id.title12, R.id.title13, R.id.title14,
+                R.id.title15, R.id.title16, R.id.title17, R.id.title18, R.id.title19,
+                R.id.title20, R.id.title21};
 
-        final int[] id_content = new int[] { R.id.content0, R.id.content1, R.id.content2, R.id.content3, R.id.content4,
-                                       R.id.content5, R.id.content6, R.id.content7, R.id.content8, R.id.content9,
-                                       R.id.content10, R.id.content11, R.id.content12, R.id.content13, R.id.content14,
-                                       R.id.content15, R.id.content16, R.id.content17, R.id.content18, R.id.content19,
-                                       R.id.content20, R.id.content21};
+        final int[] id_content = new int[]{R.id.content0, R.id.content1, R.id.content2, R.id.content3, R.id.content4,
+                R.id.content5, R.id.content6, R.id.content7, R.id.content8, R.id.content9,
+                R.id.content10, R.id.content11, R.id.content12, R.id.content13, R.id.content14,
+                R.id.content15, R.id.content16, R.id.content17, R.id.content18, R.id.content19,
+                R.id.content20, R.id.content21};
 
 
 //        new XPopup.Builder(this)
@@ -563,25 +551,24 @@ public class MainActivity extends AppCompatActivity {
 //                .show();
 
 
-       MDDialog mdDialog = new MDDialog.Builder(this)
+        MDDialog mdDialog = new MDDialog.Builder(this)
                 .setContentView(R.layout.analysis_result)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
                     @Override
                     public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
 
                         String result_str;
-                        int num = 2 ;
-                        for (int i = 0; i < 22; i++){
+                        int num = 2;
+                        for (int i = 0; i < 22; i++) {
                             TextView tx = contentView.findViewById(id_title[i]);
                             tx.setText(title[i]);
 
                             TextView ct = contentView.findViewById(id_content[i]);
-                            if (title[i].substring(0, 6).equals("number")||title[i].substring(0, 6).equals("max br")) {
+                            if (title[i].substring(0, 6).equals("number") || title[i].substring(0, 6).equals("max br")) {
                                 result_str = ": " + String.format("%d", (int) result[i]);
-                            }
-                            else{
+                            } else {
                                 num = Value_Display_Length(result[i]);
-                                result_str = ": " + String.format("%."+String.format("%d", num)+"f", (float)result[i]);
+                                result_str = ": " + String.format("%." + String.format("%d", num) + "f", (float) result[i]);
                             }
                             ct.setText(result_str);
 
@@ -591,40 +578,43 @@ public class MainActivity extends AppCompatActivity {
                 .setTitle("Global features of the neuron")
                 .create();
 
-                mdDialog.show();
-                mdDialog.getWindow().setLayout(1000, 1500);
-
-    }
-
-    private int Value_Display_Length(double value){
-        String s_value = (value + "").split("\\.")[0];
-        int len = s_value.length();
-        if (len>=8){
-            return 0;
-        }
-        else if((8-len)>4){
-            return 4;
-        }
-        else {
-            return 8-len;
-        }
+        mdDialog.show();
+        mdDialog.getWindow().setLayout(1000, 1500);
 
     }
 
     /**
+     * format output of morphology feature's value
+     *
+     * @param value feature's value
+     * @return Number of digits
+     */
+    private int Value_Display_Length(double value) {
+        String s_value = (value + "").split("\\.")[0];
+        int len = s_value.length();
+        if (len >= 8) {
+            return 0;
+        } else if ((8 - len) > 4) {
+            return 4;
+        } else {
+            return 8 - len;
+        }
+    }
+
+    /**
      * add space at the end of string
-     * @param str original string
+     *
+     * @param str   original string
      * @param count num of space
      * @return result string
      */
-    private String AddSpace(String str, int count){
+    private String AddSpace(String str, int count) {
         String result = str;
-        for (int i = 0; i < count; i++){
+        for (int i = 0; i < count; i++) {
             result = result + " ";
         }
         return result;
     }
-
 
 
     private String getPath(Context context, Uri uri) {
@@ -645,10 +635,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    public static String getpath(Context context, Uri uri){
+    public static String getpath(Context context, Uri uri) {
         if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
             if (DocumentsContract.isDocumentUri(context, uri)) {
                 if (isExternalStorageDocument(uri)) {
@@ -657,7 +645,7 @@ public class MainActivity extends AppCompatActivity {
                     final String[] split = docId.split(":");
                     final String type = split[0];
                     if ("primary".equalsIgnoreCase(type)) {
-                        String path = Environment.getExternalStorageDirectory() +  "/" +  split[1];
+                        String path = Environment.getExternalStorageDirectory() + "/" + split[1];
                         return path;
                     }
                 } else if (isDownloadsDocument(uri)) {
@@ -731,7 +719,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         myGLSurfaceView.onPause();
-        Log.v("onPause","start-----");
+        Log.v("onPause", "start-----");
 
     }
 
@@ -740,7 +728,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         myGLSurfaceView.onResume();
         Log.v("Path", filepath);
-        Log.v("onResume","start-----");
+        Log.v("onResume", "start-----");
 
 //        myrenderer = new MyRenderer();
 
@@ -764,7 +752,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     //opengl中的显示区域
     class MyGLSurfaceView extends GLSurfaceView {
         private float X, Y;
@@ -779,7 +766,7 @@ public class MainActivity extends AppCompatActivity {
             ConfigurationInfo info = am.getDeviceConfigurationInfo();
             String v = info.getGlEsVersion(); //判断是否为3.0 ，一般4.4就开始支持3.0版本了。
 
-            Log.v("MainActivity","GLES-version: " + v );
+            Log.v("MainActivity", "GLES-version: " + v);
 
             //设置一下opengl版本；
             setEGLContextClientVersion(3);
@@ -787,7 +774,6 @@ public class MainActivity extends AppCompatActivity {
 //            myrenderer.setLineDrawed(lineDrawed);
 
             setRenderer(myrenderer);
-
 
 
             //调用 onPause 的时候保存EGLContext
@@ -805,17 +791,17 @@ public class MainActivity extends AppCompatActivity {
 
             //ACTION_DOWN不return true，就无触发后面的各个事件
             if (motionEvent != null) {
-                final float normalizedX =toOpenGLCoord(this,motionEvent.getX(),true);
-                final float normalizedY =toOpenGLCoord(this,motionEvent.getY(),false);
+                final float normalizedX = toOpenGLCoord(this, motionEvent.getX(), true);
+                final float normalizedY = toOpenGLCoord(this, motionEvent.getY(), false);
 //
 //                final float normalizedX =motionEvent.getX();
 //                final float normalizedY =motionEvent.getY();
 
-                switch (motionEvent.getActionMasked()){
+                switch (motionEvent.getActionMasked()) {
                     case MotionEvent.ACTION_DOWN:
-                        X=normalizedX;
-                        Y=normalizedY;
-                        if(ifPainting){
+                        X = normalizedX;
+                        Y = normalizedY;
+                        if (ifPainting) {
                             lineDrawed.add(X);
                             lineDrawed.add(Y);
                             lineDrawed.add(-1.0f);
@@ -823,22 +809,22 @@ public class MainActivity extends AppCompatActivity {
                             requestRender();
                             Log.v("actionPointerDown", "Paintinggggggggggg");
                         }
-                        if(ifPoint){
+                        if (ifPoint) {
                             Log.v("actionPointerDown", "Pointinggggggggggg");
                             myrenderer.setMarkerDrawed(X, Y);
-                            Log.v("actionPointerDown", "(" + X + "," + Y +")");
+                            Log.v("actionPointerDown", "(" + X + "," + Y + ")");
                             requestRender();
 
                         }
                         break;
                     case MotionEvent.ACTION_POINTER_DOWN:
-                        isZooming=true;
-                        float x1=toOpenGLCoord(this,motionEvent.getX(1),true);
-                        float y1=toOpenGLCoord(this,motionEvent.getY(1),false);
+                        isZooming = true;
+                        float x1 = toOpenGLCoord(this, motionEvent.getX(1), true);
+                        float y1 = toOpenGLCoord(this, motionEvent.getY(1), false);
 
 //                        float x1=motionEvent.getX(1);
 //                        float y1=motionEvent.getY(1);
-                        dis_start=computeDis(normalizedX,x1,normalizedY,y1);
+                        dis_start = computeDis(normalizedX, x1, normalizedY, y1);
 
                         break;
                     case MotionEvent.ACTION_MOVE:
@@ -876,7 +862,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     case MotionEvent.ACTION_POINTER_UP:
-                        isZooming=false;
+                        isZooming = false;
                         X = normalizedX;
                         Y = normalizedY;
 //                        if (ifPainting){
@@ -891,7 +877,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case MotionEvent.ACTION_UP:
                         isZooming = false;
-                        if (ifPainting){
+                        if (ifPainting) {
                             myrenderer.setIfPainting(false);
                             myrenderer.addLineDrawed(lineDrawed);
                             lineDrawed.clear();
@@ -901,7 +887,8 @@ public class MainActivity extends AppCompatActivity {
 //                            requestRender();
                         }
                         break;
-                    default:break;
+                    default:
+                        break;
                 }
                 return true;
             }
@@ -909,20 +896,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-
         //坐标系变换
-        private float toOpenGLCoord(View view,float value,boolean isWidth){
-            if(isWidth){
+        private float toOpenGLCoord(View view, float value, boolean isWidth) {
+            if (isWidth) {
                 return (value / (float) view.getWidth()) * 2 - 1;
-            }else {
+            } else {
                 return -((value / (float) view.getHeight()) * 2 - 1);
             }
         }
 
 
         //距离计算
-        private double computeDis(float x1,float x2,float y1,float y2){
-            return sqrt(pow((x2-x1),2)+pow((y2-y1),2));
+        private double computeDis(float x1, float x2, float y1, float y2) {
+            return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
         }
     }
 }

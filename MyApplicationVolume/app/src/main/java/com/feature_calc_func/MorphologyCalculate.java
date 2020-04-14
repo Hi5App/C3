@@ -12,7 +12,6 @@ import java.util.Stack;
 import java.util.Vector;
 
 
-
 public class MorphologyCalculate {
     final int VOID = 1000000000;
     final double PI = 3.14159265359f;
@@ -529,16 +528,17 @@ public class MorphologyCalculate {
 //    }
 
 
-    public double[] Calculate(Uri uri){
+    public double[] Calculate(Uri uri) {
         readSWC_file_nt reader = new readSWC_file_nt();
         MorphologyCalculate MC = new MorphologyCalculate();
         //test data
 //        NeuronTree nt = reader.readSWC_file("F:\\XiScience\\SEU\\bishe\\L2_data\\17302_00001.ano.swc");
         NeuronTree nt = reader.readSWC_file(uri);
+        if (nt == null) return null;
         double[] ff = new double[22];
         MC.computeFeature(nt, ff);
 
-        for ( int i = 0; i < ff.length; i++){
+        for (int i = 0; i < ff.length; i++) {
             Log.v("Calculate", Double.toString(ff[i]));
         }
 
