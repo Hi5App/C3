@@ -42,6 +42,14 @@ public class Image4DSimple {
 
     protected int [][][][] data; //顺序为channel,z,y,x
 
+    private boolean b_czyx;
+
+    private void setB_czyx(boolean b){b_czyx = b;}
+
+    public boolean isB_czyx() {
+        return b_czyx;
+    }
+
     public Image4DSimple(){
         data = null;
 
@@ -263,13 +271,14 @@ public class Image4DSimple {
             this.setSz2(sz2);
             this.setSz3(sz3);
             this.setDatatype(dt);
+            this.setB_czyx(true);
             return true;
         }else {
             return false;
         }
     }
 
-    public void setData(int[][][][] data) {
+    private void setData(int[][][][] data) {
         this.data = data;
     }
 
@@ -278,16 +287,24 @@ public class Image4DSimple {
     }
 
     public int[][][][] getDataCXYZ(){
-        int[][][][] cxyzdata = new int[(int) this.getSz3()][(int) this.getSz0()][(int) this.getSz1()][(int) this.getSz2()];
-        int i,j,k,c;
-        for (c=0;c<sz3;c++) {
-            for (k = 0; k < sz2; k++)
-                for (j = 0; j < sz1; j++)
-                    for (i = 0; i < sz0; i++) {
-                        cxyzdata[c][i][j][k] = data[c][k][j][i];
-                    }
+        if(this.isB_czyx()){
+            int[][][][] cxyzdata = new int[(int) this.getSz3()][(int) this.getSz0()][(int) this.getSz1()][(int) this.getSz2()];
+            int i,j,k,c;
+            for (c=0;c<sz3;c++) {
+                for (k = 0; k < sz2; k++)
+                    for (j = 0; j < sz1; j++)
+                        for (i = 0; i < sz0; i++) {
+                            cxyzdata[c][i][j][k] = data[c][k][j][i];
+                        }
+            }
+            this.setDataToNull();
+            this.setData(cxyzdata);
+            this.setB_czyx(false);
+            return this.data;
+        }else {
+            return this.data;
         }
-        return cxyzdata;
+
     }
 
     public boolean setDataFormCZYX(int[][][][] data,long sz0,long sz1,long sz2,long sz3,ImagePixelType dt){
@@ -311,6 +328,7 @@ public class Image4DSimple {
             this.setSz2(sz2);
             this.setSz3(sz3);
             this.setDatatype(dt);
+            this.setB_czyx(true);
             return true;
         }
         else
@@ -318,16 +336,23 @@ public class Image4DSimple {
     }
 
     public int[][][][] getDataCZYX(){
-        int[][][][] czyxdata = new int[(int) this.getSz3()][(int) this.getSz2()][(int) this.getSz1()][(int) this.getSz0()];
-        int i,j,k,c;
-        for (c=0;c<sz3;c++) {
-            for (k = 0; k < sz2; k++)
-                for (j = 0; j < sz1; j++)
-                    for (i = 0; i < sz0; i++) {
-                        czyxdata[c][k][j][i] = data[c][k][j][i];
-                    }
+        if(this.isB_czyx()){
+            return this.data;
+        }else {
+            int[][][][] czyxdata = new int[(int) this.getSz3()][(int) this.getSz2()][(int) this.getSz1()][(int) this.getSz0()];
+            int i,j,k,c;
+            for (c=0;c<sz3;c++) {
+                for (k = 0; k < sz2; k++)
+                    for (j = 0; j < sz1; j++)
+                        for (i = 0; i < sz0; i++) {
+                            czyxdata[c][k][j][i] = data[c][i][j][k];
+                        }
+            }
+            this.setDataToNull();
+            this.setData(czyxdata);
+            this.setB_czyx(true);
+            return this.data;
         }
-        return czyxdata;
     }
 
     public void setDataToNull(){

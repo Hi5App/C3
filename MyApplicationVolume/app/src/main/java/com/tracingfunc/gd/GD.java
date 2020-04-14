@@ -571,16 +571,6 @@ public class GD {
                     int jj = j;
                     j = plist[j];
 
-                    Log.v("j: ", Integer.toString(j));
-                    Log.v("jj: ", Integer.toString(jj));
-                    Log.v("start_nodeind: ", Integer.toString(start_nodeind));
-                    Log.v("mUnit.size(): ", Integer.toString(mUnit.size()));
-
-//                    System.out.println(j);
-//                    System.out.println(jj);
-//                    System.out.println(start_nodeind);
-//                    System.out.println(mUnit.size());
-
                     if (j == jj) {
                         mUnit.clear();
                         System.out.println(s_error = "Error happens: this path is broken because a node has a self-link!");

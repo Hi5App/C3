@@ -29,7 +29,6 @@ public class Gragh {
                 visited[i] = false;
             }
             System.out.println("------------memory2---------------------");
-            System.out.println("edge size: "+edge_array.size()+" w size: "+weights.size());
             for(int i=0; i<edge_array.size(); i++){
                 int a = edge_array.elementAt(i).getKey();
                 int b = edge_array.elementAt(i).getValue();

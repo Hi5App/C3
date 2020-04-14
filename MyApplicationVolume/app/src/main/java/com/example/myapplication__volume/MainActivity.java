@@ -489,7 +489,6 @@ public class MainActivity extends AppCompatActivity {
         NeuronTree outswc = new NeuronTree();
         int[] sz = new int[]{(int) img.getSz0(), (int) img.getSz1(), (int) img.getSz2(), (int) img.getSz3()};
         CurveTracePara curveTracePara = new CurveTracePara();
-        System.out.println("start to gs tracing");
 
 
         try {
