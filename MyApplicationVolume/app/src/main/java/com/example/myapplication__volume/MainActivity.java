@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean ifImport = false;
     private boolean ifAnalyze = false;
     private boolean ifGDTracing = false;
+    private boolean ifDeletingMarker = false;
 
     private int eswc_length;
     //读写权限
@@ -143,34 +144,51 @@ public class MainActivity extends AppCompatActivity {
         button_5.setText("GD_Tracing");
         ll.addView(button_5);
 
-        button_1.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
+        final Button buttonDeleteMarker = new Button(this);
+        buttonDeleteMarker.setText("delete marker");
+        ll.addView(buttonDeleteMarker);
+
+
+        button_1.setOnClickListener(new Button.OnClickListener()
+        {
+            public void onClick(View v)
+            {
                 ifPainting = !ifPainting;
                 ifPoint = false;
-                if (ifPainting) {
+                ifDeletingMarker = false;
+                if(ifPainting) {
                     button_1.setTextColor(Color.RED);
                     button_2.setTextColor(Color.BLACK);
-                } else {
+                    buttonDeleteMarker.setTextColor(Color.BLACK);
+                }
+                else {
                     button_1.setTextColor(Color.BLACK);
                 }
             }
         });
 
-        button_2.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
+        button_2.setOnClickListener(new Button.OnClickListener()
+        {
+            public void onClick(View v)
+            {
                 ifPoint = !ifPoint;
                 ifPainting = false;
-                if (ifPoint) {
+                ifDeletingMarker = false;
+                if(ifPoint) {
                     button_2.setTextColor(Color.RED);
                     button_1.setTextColor(Color.BLACK);
-                } else {
+                    buttonDeleteMarker.setTextColor(Color.BLACK);
+                }
+                else {
                     button_2.setTextColor(Color.BLACK);
                 }
             }
         });
 
-        button_3.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
+        button_3.setOnClickListener(new Button.OnClickListener()
+        {
+            public void onClick(View v)
+            {
                 if (!ifImport) {
 
                     ifImport = !ifImport;
@@ -182,8 +200,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        button_4.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
+        button_4.setOnClickListener(new Button.OnClickListener()
+        {
+            public void onClick(View v)
+            {
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -212,9 +232,24 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                         }
-                    }, 1000); // 延时1秒
+                    },1000); // 延时1秒
                 } catch (Exception e) {
                     e.printStackTrace();
+                }
+            }
+        });
+
+        buttonDeleteMarker.setOnClickListener(new Button.OnClickListener(){
+            public void onClick(View v){
+                ifDeletingMarker = !ifDeletingMarker;
+                ifPainting = false;
+                ifPoint = false;
+                if (ifDeletingMarker){
+                    button_1.setTextColor(Color.BLACK);
+                    button_2.setTextColor(Color.BLACK);
+                    buttonDeleteMarker.setTextColor(Color.RED);
+                }else{
+                    buttonDeleteMarker.setTextColor(Color.RED);
                 }
             }
         });
@@ -828,6 +863,11 @@ public class MainActivity extends AppCompatActivity {
                             Log.v("actionPointerDown", "(" + X + "," + Y + ")");
                             requestRender();
 
+                        }
+                        if (ifDeletingMarker){
+                            Log.v("actionPointerDown", "DeletingMarker");
+                            myrenderer.deleteMarkerDrawed(X, Y);
+                            requestRender();
                         }
                         break;
                     case MotionEvent.ACTION_POINTER_DOWN:

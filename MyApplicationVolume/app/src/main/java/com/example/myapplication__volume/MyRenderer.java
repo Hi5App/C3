@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.example.basic.Image4DSimple;
 import com.example.basic.ImageMarker;
+import com.example.basic.XYZ;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -608,6 +609,29 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
+    // delete the marker drawed from the markerlist
+    public void deleteMarkerDrawed(float x, float y){
+        for (int i = 0; i < MarkerList.size(); i++){
+            ImageMarker tobeDeleted = MarkerList.get(i);
+            float [] position = new float[4];
+            position[0] = tobeDeleted.x;
+            position[1] = tobeDeleted.y;
+            position[2] = tobeDeleted.z;
+            position[4] = 1.0f;
+
+            float [] positionVolumne = new float[4];
+            Matrix.multiplyMV(positionVolumne, 0, finalMatrix, 0, position, 0);
+            devideByw(positionVolumne);
+
+            float dx = Math.abs(positionVolumne[0] - x);
+            float dy = Math.abs(positionVolumne[1] - y);
+
+            if (dx < 0.01 && dy < 0.01){
+                MarkerList.remove(i);
+                break;
+            }
+        }
+    }
 
 
 
@@ -1402,13 +1426,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 
-    class XYZ{
-        private float this_x;
-
-        public XYZ(float x, float y, float z){
-
-        }
-    }
+//    class XYZ{
+//        private float this_x;
+//
+//        public XYZ(float x, float y, float z){
+//
+//        }
+//    }
 
     public Image4DSimple getImg() {
         return img;
