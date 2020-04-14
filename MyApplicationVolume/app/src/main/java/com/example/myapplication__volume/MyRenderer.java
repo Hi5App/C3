@@ -370,7 +370,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
 
 
-        Matrix.translateM(translateMatrix,0,-0.5f * mz[2],-0.5f * mz[1],-0.5f * mz[0]);
+        Matrix.translateM(translateMatrix,0,-0.5f * mz[0],-0.5f * mz[1],-0.5f * mz[2]);
 //        Matrix.multiplyMM(translateMatrix, 0, zoomMatrix, 0, translateMatrix, 0);
         Matrix.setIdentityM(translateAfterMatrix, 0);
 
@@ -786,7 +786,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         float[][] dim = new float[3][2];
         for(int i=0; i<3; i++){
             dim[i][0] = 0;
-            dim[i][1] = sz[2-i] - 1;
+            dim[i][1] = sz[i] - 1;
         }
 
         float[] poc;
@@ -899,7 +899,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         float[][] dim = new float[3][2];
         for(int i=0; i<3; i++){
             dim[i][0]= 0;
-            dim[i][1]= mz[2-i];
+            dim[i][1]= mz[i];
         }
 
         int num = 0;
@@ -1018,9 +1018,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private float[] ModeltoVolume(float[] input){
         float[] result = new float[3];
 
-        result[0] = (1.0f - input[0] / mz[2]) * sz[2];
+        result[0] = (1.0f - input[0] / mz[0]) * sz[0];
         result[1] = (1.0f - input[1] / mz[1]) * sz[1];
-        result[2] = input[2] / mz[0] * sz[0];
+        result[2] = input[2] / mz[2] * sz[2];
 
         return result;
     }
@@ -1028,9 +1028,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private float[] VolumetoModel(float[] input){
         float[] result = new float[3];
 
-        result[0] = (sz[2] - input[0]) / sz[2] * mz[2];
+        result[0] = (sz[0] - input[0]) / sz[0] * mz[0];
         result[1] = (sz[1] - input[1]) / sz[1] * mz[1];
-        result[2] = input[2] / sz[0] * mz[0];
+        result[2] = input[2] / sz[2] * mz[2];
 
         return result;
     }
@@ -1273,7 +1273,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float[][] dim = new float[3][2];
             for(int j = 0; j < 3; j++){
                 dim[j][0] = 0;
-                dim[j][1] = sz[2 - j] - 1;
+                dim[j][1] = sz[j] - 1;
             }
 
             float value = 0;

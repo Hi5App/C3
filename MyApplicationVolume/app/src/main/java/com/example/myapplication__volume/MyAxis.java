@@ -176,29 +176,29 @@ public class MyAxis {
 
         vertexAxis = new float[]{
                 // x axis
-                (1.0f - 0.0f) * mz[2], (1.0f - 0.0f) * mz[1], 0.0f,
-                (1.0f - 1.1f) * mz[2], (1.0f - 0.0f) * mz[1], 0.0f,
+                (1.0f - 0.0f) * mz[0], (1.0f - 0.0f) * mz[1], 0.0f,
+                (1.0f - 1.1f) * mz[0], (1.0f - 0.0f) * mz[1], 0.0f,
 
                 // y axis
-                (1.0f - 0.0f) * mz[2], (1.0f - 0.0f) * mz[1], 0.0f,
-                (1.0f - 0.0f) * mz[2], (1.0f - 1.1f) * mz[1], 0.0f,
+                (1.0f - 0.0f) * mz[0], (1.0f - 0.0f) * mz[1], 0.0f,
+                (1.0f - 0.0f) * mz[0], (1.0f - 1.1f) * mz[1], 0.0f,
 
                 // z axis
-                (1.0f - 0.0f) * mz[2], (1.0f - 0.0f) * mz[1], 0.0f * mz[0],
-                (1.0f - 0.0f) * mz[2], (1.0f - 0.0f) * mz[1], 1.1f * mz[0],
+                (1.0f - 0.0f) * mz[0], (1.0f - 0.0f) * mz[1], 0.0f * mz[2],
+                (1.0f - 0.0f) * mz[0], (1.0f - 0.0f) * mz[1], 1.1f * mz[2],
 
         };
 
         vertexBorder = new float[]{
                 // x axis
                 0f,     0f,     0f,  // num 0
-                0f,     0f,     mz[0],  // num 1
+                0f,     0f,     mz[2],  // num 1
                 0f,     mz[1],  0f,  // num 2
-                0f,     mz[1],  mz[0],  // num 3
-                mz[2],  0f,     0f,  // num 4
-                mz[2],  mz[1],  0f,  // num 5
-                mz[2],  0f,     mz[0],  // num 6
-                mz[2],  mz[1],  mz[0],  // num 7
+                0f,     mz[1],  mz[2],  // num 3
+                mz[0],  0f,     0f,  // num 4
+                mz[0],  mz[1],  0f,  // num 5
+                mz[0],  0f,     mz[2],  // num 6
+                mz[0],  mz[1],  mz[2],  // num 7
         };
 
     }

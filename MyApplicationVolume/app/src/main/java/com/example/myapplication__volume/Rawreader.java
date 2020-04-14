@@ -198,7 +198,8 @@ public class Rawreader{
 //                ifWhole = false;
 //            }
 
-            int[][][][] grayscale_try = new int[nChannel][img_d][img_h][img_w];
+//            int[][][][] grayscale_try = new int[nChannel][img_d][img_h][img_w];
+            int[][][][] grayscale_try = new int[nChannel][img_w][img_h][img_d];
 
 //            int numPerRead = w * h * per;
             int layerOffset = w*h;
@@ -222,7 +223,8 @@ public class Rawreader{
                                 int y = i / w;
                                 int z = (int)layer;
 //                                grayscale[x][y][z] = imtmp[i];
-                                grayscale_try[colorChannel][z][y][x] = imtmp[i];
+//                                grayscale_try[colorChannel][z][y][x] = imtmp[i];
+                                grayscale_try[colorChannel][x][y][z] = imtmp[i];
                             }
 
 //                            cF.setPixels(imtmp);
@@ -240,7 +242,7 @@ public class Rawreader{
                                 int x = i % w;
                                 int y = i / w;
                                 int z = (int) layer;
-                                grayscale_try[colorChannel][z][y][x] = bytes2int(bytmp,isBig);
+                                grayscale_try[colorChannel][x][y][z] = bytes2int(bytmp,isBig);
                             }
 //                            cF16.setPixels(im16);
 //                            imStack.addSlice(null,cF16);
@@ -264,7 +266,7 @@ public class Rawreader{
                                 int x = i % w;
                                 int y = i / w;
                                 int z = (int) layer;
-                                grayscale_try[colorChannel][z][y][x] = bytes2int(bytmp, isBig);
+                                grayscale_try[colorChannel][x][y][z] = bytes2int(bytmp, isBig);
                             }
 //                            cF32.setPixels(im32);
 //                            imStack.addSlice(null,cF32);

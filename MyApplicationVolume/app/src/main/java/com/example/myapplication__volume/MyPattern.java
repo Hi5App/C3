@@ -463,7 +463,7 @@ public class MyPattern{
 
                     "     vec4 tf_value;" +
 //                    "     tf_value = texture(uVolData, vpos.xyz);" +
-                    "     tf_value = texture(uVolData, vec3(1.0 - vpos.x/dim[2], 1.0 - vpos.y/dim[1], vpos.z/dim[0]));" +
+                    "     tf_value = texture(uVolData, vec3(1.0 - vpos.x/dim[0], 1.0 - vpos.y/dim[1], vpos.z/dim[2]));" +
 //                    "     tf_value = texture(uVolData, vec3(1.0 - vpos.x, 1.0 - vpos.y, vpos.z));" +
 //                    "     tf_value = texture(uVolData, vec3(vpos.x, 1.0 - vpos.y, vpos.z));" +
 //                    "     value = vec4(tf_value.x);" +
@@ -681,77 +681,77 @@ public class MyPattern{
 
             vertexPoints = new float[]{
                     // Front face
-                    0.0f,  0.0f,  mz[0],
-                    mz[2], 0.0f,  mz[0],
-                    mz[2], mz[1], mz[0],
-                    0.0f,  mz[1], mz[0],
+                    0.0f,  0.0f,  mz[2],
+                    mz[0], 0.0f,  mz[2],
+                    mz[0], mz[1], mz[2],
+                    0.0f,  mz[1], mz[2],
 
                     // Back face
                     0.0f,  0.0f,  0.0f,
                     0.0f,  mz[1], 0.0f,
-                    mz[2], mz[1], 0.0f,
-                    mz[2], 0.0f,  0.0f,
+                    mz[0], mz[1], 0.0f,
+                    mz[0], 0.0f,  0.0f,
 
                     // Top face
                     0.0f, mz[1],  0.0f,
-                    0.0f, mz[1],  mz[0],
-                    mz[2], mz[1], mz[0],
-                    mz[2], mz[1], 0.0f,
+                    0.0f, mz[1],  mz[2],
+                    mz[0], mz[1], mz[2],
+                    mz[0], mz[1], 0.0f,
 
                     // Bottom face
                     0.0f,  0.0f, 0.0f,
-                    mz[2], 0.0f, 0.0f,
-                    mz[2], 0.0f, mz[0],
-                    0.0f,  0.0f, mz[0],
+                    mz[0], 0.0f, 0.0f,
+                    mz[0], 0.0f, mz[2],
+                    0.0f,  0.0f, mz[2],
 
                     // Right face
-                    mz[2], 0.0f,  0.0f,
-                    mz[2], mz[1], 0.0f,
-                    mz[2], mz[1], mz[0],
-                    mz[2], 0.0f,  mz[0],
+                    mz[0], 0.0f,  0.0f,
+                    mz[0], mz[1], 0.0f,
+                    mz[0], mz[1], mz[2],
+                    mz[0], 0.0f,  mz[2],
 
                     // Left face
                     0.0f, 0.0f,  0.0f,
-                    0.0f, 0.0f,  mz[0],
-                    0.0f, mz[1], mz[0],
+                    0.0f, 0.0f,  mz[2],
+                    0.0f, mz[1], mz[2],
                     0.0f, mz[1], 0.0f,
             };
 
             Colors= new float[]{
                     // Front face
-                    0.0f,  0.0f,  mz[0], 1.0f,
-                    mz[2], 0.0f,  mz[0], 1.0f,
-                    mz[2], mz[1], mz[0], 1.0f,
-                    0.0f,  mz[1], mz[0], 1.0f,
+                    0.0f,  0.0f,  mz[2], 1.0f,
+                    mz[0], 0.0f,  mz[2], 1.0f,
+                    mz[0], mz[1], mz[2], 1.0f,
+                    0.0f,  mz[1], mz[2], 1.0f,
 
                     // Back face
                     0.0f,  0.0f,  0.0f, 1.0f,
                     0.0f,  mz[1], 0.0f, 1.0f,
-                    mz[2], mz[1], 0.0f, 1.0f,
-                    mz[2], 0.0f,  0.0f, 1.0f,
+                    mz[0], mz[1], 0.0f, 1.0f,
+                    mz[0], 0.0f,  0.0f, 1.0f,
 
                     // Top face
                     0.0f, mz[1],  0.0f,  1.0f,
-                    0.0f, mz[1],  mz[0], 1.0f,
-                    mz[2], mz[1], mz[0], 1.0f,
-                    mz[2], mz[1], 0.0f,  1.0f,
+                    0.0f, mz[1],  mz[2], 1.0f,
+                    mz[0], mz[1], mz[2], 1.0f,
+                    mz[0], mz[1], 0.0f,  1.0f,
 
                     // Bottom face
                     0.0f,  0.0f, 0.0f,  1.0f,
-                    mz[2], 0.0f, 0.0f,  1.0f,
-                    mz[2], 0.0f, mz[0], 1.0f,
-                    0.0f,  0.0f, mz[0], 1.0f,
+                    mz[0], 0.0f, 0.0f,  1.0f,
+                    mz[0], 0.0f, mz[2], 1.0f,
+                    0.0f,  0.0f, mz[2], 1.0f,
 
                     // Right face
-                    mz[2], 0.0f,  0.0f,  1.0f,
-                    mz[2], mz[1], 0.0f,  1.0f,
-                    mz[2], mz[1], mz[0], 1.0f,
-                    mz[2], 0.0f,  mz[0], 1.0f,
+                    mz[0], 0.0f,  0.0f,  1.0f,
+                    mz[0], mz[1], 0.0f,  1.0f,
+                    mz[0], mz[1], mz[2], 1.0f,
+                    mz[0], 0.0f,  mz[2], 1.0f,
 
                     // Left face
                     0.0f, 0.0f,  0.0f,  1.0f,
-                    0.0f, 0.0f,  mz[0], 1.0f,
-                    0.0f, mz[1], mz[0], 1.0f,
+                    0.0f, 0.0f,  mz[2], 1.0f,
+                    0.0f, mz[1], mz[2], 1.0f,
                     0.0f, mz[1], 0.0f,  1.0f,
             };
 
@@ -1307,9 +1307,9 @@ public class MyPattern{
                 GLES30.GL_TEXTURE_3D, //纹理类型
                 0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
                 GLES30.GL_RGBA, //图片的格式
-                vol_d,   //宽
+                vol_w,   //宽
                 vol_h,   //高
-                vol_w,   //切片数
+                vol_d,   //切片数
                 0, //纹理边框尺寸();
                 GLES30.GL_RGBA,
                 GLES30.GL_UNSIGNED_BYTE,
@@ -1393,14 +1393,14 @@ public class MyPattern{
 
         for (int z = 0; z < vol_d; ++z){
 
-            int layeroffset = vol_h * vol_d;
+            int layeroffset = vol_h * vol_w;
 
             for (int y = 0; y < vol_h; ++y){
                 for (int x = 0; x < vol_w; x++) {
-                    data_image[(layeroffset * x + vol_d * y + z) * 4] = intToByteArray(grayscale[0][z][y][x])[3];
-                    data_image[(layeroffset * x + vol_d * y + z) * 4 + 1] = intToByteArray(grayscale[0][z][y][x])[3];
-                    data_image[(layeroffset * x + vol_d * y + z) * 4 + 2] = intToByteArray(grayscale[0][z][y][x])[3];
-                    data_image[(layeroffset * x + vol_d * y + z) * 4 + 3] = intToByteArray(1)[3];
+                    data_image[(layeroffset * z + vol_w * y + x) * 4] = intToByteArray(grayscale[0][x][y][z])[3];
+                    data_image[(layeroffset * z + vol_w * y + x) * 4 + 1] = intToByteArray(grayscale[0][x][y][z])[3];
+                    data_image[(layeroffset * z + vol_w * y + x) * 4 + 2] = intToByteArray(grayscale[0][x][y][z])[3];
+                    data_image[(layeroffset * z + vol_w * y + x) * 4 + 3] = intToByteArray(1)[3];
 
 //                    if(grayscale[x][y][z] > 50){
 //                        Log.v("intensity: ", Integer.toString(grayscale[x][y][z]));
@@ -1409,6 +1409,26 @@ public class MyPattern{
                 }
             }
         }
+
+//        for (int z = 0; z < vol_d; ++z){
+//
+//            int layeroffset = vol_h * vol_d;
+//
+//            for (int y = 0; y < vol_h; ++y){
+//                for (int x = 0; x < vol_w; x++) {
+//                    data_image[(layeroffset * x + vol_d * y + z) * 4] = intToByteArray(grayscale[0][z][y][x])[3];
+//                    data_image[(layeroffset * x + vol_d * y + z) * 4 + 1] = intToByteArray(grayscale[0][z][y][x])[3];
+//                    data_image[(layeroffset * x + vol_d * y + z) * 4 + 2] = intToByteArray(grayscale[0][z][y][x])[3];
+//                    data_image[(layeroffset * x + vol_d * y + z) * 4 + 3] = intToByteArray(1)[3];
+//
+////                    if(grayscale[x][y][z] > 50){
+////                        Log.v("intensity: ", Integer.toString(grayscale[x][y][z]));
+////                    }
+//
+//                }
+//            }
+//        }
+
 
         return data_image;
     }
