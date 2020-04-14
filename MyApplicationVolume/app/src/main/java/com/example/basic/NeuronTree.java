@@ -1,5 +1,9 @@
 package com.example.basic;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -136,4 +140,33 @@ public class NeuronTree extends BasicSurfObj {
         }
         return true;
     }
+
+    public boolean writeSWC_file(String swcfile){
+        System.out.println("point num = "+this.listNeuron.size()+", save swc file to "+swcfile);
+        try {
+            File f = new File(swcfile);
+            FileOutputStream fid = new FileOutputStream(f);
+            OutputStreamWriter writer = new OutputStreamWriter(fid, "UTF-8");
+            writer.append("#name \n");
+            writer.append("#comment \n");
+            writer.append("##n,type,x,y,z,radius,parent\n");
+            for(int i=0; i<this.listNeuron.size(); i++){
+                NeuronSWC s = this.listNeuron.get(i);
+                writer.append(Long.toString(s.n)).append(" ").append(Integer.toString(s.type))
+                        .append(" ").append(Double.toString(s.x)).append(" ").append(Double.toString(s.y))
+                        .append(" ").append(Double.toString(s.z)).append(" ").append(Double.toString(s.radius))
+                        .append(" ").append(Long.toString(s.parent)).append("\n");
+            }
+            writer.close();
+            fid.close();
+
+        } catch (IOException e) {
+            System.out.println("saveSWC Exception "+e.getMessage());
+            return false;
+        }
+        System.out.println("done with saving file: "+swcfile);
+        return true;
+    }
+
+
 }

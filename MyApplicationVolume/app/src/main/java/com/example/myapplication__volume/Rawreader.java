@@ -289,12 +289,27 @@ public class Rawreader{
 
             fid.close();
             Image4DSimple image = new Image4DSimple();
-            image.setSz0(sz[0]);
-            image.setSz1(sz[1]);
-            image.setSz2(sz[2]);
-            image.setSz3(sz[3]);
-            image.setDatatype(Image4DSimple.ImagePixelType.values()[datatype]);
-            image.setData(grayscale_try);
+            Image4DSimple.ImagePixelType dt;
+            switch (datatype){
+                case 1:
+                    dt = Image4DSimple.ImagePixelType.V3D_UINT8;
+                    break;
+                case 2:
+                    dt = Image4DSimple.ImagePixelType.V3D_UINT16;
+                    break;
+                case 4:
+                    dt = Image4DSimple.ImagePixelType.V3D_FLOAT32;
+                    break;
+                default:
+                    dt = Image4DSimple.ImagePixelType.V3D_UNKNOWN;
+            }
+            image.setDataFromCXYZ(grayscale_try,sz[0],sz[1],sz[2],sz[3],dt);
+//            image.setSz0(sz[0]);
+//            image.setSz1(sz[1]);
+//            image.setSz2(sz[2]);
+//            image.setSz3(sz[3]);
+//            image.setDatatype(Image4DSimple.ImagePixelType.values()[datatype]);
+//            image.setData(grayscale_try);
             return image;
 
         } catch (OutOfMemoryError e){

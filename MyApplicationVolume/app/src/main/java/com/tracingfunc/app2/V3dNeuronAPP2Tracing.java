@@ -35,14 +35,19 @@ public class V3dNeuronAPP2Tracing {
 
         Image4DSimple p4dImageNew = new Image4DSimple();
 
+        out.println("---------------------1111111-----------------------");
+
         if(p.xc1>=p.xc0 && p.yc1>=p.yc0 && p.zc1>=p.zc0 &&
                 p.xc0>=0 && p.xc1<p.p4dImage.getSz0() &&
                 p.yc0>=0 && p.yc1<p.p4dImage.getSz1() &&
                 p.zc0>=0 && p.zc1<p.p4dImage.getSz2()){
+            out.println("---------------------aaaaaaaaaaaaaa-----------------------");
             if(!p4dImageNew.createImage(p.xc1-p.xc0+1, p.yc1-p.yc0+1, p.zc1-p.zc0+1, 1, p.p4dImage.getDatatype())){
                 return false;
             }
+            out.println("---------------------bbbbbbbbbbb-----------------------");
             if(p.b_brightfiled) {
+                out.println("bright");
                 if (!Image4DSimple.invertedsubvolumecopy(p4dImageNew,
                         p.p4dImage,
                         p.xc0, p.xc1 - p.xc0 + 1,
@@ -53,6 +58,7 @@ public class V3dNeuronAPP2Tracing {
                 }
             }
             else{
+                out.println("no bright");
                 if(!Image4DSimple.subvolumecopy(p4dImageNew,
                         p.p4dImage,
                         p.xc0, p.xc1-p.xc0+1,
@@ -67,6 +73,8 @@ public class V3dNeuronAPP2Tracing {
             out.println("Somehow invalid volume box info is detected. Ignore it. But check your Vaa3D program.");
             return false;
         }
+
+        out.println("---------------------2222222222-----------------------");
 
         int marker_thresh = Integer.MAX_VALUE;
         if(p.b_intensity>0){
@@ -162,6 +170,8 @@ public class V3dNeuronAPP2Tracing {
                 }
             }
         }
+
+        out.println("---------------------333333333333333-----------------------");
 
         //QString outtmpfile = QString(p.p4dImage->getFileName()) + "_extract_tmp000.raw";
         //p4dImageNew->saveImage(qPrintable(outtmpfile));  v3d_msg(QString("save immediate input image to ") + outtmpfile, 0);

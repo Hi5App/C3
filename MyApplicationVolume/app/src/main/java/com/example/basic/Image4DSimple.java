@@ -242,15 +242,55 @@ public class Image4DSimple {
         this.timepacktype = timepacktype;
     }
 
+    public boolean setDataFromCXYZ(int[][][][] data,long sz0,long sz1,long sz2,long sz3,ImagePixelType dt){
+        if(data!= null && sz0>0 && sz1>0 && sz2>0 && sz3>0 &&
+                (dt==V3D_UINT8 || dt==V3D_UINT16 || dt==V3D_FLOAT32)){
+            if(this.getData()!=null){
+                this.setDataToNull();
+            }
+            int[][][][] data4d = new int[(int) sz3][(int) sz2][(int) sz1][(int) sz0];
+            int i,j,k,c;
+            for (c=0;c<sz3;c++) {
+                for (k = 0; k < sz2; k++)
+                    for (j = 0; j < sz1; j++)
+                        for (i = 0; i < sz0; i++) {
+                            data4d[c][k][j][i] = data[c][i][j][k];
+                        }
+            }
+            this.setData(data4d);
+            this.setSz0(sz0);
+            this.setSz1(sz1);
+            this.setSz2(sz2);
+            this.setSz3(sz3);
+            this.setDatatype(dt);
+            return true;
+        }else {
+            return false;
+        }
+    }
+
     public void setData(int[][][][] data) {
         this.data = data;
     }
 
     public boolean setData(Image4DSimple image){
-        return this.setData(image.getData(),image.getSz0(),image.getSz1(),image.getSz2(),image.getSz3(),image.getDatatype());
+        return this.setDataFormCZYX(image.getDataCZYX(),image.getSz0(),image.getSz1(),image.getSz2(),image.getSz3(),image.getDatatype());
     }
 
-    public boolean setData(int[][][][] data,long sz0,long sz1,long sz2,long sz3,ImagePixelType dt){
+    public int[][][][] getDataCXYZ(){
+        int[][][][] cxyzdata = new int[(int) this.getSz3()][(int) this.getSz0()][(int) this.getSz1()][(int) this.getSz2()];
+        int i,j,k,c;
+        for (c=0;c<sz3;c++) {
+            for (k = 0; k < sz2; k++)
+                for (j = 0; j < sz1; j++)
+                    for (i = 0; i < sz0; i++) {
+                        cxyzdata[c][i][j][k] = data[c][k][j][i];
+                    }
+        }
+        return cxyzdata;
+    }
+
+    public boolean setDataFormCZYX(int[][][][] data,long sz0,long sz1,long sz2,long sz3,ImagePixelType dt){
         if(data!= null && data.length>0 && sz0>0 && sz1>0 && sz2>0 && sz3>0 &&
                 (dt==V3D_UINT8 || dt==V3D_UINT16 || dt==V3D_FLOAT32)){
             if(this.getData()!=null){
@@ -275,6 +315,19 @@ public class Image4DSimple {
         }
         else
             return false;
+    }
+
+    public int[][][][] getDataCZYX(){
+        int[][][][] czyxdata = new int[(int) this.getSz3()][(int) this.getSz0()][(int) this.getSz1()][(int) this.getSz2()];
+        int i,j,k,c;
+        for (c=0;c<sz3;c++) {
+            for (k = 0; k < sz2; k++)
+                for (j = 0; j < sz1; j++)
+                    for (i = 0; i < sz0; i++) {
+                        czyxdata[c][k][j][i] = data[c][k][j][i];
+                    }
+        }
+        return czyxdata;
     }
 
     public void setDataToNull(){
@@ -427,12 +480,12 @@ public class Image4DSimple {
 
     public boolean createImage(long mysz0, long mysz1, long mysz2, long mysz3, ImagePixelType mytype) throws Exception{
         if (mysz0<=0 || mysz1<=0 || mysz2<=0 || mysz3<=0) return false; //note that for this sentence I don't change b_error flag
-        if (data.length>0) {data = null; sz0=0; sz1=0; sz2=0;sz3=0; datatype= V3D_UNKNOWN;}
-        data = new int[(int) mysz0][(int) mysz1][(int) mysz2][(int) mysz3];
-        if(data == null || data.length == 0) {
-            b_error = 1;
-            out.println("Fail to allocate memory in My4DImageSimple::createImage();");
-            return false;
+        if (data != null) {data = null; sz0=0; sz1=0; sz2=0;sz3=0; datatype= V3D_UNKNOWN;}
+        try{
+            data = new int[(int) mysz3][(int) mysz2][(int) mysz1][(int) mysz0];
+        }catch (OutOfMemoryError e){
+            this.b_error = 1;
+            throw e;
         }
         sz0=mysz0;
         sz1=mysz1;
@@ -444,6 +497,7 @@ public class Image4DSimple {
 
     public static boolean subvolumecopy(Image4DSimple  dstImg,
                                         Image4DSimple  srcImg, long x0, long szx, long y0, long szy, long z0, long szz, long c0, long szc){
+        out.println("in subvolumecopy--------------------------");
         if (!dstImg.valid() || !srcImg.valid())
         {
             out.println("Invalid parameters for the function subvolumecopy(). 111");
@@ -474,6 +528,7 @@ public class Image4DSimple {
             out.println("Invalid parameters for the function subvolumecopy() 3.");
             return false;
         }
+        out.println("start  copy--------------------------");
 
         int i,j,k,c;
         for (c=0;c<szc;c++)
@@ -483,6 +538,7 @@ public class Image4DSimple {
                     {
                         dstImg.setValue(i,j,k,c,srcImg.getValue(i+x0,j+y0,k+z0,c+c0));
                     }
+        out.println("copy end--------------------------");
         return true;
     }
 
@@ -733,7 +789,7 @@ public class Image4DSimple {
             }
         }
 
-        dstImg.setData(img4d,cur_sz0,cur_sz1,cur_sz2,cur_sz3,srcImg.getDatatype());
+        dstImg.setDataFormCZYX(img4d,cur_sz0,cur_sz1,cur_sz2,cur_sz3,srcImg.getDatatype());
 
         return true;
     }

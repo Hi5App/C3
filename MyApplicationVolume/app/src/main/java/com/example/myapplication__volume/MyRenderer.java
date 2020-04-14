@@ -638,7 +638,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        }
 
 
-        grayscale =  img.getData()[0];
+        grayscale =  img.getDataCXYZ()[0];
 
 //        vol_w = rr.get_w();
 //        vol_h = rr.get_h();

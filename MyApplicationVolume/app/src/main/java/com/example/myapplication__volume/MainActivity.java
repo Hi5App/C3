@@ -43,6 +43,8 @@ import com.example.basic.ImageMarker;
 import com.example.basic.LocationSimple;
 import com.example.basic.NeuronTree;
 import com.feature_calc_func.MorphologyCalculate;
+import com.tracingfunc.app2.ParaAPP2;
+import com.tracingfunc.app2.V3dNeuronAPP2Tracing;
 import com.tracingfunc.gd.CurveTracePara;
 import com.tracingfunc.gd.V3dNeuronGDTracing;
 
@@ -197,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
                     Timer timer = new Timer();
                     timer.schedule(new TimerTask() {
+                        @RequiresApi(api = Build.VERSION_CODES.N)
                         @Override
                         public void run() {
                             /**
@@ -431,6 +434,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void GDTraing() throws Exception {
         Image4DSimple img = myrenderer.getImg();
         if (!img.valid()) {
@@ -448,23 +452,34 @@ public class MainActivity extends AppCompatActivity {
         }
 
         NeuronTree outswc = new NeuronTree();
-//        long[] sz = new long[]{img.getSz0(),img.getSz1(),img.getSz2(),img.getSz3()};
-
         int[] sz = new int[]{(int) img.getSz0(), (int) img.getSz1(), (int) img.getSz2(), (int) img.getSz3()};
         CurveTracePara curveTracePara = new CurveTracePara();
 
-//        curveTracePara.sp_graph_resolution_step = 1;
-//        curveTracePara.imgTH = 20;
-//        Log.v("GDTraing", Double.toString(curveTracePara.imgTH));
 
         try {
-            outswc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img.getData(), sz, p0, pp, curveTracePara, 1.0);
+            outswc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img.getDataCZYX(), sz, p0, pp, curveTracePara, 1.0);
+//            ParaAPP2 p = new ParaAPP2();
+//            p.p4dImage = img;
+//            p.xc0 = p.yc0 = p.zc0 =0;
+//            p.xc1 =(int) p.p4dImage.getSz0()-1;
+//            p.yc1 =(int) p.p4dImage.getSz1()-1;
+//            p.zc1 =(int) p.p4dImage.getSz2()-1;
+//            p.landmarks = new LocationSimple[markers.size()];
+//            for(int i=0;i<markers.size();i++){
+//                p.landmarks[i] = new LocationSimple(markers.get(i).z, markers.get(i).y, markers.get(i).x);
+//            }
+//            System.out.println("---------------start---------------------");
+//            p.outswc_file = "/storage/emulated/0/Download/app2.swc";
+//            V3dNeuronAPP2Tracing.proc_app2(p);
         } catch (Exception e) {
             Looper.prepare();
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             Looper.loop();
         }
-
+//        String filePath = "/storage/emulated/0/Download/3.swc";
+//        outswc.writeSWC_file(filePath);
+//
+//
         ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
         for (int i = 0; i < outswc.listNeuron.size(); i++) {
             ArrayList<Float> s = new ArrayList<Float>();
@@ -476,9 +491,6 @@ public class MainActivity extends AppCompatActivity {
             s.add((float) outswc.listNeuron.get(i).radius);
             s.add((float) outswc.listNeuron.get(i).parent);
             swc.add(s);
-
-//            Log.v("listNeuron ",i + ":" + s.get(0) + ", " + s.get(1) + ", " + s.get(2) + ", " +
-//                                s.get(3)  + ", " + s.get(4)  + ", " + s.get(5)  + ", " + s.get(6));
         }
         Log.v("MainActivity--GD", Integer.toString(swc.size()));
 

@@ -4,26 +4,26 @@ import com.example.basic.Image4DSimple;
 import com.example.basic.LocationSimple;
 
 public class ParaAPP2 {
-    Image4DSimple p4dImage;
-    int xc0, xc1, yc0, yc1, zc0, zc1; //the six bounding box boundaries
-    LocationSimple[] landmarks;
-    boolean is_gsdt;
-    boolean is_coverage_prune;
-    boolean is_break_accept;
-    int  bkg_thresh;
-    double length_thresh;
-    int  cnn_type;
-    int  channel;
-    double SR_ratio;
-    int  b_256cube;
-    boolean b_RadiusFrom2D; //how to estimate radius of each reconstruction node, from 2D plane (for anisotropic case) or 3D (for isotropic case)
-    int b_resample;
-    int b_intensity;
-    boolean b_brightfiled;
-    boolean s2Mode;
+    public Image4DSimple p4dImage;
+    public int xc0, xc1, yc0, yc1, zc0, zc1; //the six bounding box boundaries
+    public LocationSimple[] landmarks;
+    public boolean is_gsdt;
+    public boolean is_coverage_prune;
+    public boolean is_break_accept;
+    public int  bkg_thresh;
+    public double length_thresh;
+    public int  cnn_type;
+    public int  channel;
+    public double SR_ratio;
+    public int  b_256cube;
+    public boolean b_RadiusFrom2D; //how to estimate radius of each reconstruction node, from 2D plane (for anisotropic case) or 3D (for isotropic case)
+    public int b_resample;
+    public int b_intensity;
+    public boolean b_brightfiled;
+    public boolean s2Mode;
 
-    boolean b_menu;
-    String inimg_file, inmarker_file, outswc_file;
+    public boolean b_menu;
+    public String inimg_file, inmarker_file, outswc_file;
 
     public ParaAPP2(){
         p4dImage = null;

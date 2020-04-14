@@ -68,10 +68,16 @@ public class FM {
         int bkg_count = 0;// for process counting
         int bdr_count = 0;// for process counting
         int k,j,i;
+
+        int[][] index = new int[total_sz][3];
+
         for (k=0;k<szz;k++) {
             for (j=0;j<szy;j++)
                 for (i=0;i<szx;i++)
                 {
+                    index[k*szy*szx+j*szx+i][0] = k;
+                    index[k*szy*szx+j*szx+i][1] = j;
+                    index[k*szy*szx+j*szx+i][2] = i;
                     if(inimg[k][j][i]<=bkg_thresh){
                         phi[k][j][i] = inimg[k][j][i];
                         state[k][j][i] = ALIVE;
@@ -142,9 +148,9 @@ public class FM {
                                             phi[k2][j2][i2] = phi[min_ind[0]][min_ind[1]][min_ind[2]] + inimg[k2][j2][i2];
                                             state[k2][j2][i2] = TRIAL;
 
-                                            HeapElem  elem = new HeapElem(new int[]{k2,j2,i2}, phi[k2][j2][i2]);
+                                            HeapElem  elem = new HeapElem(index[k2*szy*szx+j2*szx+i2], phi[k2][j2][i2]);
                                             minHeap.add(elem);
-                                            elems.put(new int[]{k2,j2,i2},elem);
+                                            elems.put(index[k2*szy*szx+j2*szx+i2],elem);
                                             bdr_count++;
 
                                         }
@@ -189,15 +195,15 @@ public class FM {
 
                             if(state[d][h][w] == FAR){
                                 phi[d][h][w] = new_dist;
-                                HeapElem elem = new HeapElem(new int[]{d,h,w},phi[d][h][w]);
+                                HeapElem elem = new HeapElem(index[d*szy*szx+h*szx+w],phi[d][h][w]);
                                 minHeap.add(elem);
-                                elems.put(new int[]{d,h,w},elem);
+                                elems.put(index[d*szy*szx+h*szx+w],elem);
                                 state[d][h][w] = TRIAL;
                             }
                             else if(state[d][h][w] == TRIAL){
                                 if(phi[d][h][w]>new_dist){
                                     phi[d][h][w] = new_dist;
-                                    HeapElem elem = elems.get(new int[]{d,h,w});
+                                    HeapElem elem = elems.get(index[d*szy*szx+h*szx+w]);
                                     minHeap.remove(elem);
                                     elem.value = phi[d][h][w];
                                     minHeap.add(elem);
@@ -222,13 +228,7 @@ public class FM {
         Type[][][] state = new Type[szz][szy][szx];
         Map<int[],int[]> parent = new HashMap<int[], int[]>();
         int k,j,i;
-        for (k=0;k<szz;k++) {
-            for (j=0;j<szy;j++)
-                for (i=0;i<szx;i++)
-                {
-                    parent.put(new int[]{k,j,i},new int[]{k,j,i});
-                }
-        }
+        int[][] index = new int[total_sz][3];
 
         int bkg_count = 0;                          // for process counting
         int bdr_count = 0;                          // for process counting
@@ -236,6 +236,10 @@ public class FM {
             for (j=0;j<szy;j++)
                 for (i=0;i<szx;i++)
                 {
+                    index[k*szy*szx+j*szx+i][0] = k;
+                    index[k*szy*szx+j*szx+i][1] = j;
+                    index[k*szy*szx+j*szx+i][2] = i;
+                    parent.put(index[k*szy*szx+j*szx+i],index[k*szy*szx+j*szx+i]);
                     if(inimg[k][j][i] <= bkg_thresh){
                         phi[k][j][i] = inimg[k][j][i];
                         state[k][j][i] = ALIVE;
@@ -306,12 +310,12 @@ public class FM {
                                             phi[k2][j2][i2] = phi[min_ind[0]][min_ind[1]][min_ind[2]] + inimg[k2][j2][i2];
                                             state[k2][j2][i2] = TRIAL;
 
-                                            parent.remove(new int[]{k2,j2,i2});
-                                            parent.put(new int[]{k2,j2,i2},min_ind);
+                                            parent.remove(index[k2*szy*szx+j2*szx+i2]);
+                                            parent.put(index[k2*szy*szx+j2*szx+i2],index[min_ind[0]*szy*szx+min_ind[1]*szx+min_ind[3]]);
 
-                                            HeapElem  elem = new HeapElem(new int[]{k2,j2,i2}, phi[k2][j2][i2]);
+                                            HeapElem  elem = new HeapElem(index[k2*szy*szx+j2*szx+i2], phi[k2][j2][i2]);
                                             minHeap.add(elem);
-                                            elems.put(new int[]{k2,j2,i2},elem);
+                                            elems.put(index[k2*szy*szx+j2*szx+i2],elem);
                                             bdr_count++;
 
                                         }
@@ -356,24 +360,24 @@ public class FM {
 
                             if(state[d][h][w] == FAR){
                                 phi[d][h][w] = new_dist;
-                                HeapElem elem = new HeapElem(new int[]{d,h,w},phi[d][h][w]);
+                                HeapElem elem = new HeapElem(index[d*szy*szx+h*szx+w],phi[d][h][w]);
                                 minHeap.add(elem);
-                                elems.put(new int[]{d,h,w},elem);
+                                elems.put(index[d*szy*szx+h*szx+w],elem);
                                 state[d][h][w] = TRIAL;
 
-                                parent.remove(new int[]{d,h,w});
-                                parent.put(new int[]{d,h,w},min_index);
+                                parent.remove(index[d*szy*szx+h*szx+w]);
+                                parent.put(index[d*szy*szx+h*szx+w],index[min_index[0]*szy*szx+min_index[1]*szx+min_index[3]]);
                             }
                             else if(state[d][h][w] == TRIAL){
                                 if(phi[d][h][w]>new_dist){
                                     phi[d][h][w] = new_dist;
-                                    HeapElem elem = elems.get(new int[]{d,h,w});
+                                    HeapElem elem = elems.get(index[d*szy*szx+h*szx+w]);
                                     minHeap.remove(elem);
                                     elem.value = phi[d][h][w];
                                     minHeap.add(elem);
 
-                                    parent.remove(new int[]{d,h,w});
-                                    parent.put(new int[]{d,h,w},min_index);
+                                    parent.remove(index[d*szy*szx+h*szx+w]);
+                                    parent.put(index[d*szy*szx+h*szx+w],index[min_index[0]*szy*szx+min_index[1]*szx+min_index[3]]);
                                 }
                             }
                         }
@@ -388,19 +392,19 @@ public class FM {
             for (j=0;j<szy;j++)
                 for (i=0;i<szx;i++)
                 {
-                    int[] p = parent.get(new int[]{k,j,i});
+                    int[] p = parent.get(index[k*szy*szx+j*szx+i]);
                     if(inimg[k][j][i]<bkg_thresh || (p[0]==k && p[1]==j && p[2]==i)){
                         continue;
                     }
                     MyMarker myMarker = new MyMarker(i,j,k);
                     outTree.add(myMarker);
-                    marker_map.put(new int[]{k,j,i},myMarker);
+                    marker_map.put(index[k*szy*szx+j*szx+i],myMarker);
                 }
         }
         for (int m=0; m<outTree.size(); m++){
             MyMarker child_marker = outTree.elementAt(m);
             int[] c = new int[]{(int) child_marker.z,(int) child_marker.y,(int) child_marker.x};
-            MyMarker parent_marker = marker_map.get(parent.get(c));
+            MyMarker parent_marker = marker_map.get(parent.get(index[c[0]*szy*szx+c[1]*szx+c[2]]));
             child_marker.parent = parent_marker;
         }
 
@@ -424,16 +428,21 @@ public class FM {
         double min_int = Integer.MAX_VALUE;
         double li = 10;
 
+        int[][] index = new int[total_sz][3];
+
         int k,j,i;
         for (k=0;k<szz;k++) {
             for (j=0;j<szy;j++)
                 for (i=0;i<szx;i++)
                 {
+                    index[k*szy*szx+j*szx+i][0] = k;
+                    index[k*szy*szx+j*szx+i][1] = j;
+                    index[k*szy*szx+j*szx+i][2] = i;
                     if(inimg[k][j][i]>max_int) max_int = inimg[k][j][i];
                     if(inimg[k][j][i]<min_int) min_int = inimg[k][j][i];
                     phi[k][j][i] = Integer.MAX_VALUE;
                     state[k][j][i] = FAR;
-                    parent.put(new int[]{k,j,i},new int[]{k,j,i});
+                    parent.put(index[k*szy*szx+j*szx+i],index[k*szy*szx+j*szx+i]);
                 }
         }
         max_int -= min_int;
@@ -458,11 +467,11 @@ public class FM {
 
         // init heap
         {
-            int[] img_index = new int[]{rootz,rooty,rootx};
-            int[] prev_index = new int[]{rootz,rooty,rootx};
-            HeapElemX elem = new HeapElemX(img_index,prev_index,phi[rootz][rooty][rootx]);
+//            int[] img_index = new int[]{rootz,rooty,rootx};
+//            int[] prev_index = new int[]{rootz,rooty,rootx};
+            HeapElemX elem = new HeapElemX(index[rootz*szy*szx+rooty*szx+rootx],index[rootz*szy*szx+rooty*szx+rootx],phi[rootz][rooty][rootx]);
             minHeap.add(elem);
-            elems.put(new int[]{rootz,rooty,rootx},elem);
+            elems.put(index[rootz*szy*szx+rooty*szx+rootx],elem);
         }
 
         // loop
@@ -478,8 +487,8 @@ public class FM {
                 prev_index[i] = min_elem.prev_index[i];
             }
 
-            parent.remove(min_index);
-            parent.put(min_index,prev_index);
+            parent.remove(index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]]);
+            parent.put(index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]],index[prev_index[0]*szy*szx+prev_index[1]*szx+prev_index[2]]);
 
             state[min_index[0]][min_index[1]][min_index[2]] = ALIVE;
 
@@ -512,25 +521,27 @@ public class FM {
 
                             if(state[d][h][w] == FAR){
                                 phi[d][h][w] = new_dist;
-                                HeapElemX elem = new HeapElemX(new int[]{d,h,w},prev_index1,phi[d][h][w]);
+                                HeapElemX elem = new HeapElemX(index[d*szy*szx+h*szx+w],index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]],phi[d][h][w]);
                                 minHeap.add(elem);
-                                elems.put(new int[]{d,h,w},elem);
+                                elems.put(index[d*szy*szx+h*szx+w],elem);
                                 state[d][h][w] = TRIAL;
 
-                                parent.remove(new int[]{d,h,w});
-                                parent.put(new int[]{d,h,w},min_index);
+                                parent.remove(index[d*szy*szx+h*szx+w]);
+                                parent.put(index[d*szy*szx+h*szx+w],index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]]);
                             }
                             else if(state[d][h][w] == TRIAL){
                                 if(phi[d][h][w]>new_dist){
                                     phi[d][h][w] = new_dist;
-                                    HeapElemX elem = elems.get(new int[]{d,h,w});
+                                    System.out.println("---------zxdebug0----------------");
+                                    HeapElemX elem = elems.get(index[d*szy*szx+h*szx+w]);
                                     minHeap.remove(elem);
                                     elem.value = phi[d][h][w];
-                                    elem.setPrev_index(prev_index1);
+                                    elem.setPrev_index(index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]]);
                                     minHeap.add(elem);
+                                    System.out.println("---------zxdebug1----------------");
 
-                                    parent.remove(new int[]{d,h,w});
-                                    parent.put(new int[]{d,h,w},min_index);
+                                    parent.remove(index[d*szy*szx+h*szx+w]);
+                                    parent.put(index[d*szy*szx+h*szx+w],index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]]);
                                 }
                             }
                         }
@@ -545,24 +556,25 @@ public class FM {
             for (j=0;j<szy;j++)
                 for (i=0;i<szx;i++)
                 {
-                    int[] p = parent.get(new int[]{k,j,i});
+                    int[] p = parent.get(index[k*szy*szx+j*szx+i]);
                     if(state[k][j][i] != ALIVE){
                         continue;
                     }
                     MyMarker myMarker = new MyMarker(i,j,k);
                     outTree.add(myMarker);
-                    marker_map.put(new int[]{k,j,i},myMarker);
+                    marker_map.put(index[k*szy*szx+j*szx+i],myMarker);
                 }
         }
         for (int m=0; m<outTree.size(); m++){
             MyMarker child_marker = outTree.elementAt(m);
             int[] c = new int[]{(int) child_marker.z,(int) child_marker.y,(int) child_marker.x};
-            MyMarker parent_marker = marker_map.get(parent.get(c));
+            MyMarker parent_marker = marker_map.get(parent.get(index[c[0]*szy*szx+c[1]*szx+c[2]]));
             if(!child_marker.equals(parent_marker))
                 child_marker.parent = parent_marker;
             else
                 child_marker.parent = null;
         }
+        System.out.println("----------------------------convert-----------------------------");
         return true;
     }
 
@@ -579,16 +591,21 @@ public class FM {
         double min_int = Integer.MAX_VALUE;
         double li = 10;
 
+        int[][] index = new int[total_sz][3];
+
         int k,j,i;
         for (k=0;k<szz;k++) {
             for (j=0;j<szy;j++)
                 for (i=0;i<szx;i++)
                 {
+                    index[k*szy*szx+j*szx+i][0] = k;
+                    index[k*szy*szx+j*szx+i][1] = j;
+                    index[k*szy*szx+j*szx+i][2] = i;
                     if(inimg[k][j][i]>max_int) max_int = inimg[k][j][i];
                     if(inimg[k][j][i]<min_int) min_int = inimg[k][j][i];
                     phi[k][j][i] = Integer.MAX_VALUE;
                     state[k][j][i] = FAR;
-                    parent.put(new int[]{k,j,i},new int[]{k,j,i});
+                    parent.put(index[k*szy*szx+j*szx+i],index[k*szy*szx+j*szx+i]);
                 }
         }
         max_int -= min_int;
@@ -613,11 +630,11 @@ public class FM {
 
         // init heap
         {
-            int[] img_index = new int[]{rootz,rooty,rootx};
-            int[] prev_index = new int[]{rootz,rooty,rootx};
-            HeapElemX elem = new HeapElemX(img_index,prev_index,phi[rootz][rooty][rootx]);
+//            int[] img_index = new int[]{rootz,rooty,rootx};
+//            int[] prev_index = new int[]{rootz,rooty,rootx};
+            HeapElemX elem = new HeapElemX(index[rootz*szy*szx+rooty*szx+rootx],index[rootz*szy*szx+rooty*szx+rootx],phi[rootz][rooty][rootx]);
             minHeap.add(elem);
-            elems.put(new int[]{rootz,rooty,rootx},elem);
+            elems.put(index[rootz*szy*szx+rooty*szx+rootx],elem);
         }
 
         // loop
@@ -633,8 +650,8 @@ public class FM {
                 prev_index[i] = min_elem.prev_index[i];
             }
 
-            parent.remove(min_index);
-            parent.put(min_index,prev_index);
+            parent.remove(index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]]);
+            parent.put(index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]],index[prev_index[0]*szy*szx+prev_index[1]*szx+prev_index[2]]);
 
             state[min_index[0]][min_index[1]][min_index[2]] = ALIVE;
 
@@ -667,25 +684,27 @@ public class FM {
 
                             if(state[d][h][w] == FAR){
                                 phi[d][h][w] = new_dist;
-                                HeapElemX elem = new HeapElemX(new int[]{d,h,w},prev_index1,phi[d][h][w]);
+                                HeapElemX elem = new HeapElemX(index[d*szy*szx+h*szx+w],index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]],phi[d][h][w]);
                                 minHeap.add(elem);
-                                elems.put(new int[]{d,h,w},elem);
+                                elems.put(index[d*szy*szx+h*szx+w],elem);
                                 state[d][h][w] = TRIAL;
 
-                                parent.remove(new int[]{d,h,w});
-                                parent.put(new int[]{d,h,w},min_index);
+                                parent.remove(index[d*szy*szx+h*szx+w]);
+                                parent.put(index[d*szy*szx+h*szx+w],index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]]);
                             }
                             else if(state[d][h][w] == TRIAL){
                                 if(phi[d][h][w]>new_dist){
                                     phi[d][h][w] = new_dist;
-                                    HeapElemX elem = elems.get(new int[]{d,h,w});
+                                    System.out.println("---------zxdebug0----------------");
+                                    HeapElemX elem = elems.get(index[d*szy*szx+h*szx+w]);
                                     minHeap.remove(elem);
                                     elem.value = phi[d][h][w];
-                                    elem.setPrev_index(prev_index1);
+                                    elem.setPrev_index(index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]]);
                                     minHeap.add(elem);
+                                    System.out.println("---------zxdebug1----------------");
 
-                                    parent.remove(new int[]{d,h,w});
-                                    parent.put(new int[]{d,h,w},min_index);
+                                    parent.remove(index[d*szy*szx+h*szx+w]);
+                                    parent.put(index[d*szy*szx+h*szx+w],index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]]);
                                 }
                             }
                         }
@@ -700,24 +719,25 @@ public class FM {
             for (j=0;j<szy;j++)
                 for (i=0;i<szx;i++)
                 {
-                    int[] p = parent.get(new int[]{k,j,i});
+                    int[] p = parent.get(index[k*szy*szx+j*szx+i]);
                     if(state[k][j][i] != ALIVE){
                         continue;
                     }
                     MyMarker myMarker = new MyMarker(i,j,k);
                     outTree.add(myMarker);
-                    marker_map.put(new int[]{k,j,i},myMarker);
+                    marker_map.put(index[k*szy*szx+j*szx+i],myMarker);
                 }
         }
         for (int m=0; m<outTree.size(); m++){
             MyMarker child_marker = outTree.elementAt(m);
             int[] c = new int[]{(int) child_marker.z,(int) child_marker.y,(int) child_marker.x};
-            MyMarker parent_marker = marker_map.get(parent.get(c));
+            MyMarker parent_marker = marker_map.get(parent.get(index[c[0]*szy*szx+c[1]*szx+c[2]]));
             if(!child_marker.equals(parent_marker))
                 child_marker.parent = parent_marker;
             else
                 child_marker.parent = null;
         }
+        System.out.println("----------------------------convert-----------------------------");
         return true;
     }
 
@@ -927,16 +947,21 @@ public class FM {
         double min_int = Integer.MAX_VALUE;
         double li = 10;
 
+        int[][] index = new int[total_sz][3];
+
         int k,j,i;
         for (k=0;k<szz;k++) {
             for (j=0;j<szy;j++)
                 for (i=0;i<szx;i++)
                 {
+                    index[k*szy*szx+j*szx+i][0] = k;
+                    index[k*szy*szx+j*szx+i][1] = j;
+                    index[k*szy*szx+j*szx+i][2] = i;
                     if(inimg[k][j][i]>max_int) max_int = inimg[k][j][i];
                     if(inimg[k][j][i]<min_int) min_int = inimg[k][j][i];
                     phi[k][j][i] = Integer.MAX_VALUE;
                     state[k][j][i] = FAR;
-                    parent.put(new int[]{k,j,i},new int[]{k,j,i});
+                    parent.put(index[k*szy*szx+j*szx+i],index[k*szy*szx+j*szx+i]);
                 }
         }
         max_int -= min_int;
@@ -958,7 +983,7 @@ public class FM {
             target_index[i][1] = (int) (target.elementAt(i).y + 0.5);
             target_index[i][2] = (int) (target.elementAt(i).x + 0.5);
         }
-        System.out.println("---------------------ddddddddd-----------------------");
+        System.out.println("----------------ddddddd---------------------------");
 
         PriorityQueue<HeapElemX> minHeap = new PriorityQueue<HeapElemX>(total_sz, new Comparator<HeapElemX>() {
             @Override
@@ -968,18 +993,18 @@ public class FM {
         });
         Map<int[],HeapElemX> elems = new HashMap<int[], HeapElemX>();
 
-        System.out.println("--------------init heap-----------------");
+        System.out.println("------------------------------eeeeeeeeeeeeeeeeeeee----------------------");
 
         // init heap
         {
-            int[] img_index = new int[]{rootz,rooty,rootx};
-            int[] prev_index = new int[]{rootz,rooty,rootx};
-            HeapElemX elem = new HeapElemX(img_index,prev_index,phi[rootz][rooty][rootx]);
+//            int[] img_index = new int[]{rootz,rooty,rootx};
+//            int[] prev_index = new int[]{rootz,rooty,rootx};
+            HeapElemX elem = new HeapElemX(index[rootz*szy*szx+rooty*szx+rootx],index[rootz*szy*szx+rooty*szx+rootx],phi[rootz][rooty][rootx]);
             minHeap.add(elem);
-            elems.put(new int[]{rootz,rooty,rootx},elem);
+            elems.put(index[rootz*szy*szx+rooty*szx+rootx],elem);
         }
 
-        System.out.println("------------------loop----------------------");
+        System.out.println("-----------------------init------------------------");
 
         // loop
         int time_counter = 1;
@@ -990,7 +1015,8 @@ public class FM {
             if(process2 - process1>=1){
                 boolean is_break = true;
                 for(int t=0; t<target_index.length; t++){
-                    int[] ptind = parent.get(target_index[t]);
+                    i = target_index[t][2]; j = target_index[t][1]; k = target_index[t][0];
+                    int[] ptind = parent.get(index[k*szy*szx+j*szx+i]);
                     if(ptind[0]==target_index[t][0] &&
                             ptind[1]==target_index[t][2] &&
                             ptind[1]==target_index[t][2] &&
@@ -1003,6 +1029,8 @@ public class FM {
                     break;
             }
 
+            System.out.println(time_counter);
+
             HeapElemX min_elem = minHeap.poll();
             elems.remove(min_elem.img_index);
 
@@ -1013,8 +1041,8 @@ public class FM {
                 prev_index[i] = min_elem.prev_index[i];
             }
 
-            parent.remove(min_index);
-            parent.put(min_index,prev_index);
+            parent.remove(index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]]);
+            parent.put(index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]],index[prev_index[0]*szy*szx+prev_index[1]*szx+prev_index[2]]);
 
             state[min_index[0]][min_index[1]][min_index[2]] = ALIVE;
 
@@ -1040,25 +1068,27 @@ public class FM {
 
                             if(state[d][h][w] == FAR){
                                 phi[d][h][w] = new_dist;
-                                HeapElemX elem = new HeapElemX(new int[]{d,h,w},prev_index1,phi[d][h][w]);
+                                HeapElemX elem = new HeapElemX(index[d*szy*szx+h*szx+w],index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]],phi[d][h][w]);
                                 minHeap.add(elem);
-                                elems.put(new int[]{d,h,w},elem);
+                                elems.put(index[d*szy*szx+h*szx+w],elem);
                                 state[d][h][w] = TRIAL;
 
-                                parent.remove(new int[]{d,h,w});
-                                parent.put(new int[]{d,h,w},min_index);
+                                parent.remove(index[d*szy*szx+h*szx+w]);
+                                parent.put(index[d*szy*szx+h*szx+w],index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]]);
                             }
                             else if(state[d][h][w] == TRIAL){
                                 if(phi[d][h][w]>new_dist){
                                     phi[d][h][w] = new_dist;
-                                    HeapElemX elem = elems.get(new int[]{d,h,w});
+                                    System.out.println("---------zxdebug0----------------");
+                                    HeapElemX elem = elems.get(index[d*szy*szx+h*szx+w]);
                                     minHeap.remove(elem);
                                     elem.value = phi[d][h][w];
-                                    elem.setPrev_index(prev_index1);
+                                    elem.setPrev_index(index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]]);
                                     minHeap.add(elem);
+                                    System.out.println("---------zxdebug1----------------");
 
-                                    parent.remove(new int[]{d,h,w});
-                                    parent.put(new int[]{d,h,w},min_index);
+                                    parent.remove(index[d*szy*szx+h*szx+w]);
+                                    parent.put(index[d*szy*szx+h*szx+w],index[min_index[0]*szy*szx+min_index[1]*szx+min_index[2]]);
                                 }
                             }
                         }
@@ -1067,31 +1097,33 @@ public class FM {
                 }
             }
         }
-        System.out.println("----------------------convert-----------------------");
+
+        System.out.println("--------------------------loop------------------------------");
 
         Map<int[],MyMarker> marker_map = new HashMap<int[], MyMarker>();
         for (k=0;k<szz;k++) {
             for (j=0;j<szy;j++)
                 for (i=0;i<szx;i++)
                 {
-                    int[] p = parent.get(new int[]{k,j,i});
+                    int[] p = parent.get(index[k*szy*szx+j*szx+i]);
                     if(state[k][j][i] != ALIVE){
                         continue;
                     }
                     MyMarker myMarker = new MyMarker(i,j,k);
                     outTree.add(myMarker);
-                    marker_map.put(new int[]{k,j,i},myMarker);
+                    marker_map.put(index[k*szy*szx+j*szx+i],myMarker);
                 }
         }
         for (int m=0; m<outTree.size(); m++){
             MyMarker child_marker = outTree.elementAt(m);
             int[] c = new int[]{(int) child_marker.z,(int) child_marker.y,(int) child_marker.x};
-            MyMarker parent_marker = marker_map.get(parent.get(c));
+            MyMarker parent_marker = marker_map.get(parent.get(index[c[0]*szy*szx+c[1]*szx+c[2]]));
             if(!child_marker.equals(parent_marker))
                 child_marker.parent = parent_marker;
             else
                 child_marker.parent = null;
         }
+        System.out.println("----------------------------convert-----------------------------");
         return true;
     }
 

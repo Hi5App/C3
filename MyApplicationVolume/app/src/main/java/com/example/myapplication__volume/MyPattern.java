@@ -1387,7 +1387,7 @@ public class MyPattern{
         Log.v("vol_h", Integer.toString(vol_h));
         Log.v("vol_d", Integer.toString(vol_d));
 
-        int [][][][] grayscale = image.getData();
+        int [][][][] grayscale = image.getDataCXYZ();
 
         byte[] data_image = new byte[vol_w * vol_h * vol_d * 4];
 

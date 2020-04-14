@@ -96,7 +96,6 @@ public class GD {
         int background_select = para.background_select;
 
         int dowsample_method = para.downsample_method; //0 for average, 1 for max
-//        min_step = 1;
 
         if (min_step<1)       min_step =1;
         if (smooth_winsize<1) smooth_winsize =1;
@@ -107,6 +106,8 @@ public class GD {
         int nx=((xmax-xmin)/min_step)+1, 	xstep=min_step,
                 ny=((ymax-ymin)/min_step)+1, 	ystep=min_step,
                 nz=((zmax-zmin)/min_step)+1, 	zstep=min_step;
+
+//        edge_select = 1;
 
         int num_edge_table = (edge_select==0)? 3:13; // exclude/include diagonal-edge
 
@@ -282,13 +283,14 @@ public class GD {
 
                             Float w =(float) edge_weight_func(it, va,vb, imgMax);
 
-                            if(m<500){
-                                System.out.println("it: "+it+" i0: "+edge_table[it].i0+" j0: "+edge_table[it].j0+
-                                        " k0: "+edge_table[it].k0+" i1: "+edge_table[it].i1+" j1: "+edge_table[it].j1+
-                                        " k1: "+edge_table[it].k1+" dist: "+edge_table[it].dist);
-                                System.out.println("ii: "+ii+" jj: "+jj+" kk: "+kk+" ii1: "+ii1+" jj1: "+jj1+" kk1: "+kk1);
-                                System.out.println("node_a: "+node_a+" node_b: "+node_b+" va: "+va+" vb: "+vb+" w: "+w);
-                            }
+//                            if(va>30||vb>30)
+//                            {
+//                                System.out.println("it: "+it+" i0: "+edge_table[it].i0+" j0: "+edge_table[it].j0+
+//                                        " k0: "+edge_table[it].k0+" i1: "+edge_table[it].i1+" j1: "+edge_table[it].j1+
+//                                        " k1: "+edge_table[it].k1+" dist: "+edge_table[it].dist);
+//                                System.out.println("ii: "+ii+" jj: "+jj+" kk: "+kk+" ii1: "+ii1+" jj1: "+jj1+" kk1: "+kk1);
+//                                System.out.println("node_a: "+node_a+" node_b: "+node_b+" va: "+va+" vb: "+vb+" w: "+w);
+//                            }
 
                             //now try to use favorite direction if literally specified. by PHC 20170606
                             if (para.b_use_favorite_direction)
@@ -400,41 +402,6 @@ public class GD {
         V_NeuronSWC_unit cc = new V_NeuronSWC_unit();
         Vector<V_NeuronSWC_unit> mUnit = new Vector<V_NeuronSWC_unit>();
 
-//        if(code_select == 0){
-//            mUnit.clear();
-//            for(i=plist.size()-1; i>0; i--){
-//                j = plist.get(i);
-//                cc.z = (double) (j / (nx * ny));
-//                cc.y = (double) ((j % (nx * ny)) / nx);//(j - (int) (cc.z) * nx * ny) / nx;
-//                cc.x = (double) ((j % (nx * ny)) % nx);//(j - (int) (cc.z) * nx * ny - (int) (cc.y) * nx);((j % (nx * ny)) % nx);
-//                cc.x = xmin + (cc.x) * xstep;
-//                cc.y = ymin + (cc.y) * ystep;
-//                cc.z = zmin + (cc.z) * zstep;
-//
-//                cc.n = nexist + 1 + mUnit.size();
-//                cc.parent = cc.n + 1;
-//                mUnit.add(cc.clone());
-//            }
-//            cc.x = x0;
-//            cc.y = y0;
-//            cc.z = z0;
-//            cc.n = nexist + 1 + mUnit.size();
-//            cc.parent = -1;
-//            mUnit.add(cc.clone());
-//            System.out.printf("[start: x y z] %d: %g %g %g \n", start_nodeind, cc.x, cc.y, cc.z);
-//
-//            nexist += mUnit.size();
-//
-//            if (mUnit.size() >= 2) {
-//                Vector<V_NeuronSWC_unit> mUnit_tmp = new Vector<V_NeuronSWC_unit>();
-//                mUnit_tmp.clear();
-//                for (k = 0; k < mUnit.size(); k++) {
-//                    mUnit_tmp.add(mUnit.elementAt(k).clone());
-//                }
-//                mmUnit.add(mUnit_tmp);
-//            }
-//            return s_error;
-//        }
 
         if (n_end_nodes==0) // trace from start-.each possible node
         {
