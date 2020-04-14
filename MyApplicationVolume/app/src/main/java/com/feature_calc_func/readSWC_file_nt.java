@@ -191,7 +191,7 @@ public class readSWC_file_nt {
                 }
             } catch (NumberFormatException e) {
                 Toast.makeText(MainActivity.getContext(), "failed, invalid swc/eswc file", Toast.LENGTH_LONG).show();
-                return nt;
+                return null;
             }
             // if (! listNeuron.contains(S)) // 081024
             {
