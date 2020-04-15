@@ -74,8 +74,13 @@ public class MainActivity extends AppCompatActivity {
     private boolean ifAnalyze = false;
     private boolean ifGDTracing = false;
     private boolean ifDeletingMarker = false;
+    private boolean ifDeletingLine = false;
+
     private boolean ifAnimation = false;
     private Button buttonAnimation;
+
+
+
 
     private int eswc_length;
     //读写权限
@@ -150,9 +155,15 @@ public class MainActivity extends AppCompatActivity {
         buttonDeleteMarker.setText("delete marker");
         ll.addView(buttonDeleteMarker);
 
+
         buttonAnimation = new Button(this);
         buttonAnimation.setText("Animation");
         ll.addView(buttonAnimation);
+
+
+        final Button buttonDeleteLine = new Button(this);
+        buttonDeleteLine.setText("delete line");
+        ll.addView(buttonDeleteLine);
 
 
         button_1.setOnClickListener(new Button.OnClickListener()
@@ -162,10 +173,12 @@ public class MainActivity extends AppCompatActivity {
                 ifPainting = !ifPainting;
                 ifPoint = false;
                 ifDeletingMarker = false;
+                ifDeletingLine = false;
                 if(ifPainting) {
                     button_1.setTextColor(Color.RED);
                     button_2.setTextColor(Color.BLACK);
                     buttonDeleteMarker.setTextColor(Color.BLACK);
+                    buttonDeleteLine.setTextColor(Color.BLACK);
                 }
                 else {
                     button_1.setTextColor(Color.BLACK);
@@ -180,10 +193,12 @@ public class MainActivity extends AppCompatActivity {
                 ifPoint = !ifPoint;
                 ifPainting = false;
                 ifDeletingMarker = false;
+                ifDeletingLine = false;
                 if(ifPoint) {
                     button_2.setTextColor(Color.RED);
                     button_1.setTextColor(Color.BLACK);
                     buttonDeleteMarker.setTextColor(Color.BLACK);
+                    buttonDeleteLine.setTextColor(Color.BLACK);
                 }
                 else {
                     button_2.setTextColor(Color.BLACK);
@@ -250,32 +265,52 @@ public class MainActivity extends AppCompatActivity {
                 ifDeletingMarker = !ifDeletingMarker;
                 ifPainting = false;
                 ifPoint = false;
+                ifDeletingLine = false;
                 if (ifDeletingMarker){
                     button_1.setTextColor(Color.BLACK);
                     button_2.setTextColor(Color.BLACK);
                     buttonDeleteMarker.setTextColor(Color.RED);
+                    buttonDeleteLine.setTextColor(Color.BLACK);
                 }else{
                     buttonDeleteMarker.setTextColor(Color.BLACK);
                 }
             }
         });
 
-        buttonAnimation.setOnClickListener(new Button.OnClickListener(){
-            public void onClick(View v){
+
+        buttonAnimation.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
                 ifAnimation = !ifAnimation;
                 ifPainting = false;
                 ifPoint = false;
-                if (ifAnimation){
+                if (ifAnimation) {
                     button_1.setTextColor(Color.BLACK);
                     button_2.setTextColor(Color.BLACK);
                     buttonDeleteMarker.setTextColor(Color.BLACK);
                     buttonAnimation.setTextColor(Color.RED);
                     myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
                     myrenderer.setAnimation();
-                }else{
+                } else {
                     buttonAnimation.setTextColor(Color.BLACK);
                     myrenderer.setAnimation();
                     myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+                }
+            }
+        });
+
+        buttonDeleteLine.setOnClickListener(new Button.OnClickListener(){
+            public void onClick(View v){
+                ifDeletingLine = !ifDeletingLine;
+                ifPainting = false;
+                ifPoint = false;
+                ifDeletingMarker = false;
+                if (ifDeletingLine){
+                    button_1.setTextColor(Color.BLACK);
+                    button_2.setTextColor(Color.BLACK);
+                    buttonDeleteMarker.setTextColor(Color.BLACK);
+                    buttonDeleteLine.setTextColor(Color.RED);
+                }else{
+                    buttonDeleteLine.setTextColor(Color.BLACK);
                 }
             }
         });
@@ -894,6 +929,13 @@ public class MainActivity extends AppCompatActivity {
                             myrenderer.deleteMarkerDrawed(X, Y);
                             requestRender();
                         }
+                        if (ifDeletingLine){
+                            lineDrawed.add(X);
+                            lineDrawed.add(Y);
+                            lineDrawed.add(-1.0f);
+                            myrenderer.setIfPainting(true);
+                            requestRender();
+                        }
                         break;
                     case MotionEvent.ACTION_POINTER_DOWN:
                         isZooming = true;
@@ -906,7 +948,7 @@ public class MainActivity extends AppCompatActivity {
 
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        if (!ifPainting) {
+                        if (!ifPainting && !ifDeletingLine) {
                             if (isZooming) {
                                 float x2 = toOpenGLCoord(this, motionEvent.getX(1), true);
                                 float y2 = toOpenGLCoord(this, motionEvent.getY(1), false);
@@ -963,6 +1005,13 @@ public class MainActivity extends AppCompatActivity {
 
                             requestRender();
 //                            requestRender();
+                        }
+                        if (ifDeletingLine){
+                            myrenderer.setIfPainting(false);
+                            myrenderer.deleteLine(lineDrawed);
+                            lineDrawed.clear();
+                            myrenderer.setLineDrawed(lineDrawed);
+                            requestRender();
                         }
                         break;
                     default:

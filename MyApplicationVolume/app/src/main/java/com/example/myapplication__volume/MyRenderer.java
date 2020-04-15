@@ -1411,6 +1411,54 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             Log.v("draw line:::::", "nulllllllllllllllllll");
     }
 
+    public void deleteLine(ArrayList<Float> line){
+        for (int i = 0; i < line.size() / 3 - 1; i++){
+            float x1 = line.get(i * 3);
+            float y1 = line.get(i * 3 + 1);
+            float x2 = line.get(i * 3 + 3);
+            float y2 = line.get(i * 3 + 4);
+            for (int j = 0; j < lineDrawed.size(); j++){
+                ArrayList<Float> curLine = lineDrawed.get(j);
+                for (int k = 0; k < curLine.size() / 3 - 1; k++){
+                    float [] p1 = {curLine.get(k * 3), curLine.get(k * 3 + 1), curLine.get(k * 3 + 2), 1.0f};
+                    float [] p2 = {curLine.get(k * 3 + 3), curLine.get(k * 3 + 4), curLine.get(k * 3 + 5), 1.0f};
+                    float [] p1Volumne = new float[4];
+                    float [] p2Volumne = new float[4];
+                    Matrix.multiplyMV(p1Volumne, 0, finalMatrix, 0, p1, 0);
+                    Matrix.multiplyMV(p2Volumne, 0, finalMatrix, 0, p2, 0);
+                    devideByw(p1Volumne);
+                    devideByw(p2Volumne);
+                    float x3 = p1Volumne[0];
+                    float y3 = p1Volumne[1];
+                    float x4 = p2Volumne[0];
+                    float y4 = p2Volumne[1];
+                    float temp = 0.000001f;
+//                    if( Math.abs((x2-x1)*(y4-y3)-(x4-x3)*(y2-y1))<temp ){
+//                        if( (x1==x3)&&((y3-y1)*(y3-y2)<=temp||(y4-y1)*(y4-y2)<=temp) ){
+//                            lineDrawed.remove(j);
+//                            break;
+//                        }
+//                    }
+//                    else{
+                    double m=(x2-x1)*(y3-y1)-(x3-x1)*(y2-y1);
+                    double n=(x2-x1)*(y4-y1)-(x4-x1)*(y2-y1);
+                    double p=(x4-x3)*(y1-y3)-(x1-x3)*(y4-y3);
+                    double q=(x4-x3)*(y2-y3)-(x2-x3)*(y4-y3);
+
+                    if( (Math.max(x1, x2) >= Math.min(x3, x4))
+                            && (Math.max(x3, x4) >= Math.min(x1, x2))
+                            && (Math.max(y1, y2) >= Math.min(y3, y4))
+                            && (Math.max(y3, y4) >= Math.min(y1, y2))
+                            && ((m * n) <= 0) && (p * q <= 0)){
+                        lineDrawed.remove(j);
+                        break;
+                    }
+//                    }
+                }
+            }
+        }
+    }
+
 
 
     public void importEswc(ArrayList<ArrayList<Float>> eswc){
