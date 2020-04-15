@@ -32,8 +32,8 @@ public class SwcReader {
             }
             br.close();
             isr.close();
-            for (int i = 0; i < arraylist.size() - 2; i++){
-                String current = arraylist.get(i+2);
+            for (int i = 0; i < arraylist.size() - 3; i++){
+                String current = arraylist.get(i+3);
                 String [] s = current.split(" ");
                 ArrayList<Float> cur_line = new ArrayList<Float>();
                 for (int j = 0; j < 7; j++){
@@ -104,8 +104,8 @@ public class SwcReader {
             }
             br.close();
             isr.close();
-            for (int i = 0; i < arraylist.size() - 2; i++){
-                String current = arraylist.get(i+2);
+            for (int i = 0; i < arraylist.size() - 3; i++){
+                String current = arraylist.get(i+3);
                 String [] s = current.split(" ");
                 ArrayList<Float> cur_line = new ArrayList<Float>();
                 for (int j = 0; j < 7; j++){

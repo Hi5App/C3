@@ -76,6 +76,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private final float[] modelMatrix = new float[16];
     private final float[] RTMatrix = new float[16];
     private final float[] ZRTMatrix = new float[16];
+    private float[] ArotationMatrix = new float[16];
+
 
     private final float[] zoomMatrix = new float[16];//缩放矩阵
     private final float[] zoomAfterMatrix = new float[16];
@@ -127,7 +129,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         Matrix.setIdentityM(zoomMatrix,0);//建立单位矩阵
         Matrix.setIdentityM(zoomAfterMatrix, 0);
-        Matrix.setRotateM(rotationMatrix, 0, angle, 0.0f, 1.0f, 0.0f);
+        Matrix.setIdentityM(rotationMatrix, 0);
+//        Matrix.setRotateM(rotationMatrix, 0, 20, -1.0f, -1.0f, 0.0f);
 //        Matrix.setIdentityM(translateAfterMatrix, 0);
         // Set the camera position (View matrix)
         Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
@@ -196,7 +199,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         GLES30.glEnable(GL_BLEND);
         GLES30.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+//        Log.v("onDrawFrame", Arrays.toString(rotationMatrix));
+
         setMatrix();
+
+
+        if (myAnimation.status){
+            AnimationRotation();
+//            Log.v("onDrawFrame", "myAnimation");
+        }
+
+//        AnimationRotation();
+
 
 //        Log.v("rotation",Arrays.toString(finalMatrix));
 
@@ -503,8 +517,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
-    public void Animation(){
+    public void AnimationRotation(){
 
+        ArotationMatrix = myAnimation.Rotation(rotationMatrix);
+//        Log.v("onDrawFrame", Arrays.toString(ArotationMatrix));
+
+        Matrix.multiplyMM(rotationMatrix,0, rotationMatrix, 0, ArotationMatrix,0);
+    }
+
+    public void setAnimation(){
+        myAnimation.status = !myAnimation.status;
+        if (myAnimation.status == false){
+            myAnimation.ResetAnimation();
+        }
     }
 
 

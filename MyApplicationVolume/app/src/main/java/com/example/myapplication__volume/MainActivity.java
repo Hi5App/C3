@@ -74,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean ifAnalyze = false;
     private boolean ifGDTracing = false;
     private boolean ifDeletingMarker = false;
+    private boolean ifAnimation = false;
+    private Button buttonAnimation;
 
     private int eswc_length;
     //读写权限
@@ -147,6 +149,10 @@ public class MainActivity extends AppCompatActivity {
         final Button buttonDeleteMarker = new Button(this);
         buttonDeleteMarker.setText("delete marker");
         ll.addView(buttonDeleteMarker);
+
+        buttonAnimation = new Button(this);
+        buttonAnimation.setText("Animation");
+        ll.addView(buttonAnimation);
 
 
         button_1.setOnClickListener(new Button.OnClickListener()
@@ -250,6 +256,26 @@ public class MainActivity extends AppCompatActivity {
                     buttonDeleteMarker.setTextColor(Color.RED);
                 }else{
                     buttonDeleteMarker.setTextColor(Color.BLACK);
+                }
+            }
+        });
+
+        buttonAnimation.setOnClickListener(new Button.OnClickListener(){
+            public void onClick(View v){
+                ifAnimation = !ifAnimation;
+                ifPainting = false;
+                ifPoint = false;
+                if (ifAnimation){
+                    button_1.setTextColor(Color.BLACK);
+                    button_2.setTextColor(Color.BLACK);
+                    buttonDeleteMarker.setTextColor(Color.BLACK);
+                    buttonAnimation.setTextColor(Color.RED);
+                    myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+                    myrenderer.setAnimation();
+                }else{
+                    buttonAnimation.setTextColor(Color.BLACK);
+                    myrenderer.setAnimation();
+                    myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
                 }
             }
         });
@@ -827,8 +853,8 @@ public class MainActivity extends AppCompatActivity {
             setPreserveEGLContextOnPause(true);
 
             //当发生交互时重新执行渲染， 需要配合requestRender();
-            setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-//            setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+//            setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+            setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         }
 
@@ -963,4 +989,5 @@ public class MainActivity extends AppCompatActivity {
             return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
         }
     }
+
 }

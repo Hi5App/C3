@@ -235,7 +235,8 @@ public class MyAxis {
         GLES30.glUniformMatrix4fv(vPMatrixHandle_axis, 1, false, mvpMatrix, 0);
 
         //绘制三个点
-        GLES30.glLineWidth(10);
+//        GLES30.glLineWidth(10);
+        GLES30.glLineWidth(5);
         GLES30.glDrawArrays(GLES30.GL_LINES, 0, 6);
 
 

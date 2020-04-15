@@ -1,6 +1,9 @@
 package com.example.basic;
 
 import android.opengl.Matrix;
+import android.util.Log;
+
+import java.util.Arrays;
 
 enum RotationType
 {
@@ -16,8 +19,8 @@ enum RotationType
 }
 
 public class MyAnimation {
-    private boolean status;
-    public int speed;
+    public boolean status;
+    public float speed;
     public RotationType rotationType;
     private float angleX;
     private float angleY;
@@ -27,10 +30,16 @@ public class MyAnimation {
     float[] rotationZMatrix = new float[16];
     private int count;
 
+    float[] x_axis = new float[4];
+    float[] y_axis = new float[4];
+    float[] z_axis = new float[4];
+    float[] current_axis = new float[4];
+
+
     public MyAnimation(){
 
         status = false;
-        speed = 12;
+        speed = 36/60f;                            //36度每秒钟
         rotationType = RotationType.XYZ;
         angleX = 0f;
         angleY = 0f;
@@ -52,43 +61,121 @@ public class MyAnimation {
 
     public float[] Rotation(float[] current_rotation){
 
-        float[] x_axis = new float[4];
-        float[] y_axis = new float[4];
-        float[] z_axis = new float[4];
         float[] rotationMatrix = new float[16];
+        Matrix.setIdentityM(rotationMatrix,0);
 
+//        Matrix.multiplyMV(x_axis, 0, current_rotation, 0, new float[]{-1, 0, 0, 1}, 0);
+//        Matrix.multiplyMV(y_axis, 0, current_rotation, 0, new float[]{0, 1, 0, 1}, 0);
+//        Matrix.multiplyMV(z_axis, 0, current_rotation, 0, new float[]{0, 0, 1, 1}, 0);
 
-        Matrix.multiplyMV(x_axis, 0, current_rotation, 0, new float[]{1, 0, 0, 1}, 0);
-        Matrix.multiplyMV(y_axis, 0, current_rotation, 0, new float[]{0, 1, 0, 1}, 0);
-        Matrix.multiplyMV(z_axis, 0, current_rotation, 0, new float[]{0, 0, 1, 1}, 0);
+//                    Matrix.multiplyMM(rotationMatrix,0, rotationMatrix,0, rotationYMatrix,0);
 
 
         switch (rotationType){
+            case X:
+                if (count == 0){
+                    setX_axis(current_rotation);
+                }
+                break;
+
+            case XY:
+                if (count < 600){
+
+                    if(count == 0){
+                        setX_axis(current_rotation);
+                    }
+
+                }else {
+
+                    if (count == 600){
+                        setY_axis(current_rotation);
+                    }
+
+                    if (count == 1199){
+                        count = -1;
+                    }
+                }
+                break;
+
             case XYZ:
                 if (count < 600){
-                    angleX += speed;
-                    Matrix.setRotateM(rotationXMatrix, 0, angleX, x_axis[0], x_axis[1], x_axis[3]);
-                    count ++;
-                }else if (count>= 600 && count < 1200){
-                    angleY += speed;
-                    Matrix.setRotateM(rotationYMatrix, 0, angleY, x_axis[0], x_axis[1], x_axis[3]);
-                    count ++;
+
+                    if(count == 0){
+                        setX_axis(current_rotation);
+                    }
+
+                }else if (count < 1200){
+
+                    if (count == 600){
+                        setY_axis(current_rotation);
+                    }
+
                 }else {
+                    if (count == 1200){
+                        setZ_axis(current_rotation);
+                    }
+
                     if (count == 1799){
                         count = -1;
                     }
-                    angleY += speed;
-                    Matrix.setRotateM(rotationYMatrix, 0, angleY, x_axis[0], x_axis[1], x_axis[3]);
-                    count ++;
                 }
+                break;
+
+            case Y:
+                if (count == 0){
+                    setY_axis(current_rotation);
+                }
+                break;
+
+            case YX:
+                if (count < 600){
+
+                    if(count == 0){
+                        setY_axis(current_rotation);
+                    }
+
+                }else {
+
+                    if (count == 600){
+                        setX_axis(current_rotation);
+                    }
+
+                    if (count == 1199){
+                        count = -1;
+                    }
+                }
+                break;
 
 
         }
 
-        Matrix.multiplyMM(rotationMatrix,0, rotationMatrix,0, rotationXMatrix,0);
-        Matrix.multiplyMM(rotationMatrix,0, rotationMatrix,0, rotationYMatrix,0);
-        Matrix.multiplyMM(rotationMatrix,0, rotationMatrix,0, rotationZMatrix,0);
+
+        count ++;
+        Matrix.setRotateM(rotationMatrix, 0, speed, current_axis[0], current_axis[1], current_axis[2]);
         return rotationMatrix;
+
+    }
+
+    public void ResetAnimation(){
+
+        Matrix.setIdentityM(rotationXMatrix, 0);
+        Matrix.setIdentityM(rotationYMatrix, 0);
+        Matrix.setIdentityM(rotationZMatrix, 0);
+        count = 0;
+    }
+
+    private void setX_axis(float[] current_rotation){
+        Matrix.multiplyMV(current_axis, 0, current_rotation, 0, new float[]{-1, 0, 0, 1}, 0);
+//        for (int i = 0; i < 4; i++)
+//            current_axis[i] = x_axis[i];
+    }
+
+    private void setY_axis(float[] current_rotation){
+        Matrix.multiplyMV(current_axis, 0, current_rotation, 0, new float[]{0, 1, 0, 1}, 0);
+    }
+
+    private void setZ_axis(float[] current_rotation){
+        Matrix.multiplyMV(current_axis, 0, current_rotation, 0, new float[]{0, 0, 1, 1}, 0);
     }
 
 
