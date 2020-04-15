@@ -15,7 +15,7 @@ enum RotationType
     YXZ,
     Z,
     ZXY,
-    ZYZ
+    ZYX
 }
 
 public class MyAnimation {
@@ -64,14 +64,8 @@ public class MyAnimation {
         float[] rotationMatrix = new float[16];
         Matrix.setIdentityM(rotationMatrix,0);
 
-//        Matrix.multiplyMV(x_axis, 0, current_rotation, 0, new float[]{-1, 0, 0, 1}, 0);
-//        Matrix.multiplyMV(y_axis, 0, current_rotation, 0, new float[]{0, 1, 0, 1}, 0);
-//        Matrix.multiplyMV(z_axis, 0, current_rotation, 0, new float[]{0, 0, 1, 1}, 0);
-
-//                    Matrix.multiplyMM(rotationMatrix,0, rotationMatrix,0, rotationYMatrix,0);
-
-
         switch (rotationType){
+
             case X:
                 if (count == 0){
                     setX_axis(current_rotation);
@@ -121,6 +115,8 @@ public class MyAnimation {
                 }
                 break;
 
+
+
             case Y:
                 if (count == 0){
                     setY_axis(current_rotation);
@@ -146,6 +142,86 @@ public class MyAnimation {
                 }
                 break;
 
+            case YXZ:
+                if (count < 600){
+
+                    if(count == 0){
+                        setY_axis(current_rotation);
+                    }
+
+                }else if (count < 1200){
+
+                    if (count == 600){
+                        setX_axis(current_rotation);
+                    }
+
+                }else {
+                    if (count == 1200){
+                        setZ_axis(current_rotation);
+                    }
+
+                    if (count == 1799){
+                        count = -1;
+                    }
+                }
+                break;
+
+
+
+            case Z:
+                if (count == 0){
+                    setZ_axis(current_rotation);
+                }
+                break;
+
+            case ZXY:
+                if (count < 600){
+
+                    if(count == 0){
+                        setZ_axis(current_rotation);
+                    }
+
+                }else if (count < 1200){
+
+                    if (count == 600){
+                        setX_axis(current_rotation);
+                    }
+
+                }else {
+                    if (count == 1200){
+                        setY_axis(current_rotation);
+                    }
+
+                    if (count == 1799){
+                        count = -1;
+                    }
+                }
+                break;
+
+            case ZYX:
+                if (count < 600){
+
+                    if(count == 0){
+                        setZ_axis(current_rotation);
+                    }
+
+                }else if (count < 1200){
+
+                    if (count == 600){
+                        setY_axis(current_rotation);
+                    }
+
+                }else {
+                    if (count == 1200){
+                        setY_axis(current_rotation);
+                    }
+
+                    if (count == 1799){
+                        count = -1;
+                    }
+                }
+                break;
+
 
         }
 
@@ -164,10 +240,46 @@ public class MyAnimation {
         count = 0;
     }
 
+    public void setRotationType(String type){
+        RotationType cur_type = null;
+        switch (type){
+            case "X":
+                cur_type = RotationType.X;
+                break;
+            case "XY":
+                cur_type = RotationType.XY;
+                break;
+            case "XYZ":
+                cur_type = RotationType.XYZ;
+                break;
+            case "Y":
+                cur_type = RotationType.Y;
+                break;
+            case "YX":
+                cur_type = RotationType.YX;
+                break;
+            case "YXZ":
+                cur_type = RotationType.YXZ;
+                break;
+            case "Z":
+                cur_type = RotationType.Z;
+                break;
+            case "ZXY":
+                cur_type = RotationType.ZXY;
+                break;
+            case "ZYX":
+                cur_type = RotationType.ZYX;
+                break;
+
+        }
+        if (cur_type != rotationType){
+            rotationType = cur_type;
+            ResetAnimation();
+        }
+    }
+
     private void setX_axis(float[] current_rotation){
         Matrix.multiplyMV(current_axis, 0, current_rotation, 0, new float[]{-1, 0, 0, 1}, 0);
-//        for (int i = 0; i < 4; i++)
-//            current_axis[i] = x_axis[i];
     }
 
     private void setY_axis(float[] current_rotation){

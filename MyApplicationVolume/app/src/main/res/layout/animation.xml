@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp" >
+
+        <Switch
+            android:id="@+id/switch_animation"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:textColor="#bb333333"
+            android:textOff="OFF"
+            android:textOn="ON"
+            android:text="Animation ON/OFF" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_alignLeft="@id/switch_animation"
+            android:layout_alignRight="@id/switch_animation"
+            android:layout_below="@id/switch_animation"
+            android:background="#33333333" />
+
+    </RelativeLayout>
+
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="15dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp" >
+
+        <TextView
+            android:id="@+id/title_speed"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:layout_alignParentLeft="true"
+            android:gravity="center|left"
+            android:text="Rotation Speed"
+            android:textColor="#bb333333" />
+
+        <EditText
+            android:id="@+id/edit_speed"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/title_speed"
+            android:background="@null"
+            android:textColor="#ee333333"
+            android:gravity="center"
+            android:text="12"
+            android:textCursorDrawable="@drawable/color_cursor" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_alignLeft="@id/title_speed"
+            android:layout_alignRight="@id/edit_speed"
+            android:layout_below="@id/edit_speed"
+            android:background="#33333333" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="15dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp" >
+
+        <TextView
+            android:id="@+id/title_type"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:layout_alignParentLeft="true"
+            android:gravity="center|left"
+            android:text="Rotation Type"
+            android:textColor="#bb333333" />
+
+        <Spinner
+            android:id="@+id/spinner_type"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/title_type"
+            android:entries="@array/data"
+            android:gravity="center"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_alignLeft="@id/title_type"
+            android:layout_alignRight="@id/spinner_type"
+            android:layout_below="@id/spinner_type"
+            android:background="#33333333" />
+
+
+    </RelativeLayout>
+
+
+
+</LinearLayout>

@@ -25,10 +25,14 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -311,19 +315,17 @@ public class MainActivity extends AppCompatActivity {
 
         buttonAnimation.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                ifAnimation = !ifAnimation;
                 ifPainting = false;
                 ifPoint = false;
+                SetAnimation();
+
                 if (ifAnimation) {
                     button_1.setTextColor(Color.BLACK);
                     button_2.setTextColor(Color.BLACK);
                     buttonDeleteMarker.setTextColor(Color.BLACK);
                     buttonAnimation.setTextColor(Color.RED);
-                    myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
-                    myrenderer.setAnimation();
                 } else {
                     buttonAnimation.setTextColor(Color.BLACK);
-                    myrenderer.setAnimation();
                     myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
                 }
             }
@@ -799,6 +801,87 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void SetAnimation(){
+
+        final String[] rotation_type = new String[1];
+
+
+        MDDialog mdDialog = new MDDialog.Builder(this)
+                .setContentView(R.layout.animation)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+
+                        Switch on_off = contentView.findViewById(R.id.switch_animation);
+                        on_off.setChecked(ifAnimation);
+
+                        on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                if (isChecked){
+                                    ifAnimation = true;
+                                }else {
+                                    ifAnimation = false;
+                                }
+                            }
+                        });
+
+                        final Spinner type = contentView.findViewById(R.id.spinner_type);
+                        type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                rotation_type[0] = type.getSelectedItem().toString();
+                                Log.v("onItemSelected", type.getSelectedItem().toString());
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> parent) {
+
+                            }
+                        });
+
+
+                    }
+                })
+                .setNegativeButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                        EditText speed = contentView.findViewById(R.id.edit_speed);
+                        String rotation_speed = speed.getText().toString();
+
+                        myrenderer.setAnimation(ifAnimation, Float.parseFloat(rotation_speed), rotation_type[0]);
+
+                        if (ifAnimation){
+                            myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+                        }
+
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                    }
+                })
+                .setTitle("Animation")
+                .create();
+
+        mdDialog.show();
+        mdDialog.getWindow().setLayout(1000, 1500);
+    }
+
+
     private String getPath(Context context, Uri uri) {
         String path = null;
         Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
@@ -962,8 +1045,8 @@ public class MainActivity extends AppCompatActivity {
             setPreserveEGLContextOnPause(true);
 
             //当发生交互时重新执行渲染， 需要配合requestRender();
-//            setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-            setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+            setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+//            setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         }
 

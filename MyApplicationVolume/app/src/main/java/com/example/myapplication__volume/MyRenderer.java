@@ -130,7 +130,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Matrix.setIdentityM(zoomMatrix,0);//建立单位矩阵
         Matrix.setIdentityM(zoomAfterMatrix, 0);
         Matrix.setIdentityM(rotationMatrix, 0);
-//        Matrix.setRotateM(rotationMatrix, 0, 20, -1.0f, -1.0f, 0.0f);
+        Matrix.setRotateM(rotationMatrix, 0, 20, -1.0f, -1.0f, 0.0f);
 //        Matrix.setIdentityM(translateAfterMatrix, 0);
         // Set the camera position (View matrix)
         Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
@@ -525,11 +525,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Matrix.multiplyMM(rotationMatrix,0, rotationMatrix, 0, ArotationMatrix,0);
     }
 
-    public void setAnimation(){
-        myAnimation.status = !myAnimation.status;
-        if (myAnimation.status == false){
-            myAnimation.ResetAnimation();
-        }
+    public void setAnimation(boolean status, float speed, String type){
+        myAnimation.status = status;
+        myAnimation.speed = speed/60f;
+        myAnimation.setRotationType(type);
+        myAnimation.ResetAnimation();
+//        if (status == false){
+//            myAnimation.ResetAnimation();
+//        }
     }
 
 
