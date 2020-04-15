@@ -908,28 +908,46 @@ public class FM {
         System.out.println("--------------------------loop end------------------------");
 
         Map<Integer,MyMarker> marker_map = new HashMap<Integer, MyMarker>();
-        for (k=0;k<szz;k++) {
-            for (j=0;j<szy;j++)
-                for (i=0;i<szx;i++)
+        for(int t=0; t<target_index.length; t++){
+            int tind = target_index[t];
+            int p = tind;
+            while (true) {
+                if(marker_map.containsKey(p)) break;
+                int ix = p % szx;
+                int iy = p/szx % szy;
+                int iz = p/(szx*szy) % szz;
+                MyMarker marker = new MyMarker(ix,iy,iz);
+//                marker_map.remove(p);
+                marker_map.put(p,marker);
+
+                if(p == parent.get(p))
                 {
-//                    int p = parent.get(k*szy*szx+j*szx+i);
-                    if(state[k][j][i] != ALIVE){
-                        continue;
-                    }
-                    MyMarker myMarker = new MyMarker(i,j,k);
-                    outTree.add(myMarker);
-                    marker_map.put(k*szy*szx+j*szx+i,myMarker);
+//                    assert(p == root.ind(sz0,sz01));
+//                    assert(marker_map.find(root.ind(sz0,sz01)) != marker_map.end());
+                    break;
                 }
+                else p = parent.get(p);
+            }
         }
-        for (int m=0; m<outTree.size(); m++){
-            MyMarker child_marker = outTree.elementAt(m);
-            int[] c = new int[]{(int) child_marker.z,(int) child_marker.y,(int) child_marker.x};
-            MyMarker parent_marker = marker_map.get(parent.get(c[0]*szy*szx+c[1]*szx+c[2]));
-            if(!child_marker.equals(parent_marker))
-                child_marker.parent = parent_marker;
+
+        if(marker_map.containsKey(rootz*szy*szx+rooty*szx+rootx)){
+            System.out.println("break here");
+        }
+        else{
+            System.out.println("no root");
+        }
+
+        for(int m : marker_map.keySet()){
+            MyMarker marker = marker_map.get(m);
+            MyMarker parent_marker = marker_map.get(parent.get(m));
+            if(!marker.equals(parent_marker))
+                marker.parent = parent_marker;
             else
-                child_marker.parent = null;
+                marker.parent = null;
+            outTree.add(marker);
         }
+
+
         System.out.println("----------------------------convert-----------------------------");
         return true;
     }
@@ -1092,28 +1110,45 @@ public class FM {
         System.out.println("--------------------------loop end------------------------");
 
         Map<Integer,MyMarker> marker_map = new HashMap<Integer, MyMarker>();
-        for (k=0;k<szz;k++) {
-            for (j=0;j<szy;j++)
-                for (i=0;i<szx;i++)
+        for(int t=0; t<target_index.length; t++){
+            int tind = target_index[t];
+            int p = tind;
+            while (true) {
+                if(marker_map.containsKey(p)) break;
+                int ix = p % szx;
+                int iy = p/szx % szy;
+                int iz = p/(szx*szy) % szz;
+                MyMarker marker = new MyMarker(ix,iy,iz);
+//                marker_map.remove(p);
+                marker_map.put(p,marker);
+
+                if(p == parent.get(p))
                 {
-//                    int p = parent.get(k*szy*szx+j*szx+i);
-                    if(state[k][j][i] != ALIVE){
-                        continue;
-                    }
-                    MyMarker myMarker = new MyMarker(i,j,k);
-                    outTree.add(myMarker);
-                    marker_map.put(k*szy*szx+j*szx+i,myMarker);
+//                    assert(p == root.ind(sz0,sz01));
+//                    assert(marker_map.find(root.ind(sz0,sz01)) != marker_map.end());
+                    break;
                 }
+                else p = parent.get(p);
+            }
         }
-        for (int m=0; m<outTree.size(); m++){
-            MyMarker child_marker = outTree.elementAt(m);
-            int[] c = new int[]{(int) child_marker.z,(int) child_marker.y,(int) child_marker.x};
-            MyMarker parent_marker = marker_map.get(parent.get(c[0]*szy*szx+c[1]*szx+c[2]));
-            if(!child_marker.equals(parent_marker))
-                child_marker.parent = parent_marker;
+
+        if(marker_map.containsKey(rootz*szy*szx+rooty*szx+rootx)){
+            System.out.println("break here");
+        }
+        else{
+            System.out.println("no root");
+        }
+
+        for(int m : marker_map.keySet()){
+            MyMarker marker = marker_map.get(m);
+            MyMarker parent_marker = marker_map.get(parent.get(m));
+            if(!marker.equals(parent_marker))
+                marker.parent = parent_marker;
             else
-                child_marker.parent = null;
+                marker.parent = null;
+            outTree.add(marker);
         }
+
         System.out.println("----------------------------convert-----------------------------");
         return true;
     }

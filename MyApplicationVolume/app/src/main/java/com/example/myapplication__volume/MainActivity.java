@@ -587,6 +587,7 @@ public class MainActivity extends AppCompatActivity {
             }
             System.out.println("---------------start---------------------");
             p.outswc_file = getExternalFilesDir(null).toString() + "app2.swc";//"/storage/emulated/0/Download/app2.swc";
+            System.out.println(p.outswc_file);
             V3dNeuronAPP2Tracing.proc_app2(p);
 
             ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
