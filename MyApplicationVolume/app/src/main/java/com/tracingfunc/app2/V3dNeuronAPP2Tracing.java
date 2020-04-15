@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi;
 
 import com.example.basic.Image4DSimple;
 import com.example.basic.Image4DSimple.ImagePixelType;
+import com.example.basic.NeuronTree;
 
 import java.lang.reflect.Array;
 import java.util.List;
@@ -48,6 +49,7 @@ public class V3dNeuronAPP2Tracing {
             out.println("---------------------bbbbbbbbbbb-----------------------");
             if(p.b_brightfiled) {
                 out.println("bright");
+//                p.p4dImage.getDataCZYX();
                 if (!Image4DSimple.invertedsubvolumecopy(p4dImageNew,
                         p.p4dImage,
                         p.xc0, p.xc1 - p.xc0 + 1,
@@ -59,6 +61,7 @@ public class V3dNeuronAPP2Tracing {
             }
             else{
                 out.println("no bright");
+//                p.p4dImage.getDataCZYX();
                 if(!Image4DSimple.subvolumecopy(p4dImageNew,
                         p.p4dImage,
                         p.xc0, p.xc1-p.xc0+1,
@@ -98,7 +101,7 @@ public class V3dNeuronAPP2Tracing {
         double dfactor_xy = 1, dfactor_z = 1;
         ImagePixelType datatype = p.p4dImage.getDatatype();
         long[] in_sz = {p4dImageNew.getSz0(), p4dImageNew.getSz1(), p4dImageNew.getSz2(), 1};
-        if(datatype != V3D_UINT8 || in_sz[0]>256 || in_sz[1]>256 || in_sz[2]>256)// && datatype != V3D_UINT16)
+        if(datatype != V3D_UINT8 || in_sz[0]>128 || in_sz[1]>128 || in_sz[2]>128)// && datatype != V3D_UINT16)
         {
             if (datatype!=V3D_UINT8)
             {
@@ -114,24 +117,24 @@ public class V3dNeuronAPP2Tracing {
                 datatype = V3D_UINT8;
             }
 
-            out.printf("x = %ld  ", in_sz[0]);
-            out.printf("y = %ld  ", in_sz[1]);
-            out.printf("z = %ld  ", in_sz[2]);
-            out.printf("c = %ld\n", in_sz[3]);
+            out.printf("x = %d  ", in_sz[0]);
+            out.printf("y = %d  ", in_sz[1]);
+            out.printf("z = %d  ", in_sz[2]);
+            out.printf("c = %d\n", in_sz[3]);
 
-            if (p.b_256cube>0)
+            if (p.b_128cube==1)
             {
-                if (in_sz[0]<=256 && in_sz[1]<=256 && in_sz[2]<=256)
+                if (in_sz[0]<=128 && in_sz[1]<=128 && in_sz[2]<=128)
                 {
                     dfactor_z = dfactor_xy = 1;
                 }
                 else if (in_sz[0] >= 2*in_sz[2] || in_sz[1] >= 2*in_sz[2])
                 {
-                    if (in_sz[2]<=256)
+                    if (in_sz[2]<=128)
                     {
                         double MM = in_sz[0];
                         if (MM<in_sz[1]) MM=in_sz[1];
-                        dfactor_xy = MM / 256.0;
+                        dfactor_xy = MM / 128.0;
                         dfactor_z = 1;
                     }
                     else
@@ -139,7 +142,7 @@ public class V3dNeuronAPP2Tracing {
                         double MM = in_sz[0];
                         if (MM<in_sz[1]) MM=in_sz[1];
                         if (MM<in_sz[2]) MM=in_sz[2];
-                        dfactor_xy = dfactor_z = MM / 256.0;
+                        dfactor_xy = dfactor_z = MM / 128.0;
                     }
                 }
                 else
@@ -147,7 +150,7 @@ public class V3dNeuronAPP2Tracing {
                     double MM = in_sz[0];
                     if (MM<in_sz[1]) MM=in_sz[1];
                     if (MM<in_sz[2]) MM=in_sz[2];
-                    dfactor_xy = dfactor_z = MM / 256.0;
+                    dfactor_xy = dfactor_z = MM / 128.0;
                 }
 
                 out.printf("dfactor_xy=%5.3f\n", dfactor_xy);
@@ -202,13 +205,13 @@ public class V3dNeuronAPP2Tracing {
 
 
 
-        float[][][] phi = null;
+        float[][][] phi = new float[(int) in_sz[2]][(int) in_sz[1]][(int) in_sz[0]];
         Vector<MyMarker> inmarkers = new Vector<MyMarker>();
         for(int i = 0; i < p.landmarks.length; i++)
         {
-            double x = p.landmarks[i].x - p.xc0 -1;
-            double y = p.landmarks[i].y - p.yc0 -1;
-            double z = p.landmarks[i].z - p.zc0 -1;
+            double x = p.landmarks[i].x - p.xc0;
+            double y = p.landmarks[i].y - p.yc0;
+            double z = p.landmarks[i].z - p.zc0;
 
             //add scaling by PHC 121127
             x /= dfactor_xy;
@@ -232,11 +235,17 @@ public class V3dNeuronAPP2Tracing {
 //        QElapsedTimer timer2;
 //        timer2.start();
 
+        boolean b_detect_cell = false;
+
         if(inmarkers.isEmpty())
         {
             out.println("Start detecting cellbody");
             int[] sz = new int[]{(int) in_sz[0],(int) in_sz[1],(int) in_sz[2]};
-            FM.fastmarching_dt(p4dImageNew.getData()[0],phi,sz,p.cnn_type,p.bkg_thresh);
+            FM.fastmarching_dt(p4dImageNew.getDataCZYX()[0],phi,sz,p.cnn_type,p.bkg_thresh);
+            out.println("-----------------phi end---------------");
+            if(phi==null){
+                out.println("phi is null");
+            }
 
 
             long sz0 = in_sz[0];
@@ -261,56 +270,62 @@ public class V3dNeuronAPP2Tracing {
             }
             MyMarker max_marker = new MyMarker(max_loc[0],max_loc[1],max_loc[2]);
             inmarkers.add(max_marker);
+            b_detect_cell = true;
         }
 
         out.println("=======================================");
         out.println("Construct the neuron tree");
 
         int[] sz = new int[]{(int) in_sz[0],(int) in_sz[1],(int) in_sz[2]};
-        if(inmarkers.isEmpty())
-        {
-            out.println("need at least one markers");
-        }
-        else if(inmarkers.size() == 1)
-        {
-            out.println("only one input marker");
-            if(p.is_gsdt)
+        try {
+            if(inmarkers.isEmpty())
             {
-                if(phi == null)
+                out.println("need at least one markers");
+            }
+            else if(inmarkers.size() == 1)
+            {
+                out.println("only one input marker");
+                if(p.is_gsdt)
                 {
-                    out.println("processing fastmarching distance transformation ...");
-                    FM.fastmarching_dt(p4dImageNew.getData()[0],phi,sz,p.cnn_type,p.bkg_thresh);
-                }
+                    if(!b_detect_cell)
+                    {
+                        out.println("processing fastmarching distance transformation ...");
+                        FM.fastmarching_dt(p4dImageNew.getDataCZYX()[0],phi,sz,p.cnn_type,p.bkg_thresh);
+                    }
 
-                out.println("constructing fastmarching tree ...");
-                FM.fastmarching_tree(inmarkers.elementAt(0), phi, outTree, sz, p.cnn_type, p.bkg_thresh, p.is_break_accept);
-            }
-            else
-            {
-                FM.fastmarching_tree(inmarkers.elementAt(0), p4dImageNew.getData()[0], outTree, sz, p.cnn_type, p.bkg_thresh, p.is_break_accept);
-            }
-        }
-        else
-        {
-            Vector<MyMarker> target = new Vector<MyMarker>();
-            for(int item=1; item<inmarkers.size(); item++){
-                target.add(inmarkers.elementAt(item));
-            }
-            if(p.is_gsdt)
-            {
-                if(phi == null)
-                {
-                    out.println("processing fastmarching distance transformation ...");
-                    FM.fastmarching_dt(p4dImageNew.getData()[0],phi,sz,p.cnn_type,p.bkg_thresh);
+                    out.println("constructing fastmarching tree ...");
+                    FM.fastmarching_tree(inmarkers.elementAt(0), phi, outTree, sz, p.cnn_type, p.bkg_thresh, p.is_break_accept);
                 }
-                out.println("constructing fastmarching tree ...");
-                FM.fastmarching_tree(inmarkers.elementAt(0), target, phi, outTree, sz, p.cnn_type);
+                else
+                {
+                    FM.fastmarching_tree(inmarkers.elementAt(0), p4dImageNew.getDataCZYX()[0], outTree, sz, p.cnn_type, p.bkg_thresh, p.is_break_accept);
+                }
             }
             else
             {
-                FM.fastmarching_tree(inmarkers.elementAt(0), target, phi, outTree, sz, p.cnn_type);
+                Vector<MyMarker> target = new Vector<MyMarker>();
+                for(int item=1; item<inmarkers.size(); item++){
+                    target.add(inmarkers.elementAt(item));
+                }
+                if(p.is_gsdt)
+                {
+                    if(!b_detect_cell)
+                    {
+                        out.println("processing fastmarching distance transformation ...");
+                        FM.fastmarching_dt(p4dImageNew.getDataCZYX()[0],phi,sz,p.cnn_type,p.bkg_thresh);
+                    }
+                    out.println("constructing fastmarching tree ...");
+                    FM.fastmarching_tree(inmarkers.elementAt(0), target, phi, outTree, sz, p.cnn_type);
+                }
+                else
+                {
+                    FM.fastmarching_tree(inmarkers.elementAt(0), target, p4dImageNew.getDataCZYX()[0], outTree, sz, p.cnn_type);
+                }
             }
+        }catch (OutOfMemoryError e){
+            throw new Exception(e.getMessage());
         }
+
         out.println("=======================================");
 
         //save a copy of the ini tree
@@ -338,7 +353,7 @@ public class V3dNeuronAPP2Tracing {
                 if (dfactor_z>1)  outTree.elementAt(tmpi).z += dfactor_z/2;
             }
 
-            MyMarker.saveSWC_file(p.p4dImage.getImgSrcFile()+"_ini.swc", outTree, infostring);
+            MyMarker.saveSWC_file(p.outswc_file.split("\\.")[0]+"_ini.swc", outTree, infostring);
 
             for (tmpi=0; tmpi< outTree.size(); tmpi++)
             {
@@ -371,12 +386,19 @@ public class V3dNeuronAPP2Tracing {
             }
         }
 
+        out.println("ggggggggggggggggggggggggggggggggggggggggggggg");
+        for(int i=0; i<outswc.size(); i++){
+            if(outswc.get(i).x>500){
+                out.println("index: "+i+" "+outswc.get(i).x);
+            }
+        }
+
 //        qint64 etime2 = timer2.elapsed();
 //        qDebug() << " **** neuron tracing procedure takes [" << etime2 << " milliseconds]";
 
 //        if (p4dImageNew) {delete p4dImageNew; p4dImageNew=0;} //free buffer
 
-        if(p.b_256cube==1)
+        if(p.b_128cube==1)
         {
             inmarkers.elementAt(0).x *= dfactor_xy;
             inmarkers.elementAt(0).y *= dfactor_xy;
@@ -395,29 +417,33 @@ public class V3dNeuronAPP2Tracing {
             else
                 outswc_file = p.p4dImage.getImgSrcFile() + rootposstr + "_app2.swc";
 
+
             for(int i = 0; i < outswc.size(); i++) //add scaling 121127, PHC //add cutbox offset 121202, PHC
             {
-                if (dfactor_xy>1) outswc.elementAt(i).x *= dfactor_xy;
-                outswc.elementAt(i).x += (p.xc0);
-                if (dfactor_xy>1) outswc.elementAt(i).x += dfactor_xy/2; //note that the offset corretion might not be accurate. PHC 121127
+                if(dfactor_xy>1){
+                    outswc.get(i).x *= dfactor_xy;
+                    outswc.get(i).x += dfactor_xy/2;
+                    outswc.get(i).y *= dfactor_xy;
+                    outswc.get(i).y += dfactor_xy/2;
+                }
+                if(dfactor_z>1){
+                    outswc.get(i).z *= dfactor_z;
+                    outswc.get(i).z += dfactor_z;
+                }
+                outswc.get(i).x += p.xc0;
+                outswc.get(i).y += p.yc0;
+                outswc.get(i).z += p.zc0;
 
-                if (dfactor_xy>1) outswc.elementAt(i).y *= dfactor_xy;
-                outswc.elementAt(i).y += (p.yc0);
-                if (dfactor_xy>1) outswc.elementAt(i).y += dfactor_xy/2;
-
-                if (dfactor_z>1) outswc.elementAt(i).z *= dfactor_z;
-                outswc.elementAt(i).z += (p.zc0);
-                if (dfactor_z>1)  outswc.elementAt(i).z += dfactor_z/2;
-
-                outswc.elementAt(i).radius *= dfactor_xy; //use xy for now
+                outswc.get(i).radius *= dfactor_xy; //use xy for now
             }
+            out.println("dfactorxy: "+dfactor_xy+" dfactorz: "+dfactor_z);
 
             //re-estimate the radius using the original image
             double real_thres = 40; //PHC 20121011 //This should be rescaled later for datatypes that are not UINT8
 
             if (real_thres<p.bkg_thresh) real_thres = p.bkg_thresh;
             int[] szOriginalData = new int[]{(int) p.p4dImage.getSz0(), (int) p.p4dImage.getSz1(), (int) p.p4dImage.getSz2(), 1};
-            int[][][] pOriginalData = p.p4dImage.getData()[0];
+            int[][][] pOriginalData = p.p4dImage.getDataCZYX()[0];
             if(p.b_brightfiled)
             {
                 for(int k=0; k<p.p4dImage.getSz2(); k++)

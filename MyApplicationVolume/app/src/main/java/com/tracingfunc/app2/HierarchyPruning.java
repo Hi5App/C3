@@ -5,6 +5,7 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 
 import com.tracingfunc.gd.Pair;
+import com.tracingfunc.gd.Vertex;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -67,6 +68,7 @@ public class HierarchyPruning {
             return false;
         }
         // 1. calc distance for every nodes
+        System.out.println("calc distance for every nodes");
         int tol_num = inswc.size();
         Map<MyMarker, Integer> swc_map = new HashMap<MyMarker,Integer>();
         for(int i = 0; i < tol_num; i++)
@@ -87,6 +89,7 @@ public class HierarchyPruning {
             for(int i = 0; i < tol_num; i++) if(childs_num[i] == 0) leaf_markers.add(inswc.elementAt(i));
         }
         int leaf_num = leaf_markers.size();
+        System.out.println("-----------------------end cal-------------------");
 
         int szx = sz[0], szy = sz[1], szz = sz[2];
         int total_sz = szx*szy*szz;
@@ -102,12 +105,12 @@ public class HierarchyPruning {
             int cid = swc_map.get(child_node);
             topo_leafs[cid] = leaf_marker;
             topo_dists[cid] = (length_method == INTENSITY_DISTANCE_METHOD) ?
-                    inimg[(int) (leaf_marker.z+0.5)][(int) (leaf_marker.y+0.5)][(int) (leaf_marker.x+0.5)]/255.0 : 0;
+                    (double) inimg[(int) (leaf_marker.z+0.5)][(int) (leaf_marker.y+0.5)][(int) (leaf_marker.x+0.5)]/255.0 : 0;
             while(parent_node!=null)
             {
                 int pid = swc_map.get(parent_node);
                 double tmp_dst = (length_method == INTENSITY_DISTANCE_METHOD) ?
-                        (inimg[(int) (parent_node.z+0.5)][(int) (parent_node.y+0.5)][(int) (parent_node.x+0.5)]/255.0 + topo_dists[cid]) :
+                        ((double) inimg[(int) (parent_node.z+0.5)][(int) (parent_node.y+0.5)][(int) (parent_node.x+0.5)]/255.0 + topo_dists[cid]) :
                         (dist(child_node, parent_node) + topo_dists[cid]);
                 if(tmp_dst >= topo_dists[pid])   // >= instead of >
                 {
@@ -121,6 +124,7 @@ public class HierarchyPruning {
             }
         }
         // 2. create Hierarchy Segments
+        System.out.println("---------------create Hierarchy Segments----------------------");
         segs.clear();
         Map<MyMarker, Integer> leaf_ind_map = new HashMap<MyMarker, Integer>();
         for(int i = 0; i<leaf_num; i++){
@@ -134,7 +138,7 @@ public class HierarchyPruning {
             MyMarker  root_marker = leaf_marker;
             MyMarker  root_parent = root_marker.parent;
             int level = 1;
-            while(root_parent != null && topo_leafs[swc_map.get(root_marker)] == leaf_marker)
+            while(root_parent != null && topo_leafs[swc_map.get(root_marker)].equals(leaf_marker))
             {
                 if(childs_num[swc_map.get(root_marker)] >= 2) level++;
                 root_marker = root_parent;
@@ -144,15 +148,26 @@ public class HierarchyPruning {
             double dst = topo_dists[swc_map.get(root_marker)];
             HierarchySegment seg = new HierarchySegment(leaf_marker, root_marker, dst, level);
 
-            if(root_parent == null) seg.parent = null;
-            else
-            {
-                MyMarker  leaf_marker2 = topo_leafs[swc_map.get(root_marker)];
-                int leaf_ind2 = leaf_ind_map.get(leaf_marker2);
-                seg.parent = segs.elementAt(leaf_ind2);
-            }
+//            if(root_parent == null) seg.parent = null;
+//            else
+//            {
+//                MyMarker  leaf_marker2 = topo_leafs[swc_map.get(root_marker)];
+//                int leaf_ind2 = leaf_ind_map.get(leaf_marker2);
+//                seg.parent = segs.elementAt(leaf_ind2);
+//            }
             segs.add(seg);
         }
+        for(int i=0; i<segs.size(); i++){
+            MyMarker root_parent = segs.get(i).root_marker.parent;
+            if(root_parent == null)
+                segs.get(i).parent = null;
+            else {
+                MyMarker leaf_marker2 = topo_leafs[swc_map.get(root_parent)];
+                int leaf_ind2 = leaf_ind_map.get(leaf_marker2);
+                segs.get(i).parent = segs.get(leaf_ind2);
+            }
+        }
+        System.out.println("-------------------------creat end-------------------------");
         return  true;
     }
 
@@ -183,17 +198,26 @@ public class HierarchyPruning {
 
         max_dst -= min_dst; if(max_dst == 0.0) max_dst = 0.0000001;
         max_level -= min_level; if(max_level == 0) max_level = 1.0;
+        boolean rget = false;
         for(int i = 0; i < segs.size(); i++)
         {
+            if(!rget&&segs.get(i).root_marker.parent == null){
+                System.out.println(i+" am parent---------------------------");
+                MyMarker root = segs.get(i).root_marker;
+                outmarkers.add(root);
+                rget = true;
+            }
             double dst = segs.elementAt(i).length;
             int level = (int) Math.min(segs.elementAt(i).level, max_level);    // todo1
             int color_id = (int) ((swc_type == 0) ? (dst - min_dst) / max_dst * 254.0 + 20.5 : (level - min_level)/max_level * 254.0 + 20.5);
             Vector<MyMarker> tmp_markers = new Vector<MyMarker>();
             segs.elementAt(i).getMarkers(tmp_markers);
-            for(int j = 0; j < tmp_markers.size(); j++)
+            for(int j = 0; j < tmp_markers.size() ; j++)
             {
                 tmp_markers.elementAt(j).type= color_id;
-                outmarkers.add(tmp_markers.elementAt(j));
+                if(!tmp_markers.get(j).equals(segs.get(i).root_marker)){
+                    outmarkers.add(tmp_markers.elementAt(j));
+                }
             }
         }
         return true;
@@ -221,9 +245,20 @@ public class HierarchyPruning {
         Map<MyMarker,Integer> child_num = new HashMap<MyMarker, Integer>();
         getLeafMarkers(inswc,child_num);
 
+//        System.out.println("----------------before--------------------");
+//        for(int i=0; i<inswc.size(); i++){
+//            if(inswc.get(i).x>500){
+//                System.out.println("index i: "+i+inswc.get(i).x);
+//            }
+//        }
+//        System.out.println("------------------end-------------------------");
+
         Vector<HierarchySegment> segs = new Vector<HierarchySegment>();
         System.out.println("Construct hierarchical segments");
         swcToSegs(inswc,segs,INTENSITY_DISTANCE_METHOD,inimg,sz);
+
+
+
         Vector<HierarchySegment> filter_segs = new Vector<HierarchySegment>();
         for(int i=0; i<segs.size(); i++){
             if(segs.elementAt(i).length>=length_thresh){
@@ -231,6 +266,17 @@ public class HierarchyPruning {
             }
         }
         System.out.println("pruned by length_thresh (segment number) : "+segs.size()+" - "+(segs.size()-filter_segs.size())+" = "+filter_segs.size());
+
+//        Vector<MyMarker> test = new Vector<MyMarker>();
+//        System.out.println("----------------1 before--------------------");
+//        segsToSwc(filter_segs,test,1);
+//        for(int i=0; i<test.size(); i++){
+//            if(test.get(i).x>500){
+//                System.out.println("index i: "+i+inswc.get(i).x);
+//            }
+//        }
+//        test.clear();
+//        System.out.println("------------------end-------------------------");
 
 //        Map<Double,HierarchySegment> seg_dist_map;
         Queue<Pair<Double,HierarchySegment>> seg_dist_map = new PriorityQueue<Pair<Double,HierarchySegment>>(new Comparator<Pair<Double, HierarchySegment>>() {
@@ -273,6 +319,16 @@ public class HierarchyPruning {
                 System.out.println("\t iteration ["+iteration+"] "+dark_num_pruned+" dark node pruned");
             }
         }
+
+//        System.out.println("----------------2 before--------------------");
+//        segsToSwc(filter_segs,test,1);
+//        for(int i=0; i<test.size(); i++){
+//            if(test.get(i).x>500){
+//                System.out.println("index i: "+i+inswc.get(i).x);
+//            }
+//        }
+//        test.clear();
+//        System.out.println("------------------end-------------------------");
 
         if(true) // dark segment pruning
         {
@@ -331,6 +387,16 @@ public class HierarchyPruning {
                 }
             }
         }
+
+//        System.out.println("----------------3 before--------------------");
+//        segsToSwc(filter_segs,test,1);
+//        for(int i=0; i<test.size(); i++){
+//            if(test.get(i).x>500){
+//                System.out.println("index i: "+i+inswc.get(i).x);
+//            }
+//        }
+//        test.clear();
+//        System.out.println("------------------end-------------------------");
 
 
         if(true) // hierarchy coverage order pruning
@@ -461,6 +527,17 @@ public class HierarchyPruning {
                     visited_segs.add(seg);     // used to delete children when parent node is delete
                 }
             }
+
+//            System.out.println("----------------4 before--------------------");
+//            segsToSwc(filter_segs,test,1);
+//            for(int i=0; i<test.size(); i++){
+//                if(test.get(i).x>500){
+//                    System.out.println("index i: "+i+inswc.get(i).x);
+//                }
+//            }
+//            test.clear();
+//            System.out.println("------------------end-------------------------");
+
             System.out.println("prune by coverage (segment number) : "+seg_dist_map.size()+" - "+filter_segs.size()+" = "+(seg_dist_map.size() - filter_segs.size()));
             System.out.println("R/S ratio = "+tol_sum_rdc/tol_sum_sig+" ("+tol_sum_rdc+"/"+tol_sum_sig+")");
             if(true) // evaluation
@@ -509,6 +586,16 @@ public class HierarchyPruning {
 //                for(int m = 1; m < sampling_markers.size(); m++) sampling_markers[m]->parent = sampling_markers[m-1];
 //            }
 //        }
+
+//        System.out.println("----------------5 before--------------------");
+//        segsToSwc(filter_segs,test,1);
+//        for(int i=0; i<test.size(); i++){
+//            if(test.get(i).x>500){
+//                System.out.println("index i: "+i+inswc.get(i).x);
+//            }
+//        }
+//        test.clear();
+//        System.out.println("------------------end-------------------------");
 
         if(true)//is_leaf_prune)  // leaf nodes pruning
         {
@@ -636,6 +723,16 @@ public class HierarchyPruning {
             }
         }
 
+//        System.out.println("----------------6 before--------------------");
+//        segsToSwc(filter_segs,test,1);
+//        for(int i=0; i<test.size(); i++){
+//            if(test.get(i).x>500){
+//                System.out.println("index i: "+i+inswc.get(i).x);
+//            }
+//        }
+//        test.clear();
+//        System.out.println("------------------end-------------------------");
+
         if(true) // joint leaf node pruning
         {
             System.out.println("Perform joint leaf node pruning");
@@ -703,6 +800,16 @@ public class HierarchyPruning {
 //            }
 //            else post_segs = filter_segs; // random order
 
+//            System.out.println("----------------7 before--------------------");
+//            segsToSwc(filter_segs,test,1);
+//            for(int i=0; i<test.size(); i++){
+//                if(test.get(i).x>500){
+//                    System.out.println("index i: "+i+inswc.get(i).x);
+//                }
+//            }
+//            test.clear();
+//            System.out.println("------------------end-------------------------");
+
             Map<MyMarker,Integer> tmp_child_num = new HashMap<MyMarker,Integer>();
             if(true) // get child_num of each node
             {
@@ -727,6 +834,17 @@ public class HierarchyPruning {
                     tmp_child_num.put(current_markers.elementAt(m),cnum[m]);
                 }
             }
+
+//            System.out.println("----------------8 before--------------------");
+//            segsToSwc(filter_segs,test,1);
+//            for(int i=0; i<test.size(); i++){
+//                if(test.get(i).x>500){
+//                    System.out.println("index i: "+i+inswc.get(i).x);
+//                }
+//            }
+//            test.clear();
+//            System.out.println("------------------end-------------------------");
+
             if(true) // start prune leaf nodes
             {
                 System.out.println("\tleaf node pruning");
@@ -841,6 +959,16 @@ public class HierarchyPruning {
             }
         }
 
+//        System.out.println("----------------9 before--------------------");
+//        segsToSwc(filter_segs,test,1);
+//        for(int i=0; i<test.size(); i++){
+//            if(test.get(i).x>500){
+//                System.out.println("index i: "+i+inswc.get(i).x);
+//            }
+//        }
+//        test.clear();
+//        System.out.println("------------------end-------------------------");
+
         if(is_smooth) // smooth curve
         {
             System.out.println("Smooth the final curve");
@@ -860,9 +988,22 @@ public class HierarchyPruning {
                 smooth_radius(seg_markers, 5,false);
             }
         }
+
+//        System.out.println("----------------10 before--------------------");
+//        segsToSwc(filter_segs,test,1);
+//        for(int i=0; i<test.size(); i++){
+//            if(test.get(i).x>500){
+//                System.out.println("index i: "+i+inswc.get(i).x);
+//            }
+//        }
+//        test.clear();
+//        System.out.println("------------------end-------------------------");
+
         outswc.clear();
         System.out.println(filter_segs.size()+" segments left");
         segsToSwc(filter_segs, outswc, 0); // no resampling
+
+        System.out.println("outswc size: "+outswc.size());
 
         return true;
     }

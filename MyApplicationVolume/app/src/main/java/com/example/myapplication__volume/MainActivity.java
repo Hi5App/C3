@@ -151,6 +151,10 @@ public class MainActivity extends AppCompatActivity {
         button_5.setText("GD_Tracing");
         ll.addView(button_5);
 
+        final Button buttonAPP2 = new Button(this);
+        buttonAPP2.setText("APP2");
+        ll.addView(buttonAPP2);
+
         final Button buttonDeleteMarker = new Button(this);
         buttonDeleteMarker.setText("delete marker");
         ll.addView(buttonDeleteMarker);
@@ -248,6 +252,33 @@ public class MainActivity extends AppCompatActivity {
                              */
                             try {
                                 GDTraing();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    },1000); // 延时1秒
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        buttonAPP2.setOnClickListener(new Button.OnClickListener(){
+            public void onClick(View v){
+                try {
+                    Log.v("Mainactivity", "APP2-Tracing start~");
+                    Toast.makeText(v.getContext(), "APP2-Tracing start~", Toast.LENGTH_SHORT).show();
+                    Timer timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @RequiresApi(api = Build.VERSION_CODES.N)
+                        @Override
+                        public void run() {
+                            /**
+                             * 延时执行的代码
+                             */
+                            try {
+                                APP2();
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -531,14 +562,69 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
+    private void APP2() throws Exception{
+        Image4DSimple img = myrenderer.getImg();
+        img.getDataCZYX();
+        if (!img.valid()) {
+            Log.v("APP2Tracing", "Please load img first!");
+            Looper.prepare();
+            Toast.makeText(this, "Please load img first!", Toast.LENGTH_LONG).show();
+            Looper.loop();
+            return;
+        }
+        ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
+        try{
+            ParaAPP2 p = new ParaAPP2();
+            p.p4dImage = img;
+            p.xc0 = p.yc0 = p.zc0 =0;
+            p.xc1 =(int) p.p4dImage.getSz0()-1;
+            p.yc1 =(int) p.p4dImage.getSz1()-1;
+            p.zc1 =(int) p.p4dImage.getSz2()-1;
+            p.landmarks = new LocationSimple[markers.size()];
+            p.bkg_thresh = -1;
+            for(int i=0;i<markers.size();i++){
+                p.landmarks[i] = new LocationSimple(markers.get(i).x, markers.get(i).y, markers.get(i).z);
+            }
+            System.out.println("---------------start---------------------");
+            p.outswc_file = getExternalFilesDir(null).toString() + "app2.swc";//"/storage/emulated/0/Download/app2.swc";
+            V3dNeuronAPP2Tracing.proc_app2(p);
+
+            ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
+            SwcReader swcReader = new SwcReader();
+            swc = swcReader.read(p.outswc_file);
+            Looper.prepare();
+            Toast.makeText(this, "APP2-Tracing finish, size of result swc: " + Integer.toString(swc.size()), Toast.LENGTH_SHORT).show();
+            myrenderer.importSwc(swc);
+            myGLSurfaceView.requestRender();
+            Looper.loop();
+
+        }catch (Exception e) {
+            Looper.prepare();
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            Looper.loop();
+        }
+
+
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void GDTraing() throws Exception {
         Image4DSimple img = myrenderer.getImg();
         if (!img.valid()) {
             Log.v("GDTracing", "Please load img first!");
+            Looper.prepare();
+            Toast.makeText(this, "Please load img first!", Toast.LENGTH_LONG).show();
+            Looper.loop();
+            return;
         }
         ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
         if (markers.size() <= 1) {
             Log.v("GDTracing", "Please get two marker at least!");
+            Looper.prepare();
+            Toast.makeText(this, "Please get two marker at least!", Toast.LENGTH_LONG).show();
+            Looper.loop();
+            return;
         }
         LocationSimple p0 = new LocationSimple(markers.get(0).x, markers.get(0).y, markers.get(0).z);
         Vector<LocationSimple> pp = new Vector<LocationSimple>();
@@ -554,19 +640,6 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             outswc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img.getDataCZYX(), sz, p0, pp, curveTracePara, 1.0);
-//            ParaAPP2 p = new ParaAPP2();
-//            p.p4dImage = img;
-//            p.xc0 = p.yc0 = p.zc0 =0;
-//            p.xc1 =(int) p.p4dImage.getSz0()-1;
-//            p.yc1 =(int) p.p4dImage.getSz1()-1;
-//            p.zc1 =(int) p.p4dImage.getSz2()-1;
-//            p.landmarks = new LocationSimple[markers.size()];
-//            for(int i=0;i<markers.size();i++){
-//                p.landmarks[i] = new LocationSimple(markers.get(i).z, markers.get(i).y, markers.get(i).x);
-//            }
-//            System.out.println("---------------start---------------------");
-//            p.outswc_file = "/storage/emulated/0/Download/app2.swc";
-//            V3dNeuronAPP2Tracing.proc_app2(p);
         } catch (Exception e) {
             Looper.prepare();
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();

@@ -67,6 +67,7 @@ public class Image4DSimple {
         origin_x = origin_y = origin_z = 0;
 
         valid_zslcenum = 0;
+        b_czyx = true;
     }
 
     public void finalize(){
@@ -364,6 +365,7 @@ public class Image4DSimple {
             out.println("Warning: This image is not stored in 8bit.");
             return false;
         }
+        this.getDataCZYX();
         if(x>=0&&x<sz0&&y>=0&&y<sz1&&z>=0&&z<sz1&&channel>=0&&channel<sz3){
             this.data[(int) channel][(int) z][(int) y][(int) x] =val;
             return  true;
@@ -377,6 +379,7 @@ public class Image4DSimple {
             out.println("Warning: This image is not stored in 8bit.");
             return 0;
         }
+        this.getDataCZYX();
         if(x>=0&&x<sz0&&y>=0&&y<sz1&&z>=0&&z<sz1&&channel>=0&&channel<sz3){
             int val = this.data[(int) channel][(int) z][(int) y][(int) x];
             return  val;
@@ -387,6 +390,7 @@ public class Image4DSimple {
     }
 
     boolean setValue(long x,long y,long z,long channel,int val){
+        this.getDataCZYX();
         if(x>=0&&x<sz0&&y>=0&&y<sz1&&z>=0&&z<sz1&&channel>=0&&channel<sz3){
             this.data[(int) channel][(int) z][(int) y][(int) x] =val;
             return  true;
@@ -396,6 +400,7 @@ public class Image4DSimple {
 
     }
     public int getValue(long x,long y,long z,long channel){
+        this.getDataCZYX();
         if(x>=0&&x<sz0&&y>=0&&y<sz1&&z>=0&&z<sz1&&channel>=0&&channel<sz3){
             int val = this.data[(int) channel][(int) z][(int) y][(int) x];
             return  val;
@@ -517,6 +522,7 @@ public class Image4DSimple {
         sz2=mysz2;sz3=mysz3;
         datatype=mytype;
         b_error=0; //note that here I update b_error
+        b_czyx = true;
         return true;
     }
 
@@ -554,6 +560,8 @@ public class Image4DSimple {
             return false;
         }
         out.println("start  copy--------------------------");
+        dstImg.getDataCZYX();
+        srcImg.getDataCZYX();
 
         int i,j,k,c;
         for (c=0;c<szc;c++)
@@ -603,6 +611,8 @@ public class Image4DSimple {
             out.println("Invalid parameters for the function subvolumecopy() 3.");
             return false;
         }
+        dstImg.getDataCZYX();
+        srcImg.getDataCZYX();
 
         int i,j,k,c;
         if(dstImg.getDatatype() == ImagePixelType.V3D_UINT8){
@@ -622,6 +632,7 @@ public class Image4DSimple {
     }
 
     public int[] getMinMaxValue(long channel){
+        this.getDataCZYX();
         int[] minMax = null;
         if(!this.valid()){
             return minMax;
@@ -643,6 +654,7 @@ public class Image4DSimple {
     }
 
     public double[] getMeanStdValue(long channel){
+        this.getDataCZYX();
         double[] meanStd = null;
         if(channel<0 || channel>=this.getSz3()){
             out.println("The channel is out of data!");
@@ -684,6 +696,7 @@ public class Image4DSimple {
             out.println("Invalid chan parameter in scaleintensity();");
             return false;
         }
+        p4dImage.getDataCZYX();
 
         if (lower_th==-9999 && higher_th==-9999)
         {
@@ -736,6 +749,7 @@ public class Image4DSimple {
             out.println("The input to resample3dimg_interp() are invalid");
             return false;
         }
+        srcImg.getDataCZYX();
 
         if (dfactor_x<1 || dfactor_y<1 || dfactor_z<1)
         {

@@ -15,7 +15,7 @@ public class ParaAPP2 {
     public int  cnn_type;
     public int  channel;
     public double SR_ratio;
-    public int  b_256cube;
+    public int  b_128cube;
     public boolean b_RadiusFrom2D; //how to estimate radius of each reconstruction node, from 2D plane (for anisotropic case) or 3D (for isotropic case)
     public int b_resample;
     public int b_intensity;
@@ -38,7 +38,7 @@ public class ParaAPP2 {
         cnn_type = 2; // default connection type 2
         channel = 0;
         SR_ratio = 3.0/9.0;
-        b_256cube = 1; //whether or not preprocessing to downsample to a 256xYxZ cube UINT8 for tracing
+        b_128cube = 1; //whether or not preprocessing to downsample to a 256xYxZ cube UINT8 for tracing
         b_RadiusFrom2D = true;
         b_resample = 1;
         b_intensity = 0;

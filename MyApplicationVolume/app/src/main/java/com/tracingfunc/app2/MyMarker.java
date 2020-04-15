@@ -162,6 +162,9 @@ public class MyMarker implements Cloneable{
             }
             for(int i=0; i<outmarkers.size(); i++){
                 MyMarker marker = outmarkers.elementAt(i);
+                if(marker.x>500){
+                    System.out.println("index i: "+i+" "+marker.x);
+                }
                 int parent_id;
                 if(marker.parent == null)
                     parent_id = -1;
