@@ -22,6 +22,7 @@ public class V3dNeuronGDTracing {
         }
         V_NeuronSWC_list tracedNeuron;
         Vector<Vector<V_NeuronSWC_unit>> mmUnit = new Vector<Vector<V_NeuronSWC_unit>>();
+//        trace_para.sp_downsample_step = 1;
 
         tracedNeuron = trace_one_pt_to_N_points_shortestdist(p4d, sz, p0, pp, trace_para, trace_z_thickness, mmUnit);
 
@@ -350,9 +351,8 @@ public class V3dNeuronGDTracing {
                     mUnit_prior.add(mUnit.elementAt(s).clone());
                 }
 
-                //smooth_curve(mCoord, trace_para.sp_smoothing_win_sz);
+                GD.smoothCurve(mUnit, trace_para.sp_smoothing_win_sz);
                 mUnit = GD.downsample_curve(mUnit, trace_para.sp_downsample_step);
-
                 //------------------------------------------------------------
                 BDB_Minus_Prior_Parameter bdbp_para = new BDB_Minus_Prior_Parameter();
                 bdbp_para.nloops   =trace_para.nloops;

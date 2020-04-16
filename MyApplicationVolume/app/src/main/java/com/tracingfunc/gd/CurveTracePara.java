@@ -41,7 +41,7 @@ public class CurveTracePara {
     public CurveTracePara()
     {
         channo=0; n_points=8; landmark_id_start=0; landmark_id_end=0;
-        nloops=1; //change from 100 to 1 for JHS data. 090824
+        nloops=100; //change from 100 to 1 for JHS data. 090824
         image_force_weight=1;
         grident_force_weight=1;
         internal_force_weight=0.1;

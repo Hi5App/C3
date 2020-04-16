@@ -1333,6 +1333,8 @@ public class GD {
         boolean b_use_G_term = false; //for switch
 
 
+        System.out.println("bending code: "+bending_code);
+//        bending_code = 1;
         double f_image = 1;
         double f_length = bdb_para.f_length;
         double f_smooth = bdb_para.f_smooth;
@@ -1404,6 +1406,7 @@ public class GD {
         org_x = mCoord.elementAt(M-1).x;
         org_y = mCoord.elementAt(M-1).y;
         org_z = mCoord.elementAt(M-1).z;
+        System.out.println("max_loop: "+max_loops);
         for (int nloop = 0; nloop < max_loops; nloop++)
         {
             // for each control point
@@ -1429,24 +1432,24 @@ public class GD {
                     //090621 RZC: dynamic radius estimation
                     radius = 2*fitRadiusPercent(img3d, dim0, dim1, dim2, imgTH, AR * 2, (float) xc, (float) yc, (float) zc, zthickness, b_est_in_xyplaneonly);
                     //radius = radius / 2;
-                    if (radius > 10){
-                        radius = 10;
-                    }
-                    if (radius < 2){
-                        radius = 2;
-                    }
+//                    if (radius > 10){
+//                        radius = 10;
+//                    }
+//                    if (radius < 2){
+//                        radius = 2;
+//                    }
                     //mCoord_new[j].r = radius;
 
                     //System.out.println(radius);
                     average_radius += radius / M;
                     //                                System.out.println(radius);
 
-                    int x0 = (int) (xc - radius); x0 = (x0 < 0) ? 0 : x0;
-                    int x1 = (int) (xc + radius); x1 = (x1 > dim0 - 1) ? (dim0 - 1) : x1;
-                    int y0 = (int) (yc - radius); y0 = (y0 < 0) ? 0 : y0;
-                    int y1 = (int) (yc + radius); y1 = (y1 > dim1 - 1) ? (dim1 - 1) : y1;
-                    int z0 = (int) (zc - radius / zthickness); z0 = (z0 < 0) ? 0 : z0;
-                    int z1 = (int) (zc + radius / zthickness); z1 = (z1 > dim2 - 1) ? (dim2 - 1) : z1;
+                    int x0 = (int) (xc - radius); x0 = Math.max(x0, 0);
+                    int x1 = (int) (xc + radius); x1 = Math.min(x1, dim0 - 1);
+                    int y0 = (int) (yc - radius); y0 = Math.max(y0, 0);
+                    int y1 = (int) (yc + radius); y1 = Math.min(y1, dim1 - 1);
+                    int z0 = (int) (zc - radius / zthickness); z0 = Math.max(z0, 0);
+                    int z1 = (int) (zc + radius / zthickness); z1 = Math.min(z1, dim2 - 1);
 
                     double sum_x = 0, sum_y = 0, sum_z = 0, sum_px = 0, sum_py = 0, sum_pz = 0;
                     int ix, iy, iz;
@@ -1671,12 +1674,16 @@ public class GD {
 
             //////////////////////////////////////////////////////
             // Can the iteration be terminated ?
+            System.out.println("TH: "+TH);
             if (score < TH )
-            break;
+                break;
             if (nloop > 0)
             {
                 if (Math.abs(lastscore - score) < TH*0.5 / M) // to prevent jumping around
+                {
+                    System.out.println("in there------------------------------");
                     break;
+                }
             }
 
             lastscore = score;
@@ -1972,6 +1979,85 @@ public class GD {
             mCoord.elementAt(i).x = xyz[0];
             mCoord.elementAt(i).y = xyz[1];
             mCoord.elementAt(i).z = xyz[2];
+        }
+        return true;
+    }
+
+    public static boolean fixZigzag(int[][][] img3d, int dim0, int dim1, int dim2,
+                                                  Vector <V_NeuronSWC_unit>  mCoord, int times) throws Exception{
+        Vector<V_NeuronSWC_unit> mCoordOld= new Vector<V_NeuronSWC_unit>();
+        for(int t=0; t<times; t++){
+            mCoordOld.clear();
+            for(int i=0;i<mCoord.size(); i++){
+                mCoordOld.add(mCoord.get(i).clone());
+            }
+            for(int i=1; i<mCoord.size()-1; i++){
+                double x = (mCoordOld.get(i-1).x +mCoordOld.get(i+1).x)/2;
+                double y = (mCoordOld.get(i-1).y +mCoordOld.get(i+1).y)/2;
+                double z = (mCoordOld.get(i-1).z +mCoordOld.get(i+1).z)/2;
+                if(x<0) x = 0; if(x>dim0-1) x= dim0-1;
+                if(y<0) y = 0; if(y>dim1-1) y= dim1-1;
+                if(z<0) z = 0; if(z>dim2-1) z= dim2-1;
+                mCoord.get(i).x = x;
+                mCoord.get(i).y = y;
+                mCoord.get(i).z = z;
+            }
+        }
+        return  true;
+    }
+
+    public static boolean smoothCurve(Vector <V_NeuronSWC_unit>  mCoord, int winsize) throws Exception
+    {
+        System.out.println("---------------------smooth curve----------------------");
+        if (winsize < 2) return true;
+
+        int N = mCoord.size();
+        int halfwin = winsize / 2;
+        Vector<V_NeuronSWC_unit> mC= new Vector<V_NeuronSWC_unit>(); // a copy
+        for(int i=0; i<N; i++){
+            mC.add(mCoord.get(i).clone());
+        }
+
+
+        for (int i = 1; i < N - 1; i++) // don't move start & end point
+        {
+            Vector<V_NeuronSWC_unit> winC = new Vector<V_NeuronSWC_unit>();
+            Vector<Double> winW = new Vector<Double>();
+            winC.clear();
+            winW.clear();
+
+            winC.add(mC.get(i));
+            winW.add(1.0 + halfwin);
+            for (int j = 1; j <= halfwin; j++)
+            {
+                int k1 = i + j;	if (k1<0) k1 = 0;	if (k1>N - 1) k1 = N - 1;
+                int k2 = i - j;	if (k2<0) k2 = 0;	if (k2>N - 1) k2 = N - 1;
+                winC.add(mC.get(k1));
+                winC.add(mC.get(k2));
+                winW.add(1.0 + halfwin - j);
+                winW.add(1.0 + halfwin - j);
+            }
+            //std::cout<<"winC.size = "<<winC.size()<<"\n";
+
+            double s, x, y, z;
+            s = x = y = z = 0;
+            for (int j = 0; j < winC.size(); j++)
+            {
+                x += winW.get(j) * winC.get(j).x;
+                y += winW.get(j) * winC.get(j).y;
+                z += winW.get(j) * winC.get(j).z;
+                s += winW.get(j);
+            }
+            if (s>0)
+            {
+                x /= s;
+                y /= s;
+                z /= s;
+            }
+
+            mCoord.get(i).x = x; // output
+            mCoord.get(i).y = y; // output
+            mCoord.get(i).z = z; // output
         }
         return true;
     }
