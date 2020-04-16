@@ -35,4 +35,10 @@ public class HierarchySegment {
         }
         outswc.add(root_marker);
     }
+
+    public boolean smoothCurve(int winsize){
+        Vector<MyMarker> outswc = new Vector<MyMarker>();
+        MyMarker.smoothCurve(outswc,winsize);
+        return true;
+    }
 }
