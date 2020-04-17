@@ -11,6 +11,16 @@ import java.util.ArrayList;
 
 public class MyDraw {
 
+    public final static float[][] colormap = {
+            {0f,0f,0f},
+            {1f,1f,1f},
+            {1f,0f,0f},
+            {0f,0f,1f},
+            {0f,1f,0f},
+            {1f,0f,1f},
+            {1f,1f,0f}
+    } ;
+
     float n = 100;
 //    final float radius = 0.1f;
     final float radius = 0.02f;
@@ -21,15 +31,19 @@ public class MyDraw {
     private FloatBuffer vertexBuffer_marker;
     private FloatBuffer normalizeBuffer_marker;
     private FloatBuffer vertexBuffer_line;
+    private FloatBuffer colorBuffer_marker;
+    private FloatBuffer colorBuffer_line;
 
     float[] normalMatrix = new float[16];
     float[] normalMatrix_before = new float[16];
 
     private float[] normalizePoints_marker;
     private float[] vertexPoints_marker;
+    private float[] colorPoints_marker;
 
     private int vertexPoints_handle = 0;
     private int normalizePoints_handle = 1;
+    private int colorPoints_handle = 2;
 
 
 //    private float[] normalizePoints_marker = createNormlizes();
@@ -40,10 +54,13 @@ public class MyDraw {
             "#version 300 es\n" +
                     "layout (location = 0) in vec4 vPosition;" +
 //                    "layout (location = 1) in vec3 aVertexNormal;" +
+                    "layout (location = 2) in vec4 vColor;" +
                     "uniform mat4 uMVPMatrix;" +
+                    "out vec4 vOutColor;" +
                     "void main() {" +
                     "    gl_Position = uMVPMatrix * vPosition;" +
 //                    "  gl_Position = vec4((uMVPMatrix * vPosition).xy, -0.99999, 1.0);" +
+                    "    vOutColor = vColor;" +
                     "}";
 
 
@@ -51,9 +68,11 @@ public class MyDraw {
     private final String fragmentShaderCode_line =
             "#version 300 es\n" +
                     "precision mediump float;" +
+                    "in vec4 vOutColor;" +
                     "out vec4 FragColor;" +
                     "void main() {" +
-                    "  FragColor = vec4(1.0, 0.0, 0.0, 1.0);" +
+//                    "  FragColor = vec4(1.0, 0.0, 0.0, 1.0);" +
+                    "  FragColor = vec4(vOutColor.rgb,1.0);" +
                     "}";
 
 
@@ -65,11 +84,13 @@ public class MyDraw {
             "#version 300 es\n" +
                     "layout (location = 0) in vec4 vPosition;" +
                     "layout (location = 1) in vec3 aVertexNormal;" +
+                    "layout (location = 2) in vec4 vColor;"+
 
                     "uniform mat4 uNormalMatrix;" +
                     "uniform mat4 uMVPMatrix;" +
 
                     "out vec3 vLighting;" +
+                    "out vec4 vOutColor;" +
 
                     "void main() {" +
                     "    gl_Position = uMVPMatrix * vPosition;" +
@@ -80,6 +101,7 @@ public class MyDraw {
                     "    vec3 transformedNormal = (uNormalMatrix * vec4(aVertexNormal, 1.0)).xyz;\n" +
                     "    float directionalLightWeighting = max(dot(transformedNormal, directionalVector), 0.0);\n" +
                     "    vLighting = uAmbientColor + uDirectionalColor * directionalLightWeighting;" +
+                    "    vOutColor = vColor;"+
                     "}";
 
 
@@ -88,12 +110,14 @@ public class MyDraw {
             "#version 300 es\n" +
                     "precision mediump float;" +
 
+                    "in vec4 vOutColor;" +
                     "in vec3 vLighting;" +
                     "out vec4 FragColor;" +
 
                     "void main() {" +
 //                    "  vec4 markerColor = vec4(0.29, 0.13, 0.36, 1.0);" +
-                    "  vec4 markerColor = vec4(1.0, 0.0, 0.0, 1.0);" +
+//                    "  vec4 markerColor = vec4(1.0, 0.0, 0.0, 1.0);" +
+                    "  vec4 markerColor = vOutColor;"+
                     "  FragColor = vec4(markerColor.rgb * vLighting, 1.0);" +
                     "}";
 
@@ -115,7 +139,7 @@ public class MyDraw {
     }
 
 
-    private void BufferSet_Marker(float x, float y, float z){
+    private void BufferSet_Marker(float x, float y, float z, int type){
 
         vertexPoints_marker = createPositions(x, y, z);
 
@@ -127,6 +151,16 @@ public class MyDraw {
         //传入指定的坐标数据
         vertexBuffer_marker.put(vertexPoints_marker);
         vertexBuffer_marker.position(0);
+
+        colorPoints_marker = new float[vertexPoints_marker.length];//colormap[type];
+        for(int i=0; i<colorPoints_marker.length; i++){
+            colorPoints_marker[i] = colormap[type][i%3];
+        }
+        colorBuffer_marker = ByteBuffer.allocateDirect(colorPoints_marker.length*4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        colorBuffer_marker.put(colorPoints_marker);
+        colorBuffer_marker.position(0);
 
     }
 
@@ -149,12 +183,25 @@ public class MyDraw {
 
 
 
-    private void BufferSet_Line(float [] line){
+    private void BufferSet_Line(float [] line, int type){
         vertexBuffer_line = ByteBuffer.allocateDirect(line.length * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
         vertexBuffer_line.put(line);
         vertexBuffer_line.position(0);
+
+        colorPoints_marker = new float[line.length];
+        for(int i=0; i<colorPoints_marker.length; i++){
+            colorPoints_marker[i] = colormap[type][i%3];
+//            System.out.println(colorPoints_marker[i]);
+        }
+        colorBuffer_line = ByteBuffer.allocateDirect(colorPoints_marker.length* 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        colorBuffer_line.put(colorPoints_marker);
+        colorBuffer_line.position(0);
+
+
     }
 
 
@@ -199,10 +246,12 @@ public class MyDraw {
 //    }
 
 
-    public void drawMarker(float[] mvpMatrix, float[] modelMatrix, float x, float y, float z){
+    public void drawMarker(float[] mvpMatrix, float[] modelMatrix, float x, float y, float z, int type){
+//        System.out.println("set marker");
 
-        BufferSet_Marker(x, y, z);
+        BufferSet_Marker(x, y, z, type);
 
+//        System.out.println("set marker end");
 
         GLES30.glDisable(GLES30.GL_DEPTH_TEST);
 
@@ -219,6 +268,12 @@ public class MyDraw {
         GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker);
         //启用顶点的句柄
         GLES30.glEnableVertexAttribArray(normalizePoints_handle);
+
+        //准备颜色数据
+        GLES30.glVertexAttribPointer(colorPoints_handle,3,GLES30.GL_FLOAT, false, 0,colorBuffer_marker);
+        GLES30.glEnableVertexAttribArray(colorPoints_handle);
+
+
 
 
         // get handle to vertex shader's uMVPMatrix member
@@ -237,10 +292,14 @@ public class MyDraw {
 
         GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length/3);
 
+//        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length/3);
+
 
         //禁止顶点数组的句柄
         GLES30.glDisableVertexAttribArray(vertexPoints_handle);
         GLES30.glDisableVertexAttribArray(normalizePoints_handle);
+
+        GLES30.glDisableVertexAttribArray(colorPoints_handle);
 
 
         GLES30.glEnable(GLES30.GL_DEPTH_TEST);
@@ -249,12 +308,14 @@ public class MyDraw {
 
 
 
-    public void drawLine(float [] mvpMatrix, ArrayList<Float> lineDrawed){
+    public void drawLine(float [] mvpMatrix, ArrayList<Float> lineDrawed, int type){
         float [] line = new float[lineDrawed.size()];
+//        System.out.println("line size in 302: "+line.length +" "+ lineDrawed.size());
         for (int i = 0; i < lineDrawed.size(); i++){
             line[i] = lineDrawed.get(i);
         }
-        BufferSet_Line(line);
+        BufferSet_Line(line, type);
+//        System.out.println("set end-----------");
 
         GLES30.glDisable(GLES30.GL_DEPTH_TEST);
 
@@ -266,6 +327,11 @@ public class MyDraw {
         GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_line);
         //启用顶点的句柄
         GLES30.glEnableVertexAttribArray(0);
+
+        //准备颜色数据
+        GLES30.glVertexAttribPointer(colorPoints_handle, 3, GLES30.GL_FLOAT, false, 0, colorBuffer_line);
+        //启用颜色的句柄
+        GLES30.glEnableVertexAttribArray(colorPoints_handle);
 
         // get handle to vertex shader's uMVPMatrix member
         int vPMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_line,"uMVPMatrix");
@@ -280,42 +346,45 @@ public class MyDraw {
         //禁止顶点数组的句柄
         GLES30.glDisableVertexAttribArray(0);
 
-        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
-    }
-
-    public void drawEswc(float [] mvpMatrix, ArrayList<Float> lineDrawed){
-        float [] line = new float[lineDrawed.size()];
-        for (int i = 0; i < lineDrawed.size(); i++){
-            line[i] = lineDrawed.get(i);
-        }
-        BufferSet_Line(line);
-
-        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
-
-        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
-
-        GLES30.glUseProgram(mProgram_line);
-
-        //准备坐标数据
-        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_line);
-        //启用顶点的句柄
-        GLES30.glEnableVertexAttribArray(0);
-
-        // get handle to vertex shader's uMVPMatrix member
-        int vPMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_line,"uMVPMatrix");
-
-        // Pass the projection and view transformation to the shader
-        GLES30.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
-
-        GLES30.glLineWidth(3);
-
-        GLES30.glDrawArrays(GLES30.GL_LINES, 0, line.length/3);
-
-        //禁止顶点数组的句柄
-        GLES30.glDisableVertexAttribArray(0);
+        //禁止颜色的句柄
+        GLES30.glDisableVertexAttribArray(2);
 
         GLES30.glEnable(GLES30.GL_DEPTH_TEST);
     }
+
+//    public void drawEswc(float [] mvpMatrix, ArrayList<Float> lineDrawed){
+//        float [] line = new float[lineDrawed.size()];
+//        for (int i = 0; i < lineDrawed.size(); i++){
+//            line[i] = lineDrawed.get(i);
+//        }
+//        BufferSet_Line(line);
+//
+//        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
+//
+//        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
+//
+//        GLES30.glUseProgram(mProgram_line);
+//
+//        //准备坐标数据
+//        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_line);
+//        //启用顶点的句柄
+//        GLES30.glEnableVertexAttribArray(0);
+//
+//        // get handle to vertex shader's uMVPMatrix member
+//        int vPMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_line,"uMVPMatrix");
+//
+//        // Pass the projection and view transformation to the shader
+//        GLES30.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
+//
+//        GLES30.glLineWidth(3);
+//
+//        GLES30.glDrawArrays(GLES30.GL_LINES, 0, line.length/3);
+//
+//        //禁止顶点数组的句柄
+//        GLES30.glDisableVertexAttribArray(0);
+//
+//        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+//    }
 
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -3,13 +3,13 @@ package com.tracingfunc.gd;
 import java.util.Vector;
 
 public class V_NeuronSWC_list implements Cloneable{
-    Vector<V_NeuronSWC> seg; //since each seg could be a complete neuron or multiple paths, thus I call it "seg", but not "path"
-    int last_seg_num; //?? for what purpose? seems only used once in v3d_core.cpp. Questioned by Hanchuan, 20100210
-    String name;
-    String comment;
-    String file;
-    int[] color_uc;
-    boolean b_traced;
+    public Vector<V_NeuronSWC> seg; //since each seg could be a complete neuron or multiple paths, thus I call it "seg", but not "path"
+    public int last_seg_num; //?? for what purpose? seems only used once in v3d_core.cpp. Questioned by Hanchuan, 20100210
+    public String name;
+    public String comment;
+    public String file;
+    public int[] color_uc;
+    public boolean b_traced;
 
     public V_NeuronSWC_list() {
         last_seg_num=-1; color_uc=new int[4];
@@ -40,7 +40,34 @@ public class V_NeuronSWC_list implements Cloneable{
     // void decompose();
     // boolean reverse();
     // boolean split(int seg_id, int nodeinseg_id);
-    // boolean deleteSeg(int seg_id);
+    public boolean deleteSeg(int seg_id){
+        System.out.println("delete id "+seg_id);
+        if(seg_id>=0 && seg_id<this.nsegs()){
+            this.seg.remove(seg_id);
+            return true;
+        }else {
+            return false;
+        }
+    }
+
+    public boolean deleteMutiSeg(Vector<Integer> seg_ids){
+        if(seg_ids.size()>0){
+            for(int i=0; i<seg_ids.size(); i++){
+                int seg_id = seg_ids.get(i);
+                if(seg_id>=0 && seg_id<this.nsegs()){
+                    this.seg.get(seg_id).to_be_deleted = true;
+                }else {
+                    return false;
+                }
+            }
+        }
+        for(V_NeuronSWC seg : this.seg){
+            if(seg.to_be_deleted == true){
+                this.seg.remove(seg);
+            }
+        }
+        return true;
+    }
 
     // // @ADDED by Alessandro on 2015-05-08. Needed to support late delete of multiple neuron segments.
     // void                                            // no value returned

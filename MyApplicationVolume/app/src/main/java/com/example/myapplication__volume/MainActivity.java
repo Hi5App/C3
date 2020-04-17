@@ -51,6 +51,7 @@ import com.tracingfunc.app2.ParaAPP2;
 import com.tracingfunc.app2.V3dNeuronAPP2Tracing;
 import com.tracingfunc.gd.CurveTracePara;
 import com.tracingfunc.gd.V3dNeuronGDTracing;
+import com.tracingfunc.gd.V_NeuronSWC;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -451,10 +452,11 @@ public class MainActivity extends AppCompatActivity {
                             myrenderer.importApo(apo);
                             break;
                         case ".SWC":
-                            ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
-                            SwcReader swcReader = new SwcReader();
-                            swc = swcReader.read(uri);
-                            myrenderer.importSwc(swc);
+//                            ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
+//                            SwcReader swcReader = new SwcReader();
+//                            swc = swcReader.read(uri);
+                            NeuronTree nt = NeuronTree.readSWC_file(uri);
+                            myrenderer.importNeuronTree(nt);
                             break;
                         case ".ANO":
                             ArrayList<ArrayList<Float>> ano_swc = new ArrayList<ArrayList<Float>>();
@@ -506,11 +508,13 @@ public class MainActivity extends AppCompatActivity {
                             myrenderer.importApo(ano_apo);
                             break;
                         case ".ESWC":
-                            ArrayList<ArrayList<Float>> eswc = new ArrayList<ArrayList<Float>>();
-                            EswcReader eswcReader = new EswcReader();
-
-                            eswc = eswcReader.read(length, is);
-                            myrenderer.importEswc(eswc);
+//                            ArrayList<ArrayList<Float>> eswc = new ArrayList<ArrayList<Float>>();
+//                            EswcReader eswcReader = new EswcReader();
+//
+//                            eswc = eswcReader.read(length, is);
+//                            myrenderer.importEswc(eswc);
+                            NeuronTree nt1 = NeuronTree.readSWC_file(uri);
+                            myrenderer.importNeuronTree(nt1);
                             break;
 
                         default:
@@ -592,12 +596,17 @@ public class MainActivity extends AppCompatActivity {
             System.out.println(p.outswc_file);
             V3dNeuronAPP2Tracing.proc_app2(p);
 
-            ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
-            SwcReader swcReader = new SwcReader();
-            swc = swcReader.read(p.outswc_file);
+//            ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
+//            SwcReader swcReader = new SwcReader();
+//            swc = swcReader.read(p.outswc_file);
+            NeuronTree nt = NeuronTree.readSWC_file(p.outswc_file);
+            for(int i=0;i<nt.listNeuron.size(); i++){
+                nt.listNeuron.get(i).type = 4;
+            }
+            System.out.println("size: "+nt.listNeuron.size());
             Looper.prepare();
-            Toast.makeText(this, "APP2-Tracing finish, size of result swc: " + Integer.toString(swc.size()), Toast.LENGTH_SHORT).show();
-            myrenderer.importSwc(swc);
+            Toast.makeText(this, "APP2-Tracing finish, size of result swc: " + Integer.toString(nt.listNeuron.size()), Toast.LENGTH_SHORT).show();
+            myrenderer.importNeuronTree(nt);
             myGLSurfaceView.requestRender();
             Looper.loop();
 
@@ -652,23 +661,26 @@ public class MainActivity extends AppCompatActivity {
 //        outswc.writeSWC_file(filePath);
 //
 //
-        ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
-        for (int i = 0; i < outswc.listNeuron.size(); i++) {
-            ArrayList<Float> s = new ArrayList<Float>();
-            s.add((float) outswc.listNeuron.get(i).n);
-            s.add((float) outswc.listNeuron.get(i).type);
-            s.add((float) outswc.listNeuron.get(i).x);
-            s.add((float) outswc.listNeuron.get(i).y);
-            s.add((float) outswc.listNeuron.get(i).z);
-            s.add((float) outswc.listNeuron.get(i).radius);
-            s.add((float) outswc.listNeuron.get(i).parent);
-            swc.add(s);
+//        ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
+//        for (int i = 0; i < outswc.listNeuron.size(); i++) {
+//            ArrayList<Float> s = new ArrayList<Float>();
+//            s.add((float) outswc.listNeuron.get(i).n);
+//            s.add((float) outswc.listNeuron.get(i).type);
+//            s.add((float) outswc.listNeuron.get(i).x);
+//            s.add((float) outswc.listNeuron.get(i).y);
+//            s.add((float) outswc.listNeuron.get(i).z);
+//            s.add((float) outswc.listNeuron.get(i).radius);
+//            s.add((float) outswc.listNeuron.get(i).parent);
+//            swc.add(s);
+//        }
+//        Log.v("MainActivity--GD", Integer.toString(swc.size()));
+        for(int i=0;i<outswc.listNeuron.size(); i++){
+            outswc.listNeuron.get(i).type = 6;
         }
-        Log.v("MainActivity--GD", Integer.toString(swc.size()));
 
         Looper.prepare();
-        Toast.makeText(this, "GD-Tracing finish, size of result swc: " + Integer.toString(swc.size()), Toast.LENGTH_SHORT).show();
-        myrenderer.importSwc(swc);
+        Toast.makeText(this, "GD-Tracing finish, size of result swc: " + Integer.toString(outswc.listNeuron.size()), Toast.LENGTH_SHORT).show();
+        myrenderer.importNeuronTree(outswc);
         myGLSurfaceView.requestRender();
         Looper.loop();
 
@@ -1165,7 +1177,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         if (ifDeletingLine){
                             myrenderer.setIfPainting(false);
-                            myrenderer.deleteLine(lineDrawed);
+                            myrenderer.deleteLine1(lineDrawed);
                             lineDrawed.clear();
                             myrenderer.setLineDrawed(lineDrawed);
                             requestRender();

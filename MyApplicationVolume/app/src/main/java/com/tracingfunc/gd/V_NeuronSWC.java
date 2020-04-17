@@ -70,16 +70,19 @@ public class V_NeuronSWC implements Cloneable{
     // vector<V_NeuronSWC_coord> unique_ncoord(); //unique node coordinates (coordinates are the 3rd to 5th column)
     // int n_unique_ncoord(); //number of unique node coords
 
-    int maxnoden() //091029 change maxnoden from >=-1 to >=0 for base_n in set_simple_path...
+    public int maxnoden() //091029 change maxnoden from >=-1 to >=0 for base_n in set_simple_path...
     {
         int maxn=0;	for (int i=0;i<row.size();i++) if (row.elementAt(i).n > maxn) maxn = (int)row.elementAt(i).n;		return maxn;
     }
-    // int getIndexofParent(int j)
-    // {
-    // 	int res=-1; int parent = row.at(j).parent;
-    //             for (int i=0;i<(int)row.size();i++) if (row[i].n==parent)	{res=i; break;}
-    // 	return res;
-    // }
+     public int getIndexofParent(int j)
+     {
+     	int res=-1; int parent = (int) row.get(j).parent;
+     	for (int i=0;i<(int)row.size();i++)
+     	    if (row.get(i).n==parent) {
+     	        res=i; break;
+     	    }
+     	return res;
+     }
     // vector<int> getIndexofParent_nodeid(int nid) //return the array of of node "nid"'s parents' nid
     // {
     // 	vector<int> res;

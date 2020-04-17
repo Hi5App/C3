@@ -15,7 +15,11 @@ import com.example.basic.MyAnimation;
 import com.example.basic.Image4DSimple;
 import com.example.basic.ImageMarker;
 import com.example.basic.MyAnimation;
+import com.example.basic.NeuronTree;
 import com.example.basic.XYZ;
+import com.tracingfunc.gd.V_NeuronSWC;
+import com.tracingfunc.gd.V_NeuronSWC_list;
+import com.tracingfunc.gd.V_NeuronSWC_unit;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -23,6 +27,9 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -97,6 +104,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private ArrayList<Float> swcDrawed = new ArrayList<Float>();
 
     private ArrayList<ImageMarker> MarkerList = new ArrayList<ImageMarker>();
+
+    private V_NeuronSWC_list curSwcList = new V_NeuronSWC_list();
+
+    private int lastLineType = 2;
+    private int lastMarkerType = 3;
 
 
     private String filepath = ""; //文件路径
@@ -298,28 +310,68 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //
 //            }
 //        }
+        if(curSwcList.nsegs()>0){
+//            System.out.println("------------draw curswclist------------------------");
+            ArrayList<Float> lines = new ArrayList<Float>();
+            for(int i=0; i<curSwcList.seg.size(); i++){
+                System.out.println("i: "+i);
+                V_NeuronSWC seg = curSwcList.seg.get(i);
+//                ArrayList<Float> currentLine = swc.get(i);
+                Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
+                lines.clear();
+                for(int j=0; j<seg.row.size(); j++){
+                    if(seg.row.get(j).parent != -1){
+                        V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(j));
+                        swcUnitMap.put(j,parent);
+                    }
+                }
+//                System.out.println("---------------end map-----------------------");
+                for(int j=0; j<seg.row.size(); j++){
+//                    System.out.println("in row: "+j+"-------------------");
+                    V_NeuronSWC_unit child = seg.row.get(j);
+                    int parentid = (int) child.parent;
+                    if (parentid == -1){
+//                        System.out.println("parent -1");
+                        continue;
+                    }
+                    V_NeuronSWC_unit parent = swcUnitMap.get(j);
+                    lines.add((float) ((sz[0] - parent.x)/sz[0]*mz[0]));
+                    lines.add((float) ((sz[1] - parent.y)/sz[1]*mz[1]));
+                    lines.add((float) ((parent.z)/sz[2]*mz[2]));
+                    lines.add((float) ((sz[0] - child.x)/sz[0]*mz[0]));
+                    lines.add((float) ((sz[1] - child.y)/sz[1]*mz[1]));
+                    lines.add((float) ((child.z)/sz[2]*mz[2]));
+//                    System.out.println("in draw line--------------"+j);
+//                    System.out.println("type: "+parent.type);
+                    myDraw.drawLine(finalMatrix, lines, (int) parent.type);
+                    lines.clear();
+                }
+            }
+
+        }
 
 
         //现画的marker
         if(MarkerList.size() > 0){
             for (int i = 0; i < MarkerList.size(); i++){
+                System.out.println("start draw marker---------------------");
                 ImageMarker imageMarker = MarkerList.get(i);
-                myDraw.drawMarker(finalMatrix, modelMatrix, imageMarker.x, imageMarker.y, imageMarker.z);
+                myDraw.drawMarker(finalMatrix, modelMatrix, imageMarker.x, imageMarker.y, imageMarker.z,imageMarker.type);
 //                Log.v("onDrawFrame: ", "(" + markerDrawed.get(i) + ", " + markerDrawed.get(i+1) + ", " + markerDrawed.get(i+2) + ")");
 
             }
         }
 
         //现画的curve
-        if (lineDrawed.size() > 0){
-            for (int i = 0; i < lineDrawed.size(); i++){
-                myDraw.drawLine(finalMatrix, lineDrawed.get(i));
-//                Log.v("onDrawFrameLine",
-//                        "(" + lineDrawed.get(i).get(0) + "," + lineDrawed.get(i).get(1) + "," + lineDrawed.get(i).get(2) + ")"
-//                            + "(" + lineDrawed.get(i).get(3) + "," + lineDrawed.get(i).get(4) + "," + lineDrawed.get(i).get(5) + ")");
-//                Log.v("onDrawFrame", Integer.toString(lineDrawed.get(i).size()));
-            }
-        }
+//        if (lineDrawed.size() > 0){
+//            for (int i = 0; i < lineDrawed.size(); i++){
+//                myDraw.drawLine(finalMatrix, lineDrawed.get(i));
+////                Log.v("onDrawFrameLine",
+////                        "(" + lineDrawed.get(i).get(0) + "," + lineDrawed.get(i).get(1) + "," + lineDrawed.get(i).get(2) + ")"
+////                            + "(" + lineDrawed.get(i).get(3) + "," + lineDrawed.get(i).get(4) + "," + lineDrawed.get(i).get(5) + ")");
+////                Log.v("onDrawFrame", Integer.toString(lineDrawed.get(i).size()));
+//            }
+//        }
 
 
 
@@ -338,25 +390,25 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         //导入的eswc
-        if (eswcDrawed.size() > 0){
-            myDraw.drawEswc(finalMatrix, eswcDrawed);
-        }
-
-        //导入的swc
-        if (swcDrawed.size() > 0){
-            myDraw.drawEswc(finalMatrix, swcDrawed);
-        }
+//        if (eswcDrawed.size() > 0){
+//            myDraw.drawEswc(finalMatrix, eswcDrawed);
+//        }
+//
+//        //导入的swc
+//        if (swcDrawed.size() > 0){
+//            myDraw.drawEswc(finalMatrix, swcDrawed);
+//        }
 
         //导入的apo
-        if (apoDrawed.size() > 0){
-
-            Log.v("MyRender", "Load data successfully!");
-            for (int i = 0; i < apoDrawed.size(); i = i + 3){
-                myDraw.drawMarker(finalMatrix, modelMatrix, apoDrawed.get(i), apoDrawed.get(i+1), apoDrawed.get(i+2));
-//                Log.v("onDrawFrame: ", "(" + markerDrawed.get(i) + ", " + markerDrawed.get(i+1) + ", " + markerDrawed.get(i+2) + ")");
-
-            }
-        }
+//        if (apoDrawed.size() > 0){
+//
+//            Log.v("MyRender", "Load data successfully!");
+//            for (int i = 0; i < apoDrawed.size(); i = i + 4){
+//                myDraw.drawMarker(finalMatrix, modelMatrix, apoDrawed.get(i), apoDrawed.get(i+1), apoDrawed.get(i+2),apoDrawed.get(i+3).intValue());
+////                Log.v("onDrawFrame: ", "(" + markerDrawed.get(i) + ", " + markerDrawed.get(i+1) + ", " + markerDrawed.get(i+2) + ")");
+//
+//            }
+//        }
 
 
         //
@@ -640,6 +692,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             ImageMarker imageMarker_drawed = new ImageMarker(new_marker[0],
                                                              new_marker[1],
                                                              new_marker[2]);
+            imageMarker_drawed.type = lastMarkerType;
+            System.out.println("set type to 3");
 
             MarkerList.add(imageMarker_drawed);
         }
@@ -1407,11 +1461,96 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         lineAdded = getLineDrawed_2(lineCurrent);
 
         if (lineAdded != null){
-            lineDrawed.add(lineAdded);
+//            lineDrawed.add(lineAdded);
+            int max_n = curSwcList.maxnoden();
+            V_NeuronSWC seg = new  V_NeuronSWC();
+            for(int i=0; i < lineAdded.size()/3; i++){
+                V_NeuronSWC_unit u = new V_NeuronSWC_unit();
+                u.n = max_n + i+ 1;
+                if(i==0)
+                    u.parent = -1;
+                else
+                    u.parent = max_n + i;
+                float[] xyz = ModeltoVolume(new float[]{lineAdded.get(i*3+0),lineAdded.get(i*3+1),lineAdded.get(i*3+2)});
+                u.x = xyz[0];
+                u.y = xyz[1];
+                u.z = xyz[2];
+                u.type = lastLineType;
+                seg.append(u);
+//                System.out.println("u n p x y z: "+ u.n +" "+u.parent+" "+u.x +" "+u.y+ " "+u.z);
+            }
+            curSwcList.append(seg);
 //            Log.v("addLineDrawed", Integer.toString(lineAdded.size()));
         }
         else
             Log.v("draw line:::::", "nulllllllllllllllllll");
+    }
+
+    public  void deleteLine1(ArrayList<Float> line){
+        System.out.println("deleteline1--------------------------");
+        for (int i = 0; i < line.size() / 3 - 1; i++){
+            float x1 = line.get(i * 3);
+            float y1 = line.get(i * 3 + 1);
+            float x2 = line.get(i * 3 + 3);
+            float y2 = line.get(i * 3 + 4);
+            for(int j=0; j<curSwcList.nsegs(); j++){
+                System.out.println("delete curswclist --"+j);
+                V_NeuronSWC seg = curSwcList.seg.get(j);
+                if(seg.to_be_deleted)
+                    continue;
+                Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
+                for(int k=0; k<seg.row.size(); k++){
+                    if(seg.row.get(k).parent != -1){
+                        V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(k));
+                        swcUnitMap.put(k,parent);
+                    }
+                }
+                System.out.println("delete: end map");
+                for(int k=0; k<seg.row.size(); k++){
+                    System.out.println("j: "+j+" k: "+k);
+                    V_NeuronSWC_unit child = seg.row.get(k);
+                    int parentid = (int) child.parent;
+                    if (parentid == -1){
+                        System.out.println("parent -1");
+                        continue;
+                    }
+                    V_NeuronSWC_unit parent = swcUnitMap.get(k);
+                    float[] pchild = {(float) child.x, (float) child.y, (float) child.z};
+                    float[] pparent = {(float) parent.x, (float) parent.y, (float) parent.z};
+                    float[] pchildm = VolumetoModel(pchild);
+                    float[] pparentm = VolumetoModel(pparent);
+                    float[] p1 = {pchildm[0],pchild[1],pchild[2],1.0f};
+                    float[] p2 = {pparentm[0],pparentm[1],pparentm[2],1.0f};
+
+                    float [] p1Volumne = new float[4];
+                    float [] p2Volumne = new float[4];
+                    Matrix.multiplyMV(p1Volumne, 0, finalMatrix, 0, p1, 0);
+                    Matrix.multiplyMV(p2Volumne, 0, finalMatrix, 0, p2, 0);
+                    devideByw(p1Volumne);
+                    devideByw(p2Volumne);
+                    float x3 = p1Volumne[0];
+                    float y3 = p1Volumne[1];
+                    float x4 = p2Volumne[0];
+                    float y4 = p2Volumne[1];
+
+                    double m=(x2-x1)*(y3-y1)-(x3-x1)*(y2-y1);
+                    double n=(x2-x1)*(y4-y1)-(x4-x1)*(y2-y1);
+                    double p=(x4-x3)*(y1-y3)-(x1-x3)*(y4-y3);
+                    double q=(x4-x3)*(y2-y3)-(x2-x3)*(y4-y3);
+
+                    if( (Math.max(x1, x2) >= Math.min(x3, x4))
+                            && (Math.max(x3, x4) >= Math.min(x1, x2))
+                            && (Math.max(y1, y2) >= Math.min(y3, y4))
+                            && (Math.max(y3, y4) >= Math.min(y1, y2))
+                            && ((m * n) <= 0) && (p * q <= 0)){
+                        System.out.println("------------------this is delete---------------");
+                        seg.to_be_deleted = true;
+                        break;
+                    }
+                }
+            }
+        }
+        curSwcList.deleteMutiSeg(new Vector<Integer>());
     }
 
     public void deleteLine(ArrayList<Float> line){
@@ -1496,6 +1635,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             swcDrawed.add((sz[1] - currentLine.get(3)) / sz[1] * mz[1]);
             swcDrawed.add((currentLine.get(4)) / sz[2] * mz[2]);
         }
+    }
+    public void importNeuronTree(NeuronTree nt){
+        V_NeuronSWC seg = nt.convertV_NeuronSWCFormat();
+        curSwcList.append(seg);
     }
 
 
