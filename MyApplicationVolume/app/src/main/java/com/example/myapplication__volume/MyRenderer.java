@@ -356,7 +356,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             for (int i = 0; i < MarkerList.size(); i++){
                 System.out.println("start draw marker---------------------");
                 ImageMarker imageMarker = MarkerList.get(i);
-                myDraw.drawMarker(finalMatrix, modelMatrix, imageMarker.x, imageMarker.y, imageMarker.z,imageMarker.type);
+                float[] markerModel = VolumetoModel(new float[]{imageMarker.x, imageMarker.y, imageMarker.z});
+                myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type);
 //                Log.v("onDrawFrame: ", "(" + markerDrawed.get(i) + ", " + markerDrawed.get(i+1) + ", " + markerDrawed.get(i+2) + ")");
 
             }
@@ -400,15 +401,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        }
 
         //导入的apo
-//        if (apoDrawed.size() > 0){
-//
-//            Log.v("MyRender", "Load data successfully!");
-//            for (int i = 0; i < apoDrawed.size(); i = i + 4){
-//                myDraw.drawMarker(finalMatrix, modelMatrix, apoDrawed.get(i), apoDrawed.get(i+1), apoDrawed.get(i+2),apoDrawed.get(i+3).intValue());
-////                Log.v("onDrawFrame: ", "(" + markerDrawed.get(i) + ", " + markerDrawed.get(i+1) + ", " + markerDrawed.get(i+2) + ")");
-//
-//            }
-//        }
+        if (apoDrawed.size() > 0){
+
+            Log.v("MyRender", "Load data successfully!");
+            for (int i = 0; i < apoDrawed.size(); i = i + 4){
+                myDraw.drawMarker(finalMatrix, modelMatrix, apoDrawed.get(i), apoDrawed.get(i+1), apoDrawed.get(i+2),apoDrawed.get(i+3).intValue());
+//                Log.v("onDrawFrame: ", "(" + markerDrawed.get(i) + ", " + markerDrawed.get(i+1) + ", " + markerDrawed.get(i+2) + ")");
+
+            }
+        }
 
 
         //
@@ -836,7 +837,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            float intensity = Sample3d(Marker[0], Marker[1], Marker[2]);
 //            Log.v("intensity",Float.toString(intensity));
 
-            return VolumetoModel(Marker);
+            return Marker;
         }else {
             Log.v("solveMarkerCenter","please make sure the point inside the bounding box");
 //            Looper.prepare();
@@ -1601,6 +1602,78 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
+    public void changeLineType(ArrayList<Float> line, int type){
+        for (int i = 0; i < line.size() / 3 - 1; i++){
+            float x1 = line.get(i * 3);
+            float y1 = line.get(i * 3 + 1);
+            float x2 = line.get(i * 3 + 3);
+            float y2 = line.get(i * 3 + 4);
+            for(int j=0; j<curSwcList.nsegs(); j++){
+                System.out.println("delete curswclist --"+j);
+                V_NeuronSWC seg = curSwcList.seg.get(j);
+                if(seg.to_be_deleted)
+                    continue;
+                Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
+                for(int k=0; k<seg.row.size(); k++){
+                    if(seg.row.get(k).parent != -1){
+                        V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(k));
+                        swcUnitMap.put(k,parent);
+                    }
+                }
+                System.out.println("delete: end map");
+                for(int k=0; k<seg.row.size(); k++){
+                    System.out.println("j: "+j+" k: "+k);
+                    V_NeuronSWC_unit child = seg.row.get(k);
+                    int parentid = (int) child.parent;
+                    if (parentid == -1){
+                        System.out.println("parent -1");
+                        continue;
+                    }
+                    V_NeuronSWC_unit parent = swcUnitMap.get(k);
+                    float[] pchild = {(float) child.x, (float) child.y, (float) child.z};
+                    float[] pparent = {(float) parent.x, (float) parent.y, (float) parent.z};
+                    float[] pchildm = VolumetoModel(pchild);
+                    float[] pparentm = VolumetoModel(pparent);
+                    float[] p1 = {pchildm[0],pchild[1],pchild[2],1.0f};
+                    float[] p2 = {pparentm[0],pparentm[1],pparentm[2],1.0f};
+
+                    float [] p1Volumne = new float[4];
+                    float [] p2Volumne = new float[4];
+                    Matrix.multiplyMV(p1Volumne, 0, finalMatrix, 0, p1, 0);
+                    Matrix.multiplyMV(p2Volumne, 0, finalMatrix, 0, p2, 0);
+                    devideByw(p1Volumne);
+                    devideByw(p2Volumne);
+                    float x3 = p1Volumne[0];
+                    float y3 = p1Volumne[1];
+                    float x4 = p2Volumne[0];
+                    float y4 = p2Volumne[1];
+
+                    double m=(x2-x1)*(y3-y1)-(x3-x1)*(y2-y1);
+                    double n=(x2-x1)*(y4-y1)-(x4-x1)*(y2-y1);
+                    double p=(x4-x3)*(y1-y3)-(x1-x3)*(y4-y3);
+                    double q=(x4-x3)*(y2-y3)-(x2-x3)*(y4-y3);
+
+                    if( (Math.max(x1, x2) >= Math.min(x3, x4))
+                            && (Math.max(x3, x4) >= Math.min(x1, x2))
+                            && (Math.max(y1, y2) >= Math.min(y3, y4))
+                            && (Math.max(y3, y4) >= Math.min(y1, y2))
+                            && ((m * n) <= 0) && (p * q <= 0)){
+                        seg.to_be_deleted = true;
+                        break;
+                    }
+                }
+            }
+        }
+        for(V_NeuronSWC seg : this.curSwcList.seg ){
+            if (seg.to_be_deleted == true){
+                for(int i = 0; i<seg.row.size(); i++){
+                    seg.row.get(i).type = type;
+                }
+                seg.to_be_deleted = false;
+            }
+        }
+    }
+
 
 
     public void importEswc(ArrayList<ArrayList<Float>> eswc){
@@ -1666,17 +1739,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public ArrayList<ImageMarker> getMarkerList() {
+        return MarkerList;
 
-        ArrayList<ImageMarker> Marker_volume_List = new ArrayList<ImageMarker>();
-
-        for (int i = 0; i < MarkerList.size(); i++){
-            ImageMarker marker_model = MarkerList.get(i);
-            float[] model = {marker_model.x, marker_model.y, marker_model.z};
-            float[] volume = ModeltoVolume(model);
-            ImageMarker marker_volume = new ImageMarker(volume[0], volume[1], volume[2]);
-            Marker_volume_List.add(marker_volume);
-        }
-        return Marker_volume_List;
+//        ArrayList<ImageMarker> Marker_volume_List = new ArrayList<ImageMarker>();
+//
+//        for (int i = 0; i < MarkerList.size(); i++){
+//            ImageMarker marker_model = MarkerList.get(i);
+//            float[] model = {marker_model.x, marker_model.y, marker_model.z};
+//            float[] volume = ModeltoVolume(model);
+//            ImageMarker marker_volume = new ImageMarker(volume[0], volume[1], volume[2]);
+//            Marker_volume_List.add(marker_volume);
+//        }
+//        return Marker_volume_List;
     }
 }
 

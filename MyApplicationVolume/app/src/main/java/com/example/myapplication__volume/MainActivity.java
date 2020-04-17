@@ -45,6 +45,7 @@ import androidx.core.app.ActivityCompat;
 import com.example.basic.Image4DSimple;
 import com.example.basic.ImageMarker;
 import com.example.basic.LocationSimple;
+import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
 import com.feature_calc_func.MorphologyCalculate;
 import com.tracingfunc.app2.ParaAPP2;
@@ -502,9 +503,11 @@ public class MainActivity extends AppCompatActivity {
 //                        ano_swc = swcReader_1.read(swc_uri);
 //                        ano_apo = apoReader_1.read(apo_uri);
 
-                            ano_swc = swcReader_1.read(swc_path);
+//                            ano_swc = swcReader_1.read(swc_path);
+                            NeuronTree nt2 = NeuronTree.readSWC_file(swc_path);
                             ano_apo = apoReader_1.read(apo_path);
-                            myrenderer.importSwc(ano_swc);
+//                            myrenderer.importSwc(ano_swc);
+                            myrenderer.importNeuronTree(nt2);
                             myrenderer.importApo(ano_apo);
                             break;
                         case ".ESWC":
@@ -602,6 +605,12 @@ public class MainActivity extends AppCompatActivity {
             NeuronTree nt = NeuronTree.readSWC_file(p.outswc_file);
             for(int i=0;i<nt.listNeuron.size(); i++){
                 nt.listNeuron.get(i).type = 4;
+                if(nt.listNeuron.get(i).parent == -1){
+                    NeuronSWC s = nt.listNeuron.get(i);
+                    ImageMarker m = new ImageMarker(s.x,s.y,s.z);
+                    m.type = 2;
+                    myrenderer.getMarkerList().add(m);
+                }
             }
             System.out.println("size: "+nt.listNeuron.size());
             Looper.prepare();
