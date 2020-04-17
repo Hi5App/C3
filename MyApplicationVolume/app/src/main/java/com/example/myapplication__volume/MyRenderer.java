@@ -704,10 +704,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public void deleteMarkerDrawed(float x, float y){
         for (int i = 0; i < MarkerList.size(); i++){
             ImageMarker tobeDeleted = MarkerList.get(i);
+            float[] markerModel = VolumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
             float [] position = new float[4];
-            position[0] = tobeDeleted.x;
-            position[1] = tobeDeleted.y;
-            position[2] = tobeDeleted.z;
+            position[0] = markerModel[0];
+            position[1] = markerModel[1];
+            position[2] = markerModel[2];
             position[3] = 1.0f;
 
             float [] positionVolumne = new float[4];
@@ -1342,7 +1343,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         float head_y = line[1];
 //        float [] result = new float[line.length];
         ArrayList<Float> result = new ArrayList<Float>();
-        float [] head_result = solveMarkerCenter(head_x, head_y);
+        float [] head_result = VolumetoModel(solveMarkerCenter(head_x, head_y));
         if (head_result == null){
             return null;
         }
