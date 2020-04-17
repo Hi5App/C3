@@ -45,13 +45,13 @@ public class Image4DSimple {
 
     protected byte [] data;
 
-    private boolean b_czyx;
-
-    private void setB_czyx(boolean b){b_czyx = b;}
-
-    public boolean isB_czyx() {
-        return b_czyx;
-    }
+//    private boolean b_czyx;
+//
+//    private void setB_czyx(boolean b){b_czyx = b;}
+//
+//    public boolean isB_czyx() {
+//        return b_czyx;
+//    }
 
     public Image4DSimple(){
         data = null;
@@ -70,7 +70,6 @@ public class Image4DSimple {
         origin_x = origin_y = origin_z = 0;
 
         valid_zslcenum = 0;
-        b_czyx = true;
     }
 
     public void finalize(){
@@ -260,15 +259,6 @@ public class Image4DSimple {
             if(this.getData()!=null){
                 this.setDataToNull();
             }
-//            int[][][][] data4d = new int[(int) sz3][(int) sz2][(int) sz1][(int) sz0];
-//            int i,j,k,c;
-//            for (c=0;c<sz3;c++) {
-//                for (k = 0; k < sz2; k++)
-//                    for (j = 0; j < sz1; j++)
-//                        for (i = 0; i < sz0; i++) {
-//                            data4d[c][k][j][i] = data[c][i][j][k];
-//                        }
-//            }
             this.setData(data);
             this.setSz0(sz0);
             this.setSz1(sz1);
@@ -276,7 +266,6 @@ public class Image4DSimple {
             this.setSz3(sz3);
             this.setDatatype(dt);
             this.setIsBig(isBig);
-            this.setB_czyx(true);
             return true;
         }else {
             return false;
@@ -299,40 +288,31 @@ public class Image4DSimple {
     }
 
     public int[][][][] getDataCXYZ(){
-//        if(this.isB_czyx()){
-            int[][][][] cxyzdata = new int[(int) this.getSz3()][(int) this.getSz0()][(int) this.getSz1()][(int) this.getSz2()];
-            int i,j,k,c;
-            for (c=0;c<sz3;c++) {
-                for (k = 0; k < sz2; k++)
-                    for (j = 0; j < sz1; j++)
-                        for (i = 0; i < sz0; i++) {
-                            if (datatype == V3D_UINT8){
-                                byte b = data[(int)(c * sz0 * sz1 * sz2 + k * sz0 * sz1 + j * sz0 + i)];
-                                cxyzdata[c][i][j][k] = ByteTranslate.byte1ToInt(b);
-                            }else if (datatype == V3D_UINT16){
-                                byte [] b = new byte[2];
-                                b[0] = data[(int)(c * sz0 * sz1 * sz2 * 2 + k * sz0 * sz1 * 2 + j * sz0 * 2 + i * 2)];
-                                b[1] = data[(int)(c * sz0 * sz1 * sz2 * 2 + k * sz0 * sz1 * 2 + j * sz0 * 2 + i * 2 + 1)];
-                                cxyzdata[c][i][j][k] = ByteTranslate.byte2ToInt(b, isBig);
-                            }else if (datatype == V3D_FLOAT32){
-                                byte [] b = new byte[4];
-                                b[0] = data[(int)(c * sz0 * sz1 * sz2 * 4 + k * sz0 * sz1 * 4 + j * sz0 * 4 + i * 4)];
-                                b[1] = data[(int)(c * sz0 * sz1 * sz2 * 4 + k * sz0 * sz1 * 4 + j * sz0 * 4 + i * 4 + 1)];
-                                b[2] = data[(int)(c * sz0 * sz1 * sz2 * 4 + k * sz0 * sz1 * 4 + j * sz0 * 4 + i * 4 + 2)];
-                                b[3] = data[(int)(c * sz0 * sz1 * sz2 * 4 + k * sz0 * sz1 * 4 + j * sz0 * 4 + i * 4 + 3)];
-                                cxyzdata[c][i][j][k] = ByteTranslate.byte2ToInt(b, isBig);
-                            }
+        int[][][][] cxyzdata = new int[(int) this.getSz3()][(int) this.getSz0()][(int) this.getSz1()][(int) this.getSz2()];
+        int i,j,k,c;
+        for (c=0;c<sz3;c++) {
+            for (k = 0; k < sz2; k++)
+                for (j = 0; j < sz1; j++)
+                    for (i = 0; i < sz0; i++) {
+                        if (datatype == V3D_UINT8){
+                            byte b = data[(int)(c * sz0 * sz1 * sz2 + k * sz0 * sz1 + j * sz0 + i)];
+                            cxyzdata[c][i][j][k] = ByteTranslate.byte1ToInt(b);
+                        }else if (datatype == V3D_UINT16){
+                            byte [] b = new byte[2];
+                            b[0] = data[(int)(c * sz0 * sz1 * sz2 * 2 + k * sz0 * sz1 * 2 + j * sz0 * 2 + i * 2)];
+                            b[1] = data[(int)(c * sz0 * sz1 * sz2 * 2 + k * sz0 * sz1 * 2 + j * sz0 * 2 + i * 2 + 1)];
+                            cxyzdata[c][i][j][k] = ByteTranslate.byte2ToInt(b, isBig);
+                        }else if (datatype == V3D_FLOAT32){
+                            byte [] b = new byte[4];
+                            b[0] = data[(int)(c * sz0 * sz1 * sz2 * 4 + k * sz0 * sz1 * 4 + j * sz0 * 4 + i * 4)];
+                            b[1] = data[(int)(c * sz0 * sz1 * sz2 * 4 + k * sz0 * sz1 * 4 + j * sz0 * 4 + i * 4 + 1)];
+                            b[2] = data[(int)(c * sz0 * sz1 * sz2 * 4 + k * sz0 * sz1 * 4 + j * sz0 * 4 + i * 4 + 2)];
+                            b[3] = data[(int)(c * sz0 * sz1 * sz2 * 4 + k * sz0 * sz1 * 4 + j * sz0 * 4 + i * 4 + 3)];
+                            cxyzdata[c][i][j][k] = ByteTranslate.byte2ToInt(b, isBig);
                         }
-            }
-//            this.setDataToNull();
-//            this.setData(cxyzdata);
-//            this.setB_czyx(false);
-//            return this.data;
-            return cxyzdata;
-//        }else {
-//            return this.data;
-//        }
-
+                    }
+        }
+        return cxyzdata;
     }
 
 //    public boolean setDataFormCZYX(int[][][][] data,long sz0,long sz1,long sz2,long sz3,ImagePixelType dt){
@@ -364,39 +344,31 @@ public class Image4DSimple {
 //    }
 
     public int[][][][] getDataCZYX(){
-//        if(this.isB_czyx()){
-//            return this.data;
-//        }else {
-            int[][][][] czyxdata = new int[(int) this.getSz3()][(int) this.getSz2()][(int) this.getSz1()][(int) this.getSz0()];
-            int i,j,k,c;
-            for (c=0;c<sz3;c++) {
-                for (k = 0; k < sz2; k++)
-                    for (j = 0; j < sz1; j++)
-                        for (i = 0; i < sz0; i++) {
-                            if (datatype == V3D_UINT8){
-                                byte b = data[(int)(c * sz0 * sz1 * sz2 + k * sz0 * sz1 + j * sz0 + i)];
-                                czyxdata[c][k][j][i] = ByteTranslate.byte1ToInt(b);
-                            }else if (datatype == V3D_UINT16){
-                                byte [] b = new byte[2];
-                                b[0] = data[(int)(c * sz0 * sz1 * sz2 * 2 + k * sz0 * sz1 * 2 + j * sz0 * 2 + i * 2)];
-                                b[1] = data[(int)(c * sz0 * sz1 * sz2 * 2 + k * sz0 * sz1 * 2 + j * sz0 * 2 + i * 2 + 1)];
-                                czyxdata[c][k][j][i] = ByteTranslate.byte2ToInt(b, isBig);
-                            }else if (datatype == V3D_FLOAT32){
-                                byte [] b = new byte[4];
-                                b[0] = data[(int)(c * sz0 * sz1 * sz2 * 4 + k * sz0 * sz1 * 4 + j * sz0 * 4 + i * 4)];
-                                b[1] = data[(int)(c * sz0 * sz1 * sz2 * 4 + k * sz0 * sz1 * 4 + j * sz0 * 4 + i * 4 + 1)];
-                                b[2] = data[(int)(c * sz0 * sz1 * sz2 * 4 + k * sz0 * sz1 * 4 + j * sz0 * 4 + i * 4 + 2)];
-                                b[3] = data[(int)(c * sz0 * sz1 * sz2 * 4 + k * sz0 * sz1 * 4 + j * sz0 * 4 + i * 4 + 3)];
-                                czyxdata[c][k][j][i] = ByteTranslate.byte2ToInt(b, isBig);
-                            }
+        int[][][][] czyxdata = new int[(int) this.getSz3()][(int) this.getSz2()][(int) this.getSz1()][(int) this.getSz0()];
+        int i,j,k,c;
+        for (c=0;c<sz3;c++) {
+            for (k = 0; k < sz2; k++)
+                for (j = 0; j < sz1; j++)
+                    for (i = 0; i < sz0; i++) {
+                        if (datatype == V3D_UINT8){
+                            byte b = data[(int)(c * sz0 * sz1 * sz2 + k * sz0 * sz1 + j * sz0 + i)];
+                            czyxdata[c][k][j][i] = ByteTranslate.byte1ToInt(b);
+                        }else if (datatype == V3D_UINT16){
+                            byte [] b = new byte[2];
+                            b[0] = data[(int)(c * sz0 * sz1 * sz2 * 2 + k * sz0 * sz1 * 2 + j * sz0 * 2 + i * 2)];
+                            b[1] = data[(int)(c * sz0 * sz1 * sz2 * 2 + k * sz0 * sz1 * 2 + j * sz0 * 2 + i * 2 + 1)];
+                            czyxdata[c][k][j][i] = ByteTranslate.byte2ToInt(b, isBig);
+                        }else if (datatype == V3D_FLOAT32){
+                            byte [] b = new byte[4];
+                            b[0] = data[(int)(c * sz0 * sz1 * sz2 * 4 + k * sz0 * sz1 * 4 + j * sz0 * 4 + i * 4)];
+                            b[1] = data[(int)(c * sz0 * sz1 * sz2 * 4 + k * sz0 * sz1 * 4 + j * sz0 * 4 + i * 4 + 1)];
+                            b[2] = data[(int)(c * sz0 * sz1 * sz2 * 4 + k * sz0 * sz1 * 4 + j * sz0 * 4 + i * 4 + 2)];
+                            b[3] = data[(int)(c * sz0 * sz1 * sz2 * 4 + k * sz0 * sz1 * 4 + j * sz0 * 4 + i * 4 + 3)];
+                            czyxdata[c][k][j][i] = ByteTranslate.byte2ToInt(b, isBig);
                         }
-            }
-            return czyxdata;
-//            this.setDataToNull();
-//            this.setData(czyxdata);
-//            this.setB_czyx(true);
-//            return this.data;
-//        }
+                    }
+        }
+        return czyxdata;
     }
 
     public void setDataToNull(){
@@ -408,7 +380,7 @@ public class Image4DSimple {
             out.println("Warning: This image is not stored in 8bit.");
             return false;
         }
-        this.getDataCZYX();
+//        this.getDataCZYX();
         if(x>=0&&x<sz0&&y>=0&&y<sz1&&z>=0&&z<sz1&&channel>=0&&channel<sz3){
             byte b = ByteTranslate.intToByte(val);
             data[(int)(channel * sz0 * sz1 * sz2 + z * sz0 * sz1 + y * sz0 + x)] = b;
@@ -423,7 +395,7 @@ public class Image4DSimple {
             out.println("Warning: This image is not stored in 8bit.");
             return 0;
         }
-        this.getDataCZYX();
+//        this.getDataCZYX();
         if(x>=0&&x<sz0&&y>=0&&y<sz1&&z>=0&&z<sz1&&channel>=0&&channel<sz3){
             byte b = data[(int)(channel * sz0 * sz1 * sz2 + z * sz0 * sz1 + y * sz0 + x)];
             int val = ByteTranslate.byte1ToInt(b);
@@ -435,7 +407,7 @@ public class Image4DSimple {
     }
 
     public boolean setValue(long x,long y,long z,long channel,int val){
-        this.getDataCZYX();
+//        this.getDataCZYX();
         if(x>=0&&x<sz0&&y>=0&&y<sz1&&z>=0&&z<sz1&&channel>=0&&channel<sz3){
             byte [] b = ByteTranslate.intToByte4(val);
             if (datatype == V3D_UINT8){
@@ -468,7 +440,7 @@ public class Image4DSimple {
 
     }
     public int getValue(long x,long y,long z,long channel){
-        this.getDataCZYX();
+//        this.getDataCZYX();
         if(x>=0&&x<sz0&&y>=0&&y<sz1&&z>=0&&z<sz1&&channel>=0&&channel<sz3){
             int val = 0;
             if (datatype == V3D_UINT8){
@@ -611,7 +583,6 @@ public class Image4DSimple {
         sz2=mysz2;sz3=mysz3;
         datatype=mytype;
         b_error=0; //note that here I update b_error
-        b_czyx = true;
         return true;
     }
 
@@ -649,8 +620,8 @@ public class Image4DSimple {
             return false;
         }
         out.println("start  copy--------------------------");
-        dstImg.getDataCZYX();
-        srcImg.getDataCZYX();
+//        dstImg.getDataCZYX();
+//        srcImg.getDataCZYX();
 
         int i,j,k,c;
         for (c=0;c<szc;c++)
@@ -785,7 +756,7 @@ public class Image4DSimple {
             out.println("Invalid chan parameter in scaleintensity();");
             return false;
         }
-        p4dImage.getDataCZYX();
+//        p4dImage.getDataCZYX();
 
         if (lower_th==-9999 && higher_th==-9999)
         {
