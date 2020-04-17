@@ -583,9 +583,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         myAnimation.speed = speed/60f;
         myAnimation.setRotationType(type);
         myAnimation.ResetAnimation();
-//        if (status == false){
-//            myAnimation.ResetAnimation();
-//        }
+        if (status == false){
+            myAnimation.setRotationType("X");
+        }
     }
 
 

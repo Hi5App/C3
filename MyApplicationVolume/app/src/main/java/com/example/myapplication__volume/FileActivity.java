@@ -346,7 +346,7 @@ public class FileActivity extends AppCompatActivity {
 
                     if(manageSocket.ImgSocket.isConnected()){
 
-                        manageSocket.ImgPWriter.println( "http:// " + " " + offset_x + " " + offset_y + " " +offset_z + ":imgblock.");
+                        manageSocket.ImgPWriter.println( "1.v3draw" + "_" + offset_x + "_" + offset_y + "_" + offset_z + "_" + "64" + "_" + "imgblock.");
 //                        manageSocket.ImgPWriter.println( "http://" + " " + "1pic1.v3draw" + " " + ":choose3.");
                         manageSocket.ImgPWriter.flush();
 

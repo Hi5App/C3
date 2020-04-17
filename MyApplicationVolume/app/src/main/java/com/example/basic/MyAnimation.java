@@ -271,6 +271,8 @@ public class MyAnimation {
                 cur_type = RotationType.ZYX;
                 break;
 
+            default:
+                return;
         }
         if (cur_type != rotationType){
             rotationType = cur_type;

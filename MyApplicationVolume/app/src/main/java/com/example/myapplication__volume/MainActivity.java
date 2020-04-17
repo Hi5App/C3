@@ -48,6 +48,8 @@ import com.example.basic.LocationSimple;
 import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
 import com.feature_calc_func.MorphologyCalculate;
+import com.lxj.xpopup.XPopup;
+import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.tracingfunc.app2.ParaAPP2;
 import com.tracingfunc.app2.V3dNeuronAPP2Tracing;
 import com.tracingfunc.gd.CurveTracePara;
@@ -84,6 +86,9 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean ifAnimation = false;
     private Button buttonAnimation;
+    private Button Draw;
+    private Button Tracing;
+    private Button Others;
 
 
 
@@ -137,218 +142,47 @@ public class MainActivity extends AppCompatActivity {
         this.addContentView(hs, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         hs.addView(ll);
 
-        final Button button_1 = new Button(this);
-        button_1.setText("draw curve");
-        ll.addView(button_1);
 
-        final Button button_2 = new Button(this);
-        button_2.setText("pinpoint");
-        ll.addView(button_2);
+        Draw = new Button(this);
+        Draw.setText("Draw");
+        ll.addView(Draw);
 
-        final Button button_3 = new Button(this);
-        button_3.setText("load");
-        ll.addView(button_3);
-
-        final Button button_4 = new Button(this);
-        button_4.setText("Analyze");
-        ll.addView(button_4);
-
-        final Button button_5 = new Button(this);
-        button_5.setText("GD_Tracing");
-        ll.addView(button_5);
-
-        final Button buttonAPP2 = new Button(this);
-        buttonAPP2.setText("APP2");
-        ll.addView(buttonAPP2);
-
-        final Button buttonDeleteMarker = new Button(this);
-        buttonDeleteMarker.setText("delete marker");
-        ll.addView(buttonDeleteMarker);
-
-
-        buttonAnimation = new Button(this);
-        buttonAnimation.setText("Animation");
-        ll.addView(buttonAnimation);
-
-
-        final Button buttonDeleteLine = new Button(this);
-        buttonDeleteLine.setText("delete line");
-        ll.addView(buttonDeleteLine);
-
-
-        button_1.setOnClickListener(new Button.OnClickListener()
+        Draw.setOnClickListener(new Button.OnClickListener()
         {
             public void onClick(View v)
             {
-                ifPainting = !ifPainting;
-                ifPoint = false;
-                ifDeletingMarker = false;
-                ifDeletingLine = false;
-                if(ifPainting) {
-                    button_1.setTextColor(Color.RED);
-                    button_2.setTextColor(Color.BLACK);
-                    buttonDeleteMarker.setTextColor(Color.BLACK);
-                    buttonDeleteLine.setTextColor(Color.BLACK);
-                }
-                else {
-                    button_1.setTextColor(Color.BLACK);
-                }
+                Draw(v);
             }
         });
 
-        button_2.setOnClickListener(new Button.OnClickListener()
+
+
+        Tracing = new Button(this);
+        Tracing.setText("Tracing");
+        ll.addView(Tracing);
+
+        Tracing.setOnClickListener(new Button.OnClickListener()
         {
             public void onClick(View v)
             {
-                ifPoint = !ifPoint;
-                ifPainting = false;
-                ifDeletingMarker = false;
-                ifDeletingLine = false;
-                if(ifPoint) {
-                    button_2.setTextColor(Color.RED);
-                    button_1.setTextColor(Color.BLACK);
-                    buttonDeleteMarker.setTextColor(Color.BLACK);
-                    buttonDeleteLine.setTextColor(Color.BLACK);
-                }
-                else {
-                    button_2.setTextColor(Color.BLACK);
-                }
+                Tracing(v);
             }
         });
 
-        button_3.setOnClickListener(new Button.OnClickListener()
+
+        Others = new Button(this);
+        Others.setText("Others");
+        ll.addView(Others);
+
+        Others.setOnClickListener(new Button.OnClickListener()
         {
             public void onClick(View v)
             {
-                if (!ifImport) {
-
-                    ifImport = !ifImport;
-                }
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                startActivityForResult(intent, 1);
-            }
-        });
-
-        button_4.setOnClickListener(new Button.OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                startActivityForResult(intent, 1);
-                ifAnalyze = true;
-            }
-        });
-
-        button_5.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                try {
-                    Log.v("Mainactivity", "GD-Tracing start~");
-                    Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
-                    Timer timer = new Timer();
-                    timer.schedule(new TimerTask() {
-                        @RequiresApi(api = Build.VERSION_CODES.N)
-                        @Override
-                        public void run() {
-                            /**
-                             * 延时执行的代码
-                             */
-                            try {
-                                GDTraing();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-                    },1000); // 延时1秒
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        buttonAPP2.setOnClickListener(new Button.OnClickListener(){
-            public void onClick(View v){
-                try {
-                    Log.v("Mainactivity", "APP2-Tracing start~");
-                    Toast.makeText(v.getContext(), "APP2-Tracing start~", Toast.LENGTH_SHORT).show();
-                    Timer timer = new Timer();
-                    timer.schedule(new TimerTask() {
-                        @RequiresApi(api = Build.VERSION_CODES.N)
-                        @Override
-                        public void run() {
-                            /**
-                             * 延时执行的代码
-                             */
-                            try {
-                                APP2();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-                    },1000); // 延时1秒
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        buttonDeleteMarker.setOnClickListener(new Button.OnClickListener(){
-            public void onClick(View v){
-                ifDeletingMarker = !ifDeletingMarker;
-                ifPainting = false;
-                ifPoint = false;
-                ifDeletingLine = false;
-                if (ifDeletingMarker){
-                    button_1.setTextColor(Color.BLACK);
-                    button_2.setTextColor(Color.BLACK);
-                    buttonDeleteMarker.setTextColor(Color.RED);
-                    buttonDeleteLine.setTextColor(Color.BLACK);
-                }else{
-                    buttonDeleteMarker.setTextColor(Color.BLACK);
-                }
+                Other(v);
             }
         });
 
 
-        buttonAnimation.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                ifPainting = false;
-                ifPoint = false;
-                SetAnimation();
-
-                if (ifAnimation) {
-                    button_1.setTextColor(Color.BLACK);
-                    button_2.setTextColor(Color.BLACK);
-                    buttonDeleteMarker.setTextColor(Color.BLACK);
-                    buttonAnimation.setTextColor(Color.RED);
-                } else {
-                    buttonAnimation.setTextColor(Color.BLACK);
-                    myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-                }
-            }
-        });
-
-        buttonDeleteLine.setOnClickListener(new Button.OnClickListener(){
-            public void onClick(View v){
-                ifDeletingLine = !ifDeletingLine;
-                ifPainting = false;
-                ifPoint = false;
-                ifDeletingMarker = false;
-                if (ifDeletingLine){
-                    button_1.setTextColor(Color.BLACK);
-                    button_2.setTextColor(Color.BLACK);
-                    buttonDeleteMarker.setTextColor(Color.BLACK);
-                    buttonDeleteLine.setTextColor(Color.RED);
-                }else{
-                    buttonDeleteLine.setTextColor(Color.BLACK);
-                }
-            }
-        });
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -570,6 +404,220 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    /**
+     * function for the draw button
+     * @param v the button: draw
+     */
+    private void Draw(View v){
+
+        new XPopup.Builder(this)
+                .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
+                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete line", "Exit"},
+//                        new int[]{R.mipmap.ic_launcher, R.mipmap.ic_launcher},
+                        new int[]{ },
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text){
+                                    case "PinPoint":
+                                        ifPoint = !ifPoint;
+                                        ifPainting = false;
+                                        ifDeletingMarker = false;
+                                        ifDeletingLine = false;
+                                        if(ifPoint) {
+                                            Draw.setText("PinPoint");
+                                            Draw.setTextColor(Color.RED);
+                                        }
+                                        else {
+                                            Draw.setText("Draw");
+                                            Draw.setTextColor(Color.BLACK);
+                                        }
+                                        break;
+
+                                    case "Draw Curve":
+                                        ifPainting = !ifPainting;
+                                        ifPoint = false;
+                                        ifDeletingMarker = false;
+                                        ifDeletingLine = false;
+                                        if(ifPainting) {
+                                            Draw.setText("Draw Curve");
+                                            Draw.setTextColor(Color.RED);
+
+                                        }
+                                        else {
+                                            Draw.setText("Draw");
+                                            Draw.setTextColor(Color.BLACK);
+                                        }
+                                        break;
+
+                                    case "Delete marker":
+                                        ifDeletingMarker = !ifDeletingMarker;
+                                        ifPainting = false;
+                                        ifPoint = false;
+                                        ifDeletingLine = false;
+                                        if (ifDeletingMarker){
+                                            Draw.setText("Delete marker");
+                                            Draw.setTextColor(Color.RED);
+                                        }else{
+                                            Draw.setText("Draw");
+                                            Draw.setTextColor(Color.BLACK);
+                                        }
+                                        break;
+
+                                    case "Delete line":
+                                        ifDeletingLine = !ifDeletingLine;
+                                        ifPainting = false;
+                                        ifPoint = false;
+                                        ifDeletingMarker = false;
+                                        if (ifDeletingLine){
+                                            Draw.setText("Delete line");
+                                            Draw.setTextColor(Color.RED);
+                                        }else{
+                                            Draw.setText("Draw");
+                                            Draw.setTextColor(Color.BLACK);
+                                        }
+                                        break;
+
+                                    case "Exit":
+                                        ifDeletingLine = false;
+                                        ifPainting = false;
+                                        ifPoint = false;
+                                        ifDeletingMarker = false;
+                                            Draw.setText("Draw");
+                                        Draw.setTextColor(Color.BLACK);
+                                        break;
+
+                                }
+                            }
+                        })
+                .show();
+    }
+
+
+    /**
+     * function for the Tracing button
+     * @param v the button: tracing
+     */
+    private void Tracing(final View v){
+
+        new XPopup.Builder(this)
+                .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
+                .asAttachList(new String[]{"GD", "APP2"},
+                        new int[]{ },
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text){
+                                    case "GD":
+                                        try {
+                                            Log.v("Mainactivity", "GD-Tracing start~");
+                                            Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
+                                            Timer timer = new Timer();
+                                            timer.schedule(new TimerTask() {
+                                                @RequiresApi(api = Build.VERSION_CODES.N)
+                                                @Override
+                                                public void run() {
+
+                                                    try {
+                                                        GDTraing();
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+
+                                                }
+                                            },1000); // 延时1秒
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                        break;
+
+                                    case "APP2":
+                                        try {
+                                            Log.v("Mainactivity", "APP2-Tracing start~");
+                                            Toast.makeText(v.getContext(), "APP2-Tracing start~", Toast.LENGTH_SHORT).show();
+                                            Timer timer = new Timer();
+                                            timer.schedule(new TimerTask() {
+                                                @RequiresApi(api = Build.VERSION_CODES.N)
+                                                @Override
+                                                public void run() {
+
+                                                    try {
+                                                        APP2();
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+
+                                                }
+                                            },1000); // 延时1秒
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                        break;
+                                }
+                            }
+                        })
+                .show();
+    }
+
+
+
+    private void Other(final View v){
+        new XPopup.Builder(this)
+                .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
+                .asAttachList(new String[]{"Analyse", "Load", "Animation"},
+                        new int[]{ },
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text){
+                                    case "Analyse":
+                                        Analyse();
+                                        break;
+
+                                    case "Load":
+                                        Load();
+                                        break;
+
+                                    case "Animation":
+                                        ifPainting = false;
+                                        ifPoint = false;
+                                        ifDeletingMarker = false;
+                                        ifDeletingLine = false;
+                                        SetAnimation();
+
+                                }
+                            }
+                        })
+                .show();
+    }
+
+
+    private void Load(){
+
+        if (!ifImport){
+            ifImport = true;
+            ifAnalyze = false;
+        }
+
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, 1);
+    }
+
+
+    private void Analyse(){
+
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, 1);
+        ifAnalyze = true;
+        ifImport = false;
+
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void APP2() throws Exception{
         Image4DSimple img = myrenderer.getImg();
@@ -628,6 +676,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void GDTraing() throws Exception {
@@ -885,6 +935,15 @@ public class MainActivity extends AppCompatActivity {
 
                         if (ifAnimation){
                             myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+                            Draw.setText("Draw");
+                            Draw.setTextColor(Color.BLACK);
+                            Others.setText("Animaition");
+                            Others.setTextColor(Color.RED);
+
+                        } else {
+                            myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+                            Others.setText("Others");
+                            Others.setTextColor(Color.BLACK);
                         }
 
                     }
@@ -1216,5 +1275,231 @@ public class MainActivity extends AppCompatActivity {
             return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//        final Button button_1 = new Button(this);
+//        button_1.setText("draw curve");
+//        ll.addView(button_1);
+//
+//        final Button button_2 = new Button(this);
+//        button_2.setText("pinpoint");
+//        ll.addView(button_2);
+//
+//        final Button button_3 = new Button(this);
+//        button_3.setText("load");
+//        ll.addView(button_3);
+//
+//        final Button button_4 = new Button(this);
+//        button_4.setText("Analyze");
+//        ll.addView(button_4);
+//
+//        final Button button_5 = new Button(this);
+//        button_5.setText("GD_Tracing");
+//        ll.addView(button_5);
+//
+//        final Button buttonAPP2 = new Button(this);
+//        buttonAPP2.setText("APP2");
+//        ll.addView(buttonAPP2);
+//
+//        final Button buttonDeleteMarker = new Button(this);
+//        buttonDeleteMarker.setText("delete marker");
+//        ll.addView(buttonDeleteMarker);
+//
+//
+//        buttonAnimation = new Button(this);
+//        buttonAnimation.setText("Animation");
+//        ll.addView(buttonAnimation);
+//
+//
+//        final Button buttonDeleteLine = new Button(this);
+//        buttonDeleteLine.setText("delete line");
+//        ll.addView(buttonDeleteLine);
+//
+//
+//        button_1.setOnClickListener(new Button.OnClickListener()
+//        {
+//            public void onClick(View v)
+//            {
+//                ifPainting = !ifPainting;
+//                ifPoint = false;
+//                ifDeletingMarker = false;
+//                ifDeletingLine = false;
+//                if(ifPainting) {
+//                    button_1.setTextColor(Color.RED);
+//                    button_2.setTextColor(Color.BLACK);
+//                    buttonDeleteMarker.setTextColor(Color.BLACK);
+//                    buttonDeleteLine.setTextColor(Color.BLACK);
+//                }
+//                else {
+//                    button_1.setTextColor(Color.BLACK);
+//                }
+//            }
+//        });
+//
+//        button_2.setOnClickListener(new Button.OnClickListener()
+//        {
+//            public void onClick(View v)
+//            {
+//                ifPoint = !ifPoint;
+//                ifPainting = false;
+//                ifDeletingMarker = false;
+//                ifDeletingLine = false;
+//                if(ifPoint) {
+//                    button_2.setTextColor(Color.RED);
+//                    button_1.setTextColor(Color.BLACK);
+//                    buttonDeleteMarker.setTextColor(Color.BLACK);
+//                    buttonDeleteLine.setTextColor(Color.BLACK);
+//                }
+//                else {
+//                    button_2.setTextColor(Color.BLACK);
+//                }
+//            }
+//        });
+//
+//        button_3.setOnClickListener(new Button.OnClickListener()
+//        {
+//            public void onClick(View v)
+//            {
+//                if (!ifImport) {
+//
+//                    ifImport = !ifImport;
+//                }
+//                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+//                intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
+//                intent.addCategory(Intent.CATEGORY_OPENABLE);
+//                startActivityForResult(intent, 1);
+//            }
+//        });
+//
+//        button_4.setOnClickListener(new Button.OnClickListener()
+//        {
+//            public void onClick(View v)
+//            {
+//                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+//                intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
+//                intent.addCategory(Intent.CATEGORY_OPENABLE);
+//                startActivityForResult(intent, 1);
+//                ifAnalyze = true;
+//            }
+//        });
+//
+//        button_5.setOnClickListener(new Button.OnClickListener() {
+//            public void onClick(View v) {
+//                try {
+//                    Log.v("Mainactivity", "GD-Tracing start~");
+//                    Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
+//                    Timer timer = new Timer();
+//                    timer.schedule(new TimerTask() {
+//                        @RequiresApi(api = Build.VERSION_CODES.N)
+//                        @Override
+//                        public void run() {
+//                            /**
+//                             * 延时执行的代码
+//                             */
+//                            try {
+//                                GDTraing();
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
+//
+//                        }
+//                    },1000); // 延时1秒
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//
+//        buttonAPP2.setOnClickListener(new Button.OnClickListener(){
+//            public void onClick(View v){
+//                try {
+//                    Log.v("Mainactivity", "APP2-Tracing start~");
+//                    Toast.makeText(v.getContext(), "APP2-Tracing start~", Toast.LENGTH_SHORT).show();
+//                    Timer timer = new Timer();
+//                    timer.schedule(new TimerTask() {
+//                        @RequiresApi(api = Build.VERSION_CODES.N)
+//                        @Override
+//                        public void run() {
+//                            /**
+//                             * 延时执行的代码
+//                             */
+//                            try {
+//                                APP2();
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
+//
+//                        }
+//                    },1000); // 延时1秒
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//
+//        buttonDeleteMarker.setOnClickListener(new Button.OnClickListener(){
+//            public void onClick(View v){
+//                ifDeletingMarker = !ifDeletingMarker;
+//                ifPainting = false;
+//                ifPoint = false;
+//                ifDeletingLine = false;
+//                if (ifDeletingMarker){
+//                    button_1.setTextColor(Color.BLACK);
+//                    button_2.setTextColor(Color.BLACK);
+//                    buttonDeleteMarker.setTextColor(Color.RED);
+//                    buttonDeleteLine.setTextColor(Color.BLACK);
+//                }else{
+//                    buttonDeleteMarker.setTextColor(Color.BLACK);
+//                }
+//            }
+//        });
+//
+//
+//        buttonAnimation.setOnClickListener(new Button.OnClickListener() {
+//            public void onClick(View v) {
+//                ifPainting = false;
+//                ifPoint = false;
+//                SetAnimation();
+//
+//                if (ifAnimation) {
+//                    button_1.setTextColor(Color.BLACK);
+//                    button_2.setTextColor(Color.BLACK);
+//                    buttonDeleteMarker.setTextColor(Color.BLACK);
+//                    buttonAnimation.setTextColor(Color.RED);
+//                } else {
+//                    buttonAnimation.setTextColor(Color.BLACK);
+//                    myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+//                }
+//            }
+//        });
+//
+//        buttonDeleteLine.setOnClickListener(new Button.OnClickListener(){
+//            public void onClick(View v){
+//                ifDeletingLine = !ifDeletingLine;
+//                ifPainting = false;
+//                ifPoint = false;
+//                ifDeletingMarker = false;
+//                if (ifDeletingLine){
+//                    button_1.setTextColor(Color.BLACK);
+//                    button_2.setTextColor(Color.BLACK);
+//                    buttonDeleteMarker.setTextColor(Color.BLACK);
+//                    buttonDeleteLine.setTextColor(Color.RED);
+//                }else{
+//                    buttonDeleteLine.setTextColor(Color.BLACK);
+//                }
+//            }
+//        });
 
 }
