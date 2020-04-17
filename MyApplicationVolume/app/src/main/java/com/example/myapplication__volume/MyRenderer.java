@@ -1521,8 +1521,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     float[] pparent = {(float) parent.x, (float) parent.y, (float) parent.z};
                     float[] pchildm = VolumetoModel(pchild);
                     float[] pparentm = VolumetoModel(pparent);
-                    float[] p1 = {pchildm[0],pchild[1],pchild[2],1.0f};
-                    float[] p2 = {pparentm[0],pparentm[1],pparentm[2],1.0f};
+                    float[] p2 = {pchildm[0],pchild[1],pchild[2],1.0f};
+                    float[] p1 = {pparentm[0],pparentm[1],pparentm[2],1.0f};
 
                     float [] p1Volumne = new float[4];
                     float [] p2Volumne = new float[4];

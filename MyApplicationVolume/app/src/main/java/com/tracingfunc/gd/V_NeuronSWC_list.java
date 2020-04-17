@@ -61,8 +61,14 @@ public class V_NeuronSWC_list implements Cloneable{
                 }
             }
         }
-        for(V_NeuronSWC seg : this.seg){
-            if(seg.to_be_deleted == true){
+//        for(V_NeuronSWC seg : this.seg){
+//            if(seg.to_be_deleted){
+//                this.seg.remove(seg);
+//            }
+//        }
+        for(int i=this.seg.size()-1; i>=0; i--){
+            V_NeuronSWC seg = this.seg.get(i);
+            if(seg.to_be_deleted){
                 this.seg.remove(seg);
             }
         }
