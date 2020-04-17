@@ -70,15 +70,11 @@ public class FM {
         int bdr_count = 0;// for process counting
         int k,j,i;
 
-//        int[][] index = new int[total_sz][3];
 
         for (k=0;k<szz;k++) {
             for (j=0;j<szy;j++)
                 for (i=0;i<szx;i++)
                 {
-//                    index[k*szy*szx+j*szx+i][0] = k;
-//                    index[k*szy*szx+j*szx+i][1] = j;
-//                    index[k*szy*szx+j*szx+i][2] = i;
                     if(inimg[k][j][i]<=bkg_thresh){
                         phi[k][j][i] = inimg[k][j][i];
                         state[k][j][i] = ALIVE;
@@ -114,14 +110,15 @@ public class FM {
                                     int j2 = j+jj;
                                     if(j2 < 0 || j2 >= szy) continue;
                                     for(int ii=-1; ii<=1; ii++){
-
                                         int i2 = i+ii;
                                         if(i2 < 0 || i2 >= szx) continue;
                                         int offset = abs(ii) + abs(jj) + abs(kk);
                                         if(offset == 0 || offset > cnn_type) continue;
 
+                                        int[] min_ind = {k,j,i};
+
                                         if(state[k2][j2][i2] == FAR){
-                                            int[] min_ind = {k,j,i};
+
                                             if(phi[min_ind[0]][min_ind[1]][min_ind[2]]>0.0){
                                                 for(int kkk = -1; kkk <= 1; kkk++)
                                                 {
@@ -209,6 +206,8 @@ public class FM {
                                     minHeap.remove(elem);
                                     elem.value = phi[d][h][w];
                                     minHeap.add(elem);
+                                    elems.remove(d*szy*szx+h*szx+w);
+                                    elems.put(d*szy*szx+h*szx+w,elem);
                                 }
                             }
                         }

@@ -360,7 +360,7 @@ public class Image4DSimple {
         this.data = null;
     }
 
-    boolean setValueUINT8(long x,long y,long z,long channel,int val){
+    public boolean setValueUINT8(long x,long y,long z,long channel,int val){
         if(datatype != ImagePixelType.V3D_UINT8){
             out.println("Warning: This image is not stored in 8bit.");
             return false;
@@ -389,7 +389,7 @@ public class Image4DSimple {
         }
     }
 
-    boolean setValue(long x,long y,long z,long channel,int val){
+    public boolean setValue(long x,long y,long z,long channel,int val){
         this.getDataCZYX();
         if(x>=0&&x<sz0&&y>=0&&y<sz1&&z>=0&&z<sz1&&channel>=0&&channel<sz3){
             this.data[(int) channel][(int) z][(int) y][(int) x] =val;
