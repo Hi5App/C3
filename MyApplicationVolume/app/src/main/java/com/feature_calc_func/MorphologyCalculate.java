@@ -546,4 +546,21 @@ public class MorphologyCalculate {
 
     }
 
+
+    public double[] CalculatefromNT(NeuronTree nt) {
+
+        MorphologyCalculate MC = new MorphologyCalculate();
+
+        if (nt == null) return null;
+        double[] ff = new double[22];
+        MC.computeFeature(nt, ff);
+
+        for (int i = 0; i < ff.length; i++) {
+            Log.v("Calculate", Double.toString(ff[i]));
+        }
+
+        return ff;
+
+    }
+
 }

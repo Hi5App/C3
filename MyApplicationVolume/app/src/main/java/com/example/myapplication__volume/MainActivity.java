@@ -609,12 +609,39 @@ public class MainActivity extends AppCompatActivity {
 
     private void Analyse(){
 
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        startActivityForResult(intent, 1);
-        ifAnalyze = true;
-        ifImport = false;
+
+        new XPopup.Builder(this)
+//        .maxWidth(400)
+//        .maxHeight(1350)
+        .asCenterList("morphology calculate", new String[]{"Analyse from swc file", "Analyse from current line"},
+                new OnSelectListener() {
+                    @Override
+                    public void onSelect(int position, String text) {
+                        switch (text){
+                            case "Analyse from swc file":
+                                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                                intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
+                                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                                startActivityForResult(intent, 1);
+                                ifAnalyze = true;
+                                ifImport = false;
+                                break;
+
+                            case "Analyse from current line":
+                                NeuronTree nt = myrenderer.getNeuronTree();
+                                MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
+                                double[] features = morphologyCalculate.CalculatefromNT(nt);
+                                if (features != null) displayResult(features);
+                                break;
+
+                                default:
+                                    Toast.makeText(context,"there is something wrong in analyse" ,Toast.LENGTH_SHORT).show();
+
+                        }
+                    }
+                })
+        .show();
+
 
     }
 

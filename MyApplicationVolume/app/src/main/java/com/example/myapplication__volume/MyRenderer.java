@@ -17,6 +17,7 @@ import com.example.basic.ImageMarker;
 import com.example.basic.MyAnimation;
 import com.example.basic.NeuronTree;
 import com.example.basic.XYZ;
+import com.tracingfunc.gd.V3dNeuronGDTracing;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_list;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
@@ -1752,6 +1753,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            Marker_volume_List.add(marker_volume);
 //        }
 //        return Marker_volume_List;
+    }
+
+
+    public NeuronTree getNeuronTree(){
+        try {
+            return V3dNeuronGDTracing.convertNeuronTreeFormat(curSwcList);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 }
 
