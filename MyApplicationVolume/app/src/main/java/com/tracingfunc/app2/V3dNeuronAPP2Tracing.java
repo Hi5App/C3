@@ -397,18 +397,18 @@ public class V3dNeuronAPP2Tracing {
         if(p.is_coverage_prune)
         {
             out.println("start to use APP2 program.");
-            happ(outTree, outswc, p4dImageNew.getData()[0], sz, p.bkg_thresh, p.length_thresh, p.SR_ratio, true,true);
+            happ(outTree, outswc, p4dImageNew.getDataCZYX()[0], sz, p.bkg_thresh, p.length_thresh, p.SR_ratio, true,true);
         }
         else
         {
-            hierarchy_prune(outTree, outswc, p4dImageNew.getData()[0], sz, p.length_thresh);
+            hierarchy_prune(outTree, outswc, p4dImageNew.getDataCZYX()[0], sz, p.length_thresh);
             //get radius
             {
                 double real_thres = 40; //PHC 20121011
                 if (real_thres<p.bkg_thresh) real_thres = p.bkg_thresh;
                 for(int i = 0; i < outswc.size(); i++)
                 {
-                    outswc.elementAt(i).radius = outswc.elementAt(i).markerRadius(p4dImageNew.getData()[0], sz, real_thres,1,false);
+                    outswc.elementAt(i).radius = outswc.elementAt(i).markerRadius(p4dImageNew.getDataCZYX()[0], sz, real_thres,1,false);
                 }
             }
         }
