@@ -320,6 +320,86 @@ public class FileActivity extends AppCompatActivity {
 
 
 
+//    private void Image(final String ip, final String offset_x, final String offset_y, final String offset_z, final Context context){
+//
+//        //新建一个线程，用于初始化socket和检测是否有接收到新的消息
+//        Thread thread = new Thread() {
+//            @Override
+//            public void run() {
+//
+//                try {
+//                    manageSocket.ip = ip;
+//                    manageSocket.ImgSocket = new Socket(ip, Integer.parseInt("9999"));
+//                    manageSocket.ImgReader = new BufferedReader(new InputStreamReader(manageSocket.ImgSocket.getInputStream(), "UTF-8"));
+////                    mWriter = new BufferedWriter(new OutputStreamWriter(mSocket.getOutputStream(), "utf-8"));
+//                    manageSocket.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(manageSocket.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+//
+////                    Toast.makeText(getApplicationContext(), "InitSocket", Toast.LENGTH_SHORT).show();
+//                    Log.v("Image", "ImgSocket successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+////
+////                    Filesocket_receive filesocket_receive = new Filesocket_receive();
+////                    filesocket_receive.filesocket = new Socket(ip, 9997);
+////                    filesocket_receive.mReader = new BufferedReader(new InputStreamReader(filesocket_receive.filesocket.getInputStream(), "UTF-8"));
+////                    filesocket_receive.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_receive.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
+////                    filesocket_receive.path = getExternalFilesDir(null).toString();
+//
+//
+//                    if(manageSocket.ImgSocket.isConnected()){
+//
+//                        manageSocket.ImgPWriter.println( "1.v3draw" + "_" + offset_x + "_" + offset_y + "_" + offset_z + "_" + "64" + "_" + "imgblock.");
+////                        manageSocket.ImgPWriter.println( "http://" + " " + "1pic1.v3draw" + " " + ":choose3.");
+//                        manageSocket.ImgPWriter.flush();
+//
+//                        Log.v("Image", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+//                    }
+//
+////                    filesocket_receive.readImg("1pic1.v3draw", context);
+//
+//
+//                    Looper.prepare();
+//
+//                    //接收来自服务器的消息
+//                    while(manageSocket.ImgSocket.isConnected()) {
+//
+//                        Log.v("Image", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+//
+////                        if(manageSocket.mReader.ready()) {
+//                        if(!manageSocket.ImgSocket.isInputShutdown()) {
+//                        /*读取一行字符串，读取的内容来自于客户机
+//                        reader.readLine()方法是一个阻塞方法，
+//                        从调用这个方法开始，该线程会一直处于阻塞状态，
+//                        直到接收到新的消息，代码才会往下走*/
+//                            String content = "";
+//
+//                            Log.v("Image", "Reply successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+//                            while ((content = manageSocket.ImgReader.readLine()) != null) {
+//
+//                                Log.v("Image", content);
+//                                if (!((Activity) context).isFinishing()){
+//                                    manageSocket.onReadyRead(content, context);
+//                                    Looper.loop();
+//                                }
+//                            }
+//
+//                        }
+//                        Thread.sleep(200);
+//                    }
+//
+//
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    Looper.prepare();
+//                    Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+//                    Looper.loop();
+//                }
+//            }
+//        };
+//        thread.start();
+//
+//    }
+
+
+
     private void Image(final String ip, final String offset_x, final String offset_y, final String offset_z, final Context context){
 
         //新建一个线程，用于初始化socket和检测是否有接收到新的消息
@@ -328,8 +408,9 @@ public class FileActivity extends AppCompatActivity {
             public void run() {
 
                 try {
-                    manageSocket.ip = ip;
-                    manageSocket.ImgSocket = new Socket(ip, Integer.parseInt("9999"));
+//                    manageSocket.ip = "192.168.2.108";
+                    manageSocket.ip = "223.3.33.234";
+                    manageSocket.ImgSocket = new Socket("223.3.33.234", Integer.parseInt("9999"));
                     manageSocket.ImgReader = new BufferedReader(new InputStreamReader(manageSocket.ImgSocket.getInputStream(), "UTF-8"));
 //                    mWriter = new BufferedWriter(new OutputStreamWriter(mSocket.getOutputStream(), "utf-8"));
                     manageSocket.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(manageSocket.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
@@ -343,48 +424,77 @@ public class FileActivity extends AppCompatActivity {
 //                    filesocket_receive.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_receive.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
 //                    filesocket_receive.path = getExternalFilesDir(null).toString();
 
-
-                    if(manageSocket.ImgSocket.isConnected()){
-
-                        manageSocket.ImgPWriter.println( "1.v3draw" + "_" + offset_x + "_" + offset_y + "_" + offset_z + "_" + "64" + "_" + "imgblock.");
-//                        manageSocket.ImgPWriter.println( "http://" + " " + "1pic1.v3draw" + " " + ":choose3.");
-                        manageSocket.ImgPWriter.flush();
-
-                        Log.v("Image", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                    }
-
-//                    filesocket_receive.readImg("1pic1.v3draw", context);
+                    Filesocket_receive filesocket_receive = new Filesocket_receive();
+                    filesocket_receive.filesocket = new Socket("223.3.33.234", 9997);
+                    filesocket_receive.mReader = new BufferedReader(new InputStreamReader(filesocket_receive.filesocket.getInputStream(), "UTF-8"));
+                    filesocket_receive.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_receive.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    filesocket_receive.IsDown = true;
+                    filesocket_receive.path = context.getExternalFilesDir(null).toString();
 
 
-                    Looper.prepare();
+//                    if(manageSocket.ImgSocket.isConnected()){
+//
+//                        manageSocket.ImgPWriter.println( "1.v3draw" + "_" + offset_x + "_" + offset_y + "_" + offset_z + "_" + "64" + "_" + "imgblock.");
+////                        manageSocket.ImgPWriter.println( "http://" + " " + "1pic1.v3draw" + " " + ":choose3.");
+//                        manageSocket.ImgPWriter.flush();
+//
+//                        Log.v("Image", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+//                    }
+//
+////                    filesocket_receive.readImg("1pic1.v3draw", context);
+//
+//
+//                    Looper.prepare();
+//
+//                    //接收来自服务器的消息
+//                    while(manageSocket.ImgSocket.isConnected()) {
+//
+//                        Log.v("Image", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+//
+////                        if(manageSocket.mReader.ready()) {
+//                        if(!manageSocket.ImgSocket.isInputShutdown()) {
+//                        /*读取一行字符串，读取的内容来自于客户机
+//                        reader.readLine()方法是一个阻塞方法，
+//                        从调用这个方法开始，该线程会一直处于阻塞状态，
+//                        直到接收到新的消息，代码才会往下走*/
+//                            String content = "";
+//
+//                            Log.v("Image", "Reply successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+//                            while ((content = manageSocket.ImgReader.readLine()) != null) {
+//
+//                                Log.v("Image", content);
+//                                if (!((Activity) context).isFinishing()){
+//                                    manageSocket.onReadyRead(content, context);
+//                                    Looper.loop();
+//                                }
+//                            }
+//
+//                        }
+//                        Thread.sleep(200);
+//                    }
 
-                    //接收来自服务器的消息
-                    while(manageSocket.ImgSocket.isConnected()) {
 
-                        Log.v("Image", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                    if (manageSocket.ImgSocket.isConnected()) {
+                        if (!manageSocket.ImgSocket.isOutputShutdown()) {
+                            Log.v("send1", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
-//                        if(manageSocket.mReader.ready()) {
-                        if(!manageSocket.ImgSocket.isInputShutdown()) {
-                        /*读取一行字符串，读取的内容来自于客户机
-                        reader.readLine()方法是一个阻塞方法，
-                        从调用这个方法开始，该线程会一直处于阻塞状态，
-                        直到接收到新的消息，代码才会往下走*/
-                            String content = "";
+                            manageSocket.ImgPWriter.println("17302_00001RES(54600x34412x9847)__128__128__128__64:imgblock.");
+                            manageSocket.ImgPWriter.flush();
 
-                            Log.v("Image", "Reply successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                            while ((content = manageSocket.ImgReader.readLine()) != null) {
+                            Looper.prepare();
 
-                                Log.v("Image", content);
-                                if (!((Activity) context).isFinishing()){
-                                    manageSocket.onReadyRead(content, context);
-                                    Looper.loop();
-                                }
-                            }
-
+                            String content;
+//                            if ((content = filesocket_receive.mReader.readLine()) != null) {
+//                                Log.v("send1", content);
+//
+////                                if (!((Activity) context).isFinishing()) {
+////                                    onReadyRead(content, context);
+////                                    Looper.loop();
+////                                }
+//                            }
+                            filesocket_receive.readImg("17302_00001_128_128_128_64_64_64.v3draw", context);
                         }
-                        Thread.sleep(200);
                     }
-
 
                 } catch (Exception e) {
                     e.printStackTrace();

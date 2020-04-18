@@ -232,6 +232,36 @@ public class MyAnimation {
 
     }
 
+    public void Start(){
+        status = true;
+    }
+
+    public void Pause(){
+        status = false;
+    }
+
+    public void Resume(){
+        status = true;
+        count = 0;
+    }
+
+    public void Stop(){
+        status = false;
+        count = 0;
+        speed = 36/60f;
+        rotationType = RotationType.XYZ;
+    }
+
+    public void setAnimation(boolean status, float speed, String type){
+        this.status = status;
+        this.speed = speed/60f;
+        this.setRotationType(type);
+        this.ResetAnimation();
+        if (status == false){
+            this.setRotationType("X");
+        }
+    }
+
     public void ResetAnimation(){
 
         Matrix.setIdentityM(rotationXMatrix, 0);

@@ -90,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
     private Button Tracing;
     private Button Others;
 
+    private LinearLayout ll;
+
 
 
 
@@ -136,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
         myGLSurfaceView = new MyGLSurfaceView(this);
         setContentView(myGLSurfaceView);
 
-        LinearLayout ll = new LinearLayout(this);
+        ll = new LinearLayout(this);
         HorizontalScrollView hs = new HorizontalScrollView(this);
 
         this.addContentView(hs, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -179,6 +181,18 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v)
             {
                 Other(v);
+            }
+        });
+
+
+        buttonAnimation = new Button(this);
+        buttonAnimation.setText("Animation");
+
+        buttonAnimation.setOnClickListener(new Button.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                Animation(v);
             }
         });
 
@@ -561,7 +575,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
+    /**
+     * function for the other button
+     * @param v the button: other
+     */
     private void Other(final View v){
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
@@ -591,6 +608,7 @@ public class MainActivity extends AppCompatActivity {
                         })
                 .show();
     }
+
 
 
     private void Load(){
@@ -642,6 +660,44 @@ public class MainActivity extends AppCompatActivity {
                 })
         .show();
 
+
+    }
+
+
+    private void Animation(final View v){
+
+        new XPopup.Builder(this)
+                .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
+                .asAttachList(new String[]{"Start", "Pause", "Resume", "Stop"},
+                        new int[]{ },
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text){
+                                    case "Start":
+                                        myrenderer.myAnimation.Start();
+                                        break;
+
+                                    case "Pause":
+                                        myrenderer.myAnimation.Pause();
+                                        break;
+
+                                    case "Resume":
+                                        myrenderer.myAnimation.Resume();
+                                        break;
+
+                                    case "Stop":
+                                        myrenderer.myAnimation.Stop();
+                                        ifAnimation = false;
+                                        ll.removeView(buttonAnimation);
+                                        break;
+
+                                    default:
+                                        Toast.makeText(context,"there is something wrong in animation" ,Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        })
+                .show();
 
     }
 
@@ -958,19 +1014,26 @@ public class MainActivity extends AppCompatActivity {
                         EditText speed = contentView.findViewById(R.id.edit_speed);
                         String rotation_speed = speed.getText().toString();
 
-                        myrenderer.setAnimation(ifAnimation, Float.parseFloat(rotation_speed), rotation_type[0]);
+                        myrenderer.myAnimation.setAnimation(ifAnimation, Float.parseFloat(rotation_speed), rotation_type[0]);
 
                         if (ifAnimation){
                             myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
-                            Draw.setText("Draw");
-                            Draw.setTextColor(Color.BLACK);
-                            Others.setText("Animaition");
-                            Others.setTextColor(Color.RED);
+//                            Draw.setText("Draw");
+//                            Draw.setTextColor(Color.BLACK);
+//                            Others.setText("Animaition");
+//                            Others.setTextColor(Color.RED);
+
+                            ll.addView(buttonAnimation);
 
                         } else {
+
+                            if (ll.findViewWithTag(buttonAnimation) != null){
+                                ll.removeView(buttonAnimation);
+                            }
+
                             myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-                            Others.setText("Others");
-                            Others.setTextColor(Color.BLACK);
+//                            Others.setText("Others");
+//                            Others.setTextColor(Color.BLACK);
                         }
 
                     }

@@ -49,7 +49,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private MyPattern myPattern;
     private MyAxis myAxis;
     private MyDraw myDraw;
-    private MyAnimation myAnimation;
+    public  MyAnimation myAnimation;
 
     private Image4DSimple img;
     private ByteBuffer imageBuffer;
@@ -571,23 +571,25 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
+    /**
+     * set rotationMatrix when the animation run
+     */
     public void AnimationRotation(){
 
         ArotationMatrix = myAnimation.Rotation(rotationMatrix);
-//        Log.v("onDrawFrame", Arrays.toString(ArotationMatrix));
-
         Matrix.multiplyMM(rotationMatrix,0, rotationMatrix, 0, ArotationMatrix,0);
+
     }
 
-    public void setAnimation(boolean status, float speed, String type){
-        myAnimation.status = status;
-        myAnimation.speed = speed/60f;
-        myAnimation.setRotationType(type);
-        myAnimation.ResetAnimation();
-        if (status == false){
-            myAnimation.setRotationType("X");
-        }
-    }
+//    public void setAnimation(boolean status, float speed, String type){
+//        myAnimation.status = status;
+//        myAnimation.speed = speed/60f;
+//        myAnimation.setRotationType(type);
+//        myAnimation.ResetAnimation();
+//        if (status == false){
+//            myAnimation.setRotationType("X");
+//        }
+//    }
 
 
 

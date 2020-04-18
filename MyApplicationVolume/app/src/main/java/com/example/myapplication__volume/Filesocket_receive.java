@@ -3,6 +3,7 @@ package com.example.myapplication__volume;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.apache.commons.io.IOUtils;
 
@@ -281,7 +282,13 @@ public class Filesocket_receive {
                     in.read(file_size, 0, 8);
                     in.read(filename_size, 0, 8);
 
-                    Log.v("readFile", "start to read content");
+
+                    int file__size = (int) bytesToLong(file_size);
+                    if (file__size <= 0){
+
+                        Toast.makeText(context,"Fail to load file!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
 
                     int filename__size = (int) bytesToLong(filename_size) + 4;
