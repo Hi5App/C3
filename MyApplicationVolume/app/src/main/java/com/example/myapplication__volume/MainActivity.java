@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean ifPoint = false;
     private boolean ifImport = false;
     private boolean ifAnalyze = false;
-    private boolean ifSaveSwc = false;
+//    private boolean ifSaveSwc = false;
     private boolean ifDeletingMarker = false;
     private boolean ifDeletingLine = false;
 
@@ -397,11 +397,6 @@ public class MainActivity extends AppCompatActivity {
                     if (features != null) displayResult(features);
                 }
 
-                if(ifSaveSwc){
-                    System.out.println(fodlerPath);
-//                    myrenderer.saveCurrentSwc(fodlerPath);
-                }
-
 //
 //                ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
 //                SwcReader swcReader = new SwcReader();
@@ -657,7 +652,6 @@ public class MainActivity extends AppCompatActivity {
         if (!ifImport){
             ifImport = true;
             ifAnalyze = false;
-            ifSaveSwc = false;
         }
 
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -744,14 +738,6 @@ public class MainActivity extends AppCompatActivity {
                             }
                         })
                 .show();
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        startActivityForResult(intent, 1);
-        ifAnalyze = true;
-        ifImport = false;
-        ifSaveSwc = false;
-
     }
 
     private void SaveSwc(){
