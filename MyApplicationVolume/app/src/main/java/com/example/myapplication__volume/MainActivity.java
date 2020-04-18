@@ -647,6 +647,10 @@ public class MainActivity extends AppCompatActivity {
 
                             case "Analyse from current line":
                                 NeuronTree nt = myrenderer.getNeuronTree();
+                                if (nt.listNeuron.isEmpty()){
+                                    Toast.makeText(context,"Nothing in interface" ,Toast.LENGTH_LONG).show();
+                                    break;
+                                }
                                 MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
                                 double[] features = morphologyCalculate.CalculatefromNT(nt);
                                 if (features != null) displayResult(features);
