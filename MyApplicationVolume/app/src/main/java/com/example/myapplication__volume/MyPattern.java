@@ -1285,6 +1285,7 @@ public class MyPattern{
                 0  //偏移量
         );
 
+        nchannel = (int)image.getSz3();
         data_length = image.getDatatype().ordinal();
         isBig = image.getIsBig();
 
