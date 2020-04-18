@@ -11,6 +11,7 @@ import android.opengl.Matrix;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.basic.ByteTranslate;
 import com.example.basic.MyAnimation;
 import com.example.basic.Image4DSimple;
 import com.example.basic.ImageMarker;
@@ -122,7 +123,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private int screen_h;
     private float cur_scale = 1.0f;
 
-    private int[][][] grayscale;
+    private byte[] grayscale;
+    private int data_length;
+    private boolean isBig;
 
 
     //初次渲染画面
@@ -757,7 +760,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        }
 
 
-        grayscale =  img.getDataCXYZ()[0];
+        grayscale =  img.getData();
+
+        data_length = img.getDatatype().ordinal();
+        isBig = img.getIsBig();
 
 //        vol_w = rr.get_w();
 //        vol_h = rr.get_h();
@@ -1076,14 +1082,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         zf = z-z0;
 
         float [][][] is = new float[2][2][2];
-        is[0][0][0] = grayscale[x0][y0][z0];
-        is[0][0][1] = grayscale[x0][y0][z1];
-        is[0][1][0] = grayscale[x0][y1][z0];
-        is[0][1][1] = grayscale[x0][y1][z1];
-        is[1][0][0] = grayscale[x1][y0][z0];
-        is[1][0][1] = grayscale[x1][y0][z1];
-        is[1][1][0] = grayscale[x1][y1][z0];
-        is[1][1][1] = grayscale[x1][y1][z1];
+        is[0][0][0] = grayData(x0, y0, z0);
+        is[0][0][1] = grayData(x0, y0, z1);
+        is[0][1][0] = grayData(x0, y1, z0);
+        is[0][1][1] = grayData(x0, y1, z1);
+        is[1][0][0] = grayData(x1, y0, z0);
+        is[1][0][1] = grayData(x1, y0, z1);
+        is[1][1][0] = grayData(x1, y1, z0);
+        is[1][1][1] = grayData(x1, y1, z1);
 
         float [][][] sf = new float[2][2][2];
         sf[0][0][0] = (1-xf)*(1-yf)*(1-zf);
@@ -1107,6 +1113,27 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                for(int k=0; k<2; k++)
 //                    Log.v("Sample3d", Float.toString(is[i][j][k]));
 
+        return result;
+    }
+
+    private int grayData(int x, int y, int z){
+        int result = 0;
+        if (data_length == 1){
+            byte b = grayscale[z * sz[0] * sz[1] + y * sz[0] + x];
+            result = ByteTranslate.byte1ToInt(b);
+        }else if (data_length == 2){
+            byte [] b = new byte[2];
+            b[0] = grayscale[(z * sz[0] * sz[1] + y * sz[0] + x) * 2];
+            b[1] = grayscale[(z * sz[0] * sz[1] + y * sz[0] + x) * 2 + 1];
+            result = ByteTranslate.byte2ToInt(b, isBig);
+        }else if (data_length == 4){
+            byte [] b = new byte[4];
+            b[0] = grayscale[(z * sz[0] * sz[1] + y * sz[0] + x) * 4];
+            b[1] = grayscale[(z * sz[0] * sz[1] + y * sz[0] + x) * 4 + 1];
+            b[2] = grayscale[(z * sz[0] * sz[1] + y * sz[0] + x) * 4 + 2];
+            b[3] = grayscale[(z * sz[0] * sz[1] + y * sz[0] + x) * 4 + 3];
+            result = ByteTranslate.byte2ToInt(b, isBig);
+        }
         return result;
     }
 
