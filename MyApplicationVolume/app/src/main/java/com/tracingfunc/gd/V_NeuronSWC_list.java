@@ -1,5 +1,11 @@
 package com.tracingfunc.gd;
 
+import com.example.basic.NeuronSWC;
+import com.example.basic.NeuronTree;
+import com.example.basic.RGBA8;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Vector;
 
 public class V_NeuronSWC_list implements Cloneable{
@@ -145,5 +151,64 @@ public class V_NeuronSWC_list implements Cloneable{
         //		qDebug()<<out_swc.row.at(i).data[2]<<" "<<out_swc.row.at(i).data[3]<<" "<<out_swc.row.at(i).data[4]<<" "<<out_swc.row.at(i).data[6];
 
         return out_swc;
+    }
+
+    public static NeuronTree convertNeuronTreeFormat(V_NeuronSWC_list  tracedNeuron) throws Exception
+    {
+        NeuronTree SS = new NeuronTree();
+
+        //first conversion
+
+        V_NeuronSWC seg = V_NeuronSWC_list.merge_V_NeuronSWC_list(tracedNeuron);
+        seg.name = tracedNeuron.name;
+        seg.file = tracedNeuron.file;
+
+        //second conversion
+
+        ArrayList<NeuronSWC> listNeuron = new ArrayList<NeuronSWC>();
+        HashMap<Integer, Integer> hashNeuron = new HashMap<Integer, Integer>();
+        listNeuron.clear();
+        hashNeuron.clear();
+
+        {
+            int count = 0;
+            for (int k=0;k<seg.row.size();k++)
+            {
+                count++;
+                NeuronSWC S = new NeuronSWC();
+
+                S.n 	= (int)seg.row.elementAt(k).n;
+                if (S.type<=0) S.type 	= 2; //seg.row.at(k).data[1];
+                S.x 	= (float) seg.row.elementAt(k).x;
+                S.y 	= (float) seg.row.elementAt(k).y;
+                S.z 	= (float) seg.row.elementAt(k).z;
+                S.radius 	= (float) seg.row.elementAt(k).r;
+                S.parent 	= (int) seg.row.elementAt(k).parent;
+
+                //for hit & editing
+                S.seg_id       = (int)seg.row.elementAt(k).seg_id;
+                S.nodeinseg_id = (int) seg.row.elementAt(k).nodeinseg_id;
+
+                //qDebug("%s  ///  %d %d (%g %g %g) %g %d", buf, S.n, S.type, S.x, S.y, S.z, S.r, S.pn);
+
+                //if (! listNeuron.contains(S)) // 081024
+                {
+                    listNeuron.add(S.clone());
+                    hashNeuron.put((int)S.n, listNeuron.size()-1);
+                }
+            }
+            System.out.printf("---------------------read %d lines, %d remained lines\n", count, listNeuron.size());
+
+            SS.n = -1;
+            SS.color = new RGBA8((char)seg.color_uc[0],(char)seg.color_uc[1],(char)seg.color_uc[2],(char)seg.color_uc[3]);
+            SS.on = true;
+            SS.listNeuron = listNeuron;
+            SS.hashNeuron = hashNeuron;
+
+            SS.name = seg.name;
+            SS.file = seg.file;
+        }
+
+        return SS;
     }
 }

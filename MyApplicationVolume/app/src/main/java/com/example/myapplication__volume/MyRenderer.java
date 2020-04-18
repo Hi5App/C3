@@ -1665,7 +1665,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     float[] pparent = {(float) parent.x, (float) parent.y, (float) parent.z};
                     float[] pchildm = VolumetoModel(pchild);
                     float[] pparentm = VolumetoModel(pparent);
-                    float[] p1 = {pchildm[0],pchild[1],pchild[2],1.0f};
+                    float[] p1 = {pchildm[0],pchildm[1],pchildm[2],1.0f};
                     float[] p2 = {pparentm[0],pparentm[1],pparentm[2],1.0f};
 
                     float [] p1Volumne = new float[4];
@@ -1765,6 +1765,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        }
 //    }
 
+    public void saveCurrentSwc(String dir) throws Exception{
+        NeuronTree nt = V_NeuronSWC_list.convertNeuronTreeFormat(curSwcList);
+        String filePath = dir + "//" + nt.name + ".swc";
+        System.out.println("filepath: "+filePath);
+        nt.writeSWC_file(filePath);
+    }
+
+    public void reNameCurrentSwc(String name){
+        curSwcList.name = name;
+    }
+
     public Image4DSimple getImg() {
         return img;
     }
@@ -1787,7 +1798,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public NeuronTree getNeuronTree(){
         try {
-            return V3dNeuronGDTracing.convertNeuronTreeFormat(curSwcList);
+            return V_NeuronSWC_list.convertNeuronTreeFormat(curSwcList);
 
         } catch (Exception e) {
             e.printStackTrace();

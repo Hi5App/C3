@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean ifPoint = false;
     private boolean ifImport = false;
     private boolean ifAnalyze = false;
-    private boolean ifGDTracing = false;
+    private boolean ifSaveSwc = false;
     private boolean ifDeletingMarker = false;
     private boolean ifDeletingLine = false;
 
@@ -89,6 +89,9 @@ public class MainActivity extends AppCompatActivity {
     private Button Draw;
     private Button Tracing;
     private Button Others;
+    private Button FileManager;
+
+    private static final int PICKFILE_REQUEST_CODE = 100;
 
     private LinearLayout ll;
 
@@ -143,6 +146,18 @@ public class MainActivity extends AppCompatActivity {
 
         this.addContentView(hs, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         hs.addView(ll);
+
+
+        FileManager = new Button(this);
+        FileManager.setText("File");
+        ll.addView(FileManager);
+
+        FileManager.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                FileManager(v);
+            }
+        });
 
 
         Draw = new Button(this);
@@ -224,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
         Log.v("MainActivity", "read the eswc now~~~~~~~~~~~~~~~~");
 
         if (resultCode == RESULT_OK) {
-            data.getDataString();
+            String fodlerPath = data.getDataString();
             Uri uri = data.getData();
 //            Uri uri_old = data.getData();
 
@@ -382,6 +397,11 @@ public class MainActivity extends AppCompatActivity {
                     if (features != null) displayResult(features);
                 }
 
+                if(ifSaveSwc){
+                    System.out.println(fodlerPath);
+//                    myrenderer.saveCurrentSwc(fodlerPath);
+                }
+
 //
 //                ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
 //                SwcReader swcReader = new SwcReader();
@@ -416,6 +436,31 @@ public class MainActivity extends AppCompatActivity {
                 Log.v("Exception", e.toString());
             }
         }
+    }
+
+    /**
+     * function for the FileManager button
+     * @param v the button: FileManager
+     */
+    private void FileManager(View v){
+        new XPopup.Builder(this)
+                .atView(v)
+                .asAttachList(new String[]{"Load","Save swc"},
+                        new int[]{ },
+                        new OnSelectListener(){
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text){
+                                    case "Load":
+                                        Load();
+                                        break;
+                                    case "Save swc":
+                                        SaveSwc();
+                                        break;
+                                }
+                            }
+                        })
+                .show();
     }
 
 
@@ -582,7 +627,7 @@ public class MainActivity extends AppCompatActivity {
     private void Other(final View v){
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"Analyse", "Load", "Animation"},
+                .asAttachList(new String[]{"Analyse", "Animation"},
                         new int[]{ },
                         new OnSelectListener() {
                             @Override
@@ -590,10 +635,6 @@ public class MainActivity extends AppCompatActivity {
                                 switch (text){
                                     case "Analyse":
                                         Analyse();
-                                        break;
-
-                                    case "Load":
-                                        Load();
                                         break;
 
                                     case "Animation":
@@ -616,6 +657,7 @@ public class MainActivity extends AppCompatActivity {
         if (!ifImport){
             ifImport = true;
             ifAnalyze = false;
+            ifSaveSwc = false;
         }
 
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -702,7 +744,70 @@ public class MainActivity extends AppCompatActivity {
                             }
                         })
                 .show();
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, 1);
+        ifAnalyze = true;
+        ifImport = false;
+        ifSaveSwc = false;
 
+    }
+
+    private void SaveSwc(){
+        MDDialog mdDialog = new MDDialog.Builder(this)
+                .setContentView(R.layout.save_swc)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+
+                    }
+                })
+                .setNegativeButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                        System.out.println("start to save-------");
+
+                        EditText swcName = contentView.findViewById(R.id.swcname);
+                        String swcFileName = swcName.getText().toString();
+                        myrenderer.reNameCurrentSwc(swcFileName);
+
+                        String dir = getExternalFilesDir(null).toString();
+                        try {
+                            myrenderer.saveCurrentSwc(dir);
+                        }catch (Exception e){
+//                            Looper.prepare();
+                            Toast.makeText(context, e.getMessage() ,Toast.LENGTH_SHORT).show();
+//                            Looper.loop();
+                        }
+//                        Looper.prepare();
+                        Toast.makeText(context, "save swc to "+dir+"/"+swcFileName+".swc" ,Toast.LENGTH_LONG).show();
+//                        Looper.loop();
+
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                    }
+                })
+                .setTitle("Save Swc")
+                .create();
+
+        mdDialog.show();
+        mdDialog.getWindow().setLayout(1000, 1500);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -730,13 +835,10 @@ public class MainActivity extends AppCompatActivity {
                 p.landmarks[i] = new LocationSimple(markers.get(i).x, markers.get(i).y, markers.get(i).z);
             }
             System.out.println("---------------start---------------------");
-            p.outswc_file = getExternalFilesDir(null).toString() + "app2.swc";//"/storage/emulated/0/Download/app2.swc";
+            p.outswc_file = getExternalFilesDir(null).toString() + "/" + "app2.swc";//"/storage/emulated/0/Download/app2.swc";
             System.out.println(p.outswc_file);
             V3dNeuronAPP2Tracing.proc_app2(p);
 
-//            ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
-//            SwcReader swcReader = new SwcReader();
-//            swc = swcReader.read(p.outswc_file);
             NeuronTree nt = NeuronTree.readSWC_file(p.outswc_file);
             for(int i=0;i<nt.listNeuron.size(); i++){
                 nt.listNeuron.get(i).type = 4;
@@ -803,23 +905,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             Looper.loop();
         }
-//        String filePath = "/storage/emulated/0/Download/3.swc";
-//        outswc.writeSWC_file(filePath);
-//
-//
-//        ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
-//        for (int i = 0; i < outswc.listNeuron.size(); i++) {
-//            ArrayList<Float> s = new ArrayList<Float>();
-//            s.add((float) outswc.listNeuron.get(i).n);
-//            s.add((float) outswc.listNeuron.get(i).type);
-//            s.add((float) outswc.listNeuron.get(i).x);
-//            s.add((float) outswc.listNeuron.get(i).y);
-//            s.add((float) outswc.listNeuron.get(i).z);
-//            s.add((float) outswc.listNeuron.get(i).radius);
-//            s.add((float) outswc.listNeuron.get(i).parent);
-//            swc.add(s);
-//        }
-//        Log.v("MainActivity--GD", Integer.toString(swc.size()));
         for(int i=0;i<outswc.listNeuron.size(); i++){
             outswc.listNeuron.get(i).type = 6;
         }

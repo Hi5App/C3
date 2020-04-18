@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Vector;
 import com.example.basic.*;
 
+import static com.tracingfunc.gd.V_NeuronSWC_list.convertNeuronTreeFormat;
+
 public class V3dNeuronGDTracing {
 
     public static String TRACED_NAME = "APP1_Tracing";
@@ -265,66 +267,6 @@ public class V3dNeuronGDTracing {
         }
     }
 
-
-
-    public static NeuronTree convertNeuronTreeFormat(V_NeuronSWC_list  tracedNeuron) throws Exception
-    {
-        NeuronTree SS = new NeuronTree();
-
-        //first conversion
-
-        V_NeuronSWC seg = V_NeuronSWC_list.merge_V_NeuronSWC_list(tracedNeuron);
-        seg.name = tracedNeuron.name;
-        seg.file = tracedNeuron.file;
-
-        //second conversion
-
-        ArrayList<NeuronSWC> listNeuron = new ArrayList<NeuronSWC>();
-        HashMap<Integer, Integer> hashNeuron = new HashMap<Integer, Integer>();
-        listNeuron.clear();
-        hashNeuron.clear();
-
-        {
-            int count = 0;
-            for (int k=0;k<seg.row.size();k++)
-            {
-                count++;
-                NeuronSWC S = new NeuronSWC();
-
-                S.n 	= (int)seg.row.elementAt(k).n;
-                if (S.type<=0) S.type 	= 2; //seg.row.at(k).data[1];
-                S.x 	= (float) seg.row.elementAt(k).x;
-                S.y 	= (float) seg.row.elementAt(k).y;
-                S.z 	= (float) seg.row.elementAt(k).z;
-                S.radius 	= (float) seg.row.elementAt(k).r;
-                S.parent 	= (int) seg.row.elementAt(k).parent;
-
-                //for hit & editing
-                S.seg_id       = (int)seg.row.elementAt(k).seg_id;
-                S.nodeinseg_id = (int) seg.row.elementAt(k).nodeinseg_id;
-
-                //qDebug("%s  ///  %d %d (%g %g %g) %g %d", buf, S.n, S.type, S.x, S.y, S.z, S.r, S.pn);
-
-                //if (! listNeuron.contains(S)) // 081024
-                {
-                    listNeuron.add(S.clone());
-                    hashNeuron.put((int)S.n, listNeuron.size()-1);
-                }
-            }
-            System.out.printf("---------------------read %d lines, %d remained lines\n", count, listNeuron.size());
-
-            SS.n = -1;
-            SS.color = new RGBA8((char)seg.color_uc[0],(char)seg.color_uc[1],(char)seg.color_uc[2],(char)seg.color_uc[3]);
-            SS.on = true;
-            SS.listNeuron = listNeuron;
-            SS.hashNeuron = hashNeuron;
-
-            SS.name = seg.name;
-            SS.file = seg.file;
-        }
-
-        return SS;
-    }
 
     public static boolean proj_trace_smooth_downsample_last_traced_neuron(int[][][][] p4d, int[] sz, V_NeuronSWC_list  tracedNeuron,
                                                                           CurveTracePara  trace_para, int seg_begin, int seg_end)throws Exception
