@@ -2,6 +2,7 @@ package com.example.myapplication__volume;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -286,7 +287,9 @@ public class Filesocket_receive {
                     int file__size = (int) bytesToLong(file_size);
                     if (file__size <= 0){
 
+                        Looper.prepare();
                         Toast.makeText(context,"Fail to load file!", Toast.LENGTH_SHORT).show();
+                        Looper.loop();
                         return;
                     }
 

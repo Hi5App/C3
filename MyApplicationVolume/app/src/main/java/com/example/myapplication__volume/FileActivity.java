@@ -68,12 +68,18 @@ public class FileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         Intent intent = getIntent();
-        String message = intent.getStringExtra(MyRenderer.OUTOFMEM_MESSAGE);
-        if (message != null){
-            Toast toast = Toast.makeText(FileActivity.this, message, Toast.LENGTH_LONG);
-//            toast.setGravity(Gravity.CENTER, 0, 0);
+        String message_1 = intent.getStringExtra(MyRenderer.OUTOFMEM_MESSAGE);
+        if (message_1 != null){
+            Toast toast = Toast.makeText(FileActivity.this, message_1, Toast.LENGTH_LONG);
             toast.show();
         }
+
+        String message_2 = intent.getStringExtra(MyRenderer.FILE_SUPPORT_ERROR);
+        if (message_2 != null){
+            Toast toast = Toast.makeText(FileActivity.this, message_2, Toast.LENGTH_LONG);
+            toast.show();
+        }
+
         setContentView(R.layout.activity_file);
         tv = (TextView)findViewById(R.id.textView3);
 
@@ -444,7 +450,7 @@ public class FileActivity extends AppCompatActivity {
 ////                    filesocket_receive.readImg("1pic1.v3draw", context);
 //
 //
-//                    Looper.prepare();
+                    Looper.prepare();
 //
 //                    //接收来自服务器的消息
 //                    while(manageSocket.ImgSocket.isConnected()) {
@@ -481,7 +487,6 @@ public class FileActivity extends AppCompatActivity {
                             manageSocket.ImgPWriter.println("17302_00001RES(54600x34412x9847)__128__128__128__64:imgblock.");
                             manageSocket.ImgPWriter.flush();
 
-                            Looper.prepare();
 
                             String content;
 //                            if ((content = filesocket_receive.mReader.readLine()) != null) {
@@ -498,7 +503,7 @@ public class FileActivity extends AppCompatActivity {
 
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Looper.prepare();
+//                    Looper.prepare();
                     Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
                     Looper.loop();
                 }
@@ -535,7 +540,8 @@ public class FileActivity extends AppCompatActivity {
             Log.v("filePath_getPath", filePath_getPath);
             Log.v("Uri_Scheme:", uri.getScheme());
             tv.setText(filePath);
-            Toast.makeText(this, "Open" + filePath + "--successfully", Toast.LENGTH_SHORT).show();
+
+//            Toast.makeText(this, "Open" + filePath + "--successfully", Toast.LENGTH_SHORT).show();
 
             try {
 
@@ -546,6 +552,10 @@ public class FileActivity extends AppCompatActivity {
                 message = filePath;
                 intent.putExtra(EXTRA_MESSAGE, message);
                 startActivity(intent);
+
+
+
+
 
                 File file = new File(filePath);
 

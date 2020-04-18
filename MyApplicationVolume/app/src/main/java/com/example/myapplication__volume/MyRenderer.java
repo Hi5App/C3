@@ -46,6 +46,7 @@ import static javax.microedition.khronos.opengles.GL10.GL_SRC_ALPHA;
 //@android.support.annotation.RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
 public class MyRenderer implements GLSurfaceView.Renderer {
     public static final String OUTOFMEM_MESSAGE = "OutOfMemory";
+    public static final String FILE_SUPPORT_ERROR = "FileSupportError";
 
     private MyPattern myPattern;
     private MyAxis myAxis;
@@ -127,6 +128,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private int data_length;
     private boolean isBig;
 
+    private FileType fileType;
+
 
     //初次渲染画面
     @Override
@@ -136,10 +139,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         Log.v("onSurfaceCreated:","successfully");
 
+        SetFileType();
 
-//        initTexture(getContext());
+        if (fileType == FileType.V3draw)
+            setImage();
 
-        setImage();
+        else if (fileType == FileType.SWC)
+            setSWC();
 
         Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
 
@@ -161,7 +167,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         screen_w = width;
         screen_h = height;
-        myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
+
+        if (fileType == FileType.V3draw)
+            myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
         myAxis = new MyAxis(mz);
         myDraw = new MyDraw();
         myAnimation = new MyAnimation();
@@ -199,8 +207,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 gl){
 
         GLES30.glClearColor(0.5f, 0.4f, 0.3f, 1.0f);
-
-//        GLES30.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 
         //把颜色缓冲区设置为我们预设的颜色
@@ -302,7 +308,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 //        Log.v("onDrawFrame", "draw_axis");
 
-        myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, screen_w, screen_h, texture[0]);
+        if (fileType == FileType.V3draw)
+            myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, screen_w, screen_h, texture[0]);
 
 //        Log.v("onDrawFrame: ", Integer.toString(markerDrawed.size()));
 
@@ -563,6 +570,31 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
+    private void SetFileType(){
+
+        String filetype = filepath.substring(filepath.lastIndexOf(".")).toUpperCase();
+
+        switch (filetype){
+            case ".V3DRAW":
+                fileType = FileType.V3draw;
+                break;
+
+            case ".SWC":
+                fileType = FileType.SWC;
+                break;
+
+            default:
+                System.out.println();
+                Context context = getContext();
+                Intent intent = new Intent(context, FileActivity.class);
+                String errormsg = "Don't support this file!";
+                intent.putExtra(MyRenderer.FILE_SUPPORT_ERROR, errormsg);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+        }
+
+    }
+
     public void setInputStream(InputStream Is){
 
         is = Is;
@@ -738,7 +770,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private void setImage(){
 //        Rawreader rr = new Rawreader();
-        String fileName = filepath;
+//        String fileName = filepath;
 
 //        Uri uri = Uri.parse(fileName);
         img = Image4DSimple.loadImage(filepath);
@@ -810,6 +842,48 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
+    private void setSWC(){
+
+        Uri uri = Uri.parse(filepath);
+        NeuronTree nt = NeuronTree.readSWC_file(uri);
+        V_NeuronSWC seg_swc = nt.convertV_NeuronSWCFormat();
+        curSwcList.append(seg_swc);
+
+
+        sz[0] = 0;
+        sz[1] = 0;
+        sz[2] = 0;
+
+        for(int i=0; i<curSwcList.seg.size(); i++){
+            V_NeuronSWC seg = curSwcList.seg.get(i);
+
+            for(int j=0; j<seg.row.size(); j++){
+
+                V_NeuronSWC_unit node = seg.row.get(j);
+
+                if (node.x > sz[0])
+                    sz[0] = (int) node.x;
+                if (node.y > sz[1])
+                    sz[1] = (int) node.y;
+                if (node.z > sz[2])
+                    sz[2] = (int) node.z;
+
+            }
+        }
+
+        sz[0] = (int) (1.2f * sz[0]);
+        sz[1] = (int) (1.2f * sz[1]);
+        sz[2] = (int) (1.2f * sz[2]);
+
+        Integer[] num = {sz[0], sz[1], sz[2]};
+        float max_dim = (float) Collections.max(Arrays.asList(num));
+        Log.v("MyRenderer", Float.toString(max_dim));
+
+        mz[0] = (float) sz[0]/max_dim;
+        mz[1] = (float) sz[1]/max_dim;
+        mz[2] = (float) sz[2]/max_dim;
+
+    }
 
 
 
@@ -1806,6 +1880,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             return null;
         }
     }
+
+
+    enum FileType
+    {
+        V3draw,
+        SWC
+    }
+
 }
 
 

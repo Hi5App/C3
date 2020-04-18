@@ -154,7 +154,7 @@ public class MyDraw {
 
         colorPoints_marker = new float[vertexPoints_marker.length];//colormap[type];
         for(int i=0; i<colorPoints_marker.length; i++){
-            colorPoints_marker[i] = colormap[type][i%3];
+            colorPoints_marker[i] = colormap[type%7][i%3];
         }
         colorBuffer_marker = ByteBuffer.allocateDirect(colorPoints_marker.length*4)
                 .order(ByteOrder.nativeOrder())
@@ -192,7 +192,7 @@ public class MyDraw {
 
         colorPoints_marker = new float[line.length];
         for(int i=0; i<colorPoints_marker.length; i++){
-            colorPoints_marker[i] = colormap[type][i%3];
+            colorPoints_marker[i] = colormap[type%7][i%3];
 //            System.out.println(colorPoints_marker[i]);
         }
         colorBuffer_line = ByteBuffer.allocateDirect(colorPoints_marker.length* 4)

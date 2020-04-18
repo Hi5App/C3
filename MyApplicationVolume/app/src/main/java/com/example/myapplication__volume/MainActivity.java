@@ -236,7 +236,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
-        Log.v("MainActivity", "read the eswc now~~~~~~~~~~~~~~~~");
 
         if (resultCode == RESULT_OK) {
             String fodlerPath = data.getDataString();
@@ -738,6 +737,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         })
                 .show();
+
     }
 
     private void SaveSwc(){
