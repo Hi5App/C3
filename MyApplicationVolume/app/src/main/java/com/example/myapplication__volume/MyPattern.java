@@ -6,12 +6,14 @@ import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.util.Log;
 
+import com.example.basic.ByteTranslate;
 import com.example.basic.Image4DSimple;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 import static com.example.myapplication__volume.MainActivity.getContext;
@@ -57,6 +59,8 @@ public class MyPattern{
 
 
     private ByteBuffer imageBuffer;
+    private ShortBuffer imageShortBuffer;
+    private IntBuffer imageIntBuffer;
     private ByteBuffer imageBuffer_FBO;
 
     private int[] vol_tex = new int[1]; //生成纹理id;
@@ -71,6 +75,9 @@ public class MyPattern{
     private int vol_w;
     private int vol_h;
     private int vol_d;
+    private int data_length;
+    private int nchannel;
+    private boolean isBig;
 
     private Image4DSimple image;
 
@@ -661,7 +668,7 @@ public class MyPattern{
         }catch (Exception e){
             Context context = getContext();
             Intent intent = new Intent(context, FileActivity.class);
-            String message = "out of memory when load file";
+            String message = e.getMessage() + "out of memory when load file";
             intent.putExtra(MyRenderer.OUTOFMEM_MESSAGE, message);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
@@ -1278,7 +1285,10 @@ public class MyPattern{
                 0  //偏移量
         );
 
-        byte [] image_data = getIntensity_3d();
+        data_length = image.getDatatype().ordinal();
+        isBig = image.getIsBig();
+
+//        byte [] image_data = getIntensity_3d();
 
 
 //        createMarker(image_data, vol_w, vol_h, vol_d, 60, 60, 60);
@@ -1299,22 +1309,61 @@ public class MyPattern{
                 GLES30.GL_TEXTURE_WRAP_R,GLES30.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
 
 
+//        byte [] image_data = getIntensity_3d();
+//        imageBuffer = CreateBuffer(image_data);
 
-        imageBuffer = CreateBuffer(image_data);
-
-
-        GLES30.glTexImage3D(
-                GLES30.GL_TEXTURE_3D, //纹理类型
-                0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
-                GLES30.GL_RGBA, //图片的格式
-                vol_w,   //宽
-                vol_h,   //高
-                vol_d,   //切片数
-                0, //纹理边框尺寸();
-                GLES30.GL_RGBA,
-                GLES30.GL_UNSIGNED_BYTE,
-                imageBuffer
-        );
+        if (data_length == 1) {
+            byte [] image_data = getIntensity_3d();
+            imageBuffer = CreateBuffer(image_data);
+            GLES30.glTexImage3D(
+                    GLES30.GL_TEXTURE_3D, //纹理类型
+                    0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
+                    GLES30.GL_RGBA, //图片的格式
+                    vol_w,   //宽
+                    vol_h,   //高
+                    vol_d,   //切片数
+                    0, //纹理边框尺寸();
+                    GLES30.GL_RGBA,
+                    GLES30.GL_UNSIGNED_BYTE,
+                    imageBuffer
+            );
+        }else if (data_length == 2){
+            short [] image_data = getIntensity_short3d();
+//            imageShortBuffer = ShortBuffer.allocate(image_data.length)
+//                    .order(shortOrder.nativeOrder());
+//            //传入指定的坐标数据
+//            imageShortBuffer.put(image_data);
+            imageShortBuffer = ShortBuffer.wrap(image_data);
+            imageShortBuffer.position(0);
+            GLES30.glTexImage3D(
+                    GLES30.GL_TEXTURE_3D, //纹理类型
+                    0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
+                    GLES30.GL_RGBA, //图片的格式
+                    vol_w,   //宽
+                    vol_h,   //高
+                    vol_d,   //切片数
+                    0, //纹理边框尺寸();
+                    GLES30.GL_RGBA,
+                    GLES30.GL_UNSIGNED_SHORT,
+                    imageShortBuffer
+            );
+        }else if (data_length == 4){
+            int [] image_data = getIntensity_int3d();
+            imageIntBuffer = IntBuffer.wrap(image_data);
+            imageIntBuffer.position(0);
+            GLES30.glTexImage3D(
+                    GLES30.GL_TEXTURE_3D, //纹理类型
+                    0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
+                    GLES30.GL_RGBA, //图片的格式
+                    vol_w,   //宽
+                    vol_h,   //高
+                    vol_d,   //切片数
+                    0, //纹理边框尺寸();
+                    GLES30.GL_RGBA,
+                    GLES30.GL_UNSIGNED_INT,
+                    imageIntBuffer
+            );
+        }
 
         GLES30.glBindTexture(GLES30.GL_TEXTURE_3D,0);
 
@@ -1378,6 +1427,7 @@ public class MyPattern{
         vol_w = (int)image.getSz0();
         vol_h = (int)image.getSz1();
         vol_d = (int)image.getSz2();
+//        data_length = image.getDatatype().ordinal();
 //        vol_w = 128;
 //        vol_h = 128;
 //        vol_d = 128;
@@ -1387,28 +1437,46 @@ public class MyPattern{
         Log.v("vol_h", Integer.toString(vol_h));
         Log.v("vol_d", Integer.toString(vol_d));
 
-        int [][][][] grayscale = image.getDataCXYZ();
+//        int [][][][] grayscale = image.getDataCXYZ();
 
-        byte[] data_image = new byte[vol_w * vol_h * vol_d * 4];
-
-        for (int z = 0; z < vol_d; ++z){
-
-            int layeroffset = vol_h * vol_w;
-
-            for (int y = 0; y < vol_h; ++y){
-                for (int x = 0; x < vol_w; x++) {
-                    data_image[(layeroffset * z + vol_w * y + x) * 4] = intToByteArray(grayscale[0][x][y][z])[3];
-                    data_image[(layeroffset * z + vol_w * y + x) * 4 + 1] = intToByteArray(grayscale[0][x][y][z])[3];
-                    data_image[(layeroffset * z + vol_w * y + x) * 4 + 2] = intToByteArray(grayscale[0][x][y][z])[3];
-                    data_image[(layeroffset * z + vol_w * y + x) * 4 + 3] = intToByteArray(1)[3];
-
-//                    if(grayscale[x][y][z] > 50){
-//                        Log.v("intensity: ", Integer.toString(grayscale[x][y][z]));
-//                    }
-
-                }
+//        byte[] data_image = new byte[vol_w * vol_h * vol_d * 4];
+        byte [] data_src = image.getData();
+        byte [] data_image = new byte[vol_w * vol_h * vol_d * data_length * nchannel * 4];
+        if (nchannel == 3){
+            for (int i = 0; i < vol_w * vol_h * vol_d * data_length; i++){
+                data_image[i * 4] = data_src[i];
+                data_image[i * 4 + 1] = data_src[vol_w * vol_h * vol_d * data_length + i];
+                data_image[i * 4 + 2] = data_src[vol_w * vol_h * vol_d * data_length * 2 + i];
+                data_image[i * 4 + 3] = ByteTranslate.intToByte(1);
+            }
+        }else{
+            for (int i = 0; i < vol_w * vol_h * vol_d * data_length; i++){
+                data_image[i * 4] = data_src[i];
+                data_image[i * 4 + 1] = data_src[i];
+                data_image[i * 4 + 2] = data_src[i];
+                data_image[i * 4 + 3] = ByteTranslate.intToByte(1);
             }
         }
+//        for (int z = 0; z < vol_d; ++z){
+//
+//            int layeroffset = vol_h * vol_w;
+//
+//            for (int y = 0; y < vol_h; ++y){
+//                for (int x = 0; x < vol_w; x++) {
+//                    data_image[(layeroffset * z + vol_w * y + x) * 4] = intToByteArray(grayscale[0][x][y][z])[3];
+//                    data_image[(layeroffset * z + vol_w * y + x) * 4 + 1] = intToByteArray(grayscale[0][x][y][z])[3];
+//                    data_image[(layeroffset * z + vol_w * y + x) * 4 + 2] = intToByteArray(grayscale[0][x][y][z])[3];
+//                    data_image[(layeroffset * z + vol_w * y + x) * 4 + 3] = intToByteArray(1)[3];
+//
+////                    if(grayscale[x][y][z] > 50){
+////                        Log.v("intensity: ", Integer.toString(grayscale[x][y][z]));
+////                    }
+//
+//                }
+//            }
+//        }
+
+
 
 //        for (int z = 0; z < vol_d; ++z){
 //
@@ -1433,6 +1501,79 @@ public class MyPattern{
         return data_image;
     }
 
+    private short [] getIntensity_short3d(){
+        vol_w = (int)image.getSz0();
+        vol_h = (int)image.getSz1();
+        vol_d = (int)image.getSz2();
+
+        byte [] data_src = image.getData();
+        short [] data_image = new short[vol_w * vol_h * vol_d * nchannel * 4];
+        byte [] b= new byte[2];
+        if (nchannel == 3){
+            for (int i = 0; i < vol_w * vol_h * vol_d; i++){
+                for (int c = 0; c < nchannel; c++) {
+                    b[0] = data_src[vol_w * vol_h * vol_d * data_length * c + i * 2];
+                    b[1] = data_src[vol_w * vol_h * vol_d * data_length * c + i * 2 + 1];
+                    data_image[i * 4 + c] = ByteTranslate.byte2ToShort(b, isBig);
+
+//                    data_image[i * 4 + 1] = data_src[vol_w * vol_h * vol_d * data_length + i];
+//                    data_image[i * 4 + 2] = data_src[vol_w * vol_h * vol_d * data_length * 2 + i];
+//                    data_image[i * 4 + 3] = ByteTranslate.intToByte(1);
+                }
+                data_image[i * 4 + 3] = 1;
+            }
+        }else{
+            for (int i = 0; i < vol_w * vol_h * vol_d; i++){
+                b[0] = data_src[i * 2];
+                b[1] = data_src[i * 2 + 1];
+                short temp = ByteTranslate.byte2ToShort(b, isBig);
+                data_image[i * 4] = temp;
+                data_image[i * 4 + 1] = temp;
+                data_image[i * 4 + 2] = temp;
+                data_image[i * 4 + 3] = 1;
+            }
+        }
+        return data_image;
+    }
+
+    public int [] getIntensity_int3d(){
+        vol_w = (int)image.getSz0();
+        vol_h = (int)image.getSz1();
+        vol_d = (int)image.getSz2();
+
+        byte [] data_src = image.getData();
+        int [] data_image = new int[vol_w * vol_h * vol_d * nchannel * 4];
+        byte [] b= new byte[4];
+        if (nchannel == 3){
+            for (int i = 0; i < vol_w * vol_h * vol_d; i++){
+                for (int c = 0; c < nchannel; c++) {
+                    b[0] = data_src[vol_w * vol_h * vol_d * data_length * c + i * 4];
+                    b[1] = data_src[vol_w * vol_h * vol_d * data_length * c + i * 4 + 1];
+                    b[2] = data_src[vol_w * vol_h * vol_d * data_length * c + i * 4 + 2];
+                    b[3] = data_src[vol_w * vol_h * vol_d * data_length * c + i * 4 + 3];
+                    data_image[i * 4 + c] = ByteTranslate.byte2ToInt(b, isBig);
+
+//                    data_image[i * 4 + 1] = data_src[vol_w * vol_h * vol_d * data_length + i];
+//                    data_image[i * 4 + 2] = data_src[vol_w * vol_h * vol_d * data_length * 2 + i];
+//                    data_image[i * 4 + 3] = ByteTranslate.intToByte(1);
+                }
+                data_image[i * 4 + 3] = 1;
+            }
+        }else{
+            for (int i = 0; i < vol_w * vol_h * vol_d; i++){
+                b[0] = data_src[i * 4];
+                b[1] = data_src[i * 4 + 1];
+                b[2] = data_src[i * 4 + 2];
+                b[3] = data_src[i * 4 + 3];
+                int temp = ByteTranslate.byte2ToInt(b, isBig);
+                data_image[i * 4] = temp;
+                data_image[i * 4 + 1] = temp;
+                data_image[i * 4 + 2] = temp;
+                data_image[i * 4 + 3] = 1;
+            }
+        }
+        return data_image;
+    }
 
 
 

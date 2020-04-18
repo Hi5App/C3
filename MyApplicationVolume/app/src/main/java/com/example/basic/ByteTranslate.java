@@ -19,6 +19,21 @@ public class ByteTranslate {
 
         return retVal;
     }
+    public static short byte2ToShort(byte [] b, boolean isBig){
+        short retVal = 0;
+        if (!isBig)
+            for (int i=b.length-1;i>=0;i--) {
+                retVal <<= 8;
+                retVal += (b[i] & 0xff);
+            }
+        else
+            for (int i=0;i<b.length;i++) {
+                retVal <<= 8;
+                retVal += (b[i] & 0xff);
+            }
+
+        return retVal;
+    }
 
     public static byte intToByte(int i){
         byte [] result = intToByte4(i);
