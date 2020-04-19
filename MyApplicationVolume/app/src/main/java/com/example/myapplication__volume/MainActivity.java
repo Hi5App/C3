@@ -3,6 +3,7 @@ package com.example.myapplication__volume;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -11,8 +12,12 @@ import android.content.Intent;
 import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.net.Uri;
+import android.opengl.GLES30;
+import android.opengl.GLException;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,6 +27,7 @@ import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,7 +62,11 @@ import com.tracingfunc.gd.CurveTracePara;
 import com.tracingfunc.gd.V3dNeuronGDTracing;
 import com.tracingfunc.gd.V_NeuronSWC;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -90,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
     private Button Tracing;
     private Button Others;
     private Button FileManager;
+    private Button Share;
 
     private static final int PICKFILE_REQUEST_CODE = 100;
 
@@ -196,6 +207,21 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v)
             {
                 Other(v);
+            }
+        });
+
+
+        Share = new Button(this);
+        Share.setText("Share");
+        ll.addView(Share);
+
+        Share.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                myrenderer.setTakePic(true);
+                myGLSurfaceView.requestRender();
+                String imgPath = myrenderer.getmCapturePath();
+                Toast.makeText(v.getContext(), "save img to "+imgPath, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -773,13 +799,9 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             myrenderer.saveCurrentSwc(dir);
                         }catch (Exception e){
-//                            Looper.prepare();
                             Toast.makeText(context, e.getMessage() ,Toast.LENGTH_SHORT).show();
-//                            Looper.loop();
                         }
-//                        Looper.prepare();
                         Toast.makeText(context, "save swc to "+dir+"/"+swcFileName+".swc" ,Toast.LENGTH_LONG).show();
-//                        Looper.loop();
 
                     }
                 })
@@ -802,7 +824,9 @@ public class MainActivity extends AppCompatActivity {
         img.getDataCZYX();
         if (!img.valid()) {
             Log.v("APP2Tracing", "Please load img first!");
-            Looper.prepare();
+            if(Looper.myLooper() == null){
+                Looper.prepare();
+            }
             Toast.makeText(this, "Please load img first!", Toast.LENGTH_LONG).show();
             Looper.loop();
             return;
@@ -836,14 +860,18 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             System.out.println("size: "+nt.listNeuron.size());
-            Looper.prepare();
+            if(Looper.myLooper() == null){
+                Looper.prepare();
+            }
             Toast.makeText(this, "APP2-Tracing finish, size of result swc: " + Integer.toString(nt.listNeuron.size()), Toast.LENGTH_SHORT).show();
             myrenderer.importNeuronTree(nt);
             myGLSurfaceView.requestRender();
             Looper.loop();
 
         }catch (Exception e) {
-            Looper.prepare();
+            if(Looper.myLooper() == null){
+                Looper.prepare();
+            }
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             Looper.loop();
         }
@@ -859,7 +887,9 @@ public class MainActivity extends AppCompatActivity {
         Image4DSimple img = myrenderer.getImg();
         if (!img.valid()) {
             Log.v("GDTracing", "Please load img first!");
-            Looper.prepare();
+            if(Looper.myLooper() == null){
+                Looper.prepare();
+            }
             Toast.makeText(this, "Please load img first!", Toast.LENGTH_LONG).show();
             Looper.loop();
             return;
@@ -867,7 +897,9 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
         if (markers.size() <= 1) {
             Log.v("GDTracing", "Please get two marker at least!");
-            Looper.prepare();
+            if(Looper.myLooper() == null){
+                Looper.prepare();
+            }
             Toast.makeText(this, "Please get two marker at least!", Toast.LENGTH_LONG).show();
             Looper.loop();
             return;
@@ -887,7 +919,9 @@ public class MainActivity extends AppCompatActivity {
         try {
             outswc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img.getDataCZYX(), sz, p0, pp, curveTracePara, 1.0);
         } catch (Exception e) {
-            Looper.prepare();
+            if(Looper.myLooper() == null){
+                Looper.prepare();
+            }
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             Looper.loop();
         }
@@ -895,7 +929,9 @@ public class MainActivity extends AppCompatActivity {
             outswc.listNeuron.get(i).type = 6;
         }
 
-        Looper.prepare();
+        if(Looper.myLooper() == null){
+            Looper.prepare();
+        }
         Toast.makeText(this, "GD-Tracing finish, size of result swc: " + Integer.toString(outswc.listNeuron.size()), Toast.LENGTH_SHORT).show();
         myrenderer.importNeuronTree(outswc);
         myGLSurfaceView.requestRender();
@@ -1295,6 +1331,9 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+
+
+
         //触摸屏幕的事件
         @SuppressLint("ClickableViewAccessibility")
         public boolean onTouchEvent(MotionEvent motionEvent) {
@@ -1666,5 +1705,4 @@ public class MainActivity extends AppCompatActivity {
 //                }
 //            }
 //        });
-
 }

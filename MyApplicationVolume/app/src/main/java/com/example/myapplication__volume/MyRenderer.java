@@ -3,6 +3,7 @@ package com.example.myapplication__volume;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.opengl.GLES10;
 import android.opengl.GLES30;
@@ -23,6 +24,7 @@ import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_list;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
 
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -129,6 +131,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private boolean isBig;
 
     private FileType fileType;
+    private ByteBuffer mCaptureBuffer;
+    private Bitmap mBitmap;
+    private boolean isTakePic = false;
+    private String mCapturePath;
 
 
     //初次渲染画面
@@ -173,6 +179,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         myAxis = new MyAxis(mz);
         myDraw = new MyDraw();
         myAnimation = new MyAnimation();
+
+        mCaptureBuffer = ByteBuffer.allocate(screen_h*screen_w*4);
+        mBitmap = Bitmap.createBitmap(screen_w,screen_h, Bitmap.Config.ARGB_8888);
 
 
         float ratio = (float) width / height;
@@ -224,6 +233,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Log.v("onDrawFrame", Arrays.toString(rotationMatrix));
 
         setMatrix();
+
+
 
 
         if (myAnimation.status){
@@ -425,6 +436,37 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         //
         myAxis.draw(finalMatrix);
+
+        if(isTakePic){
+            mCaptureBuffer.rewind();
+            GLES30.glReadPixels(0,0,screen_w,screen_h,GLES30.GL_RGBA,GLES30.GL_UNSIGNED_BYTE,mCaptureBuffer);
+            isTakePic = false;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    mCaptureBuffer.rewind();
+                    mBitmap.copyPixelsFromBuffer(mCaptureBuffer);
+                    for(int i=0; i<screen_w; i++){
+                        for(int j=0; j<screen_h/2; j++){
+                            int jj = screen_h-1-j;
+                            int pixelTmp = mBitmap.getPixel(i,jj);
+                            mBitmap.setPixel(i,jj,mBitmap.getPixel(i,j));
+                            mBitmap.setPixel(i,j,pixelTmp);
+                        }
+                    }
+
+                    mCapturePath = Myapplication.getContext().getExternalFilesDir(null).toString() + "/" + "Image_" + System.currentTimeMillis() +".jpg";
+                    System.out.println(mCapturePath+"------------------------------");
+                    try {
+                        FileOutputStream fos = new FileOutputStream(mCapturePath);
+                        mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+//                        fos.flush();
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
 
 
 //        angle += 1.0f;
@@ -1815,12 +1857,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
     public void importNeuronTree(NeuronTree nt){
-//        V_NeuronSWC seg = nt.convertV_NeuronSWCFormat();
-//        curSwcList.append(seg);
-        Vector<V_NeuronSWC> segs = nt.devideByBranch();
-        for (int i = 0; i < segs.size(); i++){
-            curSwcList.append(segs.get(i));
-        }
+        V_NeuronSWC seg = nt.convertV_NeuronSWCFormat();
+        curSwcList.append(seg);
+//        Vector<V_NeuronSWC> segs = nt.devideByBranch();
+//        for (int i = 0; i < segs.size(); i++){
+//            curSwcList.append(segs.get(i));
+//        }
     }
 
 
@@ -1892,6 +1934,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         SWC
     }
 
+    public void setTakePic(boolean takePic) {
+        isTakePic = takePic;
+    }
+
+    public String getmCapturePath() {
+        return mCapturePath;
+    }
 }
 
 
