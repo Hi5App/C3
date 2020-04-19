@@ -13,13 +13,10 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.basic.ByteTranslate;
-import com.example.basic.MyAnimation;
 import com.example.basic.Image4DSimple;
 import com.example.basic.ImageMarker;
 import com.example.basic.MyAnimation;
 import com.example.basic.NeuronTree;
-import com.example.basic.XYZ;
-import com.tracingfunc.gd.V3dNeuronGDTracing;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_list;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
@@ -342,7 +339,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
                 lines.clear();
                 for(int j=0; j<seg.row.size(); j++){
-                    if(seg.row.get(j).parent != -1){
+                    if(seg.row.get(j).parent != -1 && seg.getIndexofParent(j) != -1){
                         V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(j));
                         swcUnitMap.put(j,parent);
                     }
@@ -352,7 +349,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                    System.out.println("in row: "+j+"-------------------");
                     V_NeuronSWC_unit child = seg.row.get(j);
                     int parentid = (int) child.parent;
-                    if (parentid == -1){
+                    if (parentid == -1 || seg.getIndexofParent(j) == -1 ){
 //                        System.out.println("parent -1");
                         continue;
                     }
@@ -1648,7 +1645,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     continue;
                 Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
                 for(int k=0; k<seg.row.size(); k++){
-                    if(seg.row.get(k).parent != -1){
+                    if(seg.row.get(k).parent != -1 && seg.getIndexofParent(k) != -1){
                         V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(k));
                         swcUnitMap.put(k,parent);
                     }
@@ -1658,7 +1655,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     System.out.println("j: "+j+" k: "+k);
                     V_NeuronSWC_unit child = seg.row.get(k);
                     int parentid = (int) child.parent;
-                    if (parentid == -1){
+                    if (parentid == -1 || seg.getIndexofParent(k) == -1){
                         System.out.println("parent -1");
                         continue;
                     }
@@ -1925,12 +1922,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
     public void importNeuronTree(NeuronTree nt){
-//        V_NeuronSWC seg = nt.convertV_NeuronSWCFormat();
-//        curSwcList.append(seg);
-        Vector<V_NeuronSWC> segs = nt.devideByBranch();
-        for (int i = 0; i < segs.size(); i++){
-            curSwcList.append(segs.get(i));
-        }
+        V_NeuronSWC seg = nt.convertV_NeuronSWCFormat();
+        curSwcList.append(seg);
+
+        System.out.println("----------------importNeuronTree----------------");
+//        Vector<V_NeuronSWC> segs = nt.devideByBranch();
+//        for (int i = 0; i < segs.size(); i++){
+//            curSwcList.append(segs.get(i));
+//        }
     }
 
 
@@ -2009,6 +2008,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public String getmCapturePath() {
         return mCapturePath;
     }
+
+    public void resetCapturePath() {
+        mCapturePath = null;
+    }
+
 }
 
 

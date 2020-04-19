@@ -3,7 +3,6 @@ package com.example.myapplication__volume;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -12,12 +11,8 @@ import android.content.Intent;
 import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.net.Uri;
-import android.opengl.GLES30;
-import android.opengl.GLException;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,7 +22,6 @@ import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +38,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -60,13 +53,9 @@ import com.tracingfunc.app2.ParaAPP2;
 import com.tracingfunc.app2.V3dNeuronAPP2Tracing;
 import com.tracingfunc.gd.CurveTracePara;
 import com.tracingfunc.gd.V3dNeuronGDTracing;
-import com.tracingfunc.gd.V_NeuronSWC;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -218,11 +207,50 @@ public class MainActivity extends AppCompatActivity {
 
         Share.setOnClickListener(new Button.OnClickListener(){
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 myrenderer.setTakePic(true);
                 myGLSurfaceView.requestRender();
-                String imgPath = myrenderer.getmCapturePath();
-                Toast.makeText(v.getContext(), "save img to "+imgPath, Toast.LENGTH_SHORT).show();
+                final String[] imgPath = new String[1];
+                final boolean[] isGet = {false};
+
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @RequiresApi(api = Build.VERSION_CODES.N)
+                    @Override
+                    public void run() {
+
+                        try {
+
+                            Looper.prepare();
+
+                            imgPath[0] = myrenderer.getmCapturePath();
+                            myrenderer.resetCapturePath();
+
+                            if (imgPath[0] !=  null)
+                                Toast.makeText(v.getContext(), "save img to "+ imgPath[0], Toast.LENGTH_SHORT).show();
+                            else
+                                Toast.makeText(v.getContext(), "Fail to Screenshot", Toast.LENGTH_SHORT).show();
+
+                            isGet[0] = true;
+                            Looper.loop();
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                },3000); // 延时3秒
+
+                while (imgPath[0] == null && !isGet[0])
+                    System.out.println("null");
+
+                if (imgPath[0] != null){
+                    Intent shareIntent = new Intent();
+                    shareIntent.setAction(Intent.ACTION_SEND);
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imgPath[0]));
+                    shareIntent.setType("image/jpeg");
+                    startActivity(Intent.createChooser(shareIntent, "share"));
+                }
             }
         });
 
@@ -451,10 +479,18 @@ public class MainActivity extends AppCompatActivity {
 
 //                fid.write(message.getBytes());
 //                long fileSize = f.length();
-            } catch (Exception e) {
-                Toast.makeText(this, " dddddd  ", Toast.LENGTH_SHORT).show();
+//            } catch (Exception e) {
+//                Toast.makeText(this, " Fail to load file  ", Toast.LENGTH_SHORT).show();
+//                Log.v("MainActivity", "111222");
+//                Log.v("Exception", e.toString());
+//            }
+
+            }catch (OutOfMemoryError e) {
+                Toast.makeText(this, " Fail to load file  ", Toast.LENGTH_SHORT).show();
                 Log.v("MainActivity", "111222");
                 Log.v("Exception", e.toString());
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
             }
         }
     }

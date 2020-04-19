@@ -7,7 +7,6 @@ import android.widget.Toast;
 
 import com.example.myapplication__volume.MainActivity;
 import com.tracingfunc.gd.V_NeuronSWC;
-import com.tracingfunc.gd.V_NeuronSWC_list;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
 
 import java.io.BufferedReader;
@@ -20,7 +19,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Vector;
@@ -464,11 +462,23 @@ public class NeuronTree extends BasicSurfObj {
         Vector<V_NeuronSWC> result = new Vector<V_NeuronSWC>();
         Queue<Integer> roots = new LinkedList<Integer>();
         Vector<Vector<Integer>> child = new Vector<Vector<Integer>>(listNeuron.size());
+
+        HashMap<Integer, Integer> hN = new HashMap<>();
+
+        for (int i = 0; i < listNeuron.size(); i++){
+            hN.put((int)listNeuron.get(i).n, i);
+        }
+
+        for (int i = 0; i < listNeuron.size(); i++){
+            Vector<Integer> temp = new Vector<Integer>();
+            child.add(temp);
+        }
+
         for (int i = 0; i < listNeuron.size(); i++) {
             NeuronSWC p = listNeuron.get(i);
             int prt = (int) p.parent;
             if (prt != -1) {
-                int prtIndex = hashNeuron.get(prt);
+                int prtIndex = hN.get(prt);
                 child.get(prtIndex).add(i);
             } else {
                 roots.offer(i);
@@ -476,10 +486,12 @@ public class NeuronTree extends BasicSurfObj {
         }
         int cur = 0;
 
+        System.out.println("size of roots: " + roots.size());
+
         V_NeuronSWC empty = new V_NeuronSWC();
         result.add(empty);
 
-        while (roots.isEmpty()){
+        while (!roots.isEmpty()){
             int temp = roots.poll();
             listNeuron.get(temp).seg_id = cur;
 
@@ -494,6 +506,25 @@ public class NeuronTree extends BasicSurfObj {
             u.parent = S.parent;
             u.seg_id = S.seg_id;
             u.nodeinseg_id = S.nodeinseg_id;
+
+            if (result.get(cur).row.size() == 0){
+                int prt = (int) listNeuron.get(temp).parent;
+                if (prt != -1) {
+                    NeuronSWC S1 = listNeuron.get(prt);
+                    V_NeuronSWC_unit u1 = new V_NeuronSWC_unit();
+                    u1.n = S1.n;
+                    u1.type = S1.type;
+                    u1.x = S1.x;
+                    u1.y = S1.y;
+                    u1.z = S1.z;
+                    u1.r = S1.radius;
+                    u1.parent = S1.parent;
+                    u1.seg_id = S1.seg_id;
+                    u1.nodeinseg_id = S1.nodeinseg_id;
+                    result.get(cur).append(u1);
+                }
+            }
+
             result.get(cur).append(u);
 
             Vector<Integer> children= child.get(temp);
@@ -502,8 +533,24 @@ public class NeuronTree extends BasicSurfObj {
             }
             if (children.size() != 1){
                 cur += 1;
+                V_NeuronSWC newlist = new V_NeuronSWC();
+                result.add(newlist);
             }
         }
+
+        System.out.println("result.size():" + result.size());
+
+
+        for (int i = 0; i < result.size(); i++){
+
+            System.out.println(result.get(i).row.size());
+
+        }
+
+        if (result.get(cur).row.size() == 0){
+            result.remove(cur);
+        }
+
         return result;
     }
 
