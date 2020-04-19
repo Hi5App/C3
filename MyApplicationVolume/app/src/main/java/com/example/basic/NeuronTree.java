@@ -20,6 +20,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Vector;
 
 import static com.example.myapplication__volume.MainActivity.getContext;
@@ -414,30 +417,73 @@ public class NeuronTree extends BasicSurfObj {
         return seg;
     }
 
+//    public Vector<V_NeuronSWC> devideByBranch(){
+//        Vector<V_NeuronSWC> result = new Vector<V_NeuronSWC>();
+//        Vector<Integer> roots = new Vector<Integer>();
+//        Vector<Vector<Integer>> child = new Vector<Vector<Integer>>(listNeuron.size());
+//        for (int i = 0; i < listNeuron.size(); i++){
+//            NeuronSWC temp = listNeuron.get(i);
+//            temp.children.clear();
+//            listNeuron.set(i, temp);
+//        }
+//        for (int i = 0; i < listNeuron.size(); i++){
+//
+//            NeuronSWC temp = listNeuron.get(i);
+//            int prt = (int)temp.parent;
+//            if (prt != -1) {
+//                NeuronSWC ptemp = listNeuron.get(hashNeuron.get(prt));
+//                ptemp.children.add(i);
+//                listNeuron.set(hashNeuron.get(prt), temp);
+//            }else{
+//                roots.add(i);
+//            }
+//        }
+//        for (int i = 0; i < roots.size(); i++){
+//            V_NeuronSWC empty = new V_NeuronSWC();
+//
+//            NeuronSWC S = listNeuron.get(roots.get(i));
+//            V_NeuronSWC_unit u = new V_NeuronSWC_unit();
+//            u.n = S.n;
+//            u.type = S.type;
+//            u.x = S.x;
+//            u.y = S.y;
+//            u.z = S.z;
+//            u.r = S.radius;
+//            u.parent = S.parent;
+//            u.seg_id = S.seg_id;
+//            u.nodeinseg_id = S.nodeinseg_id;
+//            empty.append(u);
+//
+//            result.add(empty);
+//            result = treeToList(roots.get(i), result);
+//        }
+//        return result;
+//    }
+
     public Vector<V_NeuronSWC> devideByBranch(){
         Vector<V_NeuronSWC> result = new Vector<V_NeuronSWC>();
-        Vector<Integer> roots = new Vector<Integer>();
-        for (int i = 0; i < listNeuron.size(); i++){
-            NeuronSWC temp = listNeuron.get(i);
-            temp.children.clear();
-            listNeuron.set(i, temp);
-        }
-        for (int i = 0; i < listNeuron.size(); i++){
-
-            NeuronSWC temp = listNeuron.get(i);
-            int prt = (int)temp.parent;
+        Queue<Integer> roots = new LinkedList<Integer>();
+        Vector<Vector<Integer>> child = new Vector<Vector<Integer>>(listNeuron.size());
+        for (int i = 0; i < listNeuron.size(); i++) {
+            NeuronSWC p = listNeuron.get(i);
+            int prt = (int) p.parent;
             if (prt != -1) {
-                NeuronSWC ptemp = listNeuron.get(hashNeuron.get(prt));
-                ptemp.children.add(i);
-                listNeuron.set(hashNeuron.get(prt), temp);
-            }else{
-                roots.add(i);
+                int prtIndex = hashNeuron.get(prt);
+                child.get(prtIndex).add(i);
+            } else {
+                roots.offer(i);
             }
         }
-        for (int i = 0; i < roots.size(); i++){
-            V_NeuronSWC empty = new V_NeuronSWC();
+        int cur = 0;
 
-            NeuronSWC S = listNeuron.get(roots.get(i));
+        V_NeuronSWC empty = new V_NeuronSWC();
+        result.add(empty);
+
+        while (roots.isEmpty()){
+            int temp = roots.poll();
+            listNeuron.get(temp).seg_id = cur;
+
+            NeuronSWC S = listNeuron.get(temp);
             V_NeuronSWC_unit u = new V_NeuronSWC_unit();
             u.n = S.n;
             u.type = S.type;
@@ -448,13 +494,19 @@ public class NeuronTree extends BasicSurfObj {
             u.parent = S.parent;
             u.seg_id = S.seg_id;
             u.nodeinseg_id = S.nodeinseg_id;
-            empty.append(u);
+            result.get(cur).append(u);
 
-            result.add(empty);
-            result = treeToList(roots.get(i), result);
+            Vector<Integer> children= child.get(temp);
+            for (int i = 0; i < children.size(); i++){
+                roots.offer(children.get(i));
+            }
+            if (children.size() != 1){
+                cur += 1;
+            }
         }
         return result;
     }
+
 
     private Vector<V_NeuronSWC> treeToList(int root, Vector<V_NeuronSWC> current){
 

@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
 //    private boolean ifSaveSwc = false;
     private boolean ifDeletingMarker = false;
     private boolean ifDeletingLine = false;
+    private boolean ifSpliting = false;
 
     private boolean ifAnimation = false;
     private Button buttonAnimation;
@@ -492,7 +493,7 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete line", "Exit"},
+                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete curve", "Split", "Exit"},
 //                        new int[]{R.mipmap.ic_launcher, R.mipmap.ic_launcher},
                         new int[]{ },
                         new OnSelectListener() {
@@ -504,6 +505,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifPainting = false;
                                         ifDeletingMarker = false;
                                         ifDeletingLine = false;
+                                        ifSpliting = false;
                                         if(ifPoint) {
                                             Draw.setText("PinPoint");
                                             Draw.setTextColor(Color.RED);
@@ -519,6 +521,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifPoint = false;
                                         ifDeletingMarker = false;
                                         ifDeletingLine = false;
+                                        ifSpliting = false;
                                         if(ifPainting) {
                                             Draw.setText("Draw Curve");
                                             Draw.setTextColor(Color.RED);
@@ -535,6 +538,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifPainting = false;
                                         ifPoint = false;
                                         ifDeletingLine = false;
+                                        ifSpliting = false;
                                         if (ifDeletingMarker){
                                             Draw.setText("Delete marker");
                                             Draw.setTextColor(Color.RED);
@@ -544,13 +548,29 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                         break;
 
-                                    case "Delete line":
+                                    case "Delete curve":
                                         ifDeletingLine = !ifDeletingLine;
                                         ifPainting = false;
                                         ifPoint = false;
                                         ifDeletingMarker = false;
+                                        ifSpliting = false;
                                         if (ifDeletingLine){
-                                            Draw.setText("Delete line");
+                                            Draw.setText("Delete curve");
+                                            Draw.setTextColor(Color.RED);
+                                        }else{
+                                            Draw.setText("Draw");
+                                            Draw.setTextColor(Color.BLACK);
+                                        }
+                                        break;
+
+                                    case "Split":
+                                        ifSpliting = !ifSpliting;
+                                        ifDeletingLine = false;
+                                        ifPainting = false;
+                                        ifPoint = false;
+                                        ifDeletingMarker = false;
+                                        if (ifSpliting){
+                                            Draw.setText("Split");
                                             Draw.setTextColor(Color.RED);
                                         }else{
                                             Draw.setText("Draw");
@@ -563,6 +583,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifPainting = false;
                                         ifPoint = false;
                                         ifDeletingMarker = false;
+                                        ifSpliting = false;
                                             Draw.setText("Draw");
                                         Draw.setTextColor(Color.BLACK);
                                         break;
@@ -1350,7 +1371,7 @@ public class MainActivity extends AppCompatActivity {
                     case MotionEvent.ACTION_DOWN:
                         X = normalizedX;
                         Y = normalizedY;
-                        if (ifPainting) {
+                        if (ifPainting || ifDeletingLine || ifSpliting) {
                             lineDrawed.add(X);
                             lineDrawed.add(Y);
                             lineDrawed.add(-1.0f);
@@ -1370,13 +1391,13 @@ public class MainActivity extends AppCompatActivity {
                             myrenderer.deleteMarkerDrawed(X, Y);
                             requestRender();
                         }
-                        if (ifDeletingLine){
-                            lineDrawed.add(X);
-                            lineDrawed.add(Y);
-                            lineDrawed.add(-1.0f);
-                            myrenderer.setIfPainting(true);
-                            requestRender();
-                        }
+//                        if (ifDeletingLine){
+//                            lineDrawed.add(X);
+//                            lineDrawed.add(Y);
+//                            lineDrawed.add(-1.0f);
+//                            myrenderer.setIfPainting(true);
+//                            requestRender();
+//                        }
                         break;
                     case MotionEvent.ACTION_POINTER_DOWN:
                         isZooming = true;
@@ -1389,7 +1410,7 @@ public class MainActivity extends AppCompatActivity {
 
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        if (!ifPainting && !ifDeletingLine) {
+                        if (!ifPainting && !ifDeletingLine && !ifSpliting) {
                             if (isZooming) {
                                 float x2 = toOpenGLCoord(this, motionEvent.getX(1), true);
                                 float y2 = toOpenGLCoord(this, motionEvent.getY(1), false);
@@ -1448,6 +1469,13 @@ public class MainActivity extends AppCompatActivity {
 //                            requestRender();
                         }
                         if (ifDeletingLine){
+                            myrenderer.setIfPainting(false);
+                            myrenderer.deleteLine1(lineDrawed);
+                            lineDrawed.clear();
+                            myrenderer.setLineDrawed(lineDrawed);
+                            requestRender();
+                        }
+                        if (ifSpliting){
                             myrenderer.setIfPainting(false);
                             myrenderer.deleteLine1(lineDrawed);
                             lineDrawed.clear();

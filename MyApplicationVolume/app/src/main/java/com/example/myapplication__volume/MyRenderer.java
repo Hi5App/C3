@@ -1701,6 +1701,74 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         curSwcList.deleteMutiSeg(new Vector<Integer>());
     }
 
+    public void splitCurve(ArrayList<Float> line){
+        System.out.println("split1--------------------------");
+        for (int i = 0; i < line.size() / 3 - 1; i++){
+            float x1 = line.get(i * 3);
+            float y1 = line.get(i * 3 + 1);
+            float x2 = line.get(i * 3 + 3);
+            float y2 = line.get(i * 3 + 4);
+            for(int j=0; j<curSwcList.nsegs(); j++){
+                System.out.println("delete curswclist --"+j);
+                V_NeuronSWC seg = curSwcList.seg.get(j);
+                if(seg.to_be_deleted)
+                    continue;
+                Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
+                for(int k=0; k<seg.row.size(); k++){
+                    if(seg.row.get(k).parent != -1){
+                        V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(k));
+                        swcUnitMap.put(k,parent);
+                    }
+                }
+                System.out.println("delete: end map");
+                for(int k=0; k<seg.row.size(); k++){
+                    System.out.println("j: "+j+" k: "+k);
+                    V_NeuronSWC_unit child = seg.row.get(k);
+                    int parentid = (int) child.parent;
+                    if (parentid == -1){
+                        System.out.println("parent -1");
+                        continue;
+                    }
+                    V_NeuronSWC_unit parent = swcUnitMap.get(k);
+                    float[] pchild = {(float) child.x, (float) child.y, (float) child.z};
+                    float[] pparent = {(float) parent.x, (float) parent.y, (float) parent.z};
+                    float[] pchildm = VolumetoModel(pchild);
+                    float[] pparentm = VolumetoModel(pparent);
+                    float[] p2 = {pchildm[0],pchildm[1],pchildm[2],1.0f};
+                    float[] p1 = {pparentm[0],pparentm[1],pparentm[2],1.0f};
+
+                    float [] p1Volumne = new float[4];
+                    float [] p2Volumne = new float[4];
+                    Matrix.multiplyMV(p1Volumne, 0, finalMatrix, 0, p1, 0);
+                    Matrix.multiplyMV(p2Volumne, 0, finalMatrix, 0, p2, 0);
+                    devideByw(p1Volumne);
+                    devideByw(p2Volumne);
+                    float x3 = p1Volumne[0];
+                    float y3 = p1Volumne[1];
+                    float x4 = p2Volumne[0];
+                    float y4 = p2Volumne[1];
+
+                    double m=(x2-x1)*(y3-y1)-(x3-x1)*(y2-y1);
+                    double n=(x2-x1)*(y4-y1)-(x4-x1)*(y2-y1);
+                    double p=(x4-x3)*(y1-y3)-(x1-x3)*(y4-y3);
+                    double q=(x4-x3)*(y2-y3)-(x2-x3)*(y4-y3);
+
+                    if( (Math.max(x1, x2) >= Math.min(x3, x4))
+                            && (Math.max(x3, x4) >= Math.min(x1, x2))
+                            && (Math.max(y1, y2) >= Math.min(y3, y4))
+                            && (Math.max(y3, y4) >= Math.min(y1, y2))
+                            && ((m * n) <= 0) && (p * q <= 0)){
+                        System.out.println("------------------this is split---------------");
+//                        seg.to_be_deleted = true;
+//                        break;
+//                        for (int )
+                    }
+                }
+            }
+        }
+        curSwcList.deleteMutiSeg(new Vector<Integer>());
+    }
+
     public void deleteLine(ArrayList<Float> line){
         for (int i = 0; i < line.size() / 3 - 1; i++){
             float x1 = line.get(i * 3);
@@ -1857,12 +1925,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
     public void importNeuronTree(NeuronTree nt){
-        V_NeuronSWC seg = nt.convertV_NeuronSWCFormat();
-        curSwcList.append(seg);
-//        Vector<V_NeuronSWC> segs = nt.devideByBranch();
-//        for (int i = 0; i < segs.size(); i++){
-//            curSwcList.append(segs.get(i));
-//        }
+//        V_NeuronSWC seg = nt.convertV_NeuronSWCFormat();
+//        curSwcList.append(seg);
+        Vector<V_NeuronSWC> segs = nt.devideByBranch();
+        for (int i = 0; i < segs.size(); i++){
+            curSwcList.append(segs.get(i));
+        }
     }
 
 
