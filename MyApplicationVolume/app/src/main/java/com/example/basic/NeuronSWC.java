@@ -1,6 +1,7 @@
 package com.example.basic;
 
 import java.util.ArrayList;
+import java.util.Vector;
 
 
 public class NeuronSWC extends BasicSurfObj implements Cloneable{
@@ -22,6 +23,8 @@ public class NeuronSWC extends BasicSurfObj implements Cloneable{
 
     public double tfresindex;
 
+    public Vector<Integer> children;
+
     public NeuronSWC(){
         n = parent = 0;
         type = 0;
@@ -33,6 +36,7 @@ public class NeuronSWC extends BasicSurfObj implements Cloneable{
         creatmode = 0;
         timestamp = 0;
         tfresindex = 0;
+        children = new Vector<Integer>();
     }
 
     @Override

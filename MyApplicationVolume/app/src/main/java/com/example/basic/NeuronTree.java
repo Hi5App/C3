@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import com.example.myapplication__volume.MainActivity;
 import com.tracingfunc.gd.V_NeuronSWC;
+import com.tracingfunc.gd.V_NeuronSWC_list;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
 
 import java.io.BufferedReader;
@@ -413,6 +414,91 @@ public class NeuronTree extends BasicSurfObj {
         return seg;
     }
 
+    public Vector<V_NeuronSWC> devideByBranch(){
+        Vector<V_NeuronSWC> result = new Vector<V_NeuronSWC>();
+        Vector<Integer> roots = new Vector<Integer>();
+        for (int i = 0; i < listNeuron.size(); i++){
+            NeuronSWC temp = listNeuron.get(i);
+            temp.children.clear();
+            listNeuron.set(i, temp);
+        }
+        for (int i = 0; i < listNeuron.size(); i++){
+
+            NeuronSWC temp = listNeuron.get(i);
+            int prt = (int)temp.parent;
+            if (prt != -1) {
+                NeuronSWC ptemp = listNeuron.get(hashNeuron.get(prt));
+                ptemp.children.add(i);
+                listNeuron.set(hashNeuron.get(prt), temp);
+            }else{
+                roots.add(i);
+            }
+        }
+        for (int i = 0; i < roots.size(); i++){
+            V_NeuronSWC empty = new V_NeuronSWC();
+
+            NeuronSWC S = listNeuron.get(roots.get(i));
+            V_NeuronSWC_unit u = new V_NeuronSWC_unit();
+            u.n = S.n;
+            u.type = S.type;
+            u.x = S.x;
+            u.y = S.y;
+            u.z = S.z;
+            u.r = S.radius;
+            u.parent = S.parent;
+            u.seg_id = S.seg_id;
+            u.nodeinseg_id = S.nodeinseg_id;
+            empty.append(u);
+
+            result.add(empty);
+            result = treeToList(roots.get(i), result);
+        }
+        return result;
+    }
+
+    private Vector<V_NeuronSWC> treeToList(int root, Vector<V_NeuronSWC> current){
+
+        NeuronSWC p = listNeuron.get(root);
+        if (p.children.size() == 1){
+            V_NeuronSWC temp = current.lastElement();
+            NeuronSWC S = listNeuron.get(p.children.get(0));
+            V_NeuronSWC_unit u = new V_NeuronSWC_unit();
+            u.n = S.n;
+            u.type = S.type;
+            u.x = S.x;
+            u.y = S.y;
+            u.z = S.z;
+            u.r = S.radius;
+            u.parent = S.parent;
+            u.seg_id = S.seg_id;
+            u.nodeinseg_id = S.nodeinseg_id;
+            temp.append(u);
+            current.set(current.size() - 1, temp);
+            return treeToList(p.children.get(0), current);
+        }else if (p.children.size() == 0){
+            return current;
+        }
+        for (int i = 0; i < p.children.size(); i++){
+            V_NeuronSWC empty = new V_NeuronSWC();
+
+            NeuronSWC S = listNeuron.get(p.children.get(i));
+            V_NeuronSWC_unit u = new V_NeuronSWC_unit();
+            u.n = S.n;
+            u.type = S.type;
+            u.x = S.x;
+            u.y = S.y;
+            u.z = S.z;
+            u.r = S.radius;
+            u.parent = S.parent;
+            u.seg_id = S.seg_id;
+            u.nodeinseg_id = S.nodeinseg_id;
+            empty.append(u);
+
+            current.add(empty);
+            current = treeToList(p.children.get(i), current);
+        }
+        return current;
+    }
 
 
 }
