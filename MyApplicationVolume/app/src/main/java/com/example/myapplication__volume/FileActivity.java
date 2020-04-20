@@ -2,7 +2,6 @@ package com.example.myapplication__volume;
 
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -16,7 +15,6 @@ import android.os.Environment;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -484,7 +482,7 @@ public class FileActivity extends AppCompatActivity {
                         if (!manageSocket.ImgSocket.isOutputShutdown()) {
                             Log.v("send1", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
-                            manageSocket.ImgPWriter.println("17302_00001RES(54600x34412x9847)__128__128__128__64:imgblock.");
+                            manageSocket.ImgPWriter.println("17302_00001RES(54600x34412x9847)__" + offset_x + "__" + offset_y + "__" + offset_z + "__64:imgblock.");
                             manageSocket.ImgPWriter.flush();
 
 
