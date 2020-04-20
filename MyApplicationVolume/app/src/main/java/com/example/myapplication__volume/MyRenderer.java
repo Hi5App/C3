@@ -16,6 +16,7 @@ import com.example.basic.ByteTranslate;
 import com.example.basic.Image4DSimple;
 import com.example.basic.ImageMarker;
 import com.example.basic.MyAnimation;
+import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_list;
@@ -94,6 +95,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private float[] linePoints = {
 
     };
+
+    private ArrayList<Float> splitPoints = new ArrayList<Float>();
+    private int splitType;
 
     private ArrayList<ArrayList<Float>> lineDrawed = new ArrayList<ArrayList<Float>>();
 
@@ -369,6 +373,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         }
 
+        //画的分界点
+        if (splitPoints.size() > 0){
+            myDraw.drawSplitPoints(finalMatrix, splitPoints, splitType);
+        }
 
         //现画的marker
         if(MarkerList.size() > 0){
@@ -1758,7 +1766,33 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         System.out.println("------------------this is split---------------");
 //                        seg.to_be_deleted = true;
 //                        break;
-//                        for (int )
+                        V_NeuronSWC newSeg = new V_NeuronSWC();
+                        V_NeuronSWC_unit first = seg.row.get(i);
+                        try {
+                            V_NeuronSWC_unit firstClone = first.clone();
+                            newSeg.append(firstClone);
+                        }catch (Exception e){
+                            System.out.println(e.getMessage());
+                        }
+                        int cur = k;
+                        while (seg.getIndexofParent(k) != -1){
+                            cur = seg.getIndexofParent(cur);
+                            V_NeuronSWC_unit nsu = swcUnitMap.get(cur);
+                            try{
+                                V_NeuronSWC_unit nsuClone = nsu.clone();
+                                newSeg.append(nsu);
+                            }catch (Exception e){
+                                System.out.println(e.getMessage());
+                            }
+                            seg.row.remove(cur);
+
+                        }
+                        curSwcList.append(newSeg);
+                        splitPoints.add(pchildm[0]);
+                        splitPoints.add(pchildm[1]);
+                        splitPoints.add(pchildm[2]);
+                        splitType = (int)child.type;
+                        break;
                     }
                 }
             }

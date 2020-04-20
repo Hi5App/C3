@@ -1513,7 +1513,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         if (ifSpliting){
                             myrenderer.setIfPainting(false);
-                            myrenderer.deleteLine1(lineDrawed);
+                            myrenderer.splitCurve(lineDrawed);
                             lineDrawed.clear();
                             myrenderer.setLineDrawed(lineDrawed);
                             requestRender();
