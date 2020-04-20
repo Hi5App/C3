@@ -1708,7 +1708,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public void splitCurve(ArrayList<Float> line){
         System.out.println("split1--------------------------");
+        boolean found = false;
         for (int i = 0; i < line.size() / 3 - 1; i++){
+            if (found == true){
+                break;
+            }
             float x1 = line.get(i * 3);
             float y1 = line.get(i * 3 + 1);
             float x2 = line.get(i * 3 + 3);
@@ -1766,6 +1770,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         System.out.println("------------------this is split---------------");
 //                        seg.to_be_deleted = true;
 //                        break;
+                        found = true;
                         V_NeuronSWC newSeg = new V_NeuronSWC();
                         V_NeuronSWC_unit first = seg.row.get(k);
                         try {
@@ -1785,7 +1790,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                 System.out.println(e.getMessage());
                             }
                             seg.row.remove(cur);
-
                         }
                         curSwcList.append(newSeg);
                         splitPoints.add(pchildm[0]);
