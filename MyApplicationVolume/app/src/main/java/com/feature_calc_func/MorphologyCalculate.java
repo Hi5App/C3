@@ -51,19 +51,6 @@ public class MorphologyCalculate {
 
         int neuronNum = nt.listNeuron.size();//
 
-        childs = new Vector<Vector<Integer>>(neuronNum);
-        for (int i = 0; i < neuronNum; i++) {
-            Vector<Integer> child_node = new Vector<Integer>();// declare&assign
-            childs.addElement(child_node);
-        }
-
-        for (int i = 0; i < neuronNum; i++) {
-            Long par = nt.listNeuron.get(i).parent;
-            if (par < 0)
-                continue;
-            childs.get(nt.hashNeuron.get(par.intValue())).addElement(i);
-        }
-
         // find the root
         rootidx = VOID;
         List<NeuronSWC> list = new ArrayList<>(nt.listNeuron);
@@ -79,6 +66,27 @@ public class MorphologyCalculate {
             return null;
         }
 
+        childs = new Vector<Vector<Integer>>(neuronNum);
+        for (int i = 0; i < neuronNum; i++) {
+            Vector<Integer> child_node = new Vector<Integer>();// declare&assign
+            childs.addElement(child_node);
+        }
+
+        for (int i = 0; i < neuronNum; i++) {
+            Long par = nt.listNeuron.get(i).parent;
+            if (par < 0)
+                continue;
+            try {   //there is sth wrong...Only calculate one neuron tree...
+//            if (!nt.hashNeuron.containsKey(par.intValue())){
+//                nt.listNeuron.get(i).parent = rootidx;
+//                par = Long.valueOf(rootidx);
+//            }
+            childs.get(nt.hashNeuron.get(par.intValue())).addElement(i);
+            } catch (NullPointerException e) {
+                System.out.println(par);
+                continue;
+            }
+        }
         N_node = list.size();
         N_stem = childs.get(rootidx).size();
         Soma_surface = 4 * PI * (list.get(rootidx).radius) * (list.get(rootidx).radius);
@@ -174,7 +182,12 @@ public class MorphologyCalculate {
             } else if (childs.get(i).size() > 1) {
                 N_bifs++;
             }
-            int parent = getParent(i, nt);
+            int parent;
+            try {
+                parent = getParent(i, nt);
+            } catch (NullPointerException e) {
+                parent = VOID;
+            }
             if (parent == VOID)
                 continue;
             double l = dist(curr, list.get(parent));
@@ -444,7 +457,13 @@ public class MorphologyCalculate {
 
         int siz = list.size();
         for (int t = 0; t < siz; t++) {
-            int s = getParent(t, nt);
+            int s;
+            try {
+                s = getParent(t, nt);
+            } catch (NullPointerException e) {
+                s = VOID;
+                continue;
+            }
             if (s == VOID)
                 s = t;
             int cst = 1;
