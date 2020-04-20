@@ -355,6 +355,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     int parentid = (int) child.parent;
                     if (parentid == -1 || seg.getIndexofParent(j) == -1 ){
 //                        System.out.println("parent -1");
+                        float x = (int)child.x;
+                        float y = (int)child.y;
+                        float z = (int)child.z;
+                        myDraw.drawSplitPoints(finalMatrix, x, y, z, (int)child.type);
                         continue;
                     }
                     V_NeuronSWC_unit parent = swcUnitMap.get(j);
@@ -374,14 +378,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         //画的分界点
-        if (splitPoints.size() > 0){
-            for (int i = 0; i < splitPoints.size() / 3; i++) {
-                float x = splitPoints.get(i * 3);
-                float y = splitPoints.get(i * 3 + 1);
-                float z = splitPoints.get(i * 3 + 2);
-                myDraw.drawSplitPoints(finalMatrix, x, y, z, splitType);
-            }
-        }
+//        if (splitPoints.size() > 0){
+//            for (int i = 0; i < splitPoints.size() / 3; i++) {
+//                float x = splitPoints.get(i * 3);
+//                float y = splitPoints.get(i * 3 + 1);
+//                float z = splitPoints.get(i * 3 + 2);
+//                myDraw.drawSplitPoints(finalMatrix, x, y, z, splitType);
+//            }
+//        }
 
         //现画的marker
         if(MarkerList.size() > 0){
@@ -1740,7 +1744,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     System.out.println("j: "+j+" k: "+k);
                     V_NeuronSWC_unit child = seg.row.get(k);
                     int parentid = (int) child.parent;
-                    if (parentid == -1){
+                    if (parentid == -1 || seg.getIndexofParent(k) == -1){
                         System.out.println("parent -1");
                         continue;
                     }
@@ -1828,10 +1832,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         curSwcList.deleteSeg(j);
                         curSwcList.append(newSeg1);
                         curSwcList.append(newSeg2);
-                        splitPoints.add(pchildm[0]);
-                        splitPoints.add(pchildm[1]);
-                        splitPoints.add(pchildm[2]);
-                        splitType = (int)child.type;
+//                        splitPoints.add(pchildm[0]);
+//                        splitPoints.add(pchildm[1]);
+//                        splitPoints.add(pchildm[2]);
+//                        splitType = (int)child.type;
                         break;
                     }
                 }

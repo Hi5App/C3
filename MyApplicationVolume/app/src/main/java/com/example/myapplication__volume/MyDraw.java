@@ -369,12 +369,12 @@ public class MyDraw {
         GLES30.glUseProgram(mProgram_line);
 
         //准备坐标数据
-        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_line);
+        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_marker);
         //启用顶点的句柄
         GLES30.glEnableVertexAttribArray(0);
 
         //准备颜色数据
-        GLES30.glVertexAttribPointer(colorPoints_handle, 3, GLES30.GL_FLOAT, false, 0, colorBuffer_line);
+        GLES30.glVertexAttribPointer(colorPoints_handle, 3, GLES30.GL_FLOAT, false, 0, colorBuffer_marker);
         //启用颜色的句柄
         GLES30.glEnableVertexAttribArray(colorPoints_handle);
 
