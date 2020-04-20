@@ -375,7 +375,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         //画的分界点
         if (splitPoints.size() > 0){
-            myDraw.drawSplitPoints(finalMatrix, splitPoints, splitType);
+            for (int i = 0; i < splitPoints.size() / 3; i++) {
+                float x = splitPoints.get(i * 3);
+                float y = splitPoints.get(i * 3 + 1);
+                float z = splitPoints.get(i * 3 + 2);
+                myDraw.drawSplitPoints(finalMatrix, x, y, z, splitType);
+            }
         }
 
         //现画的marker
@@ -1725,7 +1730,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     continue;
                 Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
                 for(int k=0; k<seg.row.size(); k++){
-                    if(seg.row.get(k).parent != -1){
+                    if(seg.row.get(k).parent != -1 && seg.getIndexofParent(k) != -1){
                         V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(k));
                         swcUnitMap.put(k,parent);
                     }
@@ -1784,7 +1789,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         toSplit.add(k);
                         while (seg.getIndexofParent(cur) != -1){
                             cur = seg.getIndexofParent(cur);
-                            toSplit.add(k);
+                            toSplit.add(cur);
 //                            V_NeuronSWC_unit nsu = swcUnitMap.get(cur);
 //                            try{
 //                                V_NeuronSWC_unit nsuClone = nsu.clone();

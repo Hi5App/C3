@@ -24,6 +24,7 @@ public class MyDraw {
     float n = 100;
 //    final float radius = 0.1f;
     final float radius = 0.02f;
+    final float splitRadius = 0.005f;
 
     private final int mProgram_marker;
     private final int mProgram_line;
@@ -139,9 +140,9 @@ public class MyDraw {
     }
 
 
-    private void BufferSet_Marker(float x, float y, float z, int type){
+    private void BufferSet_Marker(float x, float y, float z, int type, float r){
 
-        vertexPoints_marker = createPositions(x, y, z);
+        vertexPoints_marker = createPositions(x, y, z, r);
 
         // for the marker
         //分配内存空间,每个浮点型占4字节空间
@@ -249,7 +250,7 @@ public class MyDraw {
     public void drawMarker(float[] mvpMatrix, float[] modelMatrix, float x, float y, float z, int type){
 //        System.out.println("set marker");
 
-        BufferSet_Marker(x, y, z, type);
+        BufferSet_Marker(x, y, z, type, radius);
 
 //        System.out.println("set marker end");
 
@@ -352,13 +353,13 @@ public class MyDraw {
         GLES30.glEnable(GLES30.GL_DEPTH_TEST);
     }
 
-    public void drawSplitPoints(float [] mvpMatrix, ArrayList<Float> splitPoints, int type){
-        float [] line = new float[splitPoints.size()];
-//        System.out.println("line size in 302: "+line.length +" "+ lineDrawed.size());
-        for (int i = 0; i < splitPoints.size(); i++){
-            line[i] = splitPoints.get(i);
-        }
-        BufferSet_Line(line, type);
+    public void drawSplitPoints(float [] mvpMatrix, float x, float y, float z, int type){
+//        float [] line = new float[splitPoints.size()];
+////        System.out.println("line size in 302: "+line.length +" "+ lineDrawed.size());
+//        for (int i = 0; i < splitPoints.size(); i++){
+//            line[i] = splitPoints.get(i);
+//        }
+        BufferSet_Marker(x, y, z, type, splitRadius);
 //        System.out.println("set end-----------");
 
         GLES30.glDisable(GLES30.GL_DEPTH_TEST);
@@ -385,7 +386,7 @@ public class MyDraw {
 
         GLES30.glLineWidth(3);
 
-        GLES30.glDrawArrays(GLES30.GL_POINTS, 0, line.length/3);
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length/3);
 
         //禁止顶点数组的句柄
         GLES30.glDisableVertexAttribArray(0);
@@ -499,7 +500,7 @@ public class MyDraw {
 
 
 
-    private float[]  createPositions(float x, float y, float z){
+    private float[]  createPositions(float x, float y, float z, float r){
 
 ////        float x, y, z;
 //        x = 0.5f;  y = 0.1f;  z = 0.2f;
@@ -510,10 +511,10 @@ public class MyDraw {
         float h1,h2;
         float sin,cos;
         for(float i=-90;i<90+step;i+=step){
-            r1 = (float)Math.cos(i * Math.PI / 180.0)          * radius;
-            r2 = (float)Math.cos((i + step) * Math.PI / 180.0) * radius;
-            h1 = (float)Math.sin(i * Math.PI / 180.0)          * radius;
-            h2 = (float)Math.sin((i + step) * Math.PI / 180.0) * radius;
+            r1 = (float)Math.cos(i * Math.PI / 180.0)          * r;
+            r2 = (float)Math.cos((i + step) * Math.PI / 180.0) * r;
+            h1 = (float)Math.sin(i * Math.PI / 180.0)          * r;
+            h2 = (float)Math.sin((i + step) * Math.PI / 180.0) * r;
             // 固定纬度, 360 度旋转遍历一条纬线
             float step2=step*2;
             for (float j = 0.0f; j <360.0f+step; j +=step2 ) {
