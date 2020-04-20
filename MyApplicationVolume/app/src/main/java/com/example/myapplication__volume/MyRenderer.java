@@ -1709,6 +1709,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public void splitCurve(ArrayList<Float> line){
         System.out.println("split1--------------------------");
         boolean found = false;
+        Vector<Integer> toSplit = new Vector<Integer>();
         for (int i = 0; i < line.size() / 3 - 1; i++){
             if (found == true){
                 break;
@@ -1771,27 +1772,57 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                        seg.to_be_deleted = true;
 //                        break;
                         found = true;
-                        V_NeuronSWC newSeg = new V_NeuronSWC();
+//                        V_NeuronSWC newSeg = new V_NeuronSWC();
+//                        V_NeuronSWC_unit first = seg.row.get(k);
+//                        try {
+//                            V_NeuronSWC_unit firstClone = first.clone();
+//                            newSeg.append(firstClone);
+//                        }catch (Exception e){
+//                            System.out.println(e.getMessage());
+//                        }
+                        int cur = k;
+                        toSplit.add(k);
+                        while (seg.getIndexofParent(cur) != -1){
+                            cur = seg.getIndexofParent(cur);
+                            toSplit.add(k);
+//                            V_NeuronSWC_unit nsu = swcUnitMap.get(cur);
+//                            try{
+//                                V_NeuronSWC_unit nsuClone = nsu.clone();
+//                                newSeg.append(nsuClone);
+//                            }catch (Exception e){
+//                                System.out.println(e.getMessage());
+//                            }
+//                            seg.row.remove(cur);
+
+                        }
+                        V_NeuronSWC newSeg1 = new V_NeuronSWC();
+                        V_NeuronSWC newSeg2 = new V_NeuronSWC();
+                        int newSegid = curSwcList.nsegs();
                         V_NeuronSWC_unit first = seg.row.get(k);
                         try {
                             V_NeuronSWC_unit firstClone = first.clone();
-                            newSeg.append(firstClone);
+                            V_NeuronSWC_unit firstClone2 = first.clone();
+                            newSeg1.append(firstClone);
+                            newSeg2.append(firstClone2);
                         }catch (Exception e){
                             System.out.println(e.getMessage());
                         }
-                        int cur = k;
-                        while (seg.getIndexofParent(cur) != -1){
-                            cur = seg.getIndexofParent(cur);
-                            V_NeuronSWC_unit nsu = swcUnitMap.get(cur);
-                            try{
-                                V_NeuronSWC_unit nsuClone = nsu.clone();
-                                newSeg.append(nsuClone);
+                        for (int w = 0; w < seg.row.size(); w++){
+                            try {
+                                V_NeuronSWC_unit temp = seg.row.get(w);
+                                if (!toSplit.contains(w)) {
+                                    newSeg2.append(temp);
+                                }else if(toSplit.contains(w) && (w != k)){
+                                    temp.seg_id = newSegid;
+                                    newSeg1.append(temp);
+                                }
                             }catch (Exception e){
                                 System.out.println(e.getMessage());
                             }
-                            seg.row.remove(cur);
                         }
-                        curSwcList.append(newSeg);
+                        curSwcList.deleteSeg(j);
+                        curSwcList.append(newSeg1);
+                        curSwcList.append(newSeg2);
                         splitPoints.add(pchildm[0]);
                         splitPoints.add(pchildm[1]);
                         splitPoints.add(pchildm[2]);
