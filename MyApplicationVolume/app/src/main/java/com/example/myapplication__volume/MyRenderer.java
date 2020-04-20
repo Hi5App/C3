@@ -16,7 +16,6 @@ import com.example.basic.ByteTranslate;
 import com.example.basic.Image4DSimple;
 import com.example.basic.ImageMarker;
 import com.example.basic.MyAnimation;
-import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_list;

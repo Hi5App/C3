@@ -148,17 +148,15 @@ public class MainActivity extends AppCompatActivity {
 
         ll_top = new LinearLayout(this);
         ll_bottom = new LinearLayout(this);
-//        ll_bottom.setOrientation(LinearLayout.VERTICAL);
 
         HorizontalScrollView hs_top = new HorizontalScrollView(this);
         ScrollView hs_bottom = new ScrollView(this);
 
         this.addContentView(hs_top, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        FrameLayout.LayoutParams lp =new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-//        lp.gravity = Gravity.BOTTOM|Gravity.RIGHT;
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         lp.gravity = Gravity.BOTTOM;
-        this.addContentView(ll_bottom, lp);
+        this.addContentView(hs_bottom, lp);
 
 //        FrameLayout.LayoutParams params3 = new FrameLayout.LayoutParams
 //                (FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
@@ -172,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
 //        addContentView(bottom, params3);
 
         hs_top.addView(ll_top);
-//        hs_bottom.addView(ll_bottom);
+        hs_bottom.addView(ll_bottom);
 
 
         FileManager = new Button(this);
@@ -227,58 +225,58 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        Share = new Button(this);
-        Share.setText("Share");
-        ll_bottom.addView(Share);
-
-        Share.setOnClickListener(new Button.OnClickListener(){
-            @Override
-            public void onClick(final View v) {
-                myrenderer.setTakePic(true);
-                myGLSurfaceView.requestRender();
-                final String[] imgPath = new String[1];
-                final boolean[] isGet = {false};
-
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @RequiresApi(api = Build.VERSION_CODES.N)
-                    @Override
-                    public void run() {
-
-                        try {
-
-                            Looper.prepare();
-
-                            imgPath[0] = myrenderer.getmCapturePath();
-                            myrenderer.resetCapturePath();
-
-                            if (imgPath[0] !=  null)
-                                Toast.makeText(v.getContext(), "save img to "+ imgPath[0], Toast.LENGTH_SHORT).show();
-                            else
-                                Toast.makeText(v.getContext(), "Fail to Screenshot", Toast.LENGTH_SHORT).show();
-
-                            isGet[0] = true;
-                            Looper.loop();
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                },3000); // 延时3秒
-
-                while (imgPath[0] == null && !isGet[0])
-                    System.out.println("null");
-
-                if (imgPath[0] != null){
-                    Intent shareIntent = new Intent();
-                    shareIntent.setAction(Intent.ACTION_SEND);
-                    shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imgPath[0]));
-                    shareIntent.setType("image/jpeg");
-                    startActivity(Intent.createChooser(shareIntent, "share"));
-                }
-            }
-        });
+//        Share = new Button(this);
+//        Share.setText("Share");
+//        ll_bottom.addView(Share);
+//
+//        Share.setOnClickListener(new Button.OnClickListener(){
+//            @Override
+//            public void onClick(final View v) {
+//                myrenderer.setTakePic(true);
+//                myGLSurfaceView.requestRender();
+//                final String[] imgPath = new String[1];
+//                final boolean[] isGet = {false};
+//
+//                Timer timer = new Timer();
+//                timer.schedule(new TimerTask() {
+//                    @RequiresApi(api = Build.VERSION_CODES.N)
+//                    @Override
+//                    public void run() {
+//
+//                        try {
+//
+//                            Looper.prepare();
+//
+//                            imgPath[0] = myrenderer.getmCapturePath();
+//                            myrenderer.resetCapturePath();
+//
+//                            if (imgPath[0] !=  null)
+//                                Toast.makeText(v.getContext(), "save img to "+ imgPath[0], Toast.LENGTH_SHORT).show();
+//                            else
+//                                Toast.makeText(v.getContext(), "Fail to Screenshot", Toast.LENGTH_SHORT).show();
+//
+//                            isGet[0] = true;
+//                            Looper.loop();
+//
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                    }
+//                },3000); // 延时3秒
+//
+//                while (imgPath[0] == null && !isGet[0])
+//                    System.out.println("null");
+//
+//                if (imgPath[0] != null){
+//                    Intent shareIntent = new Intent();
+//                    shareIntent.setAction(Intent.ACTION_SEND);
+//                    shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imgPath[0]));
+//                    shareIntent.setType("image/jpeg");
+//                    startActivity(Intent.createChooser(shareIntent, "share"));
+//                }
+//            }
+//        });
 
 
         buttonAnimation = new Button(this);
@@ -730,7 +728,7 @@ public class MainActivity extends AppCompatActivity {
     private void Other(final View v){
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"Analyse", "Animation"},
+                .asAttachList(new String[]{"Analyse", "Animation", "Share"},
                         new int[]{ },
                         new OnSelectListener() {
                             @Override
@@ -746,6 +744,11 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingMarker = false;
                                         ifDeletingLine = false;
                                         SetAnimation();
+                                        break;
+
+                                    case "Share":
+                                        Share(v);
+                                        break;
 
                                 }
                             }
@@ -768,6 +771,53 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, 1);
     }
 
+
+    private void Share(View v){
+        myrenderer.setTakePic(true);
+        myGLSurfaceView.requestRender();
+        final String[] imgPath = new String[1];
+        final boolean[] isGet = {false};
+
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void run() {
+
+                try {
+
+                    Looper.prepare();
+
+                    imgPath[0] = myrenderer.getmCapturePath();
+                    myrenderer.resetCapturePath();
+
+                    if (imgPath[0] !=  null)
+                        Toast.makeText(v.getContext(), "save img to "+ imgPath[0], Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(v.getContext(), "Fail to Screenshot", Toast.LENGTH_SHORT).show();
+
+                    isGet[0] = true;
+                    Looper.loop();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        },3000); // 延时3秒
+
+        while (imgPath[0] == null && !isGet[0])
+            System.out.println("null");
+
+        if (imgPath[0] != null){
+            Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imgPath[0]));
+            shareIntent.setType("image/jpeg");
+            startActivity(Intent.createChooser(shareIntent, "share"));
+        }
+
+    }
 
     private void Analyse(){
 
