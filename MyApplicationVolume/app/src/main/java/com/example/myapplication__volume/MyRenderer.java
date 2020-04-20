@@ -1922,14 +1922,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
     public void importNeuronTree(NeuronTree nt){
-        V_NeuronSWC seg = nt.convertV_NeuronSWCFormat();
-        curSwcList.append(seg);
+//        V_NeuronSWC seg = nt.convertV_NeuronSWCFormat();
+//        curSwcList.append(seg);
 
         System.out.println("----------------importNeuronTree----------------");
-//        Vector<V_NeuronSWC> segs = nt.devideByBranch();
-//        for (int i = 0; i < segs.size(); i++){
-//            curSwcList.append(segs.get(i));
-//        }
+        try{
+            Vector<V_NeuronSWC> segs = nt.devideByBranch();
+            for (int i = 0; i < segs.size(); i++){
+                curSwcList.append(segs.get(i));
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
 

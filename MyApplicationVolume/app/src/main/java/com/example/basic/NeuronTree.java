@@ -458,7 +458,7 @@ public class NeuronTree extends BasicSurfObj {
 //        return result;
 //    }
 
-    public Vector<V_NeuronSWC> devideByBranch(){
+    public Vector<V_NeuronSWC> devideByBranch() throws Exception{
         Vector<V_NeuronSWC> result = new Vector<V_NeuronSWC>();
         Queue<Integer> roots = new LinkedList<Integer>();
         Vector<Vector<Integer>> child = new Vector<Vector<Integer>>(listNeuron.size());
@@ -488,12 +488,12 @@ public class NeuronTree extends BasicSurfObj {
 
         System.out.println("size of roots: " + roots.size());
 
-        V_NeuronSWC empty = new V_NeuronSWC();
-        result.add(empty);
+//        V_NeuronSWC empty = new V_NeuronSWC();
+//        result.add(empty);
 
         while (!roots.isEmpty()){
             int temp = roots.poll();
-            listNeuron.get(temp).seg_id = cur;
+//            listNeuron.get(temp).seg_id = cur;
 
             NeuronSWC S = listNeuron.get(temp);
             V_NeuronSWC_unit u = new V_NeuronSWC_unit();
@@ -507,35 +507,75 @@ public class NeuronTree extends BasicSurfObj {
             u.seg_id = S.seg_id;
             u.nodeinseg_id = S.nodeinseg_id;
 
-            if (result.get(cur).row.size() == 0){
-                int prt = (int) listNeuron.get(temp).parent;
-                if (prt != -1) {
-                    NeuronSWC S1 = listNeuron.get(prt);
-                    V_NeuronSWC_unit u1 = new V_NeuronSWC_unit();
-                    u1.n = S1.n;
-                    u1.type = S1.type;
-                    u1.x = S1.x;
-                    u1.y = S1.y;
-                    u1.z = S1.z;
-                    u1.r = S1.radius;
-                    u1.parent = S1.parent;
-                    u1.seg_id = S1.seg_id;
-                    u1.nodeinseg_id = S1.nodeinseg_id;
-                    result.get(cur).append(u1);
-                }
-            }
+//            if (result.get(cur).row.size() == 0){
+//                int prt = (int) listNeuron.get(temp).parent;
+//                if (prt != -1) {
+//                    NeuronSWC S1 = listNeuron.get(prt);
+//                    V_NeuronSWC_unit u1 = new V_NeuronSWC_unit();
+//                    u1.n = S1.n;
+//                    u1.type = S1.type;
+//                    u1.x = S1.x;
+//                    u1.y = S1.y;
+//                    u1.z = S1.z;
+//                    u1.r = S1.radius;
+//                    u1.parent = S1.parent;
+//                    u1.seg_id = S1.seg_id;
+//                    u1.nodeinseg_id = S1.nodeinseg_id;
+//                    result.get(cur).append(u1);
+//                }
+//            }
 
-            result.get(cur).append(u);
+//            result.get(cur).append(u);
 
             Vector<Integer> children= child.get(temp);
             for (int i = 0; i < children.size(); i++){
-                roots.offer(children.get(i));
+//                roots.offer(children.get(i));
+                V_NeuronSWC seg = new V_NeuronSWC();
+                V_NeuronSWC_unit first = u.clone();
+                first.seg_id = cur;
+                seg.append(first);
+
+                int ci_index = children.get(i);
+                while (child.get(ci_index).size() == 1){
+                    NeuronSWC ci = listNeuron.get(ci_index);
+                    ci.seg_id = cur;
+                    V_NeuronSWC_unit ui = new V_NeuronSWC_unit();
+                    ui.n = ci.n;
+                    ui.type = ci.type;
+                    ui.x = ci.x;
+                    ui.y = ci.y;
+                    ui.z = ci.z;
+                    ui.r = ci.radius;
+                    ui.parent = ci.parent;
+                    ui.seg_id = ci.seg_id;
+                    ui.nodeinseg_id = ci.nodeinseg_id;
+                    seg.append(ui);
+                    ci_index = child.get(ci_index).get(0);
+                }
+                if(child.get(ci_index).size()>1){
+                    NeuronSWC ci = listNeuron.get(ci_index);
+                    ci.seg_id = cur;
+                    V_NeuronSWC_unit ui = new V_NeuronSWC_unit();
+                    ui.n = ci.n;
+                    ui.type = ci.type;
+                    ui.x = ci.x;
+                    ui.y = ci.y;
+                    ui.z = ci.z;
+                    ui.r = ci.radius;
+                    ui.parent = ci.parent;
+                    ui.seg_id = ci.seg_id;
+                    ui.nodeinseg_id = ci.nodeinseg_id;
+                    seg.append(ui);
+                    roots.add(ci_index);
+                }
+                cur++;
+                result.add(seg);
             }
-            if (children.size() != 1){
-                cur += 1;
-                V_NeuronSWC newlist = new V_NeuronSWC();
-                result.add(newlist);
-            }
+//            if (children.size() != 1){
+//                cur += 1;
+//                V_NeuronSWC newlist = new V_NeuronSWC();
+//                result.add(newlist);
+//            }
         }
 
         System.out.println("result.size():" + result.size());
@@ -547,9 +587,9 @@ public class NeuronTree extends BasicSurfObj {
 
         }
 
-        if (result.get(cur).row.size() == 0){
-            result.remove(cur);
-        }
+//        if (result.get(cur).row.size() == 0){
+//            result.remove(cur);
+//        }
 
         return result;
     }

@@ -9,7 +9,7 @@ public class V_NeuronSWC_unit implements Cloneable {
     {n = type = x = y = z = parent = nchild = seg_id = nodeinseg_id = level = creatmode = timestamp = tfresindex = 0;r=0.5;}
 
     @Override
-    protected V_NeuronSWC_unit clone() throws CloneNotSupportedException {
+    public V_NeuronSWC_unit clone() throws CloneNotSupportedException {
         return (V_NeuronSWC_unit) super.clone();
     }
     // operator V_NeuronSWC_coord() {V_NeuronSWC_coord c; c.x=x; c.y=y; c.z=z; return c;}
