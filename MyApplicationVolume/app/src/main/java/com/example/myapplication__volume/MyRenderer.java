@@ -1767,7 +1767,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                        seg.to_be_deleted = true;
 //                        break;
                         V_NeuronSWC newSeg = new V_NeuronSWC();
-                        V_NeuronSWC_unit first = seg.row.get(i);
+                        V_NeuronSWC_unit first = seg.row.get(k);
                         try {
                             V_NeuronSWC_unit firstClone = first.clone();
                             newSeg.append(firstClone);
@@ -1775,12 +1775,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                             System.out.println(e.getMessage());
                         }
                         int cur = k;
-                        while (seg.getIndexofParent(k) != -1){
+                        while (seg.getIndexofParent(cur) != -1){
                             cur = seg.getIndexofParent(cur);
                             V_NeuronSWC_unit nsu = swcUnitMap.get(cur);
                             try{
                                 V_NeuronSWC_unit nsuClone = nsu.clone();
-                                newSeg.append(nsu);
+                                newSeg.append(nsuClone);
                             }catch (Exception e){
                                 System.out.println(e.getMessage());
                             }
