@@ -358,7 +358,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         float x = (int)child.x;
                         float y = (int)child.y;
                         float z = (int)child.z;
-                        myDraw.drawSplitPoints(finalMatrix, x, y, z, (int)child.type);
+                        float [] position = VolumetoModel(new float[]{x, y, z});
+                        myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int)child.type);
                         continue;
                     }
                     V_NeuronSWC_unit parent = swcUnitMap.get(j);
