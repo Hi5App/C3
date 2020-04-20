@@ -1958,7 +1958,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //    }
 
     public void saveCurrentSwc(String dir) throws Exception{
-        NeuronTree nt = V_NeuronSWC_list.convertNeuronTreeFormat(curSwcList);
+        NeuronTree nt = curSwcList.mergeSameNode();
         String filePath = dir + "//" + nt.name + ".swc";
         System.out.println("filepath: "+filePath);
         nt.writeSWC_file(filePath);
@@ -1990,7 +1990,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public NeuronTree getNeuronTree(){
         try {
-            return V_NeuronSWC_list.convertNeuronTreeFormat(curSwcList);
+            return curSwcList.mergeSameNode();
 
         } catch (Exception e) {
             e.printStackTrace();
