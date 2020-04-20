@@ -22,6 +22,7 @@ import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,8 +30,10 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -94,7 +97,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int PICKFILE_REQUEST_CODE = 100;
 
-    private LinearLayout ll;
+    private LinearLayout ll_top;
+    private LinearLayout ll_bottom;
 
 
 
@@ -142,16 +146,38 @@ public class MainActivity extends AppCompatActivity {
         myGLSurfaceView = new MyGLSurfaceView(this);
         setContentView(myGLSurfaceView);
 
-        ll = new LinearLayout(this);
-        HorizontalScrollView hs = new HorizontalScrollView(this);
+        ll_top = new LinearLayout(this);
+        ll_bottom = new LinearLayout(this);
+//        ll_bottom.setOrientation(LinearLayout.VERTICAL);
 
-        this.addContentView(hs, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        hs.addView(ll);
+        HorizontalScrollView hs_top = new HorizontalScrollView(this);
+        ScrollView hs_bottom = new ScrollView(this);
+
+        this.addContentView(hs_top, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        FrameLayout.LayoutParams lp =new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+//        lp.gravity = Gravity.BOTTOM|Gravity.RIGHT;
+        lp.gravity = Gravity.BOTTOM;
+        this.addContentView(ll_bottom, lp);
+
+//        FrameLayout.LayoutParams params3 = new FrameLayout.LayoutParams
+//                (FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+//        //设置底部
+//        params3.gravity=Gravity.BOTTOM|Gravity.RIGHT;
+//        Button bottom=new Button(this);
+//        //字体位于中部
+//        bottom.setGravity(Gravity.RIGHT);
+//        bottom.setText("底部");
+//        //添加控件
+//        addContentView(bottom, params3);
+
+        hs_top.addView(ll_top);
+//        hs_bottom.addView(ll_bottom);
 
 
         FileManager = new Button(this);
         FileManager.setText("File");
-        ll.addView(FileManager);
+        ll_top.addView(FileManager);
 
         FileManager.setOnClickListener(new Button.OnClickListener(){
             @Override
@@ -163,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
 
         Draw = new Button(this);
         Draw.setText("Draw");
-        ll.addView(Draw);
+        ll_top.addView(Draw);
 
         Draw.setOnClickListener(new Button.OnClickListener()
         {
@@ -177,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
 
         Tracing = new Button(this);
         Tracing.setText("Tracing");
-        ll.addView(Tracing);
+        ll_top.addView(Tracing);
 
         Tracing.setOnClickListener(new Button.OnClickListener()
         {
@@ -190,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
 
         Others = new Button(this);
         Others.setText("Others");
-        ll.addView(Others);
+        ll_bottom.addView(Others);
 
         Others.setOnClickListener(new Button.OnClickListener()
         {
@@ -203,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
 
         Share = new Button(this);
         Share.setText("Share");
-        ll.addView(Share);
+        ll_bottom.addView(Share);
 
         Share.setOnClickListener(new Button.OnClickListener(){
             @Override
@@ -811,7 +837,7 @@ public class MainActivity extends AppCompatActivity {
                                     case "Stop":
                                         myrenderer.myAnimation.Stop();
                                         ifAnimation = false;
-                                        ll.removeView(buttonAnimation);
+                                        ll_top.removeView(buttonAnimation);
                                         break;
 
                                     default:
@@ -1191,12 +1217,12 @@ public class MainActivity extends AppCompatActivity {
 //                            Others.setText("Animaition");
 //                            Others.setTextColor(Color.RED);
 
-                            ll.addView(buttonAnimation);
+                            ll_top.addView(buttonAnimation);
 
                         } else {
 
-                            if (ll.findViewWithTag(buttonAnimation) != null){
-                                ll.removeView(buttonAnimation);
+                            if (ll_top.findViewWithTag(buttonAnimation) != null){
+                                ll_top.removeView(buttonAnimation);
                             }
 
                             myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);

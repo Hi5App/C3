@@ -259,11 +259,13 @@ public class FileActivity extends AppCompatActivity {
                         EditText et1 = (EditText) contentView.findViewById(R.id.edit1);
                         EditText et2 = (EditText) contentView.findViewById(R.id.edit2);
                         EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
+                        EditText et4 = (EditText) contentView.findViewById(R.id.edit4);
 //                        et0.setText("192.168.2.108");
                         et0.setText(getip());
-                        et1.setText("0");
-                        et2.setText("0");
-                        et3.setText("0");
+                        et1.setText("16200");
+                        et2.setText("15610");
+                        et3.setText("2950");
+                        et4.setText("128");
 
 //                        et0.tex("input ip of server");
                     }
@@ -287,11 +289,13 @@ public class FileActivity extends AppCompatActivity {
                         EditText et1 = (EditText) contentView.findViewById(R.id.edit1);
                         EditText et2 = (EditText) contentView.findViewById(R.id.edit2);
                         EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
+                        EditText et4 = (EditText) contentView.findViewById(R.id.edit4);
 
                         String ip         = et0.getText().toString();
                         String offset_x   = et1.getText().toString();
                         String offset_y   = et2.getText().toString();
                         String offset_z   = et3.getText().toString();
+                        String size       = et4.getText().toString();
 
                         if (ip != getip()){
                             setip(ip);
@@ -301,7 +305,7 @@ public class FileActivity extends AppCompatActivity {
                         if(!ip.isEmpty() && !offset_x.isEmpty() && !offset_y.isEmpty() && !offset_z.isEmpty()){
 
                             //输入的信息全，就可以进行连接操作
-                            Image(ip, offset_x, offset_y, offset_z, context);
+                            Image(ip, offset_x, offset_y, offset_z, size, context);
                         }else{
 
                             Toast.makeText(getApplicationContext(), "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
@@ -404,12 +408,14 @@ public class FileActivity extends AppCompatActivity {
 
 
 
-    private void Image(final String ip, final String offset_x, final String offset_y, final String offset_z, final Context context){
+    private void Image(final String ip, final String offset_x, final String offset_y, final String offset_z, final String size, final Context context){
 
         //新建一个线程，用于初始化socket和检测是否有接收到新的消息
         Thread thread = new Thread() {
             @Override
             public void run() {
+
+                Looper.prepare();
 
                 try {
 //                    manageSocket.ip = "192.168.2.108";
@@ -421,7 +427,10 @@ public class FileActivity extends AppCompatActivity {
 
 //                    Toast.makeText(getApplicationContext(), "InitSocket", Toast.LENGTH_SHORT).show();
                     Log.v("Image", "ImgSocket successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-//
+                    Log.v("Image  ", offset_x);
+                    Log.v("Image  ", offset_y);
+                    Log.v("Image  ", offset_z);
+                    Log.v("Image  ", size);
 //                    Filesocket_receive filesocket_receive = new Filesocket_receive();
 //                    filesocket_receive.filesocket = new Socket(ip, 9997);
 //                    filesocket_receive.mReader = new BufferedReader(new InputStreamReader(filesocket_receive.filesocket.getInputStream(), "UTF-8"));
@@ -448,7 +457,6 @@ public class FileActivity extends AppCompatActivity {
 ////                    filesocket_receive.readImg("1pic1.v3draw", context);
 //
 //
-                    Looper.prepare();
 //
 //                    //接收来自服务器的消息
 //                    while(manageSocket.ImgSocket.isConnected()) {
@@ -482,7 +490,7 @@ public class FileActivity extends AppCompatActivity {
                         if (!manageSocket.ImgSocket.isOutputShutdown()) {
                             Log.v("send1", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
-                            manageSocket.ImgPWriter.println("17302_00001RES(54600x34412x9847)__" + offset_x + "__" + offset_y + "__" + offset_z + "__64:imgblock.");
+                            manageSocket.ImgPWriter.println("17302_00001RES(54600x34412x9847)__" + offset_x + "__" + offset_y + "__" + offset_z + "__" + size + ":imgblock.");
                             manageSocket.ImgPWriter.flush();
 
 
