@@ -1797,7 +1797,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
             }
         }
-        curSwcList.deleteMutiSeg(new Vector<Integer>());
+//        curSwcList.deleteMutiSeg(new Vector<Integer>());
     }
 
     public void deleteLine(ArrayList<Float> line){
