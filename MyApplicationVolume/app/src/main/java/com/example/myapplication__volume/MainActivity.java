@@ -531,17 +531,17 @@ public class MainActivity extends AppCompatActivity {
     private void FileManager(View v){
         new XPopup.Builder(this)
                 .atView(v)
-                .asAttachList(new String[]{"Load","Save swc"},
+                .asAttachList(new String[]{"Load SWC file","Save SWC file"},
                         new int[]{ },
                         new OnSelectListener(){
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text){
-                                    case "Load":
-                                        Load();
+                                    case "Load SWC file":
+                                        LoadSWC();
                                         break;
-                                    case "Save swc":
-                                        SaveSwc();
+                                    case "Save SWC file":
+                                        SaveSWC();
                                         break;
                                 }
                             }
@@ -772,7 +772,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    private void Load(){
+    private void LoadSWC(){
 
         if (!ifImport){
             ifImport = true;
@@ -936,7 +936,7 @@ public class MainActivity extends AppCompatActivity {
 //                .show();
     }
 
-    private void SaveSwc(){
+    private void SaveSWC(){
         MDDialog mdDialog = new MDDialog.Builder(this)
                 .setContentView(R.layout.save_swc)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
@@ -978,7 +978,7 @@ public class MainActivity extends AppCompatActivity {
                         }catch (Exception e){
                             Toast.makeText(context, e.getMessage() ,Toast.LENGTH_SHORT).show();
                         }
-                        Toast.makeText(context, "save swc to "+dir+"/"+swcFileName+".swc" ,Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, "save SWC to "+dir+"/"+swcFileName+".swc" ,Toast.LENGTH_LONG).show();
 
                     }
                 })
@@ -988,7 +988,7 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 })
-                .setTitle("Save Swc")
+                .setTitle("Save SWC File")
                 .create();
 
         mdDialog.show();
