@@ -670,7 +670,7 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"GD", "APP2"},
+                .asAttachList(new String[]{"GD", "APP2", "Clear all tracing"},
                         new int[]{ },
                         new OnSelectListener() {
                             @Override
@@ -720,6 +720,11 @@ public class MainActivity extends AppCompatActivity {
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
+                                        break;
+
+                                    case "Clear all tracing":
+                                        myrenderer.deleteAllTracing();
+                                        myGLSurfaceView.requestRender();
                                         break;
                                 }
                             }

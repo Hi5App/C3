@@ -22,6 +22,7 @@ import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_list;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -629,9 +630,16 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private void SetFileType(){
 
-        Uri uri = Uri.parse(filepath);
-        FileManager fileManager = new FileManager();
-        String filetype = fileManager.getFileType(uri);
+        String filetype;
+        File file = new File(filepath);
+        if (file.exists()){
+            filetype = filepath.substring(filepath.lastIndexOf(".")).toUpperCase();
+        }else {
+            Uri uri = Uri.parse(filepath);
+            FileManager fileManager = new FileManager();
+            filetype = fileManager.getFileType(uri);
+        }
+
 
         switch (filetype){
             case ".V3DRAW":
@@ -652,6 +660,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
+    public void deleteAllTracing(){
+
+        for (int i = curSwcList.seg.size(); i >= 0; i--){
+            curSwcList.deleteSeg(i);
+        }
+    }
 
     private void JumptoFileActivity(String errormsg){
         Context context = getContext();
