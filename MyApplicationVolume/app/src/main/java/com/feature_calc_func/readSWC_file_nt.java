@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.widget.Toast;
 
+import com.example.basic.FileManager;
 import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
 import com.example.myapplication__volume.MainActivity;
@@ -122,8 +123,10 @@ public class readSWC_file_nt {
 
         ArrayList<String> arraylist = new ArrayList<String>();
         NeuronTree nt = new NeuronTree();
+        FileManager fileManager = new FileManager();
+        String file_type = fileManager.getFileType(uri);
         nt.file = uri.toString();
-        String file_type = nt.file.substring(nt.file.lastIndexOf(".")).toUpperCase();
+//        String file_type = nt.file.substring(nt.file.lastIndexOf(".")).toUpperCase();
         if (!(file_type.equals(".SWC") | file_type.equals(".ESWC"))) {
             Toast.makeText(MainActivity.getContext(), "failed, only support swc or eswc file", Toast.LENGTH_LONG).show();
             return null;

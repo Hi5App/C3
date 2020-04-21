@@ -44,6 +44,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.example.basic.FileManager;
 import com.example.basic.Image4DSimple;
 import com.example.basic.ImageMarker;
 import com.example.basic.LocationSimple;
@@ -382,8 +383,11 @@ public class MainActivity extends AppCompatActivity {
 
                 if (ifImport) {
 
-                    String filetype = filePath.substring(filePath.lastIndexOf(".")).toUpperCase();
-                    Log.v("load file", filetype);
+//                    String filetype = filePath.substring(filePath.lastIndexOf(".")).toUpperCase();
+//                    Log.v("load file", filetype);
+
+                    FileManager fileManager = new FileManager();
+                    String filetype = fileManager.getFileType(uri);
 
                     switch (filetype) {
                         case ".APO":

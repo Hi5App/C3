@@ -1,7 +1,6 @@
 package com.example.myapplication__volume;
 
 import android.opengl.GLES30;
-import android.opengl.Matrix;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -317,8 +316,6 @@ public class MyDraw {
         }
         BufferSet_Line(line, type);
 //        System.out.println("set end-----------");
-
-        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
 
         GLES30.glDisable(GLES30.GL_DEPTH_TEST);
 

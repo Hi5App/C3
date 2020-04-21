@@ -13,6 +13,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.basic.ByteTranslate;
+import com.example.basic.FileManager;
 import com.example.basic.Image4DSimple;
 import com.example.basic.ImageMarker;
 import com.example.basic.MyAnimation;
@@ -628,7 +629,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private void SetFileType(){
 
-        String filetype = filepath.substring(filepath.lastIndexOf(".")).toUpperCase();
+        Uri uri = Uri.parse(filepath);
+        FileManager fileManager = new FileManager();
+        String filetype = fileManager.getFileType(uri);
 
         switch (filetype){
             case ".V3DRAW":
@@ -639,16 +642,23 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 fileType = FileType.SWC;
                 break;
 
+            case "fail to read file":
+                JumptoFileActivity("Fail to read file!");
+                break;
+
             default:
-                System.out.println();
-                Context context = getContext();
-                Intent intent = new Intent(context, FileActivity.class);
-                String errormsg = "Don't support this file!";
-                intent.putExtra(MyRenderer.FILE_SUPPORT_ERROR, errormsg);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(intent);
+                JumptoFileActivity("Don't support this file!");
         }
 
+    }
+
+
+    private void JumptoFileActivity(String errormsg){
+        Context context = getContext();
+        Intent intent = new Intent(context, FileActivity.class);
+        intent.putExtra(MyRenderer.FILE_SUPPORT_ERROR, errormsg);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 
     public void setInputStream(InputStream Is){
