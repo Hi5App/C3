@@ -383,11 +383,12 @@ public class MainActivity extends AppCompatActivity {
 
                 if (ifImport) {
 
-//                    String filetype = filePath.substring(filePath.lastIndexOf(".")).toUpperCase();
 //                    Log.v("load file", filetype);
 
                     FileManager fileManager = new FileManager();
-                    String filetype = fileManager.getFileType(uri);
+                    String fileName = fileManager.getFileName(uri);
+                    String filetype = filePath.substring(filePath.lastIndexOf(".")).toUpperCase();
+
 
                     switch (filetype) {
                         case ".APO":
