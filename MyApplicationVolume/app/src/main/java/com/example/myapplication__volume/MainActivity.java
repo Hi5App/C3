@@ -52,12 +52,14 @@ import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
 import com.feature_calc_func.MorphologyCalculate;
 import com.lxj.xpopup.XPopup;
+import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.tracingfunc.app2.ParaAPP2;
 import com.tracingfunc.app2.V3dNeuronAPP2Tracing;
 import com.tracingfunc.gd.CurveTracePara;
 import com.tracingfunc.gd.V3dNeuronGDTracing;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -733,7 +735,7 @@ public class MainActivity extends AppCompatActivity {
     private void Other(final View v){
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"Analyse", "Animation", "Share"},
+                .asAttachList(new String[]{"Analyse", "Animation", "Share", "Version"},
                         new int[]{ },
                         new OnSelectListener() {
                             @Override
@@ -753,6 +755,10 @@ public class MainActivity extends AppCompatActivity {
 
                                     case "Share":
                                         Share(v);
+                                        break;
+
+                                    case "Version":
+                                        Version();
                                         break;
 
                                 }
@@ -844,7 +850,7 @@ public class MainActivity extends AppCompatActivity {
                                 ifImport = false;
                                 break;
 
-                            case "Analyse from current line":
+                            case "Analyse from current curve":
                                 NeuronTree nt = myrenderer.getNeuronTree();
                                 if (nt.listNeuron.isEmpty()){
                                     Toast.makeText(context,"Nothing in interface" ,Toast.LENGTH_LONG).show();
@@ -904,6 +910,29 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void Version(){
+
+        new XPopup.Builder(this)
+                .asConfirm("Version", "version: 2020.4.22.01",
+                new OnConfirmListener() {
+                    @Override
+                    public void onConfirm() {
+
+                    }
+                })
+                .show();
+
+//        new XPopup.Builder(this)
+//                //.maxWidth(600)
+//                .asCenterList("Version", new String[]{"version: 2020.4.22.01"},
+//                        new OnSelectListener() {
+//                            @Override
+//                            public void onSelect(int position, String text) {
+//                            }
+//                        })
+//                .show();
+    }
+
     private void SaveSwc(){
         MDDialog mdDialog = new MDDialog.Builder(this)
                 .setContentView(R.layout.save_swc)
@@ -933,9 +962,16 @@ public class MainActivity extends AppCompatActivity {
                         String swcFileName = swcName.getText().toString();
                         myrenderer.reNameCurrentSwc(swcFileName);
 
-                        String dir = getExternalFilesDir(null).toString();
+//                        String dir = getExternalFilesDir(null).toString();
+                        String dir_str = "/storage/emulated/0/C3";
+
+                        File dir = new File(dir_str);
+                        if (!dir.exists()){
+                            dir.mkdirs();
+                        }
+
                         try {
-                            myrenderer.saveCurrentSwc(dir);
+                            myrenderer.saveCurrentSwc(dir_str);
                         }catch (Exception e){
                             Toast.makeText(context, e.getMessage() ,Toast.LENGTH_SHORT).show();
                         }
