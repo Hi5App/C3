@@ -841,7 +841,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-        .asCenterList("morphology calculate", new String[]{"Analyse from swc file", "Analyse from current line"},
+        .asCenterList("morphology calculate", new String[]{"Analyse from swc file", "Analyse from current curve"},
                 new OnSelectListener() {
                     @Override
                     public void onSelect(int position, String text) {
