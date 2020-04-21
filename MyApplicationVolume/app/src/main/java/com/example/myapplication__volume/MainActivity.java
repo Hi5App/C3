@@ -668,7 +668,7 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"GD", "APP2", "Clear all tracing"},
+                .asAttachList(new String[]{"GD", "APP2", "Clear tracing"},
                         new int[]{ },
                         new OnSelectListener() {
                             @Override
@@ -720,7 +720,7 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                         break;
 
-                                    case "Clear all tracing":
+                                    case "Clear tracing":
                                         myrenderer.deleteAllTracing();
                                         myGLSurfaceView.requestRender();
                                         break;
@@ -738,17 +738,17 @@ public class MainActivity extends AppCompatActivity {
     private void Other(final View v){
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"Analyse", "Animation", "Share", "Version"},
+                .asAttachList(new String[]{"Analyze", "Animate", "Share", "Version"},
                         new int[]{ },
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text){
-                                    case "Analyse":
+                                    case "Analyze":
                                         Analyse();
                                         break;
 
-                                    case "Animation":
+                                    case "Animate":
                                         ifPainting = false;
                                         ifPoint = false;
                                         ifDeletingMarker = false;
@@ -806,9 +806,9 @@ public class MainActivity extends AppCompatActivity {
                     myrenderer.resetCapturePath();
 
                     if (imgPath[0] !=  null)
-                        Toast.makeText(v.getContext(), "save img to "+ imgPath[0], Toast.LENGTH_SHORT).show();
+                        Toast.makeText(v.getContext(), "save screenshot to "+ imgPath[0], Toast.LENGTH_SHORT).show();
                     else
-                        Toast.makeText(v.getContext(), "Fail to Screenshot", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(v.getContext(), "Fail to screenshot", Toast.LENGTH_SHORT).show();
 
                     isGet[0] = true;
                     Looper.loop();
@@ -839,12 +839,12 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-        .asCenterList("morphology calculate", new String[]{"Analyse from swc file", "Analyse from current curve"},
+        .asCenterList("morphology calculate", new String[]{"Analyze a SWC file", "Analyze current tracing"},
                 new OnSelectListener() {
                     @Override
                     public void onSelect(int position, String text) {
                         switch (text){
-                            case "Analyse from swc file":
+                            case "Analyze a SWC file":
                                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                                 intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
                                 intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -853,10 +853,10 @@ public class MainActivity extends AppCompatActivity {
                                 ifImport = false;
                                 break;
 
-                            case "Analyse from current curve":
+                            case "Analyze current tracing":
                                 NeuronTree nt = myrenderer.getNeuronTree();
                                 if (nt.listNeuron.isEmpty()){
-                                    Toast.makeText(context,"Nothing in interface" ,Toast.LENGTH_LONG).show();
+                                    Toast.makeText(context,"Empty tracing, do nothing" ,Toast.LENGTH_LONG).show();
                                     break;
                                 }
                                 MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
@@ -865,7 +865,7 @@ public class MainActivity extends AppCompatActivity {
                                 break;
 
                                 default:
-                                    Toast.makeText(context,"there is something wrong in analyse" ,Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(context,"Default in analysis" ,Toast.LENGTH_SHORT).show();
 
                         }
                     }
