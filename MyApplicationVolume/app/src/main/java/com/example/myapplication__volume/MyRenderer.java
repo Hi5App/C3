@@ -1790,7 +1790,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                            System.out.println(e.getMessage());
 //                        }
                         int cur = k;
-                        toSplit.add(k);
+//                        toSplit.add(k);
                         while (seg.getIndexofParent(cur) != -1){
                             cur = seg.getIndexofParent(cur);
                             toSplit.add(cur);

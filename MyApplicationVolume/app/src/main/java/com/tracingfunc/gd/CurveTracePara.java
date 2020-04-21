@@ -38,6 +38,8 @@ public class CurveTracePara {
 
     public int landmark_id_start, landmark_id_end;
 
+    public boolean b_128cube;
+
     public CurveTracePara()
     {
         channo=0; n_points=8; landmark_id_start=0; landmark_id_end=0;
@@ -72,5 +74,7 @@ public class CurveTracePara {
 
         b_use_favorite_direction = false; //default set to false
         favorite_direction[0] = favorite_direction[1] = favorite_direction[2] = 0;
+
+        b_128cube = true;
     }
 }

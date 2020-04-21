@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Vector;
 import com.example.basic.*;
 
+import static com.example.basic.Image4DSimple.ImagePixelType.V3D_UINT8;
 import static com.tracingfunc.gd.V_NeuronSWC_list.convertNeuronTreeFormat;
 
 public class V3dNeuronGDTracing {
@@ -12,30 +13,138 @@ public class V3dNeuronGDTracing {
     public static String TRACED_NAME = "APP1_Tracing";
     public static String TRACED_FILE = "v3d_traced_neuron";
 
-    public static NeuronTree v3dneuron_GD_tracing(int[][][][] p4d, int[] sz, LocationSimple p0, Vector<LocationSimple> pp, CurveTracePara  trace_para, double trace_z_thickness)
+    public static NeuronTree v3dneuron_GD_tracing(Image4DSimple inimg, LocationSimple p0, Vector<LocationSimple> pp, CurveTracePara  trace_para, double trace_z_thickness)
             throws Exception
     {
         System.out.println("---------------------------------------in gd------------------------------");
         NeuronTree nt = new NeuronTree();
-        if (p4d == null || p4d.length == 0 || sz == null || sz.length == 0 || sz[0]<=0 || sz[1]<=0 || sz[2]<=0 || sz[3]<=0 || trace_para.channo<0 || trace_para.channo>=sz[3])
+
+        int[] sz = new int[]{(int) inimg.getSz0(), (int) inimg.getSz1(), (int) inimg.getSz2(), (int) inimg.getSz3()};
+        if (!inimg.valid() || trace_para.channo<0 || trace_para.channo>=sz[3])
         {
             System.out.println("Invalid image or sz for v3dneuron_GD_tracing().");
             return nt;
         }
+
+        Image4DSimple p4dImageNew = new Image4DSimple();
+        p4dImageNew.setData(inimg);
+        double dfactor_xy = 1, dfactor_z = 1;
+        Image4DSimple.ImagePixelType datatype = inimg.getDatatype();
+        int[] in_sz = {(int) p4dImageNew.getSz0(), (int) p4dImageNew.getSz1(), (int) p4dImageNew.getSz2(), 1};
+        if(datatype != V3D_UINT8 || in_sz[0]>128 || in_sz[1]>128 || in_sz[2]>128)// && datatype != V3D_UINT16)
+        {
+            if (datatype!=V3D_UINT8)
+            {
+                if (!Image4DSimple.scale_img_and_converto8bit(p4dImageNew, 0, 255))
+                    System.out.println("scale error!");
+
+//                indata1d = p4dImageNew->getRawDataAtChannel(0);
+                in_sz[0] = (int) p4dImageNew.getSz0();
+                in_sz[1] = (int) p4dImageNew.getSz1();
+                in_sz[2] = (int) p4dImageNew.getSz2();
+                in_sz[3] = (int) p4dImageNew.getSz3();
+
+            }
+
+            System.out.printf("x = %d  ", in_sz[0]);
+            System.out.printf("y = %d  ", in_sz[1]);
+            System.out.printf("z = %d  ", in_sz[2]);
+            System.out.printf("c = %d\n", in_sz[3]);
+
+            if (trace_para.b_128cube)
+            {
+                if (in_sz[0]<=128 && in_sz[1]<=128 && in_sz[2]<=128)
+                {
+                    dfactor_z = dfactor_xy = 1;
+                }
+                else if (in_sz[0] >= 2*in_sz[2] || in_sz[1] >= 2*in_sz[2])
+                {
+                    if (in_sz[2]<=128)
+                    {
+                        double MM = in_sz[0];
+                        if (MM<in_sz[1]) MM=in_sz[1];
+                        dfactor_xy = MM / 128.0;
+                        dfactor_z = 1;
+                    }
+                    else
+                    {
+                        double MM = in_sz[0];
+                        if (MM<in_sz[1]) MM=in_sz[1];
+                        if (MM<in_sz[2]) MM=in_sz[2];
+                        dfactor_xy = dfactor_z = MM / 128.0;
+                    }
+                }
+                else
+                {
+                    double MM = in_sz[0];
+                    if (MM<in_sz[1]) MM=in_sz[1];
+                    if (MM<in_sz[2]) MM=in_sz[2];
+                    dfactor_xy = dfactor_z = MM / 128.0;
+                }
+
+                System.out.printf("dfactor_xy=%5.3f\n", dfactor_xy);
+                System.out.printf("dfactor_z=%5.3f\n", dfactor_z);
+
+                if (dfactor_z>1 || dfactor_xy>1)
+                {
+                    System.out.println("enter ds code");
+                    Image4DSimple p4dImageTmp = new Image4DSimple();
+                    if (!Image4DSimple.downsampling_img_xyz(p4dImageTmp,p4dImageNew,dfactor_xy,dfactor_z))
+                        System.out.println("downsample error!");
+                    p4dImageNew.setData(p4dImageTmp);
+
+                    in_sz[0] = (int) p4dImageNew.getSz0();
+                    in_sz[1] = (int) p4dImageNew.getSz1();
+                    in_sz[2] = (int) p4dImageNew.getSz2();
+                    in_sz[3] = (int) p4dImageNew.getSz3();
+
+                    p0.x = (float) (p0.x/dfactor_xy);
+                    p0.y = (float) (p0.y/dfactor_xy);
+                    p0.z = (float) (p0.z/dfactor_z);
+
+                    for(int i=0; i<pp.size(); i++){
+                        pp.get(i).x = (float) (pp.get(i).x/dfactor_xy);
+                        pp.get(i).y = (float) (pp.get(i).y/dfactor_xy);
+                        pp.get(i).z = (float) (pp.get(i).z/dfactor_z);
+                    }
+                }
+            }
+        }
+
+        int[][][][] p4d = p4dImageNew.getDataCZYX();
+
         V_NeuronSWC_list tracedNeuron;
         Vector<Vector<V_NeuronSWC_unit>> mmUnit = new Vector<Vector<V_NeuronSWC_unit>>();
 //        trace_para.sp_downsample_step = 1;
 
-        tracedNeuron = trace_one_pt_to_N_points_shortestdist(p4d, sz, p0, pp, trace_para, trace_z_thickness, mmUnit);
+        tracedNeuron = trace_one_pt_to_N_points_shortestdist(p4d, in_sz, p0, pp, trace_para, trace_z_thickness, mmUnit);
 
         if (pp.size()>0) //trace to some selected markers
         {
-            if (trace_para.b_deformcurve==false && tracedNeuron.nsegs()>=1)	proj_trace_smooth_downsample_last_traced_neuron(p4d, sz, tracedNeuron, trace_para, 0, tracedNeuron.nsegs()-1);
-            if (trace_para.b_estRadii==true) proj_trace_compute_radius_of_last_traced_neuron(p4d, sz, tracedNeuron, trace_para, 0, tracedNeuron.nsegs()-1, (float) trace_z_thickness, true);
+            if (trace_para.b_deformcurve==false && tracedNeuron.nsegs()>=1)	proj_trace_smooth_downsample_last_traced_neuron(p4d, in_sz, tracedNeuron, trace_para, 0, tracedNeuron.nsegs()-1);
+            if (trace_para.b_estRadii==true) proj_trace_compute_radius_of_last_traced_neuron(p4d, in_sz, tracedNeuron, trace_para, 0, tracedNeuron.nsegs()-1, (float) trace_z_thickness, true);
 //            if (trace_para.b_postMergeClosebyBranches && tracedNeuron.nsegs()>=2) proj_trace_mergeAllClosebyNeuronNodes(tracedNeuron);
         }
 
         nt = convertNeuronTreeFormat(tracedNeuron);
+
+        for(int i = 0; i < nt.listNeuron.size(); i++) //add scaling 121127, PHC //add cutbox offset 121202, PHC
+        {
+            if(dfactor_xy>1){
+                nt.listNeuron.get(i).x *= dfactor_xy;
+                nt.listNeuron.get(i).x += dfactor_xy/2;
+                nt.listNeuron.get(i).y *= dfactor_xy;
+                nt.listNeuron.get(i).y += dfactor_xy/2;
+            }
+            if(dfactor_z>1){
+                nt.listNeuron.get(i).z *= dfactor_z;
+                nt.listNeuron.get(i).z += dfactor_z;
+            }
+
+            nt.listNeuron.get(i).radius *= dfactor_xy; //use xy for now
+        }
+
+
         return nt;
     }
 

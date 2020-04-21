@@ -1045,12 +1045,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         NeuronTree outswc = new NeuronTree();
-        int[] sz = new int[]{(int) img.getSz0(), (int) img.getSz1(), (int) img.getSz2(), (int) img.getSz3()};
+//        int[] sz = new int[]{(int) img.getSz0(), (int) img.getSz1(), (int) img.getSz2(), (int) img.getSz3()};
         CurveTracePara curveTracePara = new CurveTracePara();
 
 
         try {
-            outswc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img.getDataCZYX(), sz, p0, pp, curveTracePara, 1.0);
+            outswc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img, p0, pp, curveTracePara, 1.0);
         } catch (Exception e) {
             if(Looper.myLooper() == null){
                 Looper.prepare();
