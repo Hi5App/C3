@@ -104,8 +104,6 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout ll_bottom;
 
 
-
-
     private int eswc_length;
     //读写权限
     private static String[] PERMISSIONS_STORAGE = {
@@ -687,7 +685,7 @@ public class MainActivity extends AppCompatActivity {
                                                 public void run() {
 
                                                     try {
-                                                        GDTraing();
+                                                        GDTracing();
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
@@ -1062,7 +1060,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    private void GDTraing() throws Exception {
+    private void GDTracing() throws Exception {
         Image4DSimple img = myrenderer.getImg();
         if (!img.valid()) {
             Log.v("GDTracing", "Please load img first!");
@@ -1075,11 +1073,11 @@ public class MainActivity extends AppCompatActivity {
         }
         ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
         if (markers.size() <= 1) {
-            Log.v("GDTracing", "Please get two marker at least!");
+            Log.v("GDTracing", "Please generate at least two markers!");
             if(Looper.myLooper() == null){
                 Looper.prepare();
             }
-            Toast.makeText(this, "Please get two marker at least!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Please produce at least two markers!", Toast.LENGTH_LONG).show();
             Looper.loop();
             return;
         }
@@ -1111,7 +1109,7 @@ public class MainActivity extends AppCompatActivity {
         if(Looper.myLooper() == null){
             Looper.prepare();
         }
-        Toast.makeText(this, "GD-Tracing finish, size of result swc: " + Integer.toString(outswc.listNeuron.size()), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "GD-Tracing finished, size of result swc: " + Integer.toString(outswc.listNeuron.size()), Toast.LENGTH_SHORT).show();
         myrenderer.importNeuronTree(outswc);
         myGLSurfaceView.requestRender();
         Looper.loop();
@@ -1203,7 +1201,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 })
-                .setTitle("Global features of the neuron")
+                .setTitle("Measured features")
                 .create();
 
         mdDialog.show();
@@ -1666,229 +1664,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-//        final Button button_1 = new Button(this);
-//        button_1.setText("draw curve");
-//        ll.addView(button_1);
-//
-//        final Button button_2 = new Button(this);
-//        button_2.setText("pinpoint");
-//        ll.addView(button_2);
-//
-//        final Button button_3 = new Button(this);
-//        button_3.setText("load");
-//        ll.addView(button_3);
-//
-//        final Button button_4 = new Button(this);
-//        button_4.setText("Analyze");
-//        ll.addView(button_4);
-//
-//        final Button button_5 = new Button(this);
-//        button_5.setText("GD_Tracing");
-//        ll.addView(button_5);
-//
-//        final Button buttonAPP2 = new Button(this);
-//        buttonAPP2.setText("APP2");
-//        ll.addView(buttonAPP2);
-//
-//        final Button buttonDeleteMarker = new Button(this);
-//        buttonDeleteMarker.setText("delete marker");
-//        ll.addView(buttonDeleteMarker);
-//
-//
-//        buttonAnimation = new Button(this);
-//        buttonAnimation.setText("Animation");
-//        ll.addView(buttonAnimation);
-//
-//
-//        final Button buttonDeleteLine = new Button(this);
-//        buttonDeleteLine.setText("delete line");
-//        ll.addView(buttonDeleteLine);
-//
-//
-//        button_1.setOnClickListener(new Button.OnClickListener()
-//        {
-//            public void onClick(View v)
-//            {
-//                ifPainting = !ifPainting;
-//                ifPoint = false;
-//                ifDeletingMarker = false;
-//                ifDeletingLine = false;
-//                if(ifPainting) {
-//                    button_1.setTextColor(Color.RED);
-//                    button_2.setTextColor(Color.BLACK);
-//                    buttonDeleteMarker.setTextColor(Color.BLACK);
-//                    buttonDeleteLine.setTextColor(Color.BLACK);
-//                }
-//                else {
-//                    button_1.setTextColor(Color.BLACK);
-//                }
-//            }
-//        });
-//
-//        button_2.setOnClickListener(new Button.OnClickListener()
-//        {
-//            public void onClick(View v)
-//            {
-//                ifPoint = !ifPoint;
-//                ifPainting = false;
-//                ifDeletingMarker = false;
-//                ifDeletingLine = false;
-//                if(ifPoint) {
-//                    button_2.setTextColor(Color.RED);
-//                    button_1.setTextColor(Color.BLACK);
-//                    buttonDeleteMarker.setTextColor(Color.BLACK);
-//                    buttonDeleteLine.setTextColor(Color.BLACK);
-//                }
-//                else {
-//                    button_2.setTextColor(Color.BLACK);
-//                }
-//            }
-//        });
-//
-//        button_3.setOnClickListener(new Button.OnClickListener()
-//        {
-//            public void onClick(View v)
-//            {
-//                if (!ifImport) {
-//
-//                    ifImport = !ifImport;
-//                }
-//                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-//                intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
-//                intent.addCategory(Intent.CATEGORY_OPENABLE);
-//                startActivityForResult(intent, 1);
-//            }
-//        });
-//
-//        button_4.setOnClickListener(new Button.OnClickListener()
-//        {
-//            public void onClick(View v)
-//            {
-//                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-//                intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
-//                intent.addCategory(Intent.CATEGORY_OPENABLE);
-//                startActivityForResult(intent, 1);
-//                ifAnalyze = true;
-//            }
-//        });
-//
-//        button_5.setOnClickListener(new Button.OnClickListener() {
-//            public void onClick(View v) {
-//                try {
-//                    Log.v("Mainactivity", "GD-Tracing start~");
-//                    Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
-//                    Timer timer = new Timer();
-//                    timer.schedule(new TimerTask() {
-//                        @RequiresApi(api = Build.VERSION_CODES.N)
-//                        @Override
-//                        public void run() {
-//                            /**
-//                             * 延时执行的代码
-//                             */
-//                            try {
-//                                GDTraing();
-//                            } catch (Exception e) {
-//                                e.printStackTrace();
-//                            }
-//
-//                        }
-//                    },1000); // 延时1秒
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-//
-//        buttonAPP2.setOnClickListener(new Button.OnClickListener(){
-//            public void onClick(View v){
-//                try {
-//                    Log.v("Mainactivity", "APP2-Tracing start~");
-//                    Toast.makeText(v.getContext(), "APP2-Tracing start~", Toast.LENGTH_SHORT).show();
-//                    Timer timer = new Timer();
-//                    timer.schedule(new TimerTask() {
-//                        @RequiresApi(api = Build.VERSION_CODES.N)
-//                        @Override
-//                        public void run() {
-//                            /**
-//                             * 延时执行的代码
-//                             */
-//                            try {
-//                                APP2();
-//                            } catch (Exception e) {
-//                                e.printStackTrace();
-//                            }
-//
-//                        }
-//                    },1000); // 延时1秒
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-//
-//        buttonDeleteMarker.setOnClickListener(new Button.OnClickListener(){
-//            public void onClick(View v){
-//                ifDeletingMarker = !ifDeletingMarker;
-//                ifPainting = false;
-//                ifPoint = false;
-//                ifDeletingLine = false;
-//                if (ifDeletingMarker){
-//                    button_1.setTextColor(Color.BLACK);
-//                    button_2.setTextColor(Color.BLACK);
-//                    buttonDeleteMarker.setTextColor(Color.RED);
-//                    buttonDeleteLine.setTextColor(Color.BLACK);
-//                }else{
-//                    buttonDeleteMarker.setTextColor(Color.BLACK);
-//                }
-//            }
-//        });
-//
-//
-//        buttonAnimation.setOnClickListener(new Button.OnClickListener() {
-//            public void onClick(View v) {
-//                ifPainting = false;
-//                ifPoint = false;
-//                SetAnimation();
-//
-//                if (ifAnimation) {
-//                    button_1.setTextColor(Color.BLACK);
-//                    button_2.setTextColor(Color.BLACK);
-//                    buttonDeleteMarker.setTextColor(Color.BLACK);
-//                    buttonAnimation.setTextColor(Color.RED);
-//                } else {
-//                    buttonAnimation.setTextColor(Color.BLACK);
-//                    myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-//                }
-//            }
-//        });
-//
-//        buttonDeleteLine.setOnClickListener(new Button.OnClickListener(){
-//            public void onClick(View v){
-//                ifDeletingLine = !ifDeletingLine;
-//                ifPainting = false;
-//                ifPoint = false;
-//                ifDeletingMarker = false;
-//                if (ifDeletingLine){
-//                    button_1.setTextColor(Color.BLACK);
-//                    button_2.setTextColor(Color.BLACK);
-//                    buttonDeleteMarker.setTextColor(Color.BLACK);
-//                    buttonDeleteLine.setTextColor(Color.RED);
-//                }else{
-//                    buttonDeleteLine.setTextColor(Color.BLACK);
-//                }
-//            }
-//        });
 }
