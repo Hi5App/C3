@@ -389,6 +389,8 @@ public class MainActivity extends AppCompatActivity {
                     String fileName = fileManager.getFileName(uri);
                     String filetype = filePath.substring(filePath.lastIndexOf(".")).toUpperCase();
 
+                    System.out.println("filetype: "+filetype+" filename: "+fileName);
+
 
                     switch (filetype) {
                         case ".APO":

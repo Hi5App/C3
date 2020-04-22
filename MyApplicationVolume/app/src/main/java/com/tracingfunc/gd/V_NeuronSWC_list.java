@@ -3,6 +3,8 @@ package com.tracingfunc.gd;
 import android.opengl.Matrix;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
 import com.example.basic.RGBA8;
@@ -30,6 +32,23 @@ public class V_NeuronSWC_list implements Cloneable{
         }
         b_traced=true;
         seg = new Vector<V_NeuronSWC>();
+    }
+
+    @NonNull
+    @Override
+    public V_NeuronSWC_list clone() throws CloneNotSupportedException {
+        V_NeuronSWC_list t = null;
+        t = (V_NeuronSWC_list) super.clone();
+        t.seg = new Vector<V_NeuronSWC>();
+
+        for(int i=0; i<this.seg.size(); i++){
+            t.seg.add(this.seg.get(i).clone());
+        }
+        t.color_uc = new int[this.color_uc.length];
+        for(int i=0; i<this.color_uc.length; i++){
+            t.color_uc[i] = this.color_uc[i];
+        }
+        return t;
     }
 
     public int nsegs() {return seg.size();}
@@ -249,13 +268,13 @@ public class V_NeuronSWC_list implements Cloneable{
             }
         }
 
-        //first conversion
-
-        V_NeuronSWC seg = V_NeuronSWC_list.merge_V_NeuronSWC_list(this);
-        seg.name = this.name;
-        seg.file = this.file;
-
-        //second conversion
+//        //first conversion
+//
+//        V_NeuronSWC seg = V_NeuronSWC_list.merge_V_NeuronSWC_list(this);
+//        seg.name = this.name;
+//        seg.file = this.file;
+//
+//        //second conversion
 
         ArrayList<NeuronSWC> listNeuron = new ArrayList<NeuronSWC>();
         HashMap<Integer, Integer> hashNeuron = new HashMap<Integer, Integer>();
@@ -263,42 +282,71 @@ public class V_NeuronSWC_list implements Cloneable{
         hashNeuron.clear();
 
         int count = 0;
-        for (int k=0;k<seg.row.size();k++)
-        {
-            count++;
+        for(int i=0; i<this.seg.size(); i++){
+            V_NeuronSWC s = this.seg.get(i);
+            for(int j=0; j<s.row.size(); j++){
+                count++;
 
-            NeuronSWC S = new NeuronSWC();
+                NeuronSWC S = new NeuronSWC();
 
-            S.n 	= (int)seg.row.elementAt(k).n;
-            if (S.type<=0) S.type 	= 2; //seg.row.at(k).data[1];
-            S.x 	= (float) seg.row.elementAt(k).x;
-            S.y 	= (float) seg.row.elementAt(k).y;
-            S.z 	= (float) seg.row.elementAt(k).z;
-            S.radius 	= (float) seg.row.elementAt(k).r;
-            S.parent 	= (int) seg.row.elementAt(k).parent;
+                S.n 	= (int)s.row.elementAt(j).n;
+                S.type = (int) s.row.elementAt(j).type;
+                if (S.type<=0) S.type 	= 2; //s.row.at(j).data[1];
+                S.x 	= (float) s.row.elementAt(j).x;
+                S.y 	= (float) s.row.elementAt(j).y;
+                S.z 	= (float) s.row.elementAt(j).z;
+                S.radius 	= (float) s.row.elementAt(j).r;
+                S.parent 	= (int) s.row.elementAt(j).parent;
 
-            //for hit & editing
-            S.seg_id       = (int)seg.row.elementAt(k).seg_id;
-            S.nodeinseg_id = (int) seg.row.elementAt(k).nodeinseg_id;
+                //for hit & editing
+                S.seg_id       = (int)s.row.elementAt(j).seg_id;
+                S.nodeinseg_id = (int) s.row.elementAt(j).nodeinseg_id;
 
-            //qDebug("%s  ///  %d %d (%g %g %g) %g %d", buf, S.n, S.type, S.x, S.y, S.z, S.r, S.pn);
+                //qDebug("%s  ///  %d %d (%g %g %g) %g %d", buf, S.n, S.type, S.x, S.y, S.z, S.r, S.pn);
 
-            //if (! listNeuron.contains(S)) // 081024
-            {
-                listNeuron.add(S);
-                hashNeuron.put((int)S.n, listNeuron.size()-1);
+                //if (! listNeuron.contains(S)) // 081024
+                {
+                    listNeuron.add(S);
+                    hashNeuron.put((int)S.n, listNeuron.size()-1);
+                }
             }
         }
+//        for (int k=0;k<seg.row.size();k++)
+//        {
+//            count++;
+//
+//            NeuronSWC S = new NeuronSWC();
+//
+//            S.n 	= (int)seg.row.elementAt(k).n;
+//            if (S.type<=0) S.type 	= 2; //seg.row.at(k).data[1];
+//            S.x 	= (float) seg.row.elementAt(k).x;
+//            S.y 	= (float) seg.row.elementAt(k).y;
+//            S.z 	= (float) seg.row.elementAt(k).z;
+//            S.radius 	= (float) seg.row.elementAt(k).r;
+//            S.parent 	= (int) seg.row.elementAt(k).parent;
+//
+//            //for hit & editing
+//            S.seg_id       = (int)seg.row.elementAt(k).seg_id;
+//            S.nodeinseg_id = (int) seg.row.elementAt(k).nodeinseg_id;
+//
+//            //qDebug("%s  ///  %d %d (%g %g %g) %g %d", buf, S.n, S.type, S.x, S.y, S.z, S.r, S.pn);
+//
+//            //if (! listNeuron.contains(S)) // 081024
+//            {
+//                listNeuron.add(S);
+//                hashNeuron.put((int)S.n, listNeuron.size()-1);
+//            }
+//        }
         System.out.printf("---------------------read %d lines, %d remained lines\n", count, listNeuron.size());
 
         SS.n = -1;
-        SS.color = new RGBA8((char)seg.color_uc[0],(char)seg.color_uc[1],(char)seg.color_uc[2],(char)seg.color_uc[3]);
+        SS.color = new RGBA8((char)this.color_uc[0],(char)this.color_uc[1],(char)this.color_uc[2],(char)this.color_uc[3]);
         SS.on = true;
         SS.listNeuron = listNeuron;
         SS.hashNeuron = hashNeuron;
 
-        SS.name = seg.name;
-        SS.file = seg.file;
+        SS.name = this.name;
+        SS.file = this.file;
 
         return SS;
 
