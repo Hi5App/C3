@@ -2060,12 +2060,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //
 //        }
 //    }
-
-    public void saveCurrentSwc(String dir) throws Exception{
+    public String saveCurrentSwc(String dir) throws Exception{
+        String error = "";
         NeuronTree nt = this.getNeuronTree();
-        String filePath = dir + "//" + nt.name + ".swc";
-        System.out.println("filepath: "+filePath);
-        nt.writeSWC_file(filePath);
+        if(nt.listNeuron.size()>0){
+            String filePath = dir + "//" + nt.name + ".swc";
+            System.out.println("filepath: "+filePath);
+            nt.writeSWC_file(filePath);
+            return error;
+        }else {
+            return error = "Current swc is empty!";
+        }
+
     }
 
     public void reNameCurrentSwc(String name){

@@ -975,13 +975,17 @@ public class MainActivity extends AppCompatActivity {
                             dir.mkdirs();
                         }
 
+                        String error = null;
                         try {
-                            myrenderer.saveCurrentSwc(dir_str);
+                            error = myrenderer.saveCurrentSwc(dir_str);
                         }catch (Exception e){
                             Toast.makeText(context, e.getMessage() ,Toast.LENGTH_SHORT).show();
                         }
-                        Toast.makeText(context, "save SWC to "+dir+"/"+swcFileName+".swc" ,Toast.LENGTH_LONG).show();
-
+                        if(error != ""){
+                            Toast.makeText(context,error,Toast.LENGTH_LONG).show();
+                        }else {
+                            Toast.makeText(context, "save SWC to "+dir+"/"+swcFileName+".swc" ,Toast.LENGTH_LONG).show();
+                        }
                     }
                 })
                 .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
