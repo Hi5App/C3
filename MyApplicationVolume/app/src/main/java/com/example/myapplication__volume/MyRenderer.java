@@ -471,7 +471,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         }
                     }
 
-                    mCapturePath = Myapplication.getContext().getExternalFilesDir(null).toString() + "/" + "Image_" + System.currentTimeMillis() +".jpg";
+                    String mCaptureDir = "/storage/emulated/0/C3/screenCapture";
+                    File dir = new File(mCaptureDir);
+                    if (!dir.exists()){
+                        dir.mkdirs();
+                    }
+
+                    mCapturePath = mCaptureDir + "/" + "Image_" + System.currentTimeMillis() +".jpg";
                     System.out.println(mCapturePath+"------------------------------");
                     try {
                         FileOutputStream fos = new FileOutputStream(mCapturePath);
