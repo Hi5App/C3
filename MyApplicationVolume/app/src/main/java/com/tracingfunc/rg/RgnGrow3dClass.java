@@ -2,71 +2,71 @@ package com.tracingfunc.rg;
 
 public class RgnGrow3dClass {
     public int imgWid, imgHei, imgDep;
-    public byte[] quantImg1d;
-    public byte[][][] quantImg3d;
+//    public byte[] quantImg1d;
+    public byte[][][] quantImg;
 
-    public byte[] PHCDONEIMG1d;
-    public byte[][][] PHCDONEIMG3d;
+//    public byte[] PHCDONEIMG1d;
+    public byte[][][] phcDoneImg;//PHCDONEIMG3d;
 
-    public int STACKCNT, MAXSTACKSIZE, IFINCREASELABEL, PHCURLABEL;
+    public int stackCount, maxStackSize, ifIncreaseLabel, phcCurLabel;
 
-    public int[] PHCLABELSTACK1d;
-    public int[][][] PHCLABELSTACK3d;
-    public  int PHCLABELSTACKPOS;
+//    public int[] PHCLABELSTACK1d;
+    public int[][][] phcLabelStack;//PHCLABELSTACK3d;
+    public  int phcLabelStackPos;//PHCLABELSTACKPOS;
 
-    public POS PHCURGNPOS;
-    public POS PHCURGNPOS_head;
-    public RGN PHCURGN;
-    public RGN PHCURGN_head;
+    public POS phcRgnPos;//PHCURGNPOS;
+    public POS phcRgnPosHead;//PHCURGNPOS_head;
+    public RGN phcRgn;//PHCURGN;
+    public RGN phcRgnHead;//PHCURGN_head;
 
-    public int TOTALPOSnum, TOTALRGNnum;
+    public int totalPosNum, totalRgnNum;
 
     public RgnGrow3dClass(){
         imgWid = 0; imgHei = 0; imgDep = 0;
-        quantImg1d = null; quantImg3d = null;
-        PHCDONEIMG3d = null; PHCDONEIMG1d = null;
+        quantImg = null;
+        phcDoneImg = null;
 
-        STACKCNT = -1; MAXSTACKSIZE = 16; IFINCREASELABEL=-1; PHCURLABEL=-1;
-        PHCLABELSTACK3d = null; PHCLABELSTACK1d = null;
-        PHCLABELSTACKPOS = 0;
+        stackCount = -1; maxStackSize = 16; ifIncreaseLabel = -1; phcCurLabel = -1;
+        phcLabelStack = null;
+        phcLabelStackPos = 0;
 
-        PHCURGNPOS = null; PHCURGNPOS_head = null;
-        PHCURGN = null; PHCURGN_head = null;
-        TOTALPOSnum = 0; TOTALRGNnum = 0;
+        phcRgnPos = null; phcRgnPosHead = null;
+        phcRgn = null; phcRgnHead = null;
+        totalPosNum = 0; totalRgnNum = 0;
     }
 
 
     public void rgnfindsub(int rowi, int colj, int depk, int direction, int stackinc){
 
-        if(this.STACKCNT >= this.MAXSTACKSIZE){
-            if(this.IFINCREASELABEL != 0){
-                this.IFINCREASELABEL = 0;
+        if(this.stackCount>= this.maxStackSize){
+            if(this.ifIncreaseLabel != 0){
+                this.ifIncreaseLabel = 0;
             }
             return;
         }
 
-        byte[][][] flagImg = this.PHCDONEIMG3d;
+        byte[][][] flagImg = this.phcDoneImg;
         int imgWid = this.imgWid;
         int imgHei = this.imgHei;
         int imgDep = this.imgDep;
 
         if(stackinc == 1){
-            this.PHCLABELSTACK3d[0][0][this.PHCLABELSTACKPOS] = depk;
-            this.PHCLABELSTACK3d[0][1][this.PHCLABELSTACKPOS] = colj;
-            this.PHCLABELSTACK3d[0][2][this.PHCLABELSTACKPOS] = rowi;
+            this.phcLabelStack[0][0][this.phcLabelStackPos] = depk;
+            this.phcLabelStack[0][1][this.phcLabelStackPos] = colj;
+            this.phcLabelStack[0][2][this.phcLabelStackPos] = rowi;
 
-            this.STACKCNT++;
-            this.PHCLABELSTACKPOS++;
+            this.stackCount++;
+            this.phcLabelStackPos++;
 
             flagImg[depk][colj][rowi] = -1;
 
-            if(this.PHCURGNPOS != null){
-                this.PHCURGNPOS.pos = (int) depk*(this.imgHei * this.imgWid) + colj*(this.imgWid) + rowi; //
-                this.PHCURGNPOS.next = new POS();
+            if(this.phcRgnPos != null){
+                this.phcRgnPos.pos = depk*(this.imgHei * this.imgWid) + colj*(this.imgWid) + rowi; //
+                this.phcRgnPos.next = new POS();
 //                if (this.PHCURGNPOS.next==0)
 //                {printf("Fail to do: this.PHCURGNPOS.next = new POS; -.current phcDebugPosNum=%i.\n",phcDebugPosNum);}
-                this.PHCURGNPOS = this.PHCURGNPOS.next;
-                this.TOTALPOSnum++;
+                this.phcRgnPos = this.phcRgnPos.next;
+                this.totalPosNum++;
             }else {
                 System.out.println("PHCURGNPOS is null!!");
             }
