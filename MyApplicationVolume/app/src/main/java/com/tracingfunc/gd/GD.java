@@ -4,12 +4,10 @@ import android.util.Log;
 
 import com.tracingfunc.app2.MyMarker;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -892,12 +890,12 @@ public class GD {
                 start_nodeind<0 || start_nodeind>=n_nodes ||
                 plist == null || plist.length == 0)
         {
-            System.out.println(s_error="Invalid parameters to phc_shortest_path(). do nothing");
+            System.out.println(s_error="Invalid parameters to my_shortest_path(). do nothing");
             return s_error;
         }
 
         try{
-            Gragh g = new Gragh(n_nodes,edge_array,weights);
+            Graph g = new Graph(n_nodes,edge_array,weights);
             g.search(start_nodeind);
             for(int i=0; i<g.plist.length; i++){
                 plist[i] = g.plist[i];

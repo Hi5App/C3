@@ -1,4 +1,4 @@
 package com.tracingfunc.gd;
 
-public class Jgragh {
+public class Jgraph {
 }

@@ -8,15 +8,15 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Vector;
 
-public class Gragh {
+public class Graph {
     ArrayList<Vertex>[] edges;
     float[] dis;
     int[] plist;
 
     private boolean[] visited;
-    public Gragh(int nodeNum,Vector<Pair<Integer,Integer>> edge_array,Vector<Float> weights){
+    public Graph(int nodeNum, Vector<Pair<Integer,Integer>> edge_array, Vector<Float> weights){
         try{
-            System.out.println("----------in gragh----------");
+            System.out.println("----------in graph----------");
             dis = new float[nodeNum];
             plist = new int[nodeNum];
             visited = new boolean[nodeNum];
@@ -36,7 +36,7 @@ public class Gragh {
                 edges[a].add(new Vertex(b,w));
                 edges[b].add(new Vertex(a,w));
             }
-            System.out.println("----------gragh end--------------");
+            System.out.println("----------graph end--------------");
         }catch (OutOfMemoryError e){
             System.out.println("-----------------start to print error info---------------");
             System.out.println(e.getMessage());
