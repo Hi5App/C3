@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp" >
+
+        <TextView
+            android:id="@+id/title1"
+            android:layout_width="80dp"
+            android:layout_height="48dp"
+            android:layout_alignParentLeft="true"
+            android:gravity="center|left"
+            android:text="offset_x"
+            android:textColor="#bb333333" />
+
+        <EditText
+            android:id="@+id/edit1"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/title1"
+            android:background="@null"
+            android:textColor="#ee333333"
+            android:textCursorDrawable="@drawable/color_cursor" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_alignLeft="@id/edit1"
+            android:layout_alignRight="@id/edit1"
+            android:layout_below="@id/edit1"
+            android:background="#33333333" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp" >
+
+        <TextView
+            android:id="@+id/title2"
+            android:layout_width="80dp"
+            android:layout_height="48dp"
+            android:layout_alignParentLeft="true"
+            android:gravity="center|left"
+            android:text="offset_y"
+            android:textColor="#bb333333" />
+
+        <EditText
+            android:id="@+id/edit2"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/title2"
+            android:background="@null"
+            android:textColor="#ee333333"
+            android:textCursorDrawable="@drawable/color_cursor" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_alignLeft="@id/edit2"
+            android:layout_alignRight="@id/edit2"
+            android:layout_below="@id/edit2"
+            android:background="#33333333" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp" >
+
+        <TextView
+            android:id="@+id/title3"
+            android:layout_width="80dp"
+            android:layout_height="48dp"
+            android:layout_alignParentLeft="true"
+            android:gravity="center|left"
+            android:text="offset_z"
+            android:textColor="#bb333333" />
+
+        <EditText
+            android:id="@+id/edit3"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/title3"
+            android:background="@null"
+            android:textColor="#ee333333"
+            android:textCursorDrawable="@drawable/color_cursor" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_alignLeft="@id/edit3"
+            android:layout_alignRight="@id/edit3"
+            android:layout_below="@id/edit3"
+            android:background="#33333333" />
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp" >
+
+        <TextView
+            android:id="@+id/title4"
+            android:layout_width="80dp"
+            android:layout_height="48dp"
+            android:layout_alignParentLeft="true"
+            android:gravity="center|left"
+            android:text="SIZE:"
+            android:textColor="#bb333333" />
+
+        <EditText
+            android:id="@+id/edit4"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/title4"
+            android:background="@null"
+            android:textColor="#ee333333"
+            android:textCursorDrawable="@drawable/color_cursor" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_alignLeft="@id/edit4"
+            android:layout_alignRight="@id/edit4"
+            android:layout_below="@id/edit4"
+            android:background="#33333333" />
+    </RelativeLayout>
+
+</LinearLayout>

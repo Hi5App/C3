@@ -73,7 +73,7 @@
         android:layout_height="52dp"
         android:layout_marginStart="56dp"
         android:layout_marginTop="16dp"
-        android:onClick="ImageBlock"
+        android:onClick="Remote"
         android:text="@string/Button_remote"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView3" />

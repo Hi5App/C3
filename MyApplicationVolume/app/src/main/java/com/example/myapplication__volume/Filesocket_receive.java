@@ -6,20 +6,18 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.lxj.xpopup.XPopup;
+import com.lxj.xpopup.core.BasePopupView;
+
 import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -44,7 +42,7 @@ public class Filesocket_receive {
     public String path;
 //    private static ByteBuffer buffer = ByteBuffer.allocate(8);
 
-    Filesocket_receive(){
+    public Filesocket_receive(){
         totalsize = 0;
         filenamesize = 0;
         m_bytesreceived = 0;
@@ -266,9 +264,16 @@ public class Filesocket_receive {
     public void readImg(final String filename, final Context context) throws InterruptedException {
         Boolean stop = false;
 
+        BasePopupView popupView = new XPopup.Builder(context)
+                .asLoading("Downloading......");
+        popupView.show();
+
+
         Thread thread = new Thread()  {
             public void run(){
                 try {
+
+                    Looper.prepare();
 
                     Log.v("readFile", "start to read file");
                     DataInputStream in = new DataInputStream((FileInputStream)(filesocket.getInputStream()));
@@ -375,20 +380,17 @@ public class Filesocket_receive {
 //                    outputStream.write(file_content);
 //                    outputStream.close();
 
-
-
-
-
+                    popupView.dismiss();
 
                 }catch (Exception e){
                     e.printStackTrace();
+                    Toast.makeText(context, "Fail to download img", Toast.LENGTH_SHORT).show();
                 }
             }
         };
         thread.start();
 
         thread.sleep(2000);
-
         thread.interrupt();
 
         while (thread.getState() != TERMINATED);

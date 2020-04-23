@@ -1,6 +1,5 @@
 package com.example.myapplication__volume;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -46,7 +45,7 @@ public class ManageSocket extends Socket {
         String ImportRex = ":import port.";
         String CurrentDirDownExp = ":currentDir_down.";
         String CurrentDirLoadExp = ":currentDir_load.";
-        String CurrentDirImgDownExp = ":currentDirImg_down.";
+        String CurrentDirImgDownExp = ":currentDirImg.";
         String MessagePortExp = ":messageport.\n";
 
 
@@ -240,7 +239,6 @@ public class ManageSocket extends Socket {
      */
     private void ShowListDialog(final Context context, final String[] items, final String type) {
 
-//        final String[] items = { "我是1","我是2","我是3","我是4" };
         AlertDialog.Builder listDialog =
                 new AlertDialog.Builder(context);
         listDialog.setTitle("选择要下载的文件");
@@ -254,8 +252,10 @@ public class ManageSocket extends Socket {
                     send1(items[which], context);
                 if (type.equals("CurrentDirLoadExp"))
                     send1(items[which], context);
-                if (type.equals("CurrentDirImgDownExp"))
+                if (type.equals("CurrentDirImgDownExp")){
+
                     send2(items[which], context);
+                }
             }
         });
         listDialog.show();

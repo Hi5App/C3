@@ -1,13 +1,13 @@
 package com.example.myapplication__volume;
 
 public class MyMarker {
-    double x;
-    double y;
-    double z;
-    double radius;
-    int type;
+    public double x;
+    public double y;
+    public double z;
+    public double radius;
+    public int type;
 
-    MyMarker parent;
+    public MyMarker parent;
 
     public MyMarker(){ x = y = z = radius =0.0; type = 3; parent = null; }
     public MyMarker(double _x, double _y, double _z) {x = _x; y = _y; z = _z; radius = 0.0; type = 3; parent = null; }
@@ -25,6 +25,11 @@ public class MyMarker {
         if(this.x < other.x) return false;
         if(this.x > other.x) return true;
         return false;
+    }
+
+    public long ind( long sz0, long sz01)
+    {
+        return ( (long)( z + 0.5 ) * sz01 + (long)( y + 0.5 ) * sz0 + (long)( x + 0.5 ));
     }
 
 }
