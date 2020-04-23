@@ -2,9 +2,11 @@ package com.feature_calc_func;
 
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
+import com.example.myapplication__volume.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,7 @@ public class MorphologyCalculate {
     double Pd_ratio = 0, Contraction = 0, Max_Eux = 0, Max_Path = 0, BifA_local = 0, BifA_remote = 0, Soma_surface = 0,
             Fragmentation = 0;
     int rootidx = 0;
+    int count = 1;  //components count...
 
     Vector<Vector<Integer>> childs;
 
@@ -49,6 +52,8 @@ public class MorphologyCalculate {
         Fragmentation = 0;
         rootidx = 0;
 
+        count = 1;
+
         int neuronNum = nt.listNeuron.size();//
 
         // find the root
@@ -63,6 +68,7 @@ public class MorphologyCalculate {
         }
         if (rootidx == VOID) {
             System.out.println("the input neuron tree does not have a root, please check your data");
+            Toast.makeText(MainActivity.getContext(), "the input neuron tree does not have a root, please check your data", Toast.LENGTH_LONG).show();
             return null;
         }
 
@@ -77,14 +83,10 @@ public class MorphologyCalculate {
             if (par < 0)
                 continue;
             try {   //there is sth wrong...Only calculate one neuron tree...
-//            if (!nt.hashNeuron.containsKey(par.intValue())){
-//                nt.listNeuron.get(i).parent = rootidx;
-//                par = Long.valueOf(rootidx);
-//            }
-            childs.get(nt.hashNeuron.get(par.intValue())).addElement(i);
+                childs.get(nt.hashNeuron.get(par.intValue())).addElement(i);
             } catch (NullPointerException e) {
-                System.out.println(par);
-                continue;
+                System.out.println("redundant root: "+par);
+                count += 1;
             }
         }
         N_node = list.size();
@@ -94,55 +96,67 @@ public class MorphologyCalculate {
         computeLinear(nt);
         computeTree(nt);
         Hausdorff = computeHausdorff(nt);
-
-        // feature # 0: Number of Nodes
-        features[0] = N_node;
-        // feature #1: Soma Surface
-        features[1] = Soma_surface;
-        // feature # 2: Number of Stems
-        features[2] = N_stem;
-        // feature # 3: Number of Bifurcations
-        features[3] = N_bifs;
-        // feature # 4: Number of Branches
-        features[4] = N_branch;
-        // feature # 5: Number of Tips
-        features[5] = N_tips;
-        // feature # 6: Overall Width
-        features[6] = Width;
-        // feature # 7: Overall Height
-        features[7] = Height;
-        // feature # 8: Overall Depth
-        features[8] = Depth;
-        // feature # 9: Average Diameter
-        features[9] = Diameter;
-        // feature # 10: Total Length
-        features[10] = Length;
-        // feature # 11: Total Surface
-        features[11] = Surface;
-        // feature # 12: Total Volume
-        features[12] = Volume;
-        // feature # 13: Max Euclidean Distance
-        features[13] = Max_Eux;
-        // feature # 14: Max Path Distance
-        features[14] = Max_Path;
-        // feature # 15: Max Branch Order
-        features[15] = Max_Order;
-        // feature # 16: Average Contraction
-        features[16] = Contraction;
-        // feature # 17: Average Fragmentation
-        features[17] = Fragmentation;
-        // feature # 18: Average Parent-daughter Ratio
-        features[18] = Pd_ratio;
-        // feature # 19: Average Bifurcation Angle Local
-        features[19] = BifA_local;
-        // feature # 20: Average Bifurcation Angle Remote
-        features[20] = BifA_remote;
-        // feature # 21: Hausdorr Dimension
-        features[21] = Hausdorff; // Hausdorff program crash when running on complex neuron data, we don't use it
-
-        for (int i = 0; i < features.length; i++) {
-            System.out.println(features[i]);
+        if (count == 1) {
+            features[0] = count;
+            // feature # 0: Number of Nodes
+            features[1] = N_node;
+            // feature #1: Soma Surface
+            features[2] = Soma_surface;
+            // feature # 2: Number of Stems
+            features[3] = N_stem;
+            // feature # 3: Number of Bifurcations
+            features[4] = N_bifs;
+            // feature # 4: Number of Branches
+            features[5] = N_branch;
+            // feature # 5: Number of Tips
+            features[6] = N_tips;
+            // feature # 6: Overall Width
+            features[7] = Width;
+            // feature # 7: Overall Height
+            features[8] = Height;
+            // feature # 8: Overall Depth
+            features[9] = Depth;
+            // feature # 9: Average Diameter
+            features[10] = Diameter;
+            // feature # 10: Total Length
+            features[11] = Length;
+            // feature # 11: Total Surface
+            features[12] = Surface;
+            // feature # 12: Total Volume
+            features[13] = Volume;
+            // feature # 13: Max Euclidean Distance
+            features[14] = Max_Eux;
+            // feature # 14: Max Path Distance
+            features[15] = Max_Path;
+            // feature # 15: Max Branch Order
+            features[16] = Max_Order;
+            // feature # 16: Average Contraction
+            features[17] = Contraction;
+            // feature # 17: Average Fragmentation
+            features[18] = Fragmentation;
+            // feature # 18: Average Parent-daughter Ratio
+            features[19] = Pd_ratio;
+            // feature # 19: Average Bifurcation Angle Local
+            features[20] = BifA_local;
+            // feature # 20: Average Bifurcation Angle Remote
+            features[21] = BifA_remote;
+            // feature # 21: Hausdorr Dimension
+            features[22] = Hausdorff; // Hausdorff program crash when running on complex neuron data, we don't use it
         }
+        else {
+            features[0] = count;
+            features[1] = count;
+            features[2] = N_node;
+            features[3] = Soma_surface;
+            features[4] = N_tips;
+            features[5] = Width;
+            features[6] = Height;
+            features[7] = Depth;
+            features[8] = Max_Eux;
+        }
+//        for (int i = 0; i < features.length; i++) {
+//            System.out.println(features[i]);
+//        }
         return features;
     }
 
@@ -554,7 +568,7 @@ public class MorphologyCalculate {
 //        NeuronTree nt = reader.readSWC_file("F:\\XiScience\\SEU\\bishe\\L2_data\\17302_00001.ano.swc");
         NeuronTree nt = reader.readSWC_file(uri);
         if (nt == null) return null;
-        double[] ff = new double[22];
+        double[] ff = new double[23];
         MC.computeFeature(nt, ff);
 
         for (int i = 0; i < ff.length; i++) {
@@ -571,7 +585,7 @@ public class MorphologyCalculate {
         MorphologyCalculate MC = new MorphologyCalculate();
 
         if (nt == null) return null;
-        double[] ff = new double[22];
+        double[] ff = new double[23];
         MC.computeFeature(nt, ff);
 
         for (int i = 0; i < ff.length; i++) {

@@ -59,6 +59,8 @@ import com.tracingfunc.app2.V3dNeuronAPP2Tracing;
 import com.tracingfunc.gd.CurveTracePara;
 import com.tracingfunc.gd.V3dNeuronGDTracing;
 
+import org.w3c.dom.Text;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -85,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean ifPoint = false;
     private boolean ifImport = false;
     private boolean ifAnalyze = false;
-//    private boolean ifSaveSwc = false;
+    //    private boolean ifSaveSwc = false;
     private boolean ifDeletingMarker = false;
     private boolean ifDeletingLine = false;
     private boolean ifSpliting = false;
@@ -178,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
         FileManager.setText("File");
         ll_top.addView(FileManager);
 
-        FileManager.setOnClickListener(new Button.OnClickListener(){
+        FileManager.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FileManager(v);
@@ -190,24 +192,19 @@ public class MainActivity extends AppCompatActivity {
         Draw.setText("Draw");
         ll_top.addView(Draw);
 
-        Draw.setOnClickListener(new Button.OnClickListener()
-        {
-            public void onClick(View v)
-            {
+        Draw.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
                 Draw(v);
             }
         });
-
 
 
         Tracing = new Button(this);
         Tracing.setText("Tracing");
         ll_top.addView(Tracing);
 
-        Tracing.setOnClickListener(new Button.OnClickListener()
-        {
-            public void onClick(View v)
-            {
+        Tracing.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
                 Tracing(v);
             }
         });
@@ -217,10 +214,8 @@ public class MainActivity extends AppCompatActivity {
         Others.setText("Others");
         ll_bottom.addView(Others);
 
-        Others.setOnClickListener(new Button.OnClickListener()
-        {
-            public void onClick(View v)
-            {
+        Others.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
                 Other(v);
             }
         });
@@ -283,14 +278,11 @@ public class MainActivity extends AppCompatActivity {
         buttonAnimation = new Button(this);
         buttonAnimation.setText("Animation");
 
-        buttonAnimation.setOnClickListener(new Button.OnClickListener()
-        {
-            public void onClick(View v)
-            {
+        buttonAnimation.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
                 Animation(v);
             }
         });
-
 
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
@@ -389,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
                     String fileName = fileManager.getFileName(uri);
                     String filetype = filePath.substring(filePath.lastIndexOf(".")).toUpperCase();
 
-                    System.out.println("filetype: "+filetype+" filename: "+fileName);
+                    System.out.println("filetype: " + filetype + " filename: " + fileName);
 
 
                     switch (filetype) {
@@ -516,7 +508,7 @@ public class MainActivity extends AppCompatActivity {
 //                Log.v("Exception", e.toString());
 //            }
 
-            }catch (OutOfMemoryError e) {
+            } catch (OutOfMemoryError e) {
                 Toast.makeText(this, " Fail to load file  ", Toast.LENGTH_SHORT).show();
                 Log.v("MainActivity", "111222");
                 Log.v("Exception", e.toString());
@@ -528,17 +520,18 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * function for the FileManager button
+     *
      * @param v the button: FileManager
      */
-    private void FileManager(View v){
+    private void FileManager(View v) {
         new XPopup.Builder(this)
                 .atView(v)
-                .asAttachList(new String[]{"Load SWC file","Save SWC file"},
-                        new int[]{ },
-                        new OnSelectListener(){
+                .asAttachList(new String[]{"Load SWC file", "Save SWC file"},
+                        new int[]{},
+                        new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                switch (text){
+                                switch (text) {
                                     case "Load SWC file":
                                         LoadSWC();
                                         break;
@@ -554,30 +547,30 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * function for the draw button
+     *
      * @param v the button: draw
      */
-    private void Draw(View v){
+    private void Draw(View v) {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
                 .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete curve", "Split", "Exit"},
 //                        new int[]{R.mipmap.ic_launcher, R.mipmap.ic_launcher},
-                        new int[]{ },
+                        new int[]{},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                switch (text){
+                                switch (text) {
                                     case "PinPoint":
                                         ifPoint = !ifPoint;
                                         ifPainting = false;
                                         ifDeletingMarker = false;
                                         ifDeletingLine = false;
                                         ifSpliting = false;
-                                        if(ifPoint) {
+                                        if (ifPoint) {
                                             Draw.setText("PinPoint");
                                             Draw.setTextColor(Color.RED);
-                                        }
-                                        else {
+                                        } else {
                                             Draw.setText("Draw");
                                             Draw.setTextColor(Color.BLACK);
                                         }
@@ -589,12 +582,11 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingMarker = false;
                                         ifDeletingLine = false;
                                         ifSpliting = false;
-                                        if(ifPainting) {
+                                        if (ifPainting) {
                                             Draw.setText("Draw Curve");
                                             Draw.setTextColor(Color.RED);
 
-                                        }
-                                        else {
+                                        } else {
                                             Draw.setText("Draw");
                                             Draw.setTextColor(Color.BLACK);
                                         }
@@ -606,10 +598,10 @@ public class MainActivity extends AppCompatActivity {
                                         ifPoint = false;
                                         ifDeletingLine = false;
                                         ifSpliting = false;
-                                        if (ifDeletingMarker){
+                                        if (ifDeletingMarker) {
                                             Draw.setText("Delete marker");
                                             Draw.setTextColor(Color.RED);
-                                        }else{
+                                        } else {
                                             Draw.setText("Draw");
                                             Draw.setTextColor(Color.BLACK);
                                         }
@@ -621,10 +613,10 @@ public class MainActivity extends AppCompatActivity {
                                         ifPoint = false;
                                         ifDeletingMarker = false;
                                         ifSpliting = false;
-                                        if (ifDeletingLine){
+                                        if (ifDeletingLine) {
                                             Draw.setText("Delete curve");
                                             Draw.setTextColor(Color.RED);
-                                        }else{
+                                        } else {
                                             Draw.setText("Draw");
                                             Draw.setTextColor(Color.BLACK);
                                         }
@@ -636,10 +628,10 @@ public class MainActivity extends AppCompatActivity {
                                         ifPainting = false;
                                         ifPoint = false;
                                         ifDeletingMarker = false;
-                                        if (ifSpliting){
+                                        if (ifSpliting) {
                                             Draw.setText("Split");
                                             Draw.setTextColor(Color.RED);
-                                        }else{
+                                        } else {
                                             Draw.setText("Draw");
                                             Draw.setTextColor(Color.BLACK);
                                         }
@@ -651,7 +643,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifPoint = false;
                                         ifDeletingMarker = false;
                                         ifSpliting = false;
-                                            Draw.setText("Draw");
+                                        Draw.setText("Draw");
                                         Draw.setTextColor(Color.BLACK);
                                         break;
 
@@ -664,18 +656,19 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * function for the Tracing button
+     *
      * @param v the button: tracing
      */
-    private void Tracing(final View v){
+    private void Tracing(final View v) {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
                 .asAttachList(new String[]{"GD", "APP2", "Clear tracing"},
-                        new int[]{ },
+                        new int[]{},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                switch (text){
+                                switch (text) {
                                     case "GD":
                                         try {
                                             Log.v("Mainactivity", "GD-Tracing start~");
@@ -693,7 +686,7 @@ public class MainActivity extends AppCompatActivity {
                                                     }
 
                                                 }
-                                            },1000); // 延时1秒
+                                            }, 1000); // 延时1秒
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
@@ -716,7 +709,7 @@ public class MainActivity extends AppCompatActivity {
                                                     }
 
                                                 }
-                                            },1000); // 延时1秒
+                                            }, 1000); // 延时1秒
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
@@ -735,17 +728,18 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * function for the other button
+     *
      * @param v the button: other
      */
-    private void Other(final View v){
+    private void Other(final View v) {
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
                 .asAttachList(new String[]{"Analyze", "Animate", "Share", "Version"},
-                        new int[]{ },
+                        new int[]{},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                switch (text){
+                                switch (text) {
                                     case "Analyze":
                                         Analyse();
                                         break;
@@ -773,10 +767,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void LoadSWC() {
 
-    private void LoadSWC(){
-
-        if (!ifImport){
+        if (!ifImport) {
             ifImport = true;
             ifAnalyze = false;
         }
@@ -788,7 +781,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void Share(View v){
+    private void Share(View v) {
         myrenderer.setTakePic(true);
         myGLSurfaceView.requestRender();
         final String[] imgPath = new String[1];
@@ -807,8 +800,8 @@ public class MainActivity extends AppCompatActivity {
                     imgPath[0] = myrenderer.getmCapturePath();
                     myrenderer.resetCapturePath();
 
-                    if (imgPath[0] !=  null)
-                        Toast.makeText(v.getContext(), "save screenshot to "+ imgPath[0], Toast.LENGTH_SHORT).show();
+                    if (imgPath[0] != null)
+                        Toast.makeText(v.getContext(), "save screenshot to " + imgPath[0], Toast.LENGTH_SHORT).show();
                     else
                         Toast.makeText(v.getContext(), "Fail to screenshot", Toast.LENGTH_SHORT).show();
 
@@ -820,12 +813,12 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             }
-        },3000); // 延时3秒
+        }, 3000); // 延时3秒
 
         while (imgPath[0] == null && !isGet[0])
             System.out.println("null");
 
-        if (imgPath[0] != null){
+        if (imgPath[0] != null) {
             Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imgPath[0]));
@@ -835,59 +828,59 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void Analyse(){
+    private void Analyse() {
 
 
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-        .asCenterList("morphology calculate", new String[]{"Analyze a SWC file", "Analyze current tracing"},
-                new OnSelectListener() {
-                    @Override
-                    public void onSelect(int position, String text) {
-                        switch (text){
-                            case "Analyze a SWC file":
-                                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                                intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
-                                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                                startActivityForResult(intent, 1);
-                                ifAnalyze = true;
-                                ifImport = false;
-                                break;
+                .asCenterList("morphology calculate", new String[]{"Analyze a SWC file", "Analyze current tracing"},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text) {
+                                    case "Analyze a SWC file":
+                                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                                        intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
+                                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                                        startActivityForResult(intent, 1);
+                                        ifAnalyze = true;
+                                        ifImport = false;
+                                        break;
 
-                            case "Analyze current tracing":
-                                NeuronTree nt = myrenderer.getNeuronTree();
-                                if (nt.listNeuron.isEmpty()){
-                                    Toast.makeText(context,"Empty tracing, do nothing" ,Toast.LENGTH_LONG).show();
-                                    break;
+                                    case "Analyze current tracing":
+                                        NeuronTree nt = myrenderer.getNeuronTree();
+                                        if (nt.listNeuron.isEmpty()) {
+                                            Toast.makeText(context, "Empty tracing, do nothing", Toast.LENGTH_LONG).show();
+                                            break;
+                                        }
+                                        MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
+                                        double[] features = morphologyCalculate.CalculatefromNT(nt);
+                                        if (features != null) displayResult(features);
+                                        break;
+
+                                    default:
+                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();
+
                                 }
-                                MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
-                                double[] features = morphologyCalculate.CalculatefromNT(nt);
-                                if (features != null) displayResult(features);
-                                break;
-
-                                default:
-                                    Toast.makeText(context,"Default in analysis" ,Toast.LENGTH_SHORT).show();
-
-                        }
-                    }
-                })
-        .show();
+                            }
+                        })
+                .show();
 
 
     }
 
 
-    private void Animation(final View v){
+    private void Animation(final View v) {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
                 .asAttachList(new String[]{"Start", "Pause", "Resume", "Stop"},
-                        new int[]{ },
+                        new int[]{},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                switch (text){
+                                switch (text) {
                                     case "Start":
                                         myrenderer.myAnimation.Start();
                                         break;
@@ -907,7 +900,7 @@ public class MainActivity extends AppCompatActivity {
                                         break;
 
                                     default:
-                                        Toast.makeText(context,"there is something wrong in animation" ,Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(context, "there is something wrong in animation", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         })
@@ -915,16 +908,16 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void Version(){
+    private void Version() {
 
         new XPopup.Builder(this)
                 .asConfirm("Version", "version: 2020.4.22.02",
-                new OnConfirmListener() {
-                    @Override
-                    public void onConfirm() {
+                        new OnConfirmListener() {
+                            @Override
+                            public void onConfirm() {
 
-                    }
-                })
+                            }
+                        })
                 .show();
 
 //        new XPopup.Builder(this)
@@ -938,7 +931,7 @@ public class MainActivity extends AppCompatActivity {
 //                .show();
     }
 
-    private void SaveSWC(){
+    private void SaveSWC() {
         MDDialog mdDialog = new MDDialog.Builder(this)
                 .setContentView(R.layout.save_swc)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
@@ -971,20 +964,20 @@ public class MainActivity extends AppCompatActivity {
                         String dir_str = "/storage/emulated/0/C3";
 
                         File dir = new File(dir_str);
-                        if (!dir.exists()){
+                        if (!dir.exists()) {
                             dir.mkdirs();
                         }
 
                         String error = null;
                         try {
                             error = myrenderer.saveCurrentSwc(dir_str);
-                        }catch (Exception e){
-                            Toast.makeText(context, e.getMessage() ,Toast.LENGTH_SHORT).show();
+                        } catch (Exception e) {
+                            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
-                        if(error != ""){
-                            Toast.makeText(context,error,Toast.LENGTH_LONG).show();
-                        }else {
-                            Toast.makeText(context, "save SWC to "+dir+"/"+swcFileName+".swc" ,Toast.LENGTH_LONG).show();
+                        if (error != "") {
+                            Toast.makeText(context, error, Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(context, "save SWC to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG).show();
                         }
                     }
                 })
@@ -1002,12 +995,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    private void APP2() throws Exception{
+    private void APP2() throws Exception {
         Image4DSimple img = myrenderer.getImg();
         img.getDataCZYX();
         if (!img.valid()) {
             Log.v("APP2Tracing", "Please load img first!");
-            if(Looper.myLooper() == null){
+            if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
             Toast.makeText(this, "Please load img first!", Toast.LENGTH_LONG).show();
@@ -1015,16 +1008,16 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
-        try{
+        try {
             ParaAPP2 p = new ParaAPP2();
             p.p4dImage = img;
-            p.xc0 = p.yc0 = p.zc0 =0;
-            p.xc1 =(int) p.p4dImage.getSz0()-1;
-            p.yc1 =(int) p.p4dImage.getSz1()-1;
-            p.zc1 =(int) p.p4dImage.getSz2()-1;
+            p.xc0 = p.yc0 = p.zc0 = 0;
+            p.xc1 = (int) p.p4dImage.getSz0() - 1;
+            p.yc1 = (int) p.p4dImage.getSz1() - 1;
+            p.zc1 = (int) p.p4dImage.getSz2() - 1;
             p.landmarks = new LocationSimple[markers.size()];
             p.bkg_thresh = -1;
-            for(int i=0;i<markers.size();i++){
+            for (int i = 0; i < markers.size(); i++) {
                 p.landmarks[i] = new LocationSimple(markers.get(i).x, markers.get(i).y, markers.get(i).z);
             }
             System.out.println("---------------start---------------------");
@@ -1033,17 +1026,17 @@ public class MainActivity extends AppCompatActivity {
             V3dNeuronAPP2Tracing.proc_app2(p);
 
             NeuronTree nt = NeuronTree.readSWC_file(p.outswc_file);
-            for(int i=0;i<nt.listNeuron.size(); i++){
+            for (int i = 0; i < nt.listNeuron.size(); i++) {
                 nt.listNeuron.get(i).type = 4;
-                if(nt.listNeuron.get(i).parent == -1){
+                if (nt.listNeuron.get(i).parent == -1) {
                     NeuronSWC s = nt.listNeuron.get(i);
-                    ImageMarker m = new ImageMarker(s.x,s.y,s.z);
+                    ImageMarker m = new ImageMarker(s.x, s.y, s.z);
                     m.type = 2;
                     myrenderer.getMarkerList().add(m);
                 }
             }
-            System.out.println("size: "+nt.listNeuron.size());
-            if(Looper.myLooper() == null){
+            System.out.println("size: " + nt.listNeuron.size());
+            if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
             Toast.makeText(this, "APP2-Tracing finish, size of result swc: " + Integer.toString(nt.listNeuron.size()), Toast.LENGTH_SHORT).show();
@@ -1051,8 +1044,8 @@ public class MainActivity extends AppCompatActivity {
             myGLSurfaceView.requestRender();
             Looper.loop();
 
-        }catch (Exception e) {
-            if(Looper.myLooper() == null){
+        } catch (Exception e) {
+            if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
@@ -1060,9 +1053,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-
     }
-
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -1070,7 +1061,7 @@ public class MainActivity extends AppCompatActivity {
         Image4DSimple img = myrenderer.getImg();
         if (!img.valid()) {
             Log.v("GDTracing", "Please load img first!");
-            if(Looper.myLooper() == null){
+            if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
             Toast.makeText(this, "Please load img first!", Toast.LENGTH_LONG).show();
@@ -1080,7 +1071,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
         if (markers.size() <= 1) {
             Log.v("GDTracing", "Please generate at least two markers!");
-            if(Looper.myLooper() == null){
+            if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
             Toast.makeText(this, "Please produce at least two markers!", Toast.LENGTH_LONG).show();
@@ -1102,17 +1093,17 @@ public class MainActivity extends AppCompatActivity {
         try {
             outswc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img, p0, pp, curveTracePara, 1.0);
         } catch (Exception e) {
-            if(Looper.myLooper() == null){
+            if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             Looper.loop();
         }
-        for(int i=0;i<outswc.listNeuron.size(); i++){
+        for (int i = 0; i < outswc.listNeuron.size(); i++) {
             outswc.listNeuron.get(i).type = 6;
         }
 
-        if(Looper.myLooper() == null){
+        if (Looper.myLooper() == null) {
             Looper.prepare();
         }
         Toast.makeText(this, "GD-Tracing finished, size of result swc: " + Integer.toString(outswc.listNeuron.size()), Toast.LENGTH_SHORT).show();
@@ -1130,46 +1121,66 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressLint("DefaultLocale")
     private void displayResult(final double[] result) {
+        final String[] title;
+        final int[] id_title;
+        final int[] id_content;
+        final int[] id_rl;
 
+        if (result[0] == 1) {
+            title = new String[]{
+                    "number of nodes",
+                    "soma surface",
+                    "number of stems",
+                    "number of bifurcations",
+                    "number of branches",
+                    "number of tips",
+                    "overall width",
+                    "overall height",
+                    "overall depth",
+                    "average diameter",
+                    "total length",
+                    "total surface",
+                    "total volume",
+                    "max euclidean distance",
+                    "max path distance",
+                    "max branch order",
+                    "average contraction",
+                    "average fragmentation",
+                    "average parent-daughter ratio",
+                    "average bifurcation angle local",
+                    "average bifurcation angle remote",
+                    "Hausdorff dimension"
+            };
 
-        final String[] title = {
-                "number of nodes",
-                "soma surface",
-                "number of stems",
-                "number of bifurcations",
-                "number of branches",
-                "number of tips",
-                "overall width",
-                "overall height",
-                "overall depth",
-                "average diameter",
-                "total length",
-                "total surface",
-                "total volume",
-                "max euclidean distance",
-                "max path distance",
-                "max branch order",
-                "average contraction",
-                "average fragmentation",
-                "average parent-daughter ratio",
-                "average bifurcation angle local",
-                "average bifurcation angle remote",
-                "Hausdorff dimension"
-        };
-
-        final int[] id_title = new int[]{R.id.title0, R.id.title1, R.id.title2, R.id.title3, R.id.title4,
+        } else {
+            title = new String[]{
+                    "number of components",
+                    "number of nodes",
+                    "soma surface",
+                    "number of tips",
+                    "overall width",
+                    "overall height",
+                    "overall depth",
+                    "max euclidean distance",
+            };
+        }
+        id_title = new int[]{R.id.title0, R.id.title1, R.id.title2, R.id.title3, R.id.title4,
                 R.id.title5, R.id.title6, R.id.title7, R.id.title8, R.id.title9,
                 R.id.title10, R.id.title11, R.id.title12, R.id.title13, R.id.title14,
                 R.id.title15, R.id.title16, R.id.title17, R.id.title18, R.id.title19,
                 R.id.title20, R.id.title21};
 
-        final int[] id_content = new int[]{R.id.content0, R.id.content1, R.id.content2, R.id.content3, R.id.content4,
+        id_content = new int[]{R.id.content0, R.id.content1, R.id.content2, R.id.content3, R.id.content4,
                 R.id.content5, R.id.content6, R.id.content7, R.id.content8, R.id.content9,
                 R.id.content10, R.id.content11, R.id.content12, R.id.content13, R.id.content14,
                 R.id.content15, R.id.content16, R.id.content17, R.id.content18, R.id.content19,
                 R.id.content20, R.id.content21};
 
-
+        id_rl = new int[]{R.id.RL0, R.id.RL1, R.id.RL2, R.id.RL3, R.id.RL4,
+                R.id.RL5, R.id.RL6, R.id.RL7, R.id.RL8, R.id.RL9,
+                R.id.RL10, R.id.RL11, R.id.RL12, R.id.RL13, R.id.RL14,
+                R.id.RL15, R.id.RL16, R.id.RL17, R.id.RL18, R.id.RL19,
+                R.id.RL20, R.id.RL21};
 //        new XPopup.Builder(this)
 ////                .maxWidth(960)
 //                .maxHeight(1350)
@@ -1188,19 +1199,29 @@ public class MainActivity extends AppCompatActivity {
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
                     @Override
                     public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+                        if (title.length == 8) {
+                            for (int i = 8; i < id_rl.length; i++) {
+                                contentView.findViewById(id_rl[i]).setVisibility(View.GONE);
+                            }
+                        } else if (title.length == 22) {
+                            for (int i = 8; i < id_rl.length; i++) {
+                                contentView.findViewById(id_rl[i]).setVisibility(View.VISIBLE);
+                            }
+                        }
+
 
                         String result_str;
-                        int num = 2;
-                        for (int i = 0; i < 22; i++) {
+                        int num;
+                        for (int i = 0; i < title.length; i++) {
                             TextView tx = contentView.findViewById(id_title[i]);
                             tx.setText(title[i]);
 
                             TextView ct = contentView.findViewById(id_content[i]);
                             if (title[i].substring(0, 6).equals("number") || title[i].substring(0, 6).equals("max br")) {
-                                result_str = ": " + String.format("%d", (int) result[i]);
+                                result_str = ": " + String.format("%d", (int) result[i + 1]);
                             } else {
-                                num = Value_Display_Length(result[i]);
-                                result_str = ": " + String.format("%." + String.format("%d", num) + "f", (float) result[i]);
+                                num = Value_Display_Length(result[i + 1]);
+                                result_str = ": " + String.format("%." + String.format("%d", num) + "f", (float) result[i + 1]);
                             }
                             ct.setText(result_str);
 
@@ -1249,7 +1270,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void SetAnimation(){
+    private void SetAnimation() {
 
         final String[] rotation_type = new String[1];
 
@@ -1266,9 +1287,9 @@ public class MainActivity extends AppCompatActivity {
                         on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                             @Override
                             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                if (isChecked){
+                                if (isChecked) {
                                     ifAnimation = true;
-                                }else {
+                                } else {
                                     ifAnimation = false;
                                 }
                             }
@@ -1310,7 +1331,7 @@ public class MainActivity extends AppCompatActivity {
 
                         myrenderer.myAnimation.setAnimation(ifAnimation, Float.parseFloat(rotation_speed), rotation_type[0]);
 
-                        if (ifAnimation){
+                        if (ifAnimation) {
                             myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 //                            Draw.setText("Draw");
 //                            Draw.setTextColor(Color.BLACK);
@@ -1321,7 +1342,7 @@ public class MainActivity extends AppCompatActivity {
 
                         } else {
 
-                            if (ll_top.findViewWithTag(buttonAnimation) != null){
+                            if (ll_top.findViewWithTag(buttonAnimation) != null) {
                                 ll_top.removeView(buttonAnimation);
                             }
 
@@ -1515,8 +1536,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-
-
         //触摸屏幕的事件
         @SuppressLint("ClickableViewAccessibility")
         public boolean onTouchEvent(MotionEvent motionEvent) {
@@ -1548,7 +1567,7 @@ public class MainActivity extends AppCompatActivity {
                             requestRender();
 
                         }
-                        if (ifDeletingMarker){
+                        if (ifDeletingMarker) {
                             Log.v("actionPointerDown", "DeletingMarker");
                             myrenderer.deleteMarkerDrawed(X, Y);
                             requestRender();
@@ -1630,14 +1649,14 @@ public class MainActivity extends AppCompatActivity {
                             requestRender();
 //                            requestRender();
                         }
-                        if (ifDeletingLine){
+                        if (ifDeletingLine) {
                             myrenderer.setIfPainting(false);
                             myrenderer.deleteLine1(lineDrawed);
                             lineDrawed.clear();
                             myrenderer.setLineDrawed(lineDrawed);
                             requestRender();
                         }
-                        if (ifSpliting){
+                        if (ifSpliting) {
                             myrenderer.setIfPainting(false);
                             myrenderer.splitCurve(lineDrawed);
                             lineDrawed.clear();
