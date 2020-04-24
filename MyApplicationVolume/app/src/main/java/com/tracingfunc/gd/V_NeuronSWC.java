@@ -104,9 +104,34 @@ public class V_NeuronSWC implements Cloneable{
     public void append(V_NeuronSWC_unit new_node) {row.add(new_node);}
     public void clear() {row.clear();}
     // vector <V_NeuronSWC> decompose();
-    // boolean reverse();
-
-    // boolean isLineGraph() {return b_linegraph;} //just return the "claimed" property is a line graph
+    public boolean reverse(){
+        if(!this.isLineGraph()){
+            System.out.println("It is not simple line!");
+            return false;
+        }
+        boolean order = true;
+        for(int i=0; i<this.row.size(); i++){
+            V_NeuronSWC_unit node = this.row.get(i);
+            if(i==0){
+                order = (node.parent>0);
+            }
+            if(order){
+                if(i==0){
+                    node.parent = -1;
+                }else {
+                    node.parent = this.row.get(i-1).n;
+                }
+            }else {
+                if(i==this.row.size()-1){
+                    node.parent = -1;
+                }else {
+                    node.parent = this.row.get(i+1).n;
+                }
+            }
+        }
+        return true;
+    }
+    boolean isLineGraph() {return b_linegraph;} //just return the "claimed" property is a line graph
     // //check if a 3D location is contained in the swc
     // int getFirstIndexof3DPos(double x,double y,double z) //return -1 is no included, othwise return the first detected index
     // {

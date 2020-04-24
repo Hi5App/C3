@@ -1671,6 +1671,48 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 seg.append(u);
 //                System.out.println("u n p x y z: "+ u.n +" "+u.parent+" "+u.x +" "+u.y+ " "+u.z);
             }
+            if(seg.row.size()<3){
+                return;
+            }
+            float[] headXYZ = new float[]{(float) seg.row.get(0).x, (float) seg.row.get(0).y, (float) seg.row.get(0).z};
+            float[] tailXYZ = new float[]{(float) seg.row.get(seg.row.size()-1).x,
+                    (float) seg.row.get(seg.row.size()-1).y,
+                    (float) seg.row.get(seg.row.size()-1).z};
+            boolean linked = false;
+            for(int i=0; i<curSwcList.seg.size(); i++){
+                V_NeuronSWC s = curSwcList.seg.get(i);
+                for(int j=0; j<s.row.size(); j++){
+                    if(linked)
+                        break;
+                    V_NeuronSWC_unit node = s.row.get(j);
+                    float[] nodeXYZ = new float[]{(float) node.x, (float) node.y, (float) node.z};
+                    if(distance(headXYZ,nodeXYZ)<5){
+                        V_NeuronSWC_unit head = seg.row.get(0);
+                        V_NeuronSWC_unit child = seg.row.get(1);
+                        head.x = node.x;
+                        head.y = node.y;
+                        head.z = node.z;
+                        head.n = node.n;
+                        head.parent = node.parent;
+                        child.parent = head.n;
+                        linked = true;
+                        break;
+                    }
+                    if(distance(tailXYZ,nodeXYZ)<5){
+                        seg.reverse();
+                        V_NeuronSWC_unit tail = seg.row.get(seg.row.size()-1);
+                        V_NeuronSWC_unit child = seg.row.get(seg.row.size()-2);
+                        tail.x = node.x;
+                        tail.y = node.y;
+                        tail.z = node.z;
+                        tail.n = node.n;
+                        tail.parent = node.parent;
+                        child.n = tail.n;
+                        linked = true;
+                        break;
+                    }
+                }
+            }
             curSwcList.append(seg);
 //            Log.v("addLineDrawed", Integer.toString(lineAdded.size()));
         }
