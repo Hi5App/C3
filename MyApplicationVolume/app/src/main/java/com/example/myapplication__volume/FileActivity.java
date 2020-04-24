@@ -492,7 +492,7 @@ public class FileActivity extends AppCompatActivity {
 
                 try {
                     remoteImg.ip = ip;
-                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9999"));
+                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
                     remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
                     remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
 

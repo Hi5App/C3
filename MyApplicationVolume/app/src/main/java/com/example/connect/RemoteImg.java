@@ -132,7 +132,7 @@ public class RemoteImg extends Socket {
                     Log.v("send1", "here we are");
 
                     Filesocket_receive filesocket_receive = new Filesocket_receive();
-                    filesocket_receive.filesocket = new Socket(ip, 9997);
+                    filesocket_receive.filesocket = new Socket(ip, 9002);
                     filesocket_receive.mReader = new BufferedReader(new InputStreamReader(filesocket_receive.filesocket.getInputStream(), "UTF-8"));
                     filesocket_receive.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_receive.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
                     filesocket_receive.IsDown = true;
@@ -181,7 +181,7 @@ public class RemoteImg extends Socket {
                     Log.v("send2", ip);
 
                     Filesocket_receive filesocket_receive = new Filesocket_receive();
-                    filesocket_receive.filesocket = new Socket(ip, 9997);
+                    filesocket_receive.filesocket = new Socket(ip, 9002);
                     filesocket_receive.mReader = new BufferedReader(new InputStreamReader(filesocket_receive.filesocket.getInputStream(), "UTF-8"));
                     filesocket_receive.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_receive.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
                     filesocket_receive.path = context.getExternalFilesDir(null).toString();
@@ -325,7 +325,7 @@ public class RemoteImg extends Socket {
                     }
 
                     Filesocket_receive filesocket_receive = new Filesocket_receive();
-                    filesocket_receive.filesocket = new Socket(ip, 9997);
+                    filesocket_receive.filesocket = new Socket(ip, 9002);
                     filesocket_receive.mReader = new BufferedReader(new InputStreamReader(filesocket_receive.filesocket.getInputStream(), "UTF-8"));
                     filesocket_receive.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_receive.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
                     filesocket_receive.path = context.getExternalFilesDir(null).toString();
@@ -402,7 +402,7 @@ public class RemoteImg extends Socket {
             public void run() {
                 Looper.prepare();
                 try {
-                    ImgSocket = new Socket(ip, Integer.parseInt("9999"));
+                    ImgSocket = new Socket(ip, Integer.parseInt("9000"));
                     ImgReader = new BufferedReader(new InputStreamReader(ImgSocket.getInputStream(), "UTF-8"));
                     ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
 
