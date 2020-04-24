@@ -767,6 +767,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                      0.0f, 0.0f, 0.0f, f};
     }
 
+
+    public void zoom_in(){
+
+        zoom(2f);
+
+    }
+
+    public void zoom_out(){
+
+        zoom(0.6f);
+
+    }
+
     //矩阵乘法
     private float [] multiplyMatrix(float [] m1, float [] m2){
         float [] m = new float[9];

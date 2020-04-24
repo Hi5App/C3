@@ -59,8 +59,6 @@ import com.tracingfunc.app2.V3dNeuronAPP2Tracing;
 import com.tracingfunc.gd.CurveTracePara;
 import com.tracingfunc.gd.V3dNeuronGDTracing;
 
-import org.w3c.dom.Text;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -98,6 +96,8 @@ public class MainActivity extends AppCompatActivity {
     private Button Tracing;
     private Button Others;
     private Button FileManager;
+    private Button Zoom_in;
+    private Button Zoom_out;
     private Button Share;
 
     private static final int PICKFILE_REQUEST_CODE = 100;
@@ -161,19 +161,43 @@ public class MainActivity extends AppCompatActivity {
         lp.gravity = Gravity.BOTTOM;
         this.addContentView(hs_bottom, lp);
 
-//        FrameLayout.LayoutParams params3 = new FrameLayout.LayoutParams
-//                (FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-//        //设置底部
-//        params3.gravity=Gravity.BOTTOM|Gravity.RIGHT;
-//        Button bottom=new Button(this);
-//        //字体位于中部
-//        bottom.setGravity(Gravity.RIGHT);
-//        bottom.setText("底部");
-//        //添加控件
-//        addContentView(bottom, params3);
-
         hs_top.addView(ll_top);
         hs_bottom.addView(ll_bottom);
+
+
+        Zoom_in = new Button(this);
+        Zoom_in.setText("+");
+
+        Zoom_out = new Button(this);
+        Zoom_out.setText("-");
+
+        FrameLayout.LayoutParams lp_zoom_in = new FrameLayout.LayoutParams(100, 150);
+        lp_zoom_in.gravity = Gravity.CENTER_VERTICAL|Gravity.LEFT;
+        this.addContentView(Zoom_in, lp_zoom_in);
+
+        FrameLayout.LayoutParams lp_zoom_out = new FrameLayout.LayoutParams(100, 150);
+        lp_zoom_out.gravity = Gravity.CENTER_VERTICAL|Gravity.RIGHT;
+        this.addContentView(Zoom_out, lp_zoom_out);
+
+
+        Zoom_in.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myrenderer.zoom_in();
+                myGLSurfaceView.requestRender();
+            }
+        });
+
+
+        Zoom_out.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myrenderer.zoom_out();
+                myGLSurfaceView.requestRender();
+            }
+        });
+
+
 
 
         FileManager = new Button(this);
