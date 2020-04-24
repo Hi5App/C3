@@ -958,7 +958,7 @@ public class MainActivity extends AppCompatActivity {
     private void Version() {
 
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 2020.4.22.02",
+                .asConfirm("Version", "version: 20200424a",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -966,16 +966,6 @@ public class MainActivity extends AppCompatActivity {
                             }
                         })
                 .show();
-
-//        new XPopup.Builder(this)
-//                //.maxWidth(600)
-//                .asCenterList("Version", new String[]{"version: 2020.4.22.01"},
-//                        new OnSelectListener() {
-//                            @Override
-//                            public void onSelect(int position, String text) {
-//                            }
-//                        })
-//                .show();
     }
 
     private void SaveSWC() {
