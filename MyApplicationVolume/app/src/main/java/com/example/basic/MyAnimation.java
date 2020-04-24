@@ -1,9 +1,6 @@
 package com.example.basic;
 
 import android.opengl.Matrix;
-import android.util.Log;
-
-import java.util.Arrays;
 
 enum RotationType
 {
@@ -59,16 +56,17 @@ public class MyAnimation {
         this.status = status;
     }
 
-    public float[] Rotation(float[] current_rotation){
+    public float[] Rotation(){
 
         float[] rotationMatrix = new float[16];
         Matrix.setIdentityM(rotationMatrix,0);
 
+        System.out.println("--------" + count +"-----------");
         switch (rotationType){
 
             case X:
                 if (count == 0){
-                    setX_axis(current_rotation);
+                    setX_axis();
                 }
                 break;
 
@@ -76,13 +74,13 @@ public class MyAnimation {
                 if (count < 600){
 
                     if(count == 0){
-                        setX_axis(current_rotation);
+                        setX_axis();
                     }
 
                 }else {
 
                     if (count == 600){
-                        setY_axis(current_rotation);
+                        setY_axis();
                     }
 
                     if (count == 1199){
@@ -95,18 +93,18 @@ public class MyAnimation {
                 if (count < 600){
 
                     if(count == 0){
-                        setX_axis(current_rotation);
+                        setX_axis();
                     }
 
                 }else if (count < 1200){
 
                     if (count == 600){
-                        setY_axis(current_rotation);
+                        setY_axis();
                     }
 
                 }else {
                     if (count == 1200){
-                        setZ_axis(current_rotation);
+                        setZ_axis();
                     }
 
                     if (count == 1799){
@@ -119,7 +117,7 @@ public class MyAnimation {
 
             case Y:
                 if (count == 0){
-                    setY_axis(current_rotation);
+                    setY_axis();
                 }
                 break;
 
@@ -127,13 +125,13 @@ public class MyAnimation {
                 if (count < 600){
 
                     if(count == 0){
-                        setY_axis(current_rotation);
+                        setY_axis();
                     }
 
                 }else {
 
                     if (count == 600){
-                        setX_axis(current_rotation);
+                        setX_axis();
                     }
 
                     if (count == 1199){
@@ -146,18 +144,18 @@ public class MyAnimation {
                 if (count < 600){
 
                     if(count == 0){
-                        setY_axis(current_rotation);
+                        setY_axis();
                     }
 
                 }else if (count < 1200){
 
                     if (count == 600){
-                        setX_axis(current_rotation);
+                        setX_axis();
                     }
 
                 }else {
                     if (count == 1200){
-                        setZ_axis(current_rotation);
+                        setZ_axis();
                     }
 
                     if (count == 1799){
@@ -170,7 +168,7 @@ public class MyAnimation {
 
             case Z:
                 if (count == 0){
-                    setZ_axis(current_rotation);
+                    setZ_axis();
                 }
                 break;
 
@@ -178,18 +176,18 @@ public class MyAnimation {
                 if (count < 600){
 
                     if(count == 0){
-                        setZ_axis(current_rotation);
+                        setZ_axis();
                     }
 
                 }else if (count < 1200){
 
                     if (count == 600){
-                        setX_axis(current_rotation);
+                        setX_axis();
                     }
 
                 }else {
                     if (count == 1200){
-                        setY_axis(current_rotation);
+                        setY_axis();
                     }
 
                     if (count == 1799){
@@ -202,18 +200,18 @@ public class MyAnimation {
                 if (count < 600){
 
                     if(count == 0){
-                        setZ_axis(current_rotation);
+                        setZ_axis();
                     }
 
                 }else if (count < 1200){
 
                     if (count == 600){
-                        setY_axis(current_rotation);
+                        setY_axis();
                     }
 
                 }else {
                     if (count == 1200){
-                        setY_axis(current_rotation);
+                        setY_axis();
                     }
 
                     if (count == 1799){
@@ -224,7 +222,6 @@ public class MyAnimation {
 
 
         }
-
 
         count ++;
         Matrix.setRotateM(rotationMatrix, 0, speed, current_axis[0], current_axis[1], current_axis[2]);
@@ -270,6 +267,22 @@ public class MyAnimation {
         count = 0;
     }
 
+    public void quickStart(){
+
+        Matrix.setIdentityM(rotationXMatrix, 0);
+        Matrix.setIdentityM(rotationYMatrix, 0);
+        Matrix.setIdentityM(rotationZMatrix, 0);
+        this.status = true;
+        this.speed = 36/60f;
+        this.rotationType = RotationType.XYZ;
+        count = 0;
+    }
+
+    public void quickStop(){
+        this.status = false;
+        count = 0;
+    }
+
     public void setRotationType(String type){
         RotationType cur_type = null;
         switch (type){
@@ -310,16 +323,41 @@ public class MyAnimation {
         }
     }
 
-    private void setX_axis(float[] current_rotation){
-        Matrix.multiplyMV(current_axis, 0, current_rotation, 0, new float[]{-1, 0, 0, 1}, 0);
+//    private void setX_axis(float[] current_rotation){
+//        System.out.println("-----------setX_axis------------");
+//        current_axis = new float[]{ -1, 0 ,0 ,1};
+//
+////        Matrix.multiplyMV(current_axis, 0, current_rotation, 0, new float[]{-1, 0, 0, 1}, 0);
+//    }
+//
+//    private void setY_axis(float[] current_rotation){
+//        System.out.println("-----------setY_axis------------");
+//        current_axis = new float[]{0, -1, 0, 1};
+//
+////        Matrix.multiplyMV(current_axis, 0, current_rotation, 0, new float[]{0, 1, 0, 1}, 0);
+//    }
+//
+//    private void setZ_axis(float[] current_rotation){
+//        System.out.println("-----------setZ_axis------------");
+//        current_axis = new float[]{0, 0, 1, 1};
+//
+////        Matrix.multiplyMV(current_axis, 0, current_rotation, 0, new float[]{0, 0, 1, 1}, 0);
+//    }
+
+
+    private void setX_axis(){
+        System.out.println("-----------setX_axis------------");
+        current_axis = new float[]{ -1, 0 ,0 ,1};
     }
 
-    private void setY_axis(float[] current_rotation){
-        Matrix.multiplyMV(current_axis, 0, current_rotation, 0, new float[]{0, 1, 0, 1}, 0);
+    private void setY_axis(){
+        System.out.println("-----------setY_axis------------");
+        current_axis = new float[]{0, -1, 0, 1};
     }
 
-    private void setZ_axis(float[] current_rotation){
-        Matrix.multiplyMV(current_axis, 0, current_rotation, 0, new float[]{0, 0, 1, 1}, 0);
+    private void setZ_axis(){
+        System.out.println("-----------setZ_axis------------");
+        current_axis = new float[]{0, 0, 1, 1};
     }
 
 

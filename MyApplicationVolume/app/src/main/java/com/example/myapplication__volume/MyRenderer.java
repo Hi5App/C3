@@ -236,19 +236,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         setMatrix();
 
-
-
-
         if (myAnimation.status){
             AnimationRotation();
-//            Log.v("onDrawFrame", "myAnimation");
         }
 
-//        AnimationRotation();
-
-
-//        Log.v("rotation",Arrays.toString(finalMatrix));
-
+//        setMatrix();
 
 
 
@@ -697,8 +689,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
      */
     public void AnimationRotation(){
 
-        ArotationMatrix = myAnimation.Rotation(rotationMatrix);
-        Matrix.multiplyMM(rotationMatrix,0, rotationMatrix, 0, ArotationMatrix,0);
+        float[] arotationMatrix = new float[16];
+        arotationMatrix = myAnimation.Rotation();
+        Matrix.multiplyMM(rotationMatrix,0, rotationMatrix, 0, arotationMatrix,0);
 
     }
 

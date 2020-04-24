@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
     private Button FileManager;
     private Button Zoom_in;
     private Button Zoom_out;
+    private Button Rotation;
     private Button Share;
 
     private static final int PICKFILE_REQUEST_CODE = 100;
@@ -230,6 +231,16 @@ public class MainActivity extends AppCompatActivity {
         Tracing.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 Tracing(v);
+            }
+        });
+
+        Rotation = new Button(this);
+        Rotation.setText("R");
+        ll_top.addView(Rotation);
+
+        Rotation.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                Rotation();
             }
         });
 
@@ -930,6 +941,18 @@ public class MainActivity extends AppCompatActivity {
                         })
                 .show();
 
+    }
+
+
+    private void Rotation(){
+        ifAnimation = !ifAnimation;
+        if (ifAnimation){
+            myrenderer.myAnimation.quickStart();
+            myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        }else {
+            myrenderer.myAnimation.quickStop();
+            myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        }
     }
 
     private void Version() {
