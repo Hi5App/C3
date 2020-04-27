@@ -63,6 +63,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -101,10 +102,14 @@ public class MainActivity extends AppCompatActivity {
     private Button Rotation;
     private Button Share;
 
+
     private static final int PICKFILE_REQUEST_CODE = 100;
 
     private LinearLayout ll_top;
     private LinearLayout ll_bottom;
+
+    private int measure_count = 0;
+    private List<double[]> fl;
 
 
     private int eswc_length;
@@ -173,11 +178,11 @@ public class MainActivity extends AppCompatActivity {
         Zoom_out.setText("-");
 
         FrameLayout.LayoutParams lp_zoom_in = new FrameLayout.LayoutParams(100, 150);
-        lp_zoom_in.gravity = Gravity.CENTER_VERTICAL|Gravity.LEFT;
+        lp_zoom_in.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
         this.addContentView(Zoom_in, lp_zoom_in);
 
         FrameLayout.LayoutParams lp_zoom_out = new FrameLayout.LayoutParams(100, 150);
-        lp_zoom_out.gravity = Gravity.CENTER_VERTICAL|Gravity.RIGHT;
+        lp_zoom_out.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
         this.addContentView(Zoom_out, lp_zoom_out);
 
 
@@ -197,8 +202,6 @@ public class MainActivity extends AppCompatActivity {
                 myGLSurfaceView.requestRender();
             }
         });
-
-
 
 
         FileManager = new Button(this);
@@ -505,7 +508,8 @@ public class MainActivity extends AppCompatActivity {
 
                 if (ifAnalyze) {
                     MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
-                    double[] features = morphologyCalculate.Calculate(uri);
+                    List features = morphologyCalculate.Calculate(uri, false);
+                    fl = new ArrayList<double[]>(features);
                     if (features != null) displayResult(features);
                 }
 
@@ -890,7 +894,8 @@ public class MainActivity extends AppCompatActivity {
                                             break;
                                         }
                                         MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
-                                        double[] features = morphologyCalculate.CalculatefromNT(nt);
+                                        List<double[]> features = morphologyCalculate.CalculatefromNT(nt, false);
+                                        fl = new ArrayList<double[]>(features);
                                         if (features != null) displayResult(features);
                                         break;
 
@@ -944,12 +949,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void Rotation(){
+    private void Rotation() {
         ifAnimation = !ifAnimation;
-        if (ifAnimation){
+        if (ifAnimation) {
             myrenderer.myAnimation.quickStart();
             myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
-        }else {
+        } else {
             myrenderer.myAnimation.quickStop();
             myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         }
@@ -1150,57 +1155,79 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+    MDDialog.Builder ar_mdDialog_bd = new MDDialog.Builder(this).setContentView(R.layout.analysis_result);
+    MDDialog ar_mdDialog = null;
+
     /**
      * display the result of morphology calculate
      *
-     * @param result the features of result
+     * @param featurelist the features of result
      */
 
     @SuppressLint("DefaultLocale")
-    private void displayResult(final double[] result) {
+    private void displayResult(final List<double[]> featurelist) {
         final String[] title;
         final int[] id_title;
         final int[] id_content;
         final int[] id_rl;
-
-        if (result[0] == 1) {
-            title = new String[]{
-                    "number of nodes",
-                    "soma surface",
-                    "number of stems",
-                    "number of bifurcations",
-                    "number of branches",
-                    "number of tips",
-                    "overall width",
-                    "overall height",
-                    "overall depth",
-                    "average diameter",
-                    "total length",
-                    "total surface",
-                    "total volume",
-                    "max euclidean distance",
-                    "max path distance",
-                    "max branch order",
-                    "average contraction",
-                    "average fragmentation",
-                    "average parent-daughter ratio",
-                    "average bifurcation angle local",
-                    "average bifurcation angle remote",
-                    "Hausdorff dimension"
-            };
-
-        } else {
-            title = new String[]{
-                    "number of components",
-                    "number of nodes",
-                    "soma surface",
-                    "number of tips",
-                    "overall width",
-                    "overall height",
-                    "overall depth",
-                    "max euclidean distance",
-            };
+        if (measure_count > featurelist.size() - 1) {
+            measure_count = 0;
+        } else if (measure_count < 0) {
+            measure_count = featurelist.size() - 1;
         }
+        double[] result = featurelist.get(measure_count);
+        String[] subtitle = new String[featurelist.size()];
+        for (int i = 0; i < featurelist.size(); i++) {
+//            if(result[0] > 1 && i == 0){
+//                subtitle[0] = "Global";
+//            }
+//            else if (result[0] > 1&& i>0){
+            if (featurelist.size() > 1) {
+                subtitle[i] = String.format("Tree %d/%d", i + 1, featurelist.size());
+            } else {
+                subtitle[i] = "";
+            }
+        }
+
+//        "number of trees",
+//                "number of nodes",
+//                "soma surface",
+//                "number of tips",
+//                "overall width",
+//                "overall height",
+//                "overall depth",
+//                "average diameter",
+//                "total length",
+//                "total surface",
+//                "total volume",
+//                "max euclidean distance",
+
+        title = new String[]{
+                "number of nodes",
+                "soma surface",
+                "number of stems",
+                "number of bifurcations",
+                "number of branches",
+                "number of tips",
+                "overall width",
+                "overall height",
+                "overall depth",
+                "average diameter",
+                "total length",
+                "total surface",
+                "total volume",
+                "max euclidean distance",
+                "max path distance",
+                "max branch order",
+                "average contraction",
+                "average fragmentation",
+                "average parent-daughter ratio",
+                "average bifurcation angle local",
+                "average bifurcation angle remote",
+                "Hausdorff dimension"
+        };
+
         id_title = new int[]{R.id.title0, R.id.title1, R.id.title2, R.id.title3, R.id.title4,
                 R.id.title5, R.id.title6, R.id.title7, R.id.title8, R.id.title9,
                 R.id.title10, R.id.title11, R.id.title12, R.id.title13, R.id.title14,
@@ -1231,45 +1258,73 @@ public class MainActivity extends AppCompatActivity {
 //                .show();
 
 
-        MDDialog mdDialog = new MDDialog.Builder(this)
-                .setContentView(R.layout.analysis_result)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-                        if (title.length == 8) {
-                            for (int i = 8; i < id_rl.length; i++) {
-                                contentView.findViewById(id_rl[i]).setVisibility(View.GONE);
+//        MDDialog mdDialog = new MDDialog.Builder(this)
+        ar_mdDialog =
+                ar_mdDialog_bd
+                        .setContentView(R.layout.analysis_result)
+                        .setContentViewOperator(new MDDialog.ContentViewOperator() {
+
+                            @Override
+                            public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+                                //analysis_result next page
+                                Button ar_right = (Button) contentView.findViewById(R.id.ar_right);
+                                ar_right.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        if (featurelist.size() > 1) {
+                                            measure_count++;
+                                            ar_mdDialog.dismiss();
+                                            displayResult(fl);
+                                        }
+                                    }
+                                });
+                                Button ar_left = (Button) contentView.findViewById(R.id.ar_left);
+                                ar_left.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        if (featurelist.size() > 1) {
+                                            measure_count--;
+                                            ar_mdDialog.dismiss();
+                                            displayResult(fl);
+                                        }
+                                    }
+                                });
+                                if (title.length == 8) {
+                                    for (int i = 8; i < id_rl.length; i++) {
+                                        contentView.findViewById(id_rl[i]).setVisibility(View.GONE);
+                                    }
+                                } else if (title.length == 22) {
+                                    for (int i = 8; i < id_rl.length; i++) {
+                                        contentView.findViewById(id_rl[i]).setVisibility(View.VISIBLE);
+                                    }
+                                }
+
+
+                                String result_str;
+                                int num;
+                                for (int i = 0; i < title.length; i++) {
+                                    TextView tx = contentView.findViewById(id_title[i]);
+                                    tx.setText(title[i]);
+
+                                    TextView ct = contentView.findViewById(id_content[i]);
+                                    if (title[i].substring(0, 6).equals("number") || title[i].substring(0, 6).equals("max br")) {
+                                        result_str = ": " + String.format("%d", (int) result[i + 1]);
+                                    } else {
+                                        num = Value_Display_Length(result[i + 1]);
+                                        result_str = ": " + String.format("%." + String.format("%d", num) + "f", (float) result[i + 1]);
+                                    }
+                                    ct.setText(result_str);
+
+                                }
                             }
-                        } else if (title.length == 22) {
-                            for (int i = 8; i < id_rl.length; i++) {
-                                contentView.findViewById(id_rl[i]).setVisibility(View.VISIBLE);
-                            }
-                        }
 
+                        })
+                        .setTitle("Measured features " + subtitle[measure_count])
+                        .create();
 
-                        String result_str;
-                        int num;
-                        for (int i = 0; i < title.length; i++) {
-                            TextView tx = contentView.findViewById(id_title[i]);
-                            tx.setText(title[i]);
-
-                            TextView ct = contentView.findViewById(id_content[i]);
-                            if (title[i].substring(0, 6).equals("number") || title[i].substring(0, 6).equals("max br")) {
-                                result_str = ": " + String.format("%d", (int) result[i + 1]);
-                            } else {
-                                num = Value_Display_Length(result[i + 1]);
-                                result_str = ": " + String.format("%." + String.format("%d", num) + "f", (float) result[i + 1]);
-                            }
-                            ct.setText(result_str);
-
-                        }
-                    }
-                })
-                .setTitle("Measured features")
-                .create();
-
-        mdDialog.show();
-        mdDialog.getWindow().setLayout(1000, 1500);
+//        ar_mdDialog.show();
+        ar_mdDialog.show();
+        ar_mdDialog.getWindow().setLayout(1000, 1500);
 
     }
 

@@ -23,80 +23,93 @@ public class MorphologyCalculate {
     double Pd_ratio = 0, Contraction = 0, Max_Eux = 0, Max_Path = 0, BifA_local = 0, BifA_remote = 0, Soma_surface = 0,
             Fragmentation = 0;
     int rootidx = 0;
-    int count = 1;  //components count...
+    int count = 0;  //components count...
+//    List<Integer> rootidxlist = new ArrayList<>();
 
     Vector<Vector<Integer>> childs;
 
-    double[] computeFeature(NeuronTree nt, double[] features) {
-        Width = 0;
-        Height = 0;
-        Depth = 0;
-        Diameter = 0;
-        Length = 0;
-        Volume = 0;
-        Surface = 0;
-        Hausdorff = 0;
-        N_node = 0;
-        N_stem = 0;
-        N_bifs = 0;
-        N_branch = 0;
-        N_tips = 0;
-        Max_Order = 0;
-        Pd_ratio = 0;
-        Contraction = 0;
-        Max_Eux = 0;
-        Max_Path = 0;
-        BifA_local = 0;
-        BifA_remote = 0;
-        Soma_surface = 0;
-        Fragmentation = 0;
-        rootidx = 0;
+    List<double[]> computeFeature(NeuronTree nt, boolean isglobal) {
+        List<double[]> featurelist = new ArrayList<>();
+        List<NeuronTree> splited_NT = split_nt.split_nt_file(nt);
+        for (int n_nt = 0; n_nt < splited_NT.size(); n_nt++) {
+            nt = splited_NT.get(n_nt);
+            double[] features = new double[23];
+            Width = 0;
+            Height = 0;
+            Depth = 0;
+            Diameter = 0;
+            Length = 0;
+            Volume = 0;
+            Surface = 0;
+            Hausdorff = 0;
+            N_node = 0;
+            N_stem = 0;
+            N_bifs = 0;
+            N_branch = 0;
+            N_tips = 0;
+            Max_Order = 0;
+            Pd_ratio = 0;
+            Contraction = 0;
+            Max_Eux = 0;
+            Max_Path = 0;
+            BifA_local = 0;
+            BifA_remote = 0;
+            Soma_surface = 0;
+            Fragmentation = 0;
 
-        count = 1;
+            rootidx = 0;
 
-        int neuronNum = nt.listNeuron.size();//
+            count = 0;
 
-        // find the root
-        rootidx = VOID;
-        List<NeuronSWC> list = new ArrayList<>(nt.listNeuron);
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).parent == -1) {
-                // compute the first tree in the forest
-                rootidx = i;
-                break;
+            int neuronNum = nt.listNeuron.size();
+
+            // find the root
+            rootidx = VOID;
+            List<NeuronSWC> list = new ArrayList<>(nt.listNeuron);
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).parent == -1) {
+                    // compute the first tree in the forest
+                    rootidx = i;
+//                rootidxlist.add(i);
+//                break;
+                }
             }
-        }
-        if (rootidx == VOID) {
-            System.out.println("the input neuron tree does not have a root, please check your data");
-            Toast.makeText(MainActivity.getContext(), "the input neuron tree does not have a root, please check your data", Toast.LENGTH_LONG).show();
-            return null;
-        }
-
-        childs = new Vector<Vector<Integer>>(neuronNum);
-        for (int i = 0; i < neuronNum; i++) {
-            Vector<Integer> child_node = new Vector<Integer>();// declare&assign
-            childs.addElement(child_node);
-        }
-
-        for (int i = 0; i < neuronNum; i++) {
-            Long par = nt.listNeuron.get(i).parent;
-            if (par < 0)
-                continue;
-            try {   //there is sth wrong...Only calculate one neuron tree...
-                childs.get(nt.hashNeuron.get(par.intValue())).addElement(i);
-            } catch (NullPointerException e) {
-                System.out.println("redundant root: "+par);
-                count += 1;
+            if (rootidx == VOID) {
+                System.out.println("the input neuron tree does not have a root, please check your data");
+                Toast.makeText(MainActivity.getContext(), "the input neuron tree does not have a root, please check your data", Toast.LENGTH_LONG).show();
+                return null;
             }
-        }
-        N_node = list.size();
-        N_stem = childs.get(rootidx).size();
-        Soma_surface = 4 * PI * (list.get(rootidx).radius) * (list.get(rootidx).radius);
+            childs = new Vector<Vector<Integer>>(neuronNum);
+            for (int i = 0; i < neuronNum; i++) {
+                Vector<Integer> child_node = new Vector<Integer>();// declare&assign
+                childs.addElement(child_node);
+            }
 
-        computeLinear(nt);
-        computeTree(nt);
-        Hausdorff = computeHausdorff(nt);
-        if (count == 1) {
+            for (int i = 0; i < neuronNum; i++) {
+                Long par = nt.listNeuron.get(i).parent;
+                if (par < 0) {
+                    count += 1;
+                    continue;
+                }
+                try {   //there is sth wrong...Only calculate one neuron tree...
+                    childs.get(nt.hashNeuron.get(par.intValue())).addElement(i);
+                } catch (NullPointerException e) {
+                    System.out.println("redundant root: " + par);
+                    nt.listNeuron.get(i).parent = -1;
+                    count += 1;
+                }
+            }
+//        for (int nn = 0; nn < rootidxlist.size(); nn++) {
+//            rootidx = rootidxlist.get(nn);
+
+            N_node = list.size();
+            N_stem = childs.get(rootidx).size();
+            Soma_surface = 4 * PI * (list.get(rootidx).radius) * (list.get(rootidx).radius);
+
+            computeLinear(nt);
+            computeTree(nt);
+            Hausdorff = computeHausdorff(nt);
+
             features[0] = count;
             // feature # 0: Number of Nodes
             features[1] = N_node;
@@ -142,22 +155,10 @@ public class MorphologyCalculate {
             features[21] = BifA_remote;
             // feature # 21: Hausdorr Dimension
             features[22] = Hausdorff; // Hausdorff program crash when running on complex neuron data, we don't use it
+            featurelist.add(features);
         }
-        else {
-            features[0] = count;
-            features[1] = count;
-            features[2] = N_node;
-            features[3] = Soma_surface;
-            features[4] = N_tips;
-            features[5] = Width;
-            features[6] = Height;
-            features[7] = Depth;
-            features[8] = Max_Eux;
-        }
-//        for (int i = 0; i < features.length; i++) {
-//            System.out.println(features[i]);
-//        }
-        return features;
+
+        return featurelist;
     }
 
     Vector<Integer> getRemoteChild(int t) {
@@ -235,7 +236,7 @@ public class MorphologyCalculate {
         Stack<Integer> stack = new Stack<Integer>();
         stack.push(rootidx);
         double pathlength, eudist, max_local_ang, max_remote_ang;
-        Long N_ratio = 0l, N_Contraction = 0l;
+        Long N_ratio = 0L, N_Contraction = 0L;
 
         if (childs.get(rootidx).size() > 1) {
             double local_ang, remote_ang;
@@ -538,20 +539,20 @@ public class MorphologyCalculate {
         return (m + 1);
     }
 
-    /**
-     * compute morphology features from a .swc file.
-     * Input: path: absolute path of .swc file
-     * Output:
-     */
-    double[] Compute_from_file(String path) {
-        readSWC_file_nt reader = new readSWC_file_nt();
-        MorphologyCalculate MC = new MorphologyCalculate();
-        NeuronTree nt = reader.readSWC_file(path);
-        double[] feature_list = new double[22];
-        MC.computeFeature(nt, feature_list);
-
-        return feature_list;
-    }
+//    /**
+//     * compute morphology features from a .swc file.
+//     * Input: path: absolute path of .swc file
+//     * Output:
+//     */
+//    double[] Compute_from_file(String path, boolean isglobal) {
+//        readSWC_file_nt reader = new readSWC_file_nt();
+//        MorphologyCalculate MC = new MorphologyCalculate();
+//        NeuronTree nt = reader.readSWC_file(path);
+//        double[] feature_list = new double[22];
+//        MC.computeFeature(nt, feature_list, isglobal);
+//
+//        return feature_list;
+//    }
 
 //    public static void main(String[] args) {
 //        MorphologyCalculate MC = new MorphologyCalculate();
@@ -561,38 +562,39 @@ public class MorphologyCalculate {
 //    }
 
 
-    public double[] Calculate(Uri uri) {
+    public List<double[]> Calculate(Uri uri, boolean isglobal) {
         readSWC_file_nt reader = new readSWC_file_nt();
         MorphologyCalculate MC = new MorphologyCalculate();
         //test data
 //        NeuronTree nt = reader.readSWC_file("F:\\XiScience\\SEU\\bishe\\L2_data\\17302_00001.ano.swc");
         NeuronTree nt = reader.readSWC_file(uri);
         if (nt == null) return null;
+
         double[] ff = new double[23];
-        MC.computeFeature(nt, ff);
+        List<double[]> fl = MC.computeFeature(nt, isglobal);
 
         for (int i = 0; i < ff.length; i++) {
             Log.v("Calculate", Double.toString(ff[i]));
         }
 
-        return ff;
+        return fl;
 
     }
 
 
-    public double[] CalculatefromNT(NeuronTree nt) {
+    public List<double[]> CalculatefromNT(NeuronTree nt, boolean isglobal) {
 
         MorphologyCalculate MC = new MorphologyCalculate();
 
         if (nt == null) return null;
         double[] ff = new double[23];
-        MC.computeFeature(nt, ff);
+        List<double[]> fl = MC.computeFeature(nt, isglobal);
 
         for (int i = 0; i < ff.length; i++) {
             Log.v("Calculate", Double.toString(ff[i]));
         }
 
-        return ff;
+        return fl;
 
     }
 

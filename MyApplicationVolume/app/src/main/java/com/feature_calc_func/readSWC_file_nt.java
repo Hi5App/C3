@@ -63,7 +63,7 @@ public class readSWC_file_nt {
             if (s[0].substring(0, 1).equals("#")) continue;
             for (int j = 0; j < 7; j++) {
                 if (j == 0)
-                    S.nodeinseg_id = Integer.parseInt(s[j]);
+                    S.n = Integer.parseInt(s[j]);
                 else if (j == 1)
                     S.type = Integer.parseInt(s[j]);
                 else if (j == 2)
@@ -163,7 +163,7 @@ public class readSWC_file_nt {
             try {
                 for (int j = 0; j < 7; j++) {
                     if (j == 0)
-                        S.nodeinseg_id = Integer.parseInt(s[j]);
+                        S.n = Integer.parseInt(s[j]);
                     else if (j == 1)
                         S.type = Integer.parseInt(s[j]);
                     else if (j == 2)
