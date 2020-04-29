@@ -8,9 +8,9 @@ import java.util.concurrent.TimeUnit;
 
 public class RandomForest {
     private static final int NUM_THREADS = Runtime.getRuntime().availableProcessors();//可用的线程数量
-    public static int C;//目标类别的数量
-    public static int M;//属性的数量
-    public static int Ms;//属性扰动，每次从M个属性随机选取Ms个属性，Ms = log2（M）
+    public int C;//目标类别的数量
+    public int M;//属性的数量
+    public int Ms;//属性扰动，每次从M个属性随机选取Ms个属性，Ms = log2（M）
 
     private ArrayList<DecisionTree> trees;
 

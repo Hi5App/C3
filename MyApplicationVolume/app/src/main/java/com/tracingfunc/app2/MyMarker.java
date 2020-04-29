@@ -3,6 +3,9 @@ package com.tracingfunc.app2;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.basic.NeuronSWC;
+import com.example.basic.NeuronTree;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -13,7 +16,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 public class MyMarker implements Cloneable{
@@ -239,6 +244,166 @@ public class MyMarker implements Cloneable{
         }
         return true;
     }
+
+    public static Vector<MyMarker> swcConvert(NeuronTree nt){
+        Vector<MyMarker> outSwc = new Vector<>();
+        if(nt.listNeuron.isEmpty())
+            return outSwc;
+
+        int num = nt.listNeuron.size();
+        HashMap<Integer, Integer> hN = new HashMap<>();
+
+        for(int i=0; i<num; i++){
+            NeuronSWC ns = nt.listNeuron.get(i);
+            MyMarker marker = new MyMarker(ns.x,ns.y,ns.z);
+            marker.radius = ns.radius;
+            outSwc.add(marker);
+            hN.put((int)nt.listNeuron.get(i).n, i);
+        }
+        for(int i=0; i<num; i++){
+            MyMarker curMarker = outSwc.get(i);
+            NeuronSWC ns = nt.listNeuron.get(i);
+            if(ns.parent == -1)
+                curMarker.parent = null;
+            else {
+                if(hN.get((int) ns.parent) == null){
+                    System.out.println("hN is error!");
+                }else {
+                    int pid = hN.get((int) ns.parent);
+                    curMarker.parent = outSwc.get(pid);
+                }
+            }
+        }
+        return outSwc;
+    }
+
+    public static NeuronTree swcConvert(Vector<MyMarker> inSwc){
+        NeuronTree nt = new NeuronTree();
+        if(inSwc.isEmpty())
+            return nt;
+        Map<MyMarker,Integer> swcMap = new HashMap<>();
+        int num = inSwc.size();
+        for(int i=0; i<num; i++){
+            MyMarker marker = inSwc.get(i);
+            swcMap.put(marker,i);
+        }
+        for(int i=0; i<num; i++){
+            MyMarker marker = inSwc.get(i);
+            long pid = -1;
+            if(marker.parent != null)
+                pid = swcMap.get(marker.parent);
+            NeuronSWC ns = new NeuronSWC();
+            ns.n = i;
+            ns.x = (float) marker.x;
+            ns.y = (float) marker.y;
+            ns.z = (float) marker.z;
+            ns.radius = (float) marker.radius;
+            ns.type = marker.type;
+            ns.parent = pid;
+            nt.listNeuron.add(ns);
+        }
+        for(int i=0; i<num; i++){
+            nt.hashNeuron.put((int) nt.listNeuron.get(i).n,i);
+        }
+        return nt;
+    }
+
+    //radius为0时，按swc本身的半径计算mask，否则按提供的半径进行计算
+    public static boolean getMarkersBetween(Vector<MyMarker> allMarkers, MyMarker m1, MyMarker m2, int radius){
+        if(radius<0){
+            System.out.println("radius is negative!");
+            return false;
+        }
+        double A = m2.x - m1.x;
+        double B = m2.y - m1.y;
+        double C = m2.z - m1.z;
+        double R = (radius == 0)?m2.radius - m1.radius:0;
+        double D = Math.sqrt(A*A + B*B + C*C);
+        A = A/D; B = B/D; C = C/D; R = R/D;
+
+        double ctz = A/Math.sqrt(A*A + B*B);
+        double stz = B/Math.sqrt(A*A + B*B);
+
+        double cty = C/D;
+        double sty = Math.sqrt(A*A + B*B)/D;
+
+        double x0 = m1.x;
+        double y0 = m1.y;
+        double z0 = m1.z;
+        double r0 = (radius == 0)?m1.radius:radius;
+
+//        Set<MyMarker> markerSet = new HashSet<>();
+
+        for(double t=0.0; t<D; t+=1.0){
+            int cx = (int) (x0 + A*t +0.5);
+            int cy = (int) (y0 + B*t +0.5);
+            int cz = (int) (z0 + C*t +0.5);
+            int cr = (int) (r0 + R*t +0.5);
+            int cr2 = cr*cr;
+            for(int k=-cr; k<=cr; k++){
+                for(int j=-cr; j<=cr; j++){
+                    for(int i=-cr; i<=cr; i++){
+                        if(i*i + j*j + k*k>cr2)
+                            continue;
+                        double x = i, y = j, z = k;
+                        double x1,y1,z1;
+                        y1 = y * ctz - x * stz; x1 = x * ctz + y * stz; y = y1; x = x1;
+                        x1 = x * cty + z * sty; z1 = z * cty - x * sty; x = x1; z = z1;
+                        z1 = z * ctz + y * stz; y1 = y * ctz - z * stz; z = z1; y = y1;
+                        x += cx; y += cy; z += cz;
+                        x = (int)(x+0.5);
+                        y = (int)(y+0.5);
+                        z = (int)(z+0.5);
+                        MyMarker marker = new MyMarker(x,y,z);
+                        boolean exist = false;
+                        for(int m=0; m<allMarkers.size(); m++){
+                            if(allMarkers.get(m).equals(marker)){
+                                exist = true;
+                                break;
+                            }
+                        }
+                        if(!exist){
+                            allMarkers.add(marker);
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    //radius为0时，按swc本身的半径计算mask，否则按提供的半径进行计算
+    public static int[] swcToMask(Vector<MyMarker> inswc, int[] sz, int radius, int flag){
+        int totalSz = sz[0]*sz[1]*sz[2];
+        int sz01 = sz[0]*sz[1];
+        int[] outMask = new int[totalSz];
+        for(int i=0; i<totalSz; i++)
+            outMask[i] = 0;
+        Vector<MyMarker> leafMarkers = HierarchyPruning.getLeafMarkers(inswc);
+        Set<MyMarker> visitedMarkers = new HashSet<>();
+        for(int i=0; i<leafMarkers.size(); i++){
+            MyMarker leaf = leafMarkers.get(i);
+            MyMarker p = leaf;
+            while (!visitedMarkers.contains(p) && p.parent != null){
+                MyMarker par = p.parent;
+                Vector<MyMarker> tmpMarkers = new Vector<>();
+                getMarkersBetween(tmpMarkers,p,par,radius);
+                for(int j=0; j<tmpMarkers.size(); j++){
+                    int x = (int) tmpMarkers.get(j).x;
+                    int y = (int) tmpMarkers.get(j).y;
+                    int z = (int) tmpMarkers.get(j).z;
+                    if(x<0 || x>=sz[0] || y<0 || y>=sz[1] ||z<0 || z>=sz[2])
+                        continue;
+                    outMask[z*sz01+y*sz[0]+x] = flag;
+                }
+                visitedMarkers.add(p);
+                p = par;
+            }
+        }
+        return outMask;
+    }
+
+
 
     @NonNull
     @Override

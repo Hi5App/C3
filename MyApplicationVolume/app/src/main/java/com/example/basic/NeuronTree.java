@@ -19,8 +19,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.Vector;
 
 import static com.example.myapplication__volume.MainActivity.getContext;
@@ -638,6 +641,37 @@ public class NeuronTree extends BasicSurfObj {
             current = treeToList(p.children.get(i), current);
         }
         return current;
+    }
+
+    public Vector<NeuronTree> splitNeuronTreeByType() throws Exception{
+        Vector<NeuronTree> nts = new Vector<NeuronTree>();
+
+        Set<Integer> typeSet = new HashSet<>();
+        for(int i=0; i<this.listNeuron.size(); i++){
+            NeuronSWC ns = this.listNeuron.get(i);
+            typeSet.add(ns.type);
+        }
+
+        Vector<Integer> types = new Vector<>(typeSet);
+        Map<Integer,Integer> typeMap = new HashMap<>();
+
+        for(int i=0; i<types.size(); i++){
+            typeMap.put(types.get(i),i);
+            nts.add(new NeuronTree());
+        }
+        for(int i=0; i<this.listNeuron.size(); i++){
+            NeuronSWC ns = this.listNeuron.get(i);
+            nts.get(typeMap.get(ns.type)).listNeuron.add(ns.clone());
+        }
+
+        for(int i=0; i<nts.size(); i++){
+            nts.get(i).hashNeuron.clear();
+            for(int j=0; j<nts.get(i).listNeuron.size(); j++){
+                nts.get(i).hashNeuron.put((int) nts.get(i).listNeuron.get(j).n,j);
+            }
+        }
+
+        return nts;
     }
 
 
