@@ -8,6 +8,10 @@
         android:required="true" />
 
 
+    <!--        android:name="com.example.myapplication__volume.Myapplication"-->
+<!--    android:name="com.example.myapplication__volume.AppApplication"-->
+
+
     <application
         android:name="com.example.myapplication__volume.Myapplication"
         android:allowBackup="true"

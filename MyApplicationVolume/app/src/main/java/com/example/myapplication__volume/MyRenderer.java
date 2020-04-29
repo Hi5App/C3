@@ -1328,8 +1328,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
     private float[] ModeltoVolume(float[] input){
-        float[] result = new float[3];
+        if (input == null)
+            return null;
 
+        float[] result = new float[3];
         result[0] = (1.0f - input[0] / mz[0]) * sz[0];
         result[1] = (1.0f - input[1] / mz[1]) * sz[1];
         result[2] = input[2] / mz[2] * sz[2];
@@ -1338,8 +1340,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     private float[] VolumetoModel(float[] input){
-        float[] result = new float[3];
+        if (input == null)
+            return null;
 
+        float[] result = new float[3];
         result[0] = (sz[0] - input[0]) / sz[0] * mz[0];
         result[1] = (sz[1] - input[1]) / sz[1] * mz[1];
         result[2] = input[2] / sz[2] * mz[2];

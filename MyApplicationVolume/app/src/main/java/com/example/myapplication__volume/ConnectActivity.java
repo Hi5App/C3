@@ -1,7 +1,5 @@
 package com.example.myapplication__volume;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -10,6 +8,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -434,8 +434,9 @@ public class ConnectActivity extends AppCompatActivity {
                         Log.v("Image", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                     }
 
-
-                    filesocket_receive.readImg(filename + ".v3draw", context);
+                    Context[] contexts = new Context[1];
+                    contexts[0] = context;
+                    filesocket_receive.readImg(filename + ".v3draw", contexts);
 
 
                     //接收来自服务器的消息

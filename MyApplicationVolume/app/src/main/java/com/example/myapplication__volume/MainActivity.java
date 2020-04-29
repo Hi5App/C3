@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
 
         myrenderer = new MyRenderer();
         myrenderer.SetPath(filepath);
+        Toast.makeText(this,"Filepath: " + filepath, Toast.LENGTH_SHORT).show();
 
 //        Uri uri = Uri.parse((String) filepath);
 //
@@ -890,7 +891,8 @@ public class MainActivity extends AppCompatActivity {
                                     case "Analyze current tracing":
                                         NeuronTree nt = myrenderer.getNeuronTree();
                                         if (nt.listNeuron.isEmpty()) {
-                                            Toast.makeText(context, "Empty tracing, do nothing", Toast.LENGTH_LONG).show();
+//                                            Toast.makeText(context, "Empty tracing, do nothing", Toast.LENGTH_LONG).show();
+                                            Toast.makeText(getContext(), "Empty tracing, do nothing", Toast.LENGTH_LONG).show();
                                             break;
                                         }
                                         MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
@@ -900,7 +902,8 @@ public class MainActivity extends AppCompatActivity {
                                         break;
 
                                     default:
-                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();
+//                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "Default in analysis", Toast.LENGTH_SHORT).show();
 
                                 }
                             }
@@ -940,7 +943,7 @@ public class MainActivity extends AppCompatActivity {
                                         break;
 
                                     default:
-                                        Toast.makeText(context, "there is something wrong in animation", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "there is something wrong in animation", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         })
@@ -1434,8 +1437,10 @@ public class MainActivity extends AppCompatActivity {
 
                         } else {
 
-                            if (ll_top.findViewWithTag(buttonAnimation) != null) {
+                            try {
                                 ll_top.removeView(buttonAnimation);
+                            }catch (Exception e){
+                                e.printStackTrace();
                             }
 
                             myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
@@ -1555,6 +1560,13 @@ public class MainActivity extends AppCompatActivity {
         return context;
     }
 
+
+    //renderer 的生存周期和activity保持一致
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        context = null;
+    }
 
     //renderer 的生存周期和activity保持一致
     @Override

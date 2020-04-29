@@ -190,9 +190,11 @@ public class ManageSocket extends Socket {
 
                         }
 
+                        Context[] contexts = new Context[1];
+                        contexts[0] = context;
 //                        Looper.prepare();
                         if (filesocket_receive.filesocket.isConnected())
-                            filesocket_receive.readImg(item, context);
+                            filesocket_receive.readImg(item, contexts);
 
 //                        //接收来自服务器的消息
 //                        while(ImgSocket.isConnected()) {

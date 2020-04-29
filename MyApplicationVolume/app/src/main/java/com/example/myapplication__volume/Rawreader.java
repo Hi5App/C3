@@ -7,45 +7,16 @@ package com.example.myapplication__volume;
 //import ij.plugin.*;
 //import ij.plugin.frame.*;
 
-import android.os.ParcelFileDescriptor;
+import com.example.basic.Image4DSimple;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
 //import ij.io.*;
 //import java.awt.image.*;
 //import java.io.*;
-
-import android.os.ParcelFileDescriptor;
-import android.Manifest;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
-import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
-import com.example.basic.Image4DSimple;
-
-
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-
-import static com.example.myapplication__volume.MainActivity.getContext;
 
 
 //读取v3draw文件
@@ -316,13 +287,13 @@ public class Rawreader{
 
         } catch (OutOfMemoryError e){
 
-            System.out.println(e.toString() + "error!!!");
+            System.out.println("Raw reader :" + e.toString() + "error!!!");
             return null;
 
 
         }catch ( Exception e ) {
 //            IJ.error("Error:" + e.toString());
-            System.out.println(e.toString() + "error!!!");
+            System.out.println("Raw reader :" + e.toString() + "error!!!");
             return null;
         }
 

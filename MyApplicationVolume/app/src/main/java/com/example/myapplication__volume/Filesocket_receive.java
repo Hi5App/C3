@@ -261,10 +261,10 @@ public class Filesocket_receive {
 
 
 
-    public void readImg(final String filename, final Context context) throws InterruptedException {
+    public void readImg(final String filename, final Context[] context) throws InterruptedException {
         Boolean stop = false;
 
-        BasePopupView popupView = new XPopup.Builder(context)
+        BasePopupView popupView = new XPopup.Builder(context[0])
                 .asLoading("Downloading......");
         popupView.show();
 
@@ -288,12 +288,20 @@ public class Filesocket_receive {
                     in.read(file_size, 0, 8);
                     in.read(filename_size, 0, 8);
 
+                    Log.v("readFile: file_size", Long.toString(bytesToLong(file_size)));
+                    Log.v("readFile: filename_size", Long.toString(bytesToLong(filename_size)));
+
+                    Log.v("readfile", Integer.toString(in.available()));
+
+
 
                     int file__size = (int) bytesToLong(file_size);
+
                     if (file__size <= 0){
 
-                        Looper.prepare();
-                        Toast.makeText(context,"Fail to load file!", Toast.LENGTH_SHORT).show();
+//                        popupView.dismiss();
+//                        Looper.prepare();
+                        Toast.makeText(context[0] ,"Fail to load file!", Toast.LENGTH_SHORT).show();
                         Looper.loop();
                         return;
                     }
@@ -331,7 +339,42 @@ public class Filesocket_receive {
                     BufferedInputStream in_bf = new BufferedInputStream(in);
 
 
+
+//                    filecontent__size = filecontent__size -12;
+//
+//                    int loop = filecontent__size / 1024;
+//                    int end  = filecontent__size % 1024;
+//
+//                    byte [] file_content_end = new byte[end];
+//
+//                    for(int i = 0; i< loop; i++){
+//                        byte [] file_content = new byte[1024];
+//                        in.read(file_content, 0, 1024);
+//                        outputStream.write(file_content);
+//                    }
+//
+//
+//                    in.read(file_content_end, 0,  end);
+//                    outputStream.write(file_content_end);
+
+
+
+
+
+//                    System.out.println(file.length());
+//
+//                    byte[] buffer = new byte[1024];
+//                    for (int n; (n = in.read(buffer)) != -1; outputStream.write(buffer, 0, n));
+//
                     Log.v("send2", Integer.toString(IOUtils.copy(in, outputStream)));
+//                    Log.v("send2", Long.toString(IOUtils.copy(in, outputStream, filecontent__size)));
+
+                    System.out.println(file.length());
+
+//                    outputStream.flush();
+                    outputStream.close();
+                    in.close();
+
 
 //                    int loop = filecontent__size / 1024;
 //                    int end  = filecontent__size % 1024;
@@ -353,7 +396,6 @@ public class Filesocket_receive {
 //                    in.read(file_content_end, 0, end);
 //                    outputStream.write(file_content_end);
 
-                    outputStream.close();
 
 
 
@@ -384,7 +426,7 @@ public class Filesocket_receive {
 
                 }catch (Exception e){
                     e.printStackTrace();
-                    Toast.makeText(context, "Fail to download img", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context[0], "Fail to download img", Toast.LENGTH_SHORT).show();
                 }
             }
         };
@@ -395,10 +437,11 @@ public class Filesocket_receive {
 
         while (thread.getState() != TERMINATED);
 
-        Intent intent = new Intent(context, MainActivity.class);
+        Intent intent = new Intent(context[0], MainActivity.class);
         String message = path + "/" + filename;
         intent.putExtra(EXTRA_MESSAGE, message);
-        context.startActivity(intent);
+        context[0].startActivity(intent);
+        context[0] = null;
 
     }
 

@@ -1,9 +1,12 @@
 package com.example.basic;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Looper;
 import android.provider.OpenableColumns;
+import android.widget.Toast;
 
 import static com.example.myapplication__volume.MainActivity.getContext;
 
@@ -77,20 +80,31 @@ public class FileManager {
 //        return filetype;
     }
 
+    @SuppressLint("ShowToast")
     public String getFileType(Uri uri){
         String v3d_head = "raw_image_stack_by_hpeng";
         int length_v3d = v3d_head.length();
+        String filetype = "Fail to read";
 
         Context context = getContext();
 
-        Cursor returnCursor =
-                context.getContentResolver().query(uri, null, null, null, null);
+        try {
+            Cursor returnCursor =
+                    context.getContentResolver().query(uri, null, null, null, null);
 
-        int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-        int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
-        returnCursor.moveToFirst();
-        String filename = returnCursor.getString(nameIndex);
-        String filetype = filename.substring(filename.lastIndexOf(".")).toUpperCase();
+            int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+//            int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+            returnCursor.moveToFirst();
+            String filename = returnCursor.getString(nameIndex);
+            filetype= filename.substring(filename.lastIndexOf(".")).toUpperCase();
+
+        }catch (Exception e){
+            Looper.prepare();
+            Toast.makeText(context,"Fail to read",Toast.LENGTH_SHORT);
+            Looper.loop();
+            return "Fail to read";
+        }
+
 
         return filetype;
 

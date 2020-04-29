@@ -190,6 +190,7 @@ public class FileActivity extends AppCompatActivity {
 
         }catch (Exception e){
             e.printStackTrace();
+            Toast.makeText(this, "Error when open file!" + e.getMessage(),Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -700,6 +701,12 @@ public class FileActivity extends AppCompatActivity {
         };
         thread.start();
 
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        context = null;
     }
 
 

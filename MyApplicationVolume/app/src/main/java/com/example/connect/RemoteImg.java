@@ -197,8 +197,10 @@ public class RemoteImg extends Socket {
                         }
 
 //                        Looper.prepare();
+                        Context[] contexts = new Context[1];
+                        contexts[0] = context;
                         if (filesocket_receive.filesocket.isConnected())
-                            filesocket_receive.readImg(item, context);
+                            filesocket_receive.readImg(item, contexts);
 
 //                        //接收来自服务器的消息
 //                        while(ImgSocket.isConnected()) {
@@ -258,10 +260,42 @@ public class RemoteImg extends Socket {
                         EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
                         EditText et4 = (EditText) contentView.findViewById(R.id.edit4);
 
-                        et1.setText("16200");
-                        et2.setText("15610");
-                        et3.setText("2950");
+                        // 1
+//                        et1.setText("16200");
+//                        et2.setText("15610");
+//                        et3.setText("2950");
+//                        et4.setText("128");
+
+
+                        //2
+//                        et1.setText("16175");
+//                        et2.setText("42327");
+//                        et3.setText("2706");
+//                        et4.setText("128");
+
+                        //3
+                        et1.setText("500");
+                        et2.setText("550");
+                        et3.setText("500");
                         et4.setText("128");
+
+                        //4
+//                        et1.setText("20058");
+//                        et2.setText("17537");
+//                        et3.setText("3147");
+//                        et4.setText("128");
+
+//                        //5
+//                        et1.setText("15127");
+//                        et2.setText("13740");
+//                        et3.setText("4987");
+//                        et4.setText("128");
+
+//                        //6
+//                        et1.setText("14896");
+//                        et2.setText("10134");
+//                        et3.setText("5622");
+//                        et4.setText("128");
                     }
                 })
                 .setTitle("Download image")
@@ -334,18 +368,22 @@ public class RemoteImg extends Socket {
 
                     if (ImgSocket.isConnected()) {
                         if (!ImgSocket.isOutputShutdown()) {
+                            System.out.println("-------------pull img block---------------");
+
                             ImgPWriter.println(filename + "__" + offset_x + "__" + offset_y + "__" + offset_z + "__" + size + ":imgblock.");
                             ImgPWriter.flush();
 
-                            System.out.println("-------------pull img block---------------");
+                            System.out.println("-------------" + filename + "---------------");
 
                         }
 
                         String storefilename = filename.split("RES")[0] +
                                 "_" + offset_x + "_" + offset_y + "_" + offset_z + "_" + size +"_" + size +"_" + size + ".v3draw";
 
+                        Context[] contexts = new Context[1];
+                        contexts[0] = context;
                         if (filesocket_receive.filesocket.isConnected()){
-                            filesocket_receive.readImg(storefilename, context);
+                            filesocket_receive.readImg(storefilename, contexts);
                             Looper.loop();
 
                         }
