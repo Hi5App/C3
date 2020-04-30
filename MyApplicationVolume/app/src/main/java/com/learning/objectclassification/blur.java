@@ -1,6 +1,5 @@
 package com.learning.objectclassification;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
@@ -14,7 +13,8 @@ public class blur {
     public Bitmap blur(Bitmap bitmap){
         Bitmap outBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
 
-        RenderScript rs = RenderScript.create(getApplicationContext());
+        RenderScript rs = null;
+        //rs=RenderScript.create(getApplicationContext());
         ScriptIntrinsicBlur blurScript = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
 
         Allocation allIn = Allocation.createFromBitmap(rs, bitmap);
@@ -34,7 +34,7 @@ public class blur {
 
     }
 
-    private Context getApplicationContext() {
+    private void getApplicationContext() {
     }
 
 
