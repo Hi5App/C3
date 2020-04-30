@@ -1,5 +1,6 @@
 package com.learning.objectclassification;
 import java.lang.Math
+/*
 public class Otsu {
     public void Otsu(int high,int width){
         toGray();
@@ -42,3 +43,4 @@ public class Otsu {
 
 
 }
+*/
