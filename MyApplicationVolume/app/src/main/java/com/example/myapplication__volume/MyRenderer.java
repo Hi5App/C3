@@ -9,15 +9,20 @@ import android.opengl.GLES10;
 import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
+
 import com.example.basic.ByteTranslate;
+import com.example.basic.FastMarching_Linker;
 import com.example.basic.FileManager;
 import com.example.basic.Image4DSimple;
 import com.example.basic.ImageMarker;
 import com.example.basic.MyAnimation;
 import com.example.basic.NeuronTree;
+import com.example.basic.XYZ;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_list;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
@@ -155,6 +160,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         else if (fileType == FileType.SWC)
             setSWC();
 
+        myAxis = new MyAxis(mz);
+        myDraw = new MyDraw();
+        myAnimation = new MyAnimation();
+
+
+
         Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
 
         Matrix.setIdentityM(zoomMatrix,0);//建立单位矩阵
@@ -178,9 +189,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         if (fileType == FileType.V3draw)
             myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
-        myAxis = new MyAxis(mz);
-        myDraw = new MyDraw();
-        myAnimation = new MyAnimation();
+//        myAxis = new MyAxis(mz);
+//        myDraw = new MyDraw();
+//        myAnimation = new MyAnimation();
 
         mCaptureBuffer = ByteBuffer.allocate(screen_h*screen_w*4);
         mBitmap = Bitmap.createBitmap(screen_w,screen_h, Bitmap.Config.ARGB_8888);
@@ -206,6 +217,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             Matrix.frustumM(projectionMatrix, 0, -1, 1, -1/ratio, 1/ratio,2f, 100);
         }
 
+        onDrawFrame(gl);
 //        Matrix.perspectiveM(projectionMatrix,0,45,1,0.1f,100f);
 
     }
@@ -1080,6 +1092,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             dim[i][1] = sz[i] - 1;
         }
 
+        float [] sum_loc = {0, 0, 0};
+        float sum = 0;
         float[] poc;
         for(int i = 0; i <= nstep; i++){
 
@@ -1096,18 +1110,26 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             if(IsInBoundingBox(poc, dim)){
 
                 value = Sample3d(poc[0], poc[1], poc[2]);
-
-                if(value > max_value){
-//                    Log.v("getCenterOfLineProfile", "(" + poc[0] + "," + poc[1] + "," + poc[2] + "): " +value);
-//                    Log.v("getCenterOfLineProfile:", "update the max");
-                    max_value = value;
-                    for (int j = 0; j < 3; j++){
-                        result[j] = poc[j];
-                    }
-                    isInBoundingBox = true;
-                }
+                sum_loc[0] += poc[0] * value;
+                sum_loc[1] += poc[1] * value;
+                sum_loc[2] += poc[2] * value;
+                sum += value;
+                isInBoundingBox = true;
+//                if(value > max_value){
+////                    Log.v("getCenterOfLineProfile", "(" + poc[0] + "," + poc[1] + "," + poc[2] + "): " +value);
+////                    Log.v("getCenterOfLineProfile:", "update the max");
+//                    max_value = value;
+//                    for (int j = 0; j < 3; j++){
+//                        result[j] = poc[j];
+//                    }
+//                    isInBoundingBox = true;
+//                }
             }
         }
+
+        result[0] = sum_loc[0] / sum;
+        result[1] = sum_loc[1] / sum;
+        result[2] = sum_loc[2] / sum;
 
         if(!isInBoundingBox){
             Toast.makeText(getContext(), "please make sure the point inside the bounding box", Toast.LENGTH_SHORT).show();
@@ -1648,7 +1670,180 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return result;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private Vector<MyMarker> solveCurveMarkerLists_fm(ArrayList<Float> listCurvePos){
+        Vector<MyMarker> outswc = new Vector<MyMarker>();
+        if (listCurvePos.isEmpty()) {
+            System.out.println("You enter an empty curve for solveCurveMarkerLists_fm(). Check your code.\n");
+            return null;
+        }
 
+        int szx = sz[0];
+        int szy = sz[1];
+        int szz = sz[2];
+
+        XYZ sub_orig;
+        double [] psubdata;
+        int sub_szx, sub_szy, sub_szz;
+
+        Vector<MyMarker> nearpos_vec = new Vector<MyMarker>();
+        Vector<MyMarker> farpos_vec = new Vector<MyMarker>();
+        nearpos_vec.clear();
+        farpos_vec.clear();
+
+        int N = listCurvePos.size() / 3;
+        int firstPointIndex = 0;
+
+        Vector<Integer> inds = new Vector<>();
+        inds = resampleCurveStroke(listCurvePos);
+
+        for (firstPointIndex = 0; firstPointIndex < N; firstPointIndex++){
+            float [] loc_near = new float[3];
+            float [] loc_far = new float[3];
+            float [] cur_pos = {listCurvePos.get(firstPointIndex * 3), listCurvePos.get(firstPointIndex * 3 + 1), listCurvePos.get(firstPointIndex * 3 + 2)};
+            get_NearFar_Marker_2(cur_pos[0], cur_pos[1], loc_near, loc_far);
+            if (make_Point_near(loc_near, loc_far)){
+                nearpos_vec.add(new MyMarker(loc_near[0], loc_near[1], loc_near[2]));
+                farpos_vec.add(new MyMarker(loc_far[0], loc_far[1], loc_far[2]));
+
+                break;
+            }else{
+                continue;
+            }
+        }
+
+        int last_i;
+        for (int i = firstPointIndex; i < N; i++){
+            boolean b_inds = false;
+
+            if (inds.isEmpty()){
+                b_inds = true;
+            }else{
+                if (inds.contains(i))
+                    b_inds = true;
+            }
+
+            // only process resampled strokes
+            if(i==1 || i==(N-1) || b_inds) { // make sure to include the last N-1 pos
+                float[] cur_pos = {listCurvePos.get(i * 3), listCurvePos.get(i * 3 + 1), listCurvePos.get(i * 3 + 2)};
+                float [] loc_near = new float[3];
+                float [] loc_far = new float[3];
+                get_NearFar_Marker_2(cur_pos[0], cur_pos[1], loc_near, loc_far);
+                if (make_Point_near(loc_near, loc_far)){
+                    nearpos_vec.add(new MyMarker(loc_near[0], loc_near[1], loc_near[2]));
+                    farpos_vec.add(new MyMarker(loc_far[0], loc_far[1], loc_far[2]));
+                }
+            }
+        }
+        outswc = FastMarching_Linker.fastmarching_drawing_serialboxes(nearpos_vec, farpos_vec, grayscale, outswc, szx, szy, szz, 1, 5, false, data_length, isBig);
+        return outswc;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void addLineDrawed2(ArrayList<Float> line){
+        Vector<MyMarker> outswc = solveCurveMarkerLists_fm(line);
+        ArrayList<Float> lineAdded = new ArrayList<>();
+        for (int i = 0; i < outswc.size(); i++){
+            lineAdded.add((float)outswc.get(i).x);
+            lineAdded.add((float)outswc.get(i).y);
+            lineAdded.add((float)outswc.get(i).z);
+        }
+        if (lineAdded != null){
+//            lineDrawed.add(lineAdded);
+            int max_n = curSwcList.maxnoden();
+            V_NeuronSWC seg = new  V_NeuronSWC();
+            for(int i=0; i < lineAdded.size()/3; i++){
+                V_NeuronSWC_unit u = new V_NeuronSWC_unit();
+                u.n = max_n + i+ 1;
+                if(i==0)
+                    u.parent = -1;
+                else
+                    u.parent = max_n + i;
+                float[] xyz = ModeltoVolume(new float[]{lineAdded.get(i*3+0),lineAdded.get(i*3+1),lineAdded.get(i*3+2)});
+                u.x = xyz[0];
+                u.y = xyz[1];
+                u.z = xyz[2];
+                u.type = lastLineType;
+                seg.append(u);
+//                System.out.println("u n p x y z: "+ u.n +" "+u.parent+" "+u.x +" "+u.y+ " "+u.z);
+            }
+            if(seg.row.size()<3){
+                return;
+            }
+            float[] headXYZ = new float[]{(float) seg.row.get(0).x, (float) seg.row.get(0).y, (float) seg.row.get(0).z};
+            float[] tailXYZ = new float[]{(float) seg.row.get(seg.row.size()-1).x,
+                    (float) seg.row.get(seg.row.size()-1).y,
+                    (float) seg.row.get(seg.row.size()-1).z};
+            boolean linked = false;
+            for(int i=0; i<curSwcList.seg.size(); i++){
+                V_NeuronSWC s = curSwcList.seg.get(i);
+                for(int j=0; j<s.row.size(); j++){
+                    if(linked)
+                        break;
+                    V_NeuronSWC_unit node = s.row.get(j);
+                    float[] nodeXYZ = new float[]{(float) node.x, (float) node.y, (float) node.z};
+                    if(distance(headXYZ,nodeXYZ)<5){
+                        V_NeuronSWC_unit head = seg.row.get(0);
+                        V_NeuronSWC_unit child = seg.row.get(1);
+                        head.x = node.x;
+                        head.y = node.y;
+                        head.z = node.z;
+                        head.n = node.n;
+                        head.parent = node.parent;
+                        child.parent = head.n;
+                        linked = true;
+                        break;
+                    }
+                    if(distance(tailXYZ,nodeXYZ)<5){
+                        seg.reverse();
+                        V_NeuronSWC_unit tail = seg.row.get(seg.row.size()-1);
+                        V_NeuronSWC_unit child = seg.row.get(seg.row.size()-2);
+                        tail.x = node.x;
+                        tail.y = node.y;
+                        tail.z = node.z;
+                        tail.n = node.n;
+                        tail.parent = node.parent;
+                        child.n = tail.n;
+                        linked = true;
+                        break;
+                    }
+                }
+            }
+            curSwcList.append(seg);
+//            Log.v("addLineDrawed", Integer.toString(lineAdded.size()));
+        }
+        else
+            Log.v("draw line:::::", "nulllllllllllllllllll");
+    }
+
+    private Vector<Integer> resampleCurveStroke(ArrayList<Float> listCurvePos){
+        Vector<Integer> ids = new Vector<>();
+        int N = listCurvePos.size() / 3;
+        Vector<Double> maxval = new Vector<>();
+        maxval.clear();
+
+        for (int i = 0; i < N; i++){
+            float [] curPos = {listCurvePos.get(i * 3), listCurvePos.get(i * 3 + 1), listCurvePos.get(i * 3 + 2)};
+            float [] nearPos = new float[3];
+            float [] farPos = new float[3];
+            get_NearFar_Marker_2(curPos[0], curPos[1], nearPos, farPos);
+            if (make_Point_near(nearPos, farPos)){
+                float [] centerPos = getCenterOfLineProfile(nearPos, farPos);
+                double value = Sample3d(centerPos[0], centerPos[1], centerPos[2]);
+                maxval.add(value);
+            }
+        }
+
+        Map<Double, Integer> max_score = new HashMap<>();
+        for (int i = 0; i < maxval.size(); i++){
+            max_score.put(maxval.get(i), i);
+        }
+
+        for (int val:max_score.values()){
+            ids.add(val);
+        }
+        return ids;
+    }
 
 
 
@@ -1731,201 +1926,201 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public  void deleteLine1(ArrayList<Float> line){
-        curSwcList.deleteCurve(line, finalMatrix, sz, mz);
-//        System.out.println("deleteline1--------------------------");
-//        for (int i = 0; i < line.size() / 3 - 1; i++){
-//            float x1 = line.get(i * 3);
-//            float y1 = line.get(i * 3 + 1);
-//            float x2 = line.get(i * 3 + 3);
-//            float y2 = line.get(i * 3 + 4);
-//            for(int j=0; j<curSwcList.nsegs(); j++){
-//                System.out.println("delete curswclist --"+j);
-//                V_NeuronSWC seg = curSwcList.seg.get(j);
-//                if(seg.to_be_deleted)
-//                    continue;
-//                Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
-//                for(int k=0; k<seg.row.size(); k++){
-//                    if(seg.row.get(k).parent != -1 && seg.getIndexofParent(k) != -1){
-//                        V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(k));
-//                        swcUnitMap.put(k,parent);
-//                    }
-//                }
-//                System.out.println("delete: end map");
-//                for(int k=0; k<seg.row.size(); k++){
-//                    System.out.println("j: "+j+" k: "+k);
-//                    V_NeuronSWC_unit child = seg.row.get(k);
-//                    int parentid = (int) child.parent;
-//                    if (parentid == -1 || seg.getIndexofParent(k) == -1){
-//                        System.out.println("parent -1");
-//                        continue;
-//                    }
-//                    V_NeuronSWC_unit parent = swcUnitMap.get(k);
-//                    float[] pchild = {(float) child.x, (float) child.y, (float) child.z};
-//                    float[] pparent = {(float) parent.x, (float) parent.y, (float) parent.z};
-//                    float[] pchildm = VolumetoModel(pchild);
-//                    float[] pparentm = VolumetoModel(pparent);
-//                    float[] p2 = {pchildm[0],pchildm[1],pchildm[2],1.0f};
-//                    float[] p1 = {pparentm[0],pparentm[1],pparentm[2],1.0f};
-//
-//                    float [] p1Volumne = new float[4];
-//                    float [] p2Volumne = new float[4];
-//                    Matrix.multiplyMV(p1Volumne, 0, finalMatrix, 0, p1, 0);
-//                    Matrix.multiplyMV(p2Volumne, 0, finalMatrix, 0, p2, 0);
-//                    devideByw(p1Volumne);
-//                    devideByw(p2Volumne);
-//                    float x3 = p1Volumne[0];
-//                    float y3 = p1Volumne[1];
-//                    float x4 = p2Volumne[0];
-//                    float y4 = p2Volumne[1];
-//
-//                    double m=(x2-x1)*(y3-y1)-(x3-x1)*(y2-y1);
-//                    double n=(x2-x1)*(y4-y1)-(x4-x1)*(y2-y1);
-//                    double p=(x4-x3)*(y1-y3)-(x1-x3)*(y4-y3);
-//                    double q=(x4-x3)*(y2-y3)-(x2-x3)*(y4-y3);
-//
-//                    if( (Math.max(x1, x2) >= Math.min(x3, x4))
-//                            && (Math.max(x3, x4) >= Math.min(x1, x2))
-//                            && (Math.max(y1, y2) >= Math.min(y3, y4))
-//                            && (Math.max(y3, y4) >= Math.min(y1, y2))
-//                            && ((m * n) <= 0) && (p * q <= 0)){
-//                        System.out.println("------------------this is delete---------------");
-//                        seg.to_be_deleted = true;
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-//        curSwcList.deleteMutiSeg(new Vector<Integer>());
+//        curSwcList.deleteCurve(line, finalMatrix, sz, mz);
+        System.out.println("deleteline1--------------------------");
+        for (int i = 0; i < line.size() / 3 - 1; i++){
+            float x1 = line.get(i * 3);
+            float y1 = line.get(i * 3 + 1);
+            float x2 = line.get(i * 3 + 3);
+            float y2 = line.get(i * 3 + 4);
+            for(int j=0; j<curSwcList.nsegs(); j++){
+                System.out.println("delete curswclist --"+j);
+                V_NeuronSWC seg = curSwcList.seg.get(j);
+                if(seg.to_be_deleted)
+                    continue;
+                Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
+                for(int k=0; k<seg.row.size(); k++){
+                    if(seg.row.get(k).parent != -1 && seg.getIndexofParent(k) != -1){
+                        V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(k));
+                        swcUnitMap.put(k,parent);
+                    }
+                }
+                System.out.println("delete: end map");
+                for(int k=0; k<seg.row.size(); k++){
+                    System.out.println("j: "+j+" k: "+k);
+                    V_NeuronSWC_unit child = seg.row.get(k);
+                    int parentid = (int) child.parent;
+                    if (parentid == -1 || seg.getIndexofParent(k) == -1){
+                        System.out.println("parent -1");
+                        continue;
+                    }
+                    V_NeuronSWC_unit parent = swcUnitMap.get(k);
+                    float[] pchild = {(float) child.x, (float) child.y, (float) child.z};
+                    float[] pparent = {(float) parent.x, (float) parent.y, (float) parent.z};
+                    float[] pchildm = VolumetoModel(pchild);
+                    float[] pparentm = VolumetoModel(pparent);
+                    float[] p2 = {pchildm[0],pchildm[1],pchildm[2],1.0f};
+                    float[] p1 = {pparentm[0],pparentm[1],pparentm[2],1.0f};
+
+                    float [] p1Volumne = new float[4];
+                    float [] p2Volumne = new float[4];
+                    Matrix.multiplyMV(p1Volumne, 0, finalMatrix, 0, p1, 0);
+                    Matrix.multiplyMV(p2Volumne, 0, finalMatrix, 0, p2, 0);
+                    devideByw(p1Volumne);
+                    devideByw(p2Volumne);
+                    float x3 = p1Volumne[0];
+                    float y3 = p1Volumne[1];
+                    float x4 = p2Volumne[0];
+                    float y4 = p2Volumne[1];
+
+                    double m=(x2-x1)*(y3-y1)-(x3-x1)*(y2-y1);
+                    double n=(x2-x1)*(y4-y1)-(x4-x1)*(y2-y1);
+                    double p=(x4-x3)*(y1-y3)-(x1-x3)*(y4-y3);
+                    double q=(x4-x3)*(y2-y3)-(x2-x3)*(y4-y3);
+
+                    if( (Math.max(x1, x2) >= Math.min(x3, x4))
+                            && (Math.max(x3, x4) >= Math.min(x1, x2))
+                            && (Math.max(y1, y2) >= Math.min(y3, y4))
+                            && (Math.max(y3, y4) >= Math.min(y1, y2))
+                            && ((m * n) <= 0) && (p * q <= 0)){
+                        System.out.println("------------------this is delete---------------");
+                        seg.to_be_deleted = true;
+                        break;
+                    }
+                }
+            }
+        }
+        curSwcList.deleteMutiSeg(new Vector<Integer>());
     }
 
     public void splitCurve(ArrayList<Float> line){
-        curSwcList.splitCurve(line, finalMatrix, sz, mz);
-//        System.out.println("split1--------------------------");
-//        boolean found = false;
-//        Vector<Integer> toSplit = new Vector<Integer>();
-//        for (int i = 0; i < line.size() / 3 - 1; i++){
-//            if (found == true){
-//                break;
-//            }
-//            float x1 = line.get(i * 3);
-//            float y1 = line.get(i * 3 + 1);
-//            float x2 = line.get(i * 3 + 3);
-//            float y2 = line.get(i * 3 + 4);
-//            for(int j=0; j<curSwcList.nsegs(); j++){
-//                System.out.println("delete curswclist --"+j);
-//                V_NeuronSWC seg = curSwcList.seg.get(j);
-//                if(seg.to_be_deleted)
-//                    continue;
-//                Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
-//                for(int k=0; k<seg.row.size(); k++){
-//                    if(seg.row.get(k).parent != -1 && seg.getIndexofParent(k) != -1){
-//                        V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(k));
-//                        swcUnitMap.put(k,parent);
-//                    }
-//                }
-//                System.out.println("delete: end map");
-//                for(int k=0; k<seg.row.size(); k++){
-//                    System.out.println("j: "+j+" k: "+k);
-//                    V_NeuronSWC_unit child = seg.row.get(k);
-//                    int parentid = (int) child.parent;
-//                    if (parentid == -1 || seg.getIndexofParent(k) == -1){
-//                        System.out.println("parent -1");
-//                        continue;
-//                    }
-//                    V_NeuronSWC_unit parent = swcUnitMap.get(k);
-//                    float[] pchild = {(float) child.x, (float) child.y, (float) child.z};
-//                    float[] pparent = {(float) parent.x, (float) parent.y, (float) parent.z};
-//                    float[] pchildm = VolumetoModel(pchild);
-//                    float[] pparentm = VolumetoModel(pparent);
-//                    float[] p2 = {pchildm[0],pchildm[1],pchildm[2],1.0f};
-//                    float[] p1 = {pparentm[0],pparentm[1],pparentm[2],1.0f};
-//
-//                    float [] p1Volumne = new float[4];
-//                    float [] p2Volumne = new float[4];
-//                    Matrix.multiplyMV(p1Volumne, 0, finalMatrix, 0, p1, 0);
-//                    Matrix.multiplyMV(p2Volumne, 0, finalMatrix, 0, p2, 0);
-//                    devideByw(p1Volumne);
-//                    devideByw(p2Volumne);
-//                    float x3 = p1Volumne[0];
-//                    float y3 = p1Volumne[1];
-//                    float x4 = p2Volumne[0];
-//                    float y4 = p2Volumne[1];
-//
-//                    double m=(x2-x1)*(y3-y1)-(x3-x1)*(y2-y1);
-//                    double n=(x2-x1)*(y4-y1)-(x4-x1)*(y2-y1);
-//                    double p=(x4-x3)*(y1-y3)-(x1-x3)*(y4-y3);
-//                    double q=(x4-x3)*(y2-y3)-(x2-x3)*(y4-y3);
-//
-//                    if( (Math.max(x1, x2) >= Math.min(x3, x4))
-//                            && (Math.max(x3, x4) >= Math.min(x1, x2))
-//                            && (Math.max(y1, y2) >= Math.min(y3, y4))
-//                            && (Math.max(y3, y4) >= Math.min(y1, y2))
-//                            && ((m * n) <= 0) && (p * q <= 0)){
-//                        System.out.println("------------------this is split---------------");
-////                        seg.to_be_deleted = true;
-////                        break;
-//                        found = true;
-////                        V_NeuronSWC newSeg = new V_NeuronSWC();
-////                        V_NeuronSWC_unit first = seg.row.get(k);
-////                        try {
-////                            V_NeuronSWC_unit firstClone = first.clone();
-////                            newSeg.append(firstClone);
-////                        }catch (Exception e){
-////                            System.out.println(e.getMessage());
-////                        }
-//                        int cur = k;
-////                        toSplit.add(k);
-//                        while (seg.getIndexofParent(cur) != -1){
-//                            cur = seg.getIndexofParent(cur);
-//                            toSplit.add(cur);
-////                            V_NeuronSWC_unit nsu = swcUnitMap.get(cur);
-////                            try{
-////                                V_NeuronSWC_unit nsuClone = nsu.clone();
-////                                newSeg.append(nsuClone);
-////                            }catch (Exception e){
-////                                System.out.println(e.getMessage());
-////                            }
-////                            seg.row.remove(cur);
-//
-//                        }
-//                        V_NeuronSWC newSeg1 = new V_NeuronSWC();
-//                        V_NeuronSWC newSeg2 = new V_NeuronSWC();
-//                        int newSegid = curSwcList.nsegs();
+//        curSwcList.splitCurve(line, finalMatrix, sz, mz);
+        System.out.println("split1--------------------------");
+        boolean found = false;
+        Vector<Integer> toSplit = new Vector<Integer>();
+        for (int i = 0; i < line.size() / 3 - 1; i++){
+            if (found == true){
+                break;
+            }
+            float x1 = line.get(i * 3);
+            float y1 = line.get(i * 3 + 1);
+            float x2 = line.get(i * 3 + 3);
+            float y2 = line.get(i * 3 + 4);
+            for(int j=0; j<curSwcList.nsegs(); j++){
+                System.out.println("delete curswclist --"+j);
+                V_NeuronSWC seg = curSwcList.seg.get(j);
+                if(seg.to_be_deleted)
+                    continue;
+                Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
+                for(int k=0; k<seg.row.size(); k++){
+                    if(seg.row.get(k).parent != -1 && seg.getIndexofParent(k) != -1){
+                        V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(k));
+                        swcUnitMap.put(k,parent);
+                    }
+                }
+                System.out.println("delete: end map");
+                for(int k=0; k<seg.row.size(); k++){
+                    System.out.println("j: "+j+" k: "+k);
+                    V_NeuronSWC_unit child = seg.row.get(k);
+                    int parentid = (int) child.parent;
+                    if (parentid == -1 || seg.getIndexofParent(k) == -1){
+                        System.out.println("parent -1");
+                        continue;
+                    }
+                    V_NeuronSWC_unit parent = swcUnitMap.get(k);
+                    float[] pchild = {(float) child.x, (float) child.y, (float) child.z};
+                    float[] pparent = {(float) parent.x, (float) parent.y, (float) parent.z};
+                    float[] pchildm = VolumetoModel(pchild);
+                    float[] pparentm = VolumetoModel(pparent);
+                    float[] p2 = {pchildm[0],pchildm[1],pchildm[2],1.0f};
+                    float[] p1 = {pparentm[0],pparentm[1],pparentm[2],1.0f};
+
+                    float [] p1Volumne = new float[4];
+                    float [] p2Volumne = new float[4];
+                    Matrix.multiplyMV(p1Volumne, 0, finalMatrix, 0, p1, 0);
+                    Matrix.multiplyMV(p2Volumne, 0, finalMatrix, 0, p2, 0);
+                    devideByw(p1Volumne);
+                    devideByw(p2Volumne);
+                    float x3 = p1Volumne[0];
+                    float y3 = p1Volumne[1];
+                    float x4 = p2Volumne[0];
+                    float y4 = p2Volumne[1];
+
+                    double m=(x2-x1)*(y3-y1)-(x3-x1)*(y2-y1);
+                    double n=(x2-x1)*(y4-y1)-(x4-x1)*(y2-y1);
+                    double p=(x4-x3)*(y1-y3)-(x1-x3)*(y4-y3);
+                    double q=(x4-x3)*(y2-y3)-(x2-x3)*(y4-y3);
+
+                    if( (Math.max(x1, x2) >= Math.min(x3, x4))
+                            && (Math.max(x3, x4) >= Math.min(x1, x2))
+                            && (Math.max(y1, y2) >= Math.min(y3, y4))
+                            && (Math.max(y3, y4) >= Math.min(y1, y2))
+                            && ((m * n) <= 0) && (p * q <= 0)){
+                        System.out.println("------------------this is split---------------");
+//                        seg.to_be_deleted = true;
+//                        break;
+                        found = true;
+//                        V_NeuronSWC newSeg = new V_NeuronSWC();
 //                        V_NeuronSWC_unit first = seg.row.get(k);
 //                        try {
 //                            V_NeuronSWC_unit firstClone = first.clone();
-//                            V_NeuronSWC_unit firstClone2 = first.clone();
-//                            newSeg1.append(firstClone);
-//                            newSeg2.append(firstClone2);
+//                            newSeg.append(firstClone);
 //                        }catch (Exception e){
 //                            System.out.println(e.getMessage());
 //                        }
-//                        for (int w = 0; w < seg.row.size(); w++){
-//                            try {
-//                                V_NeuronSWC_unit temp = seg.row.get(w);
-//                                if (!toSplit.contains(w)) {
-//                                    newSeg2.append(temp);
-//                                }else if(toSplit.contains(w) && (w != k)){
-//                                    temp.seg_id = newSegid;
-//                                    newSeg1.append(temp);
-//                                }
+                        int cur = k;
+//                        toSplit.add(k);
+                        while (seg.getIndexofParent(cur) != -1){
+                            cur = seg.getIndexofParent(cur);
+                            toSplit.add(cur);
+//                            V_NeuronSWC_unit nsu = swcUnitMap.get(cur);
+//                            try{
+//                                V_NeuronSWC_unit nsuClone = nsu.clone();
+//                                newSeg.append(nsuClone);
 //                            }catch (Exception e){
 //                                System.out.println(e.getMessage());
 //                            }
-//                        }
-//                        curSwcList.deleteSeg(j);
-//                        curSwcList.append(newSeg1);
-//                        curSwcList.append(newSeg2);
-////                        splitPoints.add(pchildm[0]);
-////                        splitPoints.add(pchildm[1]);
-////                        splitPoints.add(pchildm[2]);
-////                        splitType = (int)child.type;
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-//        curSwcList.deleteMutiSeg(new Vector<Integer>());
+//                            seg.row.remove(cur);
+
+                        }
+                        V_NeuronSWC newSeg1 = new V_NeuronSWC();
+                        V_NeuronSWC newSeg2 = new V_NeuronSWC();
+                        int newSegid = curSwcList.nsegs();
+                        V_NeuronSWC_unit first = seg.row.get(k);
+                        try {
+                            V_NeuronSWC_unit firstClone = first.clone();
+                            V_NeuronSWC_unit firstClone2 = first.clone();
+                            newSeg1.append(firstClone);
+                            newSeg2.append(firstClone2);
+                        }catch (Exception e){
+                            System.out.println(e.getMessage());
+                        }
+                        for (int w = 0; w < seg.row.size(); w++){
+                            try {
+                                V_NeuronSWC_unit temp = seg.row.get(w);
+                                if (!toSplit.contains(w)) {
+                                    newSeg2.append(temp);
+                                }else if(toSplit.contains(w) && (w != k)){
+                                    temp.seg_id = newSegid;
+                                    newSeg1.append(temp);
+                                }
+                            }catch (Exception e){
+                                System.out.println(e.getMessage());
+                            }
+                        }
+                        curSwcList.deleteSeg(j);
+                        curSwcList.append(newSeg1);
+                        curSwcList.append(newSeg2);
+//                        splitPoints.add(pchildm[0]);
+//                        splitPoints.add(pchildm[1]);
+//                        splitPoints.add(pchildm[2]);
+//                        splitType = (int)child.type;
+                        break;
+                    }
+                }
+            }
+        }
+        curSwcList.deleteMutiSeg(new Vector<Integer>());
     }
 
     public void deleteLine(ArrayList<Float> line){
