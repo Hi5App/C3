@@ -2007,6 +2007,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float x2 = line.get(i * 3 + 3);
             float y2 = line.get(i * 3 + 4);
             for(int j=0; j<curSwcList.nsegs(); j++){
+                if (found == true){
+                    break;
+                }
                 System.out.println("delete curswclist --"+j);
                 V_NeuronSWC seg = curSwcList.seg.get(j);
                 if(seg.to_be_deleted)
