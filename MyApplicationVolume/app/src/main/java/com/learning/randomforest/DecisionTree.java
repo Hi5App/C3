@@ -81,7 +81,7 @@ public class DecisionTree {
     public DecisionTree(ArrayList<int[]> data, RandomForest forest, int num){
         this.forest = forest;
         N = data.size();
-        importance = new int[RandomForest.M];
+        importance = new int[this.forest.M];
         predictions = new ArrayList<Integer>();
 
         //System.out.println("Make a DecisionTree num : "+num+" with N:"+N+" M:"+RandomForest.M+" Ms:"+RandomForest.Ms);
@@ -109,7 +109,7 @@ public class DecisionTree {
         correct = CalcTreeErrorRate(val, nv);//the num of correct prediction record
         CalculateClasses(val, nv);
         //calculate importance of each attribute
-        for (int m=0; m<RandomForest.M; m++){
+        for (int m=0; m<this.forest.M; m++){
             ArrayList<int[]> test_data = RandomlyPermuteAttribute(CloneData(val), m);
             int correctAfterPermute = 0;
             for (int[] arr:test_data){
@@ -475,7 +475,7 @@ public class DecisionTree {
      * @return		The most popular class
      */
     private int GetMajorityClass(List<int[]> data){
-        int[] counts=new int[RandomForest.C];
+        int[] counts=new int[this.forest.C];
         for (int[] record:data){
             int Class=record[record.length-1];//GetClass(record);
             counts[Class-1]++;
@@ -548,8 +548,8 @@ public class DecisionTree {
      * @param record		the data record
      * @return				its y value (class)
      */
-    public static int GetClass(int[] record){
-        return record[RandomForest.M];
+    public int GetClass(int[] record){
+        return record[this.forest.M];
     }
     /**
      * Given a data matrix, check if all the y values are the same. If so,
@@ -655,7 +655,7 @@ public class DecisionTree {
 
         double N = records.size();
 
-        int[] counts = new int[RandomForest.C];//the num of target class
+        int[] counts = new int[this.forest.C];//the num of target class
 //		System.out.println("counts:");
 //		for (int i:counts)
 //			System.out.println(i+" ");
@@ -663,8 +663,8 @@ public class DecisionTree {
         for (int[] record:records)
             counts[GetClass(record)-1]++;
 
-        double[] ps = new double[RandomForest.C];
-        for (int j=0; j<RandomForest.C; j++)
+        double[] ps = new double[this.forest.C];
+        for (int j=0; j<this.forest.C; j++)
             ps[j] = counts[j]/N;
 //		System.out.print("probs:");
 //		for (double p:ps)
@@ -696,25 +696,25 @@ public class DecisionTree {
      * @return		The list of the Ms attributes' indices
      */
     private ArrayList<Integer> GetVarsToInclude() {
-        boolean[] whichVarsToInclude = new boolean[RandomForest.M];
+        boolean[] whichVarsToInclude = new boolean[this.forest.M];
 
-        for (int i=0; i<RandomForest.M; i++)//初始化全为false
+        for (int i=0; i<this.forest.M; i++)//初始化全为false
             whichVarsToInclude[i]=false;
 
         while (true){
-            int a = (int)Math.floor(Math.random() * RandomForest.M);//左闭右开 [0，1)
+            int a = (int)Math.floor(Math.random() * this.forest.M);//左闭右开 [0，1)
             whichVarsToInclude[a] = true;
             int N = 0;
-            for (int i=0; i<RandomForest.M; i++)
+            for (int i=0; i<this.forest.M; i++)
                 if (whichVarsToInclude[i])
                     N++;
-            if (N == RandomForest.Ms)
+            if (N == this.forest.Ms)
                 break;
         }
 
-        ArrayList<Integer> shortRecord = new ArrayList<Integer>(RandomForest.Ms);
+        ArrayList<Integer> shortRecord = new ArrayList<Integer>(this.forest.Ms);
 
-        for (int i=0; i<RandomForest.M; i++)
+        for (int i=0; i<this.forest.M; i++)
             if (whichVarsToInclude[i])
                 shortRecord.add(i);
         return shortRecord;

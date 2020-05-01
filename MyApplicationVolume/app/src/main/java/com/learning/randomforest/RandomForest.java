@@ -132,7 +132,7 @@ public class RandomForest {
             N++;
             int[] map=estimateOOB.get(record);
             int Class=FindMaxIndex(map);
-            if (Class == DecisionTree.GetClass(record))
+            if (Class == trees.get(0).GetClass(record))
                 correct++;
         }
         error=1-correct/N;
