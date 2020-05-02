@@ -240,10 +240,14 @@ public class V_NeuronSWC_list implements Cloneable{
     public NeuronTree mergeSameNode() throws Exception{
         NeuronTree SS = new NeuronTree();
 
+        System.out.println("-----------------mergeSameNode------------------------");
+
+
         Vector<V_NeuronSWC_unit> roots = new Vector<>();
 
         for(int i=0; i<this.seg.size(); i++){
             V_NeuronSWC s = this.seg.get(i);
+            System.out.println(i+" size: "+s.row.size());
             for(int j=0; j<s.row.size(); j++){
                 if(s.getIndexofParent(j) == -1){
                     V_NeuronSWC_unit u = s.row.get(j);

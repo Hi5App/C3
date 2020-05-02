@@ -571,6 +571,20 @@ public class NeuronTree extends BasicSurfObj {
                     ui.nodeinseg_id = ci.nodeinseg_id;
                     seg.append(ui);
                     roots.add(ci_index);
+                }else if(child.get(ci_index).size() == 0){
+                    NeuronSWC ci = listNeuron.get(ci_index);
+                    ci.seg_id = cur;
+                    V_NeuronSWC_unit ui = new V_NeuronSWC_unit();
+                    ui.n = ci.n;
+                    ui.type = ci.type;
+                    ui.x = ci.x;
+                    ui.y = ci.y;
+                    ui.z = ci.z;
+                    ui.r = ci.radius;
+                    ui.parent = ci.parent;
+                    ui.seg_id = ci.seg_id;
+                    ui.nodeinseg_id = ci.nodeinseg_id;
+                    seg.append(ui);
                 }
                 cur++;
                 result.add(seg);

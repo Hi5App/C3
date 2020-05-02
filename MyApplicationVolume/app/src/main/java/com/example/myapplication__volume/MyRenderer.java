@@ -342,7 +342,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            System.out.println("------------draw curswclist------------------------");
             ArrayList<Float> lines = new ArrayList<Float>();
             for(int i=0; i<curSwcList.seg.size(); i++){
-                System.out.println("i: "+i);
+//                System.out.println("i: "+i);
                 V_NeuronSWC seg = curSwcList.seg.get(i);
 //                ArrayList<Float> currentLine = swc.get(i);
                 Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
@@ -396,7 +396,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         //现画的marker
         if(MarkerList.size() > 0){
             for (int i = 0; i < MarkerList.size(); i++){
-                System.out.println("start draw marker---------------------");
+//                System.out.println("start draw marker---------------------");
                 ImageMarker imageMarker = MarkerList.get(i);
                 float[] markerModel = VolumetoModel(new float[]{imageMarker.x, imageMarker.y, imageMarker.z});
                 myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type);
@@ -2287,6 +2287,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         System.out.println("----------------importNeuronTree----------------");
         try{
+            System.out.println("nt size: "+nt.listNeuron.size());
             Vector<V_NeuronSWC> segs = nt.devideByBranch();
             for (int i = 0; i < segs.size(); i++){
                 curSwcList.append(segs.get(i));
