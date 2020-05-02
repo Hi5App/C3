@@ -1047,7 +1047,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         loc1_index = ModeltoVolume(loc1);
         loc2_index = ModeltoVolume(loc2);
 
-        float f = 0.8f;
+//        float f = 0.8f;
 
         float[] d = minus(loc1_index, loc2_index);
         normalize(d);
@@ -1058,7 +1058,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             dim[i][1] = sz[i] - 1;
         }
 
-        for (int j = 0; j < 200; j++) {
+
 
 //        for(int i=0; i<2; i++){
 //            loc1_index[i] = (1.0f - loc1[i]) * sz[2 - i];
@@ -1070,9 +1070,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        loc2_index[2] = loc2[2] * sz[0];
 
 
-            result = devide(plus(loc1_index, loc2_index), 2);
+        result = devide(plus(loc1_index, loc2_index), 2);
 
-//        float max_value = 0f;
+        float max_value = 0f;
 
         //单位向量
 //        float[] d = minus(loc1_index, loc2_index);
@@ -1081,14 +1081,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             Log.v("getCenterOfLineProfile:", "step: " + Arrays.toString(d));
 
         //判断是不是一个像素
-            float length = distance(loc1_index, loc2_index);
-            if(length < 0.5)
-                break;
+        float length = distance(loc1_index, loc2_index);
+        if(length < 0.5)
+            return result;
 
-            int nstep = (int)(length+0.5);
-            float one_step = length/nstep;
+        int nstep = (int)(length+0.5);
+        float one_step = length/nstep;
 
-            Log.v("getCenterOfLineProfile", Float.toString(one_step));
+        Log.v("getCenterOfLineProfile", Float.toString(one_step));
 
 //            float[][] dim = new float[3][2];
 //            for(int i=0; i<3; i++){
@@ -1097,14 +1097,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            }
 
 
-            float[] sum_loc = {0, 0, 0};
-            float sum = 0;
-            float[] poc;
-            for (int i = 0; i <= nstep; i++) {
+//            float[] sum_loc = {0, 0, 0};
+//            float sum = 0;
+        float[] poc;
+        for (int i = 0; i <= nstep; i++) {
 
-                float value;
+            float value;
 
-                poc = minus(loc1_index, multiply(d, one_step * i));
+            poc = minus(loc1_index, multiply(d, one_step * i));
 //            poc = multiply(d, one_step);
 
 //            Log.v("getCenterOfLineProfile:", "update the max");
@@ -1112,39 +1112,39 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            Log.v("getCenterOfLineProfile", "(" + poc[0] + "," + poc[1] + "," + poc[2] + ")");
 
 
-                if (IsInBoundingBox(poc, dim)) {
+            if (IsInBoundingBox(poc, dim)) {
 
-                    value = Sample3d(poc[0], poc[1], poc[2]);
-                    sum_loc[0] += poc[0] * value;
-                    sum_loc[1] += poc[1] * value;
-                    sum_loc[2] += poc[2] * value;
-                    sum += value;
+                value = Sample3d(poc[0], poc[1], poc[2]);
+//                    sum_loc[0] += poc[0] * value;
+//                    sum_loc[1] += poc[1] * value;
+//                    sum_loc[2] += poc[2] * value;
+//                    sum += value;
+                isInBoundingBox = true;
+                if(value > max_value){
+//                    Log.v("getCenterOfLineProfile", "(" + poc[0] + "," + poc[1] + "," + poc[2] + "): " +value);
+//                    Log.v("getCenterOfLineProfile:", "update the max");
+                    max_value = value;
+                    for (int j = 0; j < 3; j++){
+                        result[j] = poc[j];
+                    }
                     isInBoundingBox = true;
-//                if(value > max_value){
-////                    Log.v("getCenterOfLineProfile", "(" + poc[0] + "," + poc[1] + "," + poc[2] + "): " +value);
-////                    Log.v("getCenterOfLineProfile:", "update the max");
-//                    max_value = value;
-//                    for (int j = 0; j < 3; j++){
-//                        result[j] = poc[j];
-//                    }
-//                    isInBoundingBox = true;
-//                }
                 }
             }
-
-            if (sum != 0) {
-                result[0] = sum_loc[0] / sum;
-                result[1] = sum_loc[1] / sum;
-                result[2] = sum_loc[2] / sum;
-            }else{
-                break;
-            }
-
-            for (int k = 0; k < 3; k++){
-                loc1_index[k] = result[k] + d[k] * (length * f / 2);
-                loc2_index[k] = result[k] - d[k] * (length * f / 2);
-            }
         }
+
+//            if (sum != 0) {
+//                result[0] = sum_loc[0] / sum;
+//                result[1] = sum_loc[1] / sum;
+//                result[2] = sum_loc[2] / sum;
+//            }else{
+//                break;
+//            }
+
+//            for (int k = 0; k < 3; k++){
+//                loc1_index[k] = result[k] + d[k] * (length * f / 2);
+//                loc2_index[k] = result[k] - d[k] * (length * f / 2);
+//            }
+
 
         if(!isInBoundingBox){
             Toast.makeText(getContext(), "please make sure the point inside the bounding box", Toast.LENGTH_SHORT).show();
