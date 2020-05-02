@@ -465,7 +465,7 @@ public class FastMarching_Linker {
             parent[(int) ind] = ind;
         }
 
-        PriorityQueue<HeapElemX> heap = new PriorityQueue<HeapElemX>();
+        BasicHeap heap = new BasicHeap();
         Map<Integer, HeapElemX> elems = new HashMap<>();
 
         // init heap
@@ -473,7 +473,7 @@ public class FastMarching_Linker {
         {
             int index = submarker_inds.get(s);
             HeapElemX elem = new HeapElemX((int) index, (int) index, phi[(int) index]);
-            heap.add(elem);
+            heap.insert(elem);
             elems.put(index, elem);
         }
 
@@ -482,14 +482,14 @@ public class FastMarching_Linker {
         double process1 = time_counter*1000.0/tol_sz;
         int stop_ind = -1;
         System.out.println("now prepare test heap");
-        while (!heap.isEmpty()){
+        while (!heap.empty()){
             double process2 = (time_counter++)*1000.0/tol_sz;
             if (process2 - process1 >= 1){
                 System.out.println("\r" + ((int)process2)/10.0 + "%");
                 process1 = process2;
             }
 
-            HeapElemX min_elem = heap.poll();
+            HeapElemX min_elem = heap.delete_min();
             elems.remove((int) min_elem.img_index);
 
             int min_ind = min_elem.img_index;
@@ -531,7 +531,7 @@ public class FastMarching_Linker {
                             {
                                 phi[index] = new_dist;
                                 HeapElemX  elem = new HeapElemX((int) index, (int) prev_ind, phi[(int) index]);
-                                heap.add(elem);
+                                heap.insert(elem);
                                 elems.put(index, elem);
                                 state[index] = TRIAL;
                             }
@@ -541,10 +541,11 @@ public class FastMarching_Linker {
                                 {
                                     phi[index] = new_dist;
                                     HeapElemX elem = elems.get(index);
-                                    heap.remove(elem);
-                                    elem.value = phi[index];
+                                    heap.adjust(elem.heap_id, phi[index]);
+//                                    heap.remove(elem);
+//                                    elem.value = phi[index];
                                     elem.setPrev_index(prev_ind);
-                                    heap.add(elem);
+//                                    heap.add(elem);
                                 }
                             }
                         }
@@ -1908,5 +1909,92 @@ public class FastMarching_Linker {
 
         }
         return outmarkers;
+    }
+}
+
+class BasicHeap
+{
+    private Vector<HeapElemX> elems;
+
+    public BasicHeap(){
+        elems = new Vector<>(1000);
+    }
+
+    public HeapElemX delete_min(){
+        if (elems.isEmpty())
+            return null;
+
+        HeapElemX min_elem = elems.get(0);
+
+        if (elems.size() == 1)
+            elems.clear();
+        else{
+            elems.set(0, elems.lastElement());
+            elems.get(0).heap_id = 0;
+            elems.remove(elems.size() - 1);
+            down_heap(0);
+        }
+        return min_elem;
+    }
+
+    public void insert(HeapElemX t){
+        elems.add(t);
+        t.heap_id = elems.size() - 1;
+        up_heap(t.heap_id);
+    }
+
+    public boolean empty(){
+        return elems.isEmpty();
+    }
+
+    public void adjust(int id, double new_value){
+        double old_value = elems.get(id).value;
+        elems.get(id).value = new_value;
+        if (new_value < old_value){
+            up_heap(id);
+        }else if (new_value > old_value){
+            down_heap(id);
+        }
+    }
+
+    private boolean swap_heap(int id1, int id2){
+        if (id1 < 0 || id2 < 0 || id1 >= elems.size() || id2 >= elems.size()){
+            return false;
+        }
+        if (id1 == id2) {
+            return false;
+        }
+        int pid = id1 < id2 ? id1 : id2;
+        int cid = id1 > id2 ? id1 : id2;
+        assert (cid == 2*(pid+1) -1 || cid == 2*(pid+1));
+
+        if (elems.get(pid).value <= elems.get(cid).value){
+            return false;
+        }else{
+            HeapElemX tmp = elems.get(pid);
+            elems.set(pid, elems.get(cid));
+            elems.set(cid, tmp);
+            elems.get(pid).heap_id = pid;
+            elems.get(cid).heap_id = cid;
+            return true;
+        }
+    }
+
+    private void up_heap(int id){
+        int pid = (id + 1) / 2 - 1;
+        if (swap_heap(id, pid)) up_heap(pid);
+    }
+
+    private void down_heap(int id){
+        int cid1 = 2 * (id + 1) - 1;
+        int cid2 = 2 * (id + 1);
+        if (cid1 >= elems.size())
+            return;
+        else if (cid1 == elems.size() - 1){
+            swap_heap(id, cid1);
+        }else if (cid1 < (elems.size() - 1)){
+            int cid = elems.get(cid1).value < elems.get(cid2).value ? cid1 : cid2;
+            if (swap_heap(id, cid)) down_heap(cid);
+        }
     }
 }
