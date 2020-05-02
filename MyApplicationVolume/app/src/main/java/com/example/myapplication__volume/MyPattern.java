@@ -1456,6 +1456,9 @@ public class MyPattern{
                 data_image[i * 4 + 1] = data_src[i];
                 data_image[i * 4 + 2] = data_src[i];
                 data_image[i * 4 + 3] = ByteTranslate.intToByte(1);
+
+//                if (data_src[i] < 0)
+//                    System.out.println("data_src" + data_src[i]);
             }
         }
 //        for (int z = 0; z < vol_d; ++z){
@@ -1503,6 +1506,8 @@ public class MyPattern{
     }
 
     private short [] getIntensity_short3d(){
+
+        Log.v("getIntensity_short3d", "Here we are");
         vol_w = (int)image.getSz0();
         vol_h = (int)image.getSz1();
         vol_d = (int)image.getSz2();
@@ -1538,6 +1543,8 @@ public class MyPattern{
     }
 
     public int [] getIntensity_int3d(){
+
+        Log.v("getIntensity_int3d", "Here we are");
         vol_w = (int)image.getSz0();
         vol_h = (int)image.getSz1();
         vol_d = (int)image.getSz2();

@@ -1641,6 +1641,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //触摸屏幕的事件
+        @RequiresApi(api = Build.VERSION_CODES.N)
         @SuppressLint("ClickableViewAccessibility")
         public boolean onTouchEvent(MotionEvent motionEvent) {
 
@@ -1746,7 +1747,8 @@ public class MainActivity extends AppCompatActivity {
                         isZooming = false;
                         if (ifPainting) {
                             myrenderer.setIfPainting(false);
-                            myrenderer.addLineDrawed(lineDrawed);
+//                            myrenderer.addLineDrawed(lineDrawed);
+                            myrenderer.addLineDrawed2(lineDrawed);
                             lineDrawed.clear();
                             myrenderer.setLineDrawed(lineDrawed);
 

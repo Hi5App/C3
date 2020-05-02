@@ -12,6 +12,13 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+        debug {
+
+        }
+        sdk {
+
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -38,6 +45,8 @@ dependencies {
 
     implementation 'com.lxj:xpopup:1.6.9'
     implementation 'org.jgrapht:jgrapht-core:1.4.0'
+
+    implementation 'com.github.beyka:androidtiffbitmapfactory:0.9.8.7'
 
 //     debugImplementation because LeakCanary should only run in debug builds.
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'

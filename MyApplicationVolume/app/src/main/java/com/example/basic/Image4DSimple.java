@@ -1,21 +1,30 @@
 package com.example.basic;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
+import com.example.ImageFile.Tiffreader;
 import com.example.myapplication__volume.Rawreader;
+
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 
-import static com.example.basic.Image4DSimple.ImagePixelType.*;
-import static com.example.basic.Image4DSimple.TimePackType.*;
+import static com.example.basic.Image4DSimple.ImagePixelType.V3D_FLOAT32;
+import static com.example.basic.Image4DSimple.ImagePixelType.V3D_UINT16;
+import static com.example.basic.Image4DSimple.ImagePixelType.V3D_UINT8;
+import static com.example.basic.Image4DSimple.ImagePixelType.V3D_UNKNOWN;
+import static com.example.basic.Image4DSimple.TimePackType.TIME_PACK_NONE;
 import static com.example.myapplication__volume.MainActivity.getContext;
 import static java.lang.Math.floor;
-import static java.lang.System.*;
+import static java.lang.System.out;
 
 
 
@@ -521,47 +530,102 @@ public class Image4DSimple {
 //
 //    }
 
-    public static Image4DSimple loadImage(String filepath){
+
+    public static Image4DSimple loadImage(String filepath, String filetype){
         Image4DSimple image = new Image4DSimple();
-        Rawreader rr = new Rawreader();
-        File file = new File(filepath);
-        long length = 0;
-        InputStream is = null;
-        if (file.exists()){
-            try {
-                length = file.length();
-                is = new FileInputStream(file);
+
+        if (filetype == ".V3DRAW"){
+            Rawreader rr = new Rawreader();
+            File file = new File(filepath);
+            long length = 0;
+            InputStream is = null;
+            if (file.exists()){
+                try {
+                    length = file.length();
+                    is = new FileInputStream(file);
 //                grayscale =  rr.run(length, is);
-                image = rr.run(length, is);
+                    image = rr.run(length, is);
 
-                Log.v("getIntensity_3d", filepath);
+                    Log.v("getIntensity_3d", filepath);
 
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            else {
+                Uri uri = Uri.parse(filepath);
+
+                try {
+                    ParcelFileDescriptor parcelFileDescriptor =
+                            getContext().getContentResolver().openFileDescriptor(uri, "r");
+
+                    is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+
+                    length = (int)parcelFileDescriptor.getStatSize();
+
+                    Log.v("MyPattern","Successfully load intensity");
+
+                }catch (Exception e){
+                    Log.v("MyPattern","Some problems in the MyPattern when load intensity");
+                }
+
+                image =  rr.run(length, is);
+            }
+        }
+        else if (filetype == ".TIF"){
+            Context context = getContext();
+            Tiffreader tr = new Tiffreader();
+            File file = new File(filepath);
+            long length = 0;
+            InputStream is = null;
+
+            if (file.exists()){
+                try {
+
+                    image = tr.run(file);
+
+                    Log.v("getIntensity_3d", filepath);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            else {
+                Uri uri = Uri.parse(filepath);
+
+                FileManager fileManager = new FileManager();
+                String filename = fileManager.getFileName(uri);
+                String dir_str = context.getExternalFilesDir(null).toString() + "/temp_tif";
+                File dir = new File(dir_str);
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+
+                File temp_file = new File(dir_str + "/" + filename);
+
+                try {
+                    ParcelFileDescriptor parcelFileDescriptor =
+                            getContext().getContentResolver().openFileDescriptor(uri, "r");
+
+                    is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+                    length = (int)parcelFileDescriptor.getStatSize();
+
+                    OutputStream outputStream = new FileOutputStream(temp_file);
+                    IOUtils.copy(is, outputStream);
+                    outputStream.close();
+
+                }catch (Exception e){
+                    Log.v("Image4D","Some problems in the MyPattern when load intensity");
+                }
+
+                image =  tr.run(temp_file);
+//                temp_file.delete();
+
             }
         }
 
-        else {
-            Uri uri = Uri.parse(filepath);
-
-            try {
-                ParcelFileDescriptor parcelFileDescriptor =
-                        getContext().getContentResolver().openFileDescriptor(uri, "r");
-
-                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-
-                length = (int)parcelFileDescriptor.getStatSize();
-
-                Log.v("MyPattern","Successfully load intensity");
-
-            }catch (Exception e){
-                Log.v("MyPattern","Some problems in the MyPattern when load intensity");
-            }
-
-
-            image =  rr.run(length, is);
-
-        }
         if (image != null) {
             image.setImgSrcFile(filepath);
         }

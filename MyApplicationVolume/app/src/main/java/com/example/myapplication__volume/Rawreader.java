@@ -260,6 +260,15 @@ public class Rawreader{
 //            }
 //            else imps[0].show();
 
+//            int max = 0;
+//            for (int i = 0; i < totalUnit; i++){
+//                int temp = data[i];
+//                System.out.println(temp);
+//                if (temp > max){
+//                    max = temp;
+//                }
+//            }
+
             fid.close();
             Image4DSimple image = new Image4DSimple();
             Image4DSimple.ImagePixelType dt;
@@ -283,6 +292,13 @@ public class Rawreader{
 //            image.setSz3(sz[3]);
 //            image.setDatatype(Image4DSimple.ImagePixelType.values()[datatype]);
 //            image.setData(grayscale_try);
+
+            if (isBig){
+                System.out.println("Image4DSimple isBig");
+            }else {
+                System.out.println("Image4DSimple isSmall");
+            }
+
             return image;
 
         } catch (OutOfMemoryError e){

@@ -154,7 +154,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         SetFileType();
 
-        if (fileType == FileType.V3draw)
+        if (fileType == FileType.V3draw || fileType == FileType.TIF)
             setImage();
 
         else if (fileType == FileType.SWC)
@@ -187,7 +187,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         screen_w = width;
         screen_h = height;
 
-        if (fileType == FileType.V3draw)
+        if (fileType == FileType.V3draw || fileType == FileType.TIF)
             myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
 //        myAxis = new MyAxis(mz);
 //        myDraw = new MyDraw();
@@ -325,7 +325,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 //        Log.v("onDrawFrame", "draw_axis");
 
-        if (fileType == FileType.V3draw)
+        if (fileType == FileType.V3draw || fileType == FileType.TIF)
             myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, screen_w, screen_h, texture[0]);
 
 //        Log.v("onDrawFrame: ", Integer.toString(markerDrawed.size()));
@@ -660,6 +660,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 fileType = FileType.SWC;
                 break;
 
+            case ".TIF":
+            case ".TIFF":
+                fileType = FileType.TIF;
+                break;
+
             case "fail to read file":
                 JumptoFileActivity("Fail to read file!");
                 break;
@@ -873,14 +878,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     //To set the marker
 
     private void setImage(){
-//        Rawreader rr = new Rawreader();
-//        String fileName = filepath;
 
-//        Uri uri = Uri.parse(fileName);
-        img = Image4DSimple.loadImage(filepath);
-        if (img == null){
-            return;
+        if (fileType == FileType.V3draw){
+            img = Image4DSimple.loadImage(filepath, ".V3DRAW");
+            if (img == null){
+                return;
+            }
+        }else if (fileType == FileType.TIF){
+            img = Image4DSimple.loadImage(filepath, ".TIF");
+            if (img == null){
+                return;
+            }
         }
+
 //        try {
 //            ParcelFileDescriptor parcelFileDescriptor =
 //                    MainActivity.getContext().getContentResolver().openFileDescriptor(uri, "r");
@@ -921,27 +931,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         mz[1] = (float) sz[1]/max_dim;
         mz[2] = (float) sz[2]/max_dim;
 
+        Log.v("MyRenderer", Arrays.toString(sz));
         Log.v("MyRenderer", Arrays.toString(mz));
-
-//        for (int i = 0; i < vol_w; i++){
-//            for (int j = 0; j < vol_h; j++){
-//                for (int k = 0; k < vol_d; k++){
-//                    if(grayscale[i][j][k]>120) {
-//                        Log.v("greater than 150 at:", "[" + i + "]" + "[" + j + "]" + "[" + k + "]: " + grayscale[i][j][k]);
-//                        count ++;
-//                        float[] model_points = VolumetoModel(new float[] {i, j, k});
-//
-//                        Log.v("onDrawFrame: ", "(" + model_points[0] + ", " + model_points[1] + ", " + model_points[2] + ")");
-//
-//                        markerDrawed.add(model_points[0]);
-//                        markerDrawed.add(model_points[1]);
-//                        markerDrawed.add(model_points[2]);
-//                    }
-//                }
-//            }
-//        }
-
-//        Log.v("the num of > 150", Integer.toString(count));
 
     }
 
@@ -2370,7 +2361,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     enum FileType
     {
         V3draw,
-        SWC
+        SWC,
+        TIF
     }
 
     public void setTakePic(boolean takePic) {

@@ -107,6 +107,8 @@ public class FileActivity extends AppCompatActivity {
 
 //        sethttp();
 
+
+
     }
 
     //renderer 的生存周期和activity保持一致
@@ -158,6 +160,16 @@ public class FileActivity extends AppCompatActivity {
     @SuppressLint("IntentReset")
     public void ReadFile(View view) {
         Log.v("MainActivity","Log.v输入日志信息");
+//        File file = new File("/storage/emulated/0/1/148200_158100_030360.tif");
+//
+//        if (file.exists()){
+//            Log.v("ReadFile","start to read tiff file");
+//            Tiffreader tiffreader = new Tiffreader();
+//            tiffreader.run(file);
+//        }else {
+//            Log.v("ReadFile","Fail to open the file!");
+//        }
+
 
 //        File file = this.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
 //        Uri uri = FileProvider.getUriForFile(this,"你的包名.FileProvider",file);
@@ -859,6 +871,8 @@ public class FileActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(this, MainActivity.class);
                 message = filePath;
+
+//                message = "/storage/emulated/0/1/148200_158100_030360.tif";
                 intent.putExtra(EXTRA_MESSAGE, message);
                 startActivity(intent);
 
