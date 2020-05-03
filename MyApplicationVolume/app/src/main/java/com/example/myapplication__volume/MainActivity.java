@@ -800,6 +800,10 @@ public class MainActivity extends AppCompatActivity {
                                         Version();
                                         break;
 
+                                    case "Learning":
+                                        Version();
+                                        break;
+
                                 }
                             }
                         })
@@ -966,7 +970,7 @@ public class MainActivity extends AppCompatActivity {
     private void Version() {
 
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200502a",
+                .asConfirm("Version", "version: 20200504a",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -975,6 +979,17 @@ public class MainActivity extends AppCompatActivity {
                         })
                 .show();
     }
+
+
+
+    private void Learning() {
+
+        Image4DSimple image = new Image4DSimple();
+
+    }
+
+
+
 
     private void SaveSWC() {
         MDDialog mdDialog = new MDDialog.Builder(this)
@@ -1151,6 +1166,7 @@ public class MainActivity extends AppCompatActivity {
         if (Looper.myLooper() == null) {
             Looper.prepare();
         }
+
         Toast.makeText(this, "GD-Tracing finished, size of result swc: " + Integer.toString(outswc.listNeuron.size()), Toast.LENGTH_SHORT).show();
         myrenderer.importNeuronTree(outswc);
         myGLSurfaceView.requestRender();

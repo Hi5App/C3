@@ -1811,6 +1811,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Vector<MyMarker> outswc = solveCurveMarkerLists_fm(line);
 
         if (outswc == null){
+
+            Toast.makeText(getContext(), "Make sure the point is in boundingbox", Toast.LENGTH_SHORT).show();
             return;
         }
 
