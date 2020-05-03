@@ -1257,6 +1257,46 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
+
+    //找到靠近boundingbox的两处端点
+    private boolean make_Point_near_2(float[] loc1, float[] loc2){
+
+        float steps = 512;
+        float [] near = loc1;
+        float [] far = loc2;
+        float [] step = devide(minus(near, far), steps);
+
+        float[][] dim = new float[3][2];
+        for(int i=0; i<3; i++){
+            dim[i][0]= 0;
+            dim[i][1]= mz[i];
+        }
+
+        int num = 0;
+        while(num<steps && !IsInBoundingBox(near, dim)){
+            near = minus(near, step);
+            num++;
+        }
+        if(num == steps)
+            return false;
+
+
+        while(!IsInBoundingBox(far, dim)){
+            far = plus(far, step);
+        }
+
+
+        for(int i=0; i<3; i++){
+            loc1[i] = near[i];
+            loc2[i] = far[i];
+        }
+
+//        Log.v("make_point_near","here we are");
+        return true;
+
+    }
+
+
     //判断是否在图像内部了
     private boolean IsInBoundingBox(float[] x, float[][] dim){
         int length = x.length;
@@ -1717,9 +1757,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float [] loc_far = new float[3];
             float [] cur_pos = {listCurvePos.get(firstPointIndex * 3), listCurvePos.get(firstPointIndex * 3 + 1), listCurvePos.get(firstPointIndex * 3 + 2)};
             get_NearFar_Marker_2(cur_pos[0], cur_pos[1], loc_near, loc_far);
-            if (make_Point_near(loc_near, loc_far)){
-                nearpos_vec.add(new MyMarker(loc_near[0], loc_near[1], loc_near[2]));
-                farpos_vec.add(new MyMarker(loc_far[0], loc_far[1], loc_far[2]));
+            if (make_Point_near_2(loc_near, loc_far)){
+
+                float[] loc_near_volume = ModeltoVolume(loc_near);
+                float[] loc_far_volume = ModeltoVolume(loc_far);
+                nearpos_vec.add(new MyMarker(loc_near_volume[0], loc_near_volume[1], loc_near_volume[2]));
+                farpos_vec.add(new MyMarker(loc_far_volume[0], loc_far_volume[1], loc_far_volume[2]));
+
+//                nearpos_vec.add(new MyMarker(loc_near[0], loc_near[1], loc_near[2]));
+//                farpos_vec.add(new MyMarker(loc_far[0], loc_far[1], loc_far[2]));
 
                 break;
             }else{
@@ -1744,9 +1790,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 float [] loc_near = new float[3];
                 float [] loc_far = new float[3];
                 get_NearFar_Marker_2(cur_pos[0], cur_pos[1], loc_near, loc_far);
-                if (make_Point_near(loc_near, loc_far)){
-                    nearpos_vec.add(new MyMarker(loc_near[0], loc_near[1], loc_near[2]));
-                    farpos_vec.add(new MyMarker(loc_far[0], loc_far[1], loc_far[2]));
+                if (make_Point_near_2(loc_near, loc_far)){
+
+                    float[] loc_near_volume = ModeltoVolume(loc_near);
+                    float[] loc_far_volume = ModeltoVolume(loc_far);
+                    nearpos_vec.add(new MyMarker(loc_near_volume[0], loc_near_volume[1], loc_near_volume[2]));
+                    farpos_vec.add(new MyMarker(loc_far_volume[0], loc_far_volume[1], loc_far_volume[2]));
+
+//                    nearpos_vec.add(new MyMarker(loc_near[0], loc_near[1], loc_near[2]));
+//                    farpos_vec.add(new MyMarker(loc_far[0], loc_far[1], loc_far[2]));
                 }
             }
         }
@@ -1757,11 +1809,26 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void addLineDrawed2(ArrayList<Float> line){
         Vector<MyMarker> outswc = solveCurveMarkerLists_fm(line);
+
+        if (outswc == null){
+            return;
+        }
+
         ArrayList<Float> lineAdded = new ArrayList<>();
         for (int i = 0; i < outswc.size(); i++){
             lineAdded.add((float)outswc.get(i).x);
             lineAdded.add((float)outswc.get(i).y);
             lineAdded.add((float)outswc.get(i).z);
+
+//            System.out.println("( " + (int) outswc.get(i).x + "," + (int) outswc.get(i).y + "," + (int) outswc.get(i).z + " )");
+
+//            float [] curswc = {(float)outswc.get(i).x, (float)outswc.get(i).y, (float)outswc.get(i).z};
+//            VolumetoModel(curswc);
+//
+//            lineAdded.add(curswc[0]);
+//            lineAdded.add(curswc[1]);
+//            lineAdded.add(curswc[2]);
+
         }
         if (lineAdded != null){
 //            lineDrawed.add(lineAdded);
@@ -1774,7 +1841,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     u.parent = -1;
                 else
                     u.parent = max_n + i;
-                float[] xyz = ModeltoVolume(new float[]{lineAdded.get(i*3+0),lineAdded.get(i*3+1),lineAdded.get(i*3+2)});
+//                float[] xyz = ModeltoVolume(new float[]{lineAdded.get(i*3+0),lineAdded.get(i*3+1),lineAdded.get(i*3+2)});
+                float[] xyz = new float[]{lineAdded.get(i*3+0),lineAdded.get(i*3+1),lineAdded.get(i*3+2)};
                 u.x = xyz[0];
                 u.y = xyz[1];
                 u.z = xyz[2];

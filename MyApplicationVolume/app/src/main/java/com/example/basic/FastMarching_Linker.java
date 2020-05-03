@@ -485,7 +485,8 @@ public class FastMarching_Linker {
         while (!heap.empty()){
             double process2 = (time_counter++)*1000.0/tol_sz;
             if (process2 - process1 >= 1){
-                System.out.println("\r" + ((int)process2)/10.0 + "%");
+
+//                System.out.println("\r" + ((int)process2)/10.0 + "%");
                 process1 = process2;
             }
 
@@ -1876,6 +1877,10 @@ public class FastMarching_Linker {
         Vector<MyMarker> sub_markers, tar_markers;
         sub_markers = GET_LINE_MARKERS(nm1, fm1);
         tar_markers = GET_LINE_MARKERS(nm2, fm2);
+
+        System.out.println("mx: " + mx + ", my: " + my + ", mz: " + mz);
+        System.out.println("msz0: " + msz0 + ", msz1: " + msz1 + ", msz2: " + msz2);
+
         outswc = fastmarching_linker(sub_markers, tar_markers, mskimg1d, outswc, (int)msz0, (int)msz1, (int)msz2, cnn_type, datatype, isBig);
         for(int i = 0; i < outswc.size(); i++)
         {
