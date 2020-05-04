@@ -114,8 +114,18 @@ public class PixelClassification {
             resultClassification[i] = rf.Evaluate(dataRandomForest.get(i));
         }
 
+        int[] pixelIntensity = new int[C];
+        int step = 255/(C-1);
+        for(int i=0; i<C; i++){
+            pixelIntensity[i] = i*step;
+        }
 
+        byte[] data = new byte[dataRandomForest.size()];
+        for(int i=0; i<dataRandomForest.size(); i++){
+            data[i] = (byte) pixelIntensity[resultClassification[i] - 1];
+        }
 
+        result.setDataFromImage(data,inImg.getSz0(),inImg.getSz1(),inImg.getSz2(),inImg.getSz3(),Image4DSimple.ImagePixelType.V3D_UINT8,inImg.getIsBig());
 
         return result;
     }
