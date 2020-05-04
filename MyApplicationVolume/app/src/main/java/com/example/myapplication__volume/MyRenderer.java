@@ -102,6 +102,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     };
 
+    private ArrayList<ArrayList> curDrawed = new ArrayList<>();
+
     private ArrayList<Float> splitPoints = new ArrayList<Float>();
     private int splitType;
 
@@ -117,7 +119,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private ArrayList<ImageMarker> MarkerList = new ArrayList<ImageMarker>();
 
+    private V_NeuronSWC_list newSwcList = new V_NeuronSWC_list();
     private V_NeuronSWC_list curSwcList = new V_NeuronSWC_list();
+
+    private boolean isAddLine = false;
+    private boolean isAddLine2 = false;
 
     private int lastLineType = 2;
     private int lastMarkerType = 3;
@@ -344,6 +350,51 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             for(int i=0; i<curSwcList.seg.size(); i++){
 //                System.out.println("i: "+i);
                 V_NeuronSWC seg = curSwcList.seg.get(i);
+//                ArrayList<Float> currentLine = swc.get(i);
+                Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
+                lines.clear();
+                for(int j=0; j<seg.row.size(); j++){
+                    if(seg.row.get(j).parent != -1 && seg.getIndexofParent(j) != -1){
+                        V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(j));
+                        swcUnitMap.put(j,parent);
+                    }
+                }
+//                System.out.println("---------------end map-----------------------");
+                for(int j=0; j<seg.row.size(); j++){
+//                    System.out.println("in row: "+j+"-------------------");
+                    V_NeuronSWC_unit child = seg.row.get(j);
+                    int parentid = (int) child.parent;
+                    if (parentid == -1 || seg.getIndexofParent(j) == -1 ){
+//                        System.out.println("parent -1");
+                        float x = (int)child.x;
+                        float y = (int)child.y;
+                        float z = (int)child.z;
+                        float [] position = VolumetoModel(new float[]{x, y, z});
+                        myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int)child.type);
+                        continue;
+                    }
+                    V_NeuronSWC_unit parent = swcUnitMap.get(j);
+                    lines.add((float) ((sz[0] - parent.x)/sz[0]*mz[0]));
+                    lines.add((float) ((sz[1] - parent.y)/sz[1]*mz[1]));
+                    lines.add((float) ((parent.z)/sz[2]*mz[2]));
+                    lines.add((float) ((sz[0] - child.x)/sz[0]*mz[0]));
+                    lines.add((float) ((sz[1] - child.y)/sz[1]*mz[1]));
+                    lines.add((float) ((child.z)/sz[2]*mz[2]));
+//                    System.out.println("in draw line--------------"+j);
+//                    System.out.println("type: "+parent.type);
+                    myDraw.drawLine(finalMatrix, lines, (int) parent.type);
+                    lines.clear();
+                }
+            }
+
+        }
+
+        if(newSwcList.nsegs()>0){
+//            System.out.println("------------draw curswclist------------------------");
+            ArrayList<Float> lines = new ArrayList<Float>();
+            for(int i=0; i<newSwcList.seg.size(); i++){
+//                System.out.println("i: "+i);
+                V_NeuronSWC seg = newSwcList.seg.get(i);
 //                ArrayList<Float> currentLine = swc.get(i);
                 Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
                 lines.clear();
@@ -1807,7 +1858,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void addLineDrawed2(ArrayList<Float> line){
+    public synchronized void addLineDrawed2(ArrayList<Float> line){
         Vector<MyMarker> outswc = solveCurveMarkerLists_fm(line);
 
         if (outswc == null){
@@ -1818,6 +1869,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         ArrayList<Float> lineAdded = new ArrayList<>();
         for (int i = 0; i < outswc.size(); i++){
+
             lineAdded.add((float)outswc.get(i).x);
             lineAdded.add((float)outswc.get(i).y);
             lineAdded.add((float)outswc.get(i).z);
@@ -1932,7 +1984,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 
-    public void addLineDrawed(ArrayList<Float> line){
+    public synchronized int addLineDrawed(ArrayList<Float> line){
         ArrayList<Float> lineAdded;
         float [] lineCurrent = new float[line.size()];
         Log.v("addLineDrawed", Integer.toString(line.size()));
@@ -1944,7 +1996,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         if (lineAdded != null){
 //            lineDrawed.add(lineAdded);
-            int max_n = curSwcList.maxnoden();
+            int max_n = newSwcList.maxnoden();
             V_NeuronSWC seg = new  V_NeuronSWC();
             for(int i=0; i < lineAdded.size()/3; i++){
                 V_NeuronSWC_unit u = new V_NeuronSWC_unit();
@@ -1962,15 +2014,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                System.out.println("u n p x y z: "+ u.n +" "+u.parent+" "+u.x +" "+u.y+ " "+u.z);
             }
             if(seg.row.size()<3){
-                return;
+                return -1;
             }
             float[] headXYZ = new float[]{(float) seg.row.get(0).x, (float) seg.row.get(0).y, (float) seg.row.get(0).z};
             float[] tailXYZ = new float[]{(float) seg.row.get(seg.row.size()-1).x,
                     (float) seg.row.get(seg.row.size()-1).y,
                     (float) seg.row.get(seg.row.size()-1).z};
             boolean linked = false;
-            for(int i=0; i<curSwcList.seg.size(); i++){
-                V_NeuronSWC s = curSwcList.seg.get(i);
+            for(int i=0; i<newSwcList.seg.size(); i++){
+                V_NeuronSWC s = newSwcList.seg.get(i);
                 for(int j=0; j<s.row.size(); j++){
                     if(linked)
                         break;
@@ -2003,11 +2055,22 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     }
                 }
             }
-            curSwcList.append(seg);
+            newSwcList.append(seg);
+            return newSwcList.nsegs();
+
 //            Log.v("addLineDrawed", Integer.toString(lineAdded.size()));
         }
-        else
+        else {
             Log.v("draw line:::::", "nulllllllllllllllllll");
+            return -1;
+        }
+    }
+
+    public boolean deleteFromNew(int segid){
+        if (newSwcList.nsegs() < segid || segid < 0)
+            return false;
+        newSwcList.deleteSeg(segid);
+        return true;
     }
 
     public  void deleteLine1(ArrayList<Float> line){

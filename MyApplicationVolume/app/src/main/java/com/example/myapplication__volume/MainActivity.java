@@ -1762,9 +1762,30 @@ public class MainActivity extends AppCompatActivity {
                     case MotionEvent.ACTION_UP:
                         isZooming = false;
                         if (ifPainting) {
+                            Vector<Integer> segids = new Vector<>();
                             myrenderer.setIfPainting(false);
 //                            myrenderer.addLineDrawed(lineDrawed);
-                            myrenderer.addLineDrawed2(lineDrawed);
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    int segid = myrenderer.addLineDrawed(lineDrawed);
+                                    segids.add(segid);
+                                    requestRender();
+                                }
+                            }).start();
+                            if (segids.size() >= 0){
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        int segid = segids.remove(0);
+                                        if (myrenderer.deleteFromNew(segid)) {
+                                            myrenderer.addLineDrawed2(lineDrawed);
+                                            requestRender();
+                                        }
+                                    }
+                                }).start();
+                            }
+//                            myrenderer.addLineDrawed2(lineDrawed);
                             lineDrawed.clear();
                             myrenderer.setLineDrawed(lineDrawed);
 

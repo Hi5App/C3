@@ -1723,7 +1723,7 @@ public class FastMarching_Linker {
         long msz01 = msz0 * msz1;
         long mtol_sz = msz2 * msz01;
 
-        byte [] mskimg1d = new byte[(int)mtol_sz];
+        byte [] mskimg1d = new byte[(int)mtol_sz * datatype];
         Arrays.fill(mskimg1d, (byte)0);
         double max_int = 0; // maximum intensity
         double min_int = INF;
