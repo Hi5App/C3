@@ -3,6 +3,7 @@ package com.example.myapplication__volume;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -50,6 +51,7 @@ import com.example.basic.ImageMarker;
 import com.example.basic.LocationSimple;
 import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
+import com.example.connect.RemoteImg;
 import com.feature_calc_func.MorphologyCalculate;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
@@ -59,9 +61,16 @@ import com.tracingfunc.app2.V3dNeuronAPP2Tracing;
 import com.tracingfunc.gd.CurveTracePara;
 import com.tracingfunc.gd.V3dNeuronGDTracing;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -86,10 +95,15 @@ public class MainActivity extends AppCompatActivity {
     private boolean ifPoint = false;
     private boolean ifImport = false;
     private boolean ifAnalyze = false;
+    private boolean ifUpload = false;
     //    private boolean ifSaveSwc = false;
     private boolean ifDeletingMarker = false;
     private boolean ifDeletingLine = false;
     private boolean ifSpliting = false;
+    private boolean ifSwitch = false;
+
+
+    private boolean[] temp_mode = new boolean[5];
 
     private boolean ifAnimation = false;
     private Button buttonAnimation;
@@ -100,7 +114,11 @@ public class MainActivity extends AppCompatActivity {
     private Button Zoom_in;
     private Button Zoom_out;
     private Button Rotation;
+    private Button Sync;
+    private Button Switch;
     private Button Share;
+
+    private RemoteImg remoteImg;
 
 
     private static final int PICKFILE_REQUEST_CODE = 100;
@@ -249,6 +267,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+
+
         Others = new Button(this);
         Others.setText("Others");
         ll_bottom.addView(Others);
@@ -259,6 +279,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Sync = new Button(this);
+        Sync.setText("Sync");
+        ll_bottom.addView(Sync);
+
+        Sync.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                Sync(v);
+            }
+        });
+
+        Switch = new Button(this);
+        Switch.setText("Pause");
+
+        Switch.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                Switch();
+            }
+        });
 
 //        Share = new Button(this);
 //        Share.setText("Share");
@@ -514,6 +552,13 @@ public class MainActivity extends AppCompatActivity {
                     if (features != null) displayResult(features);
                 }
 
+
+
+                if (ifUpload){
+
+                    ConnectServer("223.33.333.234", context);
+
+                }
 //
 //                ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
 //                SwcReader swcReader = new SwcReader();
@@ -557,6 +602,64 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+
+
+
+    private void ConnectServer(String ip, Context context){
+        //新建一个线程，用于初始化socket和检测是否有接收到新的消息
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                Looper.prepare();
+
+                try {
+                    remoteImg.ip = ip;
+                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
+                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
+                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+
+
+                    if(remoteImg.ImgSocket.isConnected()){
+
+                        Toast.makeText(context, "Connect with Server successfully", Toast.LENGTH_SHORT).show();
+                        remoteImg.ImgPWriter.println( "connect for android client" + ":choose3.");
+                        remoteImg.ImgPWriter.flush();
+
+                    }
+
+                    //接收来自服务器的消息
+                    while(remoteImg.ImgSocket.isConnected()) {
+                        if(!remoteImg.ImgSocket.isInputShutdown()) {
+                        /*读取一行字符串，读取的内容来自于客户机
+                        reader.readLine()方法是一个阻塞方法，
+                        从调用这个方法开始，该线程会一直处于阻塞状态，
+                        直到接收到新的消息，代码才会往下走*/
+                            String content = "";
+                            while ((content = remoteImg.ImgReader.readLine()) != null) {
+                                Log.v("---------Image------:", content);
+                                if (!((Activity) context).isFinishing()){
+                                    remoteImg.onReadyRead(content, context);
+                                    Looper.loop();
+                                }
+                            }
+
+                        }
+                        Thread.sleep(200);
+                    }
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+                    Looper.loop();
+                }
+            }
+        };
+        thread.start();
+
+    }
+
 
     /**
      * function for the FileManager button
@@ -610,9 +713,18 @@ public class MainActivity extends AppCompatActivity {
                                         if (ifPoint) {
                                             Draw.setText("PinPoint");
                                             Draw.setTextColor(Color.RED);
+
+                                            try {
+                                                ifSwitch = false;
+                                                ll_bottom.addView(Switch);
+                                            }catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+
                                         } else {
                                             Draw.setText("Draw");
                                             Draw.setTextColor(Color.BLACK);
+                                            ll_bottom.removeView(Switch);
                                         }
                                         break;
 
@@ -626,9 +738,18 @@ public class MainActivity extends AppCompatActivity {
                                             Draw.setText("Draw Curve");
                                             Draw.setTextColor(Color.RED);
 
+                                            try {
+                                                ifSwitch = false;
+                                                ll_bottom.addView(Switch);
+                                            }catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+
                                         } else {
                                             Draw.setText("Draw");
                                             Draw.setTextColor(Color.BLACK);
+                                            ll_bottom.removeView(Switch);
+
                                         }
                                         break;
 
@@ -641,9 +762,19 @@ public class MainActivity extends AppCompatActivity {
                                         if (ifDeletingMarker) {
                                             Draw.setText("Delete marker");
                                             Draw.setTextColor(Color.RED);
+
+                                            try {
+                                                ifSwitch = false;
+                                                ll_bottom.addView(Switch);
+                                            }catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+
                                         } else {
                                             Draw.setText("Draw");
                                             Draw.setTextColor(Color.BLACK);
+                                            ll_bottom.removeView(Switch);
+
                                         }
                                         break;
 
@@ -656,9 +787,19 @@ public class MainActivity extends AppCompatActivity {
                                         if (ifDeletingLine) {
                                             Draw.setText("Delete curve");
                                             Draw.setTextColor(Color.RED);
+
+                                            try {
+                                                ifSwitch = false;
+                                                ll_bottom.addView(Switch);
+                                            }catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+
                                         } else {
                                             Draw.setText("Draw");
                                             Draw.setTextColor(Color.BLACK);
+                                            ll_bottom.removeView(Switch);
+
                                         }
                                         break;
 
@@ -671,9 +812,19 @@ public class MainActivity extends AppCompatActivity {
                                         if (ifSpliting) {
                                             Draw.setText("Split");
                                             Draw.setTextColor(Color.RED);
+
+                                            try {
+                                                ifSwitch = false;
+                                                ll_bottom.addView(Switch);
+                                            }catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+
                                         } else {
                                             Draw.setText("Draw");
                                             Draw.setTextColor(Color.BLACK);
+                                            ll_bottom.removeView(Switch);
+
                                         }
                                         break;
 
@@ -685,6 +836,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifSpliting = false;
                                         Draw.setText("Draw");
                                         Draw.setTextColor(Color.BLACK);
+                                        ll_bottom.removeView(Switch);
                                         break;
 
                                 }
@@ -801,7 +953,7 @@ public class MainActivity extends AppCompatActivity {
                                         break;
 
                                     case "Learning":
-                                        Version();
+                                        Learning();
                                         break;
 
                                 }
@@ -811,11 +963,62 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+    /**
+     * function for the Sync button
+     *
+     * @param v the button: Sync
+     */
+    private void Sync(final View v) {
+        new XPopup.Builder(this)
+                .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
+                .asAttachList(new String[]{"Upload SWC", "Download SWC"},
+                        new int[]{},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text) {
+                                    case "Upload SWC":
+                                        UploadSWC();
+                                        break;
+
+                                    case "Download SWC":
+                                        DownloadSWC();
+                                        break;
+                                }
+                            }
+                        })
+                .show();
+    }
+
+
+
+    private void UploadSWC() {
+
+        ifUpload = true;
+        ifImport = false;
+        ifAnalyze = false;
+
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, 1);
+    }
+
+
+    private void DownloadSWC() {
+
+    }
+
+
+
+
     private void LoadSWC() {
 
         if (!ifImport) {
             ifImport = true;
             ifAnalyze = false;
+            ifUpload = false;
         }
 
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -890,6 +1093,7 @@ public class MainActivity extends AppCompatActivity {
                                         startActivityForResult(intent, 1);
                                         ifAnalyze = true;
                                         ifImport = false;
+                                        ifUpload = false;
                                         break;
 
                                     case "Analyze current tracing":
@@ -967,10 +1171,39 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    private void Switch() {
+        ifSwitch = !ifSwitch;
+        if (ifSwitch) {
+            Switch.setText("Restart");
+            Switch.setTextColor(Color.RED);
+            temp_mode[0] = ifPainting;
+            temp_mode[1] = ifPoint;
+            temp_mode[2] = ifDeletingLine;
+            temp_mode[3] = ifDeletingMarker;
+            temp_mode[4] = ifSpliting;
+
+            ifPainting = false;
+            ifPoint = false;
+            ifDeletingLine = false;
+            ifDeletingMarker = false;
+            ifSpliting = false;
+
+        } else {
+            Switch.setText("Pause");
+            Switch.setTextColor(Color.BLACK);
+            ifPainting       = temp_mode[0];
+            ifPoint          = temp_mode[1];
+            ifDeletingLine   = temp_mode[2];
+            ifDeletingMarker = temp_mode[3];
+            ifSpliting       = temp_mode[4];
+        }
+    }
+
     private void Version() {
 
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200504a",
+                .asConfirm("Version", "version: 20200504b",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
