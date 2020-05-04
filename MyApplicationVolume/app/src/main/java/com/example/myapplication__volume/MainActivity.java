@@ -1998,18 +1998,36 @@ public class MainActivity extends AppCompatActivity {
                             Vector<Integer> segids = new Vector<>();
                             myrenderer.setIfPainting(false);
 //                            myrenderer.addLineDrawed(lineDrawed);
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    int segid = myrenderer.addLineDrawed(lineDrawed);
+
+
+
+                            int segid = myrenderer.addLineDrawed(lineDrawed);
 //                                    segids.add(segid);
-                                    requestRender();
-                                    if (myrenderer.deleteFromNew(segid)) {
-                                        myrenderer.addLineDrawed2(lineDrawed);
-                                        requestRender();
-                                    }
-                                }
-                            }).start();
+//                            requestRender();
+
+                            myrenderer.addLineDrawed2(lineDrawed);
+                            myrenderer.deleteFromNew(segid);
+//                            requestRender();
+
+//                            if (myrenderer.deleteFromNew(segid)) {
+//                                myrenderer.addLineDrawed2(lineDrawed);
+//                                requestRender();
+//                            }
+
+//                            new Thread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    int segid = myrenderer.addLineDrawed(lineDrawed);
+////                                    segids.add(segid);
+//                                    requestRender();
+//                                    if (myrenderer.deleteFromNew(segid)) {
+//                                        myrenderer.addLineDrawed2(lineDrawed);
+//                                        requestRender();
+//                                    }
+//                                }
+//                            }).start();
+
+
 //                            if (segids.size() >= 0){
 //                                new Thread(new Runnable() {
 //                                    @Override

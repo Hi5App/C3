@@ -1984,7 +1984,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 
-    public synchronized int addLineDrawed(ArrayList<Float> line){
+    public int addLineDrawed(ArrayList<Float> line){
         ArrayList<Float> lineAdded;
         float [] lineCurrent = new float[line.size()];
         Log.v("addLineDrawed", Integer.toString(line.size()));
@@ -2056,7 +2056,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
             }
             newSwcList.append(seg);
-            return newSwcList.nsegs();
+            return newSwcList.nsegs() - 1;
 
 //            Log.v("addLineDrawed", Integer.toString(lineAdded.size()));
         }
