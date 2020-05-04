@@ -2002,22 +2002,26 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     int segid = myrenderer.addLineDrawed(lineDrawed);
-                                    segids.add(segid);
+//                                    segids.add(segid);
                                     requestRender();
+                                    if (myrenderer.deleteFromNew(segid)) {
+                                        myrenderer.addLineDrawed2(lineDrawed);
+                                        requestRender();
+                                    }
                                 }
                             }).start();
-                            if (segids.size() >= 0){
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        int segid = segids.remove(0);
-                                        if (myrenderer.deleteFromNew(segid)) {
-                                            myrenderer.addLineDrawed2(lineDrawed);
-                                            requestRender();
-                                        }
-                                    }
-                                }).start();
-                            }
+//                            if (segids.size() >= 0){
+//                                new Thread(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        int segid = segids.remove(0);
+//                                        if (myrenderer.deleteFromNew(segid)) {
+//                                            myrenderer.addLineDrawed2(lineDrawed);
+//                                            requestRender();
+//                                        }
+//                                    }
+//                                }).start();
+//                            }
 //                            myrenderer.addLineDrawed2(lineDrawed);
                             lineDrawed.clear();
                             myrenderer.setLineDrawed(lineDrawed);
