@@ -1882,6 +1882,10 @@ public class FastMarching_Linker {
         System.out.println("msz0: " + msz0 + ", msz1: " + msz1 + ", msz2: " + msz2);
 
         outswc = fastmarching_linker(sub_markers, tar_markers, mskimg1d, outswc, (int)msz0, (int)msz1, (int)msz2, cnn_type, datatype, isBig);
+
+        if (outswc == null)
+            return null;
+
         for(int i = 0; i < outswc.size(); i++)
         {
             outswc.get(i).x += mx;

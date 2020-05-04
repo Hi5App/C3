@@ -988,6 +988,43 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
+    public void ResetImg(Image4DSimple new_img){
+
+        img = new_img;
+        myPattern = null;
+        myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
+
+        grayscale =  img.getData();
+
+        data_length = img.getDatatype().ordinal();
+        isBig = img.getIsBig();
+
+//        vol_w = rr.get_w();
+//        vol_h = rr.get_h();
+//        vol_d = rr.get_d();
+
+//        sz[0] = vol_w;
+//        sz[1] = vol_h;
+//        sz[2] = vol_d;
+
+        sz[0] = (int)img.getSz0();
+        sz[1] = (int)img.getSz1();
+        sz[2] = (int)img.getSz2();
+
+        Integer[] num = {sz[0], sz[1], sz[2]};
+        float max_dim = (float) Collections.max(Arrays.asList(num));
+        Log.v("MyRenderer", Float.toString(max_dim));
+
+        mz[0] = (float) sz[0]/max_dim;
+        mz[1] = (float) sz[1]/max_dim;
+        mz[2] = (float) sz[2]/max_dim;
+
+        Log.v("MyRenderer", Arrays.toString(sz));
+        Log.v("MyRenderer", Arrays.toString(mz));
+
+    }
+
+
     private void setSWC(){
 
         Uri uri = Uri.parse(filepath);

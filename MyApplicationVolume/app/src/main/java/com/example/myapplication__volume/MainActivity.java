@@ -1203,7 +1203,7 @@ public class MainActivity extends AppCompatActivity {
     private void Version() {
 
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200504b",
+                .asConfirm("Version", "version: 20200504f",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -1218,6 +1218,7 @@ public class MainActivity extends AppCompatActivity {
     private void Learning() {
 
         Image4DSimple image = new Image4DSimple();
+        myrenderer.ResetImg(image);
 
     }
 
@@ -2026,20 +2027,6 @@ public class MainActivity extends AppCompatActivity {
 //                                    }
 //                                }
 //                            }).start();
-
-
-//                            if (segids.size() >= 0){
-//                                new Thread(new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//                                        int segid = segids.remove(0);
-//                                        if (myrenderer.deleteFromNew(segid)) {
-//                                            myrenderer.addLineDrawed2(lineDrawed);
-//                                            requestRender();
-//                                        }
-//                                    }
-//                                }).start();
-//                            }
 //                            myrenderer.addLineDrawed2(lineDrawed);
                             lineDrawed.clear();
                             myrenderer.setLineDrawed(lineDrawed);
