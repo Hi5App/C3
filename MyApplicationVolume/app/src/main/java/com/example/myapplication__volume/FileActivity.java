@@ -249,17 +249,17 @@ public class FileActivity extends AppCompatActivity {
         Uri uri = Uri.parse(downloadpath);
 
         try {
-            DownloadManager.Request request = new DownloadManager.Request(uri);
+                DownloadManager.Request request = new DownloadManager.Request(uri);
 
-            // Tell on which network you want to download file.
-            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
+                // Tell on which network you want to download file.
+                request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
 
-            // This will show notification on top when downloading the file.
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                // This will show notification on top when downloading the file.
+                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 
-            // Title for notification.
-            request.setTitle(uri.getLastPathSegment());
-            request.setDescription("Download from C3");
+                // Title for notification.
+                request.setTitle(uri.getLastPathSegment());
+                request.setDescription("Download from C3");
 
             //设置文件类型
 //            request.setMimeType("application/cn.trinea.download.file");

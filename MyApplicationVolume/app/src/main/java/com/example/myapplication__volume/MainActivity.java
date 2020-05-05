@@ -5,10 +5,14 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -65,7 +69,9 @@ import com.tracingfunc.gd.V3dNeuronGDTracing;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -102,7 +108,10 @@ public class MainActivity extends AppCompatActivity {
     private boolean ifDeletingLine = false;
     private boolean ifSpliting = false;
     private boolean ifSwitch = false;
-
+    private boolean select_img = false;
+    private boolean ifLoadLocal = false;
+    private boolean ifRemote = false;
+    private boolean ifDownloadByHttp = false;
 
     private boolean[] temp_mode = new boolean[5];
 
@@ -143,16 +152,18 @@ public class MainActivity extends AppCompatActivity {
     //    private int Paintmode = 0;
     private ArrayList<Float> lineDrawed = new ArrayList<Float>();
 
+    private BroadcastReceiver broadcastReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //接受从fileactivity传递过来的文件路径
-        Intent intent = getIntent();
-        filepath = intent.getStringExtra(FileActivity.EXTRA_MESSAGE);
+//        Intent intent = getIntent();
+//        filepath = intent.getStringExtra(FileActivity.EXTRA_MESSAGE);
 
         myrenderer = new MyRenderer();
-        myrenderer.SetPath(filepath);
+//        myrenderer.SetPath(filepath);
         Toast.makeText(this,"Filepath: " + filepath, Toast.LENGTH_SHORT).show();
 
 //        Uri uri = Uri.parse((String) filepath);
@@ -381,6 +392,8 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
             }
         }
+
+        remoteImg = new RemoteImg();
         context = getApplicationContext();
 
     }
@@ -573,6 +586,21 @@ public class MainActivity extends AppCompatActivity {
                     ConnectServer("223.33.333.234", context);
 
                 }
+
+                if (ifLoadLocal){
+                    myrenderer.SetPath(filePath);
+                    ifLoadLocal = false;
+                }
+
+                if (ifRemote){
+                    myrenderer.SetPath(filePath);
+                    ifRemote = false;
+                }
+
+                if (ifDownloadByHttp){
+                    myrenderer.SetPath(filePath);
+                    ifDownloadByHttp = false;
+                }
 //
 //                ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
 //                SwcReader swcReader = new SwcReader();
@@ -683,7 +711,7 @@ public class MainActivity extends AppCompatActivity {
     private void FileManager(View v) {
         new XPopup.Builder(this)
                 .atView(v)
-                .asAttachList(new String[]{"Load SWC file", "Save SWC file"},
+                .asAttachList(new String[]{"Load SWC file", "Save SWC file", "Load local file", "Remote", "Download by http"},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -695,12 +723,115 @@ public class MainActivity extends AppCompatActivity {
                                     case "Save SWC file":
                                         SaveSWC();
                                         break;
+                                    case "Load local file":
+                                        loadLocalFile();
+                                        break;
+                                    case "Remote":
+                                        remote(v);
+                                        break;
+                                    case "Download by http":
+                                        downloadFile();
+                                        break;
                                 }
                             }
                         })
                 .show();
     }
 
+    private void downloadFile(){
+        ifDownloadByHttp = true;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = View.inflate(this, R.layout.downloaddialog_layout, null);
+
+        final AlertDialog alertDialog = builder.create();
+        alertDialog.setView(view);
+        alertDialog.show();
+
+        final EditText editTextHttp = (EditText) view.findViewById(R.id.http);
+        Button buttonConfirm = (Button) view.findViewById(R.id.confirm);
+        Button buttonCancel = (Button) view.findViewById(R.id.canel);
+
+        buttonConfirm.setOnClickListener(new View.OnClickListener() {
+                                             String http = "";
+
+                                             @Override
+                                             public void onClick(View v) {
+                                                 http = editTextHttp.getText().toString();
+
+                                                 String downloadpath = "";
+
+                                                 Log.v("DownloadFile", http+"   LLLLLLLLLLLLL");
+
+                                                 if (http.startsWith("https://")){
+                                                     downloadpath = http;
+                                                 }else {
+                                                     downloadpath = "https://" + http;
+                                                 }
+
+//                downloadpath = "https://qd.myapp.com/myapp/qqteam/AndroidQQ/mobileqq_android.apk";
+
+                                                 // Path where you want to download file.
+                                                 Uri uri = Uri.parse(downloadpath);
+
+                                                 try {
+                                                     DownloadManager.Request request = new DownloadManager.Request(uri);
+
+                                                     // Tell on which network you want to download file.
+                                                     request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
+
+                                                     // This will show notification on top when downloading the file.
+                                                     request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+                                                     // Title for notification.
+                                                     request.setTitle(uri.getLastPathSegment());
+                                                     request.setDescription("Download from C3");
+
+                                                     request.setDestinationInExternalFilesDir( context , Environment.DIRECTORY_DOWNLOADS ,  uri.getLastPathSegment() );
+
+
+                                                     //获取下载管理器
+                                                     DownloadManager downloadManager = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
+                                                     //将下载任务加入下载队列，否则不会进行下载
+                                                     long ID = downloadManager.enqueue(request);
+                                                     Toast.makeText(context, "Start to download the file", Toast.LENGTH_SHORT).show();
+
+                                                     listener(ID);
+
+                                                 }catch (Exception e){
+                                                     Toast.makeText(context, "make sure the address is legal", Toast.LENGTH_SHORT).show();
+                                                 }
+
+                                             }
+                                         }
+        );
+
+        buttonCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+    }
+
+    private void listener(final long Id) {
+
+        // 注册广播监听系统的下载完成事件。
+        IntentFilter intentFilter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                long ID = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+                if (ID == Id) {
+                    Toast.makeText(getApplicationContext(), "文件下载完成!", Toast.LENGTH_LONG).show();
+                    Log.v("MainActivity", "DownloadFile  successfully");
+
+                }
+            }
+        };
+
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
 
     /**
      * function for the draw button
@@ -1217,7 +1348,7 @@ public class MainActivity extends AppCompatActivity {
     private void Version() {
 
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200504g",
+                .asConfirm("Version", "version: 20200505b",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -1263,8 +1394,179 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void loadLocalFile(){
+        ifLoadLocal = true;
 
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
 
+        try {
+            startActivityForResult(intent,1);
+//            startActivityForResult(Intent.createChooser(intent, "Open folder"), 1);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(this, "Error when open file!" + e.getMessage(),Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void remote(View v){
+        context = v.getContext();
+        ifRemote = true;
+
+        if ( select_img ){
+
+            Select_img();
+//            select_img = false;
+        }else {
+
+            new XPopup.Builder(this)
+                    .atView(v)
+                    .asAttachList(new String[]{"Select file", "Select block"},
+                            new int[]{},
+                            new OnSelectListener() {
+                                @Override
+                                public void onSelect(int position, String text) {
+                                    switch (text) {
+                                        case "Select block":
+                                            remoteImg.Selectblock(context, false);
+                                            break;
+
+                                        case "Select file":
+                                            Select_img();
+                                            break;
+                                    }
+                                }
+                            })
+                    .show();
+        }
+    }
+
+    public void Select_img(){
+        new MDDialog.Builder(this)
+                .setContentView(R.layout.image_select)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+
+                        EditText et0 = (EditText) contentView.findViewById(R.id.edit0);
+                        et0.setText(getip());
+                    }
+                })
+                .setTitle("Connect with Server")
+                .setNegativeButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
+                        EditText et0 = (EditText) contentView.findViewById(R.id.edit0);
+
+                        String ip = et0.getText().toString();
+
+                        if (ip != getip()){
+                            setip(ip);
+                        }
+
+                        if(!ip.isEmpty()){
+                            //输入的信息全，就可以进行连接操作
+                            ConnectServer(ip, context);
+                        }else{
+                            Toast.makeText(getApplicationContext(), "Please make sure the information is right!!!", Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                    }
+                })
+                .setWidthMaxDp(600)
+                .create()
+                .show();
+    }
+
+    private String getip(){
+        String ip = null;
+
+        String filepath = getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/ip.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "223.3.33.234";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get ip", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                line = buffreader.readLine();
+                ip = line;
+
+//                //分行读取
+//                while ((line = buffreader.readLine()) != null) {
+//                    ip = line;
+//                }
+                inputStream.close();//关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get ip", ip);
+        return ip;
+    }
+
+    private void setip(String ip){
+        String filepath = getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/ip.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("get ip", "Fail to create file");
+            }
+        }
+
+        try {
+
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(ip.getBytes());
+            outStream.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
     private void SaveSWC() {
         MDDialog mdDialog = new MDDialog.Builder(this)

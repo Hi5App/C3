@@ -158,17 +158,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         Log.v("onSurfaceCreated:","successfully");
 
-        SetFileType();
+//        SetFileType();
 
-        if (fileType == FileType.V3draw || fileType == FileType.TIF)
-            setImage();
-
-        else if (fileType == FileType.SWC)
-            setSWC();
-
-        myAxis = new MyAxis(mz);
-        myDraw = new MyDraw();
-        myAnimation = new MyAnimation();
+//        if (fileType == FileType.V3draw || fileType == FileType.TIF)
+//            setImage();
+//
+//        else if (fileType == FileType.SWC)
+//            setSWC();
+//
+//        myAxis = new MyAxis(mz);
+//        myDraw = new MyDraw();
+//        myAnimation = new MyAnimation();
 
 
 
@@ -195,9 +195,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         if (fileType == FileType.V3draw || fileType == FileType.TIF)
             myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
-//        myAxis = new MyAxis(mz);
-//        myDraw = new MyDraw();
-//        myAnimation = new MyAnimation();
+
+        myAxis = new MyAxis(mz);
+        myDraw = new MyDraw();
+        myAnimation = new MyAnimation();
 
         mCaptureBuffer = ByteBuffer.allocate(screen_h*screen_w*4);
         mBitmap = Bitmap.createBitmap(screen_w,screen_h, Bitmap.Config.ARGB_8888);
@@ -254,9 +255,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         setMatrix();
 
-        if (myAnimation.status){
-            AnimationRotation();
+        if (myAnimation != null){
+            if (myAnimation.status){
+                AnimationRotation();
+            }
         }
+
 
 //        setMatrix();
 
@@ -506,7 +510,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
         //
-        myAxis.draw(finalMatrix);
+        if (myAxis != null)
+            myAxis.draw(finalMatrix);
 
         if(isTakePic){
             mCaptureBuffer.rewind();
@@ -686,6 +691,27 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public void SetPath(String message){
 
         filepath = message;
+        SetFileType();
+
+        if (fileType == FileType.V3draw || fileType == FileType.TIF)
+            setImage();
+
+        else if (fileType == FileType.SWC)
+            setSWC();
+
+        curSwcList.clear();
+        MarkerList.clear();
+
+        Log.v("SetPath", Arrays.toString(mz));
+
+
+//        if (fileType == FileType.V3draw || fileType == FileType.TIF)
+//            myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
+//
+//        myAxis = new MyAxis(mz);
+//        myDraw = new MyDraw();
+//        myAnimation = new MyAnimation();
+
     }
 
 
@@ -889,8 +915,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float[] new_marker = solveMarkerCenter(x, y);
 
             ImageMarker imageMarker_drawed = new ImageMarker(new_marker[0],
-                                                             new_marker[1],
-                                                             new_marker[2]);
+                    new_marker[1],
+                    new_marker[2]);
             imageMarker_drawed.type = lastMarkerType;
             System.out.println("set type to 3");
 
@@ -1166,7 +1192,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        float[] d = minus(loc1_index, loc2_index);
 //        normalize(d);
 
-            Log.v("getCenterOfLineProfile:", "step: " + Arrays.toString(d));
+        Log.v("getCenterOfLineProfile:", "step: " + Arrays.toString(d));
 
         //判断是不是一个像素
         float length = distance(loc1_index, loc2_index);
@@ -2495,7 +2521,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 
-//    class XYZ{
+    //    class XYZ{
 //        private float this_x;
 //
 //        public XYZ(float x, float y, float z){
