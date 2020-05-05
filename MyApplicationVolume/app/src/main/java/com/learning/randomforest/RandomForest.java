@@ -66,7 +66,7 @@ public class RandomForest {
         }
         System.out.println("");
         System.out.println("Finished tree construction");
-        TestForest(trees, testData);
+//        TestForest(trees, testData);
         CalcImportance();
         System.out.println("Done in "+TimeElapsed(startTime));
     }
@@ -207,7 +207,8 @@ public class RandomForest {
         int[] counts=new int[C];
         for (int t=0;t<numTrees;t++){
             int Class=(trees.get(t)).Evaluate(record);
-            counts[Class]++;
+//            System.out.println(t+" class: "+Class);
+            counts[Class-1]++;
         }
         return FindMaxIndex(counts);
     }

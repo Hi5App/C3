@@ -4,14 +4,25 @@ import java.util.Vector;
 
 public class ConvolutionOptions {
     public int dim;
-    public Vector<Float> sigmaEff;
-    public Vector<Float> sigmaD;
-    public Vector<Integer> stepSize;
-    public Vector<Integer> outerScale;
+    public Vector<Float> sigmaEff = new Vector<>();
+    public Vector<Float> sigmaD = new Vector<>();
+    public Vector<Integer> stepSize = new Vector<>();
+    public Vector<Integer> outerScale = new Vector<>();
 
     private int index;
 
     public double windowRatio;
+
+    public ConvolutionOptions(int dim, float sigma){
+        this.dim = dim;
+        for(int i=0; i<this.dim; i++){
+            sigmaEff.add(sigma);
+            sigmaD.add(0.0f);
+            stepSize.add(1);
+        }
+        index = 0;
+        windowRatio =0.0;
+    }
 
     public ConvolutionOptions(ConvolutionOptions c){
         for(int i=0; i<c.sigmaEff.size(); i++){

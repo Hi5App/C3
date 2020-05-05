@@ -190,14 +190,13 @@ public class Kernel1D {
         }
         if(sum!=0){
             sum = norm/sum;
+            for(int i=0; i<kernel.size(); i++){
+                double k = kernel.get(i)*sum;
+                kernel.set(i,k);
+            }
         }
         else {
             System.out.println("sum is zero!");
-        }
-
-        for(int i=0; i<kernel.size(); i++){
-            double k = kernel.get(i)*sum;
-            kernel.set(i,k);
         }
 
         this.norm = norm;

@@ -38,6 +38,7 @@ public class MultiConvolution {
 
     public static void gaussianSmoothMultiArray(int[] src, int[] srcSz,
                                                 int[] dest, ConvolutionOptions opt){
+        System.out.println("-------------in gaussianSmoothMultiArray-----------------");
         Vector<Kernel1D> kernels = new Vector<>();
         int N = srcSz.length;
         opt.reset();
@@ -52,6 +53,7 @@ public class MultiConvolution {
 
     public static void gaussianGradientMultiArray(int[] src, int[] srcSz,
                                                   int[] dest, ConvolutionOptions opt){
+        System.out.println("-------------in gaussianGradientMultiArray-----------------");
         Vector<Kernel1D> plainKernels = new Vector<>();
         int N = srcSz.length;
         for(int k=0; k<N; k++){
@@ -81,6 +83,7 @@ public class MultiConvolution {
 
     public static void gaussianGradientMagnitude(int[] src, int[] srcSz,
                                                  int[] dest, ConvolutionOptions opt){
+        System.out.println("-------------in gaussianGradientMagnitude-----------------");
         Arrays.fill(dest,0);
         int N = srcSz.length - 1;
         int[] grad = new int[dest.length];
@@ -121,6 +124,7 @@ public class MultiConvolution {
 
     public static void laplacianOfGaussianMultiArray(int[] src, int[] srcSz,
                                                       int[] dest, ConvolutionOptions opt){
+        System.out.println("-------------in laplacianOfGaussianMultiArray-----------------");
         Vector<Kernel1D> plainKernels = new Vector<>();
         int N = srcSz.length;
         for(int k=0; k<N; k++){
@@ -158,6 +162,7 @@ public class MultiConvolution {
 
     public static void hessianOfGaussianMultiArray(int[] src, int[] srcSz,
                                                      int[] dest, ConvolutionOptions opt){
+        System.out.println("-------------in hessianOfGaussianMultiArray-----------------");
         Vector<Kernel1D> plainKernels = new Vector<>();
         int N = srcSz.length;
         int M = N*(N+1)/2;
@@ -209,6 +214,7 @@ public class MultiConvolution {
 
     public static void structureTensorMultiArray(int[] src, int[] srcSz,
                                                    int[] dest, ConvolutionOptions opt){
+        System.out.println("-------------in structureTensorMultiArray-----------------");
         Vector<Kernel1D> plainKernels = new Vector<>();
         int N = srcSz.length;
         int M = N*(N+1)/2;

@@ -53,6 +53,7 @@ import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
 import com.example.connect.RemoteImg;
 import com.feature_calc_func.MorphologyCalculate;
+import com.learning.pixelclassification.PixelClassification;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
@@ -117,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
     private Button Sync;
     private Button Switch;
     private Button Share;
+
+    private Button pixelC;
 
     private RemoteImg remoteImg;
 
@@ -263,6 +266,17 @@ public class MainActivity extends AppCompatActivity {
         Rotation.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 Rotation();
+            }
+        });
+
+        pixelC = new Button(this);
+        pixelC.setText("Pixel Classification");
+        ll_top.addView(pixelC);
+
+        pixelC.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Learning();
             }
         });
 
@@ -1217,8 +1231,35 @@ public class MainActivity extends AppCompatActivity {
 
     private void Learning() {
 
-        Image4DSimple image = new Image4DSimple();
-        myrenderer.ResetImg(image);
+        Image4DSimple img = myrenderer.getImg();
+        NeuronTree nt = myrenderer.getNeuronTree();
+        PixelClassification p = new PixelClassification();
+
+        boolean[][] selections = new boolean[][]{
+                {true,true,true,true,true,true,true},
+                {true,true,true,true,true,true,true},
+                {false,false,false,false,false,false,false},
+                {false,false,false,false,false,false,false},
+                {false,false,false,false,false,false,false},
+                {true,true,true,true,true,true,true}
+        };
+        p.setSelections(selections);
+        try{
+            Image4DSimple outImg = p.getPixelClassificationResult(img,nt);
+            System.out.println("outImg: "+outImg.getSz0()+" "+outImg.getSz1()+" "+outImg.getSz2()+" "+outImg.getSz3());
+            System.out.println(outImg.getData().length);
+            myrenderer.ResetImg(outImg);
+            myGLSurfaceView.requestRender();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+//        Image4DSimple out = new Image4DSimple();
+//        out.setData(img);
+//        myrenderer.ResetImg(out);
+
+
+
 
     }
 

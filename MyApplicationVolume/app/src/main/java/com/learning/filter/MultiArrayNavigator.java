@@ -47,15 +47,31 @@ public class MultiArrayNavigator {
     }
 
     public boolean Next(){
-        point[0]++;
         int iTmp = 0;
-        while (point[iTmp] >= shape[iTmp]){
-            if(iTmp + 1 >= point.length) {
+        if(innerDimension == iTmp){
+            iTmp++;
+            if(iTmp >= point.length)
                 return false;
+        }
+        point[iTmp]++;
+        while (point[iTmp] >= shape[iTmp]){
+            if(iTmp + 1 == innerDimension){
+                iTmp++;
+                if(iTmp + 1 >= point.length) {
+                    return false;
+                }else {
+                    point[iTmp-1] = 0;
+                    point[iTmp+1]++;
+                    iTmp = iTmp+1;
+                }
             }else {
-                point[iTmp] = 0;
-                point[iTmp+1]++;
-                iTmp = iTmp+1;
+                if(iTmp + 1 >= point.length) {
+                    return false;
+                }else {
+                    point[iTmp] = 0;
+                    point[iTmp+1]++;
+                    iTmp = iTmp+1;
+                }
             }
         }
         this.index = 0;

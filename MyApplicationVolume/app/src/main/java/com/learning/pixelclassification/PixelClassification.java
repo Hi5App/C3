@@ -6,6 +6,8 @@ import com.example.basic.NeuronTree;
 import com.learning.feature_select.DifferenceOfGaussian;
 import com.learning.feature_select.GaussianBlur;
 import com.learning.feature_select.LaplacianOfGaussian;
+import com.learning.filter.ConvolutionOptions;
+import com.learning.filter.MultiConvolution;
 import com.learning.randomforest.RandomForest;
 import com.tracingfunc.app2.MyMarker;
 
@@ -35,6 +37,7 @@ public class PixelClassification {
 
         Vector<NeuronTree> labels = nt.splitNeuronTreeByType();
         int C = labels.size();
+        System.out.println("C: "+C);
 
         List<int[]> masks = new ArrayList<>(C);
         int[] sz = new int[]{(int) inImg.getSz0(), (int) inImg.getSz1(), (int) inImg.getSz2()};
@@ -50,8 +53,10 @@ public class PixelClassification {
             maskFinal[i] = 0;
         for(int i=0; i<masks.size(); i++){
             for(int j=0; j<masks.get(i).length; j++){
-                if(maskFinal[j] == 0 && masks.get(i)[j] != 0)
+                if(maskFinal[j] == 0 && masks.get(i)[j] != 0) {
+                    System.out.println("mask is not zero");
                     maskFinal[j] = masks.get(i)[j];
+                }
             }
         }
 
@@ -67,15 +72,18 @@ public class PixelClassification {
 
         }
 
+        System.out.println("---------------get feature-----------");
         for(int i=0; i<selections.length; i++){
             for(int j=0; j<sigmaScales.length; j++){
                 double sigma = sigmaScales[j];
                 if(selections[i][j]){
-                    int[] outFeature = getFeature(img1d,sz,sigma,featureName[i]);
+                    int[] outFeature = getFilterFeature(img1d,sz,sigma,featureName[i]);
                     pixelsFeature.add(outFeature);
                 }
             }
         }
+
+        System.out.println("feature size: "+pixelsFeature.size());
 
         ArrayList<int[]> dataRandomForest = new ArrayList<>();
         int M = pixelsFeature.size();
@@ -93,11 +101,12 @@ public class PixelClassification {
 
         for(int i=0; i<maskFinal.length; i++){
             if(maskFinal[i] != 0){
+                System.out.println("-------------feature------------");
                 int[] features = new int[M+1];
                 if (dataRandomForest.get(i).length - 1 >= 0)
                     System.arraycopy(dataRandomForest.get(i), 0, features, 0, dataRandomForest.get(i).length - 1);
                 features[M] = maskFinal[i];
-                testData.add(features);
+                trainData.add(features);
             }
         }
 
@@ -110,24 +119,33 @@ public class PixelClassification {
 
         int[] resultClassification = new int[dataRandomForest.size()];
 
+        System.out.println("----------------------classification-----------------");
+
         for(int i=0; i<dataRandomForest.size(); i++){
             resultClassification[i] = rf.Evaluate(dataRandomForest.get(i));
+//            if(i%100==0){
+//                System.out.println(i+" : "+resultClassification[i]);
+//            }
         }
 
         int[] pixelIntensity = new int[C];
         int step = 255/(C-1);
         for(int i=0; i<C; i++){
-            pixelIntensity[i] = i*step;
+            pixelIntensity[i] = (C-1-i)*step;
         }
 
         byte[] data = new byte[dataRandomForest.size()];
         for(int i=0; i<dataRandomForest.size(); i++){
-            data[i] = (byte) pixelIntensity[resultClassification[i] - 1];
+            data[i] = (byte) pixelIntensity[resultClassification[i]];
         }
 
         result.setDataFromImage(data,inImg.getSz0(),inImg.getSz1(),inImg.getSz2(),inImg.getSz3(),Image4DSimple.ImagePixelType.V3D_UINT8,inImg.getIsBig());
 
         return result;
+    }
+
+    public void setSelections(boolean[][] selections) {
+        this.selections = selections;
     }
 
     public int[] getFeature(int[] inPixel, int[] sz, double sigma, String method){
@@ -139,6 +157,38 @@ public class PixelClassification {
             LaplacianOfGaussian.filter3d((float) sigma,inPixel,outPixel,sz[0],sz[1],sz[2],1);
         }else if(method == featureName[5]){
             DifferenceOfGaussian.filter3d((float) sigma,inPixel,outPixel,sz[0],sz[1],sz[2],1);
+        }
+        return outPixel;
+    }
+
+    public int[] getFilterFeature(int[] inPixel, int[] sz, double sigma, String method){
+        int[] outPixel = new int[inPixel.length];
+        ConvolutionOptions opt = new ConvolutionOptions(sz.length, (float) sigma);
+        if(method == featureName[0]){
+            MultiConvolution.gaussianSmoothMultiArray(inPixel,sz,outPixel,opt);
+        }else if(method == featureName[1]){
+            MultiConvolution.laplacianOfGaussianMultiArray(inPixel,sz,outPixel,opt);
+        }else if(method == featureName[2]){
+            MultiConvolution.structureTensorMultiArray(inPixel,sz,outPixel,opt);
+        }else if(method == featureName[3]){
+            int N = sz.length;
+            int M = N*(N+1)/2;
+            int[] tmpPixl = new int[inPixel.length*M];
+            MultiConvolution.hessianOfGaussianMultiArray(inPixel,sz,tmpPixl,opt);
+            for(int i=0; i<outPixel.length; i++){
+                outPixel[i] = tmpPixl[i];
+            }
+        }else if(method == featureName[4]){
+            MultiConvolution.gaussianGradientMultiArray(inPixel,sz,outPixel,opt);
+        }else if(method == featureName[5]){
+            int[] tmpPixl = new int[inPixel.length];
+            MultiConvolution.gaussianSmoothMultiArray(inPixel,sz,tmpPixl,opt);
+            ConvolutionOptions opt0 = new ConvolutionOptions(sz.length,0.3f);
+            MultiConvolution.gaussianSmoothMultiArray(inPixel,sz,outPixel,opt0);
+
+            for(int i=0; i<outPixel.length; i++){
+                outPixel[i] = tmpPixl[i] - outPixel[i];
+            }
         }
         return outPixel;
     }
