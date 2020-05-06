@@ -33,6 +33,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -128,7 +129,11 @@ public class MainActivity extends AppCompatActivity {
     private Button Switch;
     private Button Share;
 
-    private Button pixelC;
+    private Button PixelClassification;
+    private boolean[][]select;
+
+
+
 
     private RemoteImg remoteImg;
 
@@ -270,6 +275,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //像素分类总button
+        PixelClassification = new Button(this);
+        PixelClassification.setText("Pixel Classification");
+        ll_top.addView(PixelClassification);
+
+        PixelClassification.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                PixelClassification(v);
+            }
+        });
+
+
+
+
+
+
         Rotation = new Button(this);
         Rotation.setText("R");
         ll_top.addView(Rotation);
@@ -280,16 +301,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        pixelC = new Button(this);
-        pixelC.setText("Pixel Classification");
-        ll_top.addView(pixelC);
-
-        pixelC.setOnClickListener(new Button.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                Learning();
-            }
-        });
 
 
 
@@ -1107,6 +1118,42 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
+    //像素分类界面
+    private void PixelClassification(final View v) {
+        new XPopup.Builder(this)
+                .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
+                .asAttachList(new String[]{"FeatureSet", "PenColor", "Run"},
+                        new int[]{},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text) {
+                                    case "FeatureSet":
+                                        //调用特征选择窗口
+                                        FeatureSet();
+                                        break;
+
+                                    case "PenColor":
+                                        //调用选择画笔窗口
+                                        PenSet();
+
+                                        break;
+
+                                    case "Run":
+                                        //调用像素分类接口，显示分类结果
+                                        Learning();
+                                        break;
+
+                                }
+                            }
+                        })
+                .show();
+    }
+
+
+
+
+
 
 
     /**
@@ -1360,39 +1407,9 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    private void Learning() {
-
-        Image4DSimple img = myrenderer.getImg();
-        NeuronTree nt = myrenderer.getNeuronTree();
-        PixelClassification p = new PixelClassification();
-
-        boolean[][] selections = new boolean[][]{
-                {true,true,true,true,true,true,true},
-                {true,true,true,true,true,true,true},
-                {false,false,false,false,false,false,false},
-                {false,false,false,false,false,false,false},
-                {false,false,false,false,false,false,false},
-                {true,true,true,true,true,true,true}
-        };
-        p.setSelections(selections);
-        try{
-            Image4DSimple outImg = p.getPixelClassificationResult(img,nt);
-            System.out.println("outImg: "+outImg.getSz0()+" "+outImg.getSz1()+" "+outImg.getSz2()+" "+outImg.getSz3());
-            System.out.println(outImg.getData().length);
-            myrenderer.ResetImg(outImg);
-            myGLSurfaceView.requestRender();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-//        Image4DSimple out = new Image4DSimple();
-//        out.setData(img);
-//        myrenderer.ResetImg(out);
 
 
 
-
-    }
 
     private void loadLocalFile(){
         ifLoadLocal = true;
@@ -2198,6 +2215,210 @@ public class MainActivity extends AppCompatActivity {
 //        Log.v("Load data successfully!", "here we are");
     }
 
+    private void Learning() {
+
+        Image4DSimple img = myrenderer.getImg();
+        NeuronTree nt = myrenderer.getNeuronTree();
+        PixelClassification p = new PixelClassification();
+
+        /*boolean[][] selections = new boolean[][]{
+                {true,true,true,true,true,true,true},
+                {true,true,true,true,true,true,true},
+                {false,false,false,false,false,false,false},
+                {false,false,false,false,false,false,false},
+                {false,false,false,false,false,false,false},
+                {true,true,true,true,true,true,true}
+        };*/
+        boolean[][] selections = select;
+        System.out.println("select is");
+        System.out.println(select);
+        p.setSelections(selections);
+
+        Toast.makeText(getContext(), "pixel  classification start~", Toast.LENGTH_SHORT).show();
+        try{
+            Image4DSimple outImg = p.getPixelClassificationResult(img,nt);
+            System.out.println("outImg: "+outImg.getSz0()+" "+outImg.getSz1()+" "+outImg.getSz2()+" "+outImg.getSz3());
+            System.out.println(outImg.getData().length);
+            myrenderer.ResetImg(outImg);
+            myGLSurfaceView.requestRender();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+//        Image4DSimple out = new Image4DSimple();
+//        out.setData(img);
+//        myrenderer.ResetImg(out);
+
+
+
+
+    }
+
+    public void FeatureSet(){
+
+        new MDDialog.Builder(this)
+                .setContentView(R.layout.pixel_choose)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+
+
+                    }
+                })
+                .setTitle("Feature Set")
+                .setNegativeButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+
+
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
+                        CheckBox ch1 = (CheckBox) contentView.findViewById(R.id.checkBox1);
+                        CheckBox ch2 = (CheckBox) contentView.findViewById(R.id.checkBox2);
+                        CheckBox ch3 = (CheckBox) contentView.findViewById(R.id.checkBox3);
+                        CheckBox ch4 = (CheckBox) contentView.findViewById(R.id.checkBox4);
+                        CheckBox ch5 = (CheckBox) contentView.findViewById(R.id.checkBox5);
+                        CheckBox ch6 = (CheckBox) contentView.findViewById(R.id.checkBox6);
+                        CheckBox ch7 = (CheckBox) contentView.findViewById(R.id.checkBox7);
+                        CheckBox ch8 = (CheckBox) contentView.findViewById(R.id.checkBox8);
+                        CheckBox ch9 = (CheckBox) contentView.findViewById(R.id.checkBox9);
+                        CheckBox ch10 = (CheckBox) contentView.findViewById(R.id.checkBox10);
+                        CheckBox ch11 = (CheckBox) contentView.findViewById(R.id.checkBox11);
+                        CheckBox ch12 = (CheckBox) contentView.findViewById(R.id.checkBox12);
+                        CheckBox ch13 = (CheckBox) contentView.findViewById(R.id.checkBox13);
+                        CheckBox ch14 = (CheckBox) contentView.findViewById(R.id.checkBox14);
+                        CheckBox ch22 = (CheckBox) contentView.findViewById(R.id.checkBox22);
+                        CheckBox ch23 = (CheckBox) contentView.findViewById(R.id.checkBox23);
+                        CheckBox ch24 = (CheckBox) contentView.findViewById(R.id.checkBox24);
+                        CheckBox ch25 = (CheckBox) contentView.findViewById(R.id.checkBox25);
+                        CheckBox ch26 = (CheckBox) contentView.findViewById(R.id.checkBox26);
+                        CheckBox ch27 = (CheckBox) contentView.findViewById(R.id.checkBox27);
+                        CheckBox ch28 = (CheckBox) contentView.findViewById(R.id.checkBox28);
+                        CheckBox ch29 = (CheckBox) contentView.findViewById(R.id.checkBox29);
+                        CheckBox ch30 = (CheckBox) contentView.findViewById(R.id.checkBox30);
+                        CheckBox ch31 = (CheckBox) contentView.findViewById(R.id.checkBox31);
+                        CheckBox ch32 = (CheckBox) contentView.findViewById(R.id.checkBox32);
+                        CheckBox ch33 = (CheckBox) contentView.findViewById(R.id.checkBox33);
+                        CheckBox ch34 = (CheckBox) contentView.findViewById(R.id.checkBox34);
+                        CheckBox ch35 = (CheckBox) contentView.findViewById(R.id.checkBox35);
+                        CheckBox ch36 = (CheckBox) contentView.findViewById(R.id.checkBox36);
+                        CheckBox ch37 = (CheckBox) contentView.findViewById(R.id.checkBox37);
+                        CheckBox ch38 = (CheckBox) contentView.findViewById(R.id.checkBox38);
+                        CheckBox ch39 = (CheckBox) contentView.findViewById(R.id.checkBox39);
+                        CheckBox ch40 = (CheckBox) contentView.findViewById(R.id.checkBox40);
+                        CheckBox ch41 = (CheckBox) contentView.findViewById(R.id.checkBox41);
+                        CheckBox ch42 = (CheckBox) contentView.findViewById(R.id.checkBox42);
+                        CheckBox ch43 = (CheckBox) contentView.findViewById(R.id.checkBox43);
+                        CheckBox ch44 = (CheckBox) contentView.findViewById(R.id.checkBox44);
+                        CheckBox ch45 = (CheckBox) contentView.findViewById(R.id.checkBox45);
+                        CheckBox ch46 = (CheckBox) contentView.findViewById(R.id.checkBox46);
+                        CheckBox ch47 = (CheckBox) contentView.findViewById(R.id.checkBox47);
+                        CheckBox ch48 = (CheckBox) contentView.findViewById(R.id.checkBox48);
+                        CheckBox ch49 = (CheckBox) contentView.findViewById(R.id.checkBox49);
+
+
+                        select = new boolean[][]{
+                                {ch1.isChecked(),ch2.isChecked(),ch3.isChecked(),ch4.isChecked(),ch5.isChecked(),ch6.isChecked(),ch7.isChecked()},
+                                {ch8.isChecked(),ch9.isChecked(),ch10.isChecked(),ch11.isChecked(),ch12.isChecked(),ch13.isChecked(),ch14.isChecked()},
+                                {ch22.isChecked(),ch23.isChecked(),ch24.isChecked(),ch25.isChecked(),ch26.isChecked(),ch27.isChecked(),ch28.isChecked()},
+                                {ch29.isChecked(),ch30.isChecked(),ch31.isChecked(),ch32.isChecked(),ch33.isChecked(),ch34.isChecked(),ch35.isChecked()},
+                                {ch36.isChecked(),ch37.isChecked(),ch38.isChecked(),ch39.isChecked(),ch40.isChecked(),ch41.isChecked(),ch42.isChecked()},
+                                {ch43.isChecked(),ch44.isChecked(),ch45.isChecked(),ch46.isChecked(),ch47.isChecked(),ch48.isChecked(),ch49.isChecked()}
+                        };
+                        System.out.println("select is");
+                        System.out.println(select);
+                        //Log.v("Mainactivity", "GD-Tracing start~");
+                        Toast.makeText(getContext(), "feature set~", Toast.LENGTH_SHORT).show();
+
+
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+//                        EditText et = (EditText) contentView.findViewById(R.id.edit1);
+//                        Toast.makeText(getApplicationContext(), "edittext 1 : " + et.getText(), Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setWidthMaxDp(600)
+                .create()
+                .show();
+    }
+
+    //画笔颜色设置
+    public void PenSet(){
+
+        new MDDialog.Builder(this)
+                .setContentView(R.layout.pen_choose)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+                        EditText et1 = (EditText) contentView.findViewById(R.id.pencolor);
+                        //pencolor= 2;
+                        /*String color  = et1.getText().toString();
+                        pencolor= Integer.parseInt(color);
+                        System.out.println("pen color is");
+                        System.out.println(pencolor);*/
+
+                    }
+                })
+                .setTitle("Pen Set")
+                .setNegativeButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
+                        EditText et1 = (EditText) contentView.findViewById(R.id.pencolor);
+                        String color  = et1.getText().toString();
+
+                        if( !color.isEmpty()){
+
+                            myrenderer.pencolorchange(Integer.parseInt(color));;
+                            System.out.println("pen color is");
+                            System.out.println(Integer.parseInt(color));
+                            //Log.v("Mainactivity", "GD-Tracing start~");
+                            //Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "pencolor set~", Toast.LENGTH_SHORT).show();
+
+
+                        }else{
+
+                            Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+//                        EditText et = (EditText) contentView.findViewById(R.id.edit1);
+//                        Toast.makeText(getApplicationContext(), "edittext 1 : " + et.getText(), Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setWidthMaxDp(600)
+                .create()
+                .show();
+    }
 
     //opengl中的显示区域
     class MyGLSurfaceView extends GLSurfaceView {
@@ -2416,5 +2637,9 @@ public class MainActivity extends AppCompatActivity {
             return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
         }
     }
+
+
+
+
 
 }

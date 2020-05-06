@@ -2598,6 +2598,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         mCapturePath = null;
     }
 
+    public  void pencolorchange(int color){
+        lastLineType=color;
+
+
+    }
+
+
 }
 
 
