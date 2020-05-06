@@ -2239,7 +2239,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Toast.makeText(this, "pixel  classification start~", Toast.LENGTH_SHORT).show();
-        Looper.loop();
+//        Looper.loop();
         try{
             Image4DSimple outImg = p.getPixelClassificationResult(img,nt);
             System.out.println("outImg: "+outImg.getSz0()+" "+outImg.getSz1()+" "+outImg.getSz2()+" "+outImg.getSz3());
