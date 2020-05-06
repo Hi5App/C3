@@ -36,9 +36,9 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1px"
-            android:layout_alignLeft="@id/edit1"
-            android:layout_alignRight="@id/edit1"
-            android:layout_below="@id/edit1"
+            android:layout_below="@id/pencolor"
+            android:layout_alignLeft="@id/pencolor"
+            android:layout_alignRight="@id/pencolor"
             android:background="#33333333" />
     </RelativeLayout>
 

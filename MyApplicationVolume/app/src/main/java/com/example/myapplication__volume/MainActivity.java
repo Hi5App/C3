@@ -132,9 +132,6 @@ public class MainActivity extends AppCompatActivity {
     private Button PixelClassification;
     private boolean[][]select;
 
-
-
-
     private RemoteImg remoteImg;
 
 
@@ -1395,7 +1392,7 @@ public class MainActivity extends AppCompatActivity {
     private void Version() {
 
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200505b",
+                .asConfirm("Version", "version: 20200507a",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
