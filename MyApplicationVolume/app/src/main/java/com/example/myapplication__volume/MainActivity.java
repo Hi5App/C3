@@ -2242,7 +2242,7 @@ public class MainActivity extends AppCompatActivity {
             myrenderer.ResetImg(outImg);
             myGLSurfaceView.requestRender();
         }catch (Exception e){
-            e.printStackTrace();
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
 
 //        Image4DSimple out = new Image4DSimple();

@@ -36,14 +36,29 @@ public class PixelClassification {
         Image4DSimple result = new Image4DSimple();
 
         Vector<NeuronTree> labels = nt.splitNeuronTreeByType();
-        int C = labels.size();
+        Vector<NeuronTree> labelFB = new Vector<NeuronTree>();
+        for(int i=0; i<labels.size(); i++){
+            if(labels.get(i).listNeuron.get(0).type == 2){
+                labelFB.add(labels.get(i));
+            }
+        }
+        for(int i=0; i<labels.size(); i++){
+            if(labels.get(i).listNeuron.get(0).type == 3){
+                labelFB.add(labels.get(i));
+            }
+        }
+        int C = labelFB.size();
         System.out.println("C: "+C);
+
+        if(C != 2){
+            throw new Exception("Please add two label!");
+        }
 
         List<int[]> masks = new ArrayList<>(C);
         int[] sz = new int[]{(int) inImg.getSz0(), (int) inImg.getSz1(), (int) inImg.getSz2()};
         int[] flag = new int[]{1,2,3,4,5,6,7,8,9,10};
         for(int i=0; i<C; i++){
-            Vector<MyMarker> inswc = MyMarker.swcConvert(labels.get(i));
+            Vector<MyMarker> inswc = MyMarker.swcConvert(labelFB.get(i));
             int[] mask = MyMarker.swcToMask(inswc,sz,1, flag[i]);
             masks.add(mask);
         }
@@ -131,7 +146,7 @@ public class PixelClassification {
         int[] pixelIntensity = new int[C];
         int step = 255/(C-1);
         for(int i=0; i<C; i++){
-            pixelIntensity[i] = (C-1-i)*step;
+            pixelIntensity[i] = i*step;
         }
 
         byte[] data = new byte[dataRandomForest.size()];
@@ -146,6 +161,11 @@ public class PixelClassification {
 
     public void setSelections(boolean[][] selections) {
         this.selections = selections;
+        for(int i=0; i<featureName.length; i++){
+            if(i!=0){
+                this.selections[i][0] = false;
+            }
+        }
     }
 
     public int[] getFeature(int[] inPixel, int[] sz, double sigma, String method){

@@ -29,7 +29,7 @@ public class ConvolutionOptions {
             this.sigmaEff.add(c.sigmaEff.get(i));
             this.sigmaD.add(c.sigmaD.get(i));
             this.stepSize.add(c.stepSize.get(i));
-            this.outerScale.add(c.outerScale.get(i));
+//            this.outerScale.add(c.outerScale.get(i));
         }
         this.dim = c.dim;
         this.index = c.index;
