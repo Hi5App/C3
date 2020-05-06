@@ -2234,7 +2234,12 @@ public class MainActivity extends AppCompatActivity {
         System.out.println(select);
         p.setSelections(selections);
 
-        Toast.makeText(getContext(), "pixel  classification start~", Toast.LENGTH_SHORT).show();
+        if (Looper.myLooper() == null) {
+            Looper.prepare();
+        }
+
+        Toast.makeText(this, "pixel  classification start~", Toast.LENGTH_SHORT).show();
+        Looper.loop();
         try{
             Image4DSimple outImg = p.getPixelClassificationResult(img,nt);
             System.out.println("outImg: "+outImg.getSz0()+" "+outImg.getSz1()+" "+outImg.getSz2()+" "+outImg.getSz3());
@@ -2242,7 +2247,11 @@ public class MainActivity extends AppCompatActivity {
             myrenderer.ResetImg(outImg);
             myGLSurfaceView.requestRender();
         }catch (Exception e){
-            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
+            }
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            Looper.loop();
         }
 
 //        Image4DSimple out = new Image4DSimple();
