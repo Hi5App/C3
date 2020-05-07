@@ -693,14 +693,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         filepath = message;
         SetFileType();
 
+        curSwcList.clear();
+        MarkerList.clear();
+
         if (fileType == FileType.V3draw || fileType == FileType.TIF)
             setImage();
 
         else if (fileType == FileType.SWC)
             setSWC();
 
-        curSwcList.clear();
-        MarkerList.clear();
+//        curSwcList.clear();
+//        MarkerList.clear();
 
         Log.v("SetPath", Arrays.toString(mz));
 
@@ -1922,6 +1925,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public synchronized void addLineDrawed2(ArrayList<Float> line){
+        if (img.getData() == null){
+            return;
+        }
         Vector<MyMarker> outswc = solveCurveMarkerLists_fm(line);
 
         if (outswc == null){
@@ -2048,6 +2054,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
     public int addLineDrawed(ArrayList<Float> line){
+        if (img.getData() == null){
+            return -1;
+        }
         ArrayList<Float> lineAdded;
         float [] lineCurrent = new float[line.size()];
         Log.v("addLineDrawed", Integer.toString(line.size()));
