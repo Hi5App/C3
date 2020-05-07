@@ -56,6 +56,7 @@ import com.example.basic.ImageMarker;
 import com.example.basic.LocationSimple;
 import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
+import com.example.connect.Filesocket_send;
 import com.example.connect.RemoteImg;
 import com.feature_calc_func.MorphologyCalculate;
 import com.learning.pixelclassification.PixelClassification;
@@ -166,7 +167,8 @@ public class MainActivity extends AppCompatActivity {
 
         myrenderer = new MyRenderer();
 //        myrenderer.SetPath(filepath);
-        Toast.makeText(this,"Filepath: " + filepath, Toast.LENGTH_SHORT).show();
+
+//        Toast.makeText(this,"Filepath: " + filepath, Toast.LENGTH_SHORT).show();
 
 //        Uri uri = Uri.parse((String) filepath);
 //
@@ -465,12 +467,16 @@ public class MainActivity extends AppCompatActivity {
 //                Uri uri = Uri.parse((String) filePath);
 
 
-                ParcelFileDescriptor parcelFileDescriptor =
-                        getContentResolver().openFileDescriptor(uri, "r");
-                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-                int length = (int) parcelFileDescriptor.getStatSize();
+                //-----------------------------------------------
+//                ParcelFileDescriptor parcelFileDescriptor =
+//                        getContentResolver().openFileDescriptor(uri, "r");
+//                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+//                int length = (int) parcelFileDescriptor.getStatSize();
+//
+//                Log.v("Legth: ", Integer.toString(length));
 
-                Log.v("Legth: ", Integer.toString(length));
+                //-----------------------------------------------
+
 
 //                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
 //
@@ -491,7 +497,7 @@ public class MainActivity extends AppCompatActivity {
 
                     FileManager fileManager = new FileManager();
                     String fileName = fileManager.getFileName(uri);
-                    String filetype = filePath.substring(filePath.lastIndexOf(".")).toUpperCase();
+                    String filetype = fileName.substring(fileName.lastIndexOf(".")).toUpperCase();
 
                     System.out.println("filetype: " + filetype + " filename: " + fileName);
 
@@ -591,7 +597,15 @@ public class MainActivity extends AppCompatActivity {
 
                 if (ifUpload){
 
-                    ConnectServer("223.33.333.234", context);
+                    ParcelFileDescriptor parcelFileDescriptor =
+                            getContentResolver().openFileDescriptor(uri, "r");
+                    InputStream is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+                    long length = (int) parcelFileDescriptor.getStatSize();
+
+                    FileManager fileManager = new FileManager();
+                    String filename = fileManager.getFileName(uri);
+
+                    SendSwc("223.33.333.234", this, is, length, filename);
 
                 }
 
@@ -656,8 +670,62 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    private void ConnectServer(String ip, Context context){
+    private void SendSwc(String ip, Context context, InputStream is, long length, String filename){
         //新建一个线程，用于初始化socket和检测是否有接收到新的消息
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+
+                if(Looper.myLooper() == null){
+                    Looper.prepare();
+                }
+
+                try {
+                    remoteImg.ip = ip;
+                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
+                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
+                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+
+                    Filesocket_send filesocket_send = new Filesocket_send();
+                    filesocket_send.filesocket = new Socket(ip, 9002);
+                    filesocket_send.mReader = new BufferedReader(new InputStreamReader(filesocket_send.filesocket.getInputStream(), "UTF-8"));
+                    filesocket_send.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_send.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
+
+                    if(remoteImg.ImgSocket.isConnected()){
+
+                        Toast.makeText(context, "Connect with Server successfully", Toast.LENGTH_SHORT).show();
+                        if (!remoteImg.isOutputShutdown()) {
+                            remoteImg.ImgPWriter.println( "connect for android client" + ":import.");
+                            remoteImg.ImgPWriter.flush();
+                        }
+
+
+                        if (filesocket_send.filesocket.isConnected()){
+
+                            Context[] contexts = new Context[1];
+                            contexts[1] = context;
+
+                            filesocket_send.sendImg(filename, is, length, contexts);
+                            contexts = null;
+                            Looper.loop();
+
+                        }
+
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+                    Looper.loop();
+                }
+            }
+        };
+        thread.start();
+
+    }
+
+
+    public void DownloadSwc(String ip, Context context){
         Thread thread = new Thread() {
             @Override
             public void run() {
@@ -673,7 +741,7 @@ public class MainActivity extends AppCompatActivity {
                     if(remoteImg.ImgSocket.isConnected()){
 
                         Toast.makeText(context, "Connect with Server successfully", Toast.LENGTH_SHORT).show();
-                        remoteImg.ImgPWriter.println( "connect for android client" + ":choose3.");
+                        remoteImg.ImgPWriter.println( "connect from android client" + ":choose3.");
                         remoteImg.ImgPWriter.flush();
 
                     }
@@ -1197,9 +1265,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void DownloadSWC() {
 
+        DownloadSwc("223.3.33.234", this);
     }
-
-
 
 
     private void LoadSWC() {
@@ -1392,7 +1459,7 @@ public class MainActivity extends AppCompatActivity {
     private void Version() {
 
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200507a",
+                .asConfirm("Version", "version: 20200507c",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -1510,6 +1577,65 @@ public class MainActivity extends AppCompatActivity {
                 .create()
                 .show();
     }
+
+
+
+    private void ConnectServer(String ip, Context context){
+        //新建一个线程，用于初始化socket和检测是否有接收到新的消息
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                Looper.prepare();
+
+                try {
+                    remoteImg.ip = ip;
+                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
+                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
+                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+
+
+                    if(remoteImg.ImgSocket.isConnected()){
+
+                        Toast.makeText(context, "Connect with Server successfully", Toast.LENGTH_SHORT).show();
+                        remoteImg.ImgPWriter.println( "connect for android client" + ":choose3.");
+                        remoteImg.ImgPWriter.flush();
+
+                    }
+
+                    //接收来自服务器的消息
+                    while(remoteImg.ImgSocket.isConnected()) {
+                        if(!remoteImg.ImgSocket.isInputShutdown()) {
+                        /*读取一行字符串，读取的内容来自于客户机
+                        reader.readLine()方法是一个阻塞方法，
+                        从调用这个方法开始，该线程会一直处于阻塞状态，
+                        直到接收到新的消息，代码才会往下走*/
+                            String content = "";
+                            while ((content = remoteImg.ImgReader.readLine()) != null) {
+                                Log.v("---------Image------:", content);
+                                if (!((Activity) context).isFinishing()){
+                                    remoteImg.onReadyRead(content, context);
+                                    Looper.loop();
+                                }
+                            }
+
+                        }
+                        Thread.sleep(200);
+                    }
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+                    Looper.loop();
+                }
+            }
+        };
+        thread.start();
+
+    }
+
+
+
 
     private String getip(){
         String ip = null;
