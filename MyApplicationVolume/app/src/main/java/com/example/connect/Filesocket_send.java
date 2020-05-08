@@ -86,7 +86,7 @@ public class Filesocket_send {
 //                        file.createNewFile();
 //                        Log.v("readFile", "Create file successfully");
 //                    }
-//
+
                     Log.v("send2", Integer.toString(IOUtils.copy(is, out)));
 
                     out.flush();
