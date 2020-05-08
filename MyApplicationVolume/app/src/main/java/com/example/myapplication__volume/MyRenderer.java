@@ -154,7 +154,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
         // Set the background frame color
-        GLES30.glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+        //淡黄
+//        GLES30.glClearColor(1.0f, 0.89f, 0.51f, 1.0f);
+        //深蓝
+        GLES30.glClearColor(0.098f, 0.098f, 0.439f, 1.0f);
+
+
 
         Log.v("onSurfaceCreated:","successfully");
 
@@ -236,7 +241,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl){
 
-        GLES30.glClearColor(0.5f, 0.4f, 0.3f, 1.0f);
+//        GLES30.glClearColor(0.5f, 0.4f, 0.3f, 1.0f);
+//        GLES30.glClearColor(1.0f, 0.5f, 0.0f, 1.0f);
+        //淡黄
+//        GLES30.glClearColor(1.0f, 0.89f, 0.51f, 1.0f);
+        //深蓝
+        GLES30.glClearColor(0.098f, 0.098f, 0.439f, 1.0f);
+
+
 
 
         //把颜色缓冲区设置为我们预设的颜色

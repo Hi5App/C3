@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         Draw = new Button(this);
-        Draw.setText("Draw");
+        Draw.setText("Define Object");
         ll_top.addView(Draw);
 
         Draw.setOnClickListener(new Button.OnClickListener() {
@@ -605,7 +605,7 @@ public class MainActivity extends AppCompatActivity {
                     FileManager fileManager = new FileManager();
                     String filename = fileManager.getFileName(uri);
 
-                    SendSwc("223.33.333.234", this, is, length, filename);
+                    SendSwc("223.3.33.234", this, is, length, filename);
 
                 }
 
@@ -706,11 +706,14 @@ public class MainActivity extends AppCompatActivity {
                             contexts[1] = context;
 
                             filesocket_send.sendImg(filename, is, length, contexts);
-                            contexts = null;
+//                            contexts = null;
                             Looper.loop();
 
                         }
 
+                    }else {
+                        Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+                        Looper.loop();
                     }
 
                 } catch (Exception e) {
@@ -729,7 +732,10 @@ public class MainActivity extends AppCompatActivity {
         Thread thread = new Thread() {
             @Override
             public void run() {
-                Looper.prepare();
+
+                if(Looper.myLooper() == null){
+                    Looper.prepare();
+                }
 
                 try {
                     remoteImg.ip = ip;
@@ -744,6 +750,9 @@ public class MainActivity extends AppCompatActivity {
                         remoteImg.ImgPWriter.println( "connect from android client" + ":choose3.");
                         remoteImg.ImgPWriter.flush();
 
+                    }else {
+                        Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+                        Looper.loop();
                     }
 
                     //接收来自服务器的消息
@@ -787,7 +796,7 @@ public class MainActivity extends AppCompatActivity {
     private void FileManager(View v) {
         new XPopup.Builder(this)
                 .atView(v)
-                .asAttachList(new String[]{"Load SWC file", "Save SWC file", "Load local file", "Remote", "Download by http"},
+                .asAttachList(new String[]{ "Open Local file", "Open Remote file", "Load SWC file", "Save SWC file" },
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -799,14 +808,11 @@ public class MainActivity extends AppCompatActivity {
                                     case "Save SWC file":
                                         SaveSWC();
                                         break;
-                                    case "Load local file":
+                                    case "Open Local file":
                                         loadLocalFile();
                                         break;
-                                    case "Remote":
+                                    case "Open Remote file":
                                         remote(v);
-                                        break;
-                                    case "Download by http":
-                                        downloadFile();
                                         break;
                                 }
                             }
@@ -918,7 +924,7 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete curve", "Split", "Exit"},
+                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete curve", "Split", "Exit Define mode"},
 //                        new int[]{R.mipmap.ic_launcher, R.mipmap.ic_launcher},
                         new int[]{},
                         new OnSelectListener() {
@@ -943,7 +949,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
-                                            Draw.setText("Draw");
+                                            Draw.setText("Define Object");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
                                         }
@@ -967,7 +973,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
-                                            Draw.setText("Draw");
+                                            Draw.setText("Define Object");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
 
@@ -992,7 +998,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
-                                            Draw.setText("Draw");
+                                            Draw.setText("Define Object");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
 
@@ -1017,7 +1023,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
-                                            Draw.setText("Draw");
+                                            Draw.setText("Define Object");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
 
@@ -1042,20 +1048,20 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
-                                            Draw.setText("Draw");
+                                            Draw.setText("Define Object");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
 
                                         }
                                         break;
 
-                                    case "Exit":
+                                    case "Exit Define mode":
                                         ifDeletingLine = false;
                                         ifPainting = false;
                                         ifPoint = false;
                                         ifDeletingMarker = false;
                                         ifSpliting = false;
-                                        Draw.setText("Draw");
+                                        Draw.setText("Define Object");
                                         Draw.setTextColor(Color.BLACK);
                                         ll_bottom.removeView(Switch);
                                         break;
@@ -1459,7 +1465,7 @@ public class MainActivity extends AppCompatActivity {
     private void Version() {
 
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200507c",
+                .asConfirm("Version", "version: 20200508a",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -1504,7 +1510,7 @@ public class MainActivity extends AppCompatActivity {
 
             new XPopup.Builder(this)
                     .atView(v)
-                    .asAttachList(new String[]{"Select file", "Select block"},
+                    .asAttachList(new String[]{"Select file", "Select block", "Download by http"},
                             new int[]{},
                             new OnSelectListener() {
                                 @Override
@@ -1516,6 +1522,10 @@ public class MainActivity extends AppCompatActivity {
 
                                         case "Select file":
                                             Select_img();
+                                            break;
+
+                                        case "Download by http":
+                                            downloadFile();
                                             break;
                                     }
                                 }
