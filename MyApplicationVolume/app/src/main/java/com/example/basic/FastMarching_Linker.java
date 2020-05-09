@@ -1895,6 +1895,242 @@ public class FastMarching_Linker {
         return outswc;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public static Vector<MyMarker> fastmarching_drawing_serialboxes(Vector<MyMarker> near_markers, Vector<MyMarker> far_markers,
+                                                                    byte [] inimg1d, Vector<MyMarker> outswc, int sz0, int sz1, int sz2,
+                                                                    int datatype, boolean isBig){
+
+
+        System.out.println("welcome to fastmarching_drawing4");
+        assert(near_markers.size() == far_markers.size());
+
+        if (near_markers.isEmpty())
+        {
+            // no stroke points to trace; bail out early
+            return null;
+        }
+
+        MyMarker nm1, nm2, fm1, fm2;
+        nm2 = near_markers.get(0);
+        fm2 = far_markers.get(0);
+        long sz01 = (long)sz0 * sz1;
+
+        long mx = MAX_INT, my = MAX_INT, mz = MAX_INT;
+        long Mx = 0, My = 0, Mz = 0;
+
+        for (long m = 1; m < near_markers.size(); m++){
+            nm1 = nm2; fm1 = fm2;
+            nm2 = near_markers.get((int)m); fm2 = far_markers.get((int)m);
+
+            // 1. calc rt
+            double [] rt = {0.0, 0.0, 0.0};
+            if(nm1 != fm1)
+            {
+                double tx1 = fm1.x - nm1.x;
+                double ty1 = fm1.y - nm1.y;
+                double tz1 = fm1.z - nm1.z;
+                double dst1 = sqrt(tx1 * tx1 + ty1 * ty1 + tz1 * tz1);
+                rt[0] = tx1 / dst1;
+                rt[1] = ty1 / dst1;
+                rt[2] = tz1 / dst1;
+            }
+            else if(nm2 != fm2)
+            {
+                double tx2 = fm2.x - nm2.x;
+                double ty2 = fm2.y - nm2.y;
+                double tz2 = fm2.z - nm2.z;
+                double dst2 = sqrt(tx2 * tx2 + ty2 * ty2 + tz2 * tz2);
+                rt[0] = tx2 / dst2;
+                rt[1] = ty2 / dst2;
+                rt[2] = tz2 / dst2;
+            }
+            else
+            {
+                System.out.println("Error : nm1 == nm2 && fm1 == fm2");
+                return null;
+            }
+
+            // 2. calc different vectors
+            double [] n1n2 = {nm2.x - nm1.x, nm2.y - nm1.y, nm2.z - nm1.z};
+            n1n2 = MAKE_UNIT(n1n2);
+            double [] n2n1 = {-n1n2[0], -n1n2[1], -n1n2[2]};
+
+            double [] f1f2 = {fm2.x - fm1.x, fm2.y - fm1.y, fm2.z - fm1.z};
+            f1f2 = MAKE_UNIT(f1f2);
+            double [] f2f1 = {-f1f2[0], -f1f2[1], -f1f2[2]};
+
+            double [] n1f1 = {rt[0], rt[1], rt[2]};
+            double [] f1n1 = {-rt[0], -rt[1], -rt[2]};
+
+            double [] n2f2 = {rt[0], rt[1], rt[2]};
+            double [] f2n2 = {-rt[0], -rt[1], -rt[2]};
+
+            int margin = 5;
+
+            // 1. get initial rectangel
+            MyMarker [] rect = {nm1, nm2, fm2, fm1};
+            double cos_n1, cos_n2, cos_f1, cos_f2;
+            if((cos_n1 = COS_THETA_UNIT(n1f1, n1n2)) < 0.0)
+            {
+                double d = dist(nm1, nm2) * (-cos_n1);
+                rect[0] = new MyMarker(nm1.x - d * rt[0], nm1.y - d * rt[1], nm1.z - d * rt[2]);
+            }
+            if((cos_n2 = COS_THETA_UNIT(n2f2, n2n1)) < 0.0)
+            {
+                double d = dist(nm1, nm2) * (-cos_n2);
+                rect[1] = new MyMarker(nm2.x - d * rt[0], nm2.y - d * rt[1], nm2.z - d * rt[2]);
+            }
+            if((cos_f2 = COS_THETA_UNIT(f2n2, f2f1)) < 0.0)
+            {
+                double d = dist(fm1, fm2) * (-cos_f2);
+                rect[2] = new MyMarker(fm2.x + d * rt[0], fm2.y + d * rt[1], fm2.z + d * rt[2]);
+            }
+            if((cos_f1 = COS_THETA_UNIT(f1n1, f1f2)) < 0.0)
+            {
+                double d = dist(fm1, fm2) * (-cos_f1);
+                rect[3] = new MyMarker(fm1.x + d * rt[0], fm1.y + d * rt[1], fm1.z + d * rt[2]);
+            }
+
+            double [] a = new double[3];
+            a[0] = rect[3].x - rect[0].x;
+            a[1] = rect[3].y - rect[0].y;
+            a[2] = rect[3].z - rect[0].z;
+            double la = sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
+            a[0] /= la; a[1] /= la; a[2] /= la;
+
+            double []b = new double[3];
+            b[0] = rect[1].x - rect[0].x;
+            b[1] = rect[1].y - rect[0].y;
+            b[2] = rect[1].z - rect[0].z;
+            double lb = sqrt(b[0] * b[0] + b[1] * b[1] + b[2] * b[2]);
+            b[0] /= lb; b[1] /= lb; b[2] /= lb;
+
+            double [] c = new double[3];
+            c[0] = a[1] * b[2] - a[2] * b[1];
+            c[1] = a[2] * b[0] - a[0] * b[2];
+            c[2] = a[0] * b[1] - a[1] * b[0];
+            double lc = sqrt(c[0] * c[0] + c[1] * c[1] + c[2] * c[2]);
+            c[0] /= lc; c[1] /= lc; c[2] /= lc;
+
+            MyMarker o = new MyMarker();
+            o.x = rect[0].x - margin * a[0] - margin * b[0] - margin * c[0];
+            o.y = rect[0].y - margin * a[1] - margin * b[1] - margin * c[1];
+            o.z = rect[0].z - margin * a[2] - margin * b[2] - margin * c[2];
+
+            long bsz0 = (long)(dist(rect[0], rect[3]) + 1 + 2 * margin + 0.5);
+            long bsz1 = (long)(dist(rect[0], rect[1]) + 1 + 2 * margin + 0.5);
+            long bsz2 = (long)(1 + 2 * margin + 0.5);
+            long bsz01 = bsz0 * bsz1;
+
+            for(long k = 0; k < bsz2; k++)
+            {
+                for(long j = 0; j < bsz1; j++)
+                {
+                    for(long i = 0; i < bsz0; i++)
+                    {
+                        long ii = (long)(o.x + i * a[0] + j * b[0] + k * c[0] + 0.5);
+                        long jj = (long)(o.y + i * a[1] + j * b[1] + k * c[1] + 0.5);
+                        long kk = (long)(o.z + i * a[2] + j * b[2] + k * c[2] + 0.5);
+
+                        if(ii >= 0 && ii < sz0 && jj >= 0 && jj < sz1 && kk >= 0 && kk < sz2)
+                        {
+                            // create bounding box
+                            mx = min(mx, ii);
+                            my = min(my, jj);
+                            mz = min(mz, kk);
+
+                            Mx = max(Mx, ii);
+                            My = max(My, jj);
+                            Mz = max(Mz, kk);
+                        }
+                    }
+                }
+            }
+        }
+
+        long msz0 = Mx - mx + 1;
+        long msz1 = My - my + 1;
+        long msz2 = Mz - mz + 1;
+        long msz01 = msz0 * msz1;
+        long mtol_sz = msz2 * msz01;
+
+        byte [] mskimg1d = new byte[(int)mtol_sz * datatype];
+        Arrays.fill(mskimg1d, (byte)0);
+        double max_int = 0; // maximum intensity
+        double min_int = INF;
+        double intensityThreshold=0;
+
+
+        for (long z = 0; z < msz2; z++)
+        {
+            for (long y = 0; y < msz1; y++)
+            {
+                for (long x = 0; x < msz0; x++)
+                {
+                    MyMarker marker = new MyMarker(mx + x, my + y, mz + z);
+                    MyMarker m_marker = new MyMarker(x, y, z);
+
+                    int pm = (int)m_marker.ind(msz0, msz01);
+                    int p = (int)(int)marker.ind(sz0, sz01);
+
+                    switch (datatype){
+                        case 1:
+                            mskimg1d[pm] = inimg1d[p];
+
+                            break;
+
+                        case 2:
+                            mskimg1d[pm * 2] = inimg1d[p * 2];
+                            mskimg1d[pm * 2 + 1] = inimg1d[p * 2 + 1];
+
+                            break;
+
+                        case 4:
+                            mskimg1d[pm * 4] = inimg1d[p * 4];
+                            mskimg1d[pm * 4 + 1] = inimg1d[p * 4 + 1];
+                            mskimg1d[pm * 4 + 2] = inimg1d[p * 4 + 2];
+                            mskimg1d[pm * 4 + 3] = inimg1d[p * 4 + 3];
+
+                            break;
+
+                        default:
+                            break;
+                    }
+//                        mskimg1d[(int)m_marker.ind(msz0, msz01)] = inimg1d[(int)marker.ind(sz0, sz01)];
+                }
+            }
+        }
+
+
+        nm1 = near_markers.get(0); fm1 = far_markers.get(0);
+        nm2 = near_markers.lastElement(); fm2 = far_markers.lastElement();
+
+        nm1 = new MyMarker(nm1.x - mx, nm1.y - my, nm1.z - mz);
+        nm2 = new MyMarker(nm2.x - mx, nm2.y - my, nm2.z - mz);
+        fm1 = new MyMarker(fm1.x - mx, fm1.y - my, fm1.z - mz);
+        fm2 = new MyMarker(fm2.x - mx, fm2.y - my, fm2.z - mz);
+
+        Vector<MyMarker> sub_markers, tar_markers;
+        sub_markers = GET_LINE_MARKERS(nm1, fm1);
+        tar_markers = GET_LINE_MARKERS(nm2, fm2);
+
+        System.out.println("mx: " + mx + ", my: " + my + ", mz: " + mz);
+        System.out.println("msz0: " + msz0 + ", msz1: " + msz1 + ", msz2: " + msz2);
+
+        outswc = fastmarching_linker(sub_markers, tar_markers, mskimg1d, outswc, (int)msz0, (int)msz1, (int)msz2, 2, datatype, isBig);
+
+        if (outswc == null)
+            return null;
+
+        for(int i = 0; i < outswc.size(); i++)
+        {
+            outswc.get(i).x += mx;
+            outswc.get(i).y += my;
+            outswc.get(i).z += mz;
+        }
+        return outswc;
+    }
+
     private static Vector<MyMarker> GET_LINE_MARKERS(MyMarker marker1, MyMarker marker2){
         Set<MyMarker> marker_set = new HashSet<MyMarker>();
         Vector<MyMarker> outmarkers = new Vector<MyMarker>();

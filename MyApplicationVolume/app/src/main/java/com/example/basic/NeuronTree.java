@@ -166,6 +166,8 @@ public class NeuronTree extends BasicSurfObj {
         System.out.println("point num = "+this.listNeuron.size()+", save swc file to "+swcfile);
         try {
             File f = new File(swcfile);
+            if (f.exists())
+                return false;
             FileOutputStream fid = new FileOutputStream(f);
             OutputStreamWriter writer = new OutputStreamWriter(fid, "UTF-8");
             writer.append("#name \n");
