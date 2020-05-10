@@ -31,7 +31,7 @@ public class FileManager {
         returnCursor.moveToFirst();
         String filename = returnCursor.getString(nameIndex);
 
-        System.out.println("getFileType:  " + filename);
+        System.out.println("getFileName:  " + filename);
 
         return filename;
 

@@ -1,7 +1,7 @@
 package com.example.myapplication__volume;
 
 import android.content.Context;
-import android.content.Intent;
+import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
@@ -23,7 +23,6 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-import static com.example.myapplication__volume.FileActivity.EXTRA_MESSAGE;
 import static java.lang.Thread.State.TERMINATED;
 
 
@@ -268,6 +267,15 @@ public class Filesocket_receive {
                 .asLoading("Downloading......");
         popupView.show();
 
+        Handler handler = new Handler();
+
+        // 构建Runnable对象，并在runnable中更新UI
+        Runnable   udpUIRunnable = new  Runnable(){
+            @Override
+            public void run() {
+                popupView.dismiss();
+            }
+        };
 
         Thread thread = new Thread()  {
             public void run(){
@@ -422,7 +430,8 @@ public class Filesocket_receive {
 //                    outputStream.write(file_content);
 //                    outputStream.close();
 
-                    popupView.dismiss();
+//                    popupView.dismiss();
+
 
                 }catch (Exception e){
                     e.printStackTrace();
@@ -437,11 +446,16 @@ public class Filesocket_receive {
 
         while (thread.getState() != TERMINATED);
 
-        Intent intent = new Intent(context[0], MainActivity.class);
-        String message = path + "/" + filename;
-        intent.putExtra(EXTRA_MESSAGE, message);
-        context[0].startActivity(intent);
-        context[0] = null;
+        popupView.dismiss();
+
+
+//        handler.post(udpUIRunnable); //向Handler post runnable对象
+
+//        Intent intent = new Intent(context[0], MainActivity.class);
+//        String message = path + "/" + filename;
+//        intent.putExtra(EXTRA_MESSAGE, message);
+//        context[0].startActivity(intent);
+//        context[0] = null;
 
     }
 
@@ -463,5 +477,8 @@ public class Filesocket_receive {
         }
 
     }
+
+
+
 
 }

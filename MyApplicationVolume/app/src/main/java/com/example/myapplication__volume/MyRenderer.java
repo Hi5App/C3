@@ -2261,13 +2261,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
             }
         }
-        curSwcList.deleteMutiSeg(new Vector<Integer>());
+//        curSwcList.deleteMutiSeg(new Vector<Integer>());
 
         Vector<V_NeuronSWC> toBeDeleted = new Vector<>();
         for (int i = 0; i < indexToBeDeleted.size(); i++){
             int index = indexToBeDeleted.get(i);
-            toBeDeleted.add(curSwcList.seg.get(i));
+            toBeDeleted.add(curSwcList.seg.get(index));
         }
+
+        curSwcList.deleteMutiSeg(indexToBeDeleted);
 
         if (process.size() < UNDO_LIMIT){
             process.add(Operate.DELETECURVE);

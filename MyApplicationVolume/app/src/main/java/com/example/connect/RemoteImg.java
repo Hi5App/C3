@@ -140,12 +140,12 @@ public class RemoteImg extends Socket {
 
 //                    Log.v("send1", context.getExternalFilesDir(null).toString());
 
-                    if (mSocket.isConnected()) {
-                        if (!mSocket.isOutputShutdown()) {
+                    if (ImgSocket.isConnected()) {
+                        if (!ImgSocket.isOutputShutdown()) {
                             Log.v("send1", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
-                            mPWriter.println(item + ":choose1." + "\n");
-                            mPWriter.flush();
+                            ImgPWriter.println(item + ":choose1." + "\n");
+                            ImgPWriter.flush();
 
                             Looper.prepare();
 

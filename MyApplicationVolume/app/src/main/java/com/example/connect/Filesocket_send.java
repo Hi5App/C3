@@ -5,15 +5,11 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.lxj.xpopup.XPopup;
-import com.lxj.xpopup.core.BasePopupView;
-
 import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -40,15 +36,17 @@ public class Filesocket_send {
         totalsize = 0;
         filenamesize = 0;
         m_bytesreceived = 0;
+        Log.v("Init Filesocket_send:", "Init Filesocket_send successfully");
+
     }
 
 
     public void sendImg(final String filename, final InputStream is, final long length_content, final Context[] context) throws InterruptedException {
-        Boolean stop = false;
+        final Boolean[] stop = {false};
 
-        BasePopupView popupView = new XPopup.Builder(context[0])
-                .asLoading("Uploading......");
-        popupView.show();
+//        BasePopupView popupView = new XPopup.Builder(context[0])
+//                .asLoading("Uploading......");
+//        popupView.show();
 
 
         Thread thread = new Thread()  {
@@ -60,41 +58,52 @@ public class Filesocket_send {
                     }
 
                     Log.v("sendImg", "start to send file");
-                    DataOutputStream out = new DataOutputStream((FileOutputStream)(filesocket.getOutputStream()));
+                    OutputStream out = filesocket.getOutputStream();
+//                    DataOutputStream out = new DataOutputStream((FileOutputStream)(filesocket.getOutputStream()));
 
                     Log.v("readFile", "start to read Datainputstream");
 
-
+                    Log.v("sendImg Filename:", filename);
                     long filename_size = filename.getBytes(StandardCharsets.UTF_8).length;
                     long file_size = 16 + filename_size + length_content;
 
-                    byte[] filename_size_byte = longToBytes(filenamesize);
+                    byte[] filename_size_byte = longToBytes(filename_size);
                     byte[] file_size_byte = longToBytes(file_size);
 
                     out.write(file_size_byte,0,8);
                     out.write(filename_size_byte,0,8);
                     //前两个 uint64 记录传输内容的总长度 和 文件名的长度
 
-                    Log.v("readFile: file_size", Long.toString(bytesToLong(filename_size_byte)));
-                    Log.v("readFile: filename_size", Long.toString(bytesToLong(file_size_byte)));
+                    Log.v("readFile: file_size", Long.toString(bytesToLong(file_size_byte)));
+                    Log.v("readFile: filename_size", Long.toString(bytesToLong(filename_size_byte)));
+
+                    String str = new String(filename.getBytes(StandardCharsets.UTF_8), "UTF-8"); // for UTF-8 encoding
+                    Log.v("readFile: filename", str);
 
                     out.write(filename.getBytes(StandardCharsets.UTF_8));
 
 //                    //打开文件，如果没有，则新建文件
-//                    File file = new File(path + "/" + filename);
+//                    File file = new File("/storage/emulated/0/C3" + "/" + filename);
 //                    if(!file.exists()){
 //                        file.createNewFile();
 //                        Log.v("readFile", "Create file successfully");
+//                    }
+//                    FileOutputStream outputStream = new FileOutputStream(file);
+
+//                    byte buffer[] = new byte[4 * 1024];
+//                    int temp = 0;
+//                    // 循环读取文件
+//                    while ((temp = is.read(buffer)) != -1) {
+//                        // 把数据写入到OuputStream对象中
+//                        outputStream.write(buffer, 0, temp);
 //                    }
 
                     Log.v("send2", Integer.toString(IOUtils.copy(is, out)));
 
                     out.flush();
-                    out.close();
                     is.close();
 
-                    popupView.dismiss();
-
+                    stop[0] = true;
                 }catch (Exception e){
                     e.printStackTrace();
                     Toast.makeText(context[0], "Fail to download img", Toast.LENGTH_SHORT).show();
@@ -102,6 +111,13 @@ public class Filesocket_send {
             }
         };
         thread.start();
+
+//        Log.v("send2", "finished");
+
+//        while (!stop[0]){
+//        }
+//        popupView.dismiss();
+
 
     }
 
