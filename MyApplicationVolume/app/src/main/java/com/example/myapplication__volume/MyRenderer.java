@@ -51,6 +51,14 @@ import static javax.microedition.khronos.opengles.GL10.GL_SRC_ALPHA;
 
 //@android.support.annotation.RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
 public class MyRenderer implements GLSurfaceView.Renderer {
+    private int UNDO_LIMIT = 5;
+    private enum Operate {DRAWCURVE, DELETECURVE, DRAWMARKER, DELETEMARKER, SPLIT};
+    private Vector<Operate> process = new Vector<>();
+    private Vector<V_NeuronSWC> undoDrawList = new Vector<>();
+    private Vector<Vector<V_NeuronSWC>> undoDeleteList = new Vector<>();
+    private Vector<ImageMarker> undoDrawMarkerList = new Vector<>();
+    private Vector<ImageMarker> undoDeleteMarkerList = new Vector<>();
+
     public static final String OUTOFMEM_MESSAGE = "OutOfMemory";
     public static final String FILE_SUPPORT_ERROR = "FileSupportError";
 
@@ -936,6 +944,16 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             System.out.println("set type to 3");
 
             MarkerList.add(imageMarker_drawed);
+
+            if (process.size() < UNDO_LIMIT){
+                process.add(Operate.DRAWMARKER);
+                undoDrawMarkerList.add(imageMarker_drawed);
+            } else {
+                process.remove(0);
+                process.add(Operate.DRAWMARKER);
+                undoDrawMarkerList.remove(0);
+                undoDrawMarkerList.add(imageMarker_drawed);
+            }
         }
     }
 
@@ -958,7 +976,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float dy = Math.abs(positionVolumne[1] - y);
 
             if (dx < 0.08 && dy < 0.08){
+                ImageMarker temp = MarkerList.get(i);
                 MarkerList.remove(i);
+                if (process.size() < UNDO_LIMIT){
+                    process.add(Operate.DELETEMARKER);
+                    undoDeleteMarkerList.add(temp);
+                } else{
+                    process.remove(0);
+                    process.add(Operate.DELETEMARKER);
+                    undoDeleteMarkerList.remove(0);
+                    undoDeleteMarkerList.add(temp);
+                }
                 break;
             }
         }
@@ -2028,6 +2056,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
             }
             curSwcList.append(seg);
+            if (process.size() < UNDO_LIMIT){
+                process.add(Operate.DRAWCURVE);
+                undoDrawList.add(seg);
+            } else{
+              process.remove(0);
+              process.add(Operate.DRAWCURVE);
+              undoDrawList.remove(0);
+              undoDrawList.add(seg);
+            }
 //            Log.v("addLineDrawed", Integer.toString(lineAdded.size()));
         }
         else
@@ -2160,6 +2197,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public  void deleteLine1(ArrayList<Float> line){
 //        curSwcList.deleteCurve(line, finalMatrix, sz, mz);
         System.out.println("deleteline1--------------------------");
+        Vector<Integer> indexToBeDeleted = new Vector<>();
         for (int i = 0; i < line.size() / 3 - 1; i++){
             float x1 = line.get(i * 3);
             float y1 = line.get(i * 3 + 1);
@@ -2217,12 +2255,29 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                             && ((m * n) <= 0) && (p * q <= 0)){
                         System.out.println("------------------this is delete---------------");
                         seg.to_be_deleted = true;
+                        indexToBeDeleted.add(j);
                         break;
                     }
                 }
             }
         }
         curSwcList.deleteMutiSeg(new Vector<Integer>());
+
+        Vector<V_NeuronSWC> toBeDeleted = new Vector<>();
+        for (int i = 0; i < indexToBeDeleted.size(); i++){
+            int index = indexToBeDeleted.get(i);
+            toBeDeleted.add(curSwcList.seg.get(i));
+        }
+
+        if (process.size() < UNDO_LIMIT){
+            process.add(Operate.DELETECURVE);
+            undoDeleteList.add(toBeDeleted);
+        } else{
+            process.remove(0);
+            process.add(Operate.DELETECURVE);
+            undoDeleteList.remove(0);
+            undoDeleteList.add(toBeDeleted);
+        }
     }
 
     public void splitCurve(ArrayList<Float> line){
@@ -2627,6 +2682,79 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
+    public boolean undo() {
+        if (process.size() == 0) {
+            System.out.println("process is empty\n");
+            return false;
+        }
+
+        Operate toUndo = process.lastElement();
+        if (toUndo == Operate.DELETECURVE){
+            if (undoDeleteList.size() <= 0){
+                System.out.println("undoDeleteList is empty\n");
+                return false;
+            }
+
+            Vector<V_NeuronSWC> lastDeleted = undoDeleteList.lastElement();
+
+            if (lastDeleted.size() == 0){
+                System.out.println("lastDeleted is empty\n");
+                return false;
+            }
+
+            for (int i = 0; i < lastDeleted.size(); i++){
+                V_NeuronSWC temp = lastDeleted.get(i);
+                curSwcList.append(temp);
+            }
+
+            undoDeleteList.remove(undoDeleteList.size() - 1);
+            process.remove(process.size() - 1);
+        } else if (toUndo == Operate.DRAWCURVE){
+            if (undoDrawList.size() <= 0){
+                System.out.println("undoDrawedList is empty\n");
+                return false;
+            }
+
+            V_NeuronSWC lastDrawed = undoDrawList.lastElement();
+            boolean removeSuccess = curSwcList.seg.remove(lastDrawed);
+            if (!removeSuccess){
+                System.out.println("remove failed\n");
+                return false;
+            }
+
+            undoDrawList.remove(undoDrawList.size() - 1);
+            process.remove(process.size() - 1);
+        } else if (toUndo == Operate.DRAWMARKER){
+            if (undoDrawMarkerList.size() <= 0){
+                System.out.println("undoDrawMarkerList is empty");
+                return false;
+            }
+
+            ImageMarker temp = undoDrawMarkerList.lastElement();
+            boolean removeSuccess = MarkerList.remove(temp);
+            if (!removeSuccess){
+                System.out.println("remove marker failed");
+                return false;
+            }
+
+            undoDrawMarkerList.remove(undoDrawMarkerList.size() - 1);
+            process.remove(process.size() - 1);
+        } else if (toUndo == Operate.DELETEMARKER){
+            if (undoDeleteMarkerList.size() <= 0){
+                System.out.println("undoDeleteMarkerList is empty");
+                return false;
+            }
+
+            ImageMarker temp = undoDeleteMarkerList.lastElement();
+            MarkerList.add(temp);
+
+            undoDeleteMarkerList.remove(undoDeleteMarkerList.size() - 1);
+            process.remove(process.size() - 1);
+        }
+
+        System.out.println("undo succeed");
+        return true;
+    }
 
 }
 

@@ -93,6 +93,11 @@ import static java.lang.Math.sqrt;
 
 
 public class MainActivity extends AppCompatActivity {
+//    private int UNDO_LIMIT = 5;
+//    private enum Operate {DRAW, DELETE, SPLIT};
+//    private Operate [] process = new Operate[UNDO_LIMIT];
+
+
     private MyGLSurfaceView myGLSurfaceView;
     private MyRenderer myrenderer;
     private static final String DEBUG_TAG = "Gestures";
@@ -119,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean ifAnimation = false;
     private Button buttonAnimation;
+    private Button buttonUndo;
     private Button Draw;
     private Button Tracing;
     private Button Others;
@@ -132,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button PixelClassification;
     private boolean[][]select;
+
 
     private RemoteImg remoteImg;
 
@@ -396,6 +403,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        buttonUndo = new Button(this);
+        buttonUndo.setText("Undo");
+
+        buttonUndo.setOnClickListener(new Button.OnClickListener(){
+            public void onClick(View v) {
+                boolean undoSuccess = myrenderer.undo();
+                if (!undoSuccess){
+                    Toast.makeText(context, "nothing to undo", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -930,6 +948,8 @@ public class MainActivity extends AppCompatActivity {
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
+//                                if (!(ifPoint || ifPainting || ifDeletingMarker || ifDeletingLine || ifSpliting))
+//                                    ll_top.addView(buttonUndo);
                                 switch (text) {
                                     case "PinPoint":
                                         ifPoint = !ifPoint;
@@ -944,6 +964,7 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
+                                                ll_top.addView(buttonUndo);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
@@ -952,6 +973,7 @@ public class MainActivity extends AppCompatActivity {
                                             Draw.setText("Define Object");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
+                                            ll_top.removeView(buttonUndo);
                                         }
                                         break;
 
@@ -968,6 +990,7 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
+                                                ll_top.addView(buttonUndo);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
@@ -976,7 +999,7 @@ public class MainActivity extends AppCompatActivity {
                                             Draw.setText("Define Object");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
-
+                                            ll_top.removeView(buttonUndo);
                                         }
                                         break;
 
@@ -993,6 +1016,7 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
+                                                ll_top.addView(buttonUndo);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
@@ -1001,7 +1025,7 @@ public class MainActivity extends AppCompatActivity {
                                             Draw.setText("Define Object");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
-
+                                            ll_top.removeView(buttonUndo);
                                         }
                                         break;
 
@@ -1018,6 +1042,7 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
+                                                ll_top.addView(buttonUndo);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
@@ -1026,7 +1051,7 @@ public class MainActivity extends AppCompatActivity {
                                             Draw.setText("Define Object");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
-
+                                            ll_top.removeView(buttonUndo);
                                         }
                                         break;
 
@@ -1043,6 +1068,7 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
+                                                ll_top.addView(buttonUndo);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
@@ -1051,7 +1077,7 @@ public class MainActivity extends AppCompatActivity {
                                             Draw.setText("Define Object");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
-
+                                            ll_top.removeView(buttonUndo);
                                         }
                                         break;
 
@@ -1064,6 +1090,7 @@ public class MainActivity extends AppCompatActivity {
                                         Draw.setText("Define Object");
                                         Draw.setTextColor(Color.BLACK);
                                         ll_bottom.removeView(Switch);
+                                        ll_top.removeView(buttonUndo);
                                         break;
 
                                 }
