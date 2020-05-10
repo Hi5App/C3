@@ -137,7 +137,12 @@ public class MainActivity extends AppCompatActivity {
     private Button Share;
 
     private Button PixelClassification;
-    private boolean[][]select;
+    private boolean[][]select= {{true,true,true,true,true,true,true},
+    {true,true,true,true,true,true,true},
+    {false,false,false,false,false,false,false},
+    {false,false,false,false,false,false,false},
+    {false,false,false,false,false,false,false},
+    {true,true,true,true,true,true,true}};
 
 
     private RemoteImg remoteImg;
@@ -1220,22 +1225,22 @@ public class MainActivity extends AppCompatActivity {
     private void PixelClassification(final View v) {
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"FeatureSet", "PenColor", "Run"},
+                .asAttachList(new String[]{"Debug",  "Run"},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text) {
-                                    case "FeatureSet":
+                                    case "Debug":
                                         //调用特征选择窗口
                                         FeatureSet();
                                         break;
 
-                                    case "PenColor":
+                                    //case "PenColor":
                                         //调用选择画笔窗口
-                                        PenSet();
+                                    //    PenSet();
 
-                                        break;
+                                    //    break;
 
                                     case "Run":
                                         //调用像素分类接口，显示分类结果
@@ -2393,6 +2398,20 @@ public class MainActivity extends AppCompatActivity {
     private void Learning() {
 
         Image4DSimple img = myrenderer.getImg();
+        Image4DSimple resampleimg=new Image4DSimple();
+        Image4DSimple upsampleimg=new Image4DSimple();
+        Image4DSimple outImg=new Image4DSimple();
+        if(img.getSz0()>32&&img.getSz1()>32&&img.getSz2()>32)
+        {
+            Image4DSimple.resample3dimg_interp(resampleimg,img,img.getSz0()/32 , img.getSz1()/32, img.getSz2()/32, 1);
+        }
+        else
+        {
+            resampleimg=img;
+        }
+        //对图像进行降采样
+
+        System.out.println("downsample image");
         NeuronTree nt = myrenderer.getNeuronTree();
         PixelClassification p = new PixelClassification();
 
@@ -2416,10 +2435,20 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "pixel  classification start~", Toast.LENGTH_SHORT).show();
         Looper.loop();
         try{
-            Image4DSimple outImg = p.getPixelClassificationResult(img,nt);
+            outImg = p.getPixelClassificationResult(resampleimg,nt);
             System.out.println("outImg: "+outImg.getSz0()+" "+outImg.getSz1()+" "+outImg.getSz2()+" "+outImg.getSz3());
             System.out.println(outImg.getData().length);
-            myrenderer.ResetImg(outImg);
+
+            if(img.getSz0()>32&&img.getSz1()>32&&img.getSz2()>32)
+            {
+                Image4DSimple.upsample3dimg_interp(upsampleimg, outImg,img.getSz0()/32 , img.getSz1()/32, img.getSz2()/32, 1);
+            }
+            else
+            {
+                upsampleimg=outImg;
+            }
+            System.out.println("upsample image");
+            myrenderer.ResetImg(upsampleimg);
             myGLSurfaceView.requestRender();
         }catch (Exception e){
             if (Looper.myLooper() == null) {

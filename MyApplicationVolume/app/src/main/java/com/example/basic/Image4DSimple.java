@@ -872,28 +872,28 @@ public class Image4DSimple {
         {
             out.println("The input to resample3dimg_interp() are invalid");
             return false;
-        }
+    }
 //        srcImg.getDataCZYX();
 
         if (dfactor_x<1 || dfactor_y<1 || dfactor_z<1)
-        {
-            out.println("The resampling factor must be >1 in resample3dimg_linear_interp(), because now only DOWN-sampling is supported");
-            return false;
-        }
+    {
+        out.println("The resampling factor must be >1 in resample3dimg_linear_interp(), because now only DOWN-sampling is supported");
+        return false;
+    }
 
         if (sz[0]<1 || sz[1]<1 || sz[2]<1 || sz[3]<1)
-        {
-            out.println("Input image size is not valid in resample3dimg_interp()");
-            return false;
-        }
+    {
+        out.println("Input image size is not valid in resample3dimg_interp()");
+        return false;
+    }
 
         if (interp_method!=1) //0 for nearest neighbor interp and 1 for linear
-        {
-            out.printf("Invalid interpolation code. Now only linear interpolation is supported in  resample3dimg_linear_interp() [you pass a code %d].\n", interp_method);
-            return false;
-        }
+    {
+        out.printf("Invalid interpolation code. Now only linear interpolation is supported in  resample3dimg_linear_interp() [you pass a code %d].\n", interp_method);
+        return false;
+    }
 
-        int cur_sz0 = (int) (floor((double)sz[0]/ (double)(dfactor_x)));
+    int cur_sz0 = (int) (floor((double)sz[0]/ (double)(dfactor_x)));
         int cur_sz1 = (int) (floor((double)sz[1] / (double)(dfactor_y)));
         int cur_sz2 = (int) (floor((double)sz[2] / (double)(dfactor_z)));
         int cur_sz3 = (int) sz[3];
@@ -981,6 +981,107 @@ public class Image4DSimple {
 
         return true;
     }
+
+    public static boolean upsample3dimg_interp(Image4DSimple  dstImg,
+                                               Image4DSimple  srcImg,
+                                               double dfactor_x, double dfactor_y, double dfactor_z, int interp_method)
+    {
+        long[] sz = {srcImg.getSz0(),srcImg.getSz1(),srcImg.getSz2(),srcImg.getSz3()};
+        if (!srcImg.valid())
+        {
+            out.println("The input to upsample3dimg_interp() are invalid");
+            return false;
+        }
+//        srcImg.getDataCZYX();
+
+        if (dfactor_x<1 || dfactor_y<1 || dfactor_z<1)
+        {
+            out.println("The upsampling factor must be >1 in resample3dimg_linear_interp(), because now only DOWN-sampling is supported");
+            return false;
+        }
+
+        if (sz[0]<1 || sz[1]<1 || sz[2]<1 || sz[3]<1)
+        {
+            out.println("Input image size is not valid in upsample3dimg_interp()");
+            return false;
+        }
+
+        if (interp_method!=1) //0 for nearest neighbor interp and 1 for linear
+        {
+            out.printf("Invalid interpolation code. Now only linear interpolation is supported in  resample3dimg_linear_interp() [you pass a code %d].\n", interp_method);
+            return false;
+        }
+
+        int cur_sz0 = (int) (floor((double)sz[0]*(double)(dfactor_x)));
+        int cur_sz1 = (int) (floor((double)sz[1]*(double)(dfactor_y)));
+        int cur_sz2 = (int) (floor((double)sz[2]*(double)(dfactor_z)));
+        int cur_sz3 = (int) sz[3];
+
+        if (cur_sz0 <= 0 || cur_sz1 <=0 || cur_sz2<=0 || cur_sz3<=0)
+        {
+            out.println("The dfactors are not properly set, -- the resulted upsampled size is too small. Do nothing. ");
+            return false;
+        }
+
+        byte [] img4d = new byte[cur_sz0 * cur_sz1 * cur_sz2 * cur_sz3 * srcImg.datatype.ordinal()];
+//        int[][][][] img4d = new int[cur_sz3][cur_sz2][cur_sz1][cur_sz0];
+        if (img4d == null || img4d.length == 0)
+        {
+            out.println("Fail to allocate memory. [%s][%d].");
+            return false;
+        }
+
+        for (int c=0;c<cur_sz3;c++)
+        {
+            for (int k=0;k<cur_sz2;k++)
+            {
+                long k2low=(long)(floor(k/dfactor_z)); //k2high=(long)(floor((k+1)/dfactor_z-1));
+
+                for (int j=0;j<cur_sz1;j++)
+                {
+                    long j2low=(long)(floor(j/dfactor_y));// j2high=(long)(floor((j+1)*dfactor_y-1));
+
+                    for (int i=0;i<cur_sz0;i++)
+                    {
+                        long i2low=(long)(floor(i/dfactor_x));// i2high=(long)(floor((i+1)*dfactor_x-1));
+
+                        int s=0;
+                        s = srcImg.getValue(i2low,j2low,k2low,c);// in_tmp4d[c][k1][j1][i1];
+
+                        byte [] b = ByteTranslate.intToByte4(s);
+                        if (srcImg.getDatatype() == V3D_UINT8){
+                            img4d[(int)(c * cur_sz0 * cur_sz1 * cur_sz2 + k * cur_sz0 * cur_sz1 + j * cur_sz0 + i)] = b[3];
+                        }else if(srcImg.getDatatype() == V3D_UINT16){
+                            if (srcImg.getIsBig()) {
+                                img4d[(int) (c * cur_sz0 * cur_sz1 * cur_sz2 + k * cur_sz0 * cur_sz1 + j * cur_sz0 + i) * 2] = b[2];
+                                img4d[(int) (c * cur_sz0 * cur_sz1 * cur_sz2 + k * cur_sz0 * cur_sz1 + j * cur_sz0 + i) * 2 + 1] = b[3];
+                            }else{
+                                img4d[(int) (c * cur_sz0 * cur_sz1 * cur_sz2 + k * cur_sz0 * cur_sz1 + j * cur_sz0 + i) * 2] = b[3];
+                                img4d[(int) (c * cur_sz0 * cur_sz1 * cur_sz2 + k * cur_sz0 * cur_sz1 + j * cur_sz0 + i) * 2 + 1] = b[2];
+                            }
+                        }else if (srcImg.getDatatype() == V3D_FLOAT32){
+                            if (srcImg.getIsBig()){
+                                img4d[(int) (c * cur_sz0 * cur_sz1 * cur_sz2 + k * cur_sz0 * cur_sz1 + j * cur_sz0 + i) * 4] = b[0];
+                                img4d[(int) (c * cur_sz0 * cur_sz1 * cur_sz2 + k * cur_sz0 * cur_sz1 + j * cur_sz0 + i) * 4 + 1] = b[1];
+                                img4d[(int) (c * cur_sz0 * cur_sz1 * cur_sz2 + k * cur_sz0 * cur_sz1 + j * cur_sz0 + i) * 4 + 2] = b[2];
+                                img4d[(int) (c * cur_sz0 * cur_sz1 * cur_sz2 + k * cur_sz0 * cur_sz1 + j * cur_sz0 + i) * 4 + 3] = b[3];
+                            }else{
+                                img4d[(int) (c * cur_sz0 * cur_sz1 * cur_sz2 + k * cur_sz0 * cur_sz1 + j * cur_sz0 + i) * 4] = b[3];
+                                img4d[(int) (c * cur_sz0 * cur_sz1 * cur_sz2 + k * cur_sz0 * cur_sz1 + j * cur_sz0 + i) * 4 + 1] = b[2];
+                                img4d[(int) (c * cur_sz0 * cur_sz1 * cur_sz2 + k * cur_sz0 * cur_sz1 + j * cur_sz0 + i) * 4 + 2] = b[1];
+                                img4d[(int) (c * cur_sz0 * cur_sz1 * cur_sz2 + k * cur_sz0 * cur_sz1 + j * cur_sz0 + i) * 4 + 3] = b[0];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        dstImg.setDataFromImage(img4d,cur_sz0,cur_sz1,cur_sz2,cur_sz3,srcImg.getDatatype(),srcImg.getIsBig());
+
+        return true;
+    }
+
 
     public static boolean downsampling_img_xyz(Image4DSimple  dstImg,
                                                Image4DSimple  srcImg,
