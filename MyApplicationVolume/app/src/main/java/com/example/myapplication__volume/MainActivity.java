@@ -1225,7 +1225,7 @@ public class MainActivity extends AppCompatActivity {
     private void PixelClassification(final View v) {
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"Debug",  "Run"},
+                .asAttachList(new String[]{"Debug", "PenColor", "Run"},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -1236,11 +1236,11 @@ public class MainActivity extends AppCompatActivity {
                                         FeatureSet();
                                         break;
 
-                                    //case "PenColor":
+                                    case "PenColor":
                                         //调用选择画笔窗口
-                                    //    PenSet();
+                                        PenSet();
 
-                                    //    break;
+                                        break;
 
                                     case "Run":
                                         //调用像素分类接口，显示分类结果
@@ -2398,20 +2398,20 @@ public class MainActivity extends AppCompatActivity {
     private void Learning() {
 
         Image4DSimple img = myrenderer.getImg();
-        Image4DSimple resampleimg=new Image4DSimple();
-        Image4DSimple upsampleimg=new Image4DSimple();
+//        Image4DSimple resampleimg=new Image4DSimple();
+//        Image4DSimple upsampleimg=new Image4DSimple();
         Image4DSimple outImg=new Image4DSimple();
-        if(img.getSz0()>32&&img.getSz1()>32&&img.getSz2()>32)
-        {
-            Image4DSimple.resample3dimg_interp(resampleimg,img,img.getSz0()/32 , img.getSz1()/32, img.getSz2()/32, 1);
-        }
-        else
-        {
-            resampleimg=img;
-        }
-        //对图像进行降采样
-
-        System.out.println("downsample image");
+//        if(img.getSz0()>32&&img.getSz1()>32&&img.getSz2()>32)
+//        {
+//            Image4DSimple.resample3dimg_interp(resampleimg,img,img.getSz0()/32 , img.getSz1()/32, img.getSz2()/32, 1);
+//        }
+//        else
+//        {
+//            resampleimg=img;
+//        }
+//        //对图像进行降采样
+//
+//        System.out.println("downsample image");
         NeuronTree nt = myrenderer.getNeuronTree();
         PixelClassification p = new PixelClassification();
 
@@ -2433,22 +2433,24 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Toast.makeText(this, "pixel  classification start~", Toast.LENGTH_SHORT).show();
-        Looper.loop();
+//        Looper.loop();
         try{
-            outImg = p.getPixelClassificationResult(resampleimg,nt);
+//            outImg = p.getPixelClassificationResult(resampleimg,nt);
+            outImg = p.getPixelClassificationResult(img,nt);
             System.out.println("outImg: "+outImg.getSz0()+" "+outImg.getSz1()+" "+outImg.getSz2()+" "+outImg.getSz3());
             System.out.println(outImg.getData().length);
 
-            if(img.getSz0()>32&&img.getSz1()>32&&img.getSz2()>32)
-            {
-                Image4DSimple.upsample3dimg_interp(upsampleimg, outImg,img.getSz0()/32 , img.getSz1()/32, img.getSz2()/32, 1);
-            }
-            else
-            {
-                upsampleimg=outImg;
-            }
-            System.out.println("upsample image");
-            myrenderer.ResetImg(upsampleimg);
+//            if(img.getSz0()>32&&img.getSz1()>32&&img.getSz2()>32)
+//            {
+//                Image4DSimple.upsample3dimg_interp(upsampleimg, outImg,img.getSz0()/32 , img.getSz1()/32, img.getSz2()/32, 1);
+//            }
+//            else
+//            {
+//                upsampleimg=outImg;
+//            }
+//            System.out.println("upsample image");
+//            myrenderer.ResetImg(upsampleimg);
+            myrenderer.ResetImg(outImg);
             myGLSurfaceView.requestRender();
         }catch (Exception e){
             if (Looper.myLooper() == null) {
