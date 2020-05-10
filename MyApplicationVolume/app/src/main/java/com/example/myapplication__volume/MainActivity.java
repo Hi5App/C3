@@ -1387,7 +1387,8 @@ public class MainActivity extends AppCompatActivity {
                     myrenderer.resetCapturePath();
 
                     if (imgPath[0] != null)
-                        Toast.makeText(v.getContext(), "save screenshot to " + imgPath[0], Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(v.getContext(), "save screenshot to " + imgPath[0], Toast.LENGTH_SHORT).show();
+                        Log.v("Share","save screenshot to " + imgPath[0]);
                     else
                         Toast.makeText(v.getContext(), "Fail to screenshot", Toast.LENGTH_SHORT).show();
 
@@ -1399,21 +1400,38 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             }
-        }, 3000); // 延时3秒
+        }, 2000); // 延时2秒
 
-        while (imgPath[0] == null && !isGet[0])
-            System.out.println("null");
+        while (imgPath[0] == null && !isGet[0]);
+//            System.out.println("null");
 
         if (imgPath[0] != null) {
             Intent shareIntent = new Intent();
+            String imageUri = insertImageToSystem(context, imgPath[0]);
             shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imgPath[0]));
+            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imageUri));
             shareIntent.setType("image/jpeg");
-            startActivity(Intent.createChooser(shareIntent, "share"));
+            startActivity(Intent.createChooser(shareIntent, "Share from C3"));
         }
 
     }
+
+
+    private static String insertImageToSystem(Context context, String imagePath) {
+        String url = "";
+        String filename = imagePath.substring(imagePath.lastIndexOf("/") + 1 );
+        try {
+            url = MediaStore.Images.Media.insertImage(context.getContentResolver(), imagePath, filename, "ScreenShot from C3");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Filename: " + filename);
+        System.out.println("Url: " + url);
+        return url;
+    }
+
+
 
     private void Analyse() {
 
