@@ -1745,6 +1745,9 @@ public class MainActivity extends AppCompatActivity {
 
                         EditText swcName = contentView.findViewById(R.id.swcname);
                         String swcFileName = swcName.getText().toString();
+                        if (swcFileName == ""){
+                            Toast.makeText(context, "The name should not be empty.", Toast.LENGTH_SHORT).show();
+                        }
                         myrenderer.reNameCurrentSwc(swcFileName);
 
 //                        String dir = getExternalFilesDir(null).toString();
@@ -1762,8 +1765,12 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                         if (error != "") {
+                            if (error == "This file already exits"){
+                                Toast.makeText(context, error, Toast.LENGTH_LONG).show();
+
+                            }
                             Toast.makeText(context, error, Toast.LENGTH_LONG).show();
-                        } else {
+                        } else{
                             Toast.makeText(context, "save SWC to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG).show();
                         }
                     }
@@ -2111,7 +2118,7 @@ public class MainActivity extends AppCompatActivity {
     private void SetAnimation() {
 
         final String[] rotation_type = new String[1];
-
+        final boolean [] ifChecked = {false, false};
 
         MDDialog mdDialog = new MDDialog.Builder(this)
                 .setContentView(R.layout.animation)
@@ -2125,10 +2132,11 @@ public class MainActivity extends AppCompatActivity {
                         on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                             @Override
                             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                ifChecked[1] = true;
                                 if (isChecked) {
-                                    ifAnimation = true;
+                                    ifChecked[0] = true;
                                 } else {
-                                    ifAnimation = false;
+                                    ifChecked[0] = false;
                                 }
                             }
                         });
@@ -2163,11 +2171,18 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
                     @Override
                     public void onClick(View clickedView, View contentView) {
+                        if (ifChecked[1] == true) {
+                            ifAnimation = ifChecked[0];
+                        }
 
                         EditText speed = contentView.findViewById(R.id.edit_speed);
                         String rotation_speed = speed.getText().toString();
 
-                        myrenderer.myAnimation.setAnimation(ifAnimation, Float.parseFloat(rotation_speed), rotation_type[0]);
+                        myrenderer.myAnimation.Stop();
+
+                        if (ifAnimation) {
+                            myrenderer.myAnimation.setAnimation(ifAnimation, Float.parseFloat(rotation_speed), rotation_type[0]);
+                        }
 
                         if (ifAnimation) {
                             myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);

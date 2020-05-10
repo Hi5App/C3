@@ -9,9 +9,9 @@
 
 
     <!--        android:name="com.example.myapplication__volume.Myapplication"-->
-<!--    android:name="com.example.myapplication__volume.AppApplication"-->
-<!--    android:theme="@style/AppTheme"-->
-<!--    android:theme="@android:style/Theme.NoTitleBar.Fullscreen"-->
+    <!--    android:name="com.example.myapplication__volume.AppApplication"-->
+    <!--    android:theme="@style/AppTheme"-->
+    <!--    android:theme="@android:style/Theme.NoTitleBar.Fullscreen"-->
 
 
 
@@ -36,20 +36,20 @@
             </intent-filter>
         </activity>
 
-<!--        <activity android:name=".MainActivity"-->
-<!--            android:parentActivityName=".FileActivity">-->
-<!--            &lt;!&ndash; The meta-data tag is required if you support API level 15 and lower &ndash;&gt;-->
-<!--            <meta-data-->
-<!--                android:name="android.support.PARENT_ACTIVITY"-->
-<!--                android:value=".MainActivity" />-->
-<!--        </activity>-->
+        <!--        <activity android:name=".MainActivity"-->
+        <!--            android:parentActivityName=".FileActivity">-->
+        <!--            &lt;!&ndash; The meta-data tag is required if you support API level 15 and lower &ndash;&gt;-->
+        <!--            <meta-data-->
+        <!--                android:name="android.support.PARENT_ACTIVITY"-->
+        <!--                android:value=".MainActivity" />-->
+        <!--        </activity>-->
 
         <activity android:name=".ConnectActivity"
             android:parentActivityName=".MainActivity"
             android:label="Connect">
-                <meta-data
-                    android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ConnectActivity" />
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ConnectActivity" />
         </activity>
 
         <provider
