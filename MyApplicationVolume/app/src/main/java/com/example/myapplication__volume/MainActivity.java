@@ -157,7 +157,8 @@ public class MainActivity extends AppCompatActivity {
     private int measure_count = 0;
     private List<double[]> fl;
 
-    public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
+    //message 字符串用于传递文件的路径到Mainactivity中
+//    public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
 
     private int eswc_length;
     //读写权限
@@ -176,11 +177,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         //接受从fileactivity传递过来的文件路径
-//        Intent intent = getIntent();
-//        filepath = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+        Intent intent = getIntent();
+        String filepath = intent.getStringExtra(MyRenderer.OUTOFMEM_MESSAGE);
 
         myrenderer = new MyRenderer();
-//        myrenderer.SetPath(filepath);
+        if (filepath != null)
+            myrenderer.SetPath(filepath);
+
+//        try {
+//
+//
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+
+
 
 //        Toast.makeText(this,"Filepath: " + filepath, Toast.LENGTH_SHORT).show();
 
@@ -201,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
 
-        Log.v("filepath-mainactivity", filepath);
+//        Log.v("filepath-mainactivity", filepath);
 
         myGLSurfaceView = new MyGLSurfaceView(this);
         setContentView(myGLSurfaceView);
@@ -1561,7 +1572,7 @@ public class MainActivity extends AppCompatActivity {
     private void Version() {
 
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200508a",
+                .asConfirm("Version", "version: 202005011a",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

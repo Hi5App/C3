@@ -1,6 +1,7 @@
 package com.example.myapplication__volume;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -23,6 +24,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
+import static com.example.myapplication__volume.JumpActivity.EXTRA_MESSAGE;
 import static java.lang.Thread.State.TERMINATED;
 
 
@@ -430,7 +432,7 @@ public class Filesocket_receive {
 //                    outputStream.write(file_content);
 //                    outputStream.close();
 
-//                    popupView.dismiss();
+                    popupView.dismiss();
 
 
                 }catch (Exception e){
@@ -446,16 +448,11 @@ public class Filesocket_receive {
 
         while (thread.getState() != TERMINATED);
 
-        popupView.dismiss();
-
-
-//        handler.post(udpUIRunnable); //向Handler post runnable对象
-
-//        Intent intent = new Intent(context[0], MainActivity.class);
-//        String message = path + "/" + filename;
-//        intent.putExtra(EXTRA_MESSAGE, message);
-//        context[0].startActivity(intent);
-//        context[0] = null;
+        Intent intent = new Intent(context[0], JumpActivity.class);
+        String message = path + "/" + filename;
+        intent.putExtra(EXTRA_MESSAGE, message);
+        context[0].startActivity(intent);
+        context[0] = null;
 
     }
 
