@@ -2622,6 +2622,22 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
+    public String oversaveCurrentSwc(String dir) throws Exception{
+        String error = "";
+        NeuronTree nt = this.getNeuronTree();
+        if(nt.listNeuron.size()>0){
+            String filePath = dir + "//" + nt.name + ".swc";
+            System.out.println("filepath: "+filePath);
+            boolean ifSucceed = nt.overwriteSWC_file(filePath);
+            if (ifSucceed)
+                error = "overwrite failed";
+            return error;
+        }else {
+            return error = "Current swc is empty!";
+        }
+
+    }
+
     public void reNameCurrentSwc(String name){
         curSwcList.name = name;
     }

@@ -11,6 +11,7 @@ import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ConfigurationInfo;
@@ -900,6 +901,7 @@ public class MainActivity extends AppCompatActivity {
                                         remote(v);
                                         break;
                                 }
+
                             }
                         })
                 .show();
@@ -1887,7 +1889,30 @@ public class MainActivity extends AppCompatActivity {
                         if (error != "") {
                             if (error == "This file already exits"){
                                 Toast.makeText(context, error, Toast.LENGTH_LONG).show();
+                                AlertDialog aDialog = new AlertDialog.Builder(context)
+                                        .setTitle("This file already exits")
+                                        .setMessage("Are you sure to overwrite it?")
+                                        .setIcon(R.mipmap.ic_launcher)
+                                        .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                String errorMessage = "";
+                                                try{
+                                                    errorMessage = myrenderer.oversaveCurrentSwc(dir_str);
+                                                }catch (Exception e){
+                                                    System.out.println(errorMessage);
+                                                    Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        })
 
+                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+
+                                            }
+                                        })
+                                        .create();
                             }
                             Toast.makeText(context, error, Toast.LENGTH_LONG).show();
                         } else{
