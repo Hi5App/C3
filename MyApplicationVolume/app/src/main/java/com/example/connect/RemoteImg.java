@@ -35,11 +35,15 @@ public class RemoteImg extends Socket {
     public BufferedReader ImgReader;//BufferedWriter 用于推送消息
     public PrintWriter ImgPWriter;  //PrinterWriter  用于接收消息
 
+    public boolean isSocketSet;
+
     public String path;
 
 
 
     public RemoteImg(){
+
+        isSocketSet = false;
 
     }
 
@@ -140,12 +144,12 @@ public class RemoteImg extends Socket {
 
 //                    Log.v("send1", context.getExternalFilesDir(null).toString());
 
-                    if (mSocket.isConnected()) {
-                        if (!mSocket.isOutputShutdown()) {
+                    if (ImgSocket.isConnected()) {
+                        if (!ImgSocket.isOutputShutdown()) {
                             Log.v("send1", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
-                            mPWriter.println(item + ":choose1." + "\n");
-                            mPWriter.flush();
+                            ImgPWriter.println(item + ":choose1." + "\n");
+                            ImgPWriter.flush();
 
                             Looper.prepare();
 
@@ -241,7 +245,9 @@ public class RemoteImg extends Socket {
     public void Selectblock(Context context, boolean source){
 
         if (!source){
-            ConnectServerImg(context);
+            if (!isSocketSet){
+                ConnectServerImg(context);
+            }
         }
 
         if (getFilename(context) == "--11--"){
@@ -249,6 +255,12 @@ public class RemoteImg extends Socket {
             return;
         }
 
+        PopUp(context);
+
+
+    }
+
+    private void PopUp(Context context){
         new MDDialog.Builder(context)
 //              .setContentView(customizedView)
                 .setContentView(R.layout.image_bais_select)
@@ -326,7 +338,13 @@ public class RemoteImg extends Socket {
 
                         if( !offset_x.isEmpty() && !offset_y.isEmpty() && !offset_z.isEmpty() && !size.isEmpty()){
 
-                            PullImageBlcok(offset_x, offset_y, offset_z, size, context);
+                            String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
+                            if (!JudgeBounding(input, context)){
+                                PopUp(context);
+                                Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+                            }else {
+                                PullImageBlcok(offset_x, offset_y, offset_z, size, context);
+                            }
 
                         }else{
 
@@ -347,6 +365,61 @@ public class RemoteImg extends Socket {
                 .show();
     }
 
+
+    private String[] JudgeEven(String offset_x, String offset_y, String offset_z, String size){
+
+        float x_offset_f = Float.parseFloat(offset_x);
+        float y_offset_f = Float.parseFloat(offset_y);
+        float z_offset_f = Float.parseFloat(offset_x);
+        float size_f = Float.parseFloat(size);
+
+        int x_offset_i = (int) x_offset_f;
+        int y_offset_i = (int) y_offset_f;
+        int z_offset_i = (int) z_offset_f;
+        int size_i = (int) size_f;
+
+        if (x_offset_i % 2 == 1)
+            x_offset_i += 1;
+
+        if (y_offset_i % 2 == 1)
+            y_offset_i += 1;
+
+        if (z_offset_i % 2 == 1)
+            z_offset_i += 1;
+
+        if (size_i % 2 == 1)
+            size_i += 1;
+
+        String[] result = new String[4];
+        result[0] = Integer.toString(x_offset_i);
+        result[1] = Integer.toString(y_offset_i);
+        result[2] = Integer.toString(z_offset_i);
+        result[3] = Integer.toString(size_i);
+
+        return result;
+    }
+
+    private boolean JudgeBounding(String[] input, Context context){
+
+        int x_offset_i = Integer.parseInt(input[0]);
+        int y_offset_i = Integer.parseInt(input[1]);
+        int z_offset_i = Integer.parseInt(input[2]);
+        int size_i = Integer.parseInt(input[3]);
+
+        String filename = getFilename(context);
+
+        if (x_offset_i - size_i/2 < 0)
+            return false;
+
+        if (y_offset_i - size_i/2 < 0)
+            return false;
+
+        if (z_offset_i - size_i/2 < 0)
+            return false;
+
+
+        return true;
+    }
 
     private void PullImageBlcok(final String offset_x, final String offset_y, final String offset_z, final String size, final Context context){
         new Thread() {

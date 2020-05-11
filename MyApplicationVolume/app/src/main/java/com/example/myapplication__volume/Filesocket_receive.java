@@ -2,6 +2,7 @@ package com.example.myapplication__volume;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
@@ -23,7 +24,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-import static com.example.myapplication__volume.FileActivity.EXTRA_MESSAGE;
+import static com.example.myapplication__volume.JumpActivity.EXTRA_MESSAGE;
 import static java.lang.Thread.State.TERMINATED;
 
 
@@ -268,6 +269,15 @@ public class Filesocket_receive {
                 .asLoading("Downloading......");
         popupView.show();
 
+        Handler handler = new Handler();
+
+        // 构建Runnable对象，并在runnable中更新UI
+        Runnable   udpUIRunnable = new  Runnable(){
+            @Override
+            public void run() {
+                popupView.dismiss();
+            }
+        };
 
         Thread thread = new Thread()  {
             public void run(){
@@ -424,6 +434,7 @@ public class Filesocket_receive {
 
                     popupView.dismiss();
 
+
                 }catch (Exception e){
                     e.printStackTrace();
                     Toast.makeText(context[0], "Fail to download img", Toast.LENGTH_SHORT).show();
@@ -437,7 +448,7 @@ public class Filesocket_receive {
 
         while (thread.getState() != TERMINATED);
 
-        Intent intent = new Intent(context[0], MainActivity.class);
+        Intent intent = new Intent(context[0], JumpActivity.class);
         String message = path + "/" + filename;
         intent.putExtra(EXTRA_MESSAGE, message);
         context[0].startActivity(intent);
@@ -463,5 +474,8 @@ public class Filesocket_receive {
         }
 
     }
+
+
+
 
 }

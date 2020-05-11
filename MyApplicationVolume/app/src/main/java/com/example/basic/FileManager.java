@@ -31,7 +31,7 @@ public class FileManager {
         returnCursor.moveToFirst();
         String filename = returnCursor.getString(nameIndex);
 
-        System.out.println("getFileType:  " + filename);
+        System.out.println("getFileName:  " + filename);
 
         return filename;
 
@@ -88,6 +88,9 @@ public class FileManager {
 
         Context context = getContext();
 
+        if (Looper.myLooper() == null)
+            Looper.prepare();
+
         try {
             Cursor returnCursor =
                     context.getContentResolver().query(uri, null, null, null, null);
@@ -99,7 +102,7 @@ public class FileManager {
             filetype= filename.substring(filename.lastIndexOf(".")).toUpperCase();
 
         }catch (Exception e){
-            Looper.prepare();
+            e.printStackTrace();
             Toast.makeText(context,"Fail to read",Toast.LENGTH_SHORT);
             Looper.loop();
             return "Fail to read";

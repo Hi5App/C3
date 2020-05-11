@@ -35,6 +35,49 @@ public class PixelClassification {
     public Image4DSimple getPixelClassificationResult(Image4DSimple inImg, NeuronTree nt) throws Exception{
         Image4DSimple result = new Image4DSimple();
 
+        double dFactorXY,dFactorZ;
+        int[] inSZ = new int[]{(int) inImg.getSz0(), (int) inImg.getSz1(), (int) inImg.getSz2()};
+
+        if (inSZ[0]<=32 && inSZ[1]<=32 && inSZ[2]<=32)
+        {
+            dFactorZ = dFactorXY = 1;
+        }
+        else if (inSZ[0] >= 2*inSZ[2] || inSZ[1] >= 2*inSZ[2])
+        {
+            if (inSZ[2]<=32)
+            {
+                double MM = inSZ[0];
+                if (MM<inSZ[1]) MM=inSZ[1];
+                dFactorXY = MM / 32.0;
+                dFactorZ = 1;
+            }
+            else
+            {
+                double MM = inSZ[0];
+                if (MM<inSZ[1]) MM=inSZ[1];
+                if (MM<inSZ[2]) MM=inSZ[2];
+                dFactorXY = dFactorZ = MM / 32.0;
+            }
+        }
+        else
+        {
+            double MM = inSZ[0];
+            if (MM<inSZ[1]) MM=inSZ[1];
+            if (MM<inSZ[2]) MM=inSZ[2];
+            dFactorXY = dFactorZ = MM / 32.0;
+        }
+
+        Image4DSimple downSampleImg = new Image4DSimple();
+        Image4DSimple.resample3dimg_interp(downSampleImg,inImg,dFactorXY,dFactorXY,dFactorZ,1);
+
+        if(dFactorXY>1 || dFactorZ>1){
+            for(int i=0; i<nt.listNeuron.size(); i++){
+                nt.listNeuron.get(i).x /= dFactorXY;
+                nt.listNeuron.get(i).y /= dFactorXY;
+                nt.listNeuron.get(i).z /= dFactorZ;
+            }
+        }
+
         Vector<NeuronTree> labels = nt.splitNeuronTreeByType();
         Vector<NeuronTree> labelFB = new Vector<NeuronTree>();
         for(int i=0; i<labels.size(); i++){
@@ -55,7 +98,7 @@ public class PixelClassification {
         }
 
         List<int[]> masks = new ArrayList<>(C);
-        int[] sz = new int[]{(int) inImg.getSz0(), (int) inImg.getSz1(), (int) inImg.getSz2()};
+        int[] sz = new int[]{(int) downSampleImg.getSz0(), (int) downSampleImg.getSz1(), (int) downSampleImg.getSz2()};
         int[] flag = new int[]{1,2,3,4,5,6,7,8,9,10};
         for(int i=0; i<C; i++){
             Vector<MyMarker> inswc = MyMarker.swcConvert(labelFB.get(i));
@@ -75,12 +118,12 @@ public class PixelClassification {
             }
         }
 
-        if(inImg.getDatatype() != Image4DSimple.ImagePixelType.V3D_UINT8){
+        if(downSampleImg.getDatatype() != Image4DSimple.ImagePixelType.V3D_UINT8){
             System.out.println("it is only support V3D_UINT8");
         }
 
         ArrayList<int[]> pixelsFeature = new ArrayList<>();
-        byte[] img1dByte = inImg.getData();
+        byte[] img1dByte = downSampleImg.getData();
         int[] img1d = new int[img1dByte.length];
         for(int i=0; i<img1dByte.length; i++){
             img1d[i] = ByteTranslate.byte1ToInt(img1dByte[i]);
@@ -154,9 +197,15 @@ public class PixelClassification {
             data[i] = (byte) pixelIntensity[resultClassification[i]];
         }
 
-        result.setDataFromImage(data,inImg.getSz0(),inImg.getSz1(),inImg.getSz2(),inImg.getSz3(),Image4DSimple.ImagePixelType.V3D_UINT8,inImg.getIsBig());
+        result.setDataFromImage(data,downSampleImg.getSz0(),downSampleImg.getSz1(),downSampleImg.getSz2(),downSampleImg.getSz3(),Image4DSimple.ImagePixelType.V3D_UINT8,downSampleImg.getIsBig());
 
-        return result;
+        if(dFactorXY>1 || dFactorZ>1){
+            Image4DSimple upSampleImg = new Image4DSimple();
+            Image4DSimple.upsample3dimg_interp(upSampleImg,result,dFactorXY,dFactorXY,dFactorZ,1);
+            return upSampleImg;
+        }else {
+            return result;
+        }
     }
 
     public void setSelections(boolean[][] selections) {

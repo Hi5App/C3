@@ -11,6 +11,7 @@ import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ConfigurationInfo;
@@ -22,6 +23,7 @@ import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
@@ -93,6 +95,11 @@ import static java.lang.Math.sqrt;
 
 
 public class MainActivity extends AppCompatActivity {
+//    private int UNDO_LIMIT = 5;
+//    private enum Operate {DRAW, DELETE, SPLIT};
+//    private Operate [] process = new Operate[UNDO_LIMIT];
+
+
     private MyGLSurfaceView myGLSurfaceView;
     private MyRenderer myrenderer;
     private static final String DEBUG_TAG = "Gestures";
@@ -119,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean ifAnimation = false;
     private Button buttonAnimation;
+    private Button buttonUndo;
     private Button Draw;
     private Button Tracing;
     private Button Others;
@@ -131,7 +139,13 @@ public class MainActivity extends AppCompatActivity {
     private Button Share;
 
     private Button PixelClassification;
-    private boolean[][]select;
+    private boolean[][]select= {{true,true,true,true,true,true,true},
+    {true,true,true,true,true,true,true},
+    {false,false,false,false,false,false,false},
+    {false,false,false,false,false,false,false},
+    {false,false,false,false,false,false,false},
+    {true,true,true,true,true,true,true}};
+
 
     private RemoteImg remoteImg;
 
@@ -144,6 +158,8 @@ public class MainActivity extends AppCompatActivity {
     private int measure_count = 0;
     private List<double[]> fl;
 
+    //message 字符串用于传递文件的路径到Mainactivity中
+//    public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
 
     private int eswc_length;
     //读写权限
@@ -162,11 +178,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         //接受从fileactivity传递过来的文件路径
-//        Intent intent = getIntent();
-//        filepath = intent.getStringExtra(FileActivity.EXTRA_MESSAGE);
+        Intent intent = getIntent();
+        String filepath = intent.getStringExtra(MyRenderer.OUTOFMEM_MESSAGE);
 
         myrenderer = new MyRenderer();
-//        myrenderer.SetPath(filepath);
+        if (filepath != null)
+            myrenderer.SetPath(filepath);
+
+//        try {
+//
+//
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+
+
 
 //        Toast.makeText(this,"Filepath: " + filepath, Toast.LENGTH_SHORT).show();
 
@@ -187,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
 
-        Log.v("filepath-mainactivity", filepath);
+//        Log.v("filepath-mainactivity", filepath);
 
         myGLSurfaceView = new MyGLSurfaceView(this);
         setContentView(myGLSurfaceView);
@@ -254,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         Draw = new Button(this);
-        Draw.setText("Define Object");
+        Draw.setText("Define Objects");
         ll_top.addView(Draw);
 
         Draw.setOnClickListener(new Button.OnClickListener() {
@@ -265,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         Tracing = new Button(this);
-        Tracing.setText("Tracing");
+        Tracing.setText("Trace Objects");
         ll_top.addView(Tracing);
 
         Tracing.setOnClickListener(new Button.OnClickListener() {
@@ -276,7 +302,7 @@ public class MainActivity extends AppCompatActivity {
 
         //像素分类总button
         PixelClassification = new Button(this);
-        PixelClassification.setText("Pixel Classification");
+        PixelClassification.setText("Classify-Pixels");
         ll_top.addView(PixelClassification);
 
         PixelClassification.setOnClickListener(new Button.OnClickListener() {
@@ -396,6 +422,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        buttonUndo = new Button(this);
+        buttonUndo.setText("Undo");
+
+        buttonUndo.setOnClickListener(new Button.OnClickListener(){
+            public void onClick(View v) {
+                boolean undoSuccess = myrenderer.undo();
+                if (!undoSuccess){
+                    Toast.makeText(context, "nothing to undo", Toast.LENGTH_SHORT).show();
+                }
+                myGLSurfaceView.requestRender();
+            }
+        });
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -405,6 +443,10 @@ public class MainActivity extends AppCompatActivity {
 
         remoteImg = new RemoteImg();
         context = getApplicationContext();
+
+
+//        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(myToolbar);
 
     }
 
@@ -605,7 +647,9 @@ public class MainActivity extends AppCompatActivity {
                     FileManager fileManager = new FileManager();
                     String filename = fileManager.getFileName(uri);
 
-                    SendSwc("223.3.33.234", this, is, length, filename);
+//                    SendSwc("223.3.33.234", this, is, length, filename);
+//                    SendSwc("192.168.2.109", this, is, length, filename);
+                    SendSwc("39.100.35.131", this, is, length, filename);
 
                 }
 
@@ -679,37 +723,70 @@ public class MainActivity extends AppCompatActivity {
                 if(Looper.myLooper() == null){
                     Looper.prepare();
                 }
+                Log.v("SendSwc", "here we are");
 
                 try {
                     remoteImg.ip = ip;
-                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
-                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
-                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    if (!remoteImg.isSocketSet){
+                        remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
+                        remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
+                        remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    }
 
-                    Filesocket_send filesocket_send = new Filesocket_send();
-                    filesocket_send.filesocket = new Socket(ip, 9002);
-                    filesocket_send.mReader = new BufferedReader(new InputStreamReader(filesocket_send.filesocket.getInputStream(), "UTF-8"));
-                    filesocket_send.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_send.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
 
                     if(remoteImg.ImgSocket.isConnected()){
 
+                        remoteImg.isSocketSet = true;
                         Toast.makeText(context, "Connect with Server successfully", Toast.LENGTH_SHORT).show();
                         if (!remoteImg.isOutputShutdown()) {
+                            Log.v("SendSwc: ", "Connect with Server successfully");
                             remoteImg.ImgPWriter.println( "connect for android client" + ":import.");
+//                            remoteImg.ImgPWriter.println( "connect for android client" + ":login.");
                             remoteImg.ImgPWriter.flush();
-                        }
+
+//                            Thread.sleep(10000);
+//                            SystemClock.sleep(10000);
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    //TODO  todo somthing here
+
+                                    try {
+                                        Log.v("SendSwc: ", "Start to connect filesend_server");
+
+                                        Filesocket_send filesocket_send = new Filesocket_send();
+                                        filesocket_send.filesocket = new Socket(ip, 9001);
+                                        filesocket_send.mReader = new BufferedReader(new InputStreamReader(filesocket_send.filesocket.getInputStream(), "UTF-8"));
+                                        filesocket_send.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_send.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
 
 
-                        if (filesocket_send.filesocket.isConnected()){
+                                        Log.v("before filesocket_send:", "Connect with Server successfully");
 
-                            Context[] contexts = new Context[1];
-                            contexts[1] = context;
+                                        if (filesocket_send.filesocket.isConnected()){
 
-                            filesocket_send.sendImg(filename, is, length, contexts);
-//                            contexts = null;
+                                            Context[] contexts = new Context[1];
+                                            contexts[0] = context;
+
+                                            Log.v("filesocket_send: ", "Connect with Server successfully");
+
+                                            filesocket_send.sendImg(filename, is, length, contexts);
+//                                            Looper.loop();
+
+                                        }
+                                    }catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+
+                                }
+                            },10 * 1000);  //延迟10秒执行
+
+
+
                             Looper.loop();
 
                         }
+
+
 
                     }else {
                         Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
@@ -739,20 +816,23 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     remoteImg.ip = ip;
-                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
-                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
-                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    if (!remoteImg.isSocketSet){
+                        remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
+                        remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
+                        remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    }
 
+                    Log.v("DownloadSwc: ", "here we are 2");
 
                     if(remoteImg.ImgSocket.isConnected()){
-
-                        Toast.makeText(context, "Connect with Server successfully", Toast.LENGTH_SHORT).show();
-                        remoteImg.ImgPWriter.println( "connect from android client" + ":choose3.");
+                        remoteImg.isSocketSet = true;
+                        Log.v("DownloadSwc: ", "Connect with Server successfully");
+                        Toast.makeText(getContext(), "Connect with Server successfully", Toast.LENGTH_SHORT).show();
+                        remoteImg.ImgPWriter.println( "connect from android client" + ":down.");
                         remoteImg.ImgPWriter.flush();
 
                     }else {
-                        Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
-                        Looper.loop();
+                        Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
                     }
 
                     //接收来自服务器的消息
@@ -766,6 +846,7 @@ public class MainActivity extends AppCompatActivity {
                             while ((content = remoteImg.ImgReader.readLine()) != null) {
                                 Log.v("---------Image------:", content);
                                 if (!((Activity) context).isFinishing()){
+                                    Log.v("Download SWC file: ", content);
                                     remoteImg.onReadyRead(content, context);
                                     Looper.loop();
                                 }
@@ -775,6 +856,7 @@ public class MainActivity extends AppCompatActivity {
                         Thread.sleep(200);
                     }
 
+                    Looper.loop();
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -788,7 +870,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /**
+     private void ConnectServer(){
+
+     }
+
+   /**
      * function for the FileManager button
      *
      * @param v the button: FileManager
@@ -815,6 +901,7 @@ public class MainActivity extends AppCompatActivity {
                                         remote(v);
                                         break;
                                 }
+
                             }
                         })
                 .show();
@@ -924,12 +1011,14 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete curve", "Split", "Exit Define mode"},
+                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete curve", "Split", "Set PenColor", "Exit Define mode"},
 //                        new int[]{R.mipmap.ic_launcher, R.mipmap.ic_launcher},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
+//                                if (!(ifPoint || ifPainting || ifDeletingMarker || ifDeletingLine || ifSpliting))
+//                                    ll_top.addView(buttonUndo);
                                 switch (text) {
                                     case "PinPoint":
                                         ifPoint = !ifPoint;
@@ -944,14 +1033,16 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
+                                                ll_top.addView(buttonUndo);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
 
                                         } else {
-                                            Draw.setText("Define Object");
+                                            Draw.setText("Define Objects");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
+                                            ll_top.removeView(buttonUndo);
                                         }
                                         break;
 
@@ -968,15 +1059,16 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
+                                                ll_top.addView(buttonUndo);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
 
                                         } else {
-                                            Draw.setText("Define Object");
+                                            Draw.setText("Define Objects");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
-
+                                            ll_top.removeView(buttonUndo);
                                         }
                                         break;
 
@@ -993,15 +1085,16 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
+                                                ll_top.addView(buttonUndo);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
 
                                         } else {
-                                            Draw.setText("Define Object");
+                                            Draw.setText("Define Objects");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
-
+                                            ll_top.removeView(buttonUndo);
                                         }
                                         break;
 
@@ -1018,15 +1111,16 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
+                                                ll_top.addView(buttonUndo);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
 
                                         } else {
-                                            Draw.setText("Define Object");
+                                            Draw.setText("Define Objects");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
-
+                                            ll_top.removeView(buttonUndo);
                                         }
                                         break;
 
@@ -1043,16 +1137,23 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
+                                                ll_top.addView(buttonUndo);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
 
                                         } else {
-                                            Draw.setText("Define Object");
+                                            Draw.setText("Define Objects");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
-
+                                            ll_top.removeView(buttonUndo);
                                         }
+                                        break;
+
+                                    case "Set PenColor":
+                                        //调用选择画笔窗口
+                                        PenSet();
+
                                         break;
 
                                     case "Exit Define mode":
@@ -1061,9 +1162,10 @@ public class MainActivity extends AppCompatActivity {
                                         ifPoint = false;
                                         ifDeletingMarker = false;
                                         ifSpliting = false;
-                                        Draw.setText("Define Object");
+                                        Draw.setText("Define Objects");
                                         Draw.setTextColor(Color.BLACK);
                                         ll_bottom.removeView(Switch);
+                                        ll_top.removeView(buttonUndo);
                                         break;
 
                                 }
@@ -1193,21 +1295,15 @@ public class MainActivity extends AppCompatActivity {
     private void PixelClassification(final View v) {
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"FeatureSet", "PenColor", "Run"},
+                .asAttachList(new String[]{"Debug", "Run"},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text) {
-                                    case "FeatureSet":
+                                    case "Debug":
                                         //调用特征选择窗口
                                         FeatureSet();
-                                        break;
-
-                                    case "PenColor":
-                                        //调用选择画笔窗口
-                                        PenSet();
-
                                         break;
 
                                     case "Run":
@@ -1271,7 +1367,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void DownloadSWC() {
 
-        DownloadSwc("223.3.33.234", this);
+//        DownloadSwc("223.3.33.234", this);
+        Log.v("DownloadSWC: ", "here we are");
+//        DownloadSwc("192.168.2.109", this);
+        DownloadSwc("39.100.35.131", this);
     }
 
 
@@ -1310,7 +1409,8 @@ public class MainActivity extends AppCompatActivity {
                     myrenderer.resetCapturePath();
 
                     if (imgPath[0] != null)
-                        Toast.makeText(v.getContext(), "save screenshot to " + imgPath[0], Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(v.getContext(), "save screenshot to " + imgPath[0], Toast.LENGTH_SHORT).show();
+                        Log.v("Share","save screenshot to " + imgPath[0]);
                     else
                         Toast.makeText(v.getContext(), "Fail to screenshot", Toast.LENGTH_SHORT).show();
 
@@ -1322,20 +1422,38 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             }
-        }, 3000); // 延时3秒
+        }, 2000); // 延时2秒
 
-        while (imgPath[0] == null && !isGet[0])
-            System.out.println("null");
+        while (imgPath[0] == null && !isGet[0]);
+//            System.out.println("null");
 
         if (imgPath[0] != null) {
             Intent shareIntent = new Intent();
+            String imageUri = insertImageToSystem(context, imgPath[0]);
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imgPath[0]));
+            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imageUri));
             shareIntent.setType("image/jpeg");
-            startActivity(Intent.createChooser(shareIntent, "share"));
+            startActivity(Intent.createChooser(shareIntent, "Share from C3"));
         }
 
     }
+
+
+    private static String insertImageToSystem(Context context, String imagePath) {
+        String url = "";
+        String filename = imagePath.substring(imagePath.lastIndexOf("/") + 1 );
+        try {
+            url = MediaStore.Images.Media.insertImage(context.getContentResolver(), imagePath, filename, "ScreenShot from C3");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Filename: " + filename);
+        System.out.println("Url: " + url);
+        return url;
+    }
+
+
 
     private void Analyse() {
 
@@ -1465,7 +1583,7 @@ public class MainActivity extends AppCompatActivity {
     private void Version() {
 
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200508a",
+                .asConfirm("Version", "version: 202005011a",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -1598,14 +1716,18 @@ public class MainActivity extends AppCompatActivity {
                 Looper.prepare();
 
                 try {
-                    remoteImg.ip = ip;
-                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
-                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
-                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+
+                    if (!remoteImg.isSocketSet){
+                        remoteImg.ip = ip;
+                        remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
+                        remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
+                        remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    }
 
 
                     if(remoteImg.ImgSocket.isConnected()){
 
+                        remoteImg.isSocketSet = true;
                         Toast.makeText(context, "Connect with Server successfully", Toast.LENGTH_SHORT).show();
                         remoteImg.ImgPWriter.println( "connect for android client" + ":choose3.");
                         remoteImg.ImgPWriter.flush();
@@ -1767,7 +1889,30 @@ public class MainActivity extends AppCompatActivity {
                         if (error != "") {
                             if (error == "This file already exits"){
                                 Toast.makeText(context, error, Toast.LENGTH_LONG).show();
+                                AlertDialog aDialog = new AlertDialog.Builder(context)
+                                        .setTitle("This file already exits")
+                                        .setMessage("Are you sure to overwrite it?")
+                                        .setIcon(R.mipmap.ic_launcher)
+                                        .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                String errorMessage = "";
+                                                try{
+                                                    errorMessage = myrenderer.oversaveCurrentSwc(dir_str);
+                                                }catch (Exception e){
+                                                    System.out.println(errorMessage);
+                                                    Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        })
 
+                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+
+                                            }
+                                        })
+                                        .create();
                             }
                             Toast.makeText(context, error, Toast.LENGTH_LONG).show();
                         } else{
@@ -1942,19 +2087,6 @@ public class MainActivity extends AppCompatActivity {
                 subtitle[i] = "";
             }
         }
-
-//        "number of trees",
-//                "number of nodes",
-//                "soma surface",
-//                "number of tips",
-//                "overall width",
-//                "overall height",
-//                "overall depth",
-//                "average diameter",
-//                "total length",
-//                "total surface",
-//                "total volume",
-//                "max euclidean distance",
 
         title = new String[]{
                 "number of nodes",
@@ -2324,6 +2456,7 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         context = null;
+        remoteImg = null;
     }
 
     //renderer 的生存周期和activity保持一致
@@ -2332,7 +2465,7 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         myGLSurfaceView.onPause();
         Log.v("onPause", "start-----");
-
+        remoteImg = null;
     }
 
     @Override
@@ -2341,31 +2474,26 @@ public class MainActivity extends AppCompatActivity {
         myGLSurfaceView.onResume();
         Log.v("Path", filepath);
         Log.v("onResume", "start-----");
-
-//        myrenderer = new MyRenderer();
-
-//        Uri uri = Uri.parse((String) filepath);
-//
-//        try {
-//            ParcelFileDescriptor parcelFileDescriptor =
-//                    getContentResolver().openFileDescriptor(uri, "r");
-//
-//            is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-//
-//            length = (int)parcelFileDescriptor.getStatSize();
-//            myrenderer.setInputStream(is);
-//            myrenderer.setLength(length);
-//
-//        }catch (Exception e){
-//            Log.v("MainActivity","Some problems in the MainActivity");
-//        }
-//
-//        Log.v("Load data successfully!", "here we are");
+        remoteImg = new RemoteImg();
     }
 
     private void Learning() {
 
         Image4DSimple img = myrenderer.getImg();
+//        Image4DSimple resampleimg=new Image4DSimple();
+//        Image4DSimple upsampleimg=new Image4DSimple();
+        Image4DSimple outImg=new Image4DSimple();
+//        if(img.getSz0()>32&&img.getSz1()>32&&img.getSz2()>32)
+//        {
+//            Image4DSimple.resample3dimg_interp(resampleimg,img,img.getSz0()/32 , img.getSz1()/32, img.getSz2()/32, 1);
+//        }
+//        else
+//        {
+//            resampleimg=img;
+//        }
+//        //对图像进行降采样
+//
+//        System.out.println("downsample image");
         NeuronTree nt = myrenderer.getNeuronTree();
         PixelClassification p = new PixelClassification();
 
@@ -2389,9 +2517,21 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "pixel  classification start~", Toast.LENGTH_SHORT).show();
 //        Looper.loop();
         try{
-            Image4DSimple outImg = p.getPixelClassificationResult(img,nt);
+//            outImg = p.getPixelClassificationResult(resampleimg,nt);
+            outImg = p.getPixelClassificationResult(img,nt);
             System.out.println("outImg: "+outImg.getSz0()+" "+outImg.getSz1()+" "+outImg.getSz2()+" "+outImg.getSz3());
             System.out.println(outImg.getData().length);
+
+//            if(img.getSz0()>32&&img.getSz1()>32&&img.getSz2()>32)
+//            {
+//                Image4DSimple.upsample3dimg_interp(upsampleimg, outImg,img.getSz0()/32 , img.getSz1()/32, img.getSz2()/32, 1);
+//            }
+//            else
+//            {
+//                upsampleimg=outImg;
+//            }
+//            System.out.println("upsample image");
+//            myrenderer.ResetImg(upsampleimg);
             myrenderer.ResetImg(outImg);
             myGLSurfaceView.requestRender();
         }catch (Exception e){
