@@ -726,13 +726,16 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     remoteImg.ip = ip;
-                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
-                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
-                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    if (!remoteImg.isSocketSet){
+                        remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
+                        remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
+                        remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    }
 
 
                     if(remoteImg.ImgSocket.isConnected()){
 
+                        remoteImg.isSocketSet = true;
                         Toast.makeText(context, "Connect with Server successfully", Toast.LENGTH_SHORT).show();
                         if (!remoteImg.isOutputShutdown()) {
                             Log.v("SendSwc: ", "Connect with Server successfully");
@@ -812,14 +815,16 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     remoteImg.ip = ip;
-                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
-                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
-                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    if (!remoteImg.isSocketSet){
+                        remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
+                        remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
+                        remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    }
 
                     Log.v("DownloadSwc: ", "here we are 2");
 
                     if(remoteImg.ImgSocket.isConnected()){
-
+                        remoteImg.isSocketSet = true;
                         Log.v("DownloadSwc: ", "Connect with Server successfully");
                         Toast.makeText(getContext(), "Connect with Server successfully", Toast.LENGTH_SHORT).show();
                         remoteImg.ImgPWriter.println( "connect from android client" + ":down.");
@@ -864,7 +869,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /**
+     private void ConnectServer(){
+
+     }
+
+   /**
      * function for the FileManager button
      *
      * @param v the button: FileManager
@@ -1705,14 +1714,18 @@ public class MainActivity extends AppCompatActivity {
                 Looper.prepare();
 
                 try {
-                    remoteImg.ip = ip;
-                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
-                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
-                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+
+                    if (!remoteImg.isSocketSet){
+                        remoteImg.ip = ip;
+                        remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
+                        remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
+                        remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    }
 
 
                     if(remoteImg.ImgSocket.isConnected()){
 
+                        remoteImg.isSocketSet = true;
                         Toast.makeText(context, "Connect with Server successfully", Toast.LENGTH_SHORT).show();
                         remoteImg.ImgPWriter.println( "connect for android client" + ":choose3.");
                         remoteImg.ImgPWriter.flush();
@@ -2418,6 +2431,7 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         context = null;
+        remoteImg = null;
     }
 
     //renderer 的生存周期和activity保持一致
@@ -2426,7 +2440,7 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         myGLSurfaceView.onPause();
         Log.v("onPause", "start-----");
-
+        remoteImg = null;
     }
 
     @Override
@@ -2435,26 +2449,7 @@ public class MainActivity extends AppCompatActivity {
         myGLSurfaceView.onResume();
         Log.v("Path", filepath);
         Log.v("onResume", "start-----");
-
-//        myrenderer = new MyRenderer();
-
-//        Uri uri = Uri.parse((String) filepath);
-//
-//        try {
-//            ParcelFileDescriptor parcelFileDescriptor =
-//                    getContentResolver().openFileDescriptor(uri, "r");
-//
-//            is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-//
-//            length = (int)parcelFileDescriptor.getStatSize();
-//            myrenderer.setInputStream(is);
-//            myrenderer.setLength(length);
-//
-//        }catch (Exception e){
-//            Log.v("MainActivity","Some problems in the MainActivity");
-//        }
-//
-//        Log.v("Load data successfully!", "here we are");
+        remoteImg = new RemoteImg();
     }
 
     private void Learning() {
