@@ -152,7 +152,7 @@ public class ManageSocket extends Socket {
 ////                                    Looper.loop();
 ////                                }
 //                            }
-                            filesocket_receive.readFile(item);
+                            filesocket_receive.readFile(item, context);
                         }
                     }
                 } catch (Exception e) {

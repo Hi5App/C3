@@ -49,7 +49,8 @@ public class Filesocket_receive {
         m_bytesreceived = 0;
     }
 
-    public void readFile(final String filename){
+    public void readFile(final String filename, Context context){
+        final boolean[] flag = {false};
         new Thread()  {
             public void run(){
                 try {
@@ -126,17 +127,22 @@ public class Filesocket_receive {
 
 
                     if ( file_type.equals(".ano")){
-                        readFile(filename + ".eswc");
+                        readFile(filename + ".eswc", context);
                     }
 
 
                     if (file_type.equals(".eswc")){
-                        readFile(filename.substring(0, filename.length() - 5) + ".apo");
+                        readFile(filename.substring(0, filename.length() - 5) + ".apo", context);
                     }
 
                     if (file_type.equals(".apo")){
                         disconnect();
                     }
+
+                    flag[0] = true;
+
+                    disconnect();
+
 
 
 
@@ -257,6 +263,13 @@ public class Filesocket_receive {
                 }
             }
         }.start();
+
+        while (!flag[0]){
+
+        }
+
+        Toast.makeText(context, "Download file successfully!!!", Toast.LENGTH_SHORT).show();
+
     }
 
 
@@ -437,6 +450,7 @@ public class Filesocket_receive {
 
                 }catch (Exception e){
                     e.printStackTrace();
+                    popupView.dismiss();
                     Toast.makeText(context[0], "Fail to download img", Toast.LENGTH_SHORT).show();
                 }
             }

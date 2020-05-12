@@ -57,6 +57,7 @@ public class RemoteImg extends Socket {
         String CurrentDirLoadExp = ":currentDir_load.";
         String CurrentDirImgDownExp = ":currentDirImg.";
         String MessagePortExp = ":messageport.\n";
+        String ImportportExp = ":importport.\n";
 
 
         Log.v("onReadyRead", information);
@@ -73,7 +74,7 @@ public class RemoteImg extends Socket {
 
             }else if (information.contains(ImportRex)){
 
-                if (!mSocket.isConnected()){
+                if (!ImgSocket.isConnected()){
 
                     Toast.makeText(context, "can not connect with Manageserver.", Toast.LENGTH_SHORT).show();
                     return;
@@ -107,10 +108,38 @@ public class RemoteImg extends Socket {
                     Log.v("onReadyRead", file_list[i]);
 
                 ShowListDialog(context, file_list, "CurrentDirImgDownExp");
+            }else if (information.contains(ImportportExp)){
+
             }
         }
     }
 
+
+//    public void SendSwc(){
+//        try {
+//            Log.v("SendSwc: ", "Start to connect filesend_server");
+//
+//            Filesocket_send filesocket_send = new Filesocket_send();
+//            filesocket_send.filesocket = new Socket(ip, 9001);
+//            filesocket_send.mReader = new BufferedReader(new InputStreamReader(filesocket_send.filesocket.getInputStream(), "UTF-8"));
+//            filesocket_send.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_send.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
+//
+//
+//            Log.v("before filesocket_send:", "Connect with Server successfully");
+//
+//            if (filesocket_send.filesocket.isConnected()) {
+//
+//                Context[] contexts = new Context[1];
+//                contexts[0] = context;
+//
+//                Log.v("filesocket_send: ", "Connect with Server successfully");
+//
+//                filesocket_send.sendImg(filename, is, length, context);
+//            }
+//        }catch(Exception e){
+//            e.printStackTrace();
+//        }
+//    }
 
 
     public void disconnectFromHost(){
@@ -133,6 +162,9 @@ public class RemoteImg extends Socket {
             public void run() {
                 try {
 
+                    if (Looper.myLooper() == null){
+                        Looper.prepare();
+                    }
                     Log.v("send1", "here we are");
 
                     Filesocket_receive filesocket_receive = new Filesocket_receive();
@@ -148,10 +180,9 @@ public class RemoteImg extends Socket {
                         if (!ImgSocket.isOutputShutdown()) {
                             Log.v("send1", "Connect successfully~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
-                            ImgPWriter.println(item + ":choose1." + "\n");
+                            ImgPWriter.println(item + ":choose1.");
                             ImgPWriter.flush();
 
-                            Looper.prepare();
 
                             String content;
 //                            if ((content = filesocket_receive.mReader.readLine()) != null) {
@@ -162,7 +193,9 @@ public class RemoteImg extends Socket {
 ////                                    Looper.loop();
 ////                                }
 //                            }
-                            filesocket_receive.readFile(item);
+                            filesocket_receive.readFile(item, context);
+
+                            Looper.loop();
                         }
                     }
                 } catch (Exception e) {
