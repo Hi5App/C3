@@ -12,8 +12,10 @@ import com.learning.randomforest.RandomForest;
 import com.tracingfunc.app2.MyMarker;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 public class PixelClassification {
     public static double[] sigmaScales = new double[]{0.3,0.7,1,1.6,3.5,5.0,10.0};
@@ -85,26 +87,36 @@ public class PixelClassification {
                 labelFB.add(labels.get(i));
             }
         }
+        if(labelFB.isEmpty()){
+            throw new Exception("Please add foreground label!");
+        }
         for(int i=0; i<labels.size(); i++){
             if(labels.get(i).listNeuron.get(0).type == 3){
                 labelFB.add(labels.get(i));
             }
         }
-        int C = labelFB.size();
-        System.out.println("C: "+C);
+        int C = 2;
 
-        if(C != 2){
-            throw new Exception("Please add two label!");
+        boolean bg = false;
+
+        if(labelFB.size()!=C){
+            bg = true;
         }
 
         List<int[]> masks = new ArrayList<>(C);
         int[] sz = new int[]{(int) downSampleImg.getSz0(), (int) downSampleImg.getSz1(), (int) downSampleImg.getSz2()};
-        int[] flag = new int[]{1,2,3,4,5,6,7,8,9,10};
-        for(int i=0; i<C; i++){
-            Vector<MyMarker> inswc = MyMarker.swcConvert(labelFB.get(i));
-            int[] mask = MyMarker.swcToMask(inswc,sz,1, flag[i]);
-            masks.add(mask);
+//        int[] flag = new int[]{1,2,3,4,5,6,7,8,9,10};
+
+        Vector<MyMarker> inSwc = MyMarker.swcConvert(labelFB.get(0));
+        int[] mask = MyMarker.swcToMask(inSwc,sz,1, 2);
+        masks.add(mask);
+
+        if(!bg){
+            Vector<MyMarker> inSwc2 = MyMarker.swcConvert(labelFB.get(1));
+            int[] mask2 = MyMarker.swcToMask(inSwc2,sz,1, 1);
+            masks.add(mask2);
         }
+
 
         int[] maskFinal = new int[sz[0]*sz[1]*sz[2]];
         for(int i=0; i<maskFinal.length; i++)
@@ -112,7 +124,7 @@ public class PixelClassification {
         for(int i=0; i<masks.size(); i++){
             for(int j=0; j<masks.get(i).length; j++){
                 if(maskFinal[j] == 0 && masks.get(i)[j] != 0) {
-                    System.out.println("mask is not zero");
+//                    System.out.println("mask is not zero");
                     maskFinal[j] = masks.get(i)[j];
                 }
             }
@@ -127,7 +139,32 @@ public class PixelClassification {
         int[] img1d = new int[img1dByte.length];
         for(int i=0; i<img1dByte.length; i++){
             img1d[i] = ByteTranslate.byte1ToInt(img1dByte[i]);
+        }
 
+        if(bg){
+            double mean = 0, std = 0;
+            int count = 0;
+            for(int i=0; i<maskFinal.length; i++){
+                if(maskFinal[i] == 2){
+                    mean += img1d[i];
+                    count++;
+                }
+            }
+            mean /= count;
+
+            for(int i=0; i<maskFinal.length; i++){
+                if(maskFinal[i] == 2){
+                    std += (img1d[i]-mean)*(img1d[i]-mean);
+                }
+            }
+            std = Math.sqrt(std/count);
+            double th = Math.max(mean-std*3,40);
+
+            for(int i=0; i<maskFinal.length; i++){
+                if(maskFinal[i] != 2 && img1d[i] < th){
+                    maskFinal[i] = 1;
+                }
+            }
         }
 
         System.out.println("---------------get feature-----------");
@@ -157,14 +194,44 @@ public class PixelClassification {
         ArrayList<int[]> trainData = new ArrayList<>();
         ArrayList<int[]> testData = new ArrayList<>();
 
-        for(int i=0; i<maskFinal.length; i++){
-            if(maskFinal[i] != 0){
-                System.out.println("-------------feature------------");
-                int[] features = new int[M+1];
-                if (dataRandomForest.get(i).length - 1 >= 0)
-                    System.arraycopy(dataRandomForest.get(i), 0, features, 0, dataRandomForest.get(i).length - 1);
-                features[M] = maskFinal[i];
-                trainData.add(features);
+        if(bg){
+            ArrayList<int[]> data1 = new ArrayList<>();
+            ArrayList<int[]> data2 = new ArrayList<>();
+            for(int i=0; i<maskFinal.length; i++){
+                if(maskFinal[i] == 1){
+                    int[] features = new int[M+1];
+                    if (dataRandomForest.get(i).length - 1 >= 0)
+                        System.arraycopy(dataRandomForest.get(i), 0, features, 0, dataRandomForest.get(i).length - 1);
+                    features[M] = maskFinal[i];
+                    data1.add(features);
+                }else if(maskFinal[i] == 2){
+                    int[] features = new int[M+1];
+                    if (dataRandomForest.get(i).length - 1 >= 0)
+                        System.arraycopy(dataRandomForest.get(i), 0, features, 0, dataRandomForest.get(i).length - 1);
+                    features[M] = maskFinal[i];
+                    data2.add(features);
+                }
+            }
+            if(data1.size()>data2.size()*2){
+                Collections.shuffle(data1);
+                for(int i=0; i<data2.size()*2; i++){
+                    trainData.add(data1.get(i));
+                }
+                trainData.addAll(data2);
+            }else {
+                trainData.addAll(data1);
+                trainData.addAll(data2);
+            }
+        }else {
+            for(int i=0; i<maskFinal.length; i++){
+                if(maskFinal[i] != 0){
+//                System.out.println("-------------feature------------");
+                    int[] features = new int[M+1];
+                    if (dataRandomForest.get(i).length - 1 >= 0)
+                        System.arraycopy(dataRandomForest.get(i), 0, features, 0, dataRandomForest.get(i).length - 1);
+                    features[M] = maskFinal[i];
+                    trainData.add(features);
+                }
             }
         }
 

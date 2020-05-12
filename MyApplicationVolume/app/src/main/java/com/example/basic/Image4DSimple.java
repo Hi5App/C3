@@ -24,6 +24,7 @@ import static com.example.basic.Image4DSimple.ImagePixelType.V3D_UNKNOWN;
 import static com.example.basic.Image4DSimple.TimePackType.TIME_PACK_NONE;
 import static com.example.myapplication__volume.MainActivity.getContext;
 import static java.lang.Math.floor;
+import static java.lang.Math.round;
 import static java.lang.System.out;
 
 
@@ -1035,15 +1036,15 @@ public class Image4DSimple {
         {
             for (int k=0;k<cur_sz2;k++)
             {
-                long k2low=(long)(floor(k/dfactor_z)); //k2high=(long)(floor((k+1)/dfactor_z-1));
+                long k2low=(long)(round((double) k/dfactor_z)); //k2high=(long)(floor((k+1)/dfactor_z-1));
 
                 for (int j=0;j<cur_sz1;j++)
                 {
-                    long j2low=(long)(floor(j/dfactor_y));// j2high=(long)(floor((j+1)*dfactor_y-1));
+                    long j2low=(long)(round((double) j/dfactor_y));// j2high=(long)(floor((j+1)*dfactor_y-1));
 
                     for (int i=0;i<cur_sz0;i++)
                     {
-                        long i2low=(long)(floor(i/dfactor_x));// i2high=(long)(floor((i+1)*dfactor_x-1));
+                        long i2low=(long)(round((double) i/dfactor_x));// i2high=(long)(floor((i+1)*dfactor_x-1));
 
                         int s=0;
                         s = srcImg.getValue(i2low,j2low,k2low,c);// in_tmp4d[c][k1][j1][i1];

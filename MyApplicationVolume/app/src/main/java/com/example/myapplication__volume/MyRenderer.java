@@ -206,8 +206,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         screen_w = width;
         screen_h = height;
 
-        if (fileType == FileType.V3draw || fileType == FileType.TIF)
-            myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
+//        if (fileType == FileType.V3draw || fileType == FileType.TIF)
+//            myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
 
         myAxis = new MyAxis(mz);
         myDraw = new MyDraw();
@@ -254,7 +254,20 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         //淡黄
 //        GLES30.glClearColor(1.0f, 0.89f, 0.51f, 1.0f);
         //深蓝
-        GLES30.glClearColor(0.098f, 0.098f, 0.439f, 1.0f);
+//        GLES30.glClearColor(0.098f, 0.098f, 0.439f, 1.0f);
+        //西红柿
+//        GLES30.glClearColor(1f, 1f, 1f, 1.0f);
+        //紫色
+//        GLES30.glClearColor(0.192f, 0.105f, 0.572f, 1.0f);
+        //浅蓝
+//        GLES30.glClearColor(0.623f, 0.658f, 0.854f, 1.0f);
+        //中蓝
+        GLES30.glClearColor(121f/255f, 134f/255f, 203f/255f, 1.0f);
+        //浅紫
+//        GLES30.glClearColor(0.929f, 0.906f, 0.965f, 1.0f);
+
+        if (fileType == FileType.V3draw || fileType == FileType.TIF)
+            myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
 
 
 
@@ -1061,7 +1074,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         img = new_img;
         myPattern = null;
-        myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
 
         grayscale =  img.getData();
 
@@ -2187,6 +2199,100 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
+    public void addBackgroundLineDrawed(ArrayList<Float> line){
+        if (img.getData() == null){
+            return;
+        }
+        ArrayList<Float> lineAdded;
+        float [] lineCurrent = new float[line.size()];
+        Log.v("addLineDrawed", Integer.toString(line.size()));
+        for (int i = 0; i < line.size(); i++){
+            lineCurrent[i] = line.get(i);
+        }
+//        lineAdded = getLineDrawed(lineCurrent);
+        lineAdded = getLineDrawed_2(lineCurrent);
+
+        if (lineAdded != null){
+//            lineDrawed.add(lineAdded);
+            int max_n = curSwcList.maxnoden();
+            V_NeuronSWC seg = new  V_NeuronSWC();
+            for(int i=0; i < lineAdded.size()/3; i++){
+                V_NeuronSWC_unit u = new V_NeuronSWC_unit();
+                u.n = max_n + i+ 1;
+                if(i==0)
+                    u.parent = -1;
+                else
+                    u.parent = max_n + i;
+                float[] xyz = ModeltoVolume(new float[]{lineAdded.get(i*3+0),lineAdded.get(i*3+1),lineAdded.get(i*3+2)});
+                u.x = xyz[0];
+                u.y = xyz[1];
+                u.z = xyz[2];
+                u.type = lastLineType;
+                seg.append(u);
+//                System.out.println("u n p x y z: "+ u.n +" "+u.parent+" "+u.x +" "+u.y+ " "+u.z);
+            }
+            if(seg.row.size()<3){
+                return;
+            }
+            float[] headXYZ = new float[]{(float) seg.row.get(0).x, (float) seg.row.get(0).y, (float) seg.row.get(0).z};
+            float[] tailXYZ = new float[]{(float) seg.row.get(seg.row.size()-1).x,
+                    (float) seg.row.get(seg.row.size()-1).y,
+                    (float) seg.row.get(seg.row.size()-1).z};
+            boolean linked = false;
+            for(int i=0; i<curSwcList.seg.size(); i++){
+                V_NeuronSWC s = curSwcList.seg.get(i);
+                for(int j=0; j<s.row.size(); j++){
+                    if(linked)
+                        break;
+                    V_NeuronSWC_unit node = s.row.get(j);
+                    float[] nodeXYZ = new float[]{(float) node.x, (float) node.y, (float) node.z};
+                    if(distance(headXYZ,nodeXYZ)<5){
+                        V_NeuronSWC_unit head = seg.row.get(0);
+                        V_NeuronSWC_unit child = seg.row.get(1);
+                        head.x = node.x;
+                        head.y = node.y;
+                        head.z = node.z;
+                        head.n = node.n;
+                        head.parent = node.parent;
+                        child.parent = head.n;
+                        linked = true;
+                        break;
+                    }
+                    if(distance(tailXYZ,nodeXYZ)<5){
+                        seg.reverse();
+                        V_NeuronSWC_unit tail = seg.row.get(seg.row.size()-1);
+                        V_NeuronSWC_unit child = seg.row.get(seg.row.size()-2);
+                        tail.x = node.x;
+                        tail.y = node.y;
+                        tail.z = node.z;
+                        tail.n = node.n;
+                        tail.parent = node.parent;
+                        child.n = tail.n;
+                        linked = true;
+                        break;
+                    }
+                }
+            }
+            curSwcList.append(seg);
+            if (process.size() < UNDO_LIMIT){
+                process.add(Operate.DRAWCURVE);
+                undoDrawList.add(seg);
+            } else{
+                process.remove(0);
+                process.add(Operate.DRAWCURVE);
+                undoDrawList.remove(0);
+                undoDrawList.add(seg);
+            }
+//            return curSwcList.nsegs() - 1;
+
+//            Log.v("addLineDrawed", Integer.toString(lineAdded.size()));
+        }
+        else {
+            Log.v("draw line:::::", "nulllllllllllllllllll");
+            return;
+        }
+    }
+
     public boolean deleteFromNew(int segid){
         if (newSwcList.nsegs() < segid || segid < 0)
             return false;
@@ -2772,6 +2878,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         System.out.println("undo succeed");
         return true;
+    }
+
+    public int getLastLineType() {
+        return lastLineType;
     }
 
 }
