@@ -2861,14 +2861,19 @@ public class MainActivity extends AppCompatActivity {
                             myrenderer.setIfPainting(false);
 //                            myrenderer.addLineDrawed(lineDrawed);
 
-
-
-                            int segid = myrenderer.addLineDrawed(lineDrawed);
+                            int lineType = myrenderer.getLastLineType();
+                            if (lineType != 3) {
+                                int segid = myrenderer.addLineDrawed(lineDrawed);
 //                                    segids.add(segid);
 //                            requestRender();
 
-                            myrenderer.addLineDrawed2(lineDrawed);
-                            myrenderer.deleteFromNew(segid);
+                                myrenderer.addLineDrawed2(lineDrawed);
+                                myrenderer.deleteFromNew(segid);
+                            }
+
+                            else{
+                                myrenderer.addBackgroundLineDrawed(lineDrawed);
+                            }
 //                            requestRender();
 
 //                            if (myrenderer.deleteFromNew(segid)) {
