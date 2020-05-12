@@ -268,7 +268,9 @@ public class PixelClassification {
 
         if(dFactorXY>1 || dFactorZ>1){
             Image4DSimple upSampleImg = new Image4DSimple();
+            System.out.println("--------------upSample--------------");
             Image4DSimple.upsample3dimg_interp(upSampleImg,result,dFactorXY,dFactorXY,dFactorZ,1);
+            System.out.println("----------------over------------------");
             return upSampleImg;
         }else {
             return result;

@@ -1037,14 +1037,20 @@ public class Image4DSimple {
             for (int k=0;k<cur_sz2;k++)
             {
                 long k2low=(long)(round((double) k/dfactor_z)); //k2high=(long)(floor((k+1)/dfactor_z-1));
+                if(k2low>=sz[2]) k2low = sz[2]-1;
+                if(k2low<0) k2low = 0;
 
                 for (int j=0;j<cur_sz1;j++)
                 {
                     long j2low=(long)(round((double) j/dfactor_y));// j2high=(long)(floor((j+1)*dfactor_y-1));
+                    if(j2low>=sz[1]) j2low = sz[1]-1;
+                    if(j2low<0) j2low = 0;
 
                     for (int i=0;i<cur_sz0;i++)
                     {
                         long i2low=(long)(round((double) i/dfactor_x));// i2high=(long)(floor((i+1)*dfactor_x-1));
+                        if(i2low>=sz[0]) i2low = sz[0]-1;
+                        if(i2low<0) i2low = 0;
 
                         int s=0;
                         s = srcImg.getValue(i2low,j2low,k2low,c);// in_tmp4d[c][k1][j1][i1];
