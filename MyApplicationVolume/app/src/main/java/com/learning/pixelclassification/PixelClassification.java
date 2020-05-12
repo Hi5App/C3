@@ -113,7 +113,7 @@ public class PixelClassification {
 
         if(!bg){
             Vector<MyMarker> inSwc2 = MyMarker.swcConvert(labelFB.get(1));
-            int[] mask2 = MyMarker.swcToMask(inSwc,sz,1, 1);
+            int[] mask2 = MyMarker.swcToMask(inSwc2,sz,1, 1);
             masks.add(mask2);
         }
 
