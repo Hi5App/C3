@@ -266,8 +266,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         //浅紫
 //        GLES30.glClearColor(0.929f, 0.906f, 0.965f, 1.0f);
 
-        if (fileType == FileType.V3draw || fileType == FileType.TIF)
-            myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
+        if (myPattern == null){
+            if (fileType == FileType.V3draw || fileType == FileType.TIF)
+                myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
+        }
+
 
 
 
@@ -1023,6 +1026,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 return;
             }
         }
+
+        myPattern = null;
 
 //        try {
 //            ParcelFileDescriptor parcelFileDescriptor =

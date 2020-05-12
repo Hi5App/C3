@@ -41,12 +41,14 @@ public class Filesocket_send {
     }
 
 
-    public void sendImg(final String filename, final InputStream is, final long length_content, final Context[] context) throws InterruptedException {
+    public void sendImg(final String filename, final InputStream is, final long length_content, final Context context) throws InterruptedException {
         final Boolean[] stop = {false};
 
-//        BasePopupView popupView = new XPopup.Builder(context[0])
+//        BasePopupView popupView = new XPopup.Builder(context)
 //                .asLoading("Uploading......");
 //        popupView.show();
+
+//        Toast.makeText(context, "Start ot upload file!!!", Toast.LENGTH_SHORT).show();
 
 
         Thread thread = new Thread()  {
@@ -104,9 +106,16 @@ public class Filesocket_send {
                     is.close();
 
                     stop[0] = true;
+
+
+                    Log.v("send2", "send file successfully!!!");
+
+//                    popupView.dismiss();
+
+
                 }catch (Exception e){
                     e.printStackTrace();
-                    Toast.makeText(context[0], "Fail to download img", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Fail to Upload file", Toast.LENGTH_SHORT).show();
                 }
             }
         };
@@ -114,9 +123,11 @@ public class Filesocket_send {
 
 //        Log.v("send2", "finished");
 
-//        while (!stop[0]){
-//        }
-//        popupView.dismiss();
+        while (!stop[0]){
+        }
+
+        Toast.makeText(context, "Upload file successfully!!!", Toast.LENGTH_SHORT).show();
+
 
 
     }
