@@ -4,6 +4,14 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
     <color name="colorWise">#87CEFA</color>
-    <color name="colorDark">#191970</color>
-    <color name="colorMid">#00008B</color>
+
+
+    <color name="colorDark">#3700B3</color>
+    <color name="colorMid">#6200EE</color>
+
+    <color name="colorMid_yellow">#FFA000</color>
+    <color name="colorDark_yellow">#FF6F00</color>
+<!--    <color name="colorDark_yellow">#E65100</color>-->
+
+
 </resources>

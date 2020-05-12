@@ -667,7 +667,7 @@ public class MyPattern{
             initTexture_3d();
         }catch (Exception e){
             Context context = getContext();
-            Intent intent = new Intent(context, FileActivity.class);
+            Intent intent = new Intent(context, MainActivity.class);
             String message = e.getMessage() + "out of memory when load file";
             intent.putExtra(MyRenderer.OUTOFMEM_MESSAGE, message);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

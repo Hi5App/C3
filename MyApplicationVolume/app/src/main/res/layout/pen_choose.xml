@@ -29,7 +29,7 @@
             android:layout_marginLeft="6dp"
             android:layout_toRightOf="@id/title1"
             android:background="@null"
-            android:hint="2 is background,3 is foreground"
+            android:hint="2 is foreground,3 is background"
             android:textColor="#ee333333"
             android:textCursorDrawable="@drawable/color_cursor" />
 

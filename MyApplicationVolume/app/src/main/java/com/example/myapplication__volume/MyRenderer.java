@@ -206,8 +206,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         screen_w = width;
         screen_h = height;
 
-        if (fileType == FileType.V3draw || fileType == FileType.TIF)
-            myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
+//        if (fileType == FileType.V3draw || fileType == FileType.TIF)
+//            myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
 
         myAxis = new MyAxis(mz);
         myDraw = new MyDraw();
@@ -254,7 +254,20 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         //淡黄
 //        GLES30.glClearColor(1.0f, 0.89f, 0.51f, 1.0f);
         //深蓝
-        GLES30.glClearColor(0.098f, 0.098f, 0.439f, 1.0f);
+//        GLES30.glClearColor(0.098f, 0.098f, 0.439f, 1.0f);
+        //西红柿
+//        GLES30.glClearColor(1f, 1f, 1f, 1.0f);
+        //紫色
+//        GLES30.glClearColor(0.192f, 0.105f, 0.572f, 1.0f);
+        //浅蓝
+//        GLES30.glClearColor(0.623f, 0.658f, 0.854f, 1.0f);
+        //中蓝
+        GLES30.glClearColor(121f/255f, 134f/255f, 203f/255f, 1.0f);
+        //浅紫
+//        GLES30.glClearColor(0.929f, 0.906f, 0.965f, 1.0f);
+
+        if (fileType == FileType.V3draw || fileType == FileType.TIF)
+            myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
 
 
 
@@ -1061,7 +1074,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         img = new_img;
         myPattern = null;
-        myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
 
         grayscale =  img.getData();
 
