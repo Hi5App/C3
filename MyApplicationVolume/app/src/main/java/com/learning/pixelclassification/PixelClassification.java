@@ -34,51 +34,66 @@ public class PixelClassification {
             {false,false,false,false,false,false,false}
     };
 
+    private boolean is64Cube;
+
+    public PixelClassification(){
+        is64Cube = true;
+    }
+
     public Image4DSimple getPixelClassificationResult(Image4DSimple inImg, NeuronTree nt) throws Exception{
         Image4DSimple result = new Image4DSimple();
 
-        double dFactorXY,dFactorZ;
-        int[] inSZ = new int[]{(int) inImg.getSz0(), (int) inImg.getSz1(), (int) inImg.getSz2()};
+        double dFactorXY = 1, dFactorZ = 1;
+        Image4DSimple downSampleImg = new Image4DSimple();
 
-        if (inSZ[0]<=32 && inSZ[1]<=32 && inSZ[2]<=32)
-        {
-            dFactorZ = dFactorXY = 1;
-        }
-        else if (inSZ[0] >= 2*inSZ[2] || inSZ[1] >= 2*inSZ[2])
-        {
-            if (inSZ[2]<=32)
+        if(is64Cube){
+
+            int[] inSZ = new int[]{(int) inImg.getSz0(), (int) inImg.getSz1(), (int) inImg.getSz2()};
+
+            if (inSZ[0]<=64 && inSZ[1]<=64 && inSZ[2]<=64)
             {
-                double MM = inSZ[0];
-                if (MM<inSZ[1]) MM=inSZ[1];
-                dFactorXY = MM / 32.0;
-                dFactorZ = 1;
+                dFactorZ = dFactorXY = 1;
+            }
+            else if (inSZ[0] >= 2*inSZ[2] || inSZ[1] >= 2*inSZ[2])
+            {
+                if (inSZ[2]<=64)
+                {
+                    double MM = inSZ[0];
+                    if (MM<inSZ[1]) MM=inSZ[1];
+                    dFactorXY = MM / 64.0;
+                    dFactorZ = 1;
+                }
+                else
+                {
+                    double MM = inSZ[0];
+                    if (MM<inSZ[1]) MM=inSZ[1];
+                    if (MM<inSZ[2]) MM=inSZ[2];
+                    dFactorXY = dFactorZ = MM / 64.0;
+                }
             }
             else
             {
                 double MM = inSZ[0];
                 if (MM<inSZ[1]) MM=inSZ[1];
                 if (MM<inSZ[2]) MM=inSZ[2];
-                dFactorXY = dFactorZ = MM / 32.0;
+                dFactorXY = dFactorZ = MM / 64.0;
             }
-        }
-        else
-        {
-            double MM = inSZ[0];
-            if (MM<inSZ[1]) MM=inSZ[1];
-            if (MM<inSZ[2]) MM=inSZ[2];
-            dFactorXY = dFactorZ = MM / 32.0;
+
+
+            Image4DSimple.resample3dimg_interp(downSampleImg,inImg,dFactorXY,dFactorXY,dFactorZ,1);
+
+            if(dFactorXY>1 || dFactorZ>1){
+                for(int i=0; i<nt.listNeuron.size(); i++){
+                    nt.listNeuron.get(i).x /= dFactorXY;
+                    nt.listNeuron.get(i).y /= dFactorXY;
+                    nt.listNeuron.get(i).z /= dFactorZ;
+                }
+            }
+        }else {
+            downSampleImg.setData(inImg);
         }
 
-        Image4DSimple downSampleImg = new Image4DSimple();
-        Image4DSimple.resample3dimg_interp(downSampleImg,inImg,dFactorXY,dFactorXY,dFactorZ,1);
 
-        if(dFactorXY>1 || dFactorZ>1){
-            for(int i=0; i<nt.listNeuron.size(); i++){
-                nt.listNeuron.get(i).x /= dFactorXY;
-                nt.listNeuron.get(i).y /= dFactorXY;
-                nt.listNeuron.get(i).z /= dFactorZ;
-            }
-        }
 
         Vector<NeuronTree> labels = nt.splitNeuronTreeByType();
         Vector<NeuronTree> labelFB = new Vector<NeuronTree>();
@@ -141,38 +156,66 @@ public class PixelClassification {
             img1d[i] = ByteTranslate.byte1ToInt(img1dByte[i]);
         }
 
-        if(bg){
-            double mean = 0, std = 0;
-            int count = 0;
-            for(int i=0; i<maskFinal.length; i++){
-                if(maskFinal[i] == 2){
-                    mean += img1d[i];
-                    count++;
-                }
+        double mean = 0, std = 0 , max = 0;
+        int count = 0;
+        for(int i=0; i<maskFinal.length; i++){
+            if(maskFinal[i] == 2){
+                mean += img1d[i];
+                max = Math.max(max,img1d[i]);
+                count++;
             }
-            mean /= count;
+        }
+        mean /= count;
 
-            for(int i=0; i<maskFinal.length; i++){
-                if(maskFinal[i] == 2){
-                    std += (img1d[i]-mean)*(img1d[i]-mean);
-                }
+        for(int i=0; i<maskFinal.length; i++){
+            if(maskFinal[i] == 2){
+                std += (img1d[i]-mean)*(img1d[i]-mean);
             }
-            std = Math.sqrt(std/count);
+        }
+        std = Math.sqrt(std/count);
+        if(bg){
             double th = Math.max(mean-std*3,40);
 
+            ArrayList<Integer> randomNumber = new ArrayList<>();
             for(int i=0; i<maskFinal.length; i++){
-                if(maskFinal[i] != 2 && img1d[i] < th){
-                    maskFinal[i] = 1;
+                randomNumber.add(i);
+            }
+            Collections.shuffle(randomNumber);
+
+            int countB = 0;
+            for(int i=0; i<randomNumber.size(); i++){
+                if(maskFinal[randomNumber.get(i)] != 2 && img1d[randomNumber.get(i)] < th){
+                    maskFinal[randomNumber.get(i)] = 1;
+                    countB++;
+                    if(countB>=count*2)
+                        break;
                 }
             }
         }
+
+        int[] featureMask = new int[img1d.length];
+        double min = Math.max(mean-std*3,30);
+        System.out.println("min: "+min);
+
+        int f = 0, b = 0;
+        for(int i=0; i<img1d.length; i++){
+            if(maskFinal[i] != 0 || (img1d[i] >= min && img1d[i] <= max + 5)){
+                featureMask[i] = 1;
+                f++;
+            }else {
+                featureMask[i] = 0;
+                b++;
+            }
+        }
+        System.out.println("f: "+f+" b: "+b);
+
 
         System.out.println("---------------get feature-----------");
         for(int i=0; i<selections.length; i++){
             for(int j=0; j<sigmaScales.length; j++){
                 double sigma = sigmaScales[j];
                 if(selections[i][j]){
-                    int[] outFeature = getFilterFeature(img1d,sz,sigma,featureName[i]);
+                    int[] outFeature = getFilterFeature(img1d,sz,featureMask,sigma,featureName[i]);
                     pixelsFeature.add(outFeature);
                 }
             }
@@ -194,35 +237,36 @@ public class PixelClassification {
         ArrayList<int[]> trainData = new ArrayList<>();
         ArrayList<int[]> testData = new ArrayList<>();
 
-        if(bg){
-            ArrayList<int[]> data1 = new ArrayList<>();
-            ArrayList<int[]> data2 = new ArrayList<>();
-            for(int i=0; i<maskFinal.length; i++){
-                if(maskFinal[i] == 1){
-                    int[] features = new int[M+1];
-                    if (dataRandomForest.get(i).length - 1 >= 0)
-                        System.arraycopy(dataRandomForest.get(i), 0, features, 0, dataRandomForest.get(i).length - 1);
-                    features[M] = maskFinal[i];
-                    data1.add(features);
-                }else if(maskFinal[i] == 2){
-                    int[] features = new int[M+1];
-                    if (dataRandomForest.get(i).length - 1 >= 0)
-                        System.arraycopy(dataRandomForest.get(i), 0, features, 0, dataRandomForest.get(i).length - 1);
-                    features[M] = maskFinal[i];
-                    data2.add(features);
-                }
-            }
-            if(data1.size()>data2.size()*2){
-                Collections.shuffle(data1);
-                for(int i=0; i<data2.size()*2; i++){
-                    trainData.add(data1.get(i));
-                }
-                trainData.addAll(data2);
-            }else {
-                trainData.addAll(data1);
-                trainData.addAll(data2);
-            }
-        }else {
+//        if(bg){
+//            ArrayList<int[]> data1 = new ArrayList<>();
+//            ArrayList<int[]> data2 = new ArrayList<>();
+//            for(int i=0; i<maskFinal.length; i++){
+//                if(maskFinal[i] == 1){
+//                    int[] features = new int[M+1];
+//                    if (dataRandomForest.get(i).length - 1 >= 0)
+//                        System.arraycopy(dataRandomForest.get(i), 0, features, 0, dataRandomForest.get(i).length - 1);
+//                    features[M] = maskFinal[i];
+//                    data1.add(features);
+//                }else if(maskFinal[i] == 2){
+//                    int[] features = new int[M+1];
+//                    if (dataRandomForest.get(i).length - 1 >= 0)
+//                        System.arraycopy(dataRandomForest.get(i), 0, features, 0, dataRandomForest.get(i).length - 1);
+//                    features[M] = maskFinal[i];
+//                    data2.add(features);
+//                }
+//            }
+//            if(data1.size()>data2.size()*2){
+//                Collections.shuffle(data1);
+//                for(int i=0; i<data2.size()*2; i++){
+//                    trainData.add(data1.get(i));
+//                }
+//                trainData.addAll(data2);
+//            }else {
+//                trainData.addAll(data1);
+//                trainData.addAll(data2);
+//            }
+//        }else{
+        {
             for(int i=0; i<maskFinal.length; i++){
                 if(maskFinal[i] != 0){
 //                System.out.println("-------------feature------------");
@@ -247,7 +291,11 @@ public class PixelClassification {
         System.out.println("----------------------classification-----------------");
 
         for(int i=0; i<dataRandomForest.size(); i++){
-            resultClassification[i] = rf.Evaluate(dataRandomForest.get(i));
+            if(featureMask[i] == 0){
+                resultClassification[i] = 0;
+            }else {
+                resultClassification[i] = rf.Evaluate(dataRandomForest.get(i));
+            }
 //            if(i%100==0){
 //                System.out.println(i+" : "+resultClassification[i]);
 //            }
@@ -277,6 +325,10 @@ public class PixelClassification {
         }
     }
 
+    public void setIs64Cube(boolean is64Cube) {
+        this.is64Cube = is64Cube;
+    }
+
     public void setSelections(boolean[][] selections) {
         this.selections = selections;
         for(int i=0; i<featureName.length; i++){
@@ -299,30 +351,30 @@ public class PixelClassification {
         return outPixel;
     }
 
-    public int[] getFilterFeature(int[] inPixel, int[] sz, double sigma, String method){
+    public int[] getFilterFeature(int[] inPixel, int[] sz, int[] mask, double sigma, String method){
         int[] outPixel = new int[inPixel.length];
         ConvolutionOptions opt = new ConvolutionOptions(sz.length, (float) sigma);
         if(method == featureName[0]){
-            MultiConvolution.gaussianSmoothMultiArray(inPixel,sz,outPixel,opt);
+            MultiConvolution.gaussianSmoothMultiArray(inPixel,sz,mask,outPixel,opt);
         }else if(method == featureName[1]){
-            MultiConvolution.laplacianOfGaussianMultiArray(inPixel,sz,outPixel,opt);
+            MultiConvolution.laplacianOfGaussianMultiArray(inPixel,sz,mask,outPixel,opt);
         }else if(method == featureName[2]){
-            MultiConvolution.structureTensorMultiArray(inPixel,sz,outPixel,opt);
+            MultiConvolution.structureTensorMultiArray(inPixel,sz,mask,outPixel,opt);
         }else if(method == featureName[3]){
             int N = sz.length;
             int M = N*(N+1)/2;
             int[] tmpPixl = new int[inPixel.length*M];
-            MultiConvolution.hessianOfGaussianMultiArray(inPixel,sz,tmpPixl,opt);
+            MultiConvolution.hessianOfGaussianMultiArray(inPixel,sz,mask,tmpPixl,opt);
             for(int i=0; i<outPixel.length; i++){
                 outPixel[i] = tmpPixl[i];
             }
         }else if(method == featureName[4]){
-            MultiConvolution.gaussianGradientMultiArray(inPixel,sz,outPixel,opt);
+            MultiConvolution.gaussianGradientMultiArray(inPixel,sz,mask,outPixel,opt);
         }else if(method == featureName[5]){
             int[] tmpPixl = new int[inPixel.length];
-            MultiConvolution.gaussianSmoothMultiArray(inPixel,sz,tmpPixl,opt);
+            MultiConvolution.gaussianSmoothMultiArray(inPixel,sz,mask,tmpPixl,opt);
             ConvolutionOptions opt0 = new ConvolutionOptions(sz.length,0.3f);
-            MultiConvolution.gaussianSmoothMultiArray(inPixel,sz,outPixel,opt0);
+            MultiConvolution.gaussianSmoothMultiArray(inPixel,sz,mask,outPixel,opt0);
 
             for(int i=0; i<outPixel.length; i++){
                 outPixel[i] = tmpPixl[i] - outPixel[i];
