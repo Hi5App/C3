@@ -632,7 +632,8 @@ public class MainActivity extends AppCompatActivity {
                     MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
                     List features = morphologyCalculate.Calculate(uri, false);
                     fl = new ArrayList<double[]>(features);
-                    if (features != null) displayResult(features);
+                    if (features.size() != 0) displayResult(features);
+                    else Toast.makeText(getContext(), "the file is empty", Toast.LENGTH_SHORT).show();
                 }
 
 
@@ -1509,7 +1510,8 @@ public class MainActivity extends AppCompatActivity {
                                         MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
                                         List<double[]> features = morphologyCalculate.CalculatefromNT(nt, false);
                                         fl = new ArrayList<double[]>(features);
-                                        if (features != null) displayResult(features);
+                                        if (features.size() != 0) displayResult(features);
+                                        else Toast.makeText(getContext(), "the file is empty", Toast.LENGTH_SHORT).show();
                                         break;
 
                                     default:
