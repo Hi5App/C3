@@ -94,6 +94,7 @@ public class MyAxis {
             0, 1,   0, 2,   0, 4,
             6, 1,   6, 4,   6, 7,
             3, 1,   3, 2,   3, 7,
+            5, 7,   5, 4,   5, 2
     };
 
 
@@ -177,15 +178,15 @@ public class MyAxis {
         vertexAxis = new float[]{
                 // x axis
                 (1.0f - 0.0f) * mz[0], (1.0f - 0.0f) * mz[1], 0.0f,
-                (1.0f - 1.1f) * mz[0], (1.0f - 0.0f) * mz[1], 0.0f,
+                (1.0f - 0.2f) * mz[0], (1.0f - 0.0f) * mz[1], 0.0f,
 
                 // y axis
                 (1.0f - 0.0f) * mz[0], (1.0f - 0.0f) * mz[1], 0.0f,
-                (1.0f - 0.0f) * mz[0], (1.0f - 1.1f) * mz[1], 0.0f,
+                (1.0f - 0.0f) * mz[0], (1.0f - 0.2f) * mz[1], 0.0f,
 
                 // z axis
                 (1.0f - 0.0f) * mz[0], (1.0f - 0.0f) * mz[1], 0.0f * mz[2],
-                (1.0f - 0.0f) * mz[0], (1.0f - 0.0f) * mz[1], 1.1f * mz[2],
+                (1.0f - 0.0f) * mz[0], (1.0f - 0.0f) * mz[1], 0.2f * mz[2],
 
         };
 
@@ -272,7 +273,7 @@ public class MyAxis {
 
         //绘制三个点
         GLES30.glLineWidth(3);
-        GLES30.glDrawElements(GLES30.GL_LINES, 18, GLES30.GL_UNSIGNED_SHORT, ListBuffer_border);
+        GLES30.glDrawElements(GLES30.GL_LINES, 24, GLES30.GL_UNSIGNED_SHORT, ListBuffer_border);
 
         //禁止顶点数组的句柄
         GLES30.glDisableVertexAttribArray(0);
