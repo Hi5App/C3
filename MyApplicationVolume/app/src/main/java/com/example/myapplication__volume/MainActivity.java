@@ -632,7 +632,8 @@ public class MainActivity extends AppCompatActivity {
                     MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
                     List features = morphologyCalculate.Calculate(uri, false);
                     fl = new ArrayList<double[]>(features);
-                    if (features != null) displayResult(features);
+                    if (features.size() != 0) displayResult(features);
+                    else Toast.makeText(getContext(), "the file is empty", Toast.LENGTH_SHORT).show();
                 }
 
 
@@ -658,10 +659,10 @@ public class MainActivity extends AppCompatActivity {
                     ifLoadLocal = false;
                 }
 
-                if (ifRemote){
-                    myrenderer.SetPath(filePath);
-                    ifRemote = false;
-                }
+//                if (ifRemote){
+//                    myrenderer.SetPath(filePath);
+//                    ifRemote = false;
+//                }
 
                 if (ifDownloadByHttp){
                     myrenderer.SetPath(filePath);
@@ -728,6 +729,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     remoteImg.ip = ip;
                     if (!remoteImg.isSocketSet){
+                        Log.v("SendSwc","connext socket");
                         remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
                         remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
                         remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
@@ -737,15 +739,34 @@ public class MainActivity extends AppCompatActivity {
                     if(remoteImg.ImgSocket.isConnected()){
 
                         remoteImg.isSocketSet = true;
-                        Toast.makeText(context, "Connect with Server successfully", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Start to upload!!!", Toast.LENGTH_SHORT).show();
                         if (!remoteImg.isOutputShutdown()) {
                             Log.v("SendSwc: ", "Connect with Server successfully");
                             remoteImg.ImgPWriter.println( "connect for android client" + ":import.");
-//                            remoteImg.ImgPWriter.println( "connect for android client" + ":login.");
                             remoteImg.ImgPWriter.flush();
 
-//                            Thread.sleep(10000);
-//                            SystemClock.sleep(10000);
+
+                            String content = remoteImg.ImgReader.readLine();
+//                            //接收来自服务器的消息
+//                            if(remoteImg.ImgSocket.isConnected()) {
+//                                if(!remoteImg.ImgSocket.isInputShutdown()) {
+//                                    /*读取一行字符串，读取的内容来自于客户机
+//                                    reader.readLine()方法是一个阻塞方法，
+//                                    从调用这个方法开始，该线程会一直处于阻塞状态，
+//                                    直到接收到新的消息，代码才会往下走*/
+//                                    String content = "";
+//                                    while ((content = remoteImg.ImgReader.readLine()) != null) {
+//                                        Log.v("---------Image------:", content);
+//                                        if (!((Activity) context).isFinishing()){
+//                                            Log.v("Download SWC file: ", content);
+////                                            remoteImg.onReadyRead(content, context);
+//                                            Looper.loop();
+//                                        }
+//                                    }
+//
+//                                }
+//                            }
+
                             new Handler().postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
@@ -769,7 +790,7 @@ public class MainActivity extends AppCompatActivity {
 
                                             Log.v("filesocket_send: ", "Connect with Server successfully");
 
-                                            filesocket_send.sendImg(filename, is, length, contexts);
+                                            filesocket_send.sendImg(filename, is, length, context);
 //                                            Looper.loop();
 
                                         }
@@ -778,7 +799,7 @@ public class MainActivity extends AppCompatActivity {
                                     }
 
                                 }
-                            },10 * 1000);  //延迟10秒执行
+                            },1000);  //延迟10秒执行
 
 
 
@@ -817,6 +838,9 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     remoteImg.ip = ip;
                     if (!remoteImg.isSocketSet){
+
+                        Log.v("DownloadSwc: ", "Connect server");
+
                         remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
                         remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
                         remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
@@ -1486,7 +1510,8 @@ public class MainActivity extends AppCompatActivity {
                                         MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
                                         List<double[]> features = morphologyCalculate.CalculatefromNT(nt, false);
                                         fl = new ArrayList<double[]>(features);
-                                        if (features != null) displayResult(features);
+                                        if (features.size() != 0) displayResult(features);
+                                        else Toast.makeText(getContext(), "the file is empty", Toast.LENGTH_SHORT).show();
                                         break;
 
                                     default:
@@ -1583,7 +1608,7 @@ public class MainActivity extends AppCompatActivity {
     private void Version() {
 
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 202005012d",
+                .asConfirm("Version", "version: 202005012e",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -2465,7 +2490,7 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         myGLSurfaceView.onPause();
         Log.v("onPause", "start-----");
-        remoteImg = null;
+//        remoteImg = null;
     }
 
     @Override
@@ -2474,7 +2499,7 @@ public class MainActivity extends AppCompatActivity {
         myGLSurfaceView.onResume();
         Log.v("Path", filepath);
         Log.v("onResume", "start-----");
-        remoteImg = new RemoteImg();
+//        remoteImg = new RemoteImg();
     }
 
     private void Learning() {
