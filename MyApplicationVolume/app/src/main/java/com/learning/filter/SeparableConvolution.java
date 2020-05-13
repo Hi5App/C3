@@ -105,7 +105,7 @@ public class SeparableConvolution {
 
     }
 
-    public static void internalConvolveLineWrap(int[] src, int srcStart, int srcEnd,
+    public static void internalConvolveLineWrap(int[] src, int srcStart, int srcEnd, int[] mask,
                                                 int[] dest, int destStart,
                                                 Kernel1D kernel1D,
                                                 int kLeft, int kRight,
@@ -118,6 +118,10 @@ public class SeparableConvolution {
         srcStart += start;
 
         for(int x=start; x<stop; ++x, ++srcStart, ++destStart){
+            if(mask[srcStart] == 0){
+                dest[destStart] = src[srcStart];
+                continue;
+            }
             int ik = kRight;
             double sum = 0.0;
             if(x<kRight){
@@ -170,7 +174,7 @@ public class SeparableConvolution {
         }
     }
 
-    public static void internalConvolveLineClip(int[] src, int srcStart, int srcEnd,
+    public static void internalConvolveLineClip(int[] src, int srcStart, int srcEnd, int[] mask,
                                                 int[] dest, int destStart,
                                                 Kernel1D kernel1D,
                                                 int kLeft, int kRight, double norm,
@@ -183,6 +187,10 @@ public class SeparableConvolution {
         srcStart += start;
 
         for(int x=start; x<stop; ++x, ++srcStart, ++destStart){
+            if(mask[srcStart] == 0){
+                dest[destStart] = src[srcStart];
+                continue;
+            }
             int ik = kRight;
             double sum = 0.0;
             if(x<kRight){
@@ -239,7 +247,7 @@ public class SeparableConvolution {
         }
     }
 
-    public static void internalConvolveLineZeropad(int[] src, int srcStart, int srcEnd,
+    public static void internalConvolveLineZeropad(int[] src, int srcStart, int srcEnd, int[] mask,
                                                 int[] dest, int destStart,
                                                 Kernel1D kernel1D,
                                                 int kLeft, int kRight,
@@ -252,6 +260,10 @@ public class SeparableConvolution {
         srcStart += start;
 
         for(int x=start; x<stop; ++x, ++srcStart, ++destStart){
+            if(mask[srcStart] == 0){
+                dest[destStart] = src[srcStart];
+                continue;
+            }
             double sum = 0.0;
             if(x<kRight){
                 int ik = kRight;
@@ -289,7 +301,7 @@ public class SeparableConvolution {
         }
     }
 
-    public static void internalConvolveLineReflect(int[] src, int srcStart, int srcEnd,
+    public static void internalConvolveLineReflect(int[] src, int srcStart, int srcEnd, int[] mask,
                                                 int[] dest, int destStart,
                                                 Kernel1D kernel1D,
                                                 int kLeft, int kRight,
@@ -302,6 +314,10 @@ public class SeparableConvolution {
         srcStart += start;
 
         for(int x=start; x<stop; ++x, ++srcStart, ++destStart){
+            if(mask[srcStart] == 0){
+                dest[destStart] = src[srcStart];
+                continue;
+            }
             int ik = kRight;
             double sum = 0.0;
             if(x<kRight){
@@ -354,7 +370,7 @@ public class SeparableConvolution {
         }
     }
 
-    public static void internalConvolveLineRepeat(int[] src, int srcStart, int srcEnd,
+    public static void internalConvolveLineRepeat(int[] src, int srcStart, int srcEnd, int[] mask,
                                                 int[] dest, int destStart,
                                                 Kernel1D kernel1D,
                                                 int kLeft, int kRight,
@@ -367,6 +383,10 @@ public class SeparableConvolution {
         srcStart += start;
 
         for(int x=start; x<stop; ++x, ++srcStart, ++destStart){
+            if(mask[srcStart] == 0){
+                dest[destStart] = src[srcStart];
+                continue;
+            }
             int ik = kRight;
             double sum = 0.0;
             if(x<kRight){
@@ -419,7 +439,7 @@ public class SeparableConvolution {
         }
     }
 
-    public static void internalConvolveLineAvoid(int[] src, int srcStart, int srcEnd,
+    public static void internalConvolveLineAvoid(int[] src, int srcStart, int srcEnd, int[] mask,
                                                   int[] dest, int destStart,
                                                   Kernel1D kernel1D,
                                                   int kLeft, int kRight,
@@ -441,6 +461,10 @@ public class SeparableConvolution {
         srcStart += start;
 
         for(int x=start; x<stop; ++x, ++srcStart, ++destStart){
+            if(mask[srcStart] == 0){
+                dest[destStart] = src[srcStart];
+                continue;
+            }
             int ik = kRight;
             double sum = 0.0;
 
@@ -453,7 +477,7 @@ public class SeparableConvolution {
         }
     }
 
-    public static void convolveLine(int[] src, int srcStart, int srcEnd,
+    public static void convolveLine(int[] src, int srcStart, int srcEnd, int[] mask,
                                                  int[] dest, int destStart,
                                                  Kernel1D kernel1D,
                                                  int kLeft, int kRight, BorderTreatmentMode border,
@@ -471,16 +495,16 @@ public class SeparableConvolution {
         }
         switch (border){
             case BORDER_TREATMENT_WRAP:
-                internalConvolveLineWrap(src,srcStart,srcEnd,dest,destStart,kernel1D,kLeft,kRight,start,stop);
+                internalConvolveLineWrap(src,srcStart,srcEnd,mask,dest,destStart,kernel1D,kLeft,kRight,start,stop);
                 break;
             case BORDER_TREATMENT_AVOID:
-                internalConvolveLineAvoid(src,srcStart,srcEnd,dest,destStart,kernel1D,kLeft,kRight,start,stop);
+                internalConvolveLineAvoid(src,srcStart,srcEnd,mask,dest,destStart,kernel1D,kLeft,kRight,start,stop);
                 break;
             case BORDER_TREATMENT_REFLECT:
-                internalConvolveLineReflect(src,srcStart,srcEnd,dest,destStart,kernel1D,kLeft,kRight,start,stop);
+                internalConvolveLineReflect(src,srcStart,srcEnd,mask,dest,destStart,kernel1D,kLeft,kRight,start,stop);
                 break;
             case BORDER_TREATMENT_REPEAT:
-                internalConvolveLineRepeat(src,srcStart,srcEnd,dest,destStart,kernel1D,kLeft,kRight,start,stop);
+                internalConvolveLineRepeat(src,srcStart,srcEnd,mask,dest,destStart,kernel1D,kLeft,kRight,start,stop);
                 break;
             case BORDER_TREATMENT_CLIP:
                 double norm = 0.0;
@@ -491,9 +515,9 @@ public class SeparableConvolution {
                     System.out.println("convolveLine(): Norm of kernel must be != 0");
                     return;
                 }
-                internalConvolveLineClip(src,srcStart,srcEnd,dest,destStart,kernel1D,kLeft,kRight,norm,start,stop);
+                internalConvolveLineClip(src,srcStart,srcEnd,mask,dest,destStart,kernel1D,kLeft,kRight,norm,start,stop);
             case BORDER_TREATMENT_ZEROPAD:
-                internalConvolveLineZeropad(src,srcStart,srcEnd,dest,destStart,kernel1D,kLeft,kRight,start,stop);
+                internalConvolveLineZeropad(src,srcStart,srcEnd,mask,dest,destStart,kernel1D,kLeft,kRight,start,stop);
                 break;
             default:
                 System.out.println("convolveLine(): UnKnown border treatment mode");
@@ -501,7 +525,7 @@ public class SeparableConvolution {
 
     }
 
-    public static void convolveLine(int[] src, int[] dest, Kernel1D kernel1D){
-        convolveLine(src,0,src.length,dest,0,kernel1D,kernel1D.getLeft(),kernel1D.getRight(),kernel1D.getBorderTreatmentMode(),0,0);
+    public static void convolveLine(int[] src, int[] mask, int[] dest, Kernel1D kernel1D){
+        convolveLine(src,0,src.length,mask,dest,0,kernel1D,kernel1D.getLeft(),kernel1D.getRight(),kernel1D.getBorderTreatmentMode(),0,0);
     }
 }

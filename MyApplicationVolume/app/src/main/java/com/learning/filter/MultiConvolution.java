@@ -5,38 +5,46 @@ import java.util.Arrays;
 import java.util.Vector;
 
 public class MultiConvolution {
-    public static void internalSeparableConvolveMultiArray(int[] src, int[] srcSz,
+    public static void internalSeparableConvolveMultiArray(int[] src, int[] srcSz, int[] mask,
                                                          int[] dest, Vector<Kernel1D> kernels){
         //only operate on first dimension here
         MultiArrayNavigator sNav = new MultiArrayNavigator(src,srcSz,0);
         MultiArrayNavigator tNav = new MultiArrayNavigator(dest,srcSz,0);
+        MultiArrayNavigator maskNav = new MultiArrayNavigator(mask,srcSz,0);
         int[] srcTmpLine = sNav.getLine();
+        int[] maskTmpLine = maskNav.getLine();
         int[] destTmpLine = new int[srcTmpLine.length];
-        SeparableConvolution.convolveLine(srcTmpLine,destTmpLine,kernels.get(0));
+        SeparableConvolution.convolveLine(srcTmpLine,maskTmpLine,destTmpLine,kernels.get(0));
         tNav.setLine(destTmpLine);
         while (sNav.Next()){
+            maskNav.Next();
             tNav.Next();
             srcTmpLine = sNav.getLine();
-            SeparableConvolution.convolveLine(srcTmpLine,destTmpLine,kernels.get(0));
+            maskTmpLine = maskNav.getLine();
+            SeparableConvolution.convolveLine(srcTmpLine,maskTmpLine,destTmpLine,kernels.get(0));
             tNav.setLine(destTmpLine);
         }
 
         //operator on further dimensions
         for(int d=1; d<srcSz.length; d++){
             MultiArrayNavigator tNavD = new MultiArrayNavigator(dest,srcSz,d);
+            MultiArrayNavigator maskNavD = new MultiArrayNavigator(mask,srcSz,d);
             int[] tmpLine = tNavD.getLine();
+            int[] maskTmpLineD = maskNavD.getLine();
             int[] destTmpLineD = new int[tmpLine.length];
-            SeparableConvolution.convolveLine(tmpLine,destTmpLineD,kernels.get(d));
+            SeparableConvolution.convolveLine(tmpLine,maskTmpLineD,destTmpLineD,kernels.get(d));
             tNavD.setLine(destTmpLineD);
             while (tNavD.Next()){
+                maskNavD.Next();
                 tmpLine = tNavD.getLine();
-                SeparableConvolution.convolveLine(tmpLine,destTmpLineD,kernels.get(d));
+                maskTmpLineD = maskNavD.getLine();
+                SeparableConvolution.convolveLine(tmpLine,maskTmpLineD,destTmpLineD,kernels.get(d));
                 tNavD.setLine(destTmpLineD);
             }
         }
     }
 
-    public static void gaussianSmoothMultiArray(int[] src, int[] srcSz,
+    public static void gaussianSmoothMultiArray(int[] src, int[] srcSz, int[] mask,
                                                 int[] dest, ConvolutionOptions opt){
         System.out.println("-------------in gaussianSmoothMultiArray-----------------");
         Vector<Kernel1D> kernels = new Vector<>();
@@ -48,10 +56,10 @@ public class MultiConvolution {
             kernels.add(kernel);
             opt.next();
         }
-        internalSeparableConvolveMultiArray(src,srcSz,dest,kernels);
+        internalSeparableConvolveMultiArray(src,srcSz,mask,dest,kernels);
     }
 
-    public static void gaussianGradientMultiArray(int[] src, int[] srcSz,
+    public static void gaussianGradientMultiArray(int[] src, int[] srcSz, int[] mask,
                                                   int[] dest, ConvolutionOptions opt){
         System.out.println("-------------in gaussianGradientMultiArray-----------------");
         Vector<Kernel1D> plainKernels = new Vector<>();
@@ -76,12 +84,12 @@ public class MultiConvolution {
             }
             kernels.get(dim).initGaussianDerivative(opt.sigmaScaled(),1,1.0,opt.getWindowRatio());
             kernels.get(dim).scaleKernel(1.0/opt.stepSize());
-            internalSeparableConvolveMultiArray(src,srcSz,dest,kernels);
+            internalSeparableConvolveMultiArray(src,srcSz,mask,dest,kernels);
             opt.next();
         }
     }
 
-    public static void gaussianGradientMagnitude(int[] src, int[] srcSz,
+    public static void gaussianGradientMagnitude(int[] src, int[] srcSz, int[] mask,
                                                  int[] dest, ConvolutionOptions opt){
         System.out.println("-------------in gaussianGradientMagnitude-----------------");
         Arrays.fill(dest,0);
@@ -93,7 +101,7 @@ public class MultiConvolution {
             sz[i] = srcSz[i];
         }
         for(int k=0; k<srcSz[N]; k++){
-            gaussianGradientMultiArray(bindOuter(src,srcSz,k),sz,grad,opt);
+            gaussianGradientMultiArray(bindOuter(src,srcSz,k),bindOuter(mask,srcSz,k),sz,grad,opt);
             for(int i=0; i<dest.length; i++){
                 dest[i] += grad[i]*grad[i];
             }
@@ -122,7 +130,7 @@ public class MultiConvolution {
         System.arraycopy(out, 0, dest, k * size + 0, size);
     }
 
-    public static void laplacianOfGaussianMultiArray(int[] src, int[] srcSz,
+    public static void laplacianOfGaussianMultiArray(int[] src, int[] srcSz, int[] mask,
                                                       int[] dest, ConvolutionOptions opt){
         System.out.println("-------------in laplacianOfGaussianMultiArray-----------------");
         Vector<Kernel1D> plainKernels = new Vector<>();
@@ -149,9 +157,9 @@ public class MultiConvolution {
             kernels.get(dim).initGaussianDerivative(opt.sigmaScaled(),2,1.0,opt.getWindowRatio());
             kernels.get(dim).scaleKernel(1.0/opt.stepSize());
             if(dim == 0){
-                internalSeparableConvolveMultiArray(src,srcSz,dest,kernels);
+                internalSeparableConvolveMultiArray(src,srcSz,mask,dest,kernels);
             }else {
-                internalSeparableConvolveMultiArray(src,srcSz,derivative,kernels);
+                internalSeparableConvolveMultiArray(src,srcSz,mask,derivative,kernels);
                 for(int i=0; i<dest.length; i++){
                     dest[i] += derivative[i];
                 }
@@ -160,7 +168,7 @@ public class MultiConvolution {
         }
     }
 
-    public static void hessianOfGaussianMultiArray(int[] src, int[] srcSz,
+    public static void hessianOfGaussianMultiArray(int[] src, int[] srcSz, int[] mask,
                                                      int[] dest, ConvolutionOptions opt){
         System.out.println("-------------in hessianOfGaussianMultiArray-----------------");
         Vector<Kernel1D> plainKernels = new Vector<>();
@@ -204,7 +212,7 @@ public class MultiConvolution {
                 kernels.get(i).scaleKernel(1.0/paramsI.stepSize());
                 kernels.get(j).scaleKernel(1.0/paramsJ.stepSize());
                 int[] destTmp = bindOuter(dest,sz,b);
-                internalSeparableConvolveMultiArray(src,srcSz,destTmp,kernels);
+                internalSeparableConvolveMultiArray(src,srcSz,mask,destTmp,kernels);
                 setBindOuter(dest,sz,destTmp,b);
                 paramsJ.next();
             }
@@ -212,7 +220,7 @@ public class MultiConvolution {
         }
     }
 
-    public static void structureTensorMultiArray(int[] src, int[] srcSz,
+    public static void structureTensorMultiArray(int[] src, int[] srcSz, int[] mask,
                                                    int[] dest, ConvolutionOptions opt){
         System.out.println("-------------in structureTensorMultiArray-----------------");
         Vector<Kernel1D> plainKernels = new Vector<>();
@@ -227,9 +235,9 @@ public class MultiConvolution {
         opt.reset();
 
         int[] gradient = new int[dest.length];
-        gaussianGradientMultiArray(src,srcSz,gradient,opt);
+        gaussianGradientMultiArray(src,srcSz,mask,gradient,opt);
 
-        gaussianSmoothMultiArray(gradient,srcSz,dest,opt);
+        gaussianSmoothMultiArray(gradient,srcSz,mask,dest,opt);
 
     }
 
