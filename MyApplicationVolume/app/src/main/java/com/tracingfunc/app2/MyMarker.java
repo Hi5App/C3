@@ -309,7 +309,7 @@ public class MyMarker implements Cloneable{
     }
 
     //radius为0时，按swc本身的半径计算mask，否则按提供的半径进行计算
-    public static boolean getMarkersBetween(Vector<MyMarker> allMarkers, MyMarker m1, MyMarker m2, int radius){
+    public static boolean getMarkersBetween(Vector<MyMarker> allMarkers, MyMarker m1, MyMarker m2, double radius){
         if(radius<0){
             System.out.println("radius is negative!");
             return false;
@@ -373,7 +373,7 @@ public class MyMarker implements Cloneable{
     }
 
     //radius为0时，按swc本身的半径计算mask，否则按提供的半径进行计算
-    public static int[] swcToMask(Vector<MyMarker> inswc, int[] sz, int radius, int flag){
+    public static int[] swcToMask(Vector<MyMarker> inswc, int[] sz, double radius, int flag){
         int totalSz = sz[0]*sz[1]*sz[2];
         int sz01 = sz[0]*sz[1];
         int[] outMask = new int[totalSz];
