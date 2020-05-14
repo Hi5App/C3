@@ -40,8 +40,8 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -134,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
     private Button Zoom_in;
     private Button Zoom_out;
     private Button Rotation;
+    private ImageButton Rotation_i;
     private Button Sync;
     private Button Switch;
     private Button Share;
@@ -172,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
 
     private BroadcastReceiver broadcastReceiver;
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -228,16 +230,20 @@ public class MainActivity extends AppCompatActivity {
         ll_bottom = new LinearLayout(this);
 
         HorizontalScrollView hs_top = new HorizontalScrollView(this);
-        ScrollView hs_bottom = new ScrollView(this);
+//        ScrollView hs_bottom = new ScrollView(this);
 
         this.addContentView(hs_top, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(1080, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.gravity = Gravity.BOTTOM;
-        this.addContentView(hs_bottom, lp);
+//        this.addContentView(hs_bottom, lp);
+        this.addContentView(ll_bottom, lp);
+        ll_bottom.setLayoutParams(lp);
+
+        System.out.println("width:" + ll_bottom.getWidth());
 
         hs_top.addView(ll_top);
-        hs_bottom.addView(ll_bottom);
+//        hs_bottom.addView(ll_bottom);
 
 
         Zoom_in = new Button(this);
@@ -318,16 +324,27 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        Rotation = new Button(this);
-        Rotation.setText("Rotate");
+//        Rotation = new Button(this);
+//        Rotation.setText("Rotate");
+//        Rotation.getSolidColor();
 
-//        int image_res_r_id = getApplicationContext().getResources().getIdentifier("image_name", "drawable", getApplicationContext().getPackageName());
-//        Rotation.setBackgroundResource(image_res_r_id);
+        FrameLayout.LayoutParams lp_rotation = new FrameLayout.LayoutParams(120, 120);
+        lp_rotation.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        lp_rotation.setMargins(0,0,15,15);
 
-        ll_top.addView(Rotation);
+        Rotation_i = new ImageButton(this);
+        Rotation_i.setImageResource(R.drawable.ic_3d_rotation_red_24dp);
+        Rotation_i.setBackgroundResource(R.drawable.circle_normal);
+
+        this.addContentView(Rotation_i, lp_rotation);
+
+//        ll_bottom.addView(Rotation_i, lp_rotation);
+
+//        Rotation_i.setBackgroundColor();
+
         final boolean[] b_rotate = {true};
 
-        Rotation.setOnClickListener(new Button.OnClickListener() {
+        Rotation_i.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 Rotation();
             }
@@ -1585,11 +1602,11 @@ public class MainActivity extends AppCompatActivity {
             ifAnimation = !ifAnimation;
 
             if (ifAnimation) {
-                Rotation.setText("Pause");
+                Rotation_i.setImageResource(R.drawable.ic_block_red_24dp);
                 myrenderer.myAnimation.quickStart();
                 myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
             } else {
-                Rotation.setText("Rotate");
+                Rotation_i.setImageResource(R.drawable.ic_3d_rotation_red_24dp);
                 myrenderer.myAnimation.quickStop();
                 myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
             }
@@ -1630,7 +1647,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 202005014b XF",
+                .asConfirm("Version", "version: 202005015a XF",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -1756,7 +1773,7 @@ public class MainActivity extends AppCompatActivity {
         Thread thread = new Thread() {
             @Override
             public void run() {
-//                Looper.prepare();
+                Looper.prepare();
 
                 try {
 
@@ -1773,11 +1790,10 @@ public class MainActivity extends AppCompatActivity {
 
                         Log.v("ConnectServer","send some message to server");
                         remoteImg.isSocketSet = true;
-                        ShowToast(context, "Connect with Server successfully");
-//                        Toast.makeText(getContext(), "Connect with Server successfully", Toast.LENGTH_SHORT).show();
+//                        ShowToast(context, "Connect with Server successfully");
+                        Toast.makeText(getContext(), "Connect with Server successfully", Toast.LENGTH_SHORT).show();
                         remoteImg.ImgPWriter.println( "connect for android client" + ":choose3.");
                         remoteImg.ImgPWriter.flush();
-//                        Looper.loop();
 
                     }else {
                         Log.v("ConnectServer","fail to connect server");
@@ -1787,31 +1803,100 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     //接收来自服务器的消息
-                    while(remoteImg.ImgSocket.isConnected()) {
+                    if(remoteImg.ImgSocket.isConnected()) {
                         if(!remoteImg.ImgSocket.isInputShutdown()) {
                         /*读取一行字符串，读取的内容来自于客户机
                         reader.readLine()方法是一个阻塞方法，
                         从调用这个方法开始，该线程会一直处于阻塞状态，
                         直到接收到新的消息，代码才会往下走*/
                             String content = "";
-                            while ((content = remoteImg.ImgReader.readLine()) != null) {
+
+//                            TimeLimiter timeLimiter = new SimpleTimeLimiter();
+//
+//                            try {
+//                                String line = timeLimiter.callWithTimeout(br::readLine, 10, TimeUnit.SECONDS);
+//                            } catch (TimeoutException | UncheckedTimeoutException e) {
+//                                // timed out
+//                            } catch (Exception e) {
+//                                // something bad happened while reading the line
+//                            }
+                            Log.v("---------Image------:", "start to readline");
+
+
+                            boolean[] isFinished = {false};
+
+//                            Timer timer = new Timer();
+//                            timer.schedule(new TimerTask() {
+//                                public void run() {
+//
+//                                    Log.v("---------Image------:", "start timertask");
+//
+//                                    if (!isFinished[0]){
+//                                        Log.v("---------Image------:", "start to close bufferreader");
+//
+//                                        try {
+//                                            remoteImg.ImgReader.close();
+//                                            ShowToast(context, "---Timeout---");
+//                                            Log.v("---------Image------:", "bufferreader closed!");
+//                                        } catch (IOException e) {
+//                                            e.printStackTrace();
+//                                            Log.v("---------Image------:", "fail to close bufferreader!");
+//                                        }
+//                                    }
+//
+//                                }
+//                            }, 5 * 1000); // 延时5秒
+
+                            if ((content = remoteImg.ImgReader.readLine()) != null) {
+
+                                isFinished[0] = true;
                                 Log.v("---------Image------:", content);
                                 if (!((Activity) context).isFinishing()){
+                                    if (Looper.myLooper() == null)
+                                        Looper.prepare();
                                     remoteImg.onReadyRead(content, context);
                                     Looper.loop();
                                 }
+
+//                                long l2 = System.currentTimeMillis();
+//                                if (l2 - l1 < maxtimeout){
+//
+//                                }else {
+//                                    ShowToast(context, "---Timeout---");
+//                                }
                             }
 
+
+
+//                            TimerTask ft = new TimerTask(){
+//                                public void run(){
+//                                    if (!isFinished[0]){
+//                                        Log.v("---------Image------:", "start to close bufferreader");
+//
+//                                        try {
+//                                            remoteImg.ImgReader.close();
+//                                            ShowToast(context, "---Timeout---");
+//                                            Log.v("---------Image------:", "bufferreader closed!");
+//                                        } catch (IOException e) {
+//                                            e.printStackTrace();
+//                                            Log.v("---------Image------:", "fail to close bufferreader!");
+//                                        }
+//                                    }
+//                                }
+//                            };
+//
+//                            (new Timer()).schedule(ft, 5 * 1000);
+
                         }
-                        Thread.sleep(200);
+//                        Thread.sleep(200);
                     }
 
 
                 } catch (Exception e) {
                     e.printStackTrace();
                     ShowToast(context, "Can't connect, try again please!");
-//                    Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
-//                    Looper.loop();
+                    Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+                    Looper.loop();
                 }
             }
         };
@@ -3013,10 +3098,40 @@ public class MainActivity extends AppCompatActivity {
 //            toast.setGravity(Gravity.CENTER, 0, 0);
         }
         toast.show();
+        Log.v("ShowToast","Finished toast");
+
+        Timer timer = new Timer();
+        Looper finalMyLooper = myLooper;
+        timer.schedule(new TimerTask() {
+            public void run() {
+
+                finalMyLooper.quit();
+
+            }
+
+        }, 1 * 1000); // 延时5秒
+
         if ( myLooper != null) {
+            Log.v("ShowToast","Finished toast");
+
             Looper.loop();
-            myLooper.quit();
+            Log.v("ShowToast","Finished toast");
+
         }
+
+        Log.v("ShowToast","Finished toast");
+
+//        @SuppressLint("HandlerLeak")
+//        Handler mHandler = new Handler(){
+//            @Override
+//            public void handleMessage(Message msg) {
+//                super.handleMessage(msg);
+//                //这里写你的Toast代码
+//                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+//            }
+//        };
+//
+//        mHandler.sendEmptyMessage(0);
     }
 
 }
