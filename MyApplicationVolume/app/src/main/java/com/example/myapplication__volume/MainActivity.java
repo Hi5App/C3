@@ -158,8 +158,7 @@ public class MainActivity extends AppCompatActivity {
     private int measure_count = 0;
     private List<double[]> fl;
 
-    //message 字符串用于传递文件的路径到Mainactivity中
-//    public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
+
 
     private int eswc_length;
     //读写权限
@@ -330,9 +329,6 @@ public class MainActivity extends AppCompatActivity {
 
         Rotation.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-//                if (b_rotate[0]) Rotation.setText("Pause");
-//                else Rotation.setText("Rotate");
-//                b_rotate[0] = !b_rotate[0];
                 Rotation();
             }
         });
@@ -1634,7 +1630,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 202005013b HP",
+                .asConfirm("Version", "version: 202005014b XF",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
