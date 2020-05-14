@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         Draw = new Button(this);
-        Draw.setText("Define Objects");
+        Draw.setText("Draw");
         ll_top.addView(Draw);
 
         Draw.setOnClickListener(new Button.OnClickListener() {
@@ -291,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         Tracing = new Button(this);
-        Tracing.setText("Trace Objects");
+        Tracing.setText("Trace");
         ll_top.addView(Tracing);
 
         Tracing.setOnClickListener(new Button.OnClickListener() {
@@ -302,7 +302,7 @@ public class MainActivity extends AppCompatActivity {
 
         //像素分类总button
         PixelClassification = new Button(this);
-        PixelClassification.setText("Classify-Pixels");
+        PixelClassification.setText("Classify");
         ll_top.addView(PixelClassification);
 
         PixelClassification.setOnClickListener(new Button.OnClickListener() {
@@ -312,16 +312,20 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
-
-
-
         Rotation = new Button(this);
-        Rotation.setText("R");
+        Rotation.setText("Rotate");
+
+//        int image_res_r_id = getApplicationContext().getResources().getIdentifier("image_name", "drawable", getApplicationContext().getPackageName());
+//        Rotation.setBackgroundResource(image_res_r_id);
+
         ll_top.addView(Rotation);
+        final boolean[] b_rotate = {true};
 
         Rotation.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
+                if (b_rotate[0]) Rotation.setText("Pause");
+                else Rotation.setText("Rotate");
+                b_rotate[0] = !b_rotate[0];
                 Rotation();
             }
         });
@@ -331,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         Others = new Button(this);
-        Others.setText("Others");
+        Others.setText("Config");
         ll_bottom.addView(Others);
 
         Others.setOnClickListener(new Button.OnClickListener() {
@@ -341,7 +345,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Sync = new Button(this);
-        Sync.setText("Sync");
+        Sync.setText("Share");
         ll_bottom.addView(Sync);
 
         Sync.setOnClickListener(new Button.OnClickListener() {
@@ -1035,7 +1039,7 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete curve", "Split", "Set PenColor", "Exit Define mode"},
+                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete curve", "Split", "Set PenColor", "Exit Drawing mode"},
 //                        new int[]{R.mipmap.ic_launcher, R.mipmap.ic_launcher},
                         new int[]{},
                         new OnSelectListener() {
@@ -1180,7 +1184,7 @@ public class MainActivity extends AppCompatActivity {
 
                                         break;
 
-                                    case "Exit Define mode":
+                                    case "Exit Drawing mode":
                                         ifDeletingLine = false;
                                         ifPainting = false;
                                         ifPoint = false;
@@ -1208,7 +1212,7 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"GD", "APP2", "Clear tracing"},
+                .asAttachList(new String[]{"APP2", "GD", "Clear tracing"},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -1319,13 +1323,13 @@ public class MainActivity extends AppCompatActivity {
     private void PixelClassification(final View v) {
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"Debug", "Run"},
+                .asAttachList(new String[]{"Run", "For Developer..."},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text) {
-                                    case "Debug":
+                                    case "For Developer...":
                                         //调用特征选择窗口
                                         FeatureSet();
                                         break;
@@ -1606,22 +1610,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void Version() {
-
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 202005013a",
+                .asConfirm("Version", "version: 202005013b HP",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
-
                             }
                         })
                 .show();
     }
-
-
-
-
-
 
 
     private void loadLocalFile(){
