@@ -1093,7 +1093,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
-                                            Draw.setText("Define Objects");
+                                            Draw.setText("DRAW");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
                                             ll_top.removeView(buttonUndo);
@@ -1119,7 +1119,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
-                                            Draw.setText("Define Objects");
+                                            Draw.setText("DRAW");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
                                             ll_top.removeView(buttonUndo);
@@ -1145,7 +1145,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
-                                            Draw.setText("Define Objects");
+                                            Draw.setText("DRAW");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
                                             ll_top.removeView(buttonUndo);
@@ -1171,7 +1171,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
-                                            Draw.setText("Define Objects");
+                                            Draw.setText("DRAW");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
                                             ll_top.removeView(buttonUndo);
@@ -1197,7 +1197,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
-                                            Draw.setText("Define Objects");
+                                            Draw.setText("DRAW");
                                             Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
                                             ll_top.removeView(buttonUndo);
@@ -1216,7 +1216,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifPoint = false;
                                         ifDeletingMarker = false;
                                         ifSpliting = false;
-                                        Draw.setText("Define Objects");
+                                        Draw.setText("DRAW");
                                         Draw.setTextColor(Color.BLACK);
                                         ll_bottom.removeView(Switch);
                                         ll_top.removeView(buttonUndo);
@@ -1647,7 +1647,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 202005015a XF",
+                .asConfirm("Version", "version: 202005014b HP",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
