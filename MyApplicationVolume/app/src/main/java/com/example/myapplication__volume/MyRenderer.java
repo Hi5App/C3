@@ -61,6 +61,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public static final String OUTOFMEM_MESSAGE = "OutOfMemory";
     public static final String FILE_SUPPORT_ERROR = "FileSupportError";
+    public static final String FILE_PATH = "FILEPATH";
 
     private MyPattern myPattern;
     private MyAxis myAxis;
@@ -158,6 +159,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private String mCapturePath;
 
 
+    private boolean ifFileSupport = false;
+
+
     //初次渲染画面
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
@@ -209,9 +213,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        if (fileType == FileType.V3draw || fileType == FileType.TIF)
 //            myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
 
-        myAxis = new MyAxis(mz);
-        myDraw = new MyDraw();
-        myAnimation = new MyAnimation();
+        if (ifFileSupport){
+            myAxis = new MyAxis(mz);
+            myDraw = new MyDraw();
+            myAnimation = new MyAnimation();
+        }
+
 
         mCaptureBuffer = ByteBuffer.allocate(screen_h*screen_w*4);
         mBitmap = Bitmap.createBitmap(screen_w,screen_h, Bitmap.Config.ARGB_8888);
@@ -267,8 +274,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        GLES30.glClearColor(0.929f, 0.906f, 0.965f, 1.0f);
 
         if (myPattern == null){
-            if (fileType == FileType.V3draw || fileType == FileType.TIF)
-                myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
+            if (ifFileSupport){
+                if (fileType == FileType.V3draw || fileType == FileType.TIF)
+                    myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
+                ifFileSupport = false;
+            }
         }
 
 
@@ -732,11 +742,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         curSwcList.clear();
         MarkerList.clear();
 
-        if (fileType == FileType.V3draw || fileType == FileType.TIF)
+        if (fileType == FileType.V3draw || fileType == FileType.TIF){
             setImage();
+            ifFileSupport = true;
+        }
 
-        else if (fileType == FileType.SWC)
+        else if (fileType == FileType.SWC){
             setSWC();
+            ifFileSupport = true;
+        }
 
 //        curSwcList.clear();
 //        MarkerList.clear();
@@ -782,11 +796,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 break;
 
             case "fail to read file":
-                JumptoFileActivity("Fail to read file!");
+//                JumptoFileActivity("Fail to read file!");
+                Toast.makeText(getContext(), "Fail to read file!",Toast.LENGTH_SHORT).show();
                 break;
 
             default:
-                JumptoFileActivity("Don't support this file!");
+                Toast.makeText(getContext(),"Don't support this file!",Toast.LENGTH_SHORT).show();
+//                JumptoFileActivity("Don't support this file!");
         }
 
     }
@@ -1107,6 +1123,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         Log.v("MyRenderer", Arrays.toString(sz));
         Log.v("MyRenderer", Arrays.toString(mz));
+
+        ifFileSupport = true;
 
     }
 

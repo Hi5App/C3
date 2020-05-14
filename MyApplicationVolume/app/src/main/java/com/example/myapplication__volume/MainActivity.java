@@ -177,13 +177,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //接受从fileactivity传递过来的文件路径
-        Intent intent = getIntent();
-        String filepath = intent.getStringExtra(MyRenderer.OUTOFMEM_MESSAGE);
-
         myrenderer = new MyRenderer();
+
+        //接受从fileactivity传递过来的文件路径
+        Intent intent1 = getIntent();
+        String filepath = intent1.getStringExtra(MyRenderer.FILE_PATH);
+
         if (filepath != null)
             myrenderer.SetPath(filepath);
+
+        Intent intent2 = getIntent();
+        String MSG = intent2.getStringExtra(MyRenderer.OUTOFMEM_MESSAGE);
+
+        if (MSG != null)
+            Toast.makeText(this, MSG, Toast.LENGTH_SHORT).show();
 
 //        try {
 //
@@ -323,9 +330,9 @@ public class MainActivity extends AppCompatActivity {
 
         Rotation.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                if (b_rotate[0]) Rotation.setText("Pause");
-                else Rotation.setText("Rotate");
-                b_rotate[0] = !b_rotate[0];
+//                if (b_rotate[0]) Rotation.setText("Pause");
+//                else Rotation.setText("Rotate");
+//                b_rotate[0] = !b_rotate[0];
                 Rotation();
             }
         });
@@ -635,9 +642,15 @@ public class MainActivity extends AppCompatActivity {
                 if (ifAnalyze) {
                     MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
                     List features = morphologyCalculate.Calculate(uri, false);
-                    fl = new ArrayList<double[]>(features);
-                    if (features.size() != 0) displayResult(features);
-                    else Toast.makeText(getContext(), "the file is empty", Toast.LENGTH_SHORT).show();
+
+//                    fl = new ArrayList<double[]>(features);
+//                    if (features.size() != 0) displayResult(features);
+//                    else Toast.makeText(getContext(), "the file is empty", Toast.LENGTH_SHORT).show();
+
+                    if (features != null){
+                        fl = new ArrayList<double[]>(features);
+                        displayResult(features);
+                    }
                 }
 
 
@@ -1431,7 +1444,8 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
 
-                    Looper.prepare();
+                    if (Looper.myLooper() == null)
+                        Looper.prepare();
 
                     imgPath[0] = myrenderer.getmCapturePath();
                     myrenderer.resetCapturePath();
@@ -1570,13 +1584,22 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void Rotation() {
-        ifAnimation = !ifAnimation;
-        if (ifAnimation) {
-            myrenderer.myAnimation.quickStart();
-            myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
-        } else {
-            myrenderer.myAnimation.quickStop();
-            myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+
+        if (myrenderer.myAnimation != null){
+            ifAnimation = !ifAnimation;
+
+            if (ifAnimation) {
+                Rotation.setText("Pause");
+                myrenderer.myAnimation.quickStart();
+                myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+            } else {
+                Rotation.setText("Rotate");
+                myrenderer.myAnimation.quickStop();
+                myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+            }
+
+        }else {
+            Toast.makeText(this,"Pleas load a file first!",Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -1704,6 +1727,8 @@ public class MainActivity extends AppCompatActivity {
 
                         String ip = et0.getText().toString();
 
+                        Log.v("Select_img", ip);
+
                         if (ip != getip()){
                             setip(ip);
                         }
@@ -1735,11 +1760,12 @@ public class MainActivity extends AppCompatActivity {
         Thread thread = new Thread() {
             @Override
             public void run() {
-                Looper.prepare();
+//                Looper.prepare();
 
                 try {
 
                     if (!remoteImg.isSocketSet){
+                        Log.v("ConnectServer","start to connect server");
                         remoteImg.ip = ip;
                         remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
                         remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
@@ -1749,11 +1775,19 @@ public class MainActivity extends AppCompatActivity {
 
                     if(remoteImg.ImgSocket.isConnected()){
 
+                        Log.v("ConnectServer","send some message to server");
                         remoteImg.isSocketSet = true;
-                        Toast.makeText(context, "Connect with Server successfully", Toast.LENGTH_SHORT).show();
+                        ShowToast(context, "Connect with Server successfully");
+//                        Toast.makeText(getContext(), "Connect with Server successfully", Toast.LENGTH_SHORT).show();
                         remoteImg.ImgPWriter.println( "connect for android client" + ":choose3.");
                         remoteImg.ImgPWriter.flush();
+//                        Looper.loop();
 
+                    }else {
+                        Log.v("ConnectServer","fail to connect server");
+                        ShowToast(context, "Can't connect, try again please!");
+//                        Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+//                        Looper.loop();
                     }
 
                     //接收来自服务器的消息
@@ -1779,8 +1813,9 @@ public class MainActivity extends AppCompatActivity {
 
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
-                    Looper.loop();
+                    ShowToast(context, "Can't connect, try again please!");
+//                    Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+//                    Looper.loop();
                 }
             }
         };
@@ -1802,7 +1837,7 @@ public class MainActivity extends AppCompatActivity {
                 dir.mkdirs();
                 file.createNewFile();
 
-                String str = "223.3.33.234";
+                String str = "39.100.35.131";
                 FileOutputStream outStream = new FileOutputStream(file);
                 outStream.write(str.getBytes());
                 outStream.close();
@@ -2963,7 +2998,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Toast some information in child thread
+     * @param context the activity context
+     * @param text the information to show
+     */
+    public static void ShowToast(Context context, String text) {
+        Toast toast = null;
 
+        Looper myLooper = Looper.myLooper();
+        if (myLooper == null) {
+            Looper.prepare();
+            myLooper = Looper.myLooper();
+        }
 
+        if (toast == null) {
+            toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
+//            toast.setGravity(Gravity.CENTER, 0, 0);
+        }
+        toast.show();
+        if ( myLooper != null) {
+            Looper.loop();
+            myLooper.quit();
+        }
+    }
 
 }

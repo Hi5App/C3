@@ -127,7 +127,7 @@ public class readSWC_file_nt {
         nt.file = fileManager.getFileName(uri);
         String file_type = nt.file.substring(nt.file.lastIndexOf(".")).toUpperCase();
         if (!(file_type.equals(".SWC") | file_type.equals(".ESWC"))) {
-            Toast.makeText(MainActivity.getContext(), "failed, only support swc or eswc file", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.getContext(), "Failed, Only support SWC or ESWC file", Toast.LENGTH_LONG).show();
             return null;
         }
         try {

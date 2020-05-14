@@ -1,14 +1,9 @@
 package com.example.myapplication__volume;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
-
-import com.lxj.xpopup.XPopup;
-import com.lxj.xpopup.core.BasePopupView;
 
 import org.apache.commons.io.IOUtils;
 
@@ -24,7 +19,6 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-import static com.example.myapplication__volume.JumpActivity.EXTRA_MESSAGE;
 import static java.lang.Thread.State.TERMINATED;
 
 
@@ -278,19 +272,19 @@ public class Filesocket_receive {
     public void readImg(final String filename, final Context[] context) throws InterruptedException {
         Boolean stop = false;
 
-        BasePopupView popupView = new XPopup.Builder(context[0])
-                .asLoading("Downloading......");
-        popupView.show();
+//        BasePopupView popupView = new XPopup.Builder(context[0])
+//                .asLoading("Downloading......");
+//        popupView.show();
 
-        Handler handler = new Handler();
+//        Handler handler = new Handler();
 
         // 构建Runnable对象，并在runnable中更新UI
-        Runnable   udpUIRunnable = new  Runnable(){
-            @Override
-            public void run() {
-                popupView.dismiss();
-            }
-        };
+//        Runnable   udpUIRunnable = new  Runnable(){
+//            @Override
+//            public void run() {
+//                popupView.dismiss();
+//            }
+//        };
 
         Thread thread = new Thread()  {
             public void run(){
@@ -303,7 +297,6 @@ public class Filesocket_receive {
 
                     Log.v("readFile", "start to read Datainputstream");
 
-                    Log.v("readfile", Integer.toString(in.available()));
 
                     //前两个 uint64 记录传输内容的总长度 和 文件名的长度
                     byte [] file_size = new byte[8];
@@ -320,14 +313,14 @@ public class Filesocket_receive {
 
                     int file__size = (int) bytesToLong(file_size);
 
-                    if (file__size <= 0){
-
-//                        popupView.dismiss();
-//                        Looper.prepare();
-                        Toast.makeText(context[0] ,"Fail to load file!", Toast.LENGTH_SHORT).show();
-                        Looper.loop();
-                        return;
-                    }
+//                    if (file__size <= 0){
+//
+////                        popupView.dismiss();
+////                        Looper.prepare();
+//                        Toast.makeText(context[0] ,"Fail to load file!", Toast.LENGTH_SHORT).show();
+//                        Looper.loop();
+//                        return;
+//                    }
 
 
                     int filename__size = (int) bytesToLong(filename_size) + 4;
@@ -398,6 +391,7 @@ public class Filesocket_receive {
                     outputStream.close();
                     in.close();
 
+//                    file.delete();
 
 //                    int loop = filecontent__size / 1024;
 //                    int end  = filecontent__size % 1024;
@@ -423,7 +417,7 @@ public class Filesocket_receive {
 
 
 
-                    Log.v("readFile", "Jump to the mainactivity successfully");
+//                    Log.v("readFile", "Jump to the mainactivity successfully");
 
 //                    byte [] file_content = new byte[1024];
 //                    byte [] file_content_end = new byte[end];
@@ -437,7 +431,7 @@ public class Filesocket_receive {
 //                    in.read(file_content_end, 0, end);
 //                    outputStream.write(file_content_end);
 //
-                    outputStream.close();
+//                    outputStream.close();
 
 
                     //对文件进行写入操作
@@ -445,12 +439,12 @@ public class Filesocket_receive {
 //                    outputStream.write(file_content);
 //                    outputStream.close();
 
-                    popupView.dismiss();
+//                    popupView.dismiss();
 
 
                 }catch (Exception e){
                     e.printStackTrace();
-                    popupView.dismiss();
+//                    popupView.dismiss();
                     Toast.makeText(context[0], "Fail to download img", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -462,11 +456,14 @@ public class Filesocket_receive {
 
         while (thread.getState() != TERMINATED);
 
-        Intent intent = new Intent(context[0], JumpActivity.class);
-        String message = path + "/" + filename;
-        intent.putExtra(EXTRA_MESSAGE, message);
-        context[0].startActivity(intent);
-        context[0] = null;
+        Log.v("Filesocket_receive: ", filename);
+
+//        Intent intent = new Intent(context[0], JumpActivity.class);
+//        String message = path + "/" + filename;
+//        intent.putExtra(EXTRA_MESSAGE, message);
+//        context[0].startActivity(intent);
+//        context[0] = null;
+//        disconnect();
 
     }
 

@@ -21,6 +21,7 @@ public class JumpActivity extends AppCompatActivity {
 
     //message 字符串用于传递文件的路径到Mainactivity中
     public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
+    public static final String Out_of_memory = "com.example.myfirstapp.MESSAGE";
 
     //读写权限
     private static String[] PERMISSIONS_STORAGE = {
@@ -49,9 +50,22 @@ public class JumpActivity extends AppCompatActivity {
         Intent intent1 = getIntent();
         String filepath = intent1.getStringExtra(JumpActivity.EXTRA_MESSAGE);
 
-        Intent intent2 = new Intent(this, MainActivity.class);
-        intent2.putExtra(MyRenderer.OUTOFMEM_MESSAGE, filepath);
-        startActivity(intent2);
+        if (filepath != null){
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra(MyRenderer.FILE_PATH, filepath);
+            startActivity(intent);
+        }
+
+        Intent intent2 = getIntent();
+        String MSG = intent2.getStringExtra(JumpActivity.Out_of_memory);
+
+        if (MSG != null){
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra(MyRenderer.OUTOFMEM_MESSAGE, MSG);
+            startActivity(intent);
+        }
+
+
 
 
     }
