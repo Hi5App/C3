@@ -12,6 +12,7 @@ import com.learning.randomforest.RandomForest;
 import com.tracingfunc.app2.MyMarker;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
@@ -123,19 +124,18 @@ public class PixelClassification {
 //        int[] flag = new int[]{1,2,3,4,5,6,7,8,9,10};
 
         Vector<MyMarker> inSwc = MyMarker.swcConvert(labelFB.get(0));
-        int[] mask = MyMarker.swcToMask(inSwc,sz,1, 2);
+        int[] mask = MyMarker.swcToMask(inSwc,sz,0.5, 2);
         masks.add(mask);
 
         if(!bg){
             Vector<MyMarker> inSwc2 = MyMarker.swcConvert(labelFB.get(1));
-            int[] mask2 = MyMarker.swcToMask(inSwc2,sz,1, 1);
+            int[] mask2 = MyMarker.swcToMask(inSwc2,sz,0.5, 1);
             masks.add(mask2);
         }
 
 
         int[] maskFinal = new int[sz[0]*sz[1]*sz[2]];
-        for(int i=0; i<maskFinal.length; i++)
-            maskFinal[i] = 0;
+        Arrays.fill(maskFinal,0);
         for(int i=0; i<masks.size(); i++){
             for(int j=0; j<masks.get(i).length; j++){
                 if(maskFinal[j] == 0 && masks.get(i)[j] != 0) {
@@ -173,8 +173,9 @@ public class PixelClassification {
             }
         }
         std = Math.sqrt(std/count);
+        System.out.println("mean-std*0.5: "+(mean-std*0.5));
         if(bg){
-            double th = Math.max(mean-std*3,40);
+            double th = Math.max(mean-std*0.5,10);
 
             ArrayList<Integer> randomNumber = new ArrayList<>();
             for(int i=0; i<maskFinal.length; i++){
@@ -193,21 +194,68 @@ public class PixelClassification {
             }
         }
 
-        int[] featureMask = new int[img1d.length];
-        double min = Math.max(mean-std*3,30);
+        int[] featureMask0 = new int[img1d.length];
+        double min = Math.max(mean-std*0.5,10);
         System.out.println("min: "+min);
 
         int f = 0, b = 0;
         for(int i=0; i<img1d.length; i++){
-            if(maskFinal[i] != 0 || (img1d[i] >= min && img1d[i] <= max + 5)){
-                featureMask[i] = 1;
+            if(maskFinal[i] != 0 || (img1d[i] >= min /*&& img1d[i] <= max + 5*/)){
+                featureMask0[i] = 1;
                 f++;
             }else {
-                featureMask[i] = 0;
+                featureMask0[i] = 0;
                 b++;
             }
         }
         System.out.println("f: "+f+" b: "+b);
+
+        int[] featureMask = new int[img1d.length];
+        Arrays.fill(featureMask,0);
+        for(int k=0; k<sz[2]; k++){
+            for(int j=0; j<sz[1]; j++){
+                for(int i=0; i<sz[0]; i++){
+                    int index = k*sz[1]*sz[0] + j*sz[0] + i;
+                    if(featureMask0[index] == 0){
+                        end:
+                        for(int kk=-1; kk<=1; kk++){
+                            int nbk = k + kk;
+                            if(nbk<0 || nbk>=sz[2])
+                                continue;
+                            for(int jj=-1; jj<=1; jj++){
+                                int nbj = j + jj;
+                                if(nbj<0 || nbj>=sz[1])
+                                    continue;
+                                for(int ii=-1; ii<=1; ii++){
+                                    int nbi = i + ii;
+                                    if(nbi<0 || nbi>=sz[0])
+                                        continue;
+                                    int d = Math.abs(kk) + Math.abs(jj) + Math.abs(ii);
+                                    if(d == 0)
+                                        continue;
+                                    int nbIndex = nbk*sz[1]*sz[0] + nbj*sz[0] + nbi;
+                                    if(featureMask0[nbIndex] == 1){
+                                        featureMask[index] = 1;
+                                        break end;
+                                    }
+                                }
+                            }
+                        }
+
+                    }else if(featureMask0[index] == 1){
+                        featureMask[index] = 1;
+                    }
+                }
+            }
+        }
+        int afterF = 0;
+        for(int i=0; i<featureMask.length; i++){
+            if(featureMask[i] == 1)
+                afterF++;
+//            else
+//                featureMask[i] = 1;
+        }
+        System.out.println("afterF: "+afterF);
 
 
         System.out.println("---------------get feature-----------");
