@@ -403,6 +403,36 @@ public class MyMarker implements Cloneable{
         return outMask;
     }
 
+    public static int[] swcToMask2(Vector<MyMarker> inswc, int[] sz, int flag){
+        int totalSz = sz[0]*sz[1]*sz[2];
+        int sz01 = sz[0]*sz[1];
+        int[] outMask = new int[totalSz];
+        for(int i=0; i<totalSz; i++)
+            outMask[i] = 0;
+        Vector<MyMarker> leafMarkers = HierarchyPruning.getLeafMarkers(inswc);
+        Set<MyMarker> visitedMarkers = new HashSet<>();
+        for(int i=0; i<leafMarkers.size(); i++){
+            MyMarker leaf = leafMarkers.get(i);
+            MyMarker p = leaf;
+            outMask[(int) p.z*sz01+(int) p.y*sz[0]+(int) p.x] = flag;
+            while (!visitedMarkers.contains(p) && p.parent != null){
+                MyMarker par = p.parent;
+                if(MyMarker.dist(par,p)>1){
+                    int x = (int) ((p.x+par.x)/2);
+                    int y = (int) ((p.y+par.y)/2);
+                    int z = (int) ((p.z+par.z)/2);
+                    if(x<0 || x>=sz[0] || y<0 || y>=sz[1] ||z<0 || z>=sz[2])
+                        break;
+                    outMask[z*sz01+y*sz[0]+x] = flag;
+                }
+                outMask[(int) par.z*sz01+(int) par.y*sz[0]+(int) par.x] = flag;
+                visitedMarkers.add(p);
+                p = par;
+            }
+        }
+        return outMask;
+    }
+
 
 
     @NonNull
