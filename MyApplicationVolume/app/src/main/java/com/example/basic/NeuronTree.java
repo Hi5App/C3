@@ -167,7 +167,9 @@ public class NeuronTree extends BasicSurfObj {
         try {
             File f = new File(swcfile);
             if (f.exists())
-                return false;
+                return true;
+
+            f.createNewFile();
             FileOutputStream fid = new FileOutputStream(f);
             OutputStreamWriter writer = new OutputStreamWriter(fid, "UTF-8");
             writer.append("#name \n");
@@ -185,10 +187,10 @@ public class NeuronTree extends BasicSurfObj {
 
         } catch (IOException e) {
             System.out.println("saveSWC Exception "+e.getMessage());
-            return false;
+            return true;
         }
         System.out.println("done with saving file: "+swcfile);
-        return true;
+        return false;
     }
 
     public boolean overwriteSWC_file(String swcfile){

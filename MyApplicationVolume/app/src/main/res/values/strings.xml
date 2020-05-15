@@ -12,4 +12,14 @@
     <string name="Button3">Download</string>
     <string name="Button4">ImageBlock</string>
 
+    <string name="favorite">favorite</string>
+    <string name="search">search</string>
+    <string name="more">more</string>
+
+
+    <string name="content_description_favorite">content_description_favorite</string>
+    <string name="content_description_search">content_description_search</string>
+    <string name="content_description_more">content_description_more</string>
+
+
 </resources>

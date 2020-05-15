@@ -178,6 +178,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
+//        setSupportActionBar(findViewById(R.id.topAppBar));
+
         myrenderer = new MyRenderer();
 
         //接受从fileactivity传递过来的文件路径
@@ -225,6 +228,9 @@ public class MainActivity extends AppCompatActivity {
 
         myGLSurfaceView = new MyGLSurfaceView(this);
         setContentView(myGLSurfaceView);
+//        setContentView(R.layout.activity_main);
+
+//        CoordinatorLayout l = (CoordinatorLayout) findViewById(R.layout.activity_main);
 
         ll_top = new LinearLayout(this);
         ll_bottom = new LinearLayout(this);
@@ -936,7 +942,7 @@ public class MainActivity extends AppCompatActivity {
     private void FileManager(View v) {
         new XPopup.Builder(this)
                 .atView(v)
-                .asAttachList(new String[]{ "Open Local file", "Open Remote file", "Load SWC file", "Save SWC file" },
+                .asAttachList(new String[]{ "Open Local file", "Open Remote file", "Load SWC file" },
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -944,9 +950,6 @@ public class MainActivity extends AppCompatActivity {
                                 switch (text) {
                                     case "Load SWC file":
                                         LoadSWC();
-                                        break;
-                                    case "Save SWC file":
-                                        SaveSWC();
                                         break;
                                     case "Open Local file":
                                         loadLocalFile();
@@ -1238,7 +1241,7 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"APP2", "GD", "Clear tracing"},
+                .asAttachList(new String[]{"APP2", "GD", "Clear tracing", "Save SWC file"},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -1288,6 +1291,10 @@ public class MainActivity extends AppCompatActivity {
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
+                                        break;
+
+                                    case "Save SWC file":
+                                        SaveSWC();
                                         break;
 
                                     case "Clear tracing":
@@ -1647,7 +1654,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 202005015a ZX",
+                .asConfirm("Version", "version: 202005016a XF",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -1777,13 +1784,13 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
 
-                    if (!remoteImg.isSocketSet){
+//                    if (!remoteImg.isSocketSet){
                         Log.v("ConnectServer","start to connect server");
                         remoteImg.ip = ip;
                         remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
                         remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
                         remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
-                    }
+//                    }
 
 
                     if(remoteImg.ImgSocket.isConnected()){
@@ -1894,7 +1901,7 @@ public class MainActivity extends AppCompatActivity {
 
                 } catch (Exception e) {
                     e.printStackTrace();
-                    ShowToast(context, "Can't connect, try again please!");
+//                    ShowToast(context, "Can't connect, try again please!");
                     Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
                     Looper.loop();
                 }
@@ -1979,6 +1986,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void SaveSWC() {
+        context = this;
         MDDialog mdDialog = new MDDialog.Builder(this)
                 .setContentView(R.layout.save_swc)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
@@ -2026,7 +2034,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         if (error != "") {
                             if (error == "This file already exits"){
-                                Toast.makeText(context, error, Toast.LENGTH_LONG).show();
+//                                Toast.makeText(context, error, Toast.LENGTH_LONG).show();
                                 AlertDialog aDialog = new AlertDialog.Builder(context)
                                         .setTitle("This file already exits")
                                         .setMessage("Are you sure to overwrite it?")
@@ -2037,6 +2045,11 @@ public class MainActivity extends AppCompatActivity {
                                                 String errorMessage = "";
                                                 try{
                                                     errorMessage = myrenderer.oversaveCurrentSwc(dir_str);
+                                                    if (errorMessage == "")
+                                                        Toast.makeText(context,"Overwrite successfully!", Toast.LENGTH_SHORT).show();
+                                                    if (errorMessage == "Overwrite failed!")
+                                                        Toast.makeText(context,"Overwrite failed!", Toast.LENGTH_SHORT).show();
+
                                                 }catch (Exception e){
                                                     System.out.println(errorMessage);
                                                     Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -2051,8 +2064,9 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                         })
                                         .create();
+                                aDialog.show();
                             }
-                            Toast.makeText(context, error, Toast.LENGTH_LONG).show();
+//                            Toast.makeText(context, error, Toast.LENGTH_LONG).show();
                         } else{
                             Toast.makeText(context, "save SWC to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG).show();
                         }
