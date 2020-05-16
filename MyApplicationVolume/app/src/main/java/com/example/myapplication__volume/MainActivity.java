@@ -207,13 +207,6 @@ public class MainActivity extends AppCompatActivity {
         if (Timeout != null)
             Toast.makeText(this, Timeout, Toast.LENGTH_SHORT).show();
 
-//        try {
-//
-//
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
-
 
 
 //        Toast.makeText(this,"Filepath: " + filepath, Toast.LENGTH_SHORT).show();
@@ -1714,7 +1707,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 202005016e ZX",
+                .asConfirm("Version", "version: 202005016g XF",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

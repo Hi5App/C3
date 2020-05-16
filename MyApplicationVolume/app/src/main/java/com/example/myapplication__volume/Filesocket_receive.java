@@ -277,12 +277,14 @@ public class Filesocket_receive {
 
 
     public void readImg(final String filename, final Context[] context) throws InterruptedException {
+
         Boolean stop = false;
 
         BasePopupView popupView = new XPopup.Builder(context[0])
                 .asLoading("Downloading......");
         popupView.show();
 
+        boolean[] ifDownloaded = { false };
 //        Handler handler = new Handler();
 
         // 构建Runnable对象，并在runnable中更新UI
@@ -307,31 +309,40 @@ public class Filesocket_receive {
         byte [] filename_size = new byte[8];
 
         boolean[] isFinished = { false };
+
         if (filesocket.isConnected()){
 
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
                 public void run() {
 
+                    Log.v("---------Image------:", "start timertask");
+
+
+                    long startTime=System.currentTimeMillis();
+
                     long i = 0;
-                    while (i < 30000000000L)
+                    while (i < 20000000000L)
                         i++;
 
-                    Log.v("---------Image------:", "start timertask");
+                    long stopTime=System.currentTimeMillis();
+
+                    // current time cost 45s
+                    Log.v("ReadFile: ", "time: " + Long.toString(stopTime - startTime));
 
                     if (!isFinished[0]){
                         Log.v("---------Image------:", "start to close bufferreader");
 
                         try {
-                            in.close();
-                            Log.v("---------Image------:", "bufferreader closed!");
-//                            Toast.makeText(context[0] ,"Fail to load file!", Toast.LENGTH_SHORT).show();
 
                             Intent intent = new Intent(context[0], JumpActivity.class);
                             String message = "Time out, please try again!";
 
                             intent.putExtra(Timeout, message);
                             context[0].startActivity(intent);
+
+                            Log.v("---------Image------:", "bufferreader closed!");
+                            in.close();
 
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -340,7 +351,8 @@ public class Filesocket_receive {
                     }
 
                 }
-            }, 5 * 1000); // 延时5秒
+            }, 0 * 1000); // 延时5秒
+
 
             in.read(file_size, 0, 8);
             in.read(filename_size, 0, 8);
@@ -349,19 +361,6 @@ public class Filesocket_receive {
             Log.v("readFile: filename_size", Long.toString(bytesToLong(filename_size)));
 
             Log.v("readfile", Integer.toString(in.available()));
-
-
-
-            int file__size = (int) bytesToLong(file_size);
-
-//                    if (file__size <= 0){
-//
-////                        popupView.dismiss();
-////                        Looper.prepare();
-//                        Toast.makeText(context[0] ,"Fail to load file!", Toast.LENGTH_SHORT).show();
-//                        Looper.loop();
-//                        return;
-//                    }
 
 
             int filename__size = (int) bytesToLong(filename_size) + 4;
@@ -433,6 +432,7 @@ public class Filesocket_receive {
             in.close();
 
             isFinished[0] = true;
+            ifDownloaded[0] = true;
 
         }else {
             System.out.println("--------Filescocket disconnect----------");
@@ -492,7 +492,6 @@ public class Filesocket_receive {
 
     }catch (Exception e){
         e.printStackTrace();
-//                    popupView.dismiss();
         Toast.makeText(context[0], "Fail to download img", Toast.LENGTH_SHORT).show();
     }
 
@@ -707,15 +706,15 @@ public class Filesocket_receive {
 
         Log.v("Filesocket_receive: ", filename);
 
-//        disconnect();
-        Intent intent = new Intent(context[0], JumpActivity.class);
-        String message = path + "/" + filename;
+        if (ifDownloaded[0]){
+            Intent intent = new Intent(context[0], JumpActivity.class);
+            String message = path + "/" + filename;
 
-        Log.v("Filesocket_receive: ", message);
-        intent.putExtra(EXTRA_MESSAGE, message);
-        context[0].startActivity(intent);
-//        context[0] = null;
-        disconnect();
+            Log.v("Filesocket_receive: ", message);
+            intent.putExtra(EXTRA_MESSAGE, message);
+            context[0].startActivity(intent);
+            context[0] = null;
+        }
 
     }
 

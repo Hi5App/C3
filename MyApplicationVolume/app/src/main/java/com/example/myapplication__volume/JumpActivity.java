@@ -71,7 +71,7 @@ public class JumpActivity extends AppCompatActivity {
         }
 
         Intent intent3 = getIntent();
-        String Timeout = intent3.getStringExtra(JumpActivity.Out_of_memory);
+        String Timeout = intent3.getStringExtra(JumpActivity.Timeout);
 
         if (Timeout != null){
             Log.v("JumpActivity", Timeout);
