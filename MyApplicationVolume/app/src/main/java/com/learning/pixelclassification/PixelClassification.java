@@ -177,9 +177,9 @@ public class PixelClassification {
             }
         }
         std = Math.sqrt(std/count);
-        System.out.println("mean-std*0.5: "+(mean-std*0.5));
+        System.out.println("mean-std: "+(mean-std));
         if(bg){
-            double th = Math.max(mean-std*0.5,10);
+            double th = Math.max(mean-std,30);
 
             ArrayList<Integer> randomNumber = new ArrayList<>();
             for(int i=0; i<maskFinal.length; i++){
@@ -199,8 +199,8 @@ public class PixelClassification {
         }
 
         int[] featureMask0 = new int[img1d.length];
-        double min = Math.max(mean-std*0.5,10);
-        double max = mean +std*0.5;
+        double min = Math.max(mean-std,30);
+        double max = mean +std;
         System.out.println("min: "+min);
         System.out.println("max: "+max);
 
