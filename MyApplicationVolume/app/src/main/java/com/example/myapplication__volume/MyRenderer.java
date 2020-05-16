@@ -983,11 +983,27 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 process.add(Operate.DRAWMARKER);
                 undoDrawMarkerList.add(imageMarker_drawed);
             } else {
+                Operate first = process.firstElement();
                 process.remove(0);
                 process.add(Operate.DRAWMARKER);
-                undoDrawMarkerList.remove(0);
+                removeFirstUndo(first);
                 undoDrawMarkerList.add(imageMarker_drawed);
             }
+        }
+    }
+
+    void removeFirstUndo(Operate first){
+        if (first == Operate.DRAWMARKER) {
+            undoDrawMarkerList.remove(0);
+        } else if (first == Operate.DELETEMARKER){
+            undoDeleteMarkerList.remove(0);
+        } else if (first == Operate.DRAWCURVE){
+            undoDrawList.remove(0);
+        } else if (first == Operate.DELETECURVE){
+            undoDeleteList.remove(0);
+        } else if (first == Operate.CHANGELINETYPE) {
+            undoLineType.remove(0);
+            undoChangeLineTypeIndex.remove(0);
         }
     }
 
@@ -1016,9 +1032,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     process.add(Operate.DELETEMARKER);
                     undoDeleteMarkerList.add(temp);
                 } else{
+                    Operate first = process.firstElement();
                     process.remove(0);
                     process.add(Operate.DELETEMARKER);
-                    undoDeleteMarkerList.remove(0);
+                    removeFirstUndo(first);
                     undoDeleteMarkerList.add(temp);
                 }
                 break;
@@ -2097,10 +2114,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 process.add(Operate.DRAWCURVE);
                 undoDrawList.add(seg);
             } else{
-              process.remove(0);
-              process.add(Operate.DRAWCURVE);
-              undoDrawList.remove(0);
-              undoDrawList.add(seg);
+                Operate first = process.firstElement();
+                process.remove(0);
+                process.add(Operate.DRAWCURVE);
+                removeFirstUndo(first);
+                undoDrawList.add(seg);
             }
 //            Log.v("addLineDrawed", Integer.toString(lineAdded.size()));
         }
@@ -2303,9 +2321,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 process.add(Operate.DRAWCURVE);
                 undoDrawList.add(seg);
             } else{
+                Operate first = process.firstElement();
                 process.remove(0);
                 process.add(Operate.DRAWCURVE);
-                undoDrawList.remove(0);
+                removeFirstUndo(first);
                 undoDrawList.add(seg);
             }
 //            return curSwcList.nsegs() - 1;
@@ -2406,9 +2425,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             process.add(Operate.DELETECURVE);
             undoDeleteList.add(toBeDeleted);
         } else{
+            Operate first = process.firstElement();
             process.remove(0);
             process.add(Operate.DELETECURVE);
-            undoDeleteList.remove(0);
+            removeFirstUndo(first);
             undoDeleteList.add(toBeDeleted);
         }
     }
@@ -2831,7 +2851,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     {
         V3draw,
         SWC,
-        TIF
+        TIF,
+        JPG,
+        PNG
     }
 
     public void setTakePic(boolean takePic) {
