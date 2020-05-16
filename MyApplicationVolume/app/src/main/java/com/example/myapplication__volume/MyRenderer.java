@@ -63,7 +63,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public static final String OUTOFMEM_MESSAGE = "OutOfMemory";
     public static final String FILE_SUPPORT_ERROR = "FileSupportError";
-    public static final String FILE_PATH = "FILEPATH";
+    public static final String FILE_PATH = "Myrender_FILEPATH";
+    public static final String Time_out = "Myrender_Timeout";
 
     private MyPattern myPattern;
     private MyAxis myAxis;
@@ -212,8 +213,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         screen_w = width;
         screen_h = height;
 
-//        if (fileType == FileType.V3draw || fileType == FileType.TIF)
-//            myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
+        if (fileType == FileType.V3draw || fileType == FileType.TIF)
+            myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
 
         if (ifFileSupport){
             myAxis = new MyAxis(mz);

@@ -99,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
 //    private enum Operate {DRAW, DELETE, SPLIT};
 //    private Operate [] process = new Operate[UNDO_LIMIT];
 
+    public static final String File_path = "com.example.myfirstapp.MESSAGE";
+
 
     private MyGLSurfaceView myGLSurfaceView;
     private MyRenderer myrenderer;
@@ -180,22 +182,30 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 
-//        setSupportActionBar(findViewById(R.id.topAppBar));
 
-        myrenderer = new MyRenderer();
 
         //接受从fileactivity传递过来的文件路径
         Intent intent1 = getIntent();
         String filepath = intent1.getStringExtra(MyRenderer.FILE_PATH);
 
-        if (filepath != null)
+        myrenderer = new MyRenderer();
+        if (filepath != null){
             myrenderer.SetPath(filepath);
+            System.out.println("------" + filepath + "------");
+        }
 
         Intent intent2 = getIntent();
         String MSG = intent2.getStringExtra(MyRenderer.OUTOFMEM_MESSAGE);
 
         if (MSG != null)
             Toast.makeText(this, MSG, Toast.LENGTH_SHORT).show();
+
+
+        Intent intent3 = getIntent();
+        String Timeout = intent3.getStringExtra(MyRenderer.Time_out);
+
+        if (Timeout != null)
+            Toast.makeText(this, Timeout, Toast.LENGTH_SHORT).show();
 
 //        try {
 //
@@ -231,8 +241,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(myGLSurfaceView);
 //        setContentView(R.layout.activity_main);
 
-//        CoordinatorLayout l = (CoordinatorLayout) findViewById(R.layout.activity_main);
+//        Toolbar  mToolbar = (Toolbar) findViewById(R.id.topAppBar);
+//        mToolbar.setTitle(R.string.app_name);
+//        setSupportActionBar(findViewById(R.id.topAppBar));
+//        BottomAppBar bar = (BottomAppBar) findViewById(R.id.bottombar);
+//        setSupportActionBar(bar);
 
+//        FrameLayout ll = (FrameLayout) findViewById (R.id.fl);
+//        ll.addView(myGLSurfaceView);
+
+//        CoordinatorLayout l = (CoordinatorLayout) findViewById(R.layout.activity_main);
+//
         ll_top = new LinearLayout(this);
         ll_bottom = new LinearLayout(this);
 
@@ -472,12 +491,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        myGLSurfaceView.requestRender();
         remoteImg = new RemoteImg();
         context = getApplicationContext();
 
 
-//        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(myToolbar);
 
     }
 
@@ -1846,8 +1864,8 @@ public class MainActivity extends AppCompatActivity {
 
                     }else {
                         Log.v("ConnectServer","fail to connect server");
-                        ShowToast(context, "Can't connect, try again please!");
-//                        Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+//                        ShowToast(context, "Can't connect, try again please!");
+                        Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
 //                        Looper.loop();
                     }
 

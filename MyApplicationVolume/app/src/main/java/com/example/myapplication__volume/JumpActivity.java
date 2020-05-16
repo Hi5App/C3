@@ -22,6 +22,7 @@ public class JumpActivity extends AppCompatActivity {
     //message 字符串用于传递文件的路径到Mainactivity中
     public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
     public static final String Out_of_memory = "com.example.myfirstapp.MESSAGE";
+    public static final String Timeout = "Timeout-MESSAGE";
 
     //读写权限
     private static String[] PERMISSIONS_STORAGE = {
@@ -51,20 +52,34 @@ public class JumpActivity extends AppCompatActivity {
         String filepath = intent1.getStringExtra(JumpActivity.EXTRA_MESSAGE);
 
         if (filepath != null){
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra(MyRenderer.FILE_PATH, filepath);
-            startActivity(intent);
+            Intent intent_file = new Intent(this, MainActivity.class);
+            Log.v("JumpActivity", filepath);
+            intent_file.putExtra(MyRenderer.FILE_PATH, filepath);
+            startActivity(intent_file);
+            return;
         }
 
         Intent intent2 = getIntent();
         String MSG = intent2.getStringExtra(JumpActivity.Out_of_memory);
 
         if (MSG != null){
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra(MyRenderer.OUTOFMEM_MESSAGE, MSG);
-            startActivity(intent);
+            Log.v("JumpActivity", MSG);
+            Intent intent_outofmem = new Intent(this, MainActivity.class);
+            intent_outofmem.putExtra(MyRenderer.OUTOFMEM_MESSAGE, MSG);
+            startActivity(intent_outofmem);
+            return;
         }
 
+        Intent intent3 = getIntent();
+        String Timeout = intent3.getStringExtra(JumpActivity.Out_of_memory);
+
+        if (Timeout != null){
+            Log.v("JumpActivity", Timeout);
+            Intent intent_timeout = new Intent(this, MainActivity.class);
+            intent_timeout.putExtra(MyRenderer.Time_out, Timeout);
+            startActivity(intent_timeout);
+            return;
+        }
 
 
 

@@ -145,9 +145,13 @@ public class RemoteImg extends Socket {
     public void disconnectFromHost(){
 
         try {
+
             ImgSocket.shutdownInput();
             ImgSocket.shutdownOutput();
             ImgSocket.close();
+            ImgReader.close();
+            ImgPWriter.close();
+
         } catch (IOException e) {
 
             e.printStackTrace();
@@ -492,12 +496,6 @@ public class RemoteImg extends Socket {
                             filesocket_receive.path = context.getExternalFilesDir(null).toString();
 
 
-//                            String offset_x_i = Integer.toString(x);
-//                            String offset_y_i = Integer.toString(y);
-//                            String offset_z_i = Integer.toString(z);
-
-
-
 //                            String storefilename = filename.split("RES")[0] +
 //                                    "_" + offset_x_i + "_" + offset_y_i + "_" + offset_z_i + "_" + size +"_" + size +"_" + size + ".v3draw";
 
@@ -508,40 +506,47 @@ public class RemoteImg extends Socket {
                             if (filesocket_receive.filesocket.isConnected()){
 
 
-                                if (!ImgSocket.isOutputShutdown()) {
-                                    System.out.println("-------------pull img block---------------");
 
-                                    ImgPWriter.println(filename + "__" + offset_x + "__" + offset_y + "__" + offset_z + "__" + size + ":imgblock.");
-//                                ImgPWriter.println(filename + "__" + offset_x_i + "__" + offset_y_i + "__" + offset_z_i + "__" + size + ":imgblock.");
-                                    ImgPWriter.flush();
+                                String content = ImgReader.readLine();
 
-                                    System.out.println("-------------" + filename + "---------------");
+                                if ( content.contains(":file connected.") ){
+
+                                    Log.v("PullImageblock", content);
+
+                                    if (!ImgSocket.isOutputShutdown()) {
+                                        System.out.println("-------------pull img block---------------");
+
+                                        ImgPWriter.println(filename + "__" + offset_x + "__" + offset_y + "__" + offset_z + "__" + size + ":imgblock.");
+//                                  ImgPWriter.println(filename + "__" + offset_x_i + "__" + offset_y_i + "__" + offset_z_i + "__" + size + ":imgblock.");
+                                        ImgPWriter.flush();
+
+                                        System.out.println("-------------" + filename + "---------------");
+
+                                    }
+
+                                    String storefilename = filename.split("RES")[0] +
+                                            "_" + offset_x + "_" + offset_y + "_" + offset_z + "_" + size +"_" + size +"_" + size + ".v3draw";
+
+
+                                    Log.v("PullImageBlcok", "x: " + x + ", y:" + y + ", z:" +z);
+
+                                    filesocket_receive.readImg(storefilename, contexts);
+
+                                    Log.v("PullImageBlcok", "x: " + x + ", y:" + y + ", z:" + z + " successfully---------");
+
 
                                 }
 
-                                String storefilename = filename.split("RES")[0] +
-                                        "_" + offset_x + "_" + offset_y + "_" + offset_z + "_" + size +"_" + size +"_" + size + ".v3draw";
-
-
-                                Log.v("PullImageBlcok", "x: " + x + ", y:" + y + ", z:" +z);
-
-                                filesocket_receive.readImg(storefilename, contexts);
-
-                                Log.v("PullImageBlcok", "x: " + x + ", y:" + y + ", z:" + z + " successfully---------");
-
-                                x += 256;
-                                y += 256;
-//                                z += 256;
-//                                Looper.loop();
 
                             }
 
-//                            long i = 0;
-//                            while (i < 10000000000L)
-//                                i++;
                         }
 
 //                    }
+
+                    if (ImgSocket.isConnected())
+                        ImgPWriter.println("Client :disconnected.");
+
                 } catch (Exception e) {
                     e.printStackTrace();
                     Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
