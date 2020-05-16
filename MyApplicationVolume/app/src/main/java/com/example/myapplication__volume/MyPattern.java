@@ -477,7 +477,11 @@ public class MyPattern{
                     " value = vec4(tf_value.x, tf_value.y, tf_value.z, tf_value.x);" +
 
                     "     if(value.r > accum.r)\n" +
-                    "         accum.rgb = value.rgb;" +
+                    "         accum.r = value.r;\n" +
+                    "     if(value.g > accum.g)\n" +
+                    "         accum.g = value.g\n;" +
+                    "     if(value.b > accum.b)\n" +
+                    "         accum.b = value.b\n;" +
                     "     accum.a += (1.0 - accum.a) * value.a;" +
                     "     vpos.xyz += Step;" +
 

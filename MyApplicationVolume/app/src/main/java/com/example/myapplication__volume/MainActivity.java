@@ -942,7 +942,9 @@ public class MainActivity extends AppCompatActivity {
     private void FileManager(View v) {
         new XPopup.Builder(this)
                 .atView(v)
-                .asAttachList(new String[]{ "Open Local file", "Open Remote file", "Load SWC file" },
+
+                .asAttachList(new String[]{ "Open Local file", "Open Remote file", "Load SWC file" , "Camera"},
+
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -957,6 +959,8 @@ public class MainActivity extends AppCompatActivity {
                                     case "Open Remote file":
                                         remote(v);
                                         break;
+                                    case "Camera":
+
                                 }
 
                             }
