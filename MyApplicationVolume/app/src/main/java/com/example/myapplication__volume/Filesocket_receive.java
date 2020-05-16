@@ -14,10 +14,13 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static java.lang.Thread.State.TERMINATED;
 
@@ -301,17 +304,46 @@ public class Filesocket_receive {
                     //前两个 uint64 记录传输内容的总长度 和 文件名的长度
                     byte [] file_size = new byte[8];
                     byte [] filename_size = new byte[8];
-                    in.read(file_size, 0, 8);
-                    in.read(filename_size, 0, 8);
 
-                    Log.v("readFile: file_size", Long.toString(bytesToLong(file_size)));
-                    Log.v("readFile: filename_size", Long.toString(bytesToLong(filename_size)));
+                    boolean[] isFinished = { false };
+                    if (filesocket.isConnected()){
 
-                    Log.v("readfile", Integer.toString(in.available()));
+                        Timer timer = new Timer();
+                            timer.schedule(new TimerTask() {
+                                public void run() {
+
+                                    long i = 0;
+                                    while (i < 30000000000L)
+                                        i++;
+
+                                    Log.v("---------Image------:", "start timertask");
+
+                                    if (!isFinished[0]){
+                                        Log.v("---------Image------:", "start to close bufferreader");
+
+                                        try {
+                                            in.close();
+                                            Log.v("---------Image------:", "bufferreader closed!");
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                            Log.v("---------Image------:", "fail to close bufferreader!");
+                                        }
+                                    }
+
+                                }
+                            }, 5 * 1000); // 延时5秒
+
+                        in.read(file_size, 0, 8);
+                        in.read(filename_size, 0, 8);
+
+                        Log.v("readFile: file_size", Long.toString(bytesToLong(file_size)));
+                        Log.v("readFile: filename_size", Long.toString(bytesToLong(filename_size)));
+
+                        Log.v("readfile", Integer.toString(in.available()));
 
 
 
-                    int file__size = (int) bytesToLong(file_size);
+                        int file__size = (int) bytesToLong(file_size);
 
 //                    if (file__size <= 0){
 //
@@ -323,36 +355,36 @@ public class Filesocket_receive {
 //                    }
 
 
-                    int filename__size = (int) bytesToLong(filename_size) + 4;
-                    int filecontent__size = (int) bytesToLong(file_size) - filename__size;
+                        int filename__size = (int) bytesToLong(filename_size) + 4;
+                        int filecontent__size = (int) bytesToLong(file_size) - filename__size;
 
-                    //读取文件名和内容
-                    byte [] filename_qstring = new byte[filename__size];
+                        //读取文件名和内容
+                        byte [] filename_qstring = new byte[filename__size];
 //                    byte [] file_content = new byte[filecontent__size];
 
-                    in.read(filename_qstring, 0, filename__size);
+                        in.read(filename_qstring, 0, filename__size);
 //                    in.read(file_content, 0, filecontent__size);
 
-                    String filename_string = new String(filename_qstring, StandardCharsets.UTF_8);
+                        String filename_string = new String(filename_qstring, StandardCharsets.UTF_8);
 //                    String filecontent_string = new String(file_content, StandardCharsets.UTF_8);
-                    Log.v("readFile: file_size", Long.toString(bytesToLong(file_size)));
-                    Log.v("readFile: filename_size", Long.toString(bytesToLong(filename_size)));
-                    Log.v("readFile", filename_string);
+                        Log.v("readFile: file_size", Long.toString(bytesToLong(file_size)));
+                        Log.v("readFile: filename_size", Long.toString(bytesToLong(filename_size)));
+                        Log.v("readFile", filename_string);
 //                    Log.v("readFile", filecontent_string);
 
 
 
 
-                    //打开文件，如果没有，则新建文件
-                    File file = new File(path + "/" + filename);
-                    if(!file.exists()){
-                        file.createNewFile();
-                        Log.v("readFile", "Create file successfully");
-                    }
+                        //打开文件，如果没有，则新建文件
+                        File file = new File(path + "/" + filename);
+                        if(!file.exists()){
+                            file.createNewFile();
+                            Log.v("readFile", "Create file successfully");
+                        }
 
-                    FileOutputStream outputStream = new FileOutputStream(file);
-                    BufferedOutputStream out = new BufferedOutputStream(outputStream);
-                    BufferedInputStream in_bf = new BufferedInputStream(in);
+                        FileOutputStream outputStream = new FileOutputStream(file);
+                        BufferedOutputStream out = new BufferedOutputStream(outputStream);
+                        BufferedInputStream in_bf = new BufferedInputStream(in);
 
 
 
@@ -382,14 +414,21 @@ public class Filesocket_receive {
 //                    byte[] buffer = new byte[1024];
 //                    for (int n; (n = in.read(buffer)) != -1; outputStream.write(buffer, 0, n));
 //
-                    Log.v("send2", Integer.toString(IOUtils.copy(in, outputStream)));
+                        Log.v("send2", Integer.toString(IOUtils.copy(in, outputStream)));
 //                    Log.v("send2", Long.toString(IOUtils.copy(in, outputStream, filecontent__size)));
 
-                    System.out.println(file.length());
+                        System.out.println(file.length());
 
 //                    outputStream.flush();
-                    outputStream.close();
-                    in.close();
+                        outputStream.close();
+                        in.close();
+
+                        isFinished[0] = true;
+
+                    }else {
+                        System.out.println("--------Filescocket disconnect----------");
+                    }
+
 
 //                    file.delete();
 
@@ -458,6 +497,7 @@ public class Filesocket_receive {
 
         Log.v("Filesocket_receive: ", filename);
 
+        disconnect();
 //        Intent intent = new Intent(context[0], JumpActivity.class);
 //        String message = path + "/" + filename;
 //        intent.putExtra(EXTRA_MESSAGE, message);

@@ -478,8 +478,12 @@ public class RemoteImg extends Socket {
                         int y = 200;
                         int z = 200;
 
-                        while ( x < 20000 && y < 20000 && z < 1000){
+//                        while ( x < 20000 && y < 20000 && z < 1000){
 
+
+
+//                            Thread.sleep(5 * 1000);
+//                            SystemClock.sleep(5 * 1000);
 
                             Filesocket_receive filesocket_receive = new Filesocket_receive();
                             filesocket_receive.filesocket = new Socket(ip, 9002);
@@ -488,31 +492,36 @@ public class RemoteImg extends Socket {
                             filesocket_receive.path = context.getExternalFilesDir(null).toString();
 
 
-                            String offset_x_i = Integer.toString(x);
-                            String offset_y_i = Integer.toString(y);
-                            String offset_z_i = Integer.toString(z);
+//                            String offset_x_i = Integer.toString(x);
+//                            String offset_y_i = Integer.toString(y);
+//                            String offset_z_i = Integer.toString(z);
 
-                            if (!ImgSocket.isOutputShutdown()) {
-                                System.out.println("-------------pull img block---------------");
 
-//                                ImgPWriter.println(filename + "__" + offset_x + "__" + offset_y + "__" + offset_z + "__" + size + ":imgblock.");
-                                ImgPWriter.println(filename + "__" + offset_x_i + "__" + offset_y_i + "__" + offset_z_i + "__" + size + ":imgblock.");
-                                ImgPWriter.flush();
-
-                                System.out.println("-------------" + filename + "---------------");
-
-                            }
 
 //                            String storefilename = filename.split("RES")[0] +
-//                                    "_" + offset_x + "_" + offset_y + "_" + offset_z + "_" + size +"_" + size +"_" + size + ".v3draw";
+//                                    "_" + offset_x_i + "_" + offset_y_i + "_" + offset_z_i + "_" + size +"_" + size +"_" + size + ".v3draw";
 
-                            String storefilename = filename.split("RES")[0] +
-                                    "_" + offset_x_i + "_" + offset_y_i + "_" + offset_z_i + "_" + size +"_" + size +"_" + size + ".v3draw";
 
                             Context[] contexts = new Context[1];
                             contexts[0] = context;
 
                             if (filesocket_receive.filesocket.isConnected()){
+
+
+                                if (!ImgSocket.isOutputShutdown()) {
+                                    System.out.println("-------------pull img block---------------");
+
+                                    ImgPWriter.println(filename + "__" + offset_x + "__" + offset_y + "__" + offset_z + "__" + size + ":imgblock.");
+//                                ImgPWriter.println(filename + "__" + offset_x_i + "__" + offset_y_i + "__" + offset_z_i + "__" + size + ":imgblock.");
+                                    ImgPWriter.flush();
+
+                                    System.out.println("-------------" + filename + "---------------");
+
+                                }
+
+                                String storefilename = filename.split("RES")[0] +
+                                        "_" + offset_x + "_" + offset_y + "_" + offset_z + "_" + size +"_" + size +"_" + size + ".v3draw";
+
 
                                 Log.v("PullImageBlcok", "x: " + x + ", y:" + y + ", z:" +z);
 
@@ -526,9 +535,13 @@ public class RemoteImg extends Socket {
 //                                Looper.loop();
 
                             }
+
+//                            long i = 0;
+//                            while (i < 10000000000L)
+//                                i++;
                         }
 
-                    }
+//                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                     Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();

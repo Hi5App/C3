@@ -2739,7 +2739,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         String error = "";
         NeuronTree nt = this.getNeuronTree();
         if(nt.listNeuron.size()>0){
-            String filePath = dir + "//" + nt.name + ".swc";
+            String filePath = dir + "/" + nt.name + ".swc";
             System.out.println("filepath: "+filePath);
             boolean ifExits = nt.writeSWC_file(filePath);
             if (ifExits)
@@ -2755,11 +2755,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         String error = "";
         NeuronTree nt = this.getNeuronTree();
         if(nt.listNeuron.size()>0){
-            String filePath = dir + "//" + nt.name + ".swc";
+            String filePath = dir + "/" + nt.name + ".swc";
             System.out.println("filepath: "+filePath);
             boolean ifSucceed = nt.overwriteSWC_file(filePath);
-            if (ifSucceed)
-                error = "overwrite failed";
+            if (!ifSucceed)
+                error = "Overwrite failed!";
             return error;
         }else {
             return error = "Current swc is empty!";

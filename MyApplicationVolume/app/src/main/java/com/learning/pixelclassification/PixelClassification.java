@@ -124,12 +124,14 @@ public class PixelClassification {
 //        int[] flag = new int[]{1,2,3,4,5,6,7,8,9,10};
 
         Vector<MyMarker> inSwc = MyMarker.swcConvert(labelFB.get(0));
-        int[] mask = MyMarker.swcToMask(inSwc,sz,0.5, 2);
+//        int[] mask = MyMarker.swcToMask(inSwc,sz,0.5, 2);
+        int[] mask = MyMarker.swcToMask2(inSwc,sz,2);
         masks.add(mask);
 
         if(!bg){
             Vector<MyMarker> inSwc2 = MyMarker.swcConvert(labelFB.get(1));
-            int[] mask2 = MyMarker.swcToMask(inSwc2,sz,0.5, 1);
+//            int[] mask2 = MyMarker.swcToMask(inSwc2,sz,0.5, 1);
+            int[] mask2 = MyMarker.swcToMask2(inSwc2,sz,1);
             masks.add(mask2);
         }
 
