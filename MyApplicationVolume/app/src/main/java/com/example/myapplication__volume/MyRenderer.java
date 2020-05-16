@@ -52,12 +52,14 @@ import static javax.microedition.khronos.opengles.GL10.GL_SRC_ALPHA;
 //@android.support.annotation.RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
 public class MyRenderer implements GLSurfaceView.Renderer {
     private int UNDO_LIMIT = 5;
-    private enum Operate {DRAWCURVE, DELETECURVE, DRAWMARKER, DELETEMARKER, SPLIT};
+    private enum Operate {DRAWCURVE, DELETECURVE, DRAWMARKER, DELETEMARKER, CHANGELINETYPE, SPLIT};
     private Vector<Operate> process = new Vector<>();
     private Vector<V_NeuronSWC> undoDrawList = new Vector<>();
     private Vector<Vector<V_NeuronSWC>> undoDeleteList = new Vector<>();
     private Vector<ImageMarker> undoDrawMarkerList = new Vector<>();
     private Vector<ImageMarker> undoDeleteMarkerList = new Vector<>();
+    private Vector<Vector<Integer>> undoChangeLineTypeIndex = new Vector<>();
+    private Vector<Vector<Integer>> undoLineType = new Vector<>();
 
     public static final String OUTOFMEM_MESSAGE = "OutOfMemory";
     public static final String FILE_SUPPORT_ERROR = "FileSupportError";
@@ -2593,29 +2595,32 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public void changeLineType(ArrayList<Float> line, int type){
+        System.out.println("changeLineType--------------------------");
+        Vector<Integer> indexToChangeLineType = new Vector<>();
+        Vector<Integer> ChangeLineType = new Vector<>();
         for (int i = 0; i < line.size() / 3 - 1; i++){
             float x1 = line.get(i * 3);
             float y1 = line.get(i * 3 + 1);
             float x2 = line.get(i * 3 + 3);
             float y2 = line.get(i * 3 + 4);
             for(int j=0; j<curSwcList.nsegs(); j++){
-                System.out.println("delete curswclist --"+j);
+//                System.out.println("delete curswclist --"+j);
                 V_NeuronSWC seg = curSwcList.seg.get(j);
                 if(seg.to_be_deleted)
                     continue;
                 Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
                 for(int k=0; k<seg.row.size(); k++){
-                    if(seg.row.get(k).parent != -1){
+                    if(seg.row.get(k).parent != -1 && seg.getIndexofParent(k) != -1){
                         V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(k));
                         swcUnitMap.put(k,parent);
                     }
                 }
-                System.out.println("delete: end map");
+                System.out.println("changeLine: end map");
                 for(int k=0; k<seg.row.size(); k++){
                     System.out.println("j: "+j+" k: "+k);
                     V_NeuronSWC_unit child = seg.row.get(k);
                     int parentid = (int) child.parent;
-                    if (parentid == -1){
+                    if (parentid == -1 || seg.getIndexofParent(k) == -1){
                         System.out.println("parent -1");
                         continue;
                     }
@@ -2624,8 +2629,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     float[] pparent = {(float) parent.x, (float) parent.y, (float) parent.z};
                     float[] pchildm = VolumetoModel(pchild);
                     float[] pparentm = VolumetoModel(pparent);
-                    float[] p1 = {pchildm[0],pchildm[1],pchildm[2],1.0f};
-                    float[] p2 = {pparentm[0],pparentm[1],pparentm[2],1.0f};
+                    float[] p2 = {pchildm[0],pchildm[1],pchildm[2],1.0f};
+                    float[] p1 = {pparentm[0],pparentm[1],pparentm[2],1.0f};
 
                     float [] p1Volumne = new float[4];
                     float [] p2Volumne = new float[4];
@@ -2648,19 +2653,37 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                             && (Math.max(y1, y2) >= Math.min(y3, y4))
                             && (Math.max(y3, y4) >= Math.min(y1, y2))
                             && ((m * n) <= 0) && (p * q <= 0)){
+                        System.out.println("------------------this is delete---------------");
                         seg.to_be_deleted = true;
+                        indexToChangeLineType.add(j);
+                        ChangeLineType.add((int) seg.row.get(0).type);
                         break;
                     }
                 }
             }
         }
         for(V_NeuronSWC seg : this.curSwcList.seg ){
-            if (seg.to_be_deleted == true){
+            if (seg.to_be_deleted){
                 for(int i = 0; i<seg.row.size(); i++){
                     seg.row.get(i).type = type;
                 }
                 seg.to_be_deleted = false;
             }
+        }
+
+        if (process.size() < UNDO_LIMIT){
+            process.add(Operate.CHANGELINETYPE);
+            undoLineType.add(ChangeLineType);
+            undoChangeLineTypeIndex.add(indexToChangeLineType);
+        } else{
+            if (process.get(0) == Operate.CHANGELINETYPE){
+                undoLineType.remove(0);
+                undoChangeLineTypeIndex.remove(0);
+            }
+            process.remove(0);
+            process.add(Operate.CHANGELINETYPE);
+            undoLineType.add(ChangeLineType);
+            undoChangeLineTypeIndex.add(indexToChangeLineType);
         }
     }
 
@@ -2897,6 +2920,23 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             undoDeleteMarkerList.remove(undoDeleteMarkerList.size() - 1);
             process.remove(process.size() - 1);
+        }else if(toUndo == Operate.CHANGELINETYPE){
+            if(undoChangeLineTypeIndex.isEmpty() || undoLineType.isEmpty()){
+                System.out.println("undoChangeLineTypeIndex is empty");
+                return false;
+            }
+
+            Vector<Integer> lastUndoChangeLineTypeIndex = undoChangeLineTypeIndex.lastElement();
+
+            for(int i=0; i<lastUndoChangeLineTypeIndex.size(); i++){
+                V_NeuronSWC s = curSwcList.seg.get(lastUndoChangeLineTypeIndex.get(i));
+                for(V_NeuronSWC_unit u:s.row){
+                    u.type = undoLineType.lastElement().get(i);
+                }
+            }
+            undoChangeLineTypeIndex.remove(undoChangeLineTypeIndex.size()-1);
+            undoLineType.remove(undoLineType.size()-1);
+            process.remove(process.size()-1);
         }
 
         System.out.println("undo succeed");

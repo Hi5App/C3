@@ -116,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean ifDeletingMarker = false;
     private boolean ifDeletingLine = false;
     private boolean ifSpliting = false;
+    private boolean ifChangeLineType = false;
     private boolean ifSwitch = false;
     private boolean select_img = false;
     private boolean ifLoadLocal = false;
@@ -1072,7 +1073,7 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete curve", "Split", "Set PenColor", "Exit Drawing mode"},
+                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete curve", "Split", "Set PenColor", "Change PenColor", "Exit Drawing mode"},
 //                        new int[]{R.mipmap.ic_launcher, R.mipmap.ic_launcher},
                         new int[]{},
                         new OnSelectListener() {
@@ -1087,6 +1088,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingMarker = false;
                                         ifDeletingLine = false;
                                         ifSpliting = false;
+                                        ifChangeLineType = false;
                                         if (ifPoint) {
                                             Draw.setText("PinPoint");
                                             Draw.setTextColor(Color.RED);
@@ -1113,6 +1115,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingMarker = false;
                                         ifDeletingLine = false;
                                         ifSpliting = false;
+                                        ifChangeLineType = false;
                                         if (ifPainting) {
                                             Draw.setText("Draw Curve");
                                             Draw.setTextColor(Color.RED);
@@ -1139,6 +1142,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifPoint = false;
                                         ifDeletingLine = false;
                                         ifSpliting = false;
+                                        ifChangeLineType = false;
                                         if (ifDeletingMarker) {
                                             Draw.setText("Delete marker");
                                             Draw.setTextColor(Color.RED);
@@ -1165,6 +1169,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifPoint = false;
                                         ifDeletingMarker = false;
                                         ifSpliting = false;
+                                        ifChangeLineType = false;
                                         if (ifDeletingLine) {
                                             Draw.setText("Delete curve");
                                             Draw.setTextColor(Color.RED);
@@ -1191,6 +1196,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifPainting = false;
                                         ifPoint = false;
                                         ifDeletingMarker = false;
+                                        ifChangeLineType = false;
                                         if (ifSpliting) {
                                             Draw.setText("Split");
                                             Draw.setTextColor(Color.RED);
@@ -1215,6 +1221,33 @@ public class MainActivity extends AppCompatActivity {
                                         //调用选择画笔窗口
                                         PenSet();
 
+                                        break;
+
+                                    case "Change PenColor":
+                                        ifChangeLineType = !ifChangeLineType;
+                                        ifDeletingLine = false;
+                                        ifPainting = false;
+                                        ifPoint = false;
+                                        ifDeletingMarker = false;
+                                        ifSpliting = false;
+                                        if(ifChangeLineType){
+                                            Draw.setText("Change PenColor");
+                                            Draw.setTextColor(Color.RED);
+
+                                            try {
+                                                ifSwitch = false;
+                                                ll_bottom.addView(Switch);
+                                                ll_top.addView(buttonUndo);
+                                            }catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+
+                                        } else {
+                                            Draw.setText("DRAW");
+                                            Draw.setTextColor(Color.BLACK);
+                                            ll_bottom.removeView(Switch);
+                                            ll_top.removeView(buttonUndo);
+                                        }
                                         break;
 
                                     case "Exit Drawing mode":
@@ -1658,7 +1691,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 202005016c ZX",
+                .asConfirm("Version", "version: 202005016d ZX",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -2924,7 +2957,7 @@ public class MainActivity extends AppCompatActivity {
                     case MotionEvent.ACTION_DOWN:
                         X = normalizedX;
                         Y = normalizedY;
-                        if (ifPainting || ifDeletingLine || ifSpliting) {
+                        if (ifPainting || ifDeletingLine || ifSpliting || ifChangeLineType) {
                             lineDrawed.add(X);
                             lineDrawed.add(Y);
                             lineDrawed.add(-1.0f);
@@ -2963,7 +2996,7 @@ public class MainActivity extends AppCompatActivity {
 
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        if (!ifPainting && !ifDeletingLine && !ifSpliting) {
+                        if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType) {
                             if (isZooming) {
                                 float x2 = toOpenGLCoord(this, motionEvent.getX(1), true);
                                 float y2 = toOpenGLCoord(this, motionEvent.getY(1), false);
@@ -3066,6 +3099,14 @@ public class MainActivity extends AppCompatActivity {
                         if (ifSpliting) {
                             myrenderer.setIfPainting(false);
                             myrenderer.splitCurve(lineDrawed);
+                            lineDrawed.clear();
+                            myrenderer.setLineDrawed(lineDrawed);
+                            requestRender();
+                        }
+                        if (ifChangeLineType) {
+                            myrenderer.setIfPainting(false);
+                            int type = myrenderer.getLastLineType();
+                            myrenderer.changeLineType(lineDrawed, type);
                             lineDrawed.clear();
                             myrenderer.setLineDrawed(lineDrawed);
                             requestRender();
