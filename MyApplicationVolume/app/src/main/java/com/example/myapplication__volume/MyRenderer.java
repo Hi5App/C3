@@ -2707,6 +2707,35 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
+    public void changeAllType(){
+        System.out.println("changeAllType--------------------------");
+        Vector<Integer> indexToChangeLineType = new Vector<>();
+        Vector<Integer> ChangeLineType = new Vector<>();
+        for(int i=0; i<curSwcList.seg.size(); i++){
+            V_NeuronSWC seg = curSwcList.seg.get(i);
+            indexToChangeLineType.add(i);
+            ChangeLineType.add((int) seg.row.get(0).type);
+            for(V_NeuronSWC_unit u:seg.row){
+                u.type = lastLineType;
+            }
+        }
+
+        if (process.size() < UNDO_LIMIT){
+            process.add(Operate.CHANGELINETYPE);
+            undoLineType.add(ChangeLineType);
+            undoChangeLineTypeIndex.add(indexToChangeLineType);
+        } else{
+            if (process.get(0) == Operate.CHANGELINETYPE){
+                undoLineType.remove(0);
+                undoChangeLineTypeIndex.remove(0);
+            }
+            process.remove(0);
+            process.add(Operate.CHANGELINETYPE);
+            undoLineType.add(ChangeLineType);
+            undoChangeLineTypeIndex.add(indexToChangeLineType);
+        }
+    }
+
 
 
     public void importEswc(ArrayList<ArrayList<Float>> eswc){

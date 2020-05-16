@@ -1073,7 +1073,7 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete curve", "Split", "Set PenColor", "Change PenColor", "Exit Drawing mode"},
+                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete curve", "Split", "Set PenColor", "Change PenColor", "Change All PenColor", "Exit Drawing mode"},
 //                        new int[]{R.mipmap.ic_launcher, R.mipmap.ic_launcher},
                         new int[]{},
                         new OnSelectListener() {
@@ -1248,6 +1248,11 @@ public class MainActivity extends AppCompatActivity {
                                             ll_bottom.removeView(Switch);
                                             ll_top.removeView(buttonUndo);
                                         }
+                                        break;
+
+                                    case "Change All PenColor":
+                                        myrenderer.changeAllType();
+                                        myGLSurfaceView.requestRender();
                                         break;
 
                                     case "Exit Drawing mode":
@@ -1691,7 +1696,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 202005016d ZX",
+                .asConfirm("Version", "version: 202005016e ZX",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
