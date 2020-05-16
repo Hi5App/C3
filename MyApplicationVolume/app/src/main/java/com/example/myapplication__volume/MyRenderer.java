@@ -4,12 +4,14 @@ package com.example.myapplication__volume;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.opengl.GLES10;
 import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Build;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -27,7 +29,11 @@ import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_list;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -67,12 +73,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public static final String Time_out = "Myrender_Timeout";
 
     private MyPattern myPattern;
+    private MyPattern2D myPattern2D;
     private MyAxis myAxis;
     private MyDraw myDraw;
     public  MyAnimation myAnimation;
 
     private Image4DSimple img;
     private ByteBuffer imageBuffer;
+    private byte [] image2D;
+    private Bitmap bitmap2D;
 
     private int mProgram;
 
@@ -280,6 +289,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             if (ifFileSupport){
                 if (fileType == FileType.V3draw || fileType == FileType.TIF)
                     myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
+                if (fileType == FileType.PNG || fileType == FileType.JPG)
+                    myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], viewMatrix, projectionMatrix);
                 ifFileSupport = false;
             }
         }
@@ -386,6 +397,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         if (fileType == FileType.V3draw || fileType == FileType.TIF)
             myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, screen_w, screen_h, texture[0]);
+
+        if (fileType == FileType.JPG || fileType == FileType.PNG)
+            myPattern2D.draw();
 
 //        Log.v("onDrawFrame: ", Integer.toString(markerDrawed.size()));
 
@@ -755,6 +769,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             ifFileSupport = true;
         }
 
+        else if (fileType == FileType.PNG || fileType == FileType.JPG){
+            loadImage2D();
+            ifFileSupport = true;
+        }
 //        curSwcList.clear();
 //        MarkerList.clear();
 
@@ -770,6 +788,60 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
+    private void loadImage2D(){
+        File file = new File(filepath);
+        long length = 0;
+        InputStream is = null;
+        if (file.exists()){
+            try {
+                length = file.length();
+                is = new FileInputStream(file);
+//                grayscale =  rr.run(length, is);
+
+
+                Log.v("getIntensity_3d", filepath);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        else {
+            Uri uri = Uri.parse(filepath);
+
+            try {
+                ParcelFileDescriptor parcelFileDescriptor =
+                        getContext().getContentResolver().openFileDescriptor(uri, "r");
+
+                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+
+                length = (int)parcelFileDescriptor.getStatSize();
+
+                Log.v("MyPattern","Successfully load intensity");
+
+            }catch (Exception e){
+                Log.v("MyPattern","Some problems in the MyPattern when load intensity");
+            }
+
+
+        }
+        bitmap2D = BitmapFactory.decodeStream(is);
+//        ByteArrayOutputStream st = new ByteArrayOutputStream();
+        if (bitmap2D != null){
+//            ByteArrayOutputStream outputStream = new ByteArrayOutputStream(bitmap.getByteCount());
+            sz[0] = bitmap2D.getWidth();
+            sz[1] = bitmap2D.getHeight();
+            sz[2] = 1;
+//            if (fileType == FileType.PNG){
+//                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+//                image2D = outputStream.toByteArray();
+//            } else if (fileType == FileType.JPG){
+//                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+//
+//                image2D = outputStream.toByteArray();
+//            }
+        }
+    }
 
     private void SetFileType(){
 
@@ -796,6 +868,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             case ".TIF":
             case ".TIFF":
                 fileType = FileType.TIF;
+                break;
+
+            case ".JPEG":
+            case ".JPG":
+                fileType = FileType.JPG;
+                break;
+
+            case ".PNG":
+                fileType = FileType.PNG;
                 break;
 
             case "fail to read file":
