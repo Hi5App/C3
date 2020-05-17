@@ -147,12 +147,12 @@ public class MainActivity extends AppCompatActivity {
     private Button Share;
 
     private Button PixelClassification;
-    private boolean[][] select = {{true, true, true, true, true, true, true},
-            {true, true, true, true, true, true, true},
-            {false, false, false, false, false, false, false},
-            {false, false, false, false, false, false, false},
-            {false, false, false, false, false, false, false},
-            {true, true, true, true, true, true, true}};
+    private boolean[][]select= {{true,true,true,false,false,false,false},
+    {true,true,true,false,false,false,false},
+    {false,false,false,false,false,false,false},
+    {false,false,false,false,false,false,false},
+    {false,false,false,false,false,false,false},
+    {true,true,true,false,false,false,false}};
 
 
     private RemoteImg remoteImg;
@@ -1669,7 +1669,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 202005016i 23:15buit",
+                .asConfirm("Version", "version: 202005017b ZX",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
