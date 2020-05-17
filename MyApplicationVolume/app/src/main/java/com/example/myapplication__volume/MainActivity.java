@@ -30,6 +30,8 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,6 +52,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
 import com.example.basic.FileManager;
@@ -138,17 +141,18 @@ public class MainActivity extends AppCompatActivity {
     private Button Zoom_out;
     private Button Rotation;
     private ImageButton Rotation_i;
+    private ImageButton Sync_i;
     private Button Sync;
     private Button Switch;
     private Button Share;
 
     private Button PixelClassification;
-    private boolean[][]select= {{true,true,true,true,true,true,true},
-    {true,true,true,true,true,true,true},
-    {false,false,false,false,false,false,false},
-    {false,false,false,false,false,false,false},
-    {false,false,false,false,false,false,false},
-    {true,true,true,true,true,true,true}};
+    private boolean[][] select = {{true, true, true, true, true, true, true},
+            {true, true, true, true, true, true, true},
+            {false, false, false, false, false, false, false},
+            {false, false, false, false, false, false, false},
+            {false, false, false, false, false, false, false},
+            {true, true, true, true, true, true, true}};
 
 
     private RemoteImg remoteImg;
@@ -161,7 +165,6 @@ public class MainActivity extends AppCompatActivity {
 
     private int measure_count = 0;
     private List<double[]> fl;
-
 
 
     private int eswc_length;
@@ -182,14 +185,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 
-
-
+//
         //接受从fileactivity传递过来的文件路径
         Intent intent1 = getIntent();
         String filepath = intent1.getStringExtra(MyRenderer.FILE_PATH);
 
         myrenderer = new MyRenderer();
-        if (filepath != null){
+        if (filepath != null) {
             myrenderer.SetPath(filepath);
             System.out.println("------" + filepath + "------");
         }
@@ -208,50 +210,27 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, Timeout, Toast.LENGTH_SHORT).show();
 
 
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-//        Toast.makeText(this,"Filepath: " + filepath, Toast.LENGTH_SHORT).show();
-
-//        Uri uri = Uri.parse((String) filepath);
-//
-//        try {
-//            ParcelFileDescriptor parcelFileDescriptor =
-//                    getContentResolver().openFileDescriptor(uri, "r");
-//
-//            is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-//
-//            length = (int)parcelFileDescriptor.getStatSize();
-//            myrenderer.setInputStream(is);
-//            myrenderer.setLength(length);
-//
-//        }catch (Exception e){
-//            Log.v("MainActivity","Some problems in the MainActivity");
-//        }
+        myGLSurfaceView = new MyGLSurfaceView(this);
+        FrameLayout ll = (FrameLayout) findViewById(R.id.container);
+        ll.addView(myGLSurfaceView);
 
 
 //        Log.v("filepath-mainactivity", filepath);
 
-        myGLSurfaceView = new MyGLSurfaceView(this);
-        setContentView(myGLSurfaceView);
+//        setContentView(myGLSurfaceView);
 //        setContentView(R.layout.activity_main);
 
-//        Toolbar  mToolbar = (Toolbar) findViewById(R.id.topAppBar);
-//        mToolbar.setTitle(R.string.app_name);
-//        setSupportActionBar(findViewById(R.id.topAppBar));
-//        BottomAppBar bar = (BottomAppBar) findViewById(R.id.bottombar);
-//        setSupportActionBar(bar);
-
-//        FrameLayout ll = (FrameLayout) findViewById (R.id.fl);
-//        ll.addView(myGLSurfaceView);
-
-//        CoordinatorLayout l = (CoordinatorLayout) findViewById(R.layout.activity_main);
 //
         ll_top = new LinearLayout(this);
         ll_bottom = new LinearLayout(this);
 
         HorizontalScrollView hs_top = new HorizontalScrollView(this);
-//        ScrollView hs_bottom = new ScrollView(this);
 
-        this.addContentView(hs_top, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        ll.addView(hs_top, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(1080, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.gravity = Gravity.BOTTOM;
@@ -349,7 +328,7 @@ public class MainActivity extends AppCompatActivity {
 
         FrameLayout.LayoutParams lp_rotation = new FrameLayout.LayoutParams(120, 120);
         lp_rotation.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_rotation.setMargins(0,0,15,15);
+        lp_rotation.setMargins(0, 0, 20, 20);
 
         Rotation_i = new ImageButton(this);
         Rotation_i.setImageResource(R.drawable.ic_3d_rotation_red_24dp);
@@ -370,9 +349,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
-
-
         Others = new Button(this);
         Others.setText("Config");
         ll_bottom.addView(Others);
@@ -386,6 +362,12 @@ public class MainActivity extends AppCompatActivity {
         Sync = new Button(this);
         Sync.setText("Share");
         ll_bottom.addView(Sync);
+
+//        FrameLayout.LayoutParams lp_share = new FrameLayout.LayoutParams(120, 120);
+
+//        Sync_i = new ImageButton(this);
+//        Sync_i.setImageResource(R.drawable.ic_share_black_24dp);
+//        ll_bottom.addView(Sync_i);
 
         Sync.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
@@ -402,59 +384,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        Share = new Button(this);
-//        Share.setText("Share");
-//        ll_bottom.addView(Share);
-//
-//        Share.setOnClickListener(new Button.OnClickListener(){
-//            @Override
-//            public void onClick(final View v) {
-//                myrenderer.setTakePic(true);
-//                myGLSurfaceView.requestRender();
-//                final String[] imgPath = new String[1];
-//                final boolean[] isGet = {false};
-//
-//                Timer timer = new Timer();
-//                timer.schedule(new TimerTask() {
-//                    @RequiresApi(api = Build.VERSION_CODES.N)
-//                    @Override
-//                    public void run() {
-//
-//                        try {
-//
-//                            Looper.prepare();
-//
-//                            imgPath[0] = myrenderer.getmCapturePath();
-//                            myrenderer.resetCapturePath();
-//
-//                            if (imgPath[0] !=  null)
-//                                Toast.makeText(v.getContext(), "save img to "+ imgPath[0], Toast.LENGTH_SHORT).show();
-//                            else
-//                                Toast.makeText(v.getContext(), "Fail to Screenshot", Toast.LENGTH_SHORT).show();
-//
-//                            isGet[0] = true;
-//                            Looper.loop();
-//
-//                        } catch (Exception e) {
-//                            e.printStackTrace();
-//                        }
-//
-//                    }
-//                },3000); // 延时3秒
-//
-//                while (imgPath[0] == null && !isGet[0])
-//                    System.out.println("null");
-//
-//                if (imgPath[0] != null){
-//                    Intent shareIntent = new Intent();
-//                    shareIntent.setAction(Intent.ACTION_SEND);
-//                    shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imgPath[0]));
-//                    shareIntent.setType("image/jpeg");
-//                    startActivity(Intent.createChooser(shareIntent, "share"));
-//                }
-//            }
-//        });
-
 
         buttonAnimation = new Button(this);
         buttonAnimation.setText("Animation");
@@ -468,10 +397,10 @@ public class MainActivity extends AppCompatActivity {
         buttonUndo = new Button(this);
         buttonUndo.setText("Undo");
 
-        buttonUndo.setOnClickListener(new Button.OnClickListener(){
+        buttonUndo.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 boolean undoSuccess = myrenderer.undo();
-                if (!undoSuccess){
+                if (!undoSuccess) {
                     Toast.makeText(context, "nothing to undo", Toast.LENGTH_SHORT).show();
                 }
                 myGLSurfaceView.requestRender();
@@ -489,7 +418,32 @@ public class MainActivity extends AppCompatActivity {
         context = getApplicationContext();
 
 
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.extension:
+                Other(item.getActionView());
+                return true;
+            case R.id.share:
+                Sync(item.getActionView());
+                return true;
+            case R.id.version:
+                Version();
+                return true;
+            default:
+                return true;
+//                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -678,15 +632,14 @@ public class MainActivity extends AppCompatActivity {
 //                    if (features.size() != 0) displayResult(features);
 //                    else Toast.makeText(getContext(), "the file is empty", Toast.LENGTH_SHORT).show();
 
-                    if (features != null){
+                    if (features != null) {
                         fl = new ArrayList<double[]>(features);
                         displayResult(features);
                     }
                 }
 
 
-
-                if (ifUpload){
+                if (ifUpload) {
 
                     ParcelFileDescriptor parcelFileDescriptor =
                             getContentResolver().openFileDescriptor(uri, "r");
@@ -702,7 +655,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }
 
-                if (ifLoadLocal){
+                if (ifLoadLocal) {
                     myrenderer.SetPath(filePath);
                     ifLoadLocal = false;
                 }
@@ -712,7 +665,7 @@ public class MainActivity extends AppCompatActivity {
 //                    ifRemote = false;
 //                }
 
-                if (ifDownloadByHttp){
+                if (ifDownloadByHttp) {
                     myrenderer.SetPath(filePath);
                     ifDownloadByHttp = false;
                 }
@@ -761,36 +714,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-    private void SendSwc(String ip, Context context, InputStream is, long length, String filename){
+    private void SendSwc(String ip, Context context, InputStream is, long length, String filename) {
         //新建一个线程，用于初始化socket和检测是否有接收到新的消息
         Thread thread = new Thread() {
             @Override
             public void run() {
 
-                if(Looper.myLooper() == null){
+                if (Looper.myLooper() == null) {
                     Looper.prepare();
                 }
                 Log.v("SendSwc", "here we are");
 
                 try {
                     remoteImg.ip = ip;
-                    if (!remoteImg.isSocketSet){
-                        Log.v("SendSwc","connext socket");
+                    if (!remoteImg.isSocketSet) {
+                        Log.v("SendSwc", "connext socket");
                         remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
                         remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
                         remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
                     }
 
 
-                    if(remoteImg.ImgSocket.isConnected()){
+                    if (remoteImg.ImgSocket.isConnected()) {
 
                         remoteImg.isSocketSet = true;
                         Toast.makeText(context, "Start to upload!!!", Toast.LENGTH_SHORT).show();
                         if (!remoteImg.isOutputShutdown()) {
                             Log.v("SendSwc: ", "Connect with Server successfully");
-                            remoteImg.ImgPWriter.println( "connect for android client" + ":import.");
+                            remoteImg.ImgPWriter.println("connect for android client" + ":import.");
                             remoteImg.ImgPWriter.flush();
 
 
@@ -831,7 +782,7 @@ public class MainActivity extends AppCompatActivity {
 
                                         Log.v("before filesocket_send:", "Connect with Server successfully");
 
-                                        if (filesocket_send.filesocket.isConnected()){
+                                        if (filesocket_send.filesocket.isConnected()) {
 
                                             Context[] contexts = new Context[1];
                                             contexts[0] = context;
@@ -842,13 +793,12 @@ public class MainActivity extends AppCompatActivity {
 //                                            Looper.loop();
 
                                         }
-                                    }catch (Exception e){
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
 
                                 }
-                            },1000);  //延迟10秒执行
-
+                            }, 1000);  //延迟10秒执行
 
 
                             Looper.loop();
@@ -856,8 +806,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
 
-
-                    }else {
+                    } else {
                         Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
                         Looper.loop();
                     }
@@ -874,18 +823,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void DownloadSwc(String ip, Context context){
+    public void DownloadSwc(String ip, Context context) {
         Thread thread = new Thread() {
             @Override
             public void run() {
 
-                if(Looper.myLooper() == null){
+                if (Looper.myLooper() == null) {
                     Looper.prepare();
                 }
 
                 try {
                     remoteImg.ip = ip;
-                    if (!remoteImg.isSocketSet){
+                    if (!remoteImg.isSocketSet) {
 
                         Log.v("DownloadSwc: ", "Connect server");
 
@@ -896,20 +845,20 @@ public class MainActivity extends AppCompatActivity {
 
                     Log.v("DownloadSwc: ", "here we are 2");
 
-                    if(remoteImg.ImgSocket.isConnected()){
+                    if (remoteImg.ImgSocket.isConnected()) {
                         remoteImg.isSocketSet = true;
                         Log.v("DownloadSwc: ", "Connect with Server successfully");
                         Toast.makeText(getContext(), "Connect with Server successfully", Toast.LENGTH_SHORT).show();
-                        remoteImg.ImgPWriter.println( "connect from android client" + ":down.");
+                        remoteImg.ImgPWriter.println("connect from android client" + ":down.");
                         remoteImg.ImgPWriter.flush();
 
-                    }else {
+                    } else {
                         Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
                     }
 
                     //接收来自服务器的消息
-                    while(remoteImg.ImgSocket.isConnected()) {
-                        if(!remoteImg.ImgSocket.isInputShutdown()) {
+                    while (remoteImg.ImgSocket.isConnected()) {
+                        if (!remoteImg.ImgSocket.isInputShutdown()) {
                         /*读取一行字符串，读取的内容来自于客户机
                         reader.readLine()方法是一个阻塞方法，
                         从调用这个方法开始，该线程会一直处于阻塞状态，
@@ -917,7 +866,7 @@ public class MainActivity extends AppCompatActivity {
                             String content = "";
                             while ((content = remoteImg.ImgReader.readLine()) != null) {
                                 Log.v("---------Image------:", content);
-                                if (!((Activity) context).isFinishing()){
+                                if (!((Activity) context).isFinishing()) {
                                     Log.v("Download SWC file: ", content);
                                     remoteImg.onReadyRead(content, context);
                                     Looper.loop();
@@ -942,11 +891,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-     private void ConnectServer(){
+    private void ConnectServer() {
 
-     }
+    }
 
-   /**
+    /**
      * function for the FileManager button
      *
      * @param v the button: FileManager
@@ -955,7 +904,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
                 .atView(v)
 
-                .asAttachList(new String[]{ "Open Local file", "Open Remote file", "Load SWC file" , "Camera"},
+                .asAttachList(new String[]{"Open Local file", "Open Remote file", "Load SWC file", "Camera"},
 
                         new int[]{},
                         new OnSelectListener() {
@@ -972,13 +921,26 @@ public class MainActivity extends AppCompatActivity {
                                         remote(v);
                                         break;
                                     case "Camera":
-
+//                                        Camera();
+                                        break;
                                 }
 
                             }
                         })
                 .show();
     }
+
+
+//    private void Camera() {
+//        Intent captureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//        // 判断是否有相机
+//        if (captureIntent.resolveActivity(getPackageManager()) != null) {
+//            File photoFile = null;
+//            Uri photoUri = null;
+//
+//            startActivityForResult(captureIntent, CAMERA_REQUEST_CODE);
+//    }
+
 
     private void downloadFile(){
         ifDownloadByHttp = true;

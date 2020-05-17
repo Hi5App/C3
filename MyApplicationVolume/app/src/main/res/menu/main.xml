@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<!--    <item-->
+<!--        android:id="@+id/action_setting1"-->
+<!--        android:orderInCategory="1"-->
+<!--        android:title="tools"-->
+<!--        app:showAsAction="always"-->
+<!--        android:icon="@drawable/ic_folder_black_24dp"/>-->
+
+    <item
+        android:id="@+id/extension"
+        android:orderInCategory="2"
+        android:title="_settings"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_folder_black_24dp"/>
+    <item
+        android:id="@+id/share"
+        android:orderInCategory="3"
+        android:title="_settings"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_share_black_24dp"/>
+    <item
+        android:id="@+id/version"
+        android:orderInCategory="4"
+        android:title="Version"
+        app:showAsAction="never" />
+
+</menu>

@@ -3,6 +3,22 @@
     <!-- Base application theme. -->
 <!--    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">-->
 <!--    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">-->
+
+<!--    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">-->
+<!--        &lt;!&ndash; Customize your theme here. &ndash;&gt;-->
+<!--        <item name="colorPrimary">@color/colorMid_yellow</item>-->
+<!--        <item name="colorPrimaryDark">@color/colorDark_yellow</item>-->
+<!--        <item name="colorAccent">@color/colorAccent</item>-->
+<!--    </style>-->
+
+<!--    &lt;!&ndash;Toolbar主题的设置,Application使用的是这个主题&ndash;&gt;-->
+<!--    <style name="BaseTheme" parent="Theme.AppCompat.Light.NoActionBar">-->
+<!--    <item name="windowActionBar">false</item>-->
+<!--    <item name="windowNoTitle">true</item>-->
+<!--    </style>-->
+
+
+    <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorMid_yellow</item>
@@ -10,11 +26,13 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <!--Toolbar主题的设置,Application使用的是这个主题-->
-    <style name="BaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
-    <item name="windowActionBar">false</item>
-    <item name="windowNoTitle">true</item>
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 </resources>
