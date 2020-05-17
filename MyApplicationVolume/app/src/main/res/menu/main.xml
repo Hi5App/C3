@@ -9,7 +9,7 @@
 <!--        android:icon="@drawable/ic_folder_black_24dp"/>-->
 
     <item
-        android:id="@+id/extension"
+        android:id="@+id/file"
         android:orderInCategory="2"
         android:title="_settings"
         app:showAsAction="always"
@@ -20,6 +20,19 @@
         android:title="_settings"
         app:showAsAction="always"
         android:icon="@drawable/ic_share_black_24dp"/>
+
+    <item
+        android:id="@+id/analyze"
+        android:orderInCategory="4"
+        android:title="Analyze"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/animate"
+        android:orderInCategory="4"
+        android:title="Animate"
+        app:showAsAction="never" />
+
     <item
         android:id="@+id/version"
         android:orderInCategory="4"

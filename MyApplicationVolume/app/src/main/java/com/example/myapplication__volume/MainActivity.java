@@ -349,31 +349,35 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        Others = new Button(this);
-        Others.setText("Config");
-        ll_bottom.addView(Others);
 
-        Others.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                Other(v);
-            }
-        });
 
-        Sync = new Button(this);
-        Sync.setText("Share");
-        ll_bottom.addView(Sync);
+//        Others = new Button(this);
+//        Others.setText("Config");
+//        ll_bottom.addView(Others);
+//
+//        Others.setOnClickListener(new Button.OnClickListener() {
+//            public void onClick(View v) {
+//                Other(v);
+//            }
+//        });
+//
+//        Sync = new Button(this);
+//        Sync.setText("Share");
+//        ll_bottom.addView(Sync);
+//
+////        FrameLayout.LayoutParams lp_share = new FrameLayout.LayoutParams(120, 120);
+//
+////        Sync_i = new ImageButton(this);
+////        Sync_i.setImageResource(R.drawable.ic_share_black_24dp);
+////        ll_bottom.addView(Sync_i);
+//
+//        Sync.setOnClickListener(new Button.OnClickListener() {
+//            public void onClick(View v) {
+//                Sync(v);
+//            }
+//        });
 
-//        FrameLayout.LayoutParams lp_share = new FrameLayout.LayoutParams(120, 120);
 
-//        Sync_i = new ImageButton(this);
-//        Sync_i.setImageResource(R.drawable.ic_share_black_24dp);
-//        ll_bottom.addView(Sync_i);
-
-        Sync.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                Sync(v);
-            }
-        });
 
         Switch = new Button(this);
         Switch.setText("Pause");
@@ -431,19 +435,62 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-            case R.id.extension:
-                Other(item.getActionView());
+            case R.id.file:
+//                Other(item.getActionView());
                 return true;
             case R.id.share:
-                Sync(item.getActionView());
+                Share_icon();
                 return true;
             case R.id.version:
                 Version();
+                return true;
+            case R.id.analyze:
+                Analyse();
+                return true;
+            case R.id.animate:
+                ifPainting = false;
+                ifPoint = false;
+                ifDeletingMarker = false;
+                ifDeletingLine = false;
+                SetAnimation();
                 return true;
             default:
                 return true;
 //                return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void Share_icon(){
+
+        new XPopup.Builder(this)
+//        .maxWidth(400)
+//        .maxHeight(1350)
+                .asCenterList("Share & Cloud server", new String[]{"Screenshot share", "Upload SWC", "Download SWC"},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text) {
+                                    case "Screenshot share":
+                                        Share();
+                                        break;
+
+                                    case "Upload SWC":
+                                        UploadSWC();
+                                        break;
+
+                                    case "Download SWC":
+                                        DownloadSWC();
+                                        break;
+
+                                    default:
+//                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "Default in share", Toast.LENGTH_SHORT).show();
+
+                                }
+                            }
+                        })
+                .show();
+
     }
 
     @Override
@@ -1350,7 +1397,7 @@ public class MainActivity extends AppCompatActivity {
                                         break;
 
                                     case "Share":
-                                        Share(v);
+                                        Share();
                                         break;
 
                                     case "Version":
@@ -1465,7 +1512,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void Share(View v) {
+    private void Share() {
         myrenderer.setTakePic(true);
         myGLSurfaceView.requestRender();
         final String[] imgPath = new String[1];
@@ -1489,7 +1536,7 @@ public class MainActivity extends AppCompatActivity {
 //                        Toast.makeText(v.getContext(), "save screenshot to " + imgPath[0], Toast.LENGTH_SHORT).show();
                         Log.v("Share","save screenshot to " + imgPath[0]);
                     else
-                        Toast.makeText(v.getContext(), "Fail to screenshot", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Fail to screenshot", Toast.LENGTH_SHORT).show();
 
                     isGet[0] = true;
                     Looper.loop();
@@ -1669,7 +1716,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 202005017c ZYH",
+                .asConfirm("Version", "version: 202005017d 16:55 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
