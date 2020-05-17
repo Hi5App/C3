@@ -65,7 +65,7 @@ public class MyPattern2D {
     private FloatBuffer bPos;
     private FloatBuffer bCoord;
 
-    public MyPattern2D(Bitmap bitmap, int w, int h, float [] mViewMatrix, float [] mProjectionMatrix){
+    public MyPattern2D(Bitmap bitmap, int w, int h){
         width = w;
         height = h;
 
@@ -73,7 +73,7 @@ public class MyPattern2D {
 
         mProgram = initProgram(vertexShaderCode, fragmentShaderCode);
 
-        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
+
 
         createTexture();
     }
@@ -168,7 +168,9 @@ public class MyPattern2D {
 
     }
 
-    public void draw(){
+    public void draw(float [] vMatrix){
+        mMVPMatrix = vMatrix;
+
         GLES20.glUseProgram(mProgram);
 
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0); //设置使用的纹理编号

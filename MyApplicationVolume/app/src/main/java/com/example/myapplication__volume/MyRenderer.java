@@ -111,6 +111,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private final float[] modelMatrix = new float[16];
     private final float[] RTMatrix = new float[16];
     private final float[] ZRTMatrix = new float[16];
+    private final float[] mMVP2DMatrix = new float[16];
     private float[] ArotationMatrix = new float[16];
 
 
@@ -288,7 +289,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 if (fileType == FileType.V3draw || fileType == FileType.TIF)
                     myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
                 if (fileType == FileType.PNG || fileType == FileType.JPG)
-                    myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], viewMatrix, projectionMatrix);
+                    myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1]);
                 ifFileSupport = false;
             }
         }
@@ -397,7 +398,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, screen_w, screen_h, texture[0]);
 
         if (fileType == FileType.JPG || fileType == FileType.PNG)
-            myPattern2D.draw();
+            myPattern2D.draw(mMVP2DMatrix);
 
 //        Log.v("onDrawFrame: ", Integer.toString(markerDrawed.size()));
 
@@ -628,6 +629,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         // Calculate the projection and view transformation
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
 
+        Matrix.multiplyMM(mMVP2DMatrix, 0, vPMatrix, 0, zoomMatrix, 0);
         // Set the Rotation matrix
 //        Matrix.setRotateM(rotationMatrix, 0, angle, 0.0f, 1.0f, 0.0f);
 //        Matrix.setRotateM(rotationXMatrix, 0, angleX, 1.0f, 0.0f, 0.0f);
