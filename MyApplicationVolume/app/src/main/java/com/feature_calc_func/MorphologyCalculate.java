@@ -95,7 +95,7 @@ public class MorphologyCalculate {
                     childs.get(nt.hashNeuron.get(par.intValue())).addElement(i);
                 } catch (NullPointerException e) {
                     System.out.println("redundant root: " + par);
-                    nt.listNeuron.get(i).parent = -1;
+//                    nt.listNeuron.get(i).parent = -1;
                     count += 1;
                 }
             }
@@ -566,7 +566,6 @@ public class MorphologyCalculate {
         readSWC_file_nt reader = new readSWC_file_nt();
         MorphologyCalculate MC = new MorphologyCalculate();
         //test data
-//        NeuronTree nt = reader.readSWC_file("F:\\XiScience\\SEU\\bishe\\L2_data\\17302_00001.ano.swc");
         NeuronTree nt = reader.readSWC_file(uri);
         if (nt == null) return null;
 
