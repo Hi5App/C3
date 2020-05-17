@@ -1716,7 +1716,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 202005017d 16:55 build",
+                .asConfirm("Version", "version: 202005017e 22:39 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
