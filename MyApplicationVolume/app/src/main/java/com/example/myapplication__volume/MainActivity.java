@@ -471,7 +471,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onSelect(int position, String text) {
                                 switch (text) {
                                     case "Screenshot share":
-                                        Share();
+                                        ShareScreenShot();
                                         break;
 
                                     case "Upload SWC":
@@ -1378,7 +1378,7 @@ public class MainActivity extends AppCompatActivity {
     private void Other(final View v) {
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"Analyze", "Animate", "Share", "Version"},
+                .asAttachList(new String[]{"Analyze", "Animate", "Screenshot", "Version"},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -1396,8 +1396,8 @@ public class MainActivity extends AppCompatActivity {
                                         SetAnimation();
                                         break;
 
-                                    case "Share":
-                                        Share();
+                                    case "Screenshot":
+                                        ShareScreenShot();
                                         break;
 
                                     case "Version":
@@ -1512,7 +1512,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void Share() {
+    private void ShareScreenShot() {
         myrenderer.setTakePic(true);
         myGLSurfaceView.requestRender();
         final String[] imgPath = new String[1];
@@ -1533,22 +1533,22 @@ public class MainActivity extends AppCompatActivity {
                     myrenderer.resetCapturePath();
 
                     if (imgPath[0] != null)
-//                        Toast.makeText(v.getContext(), "save screenshot to " + imgPath[0], Toast.LENGTH_SHORT).show();
+                    {
+                        // Toast.makeText(v.getContext(), "save screenshot to " + imgPath[0], Toast.LENGTH_SHORT).show();
                         Log.v("Share","save screenshot to " + imgPath[0]);
+                        isGet[0] = true;
+                        Looper.loop();
+                    }
                     else
                         Toast.makeText(getContext(), "Fail to screenshot", Toast.LENGTH_SHORT).show();
-
-                    isGet[0] = true;
-                    Looper.loop();
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
             }
-        }, 2000); // 延时2秒
+        }, 100); // 延时0.1秒 //change from 2000 by HP
 
-        while (imgPath[0] == null && !isGet[0]);
+//        while (imgPath[0] == null && !isGet[0]); //why  this?? by HP
 //            System.out.println("null");
 
         if (imgPath[0] != null) {
