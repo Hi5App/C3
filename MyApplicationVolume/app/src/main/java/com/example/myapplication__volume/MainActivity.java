@@ -93,6 +93,7 @@ import java.util.Vector;
 
 import cn.carbs.android.library.MDDialog;
 
+import static java.lang.Math.abs;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
@@ -1418,7 +1419,7 @@ public class MainActivity extends AppCompatActivity {
     private void PixelClassification(final View v) {
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"Run", "For Developer..."},
+                .asAttachList(new String[]{"Run", "For Developer...","Anisotropic Filter"},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -1434,6 +1435,10 @@ public class MainActivity extends AppCompatActivity {
                                         Learning();
                                         break;
 
+                                    case "Anisotropic Filter":
+                                        //调用各向异性滤波，显示滤波结果
+                                        AnisotropicFilter();
+                                        break;
                                 }
                             }
                         })
@@ -2764,6 +2769,106 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    private void AnisotropicFilter(){
+
+        //获取当前显示图像
+        Image4DSimple img = myrenderer.getImg();
+
+        //调用anisotropy功能函数处理图像
+        img = anisotropy_demo(img);
+
+        //处理结果输出
+        if (img == null) {
+            //显示滤波失败
+            Toast.makeText(context, "Fail to anisotropic filtering.", Toast.LENGTH_SHORT).show();
+        }else {
+            //输出滤波结果
+            Toast.makeText(context, "Filtering succussfully.", Toast.LENGTH_SHORT).show();
+            myrenderer.ResetImg(img);
+            myGLSurfaceView.requestRender();
+            Toast.makeText(context, "Have been shown on the screen.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private Image4DSimple anisotropy_demo(Image4DSimple img) {
+
+        int width = (int)img.getSz0();
+        int height = (int)img.getSz1();
+        int depth = (int)img.getSz2();
+        int channel = (int)img.getSz3();
+        int[][][][] image = img.getDataCZYX();
+        float[][][][] result = new float[channel][width][height][depth];
+        float imax = 0;
+
+        //滤波参数
+        float k = 15;
+        float lambda = 0.25f;
+        int N = 30;
+
+        // 六邻域梯度
+        float n = 0, s = 0, e = 0, w = 0, u = 0, d = 0;
+        // 六邻域系数
+        float nc = 0, sc = 0, ec = 0, wc = 0, uc = 0, dc = 0;
+        float k2 = k*k;
+        //不同通道间不进行各向异性滤波
+        for (int i = 0; i < N; i++) {
+            System.out.println("i = "+i);
+            for (int chl = 0; chl < channel; chl++) {
+                for (int row = 1; row < height -1; row++) {
+                    for (int col = 1; col < width -1; col++) {
+                        for (int dep = 1; dep < depth -1; dep++) {
+                            // 梯度
+                            n = image[chl][dep][row - 1][col] - image[chl][dep][row][col];
+                            s = image[chl][dep][row + 1][col] - image[chl][dep][row][col];
+                            e = image[chl][dep][row][col - 1] - image[chl][dep][row][col];
+                            w = image[chl][dep][row][col + 1] - image[chl][dep][row][col];
+                            u = image[chl][dep + 1][row][col] - image[chl][dep][row][col];
+                            d = image[chl][dep - 1][row][col] - image[chl][dep][row][col];
+                            nc = (float)Math.pow(Math.E, -n*n / k2);
+                            sc = (float)Math.pow(Math.E, -s*s / k2);
+                            ec = (float)Math.pow(Math.E, -e*e / k2);
+                            wc = (float)Math.pow(Math.E, -w*w / k2);
+                            uc = (float)Math.pow(Math.E, -u*u / k2);
+                            dc = (float)Math.pow(Math.E, -d*d / k2);
+
+                            if (i == 0) {
+                                result[chl][dep][row][col] = image[chl][dep][row][col] + (lambda*(n*nc + s*sc + e*ec + w*wc + u*uc +d*dc));
+                            } else {
+                                result[chl][dep][row][col] = result[chl][dep][row][col] + (lambda*(n*nc + s*sc + e*ec + w*wc + u*uc +d*dc));
+                            }
+
+
+                            if ((i == (N-1)) && (abs(result[chl][dep][row][col]) > imax)) {
+                                imax = result[chl][dep][row][col];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        //System.out.println("imax = "+imax);
+
+        //灰度区间调整，0-255
+        for (int chl = 0; chl < channel; chl++) {
+            for (int row = 1; row < height - 1; row++) {
+                for (int col = 1; col < width - 1; col++) {
+                    for (int dep = 1; dep < depth - 1; dep++) {
+                        image[chl][dep][row][col] = (int)(result[chl][dep][row][col] / imax * 255);
+                    }
+                }
+            }
+        }
+
+        boolean bool = img.setDataFormCZYX(image,img.getSz0(),img.getSz1(),img.getSz2(),img.getSz3(),img.getDatatype(),img.getIsBig());
+
+        if (bool == false){
+            img = null;
+        }
+        return img;
+    }
+
+
 
     public void FeatureSet(){
 
