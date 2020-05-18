@@ -4,4 +4,7 @@
     <external-path
         name="external-path"
         path="." />
+    <external-path
+        path="Pictures"
+        name="my_images" />
 </paths>
