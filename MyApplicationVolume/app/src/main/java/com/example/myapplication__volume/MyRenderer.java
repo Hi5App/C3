@@ -208,7 +208,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Matrix.setIdentityM(zoomMatrix,0);//建立单位矩阵
         Matrix.setIdentityM(zoomAfterMatrix, 0);
         Matrix.setIdentityM(rotationMatrix, 0);
-        Matrix.setRotateM(rotationMatrix, 0, 20, -1.0f, -1.0f, 0.0f);
+        Matrix.setRotateM(rotationMatrix, 0, 0, -1.0f, -1.0f, 0.0f);
 //        Matrix.setIdentityM(translateAfterMatrix, 0);
         // Set the camera position (View matrix)
         Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
@@ -226,9 +226,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         if (fileType == FileType.V3draw || fileType == FileType.TIF)
             myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
+        if (fileType == FileType.PNG || fileType == FileType.JPG)
+            myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
 
         if (ifFileSupport){
-            myAxis = new MyAxis(mz);
+            if (fileType == FileType.TIF || fileType == FileType.V3draw) {
+                myAxis = new MyAxis(mz);
+            }
             myDraw = new MyDraw();
             myAnimation = new MyAnimation();
         }
@@ -292,7 +296,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 if (fileType == FileType.V3draw || fileType == FileType.TIF)
                     myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
                 if (fileType == FileType.PNG || fileType == FileType.JPG)
-                    myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1]);
+                    myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
                 ifFileSupport = false;
             }
         }
@@ -401,7 +405,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, screen_w, screen_h, texture[0]);
 
         if (fileType == FileType.JPG || fileType == FileType.PNG)
-            myPattern2D.draw(mMVP2DMatrix);
+            myPattern2D.draw(finalMatrix);
 
 //        Log.v("onDrawFrame: ", Integer.toString(markerDrawed.size()));
 
@@ -795,6 +799,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     //设置文件路径
     public void SetPath(String message){
 
+        cur_scale = 1.0f;
         filepath = message;
         SetFileType();
 
@@ -874,6 +879,16 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             sz[0] = bitmap2D.getWidth();
             sz[1] = bitmap2D.getHeight();
             sz[2] = 1;
+
+            Integer[] num = {sz[0], sz[1]};
+            float max_dim = (float) Collections.max(Arrays.asList(num));
+            Log.v("MyRenderer", Float.toString(max_dim));
+
+            mz[0] = (float) sz[0]/max_dim;
+            mz[1] = (float) sz[1]/max_dim;
+            mz[2] = Math.max(mz[0], mz[1]);
+
+            zoom(16.0f);
 //            if (fileType == FileType.PNG){
 //                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
 //                image2D = outputStream.toByteArray();

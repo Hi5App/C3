@@ -38,13 +38,14 @@ public class MyPattern2D {
                     "   fragColor = texture(vTexture, aCoordinate);" +
                     "}";
 
-    private final float[] sPos={
-            -1.0f,1.0f,    //左上角
-            -1.0f,-1.0f,   //左下角
-            1.0f,1.0f,     //右上角
-            1.0f,-1.0f     //右下角
-    };
+//    private final float[] sPos={
+//            -1.0f,1.0f,    //左上角
+//            -1.0f,-1.0f,   //左下角
+//            1.0f,1.0f,     //右上角
+//            1.0f,-1.0f     //右下角
+//    };
 
+    private float[] sPos = new float[12];
     private final float[] sCoord={
             0.0f,0.0f,
             0.0f,1.0f,
@@ -59,13 +60,14 @@ public class MyPattern2D {
     private final int mProgram;
 
     private float[] mMVPMatrix = new float[16];
+    private float[] mz = new float[3];
 
     private int[] texture=new int[1];
 
     private FloatBuffer bPos;
     private FloatBuffer bCoord;
 
-    public MyPattern2D(Bitmap bitmap, int w, int h){
+    public MyPattern2D(Bitmap bitmap, int w, int h, float [] vmz){
         width = w;
         height = h;
 
@@ -73,7 +75,7 @@ public class MyPattern2D {
 
         mProgram = initProgram(vertexShaderCode, fragmentShaderCode);
 
-
+        mz = vmz;
 
         createTexture();
     }
@@ -192,7 +194,7 @@ public class MyPattern2D {
         setBuffer();
 
         //传入顶点坐标
-        GLES20.glVertexAttribPointer(glHPosition, 2, GLES20.GL_FLOAT, false, 0, bPos);
+        GLES20.glVertexAttribPointer(glHPosition, 3, GLES20.GL_FLOAT, false, 0, bPos);
         //传入纹理坐标
         GLES20.glVertexAttribPointer(glHCoordinate, 2, GLES20.GL_FLOAT, false, 0, bCoord);
 
@@ -201,6 +203,12 @@ public class MyPattern2D {
     }
 
     void setBuffer(){
+        sPos = new float[]{
+                mz[0], mz[1], mz[2] / 2,
+                mz[0], 0, mz[2] / 2,
+                0, mz[1], mz[2] / 2,
+                0, 0, mz[2] / 2
+        };
         //分配内存空间,每个浮点型占4字节空间
         bPos = ByteBuffer.allocateDirect(sPos.length * 4)
                 .order(ByteOrder.nativeOrder())
