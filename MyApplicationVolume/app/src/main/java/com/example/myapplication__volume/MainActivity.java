@@ -93,11 +93,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-
-import java.util.Arrays;
-
 import java.util.Date;
-
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -1650,7 +1646,7 @@ public class MainActivity extends AppCompatActivity {
                                                     }
 
                                                 }
-                                            }, 1000); // 延时1秒
+                                            }, 0); // 延时0秒
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
@@ -1957,7 +1953,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 202005019c 14:12 build",
+                .asConfirm("Version", "version: 202005019f 21:34 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -3209,11 +3205,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     //GSDT_function
-    public void GSDT_Fun() throws Exception {
+    public void GSDT_Fun(){
         //building...
         Image4DSimple img = myrenderer.getImg();
         //img.getDataCZYX();
-        if(!img.valid()){
+        if(img == null || !img.valid()){
             Log.v("GSDT", "Please load img first!");
             if (Looper.myLooper() == null) {
                 Looper.prepare();
@@ -3222,6 +3218,7 @@ public class MainActivity extends AppCompatActivity {
             Looper.loop();
             return;
         }
+
         Log.v("GSDT", "Have got the image successfully!!");
         try {
             //ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
@@ -3237,11 +3234,12 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("marker:"+ p.max_loc[0] + "," + p.max_loc[1] + "," + p.max_loc[2]);
 
             myrenderer.ResetImg(p.outImage);
+            myrenderer.getMarkerList().add(p.markers.get(0));
             myGLSurfaceView.requestRender();
-
             if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
+
             Toast.makeText(this, "marker_loc:"+ p.max_loc[0] + "," + p.max_loc[1] + "," + p.max_loc[2], Toast.LENGTH_LONG).show();
             Looper.loop();
             /*

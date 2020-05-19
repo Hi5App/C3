@@ -1,16 +1,9 @@
 package com.tracingfunc.gsdt;
 
-import java.util.ArrayList;
 import com.example.basic.Image4DSimple;
 import com.example.basic.ImageMarker;
-import com.example.basic.RGBA8;
-import com.tracingfunc.app2.FM;
-import com.tracingfunc.gsdt.FM_GSDT;
-import com.tracingfunc.gsdt.ParaGSDT;
 
-import static com.example.basic.Image4DSimple.downsampling_img_xyz;
-import static com.example.basic.Image4DSimple.loadImage;
-import static java.lang.System.*;
+import static java.lang.System.out;
 
 public class GSDT {
     public static boolean GSDT_Fun(ParaGSDT p) throws Exception {
@@ -85,11 +78,10 @@ public class GSDT {
         }
         p.outImage.setDataFormCZYX(outimage,sz0,sz1,sz2,sz3,p.p4DImage.getDatatype(),p.p4DImage.getIsBig());
 
-
         //Marker --mark the location with max_value
         ImageMarker marker_new = new ImageMarker(p.max_loc[0], p.max_loc[1], p.max_loc[2]);
         marker_new.radius = 10;
-        marker_new.type = 1;
+        marker_new.type = 2;
         p.markers.add(marker_new);
         /*
         int bkg_thresh = (int)para.get(0);

@@ -78,7 +78,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private MyDraw myDraw;
     public  MyAnimation myAnimation;
 
-    private Image4DSimple img;
+    private Image4DSimple img = null;
     private ByteBuffer imageBuffer;
     private byte [] image2D;
     private Bitmap bitmap2D;
