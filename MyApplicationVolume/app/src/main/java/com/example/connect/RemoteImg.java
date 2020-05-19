@@ -537,9 +537,9 @@ public class RemoteImg extends Socket {
 
                         Log.v("PullImageBlcok", "x: " + offset_x + ", y:" + offset_y + ", z:" +offset_z + ", size: " + size +  " successfully---------");
 
-                        x[0] += 20;
-                        y[0] += 20;
-                        z[0] += 20;
+                        x[0] += 50;
+                        y[0] += 50;
+                        z[0] += 50;
 
 
                     } catch (Exception e) {
@@ -868,7 +868,7 @@ public class RemoteImg extends Socket {
                 dir.mkdirs();
                 file.createNewFile();
 
-                String str = "0_0_0_128";
+                String str = "200_200_200_128";
                 FileOutputStream outStream = new FileOutputStream(file);
                 outStream.write(str.getBytes());
                 outStream.close();
