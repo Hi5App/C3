@@ -69,6 +69,8 @@ import com.tracingfunc.app2.ParaAPP2;
 import com.tracingfunc.app2.V3dNeuronAPP2Tracing;
 import com.tracingfunc.gd.CurveTracePara;
 import com.tracingfunc.gd.V3dNeuronGDTracing;
+import com.tracingfunc.gsdt.GSDT;
+import com.tracingfunc.gsdt.ParaGSDT;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -83,6 +85,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -1393,7 +1396,7 @@ public class MainActivity extends AppCompatActivity {
     private void PixelClassification(final View v) {
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"Run", "For Developer..."},
+                .asAttachList(new String[]{"Run", "For Developer...","GSDT"},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -1409,6 +1412,31 @@ public class MainActivity extends AppCompatActivity {
                                         Learning();
                                         break;
 
+                                    case "GSDT":
+                                        //gsdt检测斑点（eg.soma）
+                                        try {
+                                            Log.v("Mainactivity", "GSDT function.");
+                                            Toast.makeText(v.getContext(), "GSDT function start~", Toast.LENGTH_SHORT).show();
+                                            Timer timer = new Timer();
+                                            timer.schedule(new TimerTask() {
+                                                @RequiresApi(api = Build.VERSION_CODES.N)
+                                                @Override
+                                                public void run() {
+
+                                                    try {
+                                                        Log.v("Mainactivity", "GSDT start.");
+                                                        GSDT_Fun();
+                                                        Log.v("Mainactivity", "GSDT end.");
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+
+                                                }
+                                            }, 1000); // 延时1秒
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                        break;
                                 }
                             }
                         })
@@ -2840,6 +2868,62 @@ public class MainActivity extends AppCompatActivity {
                 .create()
                 .show();
     }
+
+
+    //GSDT_function
+    public void GSDT_Fun() throws Exception {
+        //building...
+        Image4DSimple img = myrenderer.getImg();
+        //img.getDataCZYX();
+        if(!img.valid()){
+            Log.v("GSDT", "Please load img first!");
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
+            }
+            Toast.makeText(this, "Please load image first!", Toast.LENGTH_LONG).show();
+            Looper.loop();
+            return;
+        }
+        Log.v("GSDT", "Have got the image successfully!!");
+        try {
+            //ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
+            //ArrayList<Integer> para = new ArrayList<Integer>(Arrays.asList(10,2,0,5));//bkg_thresh,cnn_type,channel,z_thickness
+            //Log.v("GSDT", "here");///problems
+            System.out.println("Start here.....");
+            ParaGSDT p = new ParaGSDT();
+            p.p4DImage = img;
+            GSDT.GSDT_Fun(p);
+            Log.v("GSDT", "GSDT function finished");
+            ArrayList<ImageMarker> markers = p.markers;
+            System.out.println("show result.."+markers.isEmpty());
+            System.out.println("marker:"+ p.max_loc[0] + "," + p.max_loc[1] + "," + p.max_loc[2]);
+
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
+            }
+            Toast.makeText(this, "marker_loc:"+ p.max_loc[0] + "," + p.max_loc[1] + "," + p.max_loc[2], Toast.LENGTH_LONG).show();
+            Looper.loop();
+            /*
+            ImageMarker m = p.GSDT_Fun(img, para);
+            System.out.println("marker:"+ m.getXYZ().x + "," + m.getXYZ().y+","+m.getXYZ().z);
+            m.type = 2;
+            m.radius = 5;
+            Log.v("GSDT", "got here2");
+            markers.add(m);
+             */
+            //myGLSurfaceView.requestRender();
+
+        }catch (Exception e) {
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
+            }
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            Looper.loop();
+        }
+
+    }
+
+
 
     //画笔颜色设置
     public void PenSet(){
