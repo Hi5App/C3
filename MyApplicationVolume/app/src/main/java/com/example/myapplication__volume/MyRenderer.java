@@ -11,7 +11,9 @@ import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Build;
+import android.os.Looper;
 import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -46,7 +48,7 @@ import java.util.Vector;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import static com.example.myapplication__volume.MainActivity.getContext;
+import static com.example.myapplication__volume.Myapplication.getContext;
 import static javax.microedition.khronos.opengles.GL10.GL_ALPHA_TEST;
 import static javax.microedition.khronos.opengles.GL10.GL_BLEND;
 import static javax.microedition.khronos.opengles.GL10.GL_ONE_MINUS_SRC_ALPHA;
@@ -172,6 +174,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private boolean ifFileSupport = false;
 
+    private Context context_myrenderer;
 
     //初次渲染画面
     @Override
@@ -602,9 +605,34 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     mCapturePath = mCaptureDir + "/" + "Image_" + System.currentTimeMillis() +".jpg";
                     System.out.println(mCapturePath+"------------------------------");
                     try {
+                        if (Looper.myLooper() == null)
+                            Looper.prepare();
+
                         FileOutputStream fos = new FileOutputStream(mCapturePath);
                         mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-//                        fos.flush();
+
+                        String[] imgPath = new String[1];
+                        imgPath[0] = mCapturePath;
+
+                        if (imgPath[0] != null)
+                        {
+                            Log.v("Share","save screenshot to " + imgPath[0]);
+
+                            Intent shareIntent = new Intent();
+                            String imageUri = insertImageToSystem(context_myrenderer, imgPath[0]);
+                            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                            shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            shareIntent.setAction(Intent.ACTION_SEND);
+                            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imageUri));
+                            shareIntent.setType("image/jpeg");
+                            context_myrenderer.startActivity(Intent.createChooser(shareIntent, "Share from C3"));
+
+                        }
+                        else{
+                            Toast.makeText(getContext(), "Fail to screenshot", Toast.LENGTH_SHORT).show();
+                            Looper.loop();
+                        }
+
                     } catch (Exception e){
                         e.printStackTrace();
                     }
@@ -622,6 +650,20 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
+
+    private static String insertImageToSystem(Context context, String imagePath) {
+        String url = "";
+        String filename = imagePath.substring(imagePath.lastIndexOf("/") + 1 );
+        try {
+            url = MediaStore.Images.Media.insertImage(context.getContentResolver(), imagePath, filename, "ScreenShot from C3");
+        } catch (FileNotFoundException e) {
+            System.out.println("SSSSSSSSSSSS");
+            e.printStackTrace();
+        }
+        System.out.println("Filename: " + filename);
+        System.out.println("Url: " + url);
+        return url;
+    }
 
 
     private void setMatrix(){
@@ -2967,8 +3009,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         PNG
     }
 
-    public void setTakePic(boolean takePic) {
+    public void setTakePic(boolean takePic, Context contexts) {
         isTakePic = takePic;
+        context_myrenderer = contexts;
     }
 
     public String getmCapturePath() {

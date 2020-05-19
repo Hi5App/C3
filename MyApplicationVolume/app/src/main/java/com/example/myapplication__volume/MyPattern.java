@@ -16,7 +16,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-import static com.example.myapplication__volume.MainActivity.getContext;
+import static com.example.myapplication__volume.Myapplication.getContext;
 
 
 public class MyPattern{
@@ -701,7 +701,8 @@ public class MyPattern{
 
     }
 
-
+//    private Context getContext() {
+//    }
 
 
     private void setPoint(float[] mz){

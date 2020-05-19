@@ -1705,52 +1705,50 @@ public class MainActivity extends AppCompatActivity {
 
     private void ShareScreenShot() {
 
-        myrenderer.setTakePic(true);
+        myrenderer.setTakePic(true, this);
         myGLSurfaceView.requestRender();
         final String[] imgPath = new String[1];
         final boolean[] isGet = {false};
 
-        Toast.makeText(getContext(), "Start to Screenshot", Toast.LENGTH_SHORT).show();
-
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void run() {
-
-                try {
-
-                    if (Looper.myLooper() == null)
-                        Looper.prepare();
-
-                    imgPath[0] = myrenderer.getmCapturePath();
-                    myrenderer.resetCapturePath();
-
-                    if (imgPath[0] != null)
-                    {
-                        // Toast.makeText(v.getContext(), "save screenshot to " + imgPath[0], Toast.LENGTH_SHORT).show();
-                        Log.v("Share","save screenshot to " + imgPath[0]);
-
-                        Intent shareIntent = new Intent();
-                        String imageUri = insertImageToSystem(context, imgPath[0]);
-                        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        shareIntent.setAction(Intent.ACTION_SEND);
-                        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imageUri));
-                        shareIntent.setType("image/jpeg");
-                        startActivity(Intent.createChooser(shareIntent, "Share from C3"));
-
-                    }
-                    else{
-                        Toast.makeText(getContext(), "Fail to screenshot", Toast.LENGTH_SHORT).show();
-                        Looper.loop();
-                    }
-
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }, 3 * 1000); // 延时0.1秒 //change from 2000 by HP
+//        Timer timer = new Timer();
+//        timer.schedule(new TimerTask() {
+//            @RequiresApi(api = Build.VERSION_CODES.N)
+//            @Override
+//            public void run() {
+//
+//                try {
+//
+//                    if (Looper.myLooper() == null)
+//                        Looper.prepare();
+//
+//                    imgPath[0] = myrenderer.getmCapturePath();
+//                    myrenderer.resetCapturePath();
+//
+//                    if (imgPath[0] != null)
+//                    {
+//                        // Toast.makeText(v.getContext(), "save screenshot to " + imgPath[0], Toast.LENGTH_SHORT).show();
+//                        Log.v("Share","save screenshot to " + imgPath[0]);
+//
+//                        Intent shareIntent = new Intent();
+//                        String imageUri = insertImageToSystem(context, imgPath[0]);
+//                        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+//                        shareIntent.setAction(Intent.ACTION_SEND);
+//                        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imageUri));
+//                        shareIntent.setType("image/jpeg");
+//                        startActivity(Intent.createChooser(shareIntent, "Share from C3"));
+//
+//                    }
+//                    else{
+//                        Toast.makeText(getContext(), "Fail to screenshot", Toast.LENGTH_SHORT).show();
+//                        Looper.loop();
+//                    }
+//
+//
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }, 3 * 1000); // 延时0.1秒 //change from 2000 by HP
 
 //        while (imgPath[0] == null && !isGet[0]); //why  this?? by HP
 
