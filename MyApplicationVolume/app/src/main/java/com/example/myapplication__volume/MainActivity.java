@@ -535,6 +535,8 @@ public class MainActivity extends AppCompatActivity {
 ////            ifTakePhoto = false;
 //            return;
             Bitmap bitmap= BitmapFactory.decodeFile(String.valueOf(showPic));
+            myrenderer.SetPath(showPic.getAbsolutePath());
+            myGLSurfaceView.requestRender();
             return;
         }
 
@@ -1954,7 +1956,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 202005019f 21:34 build",
+                .asConfirm("Version", "version: 202005020a 00:10 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
