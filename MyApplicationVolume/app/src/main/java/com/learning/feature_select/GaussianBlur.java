@@ -26,7 +26,7 @@ public class GaussianBlur {
         kernel = makeKernel(radius, sigma);
     }
 
-    public static void convolveAndTranspose(Kernel kernel, int[] inPixels, int[] outPixels,
+    public static void convolveAndTranspose(Kernel kernel, int[] inPixels, int[] mask, int[] outPixels,
                                      int weight, int height, int depth, int edgeAction){
         float[] matrix = kernel.getKernel();
         int kernelW = kernel.getWeight();
@@ -36,6 +36,13 @@ public class GaussianBlur {
         for(int k=0; k<depth; k++){
             for(int j=0; j<height; j++){
                 for(int i=0; i<weight; i++){
+                    int index = k*height*weight +j*weight +i;
+
+                    if(mask[index] == 0){
+                        outPixels[index] = inPixels[index];
+                        continue;
+                    }
+
                     float intensity = 0;
                     for(int kk=-kernelD/2; kk<kernelD/2; kk++){
                         for(int jj=-kernelH/2; jj<kernelH/2; jj++){
@@ -65,7 +72,7 @@ public class GaussianBlur {
                             }
                         }
                     }
-                    int index = k*height*weight +j*weight +i;
+
                     outPixels[index] = (int) intensity;
                 }
             }

@@ -42,6 +42,9 @@ public class PixelClassification {
     }
 
     public Image4DSimple getPixelClassificationResult(Image4DSimple inImg, NeuronTree nt) throws Exception{
+
+        long startTime = System.currentTimeMillis();
+
         Image4DSimple result = new Image4DSimple();
 
         double dFactorXY = 1, dFactorZ = 1;
@@ -153,7 +156,7 @@ public class PixelClassification {
             System.out.println("it is only support V3D_UINT8");
         }
 
-        ArrayList<int[]> pixelsFeature = new ArrayList<>();
+        ArrayList<int[]> partPixelsFeature = new ArrayList<>();
         byte[] img1dByte = downSampleImg.getData();
         int[] img1d = new int[img1dByte.length];
         for(int i=0; i<img1dByte.length; i++){
@@ -207,7 +210,7 @@ public class PixelClassification {
         int f = 0, b = 0;
         double margin = 5;
         for(int i=0; i<img1d.length; i++){
-            if(maskFinal[i] != 0 || (img1d[i] >= min - margin && img1d[i] <= max + margin)){
+            if(maskFinal[i] != 0 || (img1d[i] >= min - margin /*&& img1d[i] <= max + margin*/)){
                 featureMask0[i] = 1;
                 f++;
             }else {
@@ -279,6 +282,12 @@ public class PixelClassification {
 //        }
 //        System.out.println("afterF: "+afterF);
 //
+//        Vector<Integer> featureMaskIndex = new Vector<>();
+//        for(int i=0; i<featureMask.length; i++){
+//            if(featureMask[i] == 1)
+//                featureMaskIndex.add(i);
+//        }
+//
 //
 //        System.out.println("---------------get feature-----------");
 //        for(int i=0; i<selections.length; i++){
@@ -286,19 +295,25 @@ public class PixelClassification {
 //                double sigma = sigmaScales[j];
 //                if(selections[i][j]){
 //                    int[] outFeature = getFilterFeature(img1d,sz,featureMask,sigma,featureName[i]);
-//                    pixelsFeature.add(outFeature);
+////                    int[] outFeature = getFeature(img1d,sz,featureMask,sigma,featureName[i]);
+//                    int[] partOutFeature = new int[featureMaskIndex.size()];
+//                    for(int k=0; k<featureMaskIndex.size(); k++){
+//                        int index = featureMaskIndex.get(k);
+//                        partOutFeature[k] = outFeature[index];
+//                    }
+//                    partPixelsFeature.add(partOutFeature);
 //                }
 //            }
 //        }
 //
-//        System.out.println("feature size: "+pixelsFeature.size());
+//        System.out.println("feature size: "+partPixelsFeature.size());
 //
 //        ArrayList<int[]> dataRandomForest = new ArrayList<>();
-//        int M = pixelsFeature.size();
-//        for(int i=0; i<img1dByte.length; i++){
+//        int M = partPixelsFeature.size();
+//        for(int i=0; i<featureMaskIndex.size(); i++){
 //            int[] features = new int[M+1];
 //            for(int j=0; j<M; j++){
-//                features[j] = pixelsFeature.get(j)[i];
+//                features[j] = partPixelsFeature.get(j)[i];
 //            }
 //            features[M] = 0;
 //            dataRandomForest.add(features);
@@ -337,13 +352,13 @@ public class PixelClassification {
 ////            }
 ////        }else{
 //        {
-//            for(int i=0; i<maskFinal.length; i++){
-//                if(maskFinal[i] != 0){
+//            for(int i=0; i<dataRandomForest.size(); i++){
+//                if(maskFinal[featureMaskIndex.get(i)] != 0){
 ////                System.out.println("-------------feature------------");
 //                    int[] features = new int[M+1];
 //                    if (dataRandomForest.get(i).length - 1 >= 0)
 //                        System.arraycopy(dataRandomForest.get(i), 0, features, 0, dataRandomForest.get(i).length - 1);
-//                    features[M] = maskFinal[i];
+//                    features[M] = maskFinal[featureMaskIndex.get(i)];
 //                    trainData.add(features);
 //                }
 //            }
@@ -356,16 +371,18 @@ public class PixelClassification {
 //        rf.Ms = (int) Math.round(Math.log(rf.M)/Math.log(2)+1);
 //        rf.start();
 //
-//        int[] resultClassification = new int[dataRandomForest.size()];
+//        int[] resultClassification = new int[featureMask.length];
+//        Arrays.fill(resultClassification,0);
 //
 //        System.out.println("----------------------classification-----------------");
 //
 //        for(int i=0; i<dataRandomForest.size(); i++){
-//            if(featureMask[i] == 0){
-//                resultClassification[i] = 0;
-//            }else {
-//                resultClassification[i] = rf.Evaluate(dataRandomForest.get(i));
-//            }
+//            resultClassification[featureMaskIndex.get(i)] = rf.Evaluate(dataRandomForest.get(i));
+////            if(featureMask[i] == 0){
+////                resultClassification[i] = 0;
+////            }else {
+////                resultClassification[i] = rf.Evaluate(dataRandomForest.get(i));
+////            }
 ////            if(i%100==0){
 ////                System.out.println(i+" : "+resultClassification[i]);
 ////            }
@@ -377,13 +394,14 @@ public class PixelClassification {
 //            pixelIntensity[i] = i*step;
 //        }
 //
-//        byte[] data = new byte[dataRandomForest.size()];
-//        for(int i=0; i<dataRandomForest.size(); i++){
+//        byte[] data = new byte[featureMask.length];
+//        for(int i=0; i<featureMask.length; i++){
 //            data[i] = (byte) pixelIntensity[resultClassification[i]];
 //        }
 //
 //        result.setDataFromImage(data,downSampleImg.getSz0(),downSampleImg.getSz1(),downSampleImg.getSz2(),downSampleImg.getSz3(),Image4DSimple.ImagePixelType.V3D_UINT8,downSampleImg.getIsBig());
-//
+
+        System.out.println("cost time: "+(double)(System.currentTimeMillis()-startTime)/1000+" s");
         if(dFactorXY>1 || dFactorZ>1){
             Image4DSimple upSampleImg = new Image4DSimple();
             System.out.println("--------------upSample--------------");
@@ -408,15 +426,15 @@ public class PixelClassification {
         }
     }
 
-    public int[] getFeature(int[] inPixel, int[] sz, double sigma, String method){
+    public int[] getFeature(int[] inPixel, int[] sz, int[] mask, double sigma, String method){
         int[] outPixel = new int[inPixel.length];
         if(method == featureName[0]){
             GaussianBlur g = new GaussianBlur(3, (float) sigma,3);
-            GaussianBlur.convolveAndTranspose(g.getKernel(),inPixel,outPixel,sz[0],sz[1],sz[2],1);
+            GaussianBlur.convolveAndTranspose(g.getKernel(),inPixel,mask,outPixel,sz[0],sz[1],sz[2],1);
         }else if(method == featureName[1]){
-            LaplacianOfGaussian.filter3d((float) sigma,inPixel,outPixel,sz[0],sz[1],sz[2],1);
+            LaplacianOfGaussian.filter3d((float) sigma,inPixel,mask,outPixel,sz[0],sz[1],sz[2],1);
         }else if(method == featureName[5]){
-            DifferenceOfGaussian.filter3d((float) sigma,inPixel,outPixel,sz[0],sz[1],sz[2],1);
+            DifferenceOfGaussian.filter3d((float) sigma,inPixel,mask,outPixel,sz[0],sz[1],sz[2],1);
         }
         return outPixel;
     }

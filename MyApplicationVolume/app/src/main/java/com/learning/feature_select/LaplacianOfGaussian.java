@@ -1,7 +1,7 @@
 package com.learning.feature_select;
 
 public class LaplacianOfGaussian {
-    public static void filter3d(float sigma, int[] inPixels, int[] outPixels,
+    public static void filter3d(float sigma, int[] inPixels, int[] mask, int[] outPixels,
                               int weight, int height, int depth, int edgeAction) {
         GaussianBlur g = new GaussianBlur(3,sigma,3);
         Kernel gKernel  = g.getKernel();
@@ -18,7 +18,7 @@ public class LaplacianOfGaussian {
         Kernel l = new Kernel(lKernel,3,3,3);
 
         int[] out = new int[inPixels.length];
-        GaussianBlur.convolveAndTranspose(gKernel,inPixels,out,weight,height,depth,edgeAction);
-        GaussianBlur.convolveAndTranspose(l,out,outPixels,weight,height,depth,edgeAction);
+        GaussianBlur.convolveAndTranspose(gKernel,inPixels,mask,out,weight,height,depth,edgeAction);
+        GaussianBlur.convolveAndTranspose(l,out,mask,outPixels,weight,height,depth,edgeAction);
     }
 }

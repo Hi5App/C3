@@ -95,7 +95,7 @@ public class readSWC_file_nt {
             // if (! listNeuron.contains(S)) // 081024
             {
                 listNeuron.add(S);
-                hashNeuron.put((int) (S.nodeinseg_id), listNeuron.size() - 1);
+                hashNeuron.put((int) (S.n), listNeuron.size() - 1);
             }
         }
 
@@ -198,7 +198,7 @@ public class readSWC_file_nt {
             // if (! listNeuron.contains(S)) // 081024
             {
                 listNeuron.add(S);
-                hashNeuron.put((int) (S.nodeinseg_id), listNeuron.size() - 1);
+                hashNeuron.put((int) (S.n), listNeuron.size() - 1);
             }
         }
 

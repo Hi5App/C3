@@ -17,6 +17,8 @@ import android.content.IntentFilter;
 import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
@@ -30,6 +32,8 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,7 +54,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 
 import com.example.basic.FileManager;
 import com.example.basic.Image4DSimple;
@@ -78,14 +84,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+
 import java.util.Arrays;
+
+import java.util.Date;
+
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -93,6 +105,7 @@ import java.util.Vector;
 
 import cn.carbs.android.library.MDDialog;
 
+import static java.lang.Math.abs;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
@@ -101,6 +114,8 @@ public class MainActivity extends AppCompatActivity {
 //    private int UNDO_LIMIT = 5;
 //    private enum Operate {DRAW, DELETE, SPLIT};
 //    private Operate [] process = new Operate[UNDO_LIMIT];
+
+    public static final String File_path = "com.example.myfirstapp.MESSAGE";
 
 
     private MyGLSurfaceView myGLSurfaceView;
@@ -125,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean ifLoadLocal = false;
     private boolean ifRemote = false;
     private boolean ifDownloadByHttp = false;
+//    private boolean ifTakePhoto = false;
 
     private boolean[] temp_mode = new boolean[5];
 
@@ -139,17 +155,18 @@ public class MainActivity extends AppCompatActivity {
     private Button Zoom_out;
     private Button Rotation;
     private ImageButton Rotation_i;
+    private ImageButton Sync_i;
     private Button Sync;
     private Button Switch;
     private Button Share;
 
     private Button PixelClassification;
-    private boolean[][]select= {{true,true,true,true,true,true,true},
-    {true,true,true,true,true,true,true},
+    private boolean[][]select= {{true,true,true,false,false,false,false},
+    {true,true,true,false,false,false,false},
     {false,false,false,false,false,false,false},
     {false,false,false,false,false,false,false},
     {false,false,false,false,false,false,false},
-    {true,true,true,true,true,true,true}};
+    {true,true,true,false,false,false,false}};
 
 
     private RemoteImg remoteImg;
@@ -164,18 +181,23 @@ public class MainActivity extends AppCompatActivity {
     private List<double[]> fl;
 
 
-
     private int eswc_length;
     //读写权限
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
     private static int REQUEST_PERMISSION_CODE = 1;
+    private static final int REQUEST_IMAGE_CAPTURE = 2;
+    private static final int REQUEST_TAKE_PHOTO = 3;
 
     //    private int Paintmode = 0;
     private ArrayList<Float> lineDrawed = new ArrayList<Float>();
 
     private BroadcastReceiver broadcastReceiver;
+
+    private String currentPhotoPath; //指定一个不会跟其他文件产生冲突的文件名，用于后面相机拍照的图片的保存
+
+    private File showPic;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -183,16 +205,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 
-//        setSupportActionBar(findViewById(R.id.topAppBar));
-
-        myrenderer = new MyRenderer();
-
+//
         //接受从fileactivity传递过来的文件路径
         Intent intent1 = getIntent();
         String filepath = intent1.getStringExtra(MyRenderer.FILE_PATH);
 
-        if (filepath != null)
+        myrenderer = new MyRenderer();
+        if (filepath != null) {
             myrenderer.SetPath(filepath);
+            System.out.println("------" + filepath + "------");
+        }
 
         Intent intent2 = getIntent();
         String MSG = intent2.getStringExtra(MyRenderer.OUTOFMEM_MESSAGE);
@@ -200,49 +222,35 @@ public class MainActivity extends AppCompatActivity {
         if (MSG != null)
             Toast.makeText(this, MSG, Toast.LENGTH_SHORT).show();
 
-//        try {
-//
-//
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
+
+        Intent intent3 = getIntent();
+        String Timeout = intent3.getStringExtra(MyRenderer.Time_out);
+
+        if (Timeout != null)
+            Toast.makeText(this, Timeout, Toast.LENGTH_SHORT).show();
 
 
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-//        Toast.makeText(this,"Filepath: " + filepath, Toast.LENGTH_SHORT).show();
-
-//        Uri uri = Uri.parse((String) filepath);
-//
-//        try {
-//            ParcelFileDescriptor parcelFileDescriptor =
-//                    getContentResolver().openFileDescriptor(uri, "r");
-//
-//            is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-//
-//            length = (int)parcelFileDescriptor.getStatSize();
-//            myrenderer.setInputStream(is);
-//            myrenderer.setLength(length);
-//
-//        }catch (Exception e){
-//            Log.v("MainActivity","Some problems in the MainActivity");
-//        }
+        myGLSurfaceView = new MyGLSurfaceView(this);
+        FrameLayout ll = (FrameLayout) findViewById(R.id.container);
+        ll.addView(myGLSurfaceView);
 
 
 //        Log.v("filepath-mainactivity", filepath);
 
-        myGLSurfaceView = new MyGLSurfaceView(this);
-        setContentView(myGLSurfaceView);
+//        setContentView(myGLSurfaceView);
 //        setContentView(R.layout.activity_main);
 
-//        CoordinatorLayout l = (CoordinatorLayout) findViewById(R.layout.activity_main);
-
+//
         ll_top = new LinearLayout(this);
         ll_bottom = new LinearLayout(this);
 
         HorizontalScrollView hs_top = new HorizontalScrollView(this);
-//        ScrollView hs_bottom = new ScrollView(this);
 
-        this.addContentView(hs_top, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        ll.addView(hs_top, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(1080, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.gravity = Gravity.BOTTOM;
@@ -340,7 +348,7 @@ public class MainActivity extends AppCompatActivity {
 
         FrameLayout.LayoutParams lp_rotation = new FrameLayout.LayoutParams(120, 120);
         lp_rotation.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_rotation.setMargins(0,0,15,15);
+        lp_rotation.setMargins(0, 0, 20, 20);
 
         Rotation_i = new ImageButton(this);
         Rotation_i.setImageResource(R.drawable.ic_3d_rotation_red_24dp);
@@ -363,26 +371,33 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+//        Others = new Button(this);
+//        Others.setText("Config");
+//        ll_bottom.addView(Others);
+//
+//        Others.setOnClickListener(new Button.OnClickListener() {
+//            public void onClick(View v) {
+//                Other(v);
+//            }
+//        });
+//
+//        Sync = new Button(this);
+//        Sync.setText("Share");
+//        ll_bottom.addView(Sync);
+//
+////        FrameLayout.LayoutParams lp_share = new FrameLayout.LayoutParams(120, 120);
+//
+////        Sync_i = new ImageButton(this);
+////        Sync_i.setImageResource(R.drawable.ic_share_black_24dp);
+////        ll_bottom.addView(Sync_i);
+//
+//        Sync.setOnClickListener(new Button.OnClickListener() {
+//            public void onClick(View v) {
+//                Sync(v);
+//            }
+//        });
 
-        Others = new Button(this);
-        Others.setText("Config");
-        ll_bottom.addView(Others);
 
-        Others.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                Other(v);
-            }
-        });
-
-        Sync = new Button(this);
-        Sync.setText("Share");
-        ll_bottom.addView(Sync);
-
-        Sync.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                Sync(v);
-            }
-        });
 
         Switch = new Button(this);
         Switch.setText("Pause");
@@ -392,59 +407,6 @@ public class MainActivity extends AppCompatActivity {
                 Switch();
             }
         });
-
-//        Share = new Button(this);
-//        Share.setText("Share");
-//        ll_bottom.addView(Share);
-//
-//        Share.setOnClickListener(new Button.OnClickListener(){
-//            @Override
-//            public void onClick(final View v) {
-//                myrenderer.setTakePic(true);
-//                myGLSurfaceView.requestRender();
-//                final String[] imgPath = new String[1];
-//                final boolean[] isGet = {false};
-//
-//                Timer timer = new Timer();
-//                timer.schedule(new TimerTask() {
-//                    @RequiresApi(api = Build.VERSION_CODES.N)
-//                    @Override
-//                    public void run() {
-//
-//                        try {
-//
-//                            Looper.prepare();
-//
-//                            imgPath[0] = myrenderer.getmCapturePath();
-//                            myrenderer.resetCapturePath();
-//
-//                            if (imgPath[0] !=  null)
-//                                Toast.makeText(v.getContext(), "save img to "+ imgPath[0], Toast.LENGTH_SHORT).show();
-//                            else
-//                                Toast.makeText(v.getContext(), "Fail to Screenshot", Toast.LENGTH_SHORT).show();
-//
-//                            isGet[0] = true;
-//                            Looper.loop();
-//
-//                        } catch (Exception e) {
-//                            e.printStackTrace();
-//                        }
-//
-//                    }
-//                },3000); // 延时3秒
-//
-//                while (imgPath[0] == null && !isGet[0])
-//                    System.out.println("null");
-//
-//                if (imgPath[0] != null){
-//                    Intent shareIntent = new Intent();
-//                    shareIntent.setAction(Intent.ACTION_SEND);
-//                    shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imgPath[0]));
-//                    shareIntent.setType("image/jpeg");
-//                    startActivity(Intent.createChooser(shareIntent, "share"));
-//                }
-//            }
-//        });
 
 
         buttonAnimation = new Button(this);
@@ -459,10 +421,10 @@ public class MainActivity extends AppCompatActivity {
         buttonUndo = new Button(this);
         buttonUndo.setText("Undo");
 
-        buttonUndo.setOnClickListener(new Button.OnClickListener(){
+        buttonUndo.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 boolean undoSuccess = myrenderer.undo();
-                if (!undoSuccess){
+                if (!undoSuccess) {
                     Toast.makeText(context, "nothing to undo", Toast.LENGTH_SHORT).show();
                 }
                 myGLSurfaceView.requestRender();
@@ -475,12 +437,79 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        myGLSurfaceView.requestRender();
         remoteImg = new RemoteImg();
         context = getApplicationContext();
 
 
-//        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(myToolbar);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.file:
+//                Other(item.getActionView());
+                return true;
+            case R.id.share:
+                Share_icon();
+                return true;
+            case R.id.version:
+                Version();
+                return true;
+            case R.id.analyze:
+                Analyse();
+                return true;
+            case R.id.animate:
+                ifPainting = false;
+                ifPoint = false;
+                ifDeletingMarker = false;
+                ifDeletingLine = false;
+                SetAnimation();
+                return true;
+            default:
+                return true;
+//                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void Share_icon(){
+
+        new XPopup.Builder(this)
+//        .maxWidth(400)
+//        .maxHeight(1350)
+                .asCenterList("Share & Cloud server", new String[]{"Screenshot share", "Upload SWC", "Download SWC"},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text) {
+                                    case "Screenshot share":
+                                        ShareScreenShot();
+                                        break;
+
+                                    case "Upload SWC":
+                                        UploadSWC();
+                                        break;
+
+                                    case "Download SWC":
+                                        DownloadSWC();
+                                        break;
+
+                                    default:
+//                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "Default in share", Toast.LENGTH_SHORT).show();
+
+                                }
+                            }
+                        })
+                .show();
 
     }
 
@@ -498,6 +527,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+//            System.out.println("BBBBB");
+//            Bundle extras = data.getExtras();
+//
+////            Uri photouri = (Uri) extras.get(MediaStore.EXTRA_OUTPUT);
+//            Bitmap imageBitmap = (Bitmap) extras.get("data");  //如果直接保存imageBitmap，保存成txt? 还是直接保存图片？
+//            savePhoto(imageBitmap);
+//            ImageView imageView = new ImageView(this);
+//            imageView.setImageBitmap(imageBitmap);
+////            ifTakePhoto = false;
+//            return;
+            Bitmap bitmap= BitmapFactory.decodeFile(String.valueOf(showPic));
+            return;
+        }
 
         if (resultCode == RESULT_OK) {
             String fodlerPath = data.getDataString();
@@ -670,15 +713,14 @@ public class MainActivity extends AppCompatActivity {
 //                    if (features.size() != 0) displayResult(features);
 //                    else Toast.makeText(getContext(), "the file is empty", Toast.LENGTH_SHORT).show();
 
-                    if (features != null){
+                    if (features != null) {
                         fl = new ArrayList<double[]>(features);
                         displayResult(features);
                     }
                 }
 
 
-
-                if (ifUpload){
+                if (ifUpload) {
 
                     ParcelFileDescriptor parcelFileDescriptor =
                             getContentResolver().openFileDescriptor(uri, "r");
@@ -694,7 +736,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }
 
-                if (ifLoadLocal){
+                if (ifLoadLocal) {
                     myrenderer.SetPath(filePath);
                     ifLoadLocal = false;
                 }
@@ -704,10 +746,20 @@ public class MainActivity extends AppCompatActivity {
 //                    ifRemote = false;
 //                }
 
-                if (ifDownloadByHttp){
+                if (ifDownloadByHttp) {
                     myrenderer.SetPath(filePath);
                     ifDownloadByHttp = false;
                 }
+
+//                if (ifTakePhoto){
+//                    System.out.println("BBBBB");
+//                    Bundle extras = data.getExtras();
+//                    Bitmap imageBitmap = (Bitmap) extras.get("data");  //如果直接保存imageBitmap，保存成txt? 还是直接保存图片？
+//                    ImageView imageView = new ImageView(this);
+//                    imageView.setImageBitmap(imageBitmap);
+//                    ifTakePhoto = false;
+////                    return;
+//                }
 //
 //                ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
 //                SwcReader swcReader = new SwcReader();
@@ -753,36 +805,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-    private void SendSwc(String ip, Context context, InputStream is, long length, String filename){
+    private void SendSwc(String ip, Context context, InputStream is, long length, String filename) {
         //新建一个线程，用于初始化socket和检测是否有接收到新的消息
         Thread thread = new Thread() {
             @Override
             public void run() {
 
-                if(Looper.myLooper() == null){
+                if (Looper.myLooper() == null) {
                     Looper.prepare();
                 }
                 Log.v("SendSwc", "here we are");
 
                 try {
                     remoteImg.ip = ip;
-                    if (!remoteImg.isSocketSet){
-                        Log.v("SendSwc","connext socket");
+                    if (!remoteImg.isSocketSet) {
+                        Log.v("SendSwc", "connext socket");
                         remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
                         remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
                         remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
                     }
 
 
-                    if(remoteImg.ImgSocket.isConnected()){
+                    if (remoteImg.ImgSocket.isConnected()) {
 
                         remoteImg.isSocketSet = true;
                         Toast.makeText(context, "Start to upload!!!", Toast.LENGTH_SHORT).show();
                         if (!remoteImg.isOutputShutdown()) {
                             Log.v("SendSwc: ", "Connect with Server successfully");
-                            remoteImg.ImgPWriter.println( "connect for android client" + ":import.");
+                            remoteImg.ImgPWriter.println("connect for android client" + ":import.");
                             remoteImg.ImgPWriter.flush();
 
 
@@ -823,7 +873,7 @@ public class MainActivity extends AppCompatActivity {
 
                                         Log.v("before filesocket_send:", "Connect with Server successfully");
 
-                                        if (filesocket_send.filesocket.isConnected()){
+                                        if (filesocket_send.filesocket.isConnected()) {
 
                                             Context[] contexts = new Context[1];
                                             contexts[0] = context;
@@ -834,13 +884,12 @@ public class MainActivity extends AppCompatActivity {
 //                                            Looper.loop();
 
                                         }
-                                    }catch (Exception e){
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
 
                                 }
-                            },1000);  //延迟10秒执行
-
+                            }, 1000);  //延迟10秒执行
 
 
                             Looper.loop();
@@ -848,8 +897,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
 
-
-                    }else {
+                    } else {
                         Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
                         Looper.loop();
                     }
@@ -866,18 +914,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void DownloadSwc(String ip, Context context){
+    public void DownloadSwc(String ip, Context context) {
         Thread thread = new Thread() {
             @Override
             public void run() {
 
-                if(Looper.myLooper() == null){
+                if (Looper.myLooper() == null) {
                     Looper.prepare();
                 }
 
                 try {
                     remoteImg.ip = ip;
-                    if (!remoteImg.isSocketSet){
+                    if (!remoteImg.isSocketSet) {
 
                         Log.v("DownloadSwc: ", "Connect server");
 
@@ -888,20 +936,20 @@ public class MainActivity extends AppCompatActivity {
 
                     Log.v("DownloadSwc: ", "here we are 2");
 
-                    if(remoteImg.ImgSocket.isConnected()){
+                    if (remoteImg.ImgSocket.isConnected()) {
                         remoteImg.isSocketSet = true;
                         Log.v("DownloadSwc: ", "Connect with Server successfully");
                         Toast.makeText(getContext(), "Connect with Server successfully", Toast.LENGTH_SHORT).show();
-                        remoteImg.ImgPWriter.println( "connect from android client" + ":down.");
+                        remoteImg.ImgPWriter.println("connect from android client" + ":down.");
                         remoteImg.ImgPWriter.flush();
 
-                    }else {
+                    } else {
                         Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
                     }
 
                     //接收来自服务器的消息
-                    while(remoteImg.ImgSocket.isConnected()) {
-                        if(!remoteImg.ImgSocket.isInputShutdown()) {
+                    while (remoteImg.ImgSocket.isConnected()) {
+                        if (!remoteImg.ImgSocket.isInputShutdown()) {
                         /*读取一行字符串，读取的内容来自于客户机
                         reader.readLine()方法是一个阻塞方法，
                         从调用这个方法开始，该线程会一直处于阻塞状态，
@@ -909,7 +957,7 @@ public class MainActivity extends AppCompatActivity {
                             String content = "";
                             while ((content = remoteImg.ImgReader.readLine()) != null) {
                                 Log.v("---------Image------:", content);
-                                if (!((Activity) context).isFinishing()){
+                                if (!((Activity) context).isFinishing()) {
                                     Log.v("Download SWC file: ", content);
                                     remoteImg.onReadyRead(content, context);
                                     Looper.loop();
@@ -934,11 +982,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-     private void ConnectServer(){
+    private void ConnectServer() {
 
-     }
+    }
 
-   /**
+    /**
      * function for the FileManager button
      *
      * @param v the button: FileManager
@@ -946,9 +994,7 @@ public class MainActivity extends AppCompatActivity {
     private void FileManager(View v) {
         new XPopup.Builder(this)
                 .atView(v)
-
-                .asAttachList(new String[]{ "Open Local file", "Open Remote file", "Load SWC file" , "Camera"},
-
+                .asAttachList(new String[]{ "Open Local file", "Open Remote file", "Load SWC file" ,"Camera"},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -964,13 +1010,177 @@ public class MainActivity extends AppCompatActivity {
                                         remote(v);
                                         break;
                                     case "Camera":
-
+                                        Camera();
+                                        break;
                                 }
 
                             }
                         })
                 .show();
     }
+// 不保存完整图片，仅拍照
+//    private void Camera(){
+//        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+//            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+//        }
+//    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    private String getImageFilePath(){
+        String mCaptureDir = "/storage/emulated/0/C3/cameraPhoto";
+        File dir = new File(mCaptureDir);
+        if (!dir.exists()){
+            dir.mkdirs();
+        }
+
+        String mCapturePath = mCaptureDir + "/" + "Photo_" + System.currentTimeMillis() +".jpg";
+//        System.out.println("before" + mCapturePath);
+//        try {
+//            FileOutputStream fos = new FileOutputStream(mCapturePath);
+////            mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+////                        fos.flush();
+//        } catch (Exception e){
+//            e.printStackTrace();
+//        }
+//        System.out.println("after" + mCapturePath);
+        return mCapturePath;
+    }
+
+    private void Camera() {
+
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+//            String photoFilePath = null;
+            try {
+                photoFile = createImageFile();
+                showPic = photoFile;
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+
+            }
+//            photoFilePath = getImageFilePath();
+
+//            System.out.println(photoFilePath);
+//            try {
+//                File f = new File(photoFilePath);
+//
+//                if (!f.exists())
+//                    f.createNewFile();
+//            } catch (Exception e){
+//                System.out.println("AAAAAAA");
+//                e.printStackTrace();
+//            }
+            String imageUri = photoFile.getAbsolutePath();
+//            String imageUri = insertImageToSystem(context, photoFilePath);
+
+//            Uri photoURI = Uri.parse(imageUri);
+//            System.out.println(imageUri);
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(MainActivity.this,
+                        "com.example.myapplication__volume.provider",
+                        photoFile);
+
+//                takePictureIntent.putExtra("output", photoURI);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+
+//                ifTakePhoto = true;
+//                startActivityForResult(takePictureIntent, 1);
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                Log.v("Camera", "Here we are");
+            }
+        }
+    }
+
+    private void savePhoto(Bitmap photoBitmap){
+        String photoFilePath = getImageFilePath();
+
+        System.out.println(photoFilePath);
+        File f = new File(photoFilePath);
+        FileOutputStream fileOutputStream = null;
+        try {
+//            File f = new File(photoFilePath);
+
+            fileOutputStream = new FileOutputStream(f);
+            if (photoBitmap != null){
+                if (photoBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)) {
+                    fileOutputStream.flush();
+                    fileOutputStream.close();
+                }
+            }
+
+            else {
+                System.out.println("bitmap is empty");
+            }
+            return;
+        } catch (Exception e){
+            System.out.println("AAAAAAA");
+            e.printStackTrace();
+        }
+
+        if (!f.exists()) {
+            Uri uri = Uri.parse(photoFilePath);
+
+            try {
+                ParcelFileDescriptor parcelFileDescriptor =
+                        getContext().getContentResolver().openFileDescriptor(uri, "w");
+
+                fileOutputStream = new ParcelFileDescriptor.AutoCloseOutputStream(parcelFileDescriptor);
+                if (photoBitmap != null) {
+                    if (photoBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)) {
+                        fileOutputStream.flush();
+                        fileOutputStream.close();
+                    }
+                } else {
+                    System.out.println("bitmap is empty");
+                }
+            } catch (Exception e) {
+                System.out.println("CCCCCCC");
+                e.printStackTrace();
+            }
+        }
+
+        myrenderer.SetPath(photoFilePath);
+
+        myGLSurfaceView.requestRender();
+
+//        String imageUri = photoFilePath;
+////            String imageUri = insertImageToSystem(context, photoFilePath);
+//
+//        Uri photoURI = Uri.parse(imageUri);
+    }
+
+
+
+//    private void Camera() {
+//        Intent captureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//        // 判断是否有相机
+//        if (captureIntent.resolveActivity(getPackageManager()) != null) {
+//            File photoFile = null;
+//            Uri photoUri = null;
+//
+//            startActivityForResult(captureIntent, CAMERA_REQUEST_CODE);
+//    }
+
 
     private void downloadFile(){
         ifDownloadByHttp = true;
@@ -1076,7 +1286,7 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete curve", "Split", "Set PenColor", "Change PenColor", "Exit Drawing mode"},
+                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete curve", "Split", "Set PenColor", "Change PenColor", "Change All PenColor", "Exit Drawing mode"},
 //                        new int[]{R.mipmap.ic_launcher, R.mipmap.ic_launcher},
                         new int[]{},
                         new OnSelectListener() {
@@ -1253,6 +1463,11 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                         break;
 
+                                    case "Change All PenColor":
+                                        myrenderer.changeAllType();
+                                        myGLSurfaceView.requestRender();
+                                        break;
+
                                     case "Exit Drawing mode":
                                         ifDeletingLine = false;
                                         ifPainting = false;
@@ -1356,7 +1571,7 @@ public class MainActivity extends AppCompatActivity {
     private void Other(final View v) {
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"Analyze", "Animate", "Share", "Version"},
+                .asAttachList(new String[]{"Analyze", "Animate", "Screenshot", "Version"},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -1374,8 +1589,8 @@ public class MainActivity extends AppCompatActivity {
                                         SetAnimation();
                                         break;
 
-                                    case "Share":
-                                        Share(v);
+                                    case "Screenshot":
+                                        ShareScreenShot();
                                         break;
 
                                     case "Version":
@@ -1396,7 +1611,9 @@ public class MainActivity extends AppCompatActivity {
     private void PixelClassification(final View v) {
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"Run", "For Developer...","GSDT"},
+
+                .asAttachList(new String[]{"Run", "For Developer...","Anisotropic Filter","GSDT"},
+
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -1411,6 +1628,7 @@ public class MainActivity extends AppCompatActivity {
                                         //调用像素分类接口，显示分类结果
                                         Learning();
                                         break;
+
 
                                     case "GSDT":
                                         //gsdt检测斑点（eg.soma）
@@ -1436,6 +1654,11 @@ public class MainActivity extends AppCompatActivity {
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
+
+                                    case "Anisotropic Filter":
+                                        //调用各向异性滤波，显示滤波结果
+                                        AnisotropicFilter();
+
                                         break;
                                 }
                             }
@@ -1515,54 +1738,67 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void Share(View v) {
-        myrenderer.setTakePic(true);
+    private void ShareScreenShot() {
+
+        myrenderer.setTakePic(true, this);
         myGLSurfaceView.requestRender();
         final String[] imgPath = new String[1];
         final boolean[] isGet = {false};
 
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void run() {
+//        Timer timer = new Timer();
+//        timer.schedule(new TimerTask() {
+//            @RequiresApi(api = Build.VERSION_CODES.N)
+//            @Override
+//            public void run() {
+//
+//                try {
+//
+//                    if (Looper.myLooper() == null)
+//                        Looper.prepare();
+//
+//                    imgPath[0] = myrenderer.getmCapturePath();
+//                    myrenderer.resetCapturePath();
+//
+//                    if (imgPath[0] != null)
+//                    {
+//                        // Toast.makeText(v.getContext(), "save screenshot to " + imgPath[0], Toast.LENGTH_SHORT).show();
+//                        Log.v("Share","save screenshot to " + imgPath[0]);
+//
+//                        Intent shareIntent = new Intent();
+//                        String imageUri = insertImageToSystem(context, imgPath[0]);
+//                        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+//                        shareIntent.setAction(Intent.ACTION_SEND);
+//                        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imageUri));
+//                        shareIntent.setType("image/jpeg");
+//                        startActivity(Intent.createChooser(shareIntent, "Share from C3"));
+//
+//                    }
+//                    else{
+//                        Toast.makeText(getContext(), "Fail to screenshot", Toast.LENGTH_SHORT).show();
+//                        Looper.loop();
+//                    }
+//
+//
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }, 3 * 1000); // 延时0.1秒 //change from 2000 by HP
 
-                try {
+//        while (imgPath[0] == null && !isGet[0]); //why  this?? by HP
 
-                    if (Looper.myLooper() == null)
-                        Looper.prepare();
+//        if (imgPath[0] != null) {
+//            Intent shareIntent = new Intent();
+//            String imageUri = insertImageToSystem(context, imgPath[0]);
+//            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+//            shareIntent.setAction(Intent.ACTION_SEND);
+//            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imageUri));
+//            shareIntent.setType("image/jpeg");
+//            startActivity(Intent.createChooser(shareIntent, "Share from C3"));
+//        }
 
-                    imgPath[0] = myrenderer.getmCapturePath();
-                    myrenderer.resetCapturePath();
+        Log.v("Share","save screenshot to " + imgPath[0]);
 
-                    if (imgPath[0] != null)
-//                        Toast.makeText(v.getContext(), "save screenshot to " + imgPath[0], Toast.LENGTH_SHORT).show();
-                        Log.v("Share","save screenshot to " + imgPath[0]);
-                    else
-                        Toast.makeText(v.getContext(), "Fail to screenshot", Toast.LENGTH_SHORT).show();
-
-                    isGet[0] = true;
-                    Looper.loop();
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }, 2000); // 延时2秒
-
-        while (imgPath[0] == null && !isGet[0]);
-//            System.out.println("null");
-
-        if (imgPath[0] != null) {
-            Intent shareIntent = new Intent();
-            String imageUri = insertImageToSystem(context, imgPath[0]);
-            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-            shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imageUri));
-            shareIntent.setType("image/jpeg");
-            startActivity(Intent.createChooser(shareIntent, "Share from C3"));
-        }
 
     }
 
@@ -1573,6 +1809,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             url = MediaStore.Images.Media.insertImage(context.getContentResolver(), imagePath, filename, "ScreenShot from C3");
         } catch (FileNotFoundException e) {
+            System.out.println("SSSSSSSSSSSS");
             e.printStackTrace();
         }
         System.out.println("Filename: " + filename);
@@ -1719,7 +1956,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 202005016d ZX",
+                .asConfirm("Version", "version: 202005019a 14:12 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -1869,8 +2106,8 @@ public class MainActivity extends AppCompatActivity {
 
                     }else {
                         Log.v("ConnectServer","fail to connect server");
-                        ShowToast(context, "Can't connect, try again please!");
-//                        Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+//                        ShowToast(context, "Can't connect, try again please!");
+                        Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
 //                        Looper.loop();
                     }
 
@@ -2767,6 +3004,106 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    private void AnisotropicFilter(){
+
+        //获取当前显示图像
+        Image4DSimple img = myrenderer.getImg();
+
+        //调用anisotropy功能函数处理图像
+        img = anisotropy_demo(img);
+
+        //处理结果输出
+        if (img == null) {
+            //显示滤波失败
+            Toast.makeText(context, "Fail to anisotropic filtering.", Toast.LENGTH_SHORT).show();
+        }else {
+            //输出滤波结果
+            Toast.makeText(context, "Filtering succussfully.", Toast.LENGTH_SHORT).show();
+            myrenderer.ResetImg(img);
+            myGLSurfaceView.requestRender();
+            Toast.makeText(context, "Have been shown on the screen.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private Image4DSimple anisotropy_demo(Image4DSimple img) {
+
+        int width = (int)img.getSz0();
+        int height = (int)img.getSz1();
+        int depth = (int)img.getSz2();
+        int channel = (int)img.getSz3();
+        int[][][][] image = img.getDataCZYX();
+        float[][][][] result = new float[channel][width][height][depth];
+        float imax = 0;
+
+        //滤波参数
+        float k = 15;
+        float lambda = 0.25f;
+        int N = 30;
+
+        // 六邻域梯度
+        float n = 0, s = 0, e = 0, w = 0, u = 0, d = 0;
+        // 六邻域系数
+        float nc = 0, sc = 0, ec = 0, wc = 0, uc = 0, dc = 0;
+        float k2 = k*k;
+        //不同通道间不进行各向异性滤波
+        for (int i = 0; i < N; i++) {
+            System.out.println("i = "+i);
+            for (int chl = 0; chl < channel; chl++) {
+                for (int row = 1; row < height -1; row++) {
+                    for (int col = 1; col < width -1; col++) {
+                        for (int dep = 1; dep < depth -1; dep++) {
+                            // 梯度
+                            n = image[chl][dep][row - 1][col] - image[chl][dep][row][col];
+                            s = image[chl][dep][row + 1][col] - image[chl][dep][row][col];
+                            e = image[chl][dep][row][col - 1] - image[chl][dep][row][col];
+                            w = image[chl][dep][row][col + 1] - image[chl][dep][row][col];
+                            u = image[chl][dep + 1][row][col] - image[chl][dep][row][col];
+                            d = image[chl][dep - 1][row][col] - image[chl][dep][row][col];
+                            nc = (float)Math.pow(Math.E, -n*n / k2);
+                            sc = (float)Math.pow(Math.E, -s*s / k2);
+                            ec = (float)Math.pow(Math.E, -e*e / k2);
+                            wc = (float)Math.pow(Math.E, -w*w / k2);
+                            uc = (float)Math.pow(Math.E, -u*u / k2);
+                            dc = (float)Math.pow(Math.E, -d*d / k2);
+
+                            if (i == 0) {
+                                result[chl][dep][row][col] = image[chl][dep][row][col] + (lambda*(n*nc + s*sc + e*ec + w*wc + u*uc +d*dc));
+                            } else {
+                                result[chl][dep][row][col] = result[chl][dep][row][col] + (lambda*(n*nc + s*sc + e*ec + w*wc + u*uc +d*dc));
+                            }
+
+
+                            if ((i == (N-1)) && (abs(result[chl][dep][row][col]) > imax)) {
+                                imax = result[chl][dep][row][col];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        //System.out.println("imax = "+imax);
+
+        //灰度区间调整，0-255
+        for (int chl = 0; chl < channel; chl++) {
+            for (int row = 1; row < height - 1; row++) {
+                for (int col = 1; col < width - 1; col++) {
+                    for (int dep = 1; dep < depth - 1; dep++) {
+                        image[chl][dep][row][col] = (int)(result[chl][dep][row][col] / imax * 255);
+                    }
+                }
+            }
+        }
+
+        boolean bool = img.setDataFormCZYX(image,img.getSz0(),img.getSz1(),img.getSz2(),img.getSz3(),img.getDatatype(),img.getIsBig());
+
+        if (bool == false){
+            img = null;
+        }
+        return img;
+    }
+
+
 
     public void FeatureSet(){
 

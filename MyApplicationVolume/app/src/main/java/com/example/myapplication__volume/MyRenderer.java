@@ -4,12 +4,16 @@ package com.example.myapplication__volume;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.opengl.GLES10;
 import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Build;
+import android.os.Looper;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -28,6 +32,8 @@ import com.tracingfunc.gd.V_NeuronSWC_list;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -42,7 +48,7 @@ import java.util.Vector;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import static com.example.myapplication__volume.MainActivity.getContext;
+import static com.example.myapplication__volume.Myapplication.getContext;
 import static javax.microedition.khronos.opengles.GL10.GL_ALPHA_TEST;
 import static javax.microedition.khronos.opengles.GL10.GL_BLEND;
 import static javax.microedition.khronos.opengles.GL10.GL_ONE_MINUS_SRC_ALPHA;
@@ -63,15 +69,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public static final String OUTOFMEM_MESSAGE = "OutOfMemory";
     public static final String FILE_SUPPORT_ERROR = "FileSupportError";
-    public static final String FILE_PATH = "FILEPATH";
+    public static final String FILE_PATH = "Myrender_FILEPATH";
+    public static final String Time_out = "Myrender_Timeout";
 
     private MyPattern myPattern;
+    private MyPattern2D myPattern2D;
     private MyAxis myAxis;
     private MyDraw myDraw;
     public  MyAnimation myAnimation;
 
     private Image4DSimple img;
     private ByteBuffer imageBuffer;
+    private byte [] image2D;
+    private Bitmap bitmap2D;
 
     private int mProgram;
 
@@ -103,6 +113,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private final float[] modelMatrix = new float[16];
     private final float[] RTMatrix = new float[16];
     private final float[] ZRTMatrix = new float[16];
+    private final float[] mMVP2DMatrix = new float[16];
     private float[] ArotationMatrix = new float[16];
 
 
@@ -163,6 +174,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private boolean ifFileSupport = false;
 
+    private Context context_myrenderer;
 
     //初次渲染画面
     @Override
@@ -212,8 +224,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         screen_w = width;
         screen_h = height;
 
-//        if (fileType == FileType.V3draw || fileType == FileType.TIF)
-//            myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
+        if (fileType == FileType.V3draw || fileType == FileType.TIF)
+            myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
 
         if (ifFileSupport){
             myAxis = new MyAxis(mz);
@@ -279,6 +291,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             if (ifFileSupport){
                 if (fileType == FileType.V3draw || fileType == FileType.TIF)
                     myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
+                if (fileType == FileType.PNG || fileType == FileType.JPG)
+                    myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1]);
                 ifFileSupport = false;
             }
         }
@@ -385,6 +399,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         if (fileType == FileType.V3draw || fileType == FileType.TIF)
             myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, screen_w, screen_h, texture[0]);
+
+        if (fileType == FileType.JPG || fileType == FileType.PNG)
+            myPattern2D.draw(mMVP2DMatrix);
 
 //        Log.v("onDrawFrame: ", Integer.toString(markerDrawed.size()));
 
@@ -588,9 +605,34 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     mCapturePath = mCaptureDir + "/" + "Image_" + System.currentTimeMillis() +".jpg";
                     System.out.println(mCapturePath+"------------------------------");
                     try {
+                        if (Looper.myLooper() == null)
+                            Looper.prepare();
+
                         FileOutputStream fos = new FileOutputStream(mCapturePath);
                         mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-//                        fos.flush();
+
+                        String[] imgPath = new String[1];
+                        imgPath[0] = mCapturePath;
+
+                        if (imgPath[0] != null)
+                        {
+                            Log.v("Share","save screenshot to " + imgPath[0]);
+
+                            Intent shareIntent = new Intent();
+                            String imageUri = insertImageToSystem(context_myrenderer, imgPath[0]);
+                            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                            shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            shareIntent.setAction(Intent.ACTION_SEND);
+                            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imageUri));
+                            shareIntent.setType("image/jpeg");
+                            context_myrenderer.startActivity(Intent.createChooser(shareIntent, "Share from C3"));
+
+                        }
+                        else{
+                            Toast.makeText(getContext(), "Fail to screenshot", Toast.LENGTH_SHORT).show();
+                            Looper.loop();
+                        }
+
                     } catch (Exception e){
                         e.printStackTrace();
                     }
@@ -609,12 +651,27 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
+    private static String insertImageToSystem(Context context, String imagePath) {
+        String url = "";
+        String filename = imagePath.substring(imagePath.lastIndexOf("/") + 1 );
+        try {
+            url = MediaStore.Images.Media.insertImage(context.getContentResolver(), imagePath, filename, "ScreenShot from C3");
+        } catch (FileNotFoundException e) {
+            System.out.println("SSSSSSSSSSSS");
+            e.printStackTrace();
+        }
+        System.out.println("Filename: " + filename);
+        System.out.println("Url: " + url);
+        return url;
+    }
+
 
     private void setMatrix(){
 
         // Calculate the projection and view transformation
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
 
+        Matrix.multiplyMM(mMVP2DMatrix, 0, vPMatrix, 0, zoomMatrix, 0);
         // Set the Rotation matrix
 //        Matrix.setRotateM(rotationMatrix, 0, angle, 0.0f, 1.0f, 0.0f);
 //        Matrix.setRotateM(rotationXMatrix, 0, angleX, 1.0f, 0.0f, 0.0f);
@@ -754,6 +811,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             ifFileSupport = true;
         }
 
+        else if (fileType == FileType.PNG || fileType == FileType.JPG){
+            loadImage2D();
+            ifFileSupport = true;
+        }
 //        curSwcList.clear();
 //        MarkerList.clear();
 
@@ -769,6 +830,60 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
+    private void loadImage2D(){
+        File file = new File(filepath);
+        long length = 0;
+        InputStream is = null;
+        if (file.exists()){
+            try {
+                length = file.length();
+                is = new FileInputStream(file);
+//                grayscale =  rr.run(length, is);
+
+
+                Log.v("getIntensity_3d", filepath);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        else {
+            Uri uri = Uri.parse(filepath);
+
+            try {
+                ParcelFileDescriptor parcelFileDescriptor =
+                        getContext().getContentResolver().openFileDescriptor(uri, "r");
+
+                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+
+                length = (int)parcelFileDescriptor.getStatSize();
+
+                Log.v("MyPattern","Successfully load intensity");
+
+            }catch (Exception e){
+                Log.v("MyPattern","Some problems in the MyPattern when load intensity");
+            }
+
+
+        }
+        bitmap2D = BitmapFactory.decodeStream(is);
+//        ByteArrayOutputStream st = new ByteArrayOutputStream();
+        if (bitmap2D != null){
+//            ByteArrayOutputStream outputStream = new ByteArrayOutputStream(bitmap.getByteCount());
+            sz[0] = bitmap2D.getWidth();
+            sz[1] = bitmap2D.getHeight();
+            sz[2] = 1;
+//            if (fileType == FileType.PNG){
+//                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+//                image2D = outputStream.toByteArray();
+//            } else if (fileType == FileType.JPG){
+//                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+//
+//                image2D = outputStream.toByteArray();
+//            }
+        }
+    }
 
     private void SetFileType(){
 
@@ -795,6 +910,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             case ".TIF":
             case ".TIFF":
                 fileType = FileType.TIF;
+                break;
+
+            case ".JPEG":
+            case ".JPG":
+                fileType = FileType.JPG;
+                break;
+
+            case ".PNG":
+                fileType = FileType.PNG;
                 break;
 
             case "fail to read file":
@@ -2707,6 +2831,35 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
+    public void changeAllType(){
+        System.out.println("changeAllType--------------------------");
+        Vector<Integer> indexToChangeLineType = new Vector<>();
+        Vector<Integer> ChangeLineType = new Vector<>();
+        for(int i=0; i<curSwcList.seg.size(); i++){
+            V_NeuronSWC seg = curSwcList.seg.get(i);
+            indexToChangeLineType.add(i);
+            ChangeLineType.add((int) seg.row.get(0).type);
+            for(V_NeuronSWC_unit u:seg.row){
+                u.type = lastLineType;
+            }
+        }
+
+        if (process.size() < UNDO_LIMIT){
+            process.add(Operate.CHANGELINETYPE);
+            undoLineType.add(ChangeLineType);
+            undoChangeLineTypeIndex.add(indexToChangeLineType);
+        } else{
+            if (process.get(0) == Operate.CHANGELINETYPE){
+                undoLineType.remove(0);
+                undoChangeLineTypeIndex.remove(0);
+            }
+            process.remove(0);
+            process.add(Operate.CHANGELINETYPE);
+            undoLineType.add(ChangeLineType);
+            undoChangeLineTypeIndex.add(indexToChangeLineType);
+        }
+    }
+
 
 
     public void importEswc(ArrayList<ArrayList<Float>> eswc){
@@ -2856,8 +3009,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         PNG
     }
 
-    public void setTakePic(boolean takePic) {
+    public void setTakePic(boolean takePic, Context contexts) {
         isTakePic = takePic;
+        context_myrenderer = contexts;
     }
 
     public String getmCapturePath() {
