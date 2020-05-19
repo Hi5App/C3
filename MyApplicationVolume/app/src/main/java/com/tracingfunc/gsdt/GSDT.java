@@ -30,7 +30,7 @@ public class GSDT {
         int channel = p.channel;
         int z_thickness = p.z_thickness;
         //[][][] phi = new float[(int) sz0][(int) sz1][(int) sz2];
-        p.phi = new float[(int) sz0][(int) sz1][(int) sz2];
+        p.phi = new float[(int) sz2][(int) sz1][(int) sz0];
         int[] sz = new int[]{(int) sz0,(int) sz1,(int) sz2};
         out.println("FM_GSDTfun..");
 
@@ -74,7 +74,15 @@ public class GSDT {
         out.println("max_val:" + p.max_val);
 
         //prepare the processed img format
-
+        int[][][][] outimage = new int[(int) sz3][(int) sz2][(int) sz1][(int) sz0];//CZYX
+        for(int zz=0;zz<sz2;zz++){
+            for(int yy=0;yy<sz1;yy++){
+                for(int xx=0;xx<sz0;xx++){
+                    outimage[0][zz][yy][xx] = (int)p.phi[zz][yy][xx];
+                }
+            }
+        }
+        p.outImage.setDataFormCZYX(outimage,sz0,sz1,sz2,sz3,p.p4DImage.getDatatype(),p.p4DImage.getIsBig());
 
 
         //Marker --mark the location with max_value

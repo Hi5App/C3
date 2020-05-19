@@ -1654,6 +1654,7 @@ public class MainActivity extends AppCompatActivity {
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
+                                        break;
 
                                     case "Anisotropic Filter":
                                         //调用各向异性滤波，显示滤波结果
@@ -3234,6 +3235,9 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<ImageMarker> markers = p.markers;
             System.out.println("show result.."+markers.isEmpty());
             System.out.println("marker:"+ p.max_loc[0] + "," + p.max_loc[1] + "," + p.max_loc[2]);
+
+            myrenderer.ResetImg(p.outImage);
+            myGLSurfaceView.requestRender();
 
             if (Looper.myLooper() == null) {
                 Looper.prepare();
