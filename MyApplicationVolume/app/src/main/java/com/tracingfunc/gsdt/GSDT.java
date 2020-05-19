@@ -20,6 +20,7 @@ public class GSDT {
             return false;
         }
         Image4DSimple inimg = p.p4DImage;
+        p.outImage = inimg;
         long sz0 = inimg.getSz0();
         long sz1 = inimg.getSz1();
         long sz2 = inimg.getSz2();
