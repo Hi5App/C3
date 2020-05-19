@@ -3033,13 +3033,38 @@ public class MainActivity extends AppCompatActivity {
         int depth = (int)img.getSz2();
         int channel = (int)img.getSz3();
         int[][][][] image = img.getDataCZYX();
-        float[][][][] result = new float[channel][width][height][depth];
-        float imax = 0;
+        float[][][][] result = new float[channel][depth][height][width];
+        float rate;
+
+        float [] imax = new float[channel], new_imax = new float[channel];
+        float [] imin = new float[channel], new_imin = new float[channel];
+        for (int chl = 0; chl < channel; chl++) {
+            imax[chl] = 0;
+            imin[chl] = Integer.MAX_VALUE;
+        }
+
+        //获取原图灰度最值
+        for (int chl = 0; chl < channel; chl++) {
+            for (int row = 1; row < height - 1; row++) {
+                for (int col = 1; col < width - 1; col++) {
+                    for (int dep = 1; dep < depth - 1; dep++) {
+                        if (image[chl][dep][row][col] > imax[chl]) {
+                            imax[chl] = image[chl][dep][row][col];
+                        } else if (image[chl][dep][row][col] < imin[chl]) {
+                            imin[chl] = image[chl][dep][row][col];
+                        }
+                    }
+                }
+            }
+            System.out.println("imax["+chl+"] = "+imax[chl]);
+            System.out.println("imin["+chl+"] = "+imin[chl]);
+        }
+
 
         //滤波参数
         float k = 15;
-        float lambda = 0.25f;
-        int N = 30;
+        float lambda = 0.1f;
+        int N = 10;
 
         // 六邻域梯度
         float n = 0, s = 0, e = 0, w = 0, u = 0, d = 0;
@@ -3050,6 +3075,8 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < N; i++) {
             System.out.println("i = "+i);
             for (int chl = 0; chl < channel; chl++) {
+                new_imax[chl] = 0;
+                new_imin[chl] = Integer.MAX_VALUE;
                 for (int row = 1; row < height -1; row++) {
                     for (int col = 1; col < width -1; col++) {
                         for (int dep = 1; dep < depth -1; dep++) {
@@ -3073,27 +3100,63 @@ public class MainActivity extends AppCompatActivity {
                                 result[chl][dep][row][col] = result[chl][dep][row][col] + (lambda*(n*nc + s*sc + e*ec + w*wc + u*uc +d*dc));
                             }
 
+                            //获取滤波后灰度最值
 
-                            if ((i == (N-1)) && (abs(result[chl][dep][row][col]) > imax)) {
-                                imax = result[chl][dep][row][col];
+                            if (i == (N-1)) {
+                                if (result[chl][dep][row][col] > new_imax[chl]) {
+                                    new_imax[chl] = result[chl][dep][row][col];
+                                } else if (result[chl][dep][row][col] < new_imin[chl]) {
+                                    new_imin[chl] = result[chl][dep][row][col];
+                                }
                             }
                         }
                     }
                 }
+                //每次迭代后进行灰度区间线性变换
+                /*System.out.println("new_imax["+chl+"] = "+new_imax[chl]);
+                System.out.println("new_imin["+chl+"] = "+new_imin[chl]);
+
+                rate = (imax[chl]==imin[chl]) ? 1 : (new_imax[chl]-new_imin[chl])/(imax[chl]-imin[chl]);
+                for (int row = 1; row < height - 1; row++) {
+                    for (int col = 1; col < width - 1; col++) {
+                        for (int dep = 1; dep < depth - 1; dep++) {
+                            if (result[chl][dep][row][col]>imax[chl]) {
+                                result[chl][dep][row][col]=imax[chl];
+                            }
+                            else if (result[chl][dep][row][col]<imin[chl]) {
+                                result[chl][dep][row][col]=imin[chl];
+                            }
+                            if (i == N-1) {
+                                image[chl][dep][row][col] = (int)((result[chl][dep][row][col]-imin[chl]) * rate + new_imin[chl]);
+                            } else {
+                                result[chl][dep][row][col] = ((result[chl][dep][row][col]-imin[chl]) * rate + new_imin[chl]);
+                            }
+                        }
+                    }
+                }
+
+                 */
             }
         }
         //System.out.println("imax = "+imax);
 
-        //灰度区间调整，0-255
+        //N次迭代后进行灰度区间线性变换
+
         for (int chl = 0; chl < channel; chl++) {
+            System.out.println("new_imax["+chl+"] = "+new_imax[chl]);
+            System.out.println("new_imin["+chl+"] = "+new_imin[chl]);
+            rate = (imax[chl]==imin[chl]) ? 1 : (new_imax[chl]-new_imin[chl])/(imax[chl]-imin[chl]);
             for (int row = 1; row < height - 1; row++) {
                 for (int col = 1; col < width - 1; col++) {
                     for (int dep = 1; dep < depth - 1; dep++) {
-                        image[chl][dep][row][col] = (int)(result[chl][dep][row][col] / imax * 255);
+                        if (result[chl][dep][row][col]>imax[chl]) result[chl][dep][row][col]=imax[chl];
+                        else if (result[chl][dep][row][col]<imin[chl]) result[chl][dep][row][col]=imin[chl];
+                        image[chl][dep][row][col] = (int)((result[chl][dep][row][col]-imin[chl]) * rate + new_imin[chl]);
                     }
                 }
             }
         }
+
 
         boolean bool = img.setDataFormCZYX(image,img.getSz0(),img.getSz1(),img.getSz2(),img.getSz3(),img.getDatatype(),img.getIsBig());
 
