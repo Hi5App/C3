@@ -451,6 +451,112 @@ public class RemoteImg extends Socket {
     }
 
     private void PullImageBlcok(final String offset_x, final String offset_y, final String offset_z, final String size, final Context context){
+
+        final int[] x = {200};
+        final int[] y = {200};
+        final int[] z = {200};
+
+        new Thread() {
+
+            public void run() {
+
+                while (x[0] < 10000 && y[0] < 10000 && z[0] < 5000){
+                    try {
+
+                        if(Looper.myLooper() == null){
+                            Looper.prepare();
+                        }
+
+//                    Filesocket_receive filesocket_receive = new Filesocket_receive();
+//                    filesocket_receive.filesocket = new Socket(ip, 9002);
+//                    filesocket_receive.mReader = new BufferedReader(new InputStreamReader(filesocket_receive.filesocket.getInputStream(), "UTF-8"));
+//                    filesocket_receive.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_receive.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
+//                    filesocket_receive.path = context.getExternalFilesDir(null).toString();
+
+                        String filename = getFilename(context);
+
+                        String offset_x = Integer.toString(x[0]);
+                        String offset_y = Integer.toString(y[0]);
+                        String offset_z = Integer.toString(z[0]);
+
+
+                        if (ImgSocket.isConnected()) {
+
+                            Filesocket_receive filesocket_receive = new Filesocket_receive();
+                            filesocket_receive.filesocket = new Socket(ip, 9002);
+                            filesocket_receive.mReader = new BufferedReader(new InputStreamReader(filesocket_receive.filesocket.getInputStream(), "UTF-8"));
+                            filesocket_receive.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_receive.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
+                            filesocket_receive.path = context.getExternalFilesDir(null).toString();
+
+
+//                        String storefilename = filename.split("RES")[0] +
+//                                "_" + offset_x_i + "_" + offset_y_i + "_" + offset_z_i + "_" + size +"_" + size +"_" + size + ".v3draw";
+
+
+                            Context[] contexts = new Context[1];
+                            contexts[0] = context;
+
+                            if (filesocket_receive.filesocket.isConnected()){
+
+
+
+                                String content = ImgReader.readLine();
+
+                                if ( content.contains(":file connected.") ){
+
+                                    Log.v("PullImageblock", content);
+
+                                    if (!ImgSocket.isOutputShutdown()) {
+                                        System.out.println("-------------pull img block---------------");
+
+                                        ImgPWriter.println(filename + "__" + offset_x + "__" + offset_y + "__" + offset_z + "__" + size + ":imgblock.");
+//                                  ImgPWriter.println(filename + "__" + offset_x_i + "__" + offset_y_i + "__" + offset_z_i + "__" + size + ":imgblock.");
+                                        ImgPWriter.flush();
+
+                                        System.out.println("-------------" + filename + "---------------");
+
+                                    }
+
+                                    String storefilename = filename.split("RES")[0] +
+                                            "_" + offset_x + "_" + offset_y + "_" + offset_z + "_" + size +"_" + size +"_" + size + ".v3draw";
+
+
+                                    Log.v("PullImageBlcok", "x: " + offset_x + ", y:" + offset_y + ", z:" +offset_z + ", size: " + size);
+
+                                    filesocket_receive.readImg(storefilename, contexts);
+
+                                    Log.v("PullImageBlcok", "x: " + offset_x + ", y:" + offset_y + ", z:" +offset_z + ", size: " + size +  " successfully---------");
+
+                                }
+
+                            }
+
+                        }
+
+//                        disconnectFromHost();
+
+                        Log.v("PullImageBlcok", "x: " + offset_x + ", y:" + offset_y + ", z:" +offset_z + ", size: " + size +  " successfully---------");
+
+                        x[0] += 20;
+                        y[0] += 20;
+                        z[0] += 20;
+
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+                        Looper.loop();
+                    }
+
+                }
+
+            }
+        }.start();
+    }
+
+
+
+    private void PullImageBlcok_backup(final String offset_x, final String offset_y, final String offset_z, final String size, final Context context){
         new Thread() {
 
             public void run() {

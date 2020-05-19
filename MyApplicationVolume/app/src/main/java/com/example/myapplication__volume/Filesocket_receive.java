@@ -1,12 +1,8 @@
 package com.example.myapplication__volume;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
-
-import com.lxj.xpopup.XPopup;
-import com.lxj.xpopup.core.BasePopupView;
 
 import org.apache.commons.io.IOUtils;
 
@@ -24,9 +20,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import static com.example.myapplication__volume.JumpActivity.EXTRA_MESSAGE;
-import static com.example.myapplication__volume.JumpActivity.Timeout;
 
 
 public class Filesocket_receive {
@@ -280,9 +273,9 @@ public class Filesocket_receive {
 
         Boolean stop = false;
 
-        BasePopupView popupView = new XPopup.Builder(context[0])
-                .asLoading("Downloading......");
-        popupView.show();
+//        BasePopupView popupView = new XPopup.Builder(context[0])
+//                .asLoading("Downloading......");
+//        popupView.show();
 
         boolean[] ifDownloaded = { false };
 //        Handler handler = new Handler();
@@ -335,11 +328,11 @@ public class Filesocket_receive {
 
                         try {
 
-                            Intent intent = new Intent(context[0], JumpActivity.class);
-                            String message = "Time out, please try again!";
-
-                            intent.putExtra(Timeout, message);
-                            context[0].startActivity(intent);
+//                            Intent intent = new Intent(context[0], JumpActivity.class);
+//                            String message = "Time out, please try again!";
+//
+//                            intent.putExtra(Timeout, message);
+//                            context[0].startActivity(intent);
 
                             Log.v("---------Image------:", "bufferreader closed!");
                             in.close();
@@ -706,15 +699,15 @@ public class Filesocket_receive {
 
         Log.v("Filesocket_receive: ", filename);
 
-        if (ifDownloaded[0]){
-            Intent intent = new Intent(context[0], JumpActivity.class);
-            String message = path + "/" + filename;
-
-            Log.v("Filesocket_receive: ", message);
-            intent.putExtra(EXTRA_MESSAGE, message);
-            context[0].startActivity(intent);
-            context[0] = null;
-        }
+//        if (ifDownloaded[0]){
+//            Intent intent = new Intent(context[0], JumpActivity.class);
+//            String message = path + "/" + filename;
+//
+//            Log.v("Filesocket_receive: ", message);
+//            intent.putExtra(EXTRA_MESSAGE, message);
+//            context[0].startActivity(intent);
+//            context[0] = null;
+//        }
 
     }
 
