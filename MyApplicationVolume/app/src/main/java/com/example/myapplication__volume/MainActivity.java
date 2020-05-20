@@ -1657,8 +1657,28 @@ public class MainActivity extends AppCompatActivity {
 
                                     case "Anisotropic Filter":
                                         //调用各向异性滤波，显示滤波结果
-                                        AnisotropicFilter();
+                                        try {
+                                            Log.v("Mainactivity", "AnisotropicFilter function.");
+                                            Toast.makeText(v.getContext(), "AnisotropicFilter function start~", Toast.LENGTH_SHORT).show();
+                                            Timer timer = new Timer();
+                                            timer.schedule(new TimerTask() {
+                                                @RequiresApi(api = Build.VERSION_CODES.N)
+                                                @Override
+                                                public void run() {
 
+                                                    try {
+                                                        Log.v("Mainactivity", "AnisotropicFilter start.");
+                                                        AnisotropicFilter();
+                                                        Log.v("Mainactivity", "AnisotropicFilter end.");
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+
+                                                }
+                                            }, 0); // 延时0秒
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
                                         break;
                                 }
                             }
@@ -1956,7 +1976,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 202005020a 00:10 build",
+                .asConfirm("Version", "version: 202005020a 16:34 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -3009,20 +3029,48 @@ public class MainActivity extends AppCompatActivity {
 
         //获取当前显示图像
         Image4DSimple img = myrenderer.getImg();
+        if(img == null || !img.valid()){
+            Log.v("AnisotropicFilter", "Please load img first!");
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
+            }
+            Toast.makeText(this, "Please load image first!", Toast.LENGTH_LONG).show();
+            Looper.loop();
+            return;
+        }
 
-        //调用anisotropy功能函数处理图像
-        img = anisotropy_demo(img);
+        Log.v("AnisotropicFilter", "Have got the image successfully!!");
+        try {
+            //Log.v("AnisotropicFilter", "here");///problems
+            System.out.println("Start here.....");
+            //调用anisotropy功能函数处理图像
+            img = anisotropy_demo(img);
+            Log.v("AnisotropicFilter", "AnisotropicFilter function finished");
 
-        //处理结果输出
-        if (img == null) {
-            //显示滤波失败
-            Toast.makeText(context, "Fail to anisotropic filtering.", Toast.LENGTH_SHORT).show();
-        }else {
-            //输出滤波结果
-            Toast.makeText(context, "Filtering succussfully.", Toast.LENGTH_SHORT).show();
-            myrenderer.ResetImg(img);
-            myGLSurfaceView.requestRender();
-            Toast.makeText(context, "Have been shown on the screen.", Toast.LENGTH_SHORT).show();
+            //处理结果输出
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
+            }
+
+            if (img == null) {
+                //显示滤波失败
+                System.out.println("Fail to anisotropic filtering");
+                Toast.makeText(this, "Fail to anisotropic filtering.", Toast.LENGTH_SHORT).show();
+            }else {
+                //输出滤波结果
+                Toast.makeText(this, "Filtering successfully.", Toast.LENGTH_SHORT).show();
+                myrenderer.ResetImg(img);
+                myGLSurfaceView.requestRender();
+                Toast.makeText(this, "Have been shown on the screen.", Toast.LENGTH_SHORT).show();
+            }
+            Looper.loop();
+
+        }catch (Exception e) {
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
+            }
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            Looper.loop();
         }
     }
 
