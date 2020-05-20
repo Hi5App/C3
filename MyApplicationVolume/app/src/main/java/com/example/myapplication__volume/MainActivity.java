@@ -3064,11 +3064,10 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("imin["+chl+"] = "+imin[chl]);
         }
 
-
         //滤波参数
         float k = 15;
-        float lambda = 0.25f;
-        int N = 3;
+        float lambda = 1/6;
+        int N = 15;
 
         // 六邻域梯度
         float n = 0, s = 0, e = 0, w = 0, u = 0, d = 0;
@@ -3077,7 +3076,7 @@ public class MainActivity extends AppCompatActivity {
         float k2 = k*k;
         //不同通道间不进行各向异性滤波
         for (int i = 0; i < N; i++) {
-            System.out.println("i = "+i);
+            //System.out.println("i = "+i);
             for (int chl = 0; chl < channel; chl++) {
                 new_imax[chl] = 0;
                 new_imin[chl] = Integer.MAX_VALUE;
@@ -3145,7 +3144,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        //System.out.println("imax = "+imax);
+        //测试输出
+        System.out.println("***********************************");
+        for (int chl = 0; chl < channel; chl++) {
+            for (int row = 32; row < height - 65; row++) {
+                for (int col = 32; col < width - 65; col++) {
+                    System.out.print((result[chl][48][row][col]-image[chl][48][row][col])+"  ");
+                }
+                System.out.println();
+                System.out.println("row = "+row);
+            }
+        }
+        System.out.println("***********************************");
+
 
         //N次迭代后进行灰度区间线性变换
 
