@@ -105,7 +105,6 @@ import java.util.Vector;
 
 import cn.carbs.android.library.MDDialog;
 
-import static java.lang.Math.abs;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
@@ -348,9 +347,11 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+        FrameLayout.LayoutParams lp_draw_i = new FrameLayout.LayoutParams(200, 144);
+
         draw_i=new ImageButton(this);
         draw_i.setImageResource(R.drawable.ic_create_black_24dp);
-        ll_top.addView(draw_i);
+        ll_top.addView(draw_i,lp_draw_i);
 
         draw_i.setOnClickListener(new Button.OnClickListener() {
             @Override
@@ -369,9 +370,11 @@ public class MainActivity extends AppCompatActivity {
         });*/
 
 
+        FrameLayout.LayoutParams lp_tracing_i = new FrameLayout.LayoutParams(200, 144);
+
         tracing_i=new ImageButton(this);
         tracing_i.setImageResource(R.drawable.ic_device_hub_black_24dp);
-        ll_top.addView(tracing_i);
+        ll_top.addView(tracing_i,lp_tracing_i);
 
         tracing_i.setOnClickListener(new Button.OnClickListener() {
             @Override
@@ -390,9 +393,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });*/
 
+        FrameLayout.LayoutParams lp_classify_i = new FrameLayout.LayoutParams(200, 144);
+
         classify_i=new ImageButton(this);
         classify_i.setImageResource(R.drawable.ic_bubble_chart_black_24dp);
-        ll_top.addView(classify_i);
+        ll_top.addView(classify_i,lp_classify_i);
 
         classify_i.setOnClickListener(new Button.OnClickListener() {
             @Override
@@ -1357,6 +1362,7 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(broadcastReceiver, intentFilter);
     }
 
+
     /**
      * function for the draw button
      *
@@ -1383,8 +1389,8 @@ public class MainActivity extends AppCompatActivity {
                                         ifSpliting = false;
                                         ifChangeLineType = false;
                                         if (ifPoint) {
-                                            Draw.setText("PinPoint");
-                                            Draw.setTextColor(Color.RED);
+//                                            Draw.setText("PinPoint");
+//                                            Draw.setTextColor(Color.RED);
 
                                             try {
                                                 ifSwitch = false;
@@ -1395,8 +1401,8 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
-                                            Draw.setText("DRAW");
-                                            Draw.setTextColor(Color.BLACK);
+//                                            Draw.setText("DRAW");
+//                                            Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
                                             ll_top.removeView(buttonUndo);
                                         }
@@ -1410,8 +1416,8 @@ public class MainActivity extends AppCompatActivity {
                                         ifSpliting = false;
                                         ifChangeLineType = false;
                                         if (ifPainting) {
-                                            Draw.setText("Draw Curve");
-                                            Draw.setTextColor(Color.RED);
+//                                            Draw.setText("Draw Curve");
+//                                            Draw.setTextColor(Color.RED);
 
                                             try {
                                                 ifSwitch = false;
@@ -1422,8 +1428,8 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
-                                            Draw.setText("DRAW");
-                                            Draw.setTextColor(Color.BLACK);
+//                                            Draw.setText("DRAW");
+//                                            Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
                                             ll_top.removeView(buttonUndo);
                                         }
@@ -1437,8 +1443,8 @@ public class MainActivity extends AppCompatActivity {
                                         ifSpliting = false;
                                         ifChangeLineType = false;
                                         if (ifDeletingMarker) {
-                                            Draw.setText("Delete marker");
-                                            Draw.setTextColor(Color.RED);
+//                                            Draw.setText("Delete marker");
+//                                            Draw.setTextColor(Color.RED);
 
                                             try {
                                                 ifSwitch = false;
@@ -1449,8 +1455,8 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
-                                            Draw.setText("DRAW");
-                                            Draw.setTextColor(Color.BLACK);
+//                                            Draw.setText("DRAW");
+//                                            Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
                                             ll_top.removeView(buttonUndo);
                                         }
@@ -1464,8 +1470,8 @@ public class MainActivity extends AppCompatActivity {
                                         ifSpliting = false;
                                         ifChangeLineType = false;
                                         if (ifDeletingLine) {
-                                            Draw.setText("Delete curve");
-                                            Draw.setTextColor(Color.RED);
+//                                            Draw.setText("Delete curve");
+//                                            Draw.setTextColor(Color.RED);
 
                                             try {
                                                 ifSwitch = false;
@@ -1476,8 +1482,8 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
-                                            Draw.setText("DRAW");
-                                            Draw.setTextColor(Color.BLACK);
+//                                            Draw.setText("DRAW");
+//                                            Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
                                             ll_top.removeView(buttonUndo);
                                         }
@@ -1491,8 +1497,8 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingMarker = false;
                                         ifChangeLineType = false;
                                         if (ifSpliting) {
-                                            Draw.setText("Split");
-                                            Draw.setTextColor(Color.RED);
+//                                            Draw.setText("Split");
+//                                            Draw.setTextColor(Color.RED);
 
                                             try {
                                                 ifSwitch = false;
@@ -1503,8 +1509,8 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
-                                            Draw.setText("DRAW");
-                                            Draw.setTextColor(Color.BLACK);
+//                                            Draw.setText("DRAW");
+//                                            Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
                                             ll_top.removeView(buttonUndo);
                                         }
@@ -1524,8 +1530,8 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingMarker = false;
                                         ifSpliting = false;
                                         if(ifChangeLineType){
-                                            Draw.setText("Change PenColor");
-                                            Draw.setTextColor(Color.RED);
+//                                            Draw.setText("Change PenColor");
+//                                            Draw.setTextColor(Color.RED);
 
                                             try {
                                                 ifSwitch = false;
@@ -1536,8 +1542,8 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
-                                            Draw.setText("DRAW");
-                                            Draw.setTextColor(Color.BLACK);
+//                                            Draw.setText("DRAW");
+//                                            Draw.setTextColor(Color.BLACK);
                                             ll_bottom.removeView(Switch);
                                             ll_top.removeView(buttonUndo);
                                         }
@@ -1554,8 +1560,8 @@ public class MainActivity extends AppCompatActivity {
                                         ifPoint = false;
                                         ifDeletingMarker = false;
                                         ifSpliting = false;
-                                        Draw.setText("DRAW");
-                                        Draw.setTextColor(Color.BLACK);
+//                                        Draw.setText("DRAW");
+//                                        Draw.setTextColor(Color.BLACK);
                                         ll_bottom.removeView(Switch);
                                         ll_top.removeView(buttonUndo);
                                         break;
@@ -1565,6 +1571,7 @@ public class MainActivity extends AppCompatActivity {
                         })
                 .show();
     }
+
 
 
     /**
@@ -1643,6 +1650,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
     /**
      * function for the other button
      *
@@ -1686,6 +1694,7 @@ public class MainActivity extends AppCompatActivity {
                         })
                 .show();
     }
+
 
     //像素分类界面
     private void PixelClassification(final View v) {
@@ -2300,7 +2309,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 202005020a 16:34 build",
+                .asConfirm("Version", "version: 202005020e 21:55 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
