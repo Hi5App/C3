@@ -3034,6 +3034,7 @@ public class MainActivity extends AppCompatActivity {
         int channel = (int)img.getSz3();
         int[][][][] image = img.getDataCZYX();
         float[][][][] result = new float[channel][depth][height][width];
+        float[][][][] imageCopy = new float[channel][depth][height][width];
         float rate;
 
         float [] imax = new float[channel], new_imax = new float[channel];
@@ -3053,6 +3054,9 @@ public class MainActivity extends AppCompatActivity {
                         } else if (image[chl][dep][row][col] < imin[chl]) {
                             imin[chl] = image[chl][dep][row][col];
                         }
+                        //初始化result和resultCopy
+                        result[chl][dep][row][col] = image[chl][dep][row][col];
+                        imageCopy[chl][dep][row][col] = image[chl][dep][row][col];
                     }
                 }
             }
@@ -3063,8 +3067,8 @@ public class MainActivity extends AppCompatActivity {
 
         //滤波参数
         float k = 15;
-        float lambda = 0.1f;
-        int N = 10;
+        float lambda = 0.25f;
+        int N = 3;
 
         // 六邻域梯度
         float n = 0, s = 0, e = 0, w = 0, u = 0, d = 0;
@@ -3081,24 +3085,19 @@ public class MainActivity extends AppCompatActivity {
                     for (int col = 1; col < width -1; col++) {
                         for (int dep = 1; dep < depth -1; dep++) {
                             // 梯度
-                            n = image[chl][dep][row - 1][col] - image[chl][dep][row][col];
-                            s = image[chl][dep][row + 1][col] - image[chl][dep][row][col];
-                            e = image[chl][dep][row][col - 1] - image[chl][dep][row][col];
-                            w = image[chl][dep][row][col + 1] - image[chl][dep][row][col];
-                            u = image[chl][dep + 1][row][col] - image[chl][dep][row][col];
-                            d = image[chl][dep - 1][row][col] - image[chl][dep][row][col];
+                            n = imageCopy[chl][dep][row - 1][col] - imageCopy[chl][dep][row][col];
+                            s = imageCopy[chl][dep][row + 1][col] - imageCopy[chl][dep][row][col];
+                            e = imageCopy[chl][dep][row][col - 1] - imageCopy[chl][dep][row][col];
+                            w = imageCopy[chl][dep][row][col + 1] - imageCopy[chl][dep][row][col];
+                            u = imageCopy[chl][dep + 1][row][col] - imageCopy[chl][dep][row][col];
+                            d = imageCopy[chl][dep - 1][row][col] - imageCopy[chl][dep][row][col];
                             nc = (float)Math.pow(Math.E, -n*n / k2);
                             sc = (float)Math.pow(Math.E, -s*s / k2);
                             ec = (float)Math.pow(Math.E, -e*e / k2);
                             wc = (float)Math.pow(Math.E, -w*w / k2);
                             uc = (float)Math.pow(Math.E, -u*u / k2);
                             dc = (float)Math.pow(Math.E, -d*d / k2);
-
-                            if (i == 0) {
-                                result[chl][dep][row][col] = image[chl][dep][row][col] + (lambda*(n*nc + s*sc + e*ec + w*wc + u*uc +d*dc));
-                            } else {
-                                result[chl][dep][row][col] = result[chl][dep][row][col] + (lambda*(n*nc + s*sc + e*ec + w*wc + u*uc +d*dc));
-                            }
+                            result[chl][dep][row][col] = imageCopy[chl][dep][row][col] + (lambda*(n*nc + s*sc + e*ec + w*wc + u*uc +d*dc));
 
                             //获取滤波后灰度最值
 
@@ -3136,6 +3135,14 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                  */
+                //处理结果拷贝
+                for (int row = 1; row < height - 1; row++) {
+                    for (int col = 1; col < width - 1; col++) {
+                        for (int dep = 1; dep < depth - 1; dep++) {
+                            imageCopy[chl][dep][row][col] = result[chl][dep][row][col];
+                        }
+                    }
+                }
             }
         }
         //System.out.println("imax = "+imax);
@@ -3149,9 +3156,9 @@ public class MainActivity extends AppCompatActivity {
             for (int row = 1; row < height - 1; row++) {
                 for (int col = 1; col < width - 1; col++) {
                     for (int dep = 1; dep < depth - 1; dep++) {
-                        if (result[chl][dep][row][col]>imax[chl]) result[chl][dep][row][col]=imax[chl];
-                        else if (result[chl][dep][row][col]<imin[chl]) result[chl][dep][row][col]=imin[chl];
-                        image[chl][dep][row][col] = (int)((result[chl][dep][row][col]-imin[chl]) * rate + new_imin[chl]);
+                        //if (result[chl][dep][row][col]>imax[chl]) result[chl][dep][row][col]=imax[chl];
+                        //else if (result[chl][dep][row][col]<imin[chl]) result[chl][dep][row][col]=imin[chl];
+                        image[chl][dep][row][col] = (int)((result[chl][dep][row][col]-new_imin[chl]) * rate + imin[chl]);
                     }
                 }
             }
