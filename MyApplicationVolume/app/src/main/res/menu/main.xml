@@ -33,6 +33,13 @@
         android:title="Animate"
         app:showAsAction="never" />
 
+
+    <item
+        android:id="@+id/sensor"
+        android:orderInCategory="4"
+        android:title="Sensor"
+        app:showAsAction="never" />
+
     <item
         android:id="@+id/version"
         android:orderInCategory="4"
