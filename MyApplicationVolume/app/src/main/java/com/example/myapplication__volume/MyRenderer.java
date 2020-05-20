@@ -253,20 +253,20 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         // in the onDrawFrame() method
 //        Matrix.orthoM(projectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
 
-//        if(width>height) {
-//            Matrix.orthoM(projectionMatrix, 0, -ratio, ratio, -1,1,1, 100);
-//        }
-//        else{
-//            Matrix.orthoM(projectionMatrix, 0, -1, 1, -1/ratio, 1/ratio,1, 100);
-//        }
+        if (fileType == FileType.PNG || fileType == FileType.JPG) {
+            if (width > height) {
+                Matrix.orthoM(projectionMatrix, 0, -ratio, ratio, -1, 1, 1, 100);
+            } else {
+                Matrix.orthoM(projectionMatrix, 0, -1, 1, -1 / ratio, 1 / ratio, 1, 100);
+            }
+        }else {
 
-        if(width>height) {
-            Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1,1,2f, 100);
+            if (width > height) {
+                Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1, 1, 2f, 100);
+            } else {
+                Matrix.frustumM(projectionMatrix, 0, -1, 1, -1 / ratio, 1 / ratio, 2f, 100);
+            }
         }
-        else{
-            Matrix.frustumM(projectionMatrix, 0, -1, 1, -1/ratio, 1/ratio,2f, 100);
-        }
-
         onDrawFrame(gl);
 //        Matrix.perspectiveM(projectionMatrix,0,45,1,0.1f,100f);
 
@@ -806,6 +806,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     //设置文件路径
     public void SetPath(String message){
 
+        myAxis = null;
         cur_scale = 1.0f;
         filepath = message;
         SetFileType();
@@ -831,6 +832,16 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        MarkerList.clear();
 
         Log.v("SetPath", Arrays.toString(mz));
+
+        Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
+
+        Matrix.setIdentityM(zoomMatrix,0);//建立单位矩阵
+        Matrix.setIdentityM(zoomAfterMatrix, 0);
+        Matrix.setIdentityM(rotationMatrix, 0);
+        Matrix.setRotateM(rotationMatrix, 0, 0, -1.0f, -1.0f, 0.0f);
+//        Matrix.setIdentityM(translateAfterMatrix, 0);
+        // Set the camera position (View matrix)
+        Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 
 
 //        if (fileType == FileType.V3draw || fileType == FileType.TIF)
@@ -895,7 +906,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             mz[1] = (float) sz[1]/max_dim;
             mz[2] = Math.max(mz[0], mz[1]);
 
-            zoom(16.0f);
+//            zoom(16.0f);
 //            if (fileType == FileType.PNG){
 //                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
 //                image2D = outputStream.toByteArray();
@@ -905,6 +916,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                image2D = outputStream.toByteArray();
 //            }
         }
+
+//        float ratio = (float) screen_w / screen_h;
+//
+//        if(screen_w > screen_h) {
+//            Matrix.orthoM(projectionMatrix, 0, -ratio, ratio, -1,1,1, 100);
+//        }
+//        else{
+//            Matrix.orthoM(projectionMatrix, 0, -1, 1, -1/ratio, 1/ratio,1, 100);
+//        }
     }
 
     private void SetFileType(){
@@ -1109,7 +1129,56 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
+    public void solve2DMarker(float x, float y){
+        if (ifIn2DImage(x, y)){
 
+        }
+    }
+
+    public boolean ifIn2DImage(float x, float y){
+        float [] x1 = new float[]{0 ,0, mz[2] / 2, 1};
+        float [] x2 = new float[]{mz[0], 0, mz[2] / 2, 1};
+        float [] x3 = new float[]{0, mz[1], mz[2] / 2, 1};
+        float [] x4 = new float[]{mz[0], mz[1], mz[2] / 2, 1};
+        float [] x1r = new float[4];
+        float [] x2r = new float[4];
+        float [] x3r = new float[4];
+        float [] x4r = new float[4];
+
+        Matrix.multiplyMV(x1r, 0, finalMatrix, 0, x1, 0);
+        Matrix.multiplyMV(x2r, 0, finalMatrix, 0, x2, 0);
+        Matrix.multiplyMV(x3r, 0, finalMatrix, 0, x3, 0);
+        Matrix.multiplyMV(x4r, 0, finalMatrix, 0, x4, 0);
+
+        devideByw(x1r);
+        devideByw(x2r);
+        devideByw(x3r);
+        devideByw(x4r);
+
+        float signOfTrig = (x2r[0] - x1r[0]) * (x3r[1] - x1r[1]) - (x2r[1] - x1r[1]) * (x3r[0] - x1r[0]);
+        float signOfAB = (x2r[0] - x1r[0]) * (y - x1r[1]) - (x2r[1] - x1r[1]) * (x - x1r[0]);
+        float signOfCA = (x1r[0] - x3r[0]) * (y - x3r[1]) - (x1r[1] - x3r[1]) * (x - x3r[0]);
+        float signOfBC = (x3r[0] - x2r[0]) * (y - x3r[1]) - (x3r[1] - x2r[1]) * (x - x3r[0]);
+
+        boolean d1 = (signOfAB * signOfTrig > 0);
+        boolean d2 = (signOfCA * signOfTrig > 0);
+        boolean d3 = (signOfBC * signOfTrig > 0);
+
+        boolean b1 =  d1 && d2 && d3;
+
+        float signOfTrig2 = (x3r[0] - x2r[0]) * (x4r[1] - x2r[1]) - (x3r[1] - x2r[1]) * (x4r[0] - x2r[0]);
+        float signOfCB = (x3r[0] - x2r[0]) * (y - x2r[1]) - (x3r[1] - x2r[1]) * (x - x2r[0]);
+        float signOfDB = (x2r[0] - x4r[0]) * (y - x4r[1]) - (x2r[1] - x4r[1]) * (x - x4r[0]);
+        float signOfDC = (x4r[0] - x3r[0]) * (y - x4r[1]) - (x4r[1] - x3r[1]) * (x - x4r[0]);
+
+        boolean d4 = (signOfCB * signOfTrig2 > 0);
+        boolean d5 = (signOfDB * signOfTrig2 > 0);
+        boolean d6 = (signOfDC * signOfTrig2 > 0);
+
+        boolean b2 = d4 && d5 && d6;
+
+        return b1 || b2;
+    }
 
     // add the marker drawed into markerlist
     public void setMarkerDrawed(float x, float y){
