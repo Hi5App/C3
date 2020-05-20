@@ -99,6 +99,8 @@ public class FileManager {
 //            int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
             returnCursor.moveToFirst();
             String filename = returnCursor.getString(nameIndex);
+
+            System.out.println("------filename: " + filename + "---------");
             filetype= filename.substring(filename.lastIndexOf(".")).toUpperCase();
 
         }catch (Exception e){

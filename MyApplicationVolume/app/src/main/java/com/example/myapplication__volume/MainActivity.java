@@ -155,6 +155,9 @@ public class MainActivity extends AppCompatActivity {
     private Button Sync;
     private Button Switch;
     private Button Share;
+    private ImageButton draw_i;
+    private ImageButton tracing_i;
+    private ImageButton classify_i;
 
     private Button PixelClassification;
     private boolean[][]select= {{true,true,true,false,false,false,false},
@@ -293,7 +296,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        FileManager = new Button(this);
+        /*FileManager = new Button(this);
         FileManager.setText("File");
         ll_top.addView(FileManager);
 
@@ -302,10 +305,21 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 FileManager(v);
             }
+        });*/
+
+
+
+        draw_i=new ImageButton(this);
+        draw_i.setImageResource(R.drawable.ic_create_black_24dp);
+        ll_top.addView(draw_i);
+
+        draw_i.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Draw(v);
+            }
         });
-
-
-        Draw = new Button(this);
+        /*Draw = new Button(this);
         Draw.setText("Draw");
         ll_top.addView(Draw);
 
@@ -313,10 +327,21 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Draw(v);
             }
+        });*/
+
+
+        tracing_i=new ImageButton(this);
+        tracing_i.setImageResource(R.drawable.ic_device_hub_black_24dp);
+        ll_top.addView(tracing_i);
+
+        tracing_i.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Tracing(v);
+            }
         });
 
-
-        Tracing = new Button(this);
+        /*Tracing = new Button(this);
         Tracing.setText("Trace");
         ll_top.addView(Tracing);
 
@@ -324,10 +349,24 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Tracing(v);
             }
+        });*/
+
+        classify_i=new ImageButton(this);
+        classify_i.setImageResource(R.drawable.ic_bubble_chart_black_24dp);
+        ll_top.addView(classify_i);
+
+        classify_i.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PixelClassification(v);
+            }
         });
 
+
+
+
         //像素分类总button
-        PixelClassification = new Button(this);
+        /*PixelClassification = new Button(this);
         PixelClassification.setText("Classify");
         ll_top.addView(PixelClassification);
 
@@ -335,7 +374,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 PixelClassification(v);
             }
-        });
+        });*/
 
 
 //        Rotation = new Button(this);
@@ -452,7 +491,7 @@ public class MainActivity extends AppCompatActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.file:
-//                Other(item.getActionView());
+                File_icon();
                 return true;
             case R.id.share:
                 Share_icon();
@@ -3748,5 +3787,75 @@ public class MainActivity extends AppCompatActivity {
 //
 //        mHandler.sendEmptyMessage(0);
     }
+
+    public void File_icon(){
+
+        new XPopup.Builder(this)
+//        .maxWidth(400)
+//        .maxHeight(1350)
+                .asCenterList("File Open&Save", new String[]{"Open LocalFile", "Open RemoteFile", "Load SWCFile","Camera"},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text) {
+                                    case "Open LocalFile":
+                                        loadLocalFile();
+                                        break;
+                                    case "Open RemoteFile":
+                                        remote_i();
+                                        break;
+                                    case "Load SWCFile":
+                                        LoadSWC();
+                                        break;
+                                    case"Camera":
+                                        Camera();
+                                    default:
+//                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "Default in file", Toast.LENGTH_SHORT).show();
+
+                                }
+                            }
+                        })
+                .show();
+
+    }
+    public void remote_i(){
+
+        context = this;
+        if ( select_img ){
+
+            Select_img();
+//            select_img = false;
+        }else {
+
+            new XPopup.Builder(this)
+                    .asCenterList("Remote File",new String[]{"Select file", "Select block", "Download by http"},
+                            new OnSelectListener() {
+                                @Override
+                                public void onSelect(int position, String text) {
+                                    switch (text) {
+                                        case "Select block":
+                                            remoteImg.Selectblock(context, false);
+                                            break;
+
+                                        case "Select file":
+                                            Select_img();
+                                            break;
+
+                                        case "Download by http":
+                                            downloadFile();
+                                            break;
+                                    }
+                                }
+                            })
+                    .show();
+        }
+
+
+    }
+
+
+
+
 
 }
