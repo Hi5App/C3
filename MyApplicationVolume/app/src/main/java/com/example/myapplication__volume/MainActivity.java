@@ -3066,8 +3066,8 @@ public class MainActivity extends AppCompatActivity {
 
         //滤波参数
         float k = 15;
-        float lambda = 1/6;
-        int N = 15;
+        float lambda = 0.1f;
+        int N = 3;
 
         // 六邻域梯度
         float n = 0, s = 0, e = 0, w = 0, u = 0, d = 0;
@@ -3145,6 +3145,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         //测试输出
+        /*
         System.out.println("***********************************");
         for (int chl = 0; chl < channel; chl++) {
             for (int row = 32; row < height - 65; row++) {
@@ -3156,7 +3157,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         System.out.println("***********************************");
-
+        */
 
         //N次迭代后进行灰度区间线性变换
 
