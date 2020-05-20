@@ -101,10 +101,14 @@ public class FileManager {
             returnCursor.moveToFirst();
             String filename = returnCursor.getString(nameIndex);
 
-            if ( filename ==null ){
+            System.out.println("------nameIndex: " + nameIndex + "---------");
+
+            if ( filename == null ){
                 int columnIndex = returnCursor.getColumnIndexOrThrow(MediaStore.Images.Media.TITLE);
                 returnCursor.moveToFirst();
                 filename = returnCursor.getString(columnIndex);
+                System.out.println("------columnIndex: " + columnIndex + "---------");
+
             }
 
             System.out.println("------filename: " + filename + "---------");
