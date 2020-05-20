@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.widget.Toast;
 
@@ -99,6 +100,12 @@ public class FileManager {
 //            int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
             returnCursor.moveToFirst();
             String filename = returnCursor.getString(nameIndex);
+
+            if ( filename ==null ){
+                int columnIndex = returnCursor.getColumnIndexOrThrow(MediaStore.Images.Media.TITLE);
+                returnCursor.moveToFirst();
+                filename = returnCursor.getString(columnIndex);
+            }
 
             System.out.println("------filename: " + filename + "---------");
             filetype= filename.substring(filename.lastIndexOf(".")).toUpperCase();

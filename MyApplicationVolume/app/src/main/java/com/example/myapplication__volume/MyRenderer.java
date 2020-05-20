@@ -5,6 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.opengl.GLES10;
 import android.opengl.GLES30;
@@ -24,6 +28,7 @@ import com.example.basic.FastMarching_Linker;
 import com.example.basic.FileManager;
 import com.example.basic.Image4DSimple;
 import com.example.basic.ImageMarker;
+import com.example.basic.ImageUtil;
 import com.example.basic.MyAnimation;
 import com.example.basic.NeuronTree;
 import com.example.basic.XYZ;
@@ -600,6 +605,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         }
                     }
 
+                    ImageUtil imageUtil = new ImageUtil();
+                    Bitmap output_mBitmap = imageUtil.drawTextToRightBottom(getContext(), mBitmap, "C3", 20, Color.RED, 40, 30);
                     String mCaptureDir = "/storage/emulated/0/C3/screenCapture";
                     File dir = new File(mCaptureDir);
                     if (!dir.exists()){
@@ -613,7 +620,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                             Looper.prepare();
 
                         FileOutputStream fos = new FileOutputStream(mCapturePath);
-                        mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                        output_mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 
                         String[] imgPath = new String[1];
                         imgPath[0] = mCapturePath;
