@@ -20,6 +20,10 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
@@ -112,6 +116,41 @@ public class MainActivity extends AppCompatActivity {
 //    private Operate [] process = new Operate[UNDO_LIMIT];
 
     public static final String File_path = "com.example.myfirstapp.MESSAGE";
+
+    private SensorManager mSensorManager;
+    Timer timer=null;
+    TextView etGyro;
+    TextView etMagnetic;
+    TextView etLinearAcc;
+    TextView etAcc;
+    TextView etLight;
+    TextView etPressure;
+    TextView etProximity;
+    TextView etGravity;
+    TextView etRotation_vector;
+    Button Sensor_Info;
+    Button start;
+    Button stop;
+    float flag=0;
+    ArrayList <Float> AccList=new ArrayList<Float>();
+    ArrayList <Float> GyrList=new ArrayList<Float>();
+    ArrayList <Float> MagList=new ArrayList<Float>();
+    ArrayList <Float> AccList2=new ArrayList<Float>();
+    ArrayList <Float> LightList=new ArrayList<Float>();
+    ArrayList <Float> PreList=new ArrayList<Float>();
+    ArrayList <Float> ProList=new ArrayList<Float>();
+    ArrayList <Float> GraList=new ArrayList<Float>();
+    ArrayList <Float> Rot_Vec_List=new ArrayList<Float>();
+
+    private float AccData[]=new float[3];
+    private float GyrData[]=new float[3];
+    private float MagData[]=new float[3];
+    private float AccData2[]=new float[3];
+    private float LightData[]=new float[1];
+    private float PreData[]=new float[1];
+    private float ProData[]=new float[1];
+    private float GraData[]=new float[3];
+    private float Rot_Vec_Data[]=new float[3];
 
 
     private MyGLSurfaceView myGLSurfaceView;
@@ -459,6 +498,9 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.version:
                 Version();
+                return true;
+            case R.id.sensor:
+                SensorInfo();
                 return true;
             case R.id.analyze:
                 Analyse();
@@ -1837,6 +1879,249 @@ public class MainActivity extends AppCompatActivity {
         return url;
     }
 
+
+
+    MDDialog.Builder si_mdDialog_bd = new MDDialog.Builder(this).setContentView(R.layout.sensor_result);
+    MDDialog si_mdDialog = null;
+
+    private void SensorInfo(){
+
+        String[] SensorList = {""};
+
+        si_mdDialog = si_mdDialog_bd
+                .setContentView(R.layout.sensor_result)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+
+                        etGyro=(TextView)contentView.findViewById(R.id.etGyro);
+
+                        etLinearAcc=(TextView)contentView.findViewById(R.id.etLinearAcc);
+
+                        etMagnetic=(TextView)contentView.findViewById(R.id.etMagnetic);
+
+                        etAcc=(TextView)contentView.findViewById(R.id.etAcc);
+
+                        etLight=(TextView)contentView.findViewById(R.id.etLight);
+
+                        // if (etLight == null)
+                        // System.out.println("---- etLight is null ----");
+
+                        etPressure=(TextView)contentView.findViewById(R.id.etPressure);
+
+                        etProximity=(TextView)contentView.findViewById(R.id.etProximity);
+
+                        etGravity=(TextView)contentView.findViewById(R.id.etGravity);
+
+                        etRotation_vector=(TextView)contentView.findViewById(R.id.etRotation_vector);
+
+                        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+
+                        StartSensorListening();//启动传感数据采集(注册三个传感器）
+
+                        if (timer == null) {timer = new Timer();}
+                        timer.schedule(new TimerTask()
+                        {
+                            @Override
+                            public void run() {
+                                if  (0==flag)
+                                {
+                                    AccList.add(AccData[0]);AccList.add(AccData[1]);
+                                    AccList.add(AccData[2]);GyrList.add(GyrData[0]);
+                                    GyrList.add(GyrData[1]);GyrList.add(GyrData[2]);
+                                    MagList.add(MagData[0]);MagList.add(MagData[1]);
+                                    MagList.add(MagData[2]);AccList2.add(AccData2[0]);
+                                    AccList2.add(AccData2[1]);AccList2.add(AccData2[2]);
+                                    LightList.add(LightData[0]);PreList.add(PreData[0]);
+                                    ProList.add(ProData[0]);GraList.add(GraData[0]);
+                                    GraList.add(GraData[1]);GraList.add(GraData[2]);
+                                    Rot_Vec_List.add(Rot_Vec_Data[0]);
+                                    Rot_Vec_List.add(Rot_Vec_Data[1]);
+                                    Rot_Vec_List.add(Rot_Vec_Data[2]);
+                                }
+                            }
+                        },1000,10000);   //10ms后开始采集，每隔20ms采集一次
+                    }
+
+                })
+                .setTitle("Sensor information")
+                .create();
+        si_mdDialog.show();
+        si_mdDialog.getWindow().setLayout(1000, 1500);
+
+
+    }
+
+
+    private SensorEventListener listener = new SensorEventListener()
+    {
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int i) {
+            //// TODO
+        }
+
+        public void onSensorChanged(SensorEvent e)
+        {
+            StringBuilder sb=null;
+            switch (e.sensor.getType()) {
+                case Sensor.TYPE_GYROSCOPE:     //陀螺传感器
+                    sb = new StringBuilder();
+                    sb.append("陀螺仪传感器:");
+                    sb.append("\n绕X轴转过的角速度:");
+                    sb.append(e.values[0]);
+                    sb.append("\n绕Y轴转过的角速度:");
+                    sb.append(e.values[1]);
+                    sb.append("\n绕Z轴转过的角速度:");
+                    sb.append(e.values[2]);
+                    etGyro.setText(sb.toString());
+                    GyrData[0] = e.values[0];
+                    GyrData[1] = e.values[1];
+                    GyrData[2] = e.values[2];
+                    break;
+                case Sensor.TYPE_MAGNETIC_FIELD:    //磁场传感器
+                    sb = new StringBuilder();
+                    sb.append("\n磁场传感器：");
+                    sb.append("\n绕X轴-磁场:");
+                    sb.append(e.values[0]);
+                    sb.append("\n绕Y轴-磁场:");
+                    sb.append(e.values[1]);
+                    sb.append("\n绕Z轴-磁场:");
+                    sb.append(e.values[2]);
+                    etMagnetic.setText(sb.toString());
+                    MagData[0] = e.values[0];
+                    MagData[1] = e.values[1];
+                    MagData[2] = e.values[2];
+                    break;
+                case Sensor.TYPE_ACCELEROMETER:   //加速度传感器
+                    sb = new StringBuilder();
+                    sb.append("\n加速度传感器:");
+                    sb.append("\nX轴-加速度:");
+                    sb.append(e.values[0]);
+                    sb.append("\nY轴-加速度:");
+                    sb.append(e.values[1]);
+                    sb.append("\nZ轴-加速度:");
+                    sb.append(e.values[2]);
+                    etLinearAcc.setText(sb.toString());
+                    AccData[0] = e.values[0];
+                    AccData[1] = e.values[1];
+                    AccData[2] = e.values[2];
+                    break;
+                case Sensor.TYPE_LINEAR_ACCELERATION:   //线性加速度传感器
+                    sb = new StringBuilder();
+                    sb.append("\n线性加速度传感器:");
+                    sb.append("\nX轴-线性加速度:");
+                    sb.append(e.values[0]);
+                    sb.append("\nY轴-线性加速度:");
+                    sb.append(e.values[1]);
+                    sb.append("\nZ轴-线性加速度:");
+                    sb.append(e.values[2]);
+                    etAcc.setText(sb.toString());
+                    AccData2[0] = e.values[0];
+                    AccData2[1] = e.values[1];
+                    AccData2[2] = e.values[2];
+                    break;
+                case Sensor.TYPE_LIGHT:   //线性加速度传感器
+                    sb = new StringBuilder();
+                    sb.append("\n光线传感器:");
+                    sb.append("\n光照强度:");
+                    sb.append(e.values[0]);
+
+                    if (sb == null)
+                        System.out.println("----- sb is null----- ");
+                    if (etLight == null)
+                        System.out.println("----- etLight is null----- ");
+
+                    etLight.setText(sb.toString());
+                    LightData[0] = e.values[0];
+                    break;
+                case Sensor.TYPE_PRESSURE:   //线性加速度传感器
+                    sb = new StringBuilder();
+                    sb.append("\n压力传感器:");
+                    sb.append("\n压力:");
+                    sb.append(e.values[0]);
+                    etPressure.setText(sb.toString());
+                    PreData[0] = e.values[0];
+                    break;
+                case Sensor.TYPE_PROXIMITY:   //线性加速度传感器
+                    sb = new StringBuilder();
+                    sb.append("\n距离传感器:");
+                    sb.append("\n距离:");
+                    sb.append(e.values[0]);
+                    etProximity.setText(sb.toString());
+                    ProData[0] = e.values[0];
+                    break;
+                case Sensor.TYPE_GRAVITY:   //线性加速度传感器
+                    sb = new StringBuilder();
+                    sb.append("\n重力加速度传感器:");
+                    sb.append("\nX轴-重力加速度:");
+                    sb.append(e.values[0]);
+                    sb.append("\nY轴-重力加速度:");
+                    sb.append(e.values[1]);
+                    sb.append("\nZ轴-重力加速度:");
+                    sb.append(e.values[2]);
+                    etGravity.setText(sb.toString());
+                    GraData[0] = e.values[0];
+                    GraData[1] = e.values[1];
+                    GraData[2] = e.values[2];
+                    break;
+                case Sensor.TYPE_ROTATION_VECTOR:   //线性加速度传感器
+                    sb = new StringBuilder();
+                    sb.append("\n旋转角度:");
+                    sb.append("\nX轴-旋转角度:");
+                    sb.append(e.values[0]);
+                    sb.append("\nY轴-旋转角度:");
+                    sb.append(e.values[1]);
+                    sb.append("\nZ轴-旋转角度:");
+                    sb.append(e.values[2]);
+                    etRotation_vector.setText(sb.toString());
+                    Rot_Vec_Data[0] = e.values[0];
+                    Rot_Vec_Data[1] = e.values[1];
+                    Rot_Vec_Data[2] = e.values[2];
+                    break;
+
+            }
+        }
+    };
+
+    public void StartSensorListening()
+    {
+        //super.onResume();
+        Log.v("StartSensorListening","Here we are!!!");
+
+        //陀螺传感器注册监听器
+        mSensorManager.registerListener(listener,mSensorManager.getDefaultSensor(
+                Sensor.TYPE_GYROSCOPE),SensorManager.SENSOR_DELAY_NORMAL);
+        //磁场传感器注册监听器
+        mSensorManager.registerListener(listener,mSensorManager.getDefaultSensor(
+                Sensor.TYPE_MAGNETIC_FIELD),SensorManager.SENSOR_DELAY_NORMAL);
+        //加速度传感器注册监听器
+        mSensorManager.registerListener(listener,mSensorManager.getDefaultSensor(
+                Sensor.TYPE_ACCELEROMETER),SensorManager.SENSOR_DELAY_NORMAL);
+        //线性加速度传感器注册监听器
+        mSensorManager.registerListener(listener,mSensorManager.getDefaultSensor(
+                Sensor.TYPE_LINEAR_ACCELERATION),SensorManager.SENSOR_DELAY_NORMAL);
+        //光线传感器注册监听器
+        mSensorManager.registerListener(listener,mSensorManager.getDefaultSensor(
+                Sensor.TYPE_LIGHT),SensorManager.SENSOR_DELAY_NORMAL);
+        //压力传感器注册监听器
+        mSensorManager.registerListener(listener,mSensorManager.getDefaultSensor(
+                Sensor.TYPE_PRESSURE),SensorManager.SENSOR_DELAY_NORMAL);
+        //距离传感器注册监听器
+        mSensorManager.registerListener(listener,mSensorManager.getDefaultSensor(
+                Sensor.TYPE_PROXIMITY),SensorManager.SENSOR_DELAY_NORMAL);
+        //重力加速度传感器注册监听器
+        mSensorManager.registerListener(listener,mSensorManager.getDefaultSensor(
+                Sensor.TYPE_GRAVITY),SensorManager.SENSOR_DELAY_NORMAL);
+        //ROTATION_VECTOR传感器注册监听器
+        mSensorManager.registerListener(listener,mSensorManager.getDefaultSensor(
+                Sensor.TYPE_ROTATION_VECTOR),SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    public void StopSensorListening()
+    {
+        mSensorManager.unregisterListener(listener);
+    }
 
 
     private void Analyse() {
