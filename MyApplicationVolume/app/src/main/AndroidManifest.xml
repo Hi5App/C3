@@ -79,4 +79,5 @@
     tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.CAMERA" />
 
+
 </manifest>

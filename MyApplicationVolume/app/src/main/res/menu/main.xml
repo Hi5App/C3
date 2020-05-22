@@ -46,4 +46,10 @@
         android:title="Version"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/corner"
+        android:orderInCategory="4"
+        android:title="Corner Detection"
+        app:showAsAction="never" />
+
 </menu>

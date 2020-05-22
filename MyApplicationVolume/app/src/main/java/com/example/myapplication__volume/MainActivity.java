@@ -82,6 +82,8 @@ import com.tracingfunc.gd.V3dNeuronGDTracing;
 import com.tracingfunc.gsdt.GSDT;
 import com.tracingfunc.gsdt.ParaGSDT;
 
+import org.opencv.android.OpenCVLoader;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -556,6 +558,10 @@ public class MainActivity extends AppCompatActivity {
                 ifDeletingLine = false;
                 SetAnimation();
                 return true;
+            case R.id.corner:
+                myrenderer.corner_detection();
+                myGLSurfaceView.requestRender();
+                return true;
             default:
                 return true;
 //                return super.onOptionsItemSelected(item);
@@ -622,6 +628,7 @@ public class MainActivity extends AppCompatActivity {
 //            return;
             Bitmap bitmap= BitmapFactory.decodeFile(String.valueOf(showPic));
             myrenderer.SetPath(showPic.getAbsolutePath());
+            //System.out.println(showPic.getAbsolutePath());
             myGLSurfaceView.requestRender();
             return;
         }
@@ -3281,8 +3288,20 @@ public class MainActivity extends AppCompatActivity {
         myGLSurfaceView.onResume();
         Log.v("Path", filepath);
         Log.v("onResume", "start-----");
+        if (!OpenCVLoader.initDebug()) {
+
+            Log.i("cv", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+
+        } else {
+
+            Log.i("cv", "OpenCV library found inside package. Using it!");
+
+        }
 //        remoteImg = new RemoteImg();
     }
+
+
+
 
     private void Learning() {
 
@@ -4103,6 +4122,7 @@ public class MainActivity extends AppCompatActivity {
                                         break;
                                     case"Camera":
                                         Camera();
+                                        break;
                                     default:
 //                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();
                                         Toast.makeText(getContext(), "Default in file", Toast.LENGTH_SHORT).show();
