@@ -116,8 +116,8 @@ public class FileManager {
 
         }catch (Exception e){
             e.printStackTrace();
-            Toast.makeText(context,"Fail to read",Toast.LENGTH_SHORT);
-            Looper.loop();
+//            Toast.makeText(context,"Fail to read",Toast.LENGTH_SHORT);
+//            Looper.loop();
             return "Fail to read";
         }
 

@@ -5,10 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.opengl.GLES10;
 import android.opengl.GLES30;
@@ -19,7 +16,6 @@ import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
@@ -39,11 +35,10 @@ import com.tracingfunc.gd.V_NeuronSWC_unit;
 
 import org.apache.commons.io.IOUtils;
 import org.opencv.android.Utils;
-import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.Scalar;
+import org.opencv.core.Point;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
@@ -68,7 +63,6 @@ import static javax.microedition.khronos.opengles.GL10.GL_ALPHA_TEST;
 import static javax.microedition.khronos.opengles.GL10.GL_BLEND;
 import static javax.microedition.khronos.opengles.GL10.GL_ONE_MINUS_SRC_ALPHA;
 import static javax.microedition.khronos.opengles.GL10.GL_SRC_ALPHA;
-import org.opencv.core.Point;
 
 
 //@android.support.annotation.RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
@@ -307,7 +301,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         //浅紫
 //        GLES30.glClearColor(0.929f, 0.906f, 0.965f, 1.0f);
 
-        if (myPattern == null){
+        if (myPattern == null || myPattern2D == null){
             if (ifFileSupport){
                 if (fileType == FileType.V3draw || fileType == FileType.TIF)
                     myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
@@ -595,8 +589,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
         //
-        if (myAxis != null)
-            myAxis.draw(finalMatrix);
+        if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.JPG || fileType == FileType.PNG)
+            if (myAxis != null)
+                myAxis.draw(finalMatrix);
+
 
         if(isTakePic){
             mCaptureBuffer.rewind();
@@ -817,10 +813,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     //设置文件路径
     public void SetPath(String message){
 
-        myAxis = null;
-        cur_scale = 1.0f;
         filepath = message;
         SetFileType();
+
+        myAxis = null;
+        cur_scale = 1.0f;
 
         curSwcList.clear();
         MarkerList.clear();
@@ -839,8 +836,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             loadImage2D();
             ifFileSupport = true;
         }
+
+        else {
+            return;
+        }
 //        curSwcList.clear();
 //        MarkerList.clear();
+
 
         Log.v("SetPath", Arrays.toString(mz));
 
@@ -976,10 +978,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             case "fail to read file":
 //                JumptoFileActivity("Fail to read file!");
+                fileType = FileType.NotSupport;
                 Toast.makeText(getContext(), "Fail to read file!",Toast.LENGTH_SHORT).show();
                 break;
 
             default:
+                fileType = FileType.NotSupport;
                 Toast.makeText(getContext(),"Don't support this file!",Toast.LENGTH_SHORT).show();
 //                JumptoFileActivity("Don't support this file!");
         }
@@ -3108,7 +3112,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         SWC,
         TIF,
         JPG,
-        PNG
+        PNG,
+        NotSupport
     }
 
     public void setTakePic(boolean takePic, Context contexts) {
