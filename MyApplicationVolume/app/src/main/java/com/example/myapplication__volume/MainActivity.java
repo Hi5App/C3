@@ -2316,7 +2316,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200523a 10:20 build",
+                .asConfirm("Version", "version: 20200523b 14:24 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -3875,7 +3875,11 @@ public class MainActivity extends AppCompatActivity {
                         }
                         if (ifPoint) {
                             Log.v("actionPointerDown", "Pointinggggggggggg");
-                            myrenderer.setMarkerDrawed(X, Y);
+                            if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
+                                myrenderer.add2DMarker(X, Y);
+                            else {
+                                myrenderer.setMarkerDrawed(X, Y);
+                            }
                             Log.v("actionPointerDown", "(" + X + "," + Y + ")");
                             requestRender();
 
@@ -3958,18 +3962,20 @@ public class MainActivity extends AppCompatActivity {
                             myrenderer.setIfPainting(false);
 //                            myrenderer.addLineDrawed(lineDrawed);
 
-                            int lineType = myrenderer.getLastLineType();
-                            if (lineType != 3) {
-                                int segid = myrenderer.addLineDrawed(lineDrawed);
+                            if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
+                                myrenderer.add2DCurve(lineDrawed);
+                            else {
+                                int lineType = myrenderer.getLastLineType();
+                                if (lineType != 3) {
+                                    int segid = myrenderer.addLineDrawed(lineDrawed);
 //                                    segids.add(segid);
 //                            requestRender();
 
-                                myrenderer.addLineDrawed2(lineDrawed);
-                                myrenderer.deleteFromNew(segid);
-                            }
-
-                            else{
-                                myrenderer.addBackgroundLineDrawed(lineDrawed);
+                                    myrenderer.addLineDrawed2(lineDrawed);
+                                    myrenderer.deleteFromNew(segid);
+                                } else {
+                                    myrenderer.addBackgroundLineDrawed(lineDrawed);
+                                }
                             }
 //                            requestRender();
 

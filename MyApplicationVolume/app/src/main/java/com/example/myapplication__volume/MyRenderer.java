@@ -236,8 +236,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         if (fileType == FileType.V3draw || fileType == FileType.TIF)
             myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
-//        if (fileType == FileType.PNG || fileType == FileType.JPG)
-//            myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
+        if (fileType == FileType.PNG || fileType == FileType.JPG)
+            myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
 
         if (ifFileSupport){
             if (fileType == FileType.TIF || fileType == FileType.V3draw) {
@@ -562,7 +562,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                }
 //                Log.v("linePoints", s);
                 int num = linePoints.length / 3;
-                myPattern.draw_points(linePoints, num);
+
+                myDraw.drawPoints(linePoints, num);
             }
         }
 
@@ -1144,10 +1145,161 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
-    public void solve2DMarker(float x, float y){
+    public float[] solve2DMarker(float x, float y){
         if (ifIn2DImage(x, y)){
+            System.out.println("innnnn");
+            float i;
+            float [] result = new float[3];
+            for (i = -1; i < 1; i += 0.005){
+                float [] invertfinalMatrix = new float[16];
 
+                Matrix.invertM(invertfinalMatrix, 0, finalMatrix, 0);
+
+                float [] temp = new float[4];
+                Matrix.multiplyMV(temp, 0, invertfinalMatrix, 0, new float[]{x, y, i, 1}, 0);
+                devideByw(temp);
+                float dis = Math.abs(temp[2] - mz[2] / 2);
+                if (dis < 0.1) {
+                    System.out.println(temp[0]);
+                    System.out.println(temp[1]);
+                    result = new float[]{temp[0], temp[1], mz[2] / 2};
+                    break;
+                }
+            }
+            result = ModeltoVolume(result);
+            System.out.println(result[0]);
+            System.out.println(result[1]);
+            return result;
         }
+        return null;
+    }
+
+    public void add2DMarker(float x, float y){
+        float [] new_marker = solve2DMarker(x, y);
+        if (new_marker == null){
+            System.out.println("outtttt");
+            Toast.makeText(getContext(), "Please make sure the point is in the image", Toast.LENGTH_SHORT).show();
+            return;
+        }else {
+            ImageMarker imageMarker_drawed = new ImageMarker(new_marker[0],
+                    new_marker[1],
+                    new_marker[2]);
+            imageMarker_drawed.type = lastMarkerType;
+            System.out.println("set type to 3");
+
+            MarkerList.add(imageMarker_drawed);
+
+            if (process.size() < UNDO_LIMIT){
+                process.add(Operate.DRAWMARKER);
+                undoDrawMarkerList.add(imageMarker_drawed);
+            } else {
+                Operate first = process.firstElement();
+                process.remove(0);
+                process.add(Operate.DRAWMARKER);
+                removeFirstUndo(first);
+                undoDrawMarkerList.add(imageMarker_drawed);
+            }
+        }
+    }
+
+    public void add2DCurve(ArrayList<Float> line){
+        ArrayList<Float> lineAdded = new ArrayList<>();
+        for (int i = 0; i < line.size() / 3; i++){
+            float x = line.get(i * 3);
+            float y = line.get(i * 3 + 1);
+
+            float [] cur_point = solve2DMarker(x, y);
+            if (cur_point == null){
+                if (i == 0){
+                    Toast.makeText(getContext(), "Please make sure the point is in the image", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                break;
+            }
+            else{
+                lineAdded.add(cur_point[0]);
+                lineAdded.add(cur_point[1]);
+                lineAdded.add(cur_point[2]);
+            }
+        }
+        if (lineAdded != null){
+//            lineDrawed.add(lineAdded);
+            int max_n = curSwcList.maxnoden();
+            V_NeuronSWC seg = new  V_NeuronSWC();
+            for(int i=0; i < lineAdded.size()/3; i++){
+                V_NeuronSWC_unit u = new V_NeuronSWC_unit();
+                u.n = max_n + i+ 1;
+                if(i==0)
+                    u.parent = -1;
+                else
+                    u.parent = max_n + i;
+//                float[] xyz = ModeltoVolume(new float[]{lineAdded.get(i*3+0),lineAdded.get(i*3+1),lineAdded.get(i*3+2)});
+                float[] xyz = new float[]{lineAdded.get(i*3+0),lineAdded.get(i*3+1),lineAdded.get(i*3+2)};
+                u.x = xyz[0];
+                u.y = xyz[1];
+                u.z = xyz[2];
+                u.type = lastLineType;
+                seg.append(u);
+//                System.out.println("u n p x y z: "+ u.n +" "+u.parent+" "+u.x +" "+u.y+ " "+u.z);
+            }
+            if(seg.row.size()<3){
+                return;
+            }
+            float[] headXYZ = new float[]{(float) seg.row.get(0).x, (float) seg.row.get(0).y, (float) seg.row.get(0).z};
+            float[] tailXYZ = new float[]{(float) seg.row.get(seg.row.size()-1).x,
+                    (float) seg.row.get(seg.row.size()-1).y,
+                    (float) seg.row.get(seg.row.size()-1).z};
+            boolean linked = false;
+            for(int i=0; i<curSwcList.seg.size(); i++){
+                V_NeuronSWC s = curSwcList.seg.get(i);
+                for(int j=0; j<s.row.size(); j++){
+                    if(linked)
+                        break;
+                    V_NeuronSWC_unit node = s.row.get(j);
+                    float[] nodeXYZ = new float[]{(float) node.x, (float) node.y, (float) node.z};
+                    if(distance(headXYZ,nodeXYZ)<5){
+                        V_NeuronSWC_unit head = seg.row.get(0);
+                        V_NeuronSWC_unit child = seg.row.get(1);
+                        head.x = node.x;
+                        head.y = node.y;
+                        head.z = node.z;
+                        head.n = node.n;
+                        head.parent = node.parent;
+                        child.parent = head.n;
+                        linked = true;
+                        break;
+                    }
+                    if(distance(tailXYZ,nodeXYZ)<5){
+                        seg.reverse();
+                        V_NeuronSWC_unit tail = seg.row.get(seg.row.size()-1);
+                        V_NeuronSWC_unit child = seg.row.get(seg.row.size()-2);
+                        tail.x = node.x;
+                        tail.y = node.y;
+                        tail.z = node.z;
+                        tail.n = node.n;
+                        tail.parent = node.parent;
+                        child.n = tail.n;
+                        linked = true;
+                        break;
+                    }
+                }
+            }
+            curSwcList.append(seg);
+            if (process.size() < UNDO_LIMIT){
+                process.add(Operate.DRAWCURVE);
+                undoDrawList.add(seg);
+            } else{
+                Operate first = process.firstElement();
+                process.remove(0);
+                process.add(Operate.DRAWCURVE);
+                removeFirstUndo(first);
+                undoDrawList.add(seg);
+            }
+//            Log.v("addLineDrawed", Integer.toString(lineAdded.size()));
+        }
+        else
+            Log.v("draw line:::::", "nulllllllllllllllllll");
+
     }
 
     public boolean ifIn2DImage(float x, float y){
@@ -3232,7 +3384,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 
-    public void corner_detection(){
+
+    public void corner_detection() {
 
         //System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         // PC端一定要有这句话，但是android端一定不能有这句话，否则报错
@@ -3244,23 +3397,22 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Mat dst = new Mat();
 
 
-        final int maxCorners=40,blockSize=3; //blockSize表示窗口大小，越大那么里面的像素点越多，选取梯度和方向变化最大的像素点作为角点，这样总的角点数肯定变少，而且也可能错过一些角点
+        final int maxCorners = 40, blockSize = 3; //blockSize表示窗口大小，越大那么里面的像素点越多，选取梯度和方向变化最大的像素点作为角点，这样总的角点数肯定变少，而且也可能错过一些角点
 
-        final double qualityLevel=0.08,minDistance=23.0,k=0.04;
+        final double qualityLevel = 0.08, minDistance = 23.0, k = 0.04;
         //qualityLevel：检测到的角点的质量等级，角点特征值小于qualityLevel*最大特征值的点将被舍弃；
         //minDistance：两个角点间最小间距，以像素为单位；
 
-        final boolean useHarrisDetector=false;
+        final boolean useHarrisDetector = false;
 
-        MatOfPoint corners=new MatOfPoint();
-
+        MatOfPoint corners = new MatOfPoint();
 
 
         File file = new File(filepath);
         System.out.println(filepath);
         long length = 0;
         InputStream is1 = null;
-        if (file.exists()){
+        if (file.exists()) {
             try {
                 length = file.length();
                 is1 = new FileInputStream(file);
@@ -3272,9 +3424,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-        }
-
-        else {
+        } else {
             Uri uri = Uri.parse(filepath);
 
             try {
@@ -3283,12 +3433,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
                 is1 = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
 
-                length = (int)parcelFileDescriptor.getStatSize();
+                length = (int) parcelFileDescriptor.getStatSize();
 
 
-            }catch (Exception e){                Log.v("MyPattern","Successfully load intensity");
+            } catch (Exception e) {
+                Log.v("MyPattern", "Successfully load intensity");
 
-                Log.v("MyPattern","Some problems in the MyPattern when load intensity");
+                Log.v("MyPattern", "Some problems in the MyPattern when load intensity");
             }
 
 
@@ -3316,10 +3467,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
         //计算取样比例
         int sampleRatio = 1;
-        if (width<500||height<500)
+        if (width < 500 || height < 500)
             sampleRatio = 1;
         else
-            sampleRatio = Math.max(width/500, height/900);
+            sampleRatio = Math.max(width / 500, height / 900);
         System.out.println(width);
         System.out.println(height);
         //定义图片解码选项
@@ -3331,7 +3482,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         File file2 = new File(filepath);
         long length2 = 0;
         InputStream is2 = null;
-        if (file2.exists()){
+        if (file2.exists()) {
             try {
                 length2 = file2.length();
                 is2 = new FileInputStream(file2);
@@ -3343,9 +3494,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-        }
-
-        else {
+        } else {
             Uri uri = Uri.parse(filepath);
 
             try {
@@ -3354,21 +3503,20 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
                 is2 = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
 
-                length2 = (int)parcelFileDescriptor.getStatSize();
+                length2 = (int) parcelFileDescriptor.getStatSize();
 
-                Log.v("MyPattern","Successfully load intensity");
+                Log.v("MyPattern", "Successfully load intensity");
 
-            }catch (Exception e){
-                Log.v("MyPattern","Some problems in the MyPattern when load intensity");
+            } catch (Exception e) {
+                Log.v("MyPattern", "Some problems in the MyPattern when load intensity");
             }
 
 
         }
 
 
-
         Bitmap image = BitmapFactory.decodeStream(is2, null, options2);
-        if (image == null){
+        if (image == null) {
             System.out.println("nnnnnn");
         }
 
@@ -3383,30 +3531,30 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         // Bitmap image = bitmap2D;//从bitmap中加载进来的图像有时候有四个通道，所以有时候需要多加一个转化
         // Bitmap image = BitmapFactory.decodeResource(this.getResources(),R.drawable.cube);
 
-        Utils.bitmapToMat(image,src);//把image转化为Mat
+        Utils.bitmapToMat(image, src);//把image转化为Mat
 
-        dst=src.clone();
+        dst = src.clone();
 
-        Imgproc.cvtColor(src,temp,Imgproc.COLOR_BGR2GRAY);//这里由于使用的是Imgproc这个模块所有这里要这么写
+        Imgproc.cvtColor(src, temp, Imgproc.COLOR_BGR2GRAY);//这里由于使用的是Imgproc这个模块所有这里要这么写
 
         Log.i("CV", "image type:" + (temp.type() == CvType.CV_8UC3));
         Imgproc.goodFeaturesToTrack(temp, corners, maxCorners, qualityLevel, minDistance,
 
-                new Mat(),blockSize,useHarrisDetector,k);
-        Point[] pCorners=corners.toArray();
+                new Mat(), blockSize, useHarrisDetector, k);
+        Point[] pCorners = corners.toArray();
 
         System.out.println(pCorners.length);
 
 
-        int power = (int)(Math.log((double)sampleRatio)/Math.log(2));
+        int power = (int) (Math.log((double) sampleRatio) / Math.log(2));
         int actual_ratio = (int) Math.pow(2, power);
         System.out.println(actual_ratio);
-        for(int i=0;i<pCorners.length;i++){
+        for (int i = 0; i < pCorners.length; i++) {
 
 //            System.out.println(pCorners[i].x);
 //            System.out.println(pCorners[i].y);
-            ImageMarker imageMarker_drawed = new ImageMarker((float)pCorners[i].x * actual_ratio,
-                    (float)pCorners[i].y * actual_ratio,
+            ImageMarker imageMarker_drawed = new ImageMarker((float) pCorners[i].x * actual_ratio,
+                    (float) pCorners[i].y * actual_ratio,
                     sz[2] / 2);
             imageMarker_drawed.type = lastMarkerType;
 //            System.out.println("set type to 3");
@@ -3437,6 +3585,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         temp.release();
 
         dst.release();
+
+    }
+
+    public FileType getFileType() {
+        return fileType;
 
     }
 }
