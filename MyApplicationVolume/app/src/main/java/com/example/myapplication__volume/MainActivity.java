@@ -2750,14 +2750,22 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void APP2() throws Exception {
         Image4DSimple img = myrenderer.getImg();
-        img.getDataCZYX();
-        if (!img.valid()) {
-            Log.v("APP2Tracing", "Please load img first!");
+//        img.getDataCZYX();
+//        if (!img.valid()) {
+//            Log.v("APP2Tracing", "Please load img first!");
+//            if (Looper.myLooper() == null) {
+//                Looper.prepare();
+//            }
+//            Toast.makeText(this, "Please load img first!", Toast.LENGTH_LONG).show();
+//            Looper.loop();
+//            return;
+//        }
+        if(img == null){
             if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
-            Toast.makeText(this, "Please load img first!", Toast.LENGTH_LONG).show();
-            Looper.loop();
+
+            Toast.makeText(this, "Please load image first!", Toast.LENGTH_SHORT).show();
             return;
         }
         ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
@@ -2812,13 +2820,21 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void GDTracing() throws Exception {
         Image4DSimple img = myrenderer.getImg();
-        if (!img.valid()) {
-            Log.v("GDTracing", "Please load img first!");
+//        if (!img.valid()) {
+//            Log.v("GDTracing", "Please load img first!");
+//            if (Looper.myLooper() == null) {
+//                Looper.prepare();
+//            }
+//            Toast.makeText(this, "Please load img first!", Toast.LENGTH_LONG).show();
+//            Looper.loop();
+//            return;
+//        }
+        if(img == null){
             if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
-            Toast.makeText(this, "Please load img first!", Toast.LENGTH_LONG).show();
-            Looper.loop();
+
+            Toast.makeText(this, "Please load image first!", Toast.LENGTH_SHORT).show();
             return;
         }
         ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
@@ -3306,6 +3322,14 @@ public class MainActivity extends AppCompatActivity {
     private void Learning() {
 
         Image4DSimple img = myrenderer.getImg();
+        if(img == null){
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
+            }
+
+            Toast.makeText(this, "Please load image first!", Toast.LENGTH_SHORT).show();
+            return;
+        }
 //        Image4DSimple resampleimg=new Image4DSimple();
 //        Image4DSimple upsampleimg=new Image4DSimple();
         Image4DSimple outImg=new Image4DSimple();
