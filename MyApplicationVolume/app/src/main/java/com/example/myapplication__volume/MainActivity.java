@@ -3725,20 +3725,17 @@ public class MainActivity extends AppCompatActivity {
 
         Log.v("GSDT", "Have got the image successfully!!");
         try {
-            //ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
-            //ArrayList<Integer> para = new ArrayList<Integer>(Arrays.asList(10,2,0,5));//bkg_thresh,cnn_type,channel,z_thickness
-            //Log.v("GSDT", "here");///problems
+
             System.out.println("Start here.....");
             ParaGSDT p = new ParaGSDT();
             p.p4DImage = img;
             GSDT.GSDT_Fun(p);
             Log.v("GSDT", "GSDT function finished");
-            ArrayList<ImageMarker> markers = p.markers;
-            System.out.println("show result.."+markers.isEmpty());
-            System.out.println("marker:"+ p.max_loc[0] + "," + p.max_loc[1] + "," + p.max_loc[2]);
 
+            //preparations for show
             myrenderer.ResetImg(p.outImage);
-            myrenderer.getMarkerList().add(p.markers.get(0));
+            myrenderer.getMarkerList().addAll(p.markers);//blue marker
+            myrenderer.getMarkerList().add(p.MaxMarker);//red marker
             myGLSurfaceView.requestRender();
             if (Looper.myLooper() == null) {
                 Looper.prepare();

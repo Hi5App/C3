@@ -13,9 +13,12 @@ public class ParaGSDT {
     public int channel;
     public int z_thickness;
     public ArrayList<ImageMarker> markers;
+    public int[] local_maxloc;
+    public double local_maxval;
     public int[] max_loc;
     public double max_val;
     public float[][][] phi;
+    public ImageMarker MaxMarker;
 
     public ParaGSDT(){
          Image4DSimple p4DImage = null;
@@ -26,7 +29,10 @@ public class ParaGSDT {
          z_thickness = 5;
          markers = new ArrayList<>();
          max_loc = new int[]{0,0,0};
+         local_maxloc = new int[]{0,0,0};
          max_val = 0;
+         local_maxval = 0;
          phi = null;
+         MaxMarker = null;
     }
 }
