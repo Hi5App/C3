@@ -529,11 +529,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         //现画的marker
         if(MarkerList.size() > 0){
+            float radius = 0.02f;
+            if (fileType == FileType.JPG || fileType == FileType.PNG)
+                radius = 0.01f;
             for (int i = 0; i < MarkerList.size(); i++){
 //                System.out.println("start draw marker---------------------");
                 ImageMarker imageMarker = MarkerList.get(i);
                 float[] markerModel = VolumetoModel(new float[]{imageMarker.x, imageMarker.y, imageMarker.z});
-                myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type);
+                myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, radius);
 //                Log.v("onDrawFrame: ", "(" + markerDrawed.get(i) + ", " + markerDrawed.get(i+1) + ", " + markerDrawed.get(i+2) + ")");
 
             }
@@ -579,10 +582,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         //导入的apo
         if (apoDrawed.size() > 0){
-
+            float radius = 0.02f;
+            if (fileType == FileType.JPG || fileType == FileType.PNG)
+                radius = 0.01f;
             Log.v("MyRender", "Load data successfully!");
             for (int i = 0; i < apoDrawed.size(); i = i + 4){
-                myDraw.drawMarker(finalMatrix, modelMatrix, apoDrawed.get(i), apoDrawed.get(i+1), apoDrawed.get(i+2),apoDrawed.get(i+3).intValue());
+                myDraw.drawMarker(finalMatrix, modelMatrix, apoDrawed.get(i), apoDrawed.get(i+1), apoDrawed.get(i+2),apoDrawed.get(i+3).intValue(), radius);
 //                Log.v("onDrawFrame: ", "(" + markerDrawed.get(i) + ", " + markerDrawed.get(i+1) + ", " + markerDrawed.get(i+2) + ")");
 
             }

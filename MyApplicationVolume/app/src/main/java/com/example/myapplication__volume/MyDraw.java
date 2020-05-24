@@ -22,7 +22,7 @@ public class MyDraw {
 
     float n = 100;
 //    final float radius = 0.1f;
-    final float radius = 0.02f;
+//    final float radius = 0.02f;
     final float splitRadius = 0.005f;
 
     private final int mProgram_marker;
@@ -280,7 +280,7 @@ public class MyDraw {
 //    }
 
 
-    public void drawMarker(float[] mvpMatrix, float[] modelMatrix, float x, float y, float z, int type){
+    public void drawMarker(float[] mvpMatrix, float[] modelMatrix, float x, float y, float z, int type, float radius){
 //        System.out.println("set marker");
 
         BufferSet_Marker(x, y, z, type, radius);
