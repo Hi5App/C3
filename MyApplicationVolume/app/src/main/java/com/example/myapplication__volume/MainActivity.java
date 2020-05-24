@@ -2316,7 +2316,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200524a 16:55 build",
+                .asConfirm("Version", "version: 20200524c 21:41 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -2766,6 +2766,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             Toast.makeText(this, "Please load image first!", Toast.LENGTH_SHORT).show();
+            Looper.loop();
             return;
         }
         ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
@@ -2835,6 +2836,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             Toast.makeText(this, "Please load image first!", Toast.LENGTH_SHORT).show();
+            Looper.loop();
             return;
         }
         ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
@@ -3323,9 +3325,6 @@ public class MainActivity extends AppCompatActivity {
 
         Image4DSimple img = myrenderer.getImg();
         if(img == null){
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
 
             Toast.makeText(this, "Please load image first!", Toast.LENGTH_SHORT).show();
             return;
@@ -3385,11 +3384,7 @@ public class MainActivity extends AppCompatActivity {
             myrenderer.ResetImg(outImg);
             myGLSurfaceView.requestRender();
         }catch (Exception e){
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-            Looper.loop();
         }
 
 //        Image4DSimple out = new Image4DSimple();
