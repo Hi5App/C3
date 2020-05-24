@@ -234,13 +234,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         screen_w = width;
         screen_h = height;
 
-        if (fileType == FileType.V3draw || fileType == FileType.TIF)
+        if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD)
             myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
         if (fileType == FileType.PNG || fileType == FileType.JPG)
             myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
 
         if (ifFileSupport){
-            if (fileType == FileType.TIF || fileType == FileType.V3draw) {
+            if (fileType == FileType.TIF || fileType == FileType.V3draw || fileType == FileType.V3dPBD) {
                 myAxis = new MyAxis(mz);
             }
             myDraw = new MyDraw();
@@ -303,7 +303,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         if (myPattern == null || myPattern2D == null){
             if (ifFileSupport){
-                if (fileType == FileType.V3draw || fileType == FileType.TIF)
+                if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD)
                     myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
                 if (fileType == FileType.PNG || fileType == FileType.JPG)
                     myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
@@ -411,7 +411,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 //        Log.v("onDrawFrame", "draw_axis");
 
-        if (fileType == FileType.V3draw || fileType == FileType.TIF)
+        if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD)
             myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, screen_w, screen_h, texture[0]);
 
         if (fileType == FileType.JPG || fileType == FileType.PNG)
@@ -590,7 +590,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
         //
-        if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.JPG || fileType == FileType.PNG)
+        if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.JPG || fileType == FileType.PNG || fileType == FileType.V3dPBD)
             if (myAxis != null)
                 myAxis.draw(finalMatrix);
 
@@ -823,7 +823,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         curSwcList.clear();
         MarkerList.clear();
 
-        if (fileType == FileType.V3draw || fileType == FileType.TIF){
+        if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD){
             setImage();
             ifFileSupport = true;
         }
@@ -837,6 +837,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             loadImage2D();
             ifFileSupport = true;
         }
+
+//        else if (fileType == FileType.V3dPBD){
+//            setImage();
+//            ifFileSupport = true;
+//        }
 
         else {
             return;
@@ -957,6 +962,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         switch (filetype){
             case ".V3DRAW":
                 fileType = FileType.V3draw;
+                break;
+
+            case ".V3DPBD":
+                fileType = FileType.V3dPBD;
                 break;
 
             case ".SWC":
@@ -1439,6 +1448,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }else if (fileType == FileType.TIF){
             img = Image4DSimple.loadImage(filepath, ".TIF");
+            if (img == null){
+                return;
+            }
+        }else if (fileType == FileType.V3dPBD){
+            img = Image4DSimple.loadImage(filepath, ".V3DPBD");
             if (img == null){
                 return;
             }
@@ -3265,6 +3279,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         TIF,
         JPG,
         PNG,
+        V3dPBD,
         NotSupport
     }
 

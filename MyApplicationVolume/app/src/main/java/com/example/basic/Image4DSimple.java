@@ -604,6 +604,7 @@ public class Image4DSimple {
                 image =  rr.run(length, is);
             }
         }
+
         else if (filetype == ".TIF"){
             Context context = getContext();
             Tiffreader tr = new Tiffreader();
@@ -654,6 +655,46 @@ public class Image4DSimple {
                 image =  tr.run(temp_file);
 //                temp_file.delete();
 
+            }
+        }
+
+        else if (filetype == ".V3DPBD"){
+            ImageLoaderBasic il = new ImageLoaderBasic();
+            File file = new File(filepath);
+            long length = 0;
+            InputStream is = null;
+            if (file.exists()){
+                try {
+                    length = file.length();
+                    is = new FileInputStream(file);
+//                grayscale =  rr.run(length, is);
+                    image = il.loadRaw2StackPBD(is, length, false);
+
+                    Log.v("getIntensity_3d", filepath);
+
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            else {
+                Uri uri = Uri.parse(filepath);
+
+                try {
+                    ParcelFileDescriptor parcelFileDescriptor =
+                            getContext().getContentResolver().openFileDescriptor(uri, "r");
+
+                    is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+
+                    length = (int)parcelFileDescriptor.getStatSize();
+
+                    Log.v("MyPattern","Successfully load intensity");
+
+                }catch (Exception e){
+                    Log.v("MyPattern","Some problems in the MyPattern when load intensity");
+                }
+
+                image = il.loadRaw2StackPBD(is, length, false);
             }
         }
 
