@@ -508,8 +508,11 @@ public class RemoteImg extends Socket {
 
                                 }
 
+//                                String storefilename = filename.split("RES")[0] +
+//                                        "_" + offset_x + "_" + offset_y + "_" + offset_z + "_" + size +"_" + size +"_" + size + ".v3draw";
+
                                 String storefilename = filename.split("RES")[0] +
-                                        "_" + offset_x + "_" + offset_y + "_" + offset_z + "_" + size +"_" + size +"_" + size + ".v3draw";
+                                        "_" + offset_x + "_" + offset_y + "_" + offset_z + "_" + size +"_" + size +"_" + size + ".v3dpbd";
 
 
                                 Log.v("PullImageBlcok", "x: " + offset_x + ", y:" + offset_y + ", z:" +offset_z + ", size: " + size);

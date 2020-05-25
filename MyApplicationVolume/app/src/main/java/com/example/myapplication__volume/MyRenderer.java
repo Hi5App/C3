@@ -226,10 +226,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
+    private Double test(){
+        double result = 4.1;
+        return null;
+    }
     //画面大小发生改变后
     public void onSurfaceChanged(GL10 gl,int width, int height){
         //设置视图窗口
         GLES30.glViewport(0, 0, width, height);
+
+        Double result = test();
+        if (result != null){
+            double data = result;
+        }
 
         screen_w = width;
         screen_h = height;
