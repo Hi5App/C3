@@ -1392,6 +1392,97 @@ public class MyPattern{
 
     }
 
+    public void downSample(){
+        GLES30.glGenTextures(  //创建纹理对象
+                1, //产生纹理id的数量
+                vol_tex, //纹理id的数组
+                0  //偏移量
+        );
+
+        nchannel = (int)image.getSz3();
+        data_length = image.getDatatype().ordinal();
+        isBig = image.getIsBig();
+
+//        byte [] image_data = getIntensity_3d();
+
+
+//        createMarker(image_data, vol_w, vol_h, vol_d, 60, 60, 60);
+
+
+        //绑定纹理id，将对象绑定到环境的纹理单元
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_3D,vol_tex[0]);
+
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
+                GLES30.GL_TEXTURE_MIN_FILTER,GLES30.GL_NEAREST);//设置MIN 采样方式
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
+                GLES30.GL_TEXTURE_MAG_FILTER,GLES30.GL_LINEAR);//设置MAG采样方式
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
+                GLES30.GL_TEXTURE_WRAP_S,GLES30.GL_CLAMP_TO_EDGE);//设置S轴拉伸方式
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
+                GLES30.GL_TEXTURE_WRAP_T,GLES30.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
+                GLES30.GL_TEXTURE_WRAP_R,GLES30.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
+
+
+//        byte [] image_data = getIntensity_3d();
+//        imageBuffer = CreateBuffer(image_data);
+
+        if (data_length == 1) {
+            byte [] image_data = getIntensity_3dDownSample();
+            imageBuffer = CreateBuffer(image_data);
+            GLES30.glTexImage3D(
+                    GLES30.GL_TEXTURE_3D, //纹理类型
+                    0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
+                    GLES30.GL_RGBA, //图片的格式
+                    vol_w,   //宽
+                    vol_h,   //高
+                    vol_d,   //切片数
+                    0, //纹理边框尺寸();
+                    GLES30.GL_RGBA,
+                    GLES30.GL_UNSIGNED_BYTE,
+                    imageBuffer
+            );
+        }else if (data_length == 2){
+            short [] image_data = getIntensity_short3dDownSample();
+//            imageShortBuffer = ShortBuffer.allocate(image_data.length)
+//                    .order(shortOrder.nativeOrder());
+//            //传入指定的坐标数据
+//            imageShortBuffer.put(image_data);
+            imageShortBuffer = ShortBuffer.wrap(image_data);
+            imageShortBuffer.position(0);
+            GLES30.glTexImage3D(
+                    GLES30.GL_TEXTURE_3D, //纹理类型
+                    0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
+                    GLES30.GL_RGBA, //图片的格式
+                    vol_w,   //宽
+                    vol_h,   //高
+                    vol_d,   //切片数
+                    0, //纹理边框尺寸();
+                    GLES30.GL_RGBA,
+                    GLES30.GL_UNSIGNED_SHORT,
+                    imageShortBuffer
+            );
+        }else if (data_length == 4){
+            int [] image_data = getIntensity_int3dDownSample();
+            imageIntBuffer = IntBuffer.wrap(image_data);
+            imageIntBuffer.position(0);
+            GLES30.glTexImage3D(
+                    GLES30.GL_TEXTURE_3D, //纹理类型
+                    0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
+                    GLES30.GL_RGBA, //图片的格式
+                    vol_w,   //宽
+                    vol_h,   //高
+                    vol_d,   //切片数
+                    0, //纹理边框尺寸();
+                    GLES30.GL_RGBA,
+                    GLES30.GL_UNSIGNED_INT,
+                    imageIntBuffer
+            );
+        }
+
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_3D,0);
+    }
+
 
     //为三维纹理准备数据
     private byte[] getIntensity_3d(){
@@ -1526,6 +1617,8 @@ public class MyPattern{
         return data_image;
     }
 
+
+
     private short [] getIntensity_short3d(){
 
         Log.v("getIntensity_short3d", "Here we are");
@@ -1605,7 +1698,159 @@ public class MyPattern{
     }
 
 
+    private byte[] getIntensity_3dDownSample(){
+        Log.v("getIntensity_3dDS", "Here we are");
 
+        vol_w = (int)image.getSz0();
+        vol_h = (int)image.getSz1();
+        vol_d = (int)image.getSz2();
+
+        Log.v("vol_w", Integer.toString(vol_w));
+        Log.v("vol_h", Integer.toString(vol_h));
+        Log.v("vol_d", Integer.toString(vol_d));
+
+        byte [] data_src = image.getData();
+        byte [] data_image = new byte[(vol_w / 2) * (vol_h / 2) * (vol_d / 2) * data_length * nchannel * 4];
+        if (nchannel == 3){
+            for (int x = 0; x < vol_w; x += 2){
+                for (int y = 0; y < vol_h; y += 2){
+                    for (int z = 0; z < vol_d; z += 2){
+                        int i = (z * vol_h * vol_w + y * vol_w + x) * data_length;
+                        data_image[i * 4] = data_src[i];
+                        data_image[i * 4 + 1] = data_src[vol_w * vol_h * vol_d * data_length + i];
+                        data_image[i * 4 + 2] = data_src[vol_w * vol_h * vol_d * data_length * 2 + i];
+                        data_image[i * 4 + 3] = ByteTranslate.intToByte(1);
+                    }
+                }
+            }
+        }else{
+            for (int x = 0; x < vol_w; x += 2){
+                for (int y = 0; y < vol_h; y += 2){
+                    for (int z = 0; z < vol_d; z += 2){
+                        int i = (z * vol_h * vol_w + y * vol_w + x) * data_length;
+                        data_image[i * 4] = data_src[i];
+                        data_image[i * 4 + 1] = data_src[i];
+                        data_image[i * 4 + 2] = data_src[i];
+                        data_image[i * 4 + 3] = ByteTranslate.intToByte(1);
+                    }
+                }
+            }
+        }
+
+        vol_w /= 2;
+        vol_h /= 2;
+        vol_d /= 2;
+
+        return data_image;
+    }
+
+    private short [] getIntensity_short3dDownSample(){
+        Log.v("getIntensity_short3dDS", "Here we are");
+        vol_w = (int)image.getSz0();
+        vol_h = (int)image.getSz1();
+        vol_d = (int)image.getSz2();
+
+        byte [] data_src = image.getData();
+        short [] data_image = new short[(vol_w / 2) * (vol_h / 2) * (vol_d / 2) * nchannel * 4];
+        byte [] b= new byte[2];
+
+        if (nchannel == 3){
+            for (int x = 0; x < vol_w; x += 2){
+                for (int y = 0; y < vol_h; y += 2){
+                    for (int z = 0; z < vol_d; z += 2){
+                        int i = (z * vol_h * vol_w + y * vol_w + x) * data_length;
+                        for (int c = 0; c < nchannel; c++) {
+                            b[0] = data_src[vol_w * vol_h * vol_d * data_length * c + i * 2];
+                            b[1] = data_src[vol_w * vol_h * vol_d * data_length * c + i * 2 + 1];
+                            data_image[i * 4 + c] = ByteTranslate.byte2ToShort(b, isBig);
+
+//                    data_image[i * 4 + 1] = data_src[vol_w * vol_h * vol_d * data_length + i];
+//                    data_image[i * 4 + 2] = data_src[vol_w * vol_h * vol_d * data_length * 2 + i];
+//                    data_image[i * 4 + 3] = ByteTranslate.intToByte(1);
+                        }
+                        data_image[i * 4 + 3] = 1;
+                    }
+                }
+            }
+        }else{
+            for (int x = 0; x < vol_w; x += 2){
+                for (int y = 0; y < vol_h; y += 2){
+                    for (int z = 0; z < vol_d; z += 2){
+                        int i = (z * vol_h * vol_w + y * vol_w + x) * data_length;
+                        b[0] = data_src[i * 2];
+                        b[1] = data_src[i * 2 + 1];
+                        short temp = ByteTranslate.byte2ToShort(b, isBig);
+                        data_image[i * 4] = temp;
+                        data_image[i * 4 + 1] = temp;
+                        data_image[i * 4 + 2] = temp;
+                        data_image[i * 4 + 3] = 1;
+                    }
+                }
+            }
+        }
+
+        vol_w /= 2;
+        vol_h /= 2;
+        vol_d /= 2;
+
+        return data_image;
+    }
+
+    private int [] getIntensity_int3dDownSample(){
+        Log.v("getIntensity_int3dDS", "Here we are");
+        vol_w = (int)image.getSz0();
+        vol_h = (int)image.getSz1();
+        vol_d = (int)image.getSz2();
+
+        byte [] data_src = image.getData();
+        int [] data_image = new int[vol_w * vol_h * vol_d * nchannel * 4];
+        byte [] b= new byte[4];
+
+        if (nchannel == 3){
+            for (int x = 0; x < vol_w; x += 2){
+                for (int y = 0; y < vol_h; y += 2){
+                    for (int z = 0; z < vol_d; z += 2){
+                        int i = (z * vol_h * vol_w + y * vol_w + x) * data_length;
+                        for (int c = 0; c < nchannel; c++) {
+                            b[0] = data_src[vol_w * vol_h * vol_d * data_length * c + i * 4];
+                            b[1] = data_src[vol_w * vol_h * vol_d * data_length * c + i * 4 + 1];
+                            b[2] = data_src[vol_w * vol_h * vol_d * data_length * c + i * 4 + 2];
+                            b[3] = data_src[vol_w * vol_h * vol_d * data_length * c + i * 4 + 3];
+                            data_image[i * 4 + c] = ByteTranslate.byte2ToInt(b, isBig);
+
+//                    data_image[i * 4 + 1] = data_src[vol_w * vol_h * vol_d * data_length + i];
+//                    data_image[i * 4 + 2] = data_src[vol_w * vol_h * vol_d * data_length * 2 + i];
+//                    data_image[i * 4 + 3] = ByteTranslate.intToByte(1);
+                        }
+                        data_image[i * 4 + 3] = 1;
+                    }
+                }
+            }
+        }else{
+            for (int x = 0; x < vol_w; x += 2){
+                for (int y = 0; y < vol_h; y += 2){
+                    for (int z = 0; z < vol_d; z += 2){
+                        int i = (z * vol_h * vol_w + y * vol_w + x) * data_length;
+                        b[0] = data_src[i * 4];
+                        b[1] = data_src[i * 4 + 1];
+                        b[2] = data_src[i * 4 + 2];
+                        b[3] = data_src[i * 4 + 3];
+                        int temp = ByteTranslate.byte2ToInt(b, isBig);
+                        data_image[i * 4] = temp;
+                        data_image[i * 4 + 1] = temp;
+                        data_image[i * 4 + 2] = temp;
+                        data_image[i * 4 + 3] = 1;
+                    }
+                }
+            }
+        }
+
+        vol_w /= 2;
+        vol_h /= 2;
+        vol_d /= 2;
+
+        return data_image;
+    }
 
     //No Problem
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
