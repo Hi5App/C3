@@ -58,16 +58,16 @@ public class GSDT {
 
         //find the local maximum
         p.max_val = p.phi[0][0][0];
-        for(int ix=1;ix<=(sz[0]-2);ix=ix+3){
-            for(int iy=1;iy<=(sz[1]-2);iy=iy+3){
-                for(int iz=1;iz<=(sz[2]-2);iz=iz+3){
+        for(int ix=10;ix<=(sz[0]-11);ix=ix+21){
+            for(int iy=10;iy<=(sz[1]-11);iy=iy+21){
+                for(int iz=10;iz<=(sz[2]-11);iz=iz+21){
                     p.local_maxval = p.phi[iz][iy][ix];
                     p.local_maxloc[0] = ix;
                     p.local_maxloc[1] = iy;
                     p.local_maxloc[2] = iz;
-                    for(int dx=-1;dx<=1;dx++){
-                        for(int dy=-1;dy<=1;dy++){
-                            for(int dz=-1;dz<=1;dz++){
+                    for(int dx=-10;dx<=10;dx++){
+                        for(int dy=-10;dy<=10;dy++){
+                            for(int dz=-10;dz<=10;dz++){
                                 if(p.phi[iz+dz][iy+dy][ix+dx]>p.local_maxval){
                                     p.local_maxval = p.phi[iz+dz][iy+dy][ix+dx];
                                     p.local_maxloc[0] = ix + dx;
@@ -83,7 +83,7 @@ public class GSDT {
                         p.max_loc[1] = p.local_maxloc[1];
                         p.max_loc[2] = p.local_maxloc[2];
                     }
-                    if(p.local_maxval>=150){
+                    if(p.local_maxval>=100){
                         ImageMarker marker_new = new ImageMarker(p.local_maxloc[0], p.local_maxloc[1], p.local_maxloc[2]);
                         marker_new.radius = 5;
                         marker_new.type = 3;
