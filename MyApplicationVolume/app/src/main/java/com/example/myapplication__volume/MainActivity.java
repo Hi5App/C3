@@ -198,6 +198,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton draw_i;
     private ImageButton tracing_i;
     private ImageButton classify_i;
+    private ImageButton buttonUndo_i;
+    private FrameLayout.LayoutParams lp_undo_i;
 
     private Button PixelClassification;
     private boolean[][]select= {{true,true,true,false,false,false,false},
@@ -349,10 +351,10 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        FrameLayout.LayoutParams lp_draw_i = new FrameLayout.LayoutParams(200, 144);
+        FrameLayout.LayoutParams lp_draw_i = new FrameLayout.LayoutParams(230, 160);
 
         draw_i=new ImageButton(this);
-        draw_i.setImageResource(R.drawable.ic_create_black_24dp);
+        draw_i.setImageResource(R.drawable.ic_draw_main);
         ll_top.addView(draw_i,lp_draw_i);
 
         draw_i.setOnClickListener(new Button.OnClickListener() {
@@ -372,10 +374,13 @@ public class MainActivity extends AppCompatActivity {
         });*/
 
 
-        FrameLayout.LayoutParams lp_tracing_i = new FrameLayout.LayoutParams(200, 144);
+//        FrameLayout.LayoutParams lp_tracing_i = new FrameLayout.LayoutParams(200, 144);
+        FrameLayout.LayoutParams lp_tracing_i = new FrameLayout.LayoutParams(230, 160);
+
 
         tracing_i=new ImageButton(this);
-        tracing_i.setImageResource(R.drawable.ic_device_hub_black_24dp);
+//        tracing_i.setImageResource(R.drawable.ic_device_hub_black_24dp);
+        tracing_i.setImageResource(R.drawable.ic_neuron);
         ll_top.addView(tracing_i,lp_tracing_i);
 
         tracing_i.setOnClickListener(new Button.OnClickListener() {
@@ -395,10 +400,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });*/
 
-        FrameLayout.LayoutParams lp_classify_i = new FrameLayout.LayoutParams(200, 144);
+        FrameLayout.LayoutParams lp_classify_i = new FrameLayout.LayoutParams(230, 160);
 
         classify_i=new ImageButton(this);
-        classify_i.setImageResource(R.drawable.ic_bubble_chart_black_24dp);
+        classify_i.setImageResource(R.drawable.ic_classify_mid);
         ll_top.addView(classify_i,lp_classify_i);
 
         classify_i.setOnClickListener(new Button.OnClickListener() {
@@ -499,10 +504,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        buttonUndo = new Button(this);
-        buttonUndo.setText("Undo");
+//        buttonUndo = new Button(this);
+//        buttonUndo.setText("Undo");
 
-        buttonUndo.setOnClickListener(new Button.OnClickListener() {
+        lp_undo_i = new FrameLayout.LayoutParams(230, 160);
+
+        buttonUndo_i=new ImageButton(this);
+        buttonUndo_i.setImageResource(R.drawable.ic_undo_black_24dp);
+
+        buttonUndo_i.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 boolean undoSuccess = myrenderer.undo();
                 if (!undoSuccess) {
@@ -1396,22 +1406,20 @@ public class MainActivity extends AppCompatActivity {
                                         ifSpliting = false;
                                         ifChangeLineType = false;
                                         if (ifPoint) {
-//                                            Draw.setText("PinPoint");
-//                                            Draw.setTextColor(Color.RED);
+                                            draw_i.setImageResource(R.drawable.ic_add_marker);
 
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo);
+                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
 
                                         } else {
-//                                            Draw.setText("DRAW");
-//                                            Draw.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo);
+                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
@@ -1423,22 +1431,20 @@ public class MainActivity extends AppCompatActivity {
                                         ifSpliting = false;
                                         ifChangeLineType = false;
                                         if (ifPainting) {
-//                                            Draw.setText("Draw Curve");
-//                                            Draw.setTextColor(Color.RED);
+                                            draw_i.setImageResource(R.drawable.ic_draw);
 
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo);
+                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
 
                                         } else {
-//                                            Draw.setText("DRAW");
-//                                            Draw.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo);
+                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
@@ -1450,22 +1456,20 @@ public class MainActivity extends AppCompatActivity {
                                         ifSpliting = false;
                                         ifChangeLineType = false;
                                         if (ifDeletingMarker) {
-//                                            Draw.setText("Delete marker");
-//                                            Draw.setTextColor(Color.RED);
+                                            draw_i.setImageResource(R.drawable.ic_marker_delete);
 
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo);
+                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
 
                                         } else {
-//                                            Draw.setText("DRAW");
-//                                            Draw.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo);
+                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
@@ -1477,22 +1481,20 @@ public class MainActivity extends AppCompatActivity {
                                         ifSpliting = false;
                                         ifChangeLineType = false;
                                         if (ifDeletingLine) {
-//                                            Draw.setText("Delete curve");
-//                                            Draw.setTextColor(Color.RED);
+                                            draw_i.setImageResource(R.drawable.ic_delete_curve);
 
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo);
+                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
 
                                         } else {
-//                                            Draw.setText("DRAW");
-//                                            Draw.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo);
+                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
@@ -1504,22 +1506,20 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingMarker = false;
                                         ifChangeLineType = false;
                                         if (ifSpliting) {
-//                                            Draw.setText("Split");
-//                                            Draw.setTextColor(Color.RED);
+                                            draw_i.setImageResource(R.drawable.ic_split);
 
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo);
+                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
 
                                         } else {
-//                                            Draw.setText("DRAW");
-//                                            Draw.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo);
+                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
@@ -1543,16 +1543,15 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo);
+                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
 
                                         } else {
-//                                            Draw.setText("DRAW");
-//                                            Draw.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo);
+                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
@@ -1567,10 +1566,9 @@ public class MainActivity extends AppCompatActivity {
                                         ifPoint = false;
                                         ifDeletingMarker = false;
                                         ifSpliting = false;
-//                                        Draw.setText("DRAW");
-//                                        Draw.setTextColor(Color.BLACK);
+                                        draw_i.setImageResource(R.drawable.ic_draw_main);
                                         ll_bottom.removeView(Switch);
-                                        ll_top.removeView(buttonUndo);
+                                        ll_top.removeView(buttonUndo_i);
                                         break;
 
                                 }
