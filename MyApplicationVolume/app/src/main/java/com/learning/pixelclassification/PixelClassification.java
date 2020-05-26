@@ -124,30 +124,30 @@ public class PixelClassification {
             bg = true;
         }
 
-        List<int[]> masks = new ArrayList<>(C);
+        List<byte[]> masks = new ArrayList<>(C);
         int[] sz = new int[]{(int) downSampleImg.getSz0(), (int) downSampleImg.getSz1(), (int) downSampleImg.getSz2()};
 //        int[] flag = new int[]{1,2,3,4,5,6,7,8,9,10};
 
         Vector<MyMarker> inSwc = MyMarker.swcConvert(labelFB.get(0));
 //        int[] mask = MyMarker.swcToMask(inSwc,sz,0.5, 2);
-        int[] mask = MyMarker.swcToMask2(inSwc,sz,2);
+        byte[] mask = MyMarker.swcToMask2(inSwc,sz,2);
         masks.add(mask);
 
         if(!bg){
             Vector<MyMarker> inSwc2 = MyMarker.swcConvert(labelFB.get(1));
 //            int[] mask2 = MyMarker.swcToMask(inSwc2,sz,0.5, 1);
-            int[] mask2 = MyMarker.swcToMask2(inSwc2,sz,1);
+            byte[] mask2 = MyMarker.swcToMask2(inSwc2,sz,1);
             masks.add(mask2);
         }
 
 
-        int[] maskFinal = new int[sz[0]*sz[1]*sz[2]];
-        Arrays.fill(maskFinal,0);
+        byte[] maskFinal = new byte[sz[0]*sz[1]*sz[2]];
+        Arrays.fill(maskFinal, (byte) 0);
         for(int i=0; i<masks.size(); i++){
             for(int j=0; j<masks.get(i).length; j++){
                 if(maskFinal[j] == 0 && masks.get(i)[j] != 0) {
 //                    System.out.println("mask is not zero");
-                    maskFinal[j] = masks.get(i)[j];
+                    maskFinal[j] = (byte) masks.get(i)[j];
                 }
             }
         }
@@ -158,16 +158,16 @@ public class PixelClassification {
 
         ArrayList<int[]> partPixelsFeature = new ArrayList<>();
         byte[] img1dByte = downSampleImg.getData();
-        int[] img1d = new int[img1dByte.length];
-        for(int i=0; i<img1dByte.length; i++){
-            img1d[i] = ByteTranslate.byte1ToInt(img1dByte[i]);
-        }
+//        int[] img1d = new int[img1dByte.length];
+//        for(int i=0; i<img1dByte.length; i++){
+//            img1d[i] = ByteTranslate.byte1ToInt(img1dByte[i]);
+//        }
 
         double mean = 0, std = 0;
         int count = 0;
         for(int i=0; i<maskFinal.length; i++){
             if(maskFinal[i] == 2){
-                mean += img1d[i];
+                mean += ByteTranslate.byte1ToInt(img1dByte[i]);
 //                max = Math.max(max,img1d[i]);
                 count++;
             }
@@ -176,7 +176,7 @@ public class PixelClassification {
 
         for(int i=0; i<maskFinal.length; i++){
             if(maskFinal[i] == 2){
-                std += (img1d[i]-mean)*(img1d[i]-mean);
+                std += (ByteTranslate.byte1ToInt(img1dByte[i])-mean)*(ByteTranslate.byte1ToInt(img1dByte[i])-mean);
             }
         }
         std = Math.sqrt(std/count);
@@ -192,7 +192,7 @@ public class PixelClassification {
 
             int countB = 0;
             for(int i=0; i<randomNumber.size(); i++){
-                if(maskFinal[randomNumber.get(i)] != 2 && img1d[randomNumber.get(i)] < th){
+                if(maskFinal[randomNumber.get(i)] != 2 && ByteTranslate.byte1ToInt(img1dByte[randomNumber.get(i)] )< th){
                     maskFinal[randomNumber.get(i)] = 1;
                     countB++;
                     if(countB>=count*2)
@@ -201,7 +201,7 @@ public class PixelClassification {
             }
         }
 
-        int[] featureMask0 = new int[img1d.length];
+        byte[] featureMask0 = new byte[img1dByte.length];
         double min = Math.max(mean-std,30);
         double max = mean +std;
         System.out.println("min: "+min);
@@ -209,8 +209,8 @@ public class PixelClassification {
 
         int f = 0, b = 0;
         double margin = 5;
-        for(int i=0; i<img1d.length; i++){
-            if(maskFinal[i] != 0 || (img1d[i] >= min - margin /*&& img1d[i] <= max + margin*/)){
+        for(int i=0; i<img1dByte.length; i++){
+            if(maskFinal[i] != 0 || (ByteTranslate.byte1ToInt(img1dByte[i]) >= min - margin /*&& img1d[i] <= max + margin*/)){
                 featureMask0[i] = 1;
                 f++;
             }else {
@@ -220,13 +220,13 @@ public class PixelClassification {
         }
         System.out.println("f: "+f+" b: "+b);
 
-        byte[] data = new byte[img1d.length*3];
+        byte[] data = new byte[img1dByte.length*3];
         Arrays.fill(data, (byte) 0);
-        for(int i=0; i<img1d.length; i++){
+        for(int i=0; i<img1dByte.length; i++){
             data[i] = img1dByte[i];
         }
-        for(int i=img1d.length; i<img1d.length*2; i++){
-            if(featureMask0[i-img1d.length] == 1){
+        for(int i=img1dByte.length; i<img1dByte.length*2; i++){
+            if(featureMask0[i-img1dByte.length] == 1){
                 data[i] = (byte) 255;
             }else {
                 data[i] = (byte) 0;

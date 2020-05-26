@@ -30,6 +30,14 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['src/main/jniLibs']
+        }
+    }
+
+
 }
 
 dependencies {
@@ -50,6 +58,7 @@ dependencies {
 
 //     debugImplementation because LeakCanary should only run in debug builds.
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'
+    implementation project(path: ':openCVLibrary340')
 
 //    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
 //    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.3'

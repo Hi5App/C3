@@ -82,6 +82,8 @@ import com.tracingfunc.gd.V3dNeuronGDTracing;
 import com.tracingfunc.gsdt.GSDT;
 import com.tracingfunc.gsdt.ParaGSDT;
 
+import org.opencv.android.OpenCVLoader;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -196,6 +198,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton draw_i;
     private ImageButton tracing_i;
     private ImageButton classify_i;
+    private ImageButton buttonUndo_i;
+    private FrameLayout.LayoutParams lp_undo_i;
 
     private Button PixelClassification;
     private boolean[][]select= {{true,true,true,false,false,false,false},
@@ -347,10 +351,10 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        FrameLayout.LayoutParams lp_draw_i = new FrameLayout.LayoutParams(200, 144);
+        FrameLayout.LayoutParams lp_draw_i = new FrameLayout.LayoutParams(230, 160);
 
         draw_i=new ImageButton(this);
-        draw_i.setImageResource(R.drawable.ic_create_black_24dp);
+        draw_i.setImageResource(R.drawable.ic_draw_main);
         ll_top.addView(draw_i,lp_draw_i);
 
         draw_i.setOnClickListener(new Button.OnClickListener() {
@@ -370,10 +374,13 @@ public class MainActivity extends AppCompatActivity {
         });*/
 
 
-        FrameLayout.LayoutParams lp_tracing_i = new FrameLayout.LayoutParams(200, 144);
+//        FrameLayout.LayoutParams lp_tracing_i = new FrameLayout.LayoutParams(200, 144);
+        FrameLayout.LayoutParams lp_tracing_i = new FrameLayout.LayoutParams(230, 160);
+
 
         tracing_i=new ImageButton(this);
-        tracing_i.setImageResource(R.drawable.ic_device_hub_black_24dp);
+//        tracing_i.setImageResource(R.drawable.ic_device_hub_black_24dp);
+        tracing_i.setImageResource(R.drawable.ic_neuron);
         ll_top.addView(tracing_i,lp_tracing_i);
 
         tracing_i.setOnClickListener(new Button.OnClickListener() {
@@ -393,10 +400,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });*/
 
-        FrameLayout.LayoutParams lp_classify_i = new FrameLayout.LayoutParams(200, 144);
+        FrameLayout.LayoutParams lp_classify_i = new FrameLayout.LayoutParams(230, 160);
 
         classify_i=new ImageButton(this);
-        classify_i.setImageResource(R.drawable.ic_bubble_chart_black_24dp);
+        classify_i.setImageResource(R.drawable.ic_classify_mid);
         ll_top.addView(classify_i,lp_classify_i);
 
         classify_i.setOnClickListener(new Button.OnClickListener() {
@@ -497,10 +504,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        buttonUndo = new Button(this);
-        buttonUndo.setText("Undo");
+//        buttonUndo = new Button(this);
+//        buttonUndo.setText("Undo");
 
-        buttonUndo.setOnClickListener(new Button.OnClickListener() {
+        lp_undo_i = new FrameLayout.LayoutParams(230, 160);
+
+        buttonUndo_i=new ImageButton(this);
+        buttonUndo_i.setImageResource(R.drawable.ic_undo_black_24dp);
+
+        buttonUndo_i.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 boolean undoSuccess = myrenderer.undo();
                 if (!undoSuccess) {
@@ -555,6 +567,10 @@ public class MainActivity extends AppCompatActivity {
                 ifDeletingMarker = false;
                 ifDeletingLine = false;
                 SetAnimation();
+                return true;
+            case R.id.corner:
+                myrenderer.corner_detection();
+                myGLSurfaceView.requestRender();
                 return true;
             default:
                 return true;
@@ -622,6 +638,7 @@ public class MainActivity extends AppCompatActivity {
 //            return;
             Bitmap bitmap= BitmapFactory.decodeFile(String.valueOf(showPic));
             myrenderer.SetPath(showPic.getAbsolutePath());
+            //System.out.println(showPic.getAbsolutePath());
             myGLSurfaceView.requestRender();
             return;
         }
@@ -1389,22 +1406,20 @@ public class MainActivity extends AppCompatActivity {
                                         ifSpliting = false;
                                         ifChangeLineType = false;
                                         if (ifPoint) {
-//                                            Draw.setText("PinPoint");
-//                                            Draw.setTextColor(Color.RED);
+                                            draw_i.setImageResource(R.drawable.ic_add_marker);
 
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo);
+                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
 
                                         } else {
-//                                            Draw.setText("DRAW");
-//                                            Draw.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo);
+                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
@@ -1416,22 +1431,20 @@ public class MainActivity extends AppCompatActivity {
                                         ifSpliting = false;
                                         ifChangeLineType = false;
                                         if (ifPainting) {
-//                                            Draw.setText("Draw Curve");
-//                                            Draw.setTextColor(Color.RED);
+                                            draw_i.setImageResource(R.drawable.ic_draw);
 
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo);
+                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
 
                                         } else {
-//                                            Draw.setText("DRAW");
-//                                            Draw.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo);
+                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
@@ -1443,22 +1456,20 @@ public class MainActivity extends AppCompatActivity {
                                         ifSpliting = false;
                                         ifChangeLineType = false;
                                         if (ifDeletingMarker) {
-//                                            Draw.setText("Delete marker");
-//                                            Draw.setTextColor(Color.RED);
+                                            draw_i.setImageResource(R.drawable.ic_marker_delete);
 
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo);
+                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
 
                                         } else {
-//                                            Draw.setText("DRAW");
-//                                            Draw.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo);
+                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
@@ -1470,22 +1481,20 @@ public class MainActivity extends AppCompatActivity {
                                         ifSpliting = false;
                                         ifChangeLineType = false;
                                         if (ifDeletingLine) {
-//                                            Draw.setText("Delete curve");
-//                                            Draw.setTextColor(Color.RED);
+                                            draw_i.setImageResource(R.drawable.ic_delete_curve);
 
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo);
+                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
 
                                         } else {
-//                                            Draw.setText("DRAW");
-//                                            Draw.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo);
+                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
@@ -1497,22 +1506,20 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingMarker = false;
                                         ifChangeLineType = false;
                                         if (ifSpliting) {
-//                                            Draw.setText("Split");
-//                                            Draw.setTextColor(Color.RED);
+                                            draw_i.setImageResource(R.drawable.ic_split);
 
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo);
+                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
 
                                         } else {
-//                                            Draw.setText("DRAW");
-//                                            Draw.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo);
+                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
@@ -1536,16 +1543,15 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo);
+                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
 
                                         } else {
-//                                            Draw.setText("DRAW");
-//                                            Draw.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo);
+                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
@@ -1560,10 +1566,9 @@ public class MainActivity extends AppCompatActivity {
                                         ifPoint = false;
                                         ifDeletingMarker = false;
                                         ifSpliting = false;
-//                                        Draw.setText("DRAW");
-//                                        Draw.setTextColor(Color.BLACK);
+                                        draw_i.setImageResource(R.drawable.ic_draw_main);
                                         ll_bottom.removeView(Switch);
-                                        ll_top.removeView(buttonUndo);
+                                        ll_top.removeView(buttonUndo_i);
                                         break;
 
                                 }
@@ -2309,7 +2314,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 202005021a 00:33 build",
+                .asConfirm("Version", "version: 20200525d 23:38 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -2743,13 +2748,22 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void APP2() throws Exception {
         Image4DSimple img = myrenderer.getImg();
-        img.getDataCZYX();
-        if (!img.valid()) {
-            Log.v("APP2Tracing", "Please load img first!");
+//        img.getDataCZYX();
+//        if (!img.valid()) {
+//            Log.v("APP2Tracing", "Please load img first!");
+//            if (Looper.myLooper() == null) {
+//                Looper.prepare();
+//            }
+//            Toast.makeText(this, "Please load img first!", Toast.LENGTH_LONG).show();
+//            Looper.loop();
+//            return;
+//        }
+        if(img == null){
             if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
-            Toast.makeText(this, "Please load img first!", Toast.LENGTH_LONG).show();
+
+            Toast.makeText(this, "Please load image first!", Toast.LENGTH_SHORT).show();
             Looper.loop();
             return;
         }
@@ -2805,12 +2819,21 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void GDTracing() throws Exception {
         Image4DSimple img = myrenderer.getImg();
-        if (!img.valid()) {
-            Log.v("GDTracing", "Please load img first!");
+//        if (!img.valid()) {
+//            Log.v("GDTracing", "Please load img first!");
+//            if (Looper.myLooper() == null) {
+//                Looper.prepare();
+//            }
+//            Toast.makeText(this, "Please load img first!", Toast.LENGTH_LONG).show();
+//            Looper.loop();
+//            return;
+//        }
+        if(img == null){
             if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
-            Toast.makeText(this, "Please load img first!", Toast.LENGTH_LONG).show();
+
+            Toast.makeText(this, "Please load image first!", Toast.LENGTH_SHORT).show();
             Looper.loop();
             return;
         }
@@ -3281,12 +3304,29 @@ public class MainActivity extends AppCompatActivity {
         myGLSurfaceView.onResume();
         Log.v("Path", filepath);
         Log.v("onResume", "start-----");
+        if (!OpenCVLoader.initDebug()) {
+
+            Log.i("cv", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+
+        } else {
+
+            Log.i("cv", "OpenCV library found inside package. Using it!");
+
+        }
 //        remoteImg = new RemoteImg();
     }
+
+
+
 
     private void Learning() {
 
         Image4DSimple img = myrenderer.getImg();
+        if(img == null){
+
+            Toast.makeText(this, "Please load image first!", Toast.LENGTH_SHORT).show();
+            return;
+        }
 //        Image4DSimple resampleimg=new Image4DSimple();
 //        Image4DSimple upsampleimg=new Image4DSimple();
         Image4DSimple outImg=new Image4DSimple();
@@ -3342,11 +3382,7 @@ public class MainActivity extends AppCompatActivity {
             myrenderer.ResetImg(outImg);
             myGLSurfaceView.requestRender();
         }catch (Exception e){
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-            Looper.loop();
         }
 
 //        Image4DSimple out = new Image4DSimple();
@@ -3687,20 +3723,17 @@ public class MainActivity extends AppCompatActivity {
 
         Log.v("GSDT", "Have got the image successfully!!");
         try {
-            //ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
-            //ArrayList<Integer> para = new ArrayList<Integer>(Arrays.asList(10,2,0,5));//bkg_thresh,cnn_type,channel,z_thickness
-            //Log.v("GSDT", "here");///problems
+
             System.out.println("Start here.....");
             ParaGSDT p = new ParaGSDT();
             p.p4DImage = img;
             GSDT.GSDT_Fun(p);
             Log.v("GSDT", "GSDT function finished");
-            ArrayList<ImageMarker> markers = p.markers;
-            System.out.println("show result.."+markers.isEmpty());
-            System.out.println("marker:"+ p.max_loc[0] + "," + p.max_loc[1] + "," + p.max_loc[2]);
 
+            //preparations for show
             myrenderer.ResetImg(p.outImage);
-            myrenderer.getMarkerList().add(p.markers.get(0));
+            myrenderer.getMarkerList().addAll(p.markers);//blue marker
+            myrenderer.getMarkerList().add(p.MaxMarker);//red marker
             myGLSurfaceView.requestRender();
             if (Looper.myLooper() == null) {
                 Looper.prepare();
@@ -3856,7 +3889,11 @@ public class MainActivity extends AppCompatActivity {
                         }
                         if (ifPoint) {
                             Log.v("actionPointerDown", "Pointinggggggggggg");
-                            myrenderer.setMarkerDrawed(X, Y);
+                            if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
+                                myrenderer.add2DMarker(X, Y);
+                            else {
+                                myrenderer.setMarkerDrawed(X, Y);
+                            }
                             Log.v("actionPointerDown", "(" + X + "," + Y + ")");
                             requestRender();
 
@@ -3939,18 +3976,20 @@ public class MainActivity extends AppCompatActivity {
                             myrenderer.setIfPainting(false);
 //                            myrenderer.addLineDrawed(lineDrawed);
 
-                            int lineType = myrenderer.getLastLineType();
-                            if (lineType != 3) {
-                                int segid = myrenderer.addLineDrawed(lineDrawed);
+                            if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
+                                myrenderer.add2DCurve(lineDrawed);
+                            else {
+                                int lineType = myrenderer.getLastLineType();
+                                if (lineType != 3) {
+                                    int segid = myrenderer.addLineDrawed(lineDrawed);
 //                                    segids.add(segid);
 //                            requestRender();
 
-                                myrenderer.addLineDrawed2(lineDrawed);
-                                myrenderer.deleteFromNew(segid);
-                            }
-
-                            else{
-                                myrenderer.addBackgroundLineDrawed(lineDrawed);
+                                    myrenderer.addLineDrawed2(lineDrawed);
+                                    myrenderer.deleteFromNew(segid);
+                                } else {
+                                    myrenderer.addBackgroundLineDrawed(lineDrawed);
+                                }
                             }
 //                            requestRender();
 
@@ -4103,6 +4142,7 @@ public class MainActivity extends AppCompatActivity {
                                         break;
                                     case"Camera":
                                         Camera();
+                                        break;
                                     default:
 //                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();
                                         Toast.makeText(getContext(), "Default in file", Toast.LENGTH_SHORT).show();

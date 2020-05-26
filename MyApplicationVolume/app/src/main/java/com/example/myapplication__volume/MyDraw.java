@@ -22,17 +22,19 @@ public class MyDraw {
 
     float n = 100;
 //    final float radius = 0.1f;
-    final float radius = 0.02f;
+//    final float radius = 0.02f;
     final float splitRadius = 0.005f;
 
     private final int mProgram_marker;
     private final int mProgram_line;
+    private final int mProgram_points;
 
     private FloatBuffer vertexBuffer_marker;
     private FloatBuffer normalizeBuffer_marker;
     private FloatBuffer vertexBuffer_line;
     private FloatBuffer colorBuffer_marker;
     private FloatBuffer colorBuffer_line;
+    private FloatBuffer vertexBuffer_points;
 
     float[] normalMatrix = new float[16];
     float[] normalMatrix_before = new float[16];
@@ -121,7 +123,27 @@ public class MyDraw {
                     "  FragColor = vec4(markerColor.rgb * vLighting, 1.0);" +
                     "}";
 
+    //draw points
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    private final String vertexShaderCode_points =
+            "#version 300 es\n" +
+                    "layout (location = 0) in vec4 vPosition;\n" +
+                    "void main() {\n" +
+                    "     gl_Position  = vPosition;\n" + //
+                    "     gl_PointSize = 20.0;\n" +
+                    "}\n";
 
+
+    private final String fragmentShaderCode_points =
+            "#version 300 es\n" +
+                    "precision mediump float;\n" +
+                    "out vec4 fragColor;\n" +
+                    "void main() {\n" +
+                    "if (length(gl_PointCoord  - vec2(0.5)) > 0.5) {\n" +
+                    "        discard;\n" +
+                    "    }" +
+                    "     fragColor = vec4(1.0,1.0,1.0,1.0);\n" +
+                    "}\n";
 
 
     public MyDraw(){
@@ -133,6 +155,10 @@ public class MyDraw {
         //for the line
         mProgram_line = initProgram(vertexShaderCode_line, fragmentShaderCode_line);
         Log.v("MyDraw", "init the mProgram_line");
+
+        //for the points
+        mProgram_points = initProgram(vertexShaderCode_points, fragmentShaderCode_points);
+        Log.v("MyDraw", "init the mProgram_points");
 
         BufferSet_Normalize();
 
@@ -180,7 +206,15 @@ public class MyDraw {
 
     }
 
-
+    private void BufferSet_Points(float [] vertexPoints_points){
+        //分配内存空间,每个浮点型占4字节空间
+        vertexBuffer_points = ByteBuffer.allocateDirect(vertexPoints_points.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        //传入指定的坐标数据
+        vertexBuffer_points.put(vertexPoints_points);
+        vertexBuffer_points.position(0);
+    }
 
 
     private void BufferSet_Line(float [] line, int type){
@@ -246,7 +280,7 @@ public class MyDraw {
 //    }
 
 
-    public void drawMarker(float[] mvpMatrix, float[] modelMatrix, float x, float y, float z, int type){
+    public void drawMarker(float[] mvpMatrix, float[] modelMatrix, float x, float y, float z, int type, float radius){
 //        System.out.println("set marker");
 
         BufferSet_Marker(x, y, z, type, radius);
@@ -348,6 +382,30 @@ public class MyDraw {
         GLES30.glDisableVertexAttribArray(2);
 
         GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+    }
+
+    public void drawPoints(float []  linePoints, int num){
+        GLES30.glUseProgram(mProgram_points);
+
+        BufferSet_Points(linePoints);
+
+        //准备坐标数据
+        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_points);
+        //启用顶点的句柄
+        GLES30.glEnableVertexAttribArray(0);
+
+        //绘制三个点
+        GLES30.glDrawArrays(GLES30.GL_POINTS, 0, num);
+
+        //绘制直线
+//        GLES30.glDrawArrays(GLES30.GL_LINE_STRIP, 0, 2);
+//        GLES30.glLineWidth(10);
+
+//        //绘制三角形
+//        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 3);
+
+        //禁止顶点数组的句柄
+        GLES30.glDisableVertexAttribArray(0);
     }
 
     public void drawSplitPoints(float [] mvpMatrix, float x, float y, float z, int type){
