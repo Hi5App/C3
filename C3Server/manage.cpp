@@ -15,6 +15,7 @@ void ManageSocket::readManage()
     QRegExp FileDownRex("(.*):choose1.\n");
     QRegExp ImageDownRex("(.*):choose3.\n");
     QRegExp ImgBlockRex("(.*):imgblock.\n");
+    QRegExp DisconnectRex("(.*):disconnected.\n");
 
     while(this->canReadLine())
     {
@@ -73,17 +74,23 @@ void ManageSocket::readManage()
             {
                 QDir("./").mkdir("rawimage");
             }
+            QString namepart1=QString::number(this->peerAddress().toIPv4Address())+"_"+filename+"_"+QString::number(blocksize)+"_";
+
             QString order =QString("xvfb-run -a ./vaa3d -x ./plugins/image_geometry/crop3d_image_series/libcropped3DImageSeries.so "
-                                    "-f cropTerafly -i ./%0/%1/ %2.apo ./rawimage -p %3 %4 %5")
-                    .arg(IMAGEDIR).arg(filename).arg(string).arg(blocksize).arg(blocksize).arg(blocksize);
+                                    "-f cropTerafly -i ./%0/%1/ %2.apo ./rawimage/%3 -p %4 %5 %6")
+                    .arg(IMAGEDIR).arg(filename).arg(string).arg(namepart1).arg(blocksize).arg(blocksize).arg(blocksize);
                             qDebug()<<"order="<<order;
             qDebug()<<p.execute(order.toStdString().c_str());
-            QString fName=QString("%1.000_%2.000_%3.000.v3draw").arg(xpos).arg(ypos).arg(zpos);
+
+            QString fName=namepart1+QString("%1.000_%2.000_%3.000.v3dpbd").arg(xpos).arg(ypos).arg(zpos);
             qDebug()<<fName;
             qDebug()<<"1";
             emit sendFile(this->peerAddress().toString(),fName);
 
             QFile f1(string+".apo"); qDebug()<<f1.remove();
+        }else if(DisconnectRex.indexIn(manageMSG)!=-1)
+        {
+            disconnectFromHost();
         }
     }
 
@@ -133,6 +140,7 @@ ManageServer::ManageServer(QObject *parent):QTcpServer(parent)
         deleteLater();
         qApp->quit();
     }
+    connect(&sendServer,SIGNAL(FileConnected(QString)),this,SLOT(FileConnected(QString)));
 }
 
 ManageServer::~ManageServer()
@@ -143,7 +151,7 @@ ManageServer::~ManageServer()
     }
 }
 
-void ManageServer::incomingConnection(int handle)
+void ManageServer::incomingConnection(qintptr handle)
 {
 
     ManageSocket *managesocket=new ManageSocket(this);
@@ -163,12 +171,12 @@ void ManageServer::onSocketDisconnected()
     {
             if(list[i]->peerAddress()==managesocket->peerAddress())
             {
-                qDebug()<<list[i]->peerAddress()<<" manage socket disconnected ";
-                list[i]->deleteLater();
+                qDebug()<<list[i]->peerAddress().toString()<<" manage socket disconnected ";
                 list.removeAt(i);
                 break;
             }
     }
+    managesocket->deleteLater();
 }
 
 void ManageServer::startReceiveServer()
@@ -193,8 +201,21 @@ void ManageServer::startReceiveServer()
 
 void ManageServer::sendFile(QString ip,QString filename)
 {
-    if(filename.contains("v3draw"))
+    if(filename.contains("v3draw")||filename.contains("v3dpbd"))
         sendServer.sendRAW(ip,filename);
     else
         sendServer.sendAnnotation(ip,filename);
+
+}
+
+void ManageServer::FileConnected(QString ip)
+{
+    for(int i=0;i<list.size();i++)
+    {
+        if(list[i]->peerAddress().toString()==ip)
+        {
+            list[i]->write(QString(ip+":file connected."+"\n").toUtf8());
+            break;
+        }
+    }
 }

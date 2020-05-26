@@ -32,11 +32,12 @@ public:
     explicit ManageServer(QObject *parent=0);
     ~ManageServer();
 private:
-    void incomingConnection(int handle) override;
+    void incomingConnection(qintptr handle) override;
 public slots:
     void onSocketDisconnected();
     void startReceiveServer();
     void sendFile(QString ip,QString filename);
+    void FileConnected(QString);
 private:
     QList<ManageSocket *> list;
     FileSenderServer sendServer;

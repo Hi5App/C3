@@ -25,7 +25,7 @@ public:
 public slots:
     void onSocketDisconnected();
 private:
-    void incomingConnection(int handle) override;
+    void incomingConnection(qintptr handle) override;
 private:
     QList<FileReceiveSocket *> list;
 

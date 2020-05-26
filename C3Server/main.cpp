@@ -5,7 +5,7 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    qInstallMsgHandler(customMessageHandler);
+    qInstallMessageHandler(customMessageHandler);
     ManageServer manageserver;
     if(!manageserver.listen(QHostAddress::Any,9000))
         exit(0);

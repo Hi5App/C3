@@ -32,7 +32,8 @@ void FileSenderSocket::sendFile(QString filepath, QString filename)
        f.close();
     }
     disconnectFromHost();
-    while(!(state() == QAbstractSocket::UnconnectedState ||waitForDisconnected(1000))) ;
+    while(!(state() == QAbstractSocket::UnconnectedState ||waitForDisconnected(1000)))
+        qDebug()<<"wait disconnect";
 }
 
 FileSenderServer::FileSenderServer(QObject *parnet):QTcpServer(parnet)
@@ -44,11 +45,12 @@ FileSenderServer::FileSenderServer(QObject *parnet):QTcpServer(parnet)
     list.clear();
 }
 
-void FileSenderServer::incomingConnection(int handle)
+void FileSenderServer::incomingConnection(qintptr handle)
 {
     FileSenderSocket *filesendsocket=new FileSenderSocket(this);
-    filesendsocket->setSocketDescriptor(handle);
+    filesendsocket->setSocketDescriptor(handle);   
     list.push_back(filesendsocket);
+    emit FileConnected(filesendsocket->peerAddress().toString());
     connect(filesendsocket,SIGNAL(disconnected()),this,SLOT(onSocketDisconnected()));
 }
 
@@ -60,11 +62,11 @@ void FileSenderServer::onSocketDisconnected()
             if(list[i]->peerAddress()==filesendsocket->peerAddress())
             {
                 qDebug()<<list[i]->peerAddress()<<" file send disconnected ";
-                list[i]->deleteLater();
                 list.removeAt(i);
                 break;
             }
     }
+    filesendsocket->deleteLater();
 }
 
 void FileSenderServer::sendAnnotation(QString ip, QString filename)

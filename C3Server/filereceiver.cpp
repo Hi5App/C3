@@ -57,7 +57,7 @@ FileReceiveServer::FileReceiveServer(QObject *parent):QTcpServer(parent)
 
 }
 
-void FileReceiveServer::incomingConnection(int handle)
+void FileReceiveServer::incomingConnection(qintptr handle)
 {
     FileReceiveSocket *filesendsocket=new FileReceiveSocket(this);
     filesendsocket->setSocketDescriptor(handle);
@@ -75,10 +75,11 @@ void FileReceiveServer::onSocketDisconnected()
             if(list[i]->peerAddress()==filesendsocket->peerAddress())
             {
                 qDebug()<<list[i]->peerAddress()<<" file receive disconnected ";
-                list[i]->deleteLater();
+
                 list.removeAt(i);
             }
     }
+    filesendsocket->deleteLater();
     if(list.size()==0)
     {
         close();

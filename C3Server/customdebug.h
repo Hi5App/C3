@@ -8,37 +8,29 @@
 #include <iostream>
 
 
-void customMessageHandler(QtMsgType type, const char *msg)
+void customMessageHandler(QtMsgType type, const QMessageLogContext &, const QString & str)
 {
     QString txtMessage;
     QString time;
     switch (type)
     {
         case QtDebugMsg:    //调试信息提示
-            txtMessage = QString("Debug: %1").arg(msg);
+            txtMessage = QString("Debug: %1").arg(str);
             break;
 
         case QtWarningMsg:    //一般的warning提示
-            txtMessage = QString("Warning: %1").arg(msg);
+            txtMessage = QString("Warning: %1").arg(str);
             break;
 
         case QtCriticalMsg:    //严重错误提示
-            txtMessage = QString("Critical: %1").arg(msg);
+            txtMessage = QString("Critical: %1").arg(str);
             break;
 
         case QtFatalMsg:    //致命错误提示
-            txtMessage = QString("Fatal: %1").arg(msg);
+            txtMessage = QString("Fatal: %1").arg(str);
             abort();
     }
-
-    //保存输出相关信息到指定文件
-    QFile outputFile("customMessageLog.txt");
-
-
-    outputFile.open(QIODevice::WriteOnly | QIODevice::Append);
-    QTextStream textStream(&outputFile);
     time = QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss");
-    textStream << time<<":"<<txtMessage << endl;
     std::cout<<time.toStdString().data()<<txtMessage.toStdString().data()<<"\n";
 }
 
