@@ -2314,7 +2314,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200525d 23:38 build",
+                .asConfirm("Version", "version: 20200527a 23:43 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -2378,59 +2378,87 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void Select_img(){
-        new MDDialog.Builder(this)
-                .setContentView(R.layout.image_select)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
 
-                        EditText et0 = (EditText) contentView.findViewById(R.id.edit0);
-                        et0.setText(getip());
-                    }
-                })
-                .setTitle("Connect with Server")
-                .setNegativeButton(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButton(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
-                        EditText et0 = (EditText) contentView.findViewById(R.id.edit0);
+        new XPopup.Builder(this)
+//        .maxWidth(400)
+//        .maxHeight(1350)
+                .asCenterList("Select Remote server", new String[]{"Aliyun Server", "SEU Server"},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text) {
+                                    case "Aliyun Server":
+                                        String ip = "39.100.35.131";
+                                        ConnectServer(ip, context);
+                                        break;
 
-                        String ip = et0.getText().toString();
+                                    case "SEU Server":
+                                        Toast.makeText(getContext(), "The server is not available now", Toast.LENGTH_SHORT).show();
+                                        break;
 
-                        Log.v("Select_img", ip);
 
-                        if (ip != getip()){
-                            setip(ip);
-                        }
+                                    default:
+                                        Toast.makeText(getContext(), "Something wrong here", Toast.LENGTH_SHORT).show();
 
-                        if(!ip.isEmpty()){
-                            //输入的信息全，就可以进行连接操作
-                            ConnectServer(ip, context);
-                        }else{
-                            Toast.makeText(getApplicationContext(), "Please make sure the information is right!!!", Toast.LENGTH_SHORT).show();
-                        }
-
-                    }
-                })
-                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-
-                    }
-                })
-                .setWidthMaxDp(600)
-                .create()
+                                }
+                            }
+                        })
                 .show();
+
+//        new MDDialog.Builder(this)
+//                .setContentView(R.layout.image_select)
+//                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+//                    @Override
+//                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+//
+//                        EditText et0 = (EditText) contentView.findViewById(R.id.edit0);
+//                        et0.setText(getip());
+//                    }
+//                })
+//                .setTitle("Connect with Server")
+//                .setNegativeButton(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                    }
+//                })
+//                .setPositiveButton(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                    }
+//                })
+//                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+//                    @Override
+//                    public void onClick(View clickedView, View contentView) {
+//                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
+//                        EditText et0 = (EditText) contentView.findViewById(R.id.edit0);
+//
+//                        String ip = et0.getText().toString();
+//
+//                        Log.v("Select_img", ip);
+//
+//                        if (ip != getip()){
+//                            setip(ip);
+//                        }
+//
+//                        if(!ip.isEmpty()){
+//                            //输入的信息全，就可以进行连接操作
+//                            ConnectServer(ip, context);
+//                        }else{
+//                            Toast.makeText(getApplicationContext(), "Please make sure the information is right!!!", Toast.LENGTH_SHORT).show();
+//                        }
+//
+//                    }
+//                })
+//                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+//                    @Override
+//                    public void onClick(View clickedView, View contentView) {
+//
+//                    }
+//                })
+//                .setWidthMaxDp(600)
+//                .create()
+//                .show();
+
     }
 
 

@@ -310,7 +310,8 @@ public class RemoteImg extends Socket {
                         EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
                         EditText et4 = (EditText) contentView.findViewById(R.id.edit4);
 
-                        String offset = getoffset(context);
+                        String filename = getFilename(context);
+                        String offset = getoffset(context, filename);
 
                         String offset_x = offset.split("_")[0];
                         String offset_y = offset.split("_")[1];
@@ -353,7 +354,9 @@ public class RemoteImg extends Socket {
                         if( !offset_x.isEmpty() && !offset_y.isEmpty() && !offset_z.isEmpty() && !size.isEmpty()){
 
                             String offset = offset_x + "_" + offset_y + "_" + offset_z + "_" + size;
-                            setoffset(offset, context);
+
+                            String filename = getFilename(context);
+                            setoffset(offset, filename, context);
 
                             String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
 
@@ -845,18 +848,22 @@ public class RemoteImg extends Socket {
      * get the offset from local file
      * @return offset latest address you input
      */
-    private String getoffset(Context context){
+    private String getoffset(Context context, String filename){
         String offset = null;
 
+        String offset_x = filename.split("x")[3];
+        String offset_y = filename.split("x")[4];
+        String offset_z = filename.split("x")[5];
+
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/offset_remote.txt");
+        File file = new File(filepath + "/config/" + filename + ".txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
                 dir.mkdirs();
                 file.createNewFile();
 
-                String str = "200_200_200_128";
+                String str = offset_x + "_" + offset_y + "_" + offset_z + "_128";
                 FileOutputStream outStream = new FileOutputStream(file);
                 outStream.write(str.getBytes());
                 outStream.close();
@@ -891,9 +898,9 @@ public class RemoteImg extends Socket {
      * put the offset you input to local file
      * @param offset the offset currently input
      */
-    private void setoffset(String offset, Context context){
+    private void setoffset(String offset, String filename, Context context){
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/offset_remote.txt");
+        File file = new File(filepath + "/config/" + filename + ".txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
