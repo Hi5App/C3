@@ -2239,18 +2239,22 @@ public class MainActivity extends AppCompatActivity {
                             public void onSelect(int position, String text) {
                                 switch (text) {
                                     case "Start":
+                                        myrenderer.setIfDownSampling(true);
                                         myrenderer.myAnimation.Start();
                                         break;
 
                                     case "Pause":
+                                        myrenderer.setIfDownSampling(false);
                                         myrenderer.myAnimation.Pause();
                                         break;
 
                                     case "Resume":
+                                        myrenderer.setIfDownSampling(true);
                                         myrenderer.myAnimation.Resume();
                                         break;
 
                                     case "Stop":
+                                        myrenderer.setIfDownSampling(false);
                                         myrenderer.myAnimation.Stop();
                                         ifAnimation = false;
                                         ll_top.removeView(buttonAnimation);
@@ -2272,13 +2276,16 @@ public class MainActivity extends AppCompatActivity {
             ifAnimation = !ifAnimation;
 
             if (ifAnimation) {
+                myrenderer.setIfDownSampling(true);
                 Rotation_i.setImageResource(R.drawable.ic_block_red_24dp);
                 myrenderer.myAnimation.quickStart();
                 myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
             } else {
+                myrenderer.setIfDownSampling(false);
                 Rotation_i.setImageResource(R.drawable.ic_3d_rotation_red_24dp);
                 myrenderer.myAnimation.quickStop();
                 myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+                myGLSurfaceView.requestRender();
             }
 
         }else {
@@ -3172,12 +3179,15 @@ public class MainActivity extends AppCompatActivity {
                         String rotation_speed = speed.getText().toString();
 
                         myrenderer.myAnimation.Stop();
+                        myrenderer.setIfDownSampling(false);
+                        myGLSurfaceView.requestRender();
 
                         if (ifAnimation) {
                             myrenderer.myAnimation.setAnimation(ifAnimation, Float.parseFloat(rotation_speed), rotation_type[0]);
                         }
 
                         if (ifAnimation) {
+                            myrenderer.setIfDownSampling(true);
                             myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 //                            Draw.setText("Draw");
 //                            Draw.setTextColor(Color.BLACK);
@@ -4186,6 +4196,10 @@ public class MainActivity extends AppCompatActivity {
                                 requestRender();
                                 dis_start = dis;
                             } else {
+                                if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
+                                    if (myrenderer.getIfDownSampling() == false)
+                                        myrenderer.setIfDownSampling(true);
+                                }
                                 myrenderer.rotate(normalizedX - X, normalizedY - Y, (float) (computeDis(normalizedX, X, normalizedY, Y)));
 
                                 //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
@@ -4206,6 +4220,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case MotionEvent.ACTION_POINTER_UP:
                         isZooming = false;
+                        myrenderer.setIfDownSampling(false);
                         X = normalizedX;
                         Y = normalizedY;
 //                        if (ifPainting){
@@ -4288,6 +4303,7 @@ public class MainActivity extends AppCompatActivity {
                             myrenderer.setLineDrawed(lineDrawed);
                             requestRender();
                         }
+                        myrenderer.setIfDownSampling(false);
                         break;
                     default:
                         break;

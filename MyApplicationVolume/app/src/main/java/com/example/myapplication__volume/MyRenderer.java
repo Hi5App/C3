@@ -167,6 +167,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private boolean ifPainting = false;
 
+    private boolean ifDownSampling = false;
+
     private int screen_w;
     private int screen_h;
     private float cur_scale = 1.0f;
@@ -421,7 +423,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Log.v("onDrawFrame", "draw_axis");
 
         if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD)
-            myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, screen_w, screen_h, texture[0]);
+            myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, screen_w, screen_h, texture[0], ifDownSampling);
 
         if (fileType == FileType.JPG || fileType == FileType.PNG)
             myPattern2D.draw(finalMatrix);
@@ -972,6 +974,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             filetype = fileManager.getFileType(uri);
         }
 
+        System.out.println(filepath);
+        System.out.println(filetype);
 
         switch (filetype){
             case ".V3DRAW":
@@ -3620,6 +3624,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public FileType getFileType() {
         return fileType;
 
+    }
+
+    public boolean getIfDownSampling(){
+        return ifDownSampling;
+    }
+
+    public void setIfDownSampling(boolean b){
+        ifDownSampling = b;
     }
 }
 
