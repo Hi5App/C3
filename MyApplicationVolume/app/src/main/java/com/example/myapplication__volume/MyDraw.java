@@ -561,6 +561,9 @@ public class MyDraw {
 //        x = 0.5f;  y = 0.1f;  z = 0.2f;
 
         float step = 2.0f;
+        if(r<=0.01f){
+            step = 6.0f;
+        }
         ArrayList<Float> data=new ArrayList<>();
         float r1,r2;
         float h1,h2;

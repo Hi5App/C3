@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class ParaGSDT {
     public Image4DSimple p4DImage;
     public Image4DSimple outImage;
-    public int bkg_thresh;
+    public int[] bkg_thresh;
     public int cnn_type;
     public int channel;
     public int z_thickness;
@@ -23,7 +23,7 @@ public class ParaGSDT {
     public ParaGSDT(){
          Image4DSimple p4DImage = null;
          Image4DSimple outImage = null;
-         bkg_thresh = 10;
+         bkg_thresh = new int[]{0,0,0};
          cnn_type = 2;
          channel = 0;
          z_thickness = 5;

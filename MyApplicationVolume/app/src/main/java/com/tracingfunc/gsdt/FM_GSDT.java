@@ -51,10 +51,11 @@ public class FM_GSDT {
             }
         }
 
-        System.out.println("前景数："+forcounter);
-        System.out.println("背景数："+bkg);
-        System.out.println("背景："+state[0][0][0]);
-        System.out.println("Enter here gsdt_FM0");
+        //System.out.println("前景数："+forcounter);
+        //System.out.println("背景数："+bkg);
+        //System.out.println("背景："+state[0][0][0]);
+        //System.out.println("Enter here gsdt_FM0");
+
         //Create a priorityqueue to save temp Trival
         PriorityQueue<HeapElem> minHeap = new PriorityQueue<HeapElem>(total_pix, new Comparator<HeapElem>() {
             @Override
