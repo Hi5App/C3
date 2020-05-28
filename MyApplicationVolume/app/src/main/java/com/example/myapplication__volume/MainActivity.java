@@ -536,6 +536,7 @@ public class MainActivity extends AppCompatActivity {
         context = getApplicationContext();
 
 
+
     }
 
     @Override
@@ -1942,6 +1943,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void SensorInfo(){
 
+//        MDDialog.Builder si_mdDialog_bd = new MDDialog.Builder(this).setContentView(R.layout.sensor_result);
+//        MDDialog si_mdDialog = null;
+
         String[] SensorList = {""};
 
         si_mdDialog = si_mdDialog_bd
@@ -1976,28 +1980,28 @@ public class MainActivity extends AppCompatActivity {
 
                         StartSensorListening();//启动传感数据采集(注册三个传感器）
 
-                        if (timer == null) {timer = new Timer();}
-                        timer.schedule(new TimerTask()
-                        {
-                            @Override
-                            public void run() {
-                                if  (0==flag)
-                                {
-                                    AccList.add(AccData[0]);AccList.add(AccData[1]);
-                                    AccList.add(AccData[2]);GyrList.add(GyrData[0]);
-                                    GyrList.add(GyrData[1]);GyrList.add(GyrData[2]);
-                                    MagList.add(MagData[0]);MagList.add(MagData[1]);
-                                    MagList.add(MagData[2]);AccList2.add(AccData2[0]);
-                                    AccList2.add(AccData2[1]);AccList2.add(AccData2[2]);
-                                    LightList.add(LightData[0]);PreList.add(PreData[0]);
-                                    ProList.add(ProData[0]);GraList.add(GraData[0]);
-                                    GraList.add(GraData[1]);GraList.add(GraData[2]);
-                                    Rot_Vec_List.add(Rot_Vec_Data[0]);
-                                    Rot_Vec_List.add(Rot_Vec_Data[1]);
-                                    Rot_Vec_List.add(Rot_Vec_Data[2]);
-                                }
-                            }
-                        },1000,10000);   //10ms后开始采集，每隔20ms采集一次
+//                        if (timer == null) {timer = new Timer();}
+//                        timer.schedule(new TimerTask()
+//                        {
+//                            @Override
+//                            public void run() {
+//                                if  (0==flag)
+//                                {
+//////                                    AccList.add(AccData[0]);AccList.add(AccData[1]);
+////                                    AccList.add(AccData[2]);GyrList.add(GyrData[0]);
+////                                    GyrList.add(GyrData[1]);GyrList.add(GyrData[2]);
+////                                    MagList.add(MagData[0]);MagList.add(MagData[1]);
+////                                    MagList.add(MagData[2]);AccList2.add(AccData2[0]);
+////                                    AccList2.add(AccData2[1]);AccList2.add(AccData2[2]);
+////                                    LightList.add(LightData[0]);PreList.add(PreData[0]);
+////                                    ProList.add(ProData[0]);GraList.add(GraData[0]);
+////                                    GraList.add(GraData[1]);GraList.add(GraData[2]);
+////                                    Rot_Vec_List.add(Rot_Vec_Data[0]);
+////                                    Rot_Vec_List.add(Rot_Vec_Data[1]);
+////                                    Rot_Vec_List.add(Rot_Vec_Data[2]);
+//                                }
+//                            }
+//                        },1000,10000);   //10ms后开始采集，每隔20ms采集一次
                     }
 
                 })
@@ -2006,6 +2010,9 @@ public class MainActivity extends AppCompatActivity {
         si_mdDialog.show();
         si_mdDialog.getWindow().setLayout(1000, 1500);
 
+        si_mdDialog.setOnDismissListener(si_mdDialog->StopSensorListening());
+
+//        StopSensorListening();
 
     }
 
@@ -2176,6 +2183,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void StopSensorListening()
     {
+        Toast.makeText(context, "Sensor stopped", Toast.LENGTH_SHORT).show();
         mSensorManager.unregisterListener(listener);
     }
 
@@ -2324,7 +2332,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200528d 13:33 build",
+                .asConfirm("Version", "version: 20200528f 22:40 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
