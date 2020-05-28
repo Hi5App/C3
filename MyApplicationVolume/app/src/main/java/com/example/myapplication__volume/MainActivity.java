@@ -99,11 +99,14 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
+
+import Jama.Matrix;
 
 import cn.carbs.android.library.MDDialog;
 
@@ -2314,7 +2317,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
+<<<<<<< Updated upstream
                 .asConfirm("Version", "version: 20200527a 23:43 build",
+=======
+                .asConfirm("Version", "version: 20200528d 13:33 build",
+>>>>>>> Stashed changes
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -3481,39 +3488,127 @@ public class MainActivity extends AppCompatActivity {
         float[][][][] result = new float[channel][depth][height][width];
         float[][][][] imageCopy = new float[channel][depth][height][width];
         float rate;
+        int[][][][] S = new int[channel][depth][height][width];
+        double[][][][] T = new double[channel][depth][height][width];
 
         float [] imax = new float[channel], new_imax = new float[channel];
         float [] imin = new float[channel], new_imin = new float[channel];
+
+        //参数初始化
         for (int chl = 0; chl < channel; chl++) {
             imax[chl] = 0;
             imin[chl] = Integer.MAX_VALUE;
-        }
+            new_imax[chl] = 0;
+            new_imin[chl] = Integer.MAX_VALUE;
+            for (int row = 0; row < height; row++) {
+                for (int col = 0; col < width; col++) {
+                    for (int dep = 0; dep < depth; dep++) {
 
-        //获取原图灰度最值
-        for (int chl = 0; chl < channel; chl++) {
-            for (int row = 1; row < height - 1; row++) {
-                for (int col = 1; col < width - 1; col++) {
-                    for (int dep = 1; dep < depth - 1; dep++) {
-                        if (image[chl][dep][row][col] > imax[chl]) {
-                            imax[chl] = image[chl][dep][row][col];
-                        } else if (image[chl][dep][row][col] < imin[chl]) {
-                            imin[chl] = image[chl][dep][row][col];
-                        }
                         //初始化result和resultCopy
                         result[chl][dep][row][col] = image[chl][dep][row][col];
                         imageCopy[chl][dep][row][col] = image[chl][dep][row][col];
+                        //初始化S
+                        S[chl][dep][row][col] = 0;
                     }
                 }
             }
-            System.out.println("imax["+chl+"] = "+imax[chl]);
-            System.out.println("imin["+chl+"] = "+imin[chl]);
         }
 
         //滤波参数
         float k = 15;
-        float lambda = 0.1f;
-        int N = 3;
+        float lambda = 0.25f;
+        int N = 6;
+        double threshold = 0;
+        int numOfNull = 0;//
+        String score;
 
+        //评估矩阵计算
+        for (int chl = 0; chl < channel; chl++) {
+            for (int row = 1; row < height - 1; row++) {
+                for (int col = 1; col < width - 1; col++) {
+                    for (int dep = 1; dep < depth - 1; dep++) {
+                        //new
+                        score = myLocalEigenScore(imageCopy,128,128,128,col,row,dep,chl,1);
+                        if (score.equals("null")) {
+                            numOfNull++;
+                            S[chl][dep][row][col] = -1;
+                            continue;
+                        }
+                        T[chl][dep][row][col] = Double.parseDouble(score);
+                        threshold += T[chl][dep][row][col];
+                        //System.out.println("threshold = "+threshold);
+                    }
+
+                }
+
+            }
+        }
+        //System.out.println("*******");
+        System.out.println("numOfNull = "+numOfNull);
+        //System.out.println("threshold = "+threshold);
+        threshold /= (126*126*126-numOfNull); //阈值暂定为评分的均值
+        System.out.println("threshold = "+threshold);
+        //System.out.println("*******");
+
+        double scorestd = 0;
+        for (int chl = 0; chl < channel; chl++) {
+            for (int row = 1; row < height - 1; row++) {
+                for (int col = 1; col < width - 1; col++) {
+                    for (int dep = 1; dep < depth - 1; dep++) {
+                        if (S[chl][dep][row][col] == -1) {
+                            continue;
+                        }
+                        scorestd+= Math.pow((T[chl][dep][row][col]-threshold),2);
+                    }
+                }
+            }
+        }
+        scorestd = Math.sqrt(scorestd/(126*126*126-numOfNull));
+        threshold += 1*scorestd;
+
+/*
+        //输出S
+        System.out.println("-------");
+        for (int chl = 0; chl < channel; chl++) {
+            for (int row = 1; row < height - 1; row++) {
+                for (int col = 1; col < width - 1; col++) {
+                    for (int dep = 1; dep < depth - 1; dep++) {
+                        System.out.print(S[chl][dep][row][col]+" ");
+                    }
+                    System.out.println();
+                }
+                System.out.println("*******");
+            }
+        }
+        System.out.println("-------");
+
+        for (int chl = 0; chl < channel; chl++) {
+            for (int row = 1; row < height - 1; row++) {
+                for (int col = 1; col < width - 1; col++) {
+                    for (int dep = 1; dep < depth - 1; dep++) {
+
+
+                    }
+                }
+            }
+        }
+
+        //输出T
+        //System.out.println("-------");
+        for (int chl = 0; chl < channel; chl++) {
+            for (int row = 1; row < height - 1; row++) {
+                for (int col = 1; col < width - 1; col++) {
+                    for (int dep = 1; dep < depth - 1; dep++) {
+                        System.out.print(T[chl][dep][row][col]+" ");
+                    }
+                    System.out.println();
+                }
+                System.out.println("*******");
+            }
+        }
+        System.out.println("-------");
+*/
+        int m = 0;
         // 六邻域梯度
         float n = 0, s = 0, e = 0, w = 0, u = 0, d = 0;
         // 六邻域系数
@@ -3528,6 +3623,18 @@ public class MainActivity extends AppCompatActivity {
                 for (int row = 1; row < height -1; row++) {
                     for (int col = 1; col < width -1; col++) {
                         for (int dep = 1; dep < depth -1; dep++) {
+                            //只对T[chl][dep][row][col] >= threshold的处理
+                            if (S[chl][dep][row][col] == -1) {
+                                //System.out.println("******error11******");
+                                //S[chl][dep][row][col] = -1;
+                                m++;
+                                continue;
+                            } else if (T[chl][dep][row][col] > threshold) {
+                                //System.out.println("+++++++");
+                                S[chl][dep][row][col] = 1;
+                                m++;
+                                continue;
+                            }
                             // 梯度
                             n = imageCopy[chl][dep][row - 1][col] - imageCopy[chl][dep][row][col];
                             s = imageCopy[chl][dep][row + 1][col] - imageCopy[chl][dep][row][col];
@@ -3541,44 +3648,19 @@ public class MainActivity extends AppCompatActivity {
                             wc = (float)Math.pow(Math.E, -w*w / k2);
                             uc = (float)Math.pow(Math.E, -u*u / k2);
                             dc = (float)Math.pow(Math.E, -d*d / k2);
-                            result[chl][dep][row][col] = imageCopy[chl][dep][row][col] + (lambda*(n*nc + s*sc + e*ec + w*wc + u*uc +d*dc));
 
+
+                            result[chl][dep][row][col] = imageCopy[chl][dep][row][col] + (lambda*(n*nc + s*sc + e*ec + w*wc + u*uc +d*dc));
+                            //;(float)temp
                             //获取滤波后灰度最值
 
-                            if (i == (N-1)) {
-                                if (result[chl][dep][row][col] > new_imax[chl]) {
-                                    new_imax[chl] = result[chl][dep][row][col];
-                                } else if (result[chl][dep][row][col] < new_imin[chl]) {
-                                    new_imin[chl] = result[chl][dep][row][col];
-                                }
-                            }
-                        }
-                    }
-                }
-                //每次迭代后进行灰度区间线性变换
-                /*System.out.println("new_imax["+chl+"] = "+new_imax[chl]);
-                System.out.println("new_imin["+chl+"] = "+new_imin[chl]);
+                            //if (i == (N-1)) {
 
-                rate = (imax[chl]==imin[chl]) ? 1 : (new_imax[chl]-new_imin[chl])/(imax[chl]-imin[chl]);
-                for (int row = 1; row < height - 1; row++) {
-                    for (int col = 1; col < width - 1; col++) {
-                        for (int dep = 1; dep < depth - 1; dep++) {
-                            if (result[chl][dep][row][col]>imax[chl]) {
-                                result[chl][dep][row][col]=imax[chl];
-                            }
-                            else if (result[chl][dep][row][col]<imin[chl]) {
-                                result[chl][dep][row][col]=imin[chl];
-                            }
-                            if (i == N-1) {
-                                image[chl][dep][row][col] = (int)((result[chl][dep][row][col]-imin[chl]) * rate + new_imin[chl]);
-                            } else {
-                                result[chl][dep][row][col] = ((result[chl][dep][row][col]-imin[chl]) * rate + new_imin[chl]);
-                            }
+                            //}
                         }
                     }
                 }
 
-                 */
                 //处理结果拷贝
                 for (int row = 1; row < height - 1; row++) {
                     for (int col = 1; col < width - 1; col++) {
@@ -3589,33 +3671,48 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        //测试输出
-        /*
-        System.out.println("***********************************");
+        System.out.println("m = "+m);
+
+        //获取原图和迭代后待变换区域灰度最值
         for (int chl = 0; chl < channel; chl++) {
-            for (int row = 32; row < height - 65; row++) {
-                for (int col = 32; col < width - 65; col++) {
-                    System.out.print((result[chl][48][row][col]-image[chl][48][row][col])+"  ");
+            for (int row = 0; row < height; row++) {
+                for (int col = 0; col < width; col++) {
+                    for (int dep = 0; dep < depth; dep++) {
+                        if (S[chl][dep][row][col] == 0 ) {
+                            //原图
+                            if (image[chl][dep][row][col] > imax[chl]) {
+                                imax[chl] = image[chl][dep][row][col];
+                            } else if (image[chl][dep][row][col] < imin[chl]) {
+                                imin[chl] = image[chl][dep][row][col];
+                            }
+                            //迭代后
+                            if (result[chl][dep][row][col] > new_imax[chl]) {
+                                new_imax[chl] = result[chl][dep][row][col];
+                            } else if (result[chl][dep][row][col] < new_imin[chl]) {
+                                new_imin[chl] = result[chl][dep][row][col];
+                            }
+                        }
+                    }
                 }
-                System.out.println();
-                System.out.println("row = "+row);
             }
+            System.out.println("imax["+chl+"] = "+imax[chl]);
+            System.out.println("imin["+chl+"] = "+imin[chl]);
+            System.out.println("new_imax["+chl+"] = "+new_imax[chl]);
+            System.out.println("new_imin["+chl+"] = "+new_imin[chl]);
         }
-        System.out.println("***********************************");
-        */
 
         //N次迭代后进行灰度区间线性变换
 
         for (int chl = 0; chl < channel; chl++) {
-            System.out.println("new_imax["+chl+"] = "+new_imax[chl]);
-            System.out.println("new_imin["+chl+"] = "+new_imin[chl]);
             rate = (imax[chl]==imin[chl]) ? 1 : (new_imax[chl]-new_imin[chl])/(imax[chl]-imin[chl]);
             for (int row = 1; row < height - 1; row++) {
                 for (int col = 1; col < width - 1; col++) {
                     for (int dep = 1; dep < depth - 1; dep++) {
                         //if (result[chl][dep][row][col]>imax[chl]) result[chl][dep][row][col]=imax[chl];
                         //else if (result[chl][dep][row][col]<imin[chl]) result[chl][dep][row][col]=imin[chl];
-                        image[chl][dep][row][col] = (int)((result[chl][dep][row][col]-new_imin[chl]) * rate + imin[chl]);
+                        if (S[chl][dep][row][col] == 0 ) {
+                            image[chl][dep][row][col] = (int)((result[chl][dep][row][col]-new_imin[chl]) * rate + imin[chl]);
+                        }
                     }
                 }
             }
@@ -3624,12 +3721,140 @@ public class MainActivity extends AppCompatActivity {
 
         boolean bool = img.setDataFormCZYX(image,img.getSz0(),img.getSz1(),img.getSz2(),img.getSz3(),img.getDatatype(),img.getIsBig());
 
-        if (bool == false){
+        if (!bool){
             img = null;
         }
         return img;
     }
 
+    public String myLocalEigenScore(float[][][][] imageCZYX, int sx, int sy, int sz, int x0, int y0, int z0, int chl, int r) {
+
+        double score;
+
+        //获取边界
+        int xb, xe, yb, ye, zb, ze;
+        xb = x0 - r;
+        if (xb < 0) xb = 0;
+        else if (xb >= sx) xb = sx - 1;
+        xe = x0 + r;
+        if (xe < 0) xe = 0;
+        else if (xe >= sx) xe = sx - 1;
+        yb = y0 - r;
+        if (yb < 0) yb = 0;
+        else if (yb >= sy) yb = sy - 1;
+        ye = y0 + r;
+        if (ye < 0) ye = 0;
+        else if (ye >= sy) ye = sy - 1;
+        zb = z0 - r;
+        if (zb < 0) zb = 0;
+        else if (zb >= sz) zb = sz - 1;
+        ze = z0 + r;
+        if (ze < 0) ze = 0;
+        else if (ze >= sz) ze = sz - 1;
+
+        //计算质心
+        float xm = 0, ym = 0, zm = 0, s = 0, mv = 0;
+        float w;
+
+        for (int k = zb; k <= ze; k++) {
+            for (int j = yb; j <= ye; j++) {
+                for (int i = xb; i <= xe; i++) {
+                    w = imageCZYX[chl][k][j][i];
+                    xm += w * i;
+                    ym += w * j;
+                    zm += w * k;
+                    s += w;
+                }
+            }
+        }
+
+        if (s > 0) {
+            xm /= s;
+            ym /= s;
+            zm /= s;
+            mv = s / (float)((ze - zb + 1) * (ye - yb + 1) * (xe - xb + 1));//转型可能有问题
+            //System.out.println("center of mass is (xm, ym, zm) = ("+xm+","+ym+","+zm+")");
+        } else {
+            System.out.println("Sum of window pixels equals or is smaller than 0. The window is not valid or some other problems in the data. Do nothing.");
+            //score = 0;  //有问题
+            return "null";
+        }
+
+        //计算协方差
+
+        float cc11 = 0, cc12 = 0, cc13 = 0, cc22 = 0, cc23 = 0, cc33 = 0;
+        float dfx, dfy, dfz;
+        for (int k = zb; k <= ze; k++) {
+            dfz = (float)k - zm;
+            //if (b_normalize_score) dfz /= maxrr;
+            for (int j = yb; j <= ye; j++) {
+                dfy = (float)j - ym;
+                //if (b_normalize_score) dfy /= maxrr;
+                for (int i = xb; i <= xe; i++) {
+                    dfx = (float)i - xm;
+                    //if (b_normalize_score) dfx /= maxrr;
+
+                    //w = img3d[k][j][i]; //140128
+                    w = imageCZYX[chl][k][j][i] - mv;
+                    if (w < 0) w = 0; //140128 try the new formula
+
+                    cc11 += w * dfx * dfx;
+                    cc12 += w * dfx * dfy;
+                    cc13 += w * dfx * dfz;
+                    cc22 += w * dfy * dfy;
+                    cc23 += w * dfy * dfz;
+                    cc33 += w * dfz * dfz;
+                }
+            }
+        }
+
+        cc11 /= s;
+        cc12 /= s;
+        cc13 /= s;
+        cc22 /= s;
+        cc23 /= s;
+        cc33 /= s;
+        //System.out.println("convariance value ("+cc11+","+cc12+","+cc13+","+cc22+","+cc23+","+cc33+")");
+
+        //获取矩阵特征值
+
+        double[][] cov_matrix = new double[3][3];
+        cov_matrix[0][0] = (double) cc11;
+        cov_matrix[0][1] = cov_matrix[1][0] = (double) cc12;
+        cov_matrix[1][1] = (double) cc22;
+        cov_matrix[0][2] = cov_matrix[2][0] = (double) cc13;
+        cov_matrix[1][2] = cov_matrix[2][1] = (double) cc23;
+        cov_matrix[2][2] = (double) cc33;
+
+        //定义一个矩阵
+        Matrix A = new Matrix(cov_matrix);
+
+        //计算特征值
+        double[] eigenvalues = A.eig().getRealEigenvalues();  //两个函数的差别
+        //System.out.println(Arrays.toString(eigenvalues));
+
+        score = eigenvalues[0];
+        for (int i = 1; i < 3; i++) {
+            if (score < eigenvalues[i]) {
+                score = eigenvalues[i];
+            }
+        }
+        if (score == 0d) {
+            return "null";
+        }
+        /*
+        for (int i = 0; i < 3; i++) {
+            if (score != eigenvalues[i]) {
+                if (eigenvalues[i] == 0d) {
+                    return "null";
+                }
+                score /= eigenvalues[i];
+            }
+        }*/
+        //System.out.println(score);
+        return String.valueOf(score);
+
+    }
 
 
     public void FeatureSet(){
