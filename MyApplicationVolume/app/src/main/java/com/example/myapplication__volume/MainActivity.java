@@ -2317,11 +2317,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-<<<<<<< Updated upstream
-                .asConfirm("Version", "version: 20200527a 23:43 build",
-=======
                 .asConfirm("Version", "version: 20200528d 13:33 build",
->>>>>>> Stashed changes
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -3517,7 +3513,7 @@ public class MainActivity extends AppCompatActivity {
         //滤波参数
         float k = 15;
         float lambda = 0.25f;
-        int N = 6;
+        int N = 4;
         double threshold = 0;
         int numOfNull = 0;//
         String score;
