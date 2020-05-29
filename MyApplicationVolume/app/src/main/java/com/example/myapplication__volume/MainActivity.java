@@ -386,6 +386,10 @@ public class MainActivity extends AppCompatActivity {
         draw_i.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!myrenderer.getIfFileLoaded()){
+                    Toast.makeText(context, "Please load a file first", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Draw(v);
             }
         });
@@ -1443,11 +1447,17 @@ public class MainActivity extends AppCompatActivity {
      */
     private void Draw(View v) {
 
-        Image4DSimple img = myrenderer.getImg();
-        if(img == null || !img.valid()){
-            Toast.makeText(this, "Please load image first!", Toast.LENGTH_LONG).show();
-            return;
-        }
+//        Image4DSimple img = myrenderer.getImg();
+//        if(img == null || !img.valid()){
+//            Toast.makeText(this, "Please load image first!", Toast.LENGTH_LONG).show();
+//            return;
+//        }
+
+//        if (myrenderer.getIfFileSupport()){
+//            Toast.makeText(context, "Please load a image first", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
@@ -1461,6 +1471,10 @@ public class MainActivity extends AppCompatActivity {
 //                                    ll_top.addView(buttonUndo);
                                 switch (text) {
                                     case "PinPoint":
+                                        if (!myrenderer.ifImageLoaded()){
+                                            Toast.makeText(context, "Please load a image first", Toast.LENGTH_SHORT).show();
+                                            return;
+                                        }
                                         ifPoint = !ifPoint;
                                         ifPainting = false;
                                         ifDeletingMarker = false;
@@ -1486,6 +1500,10 @@ public class MainActivity extends AppCompatActivity {
                                         break;
 
                                     case "Draw Curve":
+                                        if (!myrenderer.ifImageLoaded()){
+                                            Toast.makeText(context, "Please load a image first", Toast.LENGTH_SHORT).show();
+                                            return;
+                                        }
                                         ifPainting = !ifPainting;
                                         ifPoint = false;
                                         ifDeletingMarker = false;
@@ -2403,7 +2421,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200529c 16:45 build",
+                .asConfirm("Version", "version: 20200529d 17:52 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

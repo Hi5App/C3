@@ -186,6 +186,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
     private boolean ifFileSupport = false;
+    private boolean ifFileLoaded = false;
 
     private Context context_myrenderer;
 
@@ -847,16 +848,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD){
             setImage();
+            ifFileLoaded = true;
             ifFileSupport = true;
         }
 
         else if (fileType == FileType.SWC){
             setSWC();
+            ifFileLoaded = true;
             ifFileSupport = true;
         }
 
         else if (fileType == FileType.PNG || fileType == FileType.JPG){
             loadImage2D();
+            ifFileLoaded = true;
             ifFileSupport = true;
         }
 
@@ -3649,6 +3653,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public void setIfNeedDownSample(boolean b){
         ifNeedDownSample = b;
+    }
+
+    public boolean getIfFileSupport(){
+        return ifFileSupport;
+    }
+
+    public boolean getIfFileLoaded(){
+        return ifFileLoaded;
+    }
+
+    public boolean ifImageLoaded(){
+        return !(img == null && bitmap2D == null);
     }
 }
 
