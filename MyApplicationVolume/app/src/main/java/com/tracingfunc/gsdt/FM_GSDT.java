@@ -126,7 +126,7 @@ public class FM_GSDT {
             }
         }
         System.out.println("new_TRIAL："+nbkg);
-        System.out.println("elems.size() = "+elems.size());
+       // System.out.println("elems.size() = "+elems.size());
         System.out.println("Enter here gsdt_FM1");
         //FM_gsdt
         while(!minHeap.isEmpty()){

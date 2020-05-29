@@ -19,6 +19,9 @@ public class ParaGSDT {
     public double max_val;
     public float[][][] phi;
     public ImageMarker MaxMarker;
+    public int xsection_len;
+    public int ysection_len;
+    public int zsection_len;
 
     public ParaGSDT(){
          Image4DSimple p4DImage = null;
@@ -34,5 +37,8 @@ public class ParaGSDT {
          local_maxval = 0;
          phi = null;
          MaxMarker = null;
+         xsection_len = 0;
+         ysection_len = 0;
+         zsection_len = 0;
     }
 }

@@ -45,6 +45,12 @@ public class GSDT {
         }
         out.println(p.bkg_thresh[0]+"====="+p.bkg_thresh[1]+"====="+p.bkg_thresh[2]);
 
+        //define the local area volume
+        p.xsection_len = (int)sz0/4;
+        p.ysection_len = (int)sz1/4;
+        p.zsection_len = (int)sz2/4;
+
+
         //prepare the processed img format
         int[][][][] outimage = new int[(int) sz3][(int) sz2][(int) sz1][(int) sz0];//CZYX
         for(int cc=0;cc<=(p.channel-1);cc++){
@@ -53,22 +59,29 @@ public class GSDT {
             FM_GSDT.gsdt_FM(inimg.getDataCZYX()[cc],p.phi, sz, cnn_type, bkg_thresh);
             //find the local maximum
             p.max_val = p.phi[0][0][0];
-            for(int ix=10;ix<=(sz[0]-11);ix=ix+21){
-                for(int iy=10;iy<=(sz[1]-11);iy=iy+21){
-                    for(int iz=10;iz<=(sz[2]-11);iz=iz+21){
+            int ix = 0;
+            int iy = 0;
+            int iz = 0;
+            //for(ix=0;ix<=(sz[0]-2-p.xsection_len);ix=ix+p.xsection_len){
+              //  for(iy=0;iy<=(sz[1]-2-p.ysection_len);iy=iy+p.ysection_len){
+                //    for(iz=0;iz<=(sz[2]-2-p.zsection_len);iz=iz+p.zsection_len){
+            for(ix=0;ix<=(sz[0]-6);ix=ix+p.xsection_len){
+                for(iy=0;iy<=(sz[1]-6);iy=iy+p.ysection_len){
+                    for(iz=0;iz<=(sz[2]-6);iz=iz+p.zsection_len){
                         p.local_maxval = p.phi[iz][iy][ix];
                         p.local_maxloc[0] = ix;
                         p.local_maxloc[1] = iy;
                         p.local_maxloc[2] = iz;
-                        for(int dx=-10;dx<=10;dx++){
-                            for(int dy=-10;dy<=10;dy++){
-                                for(int dz=-10;dz<=10;dz++){
-                                    if(p.phi[iz+dz][iy+dy][ix+dx]>p.local_maxval){
-                                        p.local_maxval = p.phi[iz+dz][iy+dy][ix+dx];
-                                        p.local_maxloc[0] = ix + dx;
-                                        p.local_maxloc[1] = iy + dy;
-                                        p.local_maxloc[2] = iz + dz;
-                                    }
+                        for(int dx=0;dx<p.xsection_len;dx++){
+                            for(int dy=0;dy<p.ysection_len;dy++){
+                                for(int dz=0;dz<p.zsection_len;dz++){
+                                    if((ix+dx)>sz0||(iy+dy)>sz1||(iz+dz)>sz2) continue;
+                                    else if(p.phi[iz+dz][iy+dy][ix+dx]>p.local_maxval){
+                                            p.local_maxval = p.phi[iz+dz][iy+dy][ix+dx];
+                                            p.local_maxloc[0] = ix + dx;
+                                            p.local_maxloc[1] = iy + dy;
+                                            p.local_maxloc[2] = iz + dz;
+                                        }
                                 }
                             }
                         }
@@ -78,15 +91,18 @@ public class GSDT {
                             p.max_loc[1] = p.local_maxloc[1];
                             p.max_loc[2] = p.local_maxloc[2];
                         }
-                        if(p.local_maxval>=200){
+                        if(p.local_maxval>=50){
                             ImageMarker marker_new = new ImageMarker(p.local_maxloc[0], p.local_maxloc[1], p.local_maxloc[2]);
                             marker_new.radius = 5;
-                            marker_new.type = 3;
+                            marker_new.type = 6;
                             p.markers.add(marker_new);
                         }
                     }
                 }
             }
+           // out.println(sz0+"====="+sz1+"====="+sz2);
+           // out.println(ix+"====="+iy+"====="+iz);
+
             //prepare the processed img format
             for(int zz=0;zz<sz2;zz++){
                 for(int yy=0;yy<sz1;yy++){
@@ -97,52 +113,11 @@ public class GSDT {
             }
         }
 
-        //int bkg_thresh = p.bkg_thresh;
-        //FM_GSDT.gsdt_FM(inimg.getDataCZYX()[0],p.phi, sz, cnn_type, bkg_thresh);//re
-        //FM.fastmarching_dt(inimg.getDataCZYX()[0],p.phi, sz, cnn_type, bkg_thresh);
 
-        //prepare the processed img format
-        //int[][][][] outimage = new int[(int) sz3][(int) sz2][(int) sz1][(int) sz0];//CZYX
         p.outImage.setDataFormCZYX(outimage,sz0,sz1,sz2,sz3,p.p4DImage.getDatatype(),p.p4DImage.getIsBig());
         out.println("FM_GSDTfun..finished");
-/*
-        //find the local maximum
-        p.max_val = p.phi[0][0][0];
-        for(int ix=10;ix<=(sz[0]-11);ix=ix+21){
-            for(int iy=10;iy<=(sz[1]-11);iy=iy+21){
-                for(int iz=10;iz<=(sz[2]-11);iz=iz+21){
-                    p.local_maxval = p.phi[iz][iy][ix];
-                    p.local_maxloc[0] = ix;
-                    p.local_maxloc[1] = iy;
-                    p.local_maxloc[2] = iz;
-                    for(int dx=-10;dx<=10;dx++){
-                        for(int dy=-10;dy<=10;dy++){
-                            for(int dz=-10;dz<=10;dz++){
-                                if(p.phi[iz+dz][iy+dy][ix+dx]>p.local_maxval){
-                                    p.local_maxval = p.phi[iz+dz][iy+dy][ix+dx];
-                                    p.local_maxloc[0] = ix + dx;
-                                    p.local_maxloc[1] = iy + dy;
-                                    p.local_maxloc[2] = iz + dz;
-                                }
-                            }
-                        }
-                    }
-                    if(p.local_maxval>p.max_val){
-                        p.max_val = p.local_maxval;
-                        p.max_loc[0] = p.local_maxloc[0];
-                        p.max_loc[1] = p.local_maxloc[1];
-                        p.max_loc[2] = p.local_maxloc[2];
-                    }
-                    if(p.local_maxval>=100){
-                        ImageMarker marker_new = new ImageMarker(p.local_maxloc[0], p.local_maxloc[1], p.local_maxloc[2]);
-                        marker_new.radius = 1;
-                        marker_new.type = 3;
-                        p.markers.add(marker_new);
-                    }
-                }
-            }
-        }
-*/
+
+        //mark the maxmum location
         p.MaxMarker = new ImageMarker(p.max_loc[0], p.max_loc[1], p.max_loc[2]);
         p.MaxMarker.radius = 3;
         p.MaxMarker.type = 2;
