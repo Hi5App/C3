@@ -300,7 +300,22 @@ public class RemoteImg extends Socket {
 
         switch (direction){
             case "Left":
-                PullImageBlock_left(context);
+                PullImageBlock_fast(context, "Left");
+                break;
+            case "Right":
+                PullImageBlock_fast(context, "Right");
+                break;
+            case "Top":
+                PullImageBlock_fast(context, "Top");
+                break;
+            case "Bottom":
+                PullImageBlock_fast(context, "Bottom");
+                break;
+            case "Front":
+                PullImageBlock_fast(context, "Front");
+                break;
+            case "Back":
+                PullImageBlock_fast(context, "Back");
                 break;
             default:
                 Toast.makeText(context,"Something wrong when pull img", Toast.LENGTH_SHORT).show();
@@ -309,7 +324,7 @@ public class RemoteImg extends Socket {
 
     }
 
-    private void PullImageBlock_left(Context context){
+    private void PullImageBlock_fast(Context context, String direction){
         String filename = getFilename(context);
         String offset = getoffset(context, filename);
 
@@ -318,12 +333,38 @@ public class RemoteImg extends Socket {
         String offset_z = offset.split("_")[2];
         String size     = offset.split("_")[3];
 
-        int offset_x_i = Integer.parseInt(offset_x);
         int size_i     = Integer.parseInt(size);
+        int offset_x_i = Integer.parseInt(offset_x);
+        int offset_y_i = Integer.parseInt(offset_y);
+        int offset_z_i = Integer.parseInt(offset_z);
 
-        offset_x_i -= size_i/2;
+        switch (direction){
+            case "Left":
+                offset_x_i -= size_i/2;
+                offset_x = Integer.toString(offset_x_i);
+                break;
+            case "Right":
+                offset_x_i += size_i/2;
+                offset_x = Integer.toString(offset_x_i);
+                break;
+            case "Top":
+                offset_y_i -= size_i/2;
+                offset_y = Integer.toString(offset_y_i);
+                break;
+            case "Bottom":
+                offset_y_i += size_i/2;
+                offset_y = Integer.toString(offset_y_i);
+                break;
+            case "Front":
+                offset_z_i -= size_i/2;
+                offset_z = Integer.toString(offset_z_i);
+                break;
+            case "Back":
+                offset_z_i += size_i/2;
+                offset_z = Integer.toString(offset_z_i);
+                break;
+        }
 
-        offset_x = Integer.toString(offset_x_i);
 
         offset = offset_x + "_" + offset_y + "_" + offset_z + "_" + size;
         setoffset(offset, filename, context);

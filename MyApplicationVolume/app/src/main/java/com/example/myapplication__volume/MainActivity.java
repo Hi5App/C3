@@ -270,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
             String offset_y = offset.split("_")[1];
             String offset_z = offset.split("_")[2];
 
-            Toast.makeText(this,"Current offset: " + "x: " + offset_x + "y: " + offset_y + "z: " + offset_z, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
         }
 
         Intent intent2 = getIntent();
@@ -522,11 +522,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Remoteleft = new Button(this);
-        Remoteleft.setText("Left");
+        Remoteleft.setText("Block_switch");
 
         Remoteleft.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                Remoteleft(v);
+                Block_switch(v);
             }
         });
 
@@ -2403,7 +2403,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200529b 15:51 build",
+                .asConfirm("Version", "version: 20200529c 16:45 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -2689,9 +2689,50 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void Remoteleft(View v){
+//    public void Remoteleft(View v){
+//        context = v.getContext();
+//        remoteImg.Selectblock_fast(context, false, "Left");
+//    }
+
+    public void Block_switch(View v){
         context = v.getContext();
-        remoteImg.Selectblock_fast(context, false, "Left");
+        new XPopup.Builder(this)
+                .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
+
+                .asAttachList(new String[]{"Left", "Right", "Top", "Bottom", "Front", "Back"},
+
+                        new int[]{},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text) {
+                                    case "Left":
+                                        remoteImg.Selectblock_fast(context, false, "Left");
+                                        break;
+
+                                    case "Right":
+                                        remoteImg.Selectblock_fast(context, false, "Right");
+                                        break;
+
+                                    case "Top":
+                                        remoteImg.Selectblock_fast(context, false, "Top");
+                                        break;
+
+                                    case "Bottom":
+                                        remoteImg.Selectblock_fast(context, false, "Bottom");
+                                        break;
+
+                                    case "Front":
+                                        remoteImg.Selectblock_fast(context, false, "Front");
+                                        break;
+
+                                    case "Back":
+                                        remoteImg.Selectblock_fast(context, false, "Back");
+                                        break;
+                                }
+                            }
+                        })
+                .show();
     }
 
 
