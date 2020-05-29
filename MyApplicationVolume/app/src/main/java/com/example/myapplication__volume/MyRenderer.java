@@ -168,6 +168,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private boolean ifPainting = false;
 
     private boolean ifDownSampling = false;
+    private boolean ifNeedDownSample = true;
 
     private int screen_w;
     private int screen_h;
@@ -3636,7 +3637,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public void setIfDownSampling(boolean b){
-        ifDownSampling = b;
+        if (ifNeedDownSample)
+            ifDownSampling = b;
+        else
+            ifDownSampling = false;
+    }
+
+    public boolean getIfNeedDownSample(){
+        return ifNeedDownSample;
+    }
+
+    public void setIfNeedDownSample(boolean b){
+        ifNeedDownSample = b;
     }
 }
 

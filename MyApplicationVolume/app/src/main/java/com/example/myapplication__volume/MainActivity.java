@@ -457,6 +457,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        FrameLayout.LayoutParams lp_downsample = new FrameLayout.LayoutParams(120, 120);
 
 
 
@@ -575,6 +576,15 @@ public class MainActivity extends AppCompatActivity {
             case R.id.corner:
                 myrenderer.corner_detection();
                 myGLSurfaceView.requestRender();
+                return true;
+            case R.id.downsample:
+                if (myrenderer.getIfNeedDownSample() == true){
+                    item.setTitle("Downsample When Rotate");
+                    myrenderer.setIfNeedDownSample(false);
+                } else {
+                    item.setTitle("Normal Rotate");
+                    myrenderer.setIfNeedDownSample(true);
+                }
                 return true;
             default:
                 return true;
@@ -2332,7 +2342,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200528f 22:40 build",
+                .asConfirm("Version", "version: 20200529a 12:35 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

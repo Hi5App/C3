@@ -52,4 +52,11 @@
         android:title="Corner Detection"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/downsample"
+        android:orderInCategory="4"
+        android:title="Normal Rotate"
+        app:showAsAction="never" />
+
+
 </menu>
