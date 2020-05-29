@@ -56,6 +56,7 @@ dependencies {
     //     debugImplementation because LeakCanary should only run in debug builds.
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'
     implementation project(path: ':openCVLibrary340')
+    implementation files('libs\\Jama-1.0.3.jar')
     //    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
     //    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.3'
     //// Optional, if you use support library fragments:
@@ -65,5 +66,4 @@ dependencies {
     //    implementation 'org.jgrapht:jgrapht-demo:1.0.0'
     //    implementation 'org.jgrapht:jgrapht-ext:1.0.0'
     //    implementation 'org.jgrapht:jgrapht-jdk1.5:0.7.3'
-    implementation files('libs/Jama-1.0.3.jar')
 }

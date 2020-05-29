@@ -40,6 +40,7 @@ public class RemoteImg extends Socket {
 
     public String path;
 
+    public volatile boolean flag;
 
 
     public RemoteImg(){
@@ -280,12 +281,72 @@ public class RemoteImg extends Socket {
     }
 
 
+    public void Selectblock_fast(Context context, boolean source, String direction){
+
+        flag = false;
+        Log.v("Selectblock_fast","Here we are");
+        if (!source){
+            ConnectServerImg(context);
+        }
+
+        while (flag == false);
+
+        flag = true;
+
+        if (getFilename(context) == "--11--"){
+            Toast.makeText(context,"Select file first!", Toast.LENGTH_SHORT);
+            return;
+        }
+
+        switch (direction){
+            case "Left":
+                PullImageBlock_left(context);
+                break;
+            default:
+                Toast.makeText(context,"Something wrong when pull img", Toast.LENGTH_SHORT).show();
+        }
+
+
+    }
+
+    private void PullImageBlock_left(Context context){
+        String filename = getFilename(context);
+        String offset = getoffset(context, filename);
+
+        String offset_x = offset.split("_")[0];
+        String offset_y = offset.split("_")[1];
+        String offset_z = offset.split("_")[2];
+        String size     = offset.split("_")[3];
+
+        int offset_x_i = Integer.parseInt(offset_x);
+        int size_i     = Integer.parseInt(size);
+
+        offset_x_i -= size_i/2;
+
+        offset_x = Integer.toString(offset_x_i);
+
+        offset = offset_x + "_" + offset_y + "_" + offset_z + "_" + size;
+        setoffset(offset, filename, context);
+
+        System.out.println("---------" + offset + "---------");
+        String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
+
+        if (!JudgeBounding(input, context)){
+            Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+        }else {
+            PullImageBlcok(input[0], input[1], input[2], input[3], context);
+        }
+
+    }
+
     public void Selectblock(Context context, boolean source){
 
         if (!source){
-            if (!isSocketSet){
-                ConnectServerImg(context);
-            }
+//            if (!isSocketSet){
+//                ConnectServerImg(context);
+//            }
+            ConnectServerImg(context);
+
         }
 
         if (getFilename(context) == "--11--"){
@@ -670,20 +731,29 @@ public class RemoteImg extends Socket {
         //新建一个线程，用于初始化socket和检测是否有接收到新的消息
         this.ip = getip(context);
 
+        Log.v("ConnectServerImg","Here we are");
+
         Thread thread = new Thread() {
             @Override
             public void run() {
-                Looper.prepare();
+//                Looper.prepare();
+                Log.v("ConnectServerImg", "successfully init");
                 try {
-                    ImgSocket = new Socket(ip, Integer.parseInt("9000"));
+                    ImgSocket = new Socket("39.100.35.131", Integer.parseInt("9000"));
                     ImgReader = new BufferedReader(new InputStreamReader(ImgSocket.getInputStream(), "UTF-8"));
                     ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    Log.v("ConnectServerImg", "successfully init");
+                    flag = true;
 
                 } catch (Exception e) {
+                    Log.v("ConnectServerImg", "connect failed");
+                    Log.v("ConnectServerImg", e.getMessage());
                     e.printStackTrace();
-                    Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
-                    Looper.loop();
+                    Log.v("ConnectServerImg", e.getMessage());
+//                    Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+//                    Looper.loop();
                 }
+                flag = true;
             }
         };
         thread.start();
@@ -694,7 +764,7 @@ public class RemoteImg extends Socket {
      * get the ip address from local file
      * @return ip latest address you input
      */
-    public String getFilename(Context context){
+    public static String getFilename(Context context){
         String filename = null;
 
         String filepath = context.getExternalFilesDir(null).toString();
@@ -848,7 +918,7 @@ public class RemoteImg extends Socket {
      * get the offset from local file
      * @return offset latest address you input
      */
-    private String getoffset(Context context, String filename){
+    public static String getoffset(Context context, String filename){
         String offset = null;
 
         String offset_x = filename.split("x")[3];

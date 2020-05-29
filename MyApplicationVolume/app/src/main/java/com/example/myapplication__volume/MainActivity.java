@@ -99,7 +99,6 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
@@ -107,9 +106,10 @@ import java.util.TimerTask;
 import java.util.Vector;
 
 import Jama.Matrix;
-
 import cn.carbs.android.library.MDDialog;
 
+import static com.example.connect.RemoteImg.getFilename;
+import static com.example.connect.RemoteImg.getoffset;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
@@ -197,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton Sync_i;
     private Button Sync;
     private Button Switch;
+    private Button Remoteleft;
     private Button Share;
     private ImageButton draw_i;
     private ImageButton tracing_i;
@@ -224,6 +225,8 @@ public class MainActivity extends AppCompatActivity {
     private int measure_count = 0;
     private List<double[]> fl;
 
+    private boolean isRemote;
+
 
     private int eswc_length;
     //读写权限
@@ -249,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 
+        isRemote = false;
 //
         //接受从fileactivity传递过来的文件路径
         Intent intent1 = getIntent();
@@ -258,6 +262,15 @@ public class MainActivity extends AppCompatActivity {
         if (filepath != null) {
             myrenderer.SetPath(filepath);
             System.out.println("------" + filepath + "------");
+            isRemote = true;
+            String filename = getFilename(this);
+            String offset = getoffset(this, filename);
+
+            String offset_x = offset.split("_")[0];
+            String offset_y = offset.split("_")[1];
+            String offset_z = offset.split("_")[2];
+
+            Toast.makeText(this,"Current offset: " + "x: " + offset_x + "y: " + offset_y + "z: " + offset_z, Toast.LENGTH_SHORT).show();
         }
 
         Intent intent2 = getIntent();
@@ -326,6 +339,11 @@ public class MainActivity extends AppCompatActivity {
         Zoom_in.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Image4DSimple img = myrenderer.getImg();
+                if(img == null || !img.valid()){
+                    Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 myrenderer.zoom_in();
                 myGLSurfaceView.requestRender();
             }
@@ -335,6 +353,11 @@ public class MainActivity extends AppCompatActivity {
         Zoom_out.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Image4DSimple img = myrenderer.getImg();
+                if(img == null || !img.valid()){
+                    Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 myrenderer.zoom_out();
                 myGLSurfaceView.requestRender();
             }
@@ -497,6 +520,19 @@ public class MainActivity extends AppCompatActivity {
                 Switch();
             }
         });
+
+        Remoteleft = new Button(this);
+        Remoteleft.setText("Left");
+
+        Remoteleft.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                Remoteleft(v);
+            }
+        });
+
+        if (isRemote){
+            ll_bottom.addView(Remoteleft);
+        }
 
 
         buttonAnimation = new Button(this);
@@ -854,6 +890,12 @@ public class MainActivity extends AppCompatActivity {
                 if (ifLoadLocal) {
                     myrenderer.SetPath(filePath);
                     ifLoadLocal = false;
+                    isRemote = false;
+                    try {
+                        ll_bottom.removeView(Remoteleft);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
                 }
 
 //                if (ifRemote){
@@ -1401,6 +1443,12 @@ public class MainActivity extends AppCompatActivity {
      */
     private void Draw(View v) {
 
+        Image4DSimple img = myrenderer.getImg();
+        if(img == null || !img.valid()){
+            Toast.makeText(this, "Please load image first!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
                 .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete curve", "Split", "Set PenColor", "Change PenColor", "Change All PenColor", "Exit Drawing mode"},
@@ -1600,6 +1648,12 @@ public class MainActivity extends AppCompatActivity {
      */
     private void Tracing(final View v) {
 
+        Image4DSimple img = myrenderer.getImg();
+        if(img == null || !img.valid()){
+            Toast.makeText(this, "Please load image first!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
                 .asAttachList(new String[]{"APP2", "GD", "Clear tracing", "Save SWC file"},
@@ -1717,6 +1771,13 @@ public class MainActivity extends AppCompatActivity {
 
     //像素分类界面
     private void PixelClassification(final View v) {
+
+        Image4DSimple img = myrenderer.getImg();
+        if(img == null || !img.valid()){
+            Toast.makeText(this, "Please load image first!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
 
@@ -2342,7 +2403,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200529a 12:35 build",
+                .asConfirm("Version", "version: 20200529b 15:51 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -2627,6 +2688,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+    public void Remoteleft(View v){
+        context = v.getContext();
+        remoteImg.Selectblock_fast(context, false, "Left");
+    }
 
 
 
