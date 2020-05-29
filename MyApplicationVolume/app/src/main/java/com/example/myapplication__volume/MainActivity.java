@@ -990,7 +990,7 @@ public class MainActivity extends AppCompatActivity {
                     if (remoteImg.ImgSocket.isConnected()) {
 
                         remoteImg.isSocketSet = true;
-                        Toast.makeText(context, "Start to upload!!!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Start to upload!!!", Toast.LENGTH_SHORT).show();
                         if (!remoteImg.isOutputShutdown()) {
                             Log.v("SendSwc: ", "Connect with Server successfully");
                             remoteImg.ImgPWriter.println("connect for android client" + ":import.");
@@ -1059,13 +1059,13 @@ public class MainActivity extends AppCompatActivity {
 
 
                     } else {
-                        Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
                         Looper.loop();
                     }
 
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
                     Looper.loop();
                 }
             }
@@ -1133,7 +1133,7 @@ public class MainActivity extends AppCompatActivity {
 
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
                     Looper.loop();
                 }
             }
@@ -1792,7 +1792,7 @@ public class MainActivity extends AppCompatActivity {
 
         Image4DSimple img = myrenderer.getImg();
         if(img == null || !img.valid()){
-            Toast.makeText(this, "Please load image first!", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -1821,7 +1821,7 @@ public class MainActivity extends AppCompatActivity {
                                         //gsdt检测斑点（eg.soma）
                                         try {
                                             Log.v("Mainactivity", "GSDT function.");
-                                            Toast.makeText(v.getContext(), "GSDT function start~", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(getContext(), "GSDT function start~", Toast.LENGTH_SHORT).show();
                                             Timer timer = new Timer();
                                             timer.schedule(new TimerTask() {
                                                 @RequiresApi(api = Build.VERSION_CODES.N)
@@ -1847,7 +1847,7 @@ public class MainActivity extends AppCompatActivity {
                                         //调用各向异性滤波，显示滤波结果
                                         try {
                                             Log.v("Mainactivity", "AnisotropicFilter function.");
-                                            Toast.makeText(v.getContext(), "AnisotropicFilter function start~", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(getContext(), "AnisotropicFilter function start~", Toast.LENGTH_SHORT).show();
                                             Timer timer = new Timer();
                                             timer.schedule(new TimerTask() {
                                                 @RequiresApi(api = Build.VERSION_CODES.N)
@@ -2272,7 +2272,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void StopSensorListening()
     {
-        Toast.makeText(context, "Sensor stopped", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "Sensor stopped", Toast.LENGTH_SHORT).show();
         mSensorManager.unregisterListener(listener);
     }
 
@@ -2386,7 +2386,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }else {
-            Toast.makeText(this,"Pleas load a file first!",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(),"Pleas load a file first!",Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -2444,7 +2444,7 @@ public class MainActivity extends AppCompatActivity {
 
         }catch (Exception e){
             e.printStackTrace();
-            Toast.makeText(this, "Error when open file!" + e.getMessage(),Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Error when open file!" + e.getMessage(),Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -2696,8 +2696,7 @@ public class MainActivity extends AppCompatActivity {
 
                 } catch (Exception e) {
                     e.printStackTrace();
-//                    ShowToast(context, "Can't connect, try again please!");
-                    Toast.makeText(context, "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
                     Looper.loop();
                 }
             }
@@ -2855,7 +2854,7 @@ public class MainActivity extends AppCompatActivity {
                         EditText swcName = contentView.findViewById(R.id.swcname);
                         String swcFileName = swcName.getText().toString();
                         if (swcFileName == ""){
-                            Toast.makeText(context, "The name should not be empty.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "The name should not be empty.", Toast.LENGTH_SHORT).show();
                         }
                         myrenderer.reNameCurrentSwc(swcFileName);
 
@@ -2871,7 +2870,7 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             error = myrenderer.saveCurrentSwc(dir_str);
                         } catch (Exception e) {
-                            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                         if (error != "") {
                             if (error == "This file already exits"){
@@ -2887,13 +2886,13 @@ public class MainActivity extends AppCompatActivity {
                                                 try{
                                                     errorMessage = myrenderer.oversaveCurrentSwc(dir_str);
                                                     if (errorMessage == "")
-                                                        Toast.makeText(context,"Overwrite successfully!", Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(getContext(),"Overwrite successfully!", Toast.LENGTH_SHORT).show();
                                                     if (errorMessage == "Overwrite failed!")
-                                                        Toast.makeText(context,"Overwrite failed!", Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(getContext(),"Overwrite failed!", Toast.LENGTH_SHORT).show();
 
                                                 }catch (Exception e){
                                                     System.out.println(errorMessage);
-                                                    Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                                                 }
                                             }
                                         })
@@ -2909,7 +2908,7 @@ public class MainActivity extends AppCompatActivity {
                             }
 //                            Toast.makeText(context, error, Toast.LENGTH_LONG).show();
                         } else{
-                            Toast.makeText(context, "save SWC to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), "save SWC to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG).show();
                         }
                     }
                 })
@@ -2944,7 +2943,7 @@ public class MainActivity extends AppCompatActivity {
                 Looper.prepare();
             }
 
-            Toast.makeText(this, "Please load image first!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_SHORT).show();
             Looper.loop();
             return;
         }
@@ -2980,7 +2979,7 @@ public class MainActivity extends AppCompatActivity {
             if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
-            Toast.makeText(this, "APP2-Tracing finish, size of result swc: " + Integer.toString(nt.listNeuron.size()), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "APP2-Tracing finish, size of result swc: " + Integer.toString(nt.listNeuron.size()), Toast.LENGTH_SHORT).show();
             myrenderer.importNeuronTree(nt);
             myGLSurfaceView.requestRender();
             Looper.loop();
@@ -2989,7 +2988,7 @@ public class MainActivity extends AppCompatActivity {
             if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
             Looper.loop();
         }
 
@@ -3024,7 +3023,7 @@ public class MainActivity extends AppCompatActivity {
             if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
-            Toast.makeText(this, "Please produce at least two markers!", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Please produce at least two markers!", Toast.LENGTH_LONG).show();
             Looper.loop();
             return;
         }
@@ -3046,7 +3045,7 @@ public class MainActivity extends AppCompatActivity {
             if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
             Looper.loop();
         }
         for (int i = 0; i < outswc.listNeuron.size(); i++) {
@@ -3057,7 +3056,7 @@ public class MainActivity extends AppCompatActivity {
             Looper.prepare();
         }
 
-        Toast.makeText(this, "GD-Tracing finished, size of result swc: " + Integer.toString(outswc.listNeuron.size()), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "GD-Tracing finished, size of result swc: " + Integer.toString(outswc.listNeuron.size()), Toast.LENGTH_SHORT).show();
         myrenderer.importNeuronTree(outswc);
         myGLSurfaceView.requestRender();
         Looper.loop();
@@ -3508,7 +3507,7 @@ public class MainActivity extends AppCompatActivity {
         Image4DSimple img = myrenderer.getImg();
         if(img == null){
 
-            Toast.makeText(this, "Please load image first!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_SHORT).show();
             return;
         }
 //        Image4DSimple resampleimg=new Image4DSimple();
@@ -3545,7 +3544,7 @@ public class MainActivity extends AppCompatActivity {
             Looper.prepare();
         }
 
-        Toast.makeText(this, "pixel  classification start~", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "pixel  classification start~", Toast.LENGTH_SHORT).show();
 //        Looper.loop();
         try{
 //            outImg = p.getPixelClassificationResult(resampleimg,nt);
@@ -3566,7 +3565,7 @@ public class MainActivity extends AppCompatActivity {
             myrenderer.ResetImg(outImg);
             myGLSurfaceView.requestRender();
         }catch (Exception e){
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
 
 //        Image4DSimple out = new Image4DSimple();
@@ -3587,7 +3586,7 @@ public class MainActivity extends AppCompatActivity {
             if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
-            Toast.makeText(this, "Please load image first!", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
             Looper.loop();
             return;
         }
@@ -3608,13 +3607,13 @@ public class MainActivity extends AppCompatActivity {
             if (img == null) {
                 //显示滤波失败
                 System.out.println("Fail to anisotropic filtering");
-                Toast.makeText(this, "Fail to anisotropic filtering.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Fail to anisotropic filtering.", Toast.LENGTH_SHORT).show();
             }else {
                 //输出滤波结果
-                Toast.makeText(this, "Filtering successfully.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Filtering successfully.", Toast.LENGTH_SHORT).show();
                 myrenderer.ResetImg(img);
                 myGLSurfaceView.requestRender();
-                Toast.makeText(this, "Have been shown on the screen.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Have been shown on the screen.", Toast.LENGTH_SHORT).show();
             }
             Looper.loop();
 
@@ -3622,7 +3621,7 @@ public class MainActivity extends AppCompatActivity {
             if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
             Looper.loop();
         }
     }
@@ -4118,7 +4117,7 @@ public class MainActivity extends AppCompatActivity {
             if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
-            Toast.makeText(this, "Please load image first!", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
             Looper.loop();
             return;
         }
@@ -4141,7 +4140,7 @@ public class MainActivity extends AppCompatActivity {
                 Looper.prepare();
             }
 
-            Toast.makeText(this, "marker_loc:"+ p.max_loc[0] + "," + p.max_loc[1] + "," + p.max_loc[2], Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "marker_loc:"+ p.max_loc[0] + "," + p.max_loc[1] + "," + p.max_loc[2], Toast.LENGTH_LONG).show();
             Looper.loop();
             /*
             ImageMarker m = p.GSDT_Fun(img, para);
@@ -4157,7 +4156,7 @@ public class MainActivity extends AppCompatActivity {
             if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
             Looper.loop();
         }
 
@@ -4213,7 +4212,7 @@ public class MainActivity extends AppCompatActivity {
 
                         }else{
 
-                            Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
                         }
 
                     }
