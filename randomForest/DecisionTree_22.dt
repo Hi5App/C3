@@ -1,0 +1,6 @@
+##n,left,right,isLeaf,splitAttributeM,Class,splitValue,generation,attrArr
+0 1 2 0 7 -1 37.174313 1 3 5 8
+1 3 4 0 1 -1 7.1687255 2 2 4 8
+2 -1 -1 1 -99 1 -99.0 2 3 5 8
+3 -1 -1 1 -99 1 -99.0 3 2 4 8
+4 -1 -1 1 -99 2 -99.0 3 2 4 8
