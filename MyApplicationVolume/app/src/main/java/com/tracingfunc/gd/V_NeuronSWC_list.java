@@ -133,7 +133,7 @@ public class V_NeuronSWC_list implements Cloneable{
             for (j=1;j<row.size();j++)
             {
                 if (row.elementAt(j).n < min_ind)  min_ind = (int)row.elementAt(j).n;
-                if (min_ind<0) System.out.println("Found illeagal neuron node index which is less than 0 in merge_V_NeuronSWC_list()!");
+                if (min_ind<0) System.out.println("Found illegal neuron node index which is less than 0 in merge_V_NeuronSWC_list()!");
             }
             //qDebug()<<min_ind;
 

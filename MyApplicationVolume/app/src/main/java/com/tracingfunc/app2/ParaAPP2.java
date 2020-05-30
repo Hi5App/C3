@@ -2,6 +2,7 @@ package com.tracingfunc.app2;
 
 import com.example.basic.Image4DSimple;
 import com.example.basic.LocationSimple;
+import com.example.basic.NeuronTree;
 
 public class ParaAPP2 {
     public Image4DSimple p4dImage;
@@ -24,6 +25,8 @@ public class ParaAPP2 {
 
     public boolean b_menu;
     public String inimg_file, inmarker_file, outswc_file;
+
+    public NeuronTree resultNt;
 
     public ParaAPP2(){
         p4dImage = null;

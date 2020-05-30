@@ -380,7 +380,7 @@ public class V3dNeuronAPP2Tracing {
                 if (dfactor_z>1)  outTree.elementAt(tmpi).z += dfactor_z/2;
             }
 
-            MyMarker.saveSWC_file(p.outswc_file.split("\\.")[0]+"_ini.swc", outTree, infostring);
+//            MyMarker.saveSWC_file(p.outswc_file.split("\\.")[0]+"_ini.swc", outTree, infostring);
 
             for (tmpi=0; tmpi< outTree.size(); tmpi++)
             {
@@ -531,7 +531,10 @@ public class V3dNeuronAPP2Tracing {
 
 //            tmpstr =  qPrintable( qtstr.setNum(etime1).prepend("#neuron preprocessing time (milliseconds) = ") ); infostring.push_back(tmpstr);
 //            tmpstr =  qPrintable( qtstr.setNum(etime2).prepend("#neuron tracing time (milliseconds) = ") ); infostring.push_back(tmpstr);
-            MyMarker.saveSWC_file(outswc_file, outswc, infostring);
+
+//            MyMarker.saveSWC_file(outswc_file, outswc, infostring);
+
+            p.resultNt = MyMarker.swcConvert(outswc);
 
 //            if(outswc.size()>1)
 //            {

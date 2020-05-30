@@ -267,7 +267,8 @@ public class MyMarker implements Cloneable{
                 curMarker.parent = null;
             else {
                 if(hN.get((int) ns.parent) == null){
-                    System.out.println("hN is error!");
+//                    System.out.println("hN is error!");
+                    curMarker.parent = null;
                 }else {
                     int pid = hN.get((int) ns.parent);
                     curMarker.parent = outSwc.get(pid);
@@ -373,10 +374,10 @@ public class MyMarker implements Cloneable{
     }
 
     //radius为0时，按swc本身的半径计算mask，否则按提供的半径进行计算
-    public static int[] swcToMask(Vector<MyMarker> inswc, int[] sz, double radius, int flag){
+    public static byte[] swcToMask(Vector<MyMarker> inswc, int[] sz, double radius, int flag){
         int totalSz = sz[0]*sz[1]*sz[2];
         int sz01 = sz[0]*sz[1];
-        int[] outMask = new int[totalSz];
+        byte[] outMask = new byte[totalSz];
         for(int i=0; i<totalSz; i++)
             outMask[i] = 0;
         Vector<MyMarker> leafMarkers = HierarchyPruning.getLeafMarkers(inswc);
@@ -394,7 +395,7 @@ public class MyMarker implements Cloneable{
                     int z = (int) tmpMarkers.get(j).z;
                     if(x<0 || x>=sz[0] || y<0 || y>=sz[1] ||z<0 || z>=sz[2])
                         continue;
-                    outMask[z*sz01+y*sz[0]+x] = flag;
+                    outMask[z*sz01+y*sz[0]+x] = (byte) flag;
                 }
                 visitedMarkers.add(p);
                 p = par;

@@ -720,5 +720,47 @@ public class NeuronTree extends BasicSurfObj {
         return nts;
     }
 
+    public static NeuronTree mergeNeuronTrees(Vector<NeuronTree> neuronTrees){
+        NeuronTree merge = new NeuronTree();
+
+        int n= 0;
+        for(int i=0; i<neuronTrees.size(); i++){
+            NeuronTree nt = neuronTrees.get(i);
+            ArrayList<NeuronSWC> listNeuron = nt.listNeuron;
+            if(listNeuron.isEmpty()){
+                continue;
+            }
+
+            int minInd = (int) listNeuron.get(0).n;
+
+            for(int j=1; j<listNeuron.size(); j++){
+                if(listNeuron.get(j).n<minInd)
+                    minInd = (int) listNeuron.get(j).n;
+                if(minInd<0)
+                    System.out.println("Found illegal neuron node index which is less than 0 in mergeNeuronTrees()!");
+            }
+
+            int n0 = n;
+            for(int j=0; j<listNeuron.size(); j++){
+                NeuronSWC v = new NeuronSWC();
+                v.x = listNeuron.get(j).x;
+                v.y = listNeuron.get(j).y;
+                v.z = listNeuron.get(j).z;
+                v.radius = listNeuron.get(j).radius;
+                v.type = listNeuron.get(j).type;
+                v.n = (n0+1) + listNeuron.get(j).n - minInd;
+                v.parent = (listNeuron.get(j).parent<0) ? -1 : ((n0+1) + listNeuron.get(j).parent - minInd);
+                merge.listNeuron.add(v);
+                n++;
+            }
+        }
+
+        for(int i=0; i<merge.listNeuron.size(); i++){
+            merge.hashNeuron.put((int) merge.listNeuron.get(i).n,i);
+        }
+
+        return merge;
+    }
+
 
 }

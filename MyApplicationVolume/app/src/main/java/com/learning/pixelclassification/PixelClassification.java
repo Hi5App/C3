@@ -35,10 +35,10 @@ public class PixelClassification {
             {false,false,false,false,false,false,false}
     };
 
-    private boolean is64Cube;
+    private boolean is128Cube;
 
     public PixelClassification(){
-        is64Cube = false;
+        is128Cube = false;
     }
 
     public Image4DSimple getPixelClassificationResult(Image4DSimple inImg, NeuronTree nt) throws Exception{
@@ -50,7 +50,7 @@ public class PixelClassification {
         double dFactorXY = 1, dFactorZ = 1;
         Image4DSimple downSampleImg = new Image4DSimple();
 
-        if(is64Cube){
+        if(is128Cube){
 
             double size = 128;
 
@@ -413,8 +413,8 @@ public class PixelClassification {
         }
     }
 
-    public void setIs64Cube(boolean is64Cube) {
-        this.is64Cube = is64Cube;
+    public void setIs64Cube(boolean is128Cube) {
+        this.is128Cube = is128Cube;
     }
 
     public void setSelections(boolean[][] selections) {

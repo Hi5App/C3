@@ -1,10 +1,22 @@
 package com.learning.randomforest;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Vector;
 
 public class DecisionTree {
     private static final int INDEX_SKIP = 2;
@@ -30,8 +42,8 @@ public class DecisionTree {
         public TreeNode right;
         public int splitAttributeM;
         public Integer Class;
-        public List<int[]> data;
-        public int splitValue;
+        public List<float[]> data;
+        public float splitValue;
         public int generation;
         public ArrayList<Integer> attrArr;//随机从M个属性选取Ms个属性，Ms= log2（M），存的是其属性的序数
 
@@ -59,6 +71,143 @@ public class DecisionTree {
         }
     }
 
+    public boolean saveDecisionTree(File dir, int i){
+        String path = dir + "/DecisionTree_" + String.valueOf(i) + ".dt";
+        try {
+            File f = new File(path);
+            if(!f.exists()){
+                f.createNewFile();
+            }
+            FileOutputStream fid = new FileOutputStream(f);
+            OutputStreamWriter writer = new OutputStreamWriter(fid, "UTF-8");
+//            writer.append("#name \n");
+//            writer.append("#comment \n");
+            writer.append("##n,left,right,isLeaf,splitAttributeM,Class,splitValue,generation,attrArr\n");
+            Queue<TreeNode> queue = new LinkedList<>();
+            queue.offer(root);
+            Vector<TreeNode> treeNodes = new Vector<>();
+            treeNodes.add(root);
+
+            while (!queue.isEmpty()){
+                TreeNode temp = queue.poll();
+                if(temp.left != null){
+                    treeNodes.add(temp.left);
+                    queue.add(temp.left);
+                }
+                if(temp.right != null){
+                    treeNodes.add(temp.right);
+                    queue.add(temp.right);
+                }
+            }
+
+            Map<TreeNode,Integer> treeNodeIndexMap = new HashMap<>();
+            for(int k=0; k<treeNodes.size(); k++){
+                treeNodeIndexMap.put(treeNodes.get(k),k);
+            }
+
+            queue.offer(root);
+
+            while (!queue.isEmpty()){
+                TreeNode temp = queue.poll();
+                int n = treeNodeIndexMap.get(temp);
+                int left = -1, right = -1;
+                if(treeNodeIndexMap.get(temp.left)!=null){
+                    left = treeNodeIndexMap.get(temp.left);
+                }
+                if(treeNodeIndexMap.get(temp.right)!=null){
+                    right = treeNodeIndexMap.get(temp.right);
+                }
+                int leaf = temp.isLeaf?1:0;
+                int c = temp.Class == null? -1:temp.Class;
+
+                writer.append(Integer.toString(n)).append(" ").append(Integer.toString(left)).append(" ")
+                        .append(Integer.toString(right)).append(" ").append(Integer.toString(leaf)).append(" ")
+                        .append(Integer.toString(temp.splitAttributeM)).append(" ")
+                        .append(Integer.toString(c)).append(" ")
+                        .append(Float.toString(temp.splitValue)).append(" ")
+                        .append(Integer.toString(temp.generation));
+                if(temp.attrArr != null){
+                    for(int k=0; k<temp.attrArr.size(); k++){
+                        writer.append(" ").append(Integer.toString(temp.attrArr.get(k)));
+                    }
+                }
+
+                writer.append("\n");
+
+                if(temp.left != null){
+                    queue.add(temp.left);
+                }
+                if(temp.right != null){
+                    queue.add(temp.right);
+                }
+            }
+            writer.close();
+            fid.close();
+        } catch (IOException e) {
+            System.out.println("saveDecisionTree Exception "+e.getMessage());
+            return false;
+        }
+        System.out.println("done with saving file: "+path);
+        return true;
+    }
+
+    public boolean readDecisionTree(String file){
+        ArrayList<String> arrayList = new ArrayList<String>();
+        System.out.println("in read DecisionTree");
+        try {
+            File f = new File(file);
+            FileInputStream fid = new FileInputStream(f);
+            InputStreamReader isr = new InputStreamReader(fid);
+            BufferedReader br = new BufferedReader(isr);
+            String str;
+            while ((str = br.readLine()) != null) {
+                arrayList.add(str);
+            }
+            br.close();
+            isr.close();
+        } catch (Exception e) {
+            System.out.println("dtReaderException" + e.getMessage());
+            return false;
+        }
+
+        Vector<TreeNode> treeNodes = new Vector<>();
+        for(int i=0; i<arrayList.size(); i++){
+            String current = arrayList.get(i);
+            String[] s = current.split(" ");
+            if (s[0].substring(0, 1).equals("#")) continue;
+            TreeNode temp = new TreeNode();
+            temp.isLeaf = s[3].equals("1");
+            temp.splitAttributeM = Integer.parseInt(s[4]);
+            temp.Class = Integer.parseInt(s[5]);
+            temp.splitValue = Float.parseFloat(s[6]);
+            temp.generation = Integer.parseInt(s[7]);
+            if(s.length>8){
+                temp.attrArr = new ArrayList<>();
+                for(int j=8; j<s.length; j++){
+                    temp.attrArr.add(Integer.parseInt(s[j]));
+                }
+            }
+            treeNodes.add(temp);
+        }
+        root = treeNodes.get(0);
+
+        for(int i=0; i<treeNodes.size(); i++) {
+            TreeNode temp = treeNodes.get(i);
+            String current = arrayList.get(i + 1);
+            String[] s = current.split(" ");
+            int left = Integer.parseInt(s[1]);
+            int right = Integer.parseInt(s[2]);
+            if (left > 0) {
+                temp.left = treeNodes.get(left);
+            }
+            if (right > 0) {
+                temp.right = treeNodes.get(right);
+            }
+        }
+
+        return true;
+    }
+
     private class DoubleWarp{
         public double d;
         public DoubleWarp(double d){
@@ -78,7 +227,7 @@ public class DecisionTree {
      * @param forest	The random forest this decision tree belongs to
      * @param num	    the Tree number
      */
-    public DecisionTree(ArrayList<int[]> data, RandomForest forest, int num){
+    public DecisionTree(ArrayList<float[]> data, RandomForest forest, int num){
         this.forest = forest;
         N = data.size();
         importance = new int[this.forest.M];
@@ -86,8 +235,8 @@ public class DecisionTree {
 
         //System.out.println("Make a DecisionTree num : "+num+" with N:"+N+" M:"+RandomForest.M+" Ms:"+RandomForest.Ms);
 
-        ArrayList<int[]> train = new ArrayList<int[]>(N); //data becomes the "bootstrap" - that's all it knows
-        ArrayList<int[]> val = new ArrayList<int[]>();
+        ArrayList<float[]> train = new ArrayList<>(N); //data becomes the "bootstrap" - that's all it knows
+        ArrayList<float[]> val = new ArrayList<>();
         //System.out.println("Creating tree No."+num);
         BootStrapSample(data, train, val, num);//populates train and test using data
         testN = val.size();
@@ -97,6 +246,11 @@ public class DecisionTree {
         CalcTreeVariableImportanceAndError(val, num);
         FlushData(root);
     }
+
+    public DecisionTree(){
+
+    }
+
     /**
      * Responsible for gauging the error rate of this tree and
      * calculating the importance values of each attribute
@@ -104,15 +258,15 @@ public class DecisionTree {
      * @param val	The left out data matrix
      * @param nv    The Tree number
      */
-    private void CalcTreeVariableImportanceAndError(ArrayList<int[]> val, int nv) {
+    private void CalcTreeVariableImportanceAndError(ArrayList<float[]> val, int nv) {
         //calculate error rate
         correct = CalcTreeErrorRate(val, nv);//the num of correct prediction record
         CalculateClasses(val, nv);
         //calculate importance of each attribute
         for (int m=0; m<this.forest.M; m++){
-            ArrayList<int[]> test_data = RandomlyPermuteAttribute(CloneData(val), m);
+            ArrayList<float[]> test_data = RandomlyPermuteAttribute(CloneData(val), m);
             int correctAfterPermute = 0;
-            for (int[] arr:test_data){
+            for (float[] arr:test_data){
                 int pre_label = Evaluate(arr);
                 if (pre_label == GetClass(arr))
                     correctAfterPermute++;
@@ -134,12 +288,12 @@ public class DecisionTree {
      * @param nu    The Tree number
      * @return	the number correct
      */
-    public int CalcTreeErrorRate(ArrayList<int[]> val, int nu){
+    public int CalcTreeErrorRate(ArrayList<float[]> val, int nu){
         int correct = 0;
-        for (int[] record:val){
+        for (float[] record:val){
             int pre_label = Evaluate(record);
             forest.UpdateOOBEstimate(record, pre_label);
-            int actual_label = record[record.length-1];//actual_label
+            int actual_label = (int) record[record.length-1];//actual_label
             if (pre_label == actual_label)
                 correct++;
         }
@@ -155,13 +309,13 @@ public class DecisionTree {
      * @param val	The left out data matrix
      * @param nu    The Tree number
      */
-    public ArrayList<Integer> CalculateClasses(ArrayList<int[]> val, int nu){
+    public ArrayList<Integer> CalculateClasses(ArrayList<float[]> val, int nu){
         ArrayList<Integer> preList = new ArrayList<Integer>();
         int korect = 0;
-        for(int[] record : val){
+        for(float[] record : val){
             int pre_label = Evaluate(record);
             preList.add(pre_label);
-            int actual_label = record[record.length-1];
+            int actual_label = (int) record[record.length-1];
             if (pre_label==actual_label)
                 korect++;
         }
@@ -179,7 +333,7 @@ public class DecisionTree {
      * @param record 	the data record to be classified
      * @return			the class the data record was classified into
      */
-    public int Evaluate(int[] record){
+    public int Evaluate(float[] record){
         TreeNode evalNode = root;
 
         while (true){
@@ -202,14 +356,14 @@ public class DecisionTree {
      * @param m			The attribute index to be permuted
      * @return			The data matrix with the m-th column randomly permuted
      */
-    private ArrayList<int[]> RandomlyPermuteAttribute(ArrayList<int[]> val, int m){
+    private ArrayList<float[]> RandomlyPermuteAttribute(ArrayList<float[]> val, int m){
         int num = val.size() * 2;
         for (int i=0; i<num; i++){
             int a = (int)Math.floor(Math.random() * val.size());
             int b = (int)Math.floor(Math.random() * val.size());
-            int[] arrA = val.get(a);
-            int[] arrB = val.get(b);
-            int temp = arrA[m];
+            float[] arrA = val.get(a);
+            float[] arrB = val.get(b);
+            float temp = arrA[m];
             arrA[m] = arrB[m];
             arrB[m] = temp;
         }
@@ -220,12 +374,15 @@ public class DecisionTree {
      * @param data		the data matrix to be copied
      * @return			the cloned data matrix
      */
-    private ArrayList<int[]> CloneData(ArrayList<int[]> data){
-        ArrayList<int[]> clone=new ArrayList<int[]>(data.size());
+    private ArrayList<float[]> CloneData(ArrayList<float[]> data){
+        ArrayList<float[]> clone=new ArrayList<>(data.size());
+        if(data.isEmpty()){
+            return clone;
+        }
         int M=data.get(0).length;
         for (int i=0;i<data.size();i++){
-            int[] arr=data.get(i);
-            int[] arrClone=new int[M];
+            float[] arr=data.get(i);
+            float[] arrClone=new float[M];
             for (int j=0;j<M;j++){
                 arrClone[j]=arr[j];
             }
@@ -241,7 +398,7 @@ public class DecisionTree {
      * @param ntree     the tree number
      * @return			the TreeNode object that stores information about the parent node of the created tree
      */
-    private TreeNode CreateTree(ArrayList<int[]> train, int ntree){
+    private TreeNode CreateTree(ArrayList<float[]> train, int ntree){
         TreeNode root = new TreeNode();
         root.data = train; // public List<int[]> data;
         //System.out.println("creating ");
@@ -474,10 +631,10 @@ public class DecisionTree {
      * @param data	The data matrix
      * @return		The most popular class
      */
-    private int GetMajorityClass(List<int[]> data){
+    private int GetMajorityClass(List<float[]> data){
         int[] counts=new int[this.forest.C];
-        for (int[] record:data){
-            int Class=record[record.length-1];//GetClass(record);
+        for (float[] record:data){
+            int Class = (int) record[record.length-1];//GetClass(record);
             counts[Class-1]++;
         }
         int index=-99;
@@ -515,8 +672,8 @@ public class DecisionTree {
         if (n > Nsub)
             return 0;
 
-        List<int[]> lower = GetLower(parent.data, n);
-        List<int[]> upper = GetUpper(parent.data, n);
+        List<float[]> lower = GetLower(parent.data, n);
+        List<float[]> upper = GetUpper(parent.data, n);
         if (lower == null)
             System.out.println("lower list null");
         if (upper == null)
@@ -548,8 +705,8 @@ public class DecisionTree {
      * @param record		the data record
      * @return				its y value (class)
      */
-    public int GetClass(int[] record){
-        return record[this.forest.M];
+    public int GetClass(float[] record){
+        return (int) record[this.forest.M];
     }
     /**
      * Given a data matrix, check if all the y values are the same. If so,
@@ -558,12 +715,12 @@ public class DecisionTree {
      * @param data		the data matrix
      * @return			the common class (null if not common)
      */
-    private Integer CheckIfLeaf(List<int[]> data){
+    private Integer CheckIfLeaf(List<float[]> data){
 //		System.out.println("checkIfLeaf");
         boolean isLeaf = true;
         int ClassA = GetClass(data.get(0));
         for (int i=1; i<data.size(); i++){
-            int[] recordB = data.get(i);
+            float[] recordB = data.get(i);
             if (ClassA != GetClass(recordB)){
                 isLeaf = false;
                 break;
@@ -581,9 +738,9 @@ public class DecisionTree {
      * @param nSplit	index in a sub-data matrix that we will return all data records above it
      * @return			the upper sub-data matrix
      */
-    private List<int[]> GetUpper(List<int[]> data, int nSplit){
+    private List<float[]> GetUpper(List<float[]> data, int nSplit){
         int N =  data.size();
-        List<int[]> upper = new ArrayList<int[]>(N-nSplit);
+        List<float[]> upper = new ArrayList<>(N-nSplit);
         for (int n=nSplit; n<N; n++)
             upper.add(data.get(n));
         return upper;
@@ -595,8 +752,8 @@ public class DecisionTree {
      * @param nSplit	this index in a sub-data matrix that return all data records below it
      * @return			the lower sub-data matrix
      */
-    private List<int[]> GetLower(List<int[]> data, int nSplit){
-        List<int[]> lower = new ArrayList<int[]>(nSplit);
+    private List<float[]> GetLower(List<float[]> data, int nSplit){
+        List<float[]> lower = new ArrayList<>(nSplit);
         for (int n=0; n<nSplit; n++)
             lower.add(data.get(n));
         return lower;
@@ -625,8 +782,8 @@ public class DecisionTree {
          * @return			-1 if A[m] < B[m], 1 if A[m] > B[m], 0 if equal
          */
         public int compare(Object o1, Object o2){
-            int a = ((int[])o1)[m];
-            int b = ((int[])o2)[m];
+            float a = ((float[])o1)[m];
+            float b = ((float[])o2)[m];
             if (a < b)
                 return -1;
             if (a > b)
@@ -641,7 +798,7 @@ public class DecisionTree {
      * @param m				the attribute to sort on
      */
     @SuppressWarnings("unchecked")
-    private void SortAtAttribute(List<int[]> data, int m){
+    private void SortAtAttribute(List<float[]> data, int m){
         Collections.sort(data, new AttributeComparator(m));
     }
     /**
@@ -651,7 +808,7 @@ public class DecisionTree {
      * @param records		the data matrix to be examined
      * @return				the probability mass function
      */
-    private double[] GetClassProbs(List<int[]> records){
+    private double[] GetClassProbs(List<float[]> records){
 
         double N = records.size();
 
@@ -660,7 +817,7 @@ public class DecisionTree {
 //		for (int i:counts)
 //			System.out.println(i+" ");
 
-        for (int[] record:records)
+        for (float[] record:records)
             counts[GetClass(record)-1]++;
 
         double[] ps = new double[this.forest.C];
@@ -727,7 +884,7 @@ public class DecisionTree {
      * @param val		the records that are absent in the bootstrap sample
      * @param numb      the tree number
      */
-    private void BootStrapSample(ArrayList<int[]> data, ArrayList<int[]> train, ArrayList<int[]> val, int numb){
+    private void BootStrapSample(ArrayList<float[]> data, ArrayList<float[]> train, ArrayList<float[]> val, int numb){
         ArrayList<Integer> indices = new ArrayList<Integer>(N);
         for (int n=0; n<N; n++)
             indices.add((int)Math.floor(Math.random() * N));

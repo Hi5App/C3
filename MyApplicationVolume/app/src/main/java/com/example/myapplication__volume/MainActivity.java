@@ -71,7 +71,9 @@ import com.example.basic.NeuronTree;
 import com.example.connect.Filesocket_send;
 import com.example.connect.RemoteImg;
 import com.feature_calc_func.MorphologyCalculate;
+import com.learning.opimageline.DetectLine;
 import com.learning.pixelclassification.PixelClassification;
+import com.learning.randomforest.RandomForest;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
@@ -212,6 +214,9 @@ public class MainActivity extends AppCompatActivity {
     {false,false,false,false,false,false,false},
     {false,false,false,false,false,false,false},
     {true,true,true,false,false,false,false}};
+
+    private Button detectLineButton;
+    private RandomForest rf = null;
 
 
     private RemoteImg remoteImg;
@@ -443,8 +448,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-
+        detectLineButton = new Button(this);
+        detectLineButton.setText("DetectLine");
+        ll_top.addView(detectLineButton);
+        detectLineButton.setOnClickListener(new Button.OnClickListener(){
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onClick(View v) {
+                LineDetect(v);
+            }
+        });
 
         //像素分类总button
         /*PixelClassification = new Button(this);
@@ -1651,6 +1664,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifPoint = false;
                                         ifDeletingMarker = false;
                                         ifSpliting = false;
+                                        ifChangeLineType = false;
                                         draw_i.setImageResource(R.drawable.ic_draw_main);
                                         ll_bottom.removeView(Switch);
                                         ll_top.removeView(buttonUndo_i);
@@ -1873,6 +1887,185 @@ public class MainActivity extends AppCompatActivity {
                                             e.printStackTrace();
                                         }
                                         break;
+                                }
+                            }
+                        })
+                .show();
+    }
+
+
+
+    private void LineDetect(final View v){
+        new XPopup.Builder(this)
+                .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
+
+                .asAttachList(new String[]{"Run", "Train", "SaveRandomForest", "ReadRandomForest"},
+
+                        new int[]{},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text) {
+                                    case "Run":
+//                                        if (Looper.myLooper() == null) {
+//                                            Looper.prepare();
+//                                        }
+
+                                        Toast.makeText(v.getContext(), "start~", Toast.LENGTH_LONG).show();
+//                                        Looper.loop();
+                                        Timer timer = new Timer();
+                                        timer.schedule(new TimerTask() {
+                                            @RequiresApi(api = Build.VERSION_CODES.N)
+                                            @Override
+                                            public void run() {
+
+                                                try {
+                                                    DetectLine d = new DetectLine();
+                                                    Image4DSimple img = myrenderer.getImg();
+                                                    if(img == null){
+                                                        if (Looper.myLooper() == null) {
+                                                            Looper.prepare();
+                                                        }
+
+                                                        Toast.makeText(v.getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+                                                        Looper.loop();
+                                                    }
+                                                    NeuronTree nt = myrenderer.getNeuronTree();
+                                                    if(nt.listNeuron.isEmpty() || nt == null){
+                                                        if (Looper.myLooper() == null) {
+                                                            Looper.prepare();
+                                                        }
+
+                                                        Toast.makeText(v.getContext(), "Please add line", Toast.LENGTH_LONG).show();
+                                                        Looper.loop();
+                                                    }
+
+                                                    try {
+                                                        NeuronTree app2Result = d.detectLine(img,nt);
+                                                        NeuronTree result = new NeuronTree();
+
+                                                        if(rf != null){
+                                                            result = d.lineClassification(img,app2Result,rf);
+                                                        }else {
+                                                            result = app2Result;
+                                                        }
+                                                        myrenderer.importNeuronTree(result);
+                                                        myGLSurfaceView.requestRender();
+                                                    } catch (Exception e) {
+                                                        if (Looper.myLooper() == null) {
+                                                            Looper.prepare();
+                                                        }
+
+                                                        Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                                        Looper.loop();
+                                                    }
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
+
+                                            }
+                                        }, 1000); // 延时1秒
+                                        break;
+
+
+                                    case "Train":
+//                                        if (Looper.myLooper() == null) {
+//                                            Looper.prepare();
+//                                        }
+
+                                        Toast.makeText(v.getContext(), "train start~", Toast.LENGTH_LONG).show();
+//                                        Looper.loop();
+                                        Timer timer1 = new Timer();
+                                        timer1.schedule(new TimerTask() {
+                                            @RequiresApi(api = Build.VERSION_CODES.N)
+                                            @Override
+                                            public void run() {
+                                                try{
+
+                                                    DetectLine d = new DetectLine();
+                                                    Image4DSimple img = myrenderer.getImg();
+                                                    if(img == null){
+                                                        if (Looper.myLooper() == null) {
+                                                            Looper.prepare();
+                                                        }
+
+                                                        Toast.makeText(v.getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+                                                        Looper.loop();
+                                                    }
+                                                    NeuronTree nt = myrenderer.getNeuronTree();
+                                                    if(nt.listNeuron.isEmpty() || nt == null){
+                                                        if (Looper.myLooper() == null) {
+                                                            Looper.prepare();
+                                                        }
+
+                                                        Toast.makeText(v.getContext(), "Please add train line", Toast.LENGTH_LONG).show();
+                                                        Looper.loop();
+                                                    }
+
+                                                    rf = d.train(img,nt);
+                                                    if (Looper.myLooper() == null) {
+                                                        Looper.prepare();
+                                                    }
+
+                                                    Toast.makeText(v.getContext(), "train is ended", Toast.LENGTH_LONG).show();
+                                                    Looper.loop();
+                                                }catch (Exception e){
+                                                    if (Looper.myLooper() == null) {
+                                                        Looper.prepare();
+                                                    }
+
+                                                    Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                                    Looper.loop();
+                                                }
+
+                                            }
+                                        }, 1000); // 延时1秒
+
+                                        break;
+
+                                    case "SaveRandomForest":
+                                        if(rf == null){
+//                                            if (Looper.myLooper() == null) {
+//                                                Looper.prepare();
+//                                            }
+
+                                            Toast.makeText(v.getContext(), "randomForest is null", Toast.LENGTH_LONG).show();
+//                                            Looper.loop();
+                                        }else {
+                                            String randomForestDir = "/storage/emulated/0/C3/randomForest";
+                                            File dir = new File(randomForestDir);
+                                            if (!dir.exists()){
+                                                dir.mkdirs();
+                                            }
+                                            try {
+                                                rf.saveRandomForest(dir);
+                                                Toast.makeText(v.getContext(), "save successfully to "+randomForestDir, Toast.LENGTH_LONG).show();
+                                            } catch (IOException e) {
+//                                                if (Looper.myLooper() == null) {
+//                                                    Looper.prepare();
+//                                                }
+
+                                                Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+//                                                Looper.loop();
+                                            }
+                                        }
+                                        break;
+
+                                    case "ReadRandomForest":
+                                        String randomForestDir = "/storage/emulated/0/C3/randomForest";
+                                        try {
+                                            System.out.println("-----------------start------------------");
+                                            rf = new RandomForest();
+                                            rf.readRandomForest(randomForestDir);
+                                            Toast.makeText(v.getContext(), "load successfully", Toast.LENGTH_LONG).show();
+                                        }catch (Exception e){
+//                                            if (Looper.myLooper() == null) {
+//                                                Looper.prepare();
+//                                            }
+
+                                            Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+//                                            Looper.loop();
+                                        }
                                 }
                             }
                         })
@@ -2971,11 +3164,12 @@ public class MainActivity extends AppCompatActivity {
                 p.landmarks[i] = new LocationSimple(markers.get(i).x, markers.get(i).y, markers.get(i).z);
             }
             System.out.println("---------------start---------------------");
-            p.outswc_file = getExternalFilesDir(null).toString() + "/" + "app2.swc";//"/storage/emulated/0/Download/app2.swc";
-            System.out.println(p.outswc_file);
+//            p.outswc_file = getExternalFilesDir(null).toString() + "/" + "app2.swc";//"/storage/emulated/0/Download/app2.swc";
+//            System.out.println(p.outswc_file);
             V3dNeuronAPP2Tracing.proc_app2(p);
 
-            NeuronTree nt = NeuronTree.readSWC_file(p.outswc_file);
+//            NeuronTree nt = NeuronTree.readSWC_file(p.outswc_file);
+            NeuronTree nt = p.resultNt;
             for (int i = 0; i < nt.listNeuron.size(); i++) {
                 nt.listNeuron.get(i).type = 4;
                 if (nt.listNeuron.get(i).parent == -1) {

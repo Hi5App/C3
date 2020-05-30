@@ -11,13 +11,6 @@ public class RegionGrow {
     public static int phcDebugPosNum = 0;
     public static int phcDebugRgnNum = 0;
 
-    class RGPara{
-        int ch,thIdx;
-        double threshold;
-        int volSz;
-        boolean bFilterSmallobjs;
-    }
-
     public static Image4DSimple reginGrowing(Image4DSimple inimg, RGPara para){
         Image4DSimple result = new Image4DSimple();
 
