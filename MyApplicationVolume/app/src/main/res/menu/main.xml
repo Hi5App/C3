@@ -41,12 +41,6 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/version"
-        android:orderInCategory="4"
-        android:title="Version"
-        app:showAsAction="never" />
-
-    <item
         android:id="@+id/corner"
         android:orderInCategory="4"
         android:title="Corner Detection"
@@ -56,6 +50,12 @@
         android:id="@+id/downsample"
         android:orderInCategory="4"
         android:title="Normal Rotate"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/version"
+        android:orderInCategory="4"
+        android:title="Version"
         app:showAsAction="never" />
 
 
