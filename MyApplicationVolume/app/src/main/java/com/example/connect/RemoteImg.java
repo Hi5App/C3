@@ -390,8 +390,9 @@ public class RemoteImg extends Socket {
 
         }
 
-        if (getFilename(context) == "--11--"){
-            Toast.makeText(context,"Select file first!", Toast.LENGTH_SHORT);
+        if (getFilename(context).equals("--11--")){
+            Toast.makeText(context,"Select a remote file first,  please!!!", Toast.LENGTH_SHORT).show();
+            Log.v("Selectblock","the file is not selected");
             return;
         }
 
@@ -930,7 +931,7 @@ public class RemoteImg extends Socket {
      * put the ip address you input to local file
      * @param ip the ip address currently input
      */
-    private void setip(String ip, Context context){
+    public void setip(String ip, Context context){
         String filepath = context.getExternalFilesDir(null).toString();
         File file = new File(filepath + "/config/ip.txt");
         if (!file.exists()){

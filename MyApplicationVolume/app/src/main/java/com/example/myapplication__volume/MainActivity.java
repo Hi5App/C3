@@ -2624,7 +2624,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200530b 13:03 build",
+                .asConfirm("Version", "version: 20200530f 22:33 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -2774,6 +2774,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void ConnectServer(String ip, Context context){
+
+        remoteImg.setip(ip, context);
         //新建一个线程，用于初始化socket和检测是否有接收到新的消息
         Thread thread = new Thread() {
             @Override
