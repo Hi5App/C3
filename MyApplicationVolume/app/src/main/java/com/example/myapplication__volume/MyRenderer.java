@@ -257,6 +257,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 myAxis = new MyAxis(mz);
             }
             myDraw = new MyDraw();
+
             myAnimation = new MyAnimation();
         }
 
@@ -853,6 +854,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         else if (fileType == FileType.SWC){
+            bitmap2D = null;
+            myPattern2D = null;
             setSWC();
             ifFileLoaded = true;
             ifFileSupport = true;

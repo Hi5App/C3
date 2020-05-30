@@ -766,6 +766,10 @@ public class MainActivity extends AppCompatActivity {
 //                myrenderer.importEswc(eswc);
 
                 if (ifImport) {
+//                    if (!myrenderer.ifImageLoaded()){
+//                        Toast.makeText(context, "Please open a image first", Toast.LENGTH_SHORT).show();
+//                        return;
+//                    }
 
 //                    Log.v("load file", filetype);
 
@@ -857,6 +861,7 @@ public class MainActivity extends AppCompatActivity {
 
                     }
 
+                    ifImport = false;
                 }
 
 
@@ -1933,6 +1938,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void LoadSWC() {
 
+        if (!myrenderer.ifImageLoaded()){
+            Toast.makeText(context, "Please open a image first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (!ifImport) {
             ifImport = true;
             ifAnalyze = false;
@@ -2421,7 +2431,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200529d 17:52 build",
+                .asConfirm("Version", "version: 20200530a 11:06 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
