@@ -31,6 +31,7 @@ public class MyDraw {
 
     private FloatBuffer vertexBuffer_marker;
     private FloatBuffer normalizeBuffer_marker;
+    private FloatBuffer normalizeBuffer_marker_small;
     private FloatBuffer vertexBuffer_line;
     private FloatBuffer colorBuffer_marker;
     private FloatBuffer colorBuffer_line;
@@ -40,6 +41,7 @@ public class MyDraw {
     float[] normalMatrix_before = new float[16];
 
     private float[] normalizePoints_marker;
+    private float[] normalizePoints_marker_small;
     private float[] vertexPoints_marker;
     private float[] colorPoints_marker;
 
@@ -193,7 +195,7 @@ public class MyDraw {
 
     private void BufferSet_Normalize(){
 
-        normalizePoints_marker = createNormlizes();
+        normalizePoints_marker = createNormlizes(2.0f);
 
         // for the marker
         //分配内存空间,每个浮点型占4字节空间
@@ -203,6 +205,16 @@ public class MyDraw {
         //传入指定的坐标数据
         normalizeBuffer_marker.put(normalizePoints_marker);
         normalizeBuffer_marker.position(0);
+        normalizePoints_marker_small = createNormlizes(6.0f);
+
+        // for the marker
+        //分配内存空间,每个浮点型占4字节空间
+        normalizeBuffer_marker_small = ByteBuffer.allocateDirect(normalizePoints_marker_small.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        //传入指定的坐标数据
+        normalizeBuffer_marker_small.put(normalizePoints_marker_small);
+        normalizeBuffer_marker_small.position(0);
 
     }
 
@@ -297,9 +309,15 @@ public class MyDraw {
         //启用顶点的句柄
         GLES30.glEnableVertexAttribArray(vertexPoints_handle);
 
-
+        if (radius < 0.015f){
+            //准备f法向量数据
+            GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker_small);
+        }else {
+            //准备f法向量数据
+            GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker);
+        }
         //准备f法向量数据
-        GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker);
+       // GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker);
         //启用顶点的句柄
         GLES30.glEnableVertexAttribArray(normalizePoints_handle);
 
@@ -559,13 +577,18 @@ public class MyDraw {
 
 ////        float x, y, z;
 //        x = 0.5f;  y = 0.1f;  z = 0.2f;
-
+/*
         float step = 6.0f;
 
         if(r > 0.011f){
             step = 2.0f;
         }
+*/
+        float step = 2.0f;
 
+        if(r <= 0.01f){
+            step = 6.0f;
+        }
         ArrayList<Float> data=new ArrayList<>();
         float r1,r2;
         float h1,h2;
@@ -600,9 +623,9 @@ public class MyDraw {
 
 
 
-    private float[]  createNormlizes(){
+    private float[]  createNormlizes(float step_input){
 
-        float step = 2.0f;
+        float step = step_input;
         ArrayList<Float> normlizes=new ArrayList<>();
         float r1,r2;
         float h1,h2;
