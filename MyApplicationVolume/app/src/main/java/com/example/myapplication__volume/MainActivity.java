@@ -124,7 +124,9 @@ public class MainActivity extends AppCompatActivity {
     public static final String File_path = "com.example.myfirstapp.MESSAGE";
 
     private SensorManager mSensorManager;
-    Timer timer=null;
+    private Timer timer=null;
+
+    private TimerTask timerTask;
     TextView etGyro;
     TextView etMagnetic;
     TextView etLinearAcc;
@@ -1703,8 +1705,9 @@ public class MainActivity extends AppCompatActivity {
                                         try {
                                             Log.v("Mainactivity", "GD-Tracing start~");
                                             Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
-                                            Timer timer = new Timer();
-                                            timer.schedule(new TimerTask() {
+//                                            Timer timer = new Timer();
+                                            timer = new Timer();
+                                            timerTask = new TimerTask() {
                                                 @RequiresApi(api = Build.VERSION_CODES.N)
                                                 @Override
                                                 public void run() {
@@ -1716,18 +1719,35 @@ public class MainActivity extends AppCompatActivity {
                                                     }
 
                                                 }
-                                            }, 1000); // 延时1秒
+                                            };
+                                            timer.schedule(timerTask, 1000);
+//                                            timer.schedule(new TimerTask() {
+//                                                @RequiresApi(api = Build.VERSION_CODES.N)
+//                                                @Override
+//                                                public void run() {
+//
+//                                                    try {
+//                                                        GDTracing();
+//                                                    } catch (Exception e) {
+//                                                        e.printStackTrace();
+//                                                    }
+//
+//                                                }
+//
+//                                            }, 1000); // 延时1秒
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
+
                                         break;
 
                                     case "APP2":
                                         try {
                                             Log.v("Mainactivity", "APP2-Tracing start~");
                                             Toast.makeText(v.getContext(), "APP2-Tracing start~", Toast.LENGTH_SHORT).show();
-                                            Timer timer = new Timer();
-                                            timer.schedule(new TimerTask() {
+//                                            Timer timer = new Timer();
+                                            timer = new Timer();
+                                            timerTask = new TimerTask() {
                                                 @RequiresApi(api = Build.VERSION_CODES.N)
                                                 @Override
                                                 public void run() {
@@ -1739,7 +1759,21 @@ public class MainActivity extends AppCompatActivity {
                                                     }
 
                                                 }
-                                            }, 1000); // 延时1秒
+                                            };
+                                            timer.schedule(timerTask, 1000);
+//                                            timer.schedule(new TimerTask() {
+//                                                @RequiresApi(api = Build.VERSION_CODES.N)
+//                                                @Override
+//                                                public void run() {
+//
+//                                                    try {
+//                                                        APP2();
+//                                                    } catch (Exception e) {
+//                                                        e.printStackTrace();
+//                                                    }
+//
+//                                                }
+//                                            }, 1000); // 延时1秒
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
@@ -1841,12 +1875,12 @@ public class MainActivity extends AppCompatActivity {
                                         try {
                                             Log.v("Mainactivity", "GSDT function.");
                                             Toast.makeText(getContext(), "GSDT function start~", Toast.LENGTH_SHORT).show();
-                                            Timer timer = new Timer();
-                                            timer.schedule(new TimerTask() {
+//                                            Timer timer = new Timer();
+                                            timer = new Timer();
+                                            timerTask = new TimerTask() {
                                                 @RequiresApi(api = Build.VERSION_CODES.N)
                                                 @Override
                                                 public void run() {
-
                                                     try {
                                                         Log.v("Mainactivity", "GSDT start.");
                                                         GSDT_Fun();
@@ -1854,9 +1888,24 @@ public class MainActivity extends AppCompatActivity {
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
-
                                                 }
-                                            }, 0); // 延时0秒
+                                            };
+                                            timer.schedule(timerTask, 0);
+//                                            timer.schedule(new TimerTask() {
+//                                                @RequiresApi(api = Build.VERSION_CODES.N)
+//                                                @Override
+//                                                public void run() {
+//
+//                                                    try {
+//                                                        Log.v("Mainactivity", "GSDT start.");
+//                                                        GSDT_Fun();
+//                                                        Log.v("Mainactivity", "GSDT end.");
+//                                                    } catch (Exception e) {
+//                                                        e.printStackTrace();
+//                                                    }
+//
+//                                                }
+//                                            }, 0); // 延时0秒
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
@@ -1867,12 +1916,12 @@ public class MainActivity extends AppCompatActivity {
                                         try {
                                             Log.v("Mainactivity", "AnisotropicFilter function.");
                                             Toast.makeText(getContext(), "AnisotropicFilter function start~", Toast.LENGTH_SHORT).show();
-                                            Timer timer = new Timer();
-                                            timer.schedule(new TimerTask() {
+//                                            Timer timer = new Timer();
+                                            timer = new Timer();
+                                            timerTask = new TimerTask() {
                                                 @RequiresApi(api = Build.VERSION_CODES.N)
                                                 @Override
                                                 public void run() {
-
                                                     try {
                                                         Log.v("Mainactivity", "AnisotropicFilter start.");
                                                         AnisotropicFilter();
@@ -1880,9 +1929,24 @@ public class MainActivity extends AppCompatActivity {
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
-
                                                 }
-                                            }, 0); // 延时0秒
+                                            };
+                                            timer.schedule(timerTask, 0);
+//                                            timer.schedule(new TimerTask() {
+//                                                @RequiresApi(api = Build.VERSION_CODES.N)
+//                                                @Override
+//                                                public void run() {
+//
+//                                                    try {
+//                                                        Log.v("Mainactivity", "AnisotropicFilter start.");
+//                                                        AnisotropicFilter();
+//                                                        Log.v("Mainactivity", "AnisotropicFilter end.");
+//                                                    } catch (Exception e) {
+//                                                        e.printStackTrace();
+//                                                    }
+//
+//                                                }
+//                                            }, 0); // 延时0秒
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
@@ -1913,12 +1977,11 @@ public class MainActivity extends AppCompatActivity {
 
                                         Toast.makeText(v.getContext(), "start~", Toast.LENGTH_LONG).show();
 //                                        Looper.loop();
-                                        Timer timer = new Timer();
-                                        timer.schedule(new TimerTask() {
+                                        timer = new Timer();
+                                        timerTask = new TimerTask() {
                                             @RequiresApi(api = Build.VERSION_CODES.N)
                                             @Override
                                             public void run() {
-
                                                 try {
                                                     DetectLine d = new DetectLine();
                                                     Image4DSimple img = myrenderer.getImg();
@@ -1964,7 +2027,60 @@ public class MainActivity extends AppCompatActivity {
                                                 }
 
                                             }
-                                        }, 1000); // 延时1秒
+                                        };
+                                        timer.schedule(timerTask, 1000);
+//                                        Timer timer = new Timer();
+//                                        timer.schedule(new TimerTask() {
+//                                            @RequiresApi(api = Build.VERSION_CODES.N)
+//                                            @Override
+//                                            public void run() {
+//
+//                                                try {
+//                                                    DetectLine d = new DetectLine();
+//                                                    Image4DSimple img = myrenderer.getImg();
+//                                                    if(img == null){
+//                                                        if (Looper.myLooper() == null) {
+//                                                            Looper.prepare();
+//                                                        }
+//
+//                                                        Toast.makeText(v.getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+//                                                        Looper.loop();
+//                                                    }
+//                                                    NeuronTree nt = myrenderer.getNeuronTree();
+//                                                    if(nt.listNeuron.isEmpty() || nt == null){
+//                                                        if (Looper.myLooper() == null) {
+//                                                            Looper.prepare();
+//                                                        }
+//
+//                                                        Toast.makeText(v.getContext(), "Please add line", Toast.LENGTH_LONG).show();
+//                                                        Looper.loop();
+//                                                    }
+//
+//                                                    try {
+//                                                        NeuronTree app2Result = d.detectLine(img,nt);
+//                                                        NeuronTree result = new NeuronTree();
+//
+//                                                        if(rf != null){
+//                                                            result = d.lineClassification(img,app2Result,rf);
+//                                                        }else {
+//                                                            result = app2Result;
+//                                                        }
+//                                                        myrenderer.importNeuronTree(result);
+//                                                        myGLSurfaceView.requestRender();
+//                                                    } catch (Exception e) {
+//                                                        if (Looper.myLooper() == null) {
+//                                                            Looper.prepare();
+//                                                        }
+//
+//                                                        Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+//                                                        Looper.loop();
+//                                                    }
+//                                                } catch (Exception e) {
+//                                                    e.printStackTrace();
+//                                                }
+//
+//                                            }
+//                                        }, 1000); // 延时1秒
                                         break;
 
 
@@ -1975,8 +2091,10 @@ public class MainActivity extends AppCompatActivity {
 
                                         Toast.makeText(v.getContext(), "train start~", Toast.LENGTH_LONG).show();
 //                                        Looper.loop();
-                                        Timer timer1 = new Timer();
-                                        timer1.schedule(new TimerTask() {
+//                                        Timer timer1 = new Timer();
+//                                        timer1.schedule(new TimerTask() {
+                                        timer = new Timer();
+                                        timerTask = new TimerTask() {
                                             @RequiresApi(api = Build.VERSION_CODES.N)
                                             @Override
                                             public void run() {
@@ -2019,7 +2137,52 @@ public class MainActivity extends AppCompatActivity {
                                                 }
 
                                             }
-                                        }, 1000); // 延时1秒
+                                        };
+                                        timer.schedule(timerTask, 1000);
+//                                        timer.schedule(new TimerTask() {
+//                                            @RequiresApi(api = Build.VERSION_CODES.N)
+//                                            @Override
+//                                            public void run() {
+//                                                try{
+//
+//                                                    DetectLine d = new DetectLine();
+//                                                    Image4DSimple img = myrenderer.getImg();
+//                                                    if(img == null){
+//                                                        if (Looper.myLooper() == null) {
+//                                                            Looper.prepare();
+//                                                        }
+//
+//                                                        Toast.makeText(v.getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+//                                                        Looper.loop();
+//                                                    }
+//                                                    NeuronTree nt = myrenderer.getNeuronTree();
+//                                                    if(nt.listNeuron.isEmpty() || nt == null){
+//                                                        if (Looper.myLooper() == null) {
+//                                                            Looper.prepare();
+//                                                        }
+//
+//                                                        Toast.makeText(v.getContext(), "Please add train line", Toast.LENGTH_LONG).show();
+//                                                        Looper.loop();
+//                                                    }
+//
+//                                                    rf = d.train(img,nt);
+//                                                    if (Looper.myLooper() == null) {
+//                                                        Looper.prepare();
+//                                                    }
+//
+//                                                    Toast.makeText(v.getContext(), "train is ended", Toast.LENGTH_LONG).show();
+//                                                    Looper.loop();
+//                                                }catch (Exception e){
+//                                                    if (Looper.myLooper() == null) {
+//                                                        Looper.prepare();
+//                                                    }
+//
+//                                                    Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+//                                                    Looper.loop();
+//                                                }
+//
+//                                            }
+//                                        }, 1000); // 延时1秒
 
                                         break;
 
@@ -2624,7 +2787,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200530f 22:33 build",
+                .asConfirm("Version", "version: 20200531d 22:18 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -3676,6 +3839,16 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         context = null;
         remoteImg = null;
+
+        if (timer != null){
+            timer.cancel();
+            timer = null;
+        }
+
+        if (timerTask != null){
+            timerTask.cancel();
+            timerTask = null;
+        }
     }
 
     //renderer 的生存周期和activity保持一致
@@ -4802,6 +4975,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private static class MyTimerTask extends TimerTask{
+
+        @Override
+        public void run() {
+            while(true){
+
+            }
+        }
+    }
 
 
 
