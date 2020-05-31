@@ -33,13 +33,15 @@ import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_list;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
 
+//import org.apache.commons.io.IOUtils;
+//import org.opencv.android.Utils;
+//import org.opencv.core.CvType;
+//import org.opencv.core.Mat;
+//import org.opencv.core.MatOfPoint;
+//import org.opencv.core.Point;
+//import org.opencv.imgproc.Imgproc;
+
 import org.apache.commons.io.IOUtils;
-import org.opencv.android.Utils;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
-import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -3432,205 +3434,205 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
     public void corner_detection() {
-
-        //System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        // PC端一定要有这句话，但是android端一定不能有这句话，否则报错
-
-        Mat src = new Mat();
-
-        Mat temp = new Mat();
-
-        Mat dst = new Mat();
-
-
-        final int maxCorners = 40, blockSize = 3; //blockSize表示窗口大小，越大那么里面的像素点越多，选取梯度和方向变化最大的像素点作为角点，这样总的角点数肯定变少，而且也可能错过一些角点
-
-        final double qualityLevel = 0.08, minDistance = 23.0, k = 0.04;
-        //qualityLevel：检测到的角点的质量等级，角点特征值小于qualityLevel*最大特征值的点将被舍弃；
-        //minDistance：两个角点间最小间距，以像素为单位；
-
-        final boolean useHarrisDetector = false;
-
-        MatOfPoint corners = new MatOfPoint();
-
-
-        File file = new File(filepath);
-        System.out.println(filepath);
-        long length = 0;
-        InputStream is1 = null;
-        if (file.exists()) {
-            try {
-                length = file.length();
-                is1 = new FileInputStream(file);
-//                grayscale =  rr.run(length, is);
-
-
-                Log.v("getIntensity_3d", filepath);
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        } else {
-            Uri uri = Uri.parse(filepath);
-
-            try {
-                ParcelFileDescriptor parcelFileDescriptor =
-                        getContext().getContentResolver().openFileDescriptor(uri, "r");
-
-                is1 = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-
-                length = (int) parcelFileDescriptor.getStatSize();
-
-
-            } catch (Exception e) {
-                Log.v("MyPattern", "Successfully load intensity");
-
-                Log.v("MyPattern", "Some problems in the MyPattern when load intensity");
-            }
-
-
-        }
-
-
-        BitmapFactory.Options options1 = new BitmapFactory.Options();
-        //设置inJustDecodeBounds为true表示只获取大小，不生成Btimap
-        options1.inJustDecodeBounds = true;
-        //解析图片大小
-        //InputStream stream = getContentResolver().openInputStream(uri);
-        BitmapFactory.decodeStream(is1, null, options1);
-        if (is1 != null)
-            System.out.println("isnnnnnn");
-        IOUtils.closeQuietly(is1); // 关闭流
-        // is.close();
-        int width = options1.outWidth;
-        int height = options1.outHeight;
-        int ratio = 0;
-        //如果宽度大于高度，交换宽度和高度
-        if (width > height) {
-            int temp2 = width;
-            width = height;
-            height = temp2;
-        }
-        //计算取样比例
-        int sampleRatio = 1;
-        if (width < 500 || height < 500)
-            sampleRatio = 1;
-        else
-            sampleRatio = Math.max(width / 500, height / 900);
-        System.out.println(width);
-        System.out.println(height);
-        //定义图片解码选项
-        BitmapFactory.Options options2 = new BitmapFactory.Options();
-        options2.inSampleSize = sampleRatio;
-
-        //读取图片，并将图片缩放到指定的目标大小
-        // InputStream stream = getContentResolver().openInputStream(uri);
-        File file2 = new File(filepath);
-        long length2 = 0;
-        InputStream is2 = null;
-        if (file2.exists()) {
-            try {
-                length2 = file2.length();
-                is2 = new FileInputStream(file2);
-//                grayscale =  rr.run(length, is);
-
-
-                Log.v("getIntensity_3d", filepath);
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        } else {
-            Uri uri = Uri.parse(filepath);
-
-            try {
-                ParcelFileDescriptor parcelFileDescriptor =
-                        getContext().getContentResolver().openFileDescriptor(uri, "r");
-
-                is2 = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-
-                length2 = (int) parcelFileDescriptor.getStatSize();
-
-                Log.v("MyPattern", "Successfully load intensity");
-
-            } catch (Exception e) {
-                Log.v("MyPattern", "Some problems in the MyPattern when load intensity");
-            }
-
-
-        }
-
-
-        Bitmap image = BitmapFactory.decodeStream(is2, null, options2);
-        if (image == null) {
-            System.out.println("nnnnnn");
-        }
-
-        System.out.println(image.getWidth());
-        System.out.println(image.getHeight());
-
-        System.out.println(options2.inSampleSize);
-        IOUtils.closeQuietly(is2);
-        //is.close();
-
-
-        // Bitmap image = bitmap2D;//从bitmap中加载进来的图像有时候有四个通道，所以有时候需要多加一个转化
-        // Bitmap image = BitmapFactory.decodeResource(this.getResources(),R.drawable.cube);
-
-        Utils.bitmapToMat(image, src);//把image转化为Mat
-
-        dst = src.clone();
-
-        Imgproc.cvtColor(src, temp, Imgproc.COLOR_BGR2GRAY);//这里由于使用的是Imgproc这个模块所有这里要这么写
-
-        Log.i("CV", "image type:" + (temp.type() == CvType.CV_8UC3));
-        Imgproc.goodFeaturesToTrack(temp, corners, maxCorners, qualityLevel, minDistance,
-
-                new Mat(), blockSize, useHarrisDetector, k);
-        Point[] pCorners = corners.toArray();
-
-        System.out.println(pCorners.length);
-
-
-        int power = (int) (Math.log((double) sampleRatio) / Math.log(2));
-        int actual_ratio = (int) Math.pow(2, power);
-        System.out.println(actual_ratio);
-        for (int i = 0; i < pCorners.length; i++) {
-
-//            System.out.println(pCorners[i].x);
-//            System.out.println(pCorners[i].y);
-            ImageMarker imageMarker_drawed = new ImageMarker((float) pCorners[i].x * actual_ratio,
-                    (float) pCorners[i].y * actual_ratio,
-                    sz[2] / 2);
-            imageMarker_drawed.type = lastMarkerType;
-//            System.out.println("set type to 3");
-
-            MarkerList.add(imageMarker_drawed);
-//            Imgproc.circle(dst, pCorners[i], (width+height)/(350*sampleRatio), new Scalar(255,255,0),2);
-
-        }
-        System.out.println(pCorners.length);
-
-        // Imgproc.cvtColor(temp,dst,Imgproc.COLOR_GRAY2BGR);
-
-//        Utils.matToBitmap(dst,image);//把mat转化为bitmap
-//        bitmap2D = image;
-
-        System.out.println(image.getWidth());
-        System.out.println(mz[0]);
-//        myPattern2D = new MyPattern2D(bitmap2D, image.getWidth(), image.getHeight(), mz);
-
-        //ImageView imageView = findViewById(R.id.text_view);
-
-        //imageView.setImageBitmap(image);
-
-        //release
-
-        src.release();
-
-        temp.release();
-
-        dst.release();
+//
+//        //System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+//        // PC端一定要有这句话，但是android端一定不能有这句话，否则报错
+//
+//        Mat src = new Mat();
+//
+//        Mat temp = new Mat();
+//
+//        Mat dst = new Mat();
+//
+//
+//        final int maxCorners = 40, blockSize = 3; //blockSize表示窗口大小，越大那么里面的像素点越多，选取梯度和方向变化最大的像素点作为角点，这样总的角点数肯定变少，而且也可能错过一些角点
+//
+//        final double qualityLevel = 0.08, minDistance = 23.0, k = 0.04;
+//        //qualityLevel：检测到的角点的质量等级，角点特征值小于qualityLevel*最大特征值的点将被舍弃；
+//        //minDistance：两个角点间最小间距，以像素为单位；
+//
+//        final boolean useHarrisDetector = false;
+//
+//        MatOfPoint corners = new MatOfPoint();
+//
+//
+//        File file = new File(filepath);
+//        System.out.println(filepath);
+//        long length = 0;
+//        InputStream is1 = null;
+//        if (file.exists()) {
+//            try {
+//                length = file.length();
+//                is1 = new FileInputStream(file);
+////                grayscale =  rr.run(length, is);
+//
+//
+//                Log.v("getIntensity_3d", filepath);
+//
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            }
+//        } else {
+//            Uri uri = Uri.parse(filepath);
+//
+//            try {
+//                ParcelFileDescriptor parcelFileDescriptor =
+//                        getContext().getContentResolver().openFileDescriptor(uri, "r");
+//
+//                is1 = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+//
+//                length = (int) parcelFileDescriptor.getStatSize();
+//
+//
+//            } catch (Exception e) {
+//                Log.v("MyPattern", "Successfully load intensity");
+//
+//                Log.v("MyPattern", "Some problems in the MyPattern when load intensity");
+//            }
+//
+//
+//        }
+//
+//
+//        BitmapFactory.Options options1 = new BitmapFactory.Options();
+//        //设置inJustDecodeBounds为true表示只获取大小，不生成Btimap
+//        options1.inJustDecodeBounds = true;
+//        //解析图片大小
+//        //InputStream stream = getContentResolver().openInputStream(uri);
+//        BitmapFactory.decodeStream(is1, null, options1);
+//        if (is1 != null)
+//            System.out.println("isnnnnnn");
+//        IOUtils.closeQuietly(is1); // 关闭流
+//        // is.close();
+//        int width = options1.outWidth;
+//        int height = options1.outHeight;
+//        int ratio = 0;
+//        //如果宽度大于高度，交换宽度和高度
+//        if (width > height) {
+//            int temp2 = width;
+//            width = height;
+//            height = temp2;
+//        }
+//        //计算取样比例
+//        int sampleRatio = 1;
+//        if (width < 500 || height < 500)
+//            sampleRatio = 1;
+//        else
+//            sampleRatio = Math.max(width / 500, height / 900);
+//        System.out.println(width);
+//        System.out.println(height);
+//        //定义图片解码选项
+//        BitmapFactory.Options options2 = new BitmapFactory.Options();
+//        options2.inSampleSize = sampleRatio;
+//
+//        //读取图片，并将图片缩放到指定的目标大小
+//        // InputStream stream = getContentResolver().openInputStream(uri);
+//        File file2 = new File(filepath);
+//        long length2 = 0;
+//        InputStream is2 = null;
+//        if (file2.exists()) {
+//            try {
+//                length2 = file2.length();
+//                is2 = new FileInputStream(file2);
+////                grayscale =  rr.run(length, is);
+//
+//
+//                Log.v("getIntensity_3d", filepath);
+//
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            }
+//        } else {
+//            Uri uri = Uri.parse(filepath);
+//
+//            try {
+//                ParcelFileDescriptor parcelFileDescriptor =
+//                        getContext().getContentResolver().openFileDescriptor(uri, "r");
+//
+//                is2 = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+//
+//                length2 = (int) parcelFileDescriptor.getStatSize();
+//
+//                Log.v("MyPattern", "Successfully load intensity");
+//
+//            } catch (Exception e) {
+//                Log.v("MyPattern", "Some problems in the MyPattern when load intensity");
+//            }
+//
+//
+//        }
+//
+//
+//        Bitmap image = BitmapFactory.decodeStream(is2, null, options2);
+//        if (image == null) {
+//            System.out.println("nnnnnn");
+//        }
+//
+//        System.out.println(image.getWidth());
+//        System.out.println(image.getHeight());
+//
+//        System.out.println(options2.inSampleSize);
+//        IOUtils.closeQuietly(is2);
+//        //is.close();
+//
+//
+//        // Bitmap image = bitmap2D;//从bitmap中加载进来的图像有时候有四个通道，所以有时候需要多加一个转化
+//        // Bitmap image = BitmapFactory.decodeResource(this.getResources(),R.drawable.cube);
+//
+//        Utils.bitmapToMat(image, src);//把image转化为Mat
+//
+//        dst = src.clone();
+//
+//        Imgproc.cvtColor(src, temp, Imgproc.COLOR_BGR2GRAY);//这里由于使用的是Imgproc这个模块所有这里要这么写
+//
+//        Log.i("CV", "image type:" + (temp.type() == CvType.CV_8UC3));
+//        Imgproc.goodFeaturesToTrack(temp, corners, maxCorners, qualityLevel, minDistance,
+//
+//                new Mat(), blockSize, useHarrisDetector, k);
+//        Point[] pCorners = corners.toArray();
+//
+//        System.out.println(pCorners.length);
+//
+//
+//        int power = (int) (Math.log((double) sampleRatio) / Math.log(2));
+//        int actual_ratio = (int) Math.pow(2, power);
+//        System.out.println(actual_ratio);
+//        for (int i = 0; i < pCorners.length; i++) {
+//
+////            System.out.println(pCorners[i].x);
+////            System.out.println(pCorners[i].y);
+//            ImageMarker imageMarker_drawed = new ImageMarker((float) pCorners[i].x * actual_ratio,
+//                    (float) pCorners[i].y * actual_ratio,
+//                    sz[2] / 2);
+//            imageMarker_drawed.type = lastMarkerType;
+////            System.out.println("set type to 3");
+//
+//            MarkerList.add(imageMarker_drawed);
+////            Imgproc.circle(dst, pCorners[i], (width+height)/(350*sampleRatio), new Scalar(255,255,0),2);
+//
+//        }
+//        System.out.println(pCorners.length);
+//
+//        // Imgproc.cvtColor(temp,dst,Imgproc.COLOR_GRAY2BGR);
+//
+////        Utils.matToBitmap(dst,image);//把mat转化为bitmap
+////        bitmap2D = image;
+//
+//        System.out.println(image.getWidth());
+//        System.out.println(mz[0]);
+////        myPattern2D = new MyPattern2D(bitmap2D, image.getWidth(), image.getHeight(), mz);
+//
+//        //ImageView imageView = findViewById(R.id.text_view);
+//
+//        //imageView.setImageBitmap(image);
+//
+//        //release
+//
+//        src.release();
+//
+//        temp.release();
+//
+//        dst.release();
 
     }
 

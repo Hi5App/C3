@@ -55,7 +55,6 @@ dependencies {
     implementation 'com.github.beyka:androidtiffbitmapfactory:0.9.8.7'
     //     debugImplementation because LeakCanary should only run in debug builds.
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'
-    implementation project(path: ':openCVLibrary340')
     implementation files('libs\\Jama-1.0.3.jar')
     //    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
     //    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.3'
