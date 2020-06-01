@@ -2120,7 +2120,8 @@ public class MainActivity extends AppCompatActivity {
                                                         Looper.loop();
                                                     }
 
-                                                    rf = d.train(img,nt);
+                                                    rf = d.train(img,nt,rf);
+
                                                     if (Looper.myLooper() == null) {
                                                         Looper.prepare();
                                                     }
@@ -2787,7 +2788,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200601a 14:40 build",
+                .asConfirm("Version", "version: 20200601b 14:56 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -323,6 +325,97 @@ public class RandomForest {
         return index;
     }
 
+
+    public int[] sortTreesByAccuracy(ArrayList<float []> data){
+        double [] accuracies = new double[numTrees];
+
+        for(int i=0; i<numTrees; i++){
+            int correctNum = 0;
+            for(int j=0; j<data.size(); j++){
+                int label = (int) data.get(j)[data.get(j).length-1];
+                int preLable = trees.get(i).Evaluate(data.get(j));
+                if(label == preLable){
+                    correctNum++;
+                }
+            }
+            accuracies[i] = (double) correctNum/(double) data.size();
+        }
+
+        return arraySort(accuracies);
+    }
+
+    public static int[] arraySort(double[] arr) {
+        double temp;
+        int index;
+        int k = arr.length;
+        int[] Index = new int[k];
+        for (int i = 0; i < k; i++) {
+            Index[i] = i;
+        }
+
+        for (int i = 0; i < arr.length; i++) {
+            for (int j = 0; j < arr.length - i - 1; j++) {
+                if (arr[j] < arr[j + 1]) {
+                    temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+
+                    index = Index[j];
+                    Index[j] = Index[j + 1];
+                    Index[j + 1] = index;
+                }
+            }
+        }
+        return Index;
+    }
+
+    public boolean mergeRandomForest(RandomForest oldRF, RandomForest newRF, ArrayList<float []> data){
+
+        if(oldRF.C != newRF.C){
+            return false;
+        }else {
+            this.C = oldRF.C;
+        }
+
+        if(oldRF.M != newRF.M){
+            return false;
+        }else {
+            this.M = oldRF.M;
+        }
+
+        if(oldRF.Ms != newRF.Ms){
+            return false;
+        }else {
+            this.Ms = oldRF.Ms;
+        }
+
+        int[] oldIndex = oldRF.sortTreesByAccuracy(data);
+        int[] newIndex = newRF.sortTreesByAccuracy(data);
+
+        ArrayList<DecisionTree> oldTrees = oldRF.getTrees();
+        ArrayList<DecisionTree> newTrees = newRF.getTrees();
+
+        int oc = oldTrees.size();
+        int nc = newTrees.size();
+
+        this.trees = new ArrayList<>();
+
+        for(int i=0; i<oc*0.8; i++){
+            this.trees.add(oldTrees.get(i));
+        }
+
+        for(int i=0; i<nc*0.2; i++){
+            this.trees.add(newTrees.get(i));
+        }
+
+        this.numTrees = (int) (oc*0.8) + (int) (nc* 0.2);
+
+        return true;
+    }
+
+    public ArrayList<DecisionTree> getTrees() {
+        return trees;
+    }
 
     /**
      * @param startTime	        开始时间
