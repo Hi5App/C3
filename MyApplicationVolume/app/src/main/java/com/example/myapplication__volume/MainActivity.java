@@ -450,16 +450,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        detectLineButton = new Button(this);
-        detectLineButton.setText("DetectLine");
-        ll_top.addView(detectLineButton);
-        detectLineButton.setOnClickListener(new Button.OnClickListener(){
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onClick(View v) {
-                LineDetect(v);
-            }
-        });
+//        detectLineButton = new Button(this);
+//        detectLineButton.setText("DetectLine");
+//        ll_top.addView(detectLineButton);
+//        detectLineButton.setOnClickListener(new Button.OnClickListener(){
+//            @RequiresApi(api = Build.VERSION_CODES.N)
+//            @Override
+//            public void onClick(View v) {
+//                LineDetect(v);
+//            }
+//        });
 
         //像素分类总button
         /*PixelClassification = new Button(this);
@@ -1695,7 +1695,7 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"APP2", "GD", "Clear tracing", "Save SWC file"},
+                .asAttachList(new String[]{"APP2", "GD",  "DetectLine", "Clear tracing", "Save SWC file"},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -1777,6 +1777,10 @@ public class MainActivity extends AppCompatActivity {
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
+                                        break;
+
+                                    case "DetectLine":
+                                        LineDetect(v);
                                         break;
 
                                     case "Save SWC file":
@@ -2787,7 +2791,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200531d 22:18 build",
+                .asConfirm("Version", "version: 20200601c 16:06 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
