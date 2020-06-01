@@ -2124,7 +2124,8 @@ public class MainActivity extends AppCompatActivity {
                                                         Looper.loop();
                                                     }
 
-                                                    rf = d.train(img,nt);
+                                                    rf = d.train(img,nt,rf);
+
                                                     if (Looper.myLooper() == null) {
                                                         Looper.prepare();
                                                     }

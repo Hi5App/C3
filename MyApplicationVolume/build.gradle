@@ -2,6 +2,12 @@
 
 buildscript {
     repositories {
+//        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+//        //如果上面的阿里云镜像不行，就尝试用下面的的试试。如果用下面的，上面的就注释掉。
+//        //maven { url 'https://maven.aliyun.com/repository/public' }
+//
+//        maven { url 'https://maven.aliyun.com/repository/google' }
+//        maven { url 'https://maven.aliyun.com/repository/jcenter' }
         google()
         jcenter()
         
@@ -16,6 +22,12 @@ buildscript {
 
 allprojects {
     repositories {
+//        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+//        //如果上面的阿里云镜像不行，就尝试用下面的的试试。如果用下面的，上面的就注释掉。
+//        //maven { url 'https://maven.aliyun.com/repository/public' }
+//
+//        maven { url 'https://maven.aliyun.com/repository/google' }
+//        maven { url 'https://maven.aliyun.com/repository/jcenter' }
         google()
         jcenter()
 //        jcenter { url "jcenter.bintray.com" }

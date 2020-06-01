@@ -225,7 +225,8 @@ public class DetectLine {
         return lines;
     }
 
-    public RandomForest train(Image4DSimple img, NeuronTree nt){
+    public RandomForest train(Image4DSimple img, NeuronTree nt, RandomForest oldRF){
+        System.out.println("-------------------in train----------------------");
         int numTrees = 100;
         ArrayList<float[]> trainData = new ArrayList<>();
         ArrayList<float[]> testData = new ArrayList<>();
@@ -260,7 +261,14 @@ public class DetectLine {
         rf.Ms = (int) Math.round(Math.log(rf.M)/Math.log(2)+1);
         rf.start();
 
-        return rf;
+        if(oldRF == null){
+            return rf;
+        }else {
+            RandomForest mergeRF = new RandomForest();
+            System.out.println("---------------------merge randomforest----------------------");
+            mergeRF.mergeRandomForest(oldRF,rf,trainData);
+            return mergeRF;
+        }
     }
 
     public NeuronTree lineClassification(Image4DSimple img, NeuronTree nt, RandomForest rf){
