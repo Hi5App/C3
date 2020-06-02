@@ -68,6 +68,7 @@ import com.example.basic.ImageMarker;
 import com.example.basic.LocationSimple;
 import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
+import com.example.basic.SettingFileManager;
 import com.example.connect.Filesocket_send;
 import com.example.connect.RemoteImg;
 import com.feature_calc_func.MorphologyCalculate;
@@ -581,6 +582,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+        SettingFileManager settingFileManager = new SettingFileManager();
+        String DownSampleMode = settingFileManager.getDownSampleMode(this);
+        if (DownSampleMode.equals("DownSampleYes")){
+            myrenderer.setIfNeedDownSample(true);
+        }else if (DownSampleMode.equals("DownSampleNo")){
+            myrenderer.setIfNeedDownSample(false);
+        }
+
+
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
@@ -612,35 +623,38 @@ public class MainActivity extends AppCompatActivity {
             case R.id.share:
                 Share_icon();
                 return true;
-            case R.id.version:
-                Version();
+            case R.id.more:
+                More_icon();
                 return true;
-            case R.id.sensor:
-                SensorInfo();
-                return true;
-            case R.id.analyze:
-                Analyse();
-                return true;
-            case R.id.animate:
-                ifPainting = false;
-                ifPoint = false;
-                ifDeletingMarker = false;
-                ifDeletingLine = false;
-                SetAnimation();
-                return true;
-            case R.id.corner:
-                myrenderer.corner_detection();
-                myGLSurfaceView.requestRender();
-                return true;
-            case R.id.downsample:
-                if (myrenderer.getIfNeedDownSample() == true){
-                    item.setTitle("Downsample When Rotate");
-                    myrenderer.setIfNeedDownSample(false);
-                } else {
-                    item.setTitle("Normal Rotate");
-                    myrenderer.setIfNeedDownSample(true);
-                }
-                return true;
+//            case R.id.version:
+//                Version();
+//                return true;
+//            case R.id.sensor:
+//                SensorInfo();
+//                return true;
+//            case R.id.analyze:
+//                Analyse();
+//                return true;
+//            case R.id.animate:
+//                ifPainting = false;
+//                ifPoint = false;
+//                ifDeletingMarker = false;
+//                ifDeletingLine = false;
+//                SetAnimation();
+//                return true;
+//            case R.id.corner:
+//                myrenderer.corner_detection();
+//                myGLSurfaceView.requestRender();
+//                return true;
+//            case R.id.downsample:
+//                if (myrenderer.getIfNeedDownSample() == true){
+//                    item.setTitle("Downsample When Rotate");
+//                    myrenderer.setIfNeedDownSample(false);
+//                } else {
+//                    item.setTitle("Normal Rotate");
+//                    myrenderer.setIfNeedDownSample(true);
+//                }
+//                return true;
             default:
                 return true;
 //                return super.onOptionsItemSelected(item);
@@ -672,6 +686,71 @@ public class MainActivity extends AppCompatActivity {
                                     default:
 //                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();
                                         Toast.makeText(getContext(), "Default in share", Toast.LENGTH_SHORT).show();
+
+                                }
+                            }
+                        })
+                .show();
+
+    }
+
+    public void More_icon(){
+        SettingFileManager settingFileManager = new SettingFileManager();
+        String DownSample_mode;
+
+        if (myrenderer.getIfNeedDownSample()){
+            DownSample_mode = "Normal Rotate";
+        } else {
+            DownSample_mode = "Downsample When Rotate";
+        }
+
+
+        new XPopup.Builder(this)
+//        .maxWidth(400)
+//        .maxHeight(1350)
+                .asCenterList("More Functions...", new String[]{"Analyze SWC File", "Sensor Information", "Corner Detection", DownSample_mode, "Animate", "Version"},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text) {
+                                    case "Analyze SWC File":
+                                        Analyse();
+                                        break;
+
+                                    case "Animate":
+                                        ifPainting = false;
+                                        ifPoint = false;
+                                        ifDeletingMarker = false;
+                                        ifDeletingLine = false;
+                                        SetAnimation();
+                                        break;
+
+                                    case "Sensor Information":
+                                        SensorInfo();
+                                        break;
+
+                                    case "Corner Detection":
+                                        myrenderer.corner_detection();
+                                        myGLSurfaceView.requestRender();
+                                        break;
+
+                                    case "Downsample When Rotate":
+                                        myrenderer.setIfNeedDownSample(true);
+                                        settingFileManager.setDownSampleMode("DownSampleYes", getContext());
+                                        break;
+
+                                    case "Normal Rotate":
+                                        myrenderer.setIfNeedDownSample(false);
+                                        settingFileManager.setDownSampleMode("DownSampleNo", getContext());
+                                        break;
+
+                                    case "Version":
+                                        Version();;
+                                        break;
+
+                                    default:
+//                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "Default in More", Toast.LENGTH_SHORT).show();
 
                                 }
                             }
@@ -2792,7 +2871,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200601c 16:06 build",
+                .asConfirm("Version", "version: 20200602a 09:58 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

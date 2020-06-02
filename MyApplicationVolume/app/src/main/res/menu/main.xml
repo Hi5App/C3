@@ -22,41 +22,48 @@
         android:icon="@drawable/ic_share_black_24dp"/>
 
     <item
-        android:id="@+id/analyze"
+        android:id="@+id/more"
         android:orderInCategory="4"
-        android:title="Analyze"
-        app:showAsAction="never" />
+        android:title="more"
+        android:icon="@drawable/ic_more_vert_black_24dp"
+        app:showAsAction="always" />
 
-    <item
-        android:id="@+id/animate"
-        android:orderInCategory="4"
-        android:title="Animate"
-        app:showAsAction="never" />
+<!--    <item-->
+<!--        android:id="@+id/analyze"-->
+<!--        android:orderInCategory="4"-->
+<!--        android:title="Analyze"-->
+<!--        app:showAsAction="never" />-->
+
+<!--    <item-->
+<!--        android:id="@+id/animate"-->
+<!--        android:orderInCategory="4"-->
+<!--        android:title="Animate"-->
+<!--        app:showAsAction="never" />-->
 
 
-    <item
-        android:id="@+id/sensor"
-        android:orderInCategory="4"
-        android:title="Sensor"
-        app:showAsAction="never" />
+<!--    <item-->
+<!--        android:id="@+id/sensor"-->
+<!--        android:orderInCategory="4"-->
+<!--        android:title="Sensor"-->
+<!--        app:showAsAction="never" />-->
 
-    <item
-        android:id="@+id/corner"
-        android:orderInCategory="4"
-        android:title="Corner Detection"
-        app:showAsAction="never" />
+<!--    <item-->
+<!--        android:id="@+id/corner"-->
+<!--        android:orderInCategory="4"-->
+<!--        android:title="Corner Detection"-->
+<!--        app:showAsAction="never" />-->
 
-    <item
-        android:id="@+id/downsample"
-        android:orderInCategory="4"
-        android:title="Normal Rotate"
-        app:showAsAction="never" />
+<!--    <item-->
+<!--        android:id="@+id/downsample"-->
+<!--        android:orderInCategory="4"-->
+<!--        android:title="Normal Rotate"-->
+<!--        app:showAsAction="never" />-->
 
-    <item
-        android:id="@+id/version"
-        android:orderInCategory="4"
-        android:title="Version"
-        app:showAsAction="never" />
+<!--    <item-->
+<!--        android:id="@+id/version"-->
+<!--        android:orderInCategory="4"-->
+<!--        android:title="Version"-->
+<!--        app:showAsAction="never" />-->
 
 
 </menu>
