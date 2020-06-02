@@ -626,6 +626,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.more:
                 More_icon();
                 return true;
+            case R.id.experiment:
+                Experiment_icon();
+                return true;
 //            case R.id.version:
 //                Version();
 //                return true;
@@ -708,7 +711,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("More Functions...", new String[]{"Analyze SWC File", "Sensor Information", "Corner Detection", DownSample_mode, "Animate", "Version"},
+                .asCenterList("More Functions...", new String[]{"Analyze SWC File", "Sensor Information", DownSample_mode, "Animate", "Version"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -729,10 +732,10 @@ public class MainActivity extends AppCompatActivity {
                                         SensorInfo();
                                         break;
 
-                                    case "Corner Detection":
-                                        myrenderer.corner_detection();
-                                        myGLSurfaceView.requestRender();
-                                        break;
+//                                    case "Corner Detection":
+//                                        myrenderer.corner_detection();
+//                                        myGLSurfaceView.requestRender();
+//                                        break;
 
                                     case "Downsample When Rotate":
                                         myrenderer.setIfNeedDownSample(true);
@@ -1774,7 +1777,7 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"APP2", "GD",  "DetectLine", "Clear tracing", "Save SWC file"},
+                .asAttachList(new String[]{"APP2", "GD", "Clear tracing", "Save SWC file"},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -1858,9 +1861,9 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                         break;
 
-                                    case "DetectLine":
-                                        LineDetect(v);
-                                        break;
+//                                    case "DetectLine":
+////                                        LineDetect(v);
+//                                        break;
 
                                     case "Save SWC file":
                                         SaveSWC();
@@ -1935,17 +1938,17 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
 
-                .asAttachList(new String[]{"Run", "For Developer...","Anisotropic Filter","GSDT"},
+                .asAttachList(new String[]{"Run"},
 
                         new int[]{},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text) {
-                                    case "For Developer...":
-                                        //调用特征选择窗口
-                                        FeatureSet();
-                                        break;
+//                                    case "For Developer...":
+//                                        //调用特征选择窗口
+//                                        FeatureSet();
+//                                        break;
 
                                     case "Run":
                                         //调用像素分类接口，显示分类结果
@@ -1953,32 +1956,17 @@ public class MainActivity extends AppCompatActivity {
                                         break;
 
 
-                                    case "GSDT":
-                                        //gsdt检测斑点（eg.soma）
-                                        try {
-                                            Log.v("Mainactivity", "GSDT function.");
-                                            Toast.makeText(getContext(), "GSDT function start~", Toast.LENGTH_SHORT).show();
-//                                            Timer timer = new Timer();
-                                            timer = new Timer();
-                                            timerTask = new TimerTask() {
-                                                @RequiresApi(api = Build.VERSION_CODES.N)
-                                                @Override
-                                                public void run() {
-                                                    try {
-                                                        Log.v("Mainactivity", "GSDT start.");
-                                                        GSDT_Fun();
-                                                        Log.v("Mainactivity", "GSDT end.");
-                                                    } catch (Exception e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                }
-                                            };
-                                            timer.schedule(timerTask, 0);
-//                                            timer.schedule(new TimerTask() {
+//                                    case "GSDT":
+//                                        //gsdt检测斑点（eg.soma）
+//                                        try {
+//                                            Log.v("Mainactivity", "GSDT function.");
+//                                            Toast.makeText(getContext(), "GSDT function start~", Toast.LENGTH_SHORT).show();
+////                                            Timer timer = new Timer();
+//                                            timer = new Timer();
+//                                            timerTask = new TimerTask() {
 //                                                @RequiresApi(api = Build.VERSION_CODES.N)
 //                                                @Override
 //                                                public void run() {
-//
 //                                                    try {
 //                                                        Log.v("Mainactivity", "GSDT start.");
 //                                                        GSDT_Fun();
@@ -1986,40 +1974,40 @@ public class MainActivity extends AppCompatActivity {
 //                                                    } catch (Exception e) {
 //                                                        e.printStackTrace();
 //                                                    }
-//
 //                                                }
-//                                            }, 0); // 延时0秒
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                        break;
+//                                            };
+//                                            timer.schedule(timerTask, 0);
+////                                            timer.schedule(new TimerTask() {
+////                                                @RequiresApi(api = Build.VERSION_CODES.N)
+////                                                @Override
+////                                                public void run() {
+////
+////                                                    try {
+////                                                        Log.v("Mainactivity", "GSDT start.");
+////                                                        GSDT_Fun();
+////                                                        Log.v("Mainactivity", "GSDT end.");
+////                                                    } catch (Exception e) {
+////                                                        e.printStackTrace();
+////                                                    }
+////
+////                                                }
+////                                            }, 0); // 延时0秒
+//                                        } catch (Exception e) {
+//                                            e.printStackTrace();
+//                                        }
+//                                        break;
 
-                                    case "Anisotropic Filter":
-                                        //调用各向异性滤波，显示滤波结果
-                                        try {
-                                            Log.v("Mainactivity", "AnisotropicFilter function.");
-                                            Toast.makeText(getContext(), "AnisotropicFilter function start~", Toast.LENGTH_SHORT).show();
-//                                            Timer timer = new Timer();
-                                            timer = new Timer();
-                                            timerTask = new TimerTask() {
-                                                @RequiresApi(api = Build.VERSION_CODES.N)
-                                                @Override
-                                                public void run() {
-                                                    try {
-                                                        Log.v("Mainactivity", "AnisotropicFilter start.");
-                                                        AnisotropicFilter();
-                                                        Log.v("Mainactivity", "AnisotropicFilter end.");
-                                                    } catch (Exception e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                }
-                                            };
-                                            timer.schedule(timerTask, 0);
-//                                            timer.schedule(new TimerTask() {
+//                                    case "Anisotropic Filter":
+//                                        //调用各向异性滤波，显示滤波结果
+//                                        try {
+//                                            Log.v("Mainactivity", "AnisotropicFilter function.");
+//                                            Toast.makeText(getContext(), "AnisotropicFilter function start~", Toast.LENGTH_SHORT).show();
+////                                            Timer timer = new Timer();
+//                                            timer = new Timer();
+//                                            timerTask = new TimerTask() {
 //                                                @RequiresApi(api = Build.VERSION_CODES.N)
 //                                                @Override
 //                                                public void run() {
-//
 //                                                    try {
 //                                                        Log.v("Mainactivity", "AnisotropicFilter start.");
 //                                                        AnisotropicFilter();
@@ -2027,13 +2015,28 @@ public class MainActivity extends AppCompatActivity {
 //                                                    } catch (Exception e) {
 //                                                        e.printStackTrace();
 //                                                    }
-//
 //                                                }
-//                                            }, 0); // 延时0秒
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                        break;
+//                                            };
+//                                            timer.schedule(timerTask, 0);
+////                                            timer.schedule(new TimerTask() {
+////                                                @RequiresApi(api = Build.VERSION_CODES.N)
+////                                                @Override
+////                                                public void run() {
+////
+////                                                    try {
+////                                                        Log.v("Mainactivity", "AnisotropicFilter start.");
+////                                                        AnisotropicFilter();
+////                                                        Log.v("Mainactivity", "AnisotropicFilter end.");
+////                                                    } catch (Exception e) {
+////                                                        e.printStackTrace();
+////                                                    }
+////
+////                                                }
+////                                            }, 0); // 延时0秒
+//                                        } catch (Exception e) {
+//                                            e.printStackTrace();
+//                                        }
+//                                        break;
                                 }
                             }
                         })
@@ -2042,13 +2045,290 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    private void LineDetect(final View v){
+//    private void LineDetect(final View v){
+//        new XPopup.Builder(this)
+//                .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
+//
+//                .asAttachList(new String[]{"Run", "Train", "SaveRandomForest", "ReadRandomForest"},
+//
+//                        new int[]{},
+//                        new OnSelectListener() {
+//                            @Override
+//                            public void onSelect(int position, String text) {
+//                                switch (text) {
+//                                    case "Run":
+////                                        if (Looper.myLooper() == null) {
+////                                            Looper.prepare();
+////                                        }
+//
+//                                        Toast.makeText(v.getContext(), "start~", Toast.LENGTH_LONG).show();
+////                                        Looper.loop();
+//                                        timer = new Timer();
+//                                        timerTask = new TimerTask() {
+//                                            @RequiresApi(api = Build.VERSION_CODES.N)
+//                                            @Override
+//                                            public void run() {
+//                                                try {
+//                                                    DetectLine d = new DetectLine();
+//                                                    Image4DSimple img = myrenderer.getImg();
+//                                                    if(img == null){
+//                                                        if (Looper.myLooper() == null) {
+//                                                            Looper.prepare();
+//                                                        }
+//
+//                                                        Toast.makeText(v.getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+//                                                        Looper.loop();
+//                                                    }
+//                                                    NeuronTree nt = myrenderer.getNeuronTree();
+//                                                    if(nt.listNeuron.isEmpty() || nt == null){
+//                                                        if (Looper.myLooper() == null) {
+//                                                            Looper.prepare();
+//                                                        }
+//
+//                                                        Toast.makeText(v.getContext(), "Please add line", Toast.LENGTH_LONG).show();
+//                                                        Looper.loop();
+//                                                    }
+//
+//                                                    try {
+//                                                        NeuronTree app2Result = d.detectLine(img,nt);
+//                                                        NeuronTree result = new NeuronTree();
+//
+//                                                        if(rf != null){
+//                                                            result = d.lineClassification(img,app2Result,rf);
+//                                                        }else {
+//                                                            result = app2Result;
+//                                                        }
+//                                                        myrenderer.importNeuronTree(result);
+//                                                        myGLSurfaceView.requestRender();
+//                                                    } catch (Exception e) {
+//                                                        if (Looper.myLooper() == null) {
+//                                                            Looper.prepare();
+//                                                        }
+//
+//                                                        Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+//                                                        Looper.loop();
+//                                                    }
+//                                                } catch (Exception e) {
+//                                                    e.printStackTrace();
+//                                                }
+//
+//                                            }
+//                                        };
+//                                        timer.schedule(timerTask, 1000);
+////                                        Timer timer = new Timer();
+////                                        timer.schedule(new TimerTask() {
+////                                            @RequiresApi(api = Build.VERSION_CODES.N)
+////                                            @Override
+////                                            public void run() {
+////
+////                                                try {
+////                                                    DetectLine d = new DetectLine();
+////                                                    Image4DSimple img = myrenderer.getImg();
+////                                                    if(img == null){
+////                                                        if (Looper.myLooper() == null) {
+////                                                            Looper.prepare();
+////                                                        }
+////
+////                                                        Toast.makeText(v.getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+////                                                        Looper.loop();
+////                                                    }
+////                                                    NeuronTree nt = myrenderer.getNeuronTree();
+////                                                    if(nt.listNeuron.isEmpty() || nt == null){
+////                                                        if (Looper.myLooper() == null) {
+////                                                            Looper.prepare();
+////                                                        }
+////
+////                                                        Toast.makeText(v.getContext(), "Please add line", Toast.LENGTH_LONG).show();
+////                                                        Looper.loop();
+////                                                    }
+////
+////                                                    try {
+////                                                        NeuronTree app2Result = d.detectLine(img,nt);
+////                                                        NeuronTree result = new NeuronTree();
+////
+////                                                        if(rf != null){
+////                                                            result = d.lineClassification(img,app2Result,rf);
+////                                                        }else {
+////                                                            result = app2Result;
+////                                                        }
+////                                                        myrenderer.importNeuronTree(result);
+////                                                        myGLSurfaceView.requestRender();
+////                                                    } catch (Exception e) {
+////                                                        if (Looper.myLooper() == null) {
+////                                                            Looper.prepare();
+////                                                        }
+////
+////                                                        Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+////                                                        Looper.loop();
+////                                                    }
+////                                                } catch (Exception e) {
+////                                                    e.printStackTrace();
+////                                                }
+////
+////                                            }
+////                                        }, 1000); // 延时1秒
+//                                        break;
+//
+//
+//                                    case "Train":
+////                                        if (Looper.myLooper() == null) {
+////                                            Looper.prepare();
+////                                        }
+//
+//                                        Toast.makeText(v.getContext(), "train start~", Toast.LENGTH_LONG).show();
+////                                        Looper.loop();
+////                                        Timer timer1 = new Timer();
+////                                        timer1.schedule(new TimerTask() {
+//                                        timer = new Timer();
+//                                        timerTask = new TimerTask() {
+//                                            @RequiresApi(api = Build.VERSION_CODES.N)
+//                                            @Override
+//                                            public void run() {
+//                                                try{
+//
+//                                                    DetectLine d = new DetectLine();
+//                                                    Image4DSimple img = myrenderer.getImg();
+//                                                    if(img == null){
+//                                                        if (Looper.myLooper() == null) {
+//                                                            Looper.prepare();
+//                                                        }
+//
+//                                                        Toast.makeText(v.getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+//                                                        Looper.loop();
+//                                                    }
+//                                                    NeuronTree nt = myrenderer.getNeuronTree();
+//                                                    if(nt.listNeuron.isEmpty() || nt == null){
+//                                                        if (Looper.myLooper() == null) {
+//                                                            Looper.prepare();
+//                                                        }
+//
+//                                                        Toast.makeText(v.getContext(), "Please add train line", Toast.LENGTH_LONG).show();
+//                                                        Looper.loop();
+//                                                    }
+//
+//                                                    rf = d.train(img,nt,rf);
+//
+//                                                    if (Looper.myLooper() == null) {
+//                                                        Looper.prepare();
+//                                                    }
+//
+//                                                    Toast.makeText(v.getContext(), "train is ended", Toast.LENGTH_LONG).show();
+//                                                    Looper.loop();
+//                                                }catch (Exception e){
+//                                                    if (Looper.myLooper() == null) {
+//                                                        Looper.prepare();
+//                                                    }
+//
+//                                                    Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+//                                                    Looper.loop();
+//                                                }
+//
+//                                            }
+//                                        };
+//                                        timer.schedule(timerTask, 1000);
+////                                        timer.schedule(new TimerTask() {
+////                                            @RequiresApi(api = Build.VERSION_CODES.N)
+////                                            @Override
+////                                            public void run() {
+////                                                try{
+////
+////                                                    DetectLine d = new DetectLine();
+////                                                    Image4DSimple img = myrenderer.getImg();
+////                                                    if(img == null){
+////                                                        if (Looper.myLooper() == null) {
+////                                                            Looper.prepare();
+////                                                        }
+////
+////                                                        Toast.makeText(v.getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+////                                                        Looper.loop();
+////                                                    }
+////                                                    NeuronTree nt = myrenderer.getNeuronTree();
+////                                                    if(nt.listNeuron.isEmpty() || nt == null){
+////                                                        if (Looper.myLooper() == null) {
+////                                                            Looper.prepare();
+////                                                        }
+////
+////                                                        Toast.makeText(v.getContext(), "Please add train line", Toast.LENGTH_LONG).show();
+////                                                        Looper.loop();
+////                                                    }
+////
+////                                                    rf = d.train(img,nt);
+////                                                    if (Looper.myLooper() == null) {
+////                                                        Looper.prepare();
+////                                                    }
+////
+////                                                    Toast.makeText(v.getContext(), "train is ended", Toast.LENGTH_LONG).show();
+////                                                    Looper.loop();
+////                                                }catch (Exception e){
+////                                                    if (Looper.myLooper() == null) {
+////                                                        Looper.prepare();
+////                                                    }
+////
+////                                                    Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+////                                                    Looper.loop();
+////                                                }
+////
+////                                            }
+////                                        }, 1000); // 延时1秒
+//
+//                                        break;
+//
+//                                    case "SaveRandomForest":
+//                                        if(rf == null){
+////                                            if (Looper.myLooper() == null) {
+////                                                Looper.prepare();
+////                                            }
+//
+//                                            Toast.makeText(v.getContext(), "randomForest is null", Toast.LENGTH_LONG).show();
+////                                            Looper.loop();
+//                                        }else {
+//                                            String randomForestDir = "/storage/emulated/0/C3/randomForest";
+//                                            File dir = new File(randomForestDir);
+//                                            if (!dir.exists()){
+//                                                dir.mkdirs();
+//                                            }
+//                                            try {
+//                                                rf.saveRandomForest(dir);
+//                                                Toast.makeText(v.getContext(), "save successfully to "+randomForestDir, Toast.LENGTH_LONG).show();
+//                                            } catch (IOException e) {
+////                                                if (Looper.myLooper() == null) {
+////                                                    Looper.prepare();
+////                                                }
+//
+//                                                Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+////                                                Looper.loop();
+//                                            }
+//                                        }
+//                                        break;
+//
+//                                    case "ReadRandomForest":
+//                                        String randomForestDir = "/storage/emulated/0/C3/randomForest";
+//                                        try {
+//                                            System.out.println("-----------------start------------------");
+//                                            rf = new RandomForest();
+//                                            rf.readRandomForest(randomForestDir);
+//                                            Toast.makeText(v.getContext(), "load successfully", Toast.LENGTH_LONG).show();
+//                                        }catch (Exception e){
+////                                            if (Looper.myLooper() == null) {
+////                                                Looper.prepare();
+////                                            }
+//
+//                                            Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+////                                            Looper.loop();
+//                                        }
+//                                }
+//                            }
+//                        })
+//                .show();
+//    }
+
+    private void LineDetect(){
         new XPopup.Builder(this)
-                .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
+//                .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
 
-                .asAttachList(new String[]{"Run", "Train", "SaveRandomForest", "ReadRandomForest"},
+                .asCenterList("Detect Line", new String[]{"Run", "Train", "SaveRandomForest", "ReadRandomForest"},
 
-                        new int[]{},
+
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -2058,7 +2338,7 @@ public class MainActivity extends AppCompatActivity {
 //                                            Looper.prepare();
 //                                        }
 
-                                        Toast.makeText(v.getContext(), "start~", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getContext(), "start~", Toast.LENGTH_LONG).show();
 //                                        Looper.loop();
                                         timer = new Timer();
                                         timerTask = new TimerTask() {
@@ -2073,7 +2353,7 @@ public class MainActivity extends AppCompatActivity {
                                                             Looper.prepare();
                                                         }
 
-                                                        Toast.makeText(v.getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+                                                        Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
                                                         Looper.loop();
                                                     }
                                                     NeuronTree nt = myrenderer.getNeuronTree();
@@ -2082,7 +2362,7 @@ public class MainActivity extends AppCompatActivity {
                                                             Looper.prepare();
                                                         }
 
-                                                        Toast.makeText(v.getContext(), "Please add line", Toast.LENGTH_LONG).show();
+                                                        Toast.makeText(getContext(), "Please add line", Toast.LENGTH_LONG).show();
                                                         Looper.loop();
                                                     }
 
@@ -2102,7 +2382,7 @@ public class MainActivity extends AppCompatActivity {
                                                             Looper.prepare();
                                                         }
 
-                                                        Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                                        Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
                                                         Looper.loop();
                                                     }
                                                 } catch (Exception e) {
@@ -2172,7 +2452,7 @@ public class MainActivity extends AppCompatActivity {
 //                                            Looper.prepare();
 //                                        }
 
-                                        Toast.makeText(v.getContext(), "train start~", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getContext(), "train start~", Toast.LENGTH_LONG).show();
 //                                        Looper.loop();
 //                                        Timer timer1 = new Timer();
 //                                        timer1.schedule(new TimerTask() {
@@ -2190,7 +2470,7 @@ public class MainActivity extends AppCompatActivity {
                                                             Looper.prepare();
                                                         }
 
-                                                        Toast.makeText(v.getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+                                                        Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
                                                         Looper.loop();
                                                     }
                                                     NeuronTree nt = myrenderer.getNeuronTree();
@@ -2199,7 +2479,7 @@ public class MainActivity extends AppCompatActivity {
                                                             Looper.prepare();
                                                         }
 
-                                                        Toast.makeText(v.getContext(), "Please add train line", Toast.LENGTH_LONG).show();
+                                                        Toast.makeText(getContext(), "Please add train line", Toast.LENGTH_LONG).show();
                                                         Looper.loop();
                                                     }
 
@@ -2209,14 +2489,14 @@ public class MainActivity extends AppCompatActivity {
                                                         Looper.prepare();
                                                     }
 
-                                                    Toast.makeText(v.getContext(), "train is ended", Toast.LENGTH_LONG).show();
+                                                    Toast.makeText(getContext(), "train is ended", Toast.LENGTH_LONG).show();
                                                     Looper.loop();
                                                 }catch (Exception e){
                                                     if (Looper.myLooper() == null) {
                                                         Looper.prepare();
                                                     }
 
-                                                    Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
                                                     Looper.loop();
                                                 }
 
@@ -2276,7 +2556,7 @@ public class MainActivity extends AppCompatActivity {
 //                                                Looper.prepare();
 //                                            }
 
-                                            Toast.makeText(v.getContext(), "randomForest is null", Toast.LENGTH_LONG).show();
+                                            Toast.makeText(getContext(), "randomForest is null", Toast.LENGTH_LONG).show();
 //                                            Looper.loop();
                                         }else {
                                             String randomForestDir = "/storage/emulated/0/C3/randomForest";
@@ -2286,13 +2566,13 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                             try {
                                                 rf.saveRandomForest(dir);
-                                                Toast.makeText(v.getContext(), "save successfully to "+randomForestDir, Toast.LENGTH_LONG).show();
+                                                Toast.makeText(getContext(), "save successfully to "+randomForestDir, Toast.LENGTH_LONG).show();
                                             } catch (IOException e) {
 //                                                if (Looper.myLooper() == null) {
 //                                                    Looper.prepare();
 //                                                }
 
-                                                Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                                Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
 //                                                Looper.loop();
                                             }
                                         }
@@ -2304,13 +2584,13 @@ public class MainActivity extends AppCompatActivity {
                                             System.out.println("-----------------start------------------");
                                             rf = new RandomForest();
                                             rf.readRandomForest(randomForestDir);
-                                            Toast.makeText(v.getContext(), "load successfully", Toast.LENGTH_LONG).show();
+                                            Toast.makeText(getContext(), "load successfully", Toast.LENGTH_LONG).show();
                                         }catch (Exception e){
 //                                            if (Looper.myLooper() == null) {
 //                                                Looper.prepare();
 //                                            }
 
-                                            Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
 //                                            Looper.loop();
                                         }
                                 }
@@ -2318,7 +2598,6 @@ public class MainActivity extends AppCompatActivity {
                         })
                 .show();
     }
-
 
 
 
@@ -2871,7 +3150,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200602a 09:58 build",
+                .asConfirm("Version", "version: 20200602b 21:09 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5023,6 +5302,118 @@ public class MainActivity extends AppCompatActivity {
                 .show();
 
     }
+
+    public void Experiment_icon(){
+        new XPopup.Builder(this)
+//        .maxWidth(400)
+//        .maxHeight(1350)
+                .asCenterList("Experimental Features", new String[]{"Detect Line", "Detect Corner", "GSDT","Anisotropic Filter", "For Developer(Classify)"},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text) {
+                                    case "Detect Line":
+                                        LineDetect();
+                                        break;
+                                    case "Detect Corner":
+                                        myrenderer.corner_detection();
+                                        myGLSurfaceView.requestRender();
+                                        break;
+                                    case "GSDT":
+                                        //gsdt检测斑点（eg.soma）
+                                        try {
+                                            Log.v("Mainactivity", "GSDT function.");
+                                            Toast.makeText(getContext(), "GSDT function start~", Toast.LENGTH_SHORT).show();
+//                                            Timer timer = new Timer();
+                                            timer = new Timer();
+                                            timerTask = new TimerTask() {
+                                                @RequiresApi(api = Build.VERSION_CODES.N)
+                                                @Override
+                                                public void run() {
+                                                    try {
+                                                        Log.v("Mainactivity", "GSDT start.");
+                                                        GSDT_Fun();
+                                                        Log.v("Mainactivity", "GSDT end.");
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            };
+                                            timer.schedule(timerTask, 0);
+//                                            timer.schedule(new TimerTask() {
+//                                                @RequiresApi(api = Build.VERSION_CODES.N)
+//                                                @Override
+//                                                public void run() {
+//
+//                                                    try {
+//                                                        Log.v("Mainactivity", "GSDT start.");
+//                                                        GSDT_Fun();
+//                                                        Log.v("Mainactivity", "GSDT end.");
+//                                                    } catch (Exception e) {
+//                                                        e.printStackTrace();
+//                                                    }
+//
+//                                                }
+//                                            }, 0); // 延时0秒
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                        break;
+                                    case"Anisotropic Filter":
+                                        //调用各向异性滤波，显示滤波结果
+                                        try {
+                                            Log.v("Mainactivity", "AnisotropicFilter function.");
+                                            Toast.makeText(getContext(), "AnisotropicFilter function start~", Toast.LENGTH_SHORT).show();
+//                                            Timer timer = new Timer();
+                                            timer = new Timer();
+                                            timerTask = new TimerTask() {
+                                                @RequiresApi(api = Build.VERSION_CODES.N)
+                                                @Override
+                                                public void run() {
+                                                    try {
+                                                        Log.v("Mainactivity", "AnisotropicFilter start.");
+                                                        AnisotropicFilter();
+                                                        Log.v("Mainactivity", "AnisotropicFilter end.");
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            };
+                                            timer.schedule(timerTask, 0);
+//                                            timer.schedule(new TimerTask() {
+//                                                @RequiresApi(api = Build.VERSION_CODES.N)
+//                                                @Override
+//                                                public void run() {
+//
+//                                                    try {
+//                                                        Log.v("Mainactivity", "AnisotropicFilter start.");
+//                                                        AnisotropicFilter();
+//                                                        Log.v("Mainactivity", "AnisotropicFilter end.");
+//                                                    } catch (Exception e) {
+//                                                        e.printStackTrace();
+//                                                    }
+//
+//                                                }
+//                                            }, 0); // 延时0秒
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                        break;
+
+                                    case "For Developer(Classify)":
+                                        FeatureSet();
+                                        break;
+
+                                    default:
+//                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "Default in file", Toast.LENGTH_SHORT).show();
+
+                                }
+                            }
+                        })
+                .show();
+    }
+
     public void remote_i(){
 
         context = this;
