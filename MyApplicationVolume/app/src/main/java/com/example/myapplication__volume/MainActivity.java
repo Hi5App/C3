@@ -208,7 +208,17 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton tracing_i;
     private ImageButton classify_i;
     private ImageButton buttonUndo_i;
+    private ImageButton navigation_left;
+    private ImageButton navigation_right;
+    private ImageButton navigation_up;
+    private ImageButton navigation_down;
     private FrameLayout.LayoutParams lp_undo_i;
+
+
+    private FrameLayout.LayoutParams lp_left_i;
+    private FrameLayout.LayoutParams lp_right_i;
+    private FrameLayout.LayoutParams lp_up_i;
+    private FrameLayout.LayoutParams lp_down_i;
 
     private Button PixelClassification;
     private boolean[][]select= {{true,true,true,false,false,false,false},
@@ -335,13 +345,50 @@ public class MainActivity extends AppCompatActivity {
         Zoom_out = new Button(this);
         Zoom_out.setText("-");
 
-        FrameLayout.LayoutParams lp_zoom_in = new FrameLayout.LayoutParams(100, 150);
-        lp_zoom_in.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
-        this.addContentView(Zoom_in, lp_zoom_in);
+//        FrameLayout.LayoutParams lp_zoom_in = new FrameLayout.LayoutParams(100, 150);
+//        lp_zoom_in.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
+//        this.addContentView(Zoom_in, lp_zoom_in);
+//
+//        FrameLayout.LayoutParams lp_zoom_out = new FrameLayout.LayoutParams(100, 150);
+//        lp_zoom_out.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
+//        this.addContentView(Zoom_out, lp_zoom_out);
 
-        FrameLayout.LayoutParams lp_zoom_out = new FrameLayout.LayoutParams(100, 150);
-        lp_zoom_out.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
-        this.addContentView(Zoom_out, lp_zoom_out);
+
+        if (isRemote){
+
+            FrameLayout.LayoutParams lp_zoom_in = new FrameLayout.LayoutParams(120, 120);
+            lp_zoom_in.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+            lp_zoom_in.setMargins(0, 0, 20, 290);
+            this.addContentView(Zoom_in, lp_zoom_in);
+
+            FrameLayout.LayoutParams lp_zoom_out = new FrameLayout.LayoutParams(120, 120);
+            lp_zoom_out.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+            lp_zoom_out.setMargins(0, 0, 20, 200);
+            this.addContentView(Zoom_out, lp_zoom_out);
+
+        }else {
+            FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
+            lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
+            this.addContentView(Zoom_in, lp_zoom_in_no);
+
+            FrameLayout.LayoutParams lp_zoom_out_no = new FrameLayout.LayoutParams(100, 150);
+            lp_zoom_out_no.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
+            this.addContentView(Zoom_out, lp_zoom_out_no);
+        }
+
+
+//        FrameLayout.LayoutParams lp_zoom_in = new FrameLayout.LayoutParams(120, 120);
+//        lp_zoom_in.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+//        lp_zoom_in.setMargins(0, 0, 20, 300);
+//
+//        this.addContentView(Zoom_in, lp_zoom_in);
+//
+//        FrameLayout.LayoutParams lp_zoom_out = new FrameLayout.LayoutParams(120, 120);
+//        lp_zoom_out.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+//        lp_zoom_out.setMargins(0, 0, 20, 200);
+//
+//        this.addContentView(Zoom_out, lp_zoom_out);
+
 
 
         Zoom_in.setOnClickListener(new Button.OnClickListener() {
@@ -550,9 +597,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        if (isRemote){
-            ll_bottom.addView(Remoteleft);
-        }
+//        if (isRemote){
+//            ll_bottom.addView(Remoteleft);
+//        }
 
 
         buttonAnimation = new Button(this);
@@ -581,6 +628,69 @@ public class MainActivity extends AppCompatActivity {
                 myGLSurfaceView.requestRender();
             }
         });
+
+
+        lp_left_i = new FrameLayout.LayoutParams(100, 150);
+        lp_left_i.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
+
+        navigation_left = new ImageButton(this);
+        navigation_left.setImageResource(R.drawable.ic_chevron_left_black_24dp);
+
+        navigation_left.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                Block_navigate("Left");
+            }
+        });
+
+        lp_right_i = new FrameLayout.LayoutParams(100, 150);
+        lp_right_i.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
+
+        navigation_right = new ImageButton(this);
+        navigation_right.setImageResource(R.drawable.ic_chevron_right_black_24dp);
+
+        navigation_right.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                Block_navigate("Right");
+            }
+        });
+
+
+        lp_up_i = new FrameLayout.LayoutParams(150, 100);
+        lp_up_i.gravity = Gravity.CENTER_HORIZONTAL | Gravity.TOP;
+        lp_up_i.setMargins(0, 310, 0, 0);
+
+
+        navigation_up = new ImageButton(this);
+        navigation_up.setImageResource(R.drawable.ic_expand_less_black_24dp);
+
+        navigation_up.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                Block_navigate("Top");
+            }
+        });
+
+
+        lp_down_i = new FrameLayout.LayoutParams(150, 100);
+        lp_down_i.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
+        lp_down_i.setMargins(0, 0, 0, 0);
+
+        navigation_down = new ImageButton(this);
+        navigation_down.setImageResource(R.drawable.ic_expand_more_black_24dp);
+
+        navigation_down.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                Block_navigate("Bottom");
+            }
+        });
+
+
+        if (isRemote){
+            this.addContentView(navigation_left, lp_left_i);
+            this.addContentView(navigation_right, lp_right_i);
+            this.addContentView(navigation_up, lp_up_i);
+            this.addContentView(navigation_down, lp_down_i);
+        }
+
 
 
         SettingFileManager settingFileManager = new SettingFileManager();
@@ -775,6 +885,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
+        Context context = this;
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
 //            System.out.println("BBBBB");
@@ -996,11 +1107,19 @@ public class MainActivity extends AppCompatActivity {
                 if (ifLoadLocal) {
                     myrenderer.SetPath(filePath);
                     ifLoadLocal = false;
-                    isRemote = false;
-                    try {
-                        ll_bottom.removeView(Remoteleft);
-                    }catch (Exception e){
-                        e.printStackTrace();
+                    if (isRemote){
+                        isRemote = false;
+                        try {
+                            ((ViewGroup)Zoom_in.getParent()).removeView(Zoom_in);
+                            ((ViewGroup)Zoom_out.getParent()).removeView(Zoom_out);
+                            ((ViewGroup)navigation_left.getParent()).removeView(navigation_left);
+                            ((ViewGroup)navigation_right.getParent()).removeView(navigation_right);
+                            ((ViewGroup)navigation_up.getParent()).removeView(navigation_up);
+                            ((ViewGroup)navigation_down.getParent()).removeView(navigation_down);
+//                        ll_bottom.removeView(Remoteleft);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
                     }
                 }
 
@@ -3150,7 +3269,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200602b 21:09 build",
+                .asConfirm("Version", "version: 20200603b 01:11 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -3483,6 +3602,36 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
+
+
+    public void Block_navigate(String text){
+        context = this;
+        switch (text) {
+            case "Left":
+                remoteImg.Selectblock_fast(context, false, "Left");
+                break;
+
+            case "Right":
+                remoteImg.Selectblock_fast(context, false, "Right");
+                break;
+
+            case "Top":
+                remoteImg.Selectblock_fast(context, false, "Top");
+                break;
+
+            case "Bottom":
+                remoteImg.Selectblock_fast(context, false, "Bottom");
+                break;
+
+            case "Front":
+                remoteImg.Selectblock_fast(context, false, "Front");
+                break;
+
+            case "Back":
+                remoteImg.Selectblock_fast(context, false, "Back");
+                break;
+        }
+    }
 
 
     private String getip(){
