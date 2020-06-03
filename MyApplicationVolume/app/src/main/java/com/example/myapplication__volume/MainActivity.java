@@ -212,6 +212,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton navigation_right;
     private ImageButton navigation_up;
     private ImageButton navigation_down;
+    private Button navigation_front;
+    private Button navigation_back;
     private FrameLayout.LayoutParams lp_undo_i;
 
 
@@ -219,6 +221,8 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout.LayoutParams lp_right_i;
     private FrameLayout.LayoutParams lp_up_i;
     private FrameLayout.LayoutParams lp_down_i;
+    private FrameLayout.LayoutParams lp_front_i;
+    private FrameLayout.LayoutParams lp_back_i;
 
     private Button PixelClassification;
     private boolean[][]select= {{true,true,true,false,false,false,false},
@@ -642,6 +646,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
         lp_right_i = new FrameLayout.LayoutParams(100, 150);
         lp_right_i.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
 
@@ -653,6 +659,8 @@ public class MainActivity extends AppCompatActivity {
                 Block_navigate("Right");
             }
         });
+
+
 
 
         lp_up_i = new FrameLayout.LayoutParams(150, 100);
@@ -670,6 +678,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+
+
         lp_down_i = new FrameLayout.LayoutParams(150, 100);
         lp_down_i.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
         lp_down_i.setMargins(0, 0, 0, 0);
@@ -684,11 +694,38 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        lp_front_i = new FrameLayout.LayoutParams(120, 120);
+        lp_front_i.gravity = Gravity.LEFT | Gravity.BOTTOM;
+        lp_front_i.setMargins(20, 0, 0, 290);
+
+        navigation_front = new Button(this);
+        navigation_front.setText("F");
+        navigation_front.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                Block_navigate("Front");
+            }
+        });
+
+
+        lp_back_i = new FrameLayout.LayoutParams(120, 120);
+        lp_back_i.gravity = Gravity.LEFT | Gravity.BOTTOM;
+        lp_back_i.setMargins(20, 0, 0, 200);
+
+        navigation_back = new Button(this);
+        navigation_back.setText("B");
+        navigation_back.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                Block_navigate("Back");
+            }
+        });
+
         if (isRemote){
             this.addContentView(navigation_left, lp_left_i);
             this.addContentView(navigation_right, lp_right_i);
             this.addContentView(navigation_up, lp_up_i);
             this.addContentView(navigation_down, lp_down_i);
+            this.addContentView(navigation_front, lp_front_i);
+            this.addContentView(navigation_back, lp_back_i);
         }
 
 
@@ -1116,7 +1153,16 @@ public class MainActivity extends AppCompatActivity {
                             ((ViewGroup)navigation_right.getParent()).removeView(navigation_right);
                             ((ViewGroup)navigation_up.getParent()).removeView(navigation_up);
                             ((ViewGroup)navigation_down.getParent()).removeView(navigation_down);
-//                        ll_bottom.removeView(Remoteleft);
+                            ((ViewGroup)navigation_front.getParent()).removeView(navigation_front);
+                            ((ViewGroup)navigation_back.getParent()).removeView(navigation_back);
+
+                            FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
+                            lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
+                            this.addContentView(Zoom_in, lp_zoom_in_no);
+
+                            FrameLayout.LayoutParams lp_zoom_out_no = new FrameLayout.LayoutParams(100, 150);
+                            lp_zoom_out_no.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
+                            this.addContentView(Zoom_out, lp_zoom_out_no);
                         }catch (Exception e){
                             e.printStackTrace();
                         }
@@ -3269,7 +3315,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200603b 01:11 build",
+                .asConfirm("Version", "version: 20200603b 17:13 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
