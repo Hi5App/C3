@@ -9,6 +9,13 @@
 <!--        android:icon="@drawable/ic_folder_black_24dp"/>-->
 
     <item
+        android:id="@+id/view"
+        android:orderInCategory="1"
+        android:title="view"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_visibility_black_24dp" />
+
+    <item
         android:id="@+id/file"
         android:orderInCategory="2"
         android:title="_settings"
@@ -22,18 +29,18 @@
         android:icon="@drawable/ic_share_black_24dp"/>
 
     <item
-        android:id="@+id/more"
-        android:orderInCategory="5"
-        android:title="more"
-        android:icon="@drawable/ic_more_vert_black_24dp"
-        app:showAsAction="always" />
-
-    <item
         android:id="@+id/experiment"
         android:orderInCategory="4"
         android:title="experiment"
         app:showAsAction="always"
         android:icon="@drawable/ic_experiment"/>
+
+    <item
+        android:id="@+id/more"
+        android:orderInCategory="5"
+        android:title="more"
+        android:icon="@drawable/ic_more_vert_black_24dp"
+        app:showAsAction="always" />
 
 <!--    <item-->
 <!--        android:id="@+id/analyze"-->

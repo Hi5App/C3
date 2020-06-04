@@ -184,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean ifLoadLocal = false;
     private boolean ifRemote = false;
     private boolean ifDownloadByHttp = false;
+    private boolean ifButtonShowed = true;
 //    private boolean ifTakePhoto = false;
 
     private boolean[] temp_mode = new boolean[5];
@@ -775,6 +776,18 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.experiment:
                 Experiment_icon();
+                return true;
+            case R.id.view:
+                if (ifButtonShowed){
+                    hideButtons();
+
+                    item.setIcon(R.drawable.ic_visibility_off_black_24dp);
+
+                } else {
+                    showButtons();
+
+                    item.setIcon(R.drawable.ic_visibility_black_24dp);
+                }
                 return true;
 //            case R.id.version:
 //                Version();
@@ -3315,7 +3328,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200603b 17:13 build",
+                .asConfirm("Version", "version: 20200604a 21:08 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5645,16 +5658,50 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private static class MyTimerTask extends TimerTask{
+    private void hideButtons(){
+        if (!ifButtonShowed)
+            return;
 
-        @Override
-        public void run() {
-            while(true){
+        ll_top.setVisibility(View.GONE);
+        ll_bottom.setVisibility(View.GONE);
 
-            }
-        }
+        buttonAnimation.setVisibility(View.GONE);
+        Zoom_in.setVisibility(View.GONE);
+        Zoom_out.setVisibility(View.GONE);
+        Rotation_i.setVisibility(View.GONE);
+        navigation_back.setVisibility(View.GONE);
+        navigation_down.setVisibility(View.GONE);
+        navigation_front.setVisibility(View.GONE);
+        navigation_left.setVisibility(View.GONE);
+        navigation_right.setVisibility(View.GONE);
+        navigation_up.setVisibility(View.GONE);
+
+        ifButtonShowed = false;
+
+//        draw_i.setVisibility(View.GONE);
+//        tracing_i.setVisibility(View.GONE);
+//        classify_i.setVisibility(View.GONE);
     }
 
+    private void showButtons(){
+        if (ifButtonShowed)
+            return;
 
+        ll_top.setVisibility(View.VISIBLE);
+        ll_bottom.setVisibility(View.VISIBLE);
+
+        buttonAnimation.setVisibility(View.VISIBLE);
+        Zoom_in.setVisibility(View.VISIBLE);
+        Zoom_out.setVisibility(View.VISIBLE);
+        Rotation_i.setVisibility(View.VISIBLE);
+        navigation_back.setVisibility(View.VISIBLE);
+        navigation_down.setVisibility(View.VISIBLE);
+        navigation_front.setVisibility(View.VISIBLE);
+        navigation_left.setVisibility(View.VISIBLE);
+        navigation_right.setVisibility(View.VISIBLE);
+        navigation_up.setVisibility(View.VISIBLE);
+
+        ifButtonShowed = true;
+    }
 
 }
