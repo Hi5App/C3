@@ -218,12 +218,10 @@ public class DetectLine {
             lines.listNeuron.get(i).type = 4;
         }
 
-
-//        for(int i=0; i<lines.listNeuron.size(); i++){
-//            System.out.println("i : "+i+" n: "+lines.listNeuron.get(i).n+" p: "+lines.listNeuron.get(i).parent);
-//        }
         return lines;
     }
+
+
 
     public RandomForest train(Image4DSimple img, NeuronTree nt, RandomForest oldRF){
         System.out.println("-------------------in train----------------------");

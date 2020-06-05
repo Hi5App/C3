@@ -227,7 +227,7 @@ public class PixelClassification {
         }
         for(int i=img1dByte.length; i<img1dByte.length*2; i++){
             if(featureMask0[i-img1dByte.length] == 1){
-                data[i] = (byte) 255;
+                data[i] = (byte) 60;
             }else {
                 data[i] = (byte) 0;
             }
