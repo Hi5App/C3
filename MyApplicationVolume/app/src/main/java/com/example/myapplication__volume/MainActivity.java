@@ -3335,7 +3335,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200605b 21:19 build",
+                .asConfirm("Version", "version: 20200605c 22:42 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5190,6 +5190,8 @@ public class MainActivity extends AppCompatActivity {
     class MyGLSurfaceView extends GLSurfaceView {
         private float X, Y;
         private double dis_start;
+        private float dis_x_start;
+        private float dis_y_start;
         private boolean isZooming;
 
 
@@ -5277,6 +5279,8 @@ public class MainActivity extends AppCompatActivity {
 //                        float x1=motionEvent.getX(1);
 //                        float y1=motionEvent.getY(1);
                         dis_start = computeDis(normalizedX, x1, normalizedY, y1);
+                        dis_x_start = x1 - normalizedX;
+                        dis_y_start = y1 - normalizedY;
 
                         break;
                     case MotionEvent.ACTION_MOVE:
@@ -5291,9 +5295,21 @@ public class MainActivity extends AppCompatActivity {
                                 double scale = dis / dis_start;
                                 myrenderer.zoom((float) scale);
 
+                                float dis_x = x2 - normalizedX;
+                                float dis_y = y2 - normalizedY;
+                                if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
+                                    if (myrenderer.getIfDownSampling() == false)
+                                        myrenderer.setIfDownSampling(true);
+                                }
+
+                                myrenderer.rotate(dis_x - dis_x_start, dis_y - dis_y_start, (float)(computeDis(dis_x, dis_x_start, dis_y, dis_y_start)));
+
+
                                 //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
                                 requestRender();
                                 dis_start = dis;
+                                dis_x_start = dis_x;
+                                dis_y_start = dis_y;
                             } else {
                                 if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
                                     if (myrenderer.getIfDownSampling() == false)
@@ -5363,7 +5379,7 @@ public class MainActivity extends AppCompatActivity {
                                 ExecutorService exeService = Executors.newSingleThreadExecutor();
                                 Future<String> future = exeService.submit(task);
                                 try{
-                                    String result = future.get(1500, TimeUnit.MICROSECONDS);
+                                    String result = future.get(1500, TimeUnit.MILLISECONDS);
                                     System.err.println("Result:" + result);
                                 } catch (Exception e){
                                     e.printStackTrace();
