@@ -2671,9 +2671,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    public void addBackgroundLineDrawed(ArrayList<Float> line){
+    public V_NeuronSWC addBackgroundLineDrawed(ArrayList<Float> line){
         if (img.getData() == null){
-            return;
+            return null;
         }
         ArrayList<Float> lineAdded;
         float [] lineCurrent = new float[line.size()];
@@ -2704,7 +2704,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                System.out.println("u n p x y z: "+ u.n +" "+u.parent+" "+u.x +" "+u.y+ " "+u.z);
             }
             if(seg.row.size()<3){
-                return;
+                return null;
             }
             float[] headXYZ = new float[]{(float) seg.row.get(0).x, (float) seg.row.get(0).y, (float) seg.row.get(0).z};
             float[] tailXYZ = new float[]{(float) seg.row.get(seg.row.size()-1).x,
@@ -2756,21 +2756,27 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 removeFirstUndo(first);
                 undoDrawList.add(seg);
             }
+            return seg;
 //            return curSwcList.nsegs() - 1;
 
 //            Log.v("addLineDrawed", Integer.toString(lineAdded.size()));
         }
         else {
             Log.v("draw line:::::", "nulllllllllllllllllll");
-            return;
+            return null;
         }
     }
 
     public boolean deleteFromNew(int segid){
+
         if (newSwcList.nsegs() < segid || segid < 0)
             return false;
         newSwcList.deleteSeg(segid);
         return true;
+    }
+
+    public boolean deleteFromCur(V_NeuronSWC seg){
+        return curSwcList.seg.remove(seg);
     }
 
     public  void deleteLine1(ArrayList<Float> line){

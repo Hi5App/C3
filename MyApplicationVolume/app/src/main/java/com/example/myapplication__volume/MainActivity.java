@@ -82,6 +82,7 @@ import com.tracingfunc.app2.ParaAPP2;
 import com.tracingfunc.app2.V3dNeuronAPP2Tracing;
 import com.tracingfunc.gd.CurveTracePara;
 import com.tracingfunc.gd.V3dNeuronGDTracing;
+import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gsdt.GSDT;
 import com.tracingfunc.gsdt.ParaGSDT;
 
@@ -107,6 +108,12 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import Jama.Matrix;
 import cn.carbs.android.library.MDDialog;
@@ -3328,7 +3335,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200604a 21:08 build",
+                .asConfirm("Version", "version: 20200605a 19:04 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5335,17 +5342,44 @@ public class MainActivity extends AppCompatActivity {
                             if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
                                 myrenderer.add2DCurve(lineDrawed);
                             else {
-                                int lineType = myrenderer.getLastLineType();
-                                if (lineType != 3) {
-                                    int segid = myrenderer.addLineDrawed(lineDrawed);
+                                Callable<String> task = new Callable<String>() {
+                                    @Override
+                                    public String call() throws Exception {
+                                        int lineType = myrenderer.getLastLineType();
+                                        if (lineType != 3) {
+//                                            int segid = myrenderer.addLineDrawed(lineDrawed);
 //                                    segids.add(segid);
 //                            requestRender();
-
-                                    myrenderer.addLineDrawed2(lineDrawed);
-                                    myrenderer.deleteFromNew(segid);
-                                } else {
-                                    myrenderer.addBackgroundLineDrawed(lineDrawed);
+                                            V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed);
+                                            myrenderer.addLineDrawed2(lineDrawed);
+                                            myrenderer.deleteFromCur(seg);
+//                                            myrenderer.deleteFromNew(segid);
+                                        } else {
+                                            myrenderer.addBackgroundLineDrawed(lineDrawed);
+                                        }
+                                        return "succeed";
+                                    }
+                                };
+                                ExecutorService exeService = Executors.newSingleThreadExecutor();
+                                Future<String> future = exeService.submit(task);
+                                try{
+                                    String result = future.get(1500, TimeUnit.MICROSECONDS);
+                                    System.err.println("Result:" + result);
+                                } catch (Exception e){
+                                    e.printStackTrace();
+                                    System.out.println("unfinished in 1.5 seconds");
                                 }
+//                                int lineType = myrenderer.getLastLineType();
+//                                if (lineType != 3) {
+//                                    int segid = myrenderer.addLineDrawed(lineDrawed);
+////                                    segids.add(segid);
+////                            requestRender();
+//
+//                                    myrenderer.addLineDrawed2(lineDrawed);
+//                                    myrenderer.deleteFromNew(segid);
+//                                } else {
+//                                    myrenderer.addBackgroundLineDrawed(lineDrawed);
+//                                }
                             }
 //                            requestRender();
 
