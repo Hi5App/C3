@@ -24,6 +24,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaRouter;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
@@ -41,6 +42,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -50,6 +53,8 @@ import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -76,8 +81,10 @@ import com.learning.opimageline.DetectLine;
 import com.learning.pixelclassification.PixelClassification;
 import com.learning.randomforest.RandomForest;
 import com.lxj.xpopup.XPopup;
+import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
+import com.lxj.xpopup.interfaces.SimpleCallback;
 import com.tracingfunc.app2.ParaAPP2;
 import com.tracingfunc.app2.V3dNeuronAPP2Tracing;
 import com.tracingfunc.gd.CurveTracePara;
@@ -258,6 +265,7 @@ public class MainActivity extends AppCompatActivity {
     private List<double[]> fl;
 
     private boolean isRemote;
+    private ProgressBar progressBar;
 
 
     private int eswc_length;
@@ -759,6 +767,13 @@ public class MainActivity extends AppCompatActivity {
         remoteImg = new RemoteImg();
         context = getApplicationContext();
 
+        progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleSmall);
+//        progressBar.setBackgroundResource(R.drawable.rectangle_normal);
+
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(200, 200);
+        params.gravity = Gravity.CENTER;
+        this.addContentView(progressBar, params);
+        progressBar.setVisibility(View.GONE);
 
 
     }
@@ -1975,6 +1990,7 @@ public class MainActivity extends AppCompatActivity {
                                             Log.v("Mainactivity", "GD-Tracing start~");
                                             Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
 //                                            Timer timer = new Timer();
+                                            progressBar.setVisibility(View.VISIBLE);
                                             timer = new Timer();
                                             timerTask = new TimerTask() {
                                                 @RequiresApi(api = Build.VERSION_CODES.N)
@@ -2015,6 +2031,7 @@ public class MainActivity extends AppCompatActivity {
                                             Log.v("Mainactivity", "APP2-Tracing start~");
                                             Toast.makeText(v.getContext(), "APP2-Tracing start~", Toast.LENGTH_SHORT).show();
 //                                            Timer timer = new Timer();
+                                            progressBar.setVisibility(View.VISIBLE);
                                             timer = new Timer();
                                             timerTask = new TimerTask() {
                                                 @RequiresApi(api = Build.VERSION_CODES.N)
@@ -3337,7 +3354,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200605c 22:42 build",
+                .asConfirm("Version", "version: 20200606b 13:17 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -3892,6 +3909,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.INVISIBLE);
             Looper.loop();
             return;
         }
@@ -3931,6 +3949,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getContext(), "APP2-Tracing finish, size of result swc: " + Integer.toString(nt.listNeuron.size()), Toast.LENGTH_SHORT).show();
             myrenderer.importNeuronTree(nt);
             myGLSurfaceView.requestRender();
+            progressBar.setVisibility(View.INVISIBLE);
             Looper.loop();
 
         } catch (Exception e) {
@@ -3938,6 +3957,7 @@ public class MainActivity extends AppCompatActivity {
                 Looper.prepare();
             }
             Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            progressBar.setVisibility(View.INVISIBLE);
             Looper.loop();
         }
 
@@ -3963,6 +3983,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             Toast.makeText(this, "Please load image first!", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.INVISIBLE);
             Looper.loop();
             return;
         }
@@ -3973,6 +3994,7 @@ public class MainActivity extends AppCompatActivity {
                 Looper.prepare();
             }
             Toast.makeText(getContext(), "Please produce at least two markers!", Toast.LENGTH_LONG).show();
+            progressBar.setVisibility(View.INVISIBLE);
             Looper.loop();
             return;
         }
@@ -3995,6 +4017,7 @@ public class MainActivity extends AppCompatActivity {
                 Looper.prepare();
             }
             Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            progressBar.setVisibility(View.INVISIBLE);
             Looper.loop();
         }
         for (int i = 0; i < outswc.listNeuron.size(); i++) {
@@ -4008,6 +4031,7 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(getContext(), "GD-Tracing finished, size of result swc: " + Integer.toString(outswc.listNeuron.size()), Toast.LENGTH_SHORT).show();
         myrenderer.importNeuronTree(outswc);
         myGLSurfaceView.requestRender();
+        progressBar.setVisibility(View.INVISIBLE);
         Looper.loop();
 
     }
@@ -4574,6 +4598,8 @@ public class MainActivity extends AppCompatActivity {
                 myGLSurfaceView.requestRender();
                 Toast.makeText(getContext(), "Have been shown on the screen.", Toast.LENGTH_SHORT).show();
             }
+
+            progressBar.setVisibility(View.INVISIBLE);
             Looper.loop();
 
         }catch (Exception e) {
@@ -4581,6 +4607,7 @@ public class MainActivity extends AppCompatActivity {
                 Looper.prepare();
             }
             Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            progressBar.setVisibility(View.INVISIBLE);
             Looper.loop();
         }
     }
@@ -5039,6 +5066,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             Toast.makeText(getContext(), "marker_loc:"+ p.max_loc[0] + "," + p.max_loc[1] + "," + p.max_loc[2], Toast.LENGTH_LONG).show();
+            progressBar.setVisibility(View.INVISIBLE);
             Looper.loop();
             /*
             ImageMarker m = p.GSDT_Fun(img, para);
@@ -5055,6 +5083,7 @@ public class MainActivity extends AppCompatActivity {
                 Looper.prepare();
             }
             Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            progressBar.setVisibility(View.INVISIBLE);
             Looper.loop();
         }
 
@@ -5503,12 +5532,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void Experiment_icon(){
+        Context context = this;
         new XPopup.Builder(this)
+                .setPopupCallback(new SimpleCallback() { //设置显示和隐藏的回调
+                    @Override
+                    public void onDismiss() {
+                        // 完全隐藏的时候执行
+//                        Toast.makeText(getContext(), "GSDT function start~", Toast.LENGTH_SHORT).show();
+//                        GD_Tracing();
+                    }
+                })
 //        .maxWidth(400)
 //        .maxHeight(1350)
                 .asCenterList("Experimental Features", new String[]{"Detect Line", "Detect Corner", "GSDT","Anisotropic Filter", "For Developer(Classify)"},
                         new OnSelectListener() {
-                            @Override
+//                            @Override
                             public void onSelect(int position, String text) {
                                 switch (text) {
                                     case "Detect Line":
@@ -5524,6 +5562,7 @@ public class MainActivity extends AppCompatActivity {
                                             Log.v("Mainactivity", "GSDT function.");
                                             Toast.makeText(getContext(), "GSDT function start~", Toast.LENGTH_SHORT).show();
 //                                            Timer timer = new Timer();
+                                            progressBar.setVisibility(View.VISIBLE);
                                             timer = new Timer();
                                             timerTask = new TimerTask() {
                                                 @RequiresApi(api = Build.VERSION_CODES.N)
@@ -5539,6 +5578,7 @@ public class MainActivity extends AppCompatActivity {
                                                 }
                                             };
                                             timer.schedule(timerTask, 0);
+
 //                                            timer.schedule(new TimerTask() {
 //                                                @RequiresApi(api = Build.VERSION_CODES.N)
 //                                                @Override
@@ -5562,8 +5602,9 @@ public class MainActivity extends AppCompatActivity {
                                         //调用各向异性滤波，显示滤波结果
                                         try {
                                             Log.v("Mainactivity", "AnisotropicFilter function.");
-                                            Toast.makeText(getContext(), "AnisotropicFilter function start~", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(getContext(), "AnisotropicFilter function start~, it will take about 6 mins", Toast.LENGTH_SHORT).show();
 //                                            Timer timer = new Timer();
+                                            progressBar.setVisibility(View.VISIBLE);
                                             timer = new Timer();
                                             timerTask = new TimerTask() {
                                                 @RequiresApi(api = Build.VERSION_CODES.N)
@@ -5611,6 +5652,58 @@ public class MainActivity extends AppCompatActivity {
                             }
                         })
                 .show();
+    }
+
+
+    private void GD_Tracing(){
+        Context context = this;
+
+//        Zoom_in.setVisibility(View.VISIBLE);
+//        Zoom_out.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+//                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+        boolean[] flag = {false};
+
+        Log.v("GD_Tracing","popupView.showed");
+
+        timer = new Timer();
+        timerTask = new TimerTask() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void run() {
+                try {
+
+                    Log.v("Mainactivity", "GSDT start.");
+                    GSDT_Fun();
+                    Log.v("Mainactivity", "GSDT end.");
+
+//                    Zoom_in.setVisibility(View.INVISIBLE);
+//                    Zoom_out.setVisibility(View.INVISIBLE);
+
+//                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        timer.schedule(timerTask, 0);
+
+//        GSDT_Fun();
+//        Log.v("GD_Tracing","GSDT_Fun");
+//        while(!flag[0]) ;
+
+
+//        Zoom_in.setVisibility(View.INVISIBLE);
+//        Zoom_out.setVisibility(View.INVISIBLE);
+
+
+//        popupView.dismiss();
+        Log.v("GD_Tracing","popupView.dismissed");
+
     }
 
     public void remote_i(){

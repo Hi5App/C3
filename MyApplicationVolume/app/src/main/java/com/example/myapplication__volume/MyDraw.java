@@ -584,7 +584,7 @@ public class MyDraw {
             step = 2.0f;
         }
 */
-        Log.v("createPositions ", Float.toString(r));
+//        Log.v("createPositions ", Float.toString(r));
         float step = 2.0f;
 
         if(r <= 0.01f){
