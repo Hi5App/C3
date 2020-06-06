@@ -1,0 +1,12 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="org.opencv"
+4    android:versionCode="3400"
+5    android:versionName="3.4.0" > <!-- <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="21" /> -->
+6    <uses-sdk
+7        android:minSdkVersion="22"
+7-->D:\gitdata\myC3\C3\MyApplicationVolume\openCVLibrary340\src\main\AndroidManifest.xml
+8        android:targetSdkVersion="29" />
+8-->D:\gitdata\myC3\C3\MyApplicationVolume\openCVLibrary340\src\main\AndroidManifest.xml
+9
+10</manifest>
