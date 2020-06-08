@@ -2557,7 +2557,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //                .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
 
-                .asCenterList("Detect Line", new String[]{"Run", "Detect Tips", "Train", "SaveRandomForest", "ReadRandomForest"},
+                .asCenterList("Detect Line", new String[]{"Run", "Check Current Lines", "Detect Tips", "Train", "SaveRandomForest", "ReadRandomForest"},
 
 
                         new OnSelectListener() {
@@ -2607,6 +2607,75 @@ public class MainActivity extends AppCompatActivity {
                                                         myrenderer.importNeuronTree(result);
                                                         myGLSurfaceView.requestRender();
                                                         progressBar.setVisibility(View.INVISIBLE);
+                                                    } catch (Exception e) {
+                                                        if (Looper.myLooper() == null) {
+                                                            Looper.prepare();
+                                                        }
+                                                        progressBar.setVisibility(View.INVISIBLE);
+                                                        Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                                        Looper.loop();
+                                                    }
+                                                } catch (Exception e) {
+                                                    progressBar.setVisibility(View.INVISIBLE);
+                                                    e.printStackTrace();
+                                                }
+
+                                            }
+                                        };
+                                        timer.schedule(timerTask, 1000);
+                                        break;
+
+                                    case "Check Current Lines":
+                                        Toast.makeText(getContext(), "start~", Toast.LENGTH_LONG).show();
+                                        progressBar.setVisibility(View.VISIBLE);
+                                        timer = new Timer();
+                                        timerTask = new TimerTask() {
+                                            @RequiresApi(api = Build.VERSION_CODES.N)
+                                            @Override
+                                            public void run() {
+                                                try {
+                                                    DetectLine d = new DetectLine();
+                                                    Image4DSimple img = myrenderer.getImg();
+                                                    if(img == null){
+                                                        if (Looper.myLooper() == null) {
+                                                            Looper.prepare();
+                                                        }
+                                                        progressBar.setVisibility(View.INVISIBLE);
+
+                                                        Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+                                                        Looper.loop();
+                                                    }
+                                                    NeuronTree nt = myrenderer.getNeuronTree();
+                                                    if(nt.listNeuron.isEmpty() || nt == null){
+                                                        if (Looper.myLooper() == null) {
+                                                            Looper.prepare();
+                                                        }
+
+                                                        progressBar.setVisibility(View.INVISIBLE);
+                                                        Toast.makeText(getContext(), "Please add line", Toast.LENGTH_LONG).show();
+                                                        Looper.loop();
+                                                    }
+
+                                                    try {
+
+                                                        NeuronTree result;
+
+                                                        if(rf != null){
+                                                            result = d.lineClassification(img,nt,rf);
+                                                            myrenderer.deleteAllTracing();
+                                                            myrenderer.importNeuronTree(result);
+                                                            myGLSurfaceView.requestRender();
+                                                            progressBar.setVisibility(View.INVISIBLE);
+                                                        }else {
+                                                            if (Looper.myLooper() == null) {
+                                                                Looper.prepare();
+                                                            }
+
+                                                            progressBar.setVisibility(View.INVISIBLE);
+                                                            Toast.makeText(getContext(), "random forest is none", Toast.LENGTH_LONG).show();
+                                                            Looper.loop();
+                                                        }
+
                                                     } catch (Exception e) {
                                                         if (Looper.myLooper() == null) {
                                                             Looper.prepare();
@@ -3330,7 +3399,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200608c 23:53 build",
+                .asConfirm("Version", "version: 20200609a 00:52 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

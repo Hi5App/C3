@@ -543,42 +543,81 @@ public class DetectLine {
 
         for(int i=0; i<branches.size(); i++){
             Branch b = branches.get(i);
-            b.calculateFeature(img,nt);
-            float[] features = new float[]{b.getAngleChangeMean(), b.getDistance(), b.getGradientMean(), b.getIntensityMean(),
-                    b.getIntensityRatioToGlobal(), b.getIntensityRatioToLocal(), b.getIntensityStd(),b.getLength(),
-                    b.getSigma12(),b.getSigma13(),0};
-            data.add(features);
+            splitBranch(b,img,nt,rf);
+//            Vector<NeuronSWC> points = b.getPointsOfBranch(nt);
+//            b.calculateFeature(img,nt);
+//            float[] features = new float[]{b.getAngleChangeMean(), b.getDistance(), b.getGradientMean(), b.getIntensityMean(),
+//                    b.getIntensityRatioToGlobal(), b.getIntensityRatioToLocal(), b.getIntensityStd(),b.getLength(),
+//                    b.getSigma12(),b.getSigma13(),0};
+//            data.add(features);
+//            int c = rf.Evaluate(features);
+//            if(c == 0){
+//                for(int j=0; j<points.size(); j++){
+//                    points.get(j).type = 2;
+//                }
+//            }else if(c == 1){
+//
+//            }
 
         }
 
-        for(int i=0; i<data.size(); i++){
-            int c = rf.Evaluate(data.get(i));
-            Branch b = branches.get(i);
-            Vector<NeuronSWC> points = b.getPointsOfBranch(nt);
-            if(c == 0){
-                System.out.println("-------------------0-------------------------");
-                System.out.println("angle: "+ b.getAngleChangeMean()
-                        + " distance: " + b.getDistance() + " gradient: " + b.getGradientMean()
-                        + " intensity: "+ b.getIntensityMean() + " intensityToGloble: " + b.getIntensityRatioToGlobal()
-                        + " intensityToLocal: "+ b.getIntensityRatioToLocal() +" intensitystd: " + b.getIntensityStd()
-                        + " length: "+ b.getLength() + " sigma12: "+b.getSigma12() +" sigma13: "+b.getSigma13());
-                for(int j=0; j<points.size(); j++){
-                    points.get(j).type = 2;
-                }
-            }else if(c == 1){
-                System.out.println("-------------------1-------------------------");
-                System.out.println("angle: "+ b.getAngleChangeMean()
-                        + " distance: " + b.getDistance() + " gradient: " + b.getGradientMean()
-                        + " intensity: "+ b.getIntensityMean() + " intensityToGloble: " + b.getIntensityRatioToGlobal()
-                        + " intensityToLocal: "+ b.getIntensityRatioToLocal() +" intensitystd: " + b.getIntensityStd()
-                        + " length: "+ b.getLength() + " sigma12: "+b.getSigma12() +" sigma13: "+b.getSigma13());
+//        for(int i=0; i<data.size(); i++){
+//            int c = rf.Evaluate(data.get(i));
+//            Branch b = branches.get(i);
+//            Vector<NeuronSWC> points = b.getPointsOfBranch(nt);
+//            if(c == 0){
+//                System.out.println("-------------------0-------------------------");
+//                System.out.println("angle: "+ b.getAngleChangeMean()
+//                        + " distance: " + b.getDistance() + " gradient: " + b.getGradientMean()
+//                        + " intensity: "+ b.getIntensityMean() + " intensityToGloble: " + b.getIntensityRatioToGlobal()
+//                        + " intensityToLocal: "+ b.getIntensityRatioToLocal() +" intensitystd: " + b.getIntensityStd()
+//                        + " length: "+ b.getLength() + " sigma12: "+b.getSigma12() +" sigma13: "+b.getSigma13());
+//                for(int j=0; j<points.size(); j++){
+//                    points.get(j).type = 2;
+//                }
+//            }else if(c == 1){
+//                System.out.println("-------------------1-------------------------");
+//                System.out.println("angle: "+ b.getAngleChangeMean()
+//                        + " distance: " + b.getDistance() + " gradient: " + b.getGradientMean()
+//                        + " intensity: "+ b.getIntensityMean() + " intensityToGloble: " + b.getIntensityRatioToGlobal()
+//                        + " intensityToLocal: "+ b.getIntensityRatioToLocal() +" intensitystd: " + b.getIntensityStd()
+//                        + " length: "+ b.getLength() + " sigma12: "+b.getSigma12() +" sigma13: "+b.getSigma13());
+//                for(int j=0; j<points.size(); j++){
+//                    points.get(j).type = 3;
+//                }
+//            }
+//        }
+
+        return nt;
+    }
+
+    public void splitBranch(Branch b, Image4DSimple img, NeuronTree nt, RandomForest rf){
+        Vector<NeuronSWC> points = b.getPointsOfBranch(nt);
+        b.calculateFeature(img,nt);
+        float[] features = new float[]{b.getAngleChangeMean(), b.getDistance(), b.getGradientMean(), b.getIntensityMean(),
+                b.getIntensityRatioToGlobal(), b.getIntensityRatioToLocal(), b.getIntensityStd(),b.getLength(),
+                b.getSigma12(),b.getSigma13(),0};
+        int c = rf.Evaluate(features);
+        if(c == 0){
+            for(int j=0; j<points.size(); j++){
+                points.get(j).type = 2;
+            }
+        }else if(c == 1){
+            if(b.getLength()<5 || points.size()<5){
                 for(int j=0; j<points.size(); j++){
                     points.get(j).type = 3;
                 }
+            }else {
+                Branch b1 = new Branch(), b2 = new Branch();
+                int size = points.size();
+                b1.setHeadPoint(points.get(0));
+                b1.setTailPoint(points.get(size/2-1));
+                b2.setHeadPoint(points.get(size/2));
+                b2.setTailPoint(points.get(size-1));
+                splitBranch(b1,img,nt,rf);
+                splitBranch(b2,img,nt,rf);
             }
         }
-
-        return nt;
     }
 
     public NeuronTree lineClassification(Image4DSimple img, NeuronTree nt){
