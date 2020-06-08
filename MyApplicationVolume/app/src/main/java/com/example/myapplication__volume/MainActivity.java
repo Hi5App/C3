@@ -2557,7 +2557,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //                .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
 
-                .asCenterList("Detect Line", new String[]{"Run", "Train", "SaveRandomForest", "ReadRandomForest"},
+                .asCenterList("Detect Line", new String[]{"Run", "Detect Tips", "Train", "SaveRandomForest", "ReadRandomForest"},
 
 
                         new OnSelectListener() {
@@ -2565,12 +2565,8 @@ public class MainActivity extends AppCompatActivity {
                             public void onSelect(int position, String text) {
                                 switch (text) {
                                     case "Run":
-//                                        if (Looper.myLooper() == null) {
-//                                            Looper.prepare();
-//                                        }
-
                                         Toast.makeText(getContext(), "start~", Toast.LENGTH_LONG).show();
-//                                        Looper.loop();
+                                        progressBar.setVisibility(View.VISIBLE);
                                         timer = new Timer();
                                         timerTask = new TimerTask() {
                                             @RequiresApi(api = Build.VERSION_CODES.N)
@@ -2583,6 +2579,7 @@ public class MainActivity extends AppCompatActivity {
                                                         if (Looper.myLooper() == null) {
                                                             Looper.prepare();
                                                         }
+                                                        progressBar.setVisibility(View.INVISIBLE);
 
                                                         Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
                                                         Looper.loop();
@@ -2593,6 +2590,7 @@ public class MainActivity extends AppCompatActivity {
                                                             Looper.prepare();
                                                         }
 
+                                                        progressBar.setVisibility(View.INVISIBLE);
                                                         Toast.makeText(getContext(), "Please add line", Toast.LENGTH_LONG).show();
                                                         Looper.loop();
                                                     }
@@ -2608,99 +2606,43 @@ public class MainActivity extends AppCompatActivity {
                                                         }
                                                         myrenderer.importNeuronTree(result);
                                                         myGLSurfaceView.requestRender();
+                                                        progressBar.setVisibility(View.INVISIBLE);
                                                     } catch (Exception e) {
                                                         if (Looper.myLooper() == null) {
                                                             Looper.prepare();
                                                         }
-
+                                                        progressBar.setVisibility(View.INVISIBLE);
                                                         Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
                                                         Looper.loop();
                                                     }
                                                 } catch (Exception e) {
+                                                    progressBar.setVisibility(View.INVISIBLE);
                                                     e.printStackTrace();
                                                 }
 
                                             }
                                         };
                                         timer.schedule(timerTask, 1000);
-//                                        Timer timer = new Timer();
-//                                        timer.schedule(new TimerTask() {
-//                                            @RequiresApi(api = Build.VERSION_CODES.N)
-//                                            @Override
-//                                            public void run() {
-//
-//                                                try {
-//                                                    DetectLine d = new DetectLine();
-//                                                    Image4DSimple img = myrenderer.getImg();
-//                                                    if(img == null){
-//                                                        if (Looper.myLooper() == null) {
-//                                                            Looper.prepare();
-//                                                        }
-//
-//                                                        Toast.makeText(v.getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
-//                                                        Looper.loop();
-//                                                    }
-//                                                    NeuronTree nt = myrenderer.getNeuronTree();
-//                                                    if(nt.listNeuron.isEmpty() || nt == null){
-//                                                        if (Looper.myLooper() == null) {
-//                                                            Looper.prepare();
-//                                                        }
-//
-//                                                        Toast.makeText(v.getContext(), "Please add line", Toast.LENGTH_LONG).show();
-//                                                        Looper.loop();
-//                                                    }
-//
-//                                                    try {
-//                                                        NeuronTree app2Result = d.detectLine(img,nt);
-//                                                        NeuronTree result = new NeuronTree();
-//
-//                                                        if(rf != null){
-//                                                            result = d.lineClassification(img,app2Result,rf);
-//                                                        }else {
-//                                                            result = app2Result;
-//                                                        }
-//                                                        myrenderer.importNeuronTree(result);
-//                                                        myGLSurfaceView.requestRender();
-//                                                    } catch (Exception e) {
-//                                                        if (Looper.myLooper() == null) {
-//                                                            Looper.prepare();
-//                                                        }
-//
-//                                                        Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-//                                                        Looper.loop();
-//                                                    }
-//                                                } catch (Exception e) {
-//                                                    e.printStackTrace();
-//                                                }
-//
-//                                            }
-//                                        }, 1000); // 延时1秒
                                         break;
 
-
-                                    case "Train":
-//                                        if (Looper.myLooper() == null) {
-//                                            Looper.prepare();
-//                                        }
-
-                                        Toast.makeText(getContext(), "train start~", Toast.LENGTH_LONG).show();
-//                                        Looper.loop();
-//                                        Timer timer1 = new Timer();
-//                                        timer1.schedule(new TimerTask() {
+                                    case "Detect Tips":
+                                        Toast.makeText(getContext(), "start~", Toast.LENGTH_LONG).show();
+                                        progressBar.setVisibility(View.VISIBLE);
                                         timer = new Timer();
                                         timerTask = new TimerTask() {
                                             @RequiresApi(api = Build.VERSION_CODES.N)
                                             @Override
                                             public void run() {
-                                                try{
-
+                                                try {
                                                     DetectLine d = new DetectLine();
+
                                                     Image4DSimple img = myrenderer.getImg();
                                                     if(img == null){
                                                         if (Looper.myLooper() == null) {
                                                             Looper.prepare();
                                                         }
 
+                                                        progressBar.setVisibility(View.INVISIBLE);
                                                         Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
                                                         Looper.loop();
                                                     }
@@ -2710,6 +2652,57 @@ public class MainActivity extends AppCompatActivity {
                                                             Looper.prepare();
                                                         }
 
+                                                        progressBar.setVisibility(View.INVISIBLE);
+                                                        Toast.makeText(getContext(), "Please add line", Toast.LENGTH_LONG).show();
+                                                        Looper.loop();
+                                                    }
+                                                    ArrayList<ImageMarker> tips = d.detectTips(img,nt);
+                                                    myrenderer.getMarkerList().addAll(tips);
+                                                    myGLSurfaceView.requestRender();
+                                                    progressBar.setVisibility(View.INVISIBLE);
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                    progressBar.setVisibility(View.INVISIBLE);
+                                                }
+
+                                            }
+                                        };
+                                        timer.schedule(timerTask, 1000);
+                                        break;
+
+
+                                    case "Train":
+//                                        if (Looper.myLooper() == null) {
+//                                            Looper.prepare();
+//                                        }
+
+                                        Toast.makeText(getContext(), "train start~", Toast.LENGTH_LONG).show();
+                                        progressBar.setVisibility(View.VISIBLE);
+//                                        Looper.loop();
+//                                        Timer timer1 = new Timer();
+//                                        timer1.schedule(new TimerTask() {
+                                        timer = new Timer();
+                                        timerTask = new TimerTask() {
+                                            @RequiresApi(api = Build.VERSION_CODES.N)
+                                            @Override
+                                            public void run() {
+                                                try{
+                                                    DetectLine d = new DetectLine();
+                                                    Image4DSimple img = myrenderer.getImg();
+                                                    if(img == null){
+                                                        if (Looper.myLooper() == null) {
+                                                            Looper.prepare();
+                                                        }
+                                                        progressBar.setVisibility(View.INVISIBLE);
+                                                        Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+                                                        Looper.loop();
+                                                    }
+                                                    NeuronTree nt = myrenderer.getNeuronTree();
+                                                    if(nt.listNeuron.isEmpty() || nt == null){
+                                                        if (Looper.myLooper() == null) {
+                                                            Looper.prepare();
+                                                        }
+                                                        progressBar.setVisibility(View.INVISIBLE);
                                                         Toast.makeText(getContext(), "Please add train line", Toast.LENGTH_LONG).show();
                                                         Looper.loop();
                                                     }
@@ -2720,13 +2713,14 @@ public class MainActivity extends AppCompatActivity {
                                                         Looper.prepare();
                                                     }
 
+                                                    progressBar.setVisibility(View.INVISIBLE);
                                                     Toast.makeText(getContext(), "train is ended", Toast.LENGTH_LONG).show();
                                                     Looper.loop();
                                                 }catch (Exception e){
                                                     if (Looper.myLooper() == null) {
                                                         Looper.prepare();
                                                     }
-
+                                                    progressBar.setVisibility(View.INVISIBLE);
                                                     Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
                                                     Looper.loop();
                                                 }
@@ -2734,51 +2728,6 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                         };
                                         timer.schedule(timerTask, 1000);
-//                                        timer.schedule(new TimerTask() {
-//                                            @RequiresApi(api = Build.VERSION_CODES.N)
-//                                            @Override
-//                                            public void run() {
-//                                                try{
-//
-//                                                    DetectLine d = new DetectLine();
-//                                                    Image4DSimple img = myrenderer.getImg();
-//                                                    if(img == null){
-//                                                        if (Looper.myLooper() == null) {
-//                                                            Looper.prepare();
-//                                                        }
-//
-//                                                        Toast.makeText(v.getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
-//                                                        Looper.loop();
-//                                                    }
-//                                                    NeuronTree nt = myrenderer.getNeuronTree();
-//                                                    if(nt.listNeuron.isEmpty() || nt == null){
-//                                                        if (Looper.myLooper() == null) {
-//                                                            Looper.prepare();
-//                                                        }
-//
-//                                                        Toast.makeText(v.getContext(), "Please add train line", Toast.LENGTH_LONG).show();
-//                                                        Looper.loop();
-//                                                    }
-//
-//                                                    rf = d.train(img,nt);
-//                                                    if (Looper.myLooper() == null) {
-//                                                        Looper.prepare();
-//                                                    }
-//
-//                                                    Toast.makeText(v.getContext(), "train is ended", Toast.LENGTH_LONG).show();
-//                                                    Looper.loop();
-//                                                }catch (Exception e){
-//                                                    if (Looper.myLooper() == null) {
-//                                                        Looper.prepare();
-//                                                    }
-//
-//                                                    Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-//                                                    Looper.loop();
-//                                                }
-//
-//                                            }
-//                                        }, 1000); // 延时1秒
-
                                         break;
 
                                     case "SaveRandomForest":
@@ -3381,7 +3330,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200608b 18:04 build",
+                .asConfirm("Version", "version: 20200608c 23:53 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
