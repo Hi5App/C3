@@ -101,6 +101,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private float angle = 0f;
     private float angleX = 0.0f;
     private float angleY = 0.0f;
+    private float angleZ = 0.0f;
     private int mTextureId;
 
     private int vol_w;
@@ -120,6 +121,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private final float[] rotationMatrix =new float[16];
     private final float[] rotationXMatrix = new float[16];
     private final float[] rotationYMatrix = new float[16];
+    private final float[] rotationZMatrix = new float[16];
     private final float[] translateMatrix = new float[16];//平移矩阵
     private final float[] translateAfterMatrix = new float[16];
     private final float[] modelMatrix = new float[16];
@@ -1109,7 +1111,22 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Log.v("angleY = ", Float.toString(angleY));
     }
 
-
+    public void rotate2f(float x1, float x2, float y1, float y2){
+        double value = (x1 * x2 + y1 * y2) / (Math.sqrt(x1 * x1 + y1 * y1) * Math.sqrt(x2 * x2 + y2 * y2));
+        if (value > 1){
+            value = 1;
+        }
+        System.out.println(value);
+//        angleZ = (float)Math.toDegrees(Math.acos(value));
+        angleZ = (float)(Math.acos(value) / Math.PI * 180.0);
+        System.out.println(angleZ);
+        float axis = x2 * y1 - x1 * y2;
+        if (axis != 0) {
+//        float [] rotationZMatrix = new float[16];
+            Matrix.setRotateM(rotationZMatrix, 0, angleZ, 0.0f, 0.0f, axis);
+            Matrix.multiplyMM(rotationMatrix, 0, rotationZMatrix, 0, rotationMatrix, 0);
+        }
+    }
 
 
 

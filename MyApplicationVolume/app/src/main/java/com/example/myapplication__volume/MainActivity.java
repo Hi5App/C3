@@ -3354,7 +3354,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200606b 13:17 build",
+                .asConfirm("Version", "version: 20200608a 16:34 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5272,8 +5272,8 @@ public class MainActivity extends AppCompatActivity {
                                         myrenderer.setIfDownSampling(true);
                                 }
 
-                                myrenderer.rotate(dis_x - dis_x_start, dis_y - dis_y_start, (float)(computeDis(dis_x, dis_x_start, dis_y, dis_y_start)));
-
+//                                myrenderer.rotate(dis_x - dis_x_start, dis_y - dis_y_start, (float)(computeDis(dis_x, dis_x_start, dis_y, dis_y_start)));
+                                myrenderer.rotate2f(dis_x_start, dis_x, dis_y_start, dis_y);
 
                                 //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
                                 requestRender();
