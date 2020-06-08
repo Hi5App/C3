@@ -1002,7 +1002,7 @@ public class RemoteImg extends Socket {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.v("get ip", offset);
+        Log.v("get offset", offset);
         return offset;
     }
 

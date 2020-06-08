@@ -229,6 +229,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton navigation_right;
     private ImageButton navigation_up;
     private ImageButton navigation_down;
+    private ImageButton navigation_location;
     private Button navigation_front;
     private Button navigation_back;
     private FrameLayout.LayoutParams lp_undo_i;
@@ -240,6 +241,7 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout.LayoutParams lp_down_i;
     private FrameLayout.LayoutParams lp_front_i;
     private FrameLayout.LayoutParams lp_back_i;
+    private FrameLayout.LayoutParams lp_nacloc_i;
 
     private Button PixelClassification;
     private boolean[][]select= {{true,true,true,false,false,false,false},
@@ -737,6 +739,29 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+//        navigation_location = new Button(this);
+//        navigation_location.setText("L");
+//        navigation_location.setOnClickListener(new Button.OnClickListener() {
+//            public void onClick(View v) {
+//                Set_Nav_Mode();
+//            }
+//        });
+
+        lp_nacloc_i = new FrameLayout.LayoutParams(90, 90);
+        lp_nacloc_i.gravity = Gravity.TOP | Gravity.LEFT;
+        lp_nacloc_i.setMargins(20, 350, 0, 0);
+
+        navigation_location = new ImageButton(this);
+        navigation_location.setImageResource(R.drawable.ic_gps_fixed_black_24dp);
+        navigation_location.setBackgroundResource(R.drawable.circle_normal);
+        navigation_location.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                Set_Nav_Mode();
+            }
+        });
+
+
         if (isRemote){
             this.addContentView(navigation_left, lp_left_i);
             this.addContentView(navigation_right, lp_right_i);
@@ -744,6 +769,7 @@ public class MainActivity extends AppCompatActivity {
             this.addContentView(navigation_down, lp_down_i);
             this.addContentView(navigation_front, lp_front_i);
             this.addContentView(navigation_back, lp_back_i);
+            this.addContentView(navigation_location, lp_nacloc_i);
         }
 
 
@@ -1192,6 +1218,7 @@ public class MainActivity extends AppCompatActivity {
                             ((ViewGroup)navigation_down.getParent()).removeView(navigation_down);
                             ((ViewGroup)navigation_front.getParent()).removeView(navigation_front);
                             ((ViewGroup)navigation_back.getParent()).removeView(navigation_back);
+                            ((ViewGroup)navigation_location.getParent()).removeView(navigation_location);
 
                             FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
                             lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
@@ -3354,7 +3381,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200608a 16:34 build",
+                .asConfirm("Version", "version: 20200608b 18:04 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -3715,6 +3742,37 @@ public class MainActivity extends AppCompatActivity {
             case "Back":
                 remoteImg.Selectblock_fast(context, false, "Back");
                 break;
+        }
+    }
+
+    public void Set_Nav_Mode(){
+        String filename = getFilename(this);
+        String offset = getoffset(this, filename);
+
+        float size_x = Float.parseFloat(filename.split("RES")[1].split("x")[0]);
+        float size_y = Float.parseFloat(filename.split("RES")[1].split("x")[1]);
+        float size_z = Float.parseFloat(filename.split("RES")[1].split("x")[2]);
+
+        float offset_x = Float.parseFloat(offset.split("_")[0]);
+        float offset_y = Float.parseFloat(offset.split("_")[1]);
+        float offset_z = Float.parseFloat(offset.split("_")[2]);
+        float size_block = Float.parseFloat(offset.split("_")[3]);
+
+        boolean ifNavigationLocation = myrenderer.getNav_location_Mode();
+
+        float[] neuron = {size_x, size_y, size_z};
+        float[] block = {offset_x, offset_y, offset_z};
+        float[] size = {size_block, size_block, size_block};
+
+        if (!ifNavigationLocation){
+            System.out.println("--------!ifNavigationLocation---------");
+            myrenderer.setNav_location_Mode();
+            myrenderer.setNav_location(neuron, block, size);
+            myGLSurfaceView.requestRender();
+        }else {
+            System.out.println("--------!ifNavigationLocation---------");
+            myrenderer.setNav_location_Mode();
+            myGLSurfaceView.requestRender();
         }
     }
 
@@ -5759,6 +5817,7 @@ public class MainActivity extends AppCompatActivity {
         navigation_left.setVisibility(View.GONE);
         navigation_right.setVisibility(View.GONE);
         navigation_up.setVisibility(View.GONE);
+        navigation_location.setVisibility(View.GONE);
 
         ifButtonShowed = false;
 
@@ -5784,6 +5843,7 @@ public class MainActivity extends AppCompatActivity {
         navigation_left.setVisibility(View.VISIBLE);
         navigation_right.setVisibility(View.VISIBLE);
         navigation_up.setVisibility(View.VISIBLE);
+        navigation_location.setVisibility(View.VISIBLE);
 
         ifButtonShowed = true;
     }
