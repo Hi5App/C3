@@ -69,7 +69,7 @@ import static javax.microedition.khronos.opengles.GL10.GL_SRC_ALPHA;
 
 //@android.support.annotation.RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
 public class MyRenderer implements GLSurfaceView.Renderer {
-    private int UNDO_LIMIT = 5;
+    private int UNDO_LIMIT = 20;
     private enum Operate {DRAWCURVE, DELETECURVE, DRAWMARKER, DELETEMARKER, CHANGELINETYPE, SPLIT};
     private Vector<Operate> process = new Vector<>();
     private Vector<V_NeuronSWC> undoDrawList = new Vector<>();
@@ -1135,7 +1135,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             Matrix.multiplyMM(rotationMatrix, 0, rotationZMatrix, 0, rotationMatrix, 0);
         }
     }
-
 
 
     public void zoom(float f){

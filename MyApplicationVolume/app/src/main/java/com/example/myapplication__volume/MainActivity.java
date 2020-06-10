@@ -418,8 +418,8 @@ public class MainActivity extends AppCompatActivity {
         Zoom_in.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Image4DSimple img = myrenderer.getImg();
-                if(img == null || !img.valid()){
+//                Image4DSimple img = myrenderer.getImg();
+                if(!myrenderer.getIfFileLoaded()){
                     Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -432,8 +432,8 @@ public class MainActivity extends AppCompatActivity {
         Zoom_out.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Image4DSimple img = myrenderer.getImg();
-                if(img == null || !img.valid()){
+//                Image4DSimple img = myrenderer.getImg();
+                if(!myrenderer.getIfFileLoaded()){
                     Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -804,6 +804,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * on top bar menu created, link res/menu/main.xml
+     * @param menu
+     * @return
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -811,7 +816,11 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-
+    /**
+     * call the corresponding function when button in top bar clicked
+     * @param item
+     * @return
+     */
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
@@ -874,6 +883,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * popup a menu when share button is clicked, include screenshot share, upload swc and download swc
+     */
     public void Share_icon(){
 
         new XPopup.Builder(this)
@@ -907,6 +919,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * pop up a menu when button more is clicked, include analyze swc file, sensor information, downsample mode, animate and version
+     */
     public void More_icon(){
         SettingFileManager settingFileManager = new SettingFileManager();
         String DownSample_mode;
@@ -972,6 +987,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * called when request permission
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -982,6 +1003,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -1296,7 +1323,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     *
+     * @param ip
+     * @param context
+     * @param is
+     * @param length
+     * @param filename
+     */
     private void SendSwc(String ip, Context context, InputStream is, long length, String filename) {
         //新建一个线程，用于初始化socket和检测是否有接收到新的消息
         Thread thread = new Thread() {
@@ -3399,7 +3433,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200609a 00:52 build",
+                .asConfirm("Version", "version: 20200610a 17:50 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5239,6 +5273,11 @@ public class MainActivity extends AppCompatActivity {
         private float dis_x_start;
         private float dis_y_start;
         private boolean isZooming;
+        private boolean isZoomingNotStop;
+        private float x1_start;
+        private float x0_start;
+        private float y1_start;
+        private float y0_start;
 
 
         public MyGLSurfaceView(Context context) {
@@ -5293,17 +5332,17 @@ public class MainActivity extends AppCompatActivity {
                             requestRender();
                             Log.v("actionPointerDown", "Paintinggggggggggg");
                         }
-                        if (ifPoint) {
-                            Log.v("actionPointerDown", "Pointinggggggggggg");
-                            if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
-                                myrenderer.add2DMarker(X, Y);
-                            else {
-                                myrenderer.setMarkerDrawed(X, Y);
-                            }
-                            Log.v("actionPointerDown", "(" + X + "," + Y + ")");
-                            requestRender();
-
-                        }
+//                        if (ifPoint) {
+//                            Log.v("actionPointerDown", "Pointinggggggggggg");
+//                            if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
+//                                myrenderer.add2DMarker(X, Y);
+//                            else {
+//                                myrenderer.setMarkerDrawed(X, Y);
+//                            }
+//                            Log.v("actionPointerDown", "(" + X + "," + Y + ")");
+//                            requestRender();
+//
+//                        }
                         if (ifDeletingMarker) {
                             Log.v("actionPointerDown", "DeletingMarker");
                             myrenderer.deleteMarkerDrawed(X, Y);
@@ -5318,7 +5357,11 @@ public class MainActivity extends AppCompatActivity {
 //                        }
                         break;
                     case MotionEvent.ACTION_POINTER_DOWN:
+                        lineDrawed.clear();
+                        myrenderer.setIfPainting(false);
+                        requestRender();
                         isZooming = true;
+                        isZoomingNotStop = true;
                         float x1 = toOpenGLCoord(this, motionEvent.getX(1), true);
                         float y1 = toOpenGLCoord(this, motionEvent.getY(1), false);
 
@@ -5328,35 +5371,49 @@ public class MainActivity extends AppCompatActivity {
                         dis_x_start = x1 - normalizedX;
                         dis_y_start = y1 - normalizedY;
 
+                        x0_start = normalizedX;
+                        y0_start = normalizedY;
+                        x1_start = x1;
+                        y1_start = y1;
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType) {
-                            if (isZooming) {
-                                float x2 = toOpenGLCoord(this, motionEvent.getX(1), true);
-                                float y2 = toOpenGLCoord(this, motionEvent.getY(1), false);
+                        if (isZooming && isZoomingNotStop) {
+
+                            float x2 = toOpenGLCoord(this, motionEvent.getX(1), true);
+                            float y2 = toOpenGLCoord(this, motionEvent.getY(1), false);
 
 //                            float x2=motionEvent.getX(1);
 //                            float y2=motionEvent.getY(1);
-                                double dis = computeDis(normalizedX, x2, normalizedY, y2);
-                                double scale = dis / dis_start;
+                            double dis = computeDis(normalizedX, x2, normalizedY, y2);
+                            double scale = dis / dis_start;
+//                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker) {
                                 myrenderer.zoom((float) scale);
-
-                                float dis_x = x2 - normalizedX;
-                                float dis_y = y2 - normalizedY;
-                                if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
-                                    if (myrenderer.getIfDownSampling() == false)
-                                        myrenderer.setIfDownSampling(true);
-                                }
-
-//                                myrenderer.rotate(dis_x - dis_x_start, dis_y - dis_y_start, (float)(computeDis(dis_x, dis_x_start, dis_y, dis_y_start)));
-                                myrenderer.rotate2f(dis_x_start, dis_x, dis_y_start, dis_y);
-
-                                //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
-                                requestRender();
-                                dis_start = dis;
-                                dis_x_start = dis_x;
-                                dis_y_start = dis_y;
-                            } else {
+//                            }
+                            float dis_x = x2 - normalizedX;
+                            float dis_y = y2 - normalizedY;
+                            float ave_x = (x2 - x1_start + normalizedX - x0_start) / 2;
+                            float ave_y = (y2 - y1_start + normalizedY - y0_start) / 2;
+                            if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
+                                if (myrenderer.getIfDownSampling() == false)
+                                    myrenderer.setIfDownSampling(true);
+                            }
+                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker){
+//                                myrenderer.rotate2f(dis_x_start, dis_x, dis_y_start, dis_y);
+                            }else {
+//                                myrenderer.rotate(dis_x - dis_x_start, dis_y - dis_y_start, (float) (computeDis(dis_x, dis_x_start, dis_y, dis_y_start)));
+                                myrenderer.rotate(ave_x, ave_y, (float)(computeDis((x2 + normalizedX) / 2, (x1_start + x0_start) / 2, (y2 + normalizedY) / 2, (y1_start + y0_start) / 2)));
+                            }
+                            //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
+                            requestRender();
+                            dis_start = dis;
+                            dis_x_start = dis_x;
+                            dis_y_start = dis_y;
+                            x0_start = normalizedX;
+                            y0_start = normalizedY;
+                            x1_start = x2;
+                            y1_start = y2;
+                        } else {
+                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker) {
                                 if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
                                     if (myrenderer.getIfDownSampling() == false)
                                         myrenderer.setIfDownSampling(true);
@@ -5367,20 +5424,21 @@ public class MainActivity extends AppCompatActivity {
                                 requestRender();
                                 X = normalizedX;
                                 Y = normalizedY;
+                            } else {
+                                lineDrawed.add(normalizedX);
+                                lineDrawed.add(normalizedY);
+                                lineDrawed.add(-1.0f);
+
+                                myrenderer.setLineDrawed(lineDrawed);
+                                requestRender();
+
+                                invalidate();
                             }
-                        } else {
-                            lineDrawed.add(normalizedX);
-                            lineDrawed.add(normalizedY);
-                            lineDrawed.add(-1.0f);
-
-                            myrenderer.setLineDrawed(lineDrawed);
-                            requestRender();
-
-                            invalidate();
                         }
                         break;
                     case MotionEvent.ACTION_POINTER_UP:
-                        isZooming = false;
+//                        isZooming = false;
+                        isZoomingNotStop = false;
                         myrenderer.setIfDownSampling(false);
                         X = normalizedX;
                         Y = normalizedY;
@@ -5395,42 +5453,53 @@ public class MainActivity extends AppCompatActivity {
 //                        }
                         break;
                     case MotionEvent.ACTION_UP:
-                        isZooming = false;
-                        if (ifPainting) {
-                            Vector<Integer> segids = new Vector<>();
-                            myrenderer.setIfPainting(false);
+                        if (!isZooming) {
+                            if (ifPoint) {
+                                Log.v("actionPointerDown", "Pointinggggggggggg");
+                                if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
+                                    myrenderer.add2DMarker(normalizedX, normalizedY);
+                                else {
+                                    myrenderer.setMarkerDrawed(normalizedX, normalizedY);
+                                }
+                                Log.v("actionPointerDown", "(" + X + "," + Y + ")");
+                                requestRender();
+
+                            }
+                            if (ifPainting) {
+                                Vector<Integer> segids = new Vector<>();
+                                myrenderer.setIfPainting(false);
 //                            myrenderer.addLineDrawed(lineDrawed);
 
-                            if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
-                                myrenderer.add2DCurve(lineDrawed);
-                            else {
-                                Callable<String> task = new Callable<String>() {
-                                    @Override
-                                    public String call() throws Exception {
-                                        int lineType = myrenderer.getLastLineType();
-                                        if (lineType != 3) {
+                                if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
+                                    myrenderer.add2DCurve(lineDrawed);
+                                else {
+                                    Callable<String> task = new Callable<String>() {
+                                        @Override
+                                        public String call() throws Exception {
+                                            int lineType = myrenderer.getLastLineType();
+                                            if (lineType != 3) {
 //                                            int segid = myrenderer.addLineDrawed(lineDrawed);
 //                                    segids.add(segid);
 //                            requestRender();
-                                            V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed);
-                                            myrenderer.addLineDrawed2(lineDrawed);
-                                            myrenderer.deleteFromCur(seg);
+                                                V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed);
+                                                myrenderer.addLineDrawed2(lineDrawed);
+                                                myrenderer.deleteFromCur(seg);
 //                                            myrenderer.deleteFromNew(segid);
-                                        } else {
-                                            myrenderer.addBackgroundLineDrawed(lineDrawed);
+                                            } else {
+                                                myrenderer.addBackgroundLineDrawed(lineDrawed);
+                                            }
+                                            return "succeed";
                                         }
-                                        return "succeed";
+                                    };
+                                    ExecutorService exeService = Executors.newSingleThreadExecutor();
+                                    Future<String> future = exeService.submit(task);
+                                    try {
+                                        String result = future.get(1500, TimeUnit.MILLISECONDS);
+                                        System.err.println("Result:" + result);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                        System.out.println("unfinished in 1.5 seconds");
                                     }
-                                };
-                                ExecutorService exeService = Executors.newSingleThreadExecutor();
-                                Future<String> future = exeService.submit(task);
-                                try{
-                                    String result = future.get(1500, TimeUnit.MILLISECONDS);
-                                    System.err.println("Result:" + result);
-                                } catch (Exception e){
-                                    e.printStackTrace();
-                                    System.out.println("unfinished in 1.5 seconds");
-                                }
 //                                int lineType = myrenderer.getLastLineType();
 //                                if (lineType != 3) {
 //                                    int segid = myrenderer.addLineDrawed(lineDrawed);
@@ -5442,7 +5511,7 @@ public class MainActivity extends AppCompatActivity {
 //                                } else {
 //                                    myrenderer.addBackgroundLineDrawed(lineDrawed);
 //                                }
-                            }
+                                }
 //                            requestRender();
 
 //                            if (myrenderer.deleteFromNew(segid)) {
@@ -5463,34 +5532,37 @@ public class MainActivity extends AppCompatActivity {
 //                                }
 //                            }).start();
 //                            myrenderer.addLineDrawed2(lineDrawed);
-                            lineDrawed.clear();
-                            myrenderer.setLineDrawed(lineDrawed);
+                                lineDrawed.clear();
+                                myrenderer.setLineDrawed(lineDrawed);
 
-                            requestRender();
+                                requestRender();
+                            }
 //                            requestRender();
+
+                            if (ifDeletingLine) {
+                                myrenderer.setIfPainting(false);
+                                myrenderer.deleteLine1(lineDrawed);
+                                lineDrawed.clear();
+                                myrenderer.setLineDrawed(lineDrawed);
+                                requestRender();
+                            }
+                            if (ifSpliting) {
+                                myrenderer.setIfPainting(false);
+                                myrenderer.splitCurve(lineDrawed);
+                                lineDrawed.clear();
+                                myrenderer.setLineDrawed(lineDrawed);
+                                requestRender();
+                            }
+                            if (ifChangeLineType) {
+                                myrenderer.setIfPainting(false);
+                                int type = myrenderer.getLastLineType();
+                                myrenderer.changeLineType(lineDrawed, type);
+                                lineDrawed.clear();
+                                myrenderer.setLineDrawed(lineDrawed);
+                                requestRender();
+                            }
                         }
-                        if (ifDeletingLine) {
-                            myrenderer.setIfPainting(false);
-                            myrenderer.deleteLine1(lineDrawed);
-                            lineDrawed.clear();
-                            myrenderer.setLineDrawed(lineDrawed);
-                            requestRender();
-                        }
-                        if (ifSpliting) {
-                            myrenderer.setIfPainting(false);
-                            myrenderer.splitCurve(lineDrawed);
-                            lineDrawed.clear();
-                            myrenderer.setLineDrawed(lineDrawed);
-                            requestRender();
-                        }
-                        if (ifChangeLineType) {
-                            myrenderer.setIfPainting(false);
-                            int type = myrenderer.getLastLineType();
-                            myrenderer.changeLineType(lineDrawed, type);
-                            lineDrawed.clear();
-                            myrenderer.setLineDrawed(lineDrawed);
-                            requestRender();
-                        }
+                        isZooming = false;
                         myrenderer.setIfDownSampling(false);
                         break;
                     default:
