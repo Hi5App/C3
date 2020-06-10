@@ -3433,7 +3433,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200610a 17:50 build",
+                .asConfirm("Version", "version: 20200610b 17:58 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5397,12 +5397,12 @@ public class MainActivity extends AppCompatActivity {
                                 if (myrenderer.getIfDownSampling() == false)
                                     myrenderer.setIfDownSampling(true);
                             }
-                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker){
+//                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker){
 //                                myrenderer.rotate2f(dis_x_start, dis_x, dis_y_start, dis_y);
-                            }else {
+//                            }else {
 //                                myrenderer.rotate(dis_x - dis_x_start, dis_y - dis_y_start, (float) (computeDis(dis_x, dis_x_start, dis_y, dis_y_start)));
                                 myrenderer.rotate(ave_x, ave_y, (float)(computeDis((x2 + normalizedX) / 2, (x1_start + x0_start) / 2, (y2 + normalizedY) / 2, (y1_start + y0_start) / 2)));
-                            }
+//                            }
                             //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
                             requestRender();
                             dis_start = dis;
