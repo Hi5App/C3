@@ -333,8 +333,9 @@ public class MainActivity extends AppCompatActivity {
         if (Timeout != null)
             Toast.makeText(this, Timeout, Toast.LENGTH_SHORT).show();
 
+
         Intent intent4 = getIntent();
-        String filepath_local = intent4.getStringExtra(MyRenderer.FILE_PATH_LOCAL);
+        String filepath_local = intent4.getStringExtra(MyRenderer.LOCAL_FILE_PATH);
 
         if (filepath_local != null) {
             System.out.println("------" + filepath + "------");
@@ -342,6 +343,7 @@ public class MainActivity extends AppCompatActivity {
             isBigData_Remote = false;
             String filename = SettingFileManager.getFilename_Local(this);
             String offset = SettingFileManager.getoffset_Local(this, filename);
+
             int[] index = BigFileReader.getIndex(offset);
             myrenderer.SetPath_Bigdata(filepath_local, index);
 
@@ -3468,7 +3470,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200611b 21:18 build",
+                .asConfirm("Version", "version: 20200611c 21:55 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5952,7 +5954,8 @@ public class MainActivity extends AppCompatActivity {
                                 public void onSelect(int position, String text) {
                                     switch (text) {
                                         case "Select block":
-                                            remoteImg.Selectblock(context, false);
+                                            Select_Block();
+//                                            remoteImg.Selectblock(context, false);
                                             break;
 
                                         case "Select file":
@@ -5969,6 +5972,32 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    private void Select_Block(){
+        Context context = this;
+        new XPopup.Builder(this)
+//        .maxWidth(400)
+//        .maxHeight(1350)
+                .asCenterList("Select block", new String[]{"Remote Server", "Local Server"},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text) {
+                                    case "Remote Server":
+                                        remoteImg.Selectblock(context, false);
+                                        break;
+                                    case "Local Server":
+                                        bigFileReader.PopUp(context);
+                                        break;
+                                    default:
+//                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "Default in file", Toast.LENGTH_SHORT).show();
+
+                                }
+                            }
+                        })
+                .show();
     }
 
 

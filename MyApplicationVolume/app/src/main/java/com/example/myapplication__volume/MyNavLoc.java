@@ -122,7 +122,7 @@ public class MyNavLoc {
                     "uniform mat4 uMVPMatrix;" +
 
                     "void main() {\n" +
-                    "     gl_Position  = uMVPMatrix * vPosition;\n" +
+                    "     gl_Position  = uMVPMatrix * vec4( 1.0 - vPosition.x,  1.0 - vPosition.y, vPosition.z, 1.0);\n" +
 //                    "     gl_Position  = vec4((uMVPMatrix * vPosition).xy, -1.0, 1.0);\n" +
 
                     "     gl_PointSize = 10.0;\n" +

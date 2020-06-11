@@ -28,10 +28,11 @@ import cn.carbs.android.library.MDDialog;
 import static com.example.basic.SettingFileManager.getFilename_Local;
 import static com.example.basic.SettingFileManager.getoffset_Local;
 import static com.example.basic.SettingFileManager.setoffset_Local;
-import static com.example.myapplication__volume.JumpActivity.EXTRA_MESSAGE;
-import static com.example.myapplication__volume.JumpActivity.EXTRA_MESSAGE_LOCAL;
+import static com.example.myapplication__volume.JumpActivity.FILE_LOCAL;
 
 public class BigFileReader {
+
+    public static final String BIG_LOCAL_FILE_PATH = "LOCAL_FILEPATH";
 
     public BigFileReader(){
 
@@ -289,6 +290,11 @@ public class BigFileReader {
     public int[] PopUp(Context context){
         final int[][] index = {null};
 
+        if (getFilename_Local(context).equals("--11--")){
+            Toast.makeText(context,"Select file first!", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
         new MDDialog.Builder(context)
 //              .setContentView(customizedView)
                 .setContentView(R.layout.image_bais_select)
@@ -359,12 +365,13 @@ public class BigFileReader {
                                                      Integer.parseInt(input[1]),
                                                      Integer.parseInt(input[2]),
                                                      Integer.parseInt(input[3])};
+
                                 offset = input[0] + "_" + input[1] + "_" + input[2] + "_" + input[3];
                                 setoffset_Local(offset, filename, context);
 
                                 Intent intent = new Intent(context, JumpActivity.class);
                                 String message = "/storage/emulated/0/C3/Server/" + filename + ".v3draw";
-                                intent.putExtra(EXTRA_MESSAGE_LOCAL, message);
+                                intent.putExtra(BIG_LOCAL_FILE_PATH, message);
                                 context.startActivity(intent);
                             }
 

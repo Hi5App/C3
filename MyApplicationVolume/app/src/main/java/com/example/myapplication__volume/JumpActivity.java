@@ -15,6 +15,8 @@ import com.example.connect.RemoteImg;
 
 import java.io.InputStream;
 
+import static com.example.ImageFile.BigFileReader.BIG_LOCAL_FILE_PATH;
+
 
 //打开文件管理器读取文件
 public class JumpActivity extends AppCompatActivity {
@@ -23,7 +25,7 @@ public class JumpActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
     public static final String Out_of_memory = "com.example.myfirstapp.MESSAGE";
     public static final String Timeout = "Timeout-MESSAGE";
-    public static final String EXTRA_MESSAGE_LOCAL = "com.example.myfirstapp.MESSAGE";
+    public static final String FILE_LOCAL = "com.example.myfirstapp.MESSAGE";
 
 
     //读写权限
@@ -49,13 +51,24 @@ public class JumpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Intent intent4 = getIntent();
+        String filepath_local = intent4.getStringExtra(BIG_LOCAL_FILE_PATH);
+
+        if (filepath_local != null){
+            Log.v("JumpActivity: ", "filepath_local: " + filepath_local);
+            Intent intent_file_local = new Intent(this, MainActivity.class);
+            intent_file_local.putExtra(MyRenderer.LOCAL_FILE_PATH, filepath_local);
+            startActivity(intent_file_local);
+            return;
+        }
+
         //接受从fileactivity传递过来的文件路径
         Intent intent1 = getIntent();
         String filepath = intent1.getStringExtra(JumpActivity.EXTRA_MESSAGE);
 
         if (filepath != null){
             Intent intent_file = new Intent(this, MainActivity.class);
-            Log.v("JumpActivity", filepath);
+            Log.v("JumpActivity", "filpath: " + filepath);
             intent_file.putExtra(MyRenderer.FILE_PATH, filepath);
             startActivity(intent_file);
             return;
@@ -83,16 +96,7 @@ public class JumpActivity extends AppCompatActivity {
             return;
         }
 
-        Intent intent4 = getIntent();
-        String filepath_local = intent4.getStringExtra(JumpActivity.EXTRA_MESSAGE_LOCAL);
 
-        if (filepath_local != null){
-            Log.v("JumpActivity", filepath_local);
-            Intent intent_file_local = new Intent(this, MainActivity.class);
-            intent_file_local.putExtra(MyRenderer.FILE_PATH_LOCAL, filepath_local);
-            startActivity(intent_file_local);
-            return;
-        }
 
 
 
