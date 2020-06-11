@@ -3468,7 +3468,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200611a 20:39 build",
+                .asConfirm("Version", "version: 20200611b 21:18 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5517,6 +5517,8 @@ public class MainActivity extends AppCompatActivity {
                         myrenderer.setIfDownSampling(false);
                         X = normalizedX;
                         Y = normalizedY;
+                        lineDrawed.clear();
+                        myrenderer.setIfPainting(false);
 //                        if (ifPainting){
 //                            lineDrawed.clear();
 //                            myrenderer.setLineDrawed(lineDrawed);
@@ -5636,7 +5638,12 @@ public class MainActivity extends AppCompatActivity {
                                 myrenderer.setLineDrawed(lineDrawed);
                                 requestRender();
                             }
+                            lineDrawed.clear();
+                            myrenderer.setIfPainting(false);
                         }
+                        lineDrawed.clear();
+                        myrenderer.setIfPainting(false);
+                        requestRender();
                         isZooming = false;
                         myrenderer.setIfDownSampling(false);
                         break;

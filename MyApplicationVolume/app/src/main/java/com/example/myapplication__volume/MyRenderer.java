@@ -2930,7 +2930,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public boolean deleteFromCur(V_NeuronSWC seg){
+        int index = undoDrawList.indexOf(seg);
+        if (index != -1){
+            undoDrawList.remove(seg);
+            process.remove(process.size() - 1);
+        }
         return curSwcList.seg.remove(seg);
+
     }
 
     public  void deleteLine1(ArrayList<Float> line){
