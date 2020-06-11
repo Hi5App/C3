@@ -82,6 +82,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public static final String OUTOFMEM_MESSAGE = "OutOfMemory";
     public static final String FILE_SUPPORT_ERROR = "FileSupportError";
     public static final String FILE_PATH = "Myrender_FILEPATH";
+    public static final String FILE_PATH_LOCAL = "Myrender_FILEPATH";
     public static final String Time_out = "Myrender_Timeout";
 
     private MyPattern myPattern;
@@ -321,6 +322,16 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
                 if (fileType == FileType.PNG || fileType == FileType.JPG)
                     myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
+
+                if (fileType == FileType.TIF || fileType == FileType.V3draw || fileType == FileType.V3dPBD) {
+                    if (myAxis == null)
+                        myAxis = new MyAxis(mz);
+                }
+                if (myDraw == null)
+                    myDraw = new MyDraw();
+                if (myAnimation == null)
+                    myAnimation = new MyAnimation();
+
                 ifFileSupport = false;
             }
         }
@@ -910,6 +921,38 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        myAxis = new MyAxis(mz);
 //        myDraw = new MyDraw();
 //        myAnimation = new MyAnimation();
+
+    }
+
+
+    //设置文件路径
+    public void SetPath_Bigdata(String message, int[] index){
+
+        filepath = message;
+        fileType = FileType.V3draw;
+
+        myAxis = null;
+        cur_scale = 1.0f;
+
+        curSwcList.clear();
+        MarkerList.clear();
+
+        SetImage_Bigdata(index);
+//        setImage();
+        ifFileLoaded = true;
+        ifFileSupport = true;
+
+        Log.v("SetPath", Arrays.toString(mz));
+
+        Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
+
+        Matrix.setIdentityM(zoomMatrix,0);//建立单位矩阵
+        Matrix.setIdentityM(zoomAfterMatrix, 0);
+        Matrix.setIdentityM(rotationMatrix, 0);
+        Matrix.setRotateM(rotationMatrix, 0, 0, -1.0f, -1.0f, 0.0f);
+//        Matrix.setIdentityM(translateAfterMatrix, 0);
+        // Set the camera position (View matrix)
+        Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 
     }
 
@@ -1560,6 +1603,42 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Log.v("MyRenderer", Arrays.toString(sz));
         Log.v("MyRenderer", Arrays.toString(mz));
 
+    }
+
+    private void SetImage_Bigdata(int[] index){
+        img = Image4DSimple.loadImage_Bigdata(filepath, index);
+        if (img == null)
+            return;
+
+        myPattern = null;
+
+        grayscale =  img.getData();
+
+        data_length = img.getDatatype().ordinal();
+        isBig = img.getIsBig();
+
+//        vol_w = rr.get_w();
+//        vol_h = rr.get_h();
+//        vol_d = rr.get_d();
+
+//        sz[0] = vol_w;
+//        sz[1] = vol_h;
+//        sz[2] = vol_d;
+
+        sz[0] = (int)img.getSz0();
+        sz[1] = (int)img.getSz1();
+        sz[2] = (int)img.getSz2();
+
+        Integer[] num = {sz[0], sz[1], sz[2]};
+        float max_dim = (float) Collections.max(Arrays.asList(num));
+        Log.v("MyRenderer", Float.toString(max_dim));
+
+        mz[0] = (float) sz[0]/max_dim;
+        mz[1] = (float) sz[1]/max_dim;
+        mz[2] = (float) sz[2]/max_dim;
+
+        Log.v("MyRenderer", Arrays.toString(sz));
+        Log.v("MyRenderer", Arrays.toString(mz));
     }
 
 

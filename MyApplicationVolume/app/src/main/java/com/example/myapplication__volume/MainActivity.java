@@ -67,6 +67,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
+import com.example.ImageFile.BigFileReader;
 import com.example.basic.FileManager;
 import com.example.basic.Image4DSimple;
 import com.example.basic.ImageMarker;
@@ -256,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private RemoteImg remoteImg;
+    private BigFileReader bigFileReader;
 
 
     private static final int PICKFILE_REQUEST_CODE = 100;
@@ -266,7 +268,8 @@ public class MainActivity extends AppCompatActivity {
     private int measure_count = 0;
     private List<double[]> fl;
 
-    private boolean isRemote;
+    private boolean isBigData_Remote;
+    private boolean isBigData_Local;
     private ProgressBar progressBar;
 
 
@@ -294,7 +297,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 
-        isRemote = false;
+        isBigData_Remote = false;
+        isBigData_Local  = false;
 //
         //接受从fileactivity传递过来的文件路径
         Intent intent1 = getIntent();
@@ -304,7 +308,8 @@ public class MainActivity extends AppCompatActivity {
         if (filepath != null) {
             myrenderer.SetPath(filepath);
             System.out.println("------" + filepath + "------");
-            isRemote = true;
+            isBigData_Remote = true;
+            isBigData_Local = false;
             String filename = getFilename(this);
             String offset = getoffset(this, filename);
 
@@ -328,6 +333,23 @@ public class MainActivity extends AppCompatActivity {
         if (Timeout != null)
             Toast.makeText(this, Timeout, Toast.LENGTH_SHORT).show();
 
+        Intent intent4 = getIntent();
+        String filepath_local = intent4.getStringExtra(MyRenderer.FILE_PATH_LOCAL);
+
+        if (filepath_local != null) {
+            System.out.println("------" + filepath + "------");
+            isBigData_Local = true;
+            isBigData_Remote = false;
+            String filename = SettingFileManager.getFilename_Local(this);
+            String offset = SettingFileManager.getoffset_Local(this, filename);
+            int[] index = BigFileReader.getIndex(offset);
+            myrenderer.SetPath_Bigdata(filepath_local, index);
+
+            String offset_x = offset.split("_")[0];
+            String offset_y = offset.split("_")[1];
+            String offset_z = offset.split("_")[2];
+            Toast.makeText(this,"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
+        }
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -378,7 +400,7 @@ public class MainActivity extends AppCompatActivity {
 //        this.addContentView(Zoom_out, lp_zoom_out);
 
 
-        if (isRemote){
+        if (isBigData_Remote || isBigData_Local){
 
             FrameLayout.LayoutParams lp_zoom_in = new FrameLayout.LayoutParams(120, 120);
             lp_zoom_in.gravity = Gravity.BOTTOM | Gravity.RIGHT;
@@ -762,7 +784,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        if (isRemote){
+        if (isBigData_Remote || isBigData_Local){
             this.addContentView(navigation_left, lp_left_i);
             this.addContentView(navigation_right, lp_right_i);
             this.addContentView(navigation_up, lp_up_i);
@@ -791,6 +813,7 @@ public class MainActivity extends AppCompatActivity {
 
         myGLSurfaceView.requestRender();
         remoteImg = new RemoteImg();
+        bigFileReader = new BigFileReader();
         context = getApplicationContext();
 
         progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleSmall);
@@ -801,6 +824,17 @@ public class MainActivity extends AppCompatActivity {
         this.addContentView(progressBar, params);
         progressBar.setVisibility(View.GONE);
 
+        String dir_str = "/storage/emulated/0/C3";
+        File dir = new File(dir_str);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        String dir_str_server = "/storage/emulated/0/C3/Server";
+        File dir_server = new File(dir_str_server);
+        if (!dir_server.exists()) {
+            dir_server.mkdirs();
+        }
 
     }
 
@@ -1234,8 +1268,9 @@ public class MainActivity extends AppCompatActivity {
                 if (ifLoadLocal) {
                     myrenderer.SetPath(filePath);
                     ifLoadLocal = false;
-                    if (isRemote){
-                        isRemote = false;
+                    if (isBigData_Remote || isBigData_Local){
+                        isBigData_Remote = false;
+                        isBigData_Local  = false;
                         try {
                             ((ViewGroup)Zoom_in.getParent()).removeView(Zoom_in);
                             ((ViewGroup)Zoom_out.getParent()).removeView(Zoom_out);
@@ -3433,7 +3468,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200610b 17:58 build",
+                .asConfirm("Version", "version: 20200611a 20:39 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -3497,11 +3532,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void Select_img(){
-
+        Context context = this;
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("Select Remote server", new String[]{"Aliyun Server", "SEU Server"},
+                .asCenterList("Select Remote server", new String[]{"Aliyun Server", "SEU Server", "Local Server"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -3513,6 +3548,14 @@ public class MainActivity extends AppCompatActivity {
 
                                     case "SEU Server":
                                         Toast.makeText(getContext(), "The server is not available now", Toast.LENGTH_SHORT).show();
+                                        break;
+
+                                    case "Local Server":
+                                        BigFileRead_local();
+//                                        String filepath = "/storage/emulated/0/C3/Server/test01RES500x500x500.v3draw";
+//                                        int[] index = {128, 128, 128, 256, 256, 256};
+//                                        myrenderer.SetPath_Bigdata(filepath, index);
+//                                        myGLSurfaceView.requestRender();
                                         break;
 
 
@@ -3581,6 +3624,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void BigFileRead_local(){
+        String[] filename_list = bigFileReader.ChooseFile(this);
+        if (filename_list != null){
+            bigFileReader.ShowListDialog(this, filename_list);
+        }
+    }
 
     private void ConnectServer(String ip, Context context){
 
@@ -3770,36 +3819,62 @@ public class MainActivity extends AppCompatActivity {
 
     public void Block_navigate(String text){
         context = this;
-        switch (text) {
-            case "Left":
-                remoteImg.Selectblock_fast(context, false, "Left");
-                break;
+        if (isBigData_Remote){
+            switch (text) {
+                case "Left":
+                    remoteImg.Selectblock_fast(context, false, "Left");
+                    break;
 
-            case "Right":
-                remoteImg.Selectblock_fast(context, false, "Right");
-                break;
+                case "Right":
+                    remoteImg.Selectblock_fast(context, false, "Right");
+                    break;
 
-            case "Top":
-                remoteImg.Selectblock_fast(context, false, "Top");
-                break;
+                case "Top":
+                    remoteImg.Selectblock_fast(context, false, "Top");
+                    break;
 
-            case "Bottom":
-                remoteImg.Selectblock_fast(context, false, "Bottom");
-                break;
+                case "Bottom":
+                    remoteImg.Selectblock_fast(context, false, "Bottom");
+                    break;
 
-            case "Front":
-                remoteImg.Selectblock_fast(context, false, "Front");
-                break;
+                case "Front":
+                    remoteImg.Selectblock_fast(context, false, "Front");
+                    break;
 
-            case "Back":
-                remoteImg.Selectblock_fast(context, false, "Back");
-                break;
+                case "Back":
+                    remoteImg.Selectblock_fast(context, false, "Back");
+                    break;
+            }
         }
+
+        if (isBigData_Local){
+            String filename = SettingFileManager.getFilename_Local(this);
+            int[] index = bigFileReader.SelectBlock_fast(text, this);
+            if (index == null){
+                System.out.println("----- index is null -----");
+                return;
+            }
+            String filepath = "/storage/emulated/0/C3/Server/" + filename + ".v3draw";
+            myrenderer.SetPath_Bigdata(filepath, index);
+            myGLSurfaceView.requestRender();
+        }
+
     }
 
     public void Set_Nav_Mode(){
-        String filename = getFilename(this);
-        String offset = getoffset(this, filename);
+        String filename = null;
+        String offset   = null;
+        if (isBigData_Remote){
+            filename = getFilename(this);
+            offset   = getoffset(this, filename);
+        }
+        if (isBigData_Local){
+            filename = SettingFileManager.getFilename_Local(this);
+            offset   = SettingFileManager.getoffset_Local(this, filename);
+        }
+
+        if (filename == null || offset == null)
+            return;
 
         float size_x = Float.parseFloat(filename.split("RES")[1].split("x")[0]);
         float size_y = Float.parseFloat(filename.split("RES")[1].split("x")[1]);
@@ -5651,7 +5726,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("File Open&Save", new String[]{"Open LocalFile", "Open RemoteFile", "Load SWCFile","Camera"},
+                .asCenterList("File Open&Save", new String[]{"Open LocalFile", "Open BigData", "Load SWCFile","Camera"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -5659,7 +5734,7 @@ public class MainActivity extends AppCompatActivity {
                                     case "Open LocalFile":
                                         loadLocalFile();
                                         break;
-                                    case "Open RemoteFile":
+                                    case "Open BigData":
                                         remote_i();
                                         break;
                                     case "Load SWCFile":
@@ -5864,7 +5939,7 @@ public class MainActivity extends AppCompatActivity {
         }else {
 
             new XPopup.Builder(this)
-                    .asCenterList("Remote File",new String[]{"Select file", "Select block", "Download by http"},
+                    .asCenterList("BigData File",new String[]{"Select file", "Select block", "Download by http"},
                             new OnSelectListener() {
                                 @Override
                                 public void onSelect(int position, String text) {

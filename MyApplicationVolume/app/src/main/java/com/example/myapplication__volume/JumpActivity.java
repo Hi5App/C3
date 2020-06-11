@@ -23,6 +23,8 @@ public class JumpActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
     public static final String Out_of_memory = "com.example.myfirstapp.MESSAGE";
     public static final String Timeout = "Timeout-MESSAGE";
+    public static final String EXTRA_MESSAGE_LOCAL = "com.example.myfirstapp.MESSAGE";
+
 
     //读写权限
     private static String[] PERMISSIONS_STORAGE = {
@@ -78,6 +80,17 @@ public class JumpActivity extends AppCompatActivity {
             Intent intent_timeout = new Intent(this, MainActivity.class);
             intent_timeout.putExtra(MyRenderer.Time_out, Timeout);
             startActivity(intent_timeout);
+            return;
+        }
+
+        Intent intent4 = getIntent();
+        String filepath_local = intent4.getStringExtra(JumpActivity.EXTRA_MESSAGE_LOCAL);
+
+        if (filepath_local != null){
+            Log.v("JumpActivity", filepath_local);
+            Intent intent_file_local = new Intent(this, MainActivity.class);
+            intent_file_local.putExtra(MyRenderer.FILE_PATH_LOCAL, filepath_local);
+            startActivity(intent_file_local);
             return;
         }
 
