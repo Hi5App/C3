@@ -972,12 +972,12 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("More Functions...", new String[]{"Analyze SWC File", "Sensor Information", DownSample_mode, "Animate", "Version"},
+                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", DownSample_mode, "Animate", "About"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text) {
-                                    case "Analyze SWC File":
+                                    case "Analyze SWC":
                                         Analyse();
                                         break;
 
@@ -1008,7 +1008,7 @@ public class MainActivity extends AppCompatActivity {
                                         settingFileManager.setDownSampleMode("DownSampleNo", getContext());
                                         break;
 
-                                    case "Version":
+                                    case "About":
                                         Version();;
                                         break;
 
@@ -2191,13 +2191,13 @@ public class MainActivity extends AppCompatActivity {
     private void Other(final View v) {
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"Analyze", "Animate", "Screenshot", "Version"},
+                .asAttachList(new String[]{"Analyze SWC", "Animate", "Screenshot", "----", "About"},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text) {
-                                    case "Analyze":
+                                    case "Analyze SWC":
                                         Analyse();
                                         break;
 
@@ -2213,7 +2213,7 @@ public class MainActivity extends AppCompatActivity {
                                         ShareScreenShot();
                                         break;
 
-                                    case "Version":
+                                    case "About":
                                         Version();
                                         break;
 
@@ -2240,7 +2240,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
 
-                .asAttachList(new String[]{"Run"},
+                .asAttachList(new String[]{"Filter by exemplars"},
 
                         new int[]{},
                         new OnSelectListener() {
@@ -2252,7 +2252,7 @@ public class MainActivity extends AppCompatActivity {
 //                                        FeatureSet();
 //                                        break;
 
-                                    case "Run":
+                                    case "Filter by exemplars":
                                         //调用像素分类接口，显示分类结果
                                         Learning();
                                         break;
@@ -3470,7 +3470,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200611c 21:55 build",
+                .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
+                                "Version: 20200611d 5:27pm PDT build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
