@@ -1150,35 +1150,36 @@ public class MainActivity extends AppCompatActivity {
 
                     System.out.println("filetype: " + filetype + " filename: " + fileName);
 
-
-                    switch (filetype) {
-                        case ".APO":
-                            Log.v("Mainctivity", uri.toString());
-                            ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
-                            ApoReader apoReader = new ApoReader();
-                            apo = apoReader.read(uri);
-                            myrenderer.importApo(apo);
-                            break;
-                        case ".SWC":
+                    if (myrenderer.getIfFileLoaded()) {
+                        System.out.println("loaddddddddddd");
+                        switch (filetype) {
+                            case ".APO":
+                                Log.v("Mainctivity", uri.toString());
+                                ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
+                                ApoReader apoReader = new ApoReader();
+                                apo = apoReader.read(uri);
+                                myrenderer.importApo(apo);
+                                break;
+                            case ".SWC":
 //                            ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
 //                            SwcReader swcReader = new SwcReader();
 //                            swc = swcReader.read(uri);
-                            NeuronTree nt = NeuronTree.readSWC_file(uri);
-                            myrenderer.importNeuronTree(nt);
-                            break;
-                        case ".ANO":
-                            ArrayList<ArrayList<Float>> ano_swc = new ArrayList<ArrayList<Float>>();
-                            ArrayList<ArrayList<Float>> ano_apo = new ArrayList<ArrayList<Float>>();
-                            AnoReader anoReader = new AnoReader();
-                            SwcReader swcReader_1 = new SwcReader();
-                            ApoReader apoReader_1 = new ApoReader();
-                            anoReader.read(uri);
+                                NeuronTree nt = NeuronTree.readSWC_file(uri);
+                                myrenderer.importNeuronTree(nt);
+                                break;
+                            case ".ANO":
+                                ArrayList<ArrayList<Float>> ano_swc = new ArrayList<ArrayList<Float>>();
+                                ArrayList<ArrayList<Float>> ano_apo = new ArrayList<ArrayList<Float>>();
+                                AnoReader anoReader = new AnoReader();
+                                SwcReader swcReader_1 = new SwcReader();
+                                ApoReader apoReader_1 = new ApoReader();
+                                anoReader.read(uri);
 
 //                        Uri swc_uri = anoReader.getSwc_result();
 //                        Uri apo_uri = anoReader.getApo_result();
 
-                            String swc_path = anoReader.getSwc_Path();
-                            String apo_path = anoReader.getApo_Path();
+                                String swc_path = anoReader.getSwc_Path();
+                                String apo_path = anoReader.getApo_Path();
 
 //                        String swc_path = getPath(this, swc_uri);
 //                        String apo_path = getPath(this, apo_uri);
@@ -1211,25 +1212,57 @@ public class MainActivity extends AppCompatActivity {
 //                        ano_apo = apoReader_1.read(apo_uri);
 
 //                            ano_swc = swcReader_1.read(swc_path);
-                            NeuronTree nt2 = NeuronTree.readSWC_file(swc_path);
-                            ano_apo = apoReader_1.read(apo_path);
+                                NeuronTree nt2 = NeuronTree.readSWC_file(swc_path);
+                                ano_apo = apoReader_1.read(apo_path);
 //                            myrenderer.importSwc(ano_swc);
-                            myrenderer.importNeuronTree(nt2);
-                            myrenderer.importApo(ano_apo);
-                            break;
-                        case ".ESWC":
+                                myrenderer.importNeuronTree(nt2);
+                                myrenderer.importApo(ano_apo);
+                                break;
+                            case ".ESWC":
 //                            ArrayList<ArrayList<Float>> eswc = new ArrayList<ArrayList<Float>>();
 //                            EswcReader eswcReader = new EswcReader();
 //
 //                            eswc = eswcReader.read(length, is);
 //                            myrenderer.importEswc(eswc);
-                            NeuronTree nt1 = NeuronTree.readSWC_file(uri);
-                            myrenderer.importNeuronTree(nt1);
-                            break;
+                                NeuronTree nt1 = NeuronTree.readSWC_file(uri);
+                                myrenderer.importNeuronTree(nt1);
+                                break;
 
-                        default:
-                            Toast.makeText(this, "do not support this file", Toast.LENGTH_SHORT).show();
+                            default:
+                                Toast.makeText(this, "do not support this file", Toast.LENGTH_SHORT).show();
 
+                        }
+                    }
+
+                    else {
+                        System.out.println("opennnnnnnnnnnnnn");
+                        myrenderer.SetSWCPath(filePath);
+                        ifLoadLocal = false;
+                        if (isBigData_Remote || isBigData_Local){
+                            isBigData_Remote = false;
+                            isBigData_Local  = false;
+                            try {
+                                ((ViewGroup)Zoom_in.getParent()).removeView(Zoom_in);
+                                ((ViewGroup)Zoom_out.getParent()).removeView(Zoom_out);
+                                ((ViewGroup)navigation_left.getParent()).removeView(navigation_left);
+                                ((ViewGroup)navigation_right.getParent()).removeView(navigation_right);
+                                ((ViewGroup)navigation_up.getParent()).removeView(navigation_up);
+                                ((ViewGroup)navigation_down.getParent()).removeView(navigation_down);
+                                ((ViewGroup)navigation_front.getParent()).removeView(navigation_front);
+                                ((ViewGroup)navigation_back.getParent()).removeView(navigation_back);
+                                ((ViewGroup)navigation_location.getParent()).removeView(navigation_location);
+
+                                FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
+                                lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
+                                this.addContentView(Zoom_in, lp_zoom_in_no);
+
+                                FrameLayout.LayoutParams lp_zoom_out_no = new FrameLayout.LayoutParams(100, 150);
+                                lp_zoom_out_no.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
+                                this.addContentView(Zoom_out, lp_zoom_out_no);
+                            }catch (Exception e){
+                                e.printStackTrace();
+                            }
+                        }
                     }
 
                     ifImport = false;
@@ -2977,10 +3010,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void LoadSWC() {
 
-        if (!myrenderer.ifImageLoaded()){
-            Toast.makeText(context, "Please open a image first", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (!myrenderer.ifImageLoaded()){
+//            Toast.makeText(context, "Please open a image first", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
 
         if (!ifImport) {
             ifImport = true;
@@ -3471,7 +3504,7 @@ public class MainActivity extends AppCompatActivity {
     private void Version() {
         new XPopup.Builder(this)
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200611d 5:27pm PDT build",
+                                "Version: 20200613a 23:43pm PDT build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

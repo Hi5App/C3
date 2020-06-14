@@ -924,6 +924,41 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
+    public void SetSWCPath(String message){
+        filepath = message;
+        SetFileType();
+
+        myAxis = null;
+        cur_scale = 1.0f;
+
+        curSwcList.clear();
+        MarkerList.clear();
+
+        if (fileType == FileType.SWC){
+            bitmap2D = null;
+            myPattern2D = null;
+            setSWC();
+            ifFileLoaded = true;
+            ifFileSupport = true;
+        }
+
+        else {
+            Toast.makeText(getContext(), "Do not support this file", Toast.LENGTH_LONG);
+            return;
+        }
+
+        Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
+
+        Matrix.setIdentityM(zoomMatrix,0);//建立单位矩阵
+        Matrix.setIdentityM(zoomAfterMatrix, 0);
+        Matrix.setIdentityM(rotationMatrix, 0);
+        Matrix.setRotateM(rotationMatrix, 0, 0, -1.0f, -1.0f, 0.0f);
+
+        Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+
+
+    }
+
 
     //设置文件路径
     public void SetPath_Bigdata(String message, int[] index){
@@ -3835,7 +3870,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public boolean ifImageLoaded(){
-        return !(img == null && bitmap2D == null);
+        return !((img == null || !img.valid()) && bitmap2D == null);
+    }
+
+    public boolean if3dImageLoaded(){
+        return !(img == null || !img.valid());
     }
 }
 
