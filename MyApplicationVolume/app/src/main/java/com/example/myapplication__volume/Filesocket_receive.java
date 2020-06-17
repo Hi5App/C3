@@ -296,203 +296,214 @@ public class Filesocket_receive {
 //        };
 
         try{
-//        Looper.prepare();
+//          Looper.prepare();
 
-        Log.v("readFile", "start to read file");
-        DataInputStream in = new DataInputStream((FileInputStream)(filesocket.getInputStream()));
+            Log.v("readFile", "start to read file");
+            DataInputStream in = new DataInputStream((FileInputStream)(filesocket.getInputStream()));
 
-        Log.v("readFile", "start to read Datainputstream");
-
-
-        //前两个 uint64 记录传输内容的总长度 和 文件名的长度
-        byte [] file_size = new byte[8];
-        byte [] filename_size = new byte[8];
-
-        boolean[] isFinished = { false };
-
-        if (filesocket.isConnected()){
-
-            Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
-                public void run() {
-
-                    Log.v("---------Image------:", "start timertask");
-
-
-                    long startTime=System.currentTimeMillis();
-
-                    long i = 0;
-                    while (i < 20000000000L)
-                        i++;
-
-                    long stopTime=System.currentTimeMillis();
-
-                    // current time cost 45s
-                    Log.v("ReadFile: ", "time: " + Long.toString(stopTime - startTime));
-
-                    if (!isFinished[0]){
-                        Log.v("---------Image------:", "start to close bufferreader");
-
-                        try {
-
-                            Intent intent = new Intent(context[0], JumpActivity.class);
-                            String message = "Time out, please try again!";
-
-                            intent.putExtra(Timeout, message);
-                            context[0].startActivity(intent);
-
-                            Log.v("---------Image------:", "bufferreader closed!");
-                            in.close();
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            Log.v("---------Image------:", "fail to close bufferreader!");
-                        }
-                    }
-
-                }
-            }, 0 * 1000); // 延时5秒
-
-
-            in.read(file_size, 0, 8);
-            in.read(filename_size, 0, 8);
-
-            Log.v("readFile: file_size", Long.toString(bytesToLong(file_size)));
-            Log.v("readFile: filename_size", Long.toString(bytesToLong(filename_size)));
-
-            Log.v("readfile", Integer.toString(in.available()));
-
-
-            int filename__size = (int) bytesToLong(filename_size) + 4;
-            int filecontent__size = (int) bytesToLong(file_size) - filename__size;
-
-            //读取文件名和内容
-            byte [] filename_qstring = new byte[filename__size];
-//                    byte [] file_content = new byte[filecontent__size];
-
-            in.read(filename_qstring, 0, filename__size);
-//                    in.read(file_content, 0, filecontent__size);
-
-            String filename_string = new String(filename_qstring, StandardCharsets.UTF_8);
-//                    String filecontent_string = new String(file_content, StandardCharsets.UTF_8);
-            Log.v("readFile: file_size", Long.toString(bytesToLong(file_size)));
-            Log.v("readFile: filename_size", Long.toString(bytesToLong(filename_size)));
-            Log.v("readFile", filename_string);
-//                    Log.v("readFile", filecontent_string);
-
-
-
+            Log.v("readFile", "start to read Datainputstream");
 
             //打开文件，如果没有，则新建文件
             File file = new File(path + "/" + filename);
-            if(!file.exists()){
+            if (!file.exists()){
+
+//                Intent intent = new Intent(context[0], JumpActivity.class);
+//                String message = path + "/" + filename;
+//
+//                Log.v("Filesocket_receive: ", message);
+//                intent.putExtra(EXTRA_MESSAGE, message);
+//                context[0].startActivity(intent);
+//                context[0] = null;
+//            }else{
+
                 file.createNewFile();
                 Log.v("readFile", "Create file successfully");
             }
 
-            FileOutputStream outputStream = new FileOutputStream(file);
-            BufferedOutputStream out = new BufferedOutputStream(outputStream);
-            BufferedInputStream in_bf = new BufferedInputStream(in);
+            //前两个 uint64 记录传输内容的总长度 和 文件名的长度
+            byte [] file_size = new byte[8];
+            byte [] filename_size = new byte[8];
+
+            boolean[] isFinished = { false };
+
+            if (filesocket.isConnected()){
+
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    public void run() {
+
+                        Log.v("---------Image------:", "start timertask");
+
+
+                        long startTime=System.currentTimeMillis();
+
+                        long i = 0;
+                        while (i < 20000000000L)
+                            i++;
+
+                        long stopTime=System.currentTimeMillis();
+
+                        // current time cost 45s
+                        Log.v("ReadFile: ", "time: " + Long.toString(stopTime - startTime));
+
+                        if (!isFinished[0]){
+                            Log.v("---------Image------:", "start to close bufferreader");
+
+                            try {
+
+                                Intent intent = new Intent(context[0], JumpActivity.class);
+                                String message = "Time out, please try again!";
+
+                                intent.putExtra(Timeout, message);
+                                context[0].startActivity(intent);
+
+                                Log.v("---------Image------:", "bufferreader closed!");
+                                in.close();
+
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.v("---------Image------:", "fail to close bufferreader!");
+                            }
+                        }
+
+                    }
+                }, 0 * 1000); // 延时5秒
+
+
+                in.read(file_size, 0, 8);
+                in.read(filename_size, 0, 8);
+
+                Log.v("readFile: file_size", Long.toString(bytesToLong(file_size)));
+                Log.v("readFile: filename_size", Long.toString(bytesToLong(filename_size)));
+
+                Log.v("readfile", Integer.toString(in.available()));
+
+
+                int filename__size = (int) bytesToLong(filename_size) + 4;
+                int filecontent__size = (int) bytesToLong(file_size) - filename__size;
+
+                //读取文件名和内容
+                byte [] filename_qstring = new byte[filename__size];
+//                        byte [] file_content = new byte[filecontent__size];
+
+                in.read(filename_qstring, 0, filename__size);
+//                        in.read(file_content, 0, filecontent__size);
+
+                String filename_string = new String(filename_qstring, StandardCharsets.UTF_8);
+//                        String filecontent_string = new String(file_content, StandardCharsets.UTF_8);
+                Log.v("readFile: file_size", Long.toString(bytesToLong(file_size)));
+                Log.v("readFile: filename_size", Long.toString(bytesToLong(filename_size)));
+                Log.v("readFile", filename_string);
+//                        Log.v("readFile", filecontent_string);
 
 
 
-//                    filecontent__size = filecontent__size -12;
+
+
+
+                FileOutputStream outputStream = new FileOutputStream(file);
+                BufferedOutputStream out = new BufferedOutputStream(outputStream);
+                BufferedInputStream in_bf = new BufferedInputStream(in);
+
+
+
+//                        filecontent__size = filecontent__size -12;
 //
-//                    int loop = filecontent__size / 1024;
-//                    int end  = filecontent__size % 1024;
+//                        int loop = filecontent__size / 1024;
+//                        int end  = filecontent__size % 1024;
 //
-//                    byte [] file_content_end = new byte[end];
+//                        byte [] file_content_end = new byte[end];
 //
-//                    for(int i = 0; i< loop; i++){
+//                        for(int i = 0; i< loop; i++){
+//                            byte [] file_content = new byte[1024];
+//                            in.read(file_content, 0, 1024);
+//                            outputStream.write(file_content);
+//                        }
+//
+//
+//                        in.read(file_content_end, 0,  end);
+//                        outputStream.write(file_content_end);
+
+
+
+
+
+//                        System.out.println(file.length());
+//
+//                        byte[] buffer = new byte[1024];
+//                        for (int n; (n = in.read(buffer)) != -1; outputStream.write(buffer, 0, n));
+//
+                Log.v("send2", Integer.toString(IOUtils.copy(in, outputStream)));
+//                        Log.v("send2", Long.toString(IOUtils.copy(in, outputStream, filecontent__size)));
+
+                System.out.println(file.length());
+
+//                        outputStream.flush();
+                outputStream.close();
+                in.close();
+
+                isFinished[0] = true;
+                ifDownloaded[0] = true;
+
+            }else {
+                System.out.println("--------Filescocket disconnect----------");
+            }
+
+        
+//                        file.delete();
+
+//                        int loop = filecontent__size / 1024;
+//                        int end  = filecontent__size % 1024;
+
+//                        Log.v("readImg",Integer.toString(loop) + "   " +Integer.toString(end));
+
 //                        byte [] file_content = new byte[1024];
-//                        in.read(file_content, 0, 1024);
+//                        byte [] file_content_end = new byte[end];
+//
+//                        int len = -1;
+//                        int count = 0;
+//                        while((len=in_bf.read(file_content))!=-1){
+//                            out.write(file_content,0,len);
+//                            Log.v("readImg", Integer.toString(count));
+//                            count += 1;
+//                        }
+
+
+//                        in.read(file_content_end, 0, end);
+//                        outputStream.write(file_content_end);
+
+
+
+
+
+//                        Log.v("readFile", "Jump to the mainactivity successfully");
+
+//                        byte [] file_content = new byte[1024];
+//                        byte [] file_content_end = new byte[end];
+//
+//                        for(int i = 0; i< loop; i++){
+//                            in.read(file_content, 0, 1024);
+//                            outputStream.write(file_content);
+//                        }
+//
+//
+//                        in.read(file_content_end, 0, end);
+//                        outputStream.write(file_content_end);
+//
+//                        outputStream.close();
+
+
+            //对文件进行写入操作
+//                        FileOutputStream outputStream = new FileOutputStream(file);
 //                        outputStream.write(file_content);
-//                    }
-//
-//
-//                    in.read(file_content_end, 0,  end);
-//                    outputStream.write(file_content_end);
+//                        outputStream.close();
+
+//                        popupView.dismiss();
 
 
-
-
-
-//                    System.out.println(file.length());
-//
-//                    byte[] buffer = new byte[1024];
-//                    for (int n; (n = in.read(buffer)) != -1; outputStream.write(buffer, 0, n));
-//
-            Log.v("send2", Integer.toString(IOUtils.copy(in, outputStream)));
-//                    Log.v("send2", Long.toString(IOUtils.copy(in, outputStream, filecontent__size)));
-
-            System.out.println(file.length());
-
-//                    outputStream.flush();
-            outputStream.close();
-            in.close();
-
-            isFinished[0] = true;
-            ifDownloaded[0] = true;
-
-        }else {
-            System.out.println("--------Filescocket disconnect----------");
-        }
-
-
-//                    file.delete();
-
-//                    int loop = filecontent__size / 1024;
-//                    int end  = filecontent__size % 1024;
-
-//                    Log.v("readImg",Integer.toString(loop) + "   " +Integer.toString(end));
-
-//                    byte [] file_content = new byte[1024];
-//                    byte [] file_content_end = new byte[end];
-//
-//                    int len = -1;
-//                    int count = 0;
-//                    while((len=in_bf.read(file_content))!=-1){
-//                        out.write(file_content,0,len);
-//                        Log.v("readImg", Integer.toString(count));
-//                        count += 1;
-//                    }
-
-
-//                    in.read(file_content_end, 0, end);
-//                    outputStream.write(file_content_end);
-
-
-
-
-
-//                    Log.v("readFile", "Jump to the mainactivity successfully");
-
-//                    byte [] file_content = new byte[1024];
-//                    byte [] file_content_end = new byte[end];
-//
-//                    for(int i = 0; i< loop; i++){
-//                        in.read(file_content, 0, 1024);
-//                        outputStream.write(file_content);
-//                    }
-//
-//
-//                    in.read(file_content_end, 0, end);
-//                    outputStream.write(file_content_end);
-//
-//                    outputStream.close();
-
-
-        //对文件进行写入操作
-//                    FileOutputStream outputStream = new FileOutputStream(file);
-//                    outputStream.write(file_content);
-//                    outputStream.close();
-
-//                    popupView.dismiss();
-
-
-    }catch (Exception e){
-        e.printStackTrace();
-        Toast.makeText(context[0], "Fail to download img", Toast.LENGTH_SHORT).show();
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(context[0], "Fail to download img", Toast.LENGTH_SHORT).show();
     }
 
 //        Thread thread = new Thread()  {

@@ -32,6 +32,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
@@ -291,6 +292,22 @@ public class MainActivity extends AppCompatActivity {
 
     private File showPic;
 
+    @SuppressLint("HandlerLeak")
+    private Handler uiHandler = new Handler(){
+        // 覆写这个方法，接收并处理消息。
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case 1:
+                    Log.v("filesocket_send: ", "Connect with Server successfully");
+                    System.out.println("------ Upload file successfully!!! -------");
+                    break;
+
+            }
+        }
+    };
+
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -338,7 +355,7 @@ public class MainActivity extends AppCompatActivity {
         String filepath_local = intent4.getStringExtra(MyRenderer.LOCAL_FILE_PATH);
 
         if (filepath_local != null) {
-            System.out.println("------" + filepath + "------");
+            System.out.println("------" + filepath_local + "------");
             isBigData_Local = true;
             isBigData_Remote = false;
             String filename = SettingFileManager.getFilename_Local(this);
@@ -937,11 +954,13 @@ public class MainActivity extends AppCompatActivity {
                                         break;
 
                                     case "Upload SWC":
-                                        UploadSWC();
+//                                        UploadSWC();
+                                        PushSWC_Block();
                                         break;
 
                                     case "Download SWC":
-                                        DownloadSWC();
+//                                        DownloadSWC();
+                                        PullSWC_Block();
                                         break;
 
                                     default:
@@ -1510,6 +1529,117 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    /**
+     *
+     * @param ip ip of cloud server
+     * @param context context of current activity
+     * @param is inputstream of file
+     * @param length length of file
+     * @param filename name of swc file
+     */
+    private void PushSwc(String ip, Context context, InputStream is, long length, String filename) {
+        //新建一个线程，用于初始化socket和检测是否有接收到新的消息
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                }
+                Log.v("SendSwc", "here we are");
+
+                try {
+                    remoteImg.ip = ip;
+                    if (!remoteImg.isSocketSet) {
+                        Log.v("SendSwc", "connext socket");
+                        remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
+                        remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
+                        remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    }
+
+
+                    if (remoteImg.ImgSocket.isConnected()) {
+
+                        remoteImg.isSocketSet = true;
+                        Toast.makeText(getContext(), "Start to upload!!!", Toast.LENGTH_SHORT).show();
+                        if (!remoteImg.isOutputShutdown()) {
+                            Log.v("SendSwc: ", "Connect with Server successfully");
+                            remoteImg.ImgPWriter.println("connect for android client" + ":import.");
+                            remoteImg.ImgPWriter.flush();
+
+                            String content = remoteImg.ImgReader.readLine();
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    //TODO  todo somthing here
+
+                                    try {
+                                        Log.v("SendSwc: ", "Start to connect filesend_server");
+
+                                        Filesocket_send filesocket_send = new Filesocket_send();
+                                        filesocket_send.filesocket = new Socket(ip, 9001);
+                                        filesocket_send.mReader = new BufferedReader(new InputStreamReader(filesocket_send.filesocket.getInputStream(), "UTF-8"));
+                                        filesocket_send.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_send.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
+
+
+                                        Log.v("before filesocket_send:", "Connect with Server successfully");
+
+                                        if (filesocket_send.filesocket.isConnected()) {
+
+                                            Context[] contexts = new Context[1];
+                                            contexts[0] = context;
+
+                                            Log.v("filesocket_send: ", "Connect with Server successfully");
+                                            filesocket_send.sendImg_test(filename, is, length, context);
+
+//                                            if (filesocket_send.sendImg_test(filename, is, length, context, myrenderer)){
+//
+//                                                Message msg = new Message();
+//                                                msg.what = 1;
+//                                                uiHandler.sendMessage(msg);
+//
+                                            Log.v("filesocket_send: ", "Connect with Server successfully");
+                                            System.out.println("------ Upload file successfully!!! -------");
+////                                                NeuronTree nt = NeuronTree.readSWC_file("/storage/emulated/0/Download/" + filename);
+////                                                myrenderer.importNeuronTree(nt);
+////                                                myGLSurfaceView.requestRender();
+////                                                Toast.makeText(context, "Upload file successfully!!!", Toast.LENGTH_SHORT).show();
+//                                            }
+
+
+
+//                                            Looper.loop();
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+
+                                }
+                            }, 1000);  //延迟1秒执行
+
+
+                            Looper.loop();
+
+                        }
+
+
+                    } else {
+                        Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+                        Looper.loop();
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+                    Looper.loop();
+                }
+            }
+        };
+        thread.start();
+
+    }
+
+
     public void DownloadSwc(String ip, Context context) {
         Thread thread = new Thread() {
             @Override
@@ -1575,6 +1705,69 @@ public class MainActivity extends AppCompatActivity {
         };
         thread.start();
 
+    }
+
+    private void PullSwc_block(String ip, Context context){
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                }
+
+                try {
+                    remoteImg.ip = ip;
+                    if (!remoteImg.isSocketSet) {
+
+                        Log.v("DownloadSwc: ", "Connect server");
+
+                        remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
+                        remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
+                        remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    }
+
+                    Filesocket_receive filesocket_receive = new Filesocket_receive();
+                    filesocket_receive.filesocket = new Socket(ip, 9002);
+                    filesocket_receive.mReader = new BufferedReader(new InputStreamReader(filesocket_receive.filesocket.getInputStream(), "UTF-8"));
+                    filesocket_receive.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_receive.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    filesocket_receive.IsDown = true;
+                    filesocket_receive.path = context.getExternalFilesDir(null).toString() + "/Sync";
+
+                    Log.v("PullSwc: ", "here we are 2");
+
+                    if (remoteImg.ImgSocket.isConnected()) {
+                        remoteImg.isSocketSet = true;
+                        Log.v("PullSwc: ", "Connect with Server successfully");
+                        Toast.makeText(getContext(), "Connect with Server successfully", Toast.LENGTH_SHORT).show();
+
+                        String filename = getFilename(context);
+                        String offset = getoffset(context, filename);
+                        int[] index = BigFileReader.getIndex(offset);
+                        System.out.println(filename);
+
+                        String SwcFileName = filename.split("RES")[0] + "__" +
+                                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
+
+                        remoteImg.ImgPWriter.println(SwcFileName + ":GetBBSwc.");
+                        remoteImg.ImgPWriter.flush();
+
+                        filesocket_receive.readFile("blockSet__" + SwcFileName + ".swc", context);
+
+                    } else {
+                        Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+                    }
+
+                    Looper.loop();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+                    Looper.loop();
+                }
+            }
+        };
+        thread.start();
     }
 
 
@@ -2972,7 +3165,8 @@ public class MainActivity extends AppCompatActivity {
                             public void onSelect(int position, String text) {
                                 switch (text) {
                                     case "Upload SWC":
-                                        UploadSWC();
+//                                        UploadSWC();
+                                        PushSWC_Block();
                                         break;
 
                                     case "Download SWC":
@@ -3025,6 +3219,86 @@ public class MainActivity extends AppCompatActivity {
         intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         startActivityForResult(intent, 1);
+    }
+
+
+    private void PushSWC_Block(){
+
+        String filepath = this.getExternalFilesDir(null).toString();
+        String swc_file_path = filepath + "/Sync";
+        File dir = new File(swc_file_path);
+
+        if (!dir.exists()){
+            if (!dir.mkdirs())
+                Toast.makeText(this,"Fail to create file: PushSWC_Block", Toast.LENGTH_SHORT).show();
+        }
+
+        String filename = getFilename(this);
+        String offset = getoffset(this, filename);
+        int[] index = BigFileReader.getIndex(offset);
+        System.out.println(filename);
+
+        String SwcFileName = filename.split("RES")[0] + "__" +
+                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
+
+        System.out.println(SwcFileName);
+
+        if (Save_curSwc_fast(SwcFileName, swc_file_path)){
+            File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
+            try {
+                InputStream is = new FileInputStream(SwcFile);
+                long length = SwcFile.length();
+                PushSwc("39.100.35.131", this, is, length, SwcFileName + ".swc");
+
+            } catch (Exception e){
+                System.out.println("----" + e.getMessage() + "----");
+            }
+        }
+    }
+
+    private boolean Save_curSwc_fast(String SwcFileName, String dir_str){
+
+        System.out.println("start to save-------");
+        myrenderer.reNameCurrentSwc(SwcFileName);
+
+        String error = "init";
+        try {
+            error = myrenderer.saveCurrentSwc(dir_str);
+            System.out.println("error:" + error);
+        } catch (Exception e) {
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (!error.equals("")) {
+            if (error.equals("This file already exits")){
+                String errorMessage = "";
+                try{
+                    errorMessage = myrenderer.oversaveCurrentSwc(dir_str);
+                    if (errorMessage == "Overwrite failed!"){
+                        Toast.makeText(getContext(),"Fail to save swc file: Save_curSwc_fast", Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+                }catch (Exception e){
+                    System.out.println(errorMessage);
+                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+            }
+            if (error.equals("Current swc is empty!")){
+                Toast.makeText(this,"Current swc file is empty!", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        } else{
+            System.out.println("save SWC to " + dir_str + "/" + SwcFileName + ".swc");
+        }
+        return true;
+    }
+
+    private void PullSWC_Block(){
+
+//        DownloadSwc("39.100.35.131", this);
+        PullSwc_block("39.100.35.131", this);
+
     }
 
 
@@ -3504,7 +3778,7 @@ public class MainActivity extends AppCompatActivity {
     private void Version() {
         new XPopup.Builder(this)
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200613a 23:43pm PDT build",
+                                "Version: 20200617a 20:25pm UTC build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
