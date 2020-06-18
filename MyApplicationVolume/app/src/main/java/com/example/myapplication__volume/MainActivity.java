@@ -79,6 +79,7 @@ import com.example.basic.SettingFileManager;
 import com.example.connect.Filesocket_send;
 import com.example.connect.RemoteImg;
 import com.feature_calc_func.MorphologyCalculate;
+import com.learning.opimageline.Consensus;
 import com.learning.opimageline.DetectLine;
 import com.learning.pixelclassification.PixelClassification;
 import com.learning.randomforest.RandomForest;
@@ -2854,7 +2855,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //                .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
 
-                .asCenterList("Detect Line", new String[]{"Run", "Check Current Lines", "Detect Tips", "Train", "SaveRandomForest", "ReadRandomForest"},
+                .asCenterList("Detect Line", new String[]{"Run", "Consensus", "ConsensusWithAllResult", "Check Current Lines", "Detect Tips", "Train", "SaveRandomForest", "ReadRandomForest"},
 
 
                         new OnSelectListener() {
@@ -2921,6 +2922,115 @@ public class MainActivity extends AppCompatActivity {
                                         };
                                         timer.schedule(timerTask, 1000);
                                         break;
+
+                                    case "Consensus":
+                                        Toast.makeText(getContext(), "start~", Toast.LENGTH_LONG).show();
+                                        progressBar.setVisibility(View.VISIBLE);
+                                        timer = new Timer();
+                                        timerTask = new TimerTask() {
+                                            @RequiresApi(api = Build.VERSION_CODES.N)
+                                            @Override
+                                            public void run() {
+                                                try {
+                                                    Image4DSimple img = myrenderer.getImg();
+                                                    if(img == null){
+                                                        if (Looper.myLooper() == null) {
+                                                            Looper.prepare();
+                                                        }
+                                                        progressBar.setVisibility(View.INVISIBLE);
+
+                                                        Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+                                                        Looper.loop();
+                                                    }
+                                                    NeuronTree nt = myrenderer.getNeuronTree();
+                                                    myrenderer.deleteAllTracing();
+                                                    if(nt.listNeuron.isEmpty() || nt == null){
+                                                        if (Looper.myLooper() == null) {
+                                                            Looper.prepare();
+                                                        }
+
+                                                        progressBar.setVisibility(View.INVISIBLE);
+                                                        Toast.makeText(getContext(), "Please add line", Toast.LENGTH_LONG).show();
+                                                        Looper.loop();
+                                                    }
+                                                    try {
+                                                        NeuronTree result = Consensus.run(img,nt,2,false);
+                                                        myrenderer.importNeuronTree(result);
+                                                        myGLSurfaceView.requestRender();
+                                                        progressBar.setVisibility(View.INVISIBLE);
+                                                    }catch (Exception e){
+                                                        if (Looper.myLooper() == null) {
+                                                            Looper.prepare();
+                                                        }
+                                                        progressBar.setVisibility(View.INVISIBLE);
+                                                        Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                                        Looper.loop();
+                                                    }
+
+                                                } catch (Exception e) {
+                                                    progressBar.setVisibility(View.INVISIBLE);
+                                                    e.printStackTrace();
+                                                }
+
+                                            }
+                                        };
+                                        timer.schedule(timerTask, 1000);
+                                        break;
+
+                                    case "ConsensusWithAllResult":
+                                        Toast.makeText(getContext(), "start~", Toast.LENGTH_LONG).show();
+                                        progressBar.setVisibility(View.VISIBLE);
+                                        timer = new Timer();
+                                        timerTask = new TimerTask() {
+                                            @RequiresApi(api = Build.VERSION_CODES.N)
+                                            @Override
+                                            public void run() {
+                                                try {
+                                                    Image4DSimple img = myrenderer.getImg();
+                                                    if(img == null){
+                                                        if (Looper.myLooper() == null) {
+                                                            Looper.prepare();
+                                                        }
+                                                        progressBar.setVisibility(View.INVISIBLE);
+
+                                                        Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+                                                        Looper.loop();
+                                                    }
+                                                    NeuronTree nt = myrenderer.getNeuronTree();
+                                                    myrenderer.deleteAllTracing();
+                                                    if(nt.listNeuron.isEmpty() || nt == null){
+                                                        if (Looper.myLooper() == null) {
+                                                            Looper.prepare();
+                                                        }
+
+                                                        progressBar.setVisibility(View.INVISIBLE);
+                                                        Toast.makeText(getContext(), "Please add line", Toast.LENGTH_LONG).show();
+                                                        Looper.loop();
+                                                    }
+                                                    try {
+                                                        NeuronTree result = Consensus.run(img,nt,2,true);
+                                                        myrenderer.importNeuronTree(result);
+                                                        myGLSurfaceView.requestRender();
+                                                        progressBar.setVisibility(View.INVISIBLE);
+                                                    }catch (Exception e){
+                                                        if (Looper.myLooper() == null) {
+                                                            Looper.prepare();
+                                                        }
+                                                        progressBar.setVisibility(View.INVISIBLE);
+                                                        Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                                        Looper.loop();
+                                                    }
+
+                                                } catch (Exception e) {
+                                                    progressBar.setVisibility(View.INVISIBLE);
+                                                    e.printStackTrace();
+                                                }
+
+                                            }
+                                        };
+                                        timer.schedule(timerTask, 1000);
+                                        break;
+
 
                                     case "Check Current Lines":
                                         Toast.makeText(getContext(), "start~", Toast.LENGTH_LONG).show();
@@ -3778,7 +3888,7 @@ public class MainActivity extends AppCompatActivity {
     private void Version() {
         new XPopup.Builder(this)
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200617a 20:25pm UTC build",
+                                "Version: 20200618a 19:54pm build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
