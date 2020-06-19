@@ -148,11 +148,18 @@ public class RemoteImg extends Socket {
 
         try {
 
-            ImgSocket.shutdownInput();
-            ImgSocket.shutdownOutput();
-            ImgSocket.close();
-            ImgReader.close();
-            ImgPWriter.close();
+            if (ImgSocket != null){
+                ImgSocket.close();
+            }
+
+            if (ImgSocket != null){
+                ImgReader.close();
+            }
+
+            if (ImgSocket != null){
+                ImgPWriter.close();
+            }
+
 
         } catch (IOException e) {
 
@@ -775,10 +782,14 @@ public class RemoteImg extends Socket {
 
         Log.v("ConnectServerImg","Here we are");
 
+
         Thread thread = new Thread() {
             @Override
             public void run() {
 //                Looper.prepare();
+
+                disconnectFromHost();
+
                 Log.v("ConnectServerImg", "successfully init");
                 try {
                     ImgSocket = new Socket("39.100.35.131", Integer.parseInt("9000"));

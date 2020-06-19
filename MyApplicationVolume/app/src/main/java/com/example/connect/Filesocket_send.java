@@ -124,7 +124,6 @@ public class Filesocket_send {
         };
         thread.start();
 
-//        Log.v("send2", "finished");
 
         while (!stop[0]){
         }
@@ -200,6 +199,7 @@ public class Filesocket_send {
 
                     out.flush();
                     is.close();
+                    out.close();
 
                     stop[0] = true;
 
@@ -220,8 +220,8 @@ public class Filesocket_send {
 
 //        Log.v("send2", "finished");
 
-//        while (!stop[0]){
-//        }
+        while (!stop[0]){
+        }
 
         Log.v("send2", "finished");
         Toast.makeText(context, "Upload file successfully!!!", Toast.LENGTH_SHORT).show();
