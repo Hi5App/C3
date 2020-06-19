@@ -326,11 +326,11 @@ public class V3dNeuronAPP2Tracing {
                         FM.fastmarching_dt(p4dImageNew.getDataCZYX()[0],phi,sz,p.cnn_type,p.bkg_thresh);
                     }
                     out.println("constructing fastmarching tree ...");
-                    FM.fastmarching_tree(inmarkers.elementAt(0), target, phi, outTree, sz, p.cnn_type);
+                    FM.fastmarching_tree(inmarkers.elementAt(0), target, phi, outTree, sz, p.cnn_type,p.bkg_thresh,p.is_break_accept);
                 }
                 else
                 {
-                    FM.fastmarching_tree(inmarkers.elementAt(0), target, p4dImageNew.getDataCZYX()[0], outTree, sz, p.cnn_type);
+                    FM.fastmarching_tree(inmarkers.elementAt(0), target, p4dImageNew.getDataCZYX()[0], outTree, sz, p.cnn_type,p.bkg_thresh,p.is_break_accept);
                 }
             }
         }catch (OutOfMemoryError e){

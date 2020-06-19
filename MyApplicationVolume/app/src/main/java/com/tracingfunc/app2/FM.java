@@ -216,6 +216,12 @@ public class FM {
                 }
             }
         }
+
+        phi = null;
+        state = null;
+        minHeap = null;
+        elems = null;
+
         //END_CLOCK;
         return true;
     }
@@ -410,6 +416,13 @@ public class FM {
             child_marker.parent = parent_marker;
         }
 
+        phi = null;
+        state = null;
+        parent = null;
+        minHeap = null;
+        elems = null;
+        marker_map = null;
+
         return true;
     }
 
@@ -581,6 +594,14 @@ public class FM {
             else
                 child_marker.parent = null;
         }
+
+        phi = null;
+        state = null;
+        parent = null;
+        minHeap = null;
+        elems = null;
+        marker_map = null;
+
         System.out.println("----------------------------convert-----------------------------");
         return true;
     }
@@ -750,7 +771,7 @@ public class FM {
     }
 
     public static boolean fastmarching_tree(MyMarker root, Vector<MyMarker> target, int[][][] inimg,
-                                            Vector<MyMarker> outTree, int[] sz, int cnn_type){
+                                            Vector<MyMarker> outTree, int[] sz, int cnn_type, double bkg_thresh, boolean is_break_accept){
         int szx = sz[0], szy = sz[1], szz = sz[2];
         int total_sz = szx*szy*szz;
         System.out.println("-------------------in fm tree------------------");
@@ -818,24 +839,39 @@ public class FM {
 
         // loop
         int time_counter = 1;
-        double process1 = 0;
+//        double process1 = 0;
+
+        boolean is_break = true;
         while(!minHeap.isEmpty())
         {
-            double process2 = (time_counter++)*100000.0/total_sz;
-            if(process2 - process1>=1){
-                boolean is_break = true;
-                for(int t=0; t<target_index.length; t++){
-                    int index_t = target_index[t];
-                    int ptind = parent.get(index_t);
-                    if(ptind == index_t &&
-                            (ptind != rootz*szy*szx+rooty*szx+rootx)){
-                        is_break = false;
-                        break;
-                    }
-                }
-                if(is_break)
+//            double process2 = (time_counter++)*100000.0/total_sz;
+//            if(process2 - process1>=1){
+//                boolean is_break = true;
+//                for(int t=0; t<target_index.length; t++){
+//                    int index_t = target_index[t];
+//                    int ptind = parent.get(index_t);
+//                    if(ptind == index_t &&
+//                            (ptind != rootz*szy*szx+rooty*szx+rootx)){
+//                        is_break = false;
+//                        break;
+//                    }
+//                }
+//                if(is_break)
+//                    break;
+//            }
+
+            is_break = true;
+            for(int t=0; t<target_index.length; t++){
+                int index_t = target_index[t];
+                int ptind = parent.get(index_t);
+                if(ptind == index_t &&
+                        (ptind != rootz*szy*szx+rooty*szx+rootx)){
+                    is_break = false;
                     break;
+                }
             }
+            if(is_break)
+                break;
 
 
             HeapElemX min_elem = minHeap.poll();
@@ -868,6 +904,15 @@ public class FM {
                         int offset = abs(ii) + abs(jj) + abs(kk);
                         if(offset == 0 || offset > cnn_type) continue;
                         double factor = (offset == 1) ? 1.0 : ((offset == 2) ? 1.414214 : ((offset == 3) ? 1.732051 : 0.0));
+
+                        if(is_break_accept){
+                            if(inimg[d][h][w] <= bkg_thresh && inimg[iz][iy][ix] <=bkg_thresh)
+                                continue;
+                        }
+                        else {
+                            if(inimg[d][h][w] <= bkg_thresh)
+                                continue;
+                        }
 
                         if(state[d][h][w] != ALIVE){
                             float new_dist = (float) (phi[iz][iy][ix] +
@@ -929,6 +974,14 @@ public class FM {
             else
                 child_marker.parent = null;
         }
+
+        phi = null;
+        state = null;
+        parent = null;
+        minHeap = null;
+        elems = null;
+        marker_map = null;
+
         System.out.println("----------------------------convert-----------------------------");
         return true;
 
@@ -980,7 +1033,7 @@ public class FM {
     }
 
     public static boolean fastmarching_tree(MyMarker root, Vector<MyMarker> target, float[][][] inimg,
-                                            Vector<MyMarker> outTree, int[] sz, int cnn_type){
+                                            Vector<MyMarker> outTree, int[] sz, int cnn_type, double bkg_thresh, boolean is_break_accept){
         int szx = sz[0], szy = sz[1], szz = sz[2];
         int total_sz = szx*szy*szz;
         System.out.println("-------------------in fm tree------------------");
@@ -1049,23 +1102,39 @@ public class FM {
         // loop
         int time_counter = 1;
         double process1 = 0;
+
+        boolean is_break = true;
+
         while(!minHeap.isEmpty())
         {
-            double process2 = (time_counter++)*100000.0/total_sz;
-            if(process2 - process1>=1){
-                boolean is_break = true;
-                for(int t=0; t<target_index.length; t++){
-                    int index_t = target_index[t];
-                    int ptind = parent.get(index_t);
-                    if(ptind == index_t &&
-                            (ptind != rootz*szy*szx+rooty*szx+rootx)){
-                        is_break = false;
-                        break;
-                    }
-                }
-                if(is_break)
+//            double process2 = (time_counter++)*100000.0/total_sz;
+//            if(process2 - process1>=1){
+//                boolean is_break = true;
+//                for(int t=0; t<target_index.length; t++){
+//                    int index_t = target_index[t];
+//                    int ptind = parent.get(index_t);
+//                    if(ptind == index_t &&
+//                            (ptind != rootz*szy*szx+rooty*szx+rootx)){
+//                        is_break = false;
+//                        break;
+//                    }
+//                }
+//                if(is_break)
+//                    break;
+//            }
+
+            is_break = true;
+            for(int t=0; t<target_index.length; t++){
+                int index_t = target_index[t];
+                int ptind = parent.get(index_t);
+                if(ptind == index_t &&
+                        (ptind != rootz*szy*szx+rooty*szx+rootx)){
+                    is_break = false;
                     break;
+                }
             }
+            if(is_break)
+                break;
 
 
             HeapElemX min_elem = minHeap.poll();
@@ -1098,7 +1167,14 @@ public class FM {
                         int offset = abs(ii) + abs(jj) + abs(kk);
                         if(offset == 0 || offset > cnn_type) continue;
                         double factor = (offset == 1) ? 1.0 : ((offset == 2) ? 1.414214 : ((offset == 3) ? 1.732051 : 0.0));
-
+                        if(is_break_accept){
+                            if(inimg[d][h][w] <= bkg_thresh && inimg[iz][iy][ix] <=bkg_thresh)
+                                continue;
+                        }
+                        else {
+                            if(inimg[d][h][w] <= bkg_thresh)
+                                continue;
+                        }
                         if(state[d][h][w] != ALIVE){
                             float new_dist = (float) (phi[iz][iy][ix] +
                                     (GI(inimg,w,h,d,min_int,max_int) + GI(inimg,ix,iy,iz,min_int,max_int))*factor*0.5);
@@ -1159,6 +1235,15 @@ public class FM {
             else
                 child_marker.parent = null;
         }
+
+
+        phi = null;
+        state = null;
+        parent = null;
+        minHeap = null;
+        elems = null;
+        marker_map = null;
+
         System.out.println("----------------------------convert-----------------------------");
         return true;
 

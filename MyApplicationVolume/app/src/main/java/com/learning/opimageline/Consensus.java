@@ -54,10 +54,32 @@ public class Consensus {
         System.out.println("count: "+count+"mean: "+mean+" std: "+std);
         double min = Math.max(mean - 0.5*std,30);//Math.max(mean-std,30) - 5;
 
-        Point p1 = new Point(line.listNeuron.get(0).x,line.listNeuron.get(0).y,line.listNeuron.get(0).z);
-        Point p2 = new Point(line.listNeuron.get(line.listNeuron.size()-1).x,
-                line.listNeuron.get(line.listNeuron.size()-1).y,
-                line.listNeuron.get(line.listNeuron.size()-1).z);
+        Point p1 = new Point();
+        Point p2 = new Point();
+        for(int i=0; i<line.listNeuron.size(); i++){
+            int z = (int) (line.listNeuron.get(i).z + 0.5);
+            int y = (int) (line.listNeuron.get(i).y + 0.5);
+            int x = (int) (line.listNeuron.get(i).x + 0.5);
+            if(img.getValue(x,y,z,0)>min){
+                p1.setXYZ(x,y,z);
+                break;
+            }
+        }
+
+        for(int i=line.listNeuron.size()-1; i>=0; i--){
+            int z = (int) (line.listNeuron.get(i).z + 0.5);
+            int y = (int) (line.listNeuron.get(i).y + 0.5);
+            int x = (int) (line.listNeuron.get(i).x + 0.5);
+            if(img.getValue(x,y,z,0)>min){
+                p2.setXYZ(x,y,z);
+                break;
+            }
+        }
+
+//        Point p1 = new Point(line.listNeuron.get(0).x,line.listNeuron.get(0).y,line.listNeuron.get(0).z);
+//        Point p2 = new Point(line.listNeuron.get(line.listNeuron.size()-1).x,
+//                line.listNeuron.get(line.listNeuron.size()-1).y,
+//                line.listNeuron.get(line.listNeuron.size()-1).z);
 
         Point p11 = new Point();
         Point p22 = new Point();
@@ -91,7 +113,7 @@ public class Consensus {
         paraAPP2.xc1 = (int) paraAPP2.p4dImage.getSz0() - 1;
         paraAPP2.yc1 = (int) paraAPP2.p4dImage.getSz1() - 1;
         paraAPP2.zc1 = (int) paraAPP2.p4dImage.getSz2() - 1;
-        paraAPP2.bkg_thresh = (int) (min + 0.5);
+        paraAPP2.bkg_thresh = -1;
         paraAPP2.landmarks = new LocationSimple[0];
         System.out.println("---------------start---------------------");
         V3dNeuronAPP2Tracing.proc_app2(paraAPP2);
@@ -156,6 +178,8 @@ public class Consensus {
         trees.add(consensus);
 
         result = NeuronTree.mergeNeuronTrees(trees);
+
+//        return result;
 
         if(s)
             return result;
