@@ -2098,7 +2098,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingLine = false;
                                         ifSpliting = false;
                                         ifChangeLineType = false;
-                                        if (ifPoint) {
+                                        if (ifPoint && !ifSwitch) {
                                             draw_i.setImageResource(R.drawable.ic_add_marker);
 
                                             try {
@@ -2110,6 +2110,10 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
+                                            ifSwitch = false;
+                                            ifPoint = false;
+                                            Switch.setText("Pause");
+                                            Switch.setTextColor(Color.BLACK);
                                             draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
                                             ll_top.removeView(buttonUndo_i);
@@ -2127,7 +2131,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingLine = false;
                                         ifSpliting = false;
                                         ifChangeLineType = false;
-                                        if (ifPainting) {
+                                        if (ifPainting && !ifSwitch) {
                                             draw_i.setImageResource(R.drawable.ic_draw);
 
                                             try {
@@ -2139,6 +2143,10 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
+                                            ifSwitch = false;
+                                            ifPainting = false;
+                                            Switch.setText("Pause");
+                                            Switch.setTextColor(Color.BLACK);
                                             draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
                                             ll_top.removeView(buttonUndo_i);
@@ -2152,7 +2160,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingLine = false;
                                         ifSpliting = false;
                                         ifChangeLineType = false;
-                                        if (ifDeletingMarker) {
+                                        if (ifDeletingMarker && !ifSwitch) {
                                             draw_i.setImageResource(R.drawable.ic_marker_delete);
 
                                             try {
@@ -2164,6 +2172,10 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
+                                            ifSwitch = false;
+                                            ifDeletingMarker = false;
+                                            Switch.setText("Pause");
+                                            Switch.setTextColor(Color.BLACK);
                                             draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
                                             ll_top.removeView(buttonUndo_i);
@@ -2177,7 +2189,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingMarker = false;
                                         ifSpliting = false;
                                         ifChangeLineType = false;
-                                        if (ifDeletingLine) {
+                                        if (ifDeletingLine && !ifSwitch) {
                                             draw_i.setImageResource(R.drawable.ic_delete_curve);
 
                                             try {
@@ -2189,6 +2201,10 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
+                                            ifSwitch = false;
+                                            ifDeletingLine = false;
+                                            Switch.setText("Pause");
+                                            Switch.setTextColor(Color.BLACK);
                                             draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
                                             ll_top.removeView(buttonUndo_i);
@@ -2202,7 +2218,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifPoint = false;
                                         ifDeletingMarker = false;
                                         ifChangeLineType = false;
-                                        if (ifSpliting) {
+                                        if (ifSpliting && !ifSwitch) {
                                             draw_i.setImageResource(R.drawable.ic_split);
 
                                             try {
@@ -2214,6 +2230,10 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
+                                            ifSwitch = false;
+                                            ifSpliting = false;
+                                            Switch.setText("Pause");
+                                            Switch.setTextColor(Color.BLACK);
                                             draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
                                             ll_top.removeView(buttonUndo_i);
@@ -2233,11 +2253,15 @@ public class MainActivity extends AppCompatActivity {
                                         ifPoint = false;
                                         ifDeletingMarker = false;
                                         ifSpliting = false;
-                                        if(ifChangeLineType){
+                                        if(ifChangeLineType && !ifChangeLineType){
 //                                            Draw.setText("Change PenColor");
 //                                            Draw.setTextColor(Color.RED);
 
                                             try {
+                                                ifSwitch = false;
+                                                ifChangeLineType = false;
+                                                Switch.setText("Pause");
+                                                Switch.setTextColor(Color.BLACK);
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
                                                 ll_top.addView(buttonUndo_i, lp_undo_i);
@@ -3603,7 +3627,7 @@ public class MainActivity extends AppCompatActivity {
     private void Version() {
         new XPopup.Builder(this)
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200619b 11:16 am build",
+                                "Version: 20200619c 17:28 am build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
