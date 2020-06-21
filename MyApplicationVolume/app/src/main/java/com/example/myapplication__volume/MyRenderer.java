@@ -196,6 +196,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private boolean ifFileSupport = false;
     private boolean ifFileLoaded = false;
+    private boolean ifLoadSWC = false;
 
     private Context context_myrenderer;
 
@@ -630,11 +631,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 if (myAxis != null)
                     myAxis.draw(finalMatrix);
 
+            System.out.println("---- draw myImg ----");
+
+
         }else {
             if (myNavLoc == null){
                 myNavLoc = new MyNavLoc(mz_neuron, mz_block);
             }
-                myNavLoc.draw(finalMatrix);
+            System.out.println("---- draw myNavLoc ----");
+            myNavLoc.draw(finalMatrix);
         }
 
 
@@ -1794,6 +1799,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Log.v("MyRenderer", Arrays.toString(mz_block));
 
         ifNavigationLococation = true;
+        myNavLoc = null;
 
     }
 
@@ -1808,6 +1814,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         if (!ifNavigationLococation){
             myNavLoc = null;
         }
+    }
+
+    public void quitNav_location_Mode(){
+        ifNavigationLococation = false;
+        myNavLoc = null;
     }
 
 
@@ -3405,6 +3416,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        V_NeuronSWC seg = nt.convertV_NeuronSWCFormat();
 //        curSwcList.append(seg);
 
+        if (ifLoadSWC){
+            deleteAllTracing();
+            ifLoadSWC = false;
+        }
+
         System.out.println("----------------importNeuronTree----------------");
         try{
             System.out.println("nt size: "+nt.listNeuron.size());
@@ -3415,6 +3431,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }catch (Exception e){
             e.printStackTrace();
         }
+
+        ifLoadSWC = true;
 
     }
 
@@ -3835,6 +3853,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //
 //        dst.release();
 
+    }
+
+    public void SetSwcLoaded(){
+        ifLoadSWC = true;
     }
 
     public FileType getFileType() {

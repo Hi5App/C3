@@ -1364,12 +1364,12 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     remoteImg.ip = ip;
-                    if (!remoteImg.isSocketSet) {
+//                    if (!remoteImg.isSocketSet) {
                         Log.v("SendSwc", "connext socket");
                         remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
                         remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
                         remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
-                    }
+//                    }
 
 
                     if (remoteImg.ImgSocket.isConnected()) {
@@ -1739,6 +1739,7 @@ public class MainActivity extends AppCompatActivity {
                         filesocket_receive = null;
 
                         NeuronTree nt = NeuronTree.readSWC_file(context.getExternalFilesDir(null).toString() + "/Sync/BlockGet/" +  "blockGet__" + SwcFileName + ".swc");
+                        myrenderer.SetSwcLoaded();
                         myrenderer.importNeuronTree(nt);
                         myGLSurfaceView.requestRender();
                         Looper.loop();
@@ -1760,9 +1761,31 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void ConnectServer() {
+    public void disconnectFromHost(){
+
+        System.out.println("---- disconnect from host ----");
+        try {
+
+            if (remoteImg.ImgSocket != null){
+                remoteImg.ImgSocket.close();
+            }
+
+            if (remoteImg.ImgSocket != null){
+                remoteImg.ImgReader.close();
+            }
+
+            if (remoteImg.ImgSocket != null){
+                remoteImg.ImgPWriter.close();
+            }
+
+
+        } catch (IOException e) {
+
+            e.printStackTrace();
+        }
 
     }
+
 
     /**
      * function for the FileManager button
@@ -3627,7 +3650,7 @@ public class MainActivity extends AppCompatActivity {
     private void Version() {
         new XPopup.Builder(this)
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200619c 17:28 am build",
+                                "Version: 20200621a 10:27 am UTC build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -3949,8 +3972,12 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
         }
-
         if (isBigData_Local){
+            boolean ifNavigationLocation = myrenderer.getNav_location_Mode();
+            if (ifNavigationLocation){
+                myrenderer.quitNav_location_Mode();
+            }
+
             String filename = SettingFileManager.getFilename_Local(this);
             int[] index = bigFileReader.SelectBlock_fast(text, this);
             if (index == null){
@@ -3962,6 +3989,33 @@ public class MainActivity extends AppCompatActivity {
             myGLSurfaceView.requestRender();
         }
 
+    }
+
+    private void Quit_Nav_Mode(){
+        System.out.println("---------QuitNavigationLocation---------");
+        myrenderer.quitNav_location_Mode();
+        navigation_location.setImageResource(R.drawable.ic_gps_fixed_black_24dp);
+    }
+
+
+    private void Update_Nav_Mode(){
+        String filename = SettingFileManager.getFilename_Local(this);
+        String offset   = SettingFileManager.getoffset_Local(this, filename);
+
+        float size_x = Float.parseFloat(filename.split("RES")[1].split("x")[0]);
+        float size_y = Float.parseFloat(filename.split("RES")[1].split("x")[1]);
+        float size_z = Float.parseFloat(filename.split("RES")[1].split("x")[2]);
+
+        float offset_x = Float.parseFloat(offset.split("_")[0]);
+        float offset_y = Float.parseFloat(offset.split("_")[1]);
+        float offset_z = Float.parseFloat(offset.split("_")[2]);
+        float size_block = Float.parseFloat(offset.split("_")[3]);
+
+        float[] neuron = {size_x, size_y, size_z};
+        float[] block = {offset_x, offset_y, offset_z};
+        float[] size = {size_block, size_block, size_block};
+
+        myrenderer.setNav_location(neuron, block, size);
     }
 
     public void Set_Nav_Mode(){

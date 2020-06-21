@@ -146,6 +146,7 @@ public class RemoteImg extends Socket {
 
     public void disconnectFromHost(){
 
+        System.out.println("---- disconnect from host ----");
         try {
 
             if (ImgSocket != null){
