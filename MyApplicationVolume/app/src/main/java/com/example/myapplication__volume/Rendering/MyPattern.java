@@ -1,4 +1,4 @@
-package com.example.myapplication__volume;
+package com.example.myapplication__volume.Rendering;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.example.basic.ByteTranslate;
 import com.example.basic.Image4DSimple;
+import com.example.myapplication__volume.JumpActivity;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;

@@ -1,4 +1,4 @@
-package com.example.connect;
+package com.example.server_connect;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.myapplication__volume.Filesocket_receive;
 import com.example.myapplication__volume.R;
 
 import java.io.BufferedReader;

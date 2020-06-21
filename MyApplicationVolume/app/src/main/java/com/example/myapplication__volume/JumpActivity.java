@@ -11,11 +11,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.connect.RemoteImg;
+import com.example.server_connect.RemoteImg;
 
 import java.io.InputStream;
 
-import static com.example.ImageFile.BigFileReader.BIG_LOCAL_FILE_PATH;
+import static com.example.ImageReader.BigImgReader.BIG_LOCAL_FILE_PATH;
 
 
 //打开文件管理器读取文件

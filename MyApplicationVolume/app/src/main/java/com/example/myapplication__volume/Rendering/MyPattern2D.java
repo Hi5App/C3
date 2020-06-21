@@ -1,10 +1,9 @@
-package com.example.myapplication__volume;
+package com.example.myapplication__volume.Rendering;
 
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.opengl.GLUtils;
-import android.opengl.Matrix;
 import android.util.Log;
 
 import java.nio.ByteBuffer;

@@ -11,6 +11,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.server_connect.Filesocket_receive;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;

@@ -1,4 +1,4 @@
-package com.example.ImageFile;
+package com.example.ImageReader;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -12,7 +12,6 @@ import android.widget.Toast;
 import com.example.basic.Image4DSimple;
 import com.example.basic.SettingFileManager;
 import com.example.myapplication__volume.JumpActivity;
-import com.example.myapplication__volume.MyRenderer;
 import com.example.myapplication__volume.R;
 
 import java.io.BufferedInputStream;
@@ -28,13 +27,12 @@ import cn.carbs.android.library.MDDialog;
 import static com.example.basic.SettingFileManager.getFilename_Local;
 import static com.example.basic.SettingFileManager.getoffset_Local;
 import static com.example.basic.SettingFileManager.setoffset_Local;
-import static com.example.myapplication__volume.JumpActivity.FILE_LOCAL;
 
-public class BigFileReader {
+public class BigImgReader {
 
     public static final String BIG_LOCAL_FILE_PATH = "LOCAL_FILEPATH";
 
-    public BigFileReader(){
+    public BigImgReader(){
 
     }
 

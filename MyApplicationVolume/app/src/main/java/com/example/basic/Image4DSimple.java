@@ -5,9 +5,9 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
-import com.example.ImageFile.BigFileReader;
-import com.example.ImageFile.Tiffreader;
-import com.example.myapplication__volume.Rawreader;
+import com.example.ImageReader.BigImgReader;
+import com.example.ImageReader.Rawreader;
+import com.example.ImageReader.Tiffreader;
 
 import org.apache.commons.io.IOUtils;
 
@@ -708,7 +708,7 @@ public class Image4DSimple {
     public static Image4DSimple loadImage_Bigdata(String filepath, int[] index){
         Image4DSimple image = new Image4DSimple();
 
-        BigFileReader bfr = new BigFileReader();
+        BigImgReader bfr = new BigImgReader();
         File file = new File(filepath);
         long length = 0;
         InputStream is = null;

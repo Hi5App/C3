@@ -1,12 +1,9 @@
-package com.example.connect;
+package com.example.server_connect;
 
 import android.content.Context;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
-
-import com.example.basic.NeuronTree;
-import com.example.myapplication__volume.MyRenderer;
 
 import org.apache.commons.io.IOUtils;
 
@@ -62,7 +59,7 @@ public class Filesocket_send {
 //                        Looper.prepare();
 //                    }
 
-                    Log.v("sendImg", "start to send file");
+                    Log.v("sendImg", "Start to Upload");
                     OutputStream out = filesocket.getOutputStream();
 //                    DataOutputStream out = new DataOutputStream((FileOutputStream)(filesocket.getOutputStream()));
 
@@ -129,7 +126,7 @@ public class Filesocket_send {
         }
 
         Log.v("send2", "finished");
-        Toast.makeText(context, "Upload file successfully!!!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "Upload Successfully!!!", Toast.LENGTH_SHORT).show();
 
 
 

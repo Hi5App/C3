@@ -24,7 +24,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.media.MediaRouter;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
@@ -43,8 +42,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -55,7 +52,6 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -68,7 +64,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
-import com.example.ImageFile.BigFileReader;
+import com.example.ImageReader.BigImgReader;
 import com.example.basic.FileManager;
 import com.example.basic.Image4DSimple;
 import com.example.basic.ImageMarker;
@@ -76,15 +72,18 @@ import com.example.basic.LocationSimple;
 import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
 import com.example.basic.SettingFileManager;
-import com.example.connect.Filesocket_send;
-import com.example.connect.RemoteImg;
+import com.example.myapplication__volume.FileReader.AnoReader;
+import com.example.myapplication__volume.FileReader.ApoReader;
+import com.example.myapplication__volume.FileReader.SwcReader;
+import com.example.server_connect.Filesocket_receive;
+import com.example.server_connect.Filesocket_send;
+import com.example.server_connect.RemoteImg;
 import com.feature_calc_func.MorphologyCalculate;
 import com.learning.opimageline.Consensus;
 import com.learning.opimageline.DetectLine;
 import com.learning.pixelclassification.PixelClassification;
 import com.learning.randomforest.RandomForest;
 import com.lxj.xpopup.XPopup;
-import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.lxj.xpopup.interfaces.SimpleCallback;
@@ -119,7 +118,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -128,8 +126,8 @@ import java.util.concurrent.TimeUnit;
 import Jama.Matrix;
 import cn.carbs.android.library.MDDialog;
 
-import static com.example.connect.RemoteImg.getFilename;
-import static com.example.connect.RemoteImg.getoffset;
+import static com.example.server_connect.RemoteImg.getFilename;
+import static com.example.server_connect.RemoteImg.getoffset;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.pow;
@@ -262,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private RemoteImg remoteImg;
-    private BigFileReader bigFileReader;
+    private BigImgReader bigImgReader;
 
 
     private static final int PICKFILE_REQUEST_CODE = 100;
@@ -365,7 +363,7 @@ public class MainActivity extends AppCompatActivity {
             String filename = SettingFileManager.getFilename_Local(this);
             String offset = SettingFileManager.getoffset_Local(this, filename);
 
-            int[] index = BigFileReader.getIndex(offset);
+            int[] index = BigImgReader.getIndex(offset);
             myrenderer.SetPath_Bigdata(filepath_local, index);
 
             String offset_x = offset.split("_")[0];
@@ -785,7 +783,7 @@ public class MainActivity extends AppCompatActivity {
 
         myGLSurfaceView.requestRender();
         remoteImg = new RemoteImg();
-        bigFileReader = new BigFileReader();
+        bigImgReader = new BigImgReader();
         context = getApplicationContext();
 
         progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleSmall);
@@ -1483,12 +1481,12 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     remoteImg.ip = ip;
-                    if (!remoteImg.isSocketSet) {
+//                    if (!remoteImg.isSocketSet) {
                         Log.v("SendSwc", "connext socket");
                         remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
                         remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
                         remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
-                    }
+//                    }
 
 
                     if (remoteImg.ImgSocket.isConnected()) {
@@ -1633,14 +1631,14 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     remoteImg.ip = ip;
-                    if (!remoteImg.isSocketSet) {
+//                    if (!remoteImg.isSocketSet) {
 
                         Log.v("DownloadSwc: ", "Connect server");
 
                         remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
                         remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
                         remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
-                    }
+//                    }
 
                     Log.v("DownloadSwc: ", "here we are 2");
 
@@ -1700,14 +1698,14 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     remoteImg.ip = ip;
-                    if (!remoteImg.isSocketSet) {
+//                    if (!remoteImg.isSocketSet) {
 
                         Log.v("DownloadSwc: ", "Connect server");
 
                         remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
                         remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
                         remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
-                    }
+//                    }
 
                     Filesocket_receive filesocket_receive = new Filesocket_receive();
                     filesocket_receive.filesocket = new Socket(ip, 9002);
@@ -1725,7 +1723,7 @@ public class MainActivity extends AppCompatActivity {
 
                         String filename = getFilename(context);
                         String offset = getoffset(context, filename);
-                        int[] index = BigFileReader.getIndex(offset);
+                        int[] index = BigImgReader.getIndex(offset);
                         System.out.println(filename);
 
                         String SwcFileName = filename.split("RES")[0] + "__" +
@@ -3105,7 +3103,7 @@ public class MainActivity extends AppCompatActivity {
 
         String filename = getFilename(this);
         String offset = getoffset(this, filename);
-        int[] index = BigFileReader.getIndex(offset);
+        int[] index = BigImgReader.getIndex(offset);
         System.out.println(filename);
 
         String SwcFileName = "blockSet__" + filename.split("RES")[0] + "__" +
@@ -3650,7 +3648,7 @@ public class MainActivity extends AppCompatActivity {
     private void Version() {
         new XPopup.Builder(this)
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200621a 10:27 am UTC build",
+                                "Version: 20200621b 22:39 pm UTC build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -3749,9 +3747,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void BigFileRead_local(){
-        String[] filename_list = bigFileReader.ChooseFile(this);
+        String[] filename_list = bigImgReader.ChooseFile(this);
         if (filename_list != null){
-            bigFileReader.ShowListDialog(this, filename_list);
+            bigImgReader.ShowListDialog(this, filename_list);
         }
     }
 
@@ -3979,7 +3977,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             String filename = SettingFileManager.getFilename_Local(this);
-            int[] index = bigFileReader.SelectBlock_fast(text, this);
+            int[] index = bigImgReader.SelectBlock_fast(text, this);
             if (index == null){
                 System.out.println("----- index is null -----");
                 return;
@@ -6147,7 +6145,7 @@ public class MainActivity extends AppCompatActivity {
                                         remoteImg.Selectblock(context, false);
                                         break;
                                     case "Local Server":
-                                        bigFileReader.PopUp(context);
+                                        bigImgReader.PopUp(context);
                                         break;
                                     default:
 //                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();

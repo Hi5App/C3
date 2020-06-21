@@ -1,24 +1,16 @@
-package com.example.myapplication__volume;
+package com.example.myapplication__volume.FileReader;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.Exception;
 import java.util.ArrayList;
 
 import static com.example.myapplication__volume.MainActivity.getContext;
@@ -32,7 +24,7 @@ public class ApoReader {
     private static int REQUEST_PERMISSION_CODE = 1;
 
 
-    ArrayList<ArrayList<Float>> read(String filePath){
+    public ArrayList<ArrayList<Float>> read(String filePath){
 
         Context context = getContext();
 
@@ -94,7 +86,7 @@ public class ApoReader {
     }
 
 
-    ArrayList<ArrayList<Float>> read(Uri uri){
+    public ArrayList<ArrayList<Float>> read(Uri uri){
 
         Context context = getContext();
 

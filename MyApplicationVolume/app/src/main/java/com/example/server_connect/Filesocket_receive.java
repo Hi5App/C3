@@ -1,10 +1,11 @@
-package com.example.myapplication__volume;
+package com.example.server_connect;
 
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.myapplication__volume.JumpActivity;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 
@@ -294,8 +295,8 @@ public class Filesocket_receive {
         }
         flag[0] = false;
 
-        Log.v("readfile IoUtils", "Before  Toast.makeText");
-        Toast.makeText(context, "Download file successfully!!!", Toast.LENGTH_SHORT).show();
+        Log.v("read file IoUtils", "Before  Toast.makeText");
+        Toast.makeText(context, "Download Successfully!!!", Toast.LENGTH_SHORT).show();
 
     }
 

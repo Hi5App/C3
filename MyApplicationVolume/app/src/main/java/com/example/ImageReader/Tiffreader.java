@@ -1,4 +1,4 @@
-package com.example.ImageFile;
+package com.example.ImageReader;
 
 import android.content.Context;
 import android.graphics.Bitmap;

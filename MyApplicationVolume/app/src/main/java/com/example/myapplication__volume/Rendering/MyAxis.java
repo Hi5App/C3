@@ -1,6 +1,5 @@
-package com.example.myapplication__volume;
+package com.example.myapplication__volume.Rendering;
 
-import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.util.Log;
 
@@ -9,24 +8,56 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-public class MyNavLoc {
+public class MyAxis {
 
     private final int mProgram_axis;
-    private final int mProgram_border_img;
-    private final int mProgram_border_block;
-
 
     private FloatBuffer vertexBuffer_axis;
     private FloatBuffer colorBuffer_axis;
 
+    private final int mProgram_border;
 
-    private FloatBuffer vertexBuffer_border_img;
-    private FloatBuffer vertexBuffer_border_block;
+    private FloatBuffer vertexBuffer_border;
     private ShortBuffer ListBuffer_border;
 
     private float[] vertexAxis;
-    private float[] vertexBorder_img;
-    private float[] vertexBorder_block;
+    private float[] vertexBorder;
+
+
+    //坐标系
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+//    private final float[] vertexAxis={
+//            // x axis
+//            0.0f, 0.0f, 0.0f,
+//            1.1f, 0.0f, 0.0f,
+//
+//            // y axis
+//            0.0f, 0.0f, 0.0f,
+//            0.0f, 1.1f, 0.0f,
+//
+//            // z axis
+//            0.0f, 0.0f, 0.0f,
+//            0.0f, 0.0f, 1.1f,
+//
+//    };
+
+
+
+//    private final float[] vertexAxis={
+//            // x axis
+//            1.0f - 0.0f, 1.0f - 0.0f, 0.0f,
+//            1.0f - 1.1f, 1.0f - 0.0f, 0.0f,
+//
+//            // y axis
+//            1.0f - 0.0f, 1.0f - 0.0f, 0.0f,
+//            1.0f - 0.0f, 1.0f - 1.1f, 0.0f,
+//
+//            // z axis
+//            1.0f - 0.0f, 1.0f - 0.0f, 0.0f,
+//            1.0f - 0.0f, 1.0f - 0.0f, 1.1f,
+//
+//    };
 
 
     private final float[] colorAxis={
@@ -43,6 +74,19 @@ public class MyNavLoc {
             0.0f, 0.0f, 1.0f, 1.0f,
 
     };
+
+
+//    private final float[] vertexBorder= {
+//            // x axis
+//            0f, 0f, 0f,  // num 0
+//            0f, 0f, 1f,  // num 1
+//            0f, 1f, 0f,  // num 2
+//            0f, 1f, 1f,  // num 3
+//            1f, 0f, 0f,  // num 4
+//            1f, 1f, 0f,  // num 5
+//            1f, 0f, 1f,  // num 6
+//            1f, 1f, 1f,  // num 7
+//    };
 
 
     private final short[] BorderList= {
@@ -86,9 +130,9 @@ public class MyNavLoc {
 
 
 
-    //draw the border of img
+    //draw the border
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    private final String vertexShaderCode_border_img =
+    private final String vertexShaderCode_border =
             "#version 300 es\n" +
                     "layout (location = 0) in vec4 vPosition;\n" +
 
@@ -102,7 +146,7 @@ public class MyNavLoc {
                     "}\n";
 
 
-    private final String fragmentShaderCode_border_img =
+    private final String fragmentShaderCode_border =
             "#version 300 es\n" +
                     "precision mediump float;\n" +
 
@@ -113,52 +157,22 @@ public class MyNavLoc {
                     "}\n";
 
 
-    //draw the border of block
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    private final String vertexShaderCode_border_block =
-            "#version 300 es\n" +
-                    "layout (location = 0) in vec4 vPosition;\n" +
-
-                    "uniform mat4 uMVPMatrix;" +
-
-                    "void main() {\n" +
-                    "     gl_Position  = uMVPMatrix * vec4( 1.0 - vPosition.x,  1.0 - vPosition.y, vPosition.z, 1.0);\n" +
-//                    "     gl_Position  = vec4((uMVPMatrix * vPosition).xy, -1.0, 1.0);\n" +
-
-                    "     gl_PointSize = 10.0;\n" +
-                    "}\n";
-
-
-    private final String fragmentShaderCode_border_block =
-            "#version 300 es\n" +
-                    "precision mediump float;\n" +
-
-                    "out vec4 fragColor;\n" +
-                    "void main() {\n" +
-//                    "     fragColor = outColor;\n" +
-                    "     fragColor = vec4(1.0, 0.0, 0.0, 1.0);\n" +
-                    "}\n";
-
-
-    public MyNavLoc(float[] dim, float[] block_pos){
+    public MyAxis(float[] dim){
 
         mProgram_axis = initProgram(vertexShaderCode_axis, fragmentShaderCode_axis);
         Log.v("mProgram_line", Integer.toString(mProgram_axis));
 
-        mProgram_border_img = initProgram(vertexShaderCode_border_img, fragmentShaderCode_border_img);
-        Log.v("mProgram_border", Integer.toString(mProgram_border_img));
+        mProgram_border = initProgram(vertexShaderCode_border, fragmentShaderCode_border);
+        Log.v("mProgram_border", Integer.toString(mProgram_border));
 
-        mProgram_border_block = initProgram(vertexShaderCode_border_block, fragmentShaderCode_border_block);
-        Log.v("mProgram_border", Integer.toString(mProgram_border_block));
-
-        setPoints(dim, block_pos);
+        setPoints(dim);
 
         BufferSet();
 
     }
 
 
-    private void setPoints(float[] mz, float[] mz_block){
+    private void setPoints(float[] mz){
 
         vertexAxis = new float[]{
                 // x axis
@@ -175,7 +189,7 @@ public class MyNavLoc {
 
         };
 
-        vertexBorder_img = new float[]{
+        vertexBorder = new float[]{
                 // x axis
                 0f,     0f,     0f,  // num 0
                 0f,     0f,     mz[2],  // num 1
@@ -187,28 +201,12 @@ public class MyNavLoc {
                 mz[0],  mz[1],  mz[2],  // num 7
         };
 
-
-        vertexBorder_block = new float[]{
-                // x axis
-                mz_block[0],     mz_block[2],     mz_block[4],  // num 0
-                mz_block[0],     mz_block[2],     mz_block[5],  // num 1
-                mz_block[0],     mz_block[3],     mz_block[4],  // num 2
-                mz_block[0],     mz_block[3],     mz_block[5],  // num 3
-                mz_block[1],     mz_block[2],     mz_block[4],  // num 4
-                mz_block[1],     mz_block[3],     mz_block[4],  // num 5
-                mz_block[1],     mz_block[2],     mz_block[5],  // num 6
-                mz_block[1],     mz_block[3],     mz_block[5],  // num 7
-        };
-
     }
 
 
     public void draw(float[] mvpMatrix){
-        //draw the border of img
-        draw_border_img(mvpMatrix);
-
-        //draw the border of block
-        draw_border_block(mvpMatrix);
+        //draw the border
+        draw_border(mvpMatrix);
 
         //draw the axis
         draw_axis(mvpMatrix);
@@ -257,17 +255,17 @@ public class MyNavLoc {
 
 
 
-    public void draw_border_img(float[] mvpMatrix){
+    public void draw_border(float[] mvpMatrix){
 
-        GLES30.glUseProgram(mProgram_border_img);
+        GLES30.glUseProgram(mProgram_border);
 
         //准备坐标数据
-        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_border_img);
+        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_border);
         //启用顶点的句柄
         GLES30.glEnableVertexAttribArray(0);
 
         // get handle to vertex shader's uMVPMatrix member
-        int vPMatrixHandle_border = GLES30.glGetUniformLocation(mProgram_border_img,"uMVPMatrix");
+        int vPMatrixHandle_border = GLES30.glGetUniformLocation(mProgram_border,"uMVPMatrix");
 
         // Pass the projection and view transformation to the shader
         GLES30.glUniformMatrix4fv(vPMatrixHandle_border, 1, false, mvpMatrix, 0);
@@ -279,32 +277,8 @@ public class MyNavLoc {
         //禁止顶点数组的句柄
         GLES30.glDisableVertexAttribArray(0);
 
-
     }
 
-
-    private void draw_border_block(float[] mvpMatrix){
-
-        GLES30.glUseProgram(mProgram_border_block);
-
-        //准备坐标数据
-        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_border_block);
-        //启用顶点的句柄
-        GLES30.glEnableVertexAttribArray(0);
-
-        // get handle to vertex shader's uMVPMatrix member
-        int vPMatrixHandle_border = GLES30.glGetUniformLocation(mProgram_border_block,"uMVPMatrix");
-
-        // Pass the projection and view transformation to the shader
-        GLES30.glUniformMatrix4fv(vPMatrixHandle_border, 1, false, mvpMatrix, 0);
-
-        //绘制三个点
-        GLES30.glLineWidth(2);
-        GLES30.glDrawElements(GLES30.GL_LINES, 24, GLES30.GL_UNSIGNED_SHORT, ListBuffer_border);
-
-        //禁止顶点数组的句柄
-        GLES30.glDisableVertexAttribArray(0);
-    }
 
     private void BufferSet(){
 
@@ -328,24 +302,14 @@ public class MyNavLoc {
 
 
 
-        // for the border of img
+        // for the border
         //分配内存空间,每个浮点型占4字节空间
-        vertexBuffer_border_img = ByteBuffer.allocateDirect(vertexBorder_img.length * 4)
+        vertexBuffer_border = ByteBuffer.allocateDirect(vertexBorder.length * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
         //传入指定的坐标数据
-        vertexBuffer_border_img.put(vertexBorder_img);
-        vertexBuffer_border_img.position(0);
-
-
-        // for the border of block
-        //分配内存空间,每个浮点型占4字节空间
-        vertexBuffer_border_block = ByteBuffer.allocateDirect(vertexBorder_block.length * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer();
-        //传入指定的坐标数据
-        vertexBuffer_border_block.put(vertexBorder_block);
-        vertexBuffer_border_block.position(0);
+        vertexBuffer_border.put(vertexBorder);
+        vertexBuffer_border.position(0);
 
 
         //分配内存空间,每个浮点型占4字节空间
