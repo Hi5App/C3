@@ -236,7 +236,7 @@ public class Branch {
 
         Vector<MyMarker> inSwc = MyMarker.swcConvert(branch);
         int[] sz = new int[]{(int) img.getSz0(), (int) img.getSz1(), (int) img.getSz2()};
-        byte[] maskR1 = MyMarker.swcToMask(inSwc,sz,1,0);
+        byte[] maskR1 = MyMarker.swcToMask(inSwc,sz,0,1);
         byte[] maskR5 = MyMarker.swcToMask(inSwc,sz,5,5);
         float intensityR1 = 0, intensityR5 = 0;
         int countR1 = 0, countR5 = 0;

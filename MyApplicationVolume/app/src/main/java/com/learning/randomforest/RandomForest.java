@@ -401,11 +401,11 @@ public class RandomForest {
         this.trees = new ArrayList<>();
 
         for(int i=0; i<oc*0.8; i++){
-            this.trees.add(oldTrees.get(i));
+            this.trees.add(oldTrees.get(oldIndex[i]));
         }
 
         for(int i=0; i<nc*0.2; i++){
-            this.trees.add(newTrees.get(i));
+            this.trees.add(newTrees.get(newIndex[i]));
         }
 
         this.numTrees = (int) (oc*0.8) + (int) (nc* 0.2);

@@ -30,22 +30,6 @@ public class V3dNeuronAPP2Tracing {
             return false;
         }
 
-//        int negative_c = 0;
-//        for(int kk=0; kk<p.p4dImage.getSz2(); kk++){
-//            for(int jj=0; jj<p.p4dImage.getSz1(); jj++){
-//                for(int ii=0; ii<p.p4dImage.getSz0(); ii++){
-//                    if(p.p4dImage.getValue(ii,jj,kk,0)<0){
-//                        negative_c++;
-//                        byte var = (byte) p.p4dImage.getValue(ii,jj,kk,0);
-//                        out.println(p.p4dImage.getValue(ii,jj,kk,0));
-//                        out.println("--------------------p4dimage has negative value!!!-------------------------------");
-//                        p.p4dImage.setValue(ii,jj,kk,0,var&0xFF);
-//                        out.println(p.p4dImage.getValue(ii,jj,kk,0));
-//                    }
-//                }
-//            }
-//        }
-//        out.println("negative number: "+negative_c);
 
         Vector<String> infostring = new Vector<String>();//一些输出信息
 
@@ -342,11 +326,11 @@ public class V3dNeuronAPP2Tracing {
                         FM.fastmarching_dt(p4dImageNew.getDataCZYX()[0],phi,sz,p.cnn_type,p.bkg_thresh);
                     }
                     out.println("constructing fastmarching tree ...");
-                    FM.fastmarching_tree(inmarkers.elementAt(0), target, phi, outTree, sz, p.cnn_type);
+                    FM.fastmarching_tree(inmarkers.elementAt(0), target, phi, outTree, sz, p.cnn_type,p.bkg_thresh,p.is_break_accept);
                 }
                 else
                 {
-                    FM.fastmarching_tree(inmarkers.elementAt(0), target, p4dImageNew.getDataCZYX()[0], outTree, sz, p.cnn_type);
+                    FM.fastmarching_tree(inmarkers.elementAt(0), target, p4dImageNew.getDataCZYX()[0], outTree, sz, p.cnn_type,p.bkg_thresh,p.is_break_accept);
                 }
             }
         }catch (OutOfMemoryError e){

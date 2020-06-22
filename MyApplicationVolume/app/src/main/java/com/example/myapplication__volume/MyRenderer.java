@@ -29,6 +29,12 @@ import com.example.basic.ImageUtil;
 import com.example.basic.MyAnimation;
 import com.example.basic.NeuronTree;
 import com.example.basic.XYZ;
+import com.example.myapplication__volume.Rendering.MyAxis;
+import com.example.myapplication__volume.Rendering.MyDraw;
+import com.example.myapplication__volume.Rendering.MyMarker;
+import com.example.myapplication__volume.Rendering.MyNavLoc;
+import com.example.myapplication__volume.Rendering.MyPattern;
+import com.example.myapplication__volume.Rendering.MyPattern2D;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_list;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
@@ -69,7 +75,7 @@ import static javax.microedition.khronos.opengles.GL10.GL_SRC_ALPHA;
 
 //@android.support.annotation.RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
 public class MyRenderer implements GLSurfaceView.Renderer {
-    private int UNDO_LIMIT = 5;
+    private int UNDO_LIMIT = 20;
     private enum Operate {DRAWCURVE, DELETECURVE, DRAWMARKER, DELETEMARKER, CHANGELINETYPE, SPLIT};
     private Vector<Operate> process = new Vector<>();
     private Vector<V_NeuronSWC> undoDrawList = new Vector<>();
@@ -82,6 +88,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public static final String OUTOFMEM_MESSAGE = "OutOfMemory";
     public static final String FILE_SUPPORT_ERROR = "FileSupportError";
     public static final String FILE_PATH = "Myrender_FILEPATH";
+    public static final String LOCAL_FILE_PATH = "LOCAL_FILEPATH";
     public static final String Time_out = "Myrender_Timeout";
 
     private MyPattern myPattern;
@@ -89,6 +96,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private MyAxis myAxis;
     private MyDraw myDraw;
     public  MyAnimation myAnimation;
+    private MyNavLoc myNavLoc;
 
     private Image4DSimple img = null;
     private ByteBuffer imageBuffer;
@@ -101,6 +109,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private float angle = 0f;
     private float angleX = 0.0f;
     private float angleY = 0.0f;
+    private float angleZ = 0.0f;
     private int mTextureId;
 
     private int vol_w;
@@ -108,6 +117,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private int vol_d;
     private int[] sz = new int[3];
     private float[] mz = new float[3];
+    private float[] mz_neuron = new float[3];
+    private float[] mz_block = new float[6];
 
 
     private int[] texture = new int[1]; //生成纹理id
@@ -120,6 +131,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private final float[] rotationMatrix =new float[16];
     private final float[] rotationXMatrix = new float[16];
     private final float[] rotationYMatrix = new float[16];
+    private final float[] rotationZMatrix = new float[16];
     private final float[] translateMatrix = new float[16];//平移矩阵
     private final float[] translateAfterMatrix = new float[16];
     private final float[] modelMatrix = new float[16];
@@ -171,6 +183,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private boolean ifDownSampling = false;
     private boolean ifNeedDownSample = true;
+    private boolean ifNavigationLococation = false;
 
     private int screen_w;
     private int screen_h;
@@ -189,6 +202,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private boolean ifFileSupport = false;
     private boolean ifFileLoaded = false;
+    private boolean ifLoadSWC = false;
 
     private Context context_myrenderer;
 
@@ -232,19 +246,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
-    private Double test(){
-        double result = 4.1;
-        return null;
-    }
     //画面大小发生改变后
     public void onSurfaceChanged(GL10 gl,int width, int height){
         //设置视图窗口
         GLES30.glViewport(0, 0, width, height);
 
-        Double result = test();
-        if (result != null){
-            double data = result;
-        }
 
         screen_w = width;
         screen_h = height;
@@ -323,6 +329,16 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
                 if (fileType == FileType.PNG || fileType == FileType.JPG)
                     myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
+
+                if (fileType == FileType.TIF || fileType == FileType.V3draw || fileType == FileType.V3dPBD) {
+                    if (myAxis == null)
+                        myAxis = new MyAxis(mz);
+                }
+                if (myDraw == null)
+                    myDraw = new MyDraw();
+                if (myAnimation == null)
+                    myAnimation = new MyAnimation();
+
                 ifFileSupport = false;
             }
         }
@@ -427,11 +443,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 //        Log.v("onDrawFrame", "draw_axis");
 
-        if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD)
-            myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, screen_w, screen_h, texture[0], ifDownSampling);
+        if (!ifNavigationLococation){
+            if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD)
+                myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, screen_w, screen_h, texture[0], ifDownSampling);
 
-        if (fileType == FileType.JPG || fileType == FileType.PNG)
-            myPattern2D.draw(finalMatrix);
+            if (fileType == FileType.JPG || fileType == FileType.PNG)
+                myPattern2D.draw(finalMatrix);
 
 //        Log.v("onDrawFrame: ", Integer.toString(markerDrawed.size()));
 
@@ -443,97 +460,97 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //
 //            }
 //        }
-        if(curSwcList.nsegs()>0){
+            if(curSwcList.nsegs()>0){
 //            System.out.println("------------draw curswclist------------------------");
-            ArrayList<Float> lines = new ArrayList<Float>();
-            for(int i=0; i<curSwcList.seg.size(); i++){
+                ArrayList<Float> lines = new ArrayList<Float>();
+                for(int i=0; i<curSwcList.seg.size(); i++){
 //                System.out.println("i: "+i);
-                V_NeuronSWC seg = curSwcList.seg.get(i);
+                    V_NeuronSWC seg = curSwcList.seg.get(i);
 //                ArrayList<Float> currentLine = swc.get(i);
-                Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
-                lines.clear();
-                for(int j=0; j<seg.row.size(); j++){
-                    if(seg.row.get(j).parent != -1 && seg.getIndexofParent(j) != -1){
-                        V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(j));
-                        swcUnitMap.put(j,parent);
+                    Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
+                    lines.clear();
+                    for(int j=0; j<seg.row.size(); j++){
+                        if(seg.row.get(j).parent != -1 && seg.getIndexofParent(j) != -1){
+                            V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(j));
+                            swcUnitMap.put(j,parent);
+                        }
                     }
-                }
 //                System.out.println("---------------end map-----------------------");
-                for(int j=0; j<seg.row.size(); j++){
+                    for(int j=0; j<seg.row.size(); j++){
 //                    System.out.println("in row: "+j+"-------------------");
-                    V_NeuronSWC_unit child = seg.row.get(j);
-                    int parentid = (int) child.parent;
-                    if (parentid == -1 || seg.getIndexofParent(j) == -1 ){
+                        V_NeuronSWC_unit child = seg.row.get(j);
+                        int parentid = (int) child.parent;
+                        if (parentid == -1 || seg.getIndexofParent(j) == -1 ){
 //                        System.out.println("parent -1");
-                        float x = (int)child.x;
-                        float y = (int)child.y;
-                        float z = (int)child.z;
-                        float [] position = VolumetoModel(new float[]{x, y, z});
-                        myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int)child.type);
-                        continue;
-                    }
-                    V_NeuronSWC_unit parent = swcUnitMap.get(j);
-                    lines.add((float) ((sz[0] - parent.x)/sz[0]*mz[0]));
-                    lines.add((float) ((sz[1] - parent.y)/sz[1]*mz[1]));
-                    lines.add((float) ((parent.z)/sz[2]*mz[2]));
-                    lines.add((float) ((sz[0] - child.x)/sz[0]*mz[0]));
-                    lines.add((float) ((sz[1] - child.y)/sz[1]*mz[1]));
-                    lines.add((float) ((child.z)/sz[2]*mz[2]));
+                            float x = (int)child.x;
+                            float y = (int)child.y;
+                            float z = (int)child.z;
+                            float [] position = VolumetoModel(new float[]{x, y, z});
+                            myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int)child.type);
+                            continue;
+                        }
+                        V_NeuronSWC_unit parent = swcUnitMap.get(j);
+                        lines.add((float) ((sz[0] - parent.x)/sz[0]*mz[0]));
+                        lines.add((float) ((sz[1] - parent.y)/sz[1]*mz[1]));
+                        lines.add((float) ((parent.z)/sz[2]*mz[2]));
+                        lines.add((float) ((sz[0] - child.x)/sz[0]*mz[0]));
+                        lines.add((float) ((sz[1] - child.y)/sz[1]*mz[1]));
+                        lines.add((float) ((child.z)/sz[2]*mz[2]));
 //                    System.out.println("in draw line--------------"+j);
 //                    System.out.println("type: "+parent.type);
-                    myDraw.drawLine(finalMatrix, lines, (int) parent.type);
-                    lines.clear();
+                        myDraw.drawLine(finalMatrix, lines, (int) parent.type);
+                        lines.clear();
+                    }
                 }
+
             }
 
-        }
-
-        if(newSwcList.nsegs()>0){
+            if(newSwcList.nsegs()>0){
 //            System.out.println("------------draw curswclist------------------------");
-            ArrayList<Float> lines = new ArrayList<Float>();
-            for(int i=0; i<newSwcList.seg.size(); i++){
+                ArrayList<Float> lines = new ArrayList<Float>();
+                for(int i=0; i<newSwcList.seg.size(); i++){
 //                System.out.println("i: "+i);
-                V_NeuronSWC seg = newSwcList.seg.get(i);
+                    V_NeuronSWC seg = newSwcList.seg.get(i);
 //                ArrayList<Float> currentLine = swc.get(i);
-                Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
-                lines.clear();
-                for(int j=0; j<seg.row.size(); j++){
-                    if(seg.row.get(j).parent != -1 && seg.getIndexofParent(j) != -1){
-                        V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(j));
-                        swcUnitMap.put(j,parent);
+                    Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
+                    lines.clear();
+                    for(int j=0; j<seg.row.size(); j++){
+                        if(seg.row.get(j).parent != -1 && seg.getIndexofParent(j) != -1){
+                            V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(j));
+                            swcUnitMap.put(j,parent);
+                        }
                     }
-                }
 //                System.out.println("---------------end map-----------------------");
-                for(int j=0; j<seg.row.size(); j++){
+                    for(int j=0; j<seg.row.size(); j++){
 //                    System.out.println("in row: "+j+"-------------------");
-                    V_NeuronSWC_unit child = seg.row.get(j);
-                    int parentid = (int) child.parent;
-                    if (parentid == -1 || seg.getIndexofParent(j) == -1 ){
+                        V_NeuronSWC_unit child = seg.row.get(j);
+                        int parentid = (int) child.parent;
+                        if (parentid == -1 || seg.getIndexofParent(j) == -1 ){
 //                        System.out.println("parent -1");
-                        float x = (int)child.x;
-                        float y = (int)child.y;
-                        float z = (int)child.z;
-                        float [] position = VolumetoModel(new float[]{x, y, z});
-                        myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int)child.type);
-                        continue;
-                    }
-                    V_NeuronSWC_unit parent = swcUnitMap.get(j);
-                    lines.add((float) ((sz[0] - parent.x)/sz[0]*mz[0]));
-                    lines.add((float) ((sz[1] - parent.y)/sz[1]*mz[1]));
-                    lines.add((float) ((parent.z)/sz[2]*mz[2]));
-                    lines.add((float) ((sz[0] - child.x)/sz[0]*mz[0]));
-                    lines.add((float) ((sz[1] - child.y)/sz[1]*mz[1]));
-                    lines.add((float) ((child.z)/sz[2]*mz[2]));
+                            float x = (int)child.x;
+                            float y = (int)child.y;
+                            float z = (int)child.z;
+                            float [] position = VolumetoModel(new float[]{x, y, z});
+                            myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int)child.type);
+                            continue;
+                        }
+                        V_NeuronSWC_unit parent = swcUnitMap.get(j);
+                        lines.add((float) ((sz[0] - parent.x)/sz[0]*mz[0]));
+                        lines.add((float) ((sz[1] - parent.y)/sz[1]*mz[1]));
+                        lines.add((float) ((parent.z)/sz[2]*mz[2]));
+                        lines.add((float) ((sz[0] - child.x)/sz[0]*mz[0]));
+                        lines.add((float) ((sz[1] - child.y)/sz[1]*mz[1]));
+                        lines.add((float) ((child.z)/sz[2]*mz[2]));
 //                    System.out.println("in draw line--------------"+j);
 //                    System.out.println("type: "+parent.type);
-                    myDraw.drawLine(finalMatrix, lines, (int) parent.type);
-                    lines.clear();
+                        myDraw.drawLine(finalMatrix, lines, (int) parent.type);
+                        lines.clear();
+                    }
                 }
+
             }
 
-        }
-
-        //画的分界点
+            //画的分界点
 //        if (splitPoints.size() > 0){
 //            for (int i = 0; i < splitPoints.size() / 3; i++) {
 //                float x = splitPoints.get(i * 3);
@@ -543,27 +560,27 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            }
 //        }
 
-        //现画的marker
-        if(MarkerList.size() > 0){
-            float radius = 0.02f;
-            if (fileType == FileType.JPG || fileType == FileType.PNG)
-                radius = 0.01f;
-            for (int i = 0; i < MarkerList.size(); i++){
+            //现画的marker
+            if(MarkerList.size() > 0){
+                float radius = 0.02f;
+                if (fileType == FileType.JPG || fileType == FileType.PNG)
+                    radius = 0.01f;
+                for (int i = 0; i < MarkerList.size(); i++){
 //                System.out.println("start draw marker---------------------");
-                ImageMarker imageMarker = MarkerList.get(i);
-                float[] markerModel = VolumetoModel(new float[]{imageMarker.x, imageMarker.y, imageMarker.z});
-                if(imageMarker.radius == 5){
-                    myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, 0.01f);
-                }
-                else{
-                    myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, radius);
-                }
+                    ImageMarker imageMarker = MarkerList.get(i);
+                    float[] markerModel = VolumetoModel(new float[]{imageMarker.x, imageMarker.y, imageMarker.z});
+                    if(imageMarker.radius == 5){
+                        myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, 0.01f);
+                    }
+                    else{
+                        myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, radius);
+                    }
 //                Log.v("onDrawFrame: ", "(" + markerDrawed.get(i) + ", " + markerDrawed.get(i+1) + ", " + markerDrawed.get(i+2) + ")");
 
+                }
             }
-        }
 
-        //现画的curve
+            //现画的curve
 //        if (lineDrawed.size() > 0){
 //            for (int i = 0; i < lineDrawed.size(); i++){
 //                myDraw.drawLine(finalMatrix, lineDrawed.get(i));
@@ -576,22 +593,22 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 
-        //画curve留下的痕迹
-        if (ifPainting) {
-            if(linePoints.length > 0){
+            //画curve留下的痕迹
+            if (ifPainting) {
+                if(linePoints.length > 0){
 //                Log.v("drawline", "trueeeeeeeeeeeee");
 //                String s = "";
 //                for (int i = 0; i < linePoints.length; i++){
 //                    s = s + " " + Float.toString(linePoints[i]);
 //                }
 //                Log.v("linePoints", s);
-                int num = linePoints.length / 3;
+                    int num = linePoints.length / 3;
 
-                myDraw.drawPoints(linePoints, num);
+                    myDraw.drawPoints(linePoints, num);
+                }
             }
-        }
 
-        //导入的eswc
+            //导入的eswc
 //        if (eswcDrawed.size() > 0){
 //            myDraw.drawEswc(finalMatrix, eswcDrawed);
 //        }
@@ -601,24 +618,35 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            myDraw.drawEswc(finalMatrix, swcDrawed);
 //        }
 
-        //导入的apo
-        if (apoDrawed.size() > 0){
-            float radius = 0.02f;
-            if (fileType == FileType.JPG || fileType == FileType.PNG)
-                radius = 0.01f;
-            Log.v("MyRender", "Load data successfully!");
-            for (int i = 0; i < apoDrawed.size(); i = i + 4){
-                myDraw.drawMarker(finalMatrix, modelMatrix, apoDrawed.get(i), apoDrawed.get(i+1), apoDrawed.get(i+2),apoDrawed.get(i+3).intValue(), radius);
+            //导入的apo
+            if (apoDrawed.size() > 0){
+                float radius = 0.02f;
+                if (fileType == FileType.JPG || fileType == FileType.PNG)
+                    radius = 0.01f;
+                Log.v("MyRender", "Load data successfully!");
+                for (int i = 0; i < apoDrawed.size(); i = i + 4){
+                    myDraw.drawMarker(finalMatrix, modelMatrix, apoDrawed.get(i), apoDrawed.get(i+1), apoDrawed.get(i+2),apoDrawed.get(i+3).intValue(), radius);
 //                Log.v("onDrawFrame: ", "(" + markerDrawed.get(i) + ", " + markerDrawed.get(i+1) + ", " + markerDrawed.get(i+2) + ")");
 
+                }
             }
+
+
+            //
+            if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.JPG || fileType == FileType.PNG || fileType == FileType.V3dPBD)
+                if (myAxis != null)
+                    myAxis.draw(finalMatrix);
+
+            System.out.println("---- draw myImg ----");
+
+
+        }else {
+            if (myNavLoc == null){
+                myNavLoc = new MyNavLoc(mz_neuron, mz_block);
+            }
+            System.out.println("---- draw myNavLoc ----");
+            myNavLoc.draw(finalMatrix);
         }
-
-
-        //
-        if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.JPG || fileType == FileType.PNG || fileType == FileType.V3dPBD)
-            if (myAxis != null)
-                myAxis.draw(finalMatrix);
 
 
         if(isTakePic){
@@ -727,7 +755,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
 
 
-        Matrix.translateM(translateMatrix,0,-0.5f * mz[0],-0.5f * mz[1],-0.5f * mz[2]);
+        if (!ifNavigationLococation){
+            Matrix.translateM(translateMatrix,0,-0.5f * mz[0],-0.5f * mz[1],-0.5f * mz[2]);
+        }else {
+            Matrix.translateM(translateMatrix,0,-0.5f * mz_neuron[0],-0.5f * mz_neuron[1],-0.5f * mz_neuron[2]);
+        }
 //        Matrix.multiplyMM(translateMatrix, 0, zoomMatrix, 0, translateMatrix, 0);
         Matrix.setIdentityM(translateAfterMatrix, 0);
 
@@ -900,6 +932,73 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        myAxis = new MyAxis(mz);
 //        myDraw = new MyDraw();
 //        myAnimation = new MyAnimation();
+
+    }
+
+    public void SetSWCPath(String message){
+        filepath = message;
+        SetFileType();
+
+        myAxis = null;
+        cur_scale = 1.0f;
+
+        curSwcList.clear();
+        MarkerList.clear();
+
+        if (fileType == FileType.SWC){
+            bitmap2D = null;
+            myPattern2D = null;
+            setSWC();
+            ifFileLoaded = true;
+            ifFileSupport = true;
+        }
+
+        else {
+            Toast.makeText(getContext(), "Do not support this file", Toast.LENGTH_LONG);
+            return;
+        }
+
+        Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
+
+        Matrix.setIdentityM(zoomMatrix,0);//建立单位矩阵
+        Matrix.setIdentityM(zoomAfterMatrix, 0);
+        Matrix.setIdentityM(rotationMatrix, 0);
+        Matrix.setRotateM(rotationMatrix, 0, 0, -1.0f, -1.0f, 0.0f);
+
+        Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+
+
+    }
+
+
+    //设置文件路径
+    public void SetPath_Bigdata(String message, int[] index){
+
+        filepath = message;
+        fileType = FileType.V3draw;
+
+        myAxis = null;
+        cur_scale = 1.0f;
+
+        curSwcList.clear();
+        MarkerList.clear();
+
+        SetImage_Bigdata(index);
+//        setImage();
+        ifFileLoaded = true;
+        ifFileSupport = true;
+
+        Log.v("SetPath", Arrays.toString(mz));
+
+        Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
+
+        Matrix.setIdentityM(zoomMatrix,0);//建立单位矩阵
+        Matrix.setIdentityM(zoomAfterMatrix, 0);
+        Matrix.setIdentityM(rotationMatrix, 0);
+        Matrix.setRotateM(rotationMatrix, 0, 0, -1.0f, -1.0f, 0.0f);
+//        Matrix.setIdentityM(translateAfterMatrix, 0);
+        // Set the camera position (View matrix)
+        Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 
     }
 
@@ -1109,8 +1208,22 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Log.v("angleY = ", Float.toString(angleY));
     }
 
-
-
+    public void rotate2f(float x1, float x2, float y1, float y2){
+        double value = (x1 * x2 + y1 * y2) / (Math.sqrt(x1 * x1 + y1 * y1) * Math.sqrt(x2 * x2 + y2 * y2));
+        if (value > 1){
+            value = 1;
+        }
+        System.out.println(value);
+//        angleZ = (float)Math.toDegrees(Math.acos(value));
+        angleZ = (float)(Math.acos(value) / Math.PI * 180.0);
+        System.out.println(angleZ);
+        float axis = x2 * y1 - x1 * y2;
+        if (axis != 0) {
+//        float [] rotationZMatrix = new float[16];
+            Matrix.setRotateM(rotationZMatrix, 0, angleZ, 0.0f, 0.0f, axis);
+            Matrix.multiplyMM(rotationMatrix, 0, rotationZMatrix, 0, rotationMatrix, 0);
+        }
+    }
 
 
     public void zoom(float f){
@@ -1538,6 +1651,42 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
+    private void SetImage_Bigdata(int[] index){
+        img = Image4DSimple.loadImage_Bigdata(filepath, index);
+        if (img == null)
+            return;
+
+        myPattern = null;
+
+        grayscale =  img.getData();
+
+        data_length = img.getDatatype().ordinal();
+        isBig = img.getIsBig();
+
+//        vol_w = rr.get_w();
+//        vol_h = rr.get_h();
+//        vol_d = rr.get_d();
+
+//        sz[0] = vol_w;
+//        sz[1] = vol_h;
+//        sz[2] = vol_d;
+
+        sz[0] = (int)img.getSz0();
+        sz[1] = (int)img.getSz1();
+        sz[2] = (int)img.getSz2();
+
+        Integer[] num = {sz[0], sz[1], sz[2]};
+        float max_dim = (float) Collections.max(Arrays.asList(num));
+        Log.v("MyRenderer", Float.toString(max_dim));
+
+        mz[0] = (float) sz[0]/max_dim;
+        mz[1] = (float) sz[1]/max_dim;
+        mz[2] = (float) sz[2]/max_dim;
+
+        Log.v("MyRenderer", Arrays.toString(sz));
+        Log.v("MyRenderer", Arrays.toString(mz));
+    }
+
 
     public void ResetImg(Image4DSimple new_img){
 
@@ -1620,6 +1769,63 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
+
+
+    public void setNav_location(float[] neuron, float[] block, float[] size){
+
+        float sz_img[] = new float[3];
+        sz_img[0] = neuron[0];
+        sz_img[1] = neuron[1];
+        sz_img[2] = neuron[2];
+
+        Float[] num = {sz_img[0], sz_img[1], sz_img[2]};
+        float max_dim = Collections.max(Arrays.asList(num));
+        Log.v("MyRenderer", Float.toString(max_dim));
+
+        float[] sz_block = new float[6];
+        sz_block[0] = block[0] - size[0]/2;
+        sz_block[1] = block[0] + size[0]/2;
+        sz_block[2] = block[1] - size[1]/2;
+        sz_block[3] = block[1] + size[1]/2;
+        sz_block[4] = block[2] - size[2]/2;
+        sz_block[5] = block[2] + size[2]/2;
+
+        mz_neuron[0] = sz_img[0]/max_dim;
+        mz_neuron[1] = sz_img[1]/max_dim;
+        mz_neuron[2] = sz_img[2]/max_dim;
+
+        mz_block[0] = sz_block[0]/max_dim;
+        mz_block[1] = sz_block[1]/max_dim;
+        mz_block[2] = sz_block[2]/max_dim;
+        mz_block[3] = sz_block[3]/max_dim;
+        mz_block[4] = sz_block[4]/max_dim;
+        mz_block[5] = sz_block[5]/max_dim;
+
+        Log.v("MyRenderer", Arrays.toString(mz_neuron));
+        Log.v("MyRenderer", Arrays.toString(mz_block));
+
+        ifNavigationLococation = true;
+        myNavLoc = null;
+
+    }
+
+
+    public boolean getNav_location_Mode(){
+        return ifNavigationLococation;
+    }
+
+    public void setNav_location_Mode(){
+        ifNavigationLococation = !ifNavigationLococation;
+
+        if (!ifNavigationLococation){
+            myNavLoc = null;
+        }
+    }
+
+    public void quitNav_location_Mode(){
+        ifNavigationLococation = false;
+        myNavLoc = null;
+    }
 
 
     //寻找marker点的位置~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2776,7 +2982,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public boolean deleteFromCur(V_NeuronSWC seg){
+        int index = undoDrawList.indexOf(seg);
+        if (index != -1){
+            undoDrawList.remove(seg);
+            process.remove(process.size() - 1);
+        }
         return curSwcList.seg.remove(seg);
+
     }
 
     public  void deleteLine1(ArrayList<Float> line){
@@ -3210,6 +3422,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        V_NeuronSWC seg = nt.convertV_NeuronSWCFormat();
 //        curSwcList.append(seg);
 
+        if (ifLoadSWC){
+            deleteAllTracing();
+            ifLoadSWC = false;
+        }
+
         System.out.println("----------------importNeuronTree----------------");
         try{
             System.out.println("nt size: "+nt.listNeuron.size());
@@ -3220,6 +3437,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }catch (Exception e){
             e.printStackTrace();
         }
+
+        ifLoadSWC = true;
 
     }
 
@@ -3642,6 +3861,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
+    public void SetSwcLoaded(){
+        ifLoadSWC = true;
+    }
+
     public FileType getFileType() {
         return fileType;
 
@@ -3675,7 +3898,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public boolean ifImageLoaded(){
-        return !(img == null && bitmap2D == null);
+        return !((img == null || !img.valid()) && bitmap2D == null);
+    }
+
+    public boolean if3dImageLoaded(){
+        return !(img == null || !img.valid());
     }
 }
 

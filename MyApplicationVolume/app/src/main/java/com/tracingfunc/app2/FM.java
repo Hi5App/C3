@@ -216,6 +216,12 @@ public class FM {
                 }
             }
         }
+
+        phi = null;
+        state = null;
+        minHeap = null;
+        elems = null;
+
         //END_CLOCK;
         return true;
     }
@@ -410,6 +416,13 @@ public class FM {
             child_marker.parent = parent_marker;
         }
 
+        phi = null;
+        state = null;
+        parent = null;
+        minHeap = null;
+        elems = null;
+        marker_map = null;
+
         return true;
     }
 
@@ -581,6 +594,14 @@ public class FM {
             else
                 child_marker.parent = null;
         }
+
+        phi = null;
+        state = null;
+        parent = null;
+        minHeap = null;
+        elems = null;
+        marker_map = null;
+
         System.out.println("----------------------------convert-----------------------------");
         return true;
     }
@@ -750,7 +771,7 @@ public class FM {
     }
 
     public static boolean fastmarching_tree(MyMarker root, Vector<MyMarker> target, int[][][] inimg,
-                                            Vector<MyMarker> outTree, int[] sz, int cnn_type){
+                                            Vector<MyMarker> outTree, int[] sz, int cnn_type, double bkg_thresh, boolean is_break_accept){
         int szx = sz[0], szy = sz[1], szz = sz[2];
         int total_sz = szx*szy*szz;
         System.out.println("-------------------in fm tree------------------");
@@ -818,24 +839,39 @@ public class FM {
 
         // loop
         int time_counter = 1;
-        double process1 = 0;
+//        double process1 = 0;
+
+        boolean is_break = true;
         while(!minHeap.isEmpty())
         {
-            double process2 = (time_counter++)*100000.0/total_sz;
-            if(process2 - process1>=1){
-                boolean is_break = true;
-                for(int t=0; t<target_index.length; t++){
-                    int index_t = target_index[t];
-                    int ptind = parent.get(index_t);
-                    if(ptind == index_t &&
-                            (ptind != rootz*szy*szx+rooty*szx+rootx)){
-                        is_break = false;
-                        break;
-                    }
-                }
-                if(is_break)
+//            double process2 = (time_counter++)*100000.0/total_sz;
+//            if(process2 - process1>=1){
+//                boolean is_break = true;
+//                for(int t=0; t<target_index.length; t++){
+//                    int index_t = target_index[t];
+//                    int ptind = parent.get(index_t);
+//                    if(ptind == index_t &&
+//                            (ptind != rootz*szy*szx+rooty*szx+rootx)){
+//                        is_break = false;
+//                        break;
+//                    }
+//                }
+//                if(is_break)
+//                    break;
+//            }
+
+            is_break = true;
+            for(int t=0; t<target_index.length; t++){
+                int index_t = target_index[t];
+                int ptind = parent.get(index_t);
+                if(ptind == index_t &&
+                        (ptind != rootz*szy*szx+rooty*szx+rootx)){
+                    is_break = false;
                     break;
+                }
             }
+            if(is_break)
+                break;
 
 
             HeapElemX min_elem = minHeap.poll();
@@ -868,6 +904,15 @@ public class FM {
                         int offset = abs(ii) + abs(jj) + abs(kk);
                         if(offset == 0 || offset > cnn_type) continue;
                         double factor = (offset == 1) ? 1.0 : ((offset == 2) ? 1.414214 : ((offset == 3) ? 1.732051 : 0.0));
+
+                        if(is_break_accept){
+                            if(inimg[d][h][w] <= bkg_thresh && inimg[iz][iy][ix] <=bkg_thresh)
+                                continue;
+                        }
+                        else {
+                            if(inimg[d][h][w] <= bkg_thresh)
+                                continue;
+                        }
 
                         if(state[d][h][w] != ALIVE){
                             float new_dist = (float) (phi[iz][iy][ix] +
@@ -907,52 +952,88 @@ public class FM {
         System.out.println("--------------------------loop end------------------------");
 
         Map<Integer,MyMarker> marker_map = new HashMap<Integer, MyMarker>();
-        for(int t=0; t<target_index.length; t++){
-            int tind = target_index[t];
-            int p = tind;
-            while (true) {
-                if(marker_map.containsKey(p)) break;
-                int ix = p % szx;
-                int iy = p/szx % szy;
-                int iz = p/(szx*szy) % szz;
-                MyMarker marker = new MyMarker(ix,iy,iz);
-//                marker_map.remove(p);
-                marker_map.put(p,marker);
-
-                if(p == parent.get(p))
+        for (k=0;k<szz;k++) {
+            for (j=0;j<szy;j++)
+                for (i=0;i<szx;i++)
                 {
-//                    assert(p == root.ind(sz0,sz01));
-//                    assert(marker_map.find(root.ind(sz0,sz01)) != marker_map.end());
-                    break;
+//                    int p = parent.get(k*szy*szx+j*szx+i);
+                    if(state[k][j][i] != ALIVE){
+                        continue;
+                    }
+                    MyMarker myMarker = new MyMarker(i,j,k);
+                    outTree.add(myMarker);
+                    marker_map.put(k*szy*szx+j*szx+i,myMarker);
                 }
-                else p = parent.get(p);
-            }
         }
-
-        if(marker_map.containsKey(rootz*szy*szx+rooty*szx+rootx)){
-            System.out.println("break here");
-        }
-        else{
-            System.out.println("no root");
-        }
-
-        for(int m : marker_map.keySet()){
-            MyMarker marker = marker_map.get(m);
-            MyMarker parent_marker = marker_map.get(parent.get(m));
-            if(!marker.equals(parent_marker))
-                marker.parent = parent_marker;
+        for (int m=0; m<outTree.size(); m++){
+            MyMarker child_marker = outTree.elementAt(m);
+            int[] c = new int[]{(int) child_marker.z,(int) child_marker.y,(int) child_marker.x};
+            MyMarker parent_marker = marker_map.get(parent.get(c[0]*szy*szx+c[1]*szx+c[2]));
+            if(!child_marker.equals(parent_marker))
+                child_marker.parent = parent_marker;
             else
-                marker.parent = null;
-            outTree.add(marker);
+                child_marker.parent = null;
         }
 
+        phi = null;
+        state = null;
+        parent = null;
+        minHeap = null;
+        elems = null;
+        marker_map = null;
 
         System.out.println("----------------------------convert-----------------------------");
         return true;
+
+
+
+//        Map<Integer,MyMarker> marker_map = new HashMap<Integer, MyMarker>();
+//        for(int t=0; t<target_index.length; t++){
+//            int tind = target_index[t];
+//            int p = tind;
+//            while (true) {
+//                if(marker_map.containsKey(p)) break;
+//                int ix = p % szx;
+//                int iy = p/szx % szy;
+//                int iz = p/(szx*szy) % szz;
+//                MyMarker marker = new MyMarker(ix,iy,iz);
+////                marker_map.remove(p);
+//                marker_map.put(p,marker);
+//
+//                if(p == parent.get(p))
+//                {
+////                    assert(p == root.ind(sz0,sz01));
+////                    assert(marker_map.find(root.ind(sz0,sz01)) != marker_map.end());
+//                    break;
+//                }
+//                else p = parent.get(p);
+//            }
+//        }
+//
+//        if(marker_map.containsKey(rootz*szy*szx+rooty*szx+rootx)){
+//            System.out.println("break here");
+//        }
+//        else{
+//            System.out.println("no root");
+//        }
+//
+//        for(int m : marker_map.keySet()){
+//            MyMarker marker = marker_map.get(m);
+//            MyMarker parent_marker = marker_map.get(parent.get(m));
+//            if(!marker.equals(parent_marker))
+//                marker.parent = parent_marker;
+//            else
+//                marker.parent = null;
+//            outTree.add(marker);
+//        }
+//
+//
+//        System.out.println("----------------------------convert-----------------------------");
+//        return true;
     }
 
     public static boolean fastmarching_tree(MyMarker root, Vector<MyMarker> target, float[][][] inimg,
-                                            Vector<MyMarker> outTree, int[] sz, int cnn_type){
+                                            Vector<MyMarker> outTree, int[] sz, int cnn_type, double bkg_thresh, boolean is_break_accept){
         int szx = sz[0], szy = sz[1], szz = sz[2];
         int total_sz = szx*szy*szz;
         System.out.println("-------------------in fm tree------------------");
@@ -1021,23 +1102,39 @@ public class FM {
         // loop
         int time_counter = 1;
         double process1 = 0;
+
+        boolean is_break = true;
+
         while(!minHeap.isEmpty())
         {
-            double process2 = (time_counter++)*100000.0/total_sz;
-            if(process2 - process1>=1){
-                boolean is_break = true;
-                for(int t=0; t<target_index.length; t++){
-                    int index_t = target_index[t];
-                    int ptind = parent.get(index_t);
-                    if(ptind == index_t &&
-                            (ptind != rootz*szy*szx+rooty*szx+rootx)){
-                        is_break = false;
-                        break;
-                    }
-                }
-                if(is_break)
+//            double process2 = (time_counter++)*100000.0/total_sz;
+//            if(process2 - process1>=1){
+//                boolean is_break = true;
+//                for(int t=0; t<target_index.length; t++){
+//                    int index_t = target_index[t];
+//                    int ptind = parent.get(index_t);
+//                    if(ptind == index_t &&
+//                            (ptind != rootz*szy*szx+rooty*szx+rootx)){
+//                        is_break = false;
+//                        break;
+//                    }
+//                }
+//                if(is_break)
+//                    break;
+//            }
+
+            is_break = true;
+            for(int t=0; t<target_index.length; t++){
+                int index_t = target_index[t];
+                int ptind = parent.get(index_t);
+                if(ptind == index_t &&
+                        (ptind != rootz*szy*szx+rooty*szx+rootx)){
+                    is_break = false;
                     break;
+                }
             }
+            if(is_break)
+                break;
 
 
             HeapElemX min_elem = minHeap.poll();
@@ -1070,7 +1167,14 @@ public class FM {
                         int offset = abs(ii) + abs(jj) + abs(kk);
                         if(offset == 0 || offset > cnn_type) continue;
                         double factor = (offset == 1) ? 1.0 : ((offset == 2) ? 1.414214 : ((offset == 3) ? 1.732051 : 0.0));
-
+                        if(is_break_accept){
+                            if(inimg[d][h][w] <= bkg_thresh && inimg[iz][iy][ix] <=bkg_thresh)
+                                continue;
+                        }
+                        else {
+                            if(inimg[d][h][w] <= bkg_thresh)
+                                continue;
+                        }
                         if(state[d][h][w] != ALIVE){
                             float new_dist = (float) (phi[iz][iy][ix] +
                                     (GI(inimg,w,h,d,min_int,max_int) + GI(inimg,ix,iy,iz,min_int,max_int))*factor*0.5);
@@ -1109,47 +1213,82 @@ public class FM {
         System.out.println("--------------------------loop end------------------------");
 
         Map<Integer,MyMarker> marker_map = new HashMap<Integer, MyMarker>();
-        for(int t=0; t<target_index.length; t++){
-            int tind = target_index[t];
-            int p = tind;
-            while (true) {
-                if(marker_map.containsKey(p)) break;
-                int ix = p % szx;
-                int iy = p/szx % szy;
-                int iz = p/(szx*szy) % szz;
-                MyMarker marker = new MyMarker(ix,iy,iz);
-//                marker_map.remove(p);
-                marker_map.put(p,marker);
-
-                if(p == parent.get(p))
+        for (k=0;k<szz;k++) {
+            for (j=0;j<szy;j++)
+                for (i=0;i<szx;i++)
                 {
-//                    assert(p == root.ind(sz0,sz01));
-//                    assert(marker_map.find(root.ind(sz0,sz01)) != marker_map.end());
-                    break;
+//                    int p = parent.get(k*szy*szx+j*szx+i);
+                    if(state[k][j][i] != ALIVE){
+                        continue;
+                    }
+                    MyMarker myMarker = new MyMarker(i,j,k);
+                    outTree.add(myMarker);
+                    marker_map.put(k*szy*szx+j*szx+i,myMarker);
                 }
-                else p = parent.get(p);
-            }
         }
-
-        if(marker_map.containsKey(rootz*szy*szx+rooty*szx+rootx)){
-            System.out.println("break here");
-        }
-        else{
-            System.out.println("no root");
-        }
-
-        for(int m : marker_map.keySet()){
-            MyMarker marker = marker_map.get(m);
-            MyMarker parent_marker = marker_map.get(parent.get(m));
-            if(!marker.equals(parent_marker))
-                marker.parent = parent_marker;
+        for (int m=0; m<outTree.size(); m++){
+            MyMarker child_marker = outTree.elementAt(m);
+            int[] c = new int[]{(int) child_marker.z,(int) child_marker.y,(int) child_marker.x};
+            MyMarker parent_marker = marker_map.get(parent.get(c[0]*szy*szx+c[1]*szx+c[2]));
+            if(!child_marker.equals(parent_marker))
+                child_marker.parent = parent_marker;
             else
-                marker.parent = null;
-            outTree.add(marker);
+                child_marker.parent = null;
         }
+
+
+        phi = null;
+        state = null;
+        parent = null;
+        minHeap = null;
+        elems = null;
+        marker_map = null;
 
         System.out.println("----------------------------convert-----------------------------");
         return true;
+
+//        Map<Integer,MyMarker> marker_map = new HashMap<Integer, MyMarker>();
+//        for(int t=0; t<target_index.length; t++){
+//            int tind = target_index[t];
+//            int p = tind;
+//            while (true) {
+//                if(marker_map.containsKey(p)) break;
+//                int ix = p % szx;
+//                int iy = p/szx % szy;
+//                int iz = p/(szx*szy) % szz;
+//                MyMarker marker = new MyMarker(ix,iy,iz);
+////                marker_map.remove(p);
+//                marker_map.put(p,marker);
+//
+//                if(p == parent.get(p))
+//                {
+////                    assert(p == root.ind(sz0,sz01));
+////                    assert(marker_map.find(root.ind(sz0,sz01)) != marker_map.end());
+//                    break;
+//                }
+//                else p = parent.get(p);
+//            }
+//        }
+//
+//        if(marker_map.containsKey(rootz*szy*szx+rooty*szx+rootx)){
+//            System.out.println("break here");
+//        }
+//        else{
+//            System.out.println("no root");
+//        }
+//
+//        for(int m : marker_map.keySet()){
+//            MyMarker marker = marker_map.get(m);
+//            MyMarker parent_marker = marker_map.get(parent.get(m));
+//            if(!marker.equals(parent_marker))
+//                marker.parent = parent_marker;
+//            else
+//                marker.parent = null;
+//            outTree.add(marker);
+//        }
+//
+//        System.out.println("----------------------------convert-----------------------------");
+//        return true;
     }
 
 

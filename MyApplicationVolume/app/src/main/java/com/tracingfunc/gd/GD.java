@@ -2152,13 +2152,13 @@ public class GD {
             System.out.println("processing fastmarching distance transformation ...");
             fastmarching_dt(img3d, phi, in_sz, cnn_type, (int) bkg_thres);
             System.out.println("constructing fastmarching tree ...");
-            fastmarching_tree(inmarkers.get(0), target, phi, outtree, in_sz, cnn_type);
+            fastmarching_tree(inmarkers.get(0), target, phi, outtree, in_sz, cnn_type,bkg_thres,true);
 
         }
         else
         {
             System.out.println("constructing fastmarching tree ...");
-            fastmarching_tree(inmarkers.get(0), target, img3d, outtree, in_sz, cnn_type);
+            fastmarching_tree(inmarkers.get(0), target, img3d, outtree, in_sz, cnn_type,bkg_thres,true);
             System.out.println("constructing fastmarching tree end...");
         }
 //        cout<<"======================================="<<endl;

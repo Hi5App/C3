@@ -1,7 +1,7 @@
 package com.learning.opimageline;
 
 public class Angle {
-    private float x,y,z;
+    public float x,y,z;
     public Angle(){
         x = 0;
         y = 0;
@@ -12,6 +12,23 @@ public class Angle {
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+
+    public Angle(Angle other){
+        this.x = other.x;
+        this.y = other.y;
+        this.z = other.z;
+    }
+
+    /**
+     *
+     * @param p1 起点
+     * @param p2 终点 ，结果为一条从p1到p2的三维向量
+     */
+    public Angle(Point p1, Point p2){
+        this.x = p2.x -p1.x;
+        this.y = p2.y -p1.y;
+        this.z = p2.z -p1.z;
     }
 
     public void setXYZ(Angle other){
@@ -33,6 +50,10 @@ public class Angle {
             y /= s;
             z /= s;
         }
+    }
+
+    public double length(){
+        return Math.sqrt(x*x + y*y + z*z);
     }
 
     public float dot(Angle other){

@@ -5,8 +5,9 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
-import com.example.ImageFile.Tiffreader;
-import com.example.myapplication__volume.Rawreader;
+import com.example.ImageReader.BigImgReader;
+import com.example.ImageReader.Rawreader;
+import com.example.ImageReader.Tiffreader;
 
 import org.apache.commons.io.IOUtils;
 
@@ -696,6 +697,52 @@ public class Image4DSimple {
 
                 image = il.loadRaw2StackPBD(is, length, false);
             }
+        }
+
+        if (image != null) {
+            image.setImgSrcFile(filepath);
+        }
+        return image;
+    }
+
+    public static Image4DSimple loadImage_Bigdata(String filepath, int[] index){
+        Image4DSimple image = new Image4DSimple();
+
+        BigImgReader bfr = new BigImgReader();
+        File file = new File(filepath);
+        long length = 0;
+        InputStream is = null;
+        if (file.exists()){
+            try {
+                length = file.length();
+                is = new FileInputStream(file);
+                image = bfr.loadRawRegion(length, is, index[0], index[1], index[2], index[3], index[4], index[5]);
+
+                Log.v("getIntensity_3d", filepath);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        else {
+            Uri uri = Uri.parse(filepath);
+
+            try {
+                ParcelFileDescriptor parcelFileDescriptor =
+                        getContext().getContentResolver().openFileDescriptor(uri, "r");
+
+                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+
+                length = (int)parcelFileDescriptor.getStatSize();
+
+                Log.v("MyPattern","Successfully load intensity");
+
+            }catch (Exception e){
+                Log.v("MyPattern","Some problems in the MyPattern when load intensity");
+            }
+
+            image = bfr.loadRawRegion(length, is, index[0], index[1], index[2], index[3], index[4], index[5]);
         }
 
         if (image != null) {
