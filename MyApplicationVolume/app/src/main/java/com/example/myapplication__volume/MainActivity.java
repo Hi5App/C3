@@ -2184,11 +2184,11 @@ public class MainActivity extends AppCompatActivity {
 //                                        }
 //                                        break;
 
-//                                    case "Anisotropic Filter":
+//                                    case "Anisotropic":
 //                                        //调用各向异性滤波，显示滤波结果
 //                                        try {
-//                                            Log.v("Mainactivity", "AnisotropicFilter function.");
-//                                            Toast.makeText(getContext(), "AnisotropicFilter function start~", Toast.LENGTH_SHORT).show();
+//                                            Log.v("Mainactivity", "Anisotropic function.");
+//                                            Toast.makeText(getContext(), "Anisotropic function start~", Toast.LENGTH_SHORT).show();
 ////                                            Timer timer = new Timer();
 //                                            timer = new Timer();
 //                                            timerTask = new TimerTask() {
@@ -2196,9 +2196,9 @@ public class MainActivity extends AppCompatActivity {
 //                                                @Override
 //                                                public void run() {
 //                                                    try {
-//                                                        Log.v("Mainactivity", "AnisotropicFilter start.");
-//                                                        AnisotropicFilter();
-//                                                        Log.v("Mainactivity", "AnisotropicFilter end.");
+//                                                        Log.v("Mainactivity", "Anisotropic start.");
+//                                                        Anisotropic();
+//                                                        Log.v("Mainactivity", "Anisotropic end.");
 //                                                    } catch (Exception e) {
 //                                                        e.printStackTrace();
 //                                                    }
@@ -2211,9 +2211,9 @@ public class MainActivity extends AppCompatActivity {
 ////                                                public void run() {
 ////
 ////                                                    try {
-////                                                        Log.v("Mainactivity", "AnisotropicFilter start.");
-////                                                        AnisotropicFilter();
-////                                                        Log.v("Mainactivity", "AnisotropicFilter end.");
+////                                                        Log.v("Mainactivity", "Anisotropic start.");
+////                                                        Anisotropic();
+////                                                        Log.v("Mainactivity", "Anisotropic end.");
 ////                                                    } catch (Exception e) {
 ////                                                        e.printStackTrace();
 ////                                                    }
@@ -3337,7 +3337,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Version() {
         new XPopup.Builder(this)
-                .asConfirm("Version", "version: 20200605c 22:42 build",
+                .asConfirm("Version", "version: 20200622c 13:18 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4536,12 +4536,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void AnisotropicFilter(){
+    private void Anisotropic(){
 
         //获取当前显示图像
         Image4DSimple img = myrenderer.getImg();
         if(img == null || !img.valid()){
-            Log.v("AnisotropicFilter", "Please load img first!");
+            Log.v("Anisotropic", "Please load img first!");
             if (Looper.myLooper() == null) {
                 Looper.prepare();
             }
@@ -4550,13 +4550,13 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        Log.v("AnisotropicFilter", "Have got the image successfully!!");
+        Log.v("Anisotropic", "Have got the image successfully!!");
         try {
-            //Log.v("AnisotropicFilter", "here");///problems
+            //Log.v("Anisotropic", "here");///problems
             System.out.println("Start here.....");
             //调用anisotropy功能函数处理图像
             img = anisotropy_demo(img);
-            Log.v("AnisotropicFilter", "AnisotropicFilter function finished");
+            Log.v("Anisotropic", "Anisotropic function finished");
 
             //处理结果输出
             if (Looper.myLooper() == null) {
@@ -4565,11 +4565,11 @@ public class MainActivity extends AppCompatActivity {
 
             if (img == null) {
                 //显示滤波失败
-                System.out.println("Fail to anisotropic filtering");
-                Toast.makeText(getContext(), "Fail to anisotropic filtering.", Toast.LENGTH_SHORT).show();
+                System.out.println("Fail to run anisotropic function.");
+                Toast.makeText(getContext(), "Fail to run anisotropic function.", Toast.LENGTH_SHORT).show();
             }else {
                 //输出滤波结果
-                Toast.makeText(getContext(), "Filtering successfully.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Run successfully.", Toast.LENGTH_SHORT).show();
                 myrenderer.ResetImg(img);
                 myGLSurfaceView.requestRender();
                 Toast.makeText(getContext(), "Have been shown on the screen.", Toast.LENGTH_SHORT).show();
@@ -4585,7 +4585,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private Image4DSimple anisotropy_demo(Image4DSimple img) {
+    private Image4DSimple anisotropy_demo(Image4DSimple img) throws Exception {
 
         int width = (int) img.getSz0();
         int height = (int) img.getSz1();
@@ -4599,7 +4599,12 @@ public class MainActivity extends AppCompatActivity {
 
         double[] imax = new double[channel], new_imax = new double[channel];
         double[] imin = new double[channel], new_imin = new double[channel];
-        double[] imagemean = new double[channel], imagestd = new double[channel];
+
+        //获取GSDT距离图像
+        ParaGSDT p = new ParaGSDT();
+        p.p4DImage = img;
+        GSDT.GSDT_Fun(p);
+        int[][][][] image2 = p.outImage.getDataCZYX();
 
         //参数初始化+计算原图灰度均值
         for (int chl = 0; chl < channel; chl++) {
@@ -4607,7 +4612,6 @@ public class MainActivity extends AppCompatActivity {
             imin[chl] = Integer.MAX_VALUE;
             new_imax[chl] = 0;
             new_imin[chl] = Integer.MAX_VALUE;
-            imagemean[chl] = 0;
             for (int row = 0; row < height; row++) {
                 for (int col = 0; col < width; col++) {
                     for (int dep = 0; dep < depth; dep++) {
@@ -4615,63 +4619,10 @@ public class MainActivity extends AppCompatActivity {
                         imageCopy[chl][dep][row][col] = image[chl][dep][row][col];
                         //初始化S
                         S[chl][dep][row][col] = 0;
-                        //用于计算均值
-                        imagemean[chl] += image[chl][dep][row][col];
                     }
                 }
             }
-            //计算原图灰度均值
-            imagemean[chl] /= (128*128*128);
-            System.out.println("imagemean["+chl+"] = "+imagemean[chl]);
         }
-
-        //计算原图灰度标准差
-        for (int chl = 0; chl < channel; chl++) {
-            imagestd[chl] = 0;
-            for (int row = 0; row < height; row++) {
-                for (int col = 0; col < width; col++) {
-                    for (int dep = 0; dep < depth; dep++) {
-                        imagestd[chl] += pow((image[chl][dep][row][col]-imagemean[chl]),2);
-                    }
-                }
-            }
-            //计算原图像灰度标准差
-            imagestd[chl] = sqrt(imagestd[chl]/(128*128*128));
-            System.out.println("imagestd["+chl+"] = "+imagestd[chl]);
-        }
-
-
-        //统计分析图像前景，计算阈值
-        int underground = 0;
-        double[] threshold_i = new double[channel];
-        double[] alpha = new double[channel];
-        for (int chl = 0; chl < channel; chl++) {
-            alpha[chl] = -0.5d;
-            do {
-                underground = 0;
-                threshold_i[chl] = imagemean[chl] + alpha[chl] * imagestd[chl];
-                for (int row = 0; row < height; row++) {
-                    for (int col = 0; col < width; col++) {
-                        for (int dep = 0; dep < depth; dep++) {
-                            if (image[chl][dep][row][col]<threshold_i[chl]) {
-                                underground++;
-                            }
-                        }
-                    }
-                }
-                System.out.println("underground/128/128/128 = "+((double)underground/(128*128*128)));
-
-                if (((double)underground/(128*128*128)) < 0.7d) {
-                    alpha[chl] += 0.05d;
-                } else {
-                    alpha[chl] += 0.005d;
-                }
-
-            }while (((double)underground/(128*128*128)) < 0.95d); //前景点最多占图像的5% 这个参数最好是根据图像用户设定
-            //输出阈值
-            System.out.println("threshold_i["+chl+"] = "+threshold_i[chl]);
-        }
-
 
         int[] numOfNull = new int[channel];
         int[] numOfSmall = new int[channel];
@@ -4684,7 +4635,7 @@ public class MainActivity extends AppCompatActivity {
             for (int row = 0; row < height; row++) {
                 for (int col = 0; col < width; col++) {
                     for (int dep = 0; dep < depth; dep++) {
-                        //new
+                        //old version
                         score = myLocalEigenScore(imageCopy, 128, 128, 128, col, row, dep, chl, 9);
                         if (score.equals("null")) {
                             numOfNull[chl]++;
@@ -4698,16 +4649,7 @@ public class MainActivity extends AppCompatActivity {
                             continue;
                         }
 
-                        T[chl][dep][row][col] = sqrt(Double.parseDouble(score));
-                        //背景点筛选
-                        if (image[chl][dep][row][col] < threshold_i[chl]) {
-                            S[chl][dep][row][col] = 1;
-                            T[chl][dep][row][col] *= pow(image[chl][dep][row][col]/threshold_i[chl],3d);
-                        } else {
-                            //T[chl][dep][row][col] = Double.parseDouble(score);//sqrt()
-                            //T[chl][dep][row][col] = sqrt(Double.parseDouble(score));
-                            T[chl][dep][row][col] *= pow(image[chl][dep][row][col]/threshold_i[chl],1.75d);
-                        }
+                        T[chl][dep][row][col] = Double.parseDouble(score) * image2[chl][dep][row][col];
 
                     }
 
@@ -4747,7 +4689,7 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("new_imin["+chl+"] = "+new_imin[chl]);
         }
 
-        //N次迭代后进行灰度区间线性变换
+        //进行灰度区间线性变换
 
         for (int chl = 0; chl < channel; chl++) {
             rate = (new_imax[chl]==new_imin[chl]) ? 1 : (255)/(new_imax[chl]-new_imin[chl]);
@@ -5506,7 +5448,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("Experimental Features", new String[]{"Detect Line", "Detect Corner", "GSDT","Anisotropic Filter", "For Developer(Classify)"},
+                .asCenterList("Experimental Features", new String[]{"Detect Line", "Detect Corner", "GSDT","Anisotropic", "For Developer(Classify)"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -5558,11 +5500,11 @@ public class MainActivity extends AppCompatActivity {
                                             e.printStackTrace();
                                         }
                                         break;
-                                    case"Anisotropic Filter":
+                                    case"Anisotropic":
                                         //调用各向异性滤波，显示滤波结果
                                         try {
-                                            Log.v("Mainactivity", "AnisotropicFilter function.");
-                                            Toast.makeText(getContext(), "AnisotropicFilter function start~", Toast.LENGTH_SHORT).show();
+                                            Log.v("Mainactivity", "Anisotropic function.");
+                                            Toast.makeText(getContext(), "Anisotropic function start~", Toast.LENGTH_SHORT).show();
 //                                            Timer timer = new Timer();
                                             timer = new Timer();
                                             timerTask = new TimerTask() {
@@ -5570,9 +5512,9 @@ public class MainActivity extends AppCompatActivity {
                                                 @Override
                                                 public void run() {
                                                     try {
-                                                        Log.v("Mainactivity", "AnisotropicFilter start.");
-                                                        AnisotropicFilter();
-                                                        Log.v("Mainactivity", "AnisotropicFilter end.");
+                                                        Log.v("Mainactivity", "Anisotropic start.");
+                                                        Anisotropic();
+                                                        Log.v("Mainactivity", "Anisotropic end.");
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
@@ -5585,9 +5527,9 @@ public class MainActivity extends AppCompatActivity {
 //                                                public void run() {
 //
 //                                                    try {
-//                                                        Log.v("Mainactivity", "AnisotropicFilter start.");
-//                                                        AnisotropicFilter();
-//                                                        Log.v("Mainactivity", "AnisotropicFilter end.");
+//                                                        Log.v("Mainactivity", "Anisotropic start.");
+//                                                        Anisotropic();
+//                                                        Log.v("Mainactivity", "Anisotropic end.");
 //                                                    } catch (Exception e) {
 //                                                        e.printStackTrace();
 //                                                    }
