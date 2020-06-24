@@ -42,6 +42,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -302,12 +303,23 @@ public class MainActivity extends AppCompatActivity {
             switch (msg.what){
                 case 1:
                     Log.v("filesocket_send: ", "Connect with Server successfully");
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     System.out.println("------ Upload file successfully!!! -------");
                     break;
 
             }
         }
     };
+
+//    //创建一个负责更新进度条的Handler
+//    Handler handler = new Handler(){
+//        @Override
+//        public void handleMessage(Message msg) {
+//            if (msg.what == 0x111) {
+//
+//            }
+//        }
+//    };
 
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -1240,8 +1252,8 @@ public class MainActivity extends AppCompatActivity {
                     String filename = fileManager.getFileName(uri);
 
 //                    SendSwc("223.3.33.234", this, is, length, filename);
-//                    SendSwc("192.168.2.109", this, is, length, filename);
-                    SendSwc("39.100.35.131", this, is, length, filename);
+                    SendSwc("192.168.31.11", this, is, length, filename);
+//                    SendSwc("39.100.35.131", this, is, length, filename);
 
                 }
 
@@ -1688,6 +1700,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void PullSwc_block(String ip, Context context){
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
         Thread thread = new Thread() {
             @Override
             public void run() {
@@ -1698,14 +1713,12 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     remoteImg.ip = ip;
-//                    if (!remoteImg.isSocketSet) {
 
-                        Log.v("DownloadSwc: ", "Connect server");
+                    Log.v("DownloadSwc: ", "Connect server");
 
-                        remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
-                        remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
-                        remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
-//                    }
+                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
+                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
+                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
 
                     Filesocket_receive filesocket_receive = new Filesocket_receive();
                     filesocket_receive.filesocket = new Socket(ip, 9002);
@@ -1740,10 +1753,14 @@ public class MainActivity extends AppCompatActivity {
                         myrenderer.SetSwcLoaded();
                         myrenderer.importNeuronTree(nt);
                         myGLSurfaceView.requestRender();
+                        uiHandler.sendEmptyMessage(1);
+                        remoteImg.disconnectFromHost();
+
                         Looper.loop();
 
                     } else {
                         Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+                        remoteImg.disconnectFromHost();
                         Looper.loop();
                     }
 
@@ -1751,6 +1768,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                     Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+                    remoteImg.disconnectFromHost();
                     Looper.loop();
                 }
             }
@@ -3065,8 +3083,8 @@ public class MainActivity extends AppCompatActivity {
 
 //        DownloadSwc("223.3.33.234", this);
         Log.v("DownloadSWC: ", "here we are");
-//        DownloadSwc("192.168.2.109", this);
-        DownloadSwc("39.100.35.131", this);
+        DownloadSwc("192.168.31.11", this);
+//        DownloadSwc("39.100.35.131", this);
     }
 
 
@@ -3649,7 +3667,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200622b 13:18 pm UTC build",
+                                "Version: 20200624a 15:14 pm UTC build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -3715,8 +3733,6 @@ public class MainActivity extends AppCompatActivity {
     public void Select_img(){
         Context context = this;
         new XPopup.Builder(this)
-//        .maxWidth(400)
-//        .maxHeight(1350)
                 .asCenterList("Select Remote server", new String[]{"Aliyun Server", "SEU Server", "Local Server"},
                         new OnSelectListener() {
                             @Override
@@ -3735,9 +3751,8 @@ public class MainActivity extends AppCompatActivity {
                                         BigFileRead_local();
                                         break;
 
-
                                     default:
-                                        Toast.makeText(getContext(), "Something wrong here", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "Something Wrong Here", Toast.LENGTH_SHORT).show();
 
                                 }
                             }
@@ -3767,29 +3782,24 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
 
-//                    if (!remoteImg.isSocketSet){
                         Log.v("ConnectServer","start to connect server");
                         remoteImg.ip = ip;
                         remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
                         remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
                         remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
-//                    }
 
 
                     if(remoteImg.ImgSocket.isConnected()){
 
                         Log.v("ConnectServer","send some message to server");
                         remoteImg.isSocketSet = true;
-//                        ShowToast(context, "Connect with Server successfully");
                         Toast.makeText(getContext(), "Connect with Server successfully", Toast.LENGTH_SHORT).show();
                         remoteImg.ImgPWriter.println( "connect for android client" + ":choose3.");
                         remoteImg.ImgPWriter.flush();
 
                     }else {
                         Log.v("ConnectServer","fail to connect server");
-//                        ShowToast(context, "Can't connect, try again please!");
                         Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
-//                        Looper.loop();
                     }
 
                     //接收来自服务器的消息
@@ -3800,18 +3810,7 @@ public class MainActivity extends AppCompatActivity {
                         从调用这个方法开始，该线程会一直处于阻塞状态，
                         直到接收到新的消息，代码才会往下走*/
                             String content = "";
-
-//                            TimeLimiter timeLimiter = new SimpleTimeLimiter();
-//
-//                            try {
-//                                String line = timeLimiter.callWithTimeout(br::readLine, 10, TimeUnit.SECONDS);
-//                            } catch (TimeoutException | UncheckedTimeoutException e) {
-//                                // timed out
-//                            } catch (Exception e) {
-//                                // something bad happened while reading the line
-//                            }
                             Log.v("---------Image------:", "start to readline");
-
 
                             boolean[] isFinished = {false};
 
@@ -3878,7 +3877,6 @@ public class MainActivity extends AppCompatActivity {
 //                            (new Timer()).schedule(ft, 5 * 1000);
 
                         }
-//                        Thread.sleep(200);
                     }
 
 
@@ -3893,11 +3891,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
-//    public void Remoteleft(View v){
-//        context = v.getContext();
-//        remoteImg.Selectblock_fast(context, false, "Left");
-//    }
 
     public void Block_switch(View v){
         context = v.getContext();
@@ -3974,7 +3967,7 @@ public class MainActivity extends AppCompatActivity {
         if (isBigData_Local){
             boolean ifNavigationLocation = myrenderer.getNav_location_Mode();
             if (ifNavigationLocation){
-                myrenderer.quitNav_location_Mode();
+                Quit_Nav_Mode();
             }
 
             String filename = SettingFileManager.getFilename_Local(this);
@@ -5844,7 +5837,7 @@ public class MainActivity extends AppCompatActivity {
                                         loadLocalFile();
                                         break;
                                     case "Open BigData":
-                                        remote_i();
+                                        loadBigData();
                                         break;
                                     case "Load SWCFile":
                                         LoadSWC();
@@ -6038,38 +6031,60 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void remote_i(){
+    public void loadBigData(){
 
-        context = this;
-        if ( select_img ){
+//        context = this;
+//        if ( select_img ){
+//
+//            Select_img();
+////            select_img = false;
+//        }else {
+//
+//            new XPopup.Builder(this)
+//                    .asCenterList("BigData File",new String[]{"Select file", "Select block", "Download by http"},
+//                            new OnSelectListener() {
+//                                @Override
+//                                public void onSelect(int position, String text) {
+//                                    switch (text) {
+//                                        case "Select block":
+//                                            Select_Block();
+////                                            remoteImg.Selectblock(context, false);
+//                                            break;
+//
+//                                        case "Select file":
+//                                            Select_img();
+//                                            break;
+//
+//                                        case "Download by http":
+//                                            downloadFile();
+//                                            break;
+//                                    }
+//                                }
+//                            })
+//                    .show();
+//        }
 
-            Select_img();
-//            select_img = false;
-        }else {
+        new XPopup.Builder(this)
+                .asCenterList("BigData File",new String[]{"Select file", "Select block", "Download by http"},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text) {
+                                    case "Select block":
+                                        Select_Block();
+                                        break;
 
-            new XPopup.Builder(this)
-                    .asCenterList("BigData File",new String[]{"Select file", "Select block", "Download by http"},
-                            new OnSelectListener() {
-                                @Override
-                                public void onSelect(int position, String text) {
-                                    switch (text) {
-                                        case "Select block":
-                                            Select_Block();
-//                                            remoteImg.Selectblock(context, false);
-                                            break;
+                                    case "Select file":
+                                        Select_img();
+                                        break;
 
-                                        case "Select file":
-                                            Select_img();
-                                            break;
-
-                                        case "Download by http":
-                                            downloadFile();
-                                            break;
-                                    }
+                                    case "Download by http":
+                                        downloadFile();
+                                        break;
                                 }
-                            })
-                    .show();
-        }
+                            }
+                        })
+                .show();
 
 
     }

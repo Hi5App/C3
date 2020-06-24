@@ -1,14 +1,17 @@
 package com.example.server_connect;
 
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.myapplication__volume.JumpActivity;
 import com.example.myapplication__volume.R;
 
 import java.io.BufferedReader;
@@ -22,9 +25,12 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileStore;
 import java.util.Arrays;
 
 import cn.carbs.android.library.MDDialog;
+
+import static com.example.myapplication__volume.JumpActivity.EXTRA_MESSAGE;
 
 public class RemoteImg extends Socket {
     public String ip;
@@ -583,56 +589,79 @@ public class RemoteImg extends Socket {
 
                     String filename = getFilename(context);
 
+                    String StorePath = context.getExternalFilesDir(null).toString();
+                    String StoreFilename = filename.split("RES")[0] +
+                            "_" + offset_x + "_" + offset_y + "_" + offset_z + "_" + size +"_" + size +"_" + size + ".v3dpbd";
 
-                    if (ImgSocket.isConnected()) {
+                    File img = new File(StorePath + "/" + StoreFilename);
 
-                        Filesocket_receive filesocket_receive = new Filesocket_receive();
-                        filesocket_receive.filesocket = new Socket(ip, 9002);
-                        filesocket_receive.mReader = new BufferedReader(new InputStreamReader(filesocket_receive.filesocket.getInputStream(), "UTF-8"));
-                        filesocket_receive.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_receive.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
-                        filesocket_receive.path = context.getExternalFilesDir(null).toString();
+                    if (img.exists() && img.length()>0){
+
+                        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+                        String runningActivity = activityManager.getRunningTasks(1).get(0).topActivity
+                                .getClassName();
+
+                        System.out.println("runningActivity: " + runningActivity);
+
+                        Intent intent = new Intent(context, JumpActivity.class);
+                        String message = StorePath + "/" + StoreFilename;
+
+                        Log.v("Filesocket_receive: ", message);
+                        intent.putExtra(EXTRA_MESSAGE, message);
+                        context.startActivity(intent);
+
+                    } else {
+                        if (ImgSocket.isConnected()) {
+
+                            Filesocket_receive filesocket_receive = new Filesocket_receive();
+                            filesocket_receive.filesocket = new Socket(ip, 9002);
+                            filesocket_receive.mReader = new BufferedReader(new InputStreamReader(filesocket_receive.filesocket.getInputStream(), "UTF-8"));
+                            filesocket_receive.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_receive.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
+                            filesocket_receive.path = context.getExternalFilesDir(null).toString();
 
 
 //                        String storefilename = filename.split("RES")[0] +
 //                                "_" + offset_x_i + "_" + offset_y_i + "_" + offset_z_i + "_" + size +"_" + size +"_" + size + ".v3draw";
 
 
-                        Context[] contexts = new Context[1];
-                        contexts[0] = context;
+                            Context[] contexts = new Context[1];
+                            contexts[0] = context;
 
-                        if (filesocket_receive.filesocket.isConnected()){
+                            if (filesocket_receive.filesocket.isConnected()){
 
 
 
-                            String content = ImgReader.readLine();
+                                String content = ImgReader.readLine();
 
-                            if ( content.contains(":file connected.") ){
+                                if ( content.contains(":file connected.") ){
 
-                                Log.v("PullImageblock", content);
+                                    Log.v("PullImageblock", content);
 
-                                if (!ImgSocket.isOutputShutdown()) {
-                                    System.out.println("-------------pull img block---------------");
+                                    if (!ImgSocket.isOutputShutdown()) {
+                                        System.out.println("-------------pull img block---------------");
 
-                                    ImgPWriter.println(filename + "__" + offset_x + "__" + offset_y + "__" + offset_z + "__" + size + ":imgblock.");
+                                        ImgPWriter.println(filename + "__" + offset_x + "__" + offset_y + "__" + offset_z + "__" + size + ":imgblock.");
 //                                  ImgPWriter.println(filename + "__" + offset_x_i + "__" + offset_y_i + "__" + offset_z_i + "__" + size + ":imgblock.");
-                                    ImgPWriter.flush();
+                                        ImgPWriter.flush();
 
-                                    System.out.println("-------------" + filename + "---------------");
+                                        System.out.println("-------------" + filename + "---------------");
 
-                                }
+                                    }
 
 //                                String storefilename = filename.split("RES")[0] +
 //                                        "_" + offset_x + "_" + offset_y + "_" + offset_z + "_" + size +"_" + size +"_" + size + ".v3draw";
 
-                                String storefilename = filename.split("RES")[0] +
-                                        "_" + offset_x + "_" + offset_y + "_" + offset_z + "_" + size +"_" + size +"_" + size + ".v3dpbd";
+//                                String storefilename = filename.split("RES")[0] +
+//                                        "_" + offset_x + "_" + offset_y + "_" + offset_z + "_" + size +"_" + size +"_" + size + ".v3dpbd";
 
 
-                                Log.v("PullImageBlcok", "x: " + offset_x + ", y:" + offset_y + ", z:" +offset_z + ", size: " + size);
+                                    Log.v("PullImageBlcok", "x: " + offset_x + ", y:" + offset_y + ", z:" +offset_z + ", size: " + size);
 
-                                filesocket_receive.readImg(storefilename, contexts);
+                                    filesocket_receive.readImg(StoreFilename, contexts);
 
-                                Log.v("PullImageBlcok", "x: " + offset_x + ", y:" + offset_y + ", z:" +offset_z + ", size: " + size +  " successfully---------");
+                                    Log.v("PullImageBlcok", "x: " + offset_x + ", y:" + offset_y + ", z:" +offset_z + ", size: " + size +  " successfully---------");
+
+                                }
 
                             }
 
