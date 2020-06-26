@@ -9,6 +9,8 @@ import android.util.Log;
 import com.example.basic.ByteTranslate;
 import com.example.basic.Image4DSimple;
 import com.example.myapplication__volume.JumpActivity;
+import com.example.myapplication__volume.MainActivity_Jump;
+import com.example.myapplication__volume.MyRenderer;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -686,18 +688,18 @@ public class MyPattern{
             Context context = getContext();
 //            Toast.makeText(context,"Out of memory when load file",Toast.LENGTH_SHORT).show();
 
-            Intent intent = new Intent(context, JumpActivity.class);
+            Intent intent = new Intent(context, MainActivity_Jump.class);
             String message = "Out of memory when load file";
-            intent.putExtra(JumpActivity.Out_of_memory, message);
+            intent.putExtra(MyRenderer.OUTOFMEM_MESSAGE, message);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         }catch (OutOfMemoryError error){
             error.printStackTrace();
 
             Context context = getContext();
-            Intent intent = new Intent(context, JumpActivity.class);
+            Intent intent = new Intent(context, MainActivity_Jump.class);
             String message = "Out of memory when load file";
-            intent.putExtra(JumpActivity.Out_of_memory, message);
+            intent.putExtra(MyRenderer.OUTOFMEM_MESSAGE, message);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
 

@@ -51,6 +51,14 @@
                 android:value=".JumpActivity" />
         </activity>
 
+        <activity android:name=".MainActivity_Jump"
+            android:parentActivityName=".MainActivity">
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity_Jump" />
+        </activity>
+
         <activity android:name=".ConnectActivity"
             android:parentActivityName=".MainActivity"
             android:label="Connect">

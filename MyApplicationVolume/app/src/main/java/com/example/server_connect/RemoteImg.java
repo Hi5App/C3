@@ -12,6 +12,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.myapplication__volume.JumpActivity;
+import com.example.myapplication__volume.MainActivity;
+import com.example.myapplication__volume.MainActivity_Jump;
 import com.example.myapplication__volume.R;
 
 import java.io.BufferedReader;
@@ -31,6 +33,8 @@ import java.util.Arrays;
 import cn.carbs.android.library.MDDialog;
 
 import static com.example.myapplication__volume.JumpActivity.EXTRA_MESSAGE;
+import static com.example.myapplication__volume.MainActivity_Jump.LoadRemoteFile;
+import static com.example.myapplication__volume.MyRenderer.FILE_PATH;
 
 public class RemoteImg extends Socket {
     public String ip;
@@ -603,12 +607,26 @@ public class RemoteImg extends Socket {
 
                         System.out.println("runningActivity: " + runningActivity);
 
-                        Intent intent = new Intent(context, JumpActivity.class);
+//                        MainActivity.LoadRemoteFile(StorePath + "/" + StoreFilename);
+
+                        /** a new activity: mainactivity_jump **/
+
+                        Intent intent = new Intent(context, MainActivity_Jump.class);
                         String message = StorePath + "/" + StoreFilename;
 
                         Log.v("Filesocket_receive: ", message);
-                        intent.putExtra(EXTRA_MESSAGE, message);
+                        intent.putExtra(FILE_PATH, message);
                         context.startActivity(intent);
+
+
+
+
+//                        Intent intent = new Intent(context, JumpActivity.class);
+//                        String message = StorePath + "/" + StoreFilename;
+//
+//                        Log.v("Filesocket_receive: ", message);
+//                        intent.putExtra(EXTRA_MESSAGE, message);
+//                        context.startActivity(intent);
 
                     } else {
                         if (ImgSocket.isConnected()) {

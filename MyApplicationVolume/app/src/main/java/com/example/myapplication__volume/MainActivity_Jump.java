@@ -136,7 +136,7 @@ import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity_Jump extends AppCompatActivity {
 //    private int UNDO_LIMIT = 5;
 //    private enum Operate {DRAW, DELETE, SPLIT};
 //    private Operate [] process = new Operate[UNDO_LIMIT];
@@ -181,8 +181,8 @@ public class MainActivity extends AppCompatActivity {
     private float Rot_Vec_Data[]=new float[3];
 
 
-    private static MyGLSurfaceView myGLSurfaceView;
-    private static MyRenderer myrenderer;
+    private MyGLSurfaceView myGLSurfaceView;
+    private MyRenderer myrenderer;
     private static final String DEBUG_TAG = "Gestures";
     private static Context context;
     private long length;
@@ -251,11 +251,11 @@ public class MainActivity extends AppCompatActivity {
 
     private Button PixelClassification;
     private boolean[][]select= {{true,true,true,false,false,false,false},
-    {true,true,true,false,false,false,false},
-    {false,false,false,false,false,false,false},
-    {false,false,false,false,false,false,false},
-    {false,false,false,false,false,false,false},
-    {true,true,true,false,false,false,false}};
+            {true,true,true,false,false,false,false},
+            {false,false,false,false,false,false,false},
+            {false,false,false,false,false,false,false},
+            {false,false,false,false,false,false,false},
+            {true,true,true,false,false,false,false}};
 
     private Button detectLineButton;
     private RandomForest rf = null;
@@ -273,8 +273,8 @@ public class MainActivity extends AppCompatActivity {
     private int measure_count = 0;
     private List<double[]> fl;
 
-    private static boolean isBigData_Remote;
-    private static boolean isBigData_Local;
+    private boolean isBigData_Remote;
+    private boolean isBigData_Local;
     private ProgressBar progressBar;
 
 
@@ -309,6 +309,11 @@ public class MainActivity extends AppCompatActivity {
                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     System.out.println("------ Upload file successfully!!! -------");
                     break;
+
+                case 2:
+
+                    break;
+
             }
         }
     };
@@ -321,6 +326,7 @@ public class MainActivity extends AppCompatActivity {
             switch (msg.what){
                 case 1:
                     popupView.dismiss();
+                    popupView = null;
                     break;
             }
         }
@@ -346,8 +352,8 @@ public class MainActivity extends AppCompatActivity {
         isBigData_Remote = false;
         isBigData_Local  = false;
 
-        popupView = new XPopup.Builder(this)
-                .asLoading("Downloading......");
+//        popupView = new XPopup.Builder(this)
+//                .asLoading("Downloading......");
 //
         //接受从fileactivity传递过来的文件路径
         Intent intent1 = getIntent();
@@ -1393,10 +1399,10 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     remoteImg.ip = ip;
 //                    if (!remoteImg.isSocketSet) {
-                        Log.v("SendSwc", "connext socket");
-                        remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
-                        remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
-                        remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    Log.v("SendSwc", "connext socket");
+                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
+                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
+                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
 //                    }
 
 
@@ -1512,10 +1518,10 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     remoteImg.ip = ip;
 //                    if (!remoteImg.isSocketSet) {
-                        Log.v("SendSwc", "connext socket");
-                        remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
-                        remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
-                        remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    Log.v("SendSwc", "connext socket");
+                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
+                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
+                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
 //                    }
 
 
@@ -1663,11 +1669,11 @@ public class MainActivity extends AppCompatActivity {
                     remoteImg.ip = ip;
 //                    if (!remoteImg.isSocketSet) {
 
-                        Log.v("DownloadSwc: ", "Connect server");
+                    Log.v("DownloadSwc: ", "Connect server");
 
-                        remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
-                        remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
-                        remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
+                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
+                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
 //                    }
 
                     Log.v("DownloadSwc: ", "here we are 2");
@@ -1903,7 +1909,7 @@ public class MainActivity extends AppCompatActivity {
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
+            ActivityCompat.requestPermissions(MainActivity_Jump.this, new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
             File photoFile = null;
 //            String photoFilePath = null;
             try {
@@ -1932,7 +1938,7 @@ public class MainActivity extends AppCompatActivity {
 //            System.out.println(imageUri);
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(MainActivity.this,
+                Uri photoURI = FileProvider.getUriForFile(MainActivity_Jump.this,
                         "com.example.myapplication__volume.provider",
                         photoFile);
 
@@ -3685,7 +3691,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200626a 13:45 pm UTC build",
+                                "Version: 20200624a 15:14 pm UTC build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -3800,11 +3806,11 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
 
-                        Log.v("ConnectServer","start to connect server");
-                        remoteImg.ip = ip;
-                        remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
-                        remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
-                        remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+                    Log.v("ConnectServer","start to connect server");
+                    remoteImg.ip = ip;
+                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
+                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
+                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
 
 
                     if(remoteImg.ImgSocket.isConnected()){
@@ -4808,7 +4814,6 @@ public class MainActivity extends AppCompatActivity {
             timerTask.cancel();
             timerTask = null;
         }
-        context = null;
     }
 
     //renderer 的生存周期和activity保持一致
@@ -5576,7 +5581,7 @@ public class MainActivity extends AppCompatActivity {
                             double dis = computeDis(normalizedX, x2, normalizedY, y2);
                             double scale = dis / dis_start;
 //                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker) {
-                                myrenderer.zoom((float) scale);
+                            myrenderer.zoom((float) scale);
 //                            }
                             float dis_x = x2 - normalizedX;
                             float dis_y = y2 - normalizedY;
@@ -5590,7 +5595,7 @@ public class MainActivity extends AppCompatActivity {
 //                                myrenderer.rotate2f(dis_x_start, dis_x, dis_y_start, dis_y);
 //                            }else {
 //                                myrenderer.rotate(dis_x - dis_x_start, dis_y - dis_y_start, (float) (computeDis(dis_x, dis_x_start, dis_y, dis_y_start)));
-                                myrenderer.rotate(ave_x, ave_y, (float)(computeDis((x2 + normalizedX) / 2, (x1_start + x0_start) / 2, (y2 + normalizedY) / 2, (y1_start + y0_start) / 2)));
+                            myrenderer.rotate(ave_x, ave_y, (float)(computeDis((x2 + normalizedX) / 2, (x1_start + x0_start) / 2, (y2 + normalizedY) / 2, (y1_start + y0_start) / 2)));
 //                            }
                             //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
                             requestRender();
@@ -5890,7 +5895,7 @@ public class MainActivity extends AppCompatActivity {
 //        .maxHeight(1350)
                 .asCenterList("Experimental Features", new String[]{"Detect Line", "Detect Corner", "GSDT","Anisotropic", "For Developer(Classify)"},
                         new OnSelectListener() {
-//                            @Override
+                            //                            @Override
                             public void onSelect(int position, String text) {
                                 switch (text) {
                                     case "Detect Line":
@@ -6136,6 +6141,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     public static void showProgressBar(){
+        popupView = new XPopup.Builder(context)
+                .asLoading("Downloading......");
         popupView.show();
     }
 
@@ -6143,23 +6150,24 @@ public class MainActivity extends AppCompatActivity {
         puiHandler.sendEmptyMessage(1);
     }
 
-    public static void LoadRemoteFile(String filepath){
+    public static void LoadRemoteFile(){
+
+    }
+
+    private void LoadRemoteFile_nostatic(){
         myrenderer.SetPath(filepath);
         System.out.println("------" + filepath + "------");
         isBigData_Remote = true;
         isBigData_Local = false;
-        String filename = getFilename(context);
-        String offset = getoffset(context, filename);
+        String filename = getFilename(this);
+        String offset = getoffset(this, filename);
 
         String offset_x = offset.split("_")[0];
         String offset_y = offset.split("_")[1];
         String offset_z = offset.split("_")[2];
 
-        Toast.makeText(context,"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
-        myGLSurfaceView.requestRender();
-
+        Toast.makeText(this,"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
     }
-
 
     private void hideButtons(){
         if (!ifButtonShowed)

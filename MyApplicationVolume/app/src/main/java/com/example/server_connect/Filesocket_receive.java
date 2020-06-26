@@ -1,11 +1,15 @@
 package com.example.server_connect;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.example.myapplication__volume.JumpActivity;
+import com.example.myapplication__volume.MainActivity;
+import com.example.myapplication__volume.MainActivity_Jump;
+import com.example.myapplication__volume.MyRenderer;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 
@@ -28,6 +32,9 @@ import java.util.TimerTask;
 
 import static com.example.myapplication__volume.JumpActivity.EXTRA_MESSAGE;
 import static com.example.myapplication__volume.JumpActivity.Timeout;
+import static com.example.myapplication__volume.MainActivity.hideProgressBar;
+import static com.example.myapplication__volume.MainActivity.showProgressBar;
+import static com.example.myapplication__volume.MyRenderer.FILE_PATH;
 
 
 public class Filesocket_receive {
@@ -307,9 +314,20 @@ public class Filesocket_receive {
 
         Boolean stop = false;
 
-        BasePopupView popupView = new XPopup.Builder(context[0])
-                .asLoading("Downloading......");
-        popupView.show();
+//        BasePopupView popupView = new XPopup.Builder(context[0])
+//                .asLoading("Downloading......");
+//        popupView.show();
+
+        ActivityManager activityManager = (ActivityManager) context[0].getSystemService(Context.ACTIVITY_SERVICE);
+        String runningActivity = activityManager.getRunningTasks(1).get(0).topActivity
+                .getClassName();
+        if (runningActivity.equals("com.example.myapplication__volume.MainActivity")){
+            MainActivity.showProgressBar();
+        }
+
+        if (runningActivity.equals("com.example.myapplication__volume.MainActivity_Jump")){
+            MainActivity_Jump.showProgressBar();
+        }
 
         boolean[] ifDownloaded = { false };
 //        Handler handler = new Handler();
@@ -378,10 +396,18 @@ public class Filesocket_receive {
 
                             try {
 
-                                Intent intent = new Intent(context[0], JumpActivity.class);
+//                                Intent intent = new Intent(context[0], JumpActivity.class);
+//                                String message = "Time out, please try again!";
+//
+//                                intent.putExtra(Timeout, message);
+//                                context[0].startActivity(intent);
+
+
+
+                                Intent intent = new Intent(context[0], MainActivity_Jump.class);
                                 String message = "Time out, please try again!";
 
-                                intent.putExtra(Timeout, message);
+                                intent.putExtra(MyRenderer.Time_out, message);
                                 context[0].startActivity(intent);
 
                                 Log.v("---------Image------:", "bufferreader closed!");
@@ -527,6 +553,14 @@ public class Filesocket_receive {
 
 //                        popupView.dismiss();
 
+            if (runningActivity.equals("com.example.myapplication__volume.MainActivity")){
+                MainActivity.hideProgressBar();
+            }
+
+            if (runningActivity.equals("com.example.myapplication__volume.MainActivity_Jump")){
+                MainActivity_Jump.hideProgressBar();
+            }
+
 
         }catch (Exception e){
             e.printStackTrace();
@@ -537,11 +571,21 @@ public class Filesocket_receive {
         Log.v("Filesocket_receive: ", filename);
 
         if (ifDownloaded[0]){
-            Intent intent = new Intent(context[0], JumpActivity.class);
+//            Intent intent = new Intent(context[0], JumpActivity.class);
+//            String message = path + "/" + filename;
+//
+//            Log.v("Filesocket_receive: ", message);
+//            intent.putExtra(EXTRA_MESSAGE, message);
+//            context[0].startActivity(intent);
+//            context[0] = null;
+
+
+
+            Intent intent = new Intent(context[0], MainActivity_Jump.class);
             String message = path + "/" + filename;
 
             Log.v("Filesocket_receive: ", message);
-            intent.putExtra(EXTRA_MESSAGE, message);
+            intent.putExtra(FILE_PATH, message);
             context[0].startActivity(intent);
             context[0] = null;
         }
