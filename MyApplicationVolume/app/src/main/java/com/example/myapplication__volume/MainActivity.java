@@ -215,8 +215,10 @@ public class MainActivity extends AppCompatActivity {
     private Button Tracing;
     private Button Others;
     private Button FileManager;
-    private Button Zoom_in;
-    private Button Zoom_out;
+    private static Button Zoom_in;
+    private static Button Zoom_out;
+    private static Button Zoom_in_Big;
+    private static Button Zoom_out_Big;
     private Button Rotation;
     private ImageButton Rotation_i;
     private ImageButton Sync_i;
@@ -228,15 +230,15 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton tracing_i;
     private ImageButton classify_i;
     private ImageButton buttonUndo_i;
-    private ImageButton navigation_left;
-    private ImageButton navigation_right;
-    private ImageButton navigation_up;
-    private ImageButton navigation_down;
-    private ImageButton navigation_location;
-    private Button navigation_front;
-    private Button navigation_back;
-    private ImageButton sync_push;
-    private ImageButton sync_pull;
+    private static ImageButton navigation_left;
+    private static ImageButton navigation_right;
+    private static ImageButton navigation_up;
+    private static ImageButton navigation_down;
+    private static ImageButton navigation_location;
+    private static Button navigation_front;
+    private static Button navigation_back;
+    private static ImageButton sync_push;
+    private static ImageButton sync_pull;
 
     private FrameLayout.LayoutParams lp_undo_i;
     private FrameLayout.LayoutParams lp_left_i;
@@ -321,6 +323,28 @@ public class MainActivity extends AppCompatActivity {
             switch (msg.what){
                 case 1:
                     popupView.dismiss();
+                    break;
+                case 2:
+                    if (isBigData_Remote || isBigData_Local){
+                        navigation_left.setVisibility(View.VISIBLE);
+                        navigation_right.setVisibility(View.VISIBLE);
+                        navigation_up.setVisibility(View.VISIBLE);
+                        navigation_down.setVisibility(View.VISIBLE);
+                        navigation_front.setVisibility(View.VISIBLE);
+                        navigation_back.setVisibility(View.VISIBLE);
+                        navigation_location.setVisibility(View.VISIBLE);
+
+                        Zoom_in_Big.setVisibility(View.VISIBLE);
+                        Zoom_out_Big.setVisibility(View.VISIBLE);
+                        Zoom_in.setVisibility(View.GONE);
+                        Zoom_out.setVisibility(View.GONE);
+
+                        if (isBigData_Remote){
+                            sync_pull.setVisibility(View.VISIBLE);
+                            sync_push.setVisibility(View.VISIBLE);
+                        }
+
+                    }
                     break;
             }
         }
@@ -438,32 +462,59 @@ public class MainActivity extends AppCompatActivity {
 
         Zoom_in = new Button(this);
         Zoom_in.setText("+");
+        Zoom_in_Big = new Button(this);
+        Zoom_in_Big.setText("+");
 
         Zoom_out = new Button(this);
         Zoom_out.setText("-");
+        Zoom_out_Big = new Button(this);
+        Zoom_out_Big.setText("-");
+
+        FrameLayout.LayoutParams lp_zoom_in = new FrameLayout.LayoutParams(120, 120);
+        lp_zoom_in.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        lp_zoom_in.setMargins(0, 0, 20, 290);
+        this.addContentView(Zoom_in_Big, lp_zoom_in);
+
+        FrameLayout.LayoutParams lp_zoom_out = new FrameLayout.LayoutParams(120, 120);
+        lp_zoom_out.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        lp_zoom_out.setMargins(0, 0, 20, 200);
+        this.addContentView(Zoom_out_Big, lp_zoom_out);
+
+        Zoom_in_Big.setVisibility(View.GONE);
+        Zoom_out_Big.setVisibility(View.GONE);
 
 
-        if (isBigData_Remote || isBigData_Local){
 
-            FrameLayout.LayoutParams lp_zoom_in = new FrameLayout.LayoutParams(120, 120);
-            lp_zoom_in.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-            lp_zoom_in.setMargins(0, 0, 20, 290);
-            this.addContentView(Zoom_in, lp_zoom_in);
+        FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
+        lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
+        this.addContentView(Zoom_in, lp_zoom_in_no);
 
-            FrameLayout.LayoutParams lp_zoom_out = new FrameLayout.LayoutParams(120, 120);
-            lp_zoom_out.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-            lp_zoom_out.setMargins(0, 0, 20, 200);
-            this.addContentView(Zoom_out, lp_zoom_out);
+        FrameLayout.LayoutParams lp_zoom_out_no = new FrameLayout.LayoutParams(100, 150);
+        lp_zoom_out_no.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
+        this.addContentView(Zoom_out, lp_zoom_out_no);
 
-        }else {
-            FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
-            lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
-            this.addContentView(Zoom_in, lp_zoom_in_no);
 
-            FrameLayout.LayoutParams lp_zoom_out_no = new FrameLayout.LayoutParams(100, 150);
-            lp_zoom_out_no.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
-            this.addContentView(Zoom_out, lp_zoom_out_no);
-        }
+//        if (isBigData_Remote || isBigData_Local){
+//
+//            FrameLayout.LayoutParams lp_zoom_in = new FrameLayout.LayoutParams(120, 120);
+//            lp_zoom_in.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+//            lp_zoom_in.setMargins(0, 0, 20, 290);
+//            this.addContentView(Zoom_in, lp_zoom_in);
+//
+//            FrameLayout.LayoutParams lp_zoom_out = new FrameLayout.LayoutParams(120, 120);
+//            lp_zoom_out.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+//            lp_zoom_out.setMargins(0, 0, 20, 200);
+//            this.addContentView(Zoom_out, lp_zoom_out);
+//
+//        }else {
+//            FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
+//            lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
+//            this.addContentView(Zoom_in, lp_zoom_in_no);
+//
+//            FrameLayout.LayoutParams lp_zoom_out_no = new FrameLayout.LayoutParams(100, 150);
+//            lp_zoom_out_no.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
+//            this.addContentView(Zoom_out, lp_zoom_out_no);
+//        }
 
 
         Zoom_in.setOnClickListener(new Button.OnClickListener() {
@@ -493,6 +544,34 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Zoom_in_Big.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                Image4DSimple img = myrenderer.getImg();
+                if(!myrenderer.getIfFileLoaded()){
+                    Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                myrenderer.zoom_in();
+                myGLSurfaceView.requestRender();
+            }
+        });
+
+
+        Zoom_out_Big.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                Image4DSimple img = myrenderer.getImg();
+                if(!myrenderer.getIfFileLoaded()){
+                    Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                myrenderer.zoom_out();
+                myGLSurfaceView.requestRender();
+            }
+        });
+
+
 
         FrameLayout.LayoutParams lp_draw_i = new FrameLayout.LayoutParams(230, 160);
 
@@ -510,15 +589,6 @@ public class MainActivity extends AppCompatActivity {
                 Draw(v);
             }
         });
-        /*Draw = new Button(this);
-        Draw.setText("Draw");
-        ll_top.addView(Draw);
-
-        Draw.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                Draw(v);
-            }
-        });*/
 
 
         FrameLayout.LayoutParams lp_tracing_i = new FrameLayout.LayoutParams(230, 160);
@@ -778,21 +848,42 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        this.addContentView(navigation_left, lp_left_i);
+        this.addContentView(navigation_right, lp_right_i);
+        this.addContentView(navigation_up, lp_up_i);
+        this.addContentView(navigation_down, lp_down_i);
+        this.addContentView(navigation_front, lp_front_i);
+        this.addContentView(navigation_back, lp_back_i);
+        this.addContentView(navigation_location, lp_nacloc_i);
 
-        if (isBigData_Remote || isBigData_Local){
-            this.addContentView(navigation_left, lp_left_i);
-            this.addContentView(navigation_right, lp_right_i);
-            this.addContentView(navigation_up, lp_up_i);
-            this.addContentView(navigation_down, lp_down_i);
-            this.addContentView(navigation_front, lp_front_i);
-            this.addContentView(navigation_back, lp_back_i);
-            this.addContentView(navigation_location, lp_nacloc_i);
+        this.addContentView(sync_pull, lp_sync_pull);
+        this.addContentView(sync_push, lp_sync_push);
 
-            if (isBigData_Remote){
-                this.addContentView(sync_pull, lp_sync_pull);
-                this.addContentView(sync_push, lp_sync_push);
-            }
-        }
+        navigation_left.setVisibility(View.GONE);
+        navigation_right.setVisibility(View.GONE);
+        navigation_up.setVisibility(View.GONE);
+        navigation_down.setVisibility(View.GONE);
+        navigation_front.setVisibility(View.GONE);
+        navigation_back.setVisibility(View.GONE);
+        navigation_location.setVisibility(View.GONE);
+
+        sync_pull.setVisibility(View.GONE);
+        sync_push.setVisibility(View.GONE);
+
+//        if (isBigData_Remote || isBigData_Local){
+//            this.addContentView(navigation_left, lp_left_i);
+//            this.addContentView(navigation_right, lp_right_i);
+//            this.addContentView(navigation_up, lp_up_i);
+//            this.addContentView(navigation_down, lp_down_i);
+//            this.addContentView(navigation_front, lp_front_i);
+//            this.addContentView(navigation_back, lp_back_i);
+//            this.addContentView(navigation_location, lp_nacloc_i);
+//
+//            if (isBigData_Remote){
+//                this.addContentView(sync_pull, lp_sync_pull);
+//                this.addContentView(sync_push, lp_sync_push);
+//            }
+//        }
 
 
 
@@ -1208,8 +1299,10 @@ public class MainActivity extends AppCompatActivity {
                         if (isBigData_Remote || isBigData_Local){
                             if (isBigData_Remote){
                                 try {
-                                    ((ViewGroup)sync_pull.getParent()).removeView(sync_pull);
-                                    ((ViewGroup)sync_push.getParent()).removeView(sync_push);
+//                                    ((ViewGroup)sync_pull.getParent()).removeView(sync_pull);
+//                                    ((ViewGroup)sync_push.getParent()).removeView(sync_push);
+                                    sync_push.setVisibility(View.GONE);
+                                    sync_pull.setVisibility(View.GONE);
                                 } catch (Exception e){
                                     e.printStackTrace();
                                 }
@@ -1217,23 +1310,36 @@ public class MainActivity extends AppCompatActivity {
                             isBigData_Remote = false;
                             isBigData_Local  = false;
                             try {
-                                ((ViewGroup)Zoom_in.getParent()).removeView(Zoom_in);
-                                ((ViewGroup)Zoom_out.getParent()).removeView(Zoom_out);
-                                ((ViewGroup)navigation_left.getParent()).removeView(navigation_left);
-                                ((ViewGroup)navigation_right.getParent()).removeView(navigation_right);
-                                ((ViewGroup)navigation_up.getParent()).removeView(navigation_up);
-                                ((ViewGroup)navigation_down.getParent()).removeView(navigation_down);
-                                ((ViewGroup)navigation_front.getParent()).removeView(navigation_front);
-                                ((ViewGroup)navigation_back.getParent()).removeView(navigation_back);
-                                ((ViewGroup)navigation_location.getParent()).removeView(navigation_location);
 
-                                FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
-                                lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
-                                this.addContentView(Zoom_in, lp_zoom_in_no);
+//                                ((ViewGroup)Zoom_in.getParent()).removeView(Zoom_in);
+//                                ((ViewGroup)Zoom_out.getParent()).removeView(Zoom_out);
+//                                ((ViewGroup)navigation_left.getParent()).removeView(navigation_left);
+//                                ((ViewGroup)navigation_right.getParent()).removeView(navigation_right);
+//                                ((ViewGroup)navigation_up.getParent()).removeView(navigation_up);
+//                                ((ViewGroup)navigation_down.getParent()).removeView(navigation_down);
+//                                ((ViewGroup)navigation_front.getParent()).removeView(navigation_front);
+//                                ((ViewGroup)navigation_back.getParent()).removeView(navigation_back);
+//                                ((ViewGroup)navigation_location.getParent()).removeView(navigation_location);
 
-                                FrameLayout.LayoutParams lp_zoom_out_no = new FrameLayout.LayoutParams(100, 150);
-                                lp_zoom_out_no.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
-                                this.addContentView(Zoom_out, lp_zoom_out_no);
+                                Zoom_in_Big.setVisibility(View.GONE);
+                                Zoom_out_Big.setVisibility(View.GONE);
+                                navigation_left.setVisibility(View.GONE);
+                                navigation_right.setVisibility(View.GONE);
+                                navigation_up.setVisibility(View.GONE);
+                                navigation_down.setVisibility(View.GONE);
+                                navigation_front.setVisibility(View.GONE);
+                                navigation_back.setVisibility(View.GONE);
+                                navigation_location.setVisibility(View.GONE);
+
+                                Zoom_in.setVisibility(View.VISIBLE);
+                                Zoom_out.setVisibility(View.VISIBLE);
+//                                FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
+//                                lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
+//                                this.addContentView(Zoom_in, lp_zoom_in_no);
+//
+//                                FrameLayout.LayoutParams lp_zoom_out_no = new FrameLayout.LayoutParams(100, 150);
+//                                lp_zoom_out_no.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
+//                                this.addContentView(Zoom_out, lp_zoom_out_no);
                             }catch (Exception e){
                                 e.printStackTrace();
                             }
@@ -1281,8 +1387,10 @@ public class MainActivity extends AppCompatActivity {
                     if (isBigData_Remote || isBigData_Local){
                         if (isBigData_Remote){
                             try {
-                                ((ViewGroup)sync_pull.getParent()).removeView(sync_pull);
-                                ((ViewGroup)sync_push.getParent()).removeView(sync_push);
+                                sync_push.setVisibility(View.GONE);
+                                sync_pull.setVisibility(View.GONE);
+//                                ((ViewGroup)sync_pull.getParent()).removeView(sync_pull);
+//                                ((ViewGroup)sync_push.getParent()).removeView(sync_push);
                             } catch (Exception e){
                                 e.printStackTrace();
                             }
@@ -1290,23 +1398,36 @@ public class MainActivity extends AppCompatActivity {
                         isBigData_Remote = false;
                         isBigData_Local  = false;
                         try {
-                            ((ViewGroup)Zoom_in.getParent()).removeView(Zoom_in);
-                            ((ViewGroup)Zoom_out.getParent()).removeView(Zoom_out);
-                            ((ViewGroup)navigation_left.getParent()).removeView(navigation_left);
-                            ((ViewGroup)navigation_right.getParent()).removeView(navigation_right);
-                            ((ViewGroup)navigation_up.getParent()).removeView(navigation_up);
-                            ((ViewGroup)navigation_down.getParent()).removeView(navigation_down);
-                            ((ViewGroup)navigation_front.getParent()).removeView(navigation_front);
-                            ((ViewGroup)navigation_back.getParent()).removeView(navigation_back);
-                            ((ViewGroup)navigation_location.getParent()).removeView(navigation_location);
+//                            ((ViewGroup)Zoom_in.getParent()).removeView(Zoom_in);
+//                            ((ViewGroup)Zoom_out.getParent()).removeView(Zoom_out);
+//                            ((ViewGroup)navigation_left.getParent()).removeView(navigation_left);
+//                            ((ViewGroup)navigation_right.getParent()).removeView(navigation_right);
+//                            ((ViewGroup)navigation_up.getParent()).removeView(navigation_up);
+//                            ((ViewGroup)navigation_down.getParent()).removeView(navigation_down);
+//                            ((ViewGroup)navigation_front.getParent()).removeView(navigation_front);
+//                            ((ViewGroup)navigation_back.getParent()).removeView(navigation_back);
+//                            ((ViewGroup)navigation_location.getParent()).removeView(navigation_location);
 
-                            FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
-                            lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
-                            this.addContentView(Zoom_in, lp_zoom_in_no);
+                            Zoom_in_Big.setVisibility(View.GONE);
+                            Zoom_out_Big.setVisibility(View.GONE);
+                            navigation_left.setVisibility(View.GONE);
+                            navigation_right.setVisibility(View.GONE);
+                            navigation_up.setVisibility(View.GONE);
+                            navigation_down.setVisibility(View.GONE);
+                            navigation_front.setVisibility(View.GONE);
+                            navigation_back.setVisibility(View.GONE);
+                            navigation_location.setVisibility(View.GONE);
 
-                            FrameLayout.LayoutParams lp_zoom_out_no = new FrameLayout.LayoutParams(100, 150);
-                            lp_zoom_out_no.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
-                            this.addContentView(Zoom_out, lp_zoom_out_no);
+                            Zoom_in.setVisibility(View.VISIBLE);
+                            Zoom_out.setVisibility(View.VISIBLE);
+
+//                            FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
+//                            lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
+//                            this.addContentView(Zoom_in, lp_zoom_in_no);
+//
+//                            FrameLayout.LayoutParams lp_zoom_out_no = new FrameLayout.LayoutParams(100, 150);
+//                            lp_zoom_out_no.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
+//                            this.addContentView(Zoom_out, lp_zoom_out_no);
                         }catch (Exception e){
                             e.printStackTrace();
                         }
@@ -3685,7 +3806,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200626a 13:45 pm UTC build",
+                                "Version: 20200626b 21:45 pm UTC build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -6143,7 +6264,7 @@ public class MainActivity extends AppCompatActivity {
         puiHandler.sendEmptyMessage(1);
     }
 
-    public static void LoadRemoteFile(String filepath){
+    public static void LoadBigFile_Remote(String filepath){
         myrenderer.SetPath(filepath);
         System.out.println("------" + filepath + "------");
         isBigData_Remote = true;
@@ -6158,6 +6279,32 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(context,"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
         myGLSurfaceView.requestRender();
 
+        SetButtons();
+
+    }
+
+    public static void LoadBigFile_Local(String filepath_local){
+        System.out.println("------" + filepath_local + "------");
+        isBigData_Local = true;
+        isBigData_Remote = false;
+        String filename = SettingFileManager.getFilename_Local(context);
+        String offset = SettingFileManager.getoffset_Local(context, filename);
+
+        int[] index = BigImgReader.getIndex(offset);
+        myrenderer.SetPath_Bigdata(filepath_local, index);
+
+        String offset_x = offset.split("_")[0];
+        String offset_y = offset.split("_")[1];
+        String offset_z = offset.split("_")[2];
+        Toast.makeText(context,"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
+        myGLSurfaceView.requestRender();
+
+        SetButtons();
+
+    }
+
+    private static void SetButtons(){
+        puiHandler.sendEmptyMessage(2);
     }
 
 

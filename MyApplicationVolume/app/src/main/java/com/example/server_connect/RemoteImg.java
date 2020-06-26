@@ -607,16 +607,16 @@ public class RemoteImg extends Socket {
 
                         System.out.println("runningActivity: " + runningActivity);
 
-//                        MainActivity.LoadRemoteFile(StorePath + "/" + StoreFilename);
+                        MainActivity.LoadBigFile_Remote(StorePath + "/" + StoreFilename);
 
-                        /** a new activity: mainactivity_jump **/
-
-                        Intent intent = new Intent(context, MainActivity_Jump.class);
-                        String message = StorePath + "/" + StoreFilename;
-
-                        Log.v("Filesocket_receive: ", message);
-                        intent.putExtra(FILE_PATH, message);
-                        context.startActivity(intent);
+//                        /** a new activity: mainactivity_jump **/
+//
+//                        Intent intent = new Intent(context, MainActivity_Jump.class);
+//                        String message = StorePath + "/" + StoreFilename;
+//
+//                        Log.v("Filesocket_receive: ", message);
+//                        intent.putExtra(FILE_PATH, message);
+//                        context.startActivity(intent);
 
 
 

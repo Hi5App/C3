@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.example.basic.Image4DSimple;
 import com.example.basic.SettingFileManager;
 import com.example.myapplication__volume.JumpActivity;
+import com.example.myapplication__volume.MainActivity;
 import com.example.myapplication__volume.MainActivity_Jump;
 import com.example.myapplication__volume.MyRenderer;
 import com.example.myapplication__volume.R;
@@ -371,10 +372,12 @@ public class BigImgReader {
 
                                 /** a new activity: mainactivity_jump **/
 
-                                Intent intent = new Intent(context, MainActivity_Jump.class);
-                                String message = "/storage/emulated/0/C3/Server/" + filename + ".v3draw";
-                                intent.putExtra(MyRenderer.LOCAL_FILE_PATH, message);
-                                context.startActivity(intent);
+//                                Intent intent = new Intent(context, MainActivity_Jump.class);
+//                                String message = "/storage/emulated/0/C3/Server/" + filename + ".v3draw";
+//                                intent.putExtra(MyRenderer.LOCAL_FILE_PATH, message);
+//                                context.startActivity(intent);
+
+                                MainActivity.LoadBigFile_Local("/storage/emulated/0/C3/Server/" + filename + ".v3draw");
 
 //                                Intent intent = new Intent(context, JumpActivity.class);
 //                                String message = "/storage/emulated/0/C3/Server/" + filename + ".v3draw";

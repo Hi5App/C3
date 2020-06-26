@@ -396,19 +396,19 @@ public class Filesocket_receive {
 
                             try {
 
-//                                Intent intent = new Intent(context[0], JumpActivity.class);
-//                                String message = "Time out, please try again!";
-//
-//                                intent.putExtra(Timeout, message);
-//                                context[0].startActivity(intent);
-
-
-
-                                Intent intent = new Intent(context[0], MainActivity_Jump.class);
+                                Intent intent = new Intent(context[0], JumpActivity.class);
                                 String message = "Time out, please try again!";
 
-                                intent.putExtra(MyRenderer.Time_out, message);
+                                intent.putExtra(Timeout, message);
                                 context[0].startActivity(intent);
+
+
+
+//                                Intent intent = new Intent(context[0], MainActivity_Jump.class);
+//                                String message = "Time out, please try again!";
+//
+//                                intent.putExtra(MyRenderer.Time_out, message);
+//                                context[0].startActivity(intent);
 
                                 Log.v("---------Image------:", "bufferreader closed!");
                                 in.close();
@@ -579,15 +579,16 @@ public class Filesocket_receive {
 //            context[0].startActivity(intent);
 //            context[0] = null;
 
+            MainActivity.LoadBigFile_Remote(path + "/" + filename);
 
 
-            Intent intent = new Intent(context[0], MainActivity_Jump.class);
-            String message = path + "/" + filename;
-
-            Log.v("Filesocket_receive: ", message);
-            intent.putExtra(FILE_PATH, message);
-            context[0].startActivity(intent);
-            context[0] = null;
+//            Intent intent = new Intent(context[0], MainActivity_Jump.class);
+//            String message = path + "/" + filename;
+//
+//            Log.v("Filesocket_receive: ", message);
+//            intent.putExtra(FILE_PATH, message);
+//            context[0].startActivity(intent);
+//            context[0] = null;
         }
 
     }
