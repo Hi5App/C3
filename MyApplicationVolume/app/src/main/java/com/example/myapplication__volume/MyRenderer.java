@@ -1050,9 +1050,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         bitmap2D = BitmapFactory.decodeStream(is);
 //        ByteArrayOutputStream st = new ByteArrayOutputStream();
         if (bitmap2D != null){
-//            int degree = getBitmapDegree(is);
-//            System.out.println(degree);
-//            bitmap2D = rotateBitmapByDegree(bitmap2D, degree);
+            int degree = getBitmapDegree(is);
+            System.out.println("degree: " + degree);
+            bitmap2D = rotateBitmapByDegree(bitmap2D, degree);
 //            ByteArrayOutputStream outputStream = new ByteArrayOutputStream(bitmap.getByteCount());
             sz[0] = bitmap2D.getWidth();
             sz[1] = bitmap2D.getHeight();

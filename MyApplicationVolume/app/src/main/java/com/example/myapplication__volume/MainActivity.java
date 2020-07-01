@@ -284,7 +284,8 @@ public class MainActivity extends AppCompatActivity {
     //读写权限
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA};
     private static int REQUEST_PERMISSION_CODE = 1;
     private static final int REQUEST_IMAGE_CAPTURE = 2;
     private static final int REQUEST_TAKE_PHOTO = 3;
@@ -345,6 +346,27 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                     }
+
+                    if (isBigData_Remote){
+                        String filename = getFilename(context);
+                        String offset = getoffset(context, filename);
+
+                        String offset_x = offset.split("_")[0];
+                        String offset_y = offset.split("_")[1];
+                        String offset_z = offset.split("_")[2];
+                        Toast.makeText(getContext(),"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
+                    }
+
+                    if (isBigData_Local){
+                        String filename = SettingFileManager.getFilename_Local(context);
+                        String offset = SettingFileManager.getoffset_Local(context, filename);
+
+                        String offset_x = offset.split("_")[0];
+                        String offset_y = offset.split("_")[1];
+                        String offset_z = offset.split("_")[2];
+                        Toast.makeText(getContext(),"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
+                    }
+
                     break;
             }
         }
@@ -907,6 +929,7 @@ public class MainActivity extends AppCompatActivity {
         myGLSurfaceView.requestRender();
         remoteImg = new RemoteImg();
         bigImgReader = new BigImgReader();
+
         context = getApplicationContext();
 
         progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleSmall);
@@ -1097,6 +1120,11 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("MainActivity", "申请的权限为：" + permissions[i] + ",申请结果：" + grantResults[i]);
             }
         }
+//        if (requestCode == REQUEST_TAKE_PHOTO) {
+//            for (int i = 0; i < permissions.length; i++) {
+//                Log.i("MainActivity", "申请的权限为：" + permissions[i] + ",申请结果：" + grantResults[i]);
+//            }
+//        }
     }
 
     /**
@@ -2027,7 +2055,7 @@ public class MainActivity extends AppCompatActivity {
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
+//            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE},REQUEST_IMAGE_CAPTURE);
             File photoFile = null;
 //            String photoFilePath = null;
             try {
@@ -3810,7 +3838,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200626b 21:45 pm UTC build",
+                                "Version: 20200701b 21:25 pm UTC build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4933,7 +4961,6 @@ public class MainActivity extends AppCompatActivity {
             timerTask.cancel();
             timerTask = null;
         }
-        context = null;
     }
 
     //renderer 的生存周期和activity保持一致
@@ -4943,7 +4970,6 @@ public class MainActivity extends AppCompatActivity {
         myGLSurfaceView.onPause();
         Log.v("onPause", "start-----");
         remoteImg.disconnectFromHost();
-//        remoteImg = null;
     }
 
     @Override
@@ -6288,19 +6314,20 @@ public class MainActivity extends AppCompatActivity {
         puiHandler.sendEmptyMessage(1);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public static void LoadBigFile_Remote(String filepath){
         myrenderer.SetPath(filepath);
         System.out.println("------" + filepath + "------");
         isBigData_Remote = true;
         isBigData_Local = false;
-        String filename = getFilename(context);
-        String offset = getoffset(context, filename);
-
-        String offset_x = offset.split("_")[0];
-        String offset_y = offset.split("_")[1];
-        String offset_z = offset.split("_")[2];
-
-        Toast.makeText(context,"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
+//        String filename = getFilename(context);
+//        String offset = getoffset(context, filename);
+//
+//        String offset_x = offset.split("_")[0];
+//        String offset_y = offset.split("_")[1];
+//        String offset_z = offset.split("_")[2];
+//
+//        Toast.makeText(getContext(),"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
         myGLSurfaceView.requestRender();
 
         SetButtons();
@@ -6320,7 +6347,7 @@ public class MainActivity extends AppCompatActivity {
         String offset_x = offset.split("_")[0];
         String offset_y = offset.split("_")[1];
         String offset_z = offset.split("_")[2];
-        Toast.makeText(context,"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(),"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
         myGLSurfaceView.requestRender();
 
         SetButtons();
