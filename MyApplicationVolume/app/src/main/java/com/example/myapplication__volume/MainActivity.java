@@ -379,7 +379,9 @@ public class MainActivity extends AppCompatActivity {
 
         myrenderer = new MyRenderer();
         if (filepath != null) {
-            myrenderer.SetPath(filepath);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                myrenderer.SetPath(filepath);
+            }
             System.out.println("------" + filepath + "------");
             isBigData_Remote = true;
             isBigData_Local = false;
@@ -1104,6 +1106,7 @@ public class MainActivity extends AppCompatActivity {
      * @param data
      */
     @Override
+    @RequiresApi(api = Build.VERSION_CODES.N)
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         Context context = this;
@@ -2068,6 +2071,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void savePhoto(Bitmap photoBitmap){
         String photoFilePath = getImageFilePath();
 
@@ -6018,8 +6022,28 @@ public class MainActivity extends AppCompatActivity {
                                         LineDetect();
                                         break;
                                     case "Detect Corner":
-                                        myrenderer.corner_detection();
-                                        myGLSurfaceView.requestRender();
+//                                        try {
+////                                            progressBar.setVisibility(View.VISIBLE);
+////                                            timer = new Timer();
+////                                            timerTask = new TimerTask() {
+////                                                @Override
+////                                                public void run() {
+////                                                    myrenderer.corner_detection();
+////                                                    myGLSurfaceView.requestRender();
+////                                                    progressBar.setVisibility(View.INVISIBLE);
+////                                                }
+////                                            };
+//////                                            progressBar.setVisibility(View.INVISIBLE);
+////                                        }catch (Exception e){
+////                                            e.printStackTrace();
+////                                        }
+//                                        timer.schedule(timerTask, 0);
+                                        if (myrenderer.if2dImageLoaded()){
+                                            myrenderer.corner_detection();
+                                            myGLSurfaceView.requestRender();
+                                        } else {
+                                            Toast.makeText(getContext(), "Please load a 2d image first", Toast.LENGTH_SHORT).show();
+                                        }
                                         break;
                                     case "GSDT":
                                         //gsdt检测斑点（eg.soma）
