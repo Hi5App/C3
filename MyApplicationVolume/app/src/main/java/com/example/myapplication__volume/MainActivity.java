@@ -24,6 +24,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
@@ -128,6 +130,7 @@ import java.util.concurrent.TimeUnit;
 import Jama.Matrix;
 import cn.carbs.android.library.MDDialog;
 
+import static com.example.basic.BitmapRotation.getBitmapDegree;
 import static com.example.server_connect.RemoteImg.getFilename;
 import static com.example.server_connect.RemoteImg.getoffset;
 
@@ -298,6 +301,7 @@ public class MainActivity extends AppCompatActivity {
     private String currentPhotoPath; //指定一个不会跟其他文件产生冲突的文件名，用于后面相机拍照的图片的保存
 
     private File showPic;
+    private Uri picUri;
 
     private static BasePopupView popupView;
 
@@ -383,7 +387,7 @@ public class MainActivity extends AppCompatActivity {
 //    };
 
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -401,9 +405,9 @@ public class MainActivity extends AppCompatActivity {
 
         myrenderer = new MyRenderer();
         if (filepath != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                myrenderer.SetPath(filepath);
-            }
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            myrenderer.SetPath(filepath);
+//            }
             System.out.println("------" + filepath + "------");
             isBigData_Remote = true;
             isBigData_Local = false;
@@ -1143,14 +1147,35 @@ public class MainActivity extends AppCompatActivity {
 //            System.out.println("BBBBB");
 //            Bundle extras = data.getExtras();
 //
-////            Uri photouri = (Uri) extras.get(MediaStore.EXTRA_OUTPUT);
+//            Uri imageUri = (Uri) extras.get(MediaStore.EXTRA_OUTPUT);
 //            Bitmap imageBitmap = (Bitmap) extras.get("data");  //如果直接保存imageBitmap，保存成txt? 还是直接保存图片？
 //            savePhoto(imageBitmap);
 //            ImageView imageView = new ImageView(this);
 //            imageView.setImageBitmap(imageBitmap);
 ////            ifTakePhoto = false;
 //            return;
-            Bitmap bitmap= BitmapFactory.decodeFile(String.valueOf(showPic));
+//            Bitmap bitmap= BitmapFactory.decodeFile(String.valueOf(showPic));
+//            Uri imageUri = data.getData();
+//            String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
+//            Cursor cur = managedQuery(picUri, orientationColumn, null, null, null);
+//            int orientation = -1;
+//            if (cur != null && cur.moveToFirst()) {
+//                orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
+//            }
+//            CameraManager mCameraManager = (CameraManager) this.getSystemService(Context.CAMERA_SERVICE);;
+//            try {
+//                CameraCharacteristics mCameraCharacteristics = mCameraManager.getCameraCharacteristics(Integer.toString(CameraCharacteristics.LENS_FACING_FRONT));
+//                float [] r = mCameraCharacteristics.get(CameraCharacteristics.LENS_POSE_ROTATION);
+//                System.out.println(r);
+//            }catch (Exception e){
+//                e.printStackTrace();
+//            }
+//            android.hardware.Camera.CameraInfo info = new android.hardware.Camera.CameraInfo();
+//            android.hardware.Camera.getCameraInfo(0, info);
+//            System.out.println("OOOOOOOOOOO");
+//            System.out.println(info.orientation);
+//            int degree = getBitmapDegree(showPic.getAbsolutePath());
+//            System.out.println(degree);
             myrenderer.SetPath(showPic.getAbsolutePath());
             //System.out.println(showPic.getAbsolutePath());
             myGLSurfaceView.requestRender();
@@ -2077,7 +2102,7 @@ public class MainActivity extends AppCompatActivity {
 //                System.out.println("AAAAAAA");
 //                e.printStackTrace();
 //            }
-            String imageUri = photoFile.getAbsolutePath();
+//            String imageUri = photoFile.getAbsolutePath();
 //            String imageUri = insertImageToSystem(context, photoFilePath);
 
 //            Uri photoURI = Uri.parse(imageUri);
@@ -2087,7 +2112,7 @@ public class MainActivity extends AppCompatActivity {
                 Uri photoURI = FileProvider.getUriForFile(MainActivity.this,
                         "com.example.myapplication__volume.provider",
                         photoFile);
-
+                picUri = photoURI;
 //                takePictureIntent.putExtra("output", photoURI);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
 
@@ -3838,7 +3863,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200701b 21:25 pm UTC build",
+                                "Version: 20200702a 22:01 pm UTC build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

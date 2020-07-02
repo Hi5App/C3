@@ -72,6 +72,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import static com.example.basic.BitmapRotation.getBitmapDegree;
 import static com.example.basic.BitmapRotation.rotateBitmapByDegree;
+import static com.example.basic.BitmapRotation.setOrientation;
 import static com.example.myapplication__volume.Myapplication.getContext;
 import static javax.microedition.khronos.opengles.GL10.GL_ALPHA_TEST;
 import static javax.microedition.khronos.opengles.GL10.GL_BLEND;
@@ -1009,7 +1010,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+
+//    @RequiresApi(api = Build.VERSION_CODES.N)
     private void loadImage2D(){
         File file = new File(filepath);
         long length = 0;
@@ -1047,11 +1049,27 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
         }
+//        setOrientation(filepath);
+        int degree = 0;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            degree = getBitmapDegree(is);
+        }
+        else {
+            degree = getBitmapDegree(filepath);
+        }
         bitmap2D = BitmapFactory.decodeStream(is);
 //        ByteArrayOutputStream st = new ByteArrayOutputStream();
         if (bitmap2D != null){
-            int degree = getBitmapDegree(is);
-            System.out.println("degree: " + degree);
+
+//            int degree = 0;
+//            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+//                degree = getBitmapDegree(is);
+//            }
+//            else {
+//                degree = getBitmapDegree(filepath);
+//            }
+            System.out.println(degree);
+
             bitmap2D = rotateBitmapByDegree(bitmap2D, degree);
 //            ByteArrayOutputStream outputStream = new ByteArrayOutputStream(bitmap.getByteCount());
             sz[0] = bitmap2D.getWidth();

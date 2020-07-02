@@ -24,8 +24,10 @@ public class BitmapRotation {
             // 从指定路径下读取图片，并获取其EXIF信息
             ExifInterface exifInterface = new ExifInterface(is);
             // 获取图片的旋转信息
-            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-//            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+
+            String ori = exifInterface.getAttribute(ExifInterface.TAG_ORIENTATION);
+            int orientation = Integer.valueOf(ori);
+
             switch (orientation) {
                 case ExifInterface.ORIENTATION_ROTATE_90:
                     degree = 90;
@@ -35,6 +37,51 @@ public class BitmapRotation {
                     break;
                 case ExifInterface.ORIENTATION_ROTATE_270:
                     degree = 270;
+                    break;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return degree;
+    }
+
+    public static void setOrientation(String path){
+        try{
+            ExifInterface exifInterface = new ExifInterface(path);
+            exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_ROTATE_90+"");
+            exifInterface.saveAttributes();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public static int getBitmapDegree(String path) {
+        int degree = 0;
+        try {
+            // 从指定路径下读取图片，并获取其EXIF信息
+            ExifInterface exifInterface = new ExifInterface(path);
+            if (exifInterface == null){
+                System.out.println("NULLLLLLLLLLLLLL");
+            }
+            // 获取图片的旋转信息
+            String ori = exifInterface.getAttribute(ExifInterface.TAG_ORIENTATION);
+            int orientation = Integer.valueOf(ori);
+//            exifInterface.getAttributeInt(ExifInterface.TAG_DATETIME)
+//            exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL+"");
+            System.out.println("orientation");
+            System.out.println(orientation);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    degree = 90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    degree = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    degree = 270;
+                    break;
+                case ExifInterface.ORIENTATION_NORMAL:
+                    degree = 0;
                     break;
             }
         } catch (IOException e) {
