@@ -1051,12 +1051,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 //        setOrientation(filepath);
         int degree = 0;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            degree = getBitmapDegree(is);
-        }
-        else {
-            degree = getBitmapDegree(filepath);
-        }
+        degree = getBitmapDegree(filepath);
         bitmap2D = BitmapFactory.decodeStream(is);
 //        ByteArrayOutputStream st = new ByteArrayOutputStream();
         if (bitmap2D != null){
