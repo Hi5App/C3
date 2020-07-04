@@ -3897,15 +3897,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         System.out.println(actual_ratio);
         for (int i = 0; i < corner_x_y.length/2; i++) {
 
-//            System.out.println(pCorners[i].x);
-//            System.out.println(pCorners[i].y);
-            ImageMarker imageMarker_drawed = new ImageMarker((float) corner_x[i] * actual_ratio,
-                    (float) corner_y[i] * actual_ratio,
-                    sz[2] / 2);
-            imageMarker_drawed.type = lastMarkerType;
+            if (corner_x[i]==0&&corner_y[i]==0);
+            else{
+                ImageMarker imageMarker_drawed = new ImageMarker((float) corner_x[i] * actual_ratio,
+                        (float) corner_y[i] * actual_ratio,
+                        sz[2] / 2);
+                imageMarker_drawed.type = lastMarkerType;
 //            System.out.println("set type to 3");
 
-            MarkerList.add(imageMarker_drawed);
+                MarkerList.add(imageMarker_drawed);}
 //            Imgproc.circle(dst, pCorners[i], (width+height)/(350*sampleRatio), new Scalar(255,255,0),2);
 
         }

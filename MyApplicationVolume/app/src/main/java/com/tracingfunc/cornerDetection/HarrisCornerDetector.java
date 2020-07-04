@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Vector;
 
 
+
 public class HarrisCornerDetector extends GrayFilter {
     private GaussianDerivativeFilter filter;
     private List<HarrisMatrix> harrisMatrixList;
@@ -17,7 +18,7 @@ public class HarrisCornerDetector extends GrayFilter {
 
 
     private double sigma = 1;
-    private double window_radius = 3;
+    private double window_radius = 5;
     public HarrisCornerDetector() {
         filter = new GaussianDerivativeFilter();
         harrisMatrixList = new ArrayList<HarrisMatrix>();
@@ -77,6 +78,7 @@ public class HarrisCornerDetector extends GrayFilter {
         // match result to original image and highlight the key points
         corner_xy = matchToImage(width, height, src);
 
+
         // return result image
 
 //		dest.setPixels(outPixels,0,width,0,0,width,height);
@@ -95,27 +97,29 @@ public class HarrisCornerDetector extends GrayFilter {
         int m=0;
         double max =0;
         double k = 0.17;
-
+        int min_D = 15;
+        min_D = min_D*min_D;
         Vector vet_xy=new Vector();
+
         for(int row=0; row<height; row++) {
             int ta = 0, tr = 0, tg = 0, tb = 0;
-            for(int col=0; col<width; col++) {
+            for (int col = 0; col < width; col++) {
                 index = row * width + col;
+//				System.out.println("index");
+//				System.out.println(index);
                 ta = (inPixels[index] >> 24) & 0xff;
                 tr = (inPixels[index] >> 16) & 0xff;
                 tg = (inPixels[index] >> 8) & 0xff;
                 tb = inPixels[index] & 0xff;
                 HarrisMatrix hm = harrisMatrixList.get(index);
-                if (hm.getMax()>0)   //其实求最大值不应该放到这个循环里面来求，但是如果再来一个循环单独求最大值太费时间了，这样的话 也可以很好的起到最大值卡阈值的效果
+                if (hm.getMax() > 0)   //其实求最大值不应该放到这个循环里面来求，但是如果再来一个循环单独求最大值太费时间了，这样的话 也可以很好的起到最大值卡阈值的效果
                 {
-                    if (hm.getMax()>max)
-                    {
+                    if (hm.getMax() > max) {
                         max = hm.getMax();
                     }
                 }
 
-                if(hm.getMax() > max*k)
-                {
+                if (hm.getMax() > max * k) {
                     tr = 0;
                     tg = 255; // make it as green for corner key pointers
                     tb = 0;
@@ -124,9 +128,9 @@ public class HarrisCornerDetector extends GrayFilter {
                     vet_xy.add(row);
                     vet_xy.add(col);
                     m++;
-                }
-                else
-                {
+
+
+                } else {
                     outPixels[index] = (ta << 24) | (tr << 16) | (tg << 8) | tb;
                 }
 //				System.out.println("tgtgtgtg:");
@@ -134,7 +138,62 @@ public class HarrisCornerDetector extends GrayFilter {
 
             }
         }
-        corner_x_y = new int[2*m];
+//		System.out.println("vet_xy.size()");
+//		System.out.println(vet_xy.size());
+//		System.out.println("mmmmmmmmm");
+//		System.out.println(2*m);
+//		System.out.println("m909090");
+//		System.out.println(vet_xy.get(91));
+        for (int i=0;i<vet_xy.size();i+=2)
+            for (int j=0;j<vet_xy.size();j+=2)
+            {
+                if (i!=j)
+                {
+//						System.out.println("jj");
+//						System.out.println(j);
+//						System.out.println("ii");
+//						System.out.println(vet_xy.get(i));
+//						System.out.println("ijijij");
+//						System.out.println(vet_xy.size());
+                    int dx = (int) vet_xy.get(i)-(int) vet_xy.get(j);
+                    int dy = (int) vet_xy.get(i+1)-(int) vet_xy.get(j+1);
+                    if (dx*dx+dy*dy<min_D)
+                    {
+                        int index1 = ((int) vet_xy.get(i)) * width + (int) vet_xy.get(i+1);
+                        int index2 = ((int) vet_xy.get(j)) * width + (int) vet_xy.get(j+1);
+//							System.out.println("index1");
+//							System.out.println(index1);
+//							System.out.println("index2");
+//							System.out.println(index2);
+//							System.out.println("jjjjjj");
+//							System.out.println(vet_xy.get(j));
+
+                        HarrisMatrix hm1 = harrisMatrixList.get(index1);
+                        HarrisMatrix hm2 = harrisMatrixList.get(index2);
+                        if(hm1.getMax()>=hm2.getMax())
+                        {
+//								System.out.println("ijijij");
+//								System.out.println(vet_xy.size());
+//								System.out.println("jjj");
+//								System.out.println(j+1);
+                            vet_xy.remove(j);
+                            vet_xy.remove(j);
+                        }
+                        else
+                        {
+
+                            vet_xy.remove(i);
+                            vet_xy.remove(i);
+
+                            break;
+                        }
+
+
+                    }
+                }
+            }
+
+        corner_x_y = new int[2*vet_xy.size()];
 
 
 
@@ -209,7 +268,9 @@ public class HarrisCornerDetector extends GrayFilter {
                 double c =  hm.getIxIy() * hm.getIxIy();
                 double ab = hm.getXGradient() * hm.getYGradient();
                 double aplusb = hm.getXGradient() + hm.getYGradient();
-                double response = (ab -c) - lambda * Math.pow(aplusb, 2);
+//        		double response = (ab -c) - lambda * Math.pow(aplusb, 2);
+                double response = Math.min(hm.getXGradient()-c/hm.getYGradient(),hm.getYGradient());
+//				double response = 0.5*aplusb - Math.sqrt(0.5*(hm.getXGradient() - hm.getYGradient())*(hm.getXGradient() - hm.getYGradient()) + c);
                 hm.setR(response);
             }
         }
