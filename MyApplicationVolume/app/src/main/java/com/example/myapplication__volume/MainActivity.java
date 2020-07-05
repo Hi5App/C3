@@ -191,6 +191,7 @@ public class MainActivity extends AppCompatActivity {
     private long length;
     private InputStream is;
     private String filepath = "";
+    private boolean ifChangeMarkerType = false;
     private boolean ifPainting = false;
     private boolean ifPoint = false;
     private boolean ifImport = false;
@@ -209,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean ifButtonShowed = true;
 //    private boolean ifTakePhoto = false;
 
-    private boolean[] temp_mode = new boolean[5];
+    private boolean[] temp_mode = new boolean[7];
 
     private boolean ifAnimation = false;
     private Button buttonAnimation;
@@ -2313,7 +2314,7 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete curve", "Split", "Set PenColor", "Change PenColor", "Change All PenColor", "Exit Drawing mode"},
+                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete curve", "Split", "Set PenColor", "Change PenColor", "Change All PenColor", "Set MColor", "Change MColor", "Change All MColor", "Exit Drawing mode"},
 //                        new int[]{R.mipmap.ic_launcher, R.mipmap.ic_launcher},
                         new int[]{},
                         new OnSelectListener() {
@@ -2333,6 +2334,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingLine = false;
                                         ifSpliting = false;
                                         ifChangeLineType = false;
+                                        ifChangeMarkerType = false;
                                         if (ifPoint && !ifSwitch) {
                                             draw_i.setImageResource(R.drawable.ic_add_marker);
 
@@ -2366,6 +2368,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingLine = false;
                                         ifSpliting = false;
                                         ifChangeLineType = false;
+                                        ifChangeMarkerType = false;
                                         if (ifPainting && !ifSwitch) {
                                             draw_i.setImageResource(R.drawable.ic_draw);
 
@@ -2395,6 +2398,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingLine = false;
                                         ifSpliting = false;
                                         ifChangeLineType = false;
+                                        ifChangeMarkerType = false;
                                         if (ifDeletingMarker && !ifSwitch) {
                                             draw_i.setImageResource(R.drawable.ic_marker_delete);
 
@@ -2424,6 +2428,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingMarker = false;
                                         ifSpliting = false;
                                         ifChangeLineType = false;
+                                        ifChangeMarkerType = false;
                                         if (ifDeletingLine && !ifSwitch) {
                                             draw_i.setImageResource(R.drawable.ic_delete_curve);
 
@@ -2453,6 +2458,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifPoint = false;
                                         ifDeletingMarker = false;
                                         ifChangeLineType = false;
+                                        ifChangeMarkerType = false;
                                         if (ifSpliting && !ifSwitch) {
                                             draw_i.setImageResource(R.drawable.ic_split);
 
@@ -2488,15 +2494,58 @@ public class MainActivity extends AppCompatActivity {
                                         ifPoint = false;
                                         ifDeletingMarker = false;
                                         ifSpliting = false;
-                                        if(ifChangeLineType && !ifChangeLineType){
+                                        ifChangeMarkerType = false;
+                                        if(ifChangeLineType && !ifSwitch){
 //                                            Draw.setText("Change PenColor");
 //                                            Draw.setTextColor(Color.RED);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
 
                                             try {
                                                 ifSwitch = false;
-                                                ifChangeLineType = false;
-                                                Switch.setText("Pause");
-                                                Switch.setTextColor(Color.BLACK);
+//                                                ifChangeLineType = false;
+//                                                Switch.setText("Pause");
+//                                                Switch.setTextColor(Color.BLACK);
+//                                                ifSwitch = false;
+                                                ll_bottom.addView(Switch);
+                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                            }catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+
+                                        } else {
+                                            ifSwitch = false;
+                                            ifChangeLineType = false;
+                                            Switch.setText("Pause");
+                                            Switch.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
+                                            ll_bottom.removeView(Switch);
+                                            ll_top.removeView(buttonUndo_i);
+//                                            draw_i.setImageResource(R.drawable.ic_draw_main);
+
+                                        }
+                                        break;
+
+                                    case "Change All PenColor":
+                                        myrenderer.changeAllType();
+                                        myGLSurfaceView.requestRender();
+                                        break;
+
+                                    case "Set MColor":
+                                        MarkerPenSet();
+                                        break;
+
+                                    case "Change MColor":
+                                        ifChangeMarkerType = !ifChangeMarkerType;
+                                        ifDeletingLine = false;
+                                        ifPainting = false;
+                                        ifPoint = false;
+                                        ifDeletingMarker = false;
+                                        ifChangeLineType = false;
+                                        ifSpliting = false;
+                                        if (ifChangeMarkerType && !ifSwitch) {
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
+
+                                            try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
                                                 ll_top.addView(buttonUndo_i, lp_undo_i);
@@ -2505,14 +2554,18 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                         } else {
+                                            ifSwitch = false;
+                                            ifChangeMarkerType = false;
+                                            Switch.setText("Pause");
+                                            Switch.setTextColor(Color.BLACK);
                                             draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
                                             ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
-                                    case "Change All PenColor":
-                                        myrenderer.changeAllType();
+                                    case "Change All MColor":
+                                        myrenderer.changeAllMarkerType();
                                         myGLSurfaceView.requestRender();
                                         break;
 
@@ -2523,6 +2576,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingMarker = false;
                                         ifSpliting = false;
                                         ifChangeLineType = false;
+                                        ifChangeMarkerType = false;
                                         draw_i.setImageResource(R.drawable.ic_draw_main);
                                         ll_bottom.removeView(Switch);
                                         ll_top.removeView(buttonUndo_i);
@@ -3841,21 +3895,27 @@ public class MainActivity extends AppCompatActivity {
             temp_mode[2] = ifDeletingLine;
             temp_mode[3] = ifDeletingMarker;
             temp_mode[4] = ifSpliting;
+            temp_mode[5] = ifChangeLineType;
+            temp_mode[6] = ifChangeMarkerType;
 
             ifPainting = false;
             ifPoint = false;
             ifDeletingLine = false;
             ifDeletingMarker = false;
             ifSpliting = false;
+            ifChangeLineType = false;
+            ifChangeMarkerType = false;
 
         } else {
             Switch.setText("Pause");
             Switch.setTextColor(Color.BLACK);
-            ifPainting       = temp_mode[0];
-            ifPoint          = temp_mode[1];
-            ifDeletingLine   = temp_mode[2];
-            ifDeletingMarker = temp_mode[3];
-            ifSpliting       = temp_mode[4];
+            ifPainting         = temp_mode[0];
+            ifPoint            = temp_mode[1];
+            ifDeletingLine     = temp_mode[2];
+            ifDeletingMarker   = temp_mode[3];
+            ifSpliting         = temp_mode[4];
+            ifChangeLineType   = temp_mode[5];
+            ifChangeMarkerType = temp_mode[6];
         }
     }
 
@@ -3863,7 +3923,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200705a 14:12 pm UTC build",
+                                "Version: 20200705b 16:57 pm UTC build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5631,6 +5691,70 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
+    public void MarkerPenSet(){
+
+        new MDDialog.Builder(this)
+                .setContentView(R.layout.marker_pen_choose)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+                        EditText et1 = (EditText) contentView.findViewById(R.id.markercolor);
+                        //pencolor= 2;
+                        /*String color  = et1.getText().toString();
+                        pencolor= Integer.parseInt(color);
+                        System.out.println("pen color is");
+                        System.out.println(pencolor);*/
+
+                    }
+                })
+                .setTitle("Marker Color Set")
+                .setNegativeButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
+                        EditText et1 = (EditText) contentView.findViewById(R.id.markercolor);
+                        String color  = et1.getText().toString();
+
+                        if( !color.isEmpty()){
+
+                            myrenderer.markercolorchange(Integer.parseInt(color));;
+                            System.out.println("marker color is");
+                            System.out.println(Integer.parseInt(color));
+                            //Log.v("Mainactivity", "GD-Tracing start~");
+                            //Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "markercolor set~", Toast.LENGTH_SHORT).show();
+
+
+                        }else{
+
+                            Toast.makeText(getContext(), "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+//                        EditText et = (EditText) contentView.findViewById(R.id.edit1);
+//                        Toast.makeText(getApplicationContext(), "edittext 1 : " + et.getText(), Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setWidthMaxDp(600)
+                .create()
+                .show();
+    }
+
     //opengl中的显示区域
     class MyGLSurfaceView extends GLSurfaceView {
         private float X, Y;
@@ -5708,11 +5832,11 @@ public class MainActivity extends AppCompatActivity {
 //                            requestRender();
 //
 //                        }
-                        if (ifDeletingMarker) {
-                            Log.v("actionPointerDown", "DeletingMarker");
-                            myrenderer.deleteMarkerDrawed(X, Y);
-                            requestRender();
-                        }
+//                        if (ifDeletingMarker) {
+//                            Log.v("actionPointerDown", "DeletingMarker");
+//                            myrenderer.deleteMarkerDrawed(X, Y);
+//                            requestRender();
+//                        }
 //                        if (ifDeletingLine){
 //                            lineDrawed.add(X);
 //                            lineDrawed.add(Y);
@@ -5778,7 +5902,7 @@ public class MainActivity extends AppCompatActivity {
                             x1_start = x2;
                             y1_start = y2;
                         } else {
-                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker) {
+                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker && !ifChangeMarkerType) {
                                 if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
                                     if (myrenderer.getIfDownSampling() == false)
                                         myrenderer.setIfDownSampling(true);
@@ -5822,7 +5946,7 @@ public class MainActivity extends AppCompatActivity {
                     case MotionEvent.ACTION_UP:
                         if (!isZooming) {
                             if (ifPoint) {
-                                Log.v("actionPointerDown", "Pointinggggggggggg");
+                                Log.v("actionUp", "Pointinggggggggggg");
                                 if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
                                     myrenderer.add2DMarker(normalizedX, normalizedY);
                                 else {
@@ -5831,6 +5955,15 @@ public class MainActivity extends AppCompatActivity {
                                 Log.v("actionPointerDown", "(" + X + "," + Y + ")");
                                 requestRender();
 
+                            }
+                            if (ifDeletingMarker) {
+                                Log.v("actionUp", "DeletingMarker");
+                                myrenderer.deleteMarkerDrawed(normalizedX, normalizedY);
+                                requestRender();
+                            }
+                            if (ifChangeMarkerType) {
+                                myrenderer.changeMarkerType(normalizedX, normalizedY);
+                                requestRender();
                             }
                             if (ifPainting) {
                                 Vector<Integer> segids = new Vector<>();

@@ -1610,6 +1610,38 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
+    public void changeMarkerType(float x, float y){
+        for (int i = 0; i < MarkerList.size(); i++){
+            ImageMarker tobeDeleted = MarkerList.get(i);
+            float[] markerModel = VolumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
+            float [] position = new float[4];
+            position[0] = markerModel[0];
+            position[1] = markerModel[1];
+            position[2] = markerModel[2];
+            position[3] = 1.0f;
+
+            float [] positionVolumne = new float[4];
+            Matrix.multiplyMV(positionVolumne, 0, finalMatrix, 0, position, 0);
+            devideByw(positionVolumne);
+
+            float dx = Math.abs(positionVolumne[0] - x);
+            float dy = Math.abs(positionVolumne[1] - y);
+
+            if (dx < 0.08 && dy < 0.08){
+                ImageMarker temp = MarkerList.get(i);
+                temp.type = lastMarkerType;
+
+                break;
+            }
+        }
+    }
+
+    public void changeAllMarkerType(){
+        for (int i = 0; i < MarkerList.size(); i++){
+            MarkerList.get(i).type = lastMarkerType;
+        }
+    }
+
 
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -3588,6 +3620,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         lastLineType=color;
 
 
+    }
+
+    public void markercolorchange(int color){
+        lastMarkerType = color;
     }
 
     public boolean undo() {
