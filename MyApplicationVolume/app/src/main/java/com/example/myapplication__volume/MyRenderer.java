@@ -213,6 +213,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private Context context_myrenderer;
 
+    private int degree = 0;
+
     //初次渲染画面
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
@@ -1050,7 +1052,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         }
 //        setOrientation(filepath);
-        int degree = 0;
+//        int degree = 0;
         degree = getBitmapDegree(filepath);
         bitmap2D = BitmapFactory.decodeStream(is);
 //        ByteArrayOutputStream st = new ByteArrayOutputStream();
@@ -3837,6 +3839,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             System.out.println("nnnnnn");
         }
 
+        image = rotateBitmapByDegree(image, degree);
+
 //        System.out.println(image.getWidth());
 //        System.out.println(image.getHeight());
 
@@ -3862,6 +3866,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Point[] pCorners = corners.toArray();
 
         Bitmap destImage;
+//        Bitmap sourceImage = bitmap2D;
         Bitmap sourceImage = image;
         HarrisCornerDetector filter = new HarrisCornerDetector();
         destImage = filter.filter(sourceImage, null);
