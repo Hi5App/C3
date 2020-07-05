@@ -646,14 +646,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 if (myAxis != null)
                     myAxis.draw(finalMatrix);
 
-            System.out.println("---- draw myImg ----");
+//            System.out.println("---- draw myImg ----");
 
 
         }else {
             if (myNavLoc == null){
                 myNavLoc = new MyNavLoc(mz_neuron, mz_block);
             }
-            System.out.println("---- draw myNavLoc ----");
+//            System.out.println("---- draw myNavLoc ----");
             myNavLoc.draw(finalMatrix);
         }
 
@@ -722,9 +722,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }).start();
         }
 
-
-//        angle += 1.0f;
-//        angleX += 1.0f;
 
         GLES30.glDisable(GL_BLEND);
         GLES30.glDisable(GL_ALPHA_TEST);

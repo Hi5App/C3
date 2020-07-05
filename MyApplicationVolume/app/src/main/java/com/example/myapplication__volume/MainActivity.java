@@ -213,7 +213,6 @@ public class MainActivity extends AppCompatActivity {
     private boolean[] temp_mode = new boolean[7];
 
     private boolean ifAnimation = false;
-    private Button buttonAnimation;
     private Button buttonUndo;
     private Button Draw;
     private Button Tracing;
@@ -230,6 +229,7 @@ public class MainActivity extends AppCompatActivity {
     private Button Switch;
     private Button Remoteleft;
     private Button Share;
+    private ImageButton animation_i;
     private ImageButton draw_i;
     private ImageButton tracing_i;
     private ImageButton classify_i;
@@ -254,6 +254,7 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout.LayoutParams lp_nacloc_i;
     private FrameLayout.LayoutParams lp_sync_push;
     private FrameLayout.LayoutParams lp_sync_pull;
+    private FrameLayout.LayoutParams lp_animation_i;
 
     private Button PixelClassification;
     private boolean[][]select= {{true,true,true,false,false,false,false},
@@ -305,6 +306,9 @@ public class MainActivity extends AppCompatActivity {
     private Uri picUri;
 
     private static BasePopupView popupView;
+
+    private static final int animation_id = 0;
+    private int rotation_speed = 36;
 
     @SuppressLint("HandlerLeak")
     private Handler uiHandler = new Handler(){
@@ -464,12 +468,6 @@ public class MainActivity extends AppCompatActivity {
         ll.addView(myGLSurfaceView);
 
 
-//        Log.v("filepath-mainactivity", filepath);
-
-//        setContentView(myGLSurfaceView);
-//        setContentView(R.layout.activity_main);
-
-//
         ll_top = new LinearLayout(this);
         ll_bottom = new LinearLayout(this);
 
@@ -728,10 +726,12 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
 
-        buttonAnimation = new Button(this);
-        buttonAnimation.setText("Animation");
+        lp_animation_i = new FrameLayout.LayoutParams(230, 160);
+        animation_i = new ImageButton(this);
+        animation_i.setImageResource(R.drawable.ic_animation);
+        animation_i.setId(animation_id);
 
-        buttonAnimation.setOnClickListener(new Button.OnClickListener() {
+        animation_i.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 Animation(v);
             }
@@ -1070,11 +1070,18 @@ public class MainActivity extends AppCompatActivity {
                                         break;
 
                                     case "Animate":
-                                        ifPainting = false;
-                                        ifPoint = false;
-                                        ifDeletingMarker = false;
-                                        ifDeletingLine = false;
-                                        SetAnimation();
+                                        if (myrenderer.getImg() != null){
+                                            ifPainting = false;
+                                            ifPoint = false;
+                                            ifDeletingMarker = false;
+                                            ifDeletingLine = false;
+                                            ifSpliting = false;
+                                            ifChangeLineType = false;
+                                            SetAnimation();
+                                        }else {
+                                            Toast.makeText(context,"Please Load a Img First !!!", Toast.LENGTH_SHORT).show();
+                                        }
+
                                         break;
 
                                     case "Sensor Information":
@@ -3848,7 +3855,7 @@ public class MainActivity extends AppCompatActivity {
                                         myrenderer.setIfDownSampling(false);
                                         myrenderer.myAnimation.Stop();
                                         ifAnimation = false;
-                                        ll_top.removeView(buttonAnimation);
+                                        ll_top.removeView(animation_i);
                                         break;
 
                                     default:
@@ -3923,7 +3930,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200705b 16:57 pm UTC build",
+                                "Version: 20200706b 00:12 am UTC build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4835,6 +4842,8 @@ public class MainActivity extends AppCompatActivity {
 
                         Switch on_off = contentView.findViewById(R.id.switch_animation);
                         on_off.setChecked(ifAnimation);
+                        EditText speed = contentView.findViewById(R.id.edit_speed);
+                        speed.setText(Integer.toString(rotation_speed));
 
                         on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                             @Override
@@ -4878,42 +4887,44 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
                     @Override
                     public void onClick(View clickedView, View contentView) {
-                        if (ifChecked[1] == true) {
+                        if (ifChecked[1]) {
                             ifAnimation = ifChecked[0];
                         }
 
                         EditText speed = contentView.findViewById(R.id.edit_speed);
-                        String rotation_speed = speed.getText().toString();
+                        String rotation_speed_string = speed.getText().toString();
+
+                        if (rotation_speed_string.isEmpty()){
+                            Toast.makeText(context,"Make sure the input is right !!!",Toast.LENGTH_SHORT).show();
+                            SetAnimation();
+                            return;
+                        }
+                        rotation_speed = (int) Float.parseFloat(rotation_speed_string);
 
                         myrenderer.myAnimation.Stop();
                         myrenderer.setIfDownSampling(false);
                         myGLSurfaceView.requestRender();
 
                         if (ifAnimation) {
-                            myrenderer.myAnimation.setAnimation(ifAnimation, Float.parseFloat(rotation_speed), rotation_type[0]);
+                            myrenderer.myAnimation.setAnimation(true, Float.parseFloat(rotation_speed_string), rotation_type[0]);
                         }
 
                         if (ifAnimation) {
                             myrenderer.setIfDownSampling(true);
-                            myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
-//                            Draw.setText("Draw");
-//                            Draw.setTextColor(Color.BLACK);
-//                            Others.setText("Animaition");
-//                            Others.setTextColor(Color.RED);
 
-                            ll_top.addView(buttonAnimation);
+                            if (ll_top.findViewById(animation_id) == null){
+                                ll_top.addView(animation_i,lp_animation_i);
+                            }
+                            myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
                         } else {
 
-                            try {
-                                ll_top.removeView(buttonAnimation);
-                            }catch (Exception e){
-                                e.printStackTrace();
+                            if (ll_top.findViewById(animation_id) != null){
+                                ll_top.removeView(animation_i);
                             }
 
                             myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-//                            Others.setText("Others");
-//                            Others.setTextColor(Color.BLACK);
+
                         }
 
                     }
@@ -6524,7 +6535,7 @@ public class MainActivity extends AppCompatActivity {
         ll_top.setVisibility(View.GONE);
         ll_bottom.setVisibility(View.GONE);
 
-        buttonAnimation.setVisibility(View.GONE);
+        animation_i.setVisibility(View.GONE);
         Zoom_in.setVisibility(View.GONE);
         Zoom_out.setVisibility(View.GONE);
         Rotation_i.setVisibility(View.GONE);
@@ -6550,7 +6561,7 @@ public class MainActivity extends AppCompatActivity {
         ll_top.setVisibility(View.VISIBLE);
         ll_bottom.setVisibility(View.VISIBLE);
 
-        buttonAnimation.setVisibility(View.VISIBLE);
+        animation_i.setVisibility(View.VISIBLE);
         Zoom_in.setVisibility(View.VISIBLE);
         Zoom_out.setVisibility(View.VISIBLE);
         Rotation_i.setVisibility(View.VISIBLE);
