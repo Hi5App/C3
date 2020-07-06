@@ -1384,6 +1384,44 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
+    public void deleteMultiMarkerByStroke(ArrayList<Float> line){
+//        ArrayList<Integer> toBeDeleted = new ArrayList<>();
+        for (int i = MarkerList.size() - 1; i >= 0; i--){
+            ImageMarker tobeDeleted = MarkerList.get(i);
+            float[] markerModel = VolumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
+            float [] position = new float[4];
+            position[0] = markerModel[0];
+            position[1] = markerModel[1];
+            position[2] = markerModel[2];
+            position[3] = 1.0f;
+
+            float [] positionVolumne = new float[4];
+            Matrix.multiplyMV(positionVolumne, 0, finalMatrix, 0, position, 0);
+            devideByw(positionVolumne);
+
+            if (pnpoly(line, positionVolumne[0], positionVolumne[1])){
+                MarkerList.remove(tobeDeleted);
+            }
+        }
+    }
+
+    public boolean pnpoly(ArrayList<Float> line, float x, float y){
+        int n = line.size() / 3;
+        int i = 0;
+        int j = n - 1;
+        boolean result = false;
+        for (;i < n; j = i++){
+            float x1 = line.get(i * 3);
+            float y1 = line.get(i * 3 + 1);
+            float x2 = line.get(j * 3);
+            float y2 = line.get(j * 3 + 1);
+            if (((y1 > y) != (y2 > y)) && (x < ((x2 - x1) * (y - y1) / (y2 - y1) + x1))){
+                result = !result;
+            }
+        }
+        return result;
+    }
+
     public void add2DCurve(ArrayList<Float> line){
         ArrayList<Float> lineAdded = new ArrayList<>();
         for (int i = 0; i < line.size() / 3; i++){

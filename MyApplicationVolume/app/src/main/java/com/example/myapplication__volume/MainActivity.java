@@ -191,6 +191,7 @@ public class MainActivity extends AppCompatActivity {
     private long length;
     private InputStream is;
     private String filepath = "";
+    private boolean ifDeletingMultiMarker = false;
     private boolean ifChangeMarkerType = false;
     private boolean ifPainting = false;
     private boolean ifPoint = false;
@@ -210,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean ifButtonShowed = true;
 //    private boolean ifTakePhoto = false;
 
-    private boolean[] temp_mode = new boolean[7];
+    private boolean[] temp_mode = new boolean[8];
 
     private boolean ifAnimation = false;
     private Button buttonUndo;
@@ -2328,7 +2329,7 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete marker", "Delete curve", "Split", "Set PenColor", "Change PenColor", "Change All PenColor", "Set MColor", "Change MColor", "Change All MColor", "Exit Drawing mode"},
+                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete Marker", "Delete MultiMarker", "Delete Curve", "Split", "Set PenColor", "Change PenColor", "Change All PenColor", "Set MColor", "Change MColor", "Change All MColor", "Exit Drawing mode"},
 //                        new int[]{R.mipmap.ic_launcher, R.mipmap.ic_launcher},
                         new int[]{},
                         new OnSelectListener() {
@@ -2349,6 +2350,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifSpliting = false;
                                         ifChangeLineType = false;
                                         ifChangeMarkerType = false;
+                                        ifDeletingMultiMarker = false;
                                         if (ifPoint && !ifSwitch) {
                                             draw_i.setImageResource(R.drawable.ic_add_marker);
 
@@ -2383,6 +2385,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifSpliting = false;
                                         ifChangeLineType = false;
                                         ifChangeMarkerType = false;
+                                        ifDeletingMultiMarker = false;
                                         if (ifPainting && !ifSwitch) {
                                             draw_i.setImageResource(R.drawable.ic_draw);
 
@@ -2405,7 +2408,7 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                         break;
 
-                                    case "Delete marker":
+                                    case "Delete Marker":
                                         ifDeletingMarker = !ifDeletingMarker;
                                         ifPainting = false;
                                         ifPoint = false;
@@ -2413,6 +2416,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifSpliting = false;
                                         ifChangeLineType = false;
                                         ifChangeMarkerType = false;
+                                        ifDeletingMultiMarker = false;
                                         if (ifDeletingMarker && !ifSwitch) {
                                             draw_i.setImageResource(R.drawable.ic_marker_delete);
 
@@ -2435,7 +2439,38 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                         break;
 
-                                    case "Delete curve":
+                                    case "Delete MultiMarker":
+                                        ifDeletingMultiMarker = !ifDeletingMultiMarker;
+                                        ifPainting = false;
+                                        ifPoint = false;
+                                        ifDeletingMarker = false;
+                                        ifSpliting = false;
+                                        ifChangeLineType = false;
+                                        ifChangeMarkerType = false;
+                                        ifDeletingLine = false;
+                                        if (ifDeletingMultiMarker && !ifSwitch) {
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
+
+                                            try {
+                                                ifSwitch = false;
+                                                ll_bottom.addView(Switch);
+                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                            }catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+
+                                        } else {
+                                            ifSwitch = false;
+                                            ifDeletingMultiMarker = false;
+                                            Switch.setText("Pause");
+                                            Switch.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
+                                            ll_bottom.removeView(Switch);
+                                            ll_top.removeView(buttonUndo_i);
+                                        }
+                                        break;
+
+                                    case "Delete Curve":
                                         ifDeletingLine = !ifDeletingLine;
                                         ifPainting = false;
                                         ifPoint = false;
@@ -2443,6 +2478,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifSpliting = false;
                                         ifChangeLineType = false;
                                         ifChangeMarkerType = false;
+                                        ifDeletingMultiMarker = false;
                                         if (ifDeletingLine && !ifSwitch) {
                                             draw_i.setImageResource(R.drawable.ic_delete_curve);
 
@@ -2473,6 +2509,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingMarker = false;
                                         ifChangeLineType = false;
                                         ifChangeMarkerType = false;
+                                        ifDeletingMultiMarker = false;
                                         if (ifSpliting && !ifSwitch) {
                                             draw_i.setImageResource(R.drawable.ic_split);
 
@@ -2509,6 +2546,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingMarker = false;
                                         ifSpliting = false;
                                         ifChangeMarkerType = false;
+                                        ifDeletingMultiMarker = false;
                                         if(ifChangeLineType && !ifSwitch){
 //                                            Draw.setText("Change PenColor");
 //                                            Draw.setTextColor(Color.RED);
@@ -2556,6 +2594,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingMarker = false;
                                         ifChangeLineType = false;
                                         ifSpliting = false;
+                                        ifDeletingMultiMarker = false;
                                         if (ifChangeMarkerType && !ifSwitch) {
                                             draw_i.setImageResource(R.drawable.ic_draw_main);
 
@@ -2591,6 +2630,7 @@ public class MainActivity extends AppCompatActivity {
                                         ifSpliting = false;
                                         ifChangeLineType = false;
                                         ifChangeMarkerType = false;
+                                        ifDeletingMultiMarker = false;
                                         draw_i.setImageResource(R.drawable.ic_draw_main);
                                         ll_bottom.removeView(Switch);
                                         ll_top.removeView(buttonUndo_i);
@@ -3911,6 +3951,7 @@ public class MainActivity extends AppCompatActivity {
             temp_mode[4] = ifSpliting;
             temp_mode[5] = ifChangeLineType;
             temp_mode[6] = ifChangeMarkerType;
+            temp_mode[7] = ifDeletingMultiMarker;
 
             ifPainting = false;
             ifPoint = false;
@@ -3919,17 +3960,19 @@ public class MainActivity extends AppCompatActivity {
             ifSpliting = false;
             ifChangeLineType = false;
             ifChangeMarkerType = false;
+            ifDeletingMultiMarker = false;
 
         } else {
             Switch.setText("Pause");
             Switch.setTextColor(Color.BLACK);
-            ifPainting         = temp_mode[0];
-            ifPoint            = temp_mode[1];
-            ifDeletingLine     = temp_mode[2];
-            ifDeletingMarker   = temp_mode[3];
-            ifSpliting         = temp_mode[4];
-            ifChangeLineType   = temp_mode[5];
-            ifChangeMarkerType = temp_mode[6];
+            ifPainting            = temp_mode[0];
+            ifPoint               = temp_mode[1];
+            ifDeletingLine        = temp_mode[2];
+            ifDeletingMarker      = temp_mode[3];
+            ifSpliting            = temp_mode[4];
+            ifChangeLineType      = temp_mode[5];
+            ifChangeMarkerType    = temp_mode[6];
+            ifDeletingMultiMarker = temp_mode[7];
         }
     }
 
@@ -3937,7 +3980,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200706b 13:11 am UTC+8 build",
+                                "Version: 20200706c 22:04 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5831,7 +5874,7 @@ public class MainActivity extends AppCompatActivity {
                     case MotionEvent.ACTION_DOWN:
                         X = normalizedX;
                         Y = normalizedY;
-                        if (ifPainting || ifDeletingLine || ifSpliting || ifChangeLineType) {
+                        if (ifPainting || ifDeletingLine || ifSpliting || ifChangeLineType || ifDeletingMultiMarker) {
                             lineDrawed.add(X);
                             lineDrawed.add(Y);
                             lineDrawed.add(-1.0f);
@@ -5920,7 +5963,7 @@ public class MainActivity extends AppCompatActivity {
                             x1_start = x2;
                             y1_start = y2;
                         } else {
-                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker && !ifChangeMarkerType) {
+                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker && !ifChangeMarkerType && !ifDeletingMultiMarker) {
                                 if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
                                     if (myrenderer.getIfDownSampling() == false)
                                         myrenderer.setIfDownSampling(true);
@@ -5977,6 +6020,10 @@ public class MainActivity extends AppCompatActivity {
                             if (ifDeletingMarker) {
                                 Log.v("actionUp", "DeletingMarker");
                                 myrenderer.deleteMarkerDrawed(normalizedX, normalizedY);
+                                requestRender();
+                            }
+                            if (ifDeletingMultiMarker){
+                                myrenderer.deleteMultiMarkerByStroke(lineDrawed);
                                 requestRender();
                             }
                             if (ifChangeMarkerType) {
