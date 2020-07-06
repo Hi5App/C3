@@ -97,7 +97,7 @@ public class HarrisCornerDetector extends GrayFilter {
         int m=0;
         double max =0;
         double k = 0.17;
-        int min_D = 15;
+        int min_D = 10;
         min_D = min_D*min_D;
         Vector vet_xy=new Vector();
 

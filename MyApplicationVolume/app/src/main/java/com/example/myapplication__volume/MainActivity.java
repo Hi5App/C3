@@ -2049,8 +2049,9 @@ public class MainActivity extends AppCompatActivity {
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        String imageFileName = "IMG" + timeStamp;
+        File storageDir = new File(Environment.getExternalStorageDirectory() + "/DCIM/Camera/");
+//        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
                 ".jpg",         /* suffix */
@@ -2128,6 +2129,12 @@ public class MainActivity extends AppCompatActivity {
 //                startActivityForResult(takePictureIntent, 1);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
                 Log.v("Camera", "Here we are");
+
+                Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                File f = new File(currentPhotoPath);
+                Uri contentUri = Uri.fromFile(f);
+                mediaScanIntent.setData(contentUri);
+                this.sendBroadcast(mediaScanIntent);
             }
         }
     }
@@ -3930,7 +3937,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200706b 00:12 am UTC build",
+                                "Version: 20200706b 13:11 am UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
