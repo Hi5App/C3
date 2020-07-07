@@ -746,7 +746,7 @@ public class MainActivity extends AppCompatActivity {
         buttonUndo_i.setImageResource(R.drawable.ic_undo_black_24dp);
         buttonUndo_i.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                boolean undoSuccess = myrenderer.undo();
+                boolean undoSuccess = myrenderer.undo2();
                 if (!undoSuccess) {
                     Toast.makeText(context, "nothing to undo", Toast.LENGTH_SHORT).show();
                 }
@@ -2578,7 +2578,11 @@ public class MainActivity extends AppCompatActivity {
                                         break;
 
                                     case "Change All PenColor":
-                                        myrenderer.changeAllType();
+                                        try {
+                                            myrenderer.changeAllType();
+                                        } catch (CloneNotSupportedException e) {
+                                            e.printStackTrace();
+                                        }
                                         myGLSurfaceView.requestRender();
                                         break;
 
@@ -2618,7 +2622,11 @@ public class MainActivity extends AppCompatActivity {
                                         break;
 
                                     case "Change All MColor":
-                                        myrenderer.changeAllMarkerType();
+                                        try {
+                                            myrenderer.changeAllMarkerType();
+                                        } catch (CloneNotSupportedException e) {
+                                            e.printStackTrace();
+                                        }
                                         myGLSurfaceView.requestRender();
                                         break;
 
@@ -3980,7 +3988,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200706c 22:04 UTC+8 build",
+                                "Version: 20200707a 23:46 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -6006,65 +6014,68 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case MotionEvent.ACTION_UP:
                         if (!isZooming) {
-                            if (ifPoint) {
-                                Log.v("actionUp", "Pointinggggggggggg");
-                                if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
-                                    myrenderer.add2DMarker(normalizedX, normalizedY);
-                                else {
-                                    myrenderer.setMarkerDrawed(normalizedX, normalizedY);
-                                }
-                                Log.v("actionPointerDown", "(" + X + "," + Y + ")");
-                                requestRender();
+                            try {
+                                if (ifPoint) {
+                                    Log.v("actionUp", "Pointinggggggggggg");
+                                    if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
+                                        myrenderer.add2DMarker(normalizedX, normalizedY);
+                                    else {
+                                        myrenderer.setMarkerDrawed(normalizedX, normalizedY);
+                                    }
+                                    Log.v("actionPointerDown", "(" + X + "," + Y + ")");
+                                    requestRender();
 
-                            }
-                            if (ifDeletingMarker) {
-                                Log.v("actionUp", "DeletingMarker");
-                                myrenderer.deleteMarkerDrawed(normalizedX, normalizedY);
-                                requestRender();
-                            }
-                            if (ifDeletingMultiMarker){
-                                myrenderer.deleteMultiMarkerByStroke(lineDrawed);
-                                requestRender();
-                            }
-                            if (ifChangeMarkerType) {
-                                myrenderer.changeMarkerType(normalizedX, normalizedY);
-                                requestRender();
-                            }
-                            if (ifPainting) {
-                                Vector<Integer> segids = new Vector<>();
-                                myrenderer.setIfPainting(false);
+                                }
+                                if (ifDeletingMarker) {
+                                    Log.v("actionUp", "DeletingMarker");
+                                    myrenderer.deleteMarkerDrawed(normalizedX, normalizedY);
+                                    requestRender();
+                                }
+                                if (ifDeletingMultiMarker) {
+                                    myrenderer.deleteMultiMarkerByStroke(lineDrawed);
+                                    requestRender();
+                                }
+                                if (ifChangeMarkerType) {
+                                    myrenderer.changeMarkerType(normalizedX, normalizedY);
+                                    requestRender();
+                                }
+                                if (ifPainting) {
+                                    Vector<Integer> segids = new Vector<>();
+                                    myrenderer.setIfPainting(false);
 //                            myrenderer.addLineDrawed(lineDrawed);
 
-                                if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
-                                    myrenderer.add2DCurve(lineDrawed);
-                                else {
-                                    Callable<String> task = new Callable<String>() {
-                                        @Override
-                                        public String call() throws Exception {
-                                            int lineType = myrenderer.getLastLineType();
-                                            if (lineType != 3) {
+                                    if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
+                                        myrenderer.add2DCurve(lineDrawed);
+                                    else {
+                                        Callable<String> task = new Callable<String>() {
+                                            @Override
+                                            public String call() throws Exception {
+                                                int lineType = myrenderer.getLastLineType();
+                                                if (lineType != 3) {
 //                                            int segid = myrenderer.addLineDrawed(lineDrawed);
 //                                    segids.add(segid);
 //                            requestRender();
-                                                V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed);
-                                                myrenderer.addLineDrawed2(lineDrawed);
-                                                myrenderer.deleteFromCur(seg);
+                                                    int [] curUndo = new int[1];
+                                                    curUndo[0] = -1;
+                                                    V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed, curUndo);
+                                                    myrenderer.addLineDrawed2(lineDrawed);
+                                                    myrenderer.deleteFromCur(seg, curUndo[0]);
 //                                            myrenderer.deleteFromNew(segid);
-                                            } else {
-                                                myrenderer.addBackgroundLineDrawed(lineDrawed);
+                                                } else {
+                                                    myrenderer.addBackgroundLineDrawed(lineDrawed);
+                                                }
+                                                return "succeed";
                                             }
-                                            return "succeed";
+                                        };
+                                        ExecutorService exeService = Executors.newSingleThreadExecutor();
+                                        Future<String> future = exeService.submit(task);
+                                        try {
+                                            String result = future.get(1500, TimeUnit.MILLISECONDS);
+                                            System.err.println("Result:" + result);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                            System.out.println("unfinished in 1.5 seconds");
                                         }
-                                    };
-                                    ExecutorService exeService = Executors.newSingleThreadExecutor();
-                                    Future<String> future = exeService.submit(task);
-                                    try {
-                                        String result = future.get(1500, TimeUnit.MILLISECONDS);
-                                        System.err.println("Result:" + result);
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                        System.out.println("unfinished in 1.5 seconds");
-                                    }
 //                                int lineType = myrenderer.getLastLineType();
 //                                if (lineType != 3) {
 //                                    int segid = myrenderer.addLineDrawed(lineDrawed);
@@ -6076,7 +6087,7 @@ public class MainActivity extends AppCompatActivity {
 //                                } else {
 //                                    myrenderer.addBackgroundLineDrawed(lineDrawed);
 //                                }
-                                }
+                                    }
 //                            requestRender();
 
 //                            if (myrenderer.deleteFromNew(segid)) {
@@ -6097,34 +6108,37 @@ public class MainActivity extends AppCompatActivity {
 //                                }
 //                            }).start();
 //                            myrenderer.addLineDrawed2(lineDrawed);
-                                lineDrawed.clear();
-                                myrenderer.setLineDrawed(lineDrawed);
+                                    lineDrawed.clear();
+                                    myrenderer.setLineDrawed(lineDrawed);
 
-                                requestRender();
-                            }
+                                    requestRender();
+                                }
 //                            requestRender();
 
-                            if (ifDeletingLine) {
-                                myrenderer.setIfPainting(false);
-                                myrenderer.deleteLine1(lineDrawed);
-                                lineDrawed.clear();
-                                myrenderer.setLineDrawed(lineDrawed);
-                                requestRender();
-                            }
-                            if (ifSpliting) {
-                                myrenderer.setIfPainting(false);
-                                myrenderer.splitCurve(lineDrawed);
-                                lineDrawed.clear();
-                                myrenderer.setLineDrawed(lineDrawed);
-                                requestRender();
-                            }
-                            if (ifChangeLineType) {
-                                myrenderer.setIfPainting(false);
-                                int type = myrenderer.getLastLineType();
-                                myrenderer.changeLineType(lineDrawed, type);
-                                lineDrawed.clear();
-                                myrenderer.setLineDrawed(lineDrawed);
-                                requestRender();
+                                if (ifDeletingLine) {
+                                    myrenderer.setIfPainting(false);
+                                    myrenderer.deleteLine1(lineDrawed);
+                                    lineDrawed.clear();
+                                    myrenderer.setLineDrawed(lineDrawed);
+                                    requestRender();
+                                }
+                                if (ifSpliting) {
+                                    myrenderer.setIfPainting(false);
+                                    myrenderer.splitCurve(lineDrawed);
+                                    lineDrawed.clear();
+                                    myrenderer.setLineDrawed(lineDrawed);
+                                    requestRender();
+                                }
+                                if (ifChangeLineType) {
+                                    myrenderer.setIfPainting(false);
+                                    int type = myrenderer.getLastLineType();
+                                    myrenderer.changeLineType(lineDrawed, type);
+                                    lineDrawed.clear();
+                                    myrenderer.setLineDrawed(lineDrawed);
+                                    requestRender();
+                                }
+                            } catch (Exception e){
+                                e.printStackTrace();
                             }
                             lineDrawed.clear();
                             myrenderer.setIfPainting(false);

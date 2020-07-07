@@ -83,6 +83,7 @@ import static javax.microedition.khronos.opengles.GL10.GL_SRC_ALPHA;
 //@android.support.annotation.RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
 public class MyRenderer implements GLSurfaceView.Renderer {
     private int UNDO_LIMIT = 20;
+    private int curUndo = 0;
     private enum Operate {DRAWCURVE, DELETECURVE, DRAWMARKER, DELETEMARKER, CHANGELINETYPE, SPLIT};
     private Vector<Operate> process = new Vector<>();
     private Vector<V_NeuronSWC> undoDrawList = new Vector<>();
@@ -91,6 +92,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private Vector<ImageMarker> undoDeleteMarkerList = new Vector<>();
     private Vector<Vector<Integer>> undoChangeLineTypeIndex = new Vector<>();
     private Vector<Vector<Integer>> undoLineType = new Vector<>();
+    private ArrayList<ArrayList<ImageMarker>> undoMarkerList = new ArrayList<>();
+    private ArrayList<V_NeuronSWC_list> undoCurveList = new ArrayList<>();
 
     public static final String OUTOFMEM_MESSAGE = "OutOfMemory";
     public static final String FILE_SUPPORT_ERROR = "FileSupportError";
@@ -1356,7 +1359,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return null;
     }
 
-    public void add2DMarker(float x, float y){
+    public void add2DMarker(float x, float y) throws CloneNotSupportedException {
         float [] new_marker = solve2DMarker(x, y);
         if (new_marker == null){
             System.out.println("outtttt");
@@ -1369,23 +1372,38 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             imageMarker_drawed.type = lastMarkerType;
             System.out.println("set type to 3");
 
+            ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+            V_NeuronSWC_list tempCurveList = curSwcList.clone();
+
+            if (curUndo < UNDO_LIMIT){
+                curUndo += 1;
+                undoMarkerList.add(tempMarkerList);
+                undoCurveList.add(tempCurveList);
+            } else {
+                undoMarkerList.remove(0);
+                undoCurveList.remove(0);
+                undoMarkerList.add(tempMarkerList);
+                undoCurveList.add(tempCurveList);
+            }
+
             MarkerList.add(imageMarker_drawed);
 
-            if (process.size() < UNDO_LIMIT){
-                process.add(Operate.DRAWMARKER);
-                undoDrawMarkerList.add(imageMarker_drawed);
-            } else {
-                Operate first = process.firstElement();
-                process.remove(0);
-                process.add(Operate.DRAWMARKER);
-                removeFirstUndo(first);
-                undoDrawMarkerList.add(imageMarker_drawed);
-            }
+//            if (process.size() < UNDO_LIMIT){
+//                process.add(Operate.DRAWMARKER);
+//                undoDrawMarkerList.add(imageMarker_drawed);
+//            } else {
+//                Operate first = process.firstElement();
+//                process.remove(0);
+//                process.add(Operate.DRAWMARKER);
+//                removeFirstUndo(first);
+//                undoDrawMarkerList.add(imageMarker_drawed);
+//            }
         }
     }
 
-    public void deleteMultiMarkerByStroke(ArrayList<Float> line){
+    public void deleteMultiMarkerByStroke(ArrayList<Float> line) throws CloneNotSupportedException {
 //        ArrayList<Integer> toBeDeleted = new ArrayList<>();
+        boolean already = false;
         for (int i = MarkerList.size() - 1; i >= 0; i--){
             ImageMarker tobeDeleted = MarkerList.get(i);
             float[] markerModel = VolumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
@@ -1400,6 +1418,24 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             devideByw(positionVolumne);
 
             if (pnpoly(line, positionVolumne[0], positionVolumne[1])){
+
+                if (!already){
+                    ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+                    V_NeuronSWC_list tempCurveList = curSwcList.clone();
+
+                    if (curUndo < UNDO_LIMIT){
+                        curUndo += 1;
+                        undoMarkerList.add(tempMarkerList);
+                        undoCurveList.add(tempCurveList);
+                    } else {
+                        undoMarkerList.remove(0);
+                        undoCurveList.remove(0);
+                        undoMarkerList.add(tempMarkerList);
+                        undoCurveList.add(tempCurveList);
+                    }
+                    already = true;
+                }
+
                 MarkerList.remove(tobeDeleted);
             }
         }
@@ -1422,7 +1458,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return result;
     }
 
-    public void add2DCurve(ArrayList<Float> line){
+    public void add2DCurve(ArrayList<Float> line) throws CloneNotSupportedException {
         ArrayList<Float> lineAdded = new ArrayList<>();
         for (int i = 0; i < line.size() / 3; i++){
             float x = line.get(i * 3);
@@ -1504,17 +1540,32 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     }
                 }
             }
-            curSwcList.append(seg);
-            if (process.size() < UNDO_LIMIT){
-                process.add(Operate.DRAWCURVE);
-                undoDrawList.add(seg);
-            } else{
-                Operate first = process.firstElement();
-                process.remove(0);
-                process.add(Operate.DRAWCURVE);
-                removeFirstUndo(first);
-                undoDrawList.add(seg);
+
+            ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+            V_NeuronSWC_list tempCurveList = curSwcList.clone();
+
+            if (curUndo < UNDO_LIMIT){
+                curUndo += 1;
+                undoMarkerList.add(tempMarkerList);
+                undoCurveList.add(tempCurveList);
+            } else {
+                undoMarkerList.remove(0);
+                undoCurveList.remove(0);
+                undoMarkerList.add(tempMarkerList);
+                undoCurveList.add(tempCurveList);
             }
+
+            curSwcList.append(seg);
+//            if (process.size() < UNDO_LIMIT){
+//                process.add(Operate.DRAWCURVE);
+//                undoDrawList.add(seg);
+//            } else{
+//                Operate first = process.firstElement();
+//                process.remove(0);
+//                process.add(Operate.DRAWCURVE);
+//                removeFirstUndo(first);
+//                undoDrawList.add(seg);
+//            }
 //            Log.v("addLineDrawed", Integer.toString(lineAdded.size()));
         }
         else
@@ -1568,7 +1619,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     // add the marker drawed into markerlist
-    public void setMarkerDrawed(float x, float y){
+    public void setMarkerDrawed(float x, float y) throws CloneNotSupportedException {
 
         if(solveMarkerCenter(x, y) != null) {
             float[] new_marker = solveMarkerCenter(x, y);
@@ -1579,18 +1630,32 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             imageMarker_drawed.type = lastMarkerType;
             System.out.println("set type to 3");
 
+            ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+            V_NeuronSWC_list tempCurveList = curSwcList.clone();
+
+            if (curUndo < UNDO_LIMIT){
+                curUndo += 1;
+                undoMarkerList.add(tempMarkerList);
+                undoCurveList.add(tempCurveList);
+            } else {
+                undoMarkerList.remove(0);
+                undoCurveList.remove(0);
+                undoMarkerList.add(tempMarkerList);
+                undoCurveList.add(tempCurveList);
+            }
+
             MarkerList.add(imageMarker_drawed);
 
-            if (process.size() < UNDO_LIMIT){
-                process.add(Operate.DRAWMARKER);
-                undoDrawMarkerList.add(imageMarker_drawed);
-            } else {
-                Operate first = process.firstElement();
-                process.remove(0);
-                process.add(Operate.DRAWMARKER);
-                removeFirstUndo(first);
-                undoDrawMarkerList.add(imageMarker_drawed);
-            }
+//            if (process.size() < UNDO_LIMIT){
+//                process.add(Operate.DRAWMARKER);
+//                undoDrawMarkerList.add(imageMarker_drawed);
+//            } else {
+//                Operate first = process.firstElement();
+//                process.remove(0);
+//                process.add(Operate.DRAWMARKER);
+//                removeFirstUndo(first);
+//                undoDrawMarkerList.add(imageMarker_drawed);
+//            }
         }
     }
 
@@ -1610,7 +1675,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     // delete the marker drawed from the markerlist
-    public void deleteMarkerDrawed(float x, float y){
+    public void deleteMarkerDrawed(float x, float y) throws CloneNotSupportedException {
         for (int i = 0; i < MarkerList.size(); i++){
             ImageMarker tobeDeleted = MarkerList.get(i);
             float[] markerModel = VolumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
@@ -1629,23 +1694,38 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             if (dx < 0.08 && dy < 0.08){
                 ImageMarker temp = MarkerList.get(i);
-                MarkerList.remove(i);
-                if (process.size() < UNDO_LIMIT){
-                    process.add(Operate.DELETEMARKER);
-                    undoDeleteMarkerList.add(temp);
-                } else{
-                    Operate first = process.firstElement();
-                    process.remove(0);
-                    process.add(Operate.DELETEMARKER);
-                    removeFirstUndo(first);
-                    undoDeleteMarkerList.add(temp);
+
+                ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+                V_NeuronSWC_list tempCurveList = curSwcList.clone();
+
+                if (curUndo < UNDO_LIMIT){
+                    curUndo += 1;
+                    undoMarkerList.add(tempMarkerList);
+                    undoCurveList.add(tempCurveList);
+                } else {
+                    undoMarkerList.remove(0);
+                    undoCurveList.remove(0);
+                    undoMarkerList.add(tempMarkerList);
+                    undoCurveList.add(tempCurveList);
                 }
+
+                MarkerList.remove(i);
+//                if (process.size() < UNDO_LIMIT){
+//                    process.add(Operate.DELETEMARKER);
+//                    undoDeleteMarkerList.add(temp);
+//                } else{
+//                    Operate first = process.firstElement();
+//                    process.remove(0);
+//                    process.add(Operate.DELETEMARKER);
+//                    removeFirstUndo(first);
+//                    undoDeleteMarkerList.add(temp);
+//                }
                 break;
             }
         }
     }
 
-    public void changeMarkerType(float x, float y){
+    public void changeMarkerType(float x, float y) throws CloneNotSupportedException {
         for (int i = 0; i < MarkerList.size(); i++){
             ImageMarker tobeDeleted = MarkerList.get(i);
             float[] markerModel = VolumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
@@ -1663,6 +1743,21 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float dy = Math.abs(positionVolumne[1] - y);
 
             if (dx < 0.08 && dy < 0.08){
+
+                ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+                V_NeuronSWC_list tempCurveList = curSwcList.clone();
+
+                if (curUndo < UNDO_LIMIT){
+                    curUndo += 1;
+                    undoMarkerList.add(tempMarkerList);
+                    undoCurveList.add(tempCurveList);
+                } else {
+                    undoMarkerList.remove(0);
+                    undoCurveList.remove(0);
+                    undoMarkerList.add(tempMarkerList);
+                    undoCurveList.add(tempCurveList);
+                }
+
                 ImageMarker temp = MarkerList.get(i);
                 temp.type = lastMarkerType;
 
@@ -1671,7 +1766,22 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    public void changeAllMarkerType(){
+    public void changeAllMarkerType() throws CloneNotSupportedException {
+
+        ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+        V_NeuronSWC_list tempCurveList = curSwcList.clone();
+
+        if (curUndo < UNDO_LIMIT){
+            curUndo += 1;
+            undoMarkerList.add(tempMarkerList);
+            undoCurveList.add(tempCurveList);
+        } else {
+            undoMarkerList.remove(0);
+            undoCurveList.remove(0);
+            undoMarkerList.add(tempMarkerList);
+            undoCurveList.add(tempCurveList);
+        }
+
         for (int i = 0; i < MarkerList.size(); i++){
             MarkerList.get(i).type = lastMarkerType;
         }
@@ -2750,7 +2860,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public synchronized void addLineDrawed2(ArrayList<Float> line){
+    public synchronized void addLineDrawed2(ArrayList<Float> line) throws CloneNotSupportedException {
         if (img.getData() == null){
             return;
         }
@@ -2841,17 +2951,32 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     }
                 }
             }
-            curSwcList.append(seg);
-            if (process.size() < UNDO_LIMIT){
-                process.add(Operate.DRAWCURVE);
-                undoDrawList.add(seg);
-            } else{
-                Operate first = process.firstElement();
-                process.remove(0);
-                process.add(Operate.DRAWCURVE);
-                removeFirstUndo(first);
-                undoDrawList.add(seg);
+
+            ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+            V_NeuronSWC_list tempCurveList = curSwcList.clone();
+
+            if (curUndo < UNDO_LIMIT){
+                curUndo += 1;
+                undoMarkerList.add(tempMarkerList);
+                undoCurveList.add(tempCurveList);
+            } else {
+                undoMarkerList.remove(0);
+                undoCurveList.remove(0);
+                undoMarkerList.add(tempMarkerList);
+                undoCurveList.add(tempCurveList);
             }
+
+            curSwcList.append(seg);
+//            if (process.size() < UNDO_LIMIT){
+//                process.add(Operate.DRAWCURVE);
+//                undoDrawList.add(seg);
+//            } else{
+//                Operate first = process.firstElement();
+//                process.remove(0);
+//                process.add(Operate.DRAWCURVE);
+//                removeFirstUndo(first);
+//                undoDrawList.add(seg);
+//            }
 //            Log.v("addLineDrawed", Integer.toString(lineAdded.size()));
         }
         else
@@ -2974,7 +3099,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    public V_NeuronSWC addBackgroundLineDrawed(ArrayList<Float> line){
+    public V_NeuronSWC addBackgroundLineDrawed(ArrayList<Float> line) throws CloneNotSupportedException {
         if (img.getData() == null){
             return null;
         }
@@ -3048,17 +3173,145 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     }
                 }
             }
-            curSwcList.append(seg);
-            if (process.size() < UNDO_LIMIT){
-                process.add(Operate.DRAWCURVE);
-                undoDrawList.add(seg);
-            } else{
-                Operate first = process.firstElement();
-                process.remove(0);
-                process.add(Operate.DRAWCURVE);
-                removeFirstUndo(first);
-                undoDrawList.add(seg);
+
+            ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+            V_NeuronSWC_list tempCurveList = curSwcList.clone();
+
+            if (curUndo < UNDO_LIMIT){
+                curUndo += 1;
+                undoMarkerList.add(tempMarkerList);
+                undoCurveList.add(tempCurveList);
+            } else {
+                undoMarkerList.remove(0);
+                undoCurveList.remove(0);
+                undoMarkerList.add(tempMarkerList);
+                undoCurveList.add(tempCurveList);
             }
+
+            curSwcList.append(seg);
+//            if (process.size() < UNDO_LIMIT){
+//                process.add(Operate.DRAWCURVE);
+//                undoDrawList.add(seg);
+//            } else{
+//                Operate first = process.firstElement();
+//                process.remove(0);
+//                process.add(Operate.DRAWCURVE);
+//                removeFirstUndo(first);
+//                undoDrawList.add(seg);
+//            }
+            return seg;
+//            return curSwcList.nsegs() - 1;
+
+//            Log.v("addLineDrawed", Integer.toString(lineAdded.size()));
+        }
+        else {
+            Log.v("draw line:::::", "nulllllllllllllllllll");
+            return null;
+        }
+    }
+
+    public V_NeuronSWC addBackgroundLineDrawed(ArrayList<Float> line, int [] c) throws CloneNotSupportedException {
+        if (img.getData() == null){
+            return null;
+        }
+        ArrayList<Float> lineAdded;
+        float [] lineCurrent = new float[line.size()];
+        Log.v("addLineDrawed", Integer.toString(line.size()));
+        for (int i = 0; i < line.size(); i++){
+            lineCurrent[i] = line.get(i);
+        }
+//        lineAdded = getLineDrawed(lineCurrent);
+        lineAdded = getLineDrawed_2(lineCurrent);
+
+        if (lineAdded != null){
+//            lineDrawed.add(lineAdded);
+            int max_n = curSwcList.maxnoden();
+            V_NeuronSWC seg = new  V_NeuronSWC();
+            for(int i=0; i < lineAdded.size()/3; i++){
+                V_NeuronSWC_unit u = new V_NeuronSWC_unit();
+                u.n = max_n + i+ 1;
+                if(i==0)
+                    u.parent = -1;
+                else
+                    u.parent = max_n + i;
+                float[] xyz = ModeltoVolume(new float[]{lineAdded.get(i*3+0),lineAdded.get(i*3+1),lineAdded.get(i*3+2)});
+                u.x = xyz[0];
+                u.y = xyz[1];
+                u.z = xyz[2];
+                u.type = lastLineType;
+                seg.append(u);
+//                System.out.println("u n p x y z: "+ u.n +" "+u.parent+" "+u.x +" "+u.y+ " "+u.z);
+            }
+            if(seg.row.size()<3){
+                return null;
+            }
+            float[] headXYZ = new float[]{(float) seg.row.get(0).x, (float) seg.row.get(0).y, (float) seg.row.get(0).z};
+            float[] tailXYZ = new float[]{(float) seg.row.get(seg.row.size()-1).x,
+                    (float) seg.row.get(seg.row.size()-1).y,
+                    (float) seg.row.get(seg.row.size()-1).z};
+            boolean linked = false;
+            for(int i=0; i<curSwcList.seg.size(); i++){
+                V_NeuronSWC s = curSwcList.seg.get(i);
+                for(int j=0; j<s.row.size(); j++){
+                    if(linked)
+                        break;
+                    V_NeuronSWC_unit node = s.row.get(j);
+                    float[] nodeXYZ = new float[]{(float) node.x, (float) node.y, (float) node.z};
+                    if(distance(headXYZ,nodeXYZ)<5){
+                        V_NeuronSWC_unit head = seg.row.get(0);
+                        V_NeuronSWC_unit child = seg.row.get(1);
+                        head.x = node.x;
+                        head.y = node.y;
+                        head.z = node.z;
+                        head.n = node.n;
+                        head.parent = node.parent;
+                        child.parent = head.n;
+                        linked = true;
+                        break;
+                    }
+                    if(distance(tailXYZ,nodeXYZ)<5){
+                        seg.reverse();
+                        V_NeuronSWC_unit tail = seg.row.get(seg.row.size()-1);
+                        V_NeuronSWC_unit child = seg.row.get(seg.row.size()-2);
+                        tail.x = node.x;
+                        tail.y = node.y;
+                        tail.z = node.z;
+                        tail.n = node.n;
+                        tail.parent = node.parent;
+                        child.n = tail.n;
+                        linked = true;
+                        break;
+                    }
+                }
+            }
+
+            ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+            V_NeuronSWC_list tempCurveList = curSwcList.clone();
+
+            if (curUndo < UNDO_LIMIT){
+                curUndo += 1;
+                undoMarkerList.add(tempMarkerList);
+                undoCurveList.add(tempCurveList);
+            } else {
+                undoMarkerList.remove(0);
+                undoCurveList.remove(0);
+                undoMarkerList.add(tempMarkerList);
+                undoCurveList.add(tempCurveList);
+            }
+
+            c[0] = undoMarkerList.size();
+
+            curSwcList.append(seg);
+//            if (process.size() < UNDO_LIMIT){
+//                process.add(Operate.DRAWCURVE);
+//                undoDrawList.add(seg);
+//            } else{
+//                Operate first = process.firstElement();
+//                process.remove(0);
+//                process.add(Operate.DRAWCURVE);
+//                removeFirstUndo(first);
+//                undoDrawList.add(seg);
+//            }
             return seg;
 //            return curSwcList.nsegs() - 1;
 
@@ -3078,17 +3331,26 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return true;
     }
 
-    public boolean deleteFromCur(V_NeuronSWC seg){
+    public boolean deleteFromCur(V_NeuronSWC seg, int c){
+        System.out.println("nnnnnn");
         int index = undoDrawList.indexOf(seg);
         if (index != -1){
             undoDrawList.remove(seg);
             process.remove(process.size() - 1);
         }
+
+        if (curUndo > 0 && c >= 0 && c < curUndo){
+            curUndo -= 1;
+            undoCurveList.remove(c);
+            undoMarkerList.remove(c);
+        }
         return curSwcList.seg.remove(seg);
 
     }
 
-    public  void deleteLine1(ArrayList<Float> line){
+
+
+    public  void deleteLine1(ArrayList<Float> line) throws CloneNotSupportedException {
 //        curSwcList.deleteCurve(line, finalMatrix, sz, mz);
         System.out.println("deleteline1--------------------------");
         Vector<Integer> indexToBeDeleted = new Vector<>();
@@ -3163,21 +3425,35 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             toBeDeleted.add(curSwcList.seg.get(index));
         }
 
+        ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+        V_NeuronSWC_list tempCurveList = curSwcList.clone();
+
+        if (curUndo < UNDO_LIMIT){
+            curUndo += 1;
+            undoMarkerList.add(tempMarkerList);
+            undoCurveList.add(tempCurveList);
+        } else {
+            undoMarkerList.remove(0);
+            undoCurveList.remove(0);
+            undoMarkerList.add(tempMarkerList);
+            undoCurveList.add(tempCurveList);
+        }
+
         curSwcList.deleteMutiSeg(indexToBeDeleted);
 
-        if (process.size() < UNDO_LIMIT){
-            process.add(Operate.DELETECURVE);
-            undoDeleteList.add(toBeDeleted);
-        } else{
-            Operate first = process.firstElement();
-            process.remove(0);
-            process.add(Operate.DELETECURVE);
-            removeFirstUndo(first);
-            undoDeleteList.add(toBeDeleted);
-        }
+//        if (process.size() < UNDO_LIMIT){
+//            process.add(Operate.DELETECURVE);
+//            undoDeleteList.add(toBeDeleted);
+//        } else{
+//            Operate first = process.firstElement();
+//            process.remove(0);
+//            process.add(Operate.DELETECURVE);
+//            removeFirstUndo(first);
+//            undoDeleteList.add(toBeDeleted);
+//        }
     }
 
-    public void splitCurve(ArrayList<Float> line){
+    public void splitCurve(ArrayList<Float> line) throws CloneNotSupportedException {
 //        curSwcList.splitCurve(line, finalMatrix, sz, mz);
         System.out.println("split1--------------------------");
         boolean found = false;
@@ -3295,6 +3571,21 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                 System.out.println(e.getMessage());
                             }
                         }
+
+                        ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+                        V_NeuronSWC_list tempCurveList = curSwcList.clone();
+
+                        if (curUndo < UNDO_LIMIT){
+                            curUndo += 1;
+                            undoMarkerList.add(tempMarkerList);
+                            undoCurveList.add(tempCurveList);
+                        } else {
+                            undoMarkerList.remove(0);
+                            undoCurveList.remove(0);
+                            undoMarkerList.add(tempMarkerList);
+                            undoCurveList.add(tempCurveList);
+                        }
+
                         curSwcList.deleteSeg(j);
                         curSwcList.append(newSeg1);
                         curSwcList.append(newSeg2);
@@ -3358,7 +3649,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    public void changeLineType(ArrayList<Float> line, int type){
+    public void changeLineType(ArrayList<Float> line, int type) throws CloneNotSupportedException {
         System.out.println("changeLineType--------------------------");
         Vector<Integer> indexToChangeLineType = new Vector<>();
         Vector<Integer> ChangeLineType = new Vector<>();
@@ -3426,6 +3717,21 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
             }
         }
+
+        ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+        V_NeuronSWC_list tempCurveList = curSwcList.clone();
+
+        if (curUndo < UNDO_LIMIT){
+            curUndo += 1;
+            undoMarkerList.add(tempMarkerList);
+            undoCurveList.add(tempCurveList);
+        } else {
+            undoMarkerList.remove(0);
+            undoCurveList.remove(0);
+            undoMarkerList.add(tempMarkerList);
+            undoCurveList.add(tempCurveList);
+        }
+
         for(V_NeuronSWC seg : this.curSwcList.seg ){
             if (seg.to_be_deleted){
                 for(int i = 0; i<seg.row.size(); i++){
@@ -3435,24 +3741,39 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        if (process.size() < UNDO_LIMIT){
-            process.add(Operate.CHANGELINETYPE);
-            undoLineType.add(ChangeLineType);
-            undoChangeLineTypeIndex.add(indexToChangeLineType);
-        } else{
-            if (process.get(0) == Operate.CHANGELINETYPE){
-                undoLineType.remove(0);
-                undoChangeLineTypeIndex.remove(0);
-            }
-            process.remove(0);
-            process.add(Operate.CHANGELINETYPE);
-            undoLineType.add(ChangeLineType);
-            undoChangeLineTypeIndex.add(indexToChangeLineType);
-        }
+//        if (process.size() < UNDO_LIMIT){
+//            process.add(Operate.CHANGELINETYPE);
+//            undoLineType.add(ChangeLineType);
+//            undoChangeLineTypeIndex.add(indexToChangeLineType);
+//        } else{
+//            if (process.get(0) == Operate.CHANGELINETYPE){
+//                undoLineType.remove(0);
+//                undoChangeLineTypeIndex.remove(0);
+//            }
+//            process.remove(0);
+//            process.add(Operate.CHANGELINETYPE);
+//            undoLineType.add(ChangeLineType);
+//            undoChangeLineTypeIndex.add(indexToChangeLineType);
+//        }
     }
 
-    public void changeAllType(){
+    public void changeAllType() throws CloneNotSupportedException {
         System.out.println("changeAllType--------------------------");
+
+        ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+        V_NeuronSWC_list tempCurveList = curSwcList.clone();
+
+        if (curUndo < UNDO_LIMIT){
+            curUndo += 1;
+            undoMarkerList.add(tempMarkerList);
+            undoCurveList.add(tempCurveList);
+        } else {
+            undoMarkerList.remove(0);
+            undoCurveList.remove(0);
+            undoMarkerList.add(tempMarkerList);
+            undoCurveList.add(tempCurveList);
+        }
+
         Vector<Integer> indexToChangeLineType = new Vector<>();
         Vector<Integer> ChangeLineType = new Vector<>();
         for(int i=0; i<curSwcList.seg.size(); i++){
@@ -3464,20 +3785,20 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        if (process.size() < UNDO_LIMIT){
-            process.add(Operate.CHANGELINETYPE);
-            undoLineType.add(ChangeLineType);
-            undoChangeLineTypeIndex.add(indexToChangeLineType);
-        } else{
-            if (process.get(0) == Operate.CHANGELINETYPE){
-                undoLineType.remove(0);
-                undoChangeLineTypeIndex.remove(0);
-            }
-            process.remove(0);
-            process.add(Operate.CHANGELINETYPE);
-            undoLineType.add(ChangeLineType);
-            undoChangeLineTypeIndex.add(indexToChangeLineType);
-        }
+//        if (process.size() < UNDO_LIMIT){
+//            process.add(Operate.CHANGELINETYPE);
+//            undoLineType.add(ChangeLineType);
+//            undoChangeLineTypeIndex.add(indexToChangeLineType);
+//        } else{
+//            if (process.get(0) == Operate.CHANGELINETYPE){
+//                undoLineType.remove(0);
+//                undoChangeLineTypeIndex.remove(0);
+//            }
+//            process.remove(0);
+//            process.add(Operate.CHANGELINETYPE);
+//            undoLineType.add(ChangeLineType);
+//            undoChangeLineTypeIndex.add(indexToChangeLineType);
+//        }
     }
 
 
@@ -3749,6 +4070,25 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         System.out.println("undo succeed");
+        return true;
+    }
+
+    public boolean undo2(){
+        if (curUndo == 0)
+            return false;
+
+        curUndo -= 1;
+        System.out.println("undosize");
+        System.out.println(undoMarkerList.size());
+        System.out.println("lastsize");
+        System.out.println(undoMarkerList.get(undoMarkerList.size() - 1).size());
+        MarkerList = undoMarkerList.get(undoMarkerList.size() - 1);
+        curSwcList = undoCurveList.get(undoCurveList.size() - 1);
+        undoMarkerList.remove(undoMarkerList.size() - 1);
+        undoCurveList.remove(undoCurveList.size() - 1);
+        System.out.println("cursize");
+        System.out.println(MarkerList.size());
+
         return true;
     }
 
