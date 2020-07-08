@@ -5,11 +5,14 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.annotation.RequiresApi;
 
 import com.example.myapplication__volume.JumpActivity;
 import com.example.myapplication__volume.MainActivity;
@@ -38,7 +41,7 @@ import static com.example.myapplication__volume.MyRenderer.FILE_PATH;
 
 public class RemoteImg extends Socket {
     public String ip;
-    public String id;
+    public int id;
     public Socket mSocket;
     public Socket ImgSocket;
     public PrintWriter mPWriter;  //PrinterWriter  用于接收消息
@@ -234,6 +237,7 @@ public class RemoteImg extends Socket {
     private void send2(final String item, final Context context){
         new Thread() {
 
+            @RequiresApi(api = Build.VERSION_CODES.N)
             public void run() {
                 try {
 
@@ -577,6 +581,7 @@ public class RemoteImg extends Socket {
 
         new Thread() {
 
+            @RequiresApi(api = Build.VERSION_CODES.N)
             public void run() {
 
                 try {
@@ -647,7 +652,9 @@ public class RemoteImg extends Socket {
 
                             if (filesocket_receive.filesocket.isConnected()){
 
-
+                                Log.v("PullImageBlcok",id + ":manage handle.");
+                                filesocket_receive.mPWriter.println(id + ":manage handle.");
+                                filesocket_receive.mPWriter.flush();
 
                                 String content = ImgReader.readLine();
 
@@ -707,6 +714,7 @@ public class RemoteImg extends Socket {
     private void PullImageBlcok_backup(final String offset_x, final String offset_y, final String offset_z, final String size, final Context context){
         new Thread() {
 
+            @RequiresApi(api = Build.VERSION_CODES.N)
             public void run() {
                 try {
 
@@ -740,7 +748,9 @@ public class RemoteImg extends Socket {
 
                         if (filesocket_receive.filesocket.isConnected()){
 
-
+                            Log.v("PullImageBlcok_backup", id + ":manage handle.");
+                            filesocket_receive.mPWriter.println(id + ":manage handle.");
+                            filesocket_receive.mPWriter.flush();
 
                             String content = ImgReader.readLine();
 
@@ -844,6 +854,10 @@ public class RemoteImg extends Socket {
                     ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
                     Log.v("ConnectServerImg", "successfully init");
                     flag = true;
+
+                    String content = ImgReader.readLine();
+                    id = Integer.parseInt(content.split(":")[0]);
+                    Log.v("ConnectServerImg", content);
 
                 } catch (Exception e) {
                     Log.v("ConnectServerImg", "connect failed");

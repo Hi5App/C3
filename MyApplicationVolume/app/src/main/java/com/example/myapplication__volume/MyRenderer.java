@@ -174,6 +174,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private ArrayList<Float> swcDrawed = new ArrayList<Float>();
 
     private ArrayList<ImageMarker> MarkerList = new ArrayList<ImageMarker>();
+    private ArrayList<ImageMarker> MarkerList_loaded = new ArrayList<ImageMarker>();
 
     private V_NeuronSWC_list newSwcList = new V_NeuronSWC_list();
     private V_NeuronSWC_list curSwcList = new V_NeuronSWC_list();
@@ -273,7 +274,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
 
         if (ifFileSupport){
-            if (fileType == FileType.TIF || fileType == FileType.V3draw || fileType == FileType.V3dPBD) {
+            if (fileType == FileType.TIF || fileType == FileType.V3draw || fileType == FileType.V3dPBD || fileType == FileType.SWC) {
                 myAxis = new MyAxis(mz);
             }
             myDraw = new MyDraw();
@@ -638,14 +639,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 Log.v("MyRender", "Load data successfully!");
                 for (int i = 0; i < apoDrawed.size(); i = i + 4){
                     myDraw.drawMarker(finalMatrix, modelMatrix, apoDrawed.get(i), apoDrawed.get(i+1), apoDrawed.get(i+2),apoDrawed.get(i+3).intValue(), radius);
-//                Log.v("onDrawFrame: ", "(" + markerDrawed.get(i) + ", " + markerDrawed.get(i+1) + ", " + markerDrawed.get(i+2) + ")");
-
                 }
             }
 
 
             //
-            if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.JPG || fileType == FileType.PNG || fileType == FileType.V3dPBD)
+            if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.SWC || fileType == FileType.V3dPBD)
                 if (myAxis != null)
                     myAxis.draw(finalMatrix);
 
@@ -900,6 +899,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         else if (fileType == FileType.SWC){
             bitmap2D = null;
             myPattern2D = null;
+//            img = null;
             setSWC();
             ifFileLoaded = true;
             ifFileSupport = true;
@@ -1131,6 +1131,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 break;
 
             case ".SWC":
+            case ".ESWC":
                 fileType = FileType.SWC;
                 break;
 
@@ -1146,6 +1147,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             case ".PNG":
                 fileType = FileType.PNG;
+                break;
+
+            case ".apo":
+                fileType = FileType.APO;
                 break;
 
             case "fail to read file":
@@ -3864,10 +3869,46 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public void importApo(ArrayList<ArrayList<Float>> apo){
         for (int i = 0; i < apo.size(); i++){
             ArrayList<Float> currentLine = apo.get(i);
-            apoDrawed.add((sz[0] - currentLine.get(5)) / sz[0] * mz[0]);
-            apoDrawed.add((sz[1] - currentLine.get(6)) / sz[1] * mz[1]);
-            apoDrawed.add((currentLine.get(4)) / sz[2] * mz[2]);
+
+//            apoDrawed.add((sz[0] - currentLine.get(5)) / sz[0] * mz[0]);
+//            apoDrawed.add((sz[1] - currentLine.get(6)) / sz[1] * mz[1]);
+//            apoDrawed.add((currentLine.get(4)) / sz[2] * mz[2]);
+
+            ImageMarker imageMarker_drawed = new ImageMarker(currentLine.get(5),
+                    currentLine.get(6),
+                    currentLine.get(4));
+
+            int r = currentLine.get(15).intValue();
+            int g = currentLine.get(16).intValue();
+            int b = currentLine.get(17).intValue();
+
+            if (r == 0 && g == 0 && b == 0){
+                imageMarker_drawed.type = 0;
+
+            }else if (r == 255 && g == 255 && b == 255){
+                imageMarker_drawed.type = 1;
+
+            }else if (r == 255 && g == 0 && b == 0){
+                imageMarker_drawed.type = 2;
+
+            }else if (r == 0 && g == 0 && b == 255){
+                imageMarker_drawed.type = 3;
+
+            }else if (r == 0 && g == 255 && b == 0){
+                imageMarker_drawed.type = 4;
+
+            }else if (r == 255 && g == 0 && b == 255){
+                imageMarker_drawed.type = 5;
+
+            }else if (r == 255 && g == 255 && b == 0){
+                imageMarker_drawed.type = 6;
+
+            }
+
+            MarkerList_loaded.add(imageMarker_drawed);
         }
+
+
     }
 
 
@@ -3952,6 +3993,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     {
         V3draw,
         SWC,
+        ESWC,
+        APO,
+        ANO,
         TIF,
         JPG,
         PNG,

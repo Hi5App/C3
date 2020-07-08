@@ -434,11 +434,11 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, MSG, Toast.LENGTH_SHORT).show();
 
 
-        Intent intent3 = getIntent();
-        String Timeout = intent3.getStringExtra(MyRenderer.Time_out);
-
-        if (Timeout != null)
-            Toast.makeText(this, Timeout, Toast.LENGTH_SHORT).show();
+//        Intent intent3 = getIntent();
+//        String Timeout = intent3.getStringExtra(MyRenderer.Time_out);
+//
+//        if (Timeout != null)
+//            Toast.makeText(this, Timeout, Toast.LENGTH_SHORT).show();
 
 
         Intent intent4 = getIntent();
@@ -1281,6 +1281,10 @@ public class MainActivity extends AppCompatActivity {
                                 ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
                                 ApoReader apoReader = new ApoReader();
                                 apo = apoReader.read(uri);
+                                if (apo == null){
+                                    Toast.makeText(this,"Make sure the .apo file is right",Toast.LENGTH_SHORT).show();
+                                    break;
+                                }
                                 myrenderer.importApo(apo);
                                 break;
                             case ".SWC":
@@ -1578,15 +1582,16 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     remoteImg.ip = ip;
-//                    if (!remoteImg.isSocketSet) {
-                        Log.v("SendSwc", "connext socket");
-                        remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
-                        remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
-                        remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
-//                    }
-
+                    Log.v("SendSwc", "connext socket");
+                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
+                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
+                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
 
                     if (remoteImg.ImgSocket.isConnected()) {
+
+                        String content_id = remoteImg.ImgReader.readLine();
+                        remoteImg.id = Integer.parseInt(content_id.split(":")[0]);
+                        Log.v("ConnectServer", content_id);
 
                         remoteImg.isSocketSet = true;
                         Toast.makeText(getContext(), "Start to upload!!!", Toast.LENGTH_SHORT).show();
@@ -1634,6 +1639,9 @@ public class MainActivity extends AppCompatActivity {
                                         Log.v("before filesocket_send:", "Connect with Server successfully");
 
                                         if (filesocket_send.filesocket.isConnected()) {
+
+                                            filesocket_send.mPWriter.println(remoteImg.id + ":manage handle.");
+                                            filesocket_send.mPWriter.flush();
 
                                             Context[] contexts = new Context[1];
                                             contexts[0] = context;
@@ -1924,12 +1932,24 @@ public class MainActivity extends AppCompatActivity {
                     remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
                     remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
 
+                    if (remoteImg.ImgSocket.isConnected()){
+                        String content = remoteImg.ImgReader.readLine();
+                        remoteImg.id = Integer.parseInt(content.split(":")[0]);
+                        Log.v("ConnectServer", content);
+
+                    }
+
                     Filesocket_receive filesocket_receive = new Filesocket_receive();
                     filesocket_receive.filesocket = new Socket(ip, 9002);
                     filesocket_receive.mReader = new BufferedReader(new InputStreamReader(filesocket_receive.filesocket.getInputStream(), "UTF-8"));
                     filesocket_receive.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_receive.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
                     filesocket_receive.IsDown = true;
                     filesocket_receive.path = context.getExternalFilesDir(null).toString() + "/Sync/BlockGet";
+
+                    if (remoteImg.ImgSocket.isConnected() && filesocket_receive.filesocket.isConnected()){
+                        filesocket_receive.mPWriter.println(remoteImg.id + ":manage handle.");
+                        filesocket_receive.mPWriter.flush();
+                    }
 
                     Log.v("PullSwc: ", "here we are 2");
 
@@ -3988,7 +4008,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200707a 23:46 UTC+8 build",
+                                "Version: 20200708a 10:34 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4111,6 +4131,9 @@ public class MainActivity extends AppCompatActivity {
 
 
                     if(remoteImg.ImgSocket.isConnected()){
+                        String content = remoteImg.ImgReader.readLine();
+                        remoteImg.id = Integer.parseInt(content.split(":")[0]);
+                        Log.v("ConnectServer", content);
 
                         Log.v("ConnectServer","send some message to server");
                         remoteImg.isSocketSet = true;
@@ -4965,10 +4988,9 @@ public class MainActivity extends AppCompatActivity {
 
                         if (ifAnimation) {
                             myrenderer.myAnimation.setAnimation(true, Float.parseFloat(rotation_speed_string), rotation_type[0]);
-                        }
-
-                        if (ifAnimation) {
                             myrenderer.setIfDownSampling(true);
+
+                            Rotation_i.setVisibility(View.GONE);
 
                             if (ll_top.findViewById(animation_id) == null){
                                 ll_top.addView(animation_i,lp_animation_i);
@@ -4976,6 +4998,8 @@ public class MainActivity extends AppCompatActivity {
                             myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
                         } else {
+
+                            Rotation_i.setVisibility(View.VISIBLE);
 
                             if (ll_top.findViewById(animation_id) != null){
                                 ll_top.removeView(animation_i);
@@ -6590,6 +6614,12 @@ public class MainActivity extends AppCompatActivity {
         SetButtons();
 
     }
+
+    public static void Time_Out(){
+        hideProgressBar();
+        Toast.makeText(context, "Time out, please try again!", Toast.LENGTH_SHORT).show();
+    }
+
 
     private static void SetButtons(){
         puiHandler.sendEmptyMessage(2);

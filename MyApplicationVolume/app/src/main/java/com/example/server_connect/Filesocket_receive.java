@@ -3,8 +3,11 @@ package com.example.server_connect;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.annotation.RequiresApi;
 
 import com.example.myapplication__volume.JumpActivity;
 import com.example.myapplication__volume.MainActivity;
@@ -310,6 +313,7 @@ public class Filesocket_receive {
 
 
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void readImg(final String filename, final Context[] context) throws InterruptedException {
 
         Boolean stop = false;
@@ -396,11 +400,14 @@ public class Filesocket_receive {
 
                             try {
 
-                                Intent intent = new Intent(context[0], JumpActivity.class);
-                                String message = "Time out, please try again!";
+//                                Intent intent = new Intent(context[0], JumpActivity.class);
+//                                String message = "Time out, please try again!";
+//
+//                                intent.putExtra(Timeout, message);
+//                                context[0].startActivity(intent);
 
-                                intent.putExtra(Timeout, message);
-                                context[0].startActivity(intent);
+
+                                MainActivity.Time_Out();
 
 
 

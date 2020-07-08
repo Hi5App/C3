@@ -63,12 +63,12 @@ public class ApoReader {
 
             //一共有多少行数据
             int num = arraylist.size();
-//            float [][] result = new float[num][11];
             for (int i = 0; i < num; i++){
                 String current = arraylist.get(i);
+                if (current.substring(0, 1).equals("#")) continue;
                 String [] s = current.split(",");
                 ArrayList<Float> cur_line = new ArrayList<Float>();
-                for (int j = 0; j < 12; j++){
+                for (int j = 0; j < 18; j++){
                     String cur_string = s[j].replace(" ","");
                     if (cur_string.equals(""))
                         cur_string = "1234";
