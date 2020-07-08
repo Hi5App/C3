@@ -3,6 +3,8 @@ package com.tracingfunc.app2;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.basic.ByteTranslate;
+import com.example.basic.Image4DSimple;
 import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
 
@@ -432,6 +434,40 @@ public class MyMarker implements Cloneable{
             }
         }
         return outMask;
+    }
+
+    public static double[] getMeanStdFromNeuronTree(NeuronTree nt, Image4DSimple img, double radius){
+        double[] meanStd = new double[2];
+        Vector<MyMarker> markers = MyMarker.swcConvert(nt);
+        int[] sz = new int[]{(int) img.getSz0(), (int) img.getSz1(), (int) img.getSz2()};
+        byte[] mask = MyMarker.swcToMask(markers,sz,radius,1);
+        byte[] img1dByte = img.getData();
+
+        meanStd[0] = 0;
+        meanStd[1] = 0;
+        int count = 0;
+        for(int i=0; i<mask.length; i++){
+            if(mask[i] == 1){
+                meanStd[0] += ByteTranslate.byte1ToInt(img1dByte[i]);
+                count++;
+            }
+        }
+        if(count>0){
+            meanStd[0] /= count;
+        }
+
+        System.out.println("-------------mean----------------");
+
+        for(int i=0; i<mask.length; i++){
+            if(mask[i] == 1){
+                meanStd[1] += (ByteTranslate.byte1ToInt(img1dByte[i])-meanStd[0])*(ByteTranslate.byte1ToInt(img1dByte[i])-meanStd[0]);
+            }
+        }
+        if(count>0){
+            meanStd[1] = Math.sqrt(meanStd[1]/count);
+        }
+        System.out.println("count: "+count+"mean: "+meanStd[0]+" std: "+meanStd[1]);
+        return meanStd;
     }
 
 

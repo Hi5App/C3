@@ -149,14 +149,6 @@ public class HierarchyPruning {
 
             double dst = topo_dists[swc_map.get(root_marker)];
             HierarchySegment seg = new HierarchySegment(leaf_marker, root_marker, dst, level);
-
-//            if(root_parent == null) seg.parent = null;
-//            else
-//            {
-//                MyMarker  leaf_marker2 = topo_leafs[swc_map.get(root_marker)];
-//                int leaf_ind2 = leaf_ind_map.get(leaf_marker2);
-//                seg.parent = segs.elementAt(leaf_ind2);
-//            }
             segs.add(seg);
         }
         for(int i=0; i<segs.size(); i++){
@@ -892,6 +884,142 @@ public class HierarchyPruning {
         segsToSwc(filter_segs, outswc, 0); // no resampling
 
         System.out.println("outswc size: "+outswc.size());
+
+        return true;
+    }
+
+    public static boolean happBySample(Vector<MyMarker> inswc, Vector<MyMarker> outswc, int[][][] inimg, int[] sz, double bkg_thresh,
+                                       double length_thresh){
+
+        int markerSize = inswc.size();
+        Map<MyMarker,Integer> markerIndexMap = new HashMap<>();
+        int[] markerFlag = new int[markerSize];
+        for(int i=0; i<markerSize; i++){
+            markerIndexMap.put(inswc.get(i),i);
+            markerFlag[i] = 0;
+        }
+
+
+        Vector<HierarchySegment> segs = new Vector<HierarchySegment>();
+        System.out.println("Construct hierarchical segments");
+        swcToSegs(inswc,segs,INTENSITY_DISTANCE_METHOD,inimg,sz);
+
+        int segSize = segs.size();
+        boolean[] segFlag = new boolean[segSize];
+        for(int i=0; i<segSize; i++){
+            if(segs.get(i).length >= length_thresh){
+                segFlag[i] = true;
+            }else {
+                segFlag[i] = false;
+            }
+        }
+
+        for(int i=0; i<segSize; i++){
+            if(!segFlag[i]){
+                Vector<MyMarker> segMarkers = new Vector<>();
+                segs.get(i).getMarkers(segMarkers);
+                for(int j=0; j<segMarkers.size(); j++){
+                    int markerIndex = markerIndexMap.get(segMarkers.get(j));
+                    markerFlag[markerIndex] = 2;
+                }
+            }
+        }
+
+        for(int i=0; i<markerSize; i++){
+            if(markerFlag[i] != 2) {
+                int x = (int) (inswc.get(i).x + 0.5);
+                int y = (int) (inswc.get(i).y + 0.5);
+                int z = (int) (inswc.get(i).z + 0.5);
+                if(inimg[z][y][x] < bkg_thresh){
+                    markerFlag[i] = 1;
+                }
+            }
+        }
+
+        for(int i=0; i<segSize; i++){
+            if(segFlag[i]){
+                Vector<MyMarker> segMarkers = new Vector<>();
+                segs.get(i).getMarkers(segMarkers);
+                int count = 0;
+                Vector<Integer> markersUndefinedIndex = new Vector<>();
+                for(int j=0; j<segMarkers.size(); j++){
+                    int markerIndex = markerIndexMap.get(segMarkers.get(j));
+                    if(markerFlag[markerIndex] == 1){
+                        markersUndefinedIndex.add(markerIndex);
+                        count++;
+                    }else if(markerFlag[markerIndex] == 0){
+                        if(count>5){
+                            for(int k=0; k<markersUndefinedIndex.size(); k++){
+                                int markerDeleteIndex = markersUndefinedIndex.get(k);
+                                markerFlag[markerDeleteIndex] = 2;
+                            }
+                            markersUndefinedIndex.clear();
+                            count = 0;
+                        }else {
+                            markersUndefinedIndex.clear();
+                            count = 0;
+                        }
+                    }
+                }
+            }
+        }
+
+        for(int i=0; i<segSize; i++){
+            if(segFlag[i]){
+                Vector<MyMarker> segMarkers = new Vector<>();
+                segs.get(i).getMarkers(segMarkers);
+                int count = 0;
+                Vector<Integer> markersUndefinedIndex = new Vector<>();
+                for(int j=0; j<segMarkers.size(); j++){
+                    int markerIndex = markerIndexMap.get(segMarkers.get(j));
+                    if(markerFlag[markerIndex] != 2){
+                        markersUndefinedIndex.add(markerIndex);
+                        count++;
+                    }else{
+                        if(count<5){
+                            for(int k=0; k<markersUndefinedIndex.size(); k++){
+                                int markerDeleteIndex = markersUndefinedIndex.get(k);
+                                markerFlag[markerDeleteIndex] = 2;
+                            }
+                            markersUndefinedIndex.clear();
+                            count = 0;
+                        }else {
+                            markersUndefinedIndex.clear();
+                            count = 0;
+                        }
+                    }
+                }
+            }
+        }
+
+        for(int i=0; i<markerSize; i++){
+            if(inswc.get(i).parent!=null){
+                int prtIndex = markerIndexMap.get(inswc.get(i).parent);
+                if(markerFlag[prtIndex] == 2){
+                    inswc.get(i).parent = null;
+                }
+            }
+            if(markerFlag[i] != 2){
+                outswc.add(inswc.get(i));
+            }
+        }
+
+        Vector<HierarchySegment> outSegs = new Vector<HierarchySegment>();
+        System.out.println("Construct out swc hierarchical segments");
+        swcToSegs(outswc,outSegs,INTENSITY_DISTANCE_METHOD,inimg,sz);
+
+        // smooth curve
+        {
+            System.out.println("Smooth the final curve");
+            for(int i = 0; i < outSegs.size(); i++)
+            {
+                HierarchySegment outSeg = outSegs.elementAt(i);
+                Vector<MyMarker> seg_markers = new Vector<MyMarker>();
+                outSeg.getMarkers(seg_markers);
+                MyMarker.smoothCurve(seg_markers,7);
+//                smooth_radius(seg_markers, 5,false);
+            }
+        }
 
         return true;
     }
