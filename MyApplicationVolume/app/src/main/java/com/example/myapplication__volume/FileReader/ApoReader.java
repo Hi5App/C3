@@ -44,13 +44,12 @@ public class ApoReader {
             BufferedReader br = new BufferedReader(isr);
 
             long filesize = f.length();
-
-            Log.v("SwcReader", Long.toString(filesize));
-
+            Log.v("ApoReader", Long.toString(filesize));
 
             if (filesize < head_length){
                 throw new Exception("The size of your input file is too small and is not correct, -- it is too small to contain the legal header.");
             }
+
             String str;
             while ((str = br.readLine()) != null) {
                 arraylist.add(str);
@@ -66,6 +65,7 @@ public class ApoReader {
             for (int i = 0; i < num; i++){
                 String current = arraylist.get(i);
                 if (current.substring(0, 1).equals("#")) continue;
+
                 String [] s = current.split(",");
                 ArrayList<Float> cur_line = new ArrayList<Float>();
                 for (int j = 0; j < 18; j++){
@@ -73,14 +73,13 @@ public class ApoReader {
                     if (cur_string.equals(""))
                         cur_string = "1234";
                     cur_line.add(Float.parseFloat(cur_string));
-//                    cur_line.add(Float.parseFloat("111"));
-//                    result[i][j] = Float.parseFloat(s[j]);
                 }
                 result.add(cur_line);
             }
             return result;
         }catch (Exception e){
             Log.v("ReadApoException", e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
@@ -103,7 +102,7 @@ public class ApoReader {
             InputStream is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
             long filesize = (int)parcelFileDescriptor.getStatSize();
 
-            Log.v("SwcReader", Long.toString(filesize));
+            Log.v("ApoReader", Long.toString(filesize));
 
 
 
@@ -128,21 +127,22 @@ public class ApoReader {
 //            float [][] result = new float[num][11];
             for (int i = 0; i < num; i++){
                 String current = arraylist.get(i);
+                if (current.substring(0, 1).equals("#")) continue;
+
                 String [] s = current.split(",");
                 ArrayList<Float> cur_line = new ArrayList<Float>();
-                for (int j = 0; j < 12; j++){
+                for (int j = 0; j < 18; j++){
                     String cur_string = s[j].replace(" ","");
                     if (cur_string.equals(""))
                         cur_string = "1234";
                     cur_line.add(Float.parseFloat(cur_string));
-//                    cur_line.add(Float.parseFloat("111"));
-//                    result[i][j] = Float.parseFloat(s[j]);
                 }
                 result.add(cur_line);
             }
             return result;
         }catch (Exception e){
             Log.v("ReadApoException", e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }

@@ -585,23 +585,27 @@ public class MyDraw {
         }
 */
 //        Log.v("createPositions ", Float.toString(r));
-        float step = 2.0f;
+        int step = 2;
 
         if(r <= 0.01f){
-            step = 6.0f;
+            step = 6;
         }
+
+        Log.v("createPositions:", "step: " + step);
+
+        int count = 0;
         ArrayList<Float> data=new ArrayList<>();
         float r1,r2;
         float h1,h2;
         float sin,cos;
-        for(float i=-90;i<90+step;i+=step){
+        for(int i=-90;i<90+step;i+=step){
             r1 = (float)Math.cos(i * Math.PI / 180.0)          * r;
             r2 = (float)Math.cos((i + step) * Math.PI / 180.0) * r;
             h1 = (float)Math.sin(i * Math.PI / 180.0)          * r;
             h2 = (float)Math.sin((i + step) * Math.PI / 180.0) * r;
             // 固定纬度, 360 度旋转遍历一条纬线
             float step2=step*2;
-            for (float j = 0.0f; j <360.0f+step; j +=step2 ) {
+            for (int j = 0; j < 360 + step; j +=step2 ) {
                 cos = (float) Math.cos(j * Math.PI / 180.0);
                 sin = -(float) Math.sin(j * Math.PI / 180.0);
 
@@ -612,6 +616,9 @@ public class MyDraw {
                 data.add(r1 * cos + x);
                 data.add(h1       + y);
                 data.add(r1 * sin + z);
+
+                count++;
+//                System.out.println("Count: " + count);
             }
         }
         float[] f=new float[data.size()];

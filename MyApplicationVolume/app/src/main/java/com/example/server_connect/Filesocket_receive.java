@@ -318,10 +318,6 @@ public class Filesocket_receive {
 
         Boolean stop = false;
 
-//        BasePopupView popupView = new XPopup.Builder(context[0])
-//                .asLoading("Downloading......");
-//        popupView.show();
-
         ActivityManager activityManager = (ActivityManager) context[0].getSystemService(Context.ACTIVITY_SERVICE);
         String runningActivity = activityManager.getRunningTasks(1).get(0).topActivity
                 .getClassName();
@@ -334,18 +330,8 @@ public class Filesocket_receive {
         }
 
         boolean[] ifDownloaded = { false };
-//        Handler handler = new Handler();
-
-        // 构建Runnable对象，并在runnable中更新UI
-//        Runnable   udpUIRunnable = new  Runnable(){
-//            @Override
-//            public void run() {
-//                popupView.dismiss();
-//            }
-//        };
 
         try{
-//          Looper.prepare();
 
             Log.v("readFile", "start to read file");
             DataInputStream in = new DataInputStream((FileInputStream)(filesocket.getInputStream()));

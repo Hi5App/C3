@@ -305,7 +305,7 @@ public class RemoteImg extends Socket {
     public void Selectblock_fast(Context context, boolean source, String direction){
 
         flag = false;
-        Log.v("Selectblock_fast","Here we are");
+        Log.v("SelectBlock_fast","Here we are");
         if (!source){
             ConnectServerImg(context);
         }
@@ -315,7 +315,7 @@ public class RemoteImg extends Socket {
         flag = true;
 
         if (getFilename(context) == "--11--"){
-            Toast.makeText(context,"Select file first!", Toast.LENGTH_SHORT);
+            Toast.makeText(context,"Select file first!", Toast.LENGTH_SHORT).show();
             return;
         }
 

@@ -73,22 +73,21 @@ public class AnoReader {
 
             //一共有多少行数据
             int num = arraylist.size();
-            Log.v("AnoReader", Integer.toString(num));
+            Log.v("AnoReader lines ", Integer.toString(num));
             for (int i = 0; i < num; i++){
                 String current = arraylist.get(i);
                 String [] s = current.split("=");
                 ArrayList<Float> cur_line = new ArrayList<Float>();
 
                 Log.v("AnoReader", s[1]);
-                String filetype = s[1].substring(s[1].length()-4);
+                String filetype = s[1].substring(s[1].lastIndexOf("."));
+
                 switch(filetype){
                     case ".apo":
-                        apo_uri = getUri(uri, s[1]);
                         apo_path = getFilePath(uri, s[1]);
                         Log.v("AnoReader apofilepath", apo_path);
                         break;
-                    case ".swc":
-                        swc_uri = getUri(uri, s[1]);
+                    case ".eswc":
                         swc_path = getFilePath(uri, s[1]);
                         Log.v("AnoReader swcfilepath", swc_path);
                         break;

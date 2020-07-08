@@ -31,6 +31,8 @@ import com.example.basic.ImageUtil;
 import com.example.basic.MyAnimation;
 import com.example.basic.NeuronTree;
 import com.example.basic.XYZ;
+import com.example.myapplication__volume.FileReader.AnoReader;
+import com.example.myapplication__volume.FileReader.ApoReader;
 import com.example.myapplication__volume.Rendering.MyAxis;
 import com.example.myapplication__volume.Rendering.MyDraw;
 import com.example.myapplication__volume.Rendering.MyMarker;
@@ -274,7 +276,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
 
         if (ifFileSupport){
-            if (fileType == FileType.TIF || fileType == FileType.V3draw || fileType == FileType.V3dPBD || fileType == FileType.SWC) {
+            if (fileType == FileType.TIF || fileType == FileType.V3draw || fileType == FileType.V3dPBD
+                    || fileType == FileType.SWC || fileType == FileType.APO || fileType == FileType.ANO) {
                 myAxis = new MyAxis(mz);
             }
             myDraw = new MyDraw();
@@ -463,16 +466,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             if (fileType == FileType.JPG || fileType == FileType.PNG)
                 myPattern2D.draw(finalMatrix);
 
-//        Log.v("onDrawFrame: ", Integer.toString(markerDrawed.size()));
 
-//        //现画的marker
-//        if(markerDrawed.size() > 0){
-//            for (int i = 0; i < markerDrawed.size(); i = i + 3){
-//                myDraw.drawMarker(finalMatrix, modelMatrix, markerDrawed.get(i), markerDrawed.get(i+1), markerDrawed.get(i+2));
-////                Log.v("onDrawFrame: ", "(" + markerDrawed.get(i) + ", " + markerDrawed.get(i+1) + ", " + markerDrawed.get(i+2) + ")");
-//
-//            }
-//        }
             if(curSwcList.nsegs()>0){
 //            System.out.println("------------draw curswclist------------------------");
                 ArrayList<Float> lines = new ArrayList<Float>();
@@ -631,20 +625,33 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            myDraw.drawEswc(finalMatrix, swcDrawed);
 //        }
 
+//            if (apoDrawed.size() > 0){
+//                float radius = 0.02f;
+//                if (fileType == FileType.JPG || fileType == FileType.PNG)
+//                    radius = 0.01f;
+//                Log.v("MyRender", "Load data successfully!");
+//                for (int i = 0; i < apoDrawed.size(); i = i + 4){
+//                    myDraw.drawMarker(finalMatrix, modelMatrix, apoDrawed.get(i), apoDrawed.get(i+1), apoDrawed.get(i+2),apoDrawed.get(i+3).intValue(), radius);
+//                }
+//            }
+
             //导入的apo
-            if (apoDrawed.size() > 0){
+            if (MarkerList_loaded.size() > 0){
+
                 float radius = 0.02f;
-                if (fileType == FileType.JPG || fileType == FileType.PNG)
-                    radius = 0.01f;
-                Log.v("MyRender", "Load data successfully!");
-                for (int i = 0; i < apoDrawed.size(); i = i + 4){
-                    myDraw.drawMarker(finalMatrix, modelMatrix, apoDrawed.get(i), apoDrawed.get(i+1), apoDrawed.get(i+2),apoDrawed.get(i+3).intValue(), radius);
+                for (int i = 0; i < MarkerList_loaded.size(); i++){
+                    ImageMarker imageMarker = MarkerList_loaded.get(i);
+                    float[] markerModel = VolumetoModel(new float[]{imageMarker.x, imageMarker.y, imageMarker.z});
+
+//                    Log.v("MyRender", "Draw marker: " + i +" !");
+//                    Log.v("MyRender",Arrays.toString(markerModel));
+                    myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, radius);
                 }
             }
 
 
             //
-            if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.SWC || fileType == FileType.V3dPBD)
+            if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.SWC || fileType == FileType.APO || fileType == FileType.ANO || fileType == FileType.V3dPBD)
                 if (myAxis != null)
                     myAxis.draw(finalMatrix);
 
@@ -889,6 +896,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         curSwcList.clear();
         MarkerList.clear();
+        MarkerList_loaded.clear();
 
         if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD){
             setImage();
@@ -899,7 +907,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         else if (fileType == FileType.SWC){
             bitmap2D = null;
             myPattern2D = null;
-//            img = null;
+            img = null;
             setSWC();
             ifFileLoaded = true;
             ifFileSupport = true;
@@ -911,14 +919,28 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             ifFileSupport = true;
         }
 
-//        else if (fileType == FileType.V3dPBD){
-//            setImage();
-//            ifFileSupport = true;
-//        }
+        else if (fileType == FileType.APO){
+            bitmap2D = null;
+            myPattern2D = null;
+            img = null;
+            setAPO();
+            ifFileLoaded = true;
+            ifFileSupport = true;
+        }
+
+        else if (fileType == FileType.ANO){
+            bitmap2D = null;
+            myPattern2D = null;
+            img = null;
+            setANO();
+            ifFileLoaded = true;
+            ifFileSupport = true;
+        }
 
         else {
             return;
         }
+
 //        curSwcList.clear();
 //        MarkerList.clear();
 
@@ -964,7 +986,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         else {
-            Toast.makeText(getContext(), "Do not support this file", Toast.LENGTH_LONG);
+            Toast.makeText(getContext(), "Do not support this file", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -1149,8 +1171,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 fileType = FileType.PNG;
                 break;
 
-            case ".apo":
+            case ".APO":
                 fileType = FileType.APO;
+                break;
+
+            case ".ANO":
+                fileType = FileType.ANO;
                 break;
 
             case "fail to read file":
@@ -1910,14 +1936,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         data_length = img.getDatatype().ordinal();
         isBig = img.getIsBig();
 
-//        vol_w = rr.get_w();
-//        vol_h = rr.get_h();
-//        vol_d = rr.get_d();
-
-//        sz[0] = vol_w;
-//        sz[1] = vol_h;
-//        sz[2] = vol_d;
-
         sz[0] = (int)img.getSz0();
         sz[1] = (int)img.getSz1();
         sz[2] = (int)img.getSz2();
@@ -1949,6 +1967,107 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         sz[0] = 0;
         sz[1] = 0;
         sz[2] = 0;
+
+        for(int i=0; i<curSwcList.seg.size(); i++){
+            V_NeuronSWC seg = curSwcList.seg.get(i);
+
+            for(int j=0; j<seg.row.size(); j++){
+
+                V_NeuronSWC_unit node = seg.row.get(j);
+
+                if (node.x > sz[0])
+                    sz[0] = (int) node.x;
+                if (node.y > sz[1])
+                    sz[1] = (int) node.y;
+                if (node.z > sz[2])
+                    sz[2] = (int) node.z;
+
+            }
+        }
+
+        sz[0] = (int) (1.2f * sz[0]);
+        sz[1] = (int) (1.2f * sz[1]);
+        sz[2] = (int) (1.2f * sz[2]);
+
+        Integer[] num = {sz[0], sz[1], sz[2]};
+        float max_dim = (float) Collections.max(Arrays.asList(num));
+        Log.v("MyRenderer", Float.toString(max_dim));
+
+        mz[0] = (float) sz[0]/max_dim;
+        mz[1] = (float) sz[1]/max_dim;
+        mz[2] = (float) sz[2]/max_dim;
+
+    }
+
+
+    private void setAPO(){
+        ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
+        ApoReader apoReader = new ApoReader();
+
+        Uri uri = Uri.parse(filepath);
+        apo = apoReader.read(uri);
+        importApo(apo);
+
+        sz[0] = 0;
+        sz[1] = 0;
+        sz[2] = 0;
+
+        for(int i=0; i<MarkerList_loaded.size(); i++){
+            ImageMarker marker = MarkerList_loaded.get(i);
+            if (marker.x > sz[0])
+                sz[0] = (int) marker.x;
+            if (marker.y > sz[1])
+                sz[1] = (int) marker.y;
+            if (marker.z > sz[2])
+                sz[2] = (int) marker.z;
+        }
+
+        sz[0] = (int) (1.2f * sz[0]);
+        sz[1] = (int) (1.2f * sz[1]);
+        sz[2] = (int) (1.2f * sz[2]);
+
+        Integer[] num = {sz[0], sz[1], sz[2]};
+        float max_dim = (float) Collections.max(Arrays.asList(num));
+        Log.v("MyRenderer", Float.toString(max_dim));
+
+        mz[0] = (float) sz[0]/max_dim;
+        mz[1] = (float) sz[1]/max_dim;
+        mz[2] = (float) sz[2]/max_dim;
+
+    }
+
+    private void setANO(){
+
+        ArrayList<ArrayList<Float>> ano_apo = new ArrayList<ArrayList<Float>>();
+        AnoReader anoReader = new AnoReader();
+        ApoReader apoReader_1 = new ApoReader();
+
+        Uri uri = Uri.parse(filepath);
+        anoReader.read(uri);
+
+        String swc_path = anoReader.getSwc_Path();
+        String apo_path = anoReader.getApo_Path();
+
+        NeuronTree nt2 = NeuronTree.readSWC_file(swc_path);
+        ano_apo = apoReader_1.read(apo_path);
+        importNeuronTree(nt2);
+        importApo(ano_apo);
+
+
+        sz[0] = 0;
+        sz[1] = 0;
+        sz[2] = 0;
+
+        for(int i=0; i<MarkerList_loaded.size(); i++){
+            ImageMarker marker = MarkerList_loaded.get(i);
+            if (marker.x > sz[0])
+                sz[0] = (int) marker.x;
+            if (marker.y > sz[1])
+                sz[1] = (int) marker.y;
+            if (marker.z > sz[2])
+                sz[2] = (int) marker.z;
+        }
+
 
         for(int i=0; i<curSwcList.seg.size(); i++){
             V_NeuronSWC seg = curSwcList.seg.get(i);
@@ -3842,8 +3961,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
     public void importNeuronTree(NeuronTree nt){
-//        V_NeuronSWC seg = nt.convertV_NeuronSWCFormat();
-//        curSwcList.append(seg);
 
         if (ifLoadSWC){
             deleteAllTracing();
@@ -3867,47 +3984,55 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
     public void importApo(ArrayList<ArrayList<Float>> apo){
-        for (int i = 0; i < apo.size(); i++){
-            ArrayList<Float> currentLine = apo.get(i);
+        try{
+            for (int i = 0; i < apo.size(); i++){
+                ArrayList<Float> currentLine = apo.get(i);
 
 //            apoDrawed.add((sz[0] - currentLine.get(5)) / sz[0] * mz[0]);
 //            apoDrawed.add((sz[1] - currentLine.get(6)) / sz[1] * mz[1]);
 //            apoDrawed.add((currentLine.get(4)) / sz[2] * mz[2]);
 
-            ImageMarker imageMarker_drawed = new ImageMarker(currentLine.get(5),
-                    currentLine.get(6),
-                    currentLine.get(4));
+                ImageMarker imageMarker_drawed = new ImageMarker(currentLine.get(5),
+                        currentLine.get(6),
+                        currentLine.get(4));
 
-            int r = currentLine.get(15).intValue();
-            int g = currentLine.get(16).intValue();
-            int b = currentLine.get(17).intValue();
+                int r = currentLine.get(15).intValue();
+                int g = currentLine.get(16).intValue();
+                int b = currentLine.get(17).intValue();
 
-            if (r == 0 && g == 0 && b == 0){
-                imageMarker_drawed.type = 0;
+                if (r == 0 && g == 0 && b == 0){
+                    imageMarker_drawed.type = 0;
 
-            }else if (r == 255 && g == 255 && b == 255){
-                imageMarker_drawed.type = 1;
+                }else if (r == 255 && g == 255 && b == 255){
+                    imageMarker_drawed.type = 1;
 
-            }else if (r == 255 && g == 0 && b == 0){
-                imageMarker_drawed.type = 2;
+                }else if (r == 255 && g == 0 && b == 0){
+                    imageMarker_drawed.type = 2;
 
-            }else if (r == 0 && g == 0 && b == 255){
-                imageMarker_drawed.type = 3;
+                }else if (r == 0 && g == 0 && b == 255){
+                    imageMarker_drawed.type = 3;
 
-            }else if (r == 0 && g == 255 && b == 0){
-                imageMarker_drawed.type = 4;
+                }else if (r == 0 && g == 255 && b == 0){
+                    imageMarker_drawed.type = 4;
 
-            }else if (r == 255 && g == 0 && b == 255){
-                imageMarker_drawed.type = 5;
+                }else if (r == 255 && g == 0 && b == 255){
+                    imageMarker_drawed.type = 5;
 
-            }else if (r == 255 && g == 255 && b == 0){
-                imageMarker_drawed.type = 6;
+                }else if (r == 255 && g == 255 && b == 0){
+                    imageMarker_drawed.type = 6;
 
+                }
+
+                System.out.println("ImageType: " + imageMarker_drawed.type);
+                MarkerList_loaded.add(imageMarker_drawed);
             }
 
-            MarkerList_loaded.add(imageMarker_drawed);
-        }
+            System.out.println("Size of : MarkerList_loaded: " + MarkerList_loaded.size());
 
+        }catch (Exception e){
+            MarkerList_loaded.clear();
+            e.printStackTrace();
+        }
 
     }
 

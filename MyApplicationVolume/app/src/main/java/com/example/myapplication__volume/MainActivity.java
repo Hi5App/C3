@@ -611,7 +611,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!myrenderer.getIfFileLoaded()){
-                    Toast.makeText(context, "Please load a file first", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 Draw(v);
@@ -1218,66 +1218,19 @@ public class MainActivity extends AppCompatActivity {
 //            Toast.makeText(this, "Open" + filePath + "--successfully", Toast.LENGTH_SHORT).show();
 
             try {
-
-                Log.v("MainActivity", "123456");
-//                Log.v("MainActivity",String.valueOf(fileSize));
-
-//                Uri uri_1 = Uri.parse((String) filePath);
-//                Log.v("Uri_1: ", uri_1.toString());
-
-
-                //用于测试能不能修改uri
-//                String uri_string = uri_old.toString();
-//                int index = uri_string.lastIndexOf("/");
-//
-//                String filePath = uri_string.substring(0, index+1) + "1pic1.v3draw.apo";
-//
-//                Uri uri = Uri.parse((String) filePath);
-
-
-                //-----------------------------------------------
-//                ParcelFileDescriptor parcelFileDescriptor =
-//                        getContentResolver().openFileDescriptor(uri, "r");
-//                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-//                int length = (int) parcelFileDescriptor.getStatSize();
-//
-//                Log.v("Legth: ", Integer.toString(length));
-
-                //-----------------------------------------------
-
-
-//                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-//
-//                eswc_length = (int)parcelFileDescriptor.getStatSize();
-//
-//                Log.v("Legth: ", Integer.toString(eswc_length));
-//
-//                ArrayList<ArrayList<Float>> eswc = new ArrayList<ArrayList<Float>>();
-//                EswcReader eswcReader = new EswcReader();
-//
-//                eswc = eswcReader.read(eswc_length, is);
-//
-//                myrenderer.importEswc(eswc);
-
+                Log.v("MainActivity", "onActivityResult");
                 if (ifImport) {
-//                    if (!myrenderer.ifImageLoaded()){
-//                        Toast.makeText(context, "Please open a image first", Toast.LENGTH_SHORT).show();
-//                        return;
-//                    }
-
-//                    Log.v("load file", filetype);
 
                     FileManager fileManager = new FileManager();
                     String fileName = fileManager.getFileName(uri);
                     String filetype = fileName.substring(fileName.lastIndexOf(".")).toUpperCase();
-
-                    System.out.println("filetype: " + filetype + " filename: " + fileName);
+                    System.out.println("FileType: " + filetype + ", FileName: " + fileName);
 
                     if (myrenderer.getIfFileLoaded()) {
-                        System.out.println("loaddddddddddd");
+                        System.out.println("------ load local file ------");
                         switch (filetype) {
                             case ".APO":
-                                Log.v("Mainctivity", uri.toString());
+                                Log.v("MainActivity", uri.toString());
                                 ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
                                 ApoReader apoReader = new ApoReader();
                                 apo = apoReader.read(uri);
@@ -1288,71 +1241,24 @@ public class MainActivity extends AppCompatActivity {
                                 myrenderer.importApo(apo);
                                 break;
                             case ".SWC":
-//                            ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
-//                            SwcReader swcReader = new SwcReader();
-//                            swc = swcReader.read(uri);
+                            case ".ESWC":
                                 NeuronTree nt = NeuronTree.readSWC_file(uri);
                                 myrenderer.importNeuronTree(nt);
                                 break;
+
                             case ".ANO":
-                                ArrayList<ArrayList<Float>> ano_swc = new ArrayList<ArrayList<Float>>();
                                 ArrayList<ArrayList<Float>> ano_apo = new ArrayList<ArrayList<Float>>();
                                 AnoReader anoReader = new AnoReader();
-                                SwcReader swcReader_1 = new SwcReader();
                                 ApoReader apoReader_1 = new ApoReader();
                                 anoReader.read(uri);
-
-//                        Uri swc_uri = anoReader.getSwc_result();
-//                        Uri apo_uri = anoReader.getApo_result();
 
                                 String swc_path = anoReader.getSwc_Path();
                                 String apo_path = anoReader.getApo_Path();
 
-//                        String swc_path = getPath(this, swc_uri);
-//                        String apo_path = getPath(this, apo_uri);
-
-
-////                        requestPermissions(PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
-//                        grantUriPermission(getPackageName(), swc_uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//                        ParcelFileDescriptor parcelFileDescriptor_swc =
-//                                getContentResolver().openFileDescriptor(swc_uri, "r");
-//                        InputStream is_swc = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor_swc);
-//                        int length_swc = (int)parcelFileDescriptor_swc.getStatSize();
-//
-//                        Log.v("Length of swc: ", Integer.toString(length_swc));
-//
-//
-////                        requestPermissions(PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
-//                        grantUriPermission(getPackageName(), apo_uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//                        ParcelFileDescriptor parcelFileDescriptor_apo =
-//                                getContentResolver().openFileDescriptor(apo_uri, "r");
-//                        InputStream is_apo = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor_apo);
-//                        int length_apo = (int)parcelFileDescriptor_apo.getStatSize();
-//
-//                        Log.v("Length of apo: ", Integer.toString(length_apo));
-
-
-//                        ano_swc = swcReader_1.read(length_swc, is_swc);
-//                        ano_apo = apoReader_1.read(length_apo, is_apo);
-
-//                        ano_swc = swcReader_1.read(swc_uri);
-//                        ano_apo = apoReader_1.read(apo_uri);
-
-//                            ano_swc = swcReader_1.read(swc_path);
                                 NeuronTree nt2 = NeuronTree.readSWC_file(swc_path);
                                 ano_apo = apoReader_1.read(apo_path);
-//                            myrenderer.importSwc(ano_swc);
                                 myrenderer.importNeuronTree(nt2);
                                 myrenderer.importApo(ano_apo);
-                                break;
-                            case ".ESWC":
-//                            ArrayList<ArrayList<Float>> eswc = new ArrayList<ArrayList<Float>>();
-//                            EswcReader eswcReader = new EswcReader();
-//
-//                            eswc = eswcReader.read(length, is);
-//                            myrenderer.importEswc(eswc);
-                                NeuronTree nt1 = NeuronTree.readSWC_file(uri);
-                                myrenderer.importNeuronTree(nt1);
                                 break;
 
                             default:
@@ -1362,7 +1268,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     else {
-                        System.out.println("opennnnnnnnnnnnnn");
+                        System.out.println("-------- open --------");
                         myrenderer.SetSWCPath(filePath);
                         ifLoadLocal = false;
                         if (isBigData_Remote || isBigData_Local){
@@ -1380,16 +1286,6 @@ public class MainActivity extends AppCompatActivity {
                             isBigData_Local  = false;
                             try {
 
-//                                ((ViewGroup)Zoom_in.getParent()).removeView(Zoom_in);
-//                                ((ViewGroup)Zoom_out.getParent()).removeView(Zoom_out);
-//                                ((ViewGroup)navigation_left.getParent()).removeView(navigation_left);
-//                                ((ViewGroup)navigation_right.getParent()).removeView(navigation_right);
-//                                ((ViewGroup)navigation_up.getParent()).removeView(navigation_up);
-//                                ((ViewGroup)navigation_down.getParent()).removeView(navigation_down);
-//                                ((ViewGroup)navigation_front.getParent()).removeView(navigation_front);
-//                                ((ViewGroup)navigation_back.getParent()).removeView(navigation_back);
-//                                ((ViewGroup)navigation_location.getParent()).removeView(navigation_location);
-
                                 Zoom_in_Big.setVisibility(View.GONE);
                                 Zoom_out_Big.setVisibility(View.GONE);
                                 navigation_left.setVisibility(View.GONE);
@@ -1402,13 +1298,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 Zoom_in.setVisibility(View.VISIBLE);
                                 Zoom_out.setVisibility(View.VISIBLE);
-//                                FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
-//                                lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
-//                                this.addContentView(Zoom_in, lp_zoom_in_no);
-//
-//                                FrameLayout.LayoutParams lp_zoom_out_no = new FrameLayout.LayoutParams(100, 150);
-//                                lp_zoom_out_no.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
-//                                this.addContentView(Zoom_out, lp_zoom_out_no);
+
                             }catch (Exception e){
                                 e.printStackTrace();
                             }
@@ -1458,8 +1348,7 @@ public class MainActivity extends AppCompatActivity {
                             try {
                                 sync_push.setVisibility(View.GONE);
                                 sync_pull.setVisibility(View.GONE);
-//                                ((ViewGroup)sync_pull.getParent()).removeView(sync_pull);
-//                                ((ViewGroup)sync_push.getParent()).removeView(sync_push);
+
                             } catch (Exception e){
                                 e.printStackTrace();
                             }
@@ -1467,15 +1356,6 @@ public class MainActivity extends AppCompatActivity {
                         isBigData_Remote = false;
                         isBigData_Local  = false;
                         try {
-//                            ((ViewGroup)Zoom_in.getParent()).removeView(Zoom_in);
-//                            ((ViewGroup)Zoom_out.getParent()).removeView(Zoom_out);
-//                            ((ViewGroup)navigation_left.getParent()).removeView(navigation_left);
-//                            ((ViewGroup)navigation_right.getParent()).removeView(navigation_right);
-//                            ((ViewGroup)navigation_up.getParent()).removeView(navigation_up);
-//                            ((ViewGroup)navigation_down.getParent()).removeView(navigation_down);
-//                            ((ViewGroup)navigation_front.getParent()).removeView(navigation_front);
-//                            ((ViewGroup)navigation_back.getParent()).removeView(navigation_back);
-//                            ((ViewGroup)navigation_location.getParent()).removeView(navigation_location);
 
                             Zoom_in_Big.setVisibility(View.GONE);
                             Zoom_out_Big.setVisibility(View.GONE);
@@ -1490,13 +1370,6 @@ public class MainActivity extends AppCompatActivity {
                             Zoom_in.setVisibility(View.VISIBLE);
                             Zoom_out.setVisibility(View.VISIBLE);
 
-//                            FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
-//                            lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
-//                            this.addContentView(Zoom_in, lp_zoom_in_no);
-//
-//                            FrameLayout.LayoutParams lp_zoom_out_no = new FrameLayout.LayoutParams(100, 150);
-//                            lp_zoom_out_no.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
-//                            this.addContentView(Zoom_out, lp_zoom_out_no);
                         }catch (Exception e){
                             e.printStackTrace();
                         }
@@ -4080,7 +3953,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200708b 13:26 UTC+8 build",
+                                "Version: 20200708c 23:00 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4146,12 +4019,12 @@ public class MainActivity extends AppCompatActivity {
     public void Select_img(){
         Context context = this;
         new XPopup.Builder(this)
-                .asCenterList("Select Remote server", new String[]{"Aliyun Server", "SEU Server", "Local Server"},
+                .asCenterList("Select Remote Server", new String[]{"AliYun Server", "SEU Server", "Local Server"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text) {
-                                    case "Aliyun Server":
+                                    case "AliYun Server":
                                         String ip = "39.100.35.131";
                                         ConnectServer(ip, context);
                                         break;
