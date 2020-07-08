@@ -96,6 +96,7 @@ import com.tracingfunc.app2.V3dNeuronAPP2Tracing;
 import com.tracingfunc.gd.CurveTracePara;
 import com.tracingfunc.gd.V3dNeuronGDTracing;
 import com.tracingfunc.gd.V_NeuronSWC;
+import com.tracingfunc.gd.V_NeuronSWC_list;
 import com.tracingfunc.gsdt.GSDT;
 import com.tracingfunc.gsdt.ParaGSDT;
 
@@ -3953,7 +3954,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200708c 23:00 UTC+8 build",
+                                "Version: 20200708d 23:37 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -6024,11 +6025,19 @@ public class MainActivity extends AppCompatActivity {
 //                                            int segid = myrenderer.addLineDrawed(lineDrawed);
 //                                    segids.add(segid);
 //                            requestRender();
-                                                    int [] curUndo = new int[1];
-                                                    curUndo[0] = -1;
-                                                    V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed, curUndo);
-                                                    myrenderer.addLineDrawed2(lineDrawed);
-                                                    myrenderer.deleteFromCur(seg, curUndo[0]);
+//                                                    int [] curUndo = new int[1];
+//                                                    curUndo[0] = -1;
+                                                    V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
+                                                    V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed, v_neuronSWC_list);
+                                                    System.out.println("feature");
+//                                                    System.out.println(v_neuronSWC_list.seg.size());
+                                                    if (seg != null) {
+                                                        myrenderer.addLineDrawed2(lineDrawed);
+                                                        myrenderer.deleteFromCur(seg, v_neuronSWC_list[0]);
+                                                    }
+                                                    else {
+                                                        Toast.makeText(getContext(), "Please make sure the curve is inside the bounding box", Toast.LENGTH_LONG);
+                                                    }
 //                                            myrenderer.deleteFromNew(segid);
                                                 } else {
                                                     myrenderer.addBackgroundLineDrawed(lineDrawed);

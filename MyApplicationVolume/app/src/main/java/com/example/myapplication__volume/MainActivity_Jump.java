@@ -94,6 +94,7 @@ import com.tracingfunc.app2.V3dNeuronAPP2Tracing;
 import com.tracingfunc.gd.CurveTracePara;
 import com.tracingfunc.gd.V3dNeuronGDTracing;
 import com.tracingfunc.gd.V_NeuronSWC;
+import com.tracingfunc.gd.V_NeuronSWC_list;
 import com.tracingfunc.gsdt.GSDT;
 import com.tracingfunc.gsdt.ParaGSDT;
 
@@ -1018,6 +1019,7 @@ public class MainActivity_Jump extends AppCompatActivity {
      * @param resultCode
      * @param data
      */
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -5683,10 +5685,14 @@ public class MainActivity_Jump extends AppCompatActivity {
 //                                            int segid = myrenderer.addLineDrawed(lineDrawed);
 //                                    segids.add(segid);
 //                            requestRender();
-                                                    int [] curUndo = new int[1];
-                                                    V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed, curUndo);
-                                                    myrenderer.addLineDrawed2(lineDrawed);
-                                                    myrenderer.deleteFromCur(seg, curUndo[0]);
+                                                    V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
+                                                    V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed, v_neuronSWC_list);
+                                                    System.out.println("feature");
+//                                                    System.out.println(v_neuronSWC_list.seg.size());
+                                                    if (seg != null) {
+                                                        myrenderer.addLineDrawed2(lineDrawed);
+                                                        myrenderer.deleteFromCur(seg, v_neuronSWC_list[0]);
+                                                    }
 //                                            myrenderer.deleteFromNew(segid);
                                                 } else {
                                                     myrenderer.addBackgroundLineDrawed(lineDrawed);
