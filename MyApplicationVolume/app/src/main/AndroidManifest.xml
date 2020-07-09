@@ -35,7 +35,8 @@
         android:largeHeap="true"
 
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:configChanges="keyboardHidden|orientation|layoutDirection|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

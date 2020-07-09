@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -398,7 +399,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        System.out.println("------------------");
+        System.out.println("onCreate");
 
         isBigData_Remote = false;
         isBigData_Local  = false;
@@ -958,6 +960,17 @@ public class MainActivity extends AppCompatActivity {
             dir_server.mkdirs();
         }
 
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE){
+//            Toast.makeText(getContext(), "横屏", Toast.LENGTH_LONG).show();
+        }else{
+//            Toast.makeText(getContext(), "竖屏", Toast.LENGTH_LONG).show();
+        }
     }
 
     /**
@@ -3954,7 +3967,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200708d 23:37 UTC+8 build",
+                                "Version: 20200709a 18:07 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -6027,12 +6040,13 @@ public class MainActivity extends AppCompatActivity {
 //                            requestRender();
 //                                                    int [] curUndo = new int[1];
 //                                                    curUndo[0] = -1;
-                                                    V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
-                                                    V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed, v_neuronSWC_list);
+
+                                                    V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed);
                                                     System.out.println("feature");
 //                                                    System.out.println(v_neuronSWC_list.seg.size());
                                                     if (seg != null) {
-                                                        myrenderer.addLineDrawed2(lineDrawed);
+                                                        V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
+                                                        myrenderer.addLineDrawed2(lineDrawed, v_neuronSWC_list);
                                                         myrenderer.deleteFromCur(seg, v_neuronSWC_list[0]);
                                                     }
                                                     else {

@@ -270,6 +270,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         screen_w = width;
         screen_h = height;
 
+        System.out.println("----------------");
         System.out.println(screen_w);
         System.out.println(screen_h);
 
@@ -3113,6 +3114,132 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             Log.v("draw line:::::", "nulllllllllllllllllll");
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public synchronized void addLineDrawed2(ArrayList<Float> line, V_NeuronSWC_list [] v_neuronSWC_lists) throws CloneNotSupportedException {
+        if (img.getData() == null){
+            return;
+        }
+        Vector<MyMarker> outswc = solveCurveMarkerLists_fm(line);
+
+        if (outswc == null){
+
+            Toast.makeText(getContext(), "Make sure the point is in boundingbox", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        ArrayList<Float> lineAdded = new ArrayList<>();
+        for (int i = 0; i < outswc.size(); i++){
+
+            lineAdded.add((float)outswc.get(i).x);
+            lineAdded.add((float)outswc.get(i).y);
+            lineAdded.add((float)outswc.get(i).z);
+
+//            System.out.println("( " + (int) outswc.get(i).x + "," + (int) outswc.get(i).y + "," + (int) outswc.get(i).z + " )");
+
+//            float [] curswc = {(float)outswc.get(i).x, (float)outswc.get(i).y, (float)outswc.get(i).z};
+//            VolumetoModel(curswc);
+//
+//            lineAdded.add(curswc[0]);
+//            lineAdded.add(curswc[1]);
+//            lineAdded.add(curswc[2]);
+
+        }
+        if (lineAdded != null){
+//            lineDrawed.add(lineAdded);
+            int max_n = curSwcList.maxnoden();
+            V_NeuronSWC seg = new  V_NeuronSWC();
+            for(int i=0; i < lineAdded.size()/3; i++){
+                V_NeuronSWC_unit u = new V_NeuronSWC_unit();
+                u.n = max_n + i+ 1;
+                if(i==0)
+                    u.parent = -1;
+                else
+                    u.parent = max_n + i;
+//                float[] xyz = ModeltoVolume(new float[]{lineAdded.get(i*3+0),lineAdded.get(i*3+1),lineAdded.get(i*3+2)});
+                float[] xyz = new float[]{lineAdded.get(i*3+0),lineAdded.get(i*3+1),lineAdded.get(i*3+2)};
+                u.x = xyz[0];
+                u.y = xyz[1];
+                u.z = xyz[2];
+                u.type = lastLineType;
+                seg.append(u);
+//                System.out.println("u n p x y z: "+ u.n +" "+u.parent+" "+u.x +" "+u.y+ " "+u.z);
+            }
+            if(seg.row.size()<3){
+                return;
+            }
+            float[] headXYZ = new float[]{(float) seg.row.get(0).x, (float) seg.row.get(0).y, (float) seg.row.get(0).z};
+            float[] tailXYZ = new float[]{(float) seg.row.get(seg.row.size()-1).x,
+                    (float) seg.row.get(seg.row.size()-1).y,
+                    (float) seg.row.get(seg.row.size()-1).z};
+            boolean linked = false;
+            for(int i=0; i<curSwcList.seg.size(); i++){
+                V_NeuronSWC s = curSwcList.seg.get(i);
+                for(int j=0; j<s.row.size(); j++){
+                    if(linked)
+                        break;
+                    V_NeuronSWC_unit node = s.row.get(j);
+                    float[] nodeXYZ = new float[]{(float) node.x, (float) node.y, (float) node.z};
+                    if(distance(headXYZ,nodeXYZ)<5){
+                        V_NeuronSWC_unit head = seg.row.get(0);
+                        V_NeuronSWC_unit child = seg.row.get(1);
+                        head.x = node.x;
+                        head.y = node.y;
+                        head.z = node.z;
+                        head.n = node.n;
+                        head.parent = node.parent;
+                        child.parent = head.n;
+                        linked = true;
+                        break;
+                    }
+                    if(distance(tailXYZ,nodeXYZ)<5){
+                        seg.reverse();
+                        V_NeuronSWC_unit tail = seg.row.get(seg.row.size()-1);
+                        V_NeuronSWC_unit child = seg.row.get(seg.row.size()-2);
+                        tail.x = node.x;
+                        tail.y = node.y;
+                        tail.z = node.z;
+                        tail.n = node.n;
+                        tail.parent = node.parent;
+                        child.n = tail.n;
+                        linked = true;
+                        break;
+                    }
+                }
+            }
+
+            ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+            V_NeuronSWC_list tempCurveList = curSwcList.clone();
+
+            if (curUndo < UNDO_LIMIT){
+                curUndo += 1;
+                undoMarkerList.add(tempMarkerList);
+                undoCurveList.add(tempCurveList);
+            } else {
+                undoMarkerList.remove(0);
+                undoCurveList.remove(0);
+                undoMarkerList.add(tempMarkerList);
+                undoCurveList.add(tempCurveList);
+            }
+
+            v_neuronSWC_lists[0] = tempCurveList;
+
+            curSwcList.append(seg);
+//            if (process.size() < UNDO_LIMIT){
+//                process.add(Operate.DRAWCURVE);
+//                undoDrawList.add(seg);
+//            } else{
+//                Operate first = process.firstElement();
+//                process.remove(0);
+//                process.add(Operate.DRAWCURVE);
+//                removeFirstUndo(first);
+//                undoDrawList.add(seg);
+//            }
+//            Log.v("addLineDrawed", Integer.toString(lineAdded.size()));
+        }
+        else
+            Log.v("draw line:::::", "nulllllllllllllllllll");
+    }
+
     private Vector<Integer> resampleCurveStroke(ArrayList<Float> listCurvePos){
         Vector<Integer> ids = new Vector<>();
         int N = listCurvePos.size() / 3;
@@ -3432,10 +3559,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            c[0] = undoMarkerList.size();
 
 //            markerList = (ArrayList<ImageMarker>)MarkerList.clone();
-            v_neuronSWC_list[0] = undoCurveList.get(undoCurveList.size() - 1);
+            v_neuronSWC_list[0] = tempCurveList;
 
 
             curSwcList.append(seg);
+
+//            v_neuronSWC_list[0] = curSwcList.clone();
+
+//            if (v_neuronSWC_list[0].seg.get(0).equals(curSwcList.seg.get(0))){
+//                System.out.println("Equallllllllll");
+//                System.out.println("Equallllllllll");
+//                System.out.println("Equallllllllll");
+//                System.out.println("Equallllllllll");
+//            }
 //            if (process.size() < UNDO_LIMIT){
 //                process.add(Operate.DRAWCURVE);
 //                undoDrawList.add(seg);
@@ -3483,8 +3619,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             int i = undoCurveList.lastIndexOf(v_neuronSWC_list);
             System.out.println("delete:::::");
             System.out.println(i);
-            undoCurveList.remove(i + 1);
-            undoMarkerList.remove(i + 1);
+            undoCurveList.remove(i);
+            undoMarkerList.remove(i);
             curUndo -= 1;
         }
 
