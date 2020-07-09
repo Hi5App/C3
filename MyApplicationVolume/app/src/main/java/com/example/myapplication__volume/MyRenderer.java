@@ -217,6 +217,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private boolean ifFileLoaded = false;
     private boolean ifLoadSWC = false;
 
+    private boolean ifShowSWC = true;
+
     private Context context_myrenderer;
 
     private int degree = 0;
@@ -472,98 +474,99 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             if (fileType == FileType.JPG || fileType == FileType.PNG)
                 myPattern2D.draw(finalMatrix);
 
+            if (ifShowSWC) {
 
-            if(curSwcList.nsegs()>0){
+                if (curSwcList.nsegs() > 0) {
 //            System.out.println("------------draw curswclist------------------------");
-                ArrayList<Float> lines = new ArrayList<Float>();
-                for(int i=0; i<curSwcList.seg.size(); i++){
+                    ArrayList<Float> lines = new ArrayList<Float>();
+                    for (int i = 0; i < curSwcList.seg.size(); i++) {
 //                System.out.println("i: "+i);
-                    V_NeuronSWC seg = curSwcList.seg.get(i);
+                        V_NeuronSWC seg = curSwcList.seg.get(i);
 //                ArrayList<Float> currentLine = swc.get(i);
-                    Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
-                    lines.clear();
-                    for(int j=0; j<seg.row.size(); j++){
-                        if(seg.row.get(j).parent != -1 && seg.getIndexofParent(j) != -1){
-                            V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(j));
-                            swcUnitMap.put(j,parent);
+                        Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
+                        lines.clear();
+                        for (int j = 0; j < seg.row.size(); j++) {
+                            if (seg.row.get(j).parent != -1 && seg.getIndexofParent(j) != -1) {
+                                V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(j));
+                                swcUnitMap.put(j, parent);
+                            }
                         }
-                    }
 //                System.out.println("---------------end map-----------------------");
-                    for(int j=0; j<seg.row.size(); j++){
+                        for (int j = 0; j < seg.row.size(); j++) {
 //                    System.out.println("in row: "+j+"-------------------");
-                        V_NeuronSWC_unit child = seg.row.get(j);
-                        int parentid = (int) child.parent;
-                        if (parentid == -1 || seg.getIndexofParent(j) == -1 ){
+                            V_NeuronSWC_unit child = seg.row.get(j);
+                            int parentid = (int) child.parent;
+                            if (parentid == -1 || seg.getIndexofParent(j) == -1) {
 //                        System.out.println("parent -1");
-                            float x = (int)child.x;
-                            float y = (int)child.y;
-                            float z = (int)child.z;
-                            float [] position = VolumetoModel(new float[]{x, y, z});
-                            myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int)child.type);
-                            continue;
-                        }
-                        V_NeuronSWC_unit parent = swcUnitMap.get(j);
-                        lines.add((float) ((sz[0] - parent.x)/sz[0]*mz[0]));
-                        lines.add((float) ((sz[1] - parent.y)/sz[1]*mz[1]));
-                        lines.add((float) ((parent.z)/sz[2]*mz[2]));
-                        lines.add((float) ((sz[0] - child.x)/sz[0]*mz[0]));
-                        lines.add((float) ((sz[1] - child.y)/sz[1]*mz[1]));
-                        lines.add((float) ((child.z)/sz[2]*mz[2]));
+                                float x = (int) child.x;
+                                float y = (int) child.y;
+                                float z = (int) child.z;
+                                float[] position = VolumetoModel(new float[]{x, y, z});
+                                myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int) child.type);
+                                continue;
+                            }
+                            V_NeuronSWC_unit parent = swcUnitMap.get(j);
+                            lines.add((float) ((sz[0] - parent.x) / sz[0] * mz[0]));
+                            lines.add((float) ((sz[1] - parent.y) / sz[1] * mz[1]));
+                            lines.add((float) ((parent.z) / sz[2] * mz[2]));
+                            lines.add((float) ((sz[0] - child.x) / sz[0] * mz[0]));
+                            lines.add((float) ((sz[1] - child.y) / sz[1] * mz[1]));
+                            lines.add((float) ((child.z) / sz[2] * mz[2]));
 //                    System.out.println("in draw line--------------"+j);
 //                    System.out.println("type: "+parent.type);
-                        myDraw.drawLine(finalMatrix, lines, (int) parent.type);
-                        lines.clear();
+                            myDraw.drawLine(finalMatrix, lines, (int) parent.type);
+                            lines.clear();
+                        }
                     }
+
                 }
 
-            }
-
-            if(newSwcList.nsegs()>0){
+                if (newSwcList.nsegs() > 0) {
 //            System.out.println("------------draw curswclist------------------------");
-                ArrayList<Float> lines = new ArrayList<Float>();
-                for(int i=0; i<newSwcList.seg.size(); i++){
+                    ArrayList<Float> lines = new ArrayList<Float>();
+                    for (int i = 0; i < newSwcList.seg.size(); i++) {
 //                System.out.println("i: "+i);
-                    V_NeuronSWC seg = newSwcList.seg.get(i);
+                        V_NeuronSWC seg = newSwcList.seg.get(i);
 //                ArrayList<Float> currentLine = swc.get(i);
-                    Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
-                    lines.clear();
-                    for(int j=0; j<seg.row.size(); j++){
-                        if(seg.row.get(j).parent != -1 && seg.getIndexofParent(j) != -1){
-                            V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(j));
-                            swcUnitMap.put(j,parent);
+                        Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
+                        lines.clear();
+                        for (int j = 0; j < seg.row.size(); j++) {
+                            if (seg.row.get(j).parent != -1 && seg.getIndexofParent(j) != -1) {
+                                V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(j));
+                                swcUnitMap.put(j, parent);
+                            }
                         }
-                    }
 //                System.out.println("---------------end map-----------------------");
-                    for(int j=0; j<seg.row.size(); j++){
+                        for (int j = 0; j < seg.row.size(); j++) {
 //                    System.out.println("in row: "+j+"-------------------");
-                        V_NeuronSWC_unit child = seg.row.get(j);
-                        int parentid = (int) child.parent;
-                        if (parentid == -1 || seg.getIndexofParent(j) == -1 ){
+                            V_NeuronSWC_unit child = seg.row.get(j);
+                            int parentid = (int) child.parent;
+                            if (parentid == -1 || seg.getIndexofParent(j) == -1) {
 //                        System.out.println("parent -1");
-                            float x = (int)child.x;
-                            float y = (int)child.y;
-                            float z = (int)child.z;
-                            float [] position = VolumetoModel(new float[]{x, y, z});
-                            myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int)child.type);
-                            continue;
-                        }
-                        V_NeuronSWC_unit parent = swcUnitMap.get(j);
-                        lines.add((float) ((sz[0] - parent.x)/sz[0]*mz[0]));
-                        lines.add((float) ((sz[1] - parent.y)/sz[1]*mz[1]));
-                        lines.add((float) ((parent.z)/sz[2]*mz[2]));
-                        lines.add((float) ((sz[0] - child.x)/sz[0]*mz[0]));
-                        lines.add((float) ((sz[1] - child.y)/sz[1]*mz[1]));
-                        lines.add((float) ((child.z)/sz[2]*mz[2]));
+                                float x = (int) child.x;
+                                float y = (int) child.y;
+                                float z = (int) child.z;
+                                float[] position = VolumetoModel(new float[]{x, y, z});
+                                myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int) child.type);
+                                continue;
+                            }
+                            V_NeuronSWC_unit parent = swcUnitMap.get(j);
+                            lines.add((float) ((sz[0] - parent.x) / sz[0] * mz[0]));
+                            lines.add((float) ((sz[1] - parent.y) / sz[1] * mz[1]));
+                            lines.add((float) ((parent.z) / sz[2] * mz[2]));
+                            lines.add((float) ((sz[0] - child.x) / sz[0] * mz[0]));
+                            lines.add((float) ((sz[1] - child.y) / sz[1] * mz[1]));
+                            lines.add((float) ((child.z) / sz[2] * mz[2]));
 //                    System.out.println("in draw line--------------"+j);
 //                    System.out.println("type: "+parent.type);
-                        myDraw.drawLine(finalMatrix, lines, (int) parent.type);
-                        lines.clear();
+                            myDraw.drawLine(finalMatrix, lines, (int) parent.type);
+                            lines.clear();
+                        }
                     }
+
                 }
 
-            }
-
-            //画的分界点
+                //画的分界点
 //        if (splitPoints.size() > 0){
 //            for (int i = 0; i < splitPoints.size() / 3; i++) {
 //                float x = splitPoints.get(i * 3);
@@ -573,27 +576,26 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            }
 //        }
 
-            //现画的marker
-            if(MarkerList.size() > 0){
-                float radius = 0.02f;
-                if (fileType == FileType.JPG || fileType == FileType.PNG)
-                    radius = 0.01f;
-                for (int i = 0; i < MarkerList.size(); i++){
+                //现画的marker
+                if (MarkerList.size() > 0) {
+                    float radius = 0.02f;
+                    if (fileType == FileType.JPG || fileType == FileType.PNG)
+                        radius = 0.01f;
+                    for (int i = 0; i < MarkerList.size(); i++) {
 //                System.out.println("start draw marker---------------------");
-                    ImageMarker imageMarker = MarkerList.get(i);
-                    float[] markerModel = VolumetoModel(new float[]{imageMarker.x, imageMarker.y, imageMarker.z});
-                    if(imageMarker.radius == 5){
-                        myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, 0.01f);
-                    }
-                    else{
-                        myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, radius);
-                    }
+                        ImageMarker imageMarker = MarkerList.get(i);
+                        float[] markerModel = VolumetoModel(new float[]{imageMarker.x, imageMarker.y, imageMarker.z});
+                        if (imageMarker.radius == 5) {
+                            myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, 0.01f);
+                        } else {
+                            myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, radius);
+                        }
 //                Log.v("onDrawFrame: ", "(" + markerDrawed.get(i) + ", " + markerDrawed.get(i+1) + ", " + markerDrawed.get(i+2) + ")");
 
+                    }
                 }
-            }
 
-            //现画的curve
+                //现画的curve
 //        if (lineDrawed.size() > 0){
 //            for (int i = 0; i < lineDrawed.size(); i++){
 //                myDraw.drawLine(finalMatrix, lineDrawed.get(i));
@@ -605,23 +607,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        }
 
 
-
-            //画curve留下的痕迹
-            if (ifPainting) {
-                if(linePoints.length > 0){
-//                Log.v("drawline", "trueeeeeeeeeeeee");
-//                String s = "";
-//                for (int i = 0; i < linePoints.length; i++){
-//                    s = s + " " + Float.toString(linePoints[i]);
-//                }
-//                Log.v("linePoints", s);
-                    int num = linePoints.length / 3;
-
-                    myDraw.drawPoints(linePoints, num);
-                }
-            }
-
-            //导入的eswc
+                //导入的eswc
 //        if (eswcDrawed.size() > 0){
 //            myDraw.drawEswc(finalMatrix, eswcDrawed);
 //        }
@@ -641,17 +627,33 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                }
 //            }
 
-            //导入的apo
-            if (MarkerList_loaded.size() > 0){
+                //导入的apo
+                if (MarkerList_loaded.size() > 0) {
 
-                float radius = 0.02f;
-                for (int i = 0; i < MarkerList_loaded.size(); i++){
-                    ImageMarker imageMarker = MarkerList_loaded.get(i);
-                    float[] markerModel = VolumetoModel(new float[]{imageMarker.x, imageMarker.y, imageMarker.z});
+                    float radius = 0.02f;
+                    for (int i = 0; i < MarkerList_loaded.size(); i++) {
+                        ImageMarker imageMarker = MarkerList_loaded.get(i);
+                        float[] markerModel = VolumetoModel(new float[]{imageMarker.x, imageMarker.y, imageMarker.z});
 
 //                    Log.v("MyRender", "Draw marker: " + i +" !");
 //                    Log.v("MyRender",Arrays.toString(markerModel));
-                    myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, radius);
+                        myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, radius);
+                    }
+                }
+            }
+
+            //画curve留下的痕迹
+            if (ifPainting) {
+                if(linePoints.length > 0){
+//                Log.v("drawline", "trueeeeeeeeeeeee");
+//                String s = "";
+//                for (int i = 0; i < linePoints.length; i++){
+//                    s = s + " " + Float.toString(linePoints[i]);
+//                }
+//                Log.v("linePoints", s);
+                    int num = linePoints.length / 3;
+
+                    myDraw.drawPoints(linePoints, num);
                 }
             }
 
@@ -4721,6 +4723,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public boolean if2dImageLoaded() {
         return !(bitmap2D == null);
+    }
+
+    public void setIfShowSWC(boolean b){
+        ifShowSWC = b;
+    }
+
+    public boolean getIfShowSWC(){
+        return ifShowSWC;
     }
 }
 

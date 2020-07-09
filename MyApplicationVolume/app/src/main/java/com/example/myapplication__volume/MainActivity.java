@@ -227,6 +227,7 @@ public class MainActivity extends AppCompatActivity {
     private static Button Zoom_out_Big;
     private Button Rotation;
     private ImageButton Rotation_i;
+    private ImageButton Hide_i;
     private ImageButton Sync_i;
     private Button Sync;
     private Button Switch;
@@ -701,6 +702,32 @@ public class MainActivity extends AppCompatActivity {
         Rotation_i.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 Rotation();
+            }
+        });
+
+        FrameLayout.LayoutParams lp_hide = new FrameLayout.LayoutParams(120, 120);
+        lp_hide.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        lp_hide.setMargins(0, 0, 20, 160);
+
+        Hide_i = new ImageButton(this);
+        Hide_i.setImageResource(R.drawable.ic_visibility_red_24dp);
+        Hide_i.setBackgroundResource(R.drawable.circle_normal);
+
+        this.addContentView(Hide_i, lp_hide);
+
+        Hide_i.setOnClickListener(new Button.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (myrenderer.getIfShowSWC()){
+                    myrenderer.setIfShowSWC(false);
+                    myGLSurfaceView.requestRender();
+                    Hide_i.setImageResource(R.drawable.ic_visibility_off_red_24dp);
+                } else {
+                    myrenderer.setIfShowSWC(true);
+                    myGLSurfaceView.requestRender();
+                    Hide_i.setImageResource(R.drawable.ic_visibility_red_24dp);
+                }
             }
         });
 
@@ -3967,7 +3994,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200709a 18:07 UTC+8 build",
+                                "Version: 20200709b 21:26 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
