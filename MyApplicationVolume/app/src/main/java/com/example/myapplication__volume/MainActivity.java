@@ -707,7 +707,7 @@ public class MainActivity extends AppCompatActivity {
 
         FrameLayout.LayoutParams lp_hide = new FrameLayout.LayoutParams(120, 120);
         lp_hide.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_hide.setMargins(0, 0, 20, 160);
+        lp_hide.setMargins(0, 0, 160, 20);
 
         Hide_i = new ImageButton(this);
         Hide_i.setImageResource(R.drawable.ic_visibility_red_24dp);
@@ -719,6 +719,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
+                if (!myrenderer.getIfFileLoaded()){
+                    Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 if (myrenderer.getIfShowSWC()){
                     myrenderer.setIfShowSWC(false);
                     myGLSurfaceView.requestRender();
@@ -3994,7 +3999,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200709b 21:26 UTC+8 build",
+                                "Version: 202007012a 23:55 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -6629,22 +6634,33 @@ public class MainActivity extends AppCompatActivity {
         ll_bottom.setVisibility(View.GONE);
 
         animation_i.setVisibility(View.GONE);
-        Zoom_in.setVisibility(View.GONE);
-        Zoom_out.setVisibility(View.GONE);
         Rotation_i.setVisibility(View.GONE);
-        navigation_back.setVisibility(View.GONE);
-        navigation_down.setVisibility(View.GONE);
-        navigation_front.setVisibility(View.GONE);
-        navigation_left.setVisibility(View.GONE);
-        navigation_right.setVisibility(View.GONE);
-        navigation_up.setVisibility(View.GONE);
-        navigation_location.setVisibility(View.GONE);
+        Hide_i.setVisibility(View.GONE);
+
+        if (isBigData_Remote || isBigData_Local){
+            navigation_back.setVisibility(View.GONE);
+            navigation_down.setVisibility(View.GONE);
+            navigation_front.setVisibility(View.GONE);
+            navigation_left.setVisibility(View.GONE);
+            navigation_right.setVisibility(View.GONE);
+            navigation_up.setVisibility(View.GONE);
+            navigation_location.setVisibility(View.GONE);
+
+            Zoom_in_Big.setVisibility(View.GONE);
+            Zoom_out_Big.setVisibility(View.GONE);
+
+            if (isBigData_Remote) {
+                sync_pull.setVisibility(View.GONE);
+                sync_push.setVisibility(View.GONE);
+            }
+        }else {
+            Zoom_in.setVisibility(View.GONE);
+            Zoom_out.setVisibility(View.GONE);
+        }
+
 
         ifButtonShowed = false;
 
-//        draw_i.setVisibility(View.GONE);
-//        tracing_i.setVisibility(View.GONE);
-//        classify_i.setVisibility(View.GONE);
     }
 
     private void showButtons(){
@@ -6655,16 +6671,29 @@ public class MainActivity extends AppCompatActivity {
         ll_bottom.setVisibility(View.VISIBLE);
 
         animation_i.setVisibility(View.VISIBLE);
-        Zoom_in.setVisibility(View.VISIBLE);
-        Zoom_out.setVisibility(View.VISIBLE);
         Rotation_i.setVisibility(View.VISIBLE);
-        navigation_back.setVisibility(View.VISIBLE);
-        navigation_down.setVisibility(View.VISIBLE);
-        navigation_front.setVisibility(View.VISIBLE);
-        navigation_left.setVisibility(View.VISIBLE);
-        navigation_right.setVisibility(View.VISIBLE);
-        navigation_up.setVisibility(View.VISIBLE);
-        navigation_location.setVisibility(View.VISIBLE);
+        Hide_i.setVisibility(View.VISIBLE);
+
+        if (isBigData_Remote || isBigData_Local){
+            navigation_back.setVisibility(View.VISIBLE);
+            navigation_down.setVisibility(View.VISIBLE);
+            navigation_front.setVisibility(View.VISIBLE);
+            navigation_left.setVisibility(View.VISIBLE);
+            navigation_right.setVisibility(View.VISIBLE);
+            navigation_up.setVisibility(View.VISIBLE);
+            navigation_location.setVisibility(View.VISIBLE);
+
+            Zoom_in_Big.setVisibility(View.VISIBLE);
+            Zoom_out_Big.setVisibility(View.VISIBLE);
+
+            if (isBigData_Remote) {
+                sync_pull.setVisibility(View.VISIBLE);
+                sync_push.setVisibility(View.VISIBLE);
+            }
+        }else {
+            Zoom_in.setVisibility(View.VISIBLE);
+            Zoom_out.setVisibility(View.VISIBLE);
+        }
 
         ifButtonShowed = true;
     }
