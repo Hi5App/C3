@@ -408,28 +408,30 @@ public class MainActivity extends AppCompatActivity {
 
         popupView = new XPopup.Builder(this)
                 .asLoading("Downloading......");
-//
-        //接受从fileactivity传递过来的文件路径
-        Intent intent1 = getIntent();
-        String filepath = intent1.getStringExtra(MyRenderer.FILE_PATH);
 
         myrenderer = new MyRenderer();
-        if (filepath != null) {
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            myrenderer.SetPath(filepath);
-//            }
-            System.out.println("------" + filepath + "------");
-            isBigData_Remote = true;
-            isBigData_Local = false;
-            String filename = getFilename(this);
-            String offset = getoffset(this, filename);
 
-            String offset_x = offset.split("_")[0];
-            String offset_y = offset.split("_")[1];
-            String offset_z = offset.split("_")[2];
 
-            Toast.makeText(this,"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
-        }
+//        //接受从fileactivity传递过来的文件路径
+//        Intent intent1 = getIntent();
+//        String filepath = intent1.getStringExtra(MyRenderer.FILE_PATH);
+//
+//        if (filepath != null) {
+////            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//            myrenderer.SetPath(filepath);
+////            }
+//            System.out.println("------" + filepath + "------");
+//            isBigData_Remote = true;
+//            isBigData_Local = false;
+//            String filename = getFilename(this);
+//            String offset = getoffset(this, filename);
+//
+//            String offset_x = offset.split("_")[0];
+//            String offset_y = offset.split("_")[1];
+//            String offset_z = offset.split("_")[2];
+//
+//            Toast.makeText(this,"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
+//        }
 
         Intent intent2 = getIntent();
         String MSG = intent2.getStringExtra(MyRenderer.OUTOFMEM_MESSAGE);
@@ -445,24 +447,24 @@ public class MainActivity extends AppCompatActivity {
 //            Toast.makeText(this, Timeout, Toast.LENGTH_SHORT).show();
 
 
-        Intent intent4 = getIntent();
-        String filepath_local = intent4.getStringExtra(MyRenderer.LOCAL_FILE_PATH);
-
-        if (filepath_local != null) {
-            System.out.println("------" + filepath_local + "------");
-            isBigData_Local = true;
-            isBigData_Remote = false;
-            String filename = SettingFileManager.getFilename_Local(this);
-            String offset = SettingFileManager.getoffset_Local(this, filename);
-
-            int[] index = BigImgReader.getIndex(offset);
-            myrenderer.SetPath_Bigdata(filepath_local, index);
-
-            String offset_x = offset.split("_")[0];
-            String offset_y = offset.split("_")[1];
-            String offset_z = offset.split("_")[2];
-            Toast.makeText(this,"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
-        }
+//        Intent intent4 = getIntent();
+//        String filepath_local = intent4.getStringExtra(MyRenderer.LOCAL_FILE_PATH);
+//
+//        if (filepath_local != null) {
+//            System.out.println("------" + filepath_local + "------");
+//            isBigData_Local = true;
+//            isBigData_Remote = false;
+//            String filename = SettingFileManager.getFilename_Local(this);
+//            String offset = SettingFileManager.getoffset_Local(this, filename);
+//
+//            int[] index = BigImgReader.getIndex(offset);
+//            myrenderer.SetPath_Bigdata(filepath_local, index);
+//
+//            String offset_x = offset.split("_")[0];
+//            String offset_y = offset.split("_")[1];
+//            String offset_z = offset.split("_")[2];
+//            Toast.makeText(this,"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
+//        }
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -3999,7 +4001,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007012a 23:55 UTC+8 build",
+                                "Version: 202007013a 10:20 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -6300,7 +6302,7 @@ public class MainActivity extends AppCompatActivity {
                 })
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("Experimental Features", new String[]{"Detect Line", "Detect Corner", "GSDT","Anisotropic", "For Developer(Classify)"},
+                .asCenterList("Experimental Features", new String[]{"Detect Line", "Detect Corner", "GSDT","Anisotropic", "VoiceChat-1to1", "For Developer(Classify)"},
                         new OnSelectListener() {
 //                            @Override
                             public void onSelect(int position, String text) {
@@ -6416,6 +6418,10 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                         break;
 
+                                    case "VoiceChat-1to1":
+                                        VoiceChat();
+                                        break;
+
                                     case "For Developer(Classify)":
                                         FeatureSet();
                                         break;
@@ -6430,6 +6436,11 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
+
+    private void VoiceChat(){
+        Intent intent = new Intent(this, VoiceChatViewActivity.class);
+        this.startActivity(intent);
+    }
 
     private void GD_Tracing(){
         Context context = this;

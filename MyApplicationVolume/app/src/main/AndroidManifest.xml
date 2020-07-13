@@ -68,6 +68,15 @@
                 android:value=".ConnectActivity" />
         </activity>
 
+        <activity
+            android:name=".VoiceChatViewActivity"
+            android:parentActivityName=".MainActivity">
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".JumpActivity" />
+        </activity>
+
         <provider
         android:name="androidx.core.content.FileProvider"
         android:authorities="com.example.myapplication__volume.provider"
@@ -88,5 +97,8 @@
     tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
 </manifest>
