@@ -242,4 +242,79 @@ public class SettingFileManager {
 
     }
 
+
+    /**
+     * get the ip address from local file
+     * @return ip latest address you input
+     */
+    public static String getUserAccount(Context context){
+        String userAccount = null;
+
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/Chat_userAccount.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "--11--";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get Chat_userAccount", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                line = buffreader.readLine();
+                userAccount = line;
+                inputStream.close();//关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get Chat_userAccount", userAccount);
+        return userAccount;
+    }
+
+    /**
+     * put the ip address you input to local file
+     * @param userAccount the ip address currently input
+     */
+    public static void setUserAccount(String userAccount, Context context){
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/Chat_userAccount.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("set local filename", "Fail to create file");
+            }
+        }
+
+        try {
+
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(userAccount.getBytes());
+            outStream.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
 }

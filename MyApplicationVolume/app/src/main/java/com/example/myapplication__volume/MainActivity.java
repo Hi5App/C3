@@ -21,6 +21,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -38,6 +39,7 @@ import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -54,6 +56,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -66,8 +69,10 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import com.example.basic.DragFloatActionButton;
 import com.example.ImageReader.BigImgReader;
 import com.example.basic.FileManager;
 import com.example.basic.Image4DSimple;
@@ -83,6 +88,8 @@ import com.example.server_connect.Filesocket_receive;
 import com.example.server_connect.Filesocket_send;
 import com.example.server_connect.RemoteImg;
 import com.feature_calc_func.MorphologyCalculate;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.learning.opimageline.Consensus;
 import com.learning.opimageline.DetectLine;
 import com.learning.pixelclassification.PixelClassification;
@@ -120,6 +127,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -131,8 +139,15 @@ import java.util.concurrent.TimeUnit;
 
 import Jama.Matrix;
 import cn.carbs.android.library.MDDialog;
+import io.agora.rtc.Constants;
+import io.agora.rtc.IRtcEngineEventHandler;
+import io.agora.rtc.RtcEngine;
 
 import static com.example.basic.BitmapRotation.getBitmapDegree;
+import static com.example.basic.SettingFileManager.getFilename_Local;
+import static com.example.basic.SettingFileManager.getUserAccount;
+import static com.example.basic.SettingFileManager.getoffset_Local;
+import static com.example.basic.SettingFileManager.setoffset_Local;
 import static com.example.server_connect.RemoteImg.getFilename;
 import static com.example.server_connect.RemoteImg.getoffset;
 
@@ -248,6 +263,10 @@ public class MainActivity extends AppCompatActivity {
     private static ImageButton sync_push;
     private static ImageButton sync_pull;
 
+    private static FloatingActionButton Audio_call;
+    private static DragFloatActionButton fab;
+//    private static DragFloatActionButton fab;
+
     private FrameLayout.LayoutParams lp_undo_i;
     private FrameLayout.LayoutParams lp_left_i;
     private FrameLayout.LayoutParams lp_right_i;
@@ -295,9 +314,13 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.CAMERA};
-    private static int REQUEST_PERMISSION_CODE = 1;
+    private static final int REQUEST_PERMISSION_CODE = 1;
     private static final int REQUEST_IMAGE_CAPTURE = 2;
     private static final int REQUEST_TAKE_PHOTO = 3;
+
+    private static final String LOG_TAG = VoiceChatViewActivity.class.getSimpleName();
+
+    private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
 
     //    private int Paintmode = 0;
     private ArrayList<Float> lineDrawed = new ArrayList<Float>();
@@ -385,15 +408,58 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-//    //创建一个负责更新进度条的Handler
-//    Handler handler = new Handler(){
-//        @Override
-//        public void handleMessage(Message msg) {
-//            if (msg.what == 0x111) {
-//
-//            }
-//        }
-//    };
+
+    private RtcEngine mRtcEngine; // Tutorial Step 1
+    private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() { // Tutorial Step 1
+
+        /**
+         * Occurs when a remote user (Communication)/host (Live Broadcast) leaves the channel.
+         *
+         * There are two reasons for users to become offline:
+         *
+         *     Leave the channel: When the user/host leaves the channel, the user/host sends a goodbye message. When this message is received, the SDK determines that the user/host leaves the channel.
+         *     Drop offline: When no data packet of the user or host is received for a certain period of time (20 seconds for the communication profile, and more for the live broadcast profile), the SDK assumes that the user/host drops offline. A poor network connection may lead to false detections, so we recommend using the Agora RTM SDK for reliable offline detection.
+         *
+         * @param uid ID of the user or host who
+         * leaves
+         * the channel or goes offline.
+         * @param reason Reason why the user goes offline:
+         *
+         *     USER_OFFLINE_QUIT(0): The user left the current channel.
+         *     USER_OFFLINE_DROPPED(1): The SDK timed out and the user dropped offline because no data packet was received within a certain period of time. If a user quits the call and the message is not passed to the SDK (due to an unreliable channel), the SDK assumes the user dropped offline.
+         *     USER_OFFLINE_BECOME_AUDIENCE(2): (Live broadcast only.) The client role switched from the host to the audience.
+         */
+        @Override
+        public void onUserOffline(final int uid, final int reason) { // Tutorial Step 4
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    onRemoteUserLeft(uid, reason);
+                }
+            });
+        }
+
+        /**
+         * Occurs when a remote user stops/resumes sending the audio stream.
+         * The SDK triggers this callback when the remote user stops or resumes sending the audio stream by calling the muteLocalAudioStream method.
+         *
+         * @param uid ID of the remote user.
+         * @param muted Whether the remote user's audio stream is muted/unmuted:
+         *
+         *     true: Muted.
+         *     false: Unmuted.
+         */
+        @Override
+        public void onUserMuteAudio(final int uid, final boolean muted) { // Tutorial Step 6
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    onRemoteUserVoiceMuted(uid, muted);
+                }
+            });
+        }
+    };
+
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -528,27 +594,6 @@ public class MainActivity extends AppCompatActivity {
         this.addContentView(Zoom_out, lp_zoom_out_no);
 
 
-//        if (isBigData_Remote || isBigData_Local){
-//
-//            FrameLayout.LayoutParams lp_zoom_in = new FrameLayout.LayoutParams(120, 120);
-//            lp_zoom_in.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-//            lp_zoom_in.setMargins(0, 0, 20, 290);
-//            this.addContentView(Zoom_in, lp_zoom_in);
-//
-//            FrameLayout.LayoutParams lp_zoom_out = new FrameLayout.LayoutParams(120, 120);
-//            lp_zoom_out.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-//            lp_zoom_out.setMargins(0, 0, 20, 200);
-//            this.addContentView(Zoom_out, lp_zoom_out);
-//
-//        }else {
-//            FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
-//            lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
-//            this.addContentView(Zoom_in, lp_zoom_in_no);
-//
-//            FrameLayout.LayoutParams lp_zoom_out_no = new FrameLayout.LayoutParams(100, 150);
-//            lp_zoom_out_no.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
-//            this.addContentView(Zoom_out, lp_zoom_out_no);
-//        }
 
 
         Zoom_in.setOnClickListener(new Button.OnClickListener() {
@@ -896,7 +941,7 @@ public class MainActivity extends AppCompatActivity {
         lp_sync_push.setMargins(0, 350, 20, 0);
 
         sync_push = new ImageButton(this);
-        sync_push.setImageResource(R.drawable.ic_publish_black_24dp);
+        sync_push.setImageResource(R.drawable.ic_cloud_upload_black_24dp);
         sync_push.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 PushSWC_Block();
@@ -908,12 +953,43 @@ public class MainActivity extends AppCompatActivity {
         lp_sync_pull.setMargins(0, 440, 20, 0);
 
         sync_pull = new ImageButton(this);
-        sync_pull.setImageResource(R.drawable.ic_get_app_black_24dp);
+        sync_pull.setImageResource(R.drawable.ic_cloud_download_black_24dp);
         sync_pull.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 PullSWC_Block();
             }
         });
+
+
+//        Audio_call = new FloatingActionButton(this);
+//        Audio_call.setImageResource(R.drawable.btn_end_call);
+//        Audio_call.setOnClickListener(new Button.OnClickListener() {
+//            public void onClick(View v) {
+//                Set_Nav_Mode();
+//            }
+//        });
+
+
+        fab = findViewById(R.id.img_btn);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+//                Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)
+////                        .setAction("Action", null).show();
+
+                fab.setVisibility(View.GONE);
+
+                leaveChannel();
+                RtcEngine.destroy();
+                mRtcEngine = null;
+
+                System.out.println("---- click the button ----");
+            }
+        });
+
+        fab.setVisibility(View.GONE);
+
 
         this.addContentView(navigation_left, lp_left_i);
         this.addContentView(navigation_right, lp_right_i);
@@ -936,6 +1012,8 @@ public class MainActivity extends AppCompatActivity {
 
         sync_pull.setVisibility(View.GONE);
         sync_push.setVisibility(View.GONE);
+
+
 
 //        if (isBigData_Remote || isBigData_Local){
 //            this.addContentView(navigation_left, lp_left_i);
@@ -968,6 +1046,11 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
             }
         }
+
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO)) {
+
+        }
+
 
         myGLSurfaceView.requestRender();
         remoteImg = new RemoteImg();
@@ -1176,6 +1259,27 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode){
+            case REQUEST_PERMISSION_CODE: {
+                for (int i = 0; i < permissions.length; i++) {
+                    Log.i("MainActivity", "申请的权限为：" + permissions[i] + ",申请结果：" + grantResults[i]);
+                }
+                break;
+            }
+            case PERMISSION_REQ_ID_RECORD_AUDIO: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    initAgoraEngineAndJoinChannel();
+                } else {
+                    showLongToast("No permission for " + Manifest.permission.RECORD_AUDIO);
+                    finish();
+                }
+                break;
+            }
+
+
+        }
         if (requestCode == REQUEST_PERMISSION_CODE) {
             for (int i = 0; i < permissions.length; i++) {
                 Log.i("MainActivity", "申请的权限为：" + permissions[i] + ",申请结果：" + grantResults[i]);
@@ -1187,6 +1291,22 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        }
     }
+
+
+    public boolean checkSelfPermission(String permission, int requestCode) {
+        Log.i(LOG_TAG, "checkSelfPermission " + permission + " " + requestCode);
+        if (ContextCompat.checkSelfPermission(this,
+                permission)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{permission},
+                    requestCode);
+            return false;
+        }
+        return true;
+    }
+
 
     /**
      *
@@ -4001,7 +4121,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007015a 17:12 UTC+8 build",
+                                "Version: 202007015b 18:12 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4040,21 +4160,21 @@ public class MainActivity extends AppCompatActivity {
 
             new XPopup.Builder(this)
                     .atView(v)
-                    .asAttachList(new String[]{"Select file", "Select block", "Download by http"},
+                    .asAttachList(new String[]{"Select File", "Select Block", "Download By Http"},
                             new int[]{},
                             new OnSelectListener() {
                                 @Override
                                 public void onSelect(int position, String text) {
                                     switch (text) {
-                                        case "Select block":
+                                        case "Select Block":
                                             remoteImg.Selectblock(context, false);
                                             break;
 
-                                        case "Select file":
+                                        case "Select File":
                                             Select_img();
                                             break;
 
-                                        case "Download by http":
+                                        case "Download By Http":
                                             downloadFile();
                                             break;
                                     }
@@ -6419,7 +6539,7 @@ public class MainActivity extends AppCompatActivity {
                                         break;
 
                                     case "VoiceChat-1to1":
-                                        VoiceChat();
+                                        PopUp_Chat(context);
                                         break;
 
                                     case "For Developer(Classify)":
@@ -6437,9 +6557,79 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void VoiceChat(){
-        Intent intent = new Intent(this, VoiceChatViewActivity.class);
-        this.startActivity(intent);
+    public void PopUp_Chat(Context context){
+        new MDDialog.Builder(context)
+//              .setContentView(customizedView)
+                .setContentView(R.layout.chat_connect)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+                        EditText et1 = (EditText) contentView.findViewById(R.id.channel_edit);
+                        EditText et2 = (EditText) contentView.findViewById(R.id.userAccount_edit);
+                        String userAccount = getUserAccount(context);
+
+                        if (userAccount.equals("--11--")){
+                            userAccount = "";
+                        }
+
+                        et1.setText("channel_1");
+                        et2.setText(userAccount);
+
+                    }
+                })
+                .setTitle("Voice Chat")
+                .setNegativeButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
+                        EditText et1 = (EditText) contentView.findViewById(R.id.channel_edit);
+                        EditText et2 = (EditText) contentView.findViewById(R.id.userAccount_edit);
+
+                        String Channel   = et1.getText().toString();
+                        String userAccount   = et2.getText().toString();
+
+
+                        if( !Channel.isEmpty() && !userAccount.isEmpty() ){
+                            VoiceChat(Channel, userAccount);
+
+                        }else{
+                            PopUp_Chat(context);
+                            Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                    }
+                })
+                .setWidthMaxDp(600)
+                .create()
+                .show();
+
+    }
+
+
+    private void VoiceChat(String Channel, String userAccount){
+//        Intent intent = new Intent(this, VoiceChatViewActivity.class);
+//        this.startActivity(intent);
+
+        initAgoraEngineAndJoinChannel(Channel, userAccount);
+        fab.setVisibility(View.VISIBLE);
+        mRtcEngine.setEnableSpeakerphone(true);
+
     }
 
     private void GD_Tracing(){
@@ -6708,5 +6898,116 @@ public class MainActivity extends AppCompatActivity {
 
         ifButtonShowed = true;
     }
+
+
+    /**
+     * init function for VoiceCall
+     */
+    private void initAgoraEngineAndJoinChannel(String Channel, String userAccount) {
+        initializeAgoraEngine(userAccount);     // Tutorial Step 1
+        joinChannel(userAccount, Channel);               // Tutorial Step 2
+    }
+
+    public final void showLongToast(final String msg) {
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+
+    // Tutorial Step 7
+    public void onLocalAudioMuteClicked(View view) {
+        ImageView iv = (ImageView) view;
+        if (iv.isSelected()) {
+            iv.setSelected(false);
+            iv.clearColorFilter();
+        } else {
+            iv.setSelected(true);
+            iv.setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+        }
+
+        // Stops/Resumes sending the local audio stream.
+        mRtcEngine.muteLocalAudioStream(iv.isSelected());
+    }
+
+    // Tutorial Step 5
+    public void onSwitchSpeakerphoneClicked(View view) {
+        ImageView iv = (ImageView) view;
+        if (iv.isSelected()) {
+            iv.setSelected(false);
+            iv.clearColorFilter();
+        } else {
+            iv.setSelected(true);
+            iv.setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+        }
+
+        // Enables/Disables the audio playback route to the speakerphone.
+        //
+        // This method sets whether the audio is routed to the speakerphone or earpiece. After calling this method, the SDK returns the onAudioRouteChanged callback to indicate the changes.
+        mRtcEngine.setEnableSpeakerphone(view.isSelected());
+    }
+
+    // Tutorial Step 3
+    public void onEncCallClicked(View view) {
+        leaveChannel();
+        RtcEngine.destroy();
+        mRtcEngine = null;
+
+    }
+
+    // Tutorial Step 1
+    private void initializeAgoraEngine(String userAccount) {
+        try {
+            mRtcEngine = RtcEngine.create(getBaseContext(), getString(R.string.agora_app_id), mRtcEventHandler);
+            // Sets the channel profile of the Agora RtcEngine.
+            // CHANNEL_PROFILE_COMMUNICATION(0): (Default) The Communication profile. Use this profile in one-on-one calls or group calls, where all users can talk freely.
+            // CHANNEL_PROFILE_LIVE_BROADCASTING(1): The Live-Broadcast profile. Users in a live-broadcast channel have a role as either broadcaster or audience. A broadcaster can both send and receive streams; an audience can only receive streams.
+            mRtcEngine.setChannelProfile(Constants.CHANNEL_PROFILE_COMMUNICATION);
+
+            /**
+             * register a account
+             */
+            mRtcEngine.registerLocalUserAccount(getString(R.string.agora_app_id), userAccount);
+
+        } catch (Exception e) {
+            Log.e(LOG_TAG, Log.getStackTraceString(e));
+
+            throw new RuntimeException("NEED TO check rtc sdk init fatal error\n" + Log.getStackTraceString(e));
+        }
+    }
+
+    // Tutorial Step 2
+    private void joinChannel(String userAccount, String Channel) {
+        String accessToken = getString(R.string.agora_access_token);
+        if (TextUtils.equals(accessToken, "") || TextUtils.equals(accessToken, "#YOUR ACCESS TOKEN#")) {
+            accessToken = null; // default, no token
+        }
+
+        // 使用注册的用户 ID 加入频道
+        mRtcEngine.joinChannelWithUserAccount(accessToken, Channel, userAccount);
+
+//        // Allows a user to join a channel.
+//        mRtcEngine.joinChannel(accessToken, "1", "Extra Optional Data", 0); // if you do not specify the uid, we will generate the uid for you
+    }
+
+    // Tutorial Step 3
+    private void leaveChannel() {
+        mRtcEngine.leaveChannel();
+    }
+
+    // Tutorial Step 4
+    private void onRemoteUserLeft(int uid, int reason) {
+        showLongToast(String.format(Locale.US, "user %d left %d", (uid & 0xFFFFFFFFL), reason));
+    }
+
+    // Tutorial Step 6
+    private void onRemoteUserVoiceMuted(int uid, boolean muted) {
+//        mRtcEngine.getUserInfoByUid(uid);
+        showLongToast(String.format(Locale.US, "user %d muted or unmuted %b", (uid & 0xFFFFFFFFL), muted));
+    }
+
 
 }

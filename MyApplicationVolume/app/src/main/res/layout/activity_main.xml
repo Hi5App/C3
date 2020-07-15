@@ -89,27 +89,43 @@
     <FrameLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent" >
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+<!--        <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--            android:id="@+id/fab"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="bottom|left"-->
+<!--            android:layout_margin="16dp"-->
+<!--            app:srcCompat="@android:drawable/ic_dialog_email" />-->
 
-    <ProgressBar
-        android:id="@+id/progressbar_"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:max="100"
-        android:backgroundTint="@color/white"
-        android:layout_below="@+id/framelauout"
-        android:indeterminateTint="#1a09d6"
-        android:layout_marginTop="-7dp"/>
+        <com.example.basic.DragFloatActionButton
+            android:id="@+id/img_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fabSize="mini"
+            android:foregroundGravity="center"
+            app:backgroundTint="@android:color/white"
+            android:layout_gravity="bottom|left"
+            android:layout_margin="10dp"
+            android:src="@drawable/ic_call_end_black_24dp"
+            />
+
+    </FrameLayout>
+
+
+
+<!--    <ProgressBar-->
+<!--        android:id="@+id/progressbar_"-->
+<!--        style="?android:attr/progressBarStyleHorizontal"-->
+<!--        android:layout_width="fill_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:indeterminate="true"-->
+<!--        android:max="100"-->
+<!--        android:backgroundTint="@color/white"-->
+<!--        android:layout_below="@+id/framelauout"-->
+<!--        android:indeterminateTint="#1a09d6"-->
+<!--        android:layout_marginTop="-7dp"/>-->
 
 
 </LinearLayout>
