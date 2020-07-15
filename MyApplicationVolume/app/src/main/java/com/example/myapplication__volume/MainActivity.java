@@ -712,7 +712,7 @@ public class MainActivity extends AppCompatActivity {
         lp_hide.setMargins(0, 0, 160, 20);
 
         Hide_i = new ImageButton(this);
-        Hide_i.setImageResource(R.drawable.ic_visibility_red_24dp);
+        Hide_i.setImageResource(R.drawable.ic_not_hide);
         Hide_i.setBackgroundResource(R.drawable.circle_normal);
 
         this.addContentView(Hide_i, lp_hide);
@@ -729,11 +729,11 @@ public class MainActivity extends AppCompatActivity {
                 if (myrenderer.getIfShowSWC()){
                     myrenderer.setIfShowSWC(false);
                     myGLSurfaceView.requestRender();
-                    Hide_i.setImageResource(R.drawable.ic_visibility_off_red_24dp);
+                    Hide_i.setImageResource(R.drawable.ic_hide);
                 } else {
                     myrenderer.setIfShowSWC(true);
                     myGLSurfaceView.requestRender();
-                    Hide_i.setImageResource(R.drawable.ic_visibility_red_24dp);
+                    Hide_i.setImageResource(R.drawable.ic_not_hide);
                 }
             }
         });
@@ -4001,7 +4001,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007013a 10:20 UTC+8 build",
+                                "Version: 202007015a 17:12 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
