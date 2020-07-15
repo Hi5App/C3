@@ -126,6 +126,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
@@ -142,11 +143,13 @@ import cn.carbs.android.library.MDDialog;
 import io.agora.rtc.Constants;
 import io.agora.rtc.IRtcEngineEventHandler;
 import io.agora.rtc.RtcEngine;
+import io.agora.rtc.models.UserInfo;
 
 import static com.example.basic.BitmapRotation.getBitmapDegree;
 import static com.example.basic.SettingFileManager.getFilename_Local;
 import static com.example.basic.SettingFileManager.getUserAccount;
 import static com.example.basic.SettingFileManager.getoffset_Local;
+import static com.example.basic.SettingFileManager.setUserAccount;
 import static com.example.basic.SettingFileManager.setoffset_Local;
 import static com.example.server_connect.RemoteImg.getFilename;
 import static com.example.server_connect.RemoteImg.getoffset;
@@ -337,6 +340,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int animation_id = 0;
     private int rotation_speed = 36;
 
+
+    HashMap<Integer, String> User_Map = new HashMap<Integer, String>();
+
     @SuppressLint("HandlerLeak")
     private Handler uiHandler = new Handler(){
         // 覆写这个方法，接收并处理消息。
@@ -434,7 +440,8 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    onRemoteUserLeft(uid, reason);
+                    String userAccount = User_Map.get(uid);
+                    onRemoteUserLeft(userAccount, reason);
                 }
             });
         }
@@ -458,6 +465,31 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+
+//        //用户加入了房间
+//        @Override
+//        public void onUserJoined(final int uid, final int elapsed) {
+//            super.onUserJoined(uid, elapsed);
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    onIntoRoom(uid, elapsed);
+//                }
+//            });
+//        }
+
+        @Override
+        public void onUserInfoUpdated(int uid, UserInfo user) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    User_Map.put(user.uid, user.userAccount);
+                    onRemoteUserJoined(user.userAccount);
+                }
+            });
+        }
+
+
     };
 
 
@@ -4121,7 +4153,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007015b 18:12 UTC+8 build",
+                                "Version: 202007015c 23:12 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -6601,6 +6633,7 @@ public class MainActivity extends AppCompatActivity {
 
                         if( !Channel.isEmpty() && !userAccount.isEmpty() ){
                             VoiceChat(Channel, userAccount);
+                            setUserAccount(userAccount, context);
 
                         }else{
                             PopUp_Chat(context);
@@ -6989,6 +7022,9 @@ public class MainActivity extends AppCompatActivity {
         // 使用注册的用户 ID 加入频道
         mRtcEngine.joinChannelWithUserAccount(accessToken, Channel, userAccount);
 
+        showLongToast("You joined Successfully !!!");
+
+
 //        // Allows a user to join a channel.
 //        mRtcEngine.joinChannel(accessToken, "1", "Extra Optional Data", 0); // if you do not specify the uid, we will generate the uid for you
     }
@@ -6999,8 +7035,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Tutorial Step 4
-    private void onRemoteUserLeft(int uid, int reason) {
-        showLongToast(String.format(Locale.US, "user %d left %d", (uid & 0xFFFFFFFFL), reason));
+    private void onRemoteUserLeft(String userAccount, int reason) {
+        showLongToast("user " + userAccount + " left : " + reason);
+    }
+
+    // Tutorial Step 4
+    private void onRemoteUserJoined(String userAccount) {
+        showLongToast("user " + userAccount + " joined !");
     }
 
     // Tutorial Step 6

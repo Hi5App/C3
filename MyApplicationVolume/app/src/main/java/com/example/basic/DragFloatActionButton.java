@@ -21,6 +21,7 @@ public class DragFloatActionButton extends FloatingActionButton {
 
     // used to judge if the first touch
     private boolean FirstTouch = true;
+    private int count = 0;
 
     public DragFloatActionButton(Context context) {
         super(context);
@@ -82,7 +83,7 @@ public class DragFloatActionButton extends FloatingActionButton {
                 setY(y);
                 lastX = rawX;
                 lastY = rawY;
-                Log.i("aa", "isDrag=" + isDrag + "getX=" + getX() + ";getY=" + getY() + ";parentWidth=" + parentWidth);
+//                Log.i("aa", "isDrag=" + isDrag + "getX=" + getX() + ";getY=" + getY() + ";parentWidth=" + parentWidth);
                 break;
             case MotionEvent.ACTION_UP:
                 if (!isNotDrag()) {
@@ -111,11 +112,12 @@ public class DragFloatActionButton extends FloatingActionButton {
     }
 
     private boolean isNotDrag() {
-        boolean FirstTouch_backup = FirstTouch;
-        if (FirstTouch){
+        count++;
+        if (count == 4){
             FirstTouch = false;
         }
-        return !isDrag && (getX() == 20|| (getX() == parentWidth - getWidth() - 20 ) || FirstTouch_backup);
+
+        return !isDrag && (getX() == 20|| (getX() == parentWidth - getWidth() - 20 ) || FirstTouch);
     }
 
 }
