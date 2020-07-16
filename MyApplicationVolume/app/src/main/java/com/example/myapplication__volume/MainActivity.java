@@ -316,7 +316,8 @@ public class MainActivity extends AppCompatActivity {
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.CAMERA};
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO};
     private static final int REQUEST_PERMISSION_CODE = 1;
     private static final int REQUEST_IMAGE_CAPTURE = 2;
     private static final int REQUEST_TAKE_PHOTO = 3;
@@ -1079,10 +1080,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO)) {
-
-        }
-
 
         myGLSurfaceView.requestRender();
         remoteImg = new RemoteImg();
@@ -1299,24 +1296,25 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             }
-            case PERMISSION_REQ_ID_RECORD_AUDIO: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    initAgoraEngineAndJoinChannel();
-                } else {
-                    showLongToast("No permission for " + Manifest.permission.RECORD_AUDIO);
-                    finish();
-                }
-                break;
-            }
+//            case PERMISSION_REQ_ID_RECORD_AUDIO: {
+//                if (grantResults.length > 0
+//                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+////                    initAgoraEngineAndJoinChannel();
+//                } else {
+//                    showLongToast("No permission for " + Manifest.permission.RECORD_AUDIO);
+//                    finish();
+//                }
+//                break;
+//            }
 
 
         }
-        if (requestCode == REQUEST_PERMISSION_CODE) {
-            for (int i = 0; i < permissions.length; i++) {
-                Log.i("MainActivity", "申请的权限为：" + permissions[i] + ",申请结果：" + grantResults[i]);
-            }
-        }
+
+//        if (requestCode == REQUEST_PERMISSION_CODE) {
+//            for (int i = 0; i < permissions.length; i++) {
+//                Log.i("MainActivity", "申请的权限为：" + permissions[i] + ",申请结果：" + grantResults[i]);
+//            }
+//        }
 //        if (requestCode == REQUEST_TAKE_PHOTO) {
 //            for (int i = 0; i < permissions.length; i++) {
 //                Log.i("MainActivity", "申请的权限为：" + permissions[i] + ",申请结果：" + grantResults[i]);
@@ -4153,7 +4151,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007015c 23:12 UTC+8 build",
+                                "Version: 202007016a 16:12 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
