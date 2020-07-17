@@ -4732,6 +4732,23 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public boolean getIfShowSWC(){
         return ifShowSWC;
     }
+
+    public void saveUndo() throws CloneNotSupportedException {
+
+        ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+        V_NeuronSWC_list tempCurveList = curSwcList.clone();
+
+        if (curUndo < UNDO_LIMIT){
+            curUndo += 1;
+            undoMarkerList.add(tempMarkerList);
+            undoCurveList.add(tempCurveList);
+        } else {
+            undoMarkerList.remove(0);
+            undoCurveList.remove(0);
+            undoMarkerList.add(tempMarkerList);
+            undoCurveList.add(tempCurveList);
+        }
+    }
 }
 
 

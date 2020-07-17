@@ -246,6 +246,7 @@ public class MainActivity extends AppCompatActivity {
     private Button Rotation;
     private ImageButton Rotation_i;
     private ImageButton Hide_i;
+    private ImageButton Undo_i;
     private ImageButton Sync_i;
     private Button Sync;
     private Button Switch;
@@ -255,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton draw_i;
     private ImageButton tracing_i;
     private ImageButton classify_i;
-    private ImageButton buttonUndo_i;
+//    private ImageButton buttonUndo_i;
     private static ImageButton navigation_left;
     private static ImageButton navigation_right;
     private static ImageButton navigation_up;
@@ -816,6 +817,27 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        FrameLayout.LayoutParams lp_undo = new FrameLayout.LayoutParams(120, 120);
+        lp_undo.gravity = Gravity.TOP | Gravity.RIGHT;
+        lp_undo.setMargins(0, 190, 20, 0);
+
+        Undo_i = new ImageButton(this);
+        Undo_i.setImageResource(R.drawable.ic_undo);
+        Undo_i.setBackgroundResource(R.drawable.circle_normal);
+
+        this.addContentView(Undo_i, lp_undo);
+
+        Undo_i.setOnClickListener(new Button.OnClickListener(){
+            public void onClick(View v){
+                boolean undoSuccess = myrenderer.undo2();
+                if (!undoSuccess) {
+                    Toast.makeText(context, "nothing to undo", Toast.LENGTH_SHORT).show();
+                }
+                myGLSurfaceView.requestRender();
+            }
+        });
+
+
         FrameLayout.LayoutParams lp_downsample = new FrameLayout.LayoutParams(120, 120);
 
 
@@ -857,17 +879,17 @@ public class MainActivity extends AppCompatActivity {
 
         lp_undo_i = new FrameLayout.LayoutParams(230, 160);
 
-        buttonUndo_i=new ImageButton(this);
-        buttonUndo_i.setImageResource(R.drawable.ic_undo_black_24dp);
-        buttonUndo_i.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                boolean undoSuccess = myrenderer.undo2();
-                if (!undoSuccess) {
-                    Toast.makeText(context, "nothing to undo", Toast.LENGTH_SHORT).show();
-                }
-                myGLSurfaceView.requestRender();
-            }
-        });
+//        buttonUndo_i=new ImageButton(this);
+//        buttonUndo_i.setImageResource(R.drawable.ic_undo_black_24dp);
+//        buttonUndo_i.setOnClickListener(new Button.OnClickListener() {
+//            public void onClick(View v) {
+//                boolean undoSuccess = myrenderer.undo2();
+//                if (!undoSuccess) {
+//                    Toast.makeText(context, "nothing to undo", Toast.LENGTH_SHORT).show();
+//                }
+//                myGLSurfaceView.requestRender();
+//            }
+//        });
 
 
         lp_left_i = new FrameLayout.LayoutParams(100, 150);
@@ -2420,7 +2442,9 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete Marker", "Delete MultiMarker", "Delete Curve", "Split", "Set PenColor", "Change PenColor", "Change All PenColor", "Set MColor", "Change MColor", "Change All MColor", "Exit Drawing mode"},
+                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete Marker", "Delete MultiMarker", "Delete Curve", "Split",
+                                "Set PenColor", "Change PenColor", "Change All PenColor", "Set MColor", "Change MColor",
+                                "Change All MColor", "Exit Drawing mode", "Clear Tracing"},
 //                        new int[]{R.mipmap.ic_launcher, R.mipmap.ic_launcher},
                         new int[]{},
                         new OnSelectListener() {
@@ -2448,7 +2472,7 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
@@ -2460,7 +2484,7 @@ public class MainActivity extends AppCompatActivity {
                                             Switch.setTextColor(Color.BLACK);
                                             draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo_i);
+//                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
@@ -2483,7 +2507,7 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
@@ -2495,7 +2519,7 @@ public class MainActivity extends AppCompatActivity {
                                             Switch.setTextColor(Color.BLACK);
                                             draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo_i);
+//                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
@@ -2514,7 +2538,7 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
@@ -2526,7 +2550,7 @@ public class MainActivity extends AppCompatActivity {
                                             Switch.setTextColor(Color.BLACK);
                                             draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo_i);
+//                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
@@ -2545,7 +2569,7 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
@@ -2557,7 +2581,7 @@ public class MainActivity extends AppCompatActivity {
                                             Switch.setTextColor(Color.BLACK);
                                             draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo_i);
+//                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
@@ -2576,7 +2600,7 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
@@ -2588,7 +2612,7 @@ public class MainActivity extends AppCompatActivity {
                                             Switch.setTextColor(Color.BLACK);
                                             draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo_i);
+//                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
@@ -2607,7 +2631,7 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
@@ -2619,7 +2643,7 @@ public class MainActivity extends AppCompatActivity {
                                             Switch.setTextColor(Color.BLACK);
                                             draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo_i);
+//                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
@@ -2650,7 +2674,7 @@ public class MainActivity extends AppCompatActivity {
 //                                                Switch.setTextColor(Color.BLACK);
 //                                                ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
@@ -2662,7 +2686,7 @@ public class MainActivity extends AppCompatActivity {
                                             Switch.setTextColor(Color.BLACK);
                                             draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo_i);
+//                                            ll_top.removeView(buttonUndo_i);
 //                                            draw_i.setImageResource(R.drawable.ic_draw_main);
 
                                         }
@@ -2696,7 +2720,7 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
-                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
@@ -2708,7 +2732,7 @@ public class MainActivity extends AppCompatActivity {
                                             Switch.setTextColor(Color.BLACK);
                                             draw_i.setImageResource(R.drawable.ic_draw_main);
                                             ll_bottom.removeView(Switch);
-                                            ll_top.removeView(buttonUndo_i);
+//                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
 
@@ -2732,9 +2756,13 @@ public class MainActivity extends AppCompatActivity {
                                         ifDeletingMultiMarker = false;
                                         draw_i.setImageResource(R.drawable.ic_draw_main);
                                         ll_bottom.removeView(Switch);
-                                        ll_top.removeView(buttonUndo_i);
+//                                        ll_top.removeView(buttonUndo_i);
                                         break;
 
+                                    case "Clear Tracing":
+                                        myrenderer.deleteAllTracing();
+                                        myGLSurfaceView.requestRender();
+                                        break;
                                 }
                             }
                         })
@@ -2758,7 +2786,7 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"APP2", "GD", "Clear tracing", "Save SWC file"},
+                .asAttachList(new String[]{"APP2", "GD", "Save SWC file"},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -2852,10 +2880,6 @@ public class MainActivity extends AppCompatActivity {
                                         SaveSWC();
                                         break;
 
-                                    case "Clear tracing":
-                                        myrenderer.deleteAllTracing();
-                                        myGLSurfaceView.requestRender();
-                                        break;
                                 }
                             }
                         })
@@ -4151,7 +4175,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007016a 16:12 UTC+8 build",
+                                "Version: 202007017a 23:49 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4736,6 +4760,7 @@ public class MainActivity extends AppCompatActivity {
             Looper.loop();
             return;
         }
+        myrenderer.saveUndo();
         ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
         try {
             ParaAPP2 p = new ParaAPP2();
@@ -4810,6 +4835,7 @@ public class MainActivity extends AppCompatActivity {
             Looper.loop();
             return;
         }
+        myrenderer.saveUndo();
         ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
         if (markers.size() <= 1) {
             Log.v("GDTracing", "Please generate at least two markers!");
