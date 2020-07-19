@@ -1201,7 +1201,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
-    public void deleteAllTracing(){
+    public void deleteAllTracing() {
+
+        try {
+            saveUndo();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
 
         for (int i = curSwcList.seg.size(); i >= 0; i--){
             curSwcList.deleteSeg(i);
