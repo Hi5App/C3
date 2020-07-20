@@ -4195,7 +4195,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007019b 22:30 UTC+8 build",
+                                "Version: 202007020a 20:59 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -6279,9 +6279,9 @@ public class MainActivity extends AppCompatActivity {
                                                         myrenderer.addLineDrawed2(lineDrawed, v_neuronSWC_list);
                                                         myrenderer.deleteFromCur(seg, v_neuronSWC_list[0]);
                                                     }
-                                                    else {
-                                                        Toast.makeText(getContext(), "Please make sure the curve is inside the bounding box", Toast.LENGTH_LONG);
-                                                    }
+//                                                    else {
+//                                                        Toast.makeText(getContext(), "Please make sure the curve is inside the bounding box", Toast.LENGTH_LONG);
+//                                                    }
 //                                            myrenderer.deleteFromNew(segid);
                                                 } else {
                                                     myrenderer.addBackgroundLineDrawed(lineDrawed);
@@ -6292,7 +6292,7 @@ public class MainActivity extends AppCompatActivity {
                                         ExecutorService exeService = Executors.newSingleThreadExecutor();
                                         Future<String> future = exeService.submit(task);
                                         try {
-                                            String result = future.get(1500, TimeUnit.MILLISECONDS);
+                                            String result = future.get(2000, TimeUnit.MILLISECONDS);
                                             System.err.println("Result:" + result);
                                         } catch (Exception e) {
                                             e.printStackTrace();
