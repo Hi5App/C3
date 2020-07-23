@@ -30,6 +30,7 @@ import cn.carbs.android.library.MDDialog;
 import static com.example.basic.SettingFileManager.getFilename_Local;
 import static com.example.basic.SettingFileManager.getoffset_Local;
 import static com.example.basic.SettingFileManager.setoffset_Local;
+import static com.example.myapplication__volume.MainActivity.setFilename;
 
 public class BigImgReader {
 
@@ -279,6 +280,7 @@ public class BigImgReader {
                 flag[0] = true;
                 file_selected[0] = items[which];
                 Toast.makeText(context,"你点击了" + items[which], Toast.LENGTH_SHORT).show();
+                setFilename(items[which]);
                 SettingFileManager.setFilename_Local(items[which], context);
                 PopUp(context);
             }

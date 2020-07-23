@@ -247,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
     private Button Rotation;
     private ImageButton Rotation_i;
     private ImageButton Hide_i;
-    private ImageButton Undo_i;
+    private static ImageButton Undo_i;
     private ImageButton Sync_i;
     private Button Sync;
     private Button Switch;
@@ -257,6 +257,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton draw_i;
     private ImageButton tracing_i;
     private ImageButton classify_i;
+    private static TextView filenametext;
+
 //    private ImageButton buttonUndo_i;
     private static ImageButton navigation_left;
     private static ImageButton navigation_right;
@@ -275,14 +277,15 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout.LayoutParams lp_undo_i;
     private FrameLayout.LayoutParams lp_left_i;
     private FrameLayout.LayoutParams lp_right_i;
-    private FrameLayout.LayoutParams lp_up_i;
+    private static FrameLayout.LayoutParams lp_up_i;
     private FrameLayout.LayoutParams lp_down_i;
     private FrameLayout.LayoutParams lp_front_i;
     private FrameLayout.LayoutParams lp_back_i;
-    private FrameLayout.LayoutParams lp_nacloc_i;
-    private FrameLayout.LayoutParams lp_sync_push;
-    private FrameLayout.LayoutParams lp_sync_pull;
+    private static FrameLayout.LayoutParams lp_nacloc_i;
+    private static FrameLayout.LayoutParams lp_sync_push;
+    private static FrameLayout.LayoutParams lp_sync_pull;
     private FrameLayout.LayoutParams lp_animation_i;
+    private static FrameLayout.LayoutParams lp_undo;
 
     private Button PixelClassification;
     private boolean[][]select= {{true,true,true,false,false,false,false},
@@ -304,6 +307,7 @@ public class MainActivity extends AppCompatActivity {
 
     private LinearLayout ll_top;
     private LinearLayout ll_bottom;
+    private static LinearLayout ll_file;
 
     private int measure_count = 0;
     private List<double[]> fl;
@@ -344,6 +348,8 @@ public class MainActivity extends AppCompatActivity {
     private int rotation_speed = 36;
 
     private long exitTime = 0;
+
+    private static String filename = "";
 
     HashMap<Integer, String> User_Map = new HashMap<Integer, String>();
 
@@ -576,13 +582,31 @@ public class MainActivity extends AppCompatActivity {
         FrameLayout ll = (FrameLayout) findViewById(R.id.container);
         ll.addView(myGLSurfaceView);
 
+        LinearLayout ll_up = new LinearLayout(this);
+        ll_up.setOrientation(LinearLayout.VERTICAL);
+
+        ll_file = new LinearLayout(this);
+        FrameLayout.LayoutParams lp_filename = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        ll_file.setLayoutParams(lp_filename);
+        ll_file.setBackgroundColor(Color.YELLOW);
+
+        filenametext = new TextView(this);
+        filenametext.setText("");
+//        filenametext.setBackgroundColor(Color.BLACK);
+        filenametext.setTextColor(Color.WHITE);
+        ll_file.addView(filenametext);
+        ll_file.setVisibility(View.GONE);
 
         ll_top = new LinearLayout(this);
+
         ll_bottom = new LinearLayout(this);
 
         HorizontalScrollView hs_top = new HorizontalScrollView(this);
 
-        ll.addView(hs_top, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        ll_up.addView(ll_file);
+        ll_up.addView(hs_top, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        ll.addView(ll_up);
 
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(1080, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.gravity = Gravity.BOTTOM;
@@ -595,6 +619,8 @@ public class MainActivity extends AppCompatActivity {
         hs_top.addView(ll_top);
 //        hs_bottom.addView(ll_bottom);
 
+
+//        hs_top.addView(filenametext, lp_filename);
 
         Zoom_in = new Button(this);
         Zoom_in.setText("+");
@@ -690,7 +716,7 @@ public class MainActivity extends AppCompatActivity {
 
         FrameLayout.LayoutParams lp_draw_i = new FrameLayout.LayoutParams(230, 160);
 
-        draw_i=new ImageButton(this);
+        draw_i = new ImageButton(this);
         draw_i.setImageResource(R.drawable.ic_draw_main);
         ll_top.addView(draw_i,lp_draw_i);
 
@@ -819,8 +845,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        FrameLayout.LayoutParams lp_undo = new FrameLayout.LayoutParams(120, 120);
-        lp_undo.gravity = Gravity.TOP | Gravity.RIGHT;
+        lp_undo = new FrameLayout.LayoutParams(120, 120);
+
+        lp_undo.gravity = Gravity.RIGHT | Gravity.TOP;
         lp_undo.setMargins(0, 190, 20, 0);
 
         Undo_i = new ImageButton(this);
@@ -1582,7 +1609,8 @@ public class MainActivity extends AppCompatActivity {
 
                 if (ifLoadLocal) {
                     myrenderer.SetPath(filePath);
-                    ifLoadLocal = false;
+                    System.out.println(filePath);
+
                     if (isBigData_Remote || isBigData_Local){
                         if (isBigData_Remote){
                             try {
@@ -1595,6 +1623,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         isBigData_Remote = false;
                         isBigData_Local  = false;
+
                         try {
 
                             Zoom_in_Big.setVisibility(View.GONE);
@@ -1614,6 +1643,28 @@ public class MainActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
+                    String [] temp = filePath.split("/");
+                    String [] temp2 = temp[temp.length - 1].split("%2F");
+                    String filename = temp2[temp2.length - 1];
+
+
+                    filenametext.setText(filename);
+                    ll_file.setVisibility(View.VISIBLE);
+
+                    lp_undo.setMargins(0, 240, 20, 0);
+                    Undo_i.setLayoutParams(lp_undo);
+
+                    lp_up_i.setMargins(0, 360, 0, 0);
+                    navigation_up.setLayoutParams(lp_up_i);
+
+                    lp_nacloc_i.setMargins(20, 400, 0, 0);
+                    navigation_location.setLayoutParams(lp_nacloc_i);
+
+                    lp_sync_push.setMargins(0, 400, 20, 0);
+                    sync_push.setLayoutParams(lp_sync_push);
+
+                    lp_sync_pull.setMargins(0, 490, 20, 0);
+                    sync_pull.setLayoutParams(lp_sync_pull);
                 }
 
                 if (ifDownloadByHttp) {
@@ -4195,7 +4246,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007020a 20:59 UTC+8 build",
+                                "Version: 202007023a 12:29 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4293,7 +4344,26 @@ public class MainActivity extends AppCompatActivity {
     private void BigFileRead_local(){
         String[] filename_list = bigImgReader.ChooseFile(this);
         if (filename_list != null){
+            String [] str = new String[1];
             bigImgReader.ShowListDialog(this, filename_list);
+
+//            filenametext.setText(filename);
+//            ll_file.setVisibility(View.VISIBLE);
+//
+//            lp_undo.setMargins(0, 240, 20, 0);
+//            Undo_i.setLayoutParams(lp_undo);
+//
+//            lp_up_i.setMargins(0, 360, 0, 0);
+//            navigation_up.setLayoutParams(lp_up_i);
+//
+//            lp_nacloc_i.setMargins(20, 400, 0, 0);
+//            navigation_location.setLayoutParams(lp_nacloc_i);
+//
+//            lp_sync_push.setMargins(0, 400, 20, 0);
+//            sync_push.setLayoutParams(lp_sync_push);
+//
+//            lp_sync_pull.setMargins(0, 490, 20, 0);
+//            sync_pull.setLayoutParams(lp_sync_pull);
         }
     }
 
@@ -7094,5 +7164,26 @@ public class MainActivity extends AppCompatActivity {
         showLongToast(String.format(Locale.US, "user %d muted or unmuted %b", (uid & 0xFFFFFFFFL), muted));
     }
 
+    public static void setFilename(String s){
+        filename = s;
+
+        filenametext.setText(filename);
+        ll_file.setVisibility(View.VISIBLE);
+
+        lp_undo.setMargins(0, 240, 20, 0);
+        Undo_i.setLayoutParams(lp_undo);
+
+        lp_up_i.setMargins(0, 360, 0, 0);
+        navigation_up.setLayoutParams(lp_up_i);
+
+        lp_nacloc_i.setMargins(20, 400, 0, 0);
+        navigation_location.setLayoutParams(lp_nacloc_i);
+
+        lp_sync_push.setMargins(0, 400, 20, 0);
+        sync_push.setLayoutParams(lp_sync_push);
+
+        lp_sync_pull.setMargins(0, 490, 20, 0);
+        sync_pull.setLayoutParams(lp_sync_pull);
+    }
 
 }

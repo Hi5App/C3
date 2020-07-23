@@ -3796,6 +3796,7 @@ public class MainActivity_Jump extends AppCompatActivity {
     private void BigFileRead_local(){
         String[] filename_list = bigImgReader.ChooseFile(this);
         if (filename_list != null){
+            String [] str = new String[1];
             bigImgReader.ShowListDialog(this, filename_list);
         }
     }
