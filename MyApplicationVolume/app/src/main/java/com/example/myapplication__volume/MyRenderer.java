@@ -1116,7 +1116,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
-    public void deleteAllTracing(){
+    public void deleteAllTracing() {
+
+        try {
+            saveUndo();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
 
         for (int i = curSwcList.seg.size(); i >= 0; i--){
             curSwcList.deleteSeg(i);
@@ -1576,11 +1582,32 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public void setMarkerDrawed(float x, float y) throws CloneNotSupportedException {
 
         if(solveMarkerCenter(x, y) != null) {
+
+            float [] dis = {-0.01f, 0.01f, 0, 0.01f, 0.01f, 0.01f, -0.01f, 0, 0.01f, 0, -0.01f, -0.01f, 0, -0.01f, 0.01f, -0.01f};
             float[] new_marker = solveMarkerCenter(x, y);
+            float intensity = Sample3d(new_marker[0], new_marker[1], new_marker[2]);
+
+            for (int i = 0; i < 8; i++){
+                float [] temp_marker = solveMarkerCenter(x + dis[i * 2], y + dis[i * 2 + 1]);
+                if (temp_marker == null){
+                    continue;
+                }
+                if (Sample3d(temp_marker[0], temp_marker[1], temp_marker[2]) > intensity){
+                    intensity = Sample3d(temp_marker[0], temp_marker[1], temp_marker[2]);
+                    new_marker[0] = temp_marker[0];
+                    new_marker[1] = temp_marker[1];
+                    new_marker[2] = temp_marker[2];
+                }
+            }
+
+            if (Sample3d(new_marker[0], new_marker[1], new_marker[2]) <= 45){
+                return;
+            }
 
             ImageMarker imageMarker_drawed = new ImageMarker(new_marker[0],
                     new_marker[1],
                     new_marker[2]);
+
             imageMarker_drawed.type = lastMarkerType;
             System.out.println("set type to 3");
 
@@ -3288,6 +3315,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         if (lineAdded != null){
 //            lineDrawed.add(lineAdded);
+            float ave = 0;
+            for (int i = 0; i < lineAdded.size() / 3; i++){
+                float [] temp = {lineAdded.get(i * 3), lineAdded.get(i * 3 + 1), lineAdded.get(i * 3 + 2)};
+                temp = ModeltoVolume(temp);
+                ave += Sample3d(temp[0], temp[1], temp[2]);
+            }
+            ave /= lineAdded.size() / 3;
+            System.out.println("Average:::::::");
+            System.out.println(ave);
+//            System.out.println(lineAdded.get(0));
+            if (ave < 41)
+                return null;
             int max_n = curSwcList.maxnoden();
             V_NeuronSWC seg = new  V_NeuronSWC();
             for(int i=0; i < lineAdded.size()/3; i++){
