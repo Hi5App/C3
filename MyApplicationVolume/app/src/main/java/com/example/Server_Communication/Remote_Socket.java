@@ -102,21 +102,21 @@ public class Remote_Socket extends Socket {
                     }
 
 
-                    /*
-                     Read the feedback when connect successfully
-                     */
-                    if (ManageSocket.isConnected()) {
-                        if (!ManageSocket.isInputShutdown()) {
-                            String content = "";
-                            Log.d("-- ConnectServer --:", "Start to Read Line");
-
-                            if ((content = ImgReader.readLine()) != null) {
-                                Log.v("-- ConnectServer --:", content);
-//                                onReadyRead(content, context);
-
-                            }
-                        }
-                    }
+//                    /*
+//                     Read the feedback when connect successfully
+//                     */
+//                    if (ManageSocket.isConnected()) {
+//                        if (!ManageSocket.isInputShutdown()) {
+//                            String content = "";
+//                            Log.d("-- ConnectServer --:", "Start to Read Line");
+//
+//                            if ((content = ImgReader.readLine()) != null) {
+//                                Log.v("-- ConnectServer --:", content);
+////                                onReadyRead(content, context);
+//
+//                            }
+//                        }
+//                    }
                 } catch (IOException e) {
                     Toast_in_Thread("Something Wrong When Connect Server");
                     e.printStackTrace();
@@ -480,6 +480,11 @@ public class Remote_Socket extends Socket {
 
     private String Get_Message(){
 
+        if (ManageSocket == null || ManageSocket.isClosed()){
+            Log.d("Get_Message","ManageSocket.isClosed()");
+            return "Error";
+        }
+
         String msg = socket_receive.Get_Message(ManageSocket);
 
         if (msg != null)
@@ -505,7 +510,7 @@ public class Remote_Socket extends Socket {
 
     private void Make_Connect(){
 
-        if (!CheckConnection()){
+        if (ManageSocket == null || !CheckConnection()){
             ConnectServer(ip);
         }
 

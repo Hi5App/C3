@@ -53,7 +53,6 @@ public class Socket_Send {
                     out.write(message.getBytes(StandardCharsets.UTF_8));
 
                     out.flush();
-                    out.close();
 
                     Log.d("Send_Msg", "Send Message Successfully !");
 
@@ -65,6 +64,11 @@ public class Socket_Send {
         };
         thread.start();
 
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -106,7 +110,6 @@ public class Socket_Send {
                     Log.v("Send_File", Integer.toString(IOUtils.copy(is, out)));
 
                     out.flush();
-                    out.close();
                     is.close();
 
                     Log.v("send2", "send file successfully!!!");
