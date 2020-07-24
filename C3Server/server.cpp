@@ -2,7 +2,7 @@
 
 Server::Server(QObject *parent):QTcpServer(parent)
 {
-
+    qDebug()<<"Thread ID"<<QThread::currentThreadId();
 }
 
 Server::~Server()
