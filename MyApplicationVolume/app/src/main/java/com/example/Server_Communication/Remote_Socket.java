@@ -146,7 +146,7 @@ public class Remote_Socket extends Socket {
         String ImportRex = ":import port.";
         String CurrentDirDownExp = ":currentDir_down.";
         String CurrentDirLoadExp = ":currentDir_load.";
-        String CurrentDirImgDownExp = ":currentDirImg.";
+        String CurrentDirImgDownExp = ":currentDirImg";
         String MessagePortExp = ":messageport.\n";
         String ImportportExp = ":importport.\n";
 

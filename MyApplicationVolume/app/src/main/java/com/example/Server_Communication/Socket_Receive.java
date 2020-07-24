@@ -69,13 +69,14 @@ public class Socket_Receive {
                     in.read(Msg_String_byte, 0, Message_size_int);
 
                     String Msg_String = new String(Msg_String_byte, StandardCharsets.UTF_8);
+                    String Msg_SubString = Msg_String.substring(4, Msg_String.length() - 4);
                     Log.v("Get_Msg: Data_size", Long.toString(bytesToLong(Data_size)));
                     Log.v("Get_Msg: Message_size", Long.toString(bytesToLong(Message_size)));
-                    Log.v("Get_Msg", Msg_String);
+                    Log.v("Get_Msg", Msg_SubString);
 
                     in.close();
 
-                    Msg[0] = Msg_String;
+                    Msg[0] = Msg_SubString;
 
                 } catch (Exception e) {
                     e.printStackTrace();
