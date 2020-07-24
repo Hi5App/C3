@@ -73,6 +73,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import com.example.Server_Communication.Remote_Socket;
 import com.example.basic.DragFloatActionButton;
 import com.example.ImageReader.BigImgReader;
 import com.example.basic.FileManager;
@@ -296,7 +297,8 @@ public class MainActivity extends AppCompatActivity {
     private RandomForest rf = null;
 
 
-    private RemoteImg remoteImg;
+    private static RemoteImg remoteImg;
+    private static Remote_Socket remote_socket;
     private BigImgReader bigImgReader;
 
 
@@ -497,7 +499,10 @@ public class MainActivity extends AppCompatActivity {
     };
 
 
-
+    /**
+     * The onCreate Function
+     * @param savedInstanceState
+     */
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1107,6 +1112,7 @@ public class MainActivity extends AppCompatActivity {
 
         myGLSurfaceView.requestRender();
         remoteImg = new RemoteImg();
+        remote_socket = new Remote_Socket(this);
         bigImgReader = new BigImgReader();
 
         context = getApplicationContext();
@@ -2024,9 +2030,101 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void PullSwc_block(String ip, Context context){
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+//    private void PullSwc_block(String ip, Context context){
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+//                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+//
+//        Thread thread = new Thread() {
+//            @Override
+//            public void run() {
+//
+//                if (Looper.myLooper() == null) {
+//                    Looper.prepare();
+//                }
+//
+//                try {
+//                    remoteImg.ip = ip;
+//
+//                    Log.v("DownloadSwc: ", "Connect server");
+//
+//                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
+//                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
+//                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
+//
+//                    if (remoteImg.ImgSocket.isConnected()){
+//                        String content = remoteImg.ImgReader.readLine();
+//                        remoteImg.id = Integer.parseInt(content.split(":")[0]);
+//                        Log.v("ConnectServer", content);
+//
+//                    }
+//
+//                    Filesocket_receive filesocket_receive = new Filesocket_receive();
+//                    filesocket_receive.filesocket = new Socket(ip, 9002);
+//                    filesocket_receive.mReader = new BufferedReader(new InputStreamReader(filesocket_receive.filesocket.getInputStream(), "UTF-8"));
+//                    filesocket_receive.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_receive.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
+//                    filesocket_receive.IsDown = true;
+//                    filesocket_receive.path = context.getExternalFilesDir(null).toString() + "/Sync/BlockGet";
+//
+//                    if (remoteImg.ImgSocket.isConnected() && filesocket_receive.filesocket.isConnected()){
+//                        filesocket_receive.mPWriter.println(remoteImg.id + ":manage handle.");
+//                        filesocket_receive.mPWriter.flush();
+//                    }
+//
+//                    Log.v("PullSwc: ", "here we are 2");
+//
+//                    if (remoteImg.ImgSocket.isConnected()) {
+//                        remoteImg.isSocketSet = true;
+//                        Log.v("PullSwc: ", "Connect with Server successfully");
+//                        Toast.makeText(getContext(), "Connect with Server successfully", Toast.LENGTH_SHORT).show();
+//
+//                        String filename = getFilename(context);
+//                        String offset = getoffset(context, filename);
+//                        int[] index = BigImgReader.getIndex(offset);
+//                        System.out.println(filename);
+//
+//                        String SwcFileName = filename.split("RES")[0] + "__" +
+//                                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
+//
+//                        remoteImg.ImgPWriter.println(SwcFileName + ":GetBBSwc.");
+//                        remoteImg.ImgPWriter.flush();
+//
+//                        filesocket_receive.readFile("blockGet__" + SwcFileName + ".swc", context);
+//
+//                        filesocket_receive = null;
+//
+//                        NeuronTree nt = NeuronTree.readSWC_file(context.getExternalFilesDir(null).toString() + "/Sync/BlockGet/" +  "blockGet__" + SwcFileName + ".swc");
+//                        myrenderer.SetSwcLoaded();
+//                        myrenderer.importNeuronTree(nt);
+//                        myGLSurfaceView.requestRender();
+//                        uiHandler.sendEmptyMessage(1);
+//                        remoteImg.disconnectFromHost();
+//
+//                        Looper.loop();
+//
+//                    } else {
+//                        Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+//                        remoteImg.disconnectFromHost();
+//                        Looper.loop();
+//                    }
+//
+//
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
+//                    remoteImg.disconnectFromHost();
+//                    Looper.loop();
+//                }
+//            }
+//        };
+//        thread.start();
+//    }
+
+
+    private static void PullSwc_block(String ip, Context context){
+
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+//                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
         Thread thread = new Thread() {
             @Override
@@ -2090,7 +2188,7 @@ public class MainActivity extends AppCompatActivity {
                         myrenderer.SetSwcLoaded();
                         myrenderer.importNeuronTree(nt);
                         myGLSurfaceView.requestRender();
-                        uiHandler.sendEmptyMessage(1);
+//                        uiHandler.sendEmptyMessage(1);
                         remoteImg.disconnectFromHost();
 
                         Looper.loop();
@@ -2112,6 +2210,45 @@ public class MainActivity extends AppCompatActivity {
         };
         thread.start();
     }
+
+
+    private void PullSwc_block_Manual(){
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+        String SwcFilePath = remote_socket.PullSwc_block();
+
+        if (SwcFilePath.equals("Error")){
+            Toast.makeText(context,"Something Wrong When Pull Swc File !",Toast.LENGTH_SHORT).show();
+        }
+
+        NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
+        myrenderer.SetSwcLoaded();
+        myrenderer.importNeuronTree(nt);
+        myGLSurfaceView.requestRender();
+        uiHandler.sendEmptyMessage(1);
+
+
+    }
+
+
+
+    private static void PullSwc_block_Auto(){
+
+        String SwcFilePath = remote_socket.PullSwc_block();
+
+        if (SwcFilePath.equals("Error")){
+            Toast.makeText(context,"Something Wrong When Pull Swc File !",Toast.LENGTH_SHORT).show();
+        }
+
+        NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
+        myrenderer.SetSwcLoaded();
+        myrenderer.importNeuronTree(nt);
+        myGLSurfaceView.requestRender();
+
+    }
+
 
 
     public void disconnectFromHost(){
@@ -3701,13 +3838,20 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private void PullSWC_Block(){
+//    private void PullSWC_Block(){
+//
+////        DownloadSwc("39.100.35.131", this);
+//        PullSwc_block("39.100.35.131", this);
+//
+//    }
+
+
+    private static void PullSWC_Block(){
 
 //        DownloadSwc("39.100.35.131", this);
-        PullSwc_block("39.100.35.131", this);
+        PullSwc_block("39.100.35.131", context);
 
     }
-
 
     private void ShareScreenShot() {
 
@@ -3832,28 +3976,6 @@ public class MainActivity extends AppCompatActivity {
 
                         StartSensorListening();//启动传感数据采集(注册三个传感器）
 
-//                        if (timer == null) {timer = new Timer();}
-//                        timer.schedule(new TimerTask()
-//                        {
-//                            @Override
-//                            public void run() {
-//                                if  (0==flag)
-//                                {
-//////                                    AccList.add(AccData[0]);AccList.add(AccData[1]);
-////                                    AccList.add(AccData[2]);GyrList.add(GyrData[0]);
-////                                    GyrList.add(GyrData[1]);GyrList.add(GyrData[2]);
-////                                    MagList.add(MagData[0]);MagList.add(MagData[1]);
-////                                    MagList.add(MagData[2]);AccList2.add(AccData2[0]);
-////                                    AccList2.add(AccData2[1]);AccList2.add(AccData2[2]);
-////                                    LightList.add(LightData[0]);PreList.add(PreData[0]);
-////                                    ProList.add(ProData[0]);GraList.add(GraData[0]);
-////                                    GraList.add(GraData[1]);GraList.add(GraData[2]);
-////                                    Rot_Vec_List.add(Rot_Vec_Data[0]);
-////                                    Rot_Vec_List.add(Rot_Vec_Data[1]);
-////                                    Rot_Vec_List.add(Rot_Vec_Data[2]);
-//                                }
-//                            }
-//                        },1000,10000);   //10ms后开始采集，每隔20ms采集一次
                     }
 
                 })
@@ -4267,8 +4389,10 @@ public class MainActivity extends AppCompatActivity {
                             public void onSelect(int position, String text) {
                                 switch (text) {
                                     case "AliYun Server":
-                                        String ip = "39.100.35.131";
-                                        ConnectServer(ip, context);
+//                                        String ip = "39.100.35.131";
+                                        String ip = "192.168.31.11";
+//                                        ConnectServer(ip, context);
+                                        BigFileRead_Remote(ip);
                                         break;
 
                                     case "SEU Server":
@@ -4295,6 +4419,13 @@ public class MainActivity extends AppCompatActivity {
         if (filename_list != null){
             bigImgReader.ShowListDialog(this, filename_list);
         }
+    }
+
+    private void BigFileRead_Remote(String ip){
+
+        remote_socket.ConnectServer(ip);
+        remote_socket.Select_Brain();
+
     }
 
     private void ConnectServer(String ip, Context context){
@@ -4324,7 +4455,8 @@ public class MainActivity extends AppCompatActivity {
 
                         Log.v("ConnectServer","send some message to server");
                         remoteImg.isSocketSet = true;
-                        Toast.makeText(getContext(), "Connect with Server successfully", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getContext(), "Connect with Server successfully", Toast.LENGTH_SHORT).show();
+                        Toast_in_Thread("hello world");
                         remoteImg.ImgPWriter.println( "connect for android client" + ":choose3.");
                         remoteImg.ImgPWriter.flush();
 
@@ -4344,28 +4476,6 @@ public class MainActivity extends AppCompatActivity {
                             Log.v("---------Image------:", "start to readline");
 
                             boolean[] isFinished = {false};
-
-//                            Timer timer = new Timer();
-//                            timer.schedule(new TimerTask() {
-//                                public void run() {
-//
-//                                    Log.v("---------Image------:", "start timertask");
-//
-//                                    if (!isFinished[0]){
-//                                        Log.v("---------Image------:", "start to close bufferreader");
-//
-//                                        try {
-//                                            remoteImg.ImgReader.close();
-//                                            ShowToast(context, "---Timeout---");
-//                                            Log.v("---------Image------:", "bufferreader closed!");
-//                                        } catch (IOException e) {
-//                                            e.printStackTrace();
-//                                            Log.v("---------Image------:", "fail to close bufferreader!");
-//                                        }
-//                                    }
-//
-//                                }
-//                            }, 5 * 1000); // 延时5秒
 
                             if ((content = remoteImg.ImgReader.readLine()) != null) {
 
@@ -4423,6 +4533,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    public void Toast_in_Thread(String message){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, message,Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
     public void Block_switch(View v){
         context = v.getContext();
         new XPopup.Builder(this)
@@ -4468,6 +4588,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void Block_navigate(String text){
         context = this;
+        PushSWC_Block();
         if (isBigData_Remote){
             switch (text) {
                 case "Left":
@@ -6762,37 +6883,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void loadBigData(){
 
-//        context = this;
-//        if ( select_img ){
-//
-//            Select_img();
-////            select_img = false;
-//        }else {
-//
-//            new XPopup.Builder(this)
-//                    .asCenterList("BigData File",new String[]{"Select file", "Select block", "Download by http"},
-//                            new OnSelectListener() {
-//                                @Override
-//                                public void onSelect(int position, String text) {
-//                                    switch (text) {
-//                                        case "Select block":
-//                                            Select_Block();
-////                                            remoteImg.Selectblock(context, false);
-//                                            break;
-//
-//                                        case "Select file":
-//                                            Select_img();
-//                                            break;
-//
-//                                        case "Download by http":
-//                                            downloadFile();
-//                                            break;
-//                                    }
-//                                }
-//                            })
-//                    .show();
-//        }
-
         new XPopup.Builder(this)
                 .asCenterList("BigData File",new String[]{"Select file", "Select block", "Download by http"},
                         new OnSelectListener() {
@@ -6870,6 +6960,10 @@ public class MainActivity extends AppCompatActivity {
         myGLSurfaceView.requestRender();
 
         SetButtons();
+
+        PullSwc_block_Auto();
+
+//        PullSWC_Block();
 
     }
 

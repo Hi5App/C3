@@ -812,74 +812,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-//    private void initTexture(Context context){
-//
-//        GLES30.glGenTextures(  //创建纹理对象
-//                1, //产生纹理id的数量
-//                texture, //纹理id的数组
-//                0  //偏移量
-//        );
-//
-//        Bitmap bitmap = BitmapFactory.decodeResource(
-//                context.getResources(), R.drawable.aorta);
-//
-//        //绑定纹理id，将对象绑定到环境的纹理单元
-//        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,texture[0]);
-//
-//        GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-//                GLES30.GL_TEXTURE_MIN_FILTER,GLES30.GL_NEAREST);//设置MIN 采样方式
-//        GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-//                GLES30.GL_TEXTURE_MAG_FILTER,GLES30.GL_LINEAR);//设置MAG采样方式
-//        GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-//                GLES30.GL_TEXTURE_WRAP_S,GLES30.GL_CLAMP_TO_EDGE);//设置S轴拉伸方式
-//        GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-//                GLES30.GL_TEXTURE_WRAP_T,GLES30.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
-//
-//
-//        GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, bitmap, 0);
-//
-//        GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D);
-//
-//        bitmap.recycle();
-//
-//        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,0);
-//
-//    }
-//
-//    private byte[][] getIntensity(){
-//        Rawreader rr = new Rawreader();
-//        String fileName = filepath;
-//        int[][][] grayscale =  rr.run(length, is);
-//        byte[][] data_image = new byte[128][128 * 128 * 4];
-//
-//
-//
-//        for (int x = 0; x < 128; ++x){
-//            for (int y = 0; y < 128; ++y){
-//                for (int z = 0; z < 128; z++) {
-//                    data_image[z][(x * 128 + y) * 4] = intToByteArray(grayscale[x][y][z])[3];
-//                    data_image[z][(x * 128 + y) * 4 + 1] = intToByteArray(grayscale[x][y][z])[3];
-//                    data_image[z][(x * 128 + y) * 4 + 2] = intToByteArray(grayscale[x][y][z])[3];
-//                    if (grayscale[x][y][z] >= 20){
-////                        Log.v("Render",String.valueOf(grayscale[x][y][z]));
-//                        data_image[z][(x * 128 + y) * 4 + 3] = intToByteArray(255)[3];
-//                    }
-//                    else
-//                        data_image[z][(x * 128 + y) * 4 + 3] = intToByteArray(0)[3];
-//                }
-//            }
-//        }
-//
-//        return data_image;
-//    }
-
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-
 
     //int转byte
     private static byte[] intToByteArray(int i) {
@@ -1111,25 +1043,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             mz[1] = (float) sz[1]/max_dim;
             mz[2] = Math.max(mz[0], mz[1]);
 
-//            zoom(16.0f);
-//            if (fileType == FileType.PNG){
-//                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-//                image2D = outputStream.toByteArray();
-//            } else if (fileType == FileType.JPG){
-//                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-//
-//                image2D = outputStream.toByteArray();
-//            }
         }
 
-//        float ratio = (float) screen_w / screen_h;
-//
-//        if(screen_w > screen_h) {
-//            Matrix.orthoM(projectionMatrix, 0, -ratio, ratio, -1,1,1, 100);
-//        }
-//        else{
-//            Matrix.orthoM(projectionMatrix, 0, -1, 1, -1/ratio, 1/ratio,1, 100);
-//        }
     }
 
 

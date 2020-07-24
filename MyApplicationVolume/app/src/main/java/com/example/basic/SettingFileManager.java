@@ -317,4 +317,158 @@ public class SettingFileManager {
 
     }
 
+    /**
+     * get the ip address from local file
+     * @return ip latest address you input
+     */
+    public static String getFilename_Remote(Context context){
+        String filename = null;
+
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/Remote_filename.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "--11--";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get filename", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                line = buffreader.readLine();
+                filename = line;
+                inputStream.close();//关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get filename", filename);
+        return filename;
+    }
+
+    /**
+     * put the ip address you input to local file
+     * @param filename the ip address currently input
+     */
+    public static void setFilename_Remote(String filename, Context context){
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/Remote_filename.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("set filename", "Fail to create file");
+            }
+        }
+
+        try {
+
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(filename.getBytes());
+            outStream.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    /**
+     * get the offset from local file
+     * @return offset latest address you input
+     */
+    public static String getoffset_Remote(Context context, String filename){
+        String offset = null;
+
+        String offset_x = filename.split("x")[3];
+        String offset_y = filename.split("x")[4];
+        String offset_z = filename.split("x")[5];
+
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/" + filename + ".txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = offset_x + "_" + offset_y + "_" + offset_z + "_128";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get offset", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                line = buffreader.readLine();
+                offset = line;
+
+                inputStream.close();//关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get offset", offset);
+        return offset;
+    }
+
+    /**
+     * put the offset you input to local file
+     * @param offset the offset currently input
+     */
+    public static void setoffset_Remote(String offset, String filename, Context context){
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/" + filename + ".txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("get offset", "Fail to create file");
+            }
+        }
+
+        try {
+
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(offset.getBytes());
+            outStream.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
 }
