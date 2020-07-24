@@ -19,6 +19,7 @@ Server::~Server()
 void Server::incomingConnection(qintptr handle)
 {
     Socket* socket=new Socket(handle);
+    qDebug()<<handle<<" connected.";
 //    connect(socket,SIGNAL(setSwcInBB(QString ,int ,int ,int ,int ,int ,int ))
 //            ,this,SLOT(setSwcInBB(QString ,int ,int ,int ,int ,int ,int )));
     socket->start();
