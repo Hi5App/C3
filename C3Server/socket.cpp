@@ -14,7 +14,7 @@ Socket::Socket(qintptr socketID,QObject *parent):QThread(parent)
 
 void Socket::run()
 {
-    socket=new QTcpSocket(this);
+    socket=new QTcpSocket;
     socket->setSocketDescriptor(socketDescriptor);
     connect(socket,SIGNAL(readyRead()),this,SLOT(onReadyRead()));
     connect(socket,SIGNAL(disconnected()),this,SLOT(deleteLater()));
