@@ -183,7 +183,7 @@ void Socket::sendFile(const QString &filename, int type) const
             dts.device()->seek(0);
             dts<<(quint64)(block.size())
               <<(quint64)(block.size()-sizeof(quint64)*2-filedata.size()-sizeof(EOF))
-             <<filename.toUtf8()<<filedata<<EOF;
+             <<(filename+".txt").toUtf8()<<filedata<<EOF;
             socket->write(block);
             socket->waitForBytesWritten();
             f.close();
