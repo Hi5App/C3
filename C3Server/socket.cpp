@@ -133,7 +133,7 @@ void Socket::processMsg(const QString &msg)
     }else if(BrainNumberRex.indexIn(msg)!=-1)
     {
         QString filename=BrainNumberRex.cap(1).trimmed();
-        sendFile(filename,1);//image/brainnumber/filename.txt
+        sendFile(filename+".txt",1);//image/brainnumber/filename.txt
     }
     else if(ImgBlockRex.indexIn(msg)!=-1)
     {
@@ -151,9 +151,9 @@ void Socket::sendMsg(const QString &msg) const
 {
     QByteArray block;
     QDataStream dts(&block,QIODevice::WriteOnly);
-    dts<<quint64(0)<<quint64(0)<<msg.toUtf8()<<EOF;
+    dts<<quint64(0)<<quint64(0)<<msg.toUtf8();
     dts.device()->seek(0);
-    dts<<(quint64)(block.size())<<(quint64)(block.size()-sizeof(quint64)*2)<<msg.toUtf8()<<EOF;
+    dts<<(quint64)(block.size())<<(quint64)(block.size()-sizeof(quint64)*2)<<msg.toUtf8();
     socket->write(block);
     socket->waitForBytesWritten();
 }
@@ -167,10 +167,11 @@ void Socket::sendFile(const QString &filename, int type) const
     QString filePath;
     switch (type) {
         case 0:filePath.clear();filePath=QCoreApplication::applicationDirPath()+"/data/"+filename;break;
-        case 1:filePath.clear();filePath=QCoreApplication::applicationDirPath()+"/brainInfo/"+filename+".txt";break;
+        case 1:filePath.clear();filePath=QCoreApplication::applicationDirPath()+"/brainInfo/"+filename;break;
         case 2:filePath.clear();filePath=QCoreApplication::applicationDirPath()+"/tmp/"+filename;break;
     default: break;
     }
+    qDebug()<<"filepath:"<<filePath;
     QFile f(filePath);
     if(f.exists()&&socket->state()==QAbstractSocket::ConnectedState)
     {
@@ -179,14 +180,18 @@ void Socket::sendFile(const QString &filename, int type) const
             QByteArray filedata=f.readAll();
             QByteArray block;
             QDataStream dts(&block,QIODevice::WriteOnly);
-            dts<<quint64(0)<<quint64(0)<<(filename+".txt").toUtf8()<<filedata<<EOF;
+            dts<<quint64(0)<<quint64(0)<<filename.toUtf8()<<filedata;
             dts.device()->seek(0);
             dts<<(quint64)(block.size())
-              <<(quint64)(block.size()-sizeof(quint64)*2-filedata.size()-sizeof(EOF))
-             <<(filename+".txt").toUtf8()<<filedata<<EOF;
+              <<(quint64)(block.size()-sizeof(quint64)*2-filedata.size())<<filename.toUtf8()<<filedata;
+            //int64 int64 int32 filename int32 filedata
+            // blockszie filenamesize filenamesize filename filedatasize filedata
             socket->write(block);
             socket->waitForBytesWritten();
+            qDebug()<<"send "<<filePath<<" success ";
+
             f.close();
+            if(type==2) f.remove();
         }
     }
     else
@@ -271,9 +276,17 @@ void Socket::getAndSendSWCBlock(QString msg)
 
 void Socket::getAndSendImageBlock(QString msg)
 {
+    qDebug()<<"getAndSendImageBlock:"<<msg;
     QStringList paraList=msg.split("__",QString::SkipEmptyParts);
-    QString filename=paraList.at(0).trimmed();//1. tf name/RES  2. .v3draw// test:17302_00001/RES(54600x34412x9847);
-
+    QString filename=paraList.at(0).trimmed();//1. tf name/RES  2. .v3draw// test:17302/RES54600x34412x9847__x__y__z_b;
+    QString filename1=filename;
+    filename1=filename1.remove('/');
+    qDebug()<<"filename:"<<filename;
+    qDebug()<<"filename1:"<<filename1;
+//0: 18465/RESx18000x13000x5150
+//1: 12520
+//2: 7000
+//3: 2916
     int xpos=paraList.at(1).toInt();
     int ypos=paraList.at(2).toInt();
     int zpos=paraList.at(3).toInt();
@@ -282,7 +295,7 @@ void Socket::getAndSendImageBlock(QString msg)
     {
         QDir(QCoreApplication::applicationDirPath()).mkdir("tmp");
     }
-    QString string=QCoreApplication::applicationDirPath()+"/tmp/"+QString::number(socket->socketDescriptor())+filename+"__"
+    QString string=QCoreApplication::applicationDirPath()+"/tmp/"+QString::number(socket->socketDescriptor())+filename1+"__"
                   + QString::number(xpos)+ "__"
                   + QString::number(ypos)+ "__"
                   + QString::number(zpos)+ "__"
@@ -303,17 +316,18 @@ void Socket::getAndSendImageBlock(QString msg)
         return;//get .apo to get .v3draw
     }
 
-    QString namepart1=QString::number(socket->socketDescriptor())+"_"+filename+"_"+QString::number(blocksize)+"_";
-
-    QString order =QString("xvfb-run -a ./vaa3d -x ./plugins/image_geometry/crop3d_image_series/libcropped3DImageSeries.so "
-                            "-f cropTerafly -i ./%0/%1/ %2.apo %3/tmp/%4 -p %5 %6 %7")
+    QString namepart1=QString::number(socket->socketDescriptor())+"_"+filename1+QString::number(blocksize)+"_";
+    QString vaa3dPath=QCoreApplication::applicationDirPath()+"/vaa3d";
+    QString order =QString("xvfb-run -a %0/vaa3d -x %1/plugins/image_geometry/crop3d_image_series/libcropped3DImageSeries.so "
+                            "-f cropTerafly -i ./%2/%3/ %4.apo %5/tmp/%6 -p %7 %8 %9")
+            .arg(vaa3dPath).arg(vaa3dPath)
             .arg(IMAGEDIR).arg(filename).arg(string).arg(QCoreApplication::applicationDirPath()).arg(namepart1).arg(blocksize).arg(blocksize).arg(blocksize);
     qDebug()<<"order="<<order;
     if(p.execute(order.toStdString().c_str())!=-1||p.execute(order.toStdString().c_str())!=-2)
     {
         QFile f1(string+".apo"); qDebug()<<f1.remove();
         QString fName=namepart1+QString("%1.000_%2.000_%3.000.v3dpbd").arg(xpos).arg(ypos).arg(zpos);
-        qDebug()<<fName;
+        qDebug()<<fName<<"*************";
         sendFile(fName,2);
     }else
     {
