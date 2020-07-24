@@ -19,6 +19,7 @@ void Socket::run()
     connect(socket,SIGNAL(readyRead()),this,SLOT(onReadyRead()));
     connect(socket,SIGNAL(disconnected()),this,SLOT(deleteLater()));
     qDebug()<<"start socket thread "<<socketDescriptor<<" "<<QThread::currentThreadId();
+    this->exec();
 }
 
 void Socket::onReadyRead()
