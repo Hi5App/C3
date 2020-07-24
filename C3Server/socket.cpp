@@ -16,9 +16,9 @@ void Socket::run()
 {
     socket=new QTcpSocket;
     socket->setSocketDescriptor(socketDescriptor);
-    connect(socket,SIGNAL(readyRead()),this,SLOT(onReadyRead()));
-    connect(socket,SIGNAL(disconnected()),this,SLOT(quit()));
-    connect(this,SIGNAL(finished()),this,SLOT(deleLater()));
+    connect(socket,SIGNAL(readyRead()),this,SLOT(onReadyRead()),Qt::DirectConnection);
+    connect(socket,SIGNAL(disconnected()),this,SLOT(quit()),Qt::DirectConnection);
+    connect(this,SIGNAL(finished()),this,SLOT(deleteLater()));
     qDebug()<<"start socket thread "<<socketDescriptor<<" "<<QThread::currentThreadId();
     this->exec();
 }
