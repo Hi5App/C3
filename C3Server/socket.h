@@ -26,13 +26,14 @@ class Socket : public QThread
     Q_OBJECT
 public:
     Socket(qintptr socketID,QObject *parent=0);
+        QTcpSocket *socket;
     static QHash<QString,QReadWriteLock> fileLocks;
 protected:
     void run() override;
     void sendMsg(const QString &msg)const;//
     void sendFile(const QString &filename,int type)const;//
 private:
-    QTcpSocket *socket;
+
     qintptr socketDescriptor;
     DataInfo dataInfo;
     void processMsg(const QString & msg);

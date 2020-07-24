@@ -10,14 +10,16 @@ Socket::Socket(qintptr socketID,QObject *parent):QThread(parent)
     dataInfo.stringSize=0;
     dataInfo.dataReadedSize=0;
     qDebug()<<"a new socket create "<<socketID<<" "<<QThread::currentThreadId();
+        socket=new QTcpSocket;
+        connect(socket,SIGNAL(readyRead()),this,SLOT(onReadyRead()));
+        connect(socket,SIGNAL(disconnected()),this,SLOT(deleteLater()));
 }
 
 void Socket::run()
 {
-    socket=new QTcpSocket(this);
+
     socket->setSocketDescriptor(socketDescriptor);
-    connect(socket,SIGNAL(readyRead()),this,SLOT(onReadyRead()));
-    connect(socket,SIGNAL(disconnected()),this,SLOT(deleteLater()));
+
     qDebug()<<"start socket thread "<<socketDescriptor<<" "<<QThread::currentThreadId();
 }
 
