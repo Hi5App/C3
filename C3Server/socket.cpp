@@ -150,9 +150,9 @@ void Socket::sendMsg(const QString &msg) const
 {
     QByteArray block;
     QDataStream dts(&block,QIODevice::WriteOnly);
-    dts<<quint64(0)<<quint64(0)<<msg.toUtf8();
+    dts<<quint64(0)<<quint64(0)<<msg.toUtf8()<<EOF;
     dts.device()->seek(0);
-    dts<<(quint64)(block.size())<<(quint64)(block.size()-sizeof(quint64)*2)<<msg.toUtf8();
+    dts<<(quint64)(block.size())<<(quint64)(block.size()-sizeof(quint64)*2)<<msg.toUtf8()<<EOF;
     socket->write(block);
     socket->waitForBytesWritten();
 }
@@ -178,11 +178,11 @@ void Socket::sendFile(const QString &filename, int type) const
             QByteArray filedata=f.readAll();
             QByteArray block;
             QDataStream dts(&block,QIODevice::WriteOnly);
-            dts<<quint64(0)<<quint64(0)<<filename.toUtf8()<<filedata;
+            dts<<quint64(0)<<quint64(0)<<filename.toUtf8()<<filedata<<EOF;
             dts.device()->seek(0);
             dts<<(quint64)(block.size())
               <<(quint64)(block.size()-sizeof(quint64)*2-filedata.size())
-             <<filename.toUtf8()<<filedata;
+             <<filename.toUtf8()<<filedata<<EOF;
             socket->write(block);
             socket->waitForBytesWritten();
             f.close();
