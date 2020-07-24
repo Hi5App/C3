@@ -207,9 +207,9 @@ public class Socket_Receive {
 
                             long startTime=System.currentTimeMillis();
 
-                            long i = 0;
-                            while (i < 20000000000L)
-                                i++;
+//                            long i = 0;
+//                            while (i < 20000000000L)
+//                                i++;
 
                             long stopTime=System.currentTimeMillis();
 
@@ -229,7 +229,7 @@ public class Socket_Receive {
                             }
 
                         }
-                    }, 0 * 1000); // 延时5秒
+                    }, 5 * 1000); // 延时5秒
 
 
                     //前两个 uint64 记录传输内容的总长度 和 文件名的长度

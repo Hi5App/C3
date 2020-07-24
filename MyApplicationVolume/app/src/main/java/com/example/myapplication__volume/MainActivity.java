@@ -4493,6 +4493,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void BigFileRead_Remote(String ip){
 
+        remote_socket.DisConnectFromHost();
         remote_socket.ConnectServer(ip);
         remote_socket.Select_Brain();
 

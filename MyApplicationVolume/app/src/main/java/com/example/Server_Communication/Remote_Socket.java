@@ -76,7 +76,7 @@ public class Remote_Socket extends Socket {
 
     public void ConnectServer(String ip_server){
 
-        if (ManageSocket != null && ManageSocket.isConnected()){
+        if (ManageSocket != null && !ManageSocket.isClosed() && ManageSocket.isConnected()){
             return;
         }
 
@@ -132,6 +132,8 @@ public class Remote_Socket extends Socket {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        Log.v("ConnectServer", "thread.join() Successfully !");
 
     }
 
@@ -518,7 +520,7 @@ public class Remote_Socket extends Socket {
 
     private boolean CheckConnection(){
 
-        return ManageSocket.isConnected();
+        return ManageSocket.isConnected() && !ManageSocket.isClosed();
 
     }
 

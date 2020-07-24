@@ -58,7 +58,7 @@ public class Socket_Send {
 
                 }catch (Exception e){
                     e.printStackTrace();
-                    Toast_in_Thread("Fail to Upload file");
+                    Toast_in_Thread("Fail to Send_Message");
                 }
             }
         };
