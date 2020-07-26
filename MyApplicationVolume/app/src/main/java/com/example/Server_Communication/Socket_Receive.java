@@ -69,12 +69,12 @@ public class Socket_Receive {
                     in.read(Msg_String_byte, 0, Message_size_int);
 
                     String Msg_String = new String(Msg_String_byte, StandardCharsets.UTF_8);
-                    String Msg_SubString = Msg_String.substring(4, Msg_String.length() - 4);
+                    String Msg_SubString = Msg_String.substring(4);
                     Log.v("Get_Msg: Data_size", Long.toString(bytesToLong(Data_size)));
                     Log.v("Get_Msg: Message_size", Long.toString(bytesToLong(Message_size)));
                     Log.v("Get_Msg", Msg_SubString);
 
-                    in.close();
+//                    in.close();
 
                     Msg[0] = Msg_SubString;
 
@@ -97,12 +97,14 @@ public class Socket_Receive {
     }
 
 
-    public void Get_File(Socket socket, String file_path, boolean Need_Waited){
+    public String Get_File(Socket socket, String file_path, boolean Need_Waited){
 
         if (!socket.isConnected()){
             Toast_in_Thread("Fail to Get_File, Try Again Please !");
-            return;
+            return "Error";
         }
+
+        String[] File_Name_Complete = {"Error"};
 
         Thread thread = new Thread() {
             public void run() {
@@ -130,9 +132,12 @@ public class Socket_Receive {
                     in.read(FileName_String_byte, 0, FileName_size_int);
 
                     String FileName_String = new String(FileName_String_byte, StandardCharsets.UTF_8);
+                    String FileName_SubString = FileName_String.substring(4, FileName_String.length() - 4);
+
                     Log.v("Get_Msg: Data_size", Long.toString(bytesToLong(Data_size)));
-                    Log.v("Get_Msg: Message_size", Long.toString(bytesToLong(FileName_size)));
+                    Log.v("Get_Msg: FileName_size", Long.toString(bytesToLong(FileName_size)));
                     Log.v("Get_Msg", FileName_String);
+                    Log.v("Get_Msg", FileName_SubString);
 
                     File dir = new File(file_path);
                     if (!dir.exists()){
@@ -142,7 +147,7 @@ public class Socket_Receive {
                     }
 
                     //打开文件，如果没有，则新建文件
-                    File file = new File(file_path + "/" + FileName_String);
+                    File file = new File(file_path + "/" + FileName_SubString);
                     if(!file.exists()){
                         if (file.createNewFile()){
                             Log.v("Get_File", "Create file Successfully !");
@@ -152,8 +157,28 @@ public class Socket_Receive {
                     FileOutputStream out = new FileOutputStream(file);
                     Log.v("Get_File IoUtils: ", Integer.toString(IOUtils.copy(in, out)));
 
+
+                    int File_Content_Int = Data_size_int - 16 - FileName_size_int;
+                    int Loop = File_Content_Int / 1024;
+                    int End = File_Content_Int % 1024;
+
+                    byte [] File_Content = new byte[1024];
+                    byte [] File_Content_End = new byte[End];
+
+                    for(int i = 0; i< Loop; i++){
+                        in.read(File_Content, 0, 1024);
+                        out.write(File_Content);
+                    }
+
+                    if (End > 0){
+                        in.read(File_Content_End, 0, End);
+                        out.write(File_Content_End);
+                    }
+
                     out.close();
-                    in.close();
+//                    in.close();
+
+                    File_Name_Complete[0] =  file_path + "/" + FileName_SubString;
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -174,13 +199,15 @@ public class Socket_Receive {
 
         Log.v("Get_File: ", "Receive File Successfully !");
 
+        return File_Name_Complete[0];
+
     }
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void Get_Block(Socket socket, String file_path, boolean Need_Waited){
 
-        if (!socket.isConnected()){
+        if (!socket.isConnected() || socket.isClosed()){
             Toast_in_Thread("Fail to Get_Block, Try Again Please !");
             return;
         }
@@ -208,9 +235,9 @@ public class Socket_Receive {
 
                             long startTime=System.currentTimeMillis();
 
-//                            long i = 0;
-//                            while (i < 20000000000L)
-//                                i++;
+                            long i = 0;
+                            while (i < 20000000000L)
+                                i++;
 
                             long stopTime=System.currentTimeMillis();
 
@@ -242,15 +269,18 @@ public class Socket_Receive {
 
 
                     int FileName_size_int = (int) bytesToLong(FileName_size);
+                    int Data_size_int = (int) bytesToLong(Data_size);
 
                     //读取文件名和内容
                     byte [] FileName_String_byte = new byte[FileName_size_int];
                     in.read(FileName_String_byte, 0, FileName_size_int);
                     String FileName_String = new String(FileName_String_byte, StandardCharsets.UTF_8);
+                    String FileName_SubString = FileName_String.substring(4, FileName_String.length() - 4);
 
                     Log.v("Get_Block: Data", Long.toString(bytesToLong(Data_size)));
                     Log.v("Get_Block: FileName", Long.toString(bytesToLong(FileName_size)));
                     Log.v("Get_Block", FileName_String);
+                    Log.v("Get_Block", FileName_SubString);
 
 
                     File dir = new File(file_path);
@@ -261,7 +291,7 @@ public class Socket_Receive {
                     }
 
                     //打开文件，如果没有，则新建文件
-                    File file = new File(file_path + "/" + FileName_String);
+                    File file = new File(file_path + "/" + FileName_SubString);
                     if(!file.exists()){
                         if (file.createNewFile()){
                             Log.v("Get_File", "Create file Successfully !");
@@ -270,17 +300,35 @@ public class Socket_Receive {
 
                     FileOutputStream out = new FileOutputStream(file);
 
-                    Log.v("Get_Block", Integer.toString(IOUtils.copy(in, out)));
+//                    Log.v("Get_Block", Integer.toString(IOUtils.copy(in, out)));
+
+
+                    int File_Content_Int = Data_size_int - 16 - FileName_size_int;
+                    int Loop = File_Content_Int / 1024;
+                    int End = File_Content_Int % 1024;
+
+                    byte [] File_Content = new byte[1024];
+                    byte [] File_Content_End = new byte[End];
+
+                    for(int i = 0; i< Loop; i++){
+                        in.read(File_Content, 0, 1024);
+                        out.write(File_Content);
+                    }
+
+                    if (End > 0){
+                        in.read(File_Content_End, 0, End);
+                        out.write(File_Content_End);
+                    }
 
                     out.close();
-                    in.close();
+//                    in.close();
 
                     isFinished[0] = true;
                     ifDownloaded[0] = true;
 
                     MainActivity.hideProgressBar();
 
-                    FileName[0] = FileName_String;
+                    FileName[0] = FileName_SubString;
 
                 }catch (Exception e){
                     e.printStackTrace();

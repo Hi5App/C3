@@ -402,13 +402,13 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     if (isBigData_Remote){
-                        String filename = getFilename(context);
-                        String offset = getoffset(context, filename);
-
-                        String offset_x = offset.split("_")[0];
-                        String offset_y = offset.split("_")[1];
-                        String offset_z = offset.split("_")[2];
-                        Toast.makeText(getContext(),"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
+//                        String filename = getFilename(context);
+//                        String offset = getoffset(context, filename);
+//
+//                        String offset_x = offset.split("_")[0];
+//                        String offset_y = offset.split("_")[1];
+//                        String offset_z = offset.split("_")[2];
+//                        Toast.makeText(getContext(),"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
                     }
 
                     if (isBigData_Local){
@@ -422,6 +422,9 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     break;
+
+                case 3:
+                    Toast.makeText(context,"Time out, please try again!",Toast.LENGTH_SHORT);
             }
         }
     };
@@ -4440,8 +4443,8 @@ public class MainActivity extends AppCompatActivity {
                             public void onSelect(int position, String text) {
                                 switch (text) {
                                     case "AliYun Server":
-//                                        String ip = "39.100.35.131";
-                                        String ip = "192.168.31.11";
+                                        String ip = "39.100.35.131";
+//                                        String ip = "192.168.31.11";
 //                                        ConnectServer(ip, context);
                                         BigFileRead_Remote(ip);
                                         break;
@@ -7032,7 +7035,7 @@ public class MainActivity extends AppCompatActivity {
 
         SetButtons();
 
-        PullSwc_block_Auto();
+//        PullSwc_block_Auto();
 
 //        PullSWC_Block();
 
@@ -7060,7 +7063,9 @@ public class MainActivity extends AppCompatActivity {
 
     public static void Time_Out(){
         hideProgressBar();
-        Toast.makeText(context, "Time out, please try again!", Toast.LENGTH_SHORT).show();
+        puiHandler.sendEmptyMessage(3);
+//        Toast_in_Thread("Time out, please try again!")
+//        Toast.makeText(context, "Time out, please try again!", Toast.LENGTH_SHORT).show();
     }
 
 

@@ -218,17 +218,27 @@ public class Remote_Socket extends Socket {
                 new AlertDialog.Builder(context);
         listDialog.setTitle("选择要下载的文件");
         listDialog.setItems(items, new DialogInterface.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
                 Toast.makeText(context,"你点击了" + items[which], Toast.LENGTH_SHORT).show();
+
+                Log.v("ShowListDialog", type);
+
+                Send_Brain_Number(items[which]);
+
                 if (type.equals("CurrentDirDownExp"))
 //                    send1(items[which], context);
                 if (type.equals("CurrentDirLoadExp"))
 //                    send1(items[which], context);
-                if (type.equals("CurrentDirImgDownExp")){
+                if (type == "CurrentDirImgDownExp" ){
+                    Log.v("ShowListDialog","Start to Send BrainNumber.");
                     Send_Brain_Number(items[which]);
                 }
+
+//                Log.v("ShowListDialog","Start to Send BrainNumber.");
+
             }
         });
         listDialog.show();
@@ -283,13 +293,48 @@ public class Remote_Socket extends Socket {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void Send_Brain_Number(String BrainNumber){
 
-        setFilename_Remote(BrainNumber, mContext);
-        Send_Message(BrainNumber + ":BrainNumber.\n");
+        Make_Connect();
 
-        String Store_path_txt = Store_path + "/" + BrainNumber;
-        Get_File(Store_path_txt, true);
+        Send_Message("18465/RES18000x13000x5150__12520__7000__2916__128:imgblock.\n");
+
+        String Store_path_Img = Store_path + "/Img";
+        Get_Img(Store_path_Img, true);
+
+
+//        Thread thread = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                Send_Message("18465/RES18000x13000x5150__12520__7000__2916__128:imgblock.\n");
+//
+//                String Store_path_Img = Store_path + "/Img";
+//                Get_Img(Store_path_Img, true);
+//
+//            }
+//        });
+//
+//        thread.start();
+
+
+
+//        Log.v("Send_Brain_Number","Start to Send BrainNumber.");
+//
+//        setFilename_Remote(BrainNumber, mContext);
+//        Send_Message(BrainNumber + ":BrainNumber.\n");
+//
+//        String Store_path_txt = Store_path + "/BrainInfo";
+//        String Final_Path = Get_File(Store_path_txt, true);
+//
+//        if (Final_Path == "Error"){
+//            Toast_in_Thread("Something Error When Get_File");
+//        }
+
+//        Send_Message("18465/RES18000x13000x5150__12520__7000__2916__128:imgblock.\n");
+//
+//        String Store_path_Img = Store_path + "/Img";
+//        Get_Img(Store_path_Img, true);
 
     }
 
@@ -496,9 +541,9 @@ public class Remote_Socket extends Socket {
     }
 
 
-    private void Get_File(String file_path, boolean Need_Waited){
+    private String Get_File(String file_path, boolean Need_Waited){
 
-        socket_receive.Get_File(ManageSocket, file_path, Need_Waited);
+        return socket_receive.Get_File(ManageSocket, file_path, Need_Waited);
 
     }
 
