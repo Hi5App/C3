@@ -3851,6 +3851,56 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private String[] SaveSWC_Block_Auto(){
+
+        String filepath = this.getExternalFilesDir(null).toString();
+        String swc_file_path = filepath + "/Sync/BlockSet";
+        File dir = new File(swc_file_path);
+
+        if (!dir.exists()){
+            if (!dir.mkdirs())
+                Toast.makeText(this,"Fail to create file: PushSWC_Block", Toast.LENGTH_SHORT).show();
+        }
+
+        String filename = getFilename_Remote(this);
+        String neuron_number = getNeuronNumber_Remote(this, filename);
+        String offset = getoffset_Remote(this, filename);
+        System.out.println(offset);
+        int[] index = BigImgReader.getIndex(offset);
+        System.out.println(filename);
+
+        String SwcFileName = "blockSet__" + neuron_number + "__" +
+                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
+
+        System.out.println(SwcFileName);
+
+        if (Save_curSwc_fast(SwcFileName, swc_file_path)){
+            return new String[]{ swc_file_path, SwcFileName };
+        }
+
+        return new String[]{"Error", "Error"};
+    }
+
+
+
+    private void PushSWC_Block_Auto(String swc_file_path, String SwcFileName){
+
+        File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
+        try {
+            System.out.println("Start to push swc file");
+            InputStream is = new FileInputStream(SwcFile);
+            long length = SwcFile.length();
+//                PushSwc("39.100.35.131", this, is, length, SwcFileName + ".swc");
+
+            remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
+
+//                SendSwc("39.100.35.131", this, is, length, SwcFileName + ".swc");
+
+        } catch (Exception e){
+            System.out.println("----" + e.getMessage() + "----");
+        }
+    }
+
     private void PushSWC_Block_Manual(){
 
         String filepath = this.getExternalFilesDir(null).toString();
@@ -3893,47 +3943,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-    private void PushSWC_Block_Auto(){
-
-        String filepath = this.getExternalFilesDir(null).toString();
-        String swc_file_path = filepath + "/Sync/BlockSet";
-        File dir = new File(swc_file_path);
-
-        if (!dir.exists()){
-            if (!dir.mkdirs())
-                Toast.makeText(this,"Fail to create file: PushSWC_Block", Toast.LENGTH_SHORT).show();
-        }
-
-        String filename = getFilename_Remote(this);
-        String offset = getoffset_Remote(this, filename);
-        int[] index = BigImgReader.getIndex(offset);
-        System.out.println(filename);
-
-//        String SwcFileName = "blockSet__" + filename.split("RES")[0] + "__" +
-//                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
-
-        String SwcFileName = "Test_SWC_File";
-
-        System.out.println(SwcFileName);
-
-        if (Save_curSwc_fast(SwcFileName, swc_file_path)){
-            File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
-            try {
-                System.out.println("Start to push swc file");
-                InputStream is = new FileInputStream(SwcFile);
-                long length = SwcFile.length();
-//                PushSwc("39.100.35.131", this, is, length, SwcFileName + ".swc");
-
-                remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
-
-                SendSwc("39.100.35.131", this, is, length, SwcFileName + ".swc");
-
-            } catch (Exception e){
-                System.out.println("----" + e.getMessage() + "----");
-            }
-        }
-    }
 
 
 
@@ -4454,7 +4463,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007023a 12:29 UTC+8 build",
+                                "Version: 202007027a 2:50 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4745,7 +4754,76 @@ public class MainActivity extends AppCompatActivity {
 
     public void Block_navigate(String text){
         context = this;
-        PushSWC_Block();
+//        PushSWC_Block();
+
+//        String[] info = SaveSWC_Block_Auto();
+
+//        Timer timer = new Timer();
+//        timer.schedule(new TimerTask() {
+//            public void run() {
+//
+//                Log.v("--- Get_Block ---", "Start TimerTask");
+//
+//                long startTime=System.currentTimeMillis();
+//
+//                long i = 0;
+//                while (i < 5000000000L)
+//                    i++;
+//
+//                long stopTime=System.currentTimeMillis();
+//
+//                // current time cost 45s
+//                Log.v("Block_navigate: ", "Time: " + Long.toString(stopTime - startTime) + "ms" ) ;
+//
+//                if (isBigData_Remote){
+//                    switch (text) {
+//                        case "Left":
+//                            remote_socket.Selectblock_fast(context, false, "Left");
+//                            break;
+//
+//                        case "Right":
+//                            remote_socket.Selectblock_fast(context, false, "Right");
+//                            break;
+//
+//                        case "Top":
+//                            remote_socket.Selectblock_fast(context, false, "Top");
+//                            break;
+//
+//                        case "Bottom":
+//                            remote_socket.Selectblock_fast(context, false, "Bottom");
+//                            break;
+//
+//                        case "Front":
+//                            remote_socket.Selectblock_fast(context, false, "Front");
+//                            break;
+//
+//                        case "Back":
+//                            remote_socket.Selectblock_fast(context, false, "Back");
+//                            break;
+//                    }
+//                }
+//                if (isBigData_Local){
+//                    boolean ifNavigationLocation = myrenderer.getNav_location_Mode();
+//                    if (ifNavigationLocation){
+//                        Quit_Nav_Mode();
+//                    }
+//
+//                    String filename = SettingFileManager.getFilename_Local(context);
+//                    int[] index = bigImgReader.SelectBlock_fast(text, context);
+//                    if (index == null){
+//                        System.out.println("----- index is null -----");
+//                        return;
+//                    }
+//                    String filepath = "/storage/emulated/0/C3/Server/" + filename + ".v3draw";
+//                    myrenderer.SetPath_Bigdata(filepath, index);
+//                    myGLSurfaceView.requestRender();
+//                }
+//
+//
+//            }
+//        }, 0 * 1000); // 延时5秒
+
+
 
         if (isBigData_Remote){
             switch (text) {
@@ -4790,6 +4868,8 @@ public class MainActivity extends AppCompatActivity {
             myrenderer.SetPath_Bigdata(filepath, index);
             myGLSurfaceView.requestRender();
         }
+
+//        PushSWC_Block_Auto(info[0], info[1]);
 
     }
 
