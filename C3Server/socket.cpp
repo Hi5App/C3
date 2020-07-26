@@ -27,6 +27,7 @@ void Socket::onReadyRead()
 {
     if(dataInfo.dataReadedSize==0)
     {
+        qDebug()<<"read dataSize&&stringSize";
         if(socket->bytesAvailable()>=sizeof(quint64)*2)
         {
             QDataStream in(socket);
@@ -40,7 +41,7 @@ void Socket::onReadyRead()
                 if(dataInfo.dataReadedSize==dataInfo.dataSize)
                 {
                     qDebug()<<"process Msg";
-                    dataInfo.dataSize=0;dataInfo.dataReadedSize=0;dataInfo.dataReadedSize=0;//reset dataInfo
+                    dataInfo.dataSize=0;dataInfo.stringSize=0;dataInfo.dataReadedSize=0;//reset dataInfo
                     processMsg(filename);
                 }
                 else
@@ -59,7 +60,7 @@ void Socket::onReadyRead()
             if(dataInfo.dataReadedSize==dataInfo.dataSize)
             {
                 qDebug()<<"process Msg";
-                dataInfo.dataSize=0;dataInfo.dataReadedSize=0;dataInfo.dataReadedSize=0;//reset dataInfo
+                dataInfo.dataSize=0;dataInfo.stringSize=0;dataInfo.dataReadedSize=0;//reset dataInfo
                 processMsg(filename);
             }
             else
@@ -85,9 +86,9 @@ void Socket::readFile(const QString &filename)
     file.open(QIODevice::WriteOnly);
     file.write(block);
     file.close();
-    dataInfo.dataSize=0;dataInfo.dataReadedSize=0;dataInfo.dataReadedSize=0;//reset dataInfo
+    dataInfo.dataSize=0;dataInfo.stringSize=0;dataInfo.dataReadedSize=0;//reset dataInfo
 
-    qDebug()<<"Read file end";
+    qDebug()<<"Read file end "<<filename;
     if(blockSetRex.indexIn(filename)!=-1)
     {
         QString name=blockSetRex.cap(1)+".swc";
@@ -98,6 +99,7 @@ void Socket::readFile(const QString &filename)
         int z1=blockSetRex.cap(6).toInt();
         int z2=blockSetRex.cap(7).toInt();
         setSwcInBB(name,x1,x2,y1,y2,z1,z2);
+        qDebug()<<"set SWC END";
     }
     //should move set to server to keep only one to change
 }
@@ -175,8 +177,10 @@ void Socket::sendFile(const QString &filename, int type) const
     QFile f(filePath);
     if(f.exists()&&socket->state()==QAbstractSocket::ConnectedState)
     {
+        __START:
         if(f.open(QIODevice::ReadOnly))
         {
+
             QByteArray filedata=f.readAll();
             QByteArray block;
             QDataStream dts(&block,QIODevice::WriteOnly);
@@ -184,14 +188,20 @@ void Socket::sendFile(const QString &filename, int type) const
             dts.device()->seek(0);
             dts<<(quint64)(block.size())
               <<(quint64)(block.size()-sizeof(quint64)*2-filedata.size())<<filename.toUtf8()<<filedata;
-            //int64 int64 int32 filename int32 filedata
-            // blockszie filenamesize filenamesize filename filedatasize filedata
+
             socket->write(block);
             socket->waitForBytesWritten();
             qDebug()<<"send "<<filePath<<" success ";
 
             f.close();
+
             if(type==2) f.remove();
+        }else
+        {
+            QElapsedTimer t;
+            t.start();
+            while(t.elapsed()<2000);
+            goto __START;
         }
     }
     else
@@ -216,6 +226,7 @@ QString Socket::currentImg() const
 void Socket::getAndSendSWCBlock(QString msg)
 {
     QRegExp tmp("(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)");
+    int n=5;//重复5次，每次延时2S
     if(tmp.indexIn(msg)!=-1)
     {
         QString name=tmp.cap(1)+".swc";
@@ -226,8 +237,10 @@ void Socket::getAndSendSWCBlock(QString msg)
         int z1=tmp.cap(6).toInt();
         int z2=tmp.cap(7).toInt();
 
+        __START:
         NeuronTree nt;
-
+        --n;
+        qDebug()<<"Get SWC in BB:"<<5-n;
         nt=readSWC_file(QCoreApplication::applicationDirPath()+"/data/"+name);
         if(nt.flag!=false)
         {
@@ -267,11 +280,27 @@ void Socket::getAndSendSWCBlock(QString msg)
                      .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2),2);
             return;
         }
+        else
+        {
+            if(!n)
+            {
+                qDebug()<<"error:"<<msg<<" failed 5 times to get SWC IN BB:"<<msg;
+                goto __ERROR;
+            }else
+            {
+
+                QElapsedTimer t;
+                t.start();
+                while(t.elapsed()<2000);
+                goto __START;
+            }
+        }
     }else
     {
         qDebug()<<"error:"<<msg<<" does not match tmp";
     }
-    sendMsg(QString("Can't get the SWC in BB ,please try again??%1:ERROR").arg(msg+":GetBBSwc.\n"));
+    __ERROR:
+        sendMsg(QString("Can't get the SWC in BB ,please try again??%1:ERROR").arg(msg+":GetBBSwc.\n"));
 }
 
 void Socket::getAndSendImageBlock(QString msg)
@@ -341,10 +370,27 @@ void Socket::setSwcInBB(QString name, int x1, int x2, int y1, int y2, int z1, in
     V_NeuronSWC_list resVNL;
     resVNL=testVNL;
     resVNL.seg.clear();
-
+    int n=5;
+    __START:
+    qDebug()<<"try "<<5-n+1;
     if(QFile(QCoreApplication::applicationDirPath()+"/data/"+name).exists())
     {
+        --n;
         NeuronTree nt=readSWC_file(QCoreApplication::applicationDirPath()+"/data/"+name);
+        if(nt.flag==false)
+        {
+            if(n)
+            {
+                QElapsedTimer t;
+                t.start();
+                while(t.elapsed()<2000);
+                goto __START;
+            }else
+            {
+                qDebug()<<"FATAL:can not set SWC "<<name<<" call coder to check";
+                return;
+            }
+        }
         testVNL=NeuronTree__2__V_NeuronSWC_list(nt);
         for(int i=0;i<testVNL.seg.size();i++)
         {
@@ -368,6 +414,7 @@ void Socket::setSwcInBB(QString name, int x1, int x2, int y1, int y2, int z1, in
                 resVNL.seg.push_back(testVNL.seg.at(i));
         }
     }
+    qDebug()<<"open blockSet file";
     QString BBSWCNAME="blockSet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6.swc")
             .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2);
     NeuronTree nt=readSWC_file(QCoreApplication::applicationDirPath()+"/tmp/"+BBSWCNAME);
@@ -383,7 +430,12 @@ void Socket::setSwcInBB(QString name, int x1, int x2, int y1, int y2, int z1, in
         resVNL.seg.push_back(testVNL1.seg.at(i));
     }
     nt=V_NeuronSWC_list__2__NeuronTree(resVNL);
-    writeESWC_file(QCoreApplication::applicationDirPath()+"/data/"+name,nt);
+    while(!writeESWC_file(QCoreApplication::applicationDirPath()+"/data/"+name,nt))
+    {
+        QElapsedTimer t;
+        t.start();
+        while(t.elapsed()<2000);
+    }
     QFile f(QCoreApplication::applicationDirPath()+"/tmp/"+BBSWCNAME);
     f.remove();
 }
