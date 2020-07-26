@@ -319,9 +319,9 @@ void Socket::getAndSendImageBlock(QString msg)
     QString namepart1=QString::number(socket->socketDescriptor())+"_"+filename1+QString::number(blocksize)+"_";
     QString vaa3dPath=QCoreApplication::applicationDirPath()+"/vaa3d";
     QString order =QString("xvfb-run -a %0/vaa3d -x %1/plugins/image_geometry/crop3d_image_series/libcropped3DImageSeries.so "
-                            "-f cropTerafly -i ./%2/%3/ %4.apo %5/tmp/%6 -p %7 %8 %9")
+                            "-f cropTerafly -i %2/%3/ %4.apo %5/tmp/%6 -p %7 %8 %9")
             .arg(vaa3dPath).arg(vaa3dPath)
-            .arg(IMAGEDIR).arg(filename).arg(string).arg(QCoreApplication::applicationDirPath()).arg(namepart1).arg(blocksize).arg(blocksize).arg(blocksize);
+            .arg(QCoreApplication::applicationDirPath()+"/"+IMAGEDIR).arg(filename).arg(string).arg(QCoreApplication::applicationDirPath()).arg(namepart1).arg(blocksize).arg(blocksize).arg(blocksize);
     qDebug()<<"order="<<order;
     if(p.execute(order.toStdString().c_str())!=-1||p.execute(order.toStdString().c_str())!=-2)
     {
