@@ -149,8 +149,11 @@ import io.agora.rtc.models.UserInfo;
 
 import static com.example.basic.BitmapRotation.getBitmapDegree;
 import static com.example.basic.SettingFileManager.getFilename_Local;
+import static com.example.basic.SettingFileManager.getFilename_Remote;
+import static com.example.basic.SettingFileManager.getNeuronNumber_Remote;
 import static com.example.basic.SettingFileManager.getUserAccount;
 import static com.example.basic.SettingFileManager.getoffset_Local;
+import static com.example.basic.SettingFileManager.getoffset_Remote;
 import static com.example.basic.SettingFileManager.setUserAccount;
 import static com.example.basic.SettingFileManager.setoffset_Local;
 import static com.example.server_connect.RemoteImg.getFilename;
@@ -887,19 +890,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Remoteleft = new Button(this);
-        Remoteleft.setText("Block_switch");
-
-        Remoteleft.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                Block_switch(v);
-            }
-        });
-
-//        if (isRemote){
-//            ll_bottom.addView(Remoteleft);
-//        }
-
 
         lp_animation_i = new FrameLayout.LayoutParams(230, 160);
         animation_i = new ImageButton(this);
@@ -1048,7 +1038,8 @@ public class MainActivity extends AppCompatActivity {
         sync_pull.setImageResource(R.drawable.ic_cloud_download_black_24dp);
         sync_pull.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                PullSWC_Block();
+//                PullSWC_Block();
+                PullSwc_block_Manual();
             }
         });
 
@@ -3829,12 +3820,14 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this,"Fail to create file: PushSWC_Block", Toast.LENGTH_SHORT).show();
         }
 
-        String filename = getFilename(this);
-        String offset = getoffset(this, filename);
+        String filename = getFilename_Remote(this);
+        String neuron_number = getNeuronNumber_Remote(this, filename);
+        String offset = getoffset_Remote(this, filename);
+        System.out.println(offset);
         int[] index = BigImgReader.getIndex(offset);
         System.out.println(filename);
 
-        String SwcFileName = "blockSet__" + filename.split("RES")[0] + "__" +
+        String SwcFileName = "blockSet__" + neuron_number + "__" +
                 index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
 
         System.out.println(SwcFileName);
@@ -3846,6 +3839,51 @@ public class MainActivity extends AppCompatActivity {
                 InputStream is = new FileInputStream(SwcFile);
                 long length = SwcFile.length();
 //                PushSwc("39.100.35.131", this, is, length, SwcFileName + ".swc");
+
+                remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
+
+//                SendSwc("39.100.35.131", this, is, length, SwcFileName + ".swc");
+
+            } catch (Exception e){
+                System.out.println("----" + e.getMessage() + "----");
+            }
+        }
+    }
+
+
+    private void PushSWC_Block_Manual(){
+
+        String filepath = this.getExternalFilesDir(null).toString();
+        String swc_file_path = filepath + "/Sync/BlockSet";
+        File dir = new File(swc_file_path);
+
+        if (!dir.exists()){
+            if (!dir.mkdirs())
+                Toast.makeText(this,"Fail to create file: PushSWC_Block", Toast.LENGTH_SHORT).show();
+        }
+
+//        String filename = getFilename(this);
+//        String offset = getoffset(this, filename);
+//        int[] index = BigImgReader.getIndex(offset);
+        System.out.println(filename);
+
+//        String SwcFileName = "blockSet__" + filename.split("RES")[0] + "__" +
+//                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
+
+        String SwcFileName = "Test_SWC_File";
+
+        System.out.println(SwcFileName);
+
+        if (Save_curSwc_fast(SwcFileName, swc_file_path)){
+            File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
+            try {
+                System.out.println("Start to push swc file");
+                InputStream is = new FileInputStream(SwcFile);
+                long length = SwcFile.length();
+//                PushSwc("39.100.35.131", this, is, length, SwcFileName + ".swc");
+
+                remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
+
                 SendSwc("39.100.35.131", this, is, length, SwcFileName + ".swc");
 
             } catch (Exception e){
@@ -3853,6 +3891,51 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+
+
+    private void PushSWC_Block_Auto(){
+
+        String filepath = this.getExternalFilesDir(null).toString();
+        String swc_file_path = filepath + "/Sync/BlockSet";
+        File dir = new File(swc_file_path);
+
+        if (!dir.exists()){
+            if (!dir.mkdirs())
+                Toast.makeText(this,"Fail to create file: PushSWC_Block", Toast.LENGTH_SHORT).show();
+        }
+
+        String filename = getFilename_Remote(this);
+        String offset = getoffset_Remote(this, filename);
+        int[] index = BigImgReader.getIndex(offset);
+        System.out.println(filename);
+
+//        String SwcFileName = "blockSet__" + filename.split("RES")[0] + "__" +
+//                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
+
+        String SwcFileName = "Test_SWC_File";
+
+        System.out.println(SwcFileName);
+
+        if (Save_curSwc_fast(SwcFileName, swc_file_path)){
+            File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
+            try {
+                System.out.println("Start to push swc file");
+                InputStream is = new FileInputStream(SwcFile);
+                long length = SwcFile.length();
+//                PushSwc("39.100.35.131", this, is, length, SwcFileName + ".swc");
+
+                remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
+
+                SendSwc("39.100.35.131", this, is, length, SwcFileName + ".swc");
+
+            } catch (Exception e){
+                System.out.println("----" + e.getMessage() + "----");
+            }
+        }
+    }
+
+
 
     private boolean Save_curSwc_fast(String SwcFileName, String dir_str){
 
@@ -4663,30 +4746,31 @@ public class MainActivity extends AppCompatActivity {
     public void Block_navigate(String text){
         context = this;
         PushSWC_Block();
+
         if (isBigData_Remote){
             switch (text) {
                 case "Left":
-                    remoteImg.Selectblock_fast(context, false, "Left");
+                    remote_socket.Selectblock_fast(context, false, "Left");
                     break;
 
                 case "Right":
-                    remoteImg.Selectblock_fast(context, false, "Right");
+                    remote_socket.Selectblock_fast(context, false, "Right");
                     break;
 
                 case "Top":
-                    remoteImg.Selectblock_fast(context, false, "Top");
+                    remote_socket.Selectblock_fast(context, false, "Top");
                     break;
 
                 case "Bottom":
-                    remoteImg.Selectblock_fast(context, false, "Bottom");
+                    remote_socket.Selectblock_fast(context, false, "Bottom");
                     break;
 
                 case "Front":
-                    remoteImg.Selectblock_fast(context, false, "Front");
+                    remote_socket.Selectblock_fast(context, false, "Front");
                     break;
 
                 case "Back":
-                    remoteImg.Selectblock_fast(context, false, "Back");
+                    remote_socket.Selectblock_fast(context, false, "Back");
                     break;
             }
         }
@@ -6958,16 +7042,16 @@ public class MainActivity extends AppCompatActivity {
     public void loadBigData(){
 
         new XPopup.Builder(this)
-                .asCenterList("BigData File",new String[]{"Select file", "Select block", "Download by http"},
+                .asCenterList("BigData File",new String[]{"Select File", "Select Block", "Download by http"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text) {
-                                    case "Select block":
+                                    case "Select Block":
                                         Select_Block();
                                         break;
 
-                                    case "Select file":
+                                    case "Select File":
                                         Select_img();
                                         break;
 
@@ -6993,7 +7077,11 @@ public class MainActivity extends AppCompatActivity {
                             public void onSelect(int position, String text) {
                                 switch (text) {
                                     case "Remote Server":
-                                        remoteImg.Selectblock(context, false);
+//                                        remoteImg.Selectblock(context, false);
+                                        String ip = "39.100.35.131";
+                                        remote_socket.DisConnectFromHost();
+                                        remote_socket.ConnectServer(ip);
+                                        remote_socket.SelectBlock();
                                         break;
                                     case "Local Server":
                                         bigImgReader.PopUp(context);
@@ -7035,7 +7123,7 @@ public class MainActivity extends AppCompatActivity {
 
         SetButtons();
 
-//        PullSwc_block_Auto();
+        PullSwc_block_Auto();
 
 //        PullSWC_Block();
 

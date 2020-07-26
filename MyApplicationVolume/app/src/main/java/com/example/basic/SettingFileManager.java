@@ -399,9 +399,9 @@ public class SettingFileManager {
     public static String getoffset_Remote(Context context, String filename){
         String offset = null;
 
-        String offset_x = filename.split("x")[3];
-        String offset_y = filename.split("x")[4];
-        String offset_z = filename.split("x")[5];
+        String offset_x = "0";
+        String offset_y = "0";
+        String offset_z = "0";
 
         String filepath = context.getExternalFilesDir(null).toString();
         File file = new File(filepath + "/config/" + filename + ".txt");
@@ -463,6 +463,82 @@ public class SettingFileManager {
 
             FileOutputStream outStream = new FileOutputStream(file);
             outStream.write(offset.getBytes());
+            outStream.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+
+    /**
+     * get the offset from local file
+     * @return offset latest address you input
+     */
+    public static String getNeuronNumber_Remote(Context context, String filename){
+        String number = "";
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/" + filename + "_Neuron_Number" + ".txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "--11--";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get offset", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                line = buffreader.readLine();
+                number = line;
+
+                inputStream.close();//关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get number", number);
+        return number;
+    }
+
+    /**
+     * put the number you input to local file
+     * @param number the number currently input
+     */
+    public static void setNeuronNumber_Remote(String number, String filename, Context context){
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/" + filename + "_Neuron_Number" + ".txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("get offset", "Fail to create file");
+            }
+        }
+
+        try {
+
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(number.getBytes());
             outStream.close();
 
         } catch (Exception e) {

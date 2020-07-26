@@ -21,9 +21,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -155,7 +157,7 @@ public class Socket_Receive {
                     }
 
                     FileOutputStream out = new FileOutputStream(file);
-                    Log.v("Get_File IoUtils: ", Integer.toString(IOUtils.copy(in, out)));
+//                    Log.v("Get_File IoUtils: ", Integer.toString(IOUtils.copy(in, out)));
 
 
                     int File_Content_Int = Data_size_int - 16 - FileName_size_int;
@@ -166,12 +168,23 @@ public class Socket_Receive {
                     byte [] File_Content_End = new byte[End];
 
                     for(int i = 0; i< Loop; i++){
+
+                        if (in.available() < 1024){
+                            i--;
+                            continue;
+                        }
                         in.read(File_Content, 0, 1024);
                         out.write(File_Content);
                     }
 
                     if (End > 0){
-                        in.read(File_Content_End, 0, End);
+                        for (int i = 0; i < 1; i++){
+                            if (in.available() < End){
+                                i--;
+                                continue;
+                            }
+                            in.read(File_Content_End, 0, End);
+                        }
                         out.write(File_Content_End);
                     }
 
@@ -272,16 +285,20 @@ public class Socket_Receive {
                     int Data_size_int = (int) bytesToLong(Data_size);
 
                     //读取文件名和内容
-                    byte [] FileName_String_byte = new byte[FileName_size_int];
-                    in.read(FileName_String_byte, 0, FileName_size_int);
+                    byte [] FileName_String_byte = new byte[FileName_size_int - 4];
+                    in.read(FileName_String_byte, 0, FileName_size_int - 4);
                     String FileName_String = new String(FileName_String_byte, StandardCharsets.UTF_8);
-                    String FileName_SubString = FileName_String.substring(4, FileName_String.length() - 4);
+                    String FileName_SubString = FileName_String.substring(4, FileName_String.length());
 
                     Log.v("Get_Block: Data", Long.toString(bytesToLong(Data_size)));
                     Log.v("Get_Block: FileName", Long.toString(bytesToLong(FileName_size)));
                     Log.v("Get_Block", FileName_String);
                     Log.v("Get_Block", FileName_SubString);
 
+                    byte[] FileContent_byte = new byte[4];
+                    in.read(FileContent_byte, 0, 4);
+
+                    Log.v("Get: FileContent_size", Long.toString(bytesToInt(FileContent_byte)));
 
                     File dir = new File(file_path);
                     if (!dir.exists()){
@@ -302,7 +319,6 @@ public class Socket_Receive {
 
 //                    Log.v("Get_Block", Integer.toString(IOUtils.copy(in, out)));
 
-
                     int File_Content_Int = Data_size_int - 16 - FileName_size_int;
                     int Loop = File_Content_Int / 1024;
                     int End = File_Content_Int % 1024;
@@ -311,18 +327,36 @@ public class Socket_Receive {
                     byte [] File_Content_End = new byte[End];
 
                     for(int i = 0; i< Loop; i++){
+
+                        if (in.available() < 1024){
+                            i--;
+                            continue;
+                        }
                         in.read(File_Content, 0, 1024);
                         out.write(File_Content);
                     }
 
                     if (End > 0){
-                        in.read(File_Content_End, 0, End);
+                        for (int i = 0; i < 1; i++){
+                            if (in.available() < End){
+                                i--;
+                                continue;
+                            }
+                            in.read(File_Content_End, 0, End);
+                        }
                         out.write(File_Content_End);
                     }
+
+//                     byte [] File_Content = new byte[File_Content_Int];
+
+//                     in.read(File_Content, 0, File_Content_Int);
+//                     out.write(File_Content);
+
 
                     out.close();
 //                    in.close();
 
+                    Log.v("File Size", "Size :" + file.length());
                     isFinished[0] = true;
                     ifDownloaded[0] = true;
 
@@ -384,6 +418,12 @@ public class Socket_Receive {
         return buffer.getLong();
     }
 
+    public static long bytesToInt(byte[] bytes) {
+        ByteBuffer buffer = ByteBuffer.allocate(4);
+        buffer.put(bytes, 0, bytes.length);
+        buffer.flip();//need flip
+        return buffer.getInt();
+    }
 
     /**
      * Transform long to byte[]
