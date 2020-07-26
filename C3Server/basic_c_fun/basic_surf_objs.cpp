@@ -39,6 +39,7 @@ Peng, H, Ruan, Z., Atasoy, D., and Sternson, S. (2010) “Automatic reconstructi
 #include "basic_c_fun/v3d_message.h"
 
 #include <QString>
+#include <string.h>
 
 QList <CellAPO> readAPO_file(const QString& filename)
 {
@@ -137,6 +138,8 @@ bool writeAPO_file(const QString& filename, const QList <CellAPO> & listCell)
 #ifndef DISABLE_V3D_MSG
 		v3d_msg("Fail to save point cloud to file.");
 #endif
+        int errNum = errno;
+        printf("open fail errno = %d reason = %s \n", errNum, strerror(errNum));
 		return false;
 	}
 
