@@ -1199,9 +1199,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.more:
                 More_icon();
                 return true;
-            case R.id.experiment:
-                Experiment_icon();
-                return true;
+//            case R.id.experiment:
+//                Experiment_icon();
+//                return true;
             case R.id.view:
                 if (ifButtonShowed){
                     hideButtons();
@@ -1645,26 +1645,27 @@ public class MainActivity extends AppCompatActivity {
                     }
                     String [] temp = filePath.split("/");
                     String [] temp2 = temp[temp.length - 1].split("%2F");
-                    String filename = temp2[temp2.length - 1];
+                    String s = temp2[temp2.length - 1];
 
+                    setFilename(s);
 
-                    filenametext.setText(filename);
-                    ll_file.setVisibility(View.VISIBLE);
-
-                    lp_undo.setMargins(0, 240, 20, 0);
-                    Undo_i.setLayoutParams(lp_undo);
-
-                    lp_up_i.setMargins(0, 360, 0, 0);
-                    navigation_up.setLayoutParams(lp_up_i);
-
-                    lp_nacloc_i.setMargins(20, 400, 0, 0);
-                    navigation_location.setLayoutParams(lp_nacloc_i);
-
-                    lp_sync_push.setMargins(0, 400, 20, 0);
-                    sync_push.setLayoutParams(lp_sync_push);
-
-                    lp_sync_pull.setMargins(0, 490, 20, 0);
-                    sync_pull.setLayoutParams(lp_sync_pull);
+//                    filenametext.setText(filename);
+//                    ll_file.setVisibility(View.VISIBLE);
+//
+//                    lp_undo.setMargins(0, 240, 20, 0);
+//                    Undo_i.setLayoutParams(lp_undo);
+//
+//                    lp_up_i.setMargins(0, 360, 0, 0);
+//                    navigation_up.setLayoutParams(lp_up_i);
+//
+//                    lp_nacloc_i.setMargins(20, 400, 0, 0);
+//                    navigation_location.setLayoutParams(lp_nacloc_i);
+//
+//                    lp_sync_push.setMargins(0, 400, 20, 0);
+//                    sync_push.setLayoutParams(lp_sync_push);
+//
+//                    lp_sync_pull.setMargins(0, 490, 20, 0);
+//                    sync_pull.setLayoutParams(lp_sync_pull);
                 }
 
                 if (ifDownloadByHttp) {
@@ -2644,7 +2645,7 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"PinPoint", "Draw Curve", "Delete Marker", "Delete MultiMarker", "Delete Curve", "Split",
+                .asAttachList(new String[]{"PinPoint   ", "Draw Curve", "Delete Marker", "Delete MultiMarker", "Delete Curve", "Split       ",
                                 "Set PenColor", "Change PenColor", "Change All PenColor", "Set MColor", "Change MColor",
                                 "Change All MColor", "Exit Drawing mode", "Clear Tracing"},
 //                        new int[]{R.mipmap.ic_launcher, R.mipmap.ic_launcher},
@@ -2655,7 +2656,7 @@ public class MainActivity extends AppCompatActivity {
 //                                if (!(ifPoint || ifPainting || ifDeletingMarker || ifDeletingLine || ifSpliting))
 //                                    ll_top.addView(buttonUndo);
                                 switch (text) {
-                                    case "PinPoint":
+                                    case "PinPoint   ":
                                         if (!myrenderer.ifImageLoaded()){
                                             Toast.makeText(context, "Please load a image first", Toast.LENGTH_SHORT).show();
                                             return;
@@ -2818,7 +2819,7 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                         break;
 
-                                    case "Split":
+                                    case "Split       ":
                                         ifSpliting = !ifSpliting;
                                         ifDeletingLine = false;
                                         ifPainting = false;
@@ -6514,6 +6515,29 @@ public class MainActivity extends AppCompatActivity {
                                     if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
                                         myrenderer.add2DCurve(lineDrawed);
                                     else {
+//                                        int lineType = myrenderer.getLastLineType();
+//                                        if (lineType != 3) {
+////                                            int segid = myrenderer.addLineDrawed(lineDrawed);
+////                                    segids.add(segid);
+////                            requestRender();
+////                                                    int [] curUndo = new int[1];
+////                                                    curUndo[0] = -1;
+//
+//                                            V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed);
+//                                            System.out.println("feature");
+////                                                    System.out.println(v_neuronSWC_list.seg.size());
+//                                            if (seg != null) {
+//                                                V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
+//                                                myrenderer.addLineDrawed2(lineDrawed, v_neuronSWC_list);
+//                                                myrenderer.deleteFromCur(seg, v_neuronSWC_list[0]);
+//                                            }
+////                                                    else {
+////                                                        Toast.makeText(getContext(), "Please make sure the curve is inside the bounding box", Toast.LENGTH_LONG);
+////                                                    }
+////                                            myrenderer.deleteFromNew(segid);
+//                                        } else {
+//                                            myrenderer.addBackgroundLineDrawed(lineDrawed);
+//                                        }
                                         Callable<String> task = new Callable<String>() {
                                             @Override
                                             public String call() throws Exception {
@@ -6555,9 +6579,9 @@ public class MainActivity extends AppCompatActivity {
 //                                int lineType = myrenderer.getLastLineType();
 //                                if (lineType != 3) {
 //                                    int segid = myrenderer.addLineDrawed(lineDrawed);
-////                                    segids.add(segid);
-////                            requestRender();
-//
+//                                    segids.add(segid);
+//                            requestRender();
+
 //                                    myrenderer.addLineDrawed2(lineDrawed);
 //                                    myrenderer.deleteFromNew(segid);
 //                                } else {
@@ -6565,12 +6589,12 @@ public class MainActivity extends AppCompatActivity {
 //                                }
                                     }
 //                            requestRender();
-
+////
 //                            if (myrenderer.deleteFromNew(segid)) {
 //                                myrenderer.addLineDrawed2(lineDrawed);
 //                                requestRender();
 //                            }
-
+//
 //                            new Thread(new Runnable() {
 //                                @Override
 //                                public void run() {
@@ -6583,10 +6607,10 @@ public class MainActivity extends AppCompatActivity {
 //                                    }
 //                                }
 //                            }).start();
-//                            myrenderer.addLineDrawed2(lineDrawed);
+////                            myrenderer.addLineDrawed2(lineDrawed);
                                     lineDrawed.clear();
                                     myrenderer.setLineDrawed(lineDrawed);
-
+//
                                     requestRender();
                                 }
 //                            requestRender();
@@ -7083,6 +7107,14 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void LoadBigFile_Remote(String filepath){
         myrenderer.SetPath(filepath);
+
+        String [] temp = filepath.split("/");
+        String [] temp2 = temp[temp.length - 1].split("%2F");
+        String s = temp2[temp2.length - 1];
+        String result = s.split("_")[1];
+
+        setFilename(result);
+
         System.out.println("------" + filepath + "------");
         isBigData_Remote = true;
         isBigData_Local = false;

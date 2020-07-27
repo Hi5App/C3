@@ -27,7 +27,7 @@
             android:layout_marginLeft="6dp"
             android:layout_toRightOf="@id/title1"
             android:background="@null"
-
+            android:hint="0(black), 1(white), 2(red), 3(blue), 4(green), 5(purple), 6(yellow)"
             android:textColor="#ee333333"
             android:textCursorDrawable="@drawable/color_cursor" />
 

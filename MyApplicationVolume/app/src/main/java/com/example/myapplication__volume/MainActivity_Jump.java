@@ -873,9 +873,9 @@ public class MainActivity_Jump extends AppCompatActivity {
             case R.id.more:
                 More_icon();
                 return true;
-            case R.id.experiment:
-                Experiment_icon();
-                return true;
+//            case R.id.experiment:
+//                Experiment_icon();
+//                return true;
             case R.id.view:
                 if (ifButtonShowed){
                     hideButtons();
