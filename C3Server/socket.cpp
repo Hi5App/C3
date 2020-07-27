@@ -1,6 +1,7 @@
 ﻿#include "socket.h"
 #include <QDataStream>
 #include <QByteArray>
+#include <QHostAddress>
 #define IMAGEDIR "image" // where is image data
 QHash<QString,QReadWriteLock> Socket::fileLocks;
 Socket::Socket(qintptr socketID,QObject *parent):QThread(parent)
@@ -32,8 +33,15 @@ void Socket::onReadyRead()
         {
             QDataStream in(socket);
             in>>dataInfo.dataSize>>dataInfo.stringSize;
-            qDebug()<<"dataSize="<<dataInfo.dataSize<<",stringSize="<<dataInfo.stringSize;
+
+            qDebug()<<socket->peerAddress().toString()<<" "<<socket->socketDescriptor()<<" "<<"dataSize="<<dataInfo.dataSize<<",stringSize="<<dataInfo.stringSize;
             dataInfo.dataReadedSize=2*sizeof(quint64);
+            if(dataInfo.dataSize>256*1024*1024)
+            {
+                socket->disconnectFromHost();
+                socket->waitForDisconnected();
+                return;
+            }
             if(socket->bytesAvailable()+dataInfo.dataReadedSize>=dataInfo.dataSize)
             {
                 QString filename=QString::fromUtf8(socket->read(dataInfo.stringSize),dataInfo.stringSize);
