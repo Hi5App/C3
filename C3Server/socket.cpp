@@ -36,6 +36,12 @@ void Socket::onReadyRead()
 
             qDebug()<<socket->peerAddress().toString()<<" "<<socket->socketDescriptor()<<" "<<"dataSize="<<dataInfo.dataSize<<",stringSize="<<dataInfo.stringSize;
             dataInfo.dataReadedSize=2*sizeof(quint64);
+            if(dataInfo.dataSize>256*1024*1024)
+            {
+                socket->disconnectFromHost();
+                socket->waitForDisconnected();
+                return;
+            }
             if(socket->bytesAvailable()+dataInfo.dataReadedSize>=dataInfo.dataSize)
             {
                 QString filename=QString::fromUtf8(socket->read(dataInfo.stringSize),dataInfo.stringSize);
