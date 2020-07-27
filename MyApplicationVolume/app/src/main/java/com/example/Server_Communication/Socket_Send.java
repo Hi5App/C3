@@ -129,7 +129,9 @@ public class Socket_Send {
             e.printStackTrace();
         }
 
-        Toast.makeText(mContext, "Upload Successfully!!!", Toast.LENGTH_SHORT).show();
+        Toast_in_Thread("Upload Successfully !");
+
+//        Toast.makeText(mContext, "Upload Successfully!!!", Toast.LENGTH_SHORT).show();
 
     }
 

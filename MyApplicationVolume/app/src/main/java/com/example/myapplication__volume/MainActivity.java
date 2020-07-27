@@ -3915,7 +3915,7 @@ public class MainActivity extends AppCompatActivity {
                 try{
                     errorMessage = myrenderer.oversaveCurrentSwc(dir_str);
                     if (errorMessage == "Overwrite failed!"){
-                        Toast.makeText(getContext(),"Fail to save swc file: Save_curSwc_fast", Toast.LENGTH_SHORT).show();
+                        Toast_in_Thread("Fail to save swc file: Save_curSwc_fast");
                         return false;
                     }
                 }catch (Exception e){
@@ -3925,7 +3925,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             if (error.equals("Current swc is empty!")){
-                Toast.makeText(this,"Current swc file is empty!", Toast.LENGTH_SHORT).show();
+                Toast_in_Thread("Current swc file is empty!");
                 return false;
             }
         } else{
@@ -4799,8 +4799,8 @@ public class MainActivity extends AppCompatActivity {
         String filename = null;
         String offset   = null;
         if (isBigData_Remote){
-            filename = getFilename(this);
-            offset   = getoffset(this, filename);
+            filename = getFilename_Remote(this);
+            offset   = getoffset_Remote(this, filename);
         }
         if (isBigData_Local){
             filename = SettingFileManager.getFilename_Local(this);
