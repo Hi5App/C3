@@ -356,6 +356,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static String filename = "";
 
+    private static String file_path_temp = "";
+
     HashMap<Integer, String> User_Map = new HashMap<Integer, String>();
 
     @SuppressLint("HandlerLeak")
@@ -428,6 +430,16 @@ public class MainActivity extends AppCompatActivity {
 
                 case 3:
                     Toast.makeText(context,"Time out, please try again!",Toast.LENGTH_SHORT);
+
+                case 4:
+                    String [] temp = file_path_temp.split("/");
+                    String [] temp2 = temp[temp.length - 1].split("%2F");
+                    String s = temp2[temp2.length - 1];
+                    String result = s.split("_")[1];
+
+                    setFilename(result);
+                    break;
+
             }
         }
     };
@@ -2263,19 +2275,24 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
         WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
-        String SwcFilePath = remote_socket.PullSwc_block();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String SwcFilePath = remote_socket.PullSwc_block();
 
-        if (SwcFilePath.equals("Error")){
-            Toast.makeText(context,"Something Wrong When Pull Swc File !",Toast.LENGTH_SHORT).show();
-        }
+                if (SwcFilePath.equals("Error")){
+                    Toast_in_Thread("Something Wrong When Pull Swc File !");
+                }
 
-        NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
-        myrenderer.SetSwcLoaded();
-        myrenderer.importNeuronTree(nt);
-        myGLSurfaceView.requestRender();
-        uiHandler.sendEmptyMessage(1);
+                NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
+                myrenderer.SetSwcLoaded();
+                myrenderer.importNeuronTree(nt);
+                myGLSurfaceView.requestRender();
+                uiHandler.sendEmptyMessage(1);
+            }
+        });
 
-
+        thread.start();
     }
 
 
@@ -3840,6 +3857,11 @@ public class MainActivity extends AppCompatActivity {
                 InputStream is = new FileInputStream(SwcFile);
                 long length = SwcFile.length();
 
+                if (length < 0 || length > Math.pow(2, 28)){
+                    Toast_in_Thread("Something Wrong When Upload SWC, Try Again Please !");
+                    return;
+                }
+
                 remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
 
             } catch (Exception e){
@@ -3889,6 +3911,10 @@ public class MainActivity extends AppCompatActivity {
             InputStream is = new FileInputStream(SwcFile);
             long length = SwcFile.length();
 
+            if (length < 0 || length > Math.pow(2, 28)){
+                Toast_in_Thread("Something Wrong When Upload SWC, Try Again Please !");
+                return;
+            }
             remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
 
         } catch (Exception e){
@@ -4414,7 +4440,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007027a 2:50 UTC+8 build",
+                                "Version: 202007027i 11:50 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -7104,16 +7130,16 @@ public class MainActivity extends AppCompatActivity {
         puiHandler.sendEmptyMessage(1);
     }
 
+    public static void setFileName(String filepath){
+        file_path_temp = filepath;
+        puiHandler.sendEmptyMessage(4);
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void LoadBigFile_Remote(String filepath){
         myrenderer.SetPath(filepath);
 
-        String [] temp = filepath.split("/");
-        String [] temp2 = temp[temp.length - 1].split("%2F");
-        String s = temp2[temp2.length - 1];
-        String result = s.split("_")[1];
-
-        setFilename(result);
+        setFileName(filepath);
 
         System.out.println("------" + filepath + "------");
         isBigData_Remote = true;
@@ -7131,8 +7157,6 @@ public class MainActivity extends AppCompatActivity {
         SetButtons();
 
         PullSwc_block_Auto();
-
-//        PullSWC_Block();
 
     }
 
