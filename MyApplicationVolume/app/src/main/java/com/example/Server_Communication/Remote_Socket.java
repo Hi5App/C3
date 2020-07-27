@@ -492,7 +492,7 @@ public class Remote_Socket extends Socket {
                                 Make_Connect();
 
                                 if (CheckConnection()){
-                                    PullImageBlock(input[0], input[1], input[2], input[3]);
+                                    PullImageBlock(input[0], input[1], input[2], input[3], false);
                                 }else {
                                     Toast_in_Thread("Can't Connect Server, Try Again Later !");
                                 }
@@ -520,9 +520,9 @@ public class Remote_Socket extends Socket {
 
 
 
-    private void PullImageBlock(final String offset_x, final String offset_y, final String offset_z, final String size){
+    private void PullImageBlock(final String offset_x, final String offset_y, final String offset_z, final String size, boolean NeedWaited){
 
-        new Thread() {
+        Thread thread = new Thread() {
 
             @RequiresApi(api = Build.VERSION_CODES.N)
             public void run() {
@@ -558,7 +558,17 @@ public class Remote_Socket extends Socket {
                 }
 
             }
-        }.start();
+        };
+
+        thread.start();
+
+        if (NeedWaited){
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
     }
 
@@ -714,7 +724,7 @@ public class Remote_Socket extends Socket {
         if (!JudgeBounding(input)){
             Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
         }else {
-            PullImageBlock(input[0], input[1], input[2], input[3]);
+            PullImageBlock(input[0], input[1], input[2], input[3], true);
         }
 
     }
