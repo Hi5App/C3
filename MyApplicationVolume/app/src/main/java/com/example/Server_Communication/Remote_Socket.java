@@ -312,8 +312,10 @@ public class Remote_Socket extends Socket {
             int[] index = BigImgReader.getIndex(offset);
             System.out.println(filename);
 
+            String ratio = Integer.toString(getRatio_SWC());
+
             String SwcFileName = neuron_number + "__" +
-                    index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
+                    index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
 
             Send_Message(SwcFileName + ":GetBBSwc.\n");
             Get_File(file_path, true);
@@ -849,6 +851,22 @@ public class Remote_Socket extends Socket {
 
     }
 
+
+    public int getRatio_SWC(){
+
+        Vector<String> res_temp = getRES(mContext, BrainNumber_Selected);
+        String filename = getFilename_Remote(mContext);
+        String res_cur  = filename.split("/")[1];
+
+        String res_new = res_temp.lastElement();
+        String res_old = res_cur;
+
+        int ratio = (int) (getRatio(res_new, res_old));
+
+        return ratio;
+
+    }
+
     private String[] getNewOffset(String offset, float ratio){
 
         String offset_x = offset.split("_")[0];
@@ -1070,7 +1088,7 @@ public class Remote_Socket extends Socket {
             BufferedReader br = new BufferedReader(isr);
             String str;
             while ((str = br.readLine()) != null) {
-                arraylist.add(str);
+                arraylist.add(str.trim());
             }
 
             Vector<String> RES_List_temp = new Vector<>();

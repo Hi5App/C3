@@ -3847,8 +3847,9 @@ public class MainActivity extends AppCompatActivity {
         int[] index = BigImgReader.getIndex(offset);
         System.out.println(filename);
 
+        String ratio = Integer.toString(remote_socket.getRatio_SWC());
         String SwcFileName = "blockSet__" + neuron_number + "__" +
-                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
+                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
 
         System.out.println(SwcFileName);
 
@@ -3891,8 +3892,9 @@ public class MainActivity extends AppCompatActivity {
         int[] index = BigImgReader.getIndex(offset);
         System.out.println(filename);
 
+        String ratio = Integer.toString(remote_socket.getRatio_SWC());
         String SwcFileName = "blockSet__" + neuron_number + "__" +
-                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
+                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
 
         System.out.println(SwcFileName);
 
@@ -4442,7 +4444,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007028a 11:00 UTC+8 build",
+                                "Version: 202007028b 16:00 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

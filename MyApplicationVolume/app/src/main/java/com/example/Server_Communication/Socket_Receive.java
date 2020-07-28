@@ -76,7 +76,6 @@ public class Socket_Receive {
                     Log.v("Get_Msg: Message_size", Long.toString(bytesToLong(Message_size)));
                     Log.v("Get_Msg", Msg_SubString);
 
-//                    in.close();
 
                     Msg[0] = Msg_SubString;
 
@@ -125,8 +124,11 @@ public class Socket_Receive {
                     int FileName_size_int = (int) bytesToLong(FileName_size);
 
 
-                    if (Data_size_int < FileName_size_int + 4){
-//                        Log.v("readfile IoUtils", Integer.toString(IOUtils.copy(in, outputStream)));
+                    if (Data_size_int <= FileName_size_int + 16){
+
+                        Toast_in_Thread("Can't get the SWC in BB ,please try again");
+                        return;
+
                     }
 
                     //读取 Msg 内容
@@ -157,8 +159,6 @@ public class Socket_Receive {
                     }
 
                     FileOutputStream out = new FileOutputStream(file);
-//                    Log.v("Get_File IoUtils: ", Integer.toString(IOUtils.copy(in, out)));
-
 
                     int File_Content_Int = Data_size_int - 16 - FileName_size_int;
                     int Loop = File_Content_Int / 1024;
@@ -189,7 +189,6 @@ public class Socket_Receive {
                     }
 
                     out.close();
-//                    in.close();
 
                     File_Name_Complete[0] =  file_path + "/" + FileName_SubString;
 
