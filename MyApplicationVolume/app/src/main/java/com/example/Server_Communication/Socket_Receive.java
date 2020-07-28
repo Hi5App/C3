@@ -143,6 +143,16 @@ public class Socket_Receive {
                     Log.v("Get_Msg", FileName_String);
                     Log.v("Get_Msg", FileName_SubString);
 
+
+                    for (byte a : FileName_String_byte){
+                        int hi = ((a>>4)&0x0F);
+                        int lo = (a&0x0F);
+                        char[] hex = new char[2];
+                        hex[0] = hi>9?(char)(hi - 10 + 'a'):(char)(hi + '0');
+                        hex[1] = lo>9?(char)(lo - 10 + 'a'):(char)(lo + '0');
+                        System.out.print(new String(hex));
+                    }
+
                     File dir = new File(file_path);
                     if (!dir.exists()){
                         if(dir.mkdirs()){

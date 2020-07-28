@@ -722,7 +722,12 @@ public class MainActivity extends AppCompatActivity {
                 }
 //                myrenderer.zoom_in();
 //                myGLSurfaceView.requestRender();
-                remote_socket.Zoom_in();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        remote_socket.Zoom_in();
+                    }
+                }).start();
             }
         });
 
@@ -737,7 +742,12 @@ public class MainActivity extends AppCompatActivity {
                 }
 //                myrenderer.zoom_out();
 //                myGLSurfaceView.requestRender();
-                remote_socket.Zoom_out();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        remote_socket.Zoom_out();
+                    }
+                }).start();
             }
         });
 
@@ -4448,7 +4458,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007028c 18:24 UTC+8 build",
+                                "Version: 202007029c 01:05 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
