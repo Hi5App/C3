@@ -559,7 +559,7 @@ public class SettingFileManager {
     public static Vector<String> getRES(Context context, String BrainNumber){
         Vector<String> res = new Vector<>() ;
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/RES" + BrainNumber + ".txt");
+        File file = new File(filepath + "/config/RES/" + BrainNumber + ".txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -608,7 +608,7 @@ public class SettingFileManager {
      */
     public static void setRES(String[] RES, String BrainNumber, Context context){
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/RES" + BrainNumber + ".txt");
+        File file = new File(filepath + "/config/RES/" + BrainNumber + ".txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -626,7 +626,7 @@ public class SettingFileManager {
             BufferedWriter bw=new BufferedWriter(osw);
 
             for(String res:RES){
-                bw.write(res+"\t\n");
+                bw.write(res+"\n");
             }
 
             bw.close();

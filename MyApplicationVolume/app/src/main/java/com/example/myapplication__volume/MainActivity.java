@@ -358,6 +358,10 @@ public class MainActivity extends AppCompatActivity {
 
     private static String file_path_temp = "";
 
+    private enum PenColor {
+        BLACK, WHITE, RED, BLUE, GREEN, PURPLE, YELLOW
+    }
+
     HashMap<Integer, String> User_Map = new HashMap<Integer, String>();
 
     @SuppressLint("HandlerLeak")
@@ -4442,7 +4446,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007028a 11:00 UTC+8 build",
+                                "Version: 202007028c 18:24 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4568,9 +4572,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void BigFileRead_Remote(String ip){
 
-        remote_socket.DisConnectFromHost();
-        remote_socket.ConnectServer(ip);
-        remote_socket.Select_Brain();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                remote_socket.DisConnectFromHost();
+                remote_socket.ConnectServer(ip);
+                remote_socket.Select_Brain();
+            }
+        });
+        thread.start();
 
     }
 
@@ -6195,17 +6205,33 @@ public class MainActivity extends AppCompatActivity {
     //画笔颜色设置
     public void PenSet(){
 
+        String [] pcolor = new String[1];
+
         new MDDialog.Builder(this)
                 .setContentView(R.layout.pen_choose)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
                     @Override
                     public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-                        EditText et1 = (EditText) contentView.findViewById(R.id.pencolor);
+//                        EditText et1 = (EditText) contentView.findViewById(R.id.pencolor);
                         //pencolor= 2;
                         /*String color  = et1.getText().toString();
                         pencolor= Integer.parseInt(color);
                         System.out.println("pen color is");
                         System.out.println(pencolor);*/
+
+                        final Spinner chooseColor = contentView.findViewById(R.id.pencolor);
+                        chooseColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                pcolor[0] = chooseColor.getSelectedItem().toString();
+                                Log.v("onItemSelected", chooseColor.getSelectedItem().toString());
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> parent) {
+
+                            }
+                        });
 
                     }
                 })
@@ -6225,14 +6251,15 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View clickedView, View contentView) {
                         //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
-                        EditText et1 = (EditText) contentView.findViewById(R.id.pencolor);
-                        String color  = et1.getText().toString();
+//                        EditText et1 = (EditText) contentView.findViewById(R.id.pencolor);
+                        String color  = pcolor[0];
 
                         if( !color.isEmpty()){
 
-                            myrenderer.pencolorchange(Integer.parseInt(color));;
+//                            myrenderer.pencolorchange(Integer.parseInt(color));;
+                            myrenderer.pencolorchange(PenColor.valueOf(color).ordinal());
                             System.out.println("pen color is");
-                            System.out.println(Integer.parseInt(color));
+                            System.out.println(color);
                             //Log.v("Mainactivity", "GD-Tracing start~");
                             //Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
                             Toast.makeText(getContext(), "pencolor set~", Toast.LENGTH_SHORT).show();
@@ -6259,17 +6286,33 @@ public class MainActivity extends AppCompatActivity {
 
     public void MarkerPenSet(){
 
+        String [] pcolor = new String[1];
+
         new MDDialog.Builder(this)
                 .setContentView(R.layout.marker_pen_choose)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
                     @Override
                     public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-                        EditText et1 = (EditText) contentView.findViewById(R.id.markercolor);
+//                        EditText et1 = (EditText) contentView.findViewById(R.id.markercolor);
                         //pencolor= 2;
                         /*String color  = et1.getText().toString();
                         pencolor= Integer.parseInt(color);
                         System.out.println("pen color is");
                         System.out.println(pencolor);*/
+
+                        final Spinner chooseColor = contentView.findViewById(R.id.markercolor);
+                        chooseColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                pcolor[0] = chooseColor.getSelectedItem().toString();
+                                Log.v("onItemSelected", chooseColor.getSelectedItem().toString());
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> parent) {
+
+                            }
+                        });
 
                     }
                 })
@@ -6289,14 +6332,15 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View clickedView, View contentView) {
                         //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
-                        EditText et1 = (EditText) contentView.findViewById(R.id.markercolor);
-                        String color  = et1.getText().toString();
+//                        EditText et1 = (EditText) contentView.findViewById(R.id.markercolor);
+//                        String color  = et1.getText().toString();
+                        String color = pcolor[0];
 
                         if( !color.isEmpty()){
 
-                            myrenderer.markercolorchange(Integer.parseInt(color));;
+                            myrenderer.markercolorchange(PenColor.valueOf(color).ordinal());;
                             System.out.println("marker color is");
-                            System.out.println(Integer.parseInt(color));
+                            System.out.println(color);
                             //Log.v("Mainactivity", "GD-Tracing start~");
                             //Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
                             Toast.makeText(getContext(), "markercolor set~", Toast.LENGTH_SHORT).show();
@@ -6320,6 +6364,8 @@ public class MainActivity extends AppCompatActivity {
                 .create()
                 .show();
     }
+
+
 
     //opengl中的显示区域
     class MyGLSurfaceView extends GLSurfaceView {
