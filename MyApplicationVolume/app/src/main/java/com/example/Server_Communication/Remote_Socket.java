@@ -51,9 +51,11 @@ import cn.carbs.android.library.MDDialog;
 
 import static com.example.basic.SettingFileManager.getFilename_Remote;
 import static com.example.basic.SettingFileManager.getNeuronNumber_Remote;
+import static com.example.basic.SettingFileManager.getRES;
 import static com.example.basic.SettingFileManager.getoffset_Remote;
 import static com.example.basic.SettingFileManager.setFilename_Remote;
 import static com.example.basic.SettingFileManager.setNeuronNumber_Remote;
+import static com.example.basic.SettingFileManager.setRES;
 import static com.example.basic.SettingFileManager.setoffset_Remote;
 import static com.example.server_connect.RemoteImg.getFilename;
 import static com.example.server_connect.RemoteImg.getoffset;
@@ -483,6 +485,8 @@ public class Remote_Socket extends Socket {
                             String filename = getFilename_Remote(mContext);
                             setoffset_Remote(offset, filename, mContext);
 
+
+
                             String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
 
                             if (!JudgeBounding(input)){
@@ -731,6 +735,118 @@ public class Remote_Socket extends Socket {
 
 
 
+    public void Zoom_in(){
+
+        Vector<String> res_temp = getRES(mContext, BrainNumber_Selected);
+        String filename = getFilename_Remote(mContext);
+        String res_cur  = filename.split("/")[1];
+        int res_index = res_temp.indexOf(res_cur);
+
+        if (res_index >= res_temp.size() - 1){
+            Toast_in_Thread("You have been in the Highest Resolution !");
+            return;
+        }
+
+        float ratio = getRatio(res_temp.get(res_index + 1), res_cur);
+        String offset = getoffset_Remote(mContext, filename);
+        String[] offset_new = getNewOffset(offset, ratio);
+
+        setFilename_Remote(filename.split("/")[0] + "/" + res_temp.get(res_index + 1), mContext);
+
+        String[] input = JudgeEven(offset_new[0], offset_new[1], offset_new[2], offset_new[3]);
+        if (!JudgeBounding(input)){
+
+            setFilename_Remote(filename, mContext);
+            Toast_in_Thread("Check the Bounding Box !");
+
+        }else {
+            Make_Connect();
+
+            if (CheckConnection()){
+                PullImageBlock(input[0], input[1], input[2], input[3], true);
+                offset = offset_new[0] + "_" + offset_new[1] + "_" + offset_new[2] + "_" + offset_new[3];
+                setoffset_Remote(offset, filename.split("/")[0] + "/" + res_temp.get(res_index + 1), mContext);
+            }else {
+                setFilename_Remote(filename, mContext);
+                Toast_in_Thread("Can't Connect Server, Try Again Later !");
+            }
+        }
+
+    }
+
+    public void Zoom_out(){
+
+        Vector<String> res_temp = getRES(mContext, BrainNumber_Selected);
+        String filename = getFilename_Remote(mContext);
+        String res_cur  = filename.split("/")[1];
+        int res_index = res_temp.indexOf(res_cur);
+
+        if (res_index <= 0){
+            Toast_in_Thread("You have been in the Lowest Resolution !");
+            return;
+        }
+
+        float ratio = getRatio(res_temp.get(res_index - 1), res_cur);
+        String offset = getoffset_Remote(mContext, filename);
+        String[] offset_new = getNewOffset(offset, ratio);
+
+        setFilename_Remote(filename.split("/")[0] + "/" + res_temp.get(res_index + 1), mContext);
+
+        String[] input = JudgeEven(offset_new[0], offset_new[1], offset_new[2], offset_new[3]);
+        if (!JudgeBounding(input)){
+
+            setFilename_Remote(filename, mContext);
+            Toast_in_Thread("Check the Bounding Box !");
+
+        }else {
+            Make_Connect();
+
+            if (CheckConnection()){
+                PullImageBlock(input[0], input[1], input[2], input[3], true);
+                offset = offset_new[0] + "_" + offset_new[1] + "_" + offset_new[2] + "_" + offset_new[3];
+                setoffset_Remote(offset, filename.split("/")[0] + "/" + res_temp.get(res_index + 1), mContext);
+            }else {
+                setFilename_Remote(filename, mContext);
+                Toast_in_Thread("Can't Connect Server, Try Again Later !");
+            }
+        }
+
+    }
+
+
+    private float getRatio(String res_new, String res_old){
+
+        String y_new = res_new.split("x")[1];
+        String y_old  = res_old.split("x")[1];
+
+        int y_new_int = Integer.parseInt(y_new);
+        int y_old_int = Integer.parseInt(y_old);
+
+        float ratio = ((float) y_new_int)/ ((float) y_old_int);
+
+        return ratio;
+
+    }
+
+    private String[] getNewOffset(String offset, float ratio){
+
+        String offset_x = offset.split("_")[0];
+        String offset_y = offset.split("_")[1];
+        String offset_z = offset.split("_")[2];
+        String size     = offset.split("_")[3];
+
+        float offset_x_float = Float.parseFloat(offset_x) * ratio;
+        float offset_y_float = Float.parseFloat(offset_y) * ratio;
+        float offset_z_float = Float.parseFloat(offset_z) * ratio;
+
+        return new String[]{
+                Float.toString(offset_x_float),
+                Float.toString(offset_y_float),
+                Float.toString(offset_z_float),
+                size};
+
+    }
+
 
     private void Send_Message(String message) {
         Make_Connect();
@@ -962,6 +1078,8 @@ public class Remote_Socket extends Socket {
                 RES_List = RES_List_temp;
                 Neuron_Number_List = Neuron_Number_List_temp;
                 Neuron_Info = Neuron_Info_temp;
+
+                setRES((String[]) RES_List.toArray(), BrainNumber_Selected, mContext);
 
             }
 

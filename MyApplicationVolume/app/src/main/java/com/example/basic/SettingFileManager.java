@@ -4,10 +4,14 @@ import android.content.Context;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
+import java.util.Vector;
 
 public class SettingFileManager {
 
@@ -539,6 +543,94 @@ public class SettingFileManager {
 
             FileOutputStream outStream = new FileOutputStream(file);
             outStream.write(number.getBytes());
+            outStream.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    /**
+     * get the offset from local file
+     * @return offset latest address you input
+     */
+    public static Vector<String> getRES(Context context, String BrainNumber){
+        Vector<String> res = new Vector<>() ;
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/RES" + BrainNumber + ".txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "--11--";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get offset", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                while ((line = buffreader.readLine()) != null){
+                    res.add(line);
+                }
+                buffreader.close();
+                inputreader.close();
+                inputStream.close();//关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get res", Arrays.toString(res.toArray()));
+        return res;
+    }
+
+
+    /**
+     * Set the RESs for current Brain File
+     * @param RES the RES
+     * @param BrainNumber current Brain Number
+     * @param context context
+     */
+    public static void setRES(String[] RES, String BrainNumber, Context context){
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/RES" + BrainNumber + ".txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("get offset", "Fail to create file");
+            }
+        }
+
+        try {
+
+            FileOutputStream outStream = new FileOutputStream(file);
+            OutputStreamWriter osw=new OutputStreamWriter(outStream, "UTF-8");
+            BufferedWriter bw=new BufferedWriter(osw);
+
+            for(String res:RES){
+                bw.write(res+"\t\n");
+            }
+
+            bw.close();
+            osw.close();
             outStream.close();
 
         } catch (Exception e) {

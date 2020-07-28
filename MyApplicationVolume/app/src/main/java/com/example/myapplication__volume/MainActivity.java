@@ -716,8 +716,9 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
                     return;
                 }
-                myrenderer.zoom_in();
-                myGLSurfaceView.requestRender();
+//                myrenderer.zoom_in();
+//                myGLSurfaceView.requestRender();
+                remote_socket.Zoom_in();
             }
         });
 
@@ -730,8 +731,9 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
                     return;
                 }
-                myrenderer.zoom_out();
-                myGLSurfaceView.requestRender();
+//                myrenderer.zoom_out();
+//                myGLSurfaceView.requestRender();
+                remote_socket.Zoom_out();
             }
         });
 
@@ -4440,7 +4442,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007027i 11:50 UTC+8 build",
+                                "Version: 202007028a 11:00 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4519,7 +4521,8 @@ public class MainActivity extends AppCompatActivity {
                                         break;
 
                                     case "SEU Server":
-                                        Toast.makeText(getContext(), "The server is not available now", Toast.LENGTH_SHORT).show();
+                                        BigFileRead_Remote("223.3.33.234");
+//                                        Toast.makeText(getContext(), "The server is not available now", Toast.LENGTH_SHORT).show();
                                         break;
 
                                     case "Local Server":
