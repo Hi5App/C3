@@ -11,4 +11,14 @@
         <item>ZXY</item>
         <item>ZYX</item>
     </string-array>
+
+    <string-array name="color">
+        <item>BLACK</item>
+        <item>WHITE</item>
+        <item>RED</item>
+        <item>BLUE</item>
+        <item>GREEN</item>
+        <item>PURPLE</item>
+        <item>YELLOW</item>
+    </string-array>
 </resources>
