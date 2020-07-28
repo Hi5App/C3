@@ -104,6 +104,8 @@ public class Remote_Socket extends Socket {
 
     public void ConnectServer(String ip_server){
 
+        Log.v("ConnectServer","Start to Connect Server !");
+
         if (ManageSocket != null && !ManageSocket.isClosed() && ManageSocket.isConnected()){
             return;
         }
@@ -225,7 +227,8 @@ public class Remote_Socket extends Socket {
                 for (int i = 0; i < file_list.length; i++)
                     Log.v("onReadyRead", file_list[i]);
 
-                ShowListDialog(mContext, file_list, "CurrentDirImgDownExp");
+                ShowListDialog(file_list);
+//                ShowListDialog(mContext, file_list, "CurrentDirImgDownExp");
             }else if (information.contains(ImportportExp)){
 
             }
@@ -270,6 +273,24 @@ public class Remote_Socket extends Socket {
             }
         });
         listDialog.show();
+
+    }
+
+
+    public void ShowListDialog(final String[] items){
+
+        new XPopup.Builder(mContext)
+//        .maxWidth(400)
+//        .maxHeight(1350)
+                .asCenterList("Select a Brain", items,
+                        new OnSelectListener() {
+                            @RequiresApi(api = Build.VERSION_CODES.N)
+                            @Override
+                            public void onSelect(int position, String text) {
+                                Send_Brain_Number(text);
+                            }
+                        })
+                .show();
 
     }
 
@@ -437,11 +458,11 @@ public class Remote_Socket extends Socket {
 
                         }else {
 
-                            offset = Pos_Selected.split(":")[1];
-                            offset_x = offset.split(";")[0];
-                            offset_y = offset.split(";")[1];
-                            offset_z = offset.split(";")[2];
-                            size = "128";
+                            String[] offset_transform = transform_offset();
+                            offset_x = offset_transform[0];
+                            offset_y = offset_transform[1];
+                            offset_z = offset_transform[2];
+                            size     = offset_transform[3];
 
                         }
 
@@ -840,13 +861,36 @@ public class Remote_Socket extends Socket {
         float offset_z_float = Float.parseFloat(offset_z) * ratio;
 
         return new String[]{
-                Float.toString(offset_x_float),
-                Float.toString(offset_y_float),
-                Float.toString(offset_z_float),
+                Integer.toString((int) offset_x_float),
+                Integer.toString((int) offset_y_float),
+                Integer.toString((int) offset_z_float),
                 size};
 
     }
 
+    private String[] transform_offset(){
+        String offset = Pos_Selected.split(":")[1];
+
+        Vector<String> res_temp = getRES(mContext, BrainNumber_Selected);
+        String filename = getFilename_Remote(mContext);
+        String res_cur  = filename.split("/")[1];
+        int res_index = res_temp.indexOf(res_cur);
+
+        System.out.println("res_cur: " + res_cur + "---");
+        System.out.println("res_highest: " + res_temp.lastElement() + "---");
+
+        if (res_index == res_temp.size()-1){
+            return new String[]{offset.split(";")[0],
+                                offset.split(";")[1],
+                                offset.split(";")[2],
+                                "128"};
+        }
+
+        float ratio = getRatio(res_cur, res_temp.lastElement());
+        String[] offset_result = getNewOffset(offset.replaceAll(";","_") + "_128", ratio);
+        return offset_result;
+
+    }
 
     private void Send_Message(String message) {
         Make_Connect();
@@ -1079,7 +1123,7 @@ public class Remote_Socket extends Socket {
                 Neuron_Number_List = Neuron_Number_List_temp;
                 Neuron_Info = Neuron_Info_temp;
 
-                setRES((String[]) RES_List.toArray(), BrainNumber_Selected, mContext);
+                setRES(RES_List.toArray(new String[RES_List.size()]), BrainNumber_Selected, mContext);
 
             }
 
