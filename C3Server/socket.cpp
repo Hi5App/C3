@@ -233,7 +233,7 @@ QString Socket::currentImg() const
 
 void Socket::getAndSendSWCBlock(QString msg)
 {
-    QRegExp tmp("(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)");
+    QRegExp tmp("(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)");
     int n=5;//重复5次，每次延时2S
     if(tmp.indexIn(msg)!=-1)
     {
@@ -244,6 +244,7 @@ void Socket::getAndSendSWCBlock(QString msg)
         int y2=tmp.cap(5).toInt();
         int z1=tmp.cap(6).toInt();
         int z2=tmp.cap(7).toInt();
+        int cnt=tmp.cap(8).toInt();
 
         __START:
         NeuronTree nt;
@@ -273,9 +274,9 @@ void Socket::getAndSendSWCBlock(QString msg)
             nt=V_NeuronSWC_list__2__NeuronTree(tosave);
             for(int i=0;i<nt.listNeuron.size();i++)
             {
-                nt.listNeuron[i].x-=x1;
-                nt.listNeuron[i].y-=y1;
-                nt.listNeuron[i].z-=z1;
+                (nt.listNeuron[i].x-=x1)/=cnt;
+                (nt.listNeuron[i].y-=y1)/=cnt;
+                (nt.listNeuron[i].z-=z1)/=cnt;
             }
             if(!QDir(QCoreApplication::applicationDirPath()+"/tmp").exists())
             {
