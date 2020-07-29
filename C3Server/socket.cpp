@@ -125,7 +125,7 @@ void Socket::processMsg(const QString &msg)
     QRegExp ImgBlockRex("(.*):imgblock.\n");
 
     QRegExp GetBBSWCRex("(.*):GetBBSwc.\n");
-
+    QRegExp SwcCheckRex("(.*):SwcCheck.\n");
     qDebug()<<"MSG:"<<msg;
     if(LoginRex.indexIn(msg)!=-1)
     {
@@ -152,9 +152,51 @@ void Socket::processMsg(const QString &msg)
     }else if(GetBBSWCRex.indexIn(msg)!=-1)
     {
         getAndSendSWCBlock(GetBBSWCRex.cap(1).trimmed());//mul read and write
+    }else if(SwcCheckRex.indexIn(msg)!=-1)
+    {
+        swcCheck(SwcCheckRex.cap(1).trimmed());
     }
     qDebug()<<"process Msg end";
 }
+void Socket::swcCheck(QString msg)
+{
+    QRegExp tmp("(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)");
+    if(tmp.indexIn(msg)!=-1)
+    {
+        QString filename=tmp.cap(1).trimmed();
+        int cnt=tmp.cap(9).toInt();
+        int x1=tmp.cap(2).toInt()*cnt;
+        int x2=tmp.cap(3).toInt()*cnt;
+        int y1=tmp.cap(4).toInt()*cnt;
+        int y2=tmp.cap(5).toInt()*cnt;
+        int z1=tmp.cap(6).toInt()*cnt;
+        int z2=tmp.cap(7).toInt()*cnt;
+
+        int flag=tmp.cap(8).toInt();
+        int n=5;
+        if(!QDir(QCoreApplication::applicationDirPath()+"/mark").exists())
+        {
+            QDir(QCoreApplication::applicationDirPath()).mkdir("mark");
+        }
+        QFile *f=new QFile(QCoreApplication::applicationDirPath()+"/mark/"+filename+".txt");
+        __START:
+        if(f->open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Append))
+        {
+            QTextStream tsm(f);
+            tsm<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<endl;
+            f->close();
+
+        }else if(n-->0)
+        {
+            QElapsedTimer t;
+            t.start();
+            while(t.elapsed()<2000);
+            goto __START;
+        }
+    }
+
+}
+
 //data file :mul read and write
 //image file:mul read
 //brainInfo file:mul read
@@ -204,7 +246,7 @@ void Socket::sendFile(const QString &filename, int type) const
 
             f.close();
 
-//            if(type==2) f.remove();
+            if(type==2) f.remove();
         }else
         {
             QElapsedTimer t;
@@ -469,5 +511,5 @@ void Socket::setSwcInBB(QString name, int x1, int x2, int y1, int y2, int z1, in
     }
     QFile f(QCoreApplication::applicationDirPath()+"/tmp/"+BBSWCNAME);
     qDebug()<<"set file size:"<<f.fileName()<<":"<<f.size();
-//    f.remove();
+    f.remove();
 }
