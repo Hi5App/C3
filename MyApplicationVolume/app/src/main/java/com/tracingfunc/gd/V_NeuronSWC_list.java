@@ -246,6 +246,7 @@ public class V_NeuronSWC_list implements Cloneable{
         Vector<V_NeuronSWC_unit> roots = new Vector<>();
 
         for(int i=0; i<this.seg.size(); i++){
+            Vector<Integer> mark = new Vector<>();
             V_NeuronSWC s = this.seg.get(i);
             System.out.println(i+" size: "+s.row.size());
             for(int j=0; j<s.row.size(); j++){
@@ -254,21 +255,26 @@ public class V_NeuronSWC_list implements Cloneable{
                     if(u.parent == -1){
                         boolean e = false;
                         for(int k=0; k<roots.size(); k++){
-                            if(u.x == roots.get(k).x && u.y == roots.get(k).y && u.z == roots.get(k).z){
+                            if(u.n == roots.get(k).n && u.x == roots.get(k).x && u.y == roots.get(k).y && u.z == roots.get(k).z){
                                 e = true;
                                 break;
                             }
                         }
                         if(e){
-                            s.row.remove(u);
+                            mark.add(j);
                         }else {
                             roots.add(u);
                         }
                     }
                     else {
-                        s.row.remove(u);
+                        mark.add(j);
                     }
                 }
+            }
+
+            for (int k=0; k<mark.size(); k++){
+                V_NeuronSWC_unit u = s.row.get(mark.get(k));
+                s.row.remove(u);
             }
         }
 
