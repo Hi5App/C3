@@ -164,7 +164,7 @@ void Socket::swcCheck(QString msg)
     if(tmp.indexIn(msg)!=-1)
     {
         QString filename=tmp.cap(1).trimmed();
-        int cnt=tmp.cap(9).toInt();
+        int cnt=tmp.cap(8).toInt();
         int x1=tmp.cap(2).toInt()*cnt;
         int x2=tmp.cap(3).toInt()*cnt;
         int y1=tmp.cap(4).toInt()*cnt;
@@ -172,7 +172,7 @@ void Socket::swcCheck(QString msg)
         int z1=tmp.cap(6).toInt()*cnt;
         int z2=tmp.cap(7).toInt()*cnt;
 
-        int flag=tmp.cap(8).toInt();
+        int flag=tmp.cap(9).toInt();
         int n=5;
         if(!QDir(QCoreApplication::applicationDirPath()+"/mark").exists())
         {
