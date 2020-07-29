@@ -1186,8 +1186,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 ////        finalRotateMatrix = multiplyMatrix(currentRotateM, finalRotateMatrix);
 //        Log.v("rotation", Arrays.toString(currentRotateM));
 ////        Matrix.multiplyMM(rotationMatrix, 0, currentRotateM, 0, rotationMatrix, 0);
-        angleX = dy * 30;
-        angleY = dx * 30;
+        angleX = dy * 70;
+        angleY = dx * 70;
         Matrix.setRotateM(rotationXMatrix, 0, angleX, 1.0f, 0.0f, 0.0f);
         Matrix.setRotateM(rotationYMatrix, 0, angleY, 0.0f, 1.0f, 0.0f);
         float [] curRotationMatrix = new float[16];
@@ -4081,11 +4081,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         System.out.println("----------------importNeuronTree----------------");
         try{
-//            System.out.println("nt size: "+nt.listNeuron.size());
+            System.out.println("nt size: "+nt.listNeuron.size());
             Vector<V_NeuronSWC> segs = nt.devideByBranch();
             for (int i = 0; i < segs.size(); i++){
                 curSwcList.append(segs.get(i));
             }
+
+            System.out.println("curSwcList.nsegs() : ");curSwcList.nsegs();
+
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -4177,6 +4180,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         String error = "";
         NeuronTree nt = this.getNeuronTree();
         if(nt.listNeuron.size()>0){
+            System.out.println("nt size: " + nt.listNeuron.size());
             String filePath = dir + "/" + nt.name + ".swc";
             System.out.println("filepath: "+filePath);
             boolean ifSucceed = nt.overwriteSWC_file(filePath);
@@ -4215,7 +4219,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public NeuronTree getNeuronTree(){
         try {
+
             V_NeuronSWC_list list = curSwcList.clone();
+
+            System.out.println(list);
             return list.mergeSameNode();
 
         } catch (Exception e) {
