@@ -4458,7 +4458,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007029c 01:05 UTC+8 build",
+                                "Version: 202007029b 12:05 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -6840,7 +6840,6 @@ public class MainActivity extends AppCompatActivity {
                                         Camera();
                                         break;
                                     default:
-//                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();
                                         Toast.makeText(getContext(), "Default in file", Toast.LENGTH_SHORT).show();
 
                                 }

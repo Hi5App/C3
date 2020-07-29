@@ -136,7 +136,12 @@ public class Socket_Receive {
                     in.read(FileName_String_byte, 0, FileName_size_int);
 
                     String FileName_String = new String(FileName_String_byte, StandardCharsets.UTF_8);
-                    String FileName_SubString = FileName_String.substring(4, FileName_String.length() - 4);
+                    String FileName_SubString = "";
+                    if (FileName_String.contains(".swc")){
+                        FileName_SubString = FileName_String.substring(4, FileName_String.indexOf(".") + 4);
+                    }else {
+                        FileName_SubString = FileName_String.substring(4, FileName_String.length() - 4);
+                    }
 
                     Log.v("Get_Msg: Data_size", Long.toString(bytesToLong(Data_size)));
                     Log.v("Get_Msg: FileName_size", Long.toString(bytesToLong(FileName_size)));
@@ -293,6 +298,11 @@ public class Socket_Receive {
                     int FileName_size_int = (int) bytesToLong(FileName_size);
                     int Data_size_int = (int) bytesToLong(Data_size);
 
+                    if (Data_size_int <= 16 + FileName_size_int){
+                        Toast_in_Thread("Fail to Download File, Try Again Later !");
+                        return;
+                    }
+
                     //读取文件名和内容
                     byte [] FileName_String_byte = new byte[FileName_size_int - 4];
                     in.read(FileName_String_byte, 0, FileName_size_int - 4);
@@ -326,8 +336,6 @@ public class Socket_Receive {
 
                     FileOutputStream out = new FileOutputStream(file);
 
-//                    Log.v("Get_Block", Integer.toString(IOUtils.copy(in, out)));
-
                     int File_Content_Int = Data_size_int - 16 - FileName_size_int;
                     int Loop = File_Content_Int / 1024;
                     int End = File_Content_Int % 1024;
@@ -356,14 +364,7 @@ public class Socket_Receive {
                         out.write(File_Content_End);
                     }
 
-//                     byte [] File_Content = new byte[File_Content_Int];
-
-//                     in.read(File_Content, 0, File_Content_Int);
-//                     out.write(File_Content);
-
-
                     out.close();
-//                    in.close();
 
                     Log.v("File Size", "Size :" + file.length());
                     isFinished[0] = true;

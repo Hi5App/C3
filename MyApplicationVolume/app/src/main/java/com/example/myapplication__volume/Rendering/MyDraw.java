@@ -575,23 +575,11 @@ public class MyDraw {
 
     private float[]  createPositions(float x, float y, float z, float r){
 
-////        float x, y, z;
-//        x = 0.5f;  y = 0.1f;  z = 0.2f;
-/*
-        float step = 6.0f;
-
-        if(r > 0.011f){
-            step = 2.0f;
-        }
-*/
-//        Log.v("createPositions ", Float.toString(r));
         int step = 2;
 
         if(r <= 0.01f){
             step = 6;
         }
-
-        Log.v("createPositions:", "step: " + step);
 
         int count = 0;
         ArrayList<Float> data=new ArrayList<>();
