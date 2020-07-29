@@ -84,7 +84,7 @@ void Socket::readFile(const QString &filename)
 {
 
     QByteArray block=socket->read(dataInfo.dataSize-dataInfo.dataReadedSize);
-    QRegExp blockSetRex("blockSet__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*).swc");
+    QRegExp blockSetRex("blockSet__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*).swc");
     QString filePath;
     if(blockSetRex.indexIn(filename)!=-1)
         filePath=QCoreApplication::applicationDirPath()+"/tmp/"+filename;
@@ -106,7 +106,8 @@ void Socket::readFile(const QString &filename)
         int y2=blockSetRex.cap(5).toInt();
         int z1=blockSetRex.cap(6).toInt();
         int z2=blockSetRex.cap(7).toInt();
-        setSwcInBB(name,x1,x2,y1,y2,z1,z2);
+        int cnt=blockSetRex.cap(8).toInt();
+        setSwcInBB(name,x1,x2,y1,y2,z1,z2,cnt);
         qDebug()<<"set SWC END";
     }
     //should move set to server to keep only one to change
@@ -124,7 +125,7 @@ void Socket::processMsg(const QString &msg)
     QRegExp ImgBlockRex("(.*):imgblock.\n");
 
     QRegExp GetBBSWCRex("(.*):GetBBSwc.\n");
-
+    QRegExp SwcCheckRex("(.*):SwcCheck.\n");
     qDebug()<<"MSG:"<<msg;
     if(LoginRex.indexIn(msg)!=-1)
     {
@@ -151,9 +152,51 @@ void Socket::processMsg(const QString &msg)
     }else if(GetBBSWCRex.indexIn(msg)!=-1)
     {
         getAndSendSWCBlock(GetBBSWCRex.cap(1).trimmed());//mul read and write
+    }else if(SwcCheckRex.indexIn(msg)!=-1)
+    {
+        swcCheck(SwcCheckRex.cap(1).trimmed());
     }
     qDebug()<<"process Msg end";
 }
+void Socket::swcCheck(QString msg)
+{
+    QRegExp tmp("(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)");
+    if(tmp.indexIn(msg)!=-1)
+    {
+        QString filename=tmp.cap(1).trimmed();
+        int cnt=tmp.cap(9).toInt();
+        int x1=tmp.cap(2).toInt()*cnt;
+        int x2=tmp.cap(3).toInt()*cnt;
+        int y1=tmp.cap(4).toInt()*cnt;
+        int y2=tmp.cap(5).toInt()*cnt;
+        int z1=tmp.cap(6).toInt()*cnt;
+        int z2=tmp.cap(7).toInt()*cnt;
+
+        int flag=tmp.cap(8).toInt();
+        int n=5;
+        if(!QDir(QCoreApplication::applicationDirPath()+"/mark").exists())
+        {
+            QDir(QCoreApplication::applicationDirPath()).mkdir("mark");
+        }
+        QFile *f=new QFile(QCoreApplication::applicationDirPath()+"/mark/"+filename+".txt");
+        __START:
+        if(f->open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Append))
+        {
+            QTextStream tsm(f);
+            tsm<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<endl;
+            f->close();
+
+        }else if(n-->0)
+        {
+            QElapsedTimer t;
+            t.start();
+            while(t.elapsed()<2000);
+            goto __START;
+        }
+    }
+
+}
+
 //data file :mul read and write
 //image file:mul read
 //brainInfo file:mul read
@@ -245,6 +288,12 @@ void Socket::getAndSendSWCBlock(QString msg)
         int z1=tmp.cap(6).toInt();
         int z2=tmp.cap(7).toInt();
         int cnt=tmp.cap(8).toInt();
+        x1*=cnt;
+        x2*=cnt;
+        y1*=cnt;
+        y2*=cnt;
+        z1*=cnt;
+        z2*=cnt;
 
         __START:
         NeuronTree nt;
@@ -271,6 +320,7 @@ void Socket::getAndSendSWCBlock(QString msg)
                     }
                 }
             }
+            qDebug()<<"get nt size:"<<tosave.seg.size();
             nt=V_NeuronSWC_list__2__NeuronTree(tosave);
             for(int i=0;i<nt.listNeuron.size();i++)
             {
@@ -282,11 +332,17 @@ void Socket::getAndSendSWCBlock(QString msg)
             {
                 QDir(QCoreApplication::applicationDirPath()).mkdir("tmp");
             }
-            QString BBSWCNAME=QCoreApplication::applicationDirPath()+"/tmp/blockGet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6.swc")
-                    .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2);
+            x1/=cnt;
+            x2/=cnt;
+            y1/=cnt;
+            y2/=cnt;
+            z1/=cnt;
+            z2/=cnt;
+            QString BBSWCNAME=QCoreApplication::applicationDirPath()+"/tmp/blockGet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6__%7.swc")
+                    .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2).arg(cnt);
             writeSWC_file(BBSWCNAME,nt);
-            sendFile("blockGet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6.swc")
-                     .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2),2);
+            sendFile("blockGet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6__%7.swc")
+                     .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2).arg(cnt),2);
             return;
         }
         else
@@ -373,7 +429,7 @@ void Socket::getAndSendImageBlock(QString msg)
     }
 }
 
-void Socket::setSwcInBB(QString name, int x1, int x2, int y1, int y2, int z1, int z2)
+void Socket::setSwcInBB(QString name, int x1, int x2, int y1, int y2, int z1, int z2,int cnt)
 {
     V_NeuronSWC_list testVNL;
     V_NeuronSWC_list resVNL;
@@ -401,6 +457,7 @@ void Socket::setSwcInBB(QString name, int x1, int x2, int y1, int y2, int z1, in
             }
         }
         testVNL=NeuronTree__2__V_NeuronSWC_list(nt);
+        x1*=cnt;x2*=cnt;y1*=cnt;y2*=cnt;z1*=cnt;z2*=cnt;
         for(int i=0;i<testVNL.seg.size();i++)
         {
             testVNL.seg[i].to_be_deleted=0;
@@ -417,27 +474,34 @@ void Socket::setSwcInBB(QString name, int x1, int x2, int y1, int y2, int z1, in
                 }
             }
         }
+        qDebug()<<"before remove nt number :"<<testVNL.seg.size();
         for(int i=0;i<testVNL.seg.size();i++)
         {
             if(testVNL.seg[i].to_be_deleted==0)
                 resVNL.seg.push_back(testVNL.seg.at(i));
         }
+        qDebug()<<"after remove nt number :"<<resVNL.seg.size();
     }
     qDebug()<<"open blockSet file";
-    QString BBSWCNAME="blockSet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6.swc")
-            .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2);
+
+    x1/=cnt;x2/=cnt;y1/=cnt;y2/=cnt;z1/=cnt;z2/=cnt;
+    QString BBSWCNAME="blockSet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6__%7.swc")
+            .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2).arg(cnt);
     NeuronTree nt=readSWC_file(QCoreApplication::applicationDirPath()+"/tmp/"+BBSWCNAME);
     for(int i=0;i<nt.listNeuron.size();i++)
     {
-        nt.listNeuron[i].x+=x1;
-        nt.listNeuron[i].y+=y1;
-        nt.listNeuron[i].z+=z1;
+        (nt.listNeuron[i].x+=x1)*=cnt;
+        (nt.listNeuron[i].y+=y1)*=cnt;
+        (nt.listNeuron[i].z+=z1)*=cnt;
     }
+
     V_NeuronSWC_list testVNL1=NeuronTree__2__V_NeuronSWC_list(nt);
+    qDebug()<<"set Nt number:"<<testVNL1.seg.size();
     for(int i=0;i<testVNL1.seg.size();i++)
     {
         resVNL.seg.push_back(testVNL1.seg.at(i));
     }
+    qDebug()<<"after set nt number :"<<resVNL.seg.size();
     nt=V_NeuronSWC_list__2__NeuronTree(resVNL);
     while(!writeESWC_file(QCoreApplication::applicationDirPath()+"/data/"+name,nt))
     {
@@ -446,5 +510,6 @@ void Socket::setSwcInBB(QString name, int x1, int x2, int y1, int y2, int z1, in
         while(t.elapsed()<2000);
     }
     QFile f(QCoreApplication::applicationDirPath()+"/tmp/"+BBSWCNAME);
+    qDebug()<<"set file size:"<<f.fileName()<<":"<<f.size();
     f.remove();
 }

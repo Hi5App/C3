@@ -41,7 +41,8 @@ private:
     QString currentImg()const;
     void getAndSendImageBlock(QString msg);
     void getAndSendSWCBlock(QString msg);
-    void setSwcInBB(QString name,int x1,int x2,int y1,int y2,int z1,int z2);
+    void setSwcInBB(QString name,int x1,int x2,int y1,int y2,int z1,int z2,int cnt);
+    void swcCheck(QString msg);
 
 public slots:
     void onReadyRead();//
