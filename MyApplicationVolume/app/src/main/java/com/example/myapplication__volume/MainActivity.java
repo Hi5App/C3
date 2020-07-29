@@ -2319,6 +2319,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (SwcFilePath.equals("Error")){
             Toast.makeText(context,"Something Wrong When Pull Swc File !",Toast.LENGTH_SHORT).show();
+            return;
         }
 
         NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);

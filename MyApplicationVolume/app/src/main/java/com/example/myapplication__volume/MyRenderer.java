@@ -4081,7 +4081,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         System.out.println("----------------importNeuronTree----------------");
         try{
-            System.out.println("nt size: "+nt.listNeuron.size());
+//            System.out.println("nt size: "+nt.listNeuron.size());
             Vector<V_NeuronSWC> segs = nt.devideByBranch();
             for (int i = 0; i < segs.size(); i++){
                 curSwcList.append(segs.get(i));

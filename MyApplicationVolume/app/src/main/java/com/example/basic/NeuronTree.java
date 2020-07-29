@@ -632,8 +632,8 @@ public class NeuronTree extends BasicSurfObj {
 
 
         for (int i = 0; i < result.size(); i++){
-
-            System.out.println(result.get(i).row.size());
+            result.get(i).row.size();
+//            System.out.println(result.get(i).row.size());
 
         }
 

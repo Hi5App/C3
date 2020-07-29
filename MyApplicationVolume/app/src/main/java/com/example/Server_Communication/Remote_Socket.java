@@ -322,7 +322,7 @@ public class Remote_Socket extends Socket {
             Send_Message(SwcFileName + "__" + ratio + ":GetBBSwc.\n");
             Get_File(file_path, true);
 
-            SwcFilePath = file_path + "/blockGet__" + SwcFileName  + ".swc";
+            SwcFilePath = file_path + "/blockGet__" + SwcFileName + "__" + ratio  + ".swc";
 
         }else {
             Toast_in_Thread("Can't Connect Server, Try Again Later !");
