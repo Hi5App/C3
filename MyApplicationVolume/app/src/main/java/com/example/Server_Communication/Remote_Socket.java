@@ -19,6 +19,7 @@ import androidx.annotation.RequiresApi;
 
 import com.example.ImageReader.BigImgReader;
 import com.example.basic.NeuronTree;
+import com.example.basic.SettingFileManager;
 import com.example.myapplication__volume.MainActivity;
 import com.example.myapplication__volume.R;
 import com.example.server_connect.Filesocket_receive;
@@ -49,14 +50,20 @@ import java.util.Vector;
 
 import cn.carbs.android.library.MDDialog;
 
+import static com.example.basic.SettingFileManager.getFilename_Local;
 import static com.example.basic.SettingFileManager.getFilename_Remote;
+import static com.example.basic.SettingFileManager.getFilename_Remote_Check;
 import static com.example.basic.SettingFileManager.getNeuronNumber_Remote;
 import static com.example.basic.SettingFileManager.getRES;
+import static com.example.basic.SettingFileManager.getoffset_Local;
 import static com.example.basic.SettingFileManager.getoffset_Remote;
+import static com.example.basic.SettingFileManager.getoffset_Remote_Check;
 import static com.example.basic.SettingFileManager.setFilename_Remote;
+import static com.example.basic.SettingFileManager.setFilename_Remote_Check;
 import static com.example.basic.SettingFileManager.setNeuronNumber_Remote;
 import static com.example.basic.SettingFileManager.setRES;
 import static com.example.basic.SettingFileManager.setoffset_Remote;
+import static com.example.basic.SettingFileManager.setoffset_Remote_Check;
 import static com.example.server_connect.RemoteImg.getFilename;
 import static com.example.server_connect.RemoteImg.getoffset;
 
@@ -78,6 +85,7 @@ public class Remote_Socket extends Socket {
     private Socket_Send socket_send;
     private Socket_Receive socket_receive;
 
+    public static String ArborNumber_Selected = "Empty";
     public static String BrainNumber_Selected = "Empty";
     public static Vector<String> RES_List = new Vector<>();
     public static Vector<String> Neuron_Number_List = new Vector<>();
@@ -177,6 +185,7 @@ public class Remote_Socket extends Socket {
         String CurrentDirDownExp = ":currentDir_down.";
         String CurrentDirLoadExp = ":currentDir_load.";
         String CurrentDirImgDownExp = ":currentDirImg";
+        String CurrentDirArborDownExp = ":currentDirArbor";
         String MessagePortExp = ":messageport.\n";
         String ImportportExp = ":importport.\n";
 
@@ -220,17 +229,23 @@ public class Remote_Socket extends Socket {
                     Log.v("onReadyRead", file_list[i]);
 
                 ShowListDialog(mContext, file_list, "CurrentDirLoadExp");
-            }else if (information.contains(CurrentDirImgDownExp)){
-                String [] file_string = information.split(":");
-                String [] file_list = file_string[0].split(";");
+            }else if (information.contains(CurrentDirImgDownExp)) {
+                String[] file_string = information.split(":");
+                String[] file_list = file_string[0].split(";");
 
                 for (int i = 0; i < file_list.length; i++)
                     Log.v("onReadyRead", file_list[i]);
 
                 ShowListDialog(file_list);
 //                ShowListDialog(mContext, file_list, "CurrentDirImgDownExp");
-            }else if (information.contains(ImportportExp)){
+            }else if (information.contains(CurrentDirArborDownExp)){
+                String[] file_string = information.split(":");
+                String[] file_list = file_string[0].split(";");
 
+                for (int i = 0; i < file_list.length; i++)
+                    Log.v("onReadyRead", file_list[i]);
+
+                ShowListDialog_Check(file_list);
             }
         }
     }
@@ -295,8 +310,29 @@ public class Remote_Socket extends Socket {
     }
 
 
+    public void ShowListDialog_Check(final String[] items){
 
-    public String PullSwc_block(){
+        new XPopup.Builder(mContext)
+//        .maxWidth(400)
+//        .maxHeight(1350)
+                .asCenterList("Select a Arbor", items,
+                        new OnSelectListener() {
+                            @RequiresApi(api = Build.VERSION_CODES.N)
+                            @Override
+                            public void onSelect(int position, String text) {
+                                System.out.println("text: " + text);
+                                System.out.println("text: " + text.replace(".v3draw",""));
+
+                                Send_Arbor_Number(text.replace(".v3draw",""));
+                            }
+                        })
+                .show();
+
+    }
+
+
+
+    public String PullSwc_block(boolean isDrawMode){
 
         Make_Connect();
 
@@ -304,25 +340,44 @@ public class Remote_Socket extends Socket {
 
         if (CheckConnection()){
 
-            String file_path = mContext.getExternalFilesDir(null).toString() + "/Sync/BlockGet";
+            if (isDrawMode){
 
-            String filename = getFilename_Remote(mContext);
-            String neuron_number = getNeuronNumber_Remote(mContext, filename);
-            String offset = getoffset_Remote(mContext, filename);
-            int[] index = BigImgReader.getIndex(offset);
-            System.out.println(filename);
+                String file_path = mContext.getExternalFilesDir(null).toString() + "/Sync/BlockGet";
 
-            String ratio = Integer.toString(getRatio_SWC());
+                String filename = getFilename_Remote(mContext);
+                String neuron_number = getNeuronNumber_Remote(mContext, filename);
+                String offset = getoffset_Remote(mContext, filename);
+                int[] index = BigImgReader.getIndex(offset);
+                System.out.println(filename);
 
+                String ratio = Integer.toString(getRatio_SWC());
 
+                String SwcFileName = neuron_number + "__" +
+                        index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
 
-            String SwcFileName = neuron_number + "__" +
-                    index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
+                Send_Message(SwcFileName + "__" + ratio + ":GetBBSwc.\n");
+                Get_File(file_path, true);
 
-            Send_Message(SwcFileName + "__" + ratio + ":GetBBSwc.\n");
-            Get_File(file_path, true);
+                SwcFilePath = file_path + "/blockGet__" + SwcFileName + "__" + ratio  + ".swc";
 
-            SwcFilePath = file_path + "/blockGet__" + SwcFileName + "__" + ratio  + ".swc";
+            }else {
+
+                String file_path = mContext.getExternalFilesDir(null).toString() + "/Check/Sync/BlockGet";
+
+                String filename = getFilename_Remote_Check(mContext);
+                String offset = getoffset_Remote_Check(mContext, filename);
+                System.out.println(filename);
+
+                String offset_final = offsetSwitch(filename, offset);
+                String SwcFileName = filename + offset_final;
+
+                Send_Message(SwcFileName + ":GetArborSwc.\n");
+                Get_File(file_path, true);
+
+                SwcFilePath = file_path + "/blockGet__" + SwcFileName.replaceAll(";","__") + ".swc";
+
+            }
+
 
         }else {
             Toast_in_Thread("Can't Connect Server, Try Again Later !");
@@ -348,6 +403,20 @@ public class Remote_Socket extends Socket {
     }
 
 
+    public void Select_Arbor(){
+
+        Send_Message("connect for android client" + ":GetArborList.\n");
+        String Msg = Get_Message();
+
+        if (Msg.equals("Error")){
+            Toast_in_Thread("Something Wrong When Select_Arbor !");
+            return;
+        }
+
+        onReadyRead(Msg);
+
+    }
+
     public void Select_Brain(){
 
         Send_Message("connect for android client" + ":choose3.\n");
@@ -362,6 +431,31 @@ public class Remote_Socket extends Socket {
 
     }
 
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void Send_Arbor_Number(String ArborNumber){
+
+        Make_Connect();
+
+        Log.v("Send_Brain_Number","Start to Send ArborNumber.");
+
+        ArborNumber_Selected = ArborNumber;
+        setFilename_Remote_Check(ArborNumber, mContext);
+        String offset_check = getoffset_Remote_Check(mContext, ArborNumber);
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Send_Message(ArborNumber + ";" + offset_check + ":GetArbor.\n");
+
+                String Store_path_Img = Store_path + "/Img/Check";
+                Get_Img(Store_path_Img,true);
+            }
+        });
+
+        thread.start();
+
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void Send_Brain_Number(String BrainNumber){
@@ -729,6 +823,154 @@ public class Remote_Socket extends Socket {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void Selectblock_fast_Check(Context context, boolean source, String direction){
+
+        if (getFilename_Remote_Check(context).equals("--11--")){
+            Toast.makeText(context,"Select file first!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Make_Connect();
+
+        if (CheckConnection()){
+
+            String[] Direction = {"Left", "Right", "Top", "Bottom", "Front", "Back"};
+
+            if (Arrays.asList(Direction).contains(direction)){
+                PullImageBlock_fast_Check(context, direction);
+            }else {
+                Toast.makeText(context,"Something wrong when pull img", Toast.LENGTH_SHORT).show();
+            }
+        }else {
+            Toast_in_Thread("Can't Connect Server, Try Again Later !");
+        }
+
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void PullImageBlock_fast_Check(Context context, String direction){
+        String filename = getFilename_Remote_Check(context);
+        String offset = getoffset_Remote_Check(context, filename);
+
+        int img_size_x_i = getImg_size()[0];
+        int img_size_y_i = getImg_size()[1];
+        int img_size_z_i = getImg_size()[2];
+
+        int offset_x_i = ( Integer.parseInt(offset.split(";")[0]) + Integer.parseInt(offset.split(";")[1]) ) / 2 -1;
+        int offset_y_i = ( Integer.parseInt(offset.split(";")[2]) + Integer.parseInt(offset.split(";")[3]) ) / 2 -1;
+        int offset_z_i = ( Integer.parseInt(offset.split(";")[4]) + Integer.parseInt(offset.split(";")[5]) ) / 2 -1;
+        int size_i     = ( Integer.parseInt(offset.split(";")[1]) - Integer.parseInt(offset.split(";")[0]) );
+
+        switch (direction){
+            case "Left":
+                if ( (offset_x_i - size_i/2) == 0 ){
+                    System.out.println("----- You have already reached left boundary!!! -----");
+                    Toast_in_Thread("You have already reached left boundary!!!");
+                    return;
+                }else {
+                    offset_x_i -= size_i/2;
+                    if (offset_x_i - size_i/2 < 0)
+                        offset_x_i = size_i/2;
+                }
+                break;
+
+            case "Right":
+                if ( (offset_x_i + size_i/2) == img_size_x_i - 1 ){
+                    Toast_in_Thread("You have already reached right boundary!!!");
+                    return;
+                }else {
+                    offset_x_i += size_i/2;
+                    if (offset_x_i + size_i/2 > img_size_x_i - 1)
+                        offset_x_i = img_size_x_i - 1 - size_i/2;
+                }
+                break;
+
+            case "Top":
+                if ( (offset_y_i - size_i/2) == 0 ){
+                    Toast_in_Thread("You have already reached top boundary!!!");
+                    return;
+                }else {
+                    offset_y_i -= size_i/2;
+                    if (offset_y_i - size_i/2 < 0)
+                        offset_y_i = size_i/2;
+                }
+                break;
+
+            case "Bottom":
+                if ( (offset_y_i + size_i/2) == img_size_y_i - 1 ){
+                    Toast_in_Thread("You have already reached bottom boundary!!!");
+                    return;
+                }else {
+                    offset_y_i += size_i/2;
+                    if (offset_y_i + size_i/2 > img_size_y_i - 1)
+                        offset_y_i = img_size_y_i - 1 - size_i/2;
+                }
+                break;
+
+            case "Front":
+                if ( (offset_z_i - size_i/2) == 0 ){
+                    Toast_in_Thread("You have already reached front boundary!!!");
+                    return;
+                }else {
+                    offset_z_i -= size_i/2;
+                    if (offset_z_i - size_i/2 < 0)
+                        offset_z_i = size_i/2;
+                }
+                break;
+
+            case "Back":
+                if ( (offset_z_i + size_i/2) == img_size_z_i - 1 ){
+                    Toast_in_Thread("You have already reached back boundary!!!");
+                    return;
+                }else {
+                    offset_z_i += size_i/2;
+                    if (offset_z_i + size_i/2 > img_size_z_i - 1)
+                        offset_z_i = img_size_z_i - 1 - size_i/2;
+                }
+                break;
+        }
+
+        String[] index = {Integer.toString(offset_x_i - size_i/2 + 1), Integer.toString(offset_y_i - size_i/2 + 1), Integer.toString(offset_z_i - size_i/2 +1 ),
+                Integer.toString(offset_x_i + size_i/2 + 1), Integer.toString(offset_y_i + size_i/2 + 1), Integer.toString(offset_z_i + size_i/2 +1 )};
+
+        offset = index[0] + ";" + index[3] + ";" + index[1] + ";" + index[4] + ";" + index[2] + ";" + index[5];
+        setoffset_Remote_Check(offset, filename, context);
+
+        Send_Arbor_Number(filename);
+
+    }
+
+    private int[] getImg_size(){
+
+        String filename = getFilename_Remote_Check(mContext);
+
+        int start_x = Integer.parseInt(filename.split("RES")[1].split("__")[1]);
+        int end_x   = Integer.parseInt(filename.split("RES")[1].split("__")[2]);
+        int start_y = Integer.parseInt(filename.split("RES")[1].split("__")[3]);
+        int end_y   = Integer.parseInt(filename.split("RES")[1].split("__")[4]);
+        int start_z = Integer.parseInt(filename.split("RES")[1].split("__")[5]);
+        int end_z   = Integer.parseInt(filename.split("RES")[1].split("__")[6]);
+
+        return new int[]{end_x - start_x, end_y - start_y, end_z - start_z};
+    }
+
+    public float[] getImg_size_f(){
+
+        String filename = getFilename_Remote_Check(mContext);
+
+        int start_x = Integer.parseInt(filename.split("RES")[1].split("__")[1]);
+        int end_x   = Integer.parseInt(filename.split("RES")[1].split("__")[2]);
+        int start_y = Integer.parseInt(filename.split("RES")[1].split("__")[3]);
+        int end_y   = Integer.parseInt(filename.split("RES")[1].split("__")[4]);
+        int start_z = Integer.parseInt(filename.split("RES")[1].split("__")[5]);
+        int end_z   = Integer.parseInt(filename.split("RES")[1].split("__")[6]);
+
+        return new float[]{end_x - start_x, end_y - start_y, end_z - start_z};
+    }
+
+
 
     public void Zoom_in(){
 
@@ -819,24 +1061,38 @@ public class Remote_Socket extends Socket {
 
 
 
-    public void Check_Yes(){
+    public void Check_Yes(boolean isDrawMode){
 
         Make_Connect();
 
         if (CheckConnection()){
 
-            String filename = getFilename_Remote(mContext);
-            String neuron_number = getNeuronNumber_Remote(mContext, filename);
-            String offset = getoffset_Remote(mContext, filename);
-            int[] index = BigImgReader.getIndex(offset);
-            System.out.println(filename);
+            if (isDrawMode){
 
-            String ratio = Integer.toString(getRatio_SWC());
+                String filename = getFilename_Remote(mContext);
+                String neuron_number = getNeuronNumber_Remote(mContext, filename);
+                String offset = getoffset_Remote(mContext, filename);
+                int[] index = BigImgReader.getIndex(offset);
+                System.out.println(filename);
 
-            String Check_info = neuron_number + "__" +
-                    index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
+                String ratio = Integer.toString(getRatio_SWC());
 
-            Send_Message(Check_info + "__" + ratio + "__1" + ":SwcCheck.\n");
+                String Check_info = neuron_number + "__" +
+                        index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
+
+                Send_Message(Check_info + "__" + ratio + "__1" + ":SwcCheck.\n");
+
+            }else {
+
+                String filename = getFilename_Remote_Check(mContext);
+                String offset = getoffset_Remote_Check(mContext, filename);
+                System.out.println(filename);
+
+                String offset_final = offsetSwitch(filename, offset);
+                String Check_Info = filename + offset_final + ";1" + ":ArborCheck.\n";
+
+                Send_Message(Check_Info);
+            }
 
         }else {
             Toast_in_Thread("Can't Connect Server, Try Again Later !");
@@ -845,24 +1101,39 @@ public class Remote_Socket extends Socket {
     }
 
 
-    public void Check_No(){
+    public void Check_No(boolean isDrawMode){
 
         Make_Connect();
 
         if (CheckConnection()){
 
-            String filename = getFilename_Remote(mContext);
-            String neuron_number = getNeuronNumber_Remote(mContext, filename);
-            String offset = getoffset_Remote(mContext, filename);
-            int[] index = BigImgReader.getIndex(offset);
-            System.out.println(filename);
+            if (isDrawMode){
 
-            String ratio = Integer.toString(getRatio_SWC());
+                String filename = getFilename_Remote(mContext);
+                String neuron_number = getNeuronNumber_Remote(mContext, filename);
+                String offset = getoffset_Remote(mContext, filename);
+                int[] index = BigImgReader.getIndex(offset);
+                System.out.println(filename);
 
-            String Check_info = neuron_number + "__" +
-                    index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
+                String ratio = Integer.toString(getRatio_SWC());
 
-            Send_Message(Check_info + "__" + ratio + "__0" + ":SwcCheck.\n");
+                String Check_info = neuron_number + "__" +
+                        index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
+
+                Send_Message(Check_info + "__" + ratio + "__0" + ":SwcCheck.\n");
+
+            }else {
+
+                String filename = getFilename_Remote_Check(mContext);
+                String offset = getoffset_Remote_Check(mContext, filename);
+                System.out.println(filename);
+
+                String offset_final = offsetSwitch(filename, offset);
+                String Check_Info = filename + offset_final + ";0" + ":ArborCheck.\n";
+
+                Send_Message(Check_Info);
+
+            }
 
         }else {
             Toast_in_Thread("Can't Connect Server, Try Again Later !");
@@ -1187,6 +1458,42 @@ public class Remote_Socket extends Socket {
 
     }
 
+    private String offsetSwitch(String filename, String offset_old){
+
+        String offset_neuron = filename.split("RES")[1];
+        System.out.println("offset_neuron" + offset_neuron);
+        int offset_start_x = Integer.parseInt(offset_neuron.split("__")[1]);
+        int offset_start_y = Integer.parseInt(offset_neuron.split("__")[3]);
+        int offset_start_z = Integer.parseInt(offset_neuron.split("__")[5]);
+
+        String[] offset = offset_old.split(";");
+        String offset_result = "";
+
+        for (int i=0; i<6; i++){
+
+            int bais = 0;
+            switch (i+1){
+                case 1:
+                case 2:
+                    bais = offset_start_x;
+                    break;
+                case 3:
+                case 4:
+                    bais = offset_start_y;
+                    break;
+                case 5:
+                case 6:
+                    bais = offset_start_z;
+                    break;
+            }
+
+            offset_result = offset_result + ";" + Integer.toString(Integer.parseInt(offset[i]) + bais - 1);
+
+        }
+
+        return offset_result;
+
+    }
 
     String[] Transform(Vector<String> strings){
 

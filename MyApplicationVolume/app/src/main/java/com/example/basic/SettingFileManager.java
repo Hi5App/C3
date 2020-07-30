@@ -88,6 +88,75 @@ public class SettingFileManager {
     }
 
 
+    public String getBigDataMode(Context context){
+        String BigDataMode = null;
+
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/BigDataMode.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "Draw Mode";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get BigDataMode", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                line = buffreader.readLine();
+                BigDataMode = line;
+
+                inputStream.close();//关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get BigDataMode", BigDataMode);
+        return BigDataMode;
+    }
+
+
+    public void setBigDataMode(String BigDataMode, Context context){
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/BigDataMode.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("get BigDataMode", "Fail to create file");
+            }
+        }
+
+        try {
+
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(BigDataMode.getBytes());
+            outStream.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
     /**
      * get the ip address from local file
      * @return ip latest address you input
@@ -638,5 +707,169 @@ public class SettingFileManager {
         }
 
     }
+
+
+
+    /**
+     * get the ip address from local file
+     * @return ip latest address you input
+     */
+    public static String getFilename_Remote_Check(Context context){
+        String filename = null;
+
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/Check/Remote_filename.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "--11--";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get filename", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                line = buffreader.readLine();
+                filename = line;
+                inputStream.close();//关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get filename", filename);
+        return filename;
+    }
+
+
+    /**
+     * put the ip address you input to local file
+     * @param filename the ip address currently input
+     */
+    public static void setFilename_Remote_Check(String filename, Context context){
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/Check/Remote_filename.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("set filename", "Fail to create file");
+            }
+        }
+
+        try {
+
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(filename.getBytes());
+            outStream.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    /**
+     * get the offset from local file
+     * @return offset latest address you input
+     */
+    public static String getoffset_Remote_Check(Context context, String filename){
+        String offset = null;
+
+        String offset_x_1 = "1";
+        String offset_y_1 = "1";
+        String offset_z_1 = "1";
+
+        String offset_x_2 = "129";
+        String offset_y_2 = "129";
+        String offset_z_2 = "129";
+
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/Check/Offset/" + filename + ".txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = offset_x_1 + ";" + offset_x_2 + ";" + offset_y_1
+                        + ";" + offset_y_2 + ";" + offset_z_1 + ";" + offset_z_2;
+
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get offset", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                line = buffreader.readLine();
+                offset = line;
+
+                inputStream.close();//关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get offset", offset);
+        return offset;
+    }
+
+    /**
+     * put the offset you input to local file
+     * @param offset the offset currently input
+     */
+    public static void setoffset_Remote_Check(String offset, String filename, Context context){
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/Check/Offset/" + filename + ".txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("get offset", "Fail to create file");
+            }
+        }
+
+        try {
+
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(offset.getBytes());
+            outStream.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
 }

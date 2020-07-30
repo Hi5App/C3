@@ -127,6 +127,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -150,10 +151,12 @@ import io.agora.rtc.models.UserInfo;
 import static com.example.basic.BitmapRotation.getBitmapDegree;
 import static com.example.basic.SettingFileManager.getFilename_Local;
 import static com.example.basic.SettingFileManager.getFilename_Remote;
+import static com.example.basic.SettingFileManager.getFilename_Remote_Check;
 import static com.example.basic.SettingFileManager.getNeuronNumber_Remote;
 import static com.example.basic.SettingFileManager.getUserAccount;
 import static com.example.basic.SettingFileManager.getoffset_Local;
 import static com.example.basic.SettingFileManager.getoffset_Remote;
+import static com.example.basic.SettingFileManager.getoffset_Remote_Check;
 import static com.example.basic.SettingFileManager.setUserAccount;
 import static com.example.basic.SettingFileManager.setoffset_Local;
 import static com.example.server_connect.RemoteImg.getFilename;
@@ -306,6 +309,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private static RemoteImg remoteImg;
+    @SuppressLint("StaticFieldLeak")
     private static Remote_Socket remote_socket;
     private BigImgReader bigImgReader;
 
@@ -360,6 +364,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static String file_path_temp = "";
 
+    private static boolean DrawMode = true;
+
     private enum PenColor {
         BLACK, WHITE, RED, BLUE, GREEN, PURPLE, YELLOW
     }
@@ -406,10 +412,18 @@ public class MainActivity extends AppCompatActivity {
                         Zoom_out.setVisibility(View.GONE);
 
                         if (isBigData_Remote){
-                            sync_pull.setVisibility(View.VISIBLE);
-                            sync_push.setVisibility(View.VISIBLE);
-                            Check_Yes.setVisibility(View.VISIBLE);
-                            Check_No.setVisibility(View.VISIBLE);
+                            if (DrawMode){
+                                Check_Yes.setVisibility(View.GONE);
+                                Check_No.setVisibility(View.GONE);
+                                sync_pull.setVisibility(View.VISIBLE);
+                                sync_push.setVisibility(View.VISIBLE);
+                            }
+                            else {
+                                Check_Yes.setVisibility(View.VISIBLE);
+                                Check_No.setVisibility(View.VISIBLE);
+                                sync_pull.setVisibility(View.GONE);
+                                sync_push.setVisibility(View.GONE);
+                            }
                         }
 
                     }
@@ -437,7 +451,8 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
                 case 3:
-                    Toast.makeText(context,"Time out, please try again!",Toast.LENGTH_SHORT);
+                    Toast.makeText(context,"Time out, please try again!",Toast.LENGTH_SHORT).show();
+                    break;
 
                 case 4:
                     String [] temp = file_path_temp.split("/");
@@ -549,59 +564,12 @@ public class MainActivity extends AppCompatActivity {
         myrenderer = new MyRenderer();
 
 
-//        //接受从fileactivity传递过来的文件路径
-//        Intent intent1 = getIntent();
-//        String filepath = intent1.getStringExtra(MyRenderer.FILE_PATH);
-//
-//        if (filepath != null) {
-////            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-//            myrenderer.SetPath(filepath);
-////            }
-//            System.out.println("------" + filepath + "------");
-//            isBigData_Remote = true;
-//            isBigData_Local = false;
-//            String filename = getFilename(this);
-//            String offset = getoffset(this, filename);
-//
-//            String offset_x = offset.split("_")[0];
-//            String offset_y = offset.split("_")[1];
-//            String offset_z = offset.split("_")[2];
-//
-//            Toast.makeText(this,"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
-//        }
-
         Intent intent2 = getIntent();
         String MSG = intent2.getStringExtra(MyRenderer.OUTOFMEM_MESSAGE);
 
         if (MSG != null)
             Toast.makeText(this, MSG, Toast.LENGTH_SHORT).show();
 
-
-//        Intent intent3 = getIntent();
-//        String Timeout = intent3.getStringExtra(MyRenderer.Time_out);
-//
-//        if (Timeout != null)
-//            Toast.makeText(this, Timeout, Toast.LENGTH_SHORT).show();
-
-
-//        Intent intent4 = getIntent();
-//        String filepath_local = intent4.getStringExtra(MyRenderer.LOCAL_FILE_PATH);
-//
-//        if (filepath_local != null) {
-//            System.out.println("------" + filepath_local + "------");
-//            isBigData_Local = true;
-//            isBigData_Remote = false;
-//            String filename = SettingFileManager.getFilename_Local(this);
-//            String offset = SettingFileManager.getoffset_Local(this, filename);
-//
-//            int[] index = BigImgReader.getIndex(offset);
-//            myrenderer.SetPath_Bigdata(filepath_local, index);
-//
-//            String offset_x = offset.split("_")[0];
-//            String offset_y = offset.split("_")[1];
-//            String offset_z = offset.split("_")[2];
-//            Toast.makeText(this,"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
-//        }
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -781,7 +749,7 @@ public class MainActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        remote_socket.Check_Yes();
+                        remote_socket.Check_Yes(false);
                         Toast_in_Thread("Check Yes Successfully");
                     }
                 }).start();
@@ -795,7 +763,7 @@ public class MainActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        remote_socket.Check_No();
+                        remote_socket.Check_No(false);
                         Toast_in_Thread("Check No Successfully");
                     }
                 }).start();
@@ -1117,7 +1085,7 @@ public class MainActivity extends AppCompatActivity {
         sync_pull.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
 //                PullSWC_Block();
-                PullSwc_block_Manual();
+                PullSwc_block_Manual(DrawMode);
             }
         });
 
@@ -1175,24 +1143,6 @@ public class MainActivity extends AppCompatActivity {
         sync_push.setVisibility(View.GONE);
 
 
-
-//        if (isBigData_Remote || isBigData_Local){
-//            this.addContentView(navigation_left, lp_left_i);
-//            this.addContentView(navigation_right, lp_right_i);
-//            this.addContentView(navigation_up, lp_up_i);
-//            this.addContentView(navigation_down, lp_down_i);
-//            this.addContentView(navigation_front, lp_front_i);
-//            this.addContentView(navigation_back, lp_back_i);
-//            this.addContentView(navigation_location, lp_nacloc_i);
-//
-//            if (isBigData_Remote){
-//                this.addContentView(sync_pull, lp_sync_pull);
-//                this.addContentView(sync_push, lp_sync_push);
-//            }
-//        }
-
-
-
         SettingFileManager settingFileManager = new SettingFileManager();
         String DownSampleMode = settingFileManager.getDownSampleMode(this);
         if (DownSampleMode.equals("DownSampleYes")){
@@ -1201,7 +1151,15 @@ public class MainActivity extends AppCompatActivity {
             myrenderer.setIfNeedDownSample(false);
         }
 
+        // "CheckMode"  for check, "DrawMode" for draw
+        String BigDataMode = settingFileManager.getBigDataMode(this);
+        if (BigDataMode.equals("Draw Mode")){
+            DrawMode = true;
+        }else if (BigDataMode.equals("Check Mode")){
+            DrawMode = false;
+        }
 
+        // Set the permission for user
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
@@ -1357,6 +1315,7 @@ public class MainActivity extends AppCompatActivity {
     public void More_icon(){
         SettingFileManager settingFileManager = new SettingFileManager();
         String DownSample_mode;
+        String BigData_mode = "";
 
         if (myrenderer.getIfNeedDownSample()){
             DownSample_mode = "Normal Rotate";
@@ -1364,11 +1323,17 @@ public class MainActivity extends AppCompatActivity {
             DownSample_mode = "Downsample When Rotate";
         }
 
+        if (DrawMode){
+            BigData_mode = "Switch to Check Mode";
+        }else{
+            BigData_mode = "Switch to Draw Mode";
+        }
+
 
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", DownSample_mode, "Animate", "About"},
+                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", DownSample_mode, BigData_mode, "Animate", "About"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -1409,6 +1374,16 @@ public class MainActivity extends AppCompatActivity {
                                     case "Normal Rotate":
                                         myrenderer.setIfNeedDownSample(false);
                                         settingFileManager.setDownSampleMode("DownSampleNo", getContext());
+                                        break;
+
+                                    case "Switch to Check Mode":
+                                        DrawMode = false;
+                                        settingFileManager.setBigDataMode("Check Mode", getContext());
+                                        break;
+
+                                    case "Switch to Draw Mode":
+                                        DrawMode = true;
+                                        settingFileManager.setBigDataMode("Draw Mode", getContext());
                                         break;
 
                                     case "About":
@@ -1618,13 +1593,13 @@ public class MainActivity extends AppCompatActivity {
                         ifLoadLocal = false;
                         if (isBigData_Remote || isBigData_Local){
                             if (isBigData_Remote){
-                                try {
+                                if (DrawMode){
                                     sync_push.setVisibility(View.GONE);
                                     sync_pull.setVisibility(View.GONE);
+                                }
+                                else{
                                     Check_Yes.setVisibility(View.GONE);
                                     Check_No.setVisibility(View.GONE);
-                                } catch (Exception e){
-                                    e.printStackTrace();
                                 }
                             }
                             isBigData_Remote = false;
@@ -1691,12 +1666,13 @@ public class MainActivity extends AppCompatActivity {
 
                     if (isBigData_Remote || isBigData_Local){
                         if (isBigData_Remote){
-                            try {
+                            if (DrawMode){
                                 sync_push.setVisibility(View.GONE);
                                 sync_pull.setVisibility(View.GONE);
-
-                            } catch (Exception e){
-                                e.printStackTrace();
+                            }
+                            else{
+                                Check_Yes.setVisibility(View.GONE);
+                                Check_No.setVisibility(View.GONE);
                             }
                         }
                         isBigData_Remote = false;
@@ -2336,7 +2312,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void PullSwc_block_Manual(){
+    private void PullSwc_block_Manual(boolean isDrawMode){
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
         WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
@@ -2344,7 +2320,7 @@ public class MainActivity extends AppCompatActivity {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                String SwcFilePath = remote_socket.PullSwc_block();
+                String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
 
                 if (SwcFilePath.equals("Error")){
                     Toast_in_Thread("Something Wrong When Pull Swc File !");
@@ -2363,9 +2339,9 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    private static void PullSwc_block_Auto(){
+    private static void PullSwc_block_Auto(boolean isDrawMode){
 
-        String SwcFilePath = remote_socket.PullSwc_block();
+        String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
 
         if (SwcFilePath.equals("Error")){
             Toast.makeText(context,"Something Wrong When Pull Swc File !",Toast.LENGTH_SHORT).show();
@@ -4509,7 +4485,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007029e 22:45 UTC+8 build",
+                                "Version: 202007031a 00:15 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4583,8 +4559,11 @@ public class MainActivity extends AppCompatActivity {
                                     case "AliYun Server":
                                         String ip = "39.100.35.131";
 //                                        String ip = "192.168.31.11";
-//                                        ConnectServer(ip, context);
-                                        BigFileRead_Remote(ip);
+                                        if (DrawMode){
+                                            BigFileRead_Remote(ip);
+                                        }else {
+                                            BigFileRead_Remote_Check(ip);
+                                        }
                                         break;
 
                                     case "SEU Server":
@@ -4641,6 +4620,21 @@ public class MainActivity extends AppCompatActivity {
                 remote_socket.DisConnectFromHost();
                 remote_socket.ConnectServer(ip);
                 remote_socket.Select_Brain();
+            }
+        });
+        thread.start();
+
+    }
+
+
+    private void BigFileRead_Remote_Check(String ip){
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                remote_socket.DisConnectFromHost();
+                remote_socket.ConnectServer(ip);
+                remote_socket.Select_Arbor();
             }
         });
         thread.start();
@@ -4807,44 +4801,29 @@ public class MainActivity extends AppCompatActivity {
 
     public void Block_navigate(String text){
         context = this;
-//        PushSWC_Block();
 
 
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             public void run() {
 
                 if (isBigData_Remote){
 
-                    String[] info = SaveSWC_Block_Auto();
+                    String[] Direction = {"Left", "Right", "Top", "Bottom", "Front", "Back"};
 
-                    switch (text) {
-                        case "Left":
-                            remote_socket.Selectblock_fast(context, false, "Left");
-                            break;
+                    if (Arrays.asList(Direction).contains(text)){
 
-                        case "Right":
-                            remote_socket.Selectblock_fast(context, false, "Right");
-                            break;
+                        Log.v("Block_navigate", text);
+                        if (DrawMode){
+                            String[] info = SaveSWC_Block_Auto();
+                            remote_socket.Selectblock_fast(context, false, text);
+                            PushSWC_Block_Auto(info[0], info[1]);
 
-                        case "Top":
-                            remote_socket.Selectblock_fast(context, false, "Top");
-                            break;
-
-                        case "Bottom":
-                            remote_socket.Selectblock_fast(context, false, "Bottom");
-                            break;
-
-                        case "Front":
-                            remote_socket.Selectblock_fast(context, false, "Front");
-                            break;
-
-                        case "Back":
-                            remote_socket.Selectblock_fast(context, false, "Back");
-                            break;
+                        }else {
+                            remote_socket.Selectblock_fast_Check(context, false, text);
+                        }
                     }
-
-                    PushSWC_Block_Auto(info[0], info[1]);
 
                 }
                 if (isBigData_Local){
@@ -4901,9 +4880,15 @@ public class MainActivity extends AppCompatActivity {
     public void Set_Nav_Mode(){
         String filename = null;
         String offset   = null;
+        float[] neuron = null; float[] block = null; float[] size = null;
         if (isBigData_Remote){
-            filename = getFilename_Remote(this);
-            offset   = getoffset_Remote(this, filename);
+            if (DrawMode){
+                filename = getFilename_Remote(this);
+                offset   = getoffset_Remote(this, filename);
+            }else {
+                filename = getFilename_Remote_Check(this);
+                offset   = getoffset_Remote_Check(this, filename);
+            }
         }
         if (isBigData_Local){
             filename = SettingFileManager.getFilename_Local(this);
@@ -4913,20 +4898,33 @@ public class MainActivity extends AppCompatActivity {
         if (filename == null || offset == null)
             return;
 
-        float size_x = Float.parseFloat(filename.split("RES")[1].split("x")[0]);
-        float size_y = Float.parseFloat(filename.split("RES")[1].split("x")[1]);
-        float size_z = Float.parseFloat(filename.split("RES")[1].split("x")[2]);
+        if (isBigData_Local || (isBigData_Remote && DrawMode)){
+            float size_x = Float.parseFloat(filename.split("RES")[1].split("x")[0]);
+            float size_y = Float.parseFloat(filename.split("RES")[1].split("x")[1]);
+            float size_z = Float.parseFloat(filename.split("RES")[1].split("x")[2]);
 
-        float offset_x = Float.parseFloat(offset.split("_")[0]);
-        float offset_y = Float.parseFloat(offset.split("_")[1]);
-        float offset_z = Float.parseFloat(offset.split("_")[2]);
-        float size_block = Float.parseFloat(offset.split("_")[3]);
+            float offset_x = Float.parseFloat(offset.split("_")[0]);
+            float offset_y = Float.parseFloat(offset.split("_")[1]);
+            float offset_z = Float.parseFloat(offset.split("_")[2]);
+            float size_block = Float.parseFloat(offset.split("_")[3]);
+
+            neuron = new float[]{size_x, size_y, size_z};
+            block  = new float[]{offset_x, offset_y, offset_z};
+            size   = new float[]{size_block, size_block, size_block};
+        }else {
+
+            int offset_x_i = ( Integer.parseInt(offset.split(";")[0]) + Integer.parseInt(offset.split(";")[1]) ) / 2 -1;
+            int offset_y_i = ( Integer.parseInt(offset.split(";")[2]) + Integer.parseInt(offset.split(";")[3]) ) / 2 -1;
+            int offset_z_i = ( Integer.parseInt(offset.split(";")[4]) + Integer.parseInt(offset.split(";")[5]) ) / 2 -1;
+            int size_i     = ( Integer.parseInt(offset.split(";")[1]) - Integer.parseInt(offset.split(";")[0]) );
+
+            neuron = remote_socket.getImg_size_f();
+            block  = new float[]{offset_x_i, offset_y_i, offset_z_i};
+            size   = new float[]{size_i, size_i, size_i};
+
+        }
 
         boolean ifNavigationLocation = myrenderer.getNav_location_Mode();
-
-        float[] neuron = {size_x, size_y, size_z};
-        float[] block = {offset_x, offset_y, offset_z};
-        float[] size = {size_block, size_block, size_block};
 
         if (!ifNavigationLocation){
             System.out.println("--------!ifNavigationLocation---------");
@@ -7267,7 +7265,7 @@ public class MainActivity extends AppCompatActivity {
 
         SetButtons();
 
-        PullSwc_block_Auto();
+        PullSwc_block_Auto(DrawMode);
 
     }
 
