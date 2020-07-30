@@ -818,6 +818,59 @@ public class Remote_Socket extends Socket {
     }
 
 
+
+    public void Check_Yes(){
+
+        Make_Connect();
+
+        if (CheckConnection()){
+
+            String filename = getFilename_Remote(mContext);
+            String neuron_number = getNeuronNumber_Remote(mContext, filename);
+            String offset = getoffset_Remote(mContext, filename);
+            int[] index = BigImgReader.getIndex(offset);
+            System.out.println(filename);
+
+            String ratio = Integer.toString(getRatio_SWC());
+
+            String Check_info = neuron_number + "__" +
+                    index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
+
+            Send_Message(Check_info + "__" + ratio + "__1" + ":SwcCheck.\n");
+
+        }else {
+            Toast_in_Thread("Can't Connect Server, Try Again Later !");
+        }
+
+    }
+
+
+    public void Check_No(){
+
+        Make_Connect();
+
+        if (CheckConnection()){
+
+            String filename = getFilename_Remote(mContext);
+            String neuron_number = getNeuronNumber_Remote(mContext, filename);
+            String offset = getoffset_Remote(mContext, filename);
+            int[] index = BigImgReader.getIndex(offset);
+            System.out.println(filename);
+
+            String ratio = Integer.toString(getRatio_SWC());
+
+            String Check_info = neuron_number + "__" +
+                    index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
+
+            Send_Message(Check_info + "__" + ratio + "__0" + ":SwcCheck.\n");
+
+        }else {
+            Toast_in_Thread("Can't Connect Server, Try Again Later !");
+        }
+
+
+    }
+
     private float getRatio(String res_new, String res_old){
 
         String y_new = res_new.split("x")[1];

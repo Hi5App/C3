@@ -246,6 +246,8 @@ public class MainActivity extends AppCompatActivity {
     private Button FileManager;
     private static Button Zoom_in;
     private static Button Zoom_out;
+    private static Button Check_Yes;
+    private static Button Check_No;
     private static Button Zoom_in_Big;
     private static Button Zoom_out_Big;
     private Button Rotation;
@@ -406,6 +408,8 @@ public class MainActivity extends AppCompatActivity {
                         if (isBigData_Remote){
                             sync_pull.setVisibility(View.VISIBLE);
                             sync_push.setVisibility(View.VISIBLE);
+                            Check_Yes.setVisibility(View.VISIBLE);
+                            Check_No.setVisibility(View.VISIBLE);
                         }
 
                     }
@@ -522,8 +526,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-
-
     };
 
 
@@ -751,6 +753,54 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
+        Check_Yes = new Button(this);
+        Check_Yes.setText("Y");
+
+        Check_No = new Button(this);
+        Check_No.setText("N");
+
+        FrameLayout.LayoutParams lp_check_yes = new FrameLayout.LayoutParams(120, 120);
+        lp_check_yes.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        lp_check_yes.setMargins(0, 0, 20, 500);
+        this.addContentView(Check_Yes, lp_check_yes);
+
+        FrameLayout.LayoutParams lp_check_no = new FrameLayout.LayoutParams(120, 120);
+        lp_check_no.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        lp_check_no.setMargins(0, 0, 20, 410);
+        this.addContentView(Check_No, lp_check_no);
+
+        Check_Yes.setVisibility(View.GONE);
+        Check_No.setVisibility(View.GONE);
+
+
+        Check_Yes.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        remote_socket.Check_Yes();
+                        Toast_in_Thread("Check Yes Successfully");
+                    }
+                }).start();
+            }
+        });
+
+
+        Check_No.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        remote_socket.Check_No();
+                        Toast_in_Thread("Check No Successfully");
+                    }
+                }).start();
+            }
+        });
 
 
         FrameLayout.LayoutParams lp_draw_i = new FrameLayout.LayoutParams(230, 160);
@@ -1569,10 +1619,10 @@ public class MainActivity extends AppCompatActivity {
                         if (isBigData_Remote || isBigData_Local){
                             if (isBigData_Remote){
                                 try {
-//                                    ((ViewGroup)sync_pull.getParent()).removeView(sync_pull);
-//                                    ((ViewGroup)sync_push.getParent()).removeView(sync_push);
                                     sync_push.setVisibility(View.GONE);
                                     sync_pull.setVisibility(View.GONE);
+                                    Check_Yes.setVisibility(View.GONE);
+                                    Check_No.setVisibility(View.GONE);
                                 } catch (Exception e){
                                     e.printStackTrace();
                                 }
@@ -4459,7 +4509,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007029d 21:05 UTC+8 build",
+                                "Version: 202007029e 22:45 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
