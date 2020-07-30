@@ -178,7 +178,7 @@ void Socket::processMsg(const QString &msg)
 }
 void Socket::ArborCheck(QString msg)
 {
-    QRegExp tmp("(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)");
+    QRegExp tmp("(.*);(.*);(.*);(.*);(.*);(.*);(.*);(.*)");
     if(tmp.indexIn(msg)!=-1)
     {
         QString filename=tmp.cap(1).trimmed();
@@ -195,12 +195,12 @@ void Socket::ArborCheck(QString msg)
         {
             QDir(QCoreApplication::applicationDirPath()).mkdir("arbormark");
         }
-        QFile *f=new QFile(QCoreApplication::applicationDirPath()+"/arbormark/"+filename+".txt");
+        QFile *f=new QFile(QCoreApplication::applicationDirPath()+"/arbormark/"+"arborcheck.txt");
         __START:
         if(f->open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Append))
         {
             QTextStream tsm(f);
-            tsm<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<endl;
+            tsm<<filename<<" "<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<endl;
             f->close();
 
         }else if(n-->0)
@@ -332,7 +332,7 @@ QString Socket::currentImg() const
 QString Socket::currentArbors() const
 {
     QString imgPath=QCoreApplication::applicationDirPath()+"/arbors";
-    QStringList imgDirList=QDir(imgPath).entryList(QDir::Dirs|QDir::NoDotAndDotDot);
+    QStringList imgDirList=QDir(imgPath).entryList(QDir::Files|QDir::NoDotAndDotDot);
     return imgDirList.join(";");
 }
 
@@ -570,8 +570,9 @@ void Socket::setSwcInBB(QString name, int x1, int x2, int y1, int y2, int z1, in
 void Socket::getAndSendArborBlock(QString msg)
 {
     qDebug()<<"getAndSendImageBlock:"<<msg;
-    QStringList paraList=msg.split("__",QString::SkipEmptyParts);
-    QString filename=paraList.at(0).trimmed()+".v3draw";//1. tf name/RES  2. .v3draw// test:RES54600x34412x9847__x1__x2__y1__y2__z1__z2;
+    QStringList paraList=msg.split(";",QString::SkipEmptyParts);
+    QString filename1=paraList.at(0).trimmed();
+    QString filename=filename1+".v3draw";//1. tf name/RES  2. .v3draw// test:RES54600x34412x9847__x1__x2__y1__y2__z1__z2;
 
     int x1pos=paraList.at(1).toInt();
     int x2pos=paraList.at(2).toInt();
@@ -584,18 +585,17 @@ void Socket::getAndSendArborBlock(QString msg)
         QDir(QCoreApplication::applicationDirPath()).mkdir("tmp");
     }
     QString vaa3dPath=QCoreApplication::applicationDirPath();
-    QString string=QString::number(socket->socketDescriptor())+"_"+
-            QCoreApplication::applicationDirPath()+"/tmp/"+filename+
-            QString("__%1__%2__%3__%4__%5__%6.v3dpbd").arg(x1pos).arg(x2pos).arg(y1pos).arg(y2pos).arg(z1pos).arg(z2pos);
+    QString string=QCoreApplication::applicationDirPath()+"/tmp/"+filename1+
+            QString("%0__%1__%2__%3__%4__%5__%6.v3dpbd").arg(socket->socketDescriptor()).arg(x1pos).arg(x2pos).arg(y1pos).arg(y2pos).arg(z1pos).arg(z2pos);
     QString order =QString("xvfb-run -a %0/vaa3d -x %1/plugins/image_geometry/crop3d_image_series/libcropped3DImageSeries.so "
-                            "-f crop3d_raw -i %2/%3 /o %4 -p %5 %6 %7 %8 %9 %10")
+                            "-f crop3d_raw -i %2/%3 -o %4 -p %5 %6 %7 %8 %9 %10 0")
             .arg(vaa3dPath).arg(vaa3dPath).arg(QCoreApplication::applicationDirPath()+"/arbors").arg(filename).
             arg(string).arg(x1pos).arg(x2pos).arg(y1pos).arg(y2pos).arg(z1pos).arg(z2pos);
     qDebug()<<"order="<<order;
         QProcess p;
     if(p.execute(order.toStdString().c_str())!=-1||p.execute(order.toStdString().c_str())!=-2)
     {
-        sendFile(string,2);
+        sendFile(filename1+QString("%0__%1__%2__%3__%4__%5__%6.v3dpbd").arg(socket->socketDescriptor()).arg(x1pos).arg(x2pos).arg(y1pos).arg(y2pos).arg(z1pos).arg(z2pos),2);
     }else
     {
         sendMsg(QString("Can't get the image in BB ,please try again??%1:ERROR").arg(msg+":imgblock.\n"));
@@ -604,7 +604,7 @@ void Socket::getAndSendArborBlock(QString msg)
 
 void Socket::getAndSendArborSwcBlock(QString msg)
 {
-    QRegExp tmp("(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)");
+    QRegExp tmp("(.*);(.*);(.*);(.*);(.*);(.*);(.*)");
     int n=5;//重复5次，每次延时2S
     if(tmp.indexIn(msg)!=-1)
     {
@@ -621,7 +621,7 @@ void Socket::getAndSendArborSwcBlock(QString msg)
         NeuronTree nt;
         --n;
         qDebug()<<"Get SWC in BB:"<<5-n;
-        nt=readSWC_file(QCoreApplication::applicationDirPath()+"/data/"+name);
+        nt=readSWC_file(QCoreApplication::applicationDirPath()+"/arborswc/"+name);
         if(nt.flag!=false)
         {
             V_NeuronSWC_list testVNL=NeuronTree__2__V_NeuronSWC_list(nt);
