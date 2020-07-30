@@ -39,10 +39,14 @@ private:
     void readFile(const QString &filename);//need to do something
     QString currentDir()const;
     QString currentImg()const;
+    QString currentArbors()const;
     void getAndSendImageBlock(QString msg);
     void getAndSendSWCBlock(QString msg);
     void setSwcInBB(QString name,int x1,int x2,int y1,int y2,int z1,int z2,int cnt);
     void swcCheck(QString msg);
+    void ArborCheck(QString msg);
+    void getAndSendArborBlock(QString msg);
+    void getAndSendArborSwcBlock(QString msg);
 
 public slots:
     void onReadyRead();//
