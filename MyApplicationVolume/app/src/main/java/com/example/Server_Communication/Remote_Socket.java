@@ -471,7 +471,7 @@ public class Remote_Socket extends Socket {
         String Store_path_txt = Store_path + "/BrainInfo";
         String Final_Path = Get_File(Store_path_txt, true);
 
-        if (Final_Path == "Error"){
+        if (Final_Path.equals("Error")){
             Toast_in_Thread("Something Error When Get_File");
             return;
         }
@@ -1058,6 +1058,108 @@ public class Remote_Socket extends Socket {
         }
 
     }
+
+
+    public void PullCheckResult(){
+
+        Make_Connect();
+
+        if (CheckConnection()){
+
+            Send_Message("From Android Client :GetArborResult.\n");
+
+            String Store_path_check_txt = Store_path + "/Check/Check_Result";
+            String Final_Path = Get_File(Store_path_check_txt, true);
+
+            if (Final_Path.equals("Error")){
+                Toast_in_Thread("Something Error When Get_File");
+                return;
+            }
+        }
+
+    }
+
+
+    private void Display_Result(String File_Path){
+        ArrayList<String> arraylist = new ArrayList<String>();
+        File file = new File(File_Path);
+
+        if (!file.exists()){
+            Toast_in_Thread("Fail to Open TXT File !");
+            return;
+        }
+
+        try {
+            FileInputStream fid = new FileInputStream(file);
+            InputStreamReader isr = new InputStreamReader(fid);
+            BufferedReader br = new BufferedReader(isr);
+            String str;
+            while ((str = br.readLine()) != null) {
+                arraylist.add(str.trim());
+            }
+
+            Vector<String> RES_List_temp = new Vector<>();
+            Vector<String> Neuron_Number_List_temp = new Vector<>();
+            HashMap<String, Vector<String>> Neuron_Info_temp = new HashMap<>();
+
+            for (int i = 0; i < arraylist.size(); i++){
+                String line = arraylist.get(i);
+
+                if (line.startsWith("#RES")){
+                    String[] split = line.split(":");
+                    int num = Integer.parseInt(split[1]);
+                    for (int j = 0; j < num; j++){
+                        i++;
+                        String RES = arraylist.get(i);
+                        RES_List_temp.add(RES.split(":")[1]);
+                    }
+                }
+
+                if (line.startsWith("#Neuron_number")){
+                    String[] split = line.split(":");
+                    int num = Integer.parseInt(split[1]);
+                    for (int j = 0; j < num; j++){
+                        i++;
+                        String Number = arraylist.get(i);
+                        Neuron_Number_List_temp.add(Number.split(":")[1]);
+                    }
+                }
+
+                if (line.startsWith("##")){
+                    String neuron_number = line.substring(2);
+                    Vector<String> point_list = new Vector<>();
+                    point_list.add(arraylist.get(++i));
+
+                    String[] split = arraylist.get(++i).split(":");
+                    int num = Integer.parseInt(split[1]);
+                    for (int j = 0; j < num; j++){
+                        i++;
+                        String offset = arraylist.get(i).split(":")[1];
+                        point_list.add("arbor:" + offset);
+                        Log.v("Neuron_Info: ", " " + Neuron_Info_temp.size());
+
+                    }
+
+                    Neuron_Info_temp.put(neuron_number, point_list);
+
+                }
+
+                RES_List = RES_List_temp;
+                Neuron_Number_List = Neuron_Number_List_temp;
+                Neuron_Info = Neuron_Info_temp;
+
+                setRES(RES_List.toArray(new String[RES_List.size()]), BrainNumber_Selected, mContext);
+
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast_in_Thread("Fail to Read TXT File !");
+        }
+
+
+    }
+
 
 
 

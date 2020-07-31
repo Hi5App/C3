@@ -421,7 +421,7 @@ public class MainActivity extends AppCompatActivity {
                             else {
                                 Check_Yes.setVisibility(View.VISIBLE);
                                 Check_No.setVisibility(View.VISIBLE);
-                                sync_pull.setVisibility(View.GONE);
+                                sync_pull.setVisibility(View.VISIBLE);
                                 sync_push.setVisibility(View.GONE);
                             }
                         }
@@ -690,14 +690,19 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
                     return;
                 }
-//                myrenderer.zoom_in();
-//                myGLSurfaceView.requestRender();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        remote_socket.Zoom_in();
-                    }
-                }).start();
+
+                if (isBigData_Remote && DrawMode){
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            remote_socket.Zoom_in();
+                        }
+                    }).start();
+                }else {
+                    myrenderer.zoom_in();
+                    myGLSurfaceView.requestRender();
+                }
+
             }
         });
 
@@ -710,14 +715,19 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
                     return;
                 }
-//                myrenderer.zoom_out();
-//                myGLSurfaceView.requestRender();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        remote_socket.Zoom_out();
-                    }
-                }).start();
+
+                if (isBigData_Remote && DrawMode){
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            remote_socket.Zoom_out();
+                        }
+                    }).start();
+                }else {
+                    myrenderer.zoom_out();
+                    myGLSurfaceView.requestRender();
+                }
+
             }
         });
 
@@ -1085,7 +1095,11 @@ public class MainActivity extends AppCompatActivity {
         sync_pull.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
 //                PullSWC_Block();
-                PullSwc_block_Manual(DrawMode);
+                if (DrawMode){
+                    PullSwc_block_Manual(DrawMode);
+                }else {
+                    remote_socket.PullCheckResult();
+                }
             }
         });
 
@@ -1600,6 +1614,7 @@ public class MainActivity extends AppCompatActivity {
                                 else{
                                     Check_Yes.setVisibility(View.GONE);
                                     Check_No.setVisibility(View.GONE);
+                                    sync_pull.setVisibility(View.GONE);
                                 }
                             }
                             isBigData_Remote = false;
@@ -1673,6 +1688,7 @@ public class MainActivity extends AppCompatActivity {
                             else{
                                 Check_Yes.setVisibility(View.GONE);
                                 Check_No.setVisibility(View.GONE);
+                                sync_pull.setVisibility(View.GONE);
                             }
                         }
                         isBigData_Remote = false;
@@ -4485,7 +4501,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007031a 00:15 UTC+8 build",
+                                "Version: 202007031b 00:15 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
