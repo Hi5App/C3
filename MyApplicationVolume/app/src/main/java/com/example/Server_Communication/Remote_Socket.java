@@ -1118,7 +1118,6 @@ public class Remote_Socket extends Socket {
             }
 
             new XPopup.Builder(mContext)
-                    .maxHeight(1200)
                     .asConfirm("Check Result", info,
                             new OnConfirmListener() {
                                 @Override
