@@ -1347,7 +1347,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", DownSample_mode, BigData_mode, "Animate", "About"},
+                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", DownSample_mode, BigData_mode, "Animate", "About", "Help"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -1402,6 +1402,15 @@ public class MainActivity extends AppCompatActivity {
 
                                     case "About":
                                         Version();;
+                                        break;
+
+                                    case "Help":
+                                        try{
+                                            Intent intent = new Intent(MainActivity.this, HelpActivity.class);
+                                            startActivity(intent);
+                                        } catch (Exception e){
+                                            e.printStackTrace();
+                                        }
                                         break;
 
                                     default:
@@ -4501,7 +4510,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007031c 13:15 UTC+8 build",
+                                "Version: 202007031d 22:21 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
