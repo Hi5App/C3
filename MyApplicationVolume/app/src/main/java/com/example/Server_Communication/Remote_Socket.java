@@ -25,6 +25,7 @@ import com.example.myapplication__volume.R;
 import com.example.server_connect.Filesocket_receive;
 import com.feature_calc_func.MorphologyCalculate;
 import com.lxj.xpopup.XPopup;
+import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 
 import org.apache.commons.io.IOUtils;
@@ -1075,6 +1076,8 @@ public class Remote_Socket extends Socket {
                 Toast_in_Thread("Something Error When Get_File");
                 return;
             }
+
+            Display_Result(Final_Path);
         }
 
     }
@@ -1098,59 +1101,31 @@ public class Remote_Socket extends Socket {
                 arraylist.add(str.trim());
             }
 
-            Vector<String> RES_List_temp = new Vector<>();
-            Vector<String> Neuron_Number_List_temp = new Vector<>();
-            HashMap<String, Vector<String>> Neuron_Info_temp = new HashMap<>();
+            String info = "";
 
             for (int i = 0; i < arraylist.size(); i++){
                 String line = arraylist.get(i);
 
-                if (line.startsWith("#RES")){
-                    String[] split = line.split(":");
-                    int num = Integer.parseInt(split[1]);
-                    for (int j = 0; j < num; j++){
-                        i++;
-                        String RES = arraylist.get(i);
-                        RES_List_temp.add(RES.split(":")[1]);
-                    }
+                String display = line.split(" ")[0] + ": ";
+
+                if (line.substring(line.length() - 1).equals("0")){
+                    display = display + "No";
+                }else {
+                    display = display + "Yes";
                 }
 
-                if (line.startsWith("#Neuron_number")){
-                    String[] split = line.split(":");
-                    int num = Integer.parseInt(split[1]);
-                    for (int j = 0; j < num; j++){
-                        i++;
-                        String Number = arraylist.get(i);
-                        Neuron_Number_List_temp.add(Number.split(":")[1]);
-                    }
-                }
-
-                if (line.startsWith("##")){
-                    String neuron_number = line.substring(2);
-                    Vector<String> point_list = new Vector<>();
-                    point_list.add(arraylist.get(++i));
-
-                    String[] split = arraylist.get(++i).split(":");
-                    int num = Integer.parseInt(split[1]);
-                    for (int j = 0; j < num; j++){
-                        i++;
-                        String offset = arraylist.get(i).split(":")[1];
-                        point_list.add("arbor:" + offset);
-                        Log.v("Neuron_Info: ", " " + Neuron_Info_temp.size());
-
-                    }
-
-                    Neuron_Info_temp.put(neuron_number, point_list);
-
-                }
-
-                RES_List = RES_List_temp;
-                Neuron_Number_List = Neuron_Number_List_temp;
-                Neuron_Info = Neuron_Info_temp;
-
-                setRES(RES_List.toArray(new String[RES_List.size()]), BrainNumber_Selected, mContext);
-
+                info = info + display + "\n";
             }
+
+            new XPopup.Builder(mContext)
+                    .maxHeight(1200)
+                    .asConfirm("Check Result", info,
+                            new OnConfirmListener() {
+                                @Override
+                                public void onConfirm() {
+                                }
+                            })
+                    .show();
 
         } catch (IOException e) {
             e.printStackTrace();
