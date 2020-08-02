@@ -590,7 +590,7 @@ public class MainActivity extends AppCompatActivity {
         filenametext = new TextView(this);
         filenametext.setText("");
 //        filenametext.setBackgroundColor(Color.BLACK);
-        filenametext.setTextColor(Color.WHITE);
+        filenametext.setTextColor(Color.BLACK);
         ll_file.addView(filenametext);
         ll_file.setVisibility(View.GONE);
 
@@ -4510,7 +4510,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202007031d 22:21 UTC+8 build",
+                                "Version: 20200802a 22:24 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -6736,6 +6736,8 @@ public class MainActivity extends AppCompatActivity {
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                             System.out.println("unfinished in 1.5 seconds");
+//                                            exeService.shutdown();
+//                                            future.cancel(true);
                                         }
 //                                int lineType = myrenderer.getLastLineType();
 //                                if (lineType != 3) {

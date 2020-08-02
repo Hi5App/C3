@@ -466,7 +466,7 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/draw"
+                    android:src="@drawable/draw_i"
                     android:layout_marginTop="20dp"
                     android:layout_marginLeft="10dp"/>
 
@@ -481,7 +481,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="在标注模式中可以用双指旋转和缩放，具体双指往同一方向移动时与单指旋转同理，缩放方式与普通状态下相同；也可以使用左下角的start/pause按钮暂时退出标注模式"
+                    android:text="在标注模式中如果需要旋转和缩放可以用双指来操作；也可以使用左下角的start/pause按钮暂时退出标注模式"
                     android:textStyle="normal"
                     android:layout_marginTop="10dp"
                     android:layout_marginLeft="10dp"
@@ -909,7 +909,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="清楚当前图像上的所有标注结果"
+                    android:text="清除当前图像上的所有曲线"
                     android:textStyle="normal"
                     android:layout_marginTop="10dp"
                     android:layout_marginLeft="20dp"
@@ -966,7 +966,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="APP2自动追踪算法"
+                    android:text="APP2算法用于自动追踪神经元信号"
                     android:textStyle="normal"
                     android:layout_marginTop="10dp"
                     android:layout_marginLeft="20dp"
@@ -1025,7 +1025,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="GD自动追踪算法"
+                    android:text="GD算法用于自动追踪神经元信号"
                     android:textStyle="normal"
                     android:layout_marginTop="10dp"
                     android:layout_marginLeft="20dp"
