@@ -372,6 +372,8 @@ public class MainActivity extends AppCompatActivity {
         BLACK, WHITE, RED, BLUE, GREEN, PURPLE, YELLOW
     }
 
+    private static String[] push_info = new String[2];
+
     HashMap<Integer, String> User_Map = new HashMap<Integer, String>();
 
     @SuppressLint("HandlerLeak")
@@ -1096,7 +1098,6 @@ public class MainActivity extends AppCompatActivity {
         sync_pull.setImageResource(R.drawable.ic_cloud_download_black_24dp);
         sync_pull.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-//                PullSWC_Block();
                 if (DrawMode){
                     PullSwc_block_Manual(DrawMode);
                 }else {
@@ -3970,21 +3971,27 @@ public class MainActivity extends AppCompatActivity {
             return new String[]{ swc_file_path, SwcFileName };
         }
 
+        Log.v("SaveSWC_Block_Auto","Save Successfully !");
         return new String[]{"Error", "Error"};
     }
 
 
 
-    private void PushSWC_Block_Auto(String swc_file_path, String SwcFileName){
+    private static void PushSWC_Block_Auto(String swc_file_path, String SwcFileName){
+
 
         File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
+        if (!SwcFile.exists()){
+            Toast.makeText(context,"Something Wrong When Upload SWC, Try Again Please !",Toast.LENGTH_SHORT).show();
+            return;
+        }
         try {
             System.out.println("Start to push swc file");
             InputStream is = new FileInputStream(SwcFile);
             long length = SwcFile.length();
 
             if (length < 0 || length > Math.pow(2, 28)){
-                Toast_in_Thread("Something Wrong When Upload SWC, Try Again Please !");
+                Toast.makeText(context,"Something Wrong When Upload SWC, Try Again Please !",Toast.LENGTH_SHORT).show();
                 return;
             }
             remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
@@ -4033,20 +4040,8 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-//    private void PullSWC_Block(){
-//
-////        DownloadSwc("39.100.35.131", this);
-//        PullSwc_block("39.100.35.131", this);
-//
-//    }
 
 
-    private static void PullSWC_Block(){
-
-//        DownloadSwc("39.100.35.131", this);
-        PullSwc_block("39.100.35.131", context);
-
-    }
 
     private void ShareScreenShot() {
 
@@ -4512,7 +4507,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200803a 09:24 UTC+8 build",
+                                "Version: 20200803a 22:24 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4843,9 +4838,9 @@ public class MainActivity extends AppCompatActivity {
 
                         Log.v("Block_navigate", text);
                         if (DrawMode){
-                            String[] info = SaveSWC_Block_Auto();
+                            push_info = SaveSWC_Block_Auto();
                             remote_socket.Selectblock_fast(context, false, text);
-                            PushSWC_Block_Auto(info[0], info[1]);
+//                            PushSWC_Block_Auto(push_info[0], push_info[1]);
 
                         }else {
                             remote_socket.Selectblock_fast_Check(context, false, text);
@@ -7300,20 +7295,15 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("------" + filepath + "------");
         isBigData_Remote = true;
         isBigData_Local = false;
-//        String filename = getFilename(context);
-//        String offset = getoffset(context, filename);
-//
-//        String offset_x = offset.split("_")[0];
-//        String offset_y = offset.split("_")[1];
-//        String offset_z = offset.split("_")[2];
-//
-//        Toast.makeText(getContext(),"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
         myGLSurfaceView.requestRender();
 
         setSelectSource("Remote Server",context);
         SetButtons();
 
         PullSwc_block_Auto(DrawMode);
+        if (DrawMode){
+            PushSWC_Block_Auto(push_info[0], push_info[1]);
+        }
 
     }
 

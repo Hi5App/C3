@@ -816,7 +816,7 @@ public class Remote_Socket extends Socket {
         String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
 
         if (!JudgeBounding(input)){
-            Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+            Toast_in_Thread("Please make sure all the information is right !");
         }else {
             PullImageBlock(input[0], input[1], input[2], input[3], true);
         }

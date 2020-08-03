@@ -131,8 +131,6 @@ public class Socket_Send {
 
         Toast_in_Thread("Upload Successfully !");
 
-//        Toast.makeText(mContext, "Upload Successfully!!!", Toast.LENGTH_SHORT).show();
-
     }
 
 
