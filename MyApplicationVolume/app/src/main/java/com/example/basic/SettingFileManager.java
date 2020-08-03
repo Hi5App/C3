@@ -872,4 +872,82 @@ public class SettingFileManager {
     }
 
 
+
+    /**
+     * get the offset from local file
+     * @return offset latest address you input
+     */
+    public static String getSelectSource(Context context){
+        String source = null;
+
+
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/SelectSource" + ".txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "--11--";
+
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get offset", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                line = buffreader.readLine();
+                source = line;
+
+                inputStream.close();//关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get source", source);
+        return source;
+    }
+
+    /**
+     * put the offset you input to local file
+     * @param source the offset currently input
+     */
+    public static void setSelectSource(String source, Context context){
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/SelectSource" + ".txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("get offset", "Fail to create file");
+            }
+        }
+
+        try {
+
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(source.getBytes());
+            outStream.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
 }

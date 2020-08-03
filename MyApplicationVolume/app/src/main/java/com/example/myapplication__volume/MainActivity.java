@@ -153,10 +153,12 @@ import static com.example.basic.SettingFileManager.getFilename_Local;
 import static com.example.basic.SettingFileManager.getFilename_Remote;
 import static com.example.basic.SettingFileManager.getFilename_Remote_Check;
 import static com.example.basic.SettingFileManager.getNeuronNumber_Remote;
+import static com.example.basic.SettingFileManager.getSelectSource;
 import static com.example.basic.SettingFileManager.getUserAccount;
 import static com.example.basic.SettingFileManager.getoffset_Local;
 import static com.example.basic.SettingFileManager.getoffset_Remote;
 import static com.example.basic.SettingFileManager.getoffset_Remote_Check;
+import static com.example.basic.SettingFileManager.setSelectSource;
 import static com.example.basic.SettingFileManager.setUserAccount;
 import static com.example.basic.SettingFileManager.setoffset_Local;
 import static com.example.server_connect.RemoteImg.getFilename;
@@ -4510,7 +4512,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200802a 22:24 UTC+8 build",
+                                "Version: 20200803a 09:24 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -7228,33 +7230,51 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void Select_Block(){
-        Context context = this;
-        new XPopup.Builder(this)
-//        .maxWidth(400)
-//        .maxHeight(1350)
-                .asCenterList("Select block", new String[]{"Remote Server", "Local Server"},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                switch (text) {
-                                    case "Remote Server":
-//                                        remoteImg.Selectblock(context, false);
-                                        String ip = "39.100.35.131";
-                                        remote_socket.DisConnectFromHost();
-                                        remote_socket.ConnectServer(ip);
-                                        remote_socket.SelectBlock();
-                                        break;
-                                    case "Local Server":
-                                        bigImgReader.PopUp(context);
-                                        break;
-                                    default:
-//                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();
-                                        Toast.makeText(getContext(), "Default in file", Toast.LENGTH_SHORT).show();
 
-                                }
-                            }
-                        })
-                .show();
+        String source = getSelectSource(this);
+
+        switch (source){
+            case "Remote Server":
+                String ip = "39.100.35.131";
+                remote_socket.DisConnectFromHost();
+                remote_socket.ConnectServer(ip);
+                remote_socket.SelectBlock();
+                break;
+            case "Local Server":
+                bigImgReader.PopUp(context);
+                break;
+            default:
+                Toast_in_Thread("Load a File First !");
+                break;
+        }
+
+//        Context context = this;
+//        new XPopup.Builder(this)
+////        .maxWidth(400)
+////        .maxHeight(1350)
+//                .asCenterList("Select block", new String[]{"Remote Server", "Local Server"},
+//                        new OnSelectListener() {
+//                            @Override
+//                            public void onSelect(int position, String text) {
+//                                switch (text) {
+//                                    case "Remote Server":
+////                                        remoteImg.Selectblock(context, false);
+//                                        String ip = "39.100.35.131";
+//                                        remote_socket.DisConnectFromHost();
+//                                        remote_socket.ConnectServer(ip);
+//                                        remote_socket.SelectBlock();
+//                                        break;
+//                                    case "Local Server":
+//                                        bigImgReader.PopUp(context);
+//                                        break;
+//                                    default:
+////                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();
+//                                        Toast.makeText(getContext(), "Default in file", Toast.LENGTH_SHORT).show();
+//
+//                                }
+//                            }
+//                        })
+//                .show();
     }
 
 
@@ -7290,6 +7310,7 @@ public class MainActivity extends AppCompatActivity {
 //        Toast.makeText(getContext(),"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
         myGLSurfaceView.requestRender();
 
+        setSelectSource("Remote Server",context);
         SetButtons();
 
         PullSwc_block_Auto(DrawMode);
@@ -7312,6 +7333,7 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(getContext(),"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
         myGLSurfaceView.requestRender();
 
+        setSelectSource("Local Server",context);
         SetButtons();
 
     }
