@@ -98,6 +98,7 @@ import com.learning.pixelclassification.PixelClassification;
 import com.learning.randomforest.RandomForest;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
+import com.lxj.xpopup.enums.PopupPosition;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.lxj.xpopup.interfaces.SimpleCallback;
@@ -372,7 +373,11 @@ public class MainActivity extends AppCompatActivity {
         BLACK, WHITE, RED, BLUE, GREEN, PURPLE, YELLOW
     }
 
+
     private static String[] push_info = new String[2];
+
+    private BasePopupView drawPopupView;
+
 
     HashMap<Integer, String> User_Map = new HashMap<Integer, String>();
 
@@ -798,7 +803,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                Draw(v);
+                Draw_list(v);
             }
         });
 
@@ -2733,6 +2738,7 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
+
                 .asAttachList(new String[]{"PinPoint   ", "Draw Curve", "Delete Marker", "Delete MultiMarker", "Delete Curve", "Split       ",
                                 "Set PenColor", "Change PenColor", "Change All PenColor", "Set MColor", "Change MColor",
                                 "Change All MColor", "Exit Drawing mode", "Clear Tracing"},
@@ -3056,8 +3062,374 @@ public class MainActivity extends AppCompatActivity {
                                         break;
                                 }
                             }
-                        })
-                .show();
+                        }).show();
+
+    }
+
+    private void Draw_list(View v){
+        drawPopupView = new XPopup.Builder(this)
+                .atView(v)
+                .autoDismiss(false)
+                .asAttachList(new String[]{"For Marker", "For Curve", "Clear Tracing", "Exit Drawing Mode"},
+                        new int[]{}, new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text){
+                                    case "For Marker":
+                                        markerProcessList(v);
+                                        break;
+                                    case "For Curve":
+                                        curveProcessList(v);
+                                        break;
+                                    case "Clear Tracing":
+                                        myrenderer.deleteAllTracing();
+                                        myGLSurfaceView.requestRender();
+                                        drawPopupView.dismiss();
+                                        break;
+                                    case "Exit Drawing Mode":
+                                        ifDeletingLine = false;
+                                        ifPainting = false;
+                                        ifPoint = false;
+                                        ifDeletingMarker = false;
+                                        ifSpliting = false;
+                                        ifChangeLineType = false;
+                                        ifChangeMarkerType = false;
+                                        ifDeletingMultiMarker = false;
+                                        draw_i.setImageResource(R.drawable.ic_draw_main);
+                                        ll_bottom.removeView(Switch);
+                                        drawPopupView.dismiss();
+//                                        ll_top.removeView(buttonUndo_i);
+                                        break;
+                                }
+                            }
+                        }).show();
+    }
+
+    private void markerProcessList(View v){
+//        System.out.println(drawPopupView.getWidth());
+//        drawPopupView.show();
+        new XPopup.Builder(this)
+                .atView(v)
+                .offsetX(580)
+                .isRequestFocus(false)
+                .popupPosition(PopupPosition.Right)
+                .asAttachList(new String[]{"PinPoint   ", "Delete Marker", "Delete MultiMarker", "Set MColor", "Change MColor",
+                        "Change All MColor"}, new int[]{}, new OnSelectListener() {
+                    @Override
+                    public void onSelect(int position, String text) {
+                        switch (text){
+                            case "PinPoint   ":
+                                if (!myrenderer.ifImageLoaded()){
+                                    Toast.makeText(context, "Please load a image first", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                ifPoint = !ifPoint;
+                                ifPainting = false;
+                                ifDeletingMarker = false;
+                                ifDeletingLine = false;
+                                ifSpliting = false;
+                                ifChangeLineType = false;
+                                ifChangeMarkerType = false;
+                                ifDeletingMultiMarker = false;
+                                if (ifPoint && !ifSwitch) {
+                                    draw_i.setImageResource(R.drawable.ic_add_marker);
+
+                                    try {
+                                        ifSwitch = false;
+                                        ll_bottom.addView(Switch);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                    }catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+
+                                } else {
+                                    ifSwitch = false;
+                                    ifPoint = false;
+                                    Switch.setText("Pause");
+                                    Switch.setTextColor(Color.BLACK);
+                                    draw_i.setImageResource(R.drawable.ic_draw_main);
+                                    ll_bottom.removeView(Switch);
+//                                            ll_top.removeView(buttonUndo_i);
+                                }
+                                break;
+
+                            case "Delete Marker":
+                                ifDeletingMarker = !ifDeletingMarker;
+                                ifPainting = false;
+                                ifPoint = false;
+                                ifDeletingLine = false;
+                                ifSpliting = false;
+                                ifChangeLineType = false;
+                                ifChangeMarkerType = false;
+                                ifDeletingMultiMarker = false;
+                                if (ifDeletingMarker && !ifSwitch) {
+                                    draw_i.setImageResource(R.drawable.ic_marker_delete);
+
+                                    try {
+                                        ifSwitch = false;
+                                        ll_bottom.addView(Switch);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                    }catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+
+                                } else {
+                                    ifSwitch = false;
+                                    ifDeletingMarker = false;
+                                    Switch.setText("Pause");
+                                    Switch.setTextColor(Color.BLACK);
+                                    draw_i.setImageResource(R.drawable.ic_draw_main);
+                                    ll_bottom.removeView(Switch);
+//                                            ll_top.removeView(buttonUndo_i);
+                                }
+                                break;
+
+                            case "Delete MultiMarker":
+                                ifDeletingMultiMarker = !ifDeletingMultiMarker;
+                                ifPainting = false;
+                                ifPoint = false;
+                                ifDeletingMarker = false;
+                                ifSpliting = false;
+                                ifChangeLineType = false;
+                                ifChangeMarkerType = false;
+                                ifDeletingLine = false;
+                                if (ifDeletingMultiMarker && !ifSwitch) {
+                                    draw_i.setImageResource(R.drawable.ic_draw_main);
+
+                                    try {
+                                        ifSwitch = false;
+                                        ll_bottom.addView(Switch);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                    }catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+
+                                } else {
+                                    ifSwitch = false;
+                                    ifDeletingMultiMarker = false;
+                                    Switch.setText("Pause");
+                                    Switch.setTextColor(Color.BLACK);
+                                    draw_i.setImageResource(R.drawable.ic_draw_main);
+                                    ll_bottom.removeView(Switch);
+//                                            ll_top.removeView(buttonUndo_i);
+                                }
+                                break;
+
+                            case "Set MColor":
+                                MarkerPenSet();
+                                break;
+
+                            case "Change MColor":
+                                ifChangeMarkerType = !ifChangeMarkerType;
+                                ifDeletingLine = false;
+                                ifPainting = false;
+                                ifPoint = false;
+                                ifDeletingMarker = false;
+                                ifChangeLineType = false;
+                                ifSpliting = false;
+                                ifDeletingMultiMarker = false;
+                                if (ifChangeMarkerType && !ifSwitch) {
+                                    draw_i.setImageResource(R.drawable.ic_draw_main);
+
+                                    try {
+                                        ifSwitch = false;
+                                        ll_bottom.addView(Switch);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                    }catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+
+                                } else {
+                                    ifSwitch = false;
+                                    ifChangeMarkerType = false;
+                                    Switch.setText("Pause");
+                                    Switch.setTextColor(Color.BLACK);
+                                    draw_i.setImageResource(R.drawable.ic_draw_main);
+                                    ll_bottom.removeView(Switch);
+//                                            ll_top.removeView(buttonUndo_i);
+                                }
+                                break;
+
+                            case "Change All MColor":
+                                try {
+                                    myrenderer.changeAllMarkerType();
+                                } catch (CloneNotSupportedException e) {
+                                    e.printStackTrace();
+                                }
+                                myGLSurfaceView.requestRender();
+                                break;
+
+                        }
+                        drawPopupView.dismiss();
+                    }
+                }).show();
+    }
+
+    private void curveProcessList(View v){
+        new XPopup.Builder(this)
+                .atView(v)
+                .offsetX(580)
+                .asAttachList(new String[]{"Draw Curve", "Delete Curve", "Split       ",
+                                "Set PenColor", "Change PenColor", "Change All PenColor"}, new int[]{},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text){
+                                    case "Draw Curve":
+                                        if (!myrenderer.ifImageLoaded()){
+                                            Toast.makeText(context, "Please load a image first", Toast.LENGTH_SHORT).show();
+                                            return;
+                                        }
+                                        ifPainting = !ifPainting;
+                                        ifPoint = false;
+                                        ifDeletingMarker = false;
+                                        ifDeletingLine = false;
+                                        ifSpliting = false;
+                                        ifChangeLineType = false;
+                                        ifChangeMarkerType = false;
+                                        ifDeletingMultiMarker = false;
+                                        if (ifPainting && !ifSwitch) {
+                                            draw_i.setImageResource(R.drawable.ic_draw);
+
+                                            try {
+                                                ifSwitch = false;
+                                                ll_bottom.addView(Switch);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                            }catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+
+                                        } else {
+                                            ifSwitch = false;
+                                            ifPainting = false;
+                                            Switch.setText("Pause");
+                                            Switch.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
+                                            ll_bottom.removeView(Switch);
+//                                            ll_top.removeView(buttonUndo_i);
+                                        }
+                                        break;
+
+                                    case "Delete Curve":
+                                        ifDeletingLine = !ifDeletingLine;
+                                        ifPainting = false;
+                                        ifPoint = false;
+                                        ifDeletingMarker = false;
+                                        ifSpliting = false;
+                                        ifChangeLineType = false;
+                                        ifChangeMarkerType = false;
+                                        ifDeletingMultiMarker = false;
+                                        if (ifDeletingLine && !ifSwitch) {
+                                            draw_i.setImageResource(R.drawable.ic_delete_curve);
+
+                                            try {
+                                                ifSwitch = false;
+                                                ll_bottom.addView(Switch);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                            }catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+
+                                        } else {
+                                            ifSwitch = false;
+                                            ifDeletingLine = false;
+                                            Switch.setText("Pause");
+                                            Switch.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
+                                            ll_bottom.removeView(Switch);
+//                                            ll_top.removeView(buttonUndo_i);
+                                        }
+                                        break;
+
+                                    case "Split       ":
+                                        ifSpliting = !ifSpliting;
+                                        ifDeletingLine = false;
+                                        ifPainting = false;
+                                        ifPoint = false;
+                                        ifDeletingMarker = false;
+                                        ifChangeLineType = false;
+                                        ifChangeMarkerType = false;
+                                        ifDeletingMultiMarker = false;
+                                        if (ifSpliting && !ifSwitch) {
+                                            draw_i.setImageResource(R.drawable.ic_split);
+
+                                            try {
+                                                ifSwitch = false;
+                                                ll_bottom.addView(Switch);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                            }catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+
+                                        } else {
+                                            ifSwitch = false;
+                                            ifSpliting = false;
+                                            Switch.setText("Pause");
+                                            Switch.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
+                                            ll_bottom.removeView(Switch);
+//                                            ll_top.removeView(buttonUndo_i);
+                                        }
+                                        break;
+
+                                    case "Set PenColor":
+                                        //调用选择画笔窗口
+                                        PenSet();
+
+                                        break;
+
+                                    case "Change PenColor":
+                                        ifChangeLineType = !ifChangeLineType;
+                                        ifDeletingLine = false;
+                                        ifPainting = false;
+                                        ifPoint = false;
+                                        ifDeletingMarker = false;
+                                        ifSpliting = false;
+                                        ifChangeMarkerType = false;
+                                        ifDeletingMultiMarker = false;
+                                        if(ifChangeLineType && !ifSwitch){
+//                                            Draw.setText("Change PenColor");
+//                                            Draw.setTextColor(Color.RED);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
+
+                                            try {
+                                                ifSwitch = false;
+//                                                ifChangeLineType = false;
+//                                                Switch.setText("Pause");
+//                                                Switch.setTextColor(Color.BLACK);
+//                                                ifSwitch = false;
+                                                ll_bottom.addView(Switch);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                            }catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+
+                                        } else {
+                                            ifSwitch = false;
+                                            ifChangeLineType = false;
+                                            Switch.setText("Pause");
+                                            Switch.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
+                                            ll_bottom.removeView(Switch);
+//                                            ll_top.removeView(buttonUndo_i);
+//                                            draw_i.setImageResource(R.drawable.ic_draw_main);
+
+                                        }
+                                        break;
+
+                                    case "Change All PenColor":
+                                        try {
+                                            myrenderer.changeAllType();
+                                        } catch (CloneNotSupportedException e) {
+                                            e.printStackTrace();
+                                        }
+                                        myGLSurfaceView.requestRender();
+                                        break;
+
+                                }
+                                drawPopupView.dismiss();
+                            }
+                        }).show();
     }
 
 
@@ -4507,7 +4879,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200803a 22:24 UTC+8 build",
+                                "Version: 20200804a 20:38 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
