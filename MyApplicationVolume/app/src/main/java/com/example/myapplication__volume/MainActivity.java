@@ -1355,7 +1355,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", DownSample_mode, BigData_mode, "Animate", "About", "Help"},
+                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", "Animate", "Settings", "About", "Help"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -1406,6 +1406,10 @@ public class MainActivity extends AppCompatActivity {
                                     case "Switch to Draw Mode":
                                         DrawMode = true;
                                         settingFileManager.setBigDataMode("Draw Mode", getContext());
+                                        break;
+
+                                    case "Settings":
+                                        setSettings();
                                         break;
 
                                     case "About":
@@ -5845,6 +5849,91 @@ public class MainActivity extends AppCompatActivity {
             result = result + " ";
         }
         return result;
+    }
+
+    private void setSettings(){
+
+        SettingFileManager settingFileManager = new SettingFileManager();
+        boolean [] ifChecked = new boolean[2];
+        boolean [] ifChecked2 = new boolean[2];
+        ifChecked[0] = false;
+        ifChecked2[0] = false;
+
+        MDDialog mdDialog = new MDDialog.Builder(this)
+                .setContentView(R.layout.settings)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {
+                        Switch downsample_on_off = contentView.findViewById(R.id.switch_rotation_mode);
+                        boolean ifDownSample = myrenderer.getIfNeedDownSample();
+                        downsample_on_off.setChecked(ifDownSample);
+
+                        downsample_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                ifChecked[0] = true;
+                                ifChecked[1] = isChecked;
+                            }
+                        });
+
+                        Switch check_on_off = contentView.findViewById(R.id.switch_check_mode);
+                        check_on_off.setChecked(!DrawMode);
+
+                        check_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                ifChecked2[0] = true;
+                                ifChecked2[1] = isChecked;
+                            }
+                        });
+                    }
+                })
+                .setNegativeButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                })
+                .setPositiveButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        if (ifChecked[0]) {
+                            myrenderer.setIfNeedDownSample(ifChecked[1]);
+                            if (ifChecked[1]) {
+                                settingFileManager.setDownSampleMode("DownSampleYes", getContext());
+                            } else {
+                                settingFileManager.setDownSampleMode("DownSampleNo", getContext());
+                            }
+                        }
+
+                        if (ifChecked2[0]) {
+                            DrawMode = !ifChecked2[1];
+                            if (ifChecked2[1]) {
+                                settingFileManager.setBigDataMode("Check Mode", getContext());
+                            } else {
+                                settingFileManager.setBigDataMode("Draw Mode", getContext());
+                            }
+                        }
+
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                    }
+                })
+                .setTitle("Settings")
+                .create();
+
+        mdDialog.show();
+        mdDialog.getWindow().setLayout(1000, 1500);
     }
 
 
