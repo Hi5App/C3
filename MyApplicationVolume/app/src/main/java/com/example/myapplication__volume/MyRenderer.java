@@ -354,7 +354,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 if (fileType == FileType.PNG || fileType == FileType.JPG)
                     myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
 
-                if (fileType == FileType.TIF || fileType == FileType.V3draw || fileType == FileType.V3dPBD) {
+                if (fileType == FileType.TIF || fileType == FileType.V3draw || fileType == FileType.V3dPBD ||
+                        fileType == FileType.SWC || fileType == FileType.APO || fileType == FileType.ANO){
                     if (myAxis == null)
                         myAxis = new MyAxis(mz);
                 }
@@ -366,7 +367,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 ifFileSupport = false;
             }
         }
-
 
 
 
@@ -1103,7 +1103,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 break;
 
             case "fail to read file":
-//                JumptoFileActivity("Fail to read file!");
                 fileType = FileType.NotSupport;
                 Toast.makeText(getContext(), "Fail to read file!",Toast.LENGTH_SHORT).show();
                 break;
@@ -1111,7 +1110,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             default:
                 fileType = FileType.NotSupport;
                 Toast.makeText(getContext(),"Don't support this file!",Toast.LENGTH_SHORT).show();
-//                JumptoFileActivity("Don't support this file!");
         }
 
     }

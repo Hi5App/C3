@@ -345,6 +345,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = VoiceChatViewActivity.class.getSimpleName();
 
     private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
+    private static final int Toast_Info_static = 5;
 
     //    private int Paintmode = 0;
     private ArrayList<Float> lineDrawed = new ArrayList<Float>();
@@ -374,7 +375,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private static String[] push_info = new String[2];
+    private static String[] push_info = {"New", "New"};
 
     private BasePopupView drawPopupView;
 
@@ -470,6 +471,11 @@ public class MainActivity extends AppCompatActivity {
                     String result = s.split("_")[1];
 
                     setFilename(result);
+                    break;
+
+                case 5:
+                    String Toast_msg = msg.getData().getString("Toast_msg");
+                    Toast.makeText(getContext(),Toast_msg, Toast.LENGTH_SHORT).show();
                     break;
 
             }
@@ -1283,8 +1289,9 @@ public class MainActivity extends AppCompatActivity {
      */
     public void Share_icon(){
 
+        // delete upload and download:    , "Upload SWC", "Download SWC"
         new XPopup.Builder(this)
-                .asCenterList("Share & Cloud server", new String[]{"Screenshot share", "Upload SWC", "Download SWC"},
+                .asCenterList("Share & Cloud server", new String[]{"Screenshot share"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -1295,12 +1302,10 @@ public class MainActivity extends AppCompatActivity {
 
                                     case "Upload SWC":
                                         UploadSWC();
-//                                        PushSWC_Block();
                                         break;
 
                                     case "Download SWC":
                                         DownloadSWC();
-//                                        PullSWC_Block();
                                         break;
 
                                     default:
@@ -1543,30 +1548,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (resultCode == RESULT_OK) {
-            String fodlerPath = data.getDataString();
+            String folderPath = data.getDataString();
             Uri uri = data.getData();
-//            Uri uri_old = data.getData();
 
             String filePath = uri.toString();
-//            String filePath= getpath(this, uri);
 
             String filePath_getPath = uri.getPath();
-
-//            String filePath = uri.getPath().substring(14);
-//            String filePath = Uri2PathUtil.getRealPathFromUri(getApplicationContext(), uri);
-//            String filePath = FilePath.substring(14);
-//            String filePath = "/storage/emulated/0/Download/image.v3draw";
-
 
             Log.v("MainActivity", filePath);
             Log.v("uri.getPath()", filePath_getPath);
             Log.v("Uri_Scheme:", uri.getScheme());
-
-//            Log.v("Uri_Scheme:", DocumentsContract.getDocumentId(uri));
-
-//            Uri uri_old = data.getData();
-
-//            Toast.makeText(this, "Open" + filePath + "--successfully", Toast.LENGTH_SHORT).show();
 
             try {
                 Log.v("MainActivity", "onActivityResult");
@@ -1593,6 +1584,7 @@ public class MainActivity extends AppCompatActivity {
                                 break;
                             case ".SWC":
                             case ".ESWC":
+                                Log.v("onActivityResult", ".eswc");
                                 NeuronTree nt = NeuronTree.readSWC_file(uri);
                                 myrenderer.importNeuronTree(nt);
                                 break;
@@ -1685,11 +1677,7 @@ public class MainActivity extends AppCompatActivity {
 
                     FileManager fileManager = new FileManager();
                     String filename = fileManager.getFileName(uri);
-
-//                    SendSwc("223.3.33.234", this, is, length, filename);
-                    SendSwc("192.168.31.11", this, is, length, filename);
-//                    SendSwc("39.100.35.131", this, is, length, filename);
-
+                    SendSwc("39.100.35.131", this, is, length, filename);
                 }
 
                 if (ifLoadLocal) {
@@ -1736,23 +1724,7 @@ public class MainActivity extends AppCompatActivity {
 
                     setFilename(s);
 
-//                    filenametext.setText(filename);
-//                    ll_file.setVisibility(View.VISIBLE);
-//
-//                    lp_undo.setMargins(0, 240, 20, 0);
-//                    Undo_i.setLayoutParams(lp_undo);
-//
-//                    lp_up_i.setMargins(0, 360, 0, 0);
-//                    navigation_up.setLayoutParams(lp_up_i);
-//
-//                    lp_nacloc_i.setMargins(20, 400, 0, 0);
-//                    navigation_location.setLayoutParams(lp_nacloc_i);
-//
-//                    lp_sync_push.setMargins(0, 400, 20, 0);
-//                    sync_push.setLayoutParams(lp_sync_push);
-//
-//                    lp_sync_pull.setMargins(0, 490, 20, 0);
-//                    sync_pull.setLayoutParams(lp_sync_pull);
+
                 }
 
                 if (ifDownloadByHttp) {
@@ -1769,39 +1741,7 @@ public class MainActivity extends AppCompatActivity {
 //                    ifTakePhoto = false;
 ////                    return;
 //                }
-//
-//                ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
-//                SwcReader swcReader = new SwcReader();
-//
-//                swc = swcReader.read(uri);
-////                apo = apoReader.read(filePath);
-//
-//                myrenderer.importSwc(swc);
 
-//                ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
-//                ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
-//                AnoReader anoReader = new AnoReader();
-//
-//                anoReader.read(uri);
-//
-//                swc = anoReader.getSwc_result();
-//                apo = anoReader.getApo_result();
-////                apo = apoReader.read(filePath);
-//
-//                myrenderer.importSwc(swc);
-//                myrenderer.importApo(apo);
-
-
-//                File f = new File(filePath);
-//                FileInputStream fid = new FileInputStream(f);
-
-//                fid.write(message.getBytes());
-//                long fileSize = f.length();
-//            } catch (Exception e) {
-//                Toast.makeText(this, " Fail to load file  ", Toast.LENGTH_SHORT).show();
-//                Log.v("MainActivity", "111222");
-//                Log.v("Exception", e.toString());
-//            }
 
             } catch (OutOfMemoryError e) {
                 Toast.makeText(this, " Fail to load file  ", Toast.LENGTH_SHORT).show();
@@ -2164,95 +2104,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-//    private void PullSwc_block(String ip, Context context){
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-//                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-//
-//        Thread thread = new Thread() {
-//            @Override
-//            public void run() {
-//
-//                if (Looper.myLooper() == null) {
-//                    Looper.prepare();
-//                }
-//
-//                try {
-//                    remoteImg.ip = ip;
-//
-//                    Log.v("DownloadSwc: ", "Connect server");
-//
-//                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
-//                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
-//                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
-//
-//                    if (remoteImg.ImgSocket.isConnected()){
-//                        String content = remoteImg.ImgReader.readLine();
-//                        remoteImg.id = Integer.parseInt(content.split(":")[0]);
-//                        Log.v("ConnectServer", content);
-//
-//                    }
-//
-//                    Filesocket_receive filesocket_receive = new Filesocket_receive();
-//                    filesocket_receive.filesocket = new Socket(ip, 9002);
-//                    filesocket_receive.mReader = new BufferedReader(new InputStreamReader(filesocket_receive.filesocket.getInputStream(), "UTF-8"));
-//                    filesocket_receive.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_receive.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
-//                    filesocket_receive.IsDown = true;
-//                    filesocket_receive.path = context.getExternalFilesDir(null).toString() + "/Sync/BlockGet";
-//
-//                    if (remoteImg.ImgSocket.isConnected() && filesocket_receive.filesocket.isConnected()){
-//                        filesocket_receive.mPWriter.println(remoteImg.id + ":manage handle.");
-//                        filesocket_receive.mPWriter.flush();
-//                    }
-//
-//                    Log.v("PullSwc: ", "here we are 2");
-//
-//                    if (remoteImg.ImgSocket.isConnected()) {
-//                        remoteImg.isSocketSet = true;
-//                        Log.v("PullSwc: ", "Connect with Server successfully");
-//                        Toast.makeText(getContext(), "Connect with Server successfully", Toast.LENGTH_SHORT).show();
-//
-//                        String filename = getFilename(context);
-//                        String offset = getoffset(context, filename);
-//                        int[] index = BigImgReader.getIndex(offset);
-//                        System.out.println(filename);
-//
-//                        String SwcFileName = filename.split("RES")[0] + "__" +
-//                                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
-//
-//                        remoteImg.ImgPWriter.println(SwcFileName + ":GetBBSwc.");
-//                        remoteImg.ImgPWriter.flush();
-//
-//                        filesocket_receive.readFile("blockGet__" + SwcFileName + ".swc", context);
-//
-//                        filesocket_receive = null;
-//
-//                        NeuronTree nt = NeuronTree.readSWC_file(context.getExternalFilesDir(null).toString() + "/Sync/BlockGet/" +  "blockGet__" + SwcFileName + ".swc");
-//                        myrenderer.SetSwcLoaded();
-//                        myrenderer.importNeuronTree(nt);
-//                        myGLSurfaceView.requestRender();
-//                        uiHandler.sendEmptyMessage(1);
-//                        remoteImg.disconnectFromHost();
-//
-//                        Looper.loop();
-//
-//                    } else {
-//                        Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
-//                        remoteImg.disconnectFromHost();
-//                        Looper.loop();
-//                    }
-//
-//
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                    Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
-//                    remoteImg.disconnectFromHost();
-//                    Looper.loop();
-//                }
-//            }
-//        };
-//        thread.start();
-//    }
-
 
     private static void PullSwc_block(String ip, Context context){
 
@@ -2359,11 +2210,16 @@ public class MainActivity extends AppCompatActivity {
                     Toast_in_Thread("Something Wrong When Pull Swc File !");
                 }
 
-                NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
-                myrenderer.SetSwcLoaded();
-                myrenderer.importNeuronTree(nt);
-                myGLSurfaceView.requestRender();
-                uiHandler.sendEmptyMessage(1);
+                try {
+                    NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
+                    myrenderer.SetSwcLoaded();
+                    myrenderer.importNeuronTree(nt);
+                    myGLSurfaceView.requestRender();
+                    uiHandler.sendEmptyMessage(1);
+                }catch (Exception e){
+                    Toast_in_Thread("Some Wrong when open the Swc File, Try Again Please !");
+                }
+
             }
         });
 
@@ -2377,14 +2233,19 @@ public class MainActivity extends AppCompatActivity {
         String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
 
         if (SwcFilePath.equals("Error")){
-            Toast.makeText(context,"Something Wrong When Pull Swc File !",Toast.LENGTH_SHORT).show();
+            Toast_in_Thread_static("Something Wrong When Pull Swc File !");
             return;
         }
 
-        NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
-        myrenderer.SetSwcLoaded();
-        myrenderer.importNeuronTree(nt);
-        myGLSurfaceView.requestRender();
+        try {
+            NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
+            myrenderer.SetSwcLoaded();
+            myrenderer.importNeuronTree(nt);
+            myGLSurfaceView.requestRender();
+        }catch (Exception e){
+            Toast_in_Thread_static("Something Wrong when open Swc File !");
+        }
+
 
     }
 
@@ -2416,38 +2277,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * function for the FileManager button
-     *
-     * @param v the button: FileManager
-     */
-    private void FileManager(View v) {
-        new XPopup.Builder(this)
-                .atView(v)
-                .asAttachList(new String[]{ "Open Local file", "Open Remote file", "Load SWC file" ,"Camera"},
-                        new int[]{},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                switch (text) {
-                                    case "Load SWC file":
-                                        LoadSWC();
-                                        break;
-                                    case "Open Local file":
-                                        loadLocalFile();
-                                        break;
-                                    case "Open Remote file":
-                                        remote(v);
-                                        break;
-                                    case "Camera":
-                                        Camera();
-                                        break;
-                                }
-
-                            }
-                        })
-                .show();
-    }
 // 不保存完整图片，仅拍照
 //    private void Camera(){
 //        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -4243,10 +4072,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void DownloadSWC() {
 
-//        DownloadSwc("223.3.33.234", this);
         Log.v("DownloadSWC: ", "here we are");
-        DownloadSwc("192.168.31.11", this);
-//        DownloadSwc("39.100.35.131", this);
+        DownloadSwc("39.100.35.131", this);
     }
 
 
@@ -4351,10 +4178,12 @@ public class MainActivity extends AppCompatActivity {
 
     private static void PushSWC_Block_Auto(String swc_file_path, String SwcFileName){
 
+        if (swc_file_path.equals("Error"))
+            return;
 
         File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
         if (!SwcFile.exists()){
-            Toast.makeText(context,"Something Wrong When Upload SWC, Try Again Please !",Toast.LENGTH_SHORT).show();
+            Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
             return;
         }
         try {
@@ -4362,8 +4191,8 @@ public class MainActivity extends AppCompatActivity {
             InputStream is = new FileInputStream(SwcFile);
             long length = SwcFile.length();
 
-            if (length < 0 || length > Math.pow(2, 28)){
-                Toast.makeText(context,"Something Wrong When Upload SWC, Try Again Please !",Toast.LENGTH_SHORT).show();
+            if (length <= 0 || length > Math.pow(2, 28)){
+                Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
                 return;
             }
             remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
@@ -4879,7 +4708,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200804a 20:38 UTC+8 build",
+                                "Version: 20200805a 23:58 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4906,41 +4735,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void remote(View v){
-        context = v.getContext();
-        ifRemote = true;
 
-        if ( select_img ){
 
-            Select_img();
-//            select_img = false;
-        }else {
-
-            new XPopup.Builder(this)
-                    .atView(v)
-                    .asAttachList(new String[]{"Select File", "Select Block", "Download By Http"},
-                            new int[]{},
-                            new OnSelectListener() {
-                                @Override
-                                public void onSelect(int position, String text) {
-                                    switch (text) {
-                                        case "Select Block":
-                                            remoteImg.Selectblock(context, false);
-                                            break;
-
-                                        case "Select File":
-                                            Select_img();
-                                            break;
-
-                                        case "Download By Http":
-                                            downloadFile();
-                                            break;
-                                    }
-                                }
-                            })
-                    .show();
-        }
-    }
 
     public void Select_img(){
         Context context = this;
@@ -5149,6 +4945,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public static void Toast_in_Thread_static(String message){
+        Message msg = new Message();
+        msg.what = Toast_Info_static;
+        Bundle bundle = new Bundle();
+        bundle.putString("Toast_msg",message);
+        msg.setData(bundle);
+        puiHandler.sendMessage(msg);
+    }
 
     public void Block_switch(View v){
         context = v.getContext();
@@ -7207,67 +7011,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * Toast some information in child thread
-     * @param context the activity context
-     * @param text the information to show
-     */
-    public static void ShowToast(Context context, String text) {
-        Toast toast = null;
-
-        Looper myLooper = Looper.myLooper();
-        if (myLooper == null) {
-            Looper.prepare();
-            myLooper = Looper.myLooper();
-        }
-
-        if (toast == null) {
-            toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
-//            toast.setGravity(Gravity.CENTER, 0, 0);
-        }
-        toast.show();
-        Log.v("ShowToast","Finished toast");
-
-        Timer timer = new Timer();
-        Looper finalMyLooper = myLooper;
-        timer.schedule(new TimerTask() {
-            public void run() {
-
-                finalMyLooper.quit();
-
-            }
-
-        }, 1 * 1000); // 延时5秒
-
-        if ( myLooper != null) {
-            Log.v("ShowToast","Finished toast");
-
-            Looper.loop();
-            Log.v("ShowToast","Finished toast");
-
-        }
-
-        Log.v("ShowToast","Finished toast");
-
-//        @SuppressLint("HandlerLeak")
-//        Handler mHandler = new Handler(){
-//            @Override
-//            public void handleMessage(Message msg) {
-//                super.handleMessage(msg);
-//                //这里写你的Toast代码
-//                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
-//            }
-//        };
-//
-//        mHandler.sendEmptyMessage(0);
-    }
 
     public void File_icon(){
 
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("File Open&Save", new String[]{"Open LocalFile", "Open BigData", "Load SWCFile","Camera"},
+                .asCenterList("File Open & Save", new String[]{"Open LocalFile", "Open BigData", "Load SWCFile","Camera"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -7574,6 +7324,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
                 .asCenterList("BigData File",new String[]{"Select File", "Select Block", "Download by http"},
                         new OnSelectListener() {
+                            @RequiresApi(api = Build.VERSION_CODES.N)
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text) {
@@ -7596,6 +7347,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void Select_Block(){
 
         String source = getSelectSource(this);
@@ -7603,9 +7355,21 @@ public class MainActivity extends AppCompatActivity {
         switch (source){
             case "Remote Server":
                 String ip = "39.100.35.131";
-                remote_socket.DisConnectFromHost();
-                remote_socket.ConnectServer(ip);
-                remote_socket.SelectBlock();
+                if (DrawMode){
+                    remote_socket.DisConnectFromHost();
+                    remote_socket.ConnectServer(ip);
+                    remote_socket.SelectBlock();
+                }else {
+                    String arbor_num = getFilename_Remote_Check(context);
+                    if (!arbor_num.equals("--11--")){
+                        remote_socket.DisConnectFromHost();
+                        remote_socket.ConnectServer(ip);
+                        remote_socket.Send_Arbor_Number(arbor_num);
+                    }else {
+                        Toast_in_Thread("Select a Img First !");
+                    }
+
+                }
                 break;
             case "Local Server":
                 bigImgReader.PopUp(context);
@@ -7672,10 +7436,12 @@ public class MainActivity extends AppCompatActivity {
         setSelectSource("Remote Server",context);
         SetButtons();
 
-        PullSwc_block_Auto(DrawMode);
-        if (DrawMode){
+        if (DrawMode && !push_info[0].equals("New")){
+//        if (DrawMode){
             PushSWC_Block_Auto(push_info[0], push_info[1]);
         }
+
+        PullSwc_block_Auto(DrawMode);
 
     }
 

@@ -108,6 +108,10 @@ public class Remote_Socket extends Socket {
 
         Store_path = context.getExternalFilesDir(null).toString();
 
+        if (!getFilename_Remote(mContext).equals("--11--")){
+            BrainNumber_Selected = getFilename_Remote(mContext).split("/")[0];
+        }
+
     }
 
 
@@ -699,7 +703,12 @@ public class Remote_Socket extends Socket {
                                 Neuron_Number_Selected = text;
                                 System.out.println(Neuron_Number_Selected);
                                 if (Neuron_Info.get(Neuron_Number_Selected) != null){
-                                    Select_Pos(Transform(Neuron_Info.get(Neuron_Number_Selected)));
+
+                                    // Select soma without choose pos
+                                    Pos_Selected = Neuron_Info.get(Neuron_Number_Selected).get(0);
+                                    PopUp(false);
+
+//                                    Select_Pos(Transform(Neuron_Info.get(Neuron_Number_Selected)));
                                     setNeuronNumber_Remote(Neuron_Number_Selected, BrainNumber_Selected + "/" + RES_Selected, mContext);  //18454_00002
                                 }else {
                                     Toast_in_Thread("Information not Exist !");
