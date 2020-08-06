@@ -11,7 +11,9 @@ import android.os.Build;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -1123,17 +1125,35 @@ public class Remote_Socket extends Socket {
                     display = display + "Yes";
                 }
 
-                info = info + display + "\n";
+                info = info + display + "\n\n";
             }
 
-            new XPopup.Builder(mContext)
-                    .asConfirm("Check Result", info,
-                            new OnConfirmListener() {
-                                @Override
-                                public void onConfirm() {
-                                }
-                            })
-                    .show();
+
+            String finalInfo = info;
+            MDDialog mdDialog = new MDDialog.Builder(mContext)
+                    .setContentView(R.layout.check_result)
+                    .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                        @Override
+                        public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+                            //analysis_result next page
+                            TextView display_info = (TextView) contentView.findViewById(R.id.check_result);
+                           display_info.setText(finalInfo);
+                        }
+                    })
+                    .setTitle("Check Result")
+                    .create();
+            mdDialog.show();
+            mdDialog.getWindow().setLayout(1000, 1500);
+
+
+//            new XPopup.Builder(mContext)
+//                    .asConfirm("Check Result", info,
+//                            new OnConfirmListener() {
+//                                @Override
+//                                public void onConfirm() {
+//                                }
+//                            })
+//                    .show();
 
         } catch (IOException e) {
             e.printStackTrace();
