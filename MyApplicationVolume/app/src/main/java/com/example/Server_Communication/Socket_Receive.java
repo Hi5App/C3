@@ -72,9 +72,11 @@ public class Socket_Receive {
 
                     String Msg_String = new String(Msg_String_byte, StandardCharsets.UTF_8);
                     String Msg_SubString = Msg_String.substring(4);
-                    Log.v("Get_Msg: Data_size", Long.toString(bytesToLong(Data_size)));
-                    Log.v("Get_Msg: Message_size", Long.toString(bytesToLong(Message_size)));
-                    Log.v("Get_Msg", Msg_SubString);
+
+
+//                    Log.v("Get_Msg: Data_size", Long.toString(bytesToLong(Data_size)));
+//                    Log.v("Get_Msg: Message_size", Long.toString(bytesToLong(Message_size)));
+//                    Log.v("Get_Msg", Msg_SubString);
 
 
                     Msg[0] = Msg_SubString;
@@ -143,10 +145,11 @@ public class Socket_Receive {
                         FileName_SubString = FileName_String.substring(4, FileName_String.length() - 4);
                     }
 
+
                     Log.v("Get_Msg: Data_size", Long.toString(bytesToLong(Data_size)));
                     Log.v("Get_Msg: FileName_size", Long.toString(bytesToLong(FileName_size)));
-                    Log.v("Get_Msg", FileName_String);
-                    Log.v("Get_Msg", FileName_SubString);
+//                    Log.v("Get_Msg", FileName_String);
+//                    Log.v("Get_Msg", FileName_SubString);
 
 
 //                    for (byte a : FileName_String_byte){
@@ -311,8 +314,8 @@ public class Socket_Receive {
 
                     Log.v("Get_Block: Data", Long.toString(bytesToLong(Data_size)));
                     Log.v("Get_Block: FileName", Long.toString(bytesToLong(FileName_size)));
-                    Log.v("Get_Block", FileName_String);
-                    Log.v("Get_Block", FileName_SubString);
+//                    Log.v("Get_Block", FileName_String);
+//                    Log.v("Get_Block", FileName_SubString);
 
                     byte[] FileContent_byte = new byte[4];
                     in.read(FileContent_byte, 0, 4);

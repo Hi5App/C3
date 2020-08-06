@@ -119,7 +119,7 @@ public class Remote_Socket extends Socket {
 
     public void ConnectServer(String ip_server){
 
-        Log.v("ConnectServer","Start to Connect Server !");
+//        Log.v("ConnectServer","Start to Connect Server !");
 
         if (ManageSocket != null && !ManageSocket.isClosed() && ManageSocket.isConnected()){
             return;
@@ -139,7 +139,7 @@ public class Remote_Socket extends Socket {
                     if (ManageSocket.isConnected()) {
 
                         isSocketSet = true;
-                        Toast_in_Thread("Connect Server Successfully !");
+//                        Toast_in_Thread("Connect Server Successfully !");
                         Log.v("ConnectServer", "Connect Server Successfully !");
 
                     } else {
@@ -147,21 +147,6 @@ public class Remote_Socket extends Socket {
                     }
 
 
-//                    /*
-//                     Read the feedback when connect successfully
-//                     */
-//                    if (ManageSocket.isConnected()) {
-//                        if (!ManageSocket.isInputShutdown()) {
-//                            String content = "";
-//                            Log.d("-- ConnectServer --:", "Start to Read Line");
-//
-//                            if ((content = ImgReader.readLine()) != null) {
-//                                Log.v("-- ConnectServer --:", content);
-////                                onReadyRead(content, context);
-//
-//                            }
-//                        }
-//                    }
                 } catch (IOException e) {
                     Toast_in_Thread("Something Wrong When Connect Server");
                     e.printStackTrace();
@@ -177,8 +162,6 @@ public class Remote_Socket extends Socket {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        Log.v("ConnectServer", "thread.join() Successfully !");
 
     }
 

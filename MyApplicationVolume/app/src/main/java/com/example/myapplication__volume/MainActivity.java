@@ -7526,11 +7526,11 @@ public class MainActivity extends AppCompatActivity {
         setSelectSource("Remote Server",context);
         SetButtons();
 
+        PullSwc_block_Auto(DrawMode);
+
         if (DrawMode && !push_info[0].equals("New")){
             PushSWC_Block_Auto(push_info[0], push_info[1]);
         }
-
-        PullSwc_block_Auto(DrawMode);
 
     }
 
