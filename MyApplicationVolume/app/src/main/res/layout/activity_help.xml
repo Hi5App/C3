@@ -133,7 +133,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="第一个界面中select file进入第二个界面选择图像服务器或本地，选择后第三个界面中显示文件列表，选择文件后第四个界面选择分辨率，第五个界面选择神经元编号，第六个界面选择神经元中的标记点位置，第七个界面中可以调整偏移量值，默认为选择的标记点位置；第一个界面中select block从当前选择的文件中通过设置偏移量得到目标block；第三个download by http通过http地址下载目标图像"
+                    android:text="第一个界面中select file进入第二个界面选择图像服务器或本地，选择后第三个界面中显示文件列表，选择文件后第四个界面选择分辨率，第五个界面选择神经元编号，第六个界面选择神经元中的标记点位置，第七个界面中可以调整偏移量值，默认为选择的标记点位置；第一个界面中select block可以直接打开上一次选择的文件，并且加载上一次选择的偏移量信息，便捷地继续上一次的文件浏览；第三个download by http通过http地址下载目标图像"
                     android:textStyle="normal"
                     android:layout_marginTop="10dp"
                     android:layout_marginLeft="20dp"
@@ -150,7 +150,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="类似terafly，可以打开服务上的文件或者本地的文件；打开后界面上出现的上下左右箭头按钮和左下角F, B按钮用于上下左右前后移动block，右上角云上箭头和下箭头分别代表上传下载swc标注信息，放大缩小按钮移到右下角"
+                    android:text="类似terafly，可以打开服务上的文件或者本地的文件；打开后界面上出现的上下左右箭头按钮和左下角F, B按钮用于上下左右前后移动block，右上角云上箭头和下箭头分别代表上传下载swc标注信息，放大缩小按钮移到右下角，左上角的定位按钮可以显示当前block相较于整个brain的位置，红色的小点表示block的位置（在check mode下则显示block相较于arbor的位置）"
                     android:textStyle="normal"
                     android:layout_marginTop="10dp"
                     android:layout_marginLeft="20dp"
@@ -225,56 +225,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="截图分享"
-                    android:textStyle="normal"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="子功能--upload SWC"
-                    android:textStyle="bold"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginLeft="10dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="功能说明"
-                    android:textStyle="bold"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginLeft="20dp"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="上传swc文件到服务器"
-                    android:textStyle="normal"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="子功能--Download SWC"
-                    android:textStyle="bold"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginLeft="10dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="功能说明"
-                    android:textStyle="bold"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginLeft="20dp"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="下载服务器上的swc文件"
                     android:textStyle="normal"
                     android:layout_marginTop="10dp"
                     android:layout_marginLeft="20dp"
@@ -1133,11 +1083,11 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="需要画一条贴合信号的线后按下该按钮，根据画的线灰度值强度得到一个范围来对图像进行一个滤波"
-                    android:textStyle="normal"
-                    android:layout_marginTop="10dp"
                     android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"/>
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="20dp"
+                    android:text="需要在信号处和背景处分别用不同的颜色画两条线，运行程序会将图像中所有的信号处和背景处分离"
+                    android:textStyle="normal" />
 
                 <TextView
                     android:layout_width="wrap_content"

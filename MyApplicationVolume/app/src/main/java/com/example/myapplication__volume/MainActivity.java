@@ -249,7 +249,6 @@ public class MainActivity extends AppCompatActivity {
     private Button Draw;
     private Button Tracing;
     private Button Others;
-    private Button FileManager;
     private static Button Zoom_in;
     private static Button Zoom_out;
     private static Button Check_Yes;
@@ -1684,6 +1683,7 @@ public class MainActivity extends AppCompatActivity {
                     SendSwc("39.100.35.131", this, is, length, filename);
                 }
 
+
                 if (ifLoadLocal) {
                     myrenderer.SetPath(filePath);
                     System.out.println(filePath);
@@ -1725,8 +1725,9 @@ public class MainActivity extends AppCompatActivity {
                     String [] temp = filePath.split("/");
                     String [] temp2 = temp[temp.length - 1].split("%2F");
                     String s = temp2[temp2.length - 1];
+                    String filename = FileManager.getFileName(uri);
 
-                    setFilename(s);
+                    setFilename(filename);
 
 
                 }
@@ -4712,7 +4713,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200806a 10:58 UTC+8 build",
+                                "Version: 20200806b 16:28 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -7526,7 +7527,6 @@ public class MainActivity extends AppCompatActivity {
         SetButtons();
 
         if (DrawMode && !push_info[0].equals("New")){
-//        if (DrawMode){
             PushSWC_Block_Auto(push_info[0], push_info[1]);
         }
 
@@ -7578,6 +7578,7 @@ public class MainActivity extends AppCompatActivity {
         animation_i.setVisibility(View.GONE);
         Rotation_i.setVisibility(View.GONE);
         Hide_i.setVisibility(View.GONE);
+        Undo_i.setVisibility(View.GONE);
 
         if (isBigData_Remote || isBigData_Local){
             navigation_back.setVisibility(View.GONE);
@@ -7592,8 +7593,13 @@ public class MainActivity extends AppCompatActivity {
             Zoom_out_Big.setVisibility(View.GONE);
 
             if (isBigData_Remote) {
-                sync_pull.setVisibility(View.GONE);
-                sync_push.setVisibility(View.GONE);
+                if (!DrawMode){
+                    Check_No.setVisibility(View.GONE);
+                    Check_Yes.setVisibility(View.GONE);
+                }else {
+                    sync_push.setVisibility(View.GONE);
+                }
+                    sync_pull.setVisibility(View.GONE);
             }
         }else {
             Zoom_in.setVisibility(View.GONE);
@@ -7615,6 +7621,7 @@ public class MainActivity extends AppCompatActivity {
         animation_i.setVisibility(View.VISIBLE);
         Rotation_i.setVisibility(View.VISIBLE);
         Hide_i.setVisibility(View.VISIBLE);
+        Undo_i.setVisibility(View.VISIBLE);
 
         if (isBigData_Remote || isBigData_Local){
             navigation_back.setVisibility(View.VISIBLE);
@@ -7629,9 +7636,15 @@ public class MainActivity extends AppCompatActivity {
             Zoom_out_Big.setVisibility(View.VISIBLE);
 
             if (isBigData_Remote) {
+                if (!DrawMode){
+                    Check_No.setVisibility(View.VISIBLE);
+                    Check_Yes.setVisibility(View.VISIBLE);
+                }else {
+                    sync_push.setVisibility(View.VISIBLE);
+                }
                 sync_pull.setVisibility(View.VISIBLE);
-                sync_push.setVisibility(View.VISIBLE);
             }
+
         }else {
             Zoom_in.setVisibility(View.VISIBLE);
             Zoom_out.setVisibility(View.VISIBLE);

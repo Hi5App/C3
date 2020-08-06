@@ -1996,11 +1996,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         String swc_path = anoReader.getSwc_Path();
         String apo_path = anoReader.getApo_Path();
 
-        NeuronTree nt2 = NeuronTree.readSWC_file(swc_path);
-        ano_apo = apoReader_1.read(apo_path);
-        importNeuronTree(nt2);
-        importApo(ano_apo);
+        Log.v("setANO","swc_path: " + swc_path);
+        Log.v("setANO","apo_path: " + apo_path);
 
+        try{
+
+            NeuronTree nt2 = NeuronTree.readSWC_file(swc_path);
+            ano_apo = apoReader_1.read(apo_path);
+            importNeuronTree(nt2);
+            importApo(ano_apo);
+
+        }catch (Exception e){
+            Toast.makeText(getContext(),"Fail to open File !",Toast.LENGTH_SHORT).show();
+        }
 
         sz[0] = 0;
         sz[1] = 0;
