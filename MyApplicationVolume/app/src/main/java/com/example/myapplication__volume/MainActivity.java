@@ -60,6 +60,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -602,6 +603,14 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout ll_up = new LinearLayout(this);
         ll_up.setOrientation(LinearLayout.VERTICAL);
 
+        LinearLayout ll_hs_back = new LinearLayout(this);
+        ll_hs_back.setOrientation(LinearLayout.HORIZONTAL);
+        ll_hs_back.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+
+        LinearLayout ll_space = new LinearLayout(this);
+        ll_space.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT, 1.0f));
+
+
         ll_file = new LinearLayout(this);
         FrameLayout.LayoutParams lp_filename = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         ll_file.setLayoutParams(lp_filename);
@@ -621,7 +630,11 @@ public class MainActivity extends AppCompatActivity {
         HorizontalScrollView hs_top = new HorizontalScrollView(this);
 
         ll_up.addView(ll_file);
-        ll_up.addView(hs_top, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        ll_hs_back.addView(hs_top, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        ll_hs_back.addView(ll_space);
+
+        ll_up.addView(ll_hs_back);
 
         ll.addView(ll_up);
 
@@ -934,14 +947,14 @@ public class MainActivity extends AppCompatActivity {
 
         lp_undo = new FrameLayout.LayoutParams(120, 120);
 
-        lp_undo.gravity = Gravity.RIGHT | Gravity.TOP;
-        lp_undo.setMargins(0, 190, 20, 0);
+//        lp_undo.gravity = Gravity.RIGHT | Gravity.TOP;
+        lp_undo.setMargins(0, 20, 20, 0);
 
         Undo_i = new ImageButton(this);
         Undo_i.setImageResource(R.drawable.ic_undo);
         Undo_i.setBackgroundResource(R.drawable.circle_normal);
-
-        this.addContentView(Undo_i, lp_undo);
+        ll_hs_back.addView(Undo_i, lp_undo);
+//        this.addContentView(Undo_i, lp_undo);
 
         Undo_i.setOnClickListener(new Button.OnClickListener(){
             public void onClick(View v){
@@ -4722,7 +4735,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200807c 20:51 UTC+8 build",
+                                "Version: 20200807d 22:03 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -7787,8 +7800,8 @@ public class MainActivity extends AppCompatActivity {
         filenametext.setText(filename);
         ll_file.setVisibility(View.VISIBLE);
 
-        lp_undo.setMargins(0, 240, 20, 0);
-        Undo_i.setLayoutParams(lp_undo);
+//        lp_undo.setMargins(0, 240, 20, 0);
+//        Undo_i.setLayoutParams(lp_undo);
 
         lp_up_i.setMargins(0, 360, 0, 0);
         navigation_up.setLayoutParams(lp_up_i);
