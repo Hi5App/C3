@@ -464,10 +464,16 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
                 case 4:
-                    String [] temp = file_path_temp.split("/");
-                    String [] temp2 = temp[temp.length - 1].split("%2F");
-                    String s = temp2[temp2.length - 1];
-                    String result = s.split("_")[1];
+                    File file = new File(file_path_temp);
+                    String name = file.getName();
+                    Log.v("Handler",name);
+
+                    String result = null;
+                    if (DrawMode){
+                        result = name.split("_")[1].substring(0,name.split("_")[1].length()-3);
+                    }else {
+                        result = name.split("__")[0];
+                    }
 
                     setFilename(result);
                     break;
@@ -4713,7 +4719,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200806b 16:28 UTC+8 build",
+                                "Version: 20200807a 10:28 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
