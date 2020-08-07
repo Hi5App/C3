@@ -1691,6 +1691,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                 if (ifLoadLocal) {
+                    System.out.println("load local");
                     myrenderer.SetPath(filePath);
                     System.out.println(filePath);
 
@@ -4099,6 +4100,7 @@ public class MainActivity extends AppCompatActivity {
             ifImport = true;
             ifAnalyze = false;
             ifUpload = false;
+            ifLoadLocal = false;
         }
 
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -4719,7 +4721,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200807a 10:28 UTC+8 build",
+                                "Version: 20200807b 14:51 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
