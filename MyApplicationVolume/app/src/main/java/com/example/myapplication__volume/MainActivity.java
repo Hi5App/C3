@@ -1136,12 +1136,10 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
 //                Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)
 ////                        .setAction("Action", null).show();
 
                 fab.setVisibility(View.GONE);
-
                 leaveChannel();
                 RtcEngine.destroy();
                 mRtcEngine = null;
@@ -1365,7 +1363,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", "Animate", "Settings", "About", "Help"},
+                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", "VoiceChat - 1 to 1", "Animate", "Settings", "About", "Help"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -1386,7 +1384,10 @@ public class MainActivity extends AppCompatActivity {
                                         }else {
                                             Toast.makeText(context,"Please Load a Img First !!!", Toast.LENGTH_SHORT).show();
                                         }
+                                        break;
 
+                                    case "VoiceChat - 1 to 1":
+                                        PopUp_Chat(MainActivity.this);
                                         break;
 
                                     case "Sensor Information":
@@ -4721,7 +4722,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200807b 14:51 UTC+8 build",
+                                "Version: 20200807c 20:51 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -7291,6 +7292,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void PopUp_Chat(Context context){
+
         new MDDialog.Builder(context)
 //              .setContentView(customizedView)
                 .setContentView(R.layout.chat_connect)
