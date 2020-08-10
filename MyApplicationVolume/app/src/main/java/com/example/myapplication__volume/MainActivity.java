@@ -3681,7 +3681,7 @@ public class MainActivity extends AppCompatActivity {
                                                         p.xc1 = (int) p.p4dImage.getSz0() - 1;
                                                         p.yc1 = (int) p.p4dImage.getSz1() - 1;
                                                         p.zc1 = (int) p.p4dImage.getSz2() - 1;
-                                                        ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
+                                                        ArrayList<ImageMarker> markers = myrenderer.getMarkerList().getMarkers();
                                                         p.landmarks = new LocationSimple[markers.size()];
                                                         p.bkg_thresh = -1;
                                                         for (int i = 0; i < markers.size(); i++) {
@@ -3926,7 +3926,7 @@ public class MainActivity extends AppCompatActivity {
                                                         Looper.loop();
                                                     }
                                                     ArrayList<ImageMarker> tips = d.detectTips(img,nt);
-                                                    myrenderer.getMarkerList().addAll(tips);
+                                                    myrenderer.getMarkerList().getMarkers().addAll(tips);
                                                     myGLSurfaceView.requestRender();
                                                     progressBar.setVisibility(View.INVISIBLE);
                                                 } catch (Exception e) {
@@ -4735,7 +4735,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200807d 22:03 UTC+8 build",
+                                "Version: 20200810 21:43 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5361,7 +5361,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         myrenderer.saveUndo();
-        ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
+        ArrayList<ImageMarker> markers = myrenderer.getMarkerList().getMarkers();
         try {
             ParaAPP2 p = new ParaAPP2();
             p.p4dImage = img;
@@ -5436,7 +5436,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         myrenderer.saveUndo();
-        ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
+        ArrayList<ImageMarker> markers = myrenderer.getMarkerList().getMarkers();
         if (markers.size() <= 1) {
             Log.v("GDTracing", "Please generate at least two markers!");
             if (Looper.myLooper() == null) {
@@ -6540,7 +6540,7 @@ public class MainActivity extends AppCompatActivity {
 
             //preparations for show
             myrenderer.ResetImg(p.outImage);
-            myrenderer.getMarkerList().addAll(p.markers);//blue marker
+            myrenderer.getMarkerList().getMarkers().addAll(p.markers);//blue marker
             myrenderer.getMarkerList().add(p.MaxMarker);//red marker
             myGLSurfaceView.requestRender();
             if (Looper.myLooper() == null) {
@@ -7010,13 +7010,14 @@ public class MainActivity extends AppCompatActivity {
                                                 } else {
                                                     myrenderer.addBackgroundLineDrawed(lineDrawed);
                                                 }
+                                                requestRender();
                                                 return "succeed";
                                             }
                                         };
                                         ExecutorService exeService = Executors.newSingleThreadExecutor();
                                         Future<String> future = exeService.submit(task);
                                         try {
-                                            String result = future.get(2000, TimeUnit.MILLISECONDS);
+                                            String result = future.get(1500, TimeUnit.MILLISECONDS);
                                             System.err.println("Result:" + result);
                                         } catch (Exception e) {
                                             e.printStackTrace();

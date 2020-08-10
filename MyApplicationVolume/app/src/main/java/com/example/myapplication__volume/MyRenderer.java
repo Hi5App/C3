@@ -28,6 +28,7 @@ import com.example.basic.FileManager;
 import com.example.basic.Image4DSimple;
 import com.example.basic.ImageMarker;
 import com.example.basic.ImageUtil;
+import com.example.basic.MarkerList;
 import com.example.basic.MyAnimation;
 import com.example.basic.NeuronTree;
 import com.example.basic.XYZ;
@@ -94,7 +95,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private Vector<ImageMarker> undoDeleteMarkerList = new Vector<>();
     private Vector<Vector<Integer>> undoChangeLineTypeIndex = new Vector<>();
     private Vector<Vector<Integer>> undoLineType = new Vector<>();
-    private ArrayList<ArrayList<ImageMarker>> undoMarkerList = new ArrayList<>();
+    private ArrayList<MarkerList> undoMarkerList = new ArrayList<>();
+//    private ArrayList<ArrayList<ImageMarker>> undoMarkerList = new ArrayList<>();
     private ArrayList<V_NeuronSWC_list> undoCurveList = new ArrayList<>();
 
     public static final String OUTOFMEM_MESSAGE = "OutOfMemory";
@@ -175,7 +177,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private ArrayList<Float> swcDrawed = new ArrayList<Float>();
 
-    private ArrayList<ImageMarker> MarkerList = new ArrayList<ImageMarker>();
+//    private ArrayList<ImageMarker> MarkerList = new ArrayList<ImageMarker>();
+    private MarkerList markerList = new MarkerList();
+
     private ArrayList<ImageMarker> MarkerList_loaded = new ArrayList<ImageMarker>();
 
     private V_NeuronSWC_list newSwcList = new V_NeuronSWC_list();
@@ -577,13 +581,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        }
 
                 //现画的marker
-                if (MarkerList.size() > 0) {
+                if (markerList.size() > 0) {
                     float radius = 0.02f;
                     if (fileType == FileType.JPG || fileType == FileType.PNG)
                         radius = 0.01f;
-                    for (int i = 0; i < MarkerList.size(); i++) {
+                    for (int i = 0; i < markerList.size(); i++) {
 //                System.out.println("start draw marker---------------------");
-                        ImageMarker imageMarker = MarkerList.get(i);
+                        ImageMarker imageMarker = markerList.get(i);
                         float[] markerModel = VolumetoModel(new float[]{imageMarker.x, imageMarker.y, imageMarker.z});
                         if (imageMarker.radius == 5) {
                             myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, 0.01f);
@@ -835,7 +839,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         cur_scale = 1.0f;
 
         curSwcList.clear();
-        MarkerList.clear();
+        markerList.clear();
         MarkerList_loaded.clear();
 
         if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD){
@@ -915,7 +919,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         cur_scale = 1.0f;
 
         curSwcList.clear();
-        MarkerList.clear();
+        markerList.clear();
 
         if (fileType == FileType.SWC){
             bitmap2D = null;
@@ -953,7 +957,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         cur_scale = 1.0f;
 
         curSwcList.clear();
-        MarkerList.clear();
+        markerList.clear();
 
         SetImage_Bigdata(index);
 //        setImage();
@@ -1330,7 +1334,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             imageMarker_drawed.type = lastMarkerType;
             System.out.println("set type to 3");
 
-            ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+            MarkerList tempMarkerList = markerList.clone();
             V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
             if (curUndo < UNDO_LIMIT){
@@ -1344,7 +1348,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 undoCurveList.add(tempCurveList);
             }
 
-            MarkerList.add(imageMarker_drawed);
+            markerList.add(imageMarker_drawed);
 
 //            if (process.size() < UNDO_LIMIT){
 //                process.add(Operate.DRAWMARKER);
@@ -1362,8 +1366,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public void deleteMultiMarkerByStroke(ArrayList<Float> line) throws CloneNotSupportedException {
 //        ArrayList<Integer> toBeDeleted = new ArrayList<>();
         boolean already = false;
-        for (int i = MarkerList.size() - 1; i >= 0; i--){
-            ImageMarker tobeDeleted = MarkerList.get(i);
+        for (int i = markerList.size() - 1; i >= 0; i--){
+            ImageMarker tobeDeleted = markerList.get(i);
             float[] markerModel = VolumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
             float [] position = new float[4];
             position[0] = markerModel[0];
@@ -1378,7 +1382,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             if (pnpoly(line, positionVolumne[0], positionVolumne[1])){
 
                 if (!already){
-                    ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+                    MarkerList tempMarkerList = markerList.clone();
                     V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
                     if (curUndo < UNDO_LIMIT){
@@ -1394,7 +1398,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     already = true;
                 }
 
-                MarkerList.remove(tobeDeleted);
+                markerList.remove(tobeDeleted);
             }
         }
     }
@@ -1499,7 +1503,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
             }
 
-            ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+            MarkerList tempMarkerList = markerList.clone();
             V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
             if (curUndo < UNDO_LIMIT){
@@ -1609,7 +1613,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             imageMarker_drawed.type = lastMarkerType;
             System.out.println("set type to 3");
 
-            ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+            MarkerList tempMarkerList = markerList.clone();
             V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
             if (curUndo < UNDO_LIMIT){
@@ -1623,7 +1627,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 undoCurveList.add(tempCurveList);
             }
 
-            MarkerList.add(imageMarker_drawed);
+            markerList.add(imageMarker_drawed);
 
 //            if (process.size() < UNDO_LIMIT){
 //                process.add(Operate.DRAWMARKER);
@@ -1655,8 +1659,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     // delete the marker drawed from the markerlist
     public void deleteMarkerDrawed(float x, float y) throws CloneNotSupportedException {
-        for (int i = 0; i < MarkerList.size(); i++){
-            ImageMarker tobeDeleted = MarkerList.get(i);
+        for (int i = 0; i < markerList.size(); i++){
+            ImageMarker tobeDeleted = markerList.get(i);
             float[] markerModel = VolumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
             float [] position = new float[4];
             position[0] = markerModel[0];
@@ -1672,9 +1676,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float dy = Math.abs(positionVolumne[1] - y);
 
             if (dx < 0.08 && dy < 0.08){
-                ImageMarker temp = MarkerList.get(i);
+                ImageMarker temp = markerList.get(i);
 
-                ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+                MarkerList tempMarkerList = markerList.clone();
                 V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
                 if (curUndo < UNDO_LIMIT){
@@ -1688,7 +1692,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     undoCurveList.add(tempCurveList);
                 }
 
-                MarkerList.remove(i);
+                markerList.remove(i);
 //                if (process.size() < UNDO_LIMIT){
 //                    process.add(Operate.DELETEMARKER);
 //                    undoDeleteMarkerList.add(temp);
@@ -1705,8 +1709,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public void changeMarkerType(float x, float y) throws CloneNotSupportedException {
-        for (int i = 0; i < MarkerList.size(); i++){
-            ImageMarker tobeDeleted = MarkerList.get(i);
+        for (int i = 0; i < markerList.size(); i++){
+            ImageMarker tobeDeleted = markerList.get(i);
             float[] markerModel = VolumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
             float [] position = new float[4];
             position[0] = markerModel[0];
@@ -1723,7 +1727,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             if (dx < 0.08 && dy < 0.08){
 
-                ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+                MarkerList tempMarkerList = markerList.clone();
                 V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
                 if (curUndo < UNDO_LIMIT){
@@ -1737,7 +1741,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     undoCurveList.add(tempCurveList);
                 }
 
-                ImageMarker temp = MarkerList.get(i);
+                ImageMarker temp = markerList.get(i);
                 temp.type = lastMarkerType;
 
                 break;
@@ -1747,7 +1751,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public void changeAllMarkerType() throws CloneNotSupportedException {
 
-        ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+        MarkerList tempMarkerList = markerList.clone();
         V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
         if (curUndo < UNDO_LIMIT){
@@ -1761,8 +1765,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             undoCurveList.add(tempCurveList);
         }
 
-        for (int i = 0; i < MarkerList.size(); i++){
-            MarkerList.get(i).type = lastMarkerType;
+        for (int i = 0; i < markerList.size(); i++){
+            markerList.get(i).type = lastMarkerType;
         }
     }
 
@@ -1954,14 +1958,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         Uri uri = Uri.parse(filepath);
         apo = apoReader.read(uri);
-        importApo(apo);
+        ArrayList<ImageMarker> markerListLoaded = importApo(apo);
 
         sz[0] = 0;
         sz[1] = 0;
         sz[2] = 0;
 
-        for(int i=0; i<MarkerList_loaded.size(); i++){
-            ImageMarker marker = MarkerList_loaded.get(i);
+        for(int i=0; i<markerListLoaded.size(); i++){
+            ImageMarker marker = markerListLoaded.get(i);
             if (marker.x > sz[0])
                 sz[0] = (int) marker.x;
             if (marker.y > sz[1])
@@ -1990,6 +1994,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         AnoReader anoReader = new AnoReader();
         ApoReader apoReader_1 = new ApoReader();
 
+        ArrayList<ImageMarker> markerListLoaded = new ArrayList<>();
+
         Uri uri = Uri.parse(filepath);
         anoReader.read(uri);
 
@@ -2004,7 +2010,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             NeuronTree nt2 = NeuronTree.readSWC_file(swc_path);
             ano_apo = apoReader_1.read(apo_path);
             importNeuronTree(nt2);
-            importApo(ano_apo);
+            markerListLoaded = importApo(ano_apo);
 
         }catch (Exception e){
             Toast.makeText(getContext(),"Fail to open File !",Toast.LENGTH_SHORT).show();
@@ -2014,8 +2020,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         sz[1] = 0;
         sz[2] = 0;
 
-        for(int i=0; i<MarkerList_loaded.size(); i++){
-            ImageMarker marker = MarkerList_loaded.get(i);
+        for(int i=0; i<markerListLoaded.size(); i++){
+            ImageMarker marker = markerListLoaded.get(i);
             if (marker.x > sz[0])
                 sz[0] = (int) marker.x;
             if (marker.y > sz[1])
@@ -3033,7 +3039,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
             }
 
-            ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+            MarkerList tempMarkerList = markerList.clone();
             V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
             if (curUndo < UNDO_LIMIT){
@@ -3065,7 +3071,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public synchronized void addLineDrawed2(ArrayList<Float> line, V_NeuronSWC_list [] v_neuronSWC_lists) throws CloneNotSupportedException {
+    public void addLineDrawed2(ArrayList<Float> line, V_NeuronSWC_list [] v_neuronSWC_lists) throws CloneNotSupportedException {
         if (img.getData() == null){
             return;
         }
@@ -3157,7 +3163,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
             }
 
-            ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+            MarkerList tempMarkerList = markerList.clone();
             V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
             if (curUndo < UNDO_LIMIT){
@@ -3393,7 +3399,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
             }
 
-            ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+            MarkerList tempMarkerList = markerList.clone();
             V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
             if (curUndo < UNDO_LIMIT){
@@ -3504,7 +3510,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
             }
 
-            ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+            MarkerList tempMarkerList = markerList.clone();
             V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
             if (curUndo < UNDO_LIMIT){
@@ -3667,7 +3673,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             toBeDeleted.add(curSwcList.seg.get(index));
         }
 
-        ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+        MarkerList tempMarkerList = markerList.clone();
         V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
         if (curUndo < UNDO_LIMIT){
@@ -3814,7 +3820,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                             }
                         }
 
-                        ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+                        MarkerList tempMarkerList = markerList.clone();
                         V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
                         if (curUndo < UNDO_LIMIT){
@@ -3960,7 +3966,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+        MarkerList tempMarkerList = markerList.clone();
         V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
         if (curUndo < UNDO_LIMIT){
@@ -4002,7 +4008,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public void changeAllType() throws CloneNotSupportedException {
         System.out.println("changeAllType--------------------------");
 
-        ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+        MarkerList tempMarkerList = markerList.clone();
         V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
         if (curUndo < UNDO_LIMIT){
@@ -4104,7 +4110,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
-    public void importApo(ArrayList<ArrayList<Float>> apo){
+    public ArrayList<ImageMarker> importApo(ArrayList<ArrayList<Float>> apo){
+
+        ArrayList<ImageMarker> markerListLoaded = new ArrayList<>();
+
         try{
             for (int i = 0; i < apo.size(); i++){
                 ArrayList<Float> currentLine = apo.get(i);
@@ -4145,15 +4154,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
 
                 System.out.println("ImageType: " + imageMarker_drawed.type);
-                MarkerList_loaded.add(imageMarker_drawed);
+                markerList.add(imageMarker_drawed);
+                markerListLoaded.add(imageMarker_drawed);
             }
 
-            System.out.println("Size of : MarkerList_loaded: " + MarkerList_loaded.size());
+            System.out.println("Size of : markerListLoaded: " + markerListLoaded.size());
 
         }catch (Exception e){
-            MarkerList_loaded.clear();
+            markerListLoaded.clear();
             e.printStackTrace();
         }
+
+        return markerListLoaded;
 
     }
 
@@ -4207,8 +4219,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return img;
     }
 
-    public ArrayList<ImageMarker> getMarkerList() {
-        return MarkerList;
+    public MarkerList getMarkerList() {
+        return markerList;
 
 //        ArrayList<ImageMarker> Marker_volume_List = new ArrayList<ImageMarker>();
 //
@@ -4325,7 +4337,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
 
             ImageMarker temp = undoDrawMarkerList.lastElement();
-            boolean removeSuccess = MarkerList.remove(temp);
+            boolean removeSuccess = markerList.remove(temp);
             if (!removeSuccess){
                 System.out.println("remove marker failed");
                 return false;
@@ -4340,7 +4352,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
 
             ImageMarker temp = undoDeleteMarkerList.lastElement();
-            MarkerList.add(temp);
+            markerList.add(temp);
 
             undoDeleteMarkerList.remove(undoDeleteMarkerList.size() - 1);
             process.remove(process.size() - 1);
@@ -4376,12 +4388,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         System.out.println(undoMarkerList.size());
         System.out.println("lastsize");
         System.out.println(undoMarkerList.get(undoMarkerList.size() - 1).size());
-        MarkerList = undoMarkerList.get(undoMarkerList.size() - 1);
+        markerList = undoMarkerList.get(undoMarkerList.size() - 1);
         curSwcList = undoCurveList.get(undoCurveList.size() - 1);
         undoMarkerList.remove(undoMarkerList.size() - 1);
         undoCurveList.remove(undoCurveList.size() - 1);
         System.out.println("cursize");
-        System.out.println(MarkerList.size());
+        System.out.println(markerList.size());
 
         return true;
     }
@@ -4615,7 +4627,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 imageMarker_drawed.type = lastMarkerType;
 //            System.out.println("set type to 3");
 
-                MarkerList.add(imageMarker_drawed);}
+                markerList.add(imageMarker_drawed);}
 //            Imgproc.circle(dst, pCorners[i], (width+height)/(350*sampleRatio), new Scalar(255,255,0),2);
 
         }
@@ -4702,7 +4714,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public void saveUndo() throws CloneNotSupportedException {
 
-        ArrayList<ImageMarker> tempMarkerList = (ArrayList<ImageMarker>)MarkerList.clone();
+        MarkerList tempMarkerList = markerList.clone();
         V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
         if (curUndo < UNDO_LIMIT){

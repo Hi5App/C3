@@ -2940,7 +2940,7 @@ public class MainActivity_Jump extends AppCompatActivity {
                                                         Looper.loop();
                                                     }
                                                     ArrayList<ImageMarker> tips = d.detectTips(img,nt);
-                                                    myrenderer.getMarkerList().addAll(tips);
+                                                    myrenderer.getMarkerList().getMarkers().addAll(tips);
                                                     myGLSurfaceView.requestRender();
                                                     progressBar.setVisibility(View.INVISIBLE);
                                                 } catch (Exception e) {
@@ -4281,7 +4281,7 @@ public class MainActivity_Jump extends AppCompatActivity {
             Looper.loop();
             return;
         }
-        ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
+        ArrayList<ImageMarker> markers = myrenderer.getMarkerList().getMarkers();
         try {
             ParaAPP2 p = new ParaAPP2();
             p.p4dImage = img;
@@ -4355,7 +4355,7 @@ public class MainActivity_Jump extends AppCompatActivity {
             Looper.loop();
             return;
         }
-        ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
+        ArrayList<ImageMarker> markers = myrenderer.getMarkerList().getMarkers();
         if (markers.size() <= 1) {
             Log.v("GDTracing", "Please generate at least two markers!");
             if (Looper.myLooper() == null) {
@@ -5370,7 +5370,7 @@ public class MainActivity_Jump extends AppCompatActivity {
 
             //preparations for show
             myrenderer.ResetImg(p.outImage);
-            myrenderer.getMarkerList().addAll(p.markers);//blue marker
+            myrenderer.getMarkerList().getMarkers().addAll(p.markers);//blue marker
             myrenderer.getMarkerList().add(p.MaxMarker);//red marker
             myGLSurfaceView.requestRender();
             if (Looper.myLooper() == null) {
