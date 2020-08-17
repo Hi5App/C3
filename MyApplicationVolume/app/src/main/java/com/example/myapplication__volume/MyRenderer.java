@@ -180,7 +180,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //    private ArrayList<ImageMarker> MarkerList = new ArrayList<ImageMarker>();
     private MarkerList markerList = new MarkerList();
 
-    private ArrayList<ImageMarker> MarkerList_loaded = new ArrayList<ImageMarker>();
+//    private ArrayList<ImageMarker> MarkerList_loaded = new ArrayList<ImageMarker>();
 
     private V_NeuronSWC_list newSwcList = new V_NeuronSWC_list();
     private V_NeuronSWC_list curSwcList = new V_NeuronSWC_list();
@@ -631,19 +631,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                }
 //            }
 
-                //导入的apo
-                if (MarkerList_loaded.size() > 0) {
-
-                    float radius = 0.02f;
-                    for (int i = 0; i < MarkerList_loaded.size(); i++) {
-                        ImageMarker imageMarker = MarkerList_loaded.get(i);
-                        float[] markerModel = VolumetoModel(new float[]{imageMarker.x, imageMarker.y, imageMarker.z});
-
-//                    Log.v("MyRender", "Draw marker: " + i +" !");
-//                    Log.v("MyRender",Arrays.toString(markerModel));
-                        myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, radius);
-                    }
-                }
+//                //导入的apo
+//                if (MarkerList_loaded.size() > 0) {
+//
+//                    float radius = 0.02f;
+//                    for (int i = 0; i < MarkerList_loaded.size(); i++) {
+//                        ImageMarker imageMarker = MarkerList_loaded.get(i);
+//                        float[] markerModel = VolumetoModel(new float[]{imageMarker.x, imageMarker.y, imageMarker.z});
+//
+////                    Log.v("MyRender", "Draw marker: " + i +" !");
+////                    Log.v("MyRender",Arrays.toString(markerModel));
+//                        myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, radius);
+//                    }
+//                }
             }
 
             //画curve留下的痕迹
@@ -840,7 +840,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         curSwcList.clear();
         markerList.clear();
-        MarkerList_loaded.clear();
+//        MarkerList_loaded.clear();
 
         if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD){
             setImage();
@@ -4208,6 +4208,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }else {
             return error = "Current swc is empty!";
         }
+
+    }
+
+    public String saveCurrentApo(String filepath) throws Exception{
+        String error = "";
+        if(markerList.size()>0){
+            markerList.saveAsApo(filepath);
+        }else {
+            error =  "Current apo is empty!";
+        }
+        return error;
 
     }
 

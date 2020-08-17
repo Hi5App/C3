@@ -286,7 +286,7 @@ public class Remote_Socket extends Socket {
 
         new XPopup.Builder(mContext)
 //        .maxWidth(400)
-//        .maxHeight(1350)
+        .maxHeight(1350)
                 .asCenterList("Select a Brain", items,
                         new OnSelectListener() {
                             @RequiresApi(api = Build.VERSION_CODES.N)
@@ -378,7 +378,58 @@ public class Remote_Socket extends Socket {
 
 
 
+
+    public String PullApo_block(){
+
+        Make_Connect();
+
+        String ApoFilePath = "Error";
+
+        if (CheckConnection()){
+
+
+            String file_path = mContext.getExternalFilesDir(null).toString() + "/Sync/BlockGet/Apo";
+
+            String filename = getFilename_Remote(mContext);
+            String neuron_number = getNeuronNumber_Remote(mContext, filename);
+            String offset = getoffset_Remote(mContext, filename);
+            int[] index = BigImgReader.getIndex(offset);
+            System.out.println(filename);
+
+            String ratio = Integer.toString(getRatio_SWC());
+
+            String ApoFileName = neuron_number + "__" +
+                    index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
+
+            Send_Message(ApoFileName + "__" + ratio + ":GetBBApo.\n");
+            Get_File(file_path, true);
+
+            ApoFilePath = file_path + "/blockGet__" + ApoFileName + "__" + ratio  + ".apo";
+
+        }else {
+            Toast_in_Thread("Can't Connect Server, Try Again Later !");
+        }
+
+        return ApoFilePath;
+    }
+
+
     public void PushSwc_block(String filename, InputStream is, long length){
+
+        Make_Connect();
+
+        if (CheckConnection()){
+
+            socket_send.Send_File(ManageSocket, filename, is, length);
+
+        }else {
+            Toast_in_Thread("Can't Connect Server, Try Again Later !");
+        }
+
+    }
+
+
+    public void PushApo_block(String filename, InputStream is, long length){
 
         Make_Connect();
 
@@ -660,19 +711,24 @@ public class Remote_Socket extends Socket {
 
     public void Select_RES(String[] RESs){
 
-        new XPopup.Builder(mContext)
-//        .maxWidth(400)
-//        .maxHeight(1350)
-                .asCenterList("Select a RES", RESs,
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                RES_Selected = text;
-                                Select_Neuron(Transform(Neuron_Number_List));
-                                setFilename_Remote(BrainNumber_Selected + "/" + RES_Selected, mContext);   //  18454/RES250x250x250
-                            }
-                        })
-                .show();
+
+        RES_Selected = RESs[RESs.length - 1];
+        Select_Neuron(Transform(Neuron_Number_List));
+        setFilename_Remote(BrainNumber_Selected + "/" + RES_Selected, mContext);   //  18454/RES250x250x250
+
+//        new XPopup.Builder(mContext)
+////        .maxWidth(400)
+////        .maxHeight(1350)
+//                .asCenterList("Select a RES", RESs,
+//                        new OnSelectListener() {
+//                            @Override
+//                            public void onSelect(int position, String text) {
+//                                RES_Selected = text;
+//                                Select_Neuron(Transform(Neuron_Number_List));
+//                                setFilename_Remote(BrainNumber_Selected + "/" + RES_Selected, mContext);   //  18454/RES250x250x250
+//                            }
+//                        })
+//                .show();
 
     }
 
@@ -1414,7 +1470,8 @@ public class Remote_Socket extends Socket {
         int z_offset_i = Integer.parseInt(input[2]);
         int size_i = Integer.parseInt(input[3]);
 
-        String filename = getFilename(mContext);
+        String filename = getFilename(mContext).replace("(","");
+        filename = filename.replace(")","");
         String size = filename.split("RES")[1];
 
         System.out.println("hhh-------" + size + "--------hhh");
@@ -1580,6 +1637,19 @@ public class Remote_Socket extends Socket {
         }
 
         return offset_result;
+
+    }
+
+
+
+    public String getIp(){
+        Make_Connect();
+
+        if (CheckConnection()){
+            return this.ip;
+        }
+
+        return "Can't connect server";
 
     }
 

@@ -375,7 +375,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private static String[] push_info = {"New", "New"};
+    private static String[] push_info_swc = {"New", "New"};
+    private static String[] push_info_apo = {"New", "New"};
 
     private BasePopupView drawPopupView;
 
@@ -1115,7 +1116,10 @@ public class MainActivity extends AppCompatActivity {
         sync_push.setImageResource(R.drawable.ic_cloud_upload_black_24dp);
         sync_push.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                PushSWC_Block();
+                PushSWC_Block_Manual();
+
+                //  for apo sync
+//                PushAPO_Block_Manual();
             }
         });
 
@@ -1129,6 +1133,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (DrawMode){
                     PullSwc_block_Manual(DrawMode);
+
+                    //  for apo sync
+//                    PullApo_block_Manual();
                 }else {
                     remote_socket.PullCheckResult();
                 }
@@ -1437,7 +1444,7 @@ public class MainActivity extends AppCompatActivity {
                                         break;
 
                                     case "About":
-                                        Version();;
+                                        About();;
                                         break;
 
                                     case "Help":
@@ -2254,6 +2261,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    @RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
     private static void PullSwc_block_Auto(boolean isDrawMode){
 
         String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
@@ -2272,6 +2280,65 @@ public class MainActivity extends AppCompatActivity {
             Toast_in_Thread_static("Something Wrong when open Swc File !");
         }
 
+
+    }
+
+
+    private void PullApo_block_Manual(){
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String ApoFilePath = remote_socket.PullApo_block();
+
+                if (ApoFilePath.equals("Error")){
+                    Toast_in_Thread("Something Wrong When Pull Swc File !");
+                }
+
+                try {
+                    ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
+                    ApoReader apoReader = new ApoReader();
+                    apo = apoReader.read(ApoFilePath);
+                    if (apo == null){
+                        Toast.makeText(context,"Make sure the .apo file is right",Toast.LENGTH_SHORT).show();
+                    }
+                    myrenderer.importApo(apo);
+                    myGLSurfaceView.requestRender();
+                    uiHandler.sendEmptyMessage(1);
+                }catch (Exception e){
+                    Toast_in_Thread("Some Wrong when open the Swc File, Try Again Please !");
+                }
+
+            }
+        });
+
+        thread.start();
+    }
+
+    private static void PullApo_block_Auto(){
+
+        String ApoFilePath = remote_socket.PullApo_block();
+
+        if (ApoFilePath.equals("Error")){
+            Toast_in_Thread_static("Something Wrong When Pull Swc File !");
+            return;
+        }
+
+        try {
+            ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
+            ApoReader apoReader = new ApoReader();
+            apo = apoReader.read(ApoFilePath);
+            if (apo == null){
+                Toast.makeText(context,"Make sure the .apo file is right",Toast.LENGTH_SHORT).show();
+            }
+            myrenderer.importApo(apo);
+            myGLSurfaceView.requestRender();
+        }catch (Exception e){
+            Toast_in_Thread_static("Something Wrong when open Swc File !");
+        }
 
     }
 
@@ -3437,7 +3504,7 @@ public class MainActivity extends AppCompatActivity {
                                         break;
 
                                     case "About":
-                                        Version();
+                                        About();
                                         break;
 
                                     case "Learning":
@@ -4069,7 +4136,7 @@ public class MainActivity extends AppCompatActivity {
                                 switch (text) {
                                     case "Upload SWC":
 //                                        UploadSWC();
-                                        PushSWC_Block();
+//                                        PushSWC_Block();
                                         break;
 
                                     case "Download SWC":
@@ -4124,7 +4191,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void PushSWC_Block(){
+    private void PushSWC_Block_Manual(){
 
         String filepath = this.getExternalFilesDir(null).toString();
         String swc_file_path = filepath + "/Sync/BlockSet";
@@ -4161,6 +4228,51 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
+
+            } catch (Exception e){
+                System.out.println("----" + e.getMessage() + "----");
+            }
+        }
+    }
+
+
+    private void PushAPO_Block_Manual(){
+
+        String filepath = this.getExternalFilesDir(null).toString();
+        String apo_file_path = filepath + "/Sync/BlockSet/Apo";
+        File dir = new File(apo_file_path);
+
+        if (!dir.exists()){
+            if (!dir.mkdirs())
+                Toast.makeText(this,"Fail to create file: PushAPO_Block", Toast.LENGTH_SHORT).show();
+        }
+
+        String filename = getFilename_Remote(this);
+        String neuron_number = getNeuronNumber_Remote(this, filename);
+        String offset = getoffset_Remote(this, filename);
+        System.out.println(offset);
+        int[] index = BigImgReader.getIndex(offset);
+        System.out.println(filename);
+
+        String ratio = Integer.toString(remote_socket.getRatio_SWC());
+        String ApoFileName = "blockSet__" + neuron_number + "__" +
+                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
+
+        System.out.println(ApoFileName);
+
+        if (Save_curSwc_fast(ApoFileName, apo_file_path)){
+            File ApoFile = new File(apo_file_path + "/" + ApoFileName + ".swc");
+            try {
+                System.out.println("Start to push swc file");
+                InputStream is = new FileInputStream(ApoFile);
+                long length = ApoFile.length();
+
+                if (length < 0 || length > Math.pow(2, 28)){
+                    Toast_in_Thread("Something Wrong When Upload SWC, Try Again Please !");
+                    return;
+                }
+
+                remote_socket.PushApo_block(apo_file_path + ".swc", is, length);
 
             } catch (Exception e){
                 System.out.println("----" + e.getMessage() + "----");
@@ -4230,6 +4342,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private static void PushAPO_Block_Auto(String apo_file_path, String ApoFileName){
+
+        if (apo_file_path.equals("Error"))
+            return;
+
+        File ApoFile = new File(apo_file_path + "/" + ApoFileName + ".apo");
+        if (!ApoFile.exists()){
+            Toast_in_Thread_static("Something Wrong When Upload APO, Try Again Please !");
+            return;
+        }
+        try {
+            System.out.println("Start to push apo file");
+            InputStream is = new FileInputStream(ApoFile);
+            long length = ApoFile.length();
+
+            if (length <= 0 || length > Math.pow(2, 28)){
+                Toast_in_Thread_static("Something Wrong When Upload APO, Try Again Please !");
+                return;
+            }
+            remote_socket.PushApo_block(ApoFileName + ".apo", is, length);
+
+        } catch (Exception e){
+            System.out.println("----" + e.getMessage() + "----");
+        }
+    }
+
+
     private boolean Save_curSwc_fast(String SwcFileName, String dir_str){
 
         System.out.println("start to save-------");
@@ -4268,6 +4407,61 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+
+
+    private String[] SaveAPO_Block_Auto(){
+
+        String filepath = this.getExternalFilesDir(null).toString();
+        String apo_file_path = filepath + "/Sync/BlockSet/Apo";
+        File dir = new File(apo_file_path);
+
+        if (!dir.exists()){
+            if (!dir.mkdirs())
+                Toast.makeText(this,"Fail to create file: PushAPO_Block", Toast.LENGTH_SHORT).show();
+        }
+
+        String filename = getFilename_Remote(this);
+        String neuron_number = getNeuronNumber_Remote(this, filename);
+        String offset = getoffset_Remote(this, filename);
+        System.out.println(offset);
+        int[] index = BigImgReader.getIndex(offset);
+        System.out.println(filename);
+
+        String ratio = Integer.toString(remote_socket.getRatio_SWC());
+        String ApoFileName = "blockSet__" + neuron_number + "__" +
+                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
+
+        System.out.println(ApoFileName);
+
+        if (Save_curApo_fast(ApoFileName, apo_file_path)){
+            return new String[]{ apo_file_path, ApoFileName };
+        }
+
+        Log.v("SaveAPO_Block_Auto","Save Successfully !");
+        return new String[]{"Error", "Error"};
+    }
+
+
+    private boolean Save_curApo_fast(String ApoFileName, String dir_str){
+
+        System.out.println("start to save apo-------");
+
+        String error = "init";
+        try {
+            error = myrenderer.saveCurrentApo(dir_str + ApoFileName + ".apo");
+            System.out.println("error:" + error);
+        } catch (Exception e) {
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (error.equals("Current apo is empty!")){
+            Toast_in_Thread("Current apo file is empty!");
+            return false;
+        } else{
+            System.out.println("save SWC to " + dir_str + "/" + ApoFileName + ".apo");
+        }
+        return true;
+    }
 
 
 
@@ -4731,11 +4925,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void Version() {
+    private void About() {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200814 16:24 UTC+8 build",
+                                "Version: 20200817 16:24 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5041,7 +5235,10 @@ public class MainActivity extends AppCompatActivity {
 
                         Log.v("Block_navigate", text);
                         if (DrawMode){
-                            push_info = SaveSWC_Block_Auto();
+                            push_info_swc = SaveSWC_Block_Auto();
+
+                            //  for apo sync
+//                            push_info_apo = SaveAPO_Block_Auto();
                             remote_socket.Selectblock_fast(context, false, text);
 //                            PushSWC_Block_Auto(push_info[0], push_info[1]);
 
@@ -7465,10 +7662,15 @@ public class MainActivity extends AppCompatActivity {
     private void Select_Block(){
 
         String source = getSelectSource(this);
-
+        String ip = "";
         switch (source){
-            case "Remote Server":
-                String ip = "39.100.35.131";
+            case "Remote Server Aliyun":
+            case "Remote Server SEU":
+                if (source.equals("Remote Server Aliyun")){
+                    ip = "39.100.35.131";
+                }else {
+                    ip = "223.3.33.234";
+                }
                 if (DrawMode){
                     remote_socket.DisConnectFromHost();
                     remote_socket.ConnectServer(ip);
@@ -7547,13 +7749,29 @@ public class MainActivity extends AppCompatActivity {
         isBigData_Local = false;
         myGLSurfaceView.requestRender();
 
-        setSelectSource("Remote Server",context);
+        Log.v("MainActivity",remote_socket.getIp());
+        if (remote_socket.getIp().equals("39.100.35.131")){
+            setSelectSource("Remote Server Aliyun",context);
+        } else if(remote_socket.getIp().equals("223.3.33.234")){
+            setSelectSource("Remote Server SEU",context);
+        }
+
         SetButtons();
 
         PullSwc_block_Auto(DrawMode);
 
-        if (DrawMode && !push_info[0].equals("New")){
-            PushSWC_Block_Auto(push_info[0], push_info[1]);
+        //  for apo sync
+//        PullApo_block_Auto();
+
+        if (DrawMode){
+            if (!push_info_swc[0].equals("New")){
+                PushSWC_Block_Auto(push_info_swc[0], push_info_swc[1]);
+            }
+
+            //  for apo sync
+//            if (!push_info_apo[0].equals("New")){
+//                PushAPO_Block_Auto(push_info_swc[0], push_info_swc[1]);
+//            }
         }
 
     }

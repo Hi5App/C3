@@ -74,9 +74,9 @@ public class Socket_Receive {
                     String Msg_SubString = Msg_String.substring(4);
 
 
-//                    Log.v("Get_Msg: Data_size", Long.toString(bytesToLong(Data_size)));
-//                    Log.v("Get_Msg: Message_size", Long.toString(bytesToLong(Message_size)));
-//                    Log.v("Get_Msg", Msg_SubString);
+                    Log.v("Get_Msg: Data_size", Long.toString(bytesToLong(Data_size)));
+                    Log.v("Get_Msg: Message_size", Long.toString(bytesToLong(Message_size)));
+                    Log.v("Get_Msg", Msg_SubString);
 
 
                     Msg[0] = Msg_SubString;
