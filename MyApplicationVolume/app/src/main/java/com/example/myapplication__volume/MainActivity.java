@@ -60,6 +60,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -98,6 +99,7 @@ import com.learning.pixelclassification.PixelClassification;
 import com.learning.randomforest.RandomForest;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
+import com.lxj.xpopup.enums.PopupPosition;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.lxj.xpopup.interfaces.SimpleCallback;
@@ -248,7 +250,6 @@ public class MainActivity extends AppCompatActivity {
     private Button Draw;
     private Button Tracing;
     private Button Others;
-    private Button FileManager;
     private static Button Zoom_in;
     private static Button Zoom_out;
     private static Button Check_Yes;
@@ -344,6 +345,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = VoiceChatViewActivity.class.getSimpleName();
 
     private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
+    private static final int Toast_Info_static = 5;
 
     //    private int Paintmode = 0;
     private ArrayList<Float> lineDrawed = new ArrayList<Float>();
@@ -371,6 +373,13 @@ public class MainActivity extends AppCompatActivity {
     private enum PenColor {
         BLACK, WHITE, RED, BLUE, GREEN, PURPLE, YELLOW
     }
+
+
+    private static String[] push_info_swc = {"New", "New"};
+    private static String[] push_info_apo = {"New", "New"};
+
+    private BasePopupView drawPopupView;
+
 
     HashMap<Integer, String> User_Map = new HashMap<Integer, String>();
 
@@ -457,12 +466,23 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
                 case 4:
-                    String [] temp = file_path_temp.split("/");
-                    String [] temp2 = temp[temp.length - 1].split("%2F");
-                    String s = temp2[temp2.length - 1];
-                    String result = s.split("_")[1];
+                    File file = new File(file_path_temp);
+                    String name = file.getName();
+                    Log.v("Handler",name);
+
+                    String result = null;
+                    if (DrawMode){
+                        result = name.split("_")[1].substring(0,name.split("_")[1].length()-3);
+                    }else {
+                        result = name.split("__")[0];
+                    }
 
                     setFilename(result);
+                    break;
+
+                case 5:
+                    String Toast_msg = msg.getData().getString("Toast_msg");
+                    Toast.makeText(getContext(),Toast_msg, Toast.LENGTH_SHORT).show();
                     break;
 
             }
@@ -584,6 +604,14 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout ll_up = new LinearLayout(this);
         ll_up.setOrientation(LinearLayout.VERTICAL);
 
+        LinearLayout ll_hs_back = new LinearLayout(this);
+        ll_hs_back.setOrientation(LinearLayout.HORIZONTAL);
+        ll_hs_back.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+
+        LinearLayout ll_space = new LinearLayout(this);
+        ll_space.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT, 1.0f));
+
+
         ll_file = new LinearLayout(this);
         FrameLayout.LayoutParams lp_filename = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         ll_file.setLayoutParams(lp_filename);
@@ -603,7 +631,11 @@ public class MainActivity extends AppCompatActivity {
         HorizontalScrollView hs_top = new HorizontalScrollView(this);
 
         ll_up.addView(ll_file);
-        ll_up.addView(hs_top, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        ll_hs_back.addView(hs_top, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        ll_hs_back.addView(ll_space);
+
+        ll_up.addView(ll_hs_back);
 
         ll.addView(ll_up);
 
@@ -796,7 +828,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                Draw(v);
+                Draw_list(v);
             }
         });
 
@@ -916,14 +948,14 @@ public class MainActivity extends AppCompatActivity {
 
         lp_undo = new FrameLayout.LayoutParams(120, 120);
 
-        lp_undo.gravity = Gravity.RIGHT | Gravity.TOP;
-        lp_undo.setMargins(0, 190, 20, 0);
+//        lp_undo.gravity = Gravity.RIGHT | Gravity.TOP;
+        lp_undo.setMargins(0, 20, 20, 0);
 
         Undo_i = new ImageButton(this);
         Undo_i.setImageResource(R.drawable.ic_undo);
         Undo_i.setBackgroundResource(R.drawable.circle_normal);
-
-        this.addContentView(Undo_i, lp_undo);
+        ll_hs_back.addView(Undo_i, lp_undo);
+//        this.addContentView(Undo_i, lp_undo);
 
         Undo_i.setOnClickListener(new Button.OnClickListener(){
             public void onClick(View v){
@@ -1084,7 +1116,10 @@ public class MainActivity extends AppCompatActivity {
         sync_push.setImageResource(R.drawable.ic_cloud_upload_black_24dp);
         sync_push.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                PushSWC_Block();
+                PushSWC_Block_Manual();
+
+                //  for apo sync
+//                PushAPO_Block_Manual();
             }
         });
 
@@ -1096,9 +1131,11 @@ public class MainActivity extends AppCompatActivity {
         sync_pull.setImageResource(R.drawable.ic_cloud_download_black_24dp);
         sync_pull.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-//                PullSWC_Block();
                 if (DrawMode){
                     PullSwc_block_Manual(DrawMode);
+
+                    //  for apo sync
+//                    PullApo_block_Manual();
                 }else {
                     remote_socket.PullCheckResult();
                 }
@@ -1119,12 +1156,10 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
 //                Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)
 ////                        .setAction("Action", null).show();
 
                 fab.setVisibility(View.GONE);
-
                 leaveChannel();
                 RtcEngine.destroy();
                 mRtcEngine = null;
@@ -1277,8 +1312,9 @@ public class MainActivity extends AppCompatActivity {
      */
     public void Share_icon(){
 
+        // delete upload and download:    , "Upload SWC", "Download SWC"
         new XPopup.Builder(this)
-                .asCenterList("Share & Cloud server", new String[]{"Screenshot share", "Upload SWC", "Download SWC"},
+                .asCenterList("Share & Cloud server", new String[]{"Screenshot share"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -1289,12 +1325,10 @@ public class MainActivity extends AppCompatActivity {
 
                                     case "Upload SWC":
                                         UploadSWC();
-//                                        PushSWC_Block();
                                         break;
 
                                     case "Download SWC":
                                         DownloadSWC();
-//                                        PullSWC_Block();
                                         break;
 
                                     default:
@@ -1349,7 +1383,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", DownSample_mode, BigData_mode, "Animate", "About", "Help"},
+                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", "VoiceChat - 1 to 1", "Animate", "Settings", "About", "Help"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -1370,7 +1404,10 @@ public class MainActivity extends AppCompatActivity {
                                         }else {
                                             Toast.makeText(context,"Please Load a Img First !!!", Toast.LENGTH_SHORT).show();
                                         }
+                                        break;
 
+                                    case "VoiceChat - 1 to 1":
+                                        PopUp_Chat(MainActivity.this);
                                         break;
 
                                     case "Sensor Information":
@@ -1402,8 +1439,12 @@ public class MainActivity extends AppCompatActivity {
                                         settingFileManager.setBigDataMode("Draw Mode", getContext());
                                         break;
 
+                                    case "Settings":
+                                        setSettings();
+                                        break;
+
                                     case "About":
-                                        Version();;
+                                        About();;
                                         break;
 
                                     case "Help":
@@ -1537,30 +1578,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (resultCode == RESULT_OK) {
-            String fodlerPath = data.getDataString();
+            String folderPath = data.getDataString();
             Uri uri = data.getData();
-//            Uri uri_old = data.getData();
 
             String filePath = uri.toString();
-//            String filePath= getpath(this, uri);
 
             String filePath_getPath = uri.getPath();
-
-//            String filePath = uri.getPath().substring(14);
-//            String filePath = Uri2PathUtil.getRealPathFromUri(getApplicationContext(), uri);
-//            String filePath = FilePath.substring(14);
-//            String filePath = "/storage/emulated/0/Download/image.v3draw";
-
 
             Log.v("MainActivity", filePath);
             Log.v("uri.getPath()", filePath_getPath);
             Log.v("Uri_Scheme:", uri.getScheme());
-
-//            Log.v("Uri_Scheme:", DocumentsContract.getDocumentId(uri));
-
-//            Uri uri_old = data.getData();
-
-//            Toast.makeText(this, "Open" + filePath + "--successfully", Toast.LENGTH_SHORT).show();
 
             try {
                 Log.v("MainActivity", "onActivityResult");
@@ -1587,6 +1614,7 @@ public class MainActivity extends AppCompatActivity {
                                 break;
                             case ".SWC":
                             case ".ESWC":
+                                Log.v("onActivityResult", ".eswc");
                                 NeuronTree nt = NeuronTree.readSWC_file(uri);
                                 myrenderer.importNeuronTree(nt);
                                 break;
@@ -1679,14 +1707,12 @@ public class MainActivity extends AppCompatActivity {
 
                     FileManager fileManager = new FileManager();
                     String filename = fileManager.getFileName(uri);
-
-//                    SendSwc("223.3.33.234", this, is, length, filename);
-                    SendSwc("192.168.31.11", this, is, length, filename);
-//                    SendSwc("39.100.35.131", this, is, length, filename);
-
+                    SendSwc("39.100.35.131", this, is, length, filename);
                 }
 
+
                 if (ifLoadLocal) {
+                    System.out.println("load local");
                     myrenderer.SetPath(filePath);
                     System.out.println(filePath);
 
@@ -1727,26 +1753,11 @@ public class MainActivity extends AppCompatActivity {
                     String [] temp = filePath.split("/");
                     String [] temp2 = temp[temp.length - 1].split("%2F");
                     String s = temp2[temp2.length - 1];
+                    String filename = FileManager.getFileName(uri);
 
-                    setFilename(s);
+                    setFilename(filename);
 
-//                    filenametext.setText(filename);
-//                    ll_file.setVisibility(View.VISIBLE);
-//
-//                    lp_undo.setMargins(0, 240, 20, 0);
-//                    Undo_i.setLayoutParams(lp_undo);
-//
-//                    lp_up_i.setMargins(0, 360, 0, 0);
-//                    navigation_up.setLayoutParams(lp_up_i);
-//
-//                    lp_nacloc_i.setMargins(20, 400, 0, 0);
-//                    navigation_location.setLayoutParams(lp_nacloc_i);
-//
-//                    lp_sync_push.setMargins(0, 400, 20, 0);
-//                    sync_push.setLayoutParams(lp_sync_push);
-//
-//                    lp_sync_pull.setMargins(0, 490, 20, 0);
-//                    sync_pull.setLayoutParams(lp_sync_pull);
+
                 }
 
                 if (ifDownloadByHttp) {
@@ -1763,39 +1774,7 @@ public class MainActivity extends AppCompatActivity {
 //                    ifTakePhoto = false;
 ////                    return;
 //                }
-//
-//                ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
-//                SwcReader swcReader = new SwcReader();
-//
-//                swc = swcReader.read(uri);
-////                apo = apoReader.read(filePath);
-//
-//                myrenderer.importSwc(swc);
 
-//                ArrayList<ArrayList<Float>> swc = new ArrayList<ArrayList<Float>>();
-//                ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
-//                AnoReader anoReader = new AnoReader();
-//
-//                anoReader.read(uri);
-//
-//                swc = anoReader.getSwc_result();
-//                apo = anoReader.getApo_result();
-////                apo = apoReader.read(filePath);
-//
-//                myrenderer.importSwc(swc);
-//                myrenderer.importApo(apo);
-
-
-//                File f = new File(filePath);
-//                FileInputStream fid = new FileInputStream(f);
-
-//                fid.write(message.getBytes());
-//                long fileSize = f.length();
-//            } catch (Exception e) {
-//                Toast.makeText(this, " Fail to load file  ", Toast.LENGTH_SHORT).show();
-//                Log.v("MainActivity", "111222");
-//                Log.v("Exception", e.toString());
-//            }
 
             } catch (OutOfMemoryError e) {
                 Toast.makeText(this, " Fail to load file  ", Toast.LENGTH_SHORT).show();
@@ -2158,95 +2137,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-//    private void PullSwc_block(String ip, Context context){
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-//                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-//
-//        Thread thread = new Thread() {
-//            @Override
-//            public void run() {
-//
-//                if (Looper.myLooper() == null) {
-//                    Looper.prepare();
-//                }
-//
-//                try {
-//                    remoteImg.ip = ip;
-//
-//                    Log.v("DownloadSwc: ", "Connect server");
-//
-//                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
-//                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
-//                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
-//
-//                    if (remoteImg.ImgSocket.isConnected()){
-//                        String content = remoteImg.ImgReader.readLine();
-//                        remoteImg.id = Integer.parseInt(content.split(":")[0]);
-//                        Log.v("ConnectServer", content);
-//
-//                    }
-//
-//                    Filesocket_receive filesocket_receive = new Filesocket_receive();
-//                    filesocket_receive.filesocket = new Socket(ip, 9002);
-//                    filesocket_receive.mReader = new BufferedReader(new InputStreamReader(filesocket_receive.filesocket.getInputStream(), "UTF-8"));
-//                    filesocket_receive.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_receive.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
-//                    filesocket_receive.IsDown = true;
-//                    filesocket_receive.path = context.getExternalFilesDir(null).toString() + "/Sync/BlockGet";
-//
-//                    if (remoteImg.ImgSocket.isConnected() && filesocket_receive.filesocket.isConnected()){
-//                        filesocket_receive.mPWriter.println(remoteImg.id + ":manage handle.");
-//                        filesocket_receive.mPWriter.flush();
-//                    }
-//
-//                    Log.v("PullSwc: ", "here we are 2");
-//
-//                    if (remoteImg.ImgSocket.isConnected()) {
-//                        remoteImg.isSocketSet = true;
-//                        Log.v("PullSwc: ", "Connect with Server successfully");
-//                        Toast.makeText(getContext(), "Connect with Server successfully", Toast.LENGTH_SHORT).show();
-//
-//                        String filename = getFilename(context);
-//                        String offset = getoffset(context, filename);
-//                        int[] index = BigImgReader.getIndex(offset);
-//                        System.out.println(filename);
-//
-//                        String SwcFileName = filename.split("RES")[0] + "__" +
-//                                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
-//
-//                        remoteImg.ImgPWriter.println(SwcFileName + ":GetBBSwc.");
-//                        remoteImg.ImgPWriter.flush();
-//
-//                        filesocket_receive.readFile("blockGet__" + SwcFileName + ".swc", context);
-//
-//                        filesocket_receive = null;
-//
-//                        NeuronTree nt = NeuronTree.readSWC_file(context.getExternalFilesDir(null).toString() + "/Sync/BlockGet/" +  "blockGet__" + SwcFileName + ".swc");
-//                        myrenderer.SetSwcLoaded();
-//                        myrenderer.importNeuronTree(nt);
-//                        myGLSurfaceView.requestRender();
-//                        uiHandler.sendEmptyMessage(1);
-//                        remoteImg.disconnectFromHost();
-//
-//                        Looper.loop();
-//
-//                    } else {
-//                        Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
-//                        remoteImg.disconnectFromHost();
-//                        Looper.loop();
-//                    }
-//
-//
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                    Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
-//                    remoteImg.disconnectFromHost();
-//                    Looper.loop();
-//                }
-//            }
-//        };
-//        thread.start();
-//    }
-
 
     private static void PullSwc_block(String ip, Context context){
 
@@ -2353,11 +2243,16 @@ public class MainActivity extends AppCompatActivity {
                     Toast_in_Thread("Something Wrong When Pull Swc File !");
                 }
 
-                NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
-                myrenderer.SetSwcLoaded();
-                myrenderer.importNeuronTree(nt);
-                myGLSurfaceView.requestRender();
-                uiHandler.sendEmptyMessage(1);
+                try {
+                    NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
+                    myrenderer.SetSwcLoaded();
+                    myrenderer.importNeuronTree(nt);
+                    myGLSurfaceView.requestRender();
+                    uiHandler.sendEmptyMessage(1);
+                }catch (Exception e){
+                    Toast_in_Thread("Some Wrong when open the Swc File, Try Again Please !");
+                }
+
             }
         });
 
@@ -2366,19 +2261,84 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    @RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
     private static void PullSwc_block_Auto(boolean isDrawMode){
 
         String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
 
         if (SwcFilePath.equals("Error")){
-            Toast.makeText(context,"Something Wrong When Pull Swc File !",Toast.LENGTH_SHORT).show();
+            Toast_in_Thread_static("Something Wrong When Pull Swc File !");
             return;
         }
 
-        NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
-        myrenderer.SetSwcLoaded();
-        myrenderer.importNeuronTree(nt);
-        myGLSurfaceView.requestRender();
+        try {
+            NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
+            myrenderer.SetSwcLoaded();
+            myrenderer.importNeuronTree(nt);
+            myGLSurfaceView.requestRender();
+        }catch (Exception e){
+            Toast_in_Thread_static("Something Wrong when open Swc File !");
+        }
+
+
+    }
+
+
+    private void PullApo_block_Manual(){
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String ApoFilePath = remote_socket.PullApo_block();
+
+                if (ApoFilePath.equals("Error")){
+                    Toast_in_Thread("Something Wrong When Pull Swc File !");
+                }
+
+                try {
+                    ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
+                    ApoReader apoReader = new ApoReader();
+                    apo = apoReader.read(ApoFilePath);
+                    if (apo == null){
+                        Toast.makeText(context,"Make sure the .apo file is right",Toast.LENGTH_SHORT).show();
+                    }
+                    myrenderer.importApo(apo);
+                    myGLSurfaceView.requestRender();
+                    uiHandler.sendEmptyMessage(1);
+                }catch (Exception e){
+                    Toast_in_Thread("Some Wrong when open the Swc File, Try Again Please !");
+                }
+
+            }
+        });
+
+        thread.start();
+    }
+
+    private static void PullApo_block_Auto(){
+
+        String ApoFilePath = remote_socket.PullApo_block();
+
+        if (ApoFilePath.equals("Error")){
+            Toast_in_Thread_static("Something Wrong When Pull Swc File !");
+            return;
+        }
+
+        try {
+            ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
+            ApoReader apoReader = new ApoReader();
+            apo = apoReader.read(ApoFilePath);
+            if (apo == null){
+                Toast.makeText(context,"Make sure the .apo file is right",Toast.LENGTH_SHORT).show();
+            }
+            myrenderer.importApo(apo);
+            myGLSurfaceView.requestRender();
+        }catch (Exception e){
+            Toast_in_Thread_static("Something Wrong when open Swc File !");
+        }
 
     }
 
@@ -2410,38 +2370,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * function for the FileManager button
-     *
-     * @param v the button: FileManager
-     */
-    private void FileManager(View v) {
-        new XPopup.Builder(this)
-                .atView(v)
-                .asAttachList(new String[]{ "Open Local file", "Open Remote file", "Load SWC file" ,"Camera"},
-                        new int[]{},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                switch (text) {
-                                    case "Load SWC file":
-                                        LoadSWC();
-                                        break;
-                                    case "Open Local file":
-                                        loadLocalFile();
-                                        break;
-                                    case "Open Remote file":
-                                        remote(v);
-                                        break;
-                                    case "Camera":
-                                        Camera();
-                                        break;
-                                }
-
-                            }
-                        })
-                .show();
-    }
 // 不保存完整图片，仅拍照
 //    private void Camera(){
 //        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -2732,6 +2660,7 @@ public class MainActivity extends AppCompatActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
+
                 .asAttachList(new String[]{"PinPoint   ", "Draw Curve", "Delete Marker", "Delete MultiMarker", "Delete Curve", "Split       ",
                                 "Set PenColor", "Change PenColor", "Change All PenColor", "Set MColor", "Change MColor",
                                 "Change All MColor", "Exit Drawing mode", "Clear Tracing"},
@@ -3055,8 +2984,374 @@ public class MainActivity extends AppCompatActivity {
                                         break;
                                 }
                             }
-                        })
-                .show();
+                        }).show();
+
+    }
+
+    private void Draw_list(View v){
+        drawPopupView = new XPopup.Builder(this)
+                .atView(v)
+                .autoDismiss(false)
+                .asAttachList(new String[]{"For Marker", "For Curve", "Clear Tracing", "Exit Drawing Mode"},
+                        new int[]{}, new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text){
+                                    case "For Marker":
+                                        markerProcessList(v);
+                                        break;
+                                    case "For Curve":
+                                        curveProcessList(v);
+                                        break;
+                                    case "Clear Tracing":
+                                        myrenderer.deleteAllTracing();
+                                        myGLSurfaceView.requestRender();
+                                        drawPopupView.dismiss();
+                                        break;
+                                    case "Exit Drawing Mode":
+                                        ifDeletingLine = false;
+                                        ifPainting = false;
+                                        ifPoint = false;
+                                        ifDeletingMarker = false;
+                                        ifSpliting = false;
+                                        ifChangeLineType = false;
+                                        ifChangeMarkerType = false;
+                                        ifDeletingMultiMarker = false;
+                                        draw_i.setImageResource(R.drawable.ic_draw_main);
+                                        ll_bottom.removeView(Switch);
+                                        drawPopupView.dismiss();
+//                                        ll_top.removeView(buttonUndo_i);
+                                        break;
+                                }
+                            }
+                        }).show();
+    }
+
+    private void markerProcessList(View v){
+//        System.out.println(drawPopupView.getWidth());
+//        drawPopupView.show();
+        new XPopup.Builder(this)
+                .atView(v)
+                .offsetX(580)
+                .isRequestFocus(false)
+                .popupPosition(PopupPosition.Right)
+                .asAttachList(new String[]{"PinPoint   ", "Delete Marker", "Delete MultiMarker", "Set MColor", "Change MColor",
+                        "Change All MColor"}, new int[]{}, new OnSelectListener() {
+                    @Override
+                    public void onSelect(int position, String text) {
+                        switch (text){
+                            case "PinPoint   ":
+                                if (!myrenderer.ifImageLoaded()){
+                                    Toast.makeText(context, "Please load a image first", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                ifPoint = !ifPoint;
+                                ifPainting = false;
+                                ifDeletingMarker = false;
+                                ifDeletingLine = false;
+                                ifSpliting = false;
+                                ifChangeLineType = false;
+                                ifChangeMarkerType = false;
+                                ifDeletingMultiMarker = false;
+                                if (ifPoint && !ifSwitch) {
+                                    draw_i.setImageResource(R.drawable.ic_add_marker);
+
+                                    try {
+                                        ifSwitch = false;
+                                        ll_bottom.addView(Switch);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                    }catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+
+                                } else {
+                                    ifSwitch = false;
+                                    ifPoint = false;
+                                    Switch.setText("Pause");
+                                    Switch.setTextColor(Color.BLACK);
+                                    draw_i.setImageResource(R.drawable.ic_draw_main);
+                                    ll_bottom.removeView(Switch);
+//                                            ll_top.removeView(buttonUndo_i);
+                                }
+                                break;
+
+                            case "Delete Marker":
+                                ifDeletingMarker = !ifDeletingMarker;
+                                ifPainting = false;
+                                ifPoint = false;
+                                ifDeletingLine = false;
+                                ifSpliting = false;
+                                ifChangeLineType = false;
+                                ifChangeMarkerType = false;
+                                ifDeletingMultiMarker = false;
+                                if (ifDeletingMarker && !ifSwitch) {
+                                    draw_i.setImageResource(R.drawable.ic_marker_delete);
+
+                                    try {
+                                        ifSwitch = false;
+                                        ll_bottom.addView(Switch);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                    }catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+
+                                } else {
+                                    ifSwitch = false;
+                                    ifDeletingMarker = false;
+                                    Switch.setText("Pause");
+                                    Switch.setTextColor(Color.BLACK);
+                                    draw_i.setImageResource(R.drawable.ic_draw_main);
+                                    ll_bottom.removeView(Switch);
+//                                            ll_top.removeView(buttonUndo_i);
+                                }
+                                break;
+
+                            case "Delete MultiMarker":
+                                ifDeletingMultiMarker = !ifDeletingMultiMarker;
+                                ifPainting = false;
+                                ifPoint = false;
+                                ifDeletingMarker = false;
+                                ifSpliting = false;
+                                ifChangeLineType = false;
+                                ifChangeMarkerType = false;
+                                ifDeletingLine = false;
+                                if (ifDeletingMultiMarker && !ifSwitch) {
+                                    draw_i.setImageResource(R.drawable.ic_draw_main);
+
+                                    try {
+                                        ifSwitch = false;
+                                        ll_bottom.addView(Switch);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                    }catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+
+                                } else {
+                                    ifSwitch = false;
+                                    ifDeletingMultiMarker = false;
+                                    Switch.setText("Pause");
+                                    Switch.setTextColor(Color.BLACK);
+                                    draw_i.setImageResource(R.drawable.ic_draw_main);
+                                    ll_bottom.removeView(Switch);
+//                                            ll_top.removeView(buttonUndo_i);
+                                }
+                                break;
+
+                            case "Set MColor":
+                                MarkerPenSet();
+                                break;
+
+                            case "Change MColor":
+                                ifChangeMarkerType = !ifChangeMarkerType;
+                                ifDeletingLine = false;
+                                ifPainting = false;
+                                ifPoint = false;
+                                ifDeletingMarker = false;
+                                ifChangeLineType = false;
+                                ifSpliting = false;
+                                ifDeletingMultiMarker = false;
+                                if (ifChangeMarkerType && !ifSwitch) {
+                                    draw_i.setImageResource(R.drawable.ic_draw_main);
+
+                                    try {
+                                        ifSwitch = false;
+                                        ll_bottom.addView(Switch);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                    }catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+
+                                } else {
+                                    ifSwitch = false;
+                                    ifChangeMarkerType = false;
+                                    Switch.setText("Pause");
+                                    Switch.setTextColor(Color.BLACK);
+                                    draw_i.setImageResource(R.drawable.ic_draw_main);
+                                    ll_bottom.removeView(Switch);
+//                                            ll_top.removeView(buttonUndo_i);
+                                }
+                                break;
+
+                            case "Change All MColor":
+                                try {
+                                    myrenderer.changeAllMarkerType();
+                                } catch (CloneNotSupportedException e) {
+                                    e.printStackTrace();
+                                }
+                                myGLSurfaceView.requestRender();
+                                break;
+
+                        }
+                        drawPopupView.dismiss();
+                    }
+                }).show();
+    }
+
+    private void curveProcessList(View v){
+        new XPopup.Builder(this)
+                .atView(v)
+                .offsetX(580)
+                .asAttachList(new String[]{"Draw Curve", "Delete Curve", "Split       ",
+                                "Set PenColor", "Change PenColor", "Change All PenColor"}, new int[]{},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text){
+                                    case "Draw Curve":
+                                        if (!myrenderer.ifImageLoaded()){
+                                            Toast.makeText(context, "Please load a image first", Toast.LENGTH_SHORT).show();
+                                            return;
+                                        }
+                                        ifPainting = !ifPainting;
+                                        ifPoint = false;
+                                        ifDeletingMarker = false;
+                                        ifDeletingLine = false;
+                                        ifSpliting = false;
+                                        ifChangeLineType = false;
+                                        ifChangeMarkerType = false;
+                                        ifDeletingMultiMarker = false;
+                                        if (ifPainting && !ifSwitch) {
+                                            draw_i.setImageResource(R.drawable.ic_draw);
+
+                                            try {
+                                                ifSwitch = false;
+                                                ll_bottom.addView(Switch);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                            }catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+
+                                        } else {
+                                            ifSwitch = false;
+                                            ifPainting = false;
+                                            Switch.setText("Pause");
+                                            Switch.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
+                                            ll_bottom.removeView(Switch);
+//                                            ll_top.removeView(buttonUndo_i);
+                                        }
+                                        break;
+
+                                    case "Delete Curve":
+                                        ifDeletingLine = !ifDeletingLine;
+                                        ifPainting = false;
+                                        ifPoint = false;
+                                        ifDeletingMarker = false;
+                                        ifSpliting = false;
+                                        ifChangeLineType = false;
+                                        ifChangeMarkerType = false;
+                                        ifDeletingMultiMarker = false;
+                                        if (ifDeletingLine && !ifSwitch) {
+                                            draw_i.setImageResource(R.drawable.ic_delete_curve);
+
+                                            try {
+                                                ifSwitch = false;
+                                                ll_bottom.addView(Switch);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                            }catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+
+                                        } else {
+                                            ifSwitch = false;
+                                            ifDeletingLine = false;
+                                            Switch.setText("Pause");
+                                            Switch.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
+                                            ll_bottom.removeView(Switch);
+//                                            ll_top.removeView(buttonUndo_i);
+                                        }
+                                        break;
+
+                                    case "Split       ":
+                                        ifSpliting = !ifSpliting;
+                                        ifDeletingLine = false;
+                                        ifPainting = false;
+                                        ifPoint = false;
+                                        ifDeletingMarker = false;
+                                        ifChangeLineType = false;
+                                        ifChangeMarkerType = false;
+                                        ifDeletingMultiMarker = false;
+                                        if (ifSpliting && !ifSwitch) {
+                                            draw_i.setImageResource(R.drawable.ic_split);
+
+                                            try {
+                                                ifSwitch = false;
+                                                ll_bottom.addView(Switch);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                            }catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+
+                                        } else {
+                                            ifSwitch = false;
+                                            ifSpliting = false;
+                                            Switch.setText("Pause");
+                                            Switch.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
+                                            ll_bottom.removeView(Switch);
+//                                            ll_top.removeView(buttonUndo_i);
+                                        }
+                                        break;
+
+                                    case "Set PenColor":
+                                        //调用选择画笔窗口
+                                        PenSet();
+
+                                        break;
+
+                                    case "Change PenColor":
+                                        ifChangeLineType = !ifChangeLineType;
+                                        ifDeletingLine = false;
+                                        ifPainting = false;
+                                        ifPoint = false;
+                                        ifDeletingMarker = false;
+                                        ifSpliting = false;
+                                        ifChangeMarkerType = false;
+                                        ifDeletingMultiMarker = false;
+                                        if(ifChangeLineType && !ifSwitch){
+//                                            Draw.setText("Change PenColor");
+//                                            Draw.setTextColor(Color.RED);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
+
+                                            try {
+                                                ifSwitch = false;
+//                                                ifChangeLineType = false;
+//                                                Switch.setText("Pause");
+//                                                Switch.setTextColor(Color.BLACK);
+//                                                ifSwitch = false;
+                                                ll_bottom.addView(Switch);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                            }catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+
+                                        } else {
+                                            ifSwitch = false;
+                                            ifChangeLineType = false;
+                                            Switch.setText("Pause");
+                                            Switch.setTextColor(Color.BLACK);
+                                            draw_i.setImageResource(R.drawable.ic_draw_main);
+                                            ll_bottom.removeView(Switch);
+//                                            ll_top.removeView(buttonUndo_i);
+//                                            draw_i.setImageResource(R.drawable.ic_draw_main);
+
+                                        }
+                                        break;
+
+                                    case "Change All PenColor":
+                                        try {
+                                            myrenderer.changeAllType();
+                                        } catch (CloneNotSupportedException e) {
+                                            e.printStackTrace();
+                                        }
+                                        myGLSurfaceView.requestRender();
+                                        break;
+
+                                }
+                                drawPopupView.dismiss();
+                            }
+                        }).show();
     }
 
 
@@ -3209,7 +3504,7 @@ public class MainActivity extends AppCompatActivity {
                                         break;
 
                                     case "About":
-                                        Version();
+                                        About();
                                         break;
 
                                     case "Learning":
@@ -3453,7 +3748,7 @@ public class MainActivity extends AppCompatActivity {
                                                         p.xc1 = (int) p.p4dImage.getSz0() - 1;
                                                         p.yc1 = (int) p.p4dImage.getSz1() - 1;
                                                         p.zc1 = (int) p.p4dImage.getSz2() - 1;
-                                                        ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
+                                                        ArrayList<ImageMarker> markers = myrenderer.getMarkerList().getMarkers();
                                                         p.landmarks = new LocationSimple[markers.size()];
                                                         p.bkg_thresh = -1;
                                                         for (int i = 0; i < markers.size(); i++) {
@@ -3698,7 +3993,7 @@ public class MainActivity extends AppCompatActivity {
                                                         Looper.loop();
                                                     }
                                                     ArrayList<ImageMarker> tips = d.detectTips(img,nt);
-                                                    myrenderer.getMarkerList().addAll(tips);
+                                                    myrenderer.getMarkerList().getMarkers().addAll(tips);
                                                     myGLSurfaceView.requestRender();
                                                     progressBar.setVisibility(View.INVISIBLE);
                                                 } catch (Exception e) {
@@ -3841,7 +4136,7 @@ public class MainActivity extends AppCompatActivity {
                                 switch (text) {
                                     case "Upload SWC":
 //                                        UploadSWC();
-                                        PushSWC_Block();
+//                                        PushSWC_Block();
                                         break;
 
                                     case "Download SWC":
@@ -3870,10 +4165,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void DownloadSWC() {
 
-//        DownloadSwc("223.3.33.234", this);
         Log.v("DownloadSWC: ", "here we are");
-        DownloadSwc("192.168.31.11", this);
-//        DownloadSwc("39.100.35.131", this);
+        DownloadSwc("39.100.35.131", this);
     }
 
 
@@ -3888,6 +4181,7 @@ public class MainActivity extends AppCompatActivity {
             ifImport = true;
             ifAnalyze = false;
             ifUpload = false;
+            ifLoadLocal = false;
         }
 
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -3897,7 +4191,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void PushSWC_Block(){
+    private void PushSWC_Block_Manual(){
 
         String filepath = this.getExternalFilesDir(null).toString();
         String swc_file_path = filepath + "/Sync/BlockSet";
@@ -3942,6 +4236,51 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void PushAPO_Block_Manual(){
+
+        String filepath = this.getExternalFilesDir(null).toString();
+        String apo_file_path = filepath + "/Sync/BlockSet/Apo";
+        File dir = new File(apo_file_path);
+
+        if (!dir.exists()){
+            if (!dir.mkdirs())
+                Toast.makeText(this,"Fail to create file: PushAPO_Block", Toast.LENGTH_SHORT).show();
+        }
+
+        String filename = getFilename_Remote(this);
+        String neuron_number = getNeuronNumber_Remote(this, filename);
+        String offset = getoffset_Remote(this, filename);
+        System.out.println(offset);
+        int[] index = BigImgReader.getIndex(offset);
+        System.out.println(filename);
+
+        String ratio = Integer.toString(remote_socket.getRatio_SWC());
+        String ApoFileName = "blockSet__" + neuron_number + "__" +
+                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
+
+        System.out.println(ApoFileName);
+
+        if (Save_curSwc_fast(ApoFileName, apo_file_path)){
+            File ApoFile = new File(apo_file_path + "/" + ApoFileName + ".swc");
+            try {
+                System.out.println("Start to push swc file");
+                InputStream is = new FileInputStream(ApoFile);
+                long length = ApoFile.length();
+
+                if (length < 0 || length > Math.pow(2, 28)){
+                    Toast_in_Thread("Something Wrong When Upload SWC, Try Again Please !");
+                    return;
+                }
+
+                remote_socket.PushApo_block(apo_file_path + ".swc", is, length);
+
+            } catch (Exception e){
+                System.out.println("----" + e.getMessage() + "----");
+            }
+        }
+    }
+
+
     private String[] SaveSWC_Block_Auto(){
 
         String filepath = this.getExternalFilesDir(null).toString();
@@ -3970,24 +4309,59 @@ public class MainActivity extends AppCompatActivity {
             return new String[]{ swc_file_path, SwcFileName };
         }
 
+        Log.v("SaveSWC_Block_Auto","Save Successfully !");
         return new String[]{"Error", "Error"};
     }
 
 
 
-    private void PushSWC_Block_Auto(String swc_file_path, String SwcFileName){
+    private static void PushSWC_Block_Auto(String swc_file_path, String SwcFileName){
+
+        if (swc_file_path.equals("Error"))
+            return;
 
         File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
+        if (!SwcFile.exists()){
+            Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
+            return;
+        }
         try {
             System.out.println("Start to push swc file");
             InputStream is = new FileInputStream(SwcFile);
             long length = SwcFile.length();
 
-            if (length < 0 || length > Math.pow(2, 28)){
-                Toast_in_Thread("Something Wrong When Upload SWC, Try Again Please !");
+            if (length <= 0 || length > Math.pow(2, 28)){
+                Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
                 return;
             }
             remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
+
+        } catch (Exception e){
+            System.out.println("----" + e.getMessage() + "----");
+        }
+    }
+
+
+    private static void PushAPO_Block_Auto(String apo_file_path, String ApoFileName){
+
+        if (apo_file_path.equals("Error"))
+            return;
+
+        File ApoFile = new File(apo_file_path + "/" + ApoFileName + ".apo");
+        if (!ApoFile.exists()){
+            Toast_in_Thread_static("Something Wrong When Upload APO, Try Again Please !");
+            return;
+        }
+        try {
+            System.out.println("Start to push apo file");
+            InputStream is = new FileInputStream(ApoFile);
+            long length = ApoFile.length();
+
+            if (length <= 0 || length > Math.pow(2, 28)){
+                Toast_in_Thread_static("Something Wrong When Upload APO, Try Again Please !");
+                return;
+            }
+            remote_socket.PushApo_block(ApoFileName + ".apo", is, length);
 
         } catch (Exception e){
             System.out.println("----" + e.getMessage() + "----");
@@ -4033,20 +4407,63 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-//    private void PullSWC_Block(){
-//
-////        DownloadSwc("39.100.35.131", this);
-//        PullSwc_block("39.100.35.131", this);
-//
-//    }
 
 
-    private static void PullSWC_Block(){
+    private String[] SaveAPO_Block_Auto(){
 
-//        DownloadSwc("39.100.35.131", this);
-        PullSwc_block("39.100.35.131", context);
+        String filepath = this.getExternalFilesDir(null).toString();
+        String apo_file_path = filepath + "/Sync/BlockSet/Apo";
+        File dir = new File(apo_file_path);
 
+        if (!dir.exists()){
+            if (!dir.mkdirs())
+                Toast.makeText(this,"Fail to create file: PushAPO_Block", Toast.LENGTH_SHORT).show();
+        }
+
+        String filename = getFilename_Remote(this);
+        String neuron_number = getNeuronNumber_Remote(this, filename);
+        String offset = getoffset_Remote(this, filename);
+        System.out.println(offset);
+        int[] index = BigImgReader.getIndex(offset);
+        System.out.println(filename);
+
+        String ratio = Integer.toString(remote_socket.getRatio_SWC());
+        String ApoFileName = "blockSet__" + neuron_number + "__" +
+                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
+
+        System.out.println(ApoFileName);
+
+        if (Save_curApo_fast(ApoFileName, apo_file_path)){
+            return new String[]{ apo_file_path, ApoFileName };
+        }
+
+        Log.v("SaveAPO_Block_Auto","Save Successfully !");
+        return new String[]{"Error", "Error"};
     }
+
+
+    private boolean Save_curApo_fast(String ApoFileName, String dir_str){
+
+        System.out.println("start to save apo-------");
+
+        String error = "init";
+        try {
+            error = myrenderer.saveCurrentApo(dir_str + ApoFileName + ".apo");
+            System.out.println("error:" + error);
+        } catch (Exception e) {
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (error.equals("Current apo is empty!")){
+            Toast_in_Thread("Current apo file is empty!");
+            return false;
+        } else{
+            System.out.println("save SWC to " + dir_str + "/" + ApoFileName + ".apo");
+        }
+        return true;
+    }
+
+
 
     private void ShareScreenShot() {
 
@@ -4508,11 +4925,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void Version() {
+    private void About() {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200803a 09:24 UTC+8 build",
+                                "Version: 20200817 16:24 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4539,41 +4956,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void remote(View v){
-        context = v.getContext();
-        ifRemote = true;
 
-        if ( select_img ){
 
-            Select_img();
-//            select_img = false;
-        }else {
-
-            new XPopup.Builder(this)
-                    .atView(v)
-                    .asAttachList(new String[]{"Select File", "Select Block", "Download By Http"},
-                            new int[]{},
-                            new OnSelectListener() {
-                                @Override
-                                public void onSelect(int position, String text) {
-                                    switch (text) {
-                                        case "Select Block":
-                                            remoteImg.Selectblock(context, false);
-                                            break;
-
-                                        case "Select File":
-                                            Select_img();
-                                            break;
-
-                                        case "Download By Http":
-                                            downloadFile();
-                                            break;
-                                    }
-                                }
-                            })
-                    .show();
-        }
-    }
 
     public void Select_img(){
         Context context = this;
@@ -4782,6 +5166,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public static void Toast_in_Thread_static(String message){
+        Message msg = new Message();
+        msg.what = Toast_Info_static;
+        Bundle bundle = new Bundle();
+        bundle.putString("Toast_msg",message);
+        msg.setData(bundle);
+        puiHandler.sendMessage(msg);
+    }
 
     public void Block_switch(View v){
         context = v.getContext();
@@ -4843,9 +5235,12 @@ public class MainActivity extends AppCompatActivity {
 
                         Log.v("Block_navigate", text);
                         if (DrawMode){
-                            String[] info = SaveSWC_Block_Auto();
+                            push_info_swc = SaveSWC_Block_Auto();
+
+                            //  for apo sync
+//                            push_info_apo = SaveAPO_Block_Auto();
                             remote_socket.Selectblock_fast(context, false, text);
-                            PushSWC_Block_Auto(info[0], info[1]);
+//                            PushSWC_Block_Auto(push_info[0], push_info[1]);
 
                         }else {
                             remote_socket.Selectblock_fast_Check(context, false, text);
@@ -5163,7 +5558,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         myrenderer.saveUndo();
-        ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
+        ArrayList<ImageMarker> markers = myrenderer.getMarkerList().getMarkers();
         try {
             ParaAPP2 p = new ParaAPP2();
             p.p4dImage = img;
@@ -5238,7 +5633,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         myrenderer.saveUndo();
-        ArrayList<ImageMarker> markers = myrenderer.getMarkerList();
+        ArrayList<ImageMarker> markers = myrenderer.getMarkerList().getMarkers();
         if (markers.size() <= 1) {
             Log.v("GDTracing", "Please generate at least two markers!");
             if (Looper.myLooper() == null) {
@@ -5478,6 +5873,91 @@ public class MainActivity extends AppCompatActivity {
             result = result + " ";
         }
         return result;
+    }
+
+    private void setSettings(){
+
+        SettingFileManager settingFileManager = new SettingFileManager();
+        boolean [] ifChecked = new boolean[2];
+        boolean [] ifChecked2 = new boolean[2];
+        ifChecked[0] = false;
+        ifChecked2[0] = false;
+
+        MDDialog mdDialog = new MDDialog.Builder(this)
+                .setContentView(R.layout.settings)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {
+                        Switch downsample_on_off = contentView.findViewById(R.id.switch_rotation_mode);
+                        boolean ifDownSample = myrenderer.getIfNeedDownSample();
+                        downsample_on_off.setChecked(ifDownSample);
+
+                        downsample_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                ifChecked[0] = true;
+                                ifChecked[1] = isChecked;
+                            }
+                        });
+
+                        Switch check_on_off = contentView.findViewById(R.id.switch_check_mode);
+                        check_on_off.setChecked(!DrawMode);
+
+                        check_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                ifChecked2[0] = true;
+                                ifChecked2[1] = isChecked;
+                            }
+                        });
+                    }
+                })
+                .setNegativeButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                })
+                .setPositiveButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        if (ifChecked[0]) {
+                            myrenderer.setIfNeedDownSample(ifChecked[1]);
+                            if (ifChecked[1]) {
+                                settingFileManager.setDownSampleMode("DownSampleYes", getContext());
+                            } else {
+                                settingFileManager.setDownSampleMode("DownSampleNo", getContext());
+                            }
+                        }
+
+                        if (ifChecked2[0]) {
+                            DrawMode = !ifChecked2[1];
+                            if (ifChecked2[1]) {
+                                settingFileManager.setBigDataMode("Check Mode", getContext());
+                            } else {
+                                settingFileManager.setBigDataMode("Draw Mode", getContext());
+                            }
+                        }
+
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                    }
+                })
+                .setTitle("Settings")
+                .create();
+
+        mdDialog.show();
+        mdDialog.getWindow().setLayout(1000, 1500);
     }
 
 
@@ -6257,7 +6737,7 @@ public class MainActivity extends AppCompatActivity {
 
             //preparations for show
             myrenderer.ResetImg(p.outImage);
-            myrenderer.getMarkerList().addAll(p.markers);//blue marker
+            myrenderer.getMarkerList().getMarkers().addAll(p.markers);//blue marker
             myrenderer.getMarkerList().add(p.MaxMarker);//red marker
             myGLSurfaceView.requestRender();
             if (Looper.myLooper() == null) {
@@ -6727,13 +7207,14 @@ public class MainActivity extends AppCompatActivity {
                                                 } else {
                                                     myrenderer.addBackgroundLineDrawed(lineDrawed);
                                                 }
+                                                requestRender();
                                                 return "succeed";
                                             }
                                         };
                                         ExecutorService exeService = Executors.newSingleThreadExecutor();
                                         Future<String> future = exeService.submit(task);
                                         try {
-                                            String result = future.get(2000, TimeUnit.MILLISECONDS);
+                                            String result = future.get(1500, TimeUnit.MILLISECONDS);
                                             System.err.println("Result:" + result);
                                         } catch (Exception e) {
                                             e.printStackTrace();
@@ -6840,67 +7321,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * Toast some information in child thread
-     * @param context the activity context
-     * @param text the information to show
-     */
-    public static void ShowToast(Context context, String text) {
-        Toast toast = null;
-
-        Looper myLooper = Looper.myLooper();
-        if (myLooper == null) {
-            Looper.prepare();
-            myLooper = Looper.myLooper();
-        }
-
-        if (toast == null) {
-            toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
-//            toast.setGravity(Gravity.CENTER, 0, 0);
-        }
-        toast.show();
-        Log.v("ShowToast","Finished toast");
-
-        Timer timer = new Timer();
-        Looper finalMyLooper = myLooper;
-        timer.schedule(new TimerTask() {
-            public void run() {
-
-                finalMyLooper.quit();
-
-            }
-
-        }, 1 * 1000); // 延时5秒
-
-        if ( myLooper != null) {
-            Log.v("ShowToast","Finished toast");
-
-            Looper.loop();
-            Log.v("ShowToast","Finished toast");
-
-        }
-
-        Log.v("ShowToast","Finished toast");
-
-//        @SuppressLint("HandlerLeak")
-//        Handler mHandler = new Handler(){
-//            @Override
-//            public void handleMessage(Message msg) {
-//                super.handleMessage(msg);
-//                //这里写你的Toast代码
-//                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
-//            }
-//        };
-//
-//        mHandler.sendEmptyMessage(0);
-    }
 
     public void File_icon(){
 
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("File Open&Save", new String[]{"Open LocalFile", "Open BigData", "Load SWCFile","Camera"},
+                .asCenterList("File Open & Save", new String[]{"Open LocalFile", "Open BigData", "Load SWCFile","Camera"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -7076,6 +7503,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void PopUp_Chat(Context context){
+
         new MDDialog.Builder(context)
 //              .setContentView(customizedView)
                 .setContentView(R.layout.chat_connect)
@@ -7207,6 +7635,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
                 .asCenterList("BigData File",new String[]{"Select File", "Select Block", "Download by http"},
                         new OnSelectListener() {
+                            @RequiresApi(api = Build.VERSION_CODES.N)
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text) {
@@ -7229,16 +7658,34 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void Select_Block(){
 
         String source = getSelectSource(this);
-
+        String ip = "";
         switch (source){
-            case "Remote Server":
-                String ip = "39.100.35.131";
-                remote_socket.DisConnectFromHost();
-                remote_socket.ConnectServer(ip);
-                remote_socket.SelectBlock();
+            case "Remote Server Aliyun":
+            case "Remote Server SEU":
+                if (source.equals("Remote Server Aliyun")){
+                    ip = "39.100.35.131";
+                }else {
+                    ip = "223.3.33.234";
+                }
+                if (DrawMode){
+                    remote_socket.DisConnectFromHost();
+                    remote_socket.ConnectServer(ip);
+                    remote_socket.SelectBlock();
+                }else {
+                    String arbor_num = getFilename_Remote_Check(context);
+                    if (!arbor_num.equals("--11--")){
+                        remote_socket.DisConnectFromHost();
+                        remote_socket.ConnectServer(ip);
+                        remote_socket.Send_Arbor_Number(arbor_num);
+                    }else {
+                        Toast_in_Thread("Select a Img First !");
+                    }
+
+                }
                 break;
             case "Local Server":
                 bigImgReader.PopUp(context);
@@ -7300,20 +7747,32 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("------" + filepath + "------");
         isBigData_Remote = true;
         isBigData_Local = false;
-//        String filename = getFilename(context);
-//        String offset = getoffset(context, filename);
-//
-//        String offset_x = offset.split("_")[0];
-//        String offset_y = offset.split("_")[1];
-//        String offset_z = offset.split("_")[2];
-//
-//        Toast.makeText(getContext(),"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
         myGLSurfaceView.requestRender();
 
-        setSelectSource("Remote Server",context);
+        Log.v("MainActivity",remote_socket.getIp());
+        if (remote_socket.getIp().equals("39.100.35.131")){
+            setSelectSource("Remote Server Aliyun",context);
+        } else if(remote_socket.getIp().equals("223.3.33.234")){
+            setSelectSource("Remote Server SEU",context);
+        }
+
         SetButtons();
 
         PullSwc_block_Auto(DrawMode);
+
+        //  for apo sync
+//        PullApo_block_Auto();
+
+        if (DrawMode){
+            if (!push_info_swc[0].equals("New")){
+                PushSWC_Block_Auto(push_info_swc[0], push_info_swc[1]);
+            }
+
+            //  for apo sync
+//            if (!push_info_apo[0].equals("New")){
+//                PushAPO_Block_Auto(push_info_swc[0], push_info_swc[1]);
+//            }
+        }
 
     }
 
@@ -7361,6 +7820,7 @@ public class MainActivity extends AppCompatActivity {
         animation_i.setVisibility(View.GONE);
         Rotation_i.setVisibility(View.GONE);
         Hide_i.setVisibility(View.GONE);
+        Undo_i.setVisibility(View.GONE);
 
         if (isBigData_Remote || isBigData_Local){
             navigation_back.setVisibility(View.GONE);
@@ -7375,8 +7835,13 @@ public class MainActivity extends AppCompatActivity {
             Zoom_out_Big.setVisibility(View.GONE);
 
             if (isBigData_Remote) {
-                sync_pull.setVisibility(View.GONE);
-                sync_push.setVisibility(View.GONE);
+                if (!DrawMode){
+                    Check_No.setVisibility(View.GONE);
+                    Check_Yes.setVisibility(View.GONE);
+                }else {
+                    sync_push.setVisibility(View.GONE);
+                }
+                    sync_pull.setVisibility(View.GONE);
             }
         }else {
             Zoom_in.setVisibility(View.GONE);
@@ -7398,6 +7863,7 @@ public class MainActivity extends AppCompatActivity {
         animation_i.setVisibility(View.VISIBLE);
         Rotation_i.setVisibility(View.VISIBLE);
         Hide_i.setVisibility(View.VISIBLE);
+        Undo_i.setVisibility(View.VISIBLE);
 
         if (isBigData_Remote || isBigData_Local){
             navigation_back.setVisibility(View.VISIBLE);
@@ -7412,9 +7878,15 @@ public class MainActivity extends AppCompatActivity {
             Zoom_out_Big.setVisibility(View.VISIBLE);
 
             if (isBigData_Remote) {
+                if (!DrawMode){
+                    Check_No.setVisibility(View.VISIBLE);
+                    Check_Yes.setVisibility(View.VISIBLE);
+                }else {
+                    sync_push.setVisibility(View.VISIBLE);
+                }
                 sync_pull.setVisibility(View.VISIBLE);
-                sync_push.setVisibility(View.VISIBLE);
             }
+
         }else {
             Zoom_in.setVisibility(View.VISIBLE);
             Zoom_out.setVisibility(View.VISIBLE);
@@ -7547,8 +8019,8 @@ public class MainActivity extends AppCompatActivity {
         filenametext.setText(filename);
         ll_file.setVisibility(View.VISIBLE);
 
-        lp_undo.setMargins(0, 240, 20, 0);
-        Undo_i.setLayoutParams(lp_undo);
+//        lp_undo.setMargins(0, 240, 20, 0);
+//        Undo_i.setLayoutParams(lp_undo);
 
         lp_up_i.setMargins(0, 360, 0, 0);
         navigation_up.setLayoutParams(lp_up_i);

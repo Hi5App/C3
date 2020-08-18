@@ -11,7 +11,9 @@ import android.os.Build;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -108,12 +110,16 @@ public class Remote_Socket extends Socket {
 
         Store_path = context.getExternalFilesDir(null).toString();
 
+        if (!getFilename_Remote(mContext).equals("--11--")){
+            BrainNumber_Selected = getFilename_Remote(mContext).split("/")[0];
+        }
+
     }
 
 
     public void ConnectServer(String ip_server){
 
-        Log.v("ConnectServer","Start to Connect Server !");
+//        Log.v("ConnectServer","Start to Connect Server !");
 
         if (ManageSocket != null && !ManageSocket.isClosed() && ManageSocket.isConnected()){
             return;
@@ -133,7 +139,7 @@ public class Remote_Socket extends Socket {
                     if (ManageSocket.isConnected()) {
 
                         isSocketSet = true;
-                        Toast_in_Thread("Connect Server Successfully !");
+//                        Toast_in_Thread("Connect Server Successfully !");
                         Log.v("ConnectServer", "Connect Server Successfully !");
 
                     } else {
@@ -141,21 +147,6 @@ public class Remote_Socket extends Socket {
                     }
 
 
-//                    /*
-//                     Read the feedback when connect successfully
-//                     */
-//                    if (ManageSocket.isConnected()) {
-//                        if (!ManageSocket.isInputShutdown()) {
-//                            String content = "";
-//                            Log.d("-- ConnectServer --:", "Start to Read Line");
-//
-//                            if ((content = ImgReader.readLine()) != null) {
-//                                Log.v("-- ConnectServer --:", content);
-////                                onReadyRead(content, context);
-//
-//                            }
-//                        }
-//                    }
                 } catch (IOException e) {
                     Toast_in_Thread("Something Wrong When Connect Server");
                     e.printStackTrace();
@@ -171,8 +162,6 @@ public class Remote_Socket extends Socket {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        Log.v("ConnectServer", "thread.join() Successfully !");
 
     }
 
@@ -297,7 +286,7 @@ public class Remote_Socket extends Socket {
 
         new XPopup.Builder(mContext)
 //        .maxWidth(400)
-//        .maxHeight(1350)
+        .maxHeight(1350)
                 .asCenterList("Select a Brain", items,
                         new OnSelectListener() {
                             @RequiresApi(api = Build.VERSION_CODES.N)
@@ -389,7 +378,58 @@ public class Remote_Socket extends Socket {
 
 
 
+
+    public String PullApo_block(){
+
+        Make_Connect();
+
+        String ApoFilePath = "Error";
+
+        if (CheckConnection()){
+
+
+            String file_path = mContext.getExternalFilesDir(null).toString() + "/Sync/BlockGet/Apo";
+
+            String filename = getFilename_Remote(mContext);
+            String neuron_number = getNeuronNumber_Remote(mContext, filename);
+            String offset = getoffset_Remote(mContext, filename);
+            int[] index = BigImgReader.getIndex(offset);
+            System.out.println(filename);
+
+            String ratio = Integer.toString(getRatio_SWC());
+
+            String ApoFileName = neuron_number + "__" +
+                    index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
+
+            Send_Message(ApoFileName + "__" + ratio + ":GetBBApo.\n");
+            Get_File(file_path, true);
+
+            ApoFilePath = file_path + "/blockGet__" + ApoFileName + "__" + ratio  + ".apo";
+
+        }else {
+            Toast_in_Thread("Can't Connect Server, Try Again Later !");
+        }
+
+        return ApoFilePath;
+    }
+
+
     public void PushSwc_block(String filename, InputStream is, long length){
+
+        Make_Connect();
+
+        if (CheckConnection()){
+
+            socket_send.Send_File(ManageSocket, filename, is, length);
+
+        }else {
+            Toast_in_Thread("Can't Connect Server, Try Again Later !");
+        }
+
+    }
+
+
+    public void PushApo_block(String filename, InputStream is, long length){
 
         Make_Connect();
 
@@ -671,19 +711,24 @@ public class Remote_Socket extends Socket {
 
     public void Select_RES(String[] RESs){
 
-        new XPopup.Builder(mContext)
-//        .maxWidth(400)
-//        .maxHeight(1350)
-                .asCenterList("Select a RES", RESs,
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                RES_Selected = text;
-                                Select_Neuron(Transform(Neuron_Number_List));
-                                setFilename_Remote(BrainNumber_Selected + "/" + RES_Selected, mContext);   //  18454/RES250x250x250
-                            }
-                        })
-                .show();
+
+        RES_Selected = RESs[RESs.length - 1];
+        Select_Neuron(Transform(Neuron_Number_List));
+        setFilename_Remote(BrainNumber_Selected + "/" + RES_Selected, mContext);   //  18454/RES250x250x250
+
+//        new XPopup.Builder(mContext)
+////        .maxWidth(400)
+////        .maxHeight(1350)
+//                .asCenterList("Select a RES", RESs,
+//                        new OnSelectListener() {
+//                            @Override
+//                            public void onSelect(int position, String text) {
+//                                RES_Selected = text;
+//                                Select_Neuron(Transform(Neuron_Number_List));
+//                                setFilename_Remote(BrainNumber_Selected + "/" + RES_Selected, mContext);   //  18454/RES250x250x250
+//                            }
+//                        })
+//                .show();
 
     }
 
@@ -699,7 +744,12 @@ public class Remote_Socket extends Socket {
                                 Neuron_Number_Selected = text;
                                 System.out.println(Neuron_Number_Selected);
                                 if (Neuron_Info.get(Neuron_Number_Selected) != null){
-                                    Select_Pos(Transform(Neuron_Info.get(Neuron_Number_Selected)));
+
+                                    // Select soma without choose pos
+                                    Pos_Selected = Neuron_Info.get(Neuron_Number_Selected).get(0);
+                                    PopUp(false);
+
+//                                    Select_Pos(Transform(Neuron_Info.get(Neuron_Number_Selected)));
                                     setNeuronNumber_Remote(Neuron_Number_Selected, BrainNumber_Selected + "/" + RES_Selected, mContext);  //18454_00002
                                 }else {
                                     Toast_in_Thread("Information not Exist !");
@@ -816,7 +866,7 @@ public class Remote_Socket extends Socket {
         String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
 
         if (!JudgeBounding(input)){
-            Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+            Toast_in_Thread("Please make sure all the information is right !");
         }else {
             PullImageBlock(input[0], input[1], input[2], input[3], true);
         }
@@ -1114,17 +1164,35 @@ public class Remote_Socket extends Socket {
                     display = display + "Yes";
                 }
 
-                info = info + display + "\n";
+                info = info + display + "\n\n";
             }
 
-            new XPopup.Builder(mContext)
-                    .asConfirm("Check Result", info,
-                            new OnConfirmListener() {
-                                @Override
-                                public void onConfirm() {
-                                }
-                            })
-                    .show();
+
+            String finalInfo = info;
+            MDDialog mdDialog = new MDDialog.Builder(mContext)
+                    .setContentView(R.layout.check_result)
+                    .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                        @Override
+                        public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+                            //analysis_result next page
+                            TextView display_info = (TextView) contentView.findViewById(R.id.check_result);
+                           display_info.setText(finalInfo);
+                        }
+                    })
+                    .setTitle("Check Result")
+                    .create();
+            mdDialog.show();
+            mdDialog.getWindow().setLayout(1000, 1500);
+
+
+//            new XPopup.Builder(mContext)
+//                    .asConfirm("Check Result", info,
+//                            new OnConfirmListener() {
+//                                @Override
+//                                public void onConfirm() {
+//                                }
+//                            })
+//                    .show();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -1402,7 +1470,8 @@ public class Remote_Socket extends Socket {
         int z_offset_i = Integer.parseInt(input[2]);
         int size_i = Integer.parseInt(input[3]);
 
-        String filename = getFilename(mContext);
+        String filename = getFilename(mContext).replace("(","");
+        filename = filename.replace(")","");
         String size = filename.split("RES")[1];
 
         System.out.println("hhh-------" + size + "--------hhh");
@@ -1568,6 +1637,19 @@ public class Remote_Socket extends Socket {
         }
 
         return offset_result;
+
+    }
+
+
+
+    public String getIp(){
+        Make_Connect();
+
+        if (CheckConnection()){
+            return this.ip;
+        }
+
+        return "Can't connect server";
 
     }
 
