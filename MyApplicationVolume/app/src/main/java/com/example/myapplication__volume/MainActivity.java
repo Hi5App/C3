@@ -277,6 +277,7 @@ public class MainActivity extends AppCompatActivity {
     private static ImageButton navigation_up;
     private static ImageButton navigation_down;
     private static ImageButton navigation_location;
+    private static ImageButton neuron_list;
     private static Button navigation_front;
     private static Button navigation_back;
     private static ImageButton sync_push;
@@ -296,6 +297,7 @@ public class MainActivity extends AppCompatActivity {
     private static FrameLayout.LayoutParams lp_nacloc_i;
     private static FrameLayout.LayoutParams lp_sync_push;
     private static FrameLayout.LayoutParams lp_sync_pull;
+    private static FrameLayout.LayoutParams lp_neuron_list;
     private FrameLayout.LayoutParams lp_animation_i;
     private static FrameLayout.LayoutParams lp_undo;
 
@@ -428,12 +430,14 @@ public class MainActivity extends AppCompatActivity {
                                 Check_No.setVisibility(View.GONE);
                                 sync_pull.setVisibility(View.VISIBLE);
                                 sync_push.setVisibility(View.VISIBLE);
+                                neuron_list.setVisibility(View.VISIBLE);
                             }
                             else {
                                 Check_Yes.setVisibility(View.VISIBLE);
                                 Check_No.setVisibility(View.VISIBLE);
                                 sync_pull.setVisibility(View.VISIBLE);
                                 sync_push.setVisibility(View.GONE);
+                                neuron_list.setVisibility(View.GONE);
                             }
                         }
 
@@ -472,7 +476,14 @@ public class MainActivity extends AppCompatActivity {
 
                     String result = null;
                     if (DrawMode){
-                        result = name.split("_")[1].substring(0,name.split("_")[1].length()-3);
+                        String source = getSelectSource(context);
+                        if (source.equals("Remote Server Aliyun")){
+                            result = name.split("_")[1].substring(0,name.split("_")[1].length()-3);
+                        }else if(source.equals("Remote Server SEU")){
+                            String filename = getFilename(context);
+                            String brain_number = getNeuronNumber_Remote(context,filename);
+                            result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
+                        }
                     }else {
                         result = name.split("__")[0];
                     }
@@ -1143,6 +1154,20 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        lp_neuron_list = new FrameLayout.LayoutParams(115, 115);
+        lp_neuron_list.gravity = Gravity.TOP | Gravity.RIGHT;
+        lp_neuron_list.setMargins(0, 580, 20, 0);
+
+        neuron_list = new ImageButton(this);
+        neuron_list.setImageResource(R.drawable.ic_assignment_black_24dp);
+        neuron_list.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                remote_socket.Select_Neuron_Fast();
+            }
+        });
+
+
 //        Audio_call = new FloatingActionButton(this);
 //        Audio_call.setImageResource(R.drawable.btn_end_call);
 //        Audio_call.setOnClickListener(new Button.OnClickListener() {
@@ -1156,8 +1181,6 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)
-////                        .setAction("Action", null).show();
 
                 fab.setVisibility(View.GONE);
                 leaveChannel();
@@ -1181,6 +1204,7 @@ public class MainActivity extends AppCompatActivity {
 
         this.addContentView(sync_pull, lp_sync_pull);
         this.addContentView(sync_push, lp_sync_push);
+        this.addContentView(neuron_list, lp_neuron_list);
 
         navigation_left.setVisibility(View.GONE);
         navigation_right.setVisibility(View.GONE);
@@ -1192,6 +1216,7 @@ public class MainActivity extends AppCompatActivity {
 
         sync_pull.setVisibility(View.GONE);
         sync_push.setVisibility(View.GONE);
+        neuron_list.setVisibility(View.GONE);
 
 
         SettingFileManager settingFileManager = new SettingFileManager();
@@ -1649,6 +1674,7 @@ public class MainActivity extends AppCompatActivity {
                                 if (DrawMode){
                                     sync_push.setVisibility(View.GONE);
                                     sync_pull.setVisibility(View.GONE);
+                                    neuron_list.setVisibility(View.GONE);
                                 }
                                 else{
                                     Check_Yes.setVisibility(View.GONE);
@@ -1721,6 +1747,7 @@ public class MainActivity extends AppCompatActivity {
                             if (DrawMode){
                                 sync_push.setVisibility(View.GONE);
                                 sync_pull.setVisibility(View.GONE);
+                                neuron_list.setVisibility(View.GONE);
                             }
                             else{
                                 Check_Yes.setVisibility(View.GONE);
@@ -4929,7 +4956,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200817 16:24 UTC+8 build",
+                                "Version: 20200818 23:24 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -7759,6 +7786,7 @@ public class MainActivity extends AppCompatActivity {
         SetButtons();
 
         PullSwc_block_Auto(DrawMode);
+        LoadMarker();
 
         //  for apo sync
 //        PullApo_block_Auto();
@@ -7796,6 +7824,23 @@ public class MainActivity extends AppCompatActivity {
         SetButtons();
 
     }
+
+
+    private static void LoadMarker(){
+
+        String filename = getFilename_Remote(context);
+        String offset = getoffset_Remote(context, filename);
+        int[] index = BigImgReader.getIndex(offset);
+        Log.v("LoadMarker",Arrays.toString(index));
+
+        ArrayList<ArrayList<Integer>> marker_list = new ArrayList<ArrayList<Integer>>();
+        marker_list = remote_socket.getMarker(index);
+
+        myrenderer.importMarker(marker_list);
+        myGLSurfaceView.requestRender();
+
+    }
+
 
     public static void Time_Out(){
         hideProgressBar();
@@ -7840,6 +7885,7 @@ public class MainActivity extends AppCompatActivity {
                     Check_Yes.setVisibility(View.GONE);
                 }else {
                     sync_push.setVisibility(View.GONE);
+                    neuron_list.setVisibility(View.GONE);
                 }
                     sync_pull.setVisibility(View.GONE);
             }
@@ -7883,6 +7929,7 @@ public class MainActivity extends AppCompatActivity {
                     Check_Yes.setVisibility(View.VISIBLE);
                 }else {
                     sync_push.setVisibility(View.VISIBLE);
+                    neuron_list.setVisibility(View.VISIBLE);
                 }
                 sync_pull.setVisibility(View.VISIBLE);
             }
@@ -8033,6 +8080,9 @@ public class MainActivity extends AppCompatActivity {
 
         lp_sync_pull.setMargins(0, 490, 20, 0);
         sync_pull.setLayoutParams(lp_sync_pull);
+
+        lp_neuron_list.setMargins(0, 630, 20, 0);
+        neuron_list.setLayoutParams(lp_neuron_list);
     }
 
 }

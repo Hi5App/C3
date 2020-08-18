@@ -148,8 +148,8 @@ public class Socket_Receive {
 
                     Log.v("Get_Msg: Data_size", Long.toString(bytesToLong(Data_size)));
                     Log.v("Get_Msg: FileName_size", Long.toString(bytesToLong(FileName_size)));
-//                    Log.v("Get_Msg", FileName_String);
-//                    Log.v("Get_Msg", FileName_SubString);
+                    Log.v("Get_Msg", FileName_String);
+                    Log.v("Get_Msg", FileName_SubString);
 
 
 //                    for (byte a : FileName_String_byte){

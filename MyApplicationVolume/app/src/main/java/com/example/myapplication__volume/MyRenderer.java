@@ -4170,14 +4170,25 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
+    public void importMarker(ArrayList<ArrayList<Integer>> marker_list){
 
-    //    class XYZ{
-//        private float this_x;
-//
-//        public XYZ(float x, float y, float z){
-//
-//        }
-//    }
+        for (int i = 0; i < marker_list.size(); i++){
+            ArrayList<Integer> currentLine = marker_list.get(i);
+
+            ImageMarker imageMarker_drawed = new ImageMarker(
+                    currentLine.get(0).floatValue(),
+                    currentLine.get(1).floatValue(),
+                    currentLine.get(2).floatValue());
+
+            imageMarker_drawed.type = 3;
+
+            System.out.println("ImageType: " + imageMarker_drawed.type);
+            markerList.add(imageMarker_drawed);
+        }
+
+    }
+
+
     public String saveCurrentSwc(String dir) throws Exception{
         String error = "";
         NeuronTree nt = this.getNeuronTree();

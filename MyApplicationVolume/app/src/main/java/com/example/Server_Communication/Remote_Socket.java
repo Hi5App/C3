@@ -95,6 +95,7 @@ public class Remote_Socket extends Socket {
     public static HashMap<String, Vector<String>> Neuron_Info = new HashMap<>();
     public static Vector<String> Soma_List = new Vector<>();
     public static Vector<String> Arbor_List = new Vector<>();
+    public static ArrayList<Integer> Marker_List = new ArrayList<Integer>();
     public static String RES_Selected = "Empty";
     public static String Neuron_Number_Selected = "Empty";
     public static String Pos_Selected = "Empty";
@@ -736,7 +737,7 @@ public class Remote_Socket extends Socket {
 
         new XPopup.Builder(mContext)
 //        .maxWidth(400)
-//        .maxHeight(1350)
+        .maxHeight(1350)
                 .asCenterList("Select a Neuron", Neurons,
                         new OnSelectListener() {
                             @Override
@@ -758,6 +759,19 @@ public class Remote_Socket extends Socket {
                         })
                 .show();
 
+    }
+
+
+    public void Select_Neuron_Fast(){
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Select_Neuron(Transform(Neuron_Number_List));
+            }
+        });
+
+        thread.start();
     }
 
     public void Select_Pos(String[] Pos){
@@ -1573,6 +1587,11 @@ public class Remote_Socket extends Socket {
                     Vector<String> point_list = new Vector<>();
                     point_list.add(arraylist.get(++i));
 
+                    String[] marker = arraylist.get(i).split(":")[1].split(";");
+                    Marker_List.add(Integer.parseInt(marker[0]));
+                    Marker_List.add(Integer.parseInt(marker[1]));
+                    Marker_List.add(Integer.parseInt(marker[2]));
+
                     String[] split = arraylist.get(++i).split(":");
                     int num = Integer.parseInt(split[1]);
                     for (int j = 0; j < num; j++){
@@ -1600,6 +1619,35 @@ public class Remote_Socket extends Socket {
             Toast_in_Thread("Fail to Read TXT File !");
         }
 
+
+    }
+
+
+
+    public ArrayList<ArrayList<Integer>> getMarker(int[] index){
+
+        ArrayList<ArrayList<Integer>> marker_list = new ArrayList<ArrayList<Integer>>();
+
+        for (int i = 0; i < Marker_List.size(); i = i + 3){
+            int x = Marker_List.get(i);
+            int y = Marker_List.get(i+1);
+            int z = Marker_List.get(i+2);
+
+//            Log.v("getMarker","(" + x + ", " + y + ", " + z + ")");
+
+            if (x >= index[0] && y >= index[1] && z>= index[2] &&
+                x < index[3] && y < index[4] && z < index[5]){
+                ArrayList<Integer> marker = new ArrayList<Integer>();
+                marker.add(x - index[0]);
+                marker.add(y - index[1]);
+                marker.add(z - index[2]);
+                marker_list.add(marker);
+            }
+        }
+
+        Log.v("getMarker",marker_list.size() + " !");
+        Log.v("getMarker",Marker_List.size() + " !");
+        return marker_list;
 
     }
 
