@@ -131,6 +131,7 @@ void Socket::processMsg(const QString &msg)
     QRegExp GetArborRex("(.*):GetArbor.\n");
     QRegExp GetArborSwcRex("(.*):GetArborSwc.\n");
     QRegExp ArborCheckRex("(.*):ArborCheck.\n");
+    QRegExp GetArborResultRex("(.*):GetArborResult.\n");
     qDebug()<<"MSG:"<<msg;
     if(LoginRex.indexIn(msg)!=-1)
     {
@@ -173,6 +174,9 @@ void Socket::processMsg(const QString &msg)
     }else if(ArborCheckRex.indexIn(msg)!=-1)
     {
         ArborCheck(ArborCheckRex.cap(1).trimmed());
+    }else if(GetArborResultRex.indexIn(msg)!=-1)
+    {
+        sendFile("arborcheck.txt",3);
     }
     qDebug()<<"process Msg end";
 }
@@ -277,6 +281,7 @@ void Socket::sendFile(const QString &filename, int type) const
         case 0:filePath.clear();filePath=QCoreApplication::applicationDirPath()+"/data/"+filename;break;
         case 1:filePath.clear();filePath=QCoreApplication::applicationDirPath()+"/brainInfo/"+filename;break;
         case 2:filePath.clear();filePath=QCoreApplication::applicationDirPath()+"/tmp/"+filename;break;
+        case 3:filePath.clear();filePath=QCoreApplication::applicationDirPath()+"/arbormark/"+filename;break;
     default: break;
     }
     qDebug()<<"filepath:"<<filePath;
