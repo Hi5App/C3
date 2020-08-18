@@ -309,7 +309,7 @@ NeuronTree readSWC_file(const QString& filename)
 	hashNeuron.clear();
 	QString name = "";
 	QString comment = "";
-
+        nt.flag=true;
     qDebug("-------------------------------------------------------");
     while (! qf.atEnd())
     {
@@ -377,7 +377,7 @@ NeuronTree readSWC_file(const QString& filename)
     nt.on = true;
     nt.name = name.remove('\n'); if (nt.name.isEmpty()) nt.name = QFileInfo(filename).baseName();
     nt.comment = comment.remove('\n');
-    nt.flag=true;
+
 	return nt;
 }
 
