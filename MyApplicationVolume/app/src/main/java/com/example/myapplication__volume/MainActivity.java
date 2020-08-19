@@ -5010,7 +5010,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200819 16:24 UTC+8 build",
+                                "Version: 20200819 17:24 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -7276,7 +7276,7 @@ public class MainActivity extends AppCompatActivity {
                                             @Override
                                             public String call() throws Exception {
                                                 int lineType = myrenderer.getLastLineType();
-                                                if (lineType != 3) {
+                                                if (lineType != 2) {
 //                                            int segid = myrenderer.addLineDrawed(lineDrawed);
 //                                    segids.add(segid);
 //                            requestRender();

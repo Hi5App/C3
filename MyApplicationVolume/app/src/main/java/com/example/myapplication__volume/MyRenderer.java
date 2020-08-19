@@ -188,7 +188,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private boolean isAddLine = false;
     private boolean isAddLine2 = false;
 
-    private int lastLineType = 2;
+    private int lastLineType = 3;
     private int lastMarkerType = 3;
 
 
