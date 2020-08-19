@@ -764,14 +764,34 @@ public class Remote_Socket extends Socket {
 
     public void Select_Neuron_Fast(){
 
+        Vector<String> Neuron_Number_List_show = Adjust_Index();
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Select_Neuron(Transform(Neuron_Number_List));
+                Select_Neuron(Transform(Neuron_Number_List_show));
             }
         });
 
         thread.start();
+    }
+
+
+    private Vector<String> Adjust_Index(){
+
+        Vector<String> Neuron_Number_List_show = new Vector<String>();
+
+        String filename = getFilename_Remote(mContext);
+        String neuron_num = getNeuronNumber_Remote(mContext,filename);
+
+        int index = Neuron_Number_List.indexOf(neuron_num);
+        Log.v("Adjust_Index"," " + index);
+
+        for (int i = index - 1; i <= Neuron_Number_List.size() + index; i++){
+            Neuron_Number_List_show.add(Neuron_Number_List.get(i % Neuron_Number_List.size()));
+        }
+
+        return Neuron_Number_List_show;
     }
 
     public void Select_Pos(String[] Pos){
@@ -1490,8 +1510,9 @@ public class Remote_Socket extends Socket {
 
         System.out.println("hhh-------" + size + "--------hhh");
 
-        int x_size = Integer.parseInt(size.split("x")[0]);
-        int y_size = Integer.parseInt(size.split("x")[1]);
+        // current filename mouse18864_teraconvert/RES(35001x27299x10392)   : y x z
+        int x_size = Integer.parseInt(size.split("x")[1]);
+        int y_size = Integer.parseInt(size.split("x")[0]);
         int z_size = Integer.parseInt(size.split("x")[2]);
 
 
@@ -1619,6 +1640,18 @@ public class Remote_Socket extends Socket {
             Toast_in_Thread("Fail to Read TXT File !");
         }
 
+
+    }
+
+
+    public void LoadTXT(){
+
+        Store_path = mContext.getExternalFilesDir(null).toString();
+
+        String Store_path_txt = Store_path + "/BrainInfo/";
+        String filename = getFilename_Remote(mContext).split("/")[0];
+        Log.v("LoadTXT",Store_path_txt + filename);
+        Analyze_TXT(Store_path_txt + filename + ".txt");
 
     }
 
