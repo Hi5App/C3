@@ -195,6 +195,7 @@ public class NeuronTree extends BasicSurfObj {
         return false;
     }
 
+    @SuppressLint("DefaultLocale")
     public boolean overwriteSWC_file(String swcfile){
         System.out.println("point num = "+this.listNeuron.size()+", save swc file to "+swcfile);
         try {
@@ -208,8 +209,8 @@ public class NeuronTree extends BasicSurfObj {
             for(int i=0; i<this.listNeuron.size(); i++){
                 NeuronSWC s = this.listNeuron.get(i);
                 writer.append(Long.toString(s.n)).append(" ").append(Integer.toString(s.type))
-                        .append(" ").append(Double.toString(s.x)).append(" ").append(Double.toString(s.y))
-                        .append(" ").append(Double.toString(s.z)).append(" ").append(Double.toString(s.radius))
+                        .append(" ").append(String.format("%.3f", s.x )).append(" ").append(String.format("%.3f", s.y ))
+                        .append(" ").append(String.format("%.3f", s.z )).append(" ").append(String.format("%.3f", s.radius ))
                         .append(" ").append(Long.toString(s.parent)).append("\n");
             }
             writer.close();

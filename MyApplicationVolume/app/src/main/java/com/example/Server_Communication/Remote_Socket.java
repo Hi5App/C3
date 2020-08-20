@@ -714,8 +714,19 @@ public class Remote_Socket extends Socket {
 
 
         RES_Selected = RESs[RESs.length - 1];
-        Select_Neuron(Transform(Neuron_Number_List));
         setFilename_Remote(BrainNumber_Selected + "/" + RES_Selected, mContext);   //  18454/RES250x250x250
+
+        String filename = getFilename_Remote(mContext);
+        String neuron_num = getNeuronNumber_Remote(mContext,filename);
+
+        if (!neuron_num.equals("--11--")){
+            Vector<String> Neuron_Number_List_show = Adjust_Index();
+            Select_Neuron(Transform(Neuron_Number_List_show));
+
+        }else {
+            Select_Neuron(Transform(Neuron_Number_List));
+
+        }
 
 //        new XPopup.Builder(mContext)
 ////        .maxWidth(400)
@@ -787,7 +798,9 @@ public class Remote_Socket extends Socket {
         int index = Neuron_Number_List.indexOf(neuron_num);
         Log.v("Adjust_Index"," " + index);
 
-        for (int i = index - 1; i <= Neuron_Number_List.size() + index; i++){
+        int start = Math.max(index - 1, 0);
+        int end   = (index - 1) > 0 ? Neuron_Number_List.size() + index : Neuron_Number_List.size() + index - 1;
+        for (int i = start; i <= end; i++){
             Neuron_Number_List_show.add(Neuron_Number_List.get(i % Neuron_Number_List.size()));
         }
 

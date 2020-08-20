@@ -3107,8 +3107,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             for(int i=0; i < lineAdded.size()/3; i++){
                 V_NeuronSWC_unit u = new V_NeuronSWC_unit();
                 u.n = max_n + i+ 1;
-                if(i==0)
+                if(i==0){
                     u.parent = -1;
+//                    System.out.println("--- u.parent = -1 ---");
+                }
                 else
                     u.parent = max_n + i;
 //                float[] xyz = ModeltoVolume(new float[]{lineAdded.get(i*3+0),lineAdded.get(i*3+1),lineAdded.get(i*3+2)});
@@ -3128,7 +3130,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     (float) seg.row.get(seg.row.size()-1).y,
                     (float) seg.row.get(seg.row.size()-1).z};
             boolean linked = false;
-            for(int i=0; i<curSwcList.seg.size(); i++){
+            for(int i=0; i<curSwcList.seg.size() - 1; i++){
                 V_NeuronSWC s = curSwcList.seg.get(i);
                 for(int j=0; j<s.row.size(); j++){
                     if(linked)
@@ -3194,6 +3196,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
         else
             Log.v("draw line:::::", "nulllllllllllllllllll");
+
+
+
+//        for (int i = 0; i < curSwcList.nsegs(); i++){
+//            V_NeuronSWC seg = curSwcList.seg.get(i);
+//
+//            System.out.println("seg " + i + ": ");
+//            for (int j = 0; j < seg.row.size(); j++){
+//                V_NeuronSWC_unit unit = seg.row.get(j);
+//                System.out.println("node n: " + unit.n + ", parent: " + unit.parent);
+//            }
+//        }
     }
 
     private Vector<Integer> resampleCurveStroke(ArrayList<Float> listCurvePos){
@@ -4259,6 +4273,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public NeuronTree getNeuronTree(){
         try {
+
+//            for (int i = 0; i < curSwcList.nsegs(); i++){
+//                V_NeuronSWC seg = curSwcList.seg.get(i);
+//
+//                System.out.println("getNeuronTree: ");
+//                System.out.println("seg " + i + ": ");
+//                for (int j = 0; j < seg.row.size(); j++){
+//                    V_NeuronSWC_unit unit = seg.row.get(j);
+//                    System.out.println("node n: " + unit.n + ", parent: " + unit.parent);
+//                }
+//            }
 
             V_NeuronSWC_list list = curSwcList.clone();
 
