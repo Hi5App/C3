@@ -873,6 +873,98 @@ public class SettingFileManager {
 
 
 
+
+
+    /**
+     * get the ip address from local file
+     * @return ip latest address you input
+     */
+    public static Vector<String> getArbor_List__Check(Context context){
+        Vector<String> Arbor_List = new Vector<>();
+
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/Check/Arbor_List.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "--11--";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get filename", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                while ((line = buffreader.readLine()) != null){
+                    Arbor_List.add(line);
+                }
+                buffreader.close();
+                inputreader.close();
+                inputStream.close();//关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+//        Log.v("get Arbor_List", filename);
+        return Arbor_List;
+    }
+
+
+
+    /**
+     * Set the Arbor_List
+     * @param context context
+     */
+    public static void setArbor_List_Check(String[] Arbor_List, Context context){
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/Check/Arbor_List.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("get arbor list", "Fail to create file");
+            }
+        }
+
+        try {
+
+            FileOutputStream outStream = new FileOutputStream(file);
+            OutputStreamWriter osw=new OutputStreamWriter(outStream, "UTF-8");
+            BufferedWriter bw=new BufferedWriter(osw);
+
+            for(String arbor:Arbor_List){
+                bw.write(arbor+"\n");
+            }
+
+            bw.close();
+            osw.close();
+            outStream.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+
     /**
      * get the offset from local file
      * @return offset latest address you input

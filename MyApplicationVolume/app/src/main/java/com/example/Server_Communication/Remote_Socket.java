@@ -53,6 +53,7 @@ import java.util.Vector;
 
 import cn.carbs.android.library.MDDialog;
 
+import static com.example.basic.SettingFileManager.getArbor_List__Check;
 import static com.example.basic.SettingFileManager.getFilename_Local;
 import static com.example.basic.SettingFileManager.getFilename_Remote;
 import static com.example.basic.SettingFileManager.getFilename_Remote_Check;
@@ -61,6 +62,7 @@ import static com.example.basic.SettingFileManager.getRES;
 import static com.example.basic.SettingFileManager.getoffset_Local;
 import static com.example.basic.SettingFileManager.getoffset_Remote;
 import static com.example.basic.SettingFileManager.getoffset_Remote_Check;
+import static com.example.basic.SettingFileManager.setArbor_List_Check;
 import static com.example.basic.SettingFileManager.setFilename_Remote;
 import static com.example.basic.SettingFileManager.setFilename_Remote_Check;
 import static com.example.basic.SettingFileManager.setNeuronNumber_Remote;
@@ -91,10 +93,10 @@ public class Remote_Socket extends Socket {
     public static String ArborNumber_Selected = "Empty";
     public static String BrainNumber_Selected = "Empty";
     public static Vector<String> RES_List = new Vector<>();
+    public static Vector<String> Arbor_Check_List = new Vector<>();
     public static Vector<String> Neuron_Number_List = new Vector<>();
     public static HashMap<String, Vector<String>> Neuron_Info = new HashMap<>();
     public static Vector<String> Soma_List = new Vector<>();
-    public static Vector<String> Arbor_List = new Vector<>();
     public static ArrayList<Integer> Marker_List = new ArrayList<Integer>();
     public static String RES_Selected = "Empty";
     public static String Neuron_Number_Selected = "Empty";
@@ -233,10 +235,13 @@ public class Remote_Socket extends Socket {
                 String[] file_string = information.split(":");
                 String[] file_list = file_string[0].split(";");
 
-                for (int i = 0; i < file_list.length; i++)
+                for (int i = 0; i < file_list.length; i++){
                     Log.v("onReadyRead", file_list[i]);
+                    Arbor_Check_List.add(file_list[i]);
+                }
 
-                ShowListDialog_Check(file_list);
+                setArbor_List_Check(file_list,mContext);
+                ShowListDialog_Check(Transform(Adjust_Index_Check()));
             }
         }
     }
@@ -787,6 +792,19 @@ public class Remote_Socket extends Socket {
         thread.start();
     }
 
+    public void Select_Arbor_Fast(){
+
+        Vector<String> Arbor_Number_List_show = Adjust_Index_Check();
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ShowListDialog_Check(Transform(Arbor_Number_List_show));
+            }
+        });
+
+        thread.start();
+    }
 
     private Vector<String> Adjust_Index(){
 
@@ -806,6 +824,36 @@ public class Remote_Socket extends Socket {
 
         return Neuron_Number_List_show;
     }
+
+
+    private Vector<String> Adjust_Index_Check(){
+
+        Vector<String> Arbor_Number_List_show = new Vector<String>();
+
+        if (Arbor_Check_List != null){
+            String arbor_name = getFilename_Remote_Check(mContext);
+
+            int index = Neuron_Number_List.indexOf(arbor_name);
+            Log.v("Adjust_Index"," " + index);
+            if (index >= 0){
+
+                int start = Math.max(index - 1, 0);
+                int end   = (index - 1) > 0 ? Arbor_Check_List.size() + index : Arbor_Check_List.size() + index - 1;
+                for (int i = start; i <= end; i++){
+                    Arbor_Number_List_show.add(Arbor_Check_List.get(i % Arbor_Check_List.size()));
+                }
+
+            }else {
+                Arbor_Number_List_show = Arbor_Check_List;
+            }
+
+        }else {
+            Toast_in_Thread("Something Wrong When Show the Arbor List !");
+        }
+
+        return Arbor_Number_List_show;
+    }
+
 
     public void Select_Pos(String[] Pos){
 
@@ -1657,7 +1705,7 @@ public class Remote_Socket extends Socket {
     }
 
 
-    public void LoadTXT(){
+    public void LoadNeuronTxt(){
 
         Store_path = mContext.getExternalFilesDir(null).toString();
 
@@ -1665,6 +1713,12 @@ public class Remote_Socket extends Socket {
         String filename = getFilename_Remote(mContext).split("/")[0];
         Log.v("LoadTXT",Store_path_txt + filename);
         Analyze_TXT(Store_path_txt + filename + ".txt");
+
+    }
+
+    public void LoadArborTxt(){
+
+        Arbor_Check_List = getArbor_List__Check(mContext);
 
     }
 

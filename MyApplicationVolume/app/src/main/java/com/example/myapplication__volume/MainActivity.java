@@ -443,7 +443,7 @@ public class MainActivity extends AppCompatActivity {
                                 Check_No.setVisibility(View.VISIBLE);
                                 sync_pull.setVisibility(View.VISIBLE);
                                 sync_push.setVisibility(View.GONE);
-                                neuron_list.setVisibility(View.GONE);
+                                neuron_list.setVisibility(View.VISIBLE);
                                 blue_pen.setVisibility(View.GONE);
                                 red_pen.setVisibility(View.GONE);
                             }
@@ -1208,8 +1208,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                push_info_swc = SaveSWC_Block_Auto();
-                remote_socket.Select_Neuron_Fast();
+                if (DrawMode){
+                    push_info_swc = SaveSWC_Block_Auto();
+                    remote_socket.Select_Neuron_Fast();
+                }else {
+                    remote_socket.Select_Arbor_Fast();
+                }
+
             }
         });
 
@@ -1732,6 +1737,7 @@ public class MainActivity extends AppCompatActivity {
                                     Check_Yes.setVisibility(View.GONE);
                                     Check_No.setVisibility(View.GONE);
                                     sync_pull.setVisibility(View.GONE);
+                                    neuron_list.setVisibility(View.GONE);
                                 }
                             }
                             isBigData_Remote = false;
@@ -1807,6 +1813,7 @@ public class MainActivity extends AppCompatActivity {
                                 Check_Yes.setVisibility(View.GONE);
                                 Check_No.setVisibility(View.GONE);
                                 sync_pull.setVisibility(View.GONE);
+                                neuron_list.setVisibility(View.GONE);
                             }
                         }
                         isBigData_Remote = false;
@@ -5010,7 +5017,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200820 15:24 UTC+8 build",
+                                "Version: 20200820 20:24 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5059,7 +5066,13 @@ public class MainActivity extends AppCompatActivity {
                                         break;
 
                                     case "SEU Server":
-                                        BigFileRead_Remote("223.3.33.234");
+                                        if (DrawMode){
+                                            BigFileRead_Remote("223.3.33.234");
+                                        }else {
+                                            BigFileRead_Remote_Check("223.3.33.234");
+                                        }
+//
+//                                        BigFileRead_Remote("223.3.33.234");
 //                                        Toast.makeText(getContext(), "The server is not available now", Toast.LENGTH_SHORT).show();
                                         break;
 
@@ -7730,12 +7743,12 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text) {
-                                    case "Select Block":
-                                        Select_Block();
-                                        break;
-
                                     case "Select File":
                                         Select_img();
+                                        break;
+
+                                    case "Select Block":
+                                        Select_Block();
                                         break;
 
                                     case "Download by http":
@@ -7765,13 +7778,14 @@ public class MainActivity extends AppCompatActivity {
                 if (DrawMode){
                     remote_socket.DisConnectFromHost();
                     remote_socket.ConnectServer(ip);
-                    remote_socket.LoadTXT();
+                    remote_socket.LoadNeuronTxt();
                     remote_socket.SelectBlock();
                 }else {
                     String arbor_num = getFilename_Remote_Check(context);
                     if (!arbor_num.equals("--11--")){
                         remote_socket.DisConnectFromHost();
                         remote_socket.ConnectServer(ip);
+                        remote_socket.LoadNeuronTxt();
                         remote_socket.Send_Arbor_Number(arbor_num);
                     }else {
                         Toast_in_Thread("Select a Img First !");
@@ -7948,6 +7962,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!DrawMode){
                     Check_No.setVisibility(View.GONE);
                     Check_Yes.setVisibility(View.GONE);
+                    neuron_list.setVisibility(View.GONE);
                 }else {
                     sync_push.setVisibility(View.GONE);
                     neuron_list.setVisibility(View.GONE);
@@ -7994,6 +8009,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!DrawMode){
                     Check_No.setVisibility(View.VISIBLE);
                     Check_Yes.setVisibility(View.VISIBLE);
+                    neuron_list.setVisibility(View.GONE);
                 }else {
                     sync_push.setVisibility(View.VISIBLE);
                     neuron_list.setVisibility(View.VISIBLE);
