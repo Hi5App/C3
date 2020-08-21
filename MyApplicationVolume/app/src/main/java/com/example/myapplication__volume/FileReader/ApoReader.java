@@ -62,6 +62,7 @@ public class ApoReader {
 
             //一共有多少行数据
             int num = arraylist.size();
+//            float [][] result = new float[num][11];
             for (int i = 0; i < num; i++){
                 String current = arraylist.get(i);
                 if (current.substring(0, 1).equals("#")) continue;

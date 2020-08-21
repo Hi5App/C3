@@ -17,7 +17,7 @@ public class FileManager {
 
     }
 
-    public String getFileName(Uri uri){
+    public static String getFileName(Uri uri){
         String filetype = null;
         String v3d_head = "raw_image_stack_by_hpeng";
         int length_v3d = v3d_head.length();
@@ -82,7 +82,7 @@ public class FileManager {
     }
 
     @SuppressLint("ShowToast")
-    public String getFileType(Uri uri){
+    public static String getFileType(Uri uri){
         String v3d_head = "raw_image_stack_by_hpeng";
         int length_v3d = v3d_head.length();
         String filetype = "Fail to read";

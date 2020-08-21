@@ -38,13 +38,6 @@ public class AnoReader {
         ArrayList<String> arraylist = new ArrayList<String>();
 
 
-//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-//            int hasWriteContactsPermission = context.checkSelfPermission(Manifest.permission.READ_CONTACTS);
-//            if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED){
-//                context.requestPermissions(new String[]{Manifest.permission.WRITE_CONTACTS},REQUEST_CODE_ASK_PERMISSIONS);
-//                return;
-//            }
-
         try{
 
             ParcelFileDescriptor parcelFileDescriptor =
@@ -85,11 +78,11 @@ public class AnoReader {
                 switch(filetype){
                     case ".apo":
                         apo_path = getFilePath(uri, s[1]);
-                        Log.v("AnoReader apofilepath", apo_path);
+                        Log.v("AnoReader apo_filepath", apo_path);
                         break;
                     case ".eswc":
                         swc_path = getFilePath(uri, s[1]);
-                        Log.v("AnoReader swcfilepath", swc_path);
+                        Log.v("AnoReader swc_filepath", swc_path);
                         break;
                 }
             }
@@ -122,13 +115,16 @@ public class AnoReader {
             path_result = path_old.substring(0, index+1) + filename;
         }
 
-        if(filepath.contains("/storage")){
+        else if(filepath.contains("/storage")){
 
             int index_per = filepath.indexOf("/storage");
             int index_post = filepath.lastIndexOf("/");
             path_result = filepath.substring(index_per, index_post+1) + filename;
         }
 
+        else {
+            path_result = "/storage/emulated/0/Download/" + filename;
+        }
 
         return path_result;
     }

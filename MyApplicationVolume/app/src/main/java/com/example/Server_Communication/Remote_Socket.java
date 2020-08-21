@@ -11,7 +11,9 @@ import android.os.Build;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -93,6 +95,7 @@ public class Remote_Socket extends Socket {
     public static HashMap<String, Vector<String>> Neuron_Info = new HashMap<>();
     public static Vector<String> Soma_List = new Vector<>();
     public static Vector<String> Arbor_List = new Vector<>();
+    public static ArrayList<Integer> Marker_List = new ArrayList<Integer>();
     public static String RES_Selected = "Empty";
     public static String Neuron_Number_Selected = "Empty";
     public static String Pos_Selected = "Empty";
@@ -108,12 +111,16 @@ public class Remote_Socket extends Socket {
 
         Store_path = context.getExternalFilesDir(null).toString();
 
+        if (!getFilename_Remote(mContext).equals("--11--")){
+            BrainNumber_Selected = getFilename_Remote(mContext).split("/")[0];
+        }
+
     }
 
 
     public void ConnectServer(String ip_server){
 
-        Log.v("ConnectServer","Start to Connect Server !");
+//        Log.v("ConnectServer","Start to Connect Server !");
 
         if (ManageSocket != null && !ManageSocket.isClosed() && ManageSocket.isConnected()){
             return;
@@ -133,7 +140,7 @@ public class Remote_Socket extends Socket {
                     if (ManageSocket.isConnected()) {
 
                         isSocketSet = true;
-                        Toast_in_Thread("Connect Server Successfully !");
+//                        Toast_in_Thread("Connect Server Successfully !");
                         Log.v("ConnectServer", "Connect Server Successfully !");
 
                     } else {
@@ -141,21 +148,6 @@ public class Remote_Socket extends Socket {
                     }
 
 
-//                    /*
-//                     Read the feedback when connect successfully
-//                     */
-//                    if (ManageSocket.isConnected()) {
-//                        if (!ManageSocket.isInputShutdown()) {
-//                            String content = "";
-//                            Log.d("-- ConnectServer --:", "Start to Read Line");
-//
-//                            if ((content = ImgReader.readLine()) != null) {
-//                                Log.v("-- ConnectServer --:", content);
-////                                onReadyRead(content, context);
-//
-//                            }
-//                        }
-//                    }
                 } catch (IOException e) {
                     Toast_in_Thread("Something Wrong When Connect Server");
                     e.printStackTrace();
@@ -171,8 +163,6 @@ public class Remote_Socket extends Socket {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        Log.v("ConnectServer", "thread.join() Successfully !");
 
     }
 
@@ -297,7 +287,7 @@ public class Remote_Socket extends Socket {
 
         new XPopup.Builder(mContext)
 //        .maxWidth(400)
-//        .maxHeight(1350)
+        .maxHeight(1350)
                 .asCenterList("Select a Brain", items,
                         new OnSelectListener() {
                             @RequiresApi(api = Build.VERSION_CODES.N)
@@ -389,7 +379,58 @@ public class Remote_Socket extends Socket {
 
 
 
+
+    public String PullApo_block(){
+
+        Make_Connect();
+
+        String ApoFilePath = "Error";
+
+        if (CheckConnection()){
+
+
+            String file_path = mContext.getExternalFilesDir(null).toString() + "/Sync/BlockGet/Apo";
+
+            String filename = getFilename_Remote(mContext);
+            String neuron_number = getNeuronNumber_Remote(mContext, filename);
+            String offset = getoffset_Remote(mContext, filename);
+            int[] index = BigImgReader.getIndex(offset);
+            System.out.println(filename);
+
+            String ratio = Integer.toString(getRatio_SWC());
+
+            String ApoFileName = neuron_number + "__" +
+                    index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
+
+            Send_Message(ApoFileName + "__" + ratio + ":GetBBApo.\n");
+            Get_File(file_path, true);
+
+            ApoFilePath = file_path + "/blockGet__" + ApoFileName + "__" + ratio  + ".apo";
+
+        }else {
+            Toast_in_Thread("Can't Connect Server, Try Again Later !");
+        }
+
+        return ApoFilePath;
+    }
+
+
     public void PushSwc_block(String filename, InputStream is, long length){
+
+        Make_Connect();
+
+        if (CheckConnection()){
+
+            socket_send.Send_File(ManageSocket, filename, is, length);
+
+        }else {
+            Toast_in_Thread("Can't Connect Server, Try Again Later !");
+        }
+
+    }
+
+
+    public void PushApo_block(String filename, InputStream is, long length){
 
         Make_Connect();
 
@@ -671,19 +712,35 @@ public class Remote_Socket extends Socket {
 
     public void Select_RES(String[] RESs){
 
-        new XPopup.Builder(mContext)
-//        .maxWidth(400)
-//        .maxHeight(1350)
-                .asCenterList("Select a RES", RESs,
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                RES_Selected = text;
-                                Select_Neuron(Transform(Neuron_Number_List));
-                                setFilename_Remote(BrainNumber_Selected + "/" + RES_Selected, mContext);   //  18454/RES250x250x250
-                            }
-                        })
-                .show();
+
+        RES_Selected = RESs[RESs.length - 1];
+        setFilename_Remote(BrainNumber_Selected + "/" + RES_Selected, mContext);   //  18454/RES250x250x250
+
+        String filename = getFilename_Remote(mContext);
+        String neuron_num = getNeuronNumber_Remote(mContext,filename);
+
+        if (!neuron_num.equals("--11--")){
+            Vector<String> Neuron_Number_List_show = Adjust_Index();
+            Select_Neuron(Transform(Neuron_Number_List_show));
+
+        }else {
+            Select_Neuron(Transform(Neuron_Number_List));
+
+        }
+
+//        new XPopup.Builder(mContext)
+////        .maxWidth(400)
+////        .maxHeight(1350)
+//                .asCenterList("Select a RES", RESs,
+//                        new OnSelectListener() {
+//                            @Override
+//                            public void onSelect(int position, String text) {
+//                                RES_Selected = text;
+//                                Select_Neuron(Transform(Neuron_Number_List));
+//                                setFilename_Remote(BrainNumber_Selected + "/" + RES_Selected, mContext);   //  18454/RES250x250x250
+//                            }
+//                        })
+//                .show();
 
     }
 
@@ -691,7 +748,7 @@ public class Remote_Socket extends Socket {
 
         new XPopup.Builder(mContext)
 //        .maxWidth(400)
-//        .maxHeight(1350)
+        .maxHeight(1350)
                 .asCenterList("Select a Neuron", Neurons,
                         new OnSelectListener() {
                             @Override
@@ -699,7 +756,12 @@ public class Remote_Socket extends Socket {
                                 Neuron_Number_Selected = text;
                                 System.out.println(Neuron_Number_Selected);
                                 if (Neuron_Info.get(Neuron_Number_Selected) != null){
-                                    Select_Pos(Transform(Neuron_Info.get(Neuron_Number_Selected)));
+
+                                    // Select soma without choose pos
+                                    Pos_Selected = Neuron_Info.get(Neuron_Number_Selected).get(0);
+                                    PopUp(false);
+
+//                                    Select_Pos(Transform(Neuron_Info.get(Neuron_Number_Selected)));
                                     setNeuronNumber_Remote(Neuron_Number_Selected, BrainNumber_Selected + "/" + RES_Selected, mContext);  //18454_00002
                                 }else {
                                     Toast_in_Thread("Information not Exist !");
@@ -708,6 +770,41 @@ public class Remote_Socket extends Socket {
                         })
                 .show();
 
+    }
+
+
+    public void Select_Neuron_Fast(){
+
+        Vector<String> Neuron_Number_List_show = Adjust_Index();
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Select_Neuron(Transform(Neuron_Number_List_show));
+            }
+        });
+
+        thread.start();
+    }
+
+
+    private Vector<String> Adjust_Index(){
+
+        Vector<String> Neuron_Number_List_show = new Vector<String>();
+
+        String filename = getFilename_Remote(mContext);
+        String neuron_num = getNeuronNumber_Remote(mContext,filename);
+
+        int index = Neuron_Number_List.indexOf(neuron_num);
+        Log.v("Adjust_Index"," " + index);
+
+        int start = Math.max(index - 1, 0);
+        int end   = (index - 1) > 0 ? Neuron_Number_List.size() + index : Neuron_Number_List.size() + index - 1;
+        for (int i = start; i <= end; i++){
+            Neuron_Number_List_show.add(Neuron_Number_List.get(i % Neuron_Number_List.size()));
+        }
+
+        return Neuron_Number_List_show;
     }
 
     public void Select_Pos(String[] Pos){
@@ -816,7 +913,7 @@ public class Remote_Socket extends Socket {
         String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
 
         if (!JudgeBounding(input)){
-            Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+            Toast_in_Thread("Please make sure all the information is right !");
         }else {
             PullImageBlock(input[0], input[1], input[2], input[3], true);
         }
@@ -1114,17 +1211,35 @@ public class Remote_Socket extends Socket {
                     display = display + "Yes";
                 }
 
-                info = info + display + "\n";
+                info = info + display + "\n\n";
             }
 
-            new XPopup.Builder(mContext)
-                    .asConfirm("Check Result", info,
-                            new OnConfirmListener() {
-                                @Override
-                                public void onConfirm() {
-                                }
-                            })
-                    .show();
+
+            String finalInfo = info;
+            MDDialog mdDialog = new MDDialog.Builder(mContext)
+                    .setContentView(R.layout.check_result)
+                    .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                        @Override
+                        public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+                            //analysis_result next page
+                            TextView display_info = (TextView) contentView.findViewById(R.id.check_result);
+                           display_info.setText(finalInfo);
+                        }
+                    })
+                    .setTitle("Check Result")
+                    .create();
+            mdDialog.show();
+            mdDialog.getWindow().setLayout(1000, 1500);
+
+
+//            new XPopup.Builder(mContext)
+//                    .asConfirm("Check Result", info,
+//                            new OnConfirmListener() {
+//                                @Override
+//                                public void onConfirm() {
+//                                }
+//                            })
+//                    .show();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -1402,13 +1517,15 @@ public class Remote_Socket extends Socket {
         int z_offset_i = Integer.parseInt(input[2]);
         int size_i = Integer.parseInt(input[3]);
 
-        String filename = getFilename(mContext);
+        String filename = getFilename(mContext).replace("(","");
+        filename = filename.replace(")","");
         String size = filename.split("RES")[1];
 
         System.out.println("hhh-------" + size + "--------hhh");
 
-        int x_size = Integer.parseInt(size.split("x")[0]);
-        int y_size = Integer.parseInt(size.split("x")[1]);
+        // current filename mouse18864_teraconvert/RES(35001x27299x10392)   : y x z
+        int x_size = Integer.parseInt(size.split("x")[1]);
+        int y_size = Integer.parseInt(size.split("x")[0]);
         int z_size = Integer.parseInt(size.split("x")[2]);
 
 
@@ -1504,6 +1621,11 @@ public class Remote_Socket extends Socket {
                     Vector<String> point_list = new Vector<>();
                     point_list.add(arraylist.get(++i));
 
+                    String[] marker = arraylist.get(i).split(":")[1].split(";");
+                    Marker_List.add(Integer.parseInt(marker[0]));
+                    Marker_List.add(Integer.parseInt(marker[1]));
+                    Marker_List.add(Integer.parseInt(marker[2]));
+
                     String[] split = arraylist.get(++i).split(":");
                     int num = Integer.parseInt(split[1]);
                     for (int j = 0; j < num; j++){
@@ -1531,6 +1653,47 @@ public class Remote_Socket extends Socket {
             Toast_in_Thread("Fail to Read TXT File !");
         }
 
+
+    }
+
+
+    public void LoadTXT(){
+
+        Store_path = mContext.getExternalFilesDir(null).toString();
+
+        String Store_path_txt = Store_path + "/BrainInfo/";
+        String filename = getFilename_Remote(mContext).split("/")[0];
+        Log.v("LoadTXT",Store_path_txt + filename);
+        Analyze_TXT(Store_path_txt + filename + ".txt");
+
+    }
+
+
+
+    public ArrayList<ArrayList<Integer>> getMarker(int[] index){
+
+        ArrayList<ArrayList<Integer>> marker_list = new ArrayList<ArrayList<Integer>>();
+
+        for (int i = 0; i < Marker_List.size(); i = i + 3){
+            int x = Marker_List.get(i);
+            int y = Marker_List.get(i+1);
+            int z = Marker_List.get(i+2);
+
+//            Log.v("getMarker","(" + x + ", " + y + ", " + z + ")");
+
+            if (x >= index[0] && y >= index[1] && z>= index[2] &&
+                x < index[3] && y < index[4] && z < index[5]){
+                ArrayList<Integer> marker = new ArrayList<Integer>();
+                marker.add(x - index[0]);
+                marker.add(y - index[1]);
+                marker.add(z - index[2]);
+                marker_list.add(marker);
+            }
+        }
+
+        Log.v("getMarker",marker_list.size() + " !");
+        Log.v("getMarker",Marker_List.size() + " !");
+        return marker_list;
 
     }
 
@@ -1568,6 +1731,19 @@ public class Remote_Socket extends Socket {
         }
 
         return offset_result;
+
+    }
+
+
+
+    public String getIp(){
+        Make_Connect();
+
+        if (CheckConnection()){
+            return this.ip;
+        }
+
+        return "Can't connect server";
 
     }
 

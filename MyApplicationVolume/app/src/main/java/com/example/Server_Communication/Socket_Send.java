@@ -43,9 +43,9 @@ public class Socket_Send {
                     byte[] Message_size_Byte = longToBytes(Message_size);
 
                     String str = new String(message.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);  // for UTF-8 encoding
-                    Log.v("Send_Msg: Data_size", Long.toString(bytesToLong(Data_size_Byte)));
-                    Log.v("Send_Msg: Message_size", Long.toString(bytesToLong(Message_size_Byte)));
-                    Log.v("Send_Msg: message", str);
+//                    Log.v("Send_Msg: Data_size", Long.toString(bytesToLong(Data_size_Byte)));
+//                    Log.v("Send_Msg: Message_size", Long.toString(bytesToLong(Message_size_Byte)));
+//                    Log.v("Send_Msg: message", str);
 
                     //前两个 uint64 记录传输内容的总长度 和 文件名的长度
                     out.write(Data_size_Byte,0,8);
@@ -100,19 +100,17 @@ public class Socket_Send {
 
 
                     //前两个 uint64 记录传输内容的总长度 和 文件名的长度
-                    Log.v("Send_File:Data_size", Long.toString(bytesToLong(Data_size_byte)));
-                    Log.v("Send_File:FileName_size", Long.toString(bytesToLong(FileName_size_byte)));
+//                    Log.v("Send_File:Data_size", Long.toString(bytesToLong(Data_size_byte)));
+//                    Log.v("Send_File:FileName_size", Long.toString(bytesToLong(FileName_size_byte)));
 
                     String FileName_String = new String(filename.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8); // for UTF-8 encoding
-                    Log.v("Send_File: FileName", FileName_String);
+//                    Log.v("Send_File: FileName", FileName_String);
 
                     out.write(filename.getBytes(StandardCharsets.UTF_8));
                     Log.v("Send_File", Integer.toString(IOUtils.copy(is, out)));
 
                     out.flush();
                     is.close();
-
-                    Log.v("send2", "send file successfully!!!");
 
                 }catch (Exception e){
                     e.printStackTrace();
@@ -130,8 +128,6 @@ public class Socket_Send {
         }
 
         Toast_in_Thread("Upload Successfully !");
-
-//        Toast.makeText(mContext, "Upload Successfully!!!", Toast.LENGTH_SHORT).show();
 
     }
 

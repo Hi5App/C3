@@ -2,11 +2,13 @@
 #include "server.h"
 
 #include <iostream>
+//<<<<<<< HEAD
 #include <QFileInfo>
 #include <limits>
-void getApo(QString brainDir,QString apoDir);
-void writeBrainInfo(QString apoDir,QString infoWithTxt);
-void getBB(const V_NeuronSWC_list& T,const QString & Filename);
+//void getApo(QString brainDir,QString apoDir);
+//void writeBrainInfo(QString apoDir,QString infoWithTxt);
+//void getBB(const V_NeuronSWC_list& T,const QString & Filename);
+
 //image dir:put brain image
 //image
 //  --brainnumber dir
@@ -25,6 +27,8 @@ int main(int argc, char *argv[])
         exit(0);
     else
         std::cout<<"Server start:Version 1.1(HL)\n";
+    return a.exec();
+}
 //    if(argc==1)
 //    {
 //        Server server;
@@ -87,8 +91,8 @@ int main(int argc, char *argv[])
 
 //        }
 //    qDebug()<<sum;
-    return a.exec();
-}
+//    return a.exec();
+//}
 
 //void getBB(const V_NeuronSWC_list& T,const QString & Filename)
 //{
@@ -224,3 +228,7 @@ int main(int argc, char *argv[])
 //        }
 
 //}
+
+//    return a.exec();
+//}
+
