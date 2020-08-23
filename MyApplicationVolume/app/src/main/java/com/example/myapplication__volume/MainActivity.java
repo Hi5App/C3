@@ -1514,6 +1514,66 @@ public class MainActivity extends AppCompatActivity {
                                         settingFileManager.setBigDataMode("Draw Mode", getContext());
                                         break;
 
+                                    case "Game":
+                                        System.out.println("Game Start!!!!!!!");
+//                                        float [] vertexPoints = new float[]{
+//                                                // Back face
+//                                                0.0f,  0.0f,  0.0f,
+//                                                0.0f,  1, 0.0f,
+//                                                1, 1, 0.0f,
+//                                                1, 0.0f,  0.0f,
+//
+//                                                // Top face
+//                                                0.0f, 1,  0.0f,
+//                                                0.0f, 1,  1,
+//                                                1, 1, 1,
+//                                                1, 1, 0.0f,
+//
+//                                                // Right face
+//                                                1, 0.0f,  0.0f,
+//                                                1, 1, 0.0f,
+//                                                1, 1, 1,
+//                                                1, 0.0f,  1,
+//
+//                                                //
+//                                                0.0f, 0.0f, 0.0f,
+//                                                0.0f, 1, 1,
+//                                                1, 0, 1,
+//                                        };
+
+//                                        float [] startPoint = new float[]{
+//                                                0.5f, 0.5f, 0.5f
+//                                        };
+//
+//                                        float [] dir = new float[]{
+//                                                1, 1, -1
+//                                        };
+//
+//                                        ArrayList<Float> tangent = myrenderer.tangentPlane(startPoint[0], startPoint[1], startPoint[2], dir[0], dir[1], dir[2], 0, 1);
+//
+//                                        System.out.println("TangentPlane:::::");
+//                                        System.out.println(tangent.size());
+//
+//                                        float [] vertexPoints = new float[tangent.size()];
+//                                        for (int i = 0; i < tangent.size(); i++){
+//
+//                                            vertexPoints[i] = tangent.get(i);
+//                                            System.out.print(vertexPoints[i]);
+//                                            System.out.print(" ");
+//                                            if (i % 3 == 2){
+//                                                System.out.print("\n");
+//                                            }
+//                                        }
+//
+//                                        boolean gameSucceed = myrenderer.driveMode(vertexPoints, dir);
+//                                        if (!gameSucceed){
+//                                            Toast.makeText(context, "wrong vertex to draw", Toast.LENGTH_SHORT);
+//                                        } else {
+//                                            myGLSurfaceView.requestRender();
+//                                        }
+                                        gameStart();
+                                        break;
+
                                     case "Settings":
                                         setSettings();
                                         break;
@@ -5010,7 +5070,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200820 15:24 UTC+8 build",
+                                "Version: 20200823a 12:43 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -8159,6 +8219,39 @@ public class MainActivity extends AppCompatActivity {
 
         lp_red_color.setMargins(0, 630, 20, 0);
         red_pen.setLayoutParams(lp_red_color);
+    }
+
+    private void gameStart(){
+        float [] startPoint = new float[]{
+                0.5f, 0.5f, 0.5f
+        };
+
+        float [] dir = new float[]{
+                1, 1, -1
+        };
+
+        ArrayList<Float> tangent = myrenderer.tangentPlane(startPoint[0], startPoint[1], startPoint[2], dir[0], dir[1], dir[2], 0, 1);
+
+        System.out.println("TangentPlane:::::");
+        System.out.println(tangent.size());
+
+        float [] vertexPoints = new float[tangent.size()];
+        for (int i = 0; i < tangent.size(); i++){
+
+            vertexPoints[i] = tangent.get(i);
+            System.out.print(vertexPoints[i]);
+            System.out.print(" ");
+            if (i % 3 == 2){
+                System.out.print("\n");
+            }
+        }
+
+        boolean gameSucceed = myrenderer.driveMode(vertexPoints, dir);
+        if (!gameSucceed){
+            Toast.makeText(context, "wrong vertex to draw", Toast.LENGTH_SHORT);
+        } else {
+            myGLSurfaceView.requestRender();
+        }
     }
 
 }

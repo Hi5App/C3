@@ -189,6 +189,18 @@ public class MyPattern{
 
     };
 
+    private int drawlistLength = 36;
+
+//    private final short[] drawlist = {
+//            0, 1, 2,      0, 2, 3,    // Front face
+//            4, 5, 6,      4, 6, 7,    // Back face
+//            8, 9, 10,     8, 10, 11,  // Top face
+//            12, 13, 14,
+//            1, 12, 13,    2, 13, 14,    3, 12, 14
+//    };
+
+
+
 
 
 //    private final float[] vertexPoints_curve={
@@ -758,6 +770,31 @@ public class MyPattern{
                     0.0f, mz[1], 0.0f,
             };
 
+//        vertexPoints = new float[]{
+//                // Back face
+//                0.0f,  0.0f,  0.0f,
+//                0.0f,  mz[1], 0.0f,
+//                mz[0], mz[1], 0.0f,
+//                mz[0], 0.0f,  0.0f,
+//
+//                // Top face
+//                0.0f, mz[1],  0.0f,
+//                0.0f, mz[1],  mz[2],
+//                mz[0], mz[1], mz[2],
+//                mz[0], mz[1], 0.0f,
+//
+//                // Right face
+//                mz[0], 0.0f,  0.0f,
+//                mz[0], mz[1], 0.0f,
+//                mz[0], mz[1], mz[2],
+//                mz[0], 0.0f,  mz[2],
+//
+//                //
+//                0.0f, 0.0f, 0.0f,
+//                0.0f, mz[1], mz[2],
+//                mz[0], 0, mz[2],
+//        };
+
             Colors= new float[]{
                     // Front face
                     0.0f,  0.0f,  mz[2], 1.0f,
@@ -795,6 +832,31 @@ public class MyPattern{
                     0.0f, mz[1], mz[2], 1.0f,
                     0.0f, mz[1], 0.0f,  1.0f,
             };
+
+//            Colors = new float[]{
+//                    // Back face
+//                    0.0f,  0.0f,  0.0f, 1.0f,
+//                    0.0f,  mz[1], 0.0f, 1.0f,
+//                    mz[0], mz[1], 0.0f, 1.0f,
+//                    mz[0], 0.0f,  0.0f, 1.0f,
+//
+//                    // Top face
+//                    0.0f, mz[1],  0.0f, 1.0f,
+//                    0.0f, mz[1],  mz[2], 1.0f,
+//                    mz[0], mz[1], mz[2], 1.0f,
+//                    mz[0], mz[1], 0.0f, 1.0f,
+//
+//                    // Right face
+//                    mz[0], 0.0f,  0.0f, 1.0f,
+//                    mz[0], mz[1], 0.0f, 1.0f,
+//                    mz[0], mz[1], mz[2], 1.0f,
+//                    mz[0], 0.0f,  mz[2], 1.0f,
+//
+//                    //
+//                    0.0f, 0.0f, 0.0f, 1.0f,
+//                    0.0f, mz[1], mz[2], 1.0f,
+//                    mz[0], 0, mz[2], 1.0f,
+//            };
 
 //        Colors= new float[]{
 //                // Front face
@@ -2003,7 +2065,7 @@ public class MyPattern{
         GLES30.glVertexAttribPointer(colorHandle, 4, GLES30.GL_FLOAT, false, 0, colorBuffer);
 
         // 通过索引来绘制
-        GLES30.glDrawElements(GLES30.GL_TRIANGLES, 36, GLES30.GL_UNSIGNED_SHORT, drawListBuffer);
+        GLES30.glDrawElements(GLES30.GL_TRIANGLES, drawlistLength, GLES30.GL_UNSIGNED_SHORT, drawListBuffer);
 
         // 禁止顶点数组的句柄
         GLES30.glDisableVertexAttribArray(positionHandle);
@@ -2365,5 +2427,41 @@ public class MyPattern{
         }
     }
 
+    public void setVertex(float [] vertex){
+        vertexBuffer = ByteBuffer.allocateDirect(vertex.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        //传入指定的坐标数据
+        vertexBuffer.put(vertex);
+        vertexBuffer.position(0);
 
+        float [] color = new float[vertex.length / 3 * 4];
+        for (int i = 0; i < vertex.length / 3; i++){
+            color[i * 4] = vertex[i * 3];
+            color[i * 4 + 1] = vertex[i * 3 + 1];
+            color[i * 4 + 2] = vertex[i * 3 + 2];
+            color[i * 4 + 3] = 1.0f;
+        }
+
+        //分配内存空间,每个浮点型占4字节空间
+        colorBuffer = ByteBuffer.allocateDirect(color.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        //传入指定的颜色数据
+        colorBuffer.put(color);
+        colorBuffer.position(0);
+    }
+
+    public void setDrawlistLength(int l){
+        drawlistLength = l;
+    }
+
+    public void setDrawListBuffer(short [] dl){
+        drawListBuffer = ByteBuffer.allocateDirect(dl.length * 2)
+                .order(ByteOrder.nativeOrder())
+                .asShortBuffer();
+        //传入指定的索引数据
+        drawListBuffer.put(dl);
+        drawListBuffer.position(0);
+    }
 }
