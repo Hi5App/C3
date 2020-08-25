@@ -40,7 +40,9 @@ import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.AttributeSet;
 import android.util.Log;
+import android.util.Xml;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -113,6 +115,8 @@ import com.tracingfunc.gsdt.GSDT;
 import com.tracingfunc.gsdt.ParaGSDT;
 
 //import org.opencv.android.OpenCVLoader;
+
+import org.xmlpull.v1.XmlPullParser;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -937,6 +941,9 @@ public class MainActivity extends AppCompatActivity {
         FrameLayout.LayoutParams lp_hide = new FrameLayout.LayoutParams(120, 120);
         lp_hide.gravity = Gravity.BOTTOM | Gravity.RIGHT;
         lp_hide.setMargins(0, 0, 160, 20);
+//        @SuppressLint("ResourceType") XmlPullParser parser = MainActivity.this.getResources().getXml(R.layout.activity_main);
+//        AttributeSet attributes = Xml.asAttributeSet(parser);
+//        MyRockerView rockerView = new MyRockerView(context, attributes);
 
         Hide_i = new ImageButton(this);
         Hide_i.setImageResource(R.drawable.ic_not_hide);
@@ -1458,7 +1465,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", "VoiceChat - 1 to 1", "Animate", "Settings", "Game","About", "Help"},
+                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", "VoiceChat - 1 to 1", "Animate", "Settings","About", "Help"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -8223,11 +8230,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void gameStart(){
         float [] startPoint = new float[]{
-                64f, 0f, 64f
+                0.5f, 0.5f, 0.5f
         };
 
         float [] dir = new float[]{
-                1, 0, 1
+                1, 1, 1
         };
 
         ArrayList<Integer> sec_proj1 = new ArrayList<Integer>();
@@ -8236,7 +8243,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<Integer> sec_proj4 = new ArrayList<Integer>();
         ArrayList<Float> sec_anti = new ArrayList<Float>();
 
-        ArrayList<Float> tangent = myrenderer.tangentPlane(startPoint[0], startPoint[1], startPoint[2], dir[0], dir[1], dir[2], 0, 128);
+        ArrayList<Float> tangent = myrenderer.tangentPlane(startPoint[0], startPoint[1], startPoint[2], dir[0], dir[1], dir[2], 0, 1);
 
         System.out.println("TangentPlane:::::");
         System.out.println(tangent.size());

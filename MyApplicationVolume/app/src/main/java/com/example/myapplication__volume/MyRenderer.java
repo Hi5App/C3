@@ -4781,21 +4781,21 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        int size = vertexPoints.length;
 
         short [] drawlistTriangle = new short[]{
-                1, 2, 3
+                0, 1, 2
         };
 
         short [] drawlistSquare = new short[]{
-                1, 2, 3, 1, 3, 4
+                0, 1, 2, 0, 2, 3
         };
 
         short [] drawlistHexagon = new short[]{
-                1, 2, 3, 1, 3, 4,
-                5, 6, 7, 5, 7, 8
+                0, 1, 2, 0, 2, 3,
+                0, 3, 4, 0, 4, 5
         };
 
         short [] drawlistPentagon = new short[]{
-                1, 2, 3, 1, 3, 4,
-                5, 6, 7
+                0, 1, 2, 0, 2, 3,
+                0, 3, 4,
         };
 
         short [] drawlist6square = new short[] {
@@ -4841,26 +4841,32 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         double angle = Math.acos(-direction[2] / Math.sqrt(direction[0] * direction[0] + direction[1] * direction[1] + direction[2] * direction[2]));
         float [] axis = new float[]{
-                direction[1], -direction[0], 0
+                -direction[1], direction[0], 0
         };
 
         float a = (float)(angle * 180 / Math.PI);
         Matrix.setRotateM(rotationMatrix, 0, a, axis[0], axis[1], axis[2]);
 //        Matrix.multiplyMM(rotationMatrix, 0, rotate, 0, rotationMatrix, 0);
 
+        Matrix.scaleM(zoomMatrix, 0, 10.0f, 10.0f, 10.0f);
+        cur_scale *= 10.0f;
 
 
         int size = vertexPoints.length;
         if (size == 9){
+            System.out.println("Triangle");
             myPattern.setDrawListBuffer(drawlistTriangle);
             myPattern.setDrawlistLength(drawlistTriangle.length);
         } else if (size == 12){
+            System.out.println("Square");
             myPattern.setDrawListBuffer(drawlistSquare);
             myPattern.setDrawlistLength(drawlistTriangle.length);
         } else if (size == 15){
+            System.out.println("Pentagon");
             myPattern.setDrawListBuffer(drawlistPentagon);
             myPattern.setDrawlistLength(drawlistPentagon.length);
         } else if (size == 18){
+            System.out.println("Hexagon");
             myPattern.setDrawListBuffer(drawlistHexagon);
             myPattern.setDrawlistLength(drawlistHexagon.length);
         } else {
@@ -4901,67 +4907,67 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             sec.add((float)0.0);
         }
 
-        if (n!=0 & ((m*x1+p*z1)/n+y1)<=Pix & ((m*x1+p*z1)/n+y1)>=0){
+        if (n!=0 & ((m*x1+p*z1)/n+y1)<Pix & ((m*x1+p*z1)/n+y1)>0){
             sec.add((float)0.0);
             sec.add((m*x1+p*z1)/n+y1);
             sec.add((float)0.0);
         }
-        if (n!=0 & ((m*x1+p*(z1-Pix))/n+y1)<=Pix & ((m*x1+p*(z1-Pix))/n+y1)>=0){
+        if (n!=0 & ((m*x1+p*(z1-Pix))/n+y1)<Pix & ((m*x1+p*(z1-Pix))/n+y1)>0){
             sec.add((float)0.0);
             sec.add((m*x1+p*(z1-Pix))/n+y1);
             sec.add(Pix);
         }
-        if (n!=0 & ((m*(x1-Pix)+p*z1)/n+y1)<=Pix & ((m*(x1-Pix)+p*z1)/n+y1)>=0){
+        if (n!=0 & ((m*(x1-Pix)+p*z1)/n+y1)<Pix & ((m*(x1-Pix)+p*z1)/n+y1)>0){
             sec.add(Pix);
             sec.add((m*(x1-Pix)+p*z1)/n+y1);
             sec.add((float)0.0);
         }
-        if(n!=0 & ((m*(x1-Pix)+p*(z1-Pix))/n+y1)<=Pix & ((m*(x1-Pix)+p*(z1-Pix))/n+y1)>=0){
+        if(n!=0 & ((m*(x1-Pix)+p*(z1-Pix))/n+y1)<Pix & ((m*(x1-Pix)+p*(z1-Pix))/n+y1)>0){
             sec.add(Pix);
             sec.add((m*(x1-Pix)+p*(z1-Pix))/n+y1);
             sec.add(Pix);
         }
 
-        if (p!=0 & ((m*x1+n*y1)/p+z1)<=Pix & ((m*x1+n*y1)/p+z1)>=0){
+        if (p!=0 & ((m*x1+n*y1)/p+z1)<Pix & ((m*x1+n*y1)/p+z1)>0){
             sec.add((float)0.0);
             sec.add((float)0.0);
             sec.add((m*x1+n*y1)/p+z1);
         }
-        if (p!=0 & ((m*x1+n*(y1-Pix))/p+z1)<=Pix & ((m*x1+n*(y1-Pix))/p+z1)>=0){
+        if (p!=0 & ((m*x1+n*(y1-Pix))/p+z1)<Pix & ((m*x1+n*(y1-Pix))/p+z1)>0){
             sec.add((float)0.0);
             sec.add(Pix);
             sec.add((m*x1+n*(y1-Pix))/p+z1);
         }
-        if (p!=0 & ((m*(x1-Pix)+n*y1)/p+z1)<=Pix & ((m*(x1-Pix)+n*y1)/p+z1)>=0){
+        if (p!=0 & ((m*(x1-Pix)+n*y1)/p+z1)<Pix & ((m*(x1-Pix)+n*y1)/p+z1)>0){
             sec.add(Pix);
             sec.add((float)0.0);
             sec.add((m*(x1-Pix)+n*y1)/p+z1);
         }
-        if (p!=0 & ((m*(x1-Pix)+n*(y1-Pix))/p+z1)<=Pix & ((m*(x1-Pix)+n*(y1-Pix))/p+z1)>=0){
+        if (p!=0 & ((m*(x1-Pix)+n*(y1-Pix))/p+z1)<Pix & ((m*(x1-Pix)+n*(y1-Pix))/p+z1)>0){
             sec.add(Pix);
             sec.add(Pix);
             sec.add((m*(x1-Pix)+n*(y1-Pix))/p+z1);
         }
 
-        float cx = (sec.get(0) + sec.get(3) + sec.get(6)) / 3;
-        float cy = (sec.get(1) + sec.get(4) + sec.get(7)) / 3;
-        float cz = (sec.get(2) + sec.get(5) + sec.get(8)) / 3;
-
-        float dx0 = sec.get(0) - cx;
-        float dy0 = sec.get(1) - cy;
-        float dz0 = sec.get(2) - cz;
-
-        for (int i = 1; i < sec.size() / 3; i++){
-            float x = sec.get(i * 3);
-            float y = sec.get(i * 3 + 1);
-            float z = sec.get(i * 3 + 2);
-
-            float dx = x - cx;
-            float dy = y - cy;
-            float dz = z - cz;
-
-            
-        }
+//        float cx = (sec.get(0) + sec.get(3) + sec.get(6)) / 3;
+//        float cy = (sec.get(1) + sec.get(4) + sec.get(7)) / 3;
+//        float cz = (sec.get(2) + sec.get(5) + sec.get(8)) / 3;
+//
+//        float dx0 = sec.get(0) - cx;
+//        float dy0 = sec.get(1) - cy;
+//        float dz0 = sec.get(2) - cz;
+//
+//        for (int i = 1; i < sec.size() / 3; i++){
+//            float x = sec.get(i * 3);
+//            float y = sec.get(i * 3 + 1);
+//            float z = sec.get(i * 3 + 2);
+//
+//            float dx = x - cx;
+//            float dy = y - cy;
+//            float dz = z - cz;
+//
+//
+//        }
         return sec;
     }
 
