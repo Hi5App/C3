@@ -5,9 +5,9 @@
 //<<<<<<< HEAD
 #include <QFileInfo>
 #include <limits>
-//void getApo(QString brainDir,QString apoDir);
-//void writeBrainInfo(QString apoDir,QString infoWithTxt);
-//void getBB(const V_NeuronSWC_list& T,const QString & Filename);
+void getApo(QString brainDir,QString apoDir);
+void writeBrainInfo(QString apoDir,QString infoWithTxt);
+void getBB(const V_NeuronSWC_list& T,const QString & Filename);
 
 //image dir:put brain image
 //image
@@ -22,11 +22,20 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    Server server;
-    if(!server.listen(QHostAddress::Any,9000))
-        exit(0);
-    else
-        std::cout<<"Server start:Version 1.1(HL)\n";
+//    Server server;
+//    if(!server.listen(QHostAddress::Any,9000))
+//        exit(0);
+//    else
+//        std::cout<<"Server start:Version 1.1(HL)\n";
+
+    getApo("C:/Users/Brain/Desktop/C3-preconstruction-8200/18454_to C3","C:/Users/Brain/Desktop/18454");
+    writeBrainInfo("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/mouse18454_teraconvert.txt");
+
+//    getApo("C:/Users/Brain/Desktop/C3-preconstruction-8200/18455_to C3","C:/Users/Brain/Desktop/18455");
+//    writeBrainInfo("C:/Users/Brain/Desktop/18455","C:/Users/Brain/Desktop/mouse18455_teraconvert.txt");
+
+//    getApo("C:/Users/Brain/Desktop/C3-preconstruction-8200/18872_to C3","C:/Users/Brain/Desktop/18872");
+//    writeBrainInfo("C:/Users/Brain/Desktop/18872","C:/Users/Brain/Desktop/mouse18872_teraconvert.txt");
     return a.exec();
 }
 //    if(argc==1)
@@ -167,68 +176,65 @@ int main(int argc, char *argv[])
 
 //}
 
-//void getApo(QString brainDir,QString apoDir)
-//{
-//        QDir dir(brainDir);
-//        QFileInfoList list=dir.entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot);
-//        for(auto t:list)
-//        {
-//            QFileInfoList list1=QDir(t.absoluteFilePath()).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
-//            for(auto tt:list1)
-//            {
-//                if(tt.suffix()=="apo")
-//                {
-//                    QFile f(tt.absoluteFilePath());
-//                    f.copy(apoDir+"/"+tt.fileName());
-//                }
-//            }
-//        }
-//}
+void getApo(QString brainDir,QString apoDir)
+{
+        QDir dir(brainDir);
+        QFileInfoList list=dir.entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot);
+        for(auto t:list)
+        {
+            QFileInfoList list1=QDir(t.absoluteFilePath()).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
+            for(auto tt:list1)
+            {
+                if(tt.suffix()=="apo")
+                {
+                    QFile f(tt.absoluteFilePath());
+                    f.copy(apoDir+"/"+tt.fileName());
+                }
+            }
+        }
+}
 
-//void writeBrainInfo(QString apoDir,QString infoWithTxt)
-//{
-////    infoWithTxt需要手动先行维护图像分辨率信息
-//        QDir dir(apoDir);
-//        QFileInfoList list=dir.entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
+void writeBrainInfo(QString apoDir,QString infoWithTxt)
+{
+//    infoWithTxt需要手动先行维护图像分辨率信息
+        QDir dir(apoDir);
+        QFileInfoList list=dir.entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
 
-//        qDebug()<<list.count();
-//        QFile f(infoWithTxt);
-//        if(f.open(QIODevice::Append|QIODevice::Text))
-//        {
-//            QTextStream stream(&f);
-//            stream<<endl<<endl<<"#Neuron_number:"<<list.count()<<endl;
-//            for(int i=0;i<list.count();i++)
-//            {
-//                stream<<QString::number(i+1)<<":"<<list[i].baseName()<<endl;
-//            }
-//            stream<<endl<<"#Neuron Info"<<endl;
-//            for(int i=0;i<list.count();i++)
-//            {
-//                auto apos=readAPO_file(list[i].absoluteFilePath());
-//                if(apos.count()!=1)
-//                {
-//                    qDebug()<<"error:"<<list[i].fileName();
-//                    continue;
-//                }
-//                stream<<"##"<<list[i].baseName()<<endl
-//                     <<"soma:"<<QString::number(int(apos[0].x))
-//                     <<";"<<QString::number(int(apos[0].y))
-//                     <<";"<<QString::number(int(apos[0].z))<<endl
-//                     <<"arbor:0";
-//                NeuronTree nt;
-//                writeSWC_file("C:/Users/Brain/Desktop/data/"+list[i].baseName()+".swc",nt);
-//                if(i!=list.count()-1)
-//                    stream<<endl;
+        qDebug()<<list.count();
+        QFile f(infoWithTxt);
+        if(f.open(QIODevice::Append|QIODevice::Text))
+        {
+            QTextStream stream(&f);
+            stream<<endl<<endl<<"#Neuron_number:"<<list.count()<<endl;
+            for(int i=0;i<list.count();i++)
+            {
+                stream<<QString::number(i+1)<<":"<<list[i].baseName()<<endl;
+            }
+            stream<<endl<<"#Neuron Info"<<endl;
+            for(int i=0;i<list.count();i++)
+            {
+                auto apos=readAPO_file(list[i].absoluteFilePath());
+                if(apos.count()!=1)
+                {
+                    qDebug()<<"error:"<<list[i].fileName();
+                    continue;
+                }
+                stream<<"##"<<list[i].baseName()<<endl
+                     <<"soma:"<<QString::number(int(apos[0].x))
+                     <<";"<<QString::number(int(apos[0].y))
+                     <<";"<<QString::number(int(apos[0].z))<<endl
+                     <<"arbor:0";
+                NeuronTree nt;
+                writeSWC_file(apoDir+"/"+list[i].baseName()+".swc",nt);
+                if(i!=list.count()-1)
+                    stream<<endl;
 
-//            }
+            }
 
-//        }else
-//        {
-//            qDebug()<<"failed!"<<f.errorString();
-//        }
+        }else
+        {
+            qDebug()<<"failed!"<<f.errorString();
+        }
 
-//}
-
-//    return a.exec();
-//}
+}
 
