@@ -1728,22 +1728,44 @@ public class Remote_Socket extends Socket {
 
         ArrayList<ArrayList<Integer>> marker_list = new ArrayList<ArrayList<Integer>>();
 
-        for (int i = 0; i < Marker_List.size(); i = i + 3){
-            int x = Marker_List.get(i);
-            int y = Marker_List.get(i+1);
-            int z = Marker_List.get(i+2);
+        float ratio = getRatio_SWC();
+        Log.v("getMarker", "ratio: " + ratio);
 
-//            Log.v("getMarker","(" + x + ", " + y + ", " + z + ")");
+        String[] soma_index = Neuron_Info.get(Neuron_Number_Selected).get(0).split(":")[1].split(";");
 
-            if (x >= index[0] && y >= index[1] && z>= index[2] &&
-                x < index[3] && y < index[4] && z < index[5]){
-                ArrayList<Integer> marker = new ArrayList<Integer>();
-                marker.add(x - index[0]);
-                marker.add(y - index[1]);
-                marker.add(z - index[2]);
-                marker_list.add(marker);
-            }
-        }
+        int x = (int) ( Integer.parseInt(soma_index[0]) / ratio );
+        int y = (int) ( Integer.parseInt(soma_index[1]) / ratio );
+        int z = (int) ( Integer.parseInt(soma_index[2]) / ratio );
+
+        ArrayList<Integer> marker = new ArrayList<Integer>();
+        marker.add(x - index[0]);
+        marker.add(y - index[1]);
+        marker.add(z - index[2]);
+        marker_list.add(marker);
+
+//        for (int i = 0; i < Marker_List.size(); i = i + 3){
+//            int x = (int) ( Marker_List.get(i)   / (float) ratio);
+//            int y = (int) ( Marker_List.get(i+1) / (float) ratio);
+//            int z = (int) ( Marker_List.get(i+2) / (float) ratio);
+//
+//            Log.v("Remote_Socket", Neuron_Info.get(Neuron_Number_Selected).get(0));
+//
+//
+//
+////            Log.v("getMarker","(" + x + ", " + y + ", " + z + ")");
+//
+//            if (x >= index[0] && y >= index[1] && z>= index[2] &&
+//                x < index[3] && y < index[4] && z < index[5]){
+//                ArrayList<Integer> marker = new ArrayList<Integer>();
+//                marker.add(x - index[0]);
+//                marker.add(y - index[1]);
+//                marker.add(z - index[2]);
+//                marker_list.add(marker);
+//
+//                Log.v("getMarker","(" + x + ", " + y + ", " + z + ")");
+//
+//            }
+//        }
 
         Log.v("getMarker",marker_list.size() + " !");
         Log.v("getMarker",Marker_List.size() + " !");

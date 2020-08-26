@@ -3072,7 +3072,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void addLineDrawed2(ArrayList<Float> line, V_NeuronSWC_list [] v_neuronSWC_lists) throws CloneNotSupportedException {
+    public void addLineDrawed2(ArrayList<Float> line, V_NeuronSWC_list [] v_neuronSWC_lists, V_NeuronSWC background_seg) throws CloneNotSupportedException {
         if (img.getData() == null){
             return;
         }
@@ -3133,6 +3133,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             boolean linked = false;
             for(int i=0; i<curSwcList.seg.size() - 1; i++){
                 V_NeuronSWC s = curSwcList.seg.get(i);
+
+                if (s == background_seg){
+                    continue;
+                }
+
                 for(int j=0; j<s.row.size(); j++){
                     if(linked)
                         break;

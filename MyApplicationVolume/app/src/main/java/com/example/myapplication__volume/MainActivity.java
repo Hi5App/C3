@@ -77,6 +77,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.example.Server_Communication.Remote_Socket;
+import com.example.basic.CrashHandler;
 import com.example.basic.DragFloatActionButton;
 import com.example.ImageReader.BigImgReader;
 import com.example.basic.FileManager;
@@ -599,6 +600,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         System.out.println("------------------");
         System.out.println("onCreate");
+
+        String[] info = {"xxx"};
+//        System.out.println(info[2]);
+
 
         isBigData_Remote = false;
         isBigData_Local  = false;
@@ -1470,7 +1475,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", "VoiceChat - 1 to 1", "Animate", "Settings","About", "Help"},
+                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "About", "Help"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -1588,6 +1593,10 @@ public class MainActivity extends AppCompatActivity {
 
                                     case "Settings":
                                         setSettings();
+                                        break;
+
+                                    case "Crash Info":
+                                        CrashInfoShare();
                                         break;
 
                                     case "About":
@@ -5084,7 +5093,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200825b 22:24 UTC+8 build",
+                                "Version: 20200826a 22:24 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5201,6 +5210,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void BigFileRead_Remote_Check(String ip){
 
+        Log.v("Remote_Check","Here We are !");
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -6131,6 +6141,36 @@ public class MainActivity extends AppCompatActivity {
         mdDialog.getWindow().setLayout(1000, 1500);
     }
 
+
+    private void CrashInfoShare(){
+        String[] info_path = CrashHandler.getCrashReportFiles(getApplicationContext());
+
+        new XPopup.Builder(this)
+//        .maxWidth(400)
+//        .maxHeight(1350)
+                .asCenterList("Select a Crash Report", info_path,
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                String file_path = CrashHandler.getCrashFilePath(getApplicationContext()) + "/" + text;
+                                File file = new File(file_path);
+                                if (file.exists()){
+                                    Intent intent = new Intent();
+                                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                                    intent.setAction(Intent.ACTION_SEND);
+                                    intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "com.example.myapplication__volume.provider", new File(file_path)));  //传输图片或者文件 采用流的方式
+                                    intent.setType("*/*");   //分享文件
+                                    startActivity(Intent.createChooser(intent, "Share From C3"));
+                                }else {
+                                    Toast_in_Thread("File does not exist");
+                                }
+
+                            }
+                        })
+                .show();
+
+
+    }
 
     private void SetAnimation() {
 
@@ -7368,7 +7408,7 @@ public class MainActivity extends AppCompatActivity {
 //                                                    System.out.println(v_neuronSWC_list.seg.size());
                                                     if (seg != null) {
                                                         V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
-                                                        myrenderer.addLineDrawed2(lineDrawed, v_neuronSWC_list);
+                                                        myrenderer.addLineDrawed2(lineDrawed, v_neuronSWC_list, seg);
                                                         myrenderer.deleteFromCur(seg, v_neuronSWC_list[0]);
                                                     }
 //                                                    else {
