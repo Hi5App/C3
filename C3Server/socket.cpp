@@ -393,9 +393,9 @@ void Socket::getAndSendSWCBlock(QString msg)
             nt=V_NeuronSWC_list__2__NeuronTree(tosave);
             for(int i=0;i<nt.listNeuron.size();i++)
             {
-                (nt.listNeuron[i].x-=x1);
-                (nt.listNeuron[i].y-=y1);
-                (nt.listNeuron[i].z-=z1);
+                (nt.listNeuron[i].x-=x1)/=cnt;
+                (nt.listNeuron[i].y-=y1)/=cnt;
+                (nt.listNeuron[i].z-=z1)/=cnt;
             }
             if(!QDir(QCoreApplication::applicationDirPath()+"/tmp").exists())
             {
@@ -404,7 +404,7 @@ void Socket::getAndSendSWCBlock(QString msg)
             x1/=cnt;x2/=cnt;y1/=cnt;y2/=cnt;z1/=cnt;z2/=cnt;
             QString BBSWCNAME=QCoreApplication::applicationDirPath()+"/tmp/blockGet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6__%7.swc")
                     .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2).arg(cnt);
-            nt = resample(nt, cnt);
+//            nt = resample(nt, cnt);
             writeSWC_file(BBSWCNAME,nt);
             sendFile("blockGet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6__%7.swc")
                      .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2).arg(cnt),2);
