@@ -228,6 +228,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private int degree = 0;
 
+    private float [] gamePosition = new float[3];
+    private float [] gameDir = new float[3];
+
+    private boolean ifGame = false;
+
     //初次渲染画面
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
@@ -299,6 +304,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
 
+
+
         mCaptureBuffer = ByteBuffer.allocate(screen_h*screen_w*4);
         mBitmap = Bitmap.createBitmap(screen_w,screen_h, Bitmap.Config.ARGB_8888);
 
@@ -322,6 +329,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             } else {
                 Matrix.frustumM(projectionMatrix, 0, -1, 1, -1 / ratio, 1 / ratio, 2f, 100);
             }
+        }
+
+        if (ifGame){
+            setVisual(gamePosition, gameDir);
         }
 //        onDrawFrame(gl);
 //        Matrix.perspectiveM(projectionMatrix,0,45,1,0.1f,100f);
@@ -665,7 +676,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             //
             if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.SWC || fileType == FileType.APO || fileType == FileType.ANO || fileType == FileType.V3dPBD)
-                if (myAxis != null)
+                if (myAxis != null && !ifGame)
                     myAxis.draw(finalMatrix);
 
 //            System.out.println("---- draw myImg ----");
@@ -4784,6 +4795,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public boolean driveMode(float [] vertexPoints, float [] direction){
 //        int size = vertexPoints.length;
+        if (myPattern == null)
+            return false;
+
 
         short [] drawlistTriangle = new short[]{
                 0, 1, 2
@@ -4976,8 +4990,379 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return sec;
     }
 
-    public void startGameMode(){
+    public String getFilePath(){
+        return filepath;
+    }
 
+    private void setVisual(float [] position, float [] dir){
+
+
+        ArrayList<Integer> sec_proj1 = new ArrayList<Integer>();
+        ArrayList<Integer> sec_proj2 = new ArrayList<Integer>();
+        ArrayList<Integer> sec_proj3 = new ArrayList<Integer>();
+        ArrayList<Integer> sec_proj4 = new ArrayList<Integer>();
+        ArrayList<Float> sec_anti = new ArrayList<Float>();
+
+        ArrayList<Float> tangent = tangentPlane(position[0], position[1], position[2], dir[0], dir[1], dir[2], 0, 1);
+
+        System.out.println("TangentPlane:::::");
+        System.out.println(tangent.size());
+
+        //然后对三维坐标进行映射
+        if (dir[2]==0)
+        //先判断切面是不是与XOY面垂直，如果垂直就映射到XOZ平面
+        {
+            for (int i=0;i<tangent.size();i+=3) {
+                if(tangent.get(i)>=0 & tangent.get(i+2)>=0) {
+
+                    sec_proj1.add(i);
+
+                }// 第一象限
+                else if(tangent.get(i)<=0 & tangent.get(i+2)>=0) {
+
+                    sec_proj2.add(i);
+
+                }// 第二象限
+                else if(tangent.get(i)<=0 & tangent.get(i+2)<=0) {
+
+                    sec_proj3.add(i);
+
+                }// 第三象限
+                else if(tangent.get(i)>=0 & tangent.get(i+2)<=0) {
+
+                    sec_proj4.add(i);
+
+                }// 第四象限
+
+            }
+
+
+
+            //只用判断大于1的情况，如果没有那就刚好不用管了，如果只有一个元素，那也不用排序了
+            if (sec_proj1.size()>1) {
+                for (int i=0;i<sec_proj1.size();i++) {
+                    for (int j=0;j<sec_proj1.size()-i-1;j++) {
+                        if(tangent.get(sec_proj1.get(j))!=0 & tangent.get(sec_proj1.get(j+1))!=0) {
+                            if(tangent.get(sec_proj1.get(j)+2)/tangent.get(sec_proj1.get(j)) > tangent.get(sec_proj1.get(j+1)+2)/tangent.get(sec_proj1.get(j+1))) {
+                                int temp = sec_proj1.get(j);
+                                sec_proj1.set(j, sec_proj1.get(j+1));
+                                sec_proj1.set(j+1, temp); //冒泡排序
+                            }
+                        }
+                        else {
+                            if(tangent.get(sec_proj1.get(j))==0 & tangent.get(sec_proj1.get(j+1))==0) {
+                                if(tangent.get(sec_proj1.get(j)+2)<tangent.get(sec_proj1.get(j+1)+2)) {
+                                    int temp = sec_proj1.get(j);
+                                    sec_proj1.set(j, sec_proj1.get(j+1));
+                                    sec_proj1.set(j+1, temp); //冒泡排序
+                                }
+                            }
+                            else {
+                                if(tangent.get(sec_proj1.get(j))==0) {
+                                    int temp = sec_proj1.get(j);
+                                    sec_proj1.set(j, sec_proj1.get(j+1));
+                                    sec_proj1.set(j+1, temp); //冒泡排序
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (sec_proj2.size()>1) {
+                for (int i=0;i<sec_proj2.size();i++) {
+                    for (int j=0;j<sec_proj2.size()-i-1;j++) {
+                        if(tangent.get(sec_proj2.get(j))!=0 & tangent.get(sec_proj2.get(j+1))!=0) {
+                            if(tangent.get(sec_proj2.get(j)+2)/tangent.get(sec_proj2.get(j)) > tangent.get(sec_proj2.get(j+1)+2)/tangent.get(sec_proj2.get(j+1))) {
+                                int temp = sec_proj2.get(j);
+                                sec_proj2.set(j, sec_proj2.get(j+1));
+                                sec_proj2.set(j+1, temp); //冒泡排序
+                            }
+                        }
+                        else {
+                            if(tangent.get(sec_proj2.get(j))==0 & tangent.get(sec_proj2.get(j+1))==0) {
+                                if(tangent.get(sec_proj2.get(j)+2)<tangent.get(sec_proj2.get(j+1)+2)) {
+                                    int temp = sec_proj2.get(j);
+                                    sec_proj2.set(j, sec_proj2.get(j+1));
+                                    sec_proj2.set(j+1, temp); //冒泡排序
+                                }
+                            }
+                            else {
+                                if(tangent.get(sec_proj2.get(j))==0) {
+                                    int temp = sec_proj2.get(j);
+                                    sec_proj2.set(j, sec_proj2.get(j+1));
+                                    sec_proj2.set(j+1, temp); //冒泡排序
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (sec_proj3.size()>1) {
+                for (int i=0;i<sec_proj3.size();i++) {
+                    for (int j=0;j<sec_proj3.size()-i-1;j++) {
+                        if(tangent.get(sec_proj3.get(j))!=0 & tangent.get(sec_proj3.get(j+1))!=0) {
+                            if(tangent.get(sec_proj3.get(j)+2)/tangent.get(sec_proj3.get(j)) > tangent.get(sec_proj3.get(j+1)+2)/tangent.get(sec_proj3.get(j+1))) {
+                                int temp = sec_proj3.get(j);
+                                sec_proj3.set(j, sec_proj3.get(j+1));
+                                sec_proj3.set(j+1, temp); //冒泡排序
+                            }
+                        }
+                        else {
+                            if(tangent.get(sec_proj3.get(j))==0 & tangent.get(sec_proj3.get(j+1))==0) {
+                                if(tangent.get(sec_proj3.get(j)+2)<tangent.get(sec_proj3.get(j+1)+2)) {
+                                    int temp = sec_proj3.get(j);
+                                    sec_proj3.set(j, sec_proj3.get(j+1));
+                                    sec_proj3.set(j+1, temp); //冒泡排序
+                                }
+                            }
+                            else {
+                                if(tangent.get(sec_proj3.get(j))==0) {
+                                    int temp = sec_proj3.get(j);
+                                    sec_proj3.set(j, sec_proj3.get(j+1));
+                                    sec_proj3.set(j+1, temp); //冒泡排序
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (sec_proj4.size()>1) {
+                for (int i=0;i<sec_proj4.size();i++) {
+                    for (int j=0;j<sec_proj4.size()-i-1;j++) {
+                        if(tangent.get(sec_proj4.get(j))!=0 & tangent.get(sec_proj4.get(j+1))!=0) {
+                            if(tangent.get(sec_proj4.get(j)+2)/tangent.get(sec_proj4.get(j)) > tangent.get(sec_proj4.get(j+1)+2)/tangent.get(sec_proj4.get(j+1))) {
+                                int temp = sec_proj4.get(j);
+                                sec_proj4.set(j, sec_proj4.get(j+1));
+                                sec_proj4.set(j+1, temp); //冒泡排序
+                            }
+                        }
+                        else {
+                            if(tangent.get(sec_proj4.get(j))==0 & tangent.get(sec_proj4.get(j+1))==0) {
+                                if(tangent.get(sec_proj4.get(j)+1)<tangent.get(sec_proj4.get(j+1)+1)) {
+                                    int temp = sec_proj4.get(j);
+                                    sec_proj4.set(j, sec_proj4.get(j+1));
+                                    sec_proj4.set(j+1, temp); //冒泡排序
+                                }
+                            }
+                            else {
+                                if(tangent.get(sec_proj4.get(j))==0) {
+                                    int temp = sec_proj4.get(j);
+                                    sec_proj4.set(j, sec_proj4.get(j+1));
+                                    sec_proj4.set(j+1, temp); //冒泡排序
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
+        }
+        else {
+            for (int i=0;i<tangent.size();i+=3) {
+                if(tangent.get(i)>=0 & tangent.get(i+1)>=0) {
+
+                    sec_proj1.add(i);
+
+                }// 第一象限
+                else if(tangent.get(i)<=0 & tangent.get(i+1)>=0) {
+
+                    sec_proj2.add(i);
+
+                }// 第二象限
+                else if(tangent.get(i)<=0 & tangent.get(i+1)<=0) {
+
+                    sec_proj3.add(i);
+
+                }// 第三象限
+                else if(tangent.get(i)>=0 & tangent.get(i+1)<=0) {
+
+                    sec_proj4.add(i);
+
+                }// 第四象限
+
+            }
+        }
+
+
+
+
+
+        //只用判断大于1的情况，如果没有那就刚好不用管了，如果只有一个元素，那也不用排序了
+        if (sec_proj1.size()>1) {
+            for (int i=0;i<sec_proj1.size();i++) {
+                for (int j=0;j<sec_proj1.size()-i-1;j++) {
+                    if(tangent.get(sec_proj1.get(j))!=0 & tangent.get(sec_proj1.get(j+1))!=0) {
+                        if(tangent.get(sec_proj1.get(j)+1)/tangent.get(sec_proj1.get(j)) > tangent.get(sec_proj1.get(j+1)+1)/tangent.get(sec_proj1.get(j+1))) {
+                            int temp = sec_proj1.get(j);
+                            sec_proj1.set(j, sec_proj1.get(j+1));
+                            sec_proj1.set(j+1, temp); //冒泡排序
+                        }
+                    }
+                    else {
+                        if(tangent.get(sec_proj1.get(j))==0 & tangent.get(sec_proj1.get(j+1))==0) {
+                            if(tangent.get(sec_proj1.get(j)+1)<tangent.get(sec_proj1.get(j+1)+1)) {
+                                int temp = sec_proj1.get(j);
+                                sec_proj1.set(j, sec_proj1.get(j+1));
+                                sec_proj1.set(j+1, temp); //冒泡排序
+                            }
+                        }
+                        else {
+                            if(tangent.get(sec_proj1.get(j))==0) {
+                                int temp = sec_proj1.get(j);
+                                sec_proj1.set(j, sec_proj1.get(j+1));
+                                sec_proj1.set(j+1, temp); //冒泡排序
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (sec_proj2.size()>1) {
+            for (int i=0;i<sec_proj2.size();i++) {
+                for (int j=0;j<sec_proj2.size()-i-1;j++) {
+                    if(tangent.get(sec_proj2.get(j))!=0 & tangent.get(sec_proj2.get(j+1))!=0) {
+                        if(tangent.get(sec_proj2.get(j)+1)/tangent.get(sec_proj2.get(j)) > tangent.get(sec_proj2.get(j+1)+1)/tangent.get(sec_proj2.get(j+1))) {
+                            int temp = sec_proj2.get(j);
+                            sec_proj2.set(j, sec_proj2.get(j+1));
+                            sec_proj2.set(j+1, temp); //冒泡排序
+                        }
+                    }
+                    else {
+                        if(tangent.get(sec_proj2.get(j))==0 & tangent.get(sec_proj2.get(j+1))==0) {
+                            if(tangent.get(sec_proj2.get(j)+1)<tangent.get(sec_proj2.get(j+1)+1)) {
+                                int temp = sec_proj2.get(j);
+                                sec_proj2.set(j, sec_proj2.get(j+1));
+                                sec_proj2.set(j+1, temp); //冒泡排序
+                            }
+                        }
+                        else {
+                            if(tangent.get(sec_proj2.get(j))==0) {
+                                int temp = sec_proj2.get(j);
+                                sec_proj2.set(j, sec_proj2.get(j+1));
+                                sec_proj2.set(j+1, temp); //冒泡排序
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (sec_proj3.size()>1) {
+            for (int i=0;i<sec_proj3.size();i++) {
+                for (int j=0;j<sec_proj3.size()-i-1;j++) {
+                    if(tangent.get(sec_proj3.get(j))!=0 & tangent.get(sec_proj3.get(j+1))!=0) {
+                        if(tangent.get(sec_proj3.get(j)+1)/tangent.get(sec_proj3.get(j)) > tangent.get(sec_proj3.get(j+1)+1)/tangent.get(sec_proj3.get(j+1))) {
+                            int temp = sec_proj3.get(j);
+                            sec_proj3.set(j, sec_proj3.get(j+1));
+                            sec_proj3.set(j+1, temp); //冒泡排序
+                        }
+                    }
+                    else {
+                        if(tangent.get(sec_proj3.get(j))==0 & tangent.get(sec_proj3.get(j+1))==0) {
+                            if(tangent.get(sec_proj3.get(j)+1)<tangent.get(sec_proj3.get(j+1)+1)) {
+                                int temp = sec_proj3.get(j);
+                                sec_proj3.set(j, sec_proj3.get(j+1));
+                                sec_proj3.set(j+1, temp); //冒泡排序
+                            }
+                        }
+                        else {
+                            if(tangent.get(sec_proj3.get(j))==0) {
+                                int temp = sec_proj3.get(j);
+                                sec_proj3.set(j, sec_proj3.get(j+1));
+                                sec_proj3.set(j+1, temp); //冒泡排序
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (sec_proj4.size()>1) {
+            for (int i=0;i<sec_proj4.size();i++) {
+                for (int j=0;j<sec_proj4.size()-i-1;j++) {
+                    if(tangent.get(sec_proj4.get(j))!=0 & tangent.get(sec_proj4.get(j+1))!=0) {
+                        if(tangent.get(sec_proj4.get(j)+1)/tangent.get(sec_proj4.get(j)) > tangent.get(sec_proj4.get(j+1)+1)/tangent.get(sec_proj4.get(j+1))) {
+                            int temp = sec_proj4.get(j);
+                            sec_proj4.set(j, sec_proj4.get(j+1));
+                            sec_proj4.set(j+1, temp); //冒泡排序
+                        }
+                    }
+                    else {
+                        if(tangent.get(sec_proj4.get(j))==0 & tangent.get(sec_proj4.get(j+1))==0) {
+                            if(tangent.get(sec_proj4.get(j)+1)<tangent.get(sec_proj4.get(j+1)+1)) {
+                                int temp = sec_proj4.get(j);
+                                sec_proj4.set(j, sec_proj4.get(j+1));
+                                sec_proj4.set(j+1, temp); //冒泡排序
+                            }
+                        }
+                        else {
+                            if(tangent.get(sec_proj4.get(j))==0) {
+                                int temp = sec_proj4.get(j);
+                                sec_proj4.set(j, sec_proj4.get(j+1));
+                                sec_proj4.set(j+1, temp); //冒泡排序
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        for(int i=0;i<sec_proj1.size();i++) {
+            sec_anti.add(tangent.get(sec_proj1.get(i)));
+            sec_anti.add(tangent.get(sec_proj1.get(i)+1));
+            sec_anti.add(tangent.get(sec_proj1.get(i)+2));
+        }
+        for(int i=0;i<sec_proj2.size();i++) {
+            sec_anti.add(tangent.get(sec_proj2.get(i)));
+            sec_anti.add(tangent.get(sec_proj2.get(i)+1));
+            sec_anti.add(tangent.get(sec_proj2.get(i)+2));
+        }
+        for(int i=0;i<sec_proj3.size();i++) {
+            sec_anti.add(tangent.get(sec_proj3.get(i)));
+            sec_anti.add(tangent.get(sec_proj3.get(i)+1));
+            sec_anti.add(tangent.get(sec_proj3.get(i)+2));
+        }
+        for(int i=0;i<sec_proj4.size();i++) {
+            sec_anti.add(tangent.get(sec_proj4.get(i)));
+            sec_anti.add(tangent.get(sec_proj4.get(i)+1));
+            sec_anti.add(tangent.get(sec_proj4.get(i)+2));
+        }
+
+        float [] vertexPoints = new float[sec_anti.size()];
+        for (int i = 0; i < sec_anti.size(); i++){
+
+            vertexPoints[i] = sec_anti.get(i);
+            System.out.print(vertexPoints[i]);
+            System.out.print(" ");
+            if (i % 3 == 2){
+                System.out.print("\n");
+            }
+        }
+
+        boolean gameSucceed = driveMode(vertexPoints, dir);
+//        if (!gameSucceed){
+//            Toast.makeText(context, "wrong vertex to draw", Toast.LENGTH_SHORT);
+//        } else {
+//            myGLSurfaceView.requestRender();
+//        }
+    }
+
+    public void setGamePosition(float [] position){
+        gamePosition = position;
+    }
+
+    public void setGameDir(float [] dir){
+        gameDir = dir;
+    }
+
+    public void setIfGame(boolean b){
+        ifGame = b;
     }
 }
 

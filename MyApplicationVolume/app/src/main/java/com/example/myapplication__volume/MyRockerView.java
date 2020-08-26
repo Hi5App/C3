@@ -15,11 +15,11 @@ import android.view.ViewTreeObserver.OnPreDrawListener;
 
 public class MyRockerView extends View {
 
-    //�̶�ҡ�˱���Բ�ε�X,Y�����Լ��뾶
+
     private float mRockerBg_X;
     private float mRockerBg_Y;
     private float mRockerBg_R;
-    //ҡ�˵�X,Y�����Լ�ҡ�˵İ뾶
+
     private float mRockerBtn_X;
     private float mRockerBtn_Y;
     private float mRockerBtn_R;
@@ -32,13 +32,13 @@ public class MyRockerView extends View {
 //        super(context)
         super(context, attrs);
         // TODO Auto-generated constructor stub
-        // ��ȡbitmap
+
         mBmpRockerBg = BitmapFactory.decodeResource(context.getResources(), R.drawable.rocker_bg);
         mBmpRockerBtn = BitmapFactory.decodeResource(context.getResources(), R.drawable.rocker_btn);
 
         getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
 
-            // ���ø÷���ʱ���Ի�ȡviewʵ�ʵĿ�getWidth()�͸�getHeight()
+
             @Override
             public boolean onPreDraw() {
                 // TODO Auto-generated method stub
@@ -104,13 +104,13 @@ public class MyRockerView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         // TODO Auto-generated method stub
         if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE) {
-            // �����������ڻ��Χ��
+
             if (Math.sqrt(Math.pow((mRockerBg_X - (int) event.getX()), 2) + Math.pow((mRockerBg_Y - (int) event.getY()), 2)) >= mRockerBg_R) {
-                //�õ�ҡ���봥�������γɵĽǶ�
+
                 double tempRad = getRad(mRockerBg_X, mRockerBg_Y, event.getX(), event.getY());
-                //��֤�ڲ�СԲ�˶��ĳ�������
+
                 getXY(mRockerBg_X, mRockerBg_Y, mRockerBg_R, tempRad);
-            } else {//���С�����ĵ�С�ڻ�����������û��������ƶ�����
+            } else {
                 mRockerBtn_X = (int) event.getX();
                 mRockerBtn_Y = (int) event.getY();
             }
@@ -118,7 +118,7 @@ public class MyRockerView extends View {
                 mRockerChangeListener.report(mRockerBtn_X - mCenterPoint.x, mRockerBtn_Y - mCenterPoint.y);
             }
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
-            //���ͷŰ���ʱҡ��Ҫ�ָ�ҡ�˵�λ��Ϊ��ʼλ��
+
             mRockerBtn_X = mCenterPoint.x;
             mRockerBtn_Y = mCenterPoint.y;
             if(mRockerChangeListener != null) {
@@ -128,21 +128,18 @@ public class MyRockerView extends View {
         return true;
     }
 
-    /***
-     * �õ�����֮��Ļ���
-     */
     public double getRad(float px1, float py1, float px2, float py2) {
-        //�õ�����X�ľ���
+
         float x = px2 - px1;
-        //�õ�����Y�ľ���
+
         float y = py1 - py2;
-        //���б�߳�
+
         float xie = (float) Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-        //�õ�����Ƕȵ�����ֵ��ͨ�����Ǻ����еĶ��� ���ڱ�/б��=�Ƕ�����ֵ��
+
         float cosAngle = x / xie;
-        //ͨ�������Ҷ����ȡ����ǶȵĻ���
+
         float rad = (float) Math.acos(cosAngle);
-        //ע�⣺��������λ��Y����<ҡ�˵�Y��������Ҫȡ��ֵ-0~-180
+
         if (py2 < py1) {
             rad = -rad;
         }
@@ -151,15 +148,15 @@ public class MyRockerView extends View {
 
     /**
      *
-     * @param R  Բ���˶�����ת��
-     * @param centerX ��ת��X
-     * @param centerY ��ת��Y
-     * @param rad ��ת�Ļ���
+     * @param R
+     * @param centerX
+     * @param centerY
+     * @param rad
      */
     public void getXY(float centerX, float centerY, float R, double rad) {
-        //��ȡԲ���˶���X����
+
         mRockerBtn_X = (float) (R * Math.cos(rad)) + centerX;
-        //��ȡԲ���˶���Y����
+
         mRockerBtn_Y = (float) (R * Math.sin(rad)) + centerY;
     }
 

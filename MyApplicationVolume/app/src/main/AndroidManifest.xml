@@ -33,7 +33,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <activity android:name=".HelpActivity"></activity>
+        <activity android:name=".GameActivity"
+            android:screenOrientation="landscape"></activity>
+        <activity android:name=".HelpActivity" />
         <activity
             android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation|layoutDirection|screenSize">

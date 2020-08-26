@@ -1588,7 +1588,16 @@ public class MainActivity extends AppCompatActivity {
 //                                        } else {
 //                                            myGLSurfaceView.requestRender();
 //                                        }
-                                        gameStart();
+                                        try {
+                                            Intent gameIntent = new Intent(MainActivity.this, GameActivity.class);
+                                            gameIntent.putExtra("FilePath", myrenderer.getFilePath());
+                                            gameIntent.putExtra("Position", new float[]{0.5f, 0.5f, 0.5f});
+                                            gameIntent.putExtra("Dir", new float[]{1, 1, 1});
+                                            startActivity(gameIntent);
+                                        }catch (Exception e){
+                                            e.printStackTrace();
+                                        }
+//                                        gameStart();
                                         break;
 
                                     case "Settings":
@@ -1605,8 +1614,8 @@ public class MainActivity extends AppCompatActivity {
 
                                     case "Help":
                                         try{
-                                            Intent intent = new Intent(MainActivity.this, HelpActivity.class);
-                                            startActivity(intent);
+                                            Intent helpIntent = new Intent(MainActivity.this, HelpActivity.class);
+                                            startActivity(helpIntent);
                                         } catch (Exception e){
                                             e.printStackTrace();
                                         }
