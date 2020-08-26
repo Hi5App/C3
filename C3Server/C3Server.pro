@@ -44,6 +44,7 @@ HEADERS += \
     neuron_editing/neuron_sim_scores.h \
     neuron_editing/neuron_xforms.h \
     neuron_editing/v_neuronswc.h \
+    resampling.h \
     server.h \
     socket.h
 

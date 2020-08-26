@@ -48,6 +48,7 @@ private:
     void getAndSendArborBlock(QString msg);
     void getAndSendArborSwcBlock(QString msg);
 
+
 public slots:
     void onReadyRead();//
 signals:

@@ -2,6 +2,7 @@
 #include <QDataStream>
 #include <QByteArray>
 #include <QHostAddress>
+#include <resampling.h>
 #define IMAGEDIR "image" // where is image data
 QHash<QString,QReadWriteLock> Socket::fileLocks;
 Socket::Socket(qintptr socketID,QObject *parent):QThread(parent)
@@ -182,10 +183,11 @@ void Socket::processMsg(const QString &msg)
 }
 void Socket::ArborCheck(QString msg)
 {
-    QRegExp tmp("(.*);(.*);(.*);(.*);(.*);(.*);(.*);(.*)");
+    QRegExp tmp("(.*);(.*);(.*);(.*);(.*);(.*);(.*);(.*);(.*)");//17302_00001;x1;x2;y1;y2;z1;z2;flag
     if(tmp.indexIn(msg)!=-1)
     {
         QString filename=tmp.cap(1).trimmed();
+
         int x1=tmp.cap(2).toInt();
         int x2=tmp.cap(3).toInt();
         int y1=tmp.cap(4).toInt();
@@ -194,17 +196,20 @@ void Socket::ArborCheck(QString msg)
         int z2=tmp.cap(7).toInt();
 
         int flag=tmp.cap(8).toInt();
+        QString id=tmp.cap(9).trimmed();
         int n=5;
+
+
         if(!QDir(QCoreApplication::applicationDirPath()+"/arbormark").exists())
         {
             QDir(QCoreApplication::applicationDirPath()).mkdir("arbormark");
         }
         QFile *f=new QFile(QCoreApplication::applicationDirPath()+"/arbormark/"+"arborcheck.txt");
-        __START:
+        __START1:
         if(f->open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Append))
         {
             QTextStream tsm(f);
-            tsm<<filename<<" "<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<endl;
+            tsm<<filename<<" "<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<" "<<id<<endl;
             f->close();
 
         }else if(n-->0)
@@ -212,8 +217,9 @@ void Socket::ArborCheck(QString msg)
             QElapsedTimer t;
             t.start();
             while(t.elapsed()<2000);
-            goto __START;
+            goto __START1;
         }
+
     }
 }
 
@@ -387,9 +393,9 @@ void Socket::getAndSendSWCBlock(QString msg)
             nt=V_NeuronSWC_list__2__NeuronTree(tosave);
             for(int i=0;i<nt.listNeuron.size();i++)
             {
-                (nt.listNeuron[i].x-=x1)/=cnt;
-                (nt.listNeuron[i].y-=y1)/=cnt;
-                (nt.listNeuron[i].z-=z1)/=cnt;
+                (nt.listNeuron[i].x-=x1);
+                (nt.listNeuron[i].y-=y1);
+                (nt.listNeuron[i].z-=z1);
             }
             if(!QDir(QCoreApplication::applicationDirPath()+"/tmp").exists())
             {
@@ -398,6 +404,7 @@ void Socket::getAndSendSWCBlock(QString msg)
             x1/=cnt;x2/=cnt;y1/=cnt;y2/=cnt;z1/=cnt;z2/=cnt;
             QString BBSWCNAME=QCoreApplication::applicationDirPath()+"/tmp/blockGet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6__%7.swc")
                     .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2).arg(cnt);
+            nt = resample(nt, cnt);
             writeSWC_file(BBSWCNAME,nt);
             sendFile("blockGet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6__%7.swc")
                      .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2).arg(cnt),2);
@@ -609,17 +616,17 @@ void Socket::getAndSendArborBlock(QString msg)
 
 void Socket::getAndSendArborSwcBlock(QString msg)
 {
-    QRegExp tmp("(.*);(.*);(.*);(.*);(.*);(.*);(.*)");
+    QRegExp tmp("(.*)RES(.*);(.*);(.*);(.*);(.*);(.*);(.*)");
     int n=5;//重复5次，每次延时2S
     if(tmp.indexIn(msg)!=-1)
     {
         QString name=tmp.cap(1)+".swc";
-        int x1=tmp.cap(2).toInt();
-        int x2=tmp.cap(3).toInt();
-        int y1=tmp.cap(4).toInt();
-        int y2=tmp.cap(5).toInt();
-        int z1=tmp.cap(6).toInt();
-        int z2=tmp.cap(7).toInt();
+        int x1=tmp.cap(3).toInt();
+        int x2=tmp.cap(4).toInt();
+        int y1=tmp.cap(5).toInt();
+        int y2=tmp.cap(6).toInt();
+        int z1=tmp.cap(7).toInt();
+        int z2=tmp.cap(8).toInt();
 
 
         __START:
@@ -651,9 +658,9 @@ void Socket::getAndSendArborSwcBlock(QString msg)
             nt=V_NeuronSWC_list__2__NeuronTree(tosave);
             for(int i=0;i<nt.listNeuron.size();i++)
             {
-                nt.listNeuron[i].x-=x1;
-                nt.listNeuron[i].y-=y1;
-                nt.listNeuron[i].z-=z1;
+                (nt.listNeuron[i].x/=4)-=x1;
+                (nt.listNeuron[i].y/=4)-=y1;
+                (nt.listNeuron[i].z/=4)-=z1;
             }
             if(!QDir(QCoreApplication::applicationDirPath()+"/tmp").exists())
             {
