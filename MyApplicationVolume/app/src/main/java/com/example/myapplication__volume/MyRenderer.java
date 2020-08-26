@@ -69,6 +69,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+import java.lang.Math;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -3071,7 +3072,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void addLineDrawed2(ArrayList<Float> line, V_NeuronSWC_list [] v_neuronSWC_lists) throws CloneNotSupportedException {
+    public void addLineDrawed2(ArrayList<Float> line, V_NeuronSWC_list [] v_neuronSWC_lists, V_NeuronSWC background_seg) throws CloneNotSupportedException {
         if (img.getData() == null){
             return;
         }
@@ -3132,6 +3133,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             boolean linked = false;
             for(int i=0; i<curSwcList.seg.size() - 1; i++){
                 V_NeuronSWC s = curSwcList.seg.get(i);
+
+                if (s == background_seg){
+                    continue;
+                }
+
                 for(int j=0; j<s.row.size(); j++){
                     if(linked)
                         break;
@@ -4774,6 +4780,204 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             undoMarkerList.add(tempMarkerList);
             undoCurveList.add(tempCurveList);
         }
+    }
+
+    public boolean driveMode(float [] vertexPoints, float [] direction){
+//        int size = vertexPoints.length;
+
+        short [] drawlistTriangle = new short[]{
+                0, 1, 2
+        };
+
+        short [] drawlistSquare = new short[]{
+                0, 1, 2, 0, 2, 3
+        };
+
+        short [] drawlistHexagon = new short[]{
+                0, 1, 2, 0, 2, 3,
+                0, 3, 4, 0, 4, 5
+        };
+
+        short [] drawlistPentagon = new short[]{
+                0, 1, 2, 0, 2, 3,
+                0, 3, 4,
+        };
+
+        short [] drawlist6square = new short[] {
+            0, 1, 2,      0, 2, 3,    // Front face
+            4, 5, 6,      4, 6, 7,    // Back face
+            8, 9, 10,     8, 10, 11,  // Top face
+            12, 13, 14,   12, 14, 15, // Bottom face
+            16, 17, 18,   16, 18, 19, // Right face
+            20, 21, 22,   20, 22, 23  // Left face
+        };
+
+        short [] drawlist3square4triangle = new short[]{
+                0, 1, 2,      0, 2, 3,    // Front face
+                4, 5, 6,      4, 6, 7,    // Back face
+                8, 9, 10,     8, 10, 11,  // Top face
+                12, 13, 14,
+                1, 12, 13,    2, 13, 14,    3, 12, 14
+        };
+
+        short [] drawlist6square1triangle = new short[]{
+                0, 1, 2,      0, 2, 3,    // Front face
+                4, 5, 6,      4, 6, 7,    // Back face
+                8, 9, 10,     8, 10, 11,  // Top face
+                12, 13, 14,   12, 14, 15, // Bottom face
+                16, 17, 18,   16, 18, 19, // Right face
+                20, 21, 22,   20, 22, 23,  // Left face
+                24, 25, 26
+        };
+
+        float ratio = (float) screen_w / screen_h;
+
+        if (screen_w > screen_h) {
+            Matrix.orthoM(projectionMatrix, 0, -ratio, ratio, -1, 1, 1, 100);
+        } else {
+            Matrix.orthoM(projectionMatrix, 0, -1, 1, -1 / ratio, 1 / ratio, 1, 100);
+        }
+
+        float [] rotate = new float[16];
+
+        float [] aim = new float[]{
+                0f, 0f, -1f
+        };
+
+        double angle = Math.acos(-direction[2] / Math.sqrt(direction[0] * direction[0] + direction[1] * direction[1] + direction[2] * direction[2]));
+        float [] axis = new float[]{
+                -direction[1], direction[0], 0
+        };
+
+        float a = (float)(angle * 180 / Math.PI);
+        Matrix.setRotateM(rotationMatrix, 0, a, axis[0], axis[1], axis[2]);
+//        Matrix.multiplyMM(rotationMatrix, 0, rotate, 0, rotationMatrix, 0);
+
+        Matrix.scaleM(zoomMatrix, 0, 10.0f, 10.0f, 10.0f);
+        cur_scale *= 10.0f;
+
+
+        int size = vertexPoints.length;
+        if (size == 9){
+            System.out.println("Triangle");
+            myPattern.setDrawListBuffer(drawlistTriangle);
+            myPattern.setDrawlistLength(drawlistTriangle.length);
+        } else if (size == 12){
+            System.out.println("Square");
+            myPattern.setDrawListBuffer(drawlistSquare);
+            myPattern.setDrawlistLength(drawlistTriangle.length);
+        } else if (size == 15){
+            System.out.println("Pentagon");
+            myPattern.setDrawListBuffer(drawlistPentagon);
+            myPattern.setDrawlistLength(drawlistPentagon.length);
+        } else if (size == 18){
+            System.out.println("Hexagon");
+            myPattern.setDrawListBuffer(drawlistHexagon);
+            myPattern.setDrawlistLength(drawlistHexagon.length);
+        } else {
+            System.out.println("wrong vertex to draw");
+            return false;
+        }
+
+        myPattern.setVertex(vertexPoints);
+        return true;
+
+    }
+
+    public ArrayList<Float> tangentPlane(float x0,float y0,float z0,float m,float n, float p,float t,float Pix){
+// (x0,y0,z0)是视角的那个点，(m,n,p)是法向量，t是法线参数方程的参数t，Pix是block的像素
+        ArrayList<Float> sec = new ArrayList<Float>();
+        float x1 = x0 + m*t;
+        float y1 = y0 + n*t;
+        float z1 = z0 + p*t;
+
+        if (m!=0  & ((n*y1+p*z1)/m+x1) <= Pix & ((n*y1+p*z1)/m+x1)>=0){
+            sec.add((n*y1+p*z1)/m+x1);
+            sec.add((float) 0.0);
+            sec.add((float) 0.0);
+        }
+        if (m!=0 & ((n*y1+p*(z1-Pix))/m+x1)<=Pix & ((n*y1+p*(z1-Pix))/m+x1)>=0){
+            sec.add((n*y1+p*(z1-Pix))/m+x1);
+            sec.add((float)0.0);
+            sec.add(Pix);
+        }
+        if (m!=0 & ((n*(y1-Pix)+p*(z1-Pix))/m+x1)<=Pix & ((n*(y1-Pix)+p*(z1-Pix))/m+x1)>=0){
+            sec.add((n*(y1-Pix)+p*(z1-Pix))/m+x1);
+            sec.add(Pix);
+            sec.add(Pix);
+        }
+        if (m!=0 & ((n*(y1-Pix)+p*z1)/m+x1)<=Pix & ((n*(y1-Pix)+p*z1)/m+x1)>=0){
+            sec.add((n*(y1-Pix)+p*z1)/m+x1);
+            sec.add(Pix);
+            sec.add((float)0.0);
+        }
+
+        if (n!=0 & ((m*x1+p*z1)/n+y1)<Pix & ((m*x1+p*z1)/n+y1)>0){
+            sec.add((float)0.0);
+            sec.add((m*x1+p*z1)/n+y1);
+            sec.add((float)0.0);
+        }
+        if (n!=0 & ((m*x1+p*(z1-Pix))/n+y1)<Pix & ((m*x1+p*(z1-Pix))/n+y1)>0){
+            sec.add((float)0.0);
+            sec.add((m*x1+p*(z1-Pix))/n+y1);
+            sec.add(Pix);
+        }
+        if (n!=0 & ((m*(x1-Pix)+p*z1)/n+y1)<Pix & ((m*(x1-Pix)+p*z1)/n+y1)>0){
+            sec.add(Pix);
+            sec.add((m*(x1-Pix)+p*z1)/n+y1);
+            sec.add((float)0.0);
+        }
+        if(n!=0 & ((m*(x1-Pix)+p*(z1-Pix))/n+y1)<Pix & ((m*(x1-Pix)+p*(z1-Pix))/n+y1)>0){
+            sec.add(Pix);
+            sec.add((m*(x1-Pix)+p*(z1-Pix))/n+y1);
+            sec.add(Pix);
+        }
+
+        if (p!=0 & ((m*x1+n*y1)/p+z1)<Pix & ((m*x1+n*y1)/p+z1)>0){
+            sec.add((float)0.0);
+            sec.add((float)0.0);
+            sec.add((m*x1+n*y1)/p+z1);
+        }
+        if (p!=0 & ((m*x1+n*(y1-Pix))/p+z1)<Pix & ((m*x1+n*(y1-Pix))/p+z1)>0){
+            sec.add((float)0.0);
+            sec.add(Pix);
+            sec.add((m*x1+n*(y1-Pix))/p+z1);
+        }
+        if (p!=0 & ((m*(x1-Pix)+n*y1)/p+z1)<Pix & ((m*(x1-Pix)+n*y1)/p+z1)>0){
+            sec.add(Pix);
+            sec.add((float)0.0);
+            sec.add((m*(x1-Pix)+n*y1)/p+z1);
+        }
+        if (p!=0 & ((m*(x1-Pix)+n*(y1-Pix))/p+z1)<Pix & ((m*(x1-Pix)+n*(y1-Pix))/p+z1)>0){
+            sec.add(Pix);
+            sec.add(Pix);
+            sec.add((m*(x1-Pix)+n*(y1-Pix))/p+z1);
+        }
+
+//        float cx = (sec.get(0) + sec.get(3) + sec.get(6)) / 3;
+//        float cy = (sec.get(1) + sec.get(4) + sec.get(7)) / 3;
+//        float cz = (sec.get(2) + sec.get(5) + sec.get(8)) / 3;
+//
+//        float dx0 = sec.get(0) - cx;
+//        float dy0 = sec.get(1) - cy;
+//        float dz0 = sec.get(2) - cz;
+//
+//        for (int i = 1; i < sec.size() / 3; i++){
+//            float x = sec.get(i * 3);
+//            float y = sec.get(i * 3 + 1);
+//            float z = sec.get(i * 3 + 2);
+//
+//            float dx = x - cx;
+//            float dy = y - cy;
+//            float dz = z - cz;
+//
+//
+//        }
+        return sec;
+    }
+
+    public void startGameMode(){
+
     }
 }
 
