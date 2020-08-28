@@ -53,16 +53,22 @@ import java.util.Vector;
 
 import cn.carbs.android.library.MDDialog;
 
+import static com.example.basic.SettingFileManager.getArborNum;
 import static com.example.basic.SettingFileManager.getArbor_List__Check;
+import static com.example.basic.SettingFileManager.getBoundingBox;
 import static com.example.basic.SettingFileManager.getFilename_Local;
 import static com.example.basic.SettingFileManager.getFilename_Remote;
 import static com.example.basic.SettingFileManager.getFilename_Remote_Check;
 import static com.example.basic.SettingFileManager.getNeuronNumber_Remote;
 import static com.example.basic.SettingFileManager.getRES;
+import static com.example.basic.SettingFileManager.getUserAccount;
+import static com.example.basic.SettingFileManager.getUserAccount_Check;
 import static com.example.basic.SettingFileManager.getoffset_Local;
 import static com.example.basic.SettingFileManager.getoffset_Remote;
 import static com.example.basic.SettingFileManager.getoffset_Remote_Check;
+import static com.example.basic.SettingFileManager.setArborNum;
 import static com.example.basic.SettingFileManager.setArbor_List_Check;
+import static com.example.basic.SettingFileManager.setBoundingBox;
 import static com.example.basic.SettingFileManager.setFilename_Remote;
 import static com.example.basic.SettingFileManager.setFilename_Remote_Check;
 import static com.example.basic.SettingFileManager.setNeuronNumber_Remote;
@@ -90,6 +96,7 @@ public class Remote_Socket extends Socket {
     private Socket_Send socket_send;
     private Socket_Receive socket_receive;
 
+    public static String TAG = "Remote_Socket";
     public static String ArborNumber_Selected = "Empty";
     public static String BrainNumber_Selected = "Empty";
     public static Vector<String> RES_List = new Vector<>();
@@ -102,6 +109,7 @@ public class Remote_Socket extends Socket {
     public static String Neuron_Number_Selected = "Empty";
     public static String Pos_Selected = "Empty";
     public static String Offset_Selected = "Empty";
+    public static boolean isDrawMode = true;
 
     public Remote_Socket(Context context){
 
@@ -241,7 +249,8 @@ public class Remote_Socket extends Socket {
                 }
 
                 setArbor_List_Check(file_list,mContext);
-                ShowListDialog_Check(Transform(Adjust_Index_Check()));
+                Vector<String> adjust_str = Adjust_Index_Check();
+                ShowListDialog_Check(Transform(adjust_str, 0, adjust_str.size()));
             }
         }
     }
@@ -288,11 +297,11 @@ public class Remote_Socket extends Socket {
     }
 
 
-    public void ShowListDialog(final String[] items){
+    public void ShowListDialog(final String[] items) {
 
         new XPopup.Builder(mContext)
 //        .maxWidth(400)
-        .maxHeight(1350)
+                .maxHeight(1350)
                 .asCenterList("Select a Brain", items,
                         new OnSelectListener() {
                             @RequiresApi(api = Build.VERSION_CODES.N)
@@ -464,7 +473,9 @@ public class Remote_Socket extends Socket {
 
     }
 
-    public void Select_Brain(){
+    public void Select_Brain(boolean isDrawMode){
+
+        this.isDrawMode = isDrawMode;
 
         Send_Message("connect for android client" + ":choose3.\n");
         String Msg = Get_Message();
@@ -507,25 +518,35 @@ public class Remote_Socket extends Socket {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void Send_Brain_Number(String BrainNumber){
 
-        Make_Connect();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-        Log.v("Send_Brain_Number","Start to Send BrainNumber.");
+                Make_Connect();
 
-        BrainNumber_Selected = BrainNumber;
-        setFilename_Remote(BrainNumber, mContext);
-        Send_Message(BrainNumber + ":BrainNumber.\n");
+                Log.v("Send_Brain_Number","Start to Send BrainNumber.");
 
-        String Store_path_txt = Store_path + "/BrainInfo";
-        String Final_Path = Get_File(Store_path_txt, true);
+                BrainNumber_Selected = BrainNumber;
+                setFilename_Remote(BrainNumber, mContext);
+                Send_Message(BrainNumber + ":BrainNumber.\n");
 
-        if (Final_Path.equals("Error")){
-            Toast_in_Thread("Something Error When Get_File");
-            return;
-        }
+                String Store_path_txt = Store_path + "/BrainInfo";
+                String Final_Path = Get_File(Store_path_txt, true);
 
-        Analyze_TXT(Final_Path);
+                if (Final_Path.equals("Error")){
+                    Toast_in_Thread("Something Error When Get_File");
+                    return;
+                }
 
-        Select_RES(Transform(RES_List));
+                Analyze_TXT(Final_Path);
+
+                Select_RES(Transform(RES_List, 0, RES_List.size()));
+
+
+            }
+        });
+        thread.start();
+
 
     }
 
@@ -551,113 +572,146 @@ public class Remote_Socket extends Socket {
     }
 
     private void PopUp(boolean isDirect){
-        new MDDialog.Builder(mContext)
+
+        if (!isDirect){
+            String offset_x, offset_y, offset_z, size;
+
+            String[] offset_transform = transform_offset();
+            offset_x = offset_transform[0];
+            offset_y = offset_transform[1];
+            offset_z = offset_transform[2];
+//                                size     = offset_transform[3];
+            size     = "128";
+
+            String offset = offset_x + "_" + offset_y + "_" + offset_z + "_" + size;
+            String filename = getFilename_Remote(mContext);
+            setoffset_Remote(offset, filename, mContext);
+
+            String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
+
+            if (!JudgeBounding(input)){
+                PopUp(isDirect);
+                Toast.makeText(mContext, "Please Make sure All the Information is Right !", Toast.LENGTH_SHORT).show();
+            }else {
+                Make_Connect();
+
+                if (CheckConnection()){
+                    PullImageBlock(input[0], input[1], input[2], input[3], false);
+                }else {
+                    Toast_in_Thread("Can't Connect Server, Try Again Later !");
+                }
+
+            }
+        }else {
+
+            new MDDialog.Builder(mContext)
 //              .setContentView(customizedView)
-                .setContentView(R.layout.image_bais_select)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-                        EditText et1 = (EditText) contentView.findViewById(R.id.edit1);
-                        EditText et2 = (EditText) contentView.findViewById(R.id.edit2);
-                        EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
-                        EditText et4 = (EditText) contentView.findViewById(R.id.edit4);
+                    .setContentView(R.layout.image_bais_select)
+                    .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                        @Override
+                        public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+                            EditText et1 = (EditText) contentView.findViewById(R.id.edit1);
+                            EditText et2 = (EditText) contentView.findViewById(R.id.edit2);
+                            EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
+                            EditText et4 = (EditText) contentView.findViewById(R.id.edit4);
 
-                        String offset, offset_x, offset_y, offset_z, size;
+                            String offset, offset_x, offset_y, offset_z, size;
 
-                        if (isDirect){
+                            if (isDirect){
 
-                            String filename = getFilename_Remote(mContext);
-                            offset = getoffset_Remote(mContext, filename);
-                            offset_x = offset.split("_")[0];
-                            offset_y = offset.split("_")[1];
-                            offset_z = offset.split("_")[2];
-                            size     = offset.split("_")[3];
+                                String filename = getFilename_Remote(mContext);
+                                offset = getoffset_Remote(mContext, filename);
+                                offset_x = offset.split("_")[0];
+                                offset_y = offset.split("_")[1];
+                                offset_z = offset.split("_")[2];
+                                size     = offset.split("_")[3];
 
-                        }else {
-
-                            String[] offset_transform = transform_offset();
-                            offset_x = offset_transform[0];
-                            offset_y = offset_transform[1];
-                            offset_z = offset_transform[2];
-                            size     = offset_transform[3];
-
-                        }
-
-                        et1.setText(offset_x);
-                        et2.setText(offset_y);
-                        et3.setText(offset_z);
-                        et4.setText(size);
-
-                    }
-                })
-                .setTitle("Download Image")
-                .setNegativeButton(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButton(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-
-                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
-                        EditText et1 = (EditText) contentView.findViewById(R.id.edit1);
-                        EditText et2 = (EditText) contentView.findViewById(R.id.edit2);
-                        EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
-                        EditText et4 = (EditText) contentView.findViewById(R.id.edit4);
-
-                        String offset_x   = et1.getText().toString();
-                        String offset_y   = et2.getText().toString();
-                        String offset_z   = et3.getText().toString();
-                        String size       = et4.getText().toString();
-
-                        if( !offset_x.isEmpty() && !offset_y.isEmpty() && !offset_z.isEmpty() && !size.isEmpty()){
-
-                            String offset = offset_x + "_" + offset_y + "_" + offset_z + "_" + size;
-
-                            String filename = getFilename_Remote(mContext);
-                            setoffset_Remote(offset, filename, mContext);
-
-                            String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
-
-                            if (!JudgeBounding(input)){
-                                PopUp(isDirect);
-                                Toast.makeText(mContext, "Please Make sure All the Information is Right !", Toast.LENGTH_SHORT).show();
                             }else {
-                                Make_Connect();
 
-                                if (CheckConnection()){
-                                    PullImageBlock(input[0], input[1], input[2], input[3], false);
-                                }else {
-                                    Toast_in_Thread("Can't Connect Server, Try Again Later !");
-                                }
+                                String[] offset_transform = transform_offset();
+                                offset_x = offset_transform[0];
+                                offset_y = offset_transform[1];
+                                offset_z = offset_transform[2];
+//                                size     = offset_transform[3];
+                                size     = "128";
 
                             }
 
-                        }else{
+                            et1.setText(offset_x);
+                            et2.setText(offset_y);
+                            et3.setText(offset_z);
+                            et4.setText(size);
 
-                            Toast.makeText(mContext, "Please Make sure All the Information is Right !", Toast.LENGTH_SHORT).show();
                         }
+                    })
+                    .setTitle("Download Image")
+                    .setNegativeButton(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                        }
+                    })
+                    .setPositiveButton(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                        }
+                    })
+                    .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                        @Override
+                        public void onClick(View clickedView, View contentView) {
 
-                    }
-                })
-                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
+                            //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
+                            EditText et1 = (EditText) contentView.findViewById(R.id.edit1);
+                            EditText et2 = (EditText) contentView.findViewById(R.id.edit2);
+                            EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
+                            EditText et4 = (EditText) contentView.findViewById(R.id.edit4);
 
-                    }
-                })
-                .setWidthMaxDp(600)
-                .create()
-                .show();
+                            String offset_x   = et1.getText().toString();
+                            String offset_y   = et2.getText().toString();
+                            String offset_z   = et3.getText().toString();
+                            String size       = et4.getText().toString();
+
+                            if( !offset_x.isEmpty() && !offset_y.isEmpty() && !offset_z.isEmpty() && !size.isEmpty()){
+
+                                String offset = offset_x + "_" + offset_y + "_" + offset_z + "_" + size;
+
+                                String filename = getFilename_Remote(mContext);
+                                setoffset_Remote(offset, filename, mContext);
+
+                                String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
+
+                                if (!JudgeBounding(input)){
+                                    PopUp(isDirect);
+                                    Toast.makeText(mContext, "Please Make sure All the Information is Right !", Toast.LENGTH_SHORT).show();
+                                }else {
+                                    Make_Connect();
+
+                                    if (CheckConnection()){
+                                        PullImageBlock(input[0], input[1], input[2], input[3], false);
+                                    }else {
+                                        Toast_in_Thread("Can't Connect Server, Try Again Later !");
+                                    }
+
+                                }
+
+                            }else{
+
+                                Toast.makeText(mContext, "Please Make sure All the Information is Right !", Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+                    })
+                    .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                        @Override
+                        public void onClick(View clickedView, View contentView) {
+
+                        }
+                    })
+                    .setWidthMaxDp(600)
+                    .create()
+                    .show();
+        }
+
     }
-
-
 
 
     private void PullImageBlock(final String offset_x, final String offset_y, final String offset_z, final String size, boolean NeedWaited){
@@ -718,7 +772,12 @@ public class Remote_Socket extends Socket {
     public void Select_RES(String[] RESs){
 
 
-        RES_Selected = RESs[RESs.length - 1];
+        if (isDrawMode){
+            RES_Selected = RESs[RESs.length - 1];
+        }else {
+            RES_Selected = RESs[0];
+        }
+
         setFilename_Remote(BrainNumber_Selected + "/" + RES_Selected, mContext);   //  18454/RES250x250x250
 
         String filename = getFilename_Remote(mContext);
@@ -726,10 +785,10 @@ public class Remote_Socket extends Socket {
 
         if (!neuron_num.equals("--11--")){
             Vector<String> Neuron_Number_List_show = Adjust_Index();
-            Select_Neuron(Transform(Neuron_Number_List_show));
+            Select_Neuron(Transform(Neuron_Number_List_show, 0, Neuron_Number_List_show.size()));
 
         }else {
-            Select_Neuron(Transform(Neuron_Number_List));
+            Select_Neuron(Transform(Neuron_Number_List, 0, Neuron_Number_List.size()));
 
         }
 
@@ -759,18 +818,33 @@ public class Remote_Socket extends Socket {
                             @Override
                             public void onSelect(int position, String text) {
                                 Neuron_Number_Selected = text;
-                                System.out.println(Neuron_Number_Selected);
-                                if (Neuron_Info.get(Neuron_Number_Selected) != null){
 
-                                    // Select soma without choose pos
-                                    Pos_Selected = Neuron_Info.get(Neuron_Number_Selected).get(0);
-                                    PopUp(false);
+                                if (isDrawMode){
+                                    System.out.println(Neuron_Number_Selected);
+                                    if (Neuron_Info.get(Neuron_Number_Selected) != null){
+                                        // Select soma without choose pos
+                                        Pos_Selected = Neuron_Info.get(Neuron_Number_Selected).get(0);
+                                        PopUp(false);
 
 //                                    Select_Pos(Transform(Neuron_Info.get(Neuron_Number_Selected)));
-                                    setNeuronNumber_Remote(Neuron_Number_Selected, BrainNumber_Selected + "/" + RES_Selected, mContext);  //18454_00002
+                                        setNeuronNumber_Remote(Neuron_Number_Selected, BrainNumber_Selected + "/" + RES_Selected, mContext);  //18454_00002
+                                    }else {
+                                        Toast_in_Thread("Information not Exist !");
+                                    }
                                 }else {
-                                    Toast_in_Thread("Information not Exist !");
+                                    System.out.println(Neuron_Number_Selected);
+                                    if (Neuron_Info.get(Neuron_Number_Selected) != null){
+                                        // Select soma without choose pos
+//                                        Pos_Selected = Neuron_Info.get(Neuron_Number_Selected).get(0);
+//                                        PopUp(false);
+
+                                        Select_Pos(Transform(Neuron_Info.get(Neuron_Number_Selected), 1, Neuron_Info.get(Neuron_Number_Selected).size()));
+                                        setNeuronNumber_Remote(Neuron_Number_Selected, BrainNumber_Selected + "/" + RES_Selected, mContext);  //18454_00002
+                                    }else {
+                                        Toast_in_Thread("Information not Exist !");
+                                    }
                                 }
+
                             }
                         })
                 .show();
@@ -785,7 +859,7 @@ public class Remote_Socket extends Socket {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Select_Neuron(Transform(Neuron_Number_List_show));
+                Select_Neuron(Transform(Neuron_Number_List_show, 0, Neuron_Number_List_show.size()));
             }
         });
 
@@ -794,17 +868,51 @@ public class Remote_Socket extends Socket {
 
     public void Select_Arbor_Fast(){
 
-        Vector<String> Arbor_Number_List_show = Adjust_Index_Check();
+//        Vector<String> Arbor_Number_List_show = Adjust_Index_Check();
+//
+//        Thread thread = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                ShowListDialog_Check(Transform(Arbor_Number_List_show));
+//            }
+//        });s
+//
+//        thread.start();
 
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ShowListDialog_Check(Transform(Arbor_Number_List_show));
-            }
-        });
+        String filename = getFilename_Remote(mContext);
+        Neuron_Number_Selected = getNeuronNumber_Remote(mContext,filename);
 
-        thread.start();
+        System.out.println(Neuron_Number_Selected);
+        if (Neuron_Info.get(Neuron_Number_Selected) != null) {
+            Select_Pos(Transform(Neuron_Info.get(Neuron_Number_Selected), 1, Neuron_Info.get(Neuron_Number_Selected).size()));
+            setNeuronNumber_Remote(Neuron_Number_Selected, BrainNumber_Selected + "/" + RES_Selected, mContext);  //18454_00002
+        }else {
+            Toast_in_Thread("Something Wrong When choose Arbor");
+        }
+
+//        Select_Neuron(Transform(Neuron_Number_List, 0, Neuron_Number_List.size()));
+
     }
+
+    public void Next_Neuron(){
+
+        String filename = getFilename_Remote(mContext);
+        String neuron_num = getNeuronNumber_Remote(mContext,filename);
+
+        int index = Neuron_Number_List.indexOf(neuron_num);
+        Neuron_Number_Selected = Neuron_Number_List.get( (index+1)%Neuron_Number_List.size() );
+
+        if (Neuron_Info.get(Neuron_Number_Selected) != null){
+            // Select soma without choose pos
+            Pos_Selected = Neuron_Info.get(Neuron_Number_Selected).get(0);
+            PopUp(false);
+            setNeuronNumber_Remote(Neuron_Number_Selected, BrainNumber_Selected + "/" + RES_Selected, mContext);  //18454_00002
+        }else {
+            Toast_in_Thread("Information not Exist !");
+        }
+
+    }
+
 
     private Vector<String> Adjust_Index(){
 
@@ -865,6 +973,15 @@ public class Remote_Socket extends Socket {
                             @Override
                             public void onSelect(int position, String text) {
                                 Pos_Selected = text;
+
+                                if (!isDrawMode){
+                                    String boundingbox = text.substring(ordinalIndexOf(text, ";", 3)+1);
+                                    String ArborNum = text.substring(0, ordinalIndexOf(text, ";", 3));
+                                    String filename = getFilename_Remote(mContext);
+                                    setBoundingBox(boundingbox, filename, mContext);
+                                    setArborNum(ArborNum, filename.split("RES")[0], mContext);
+                                }
+
                                 PopUp(false);
                             }
                         })
@@ -926,33 +1043,114 @@ public class Remote_Socket extends Socket {
         int offset_y_i = Integer.parseInt(offset_y);
         int offset_z_i = Integer.parseInt(offset_z);
 
+        filename = filename.replace(")","").replace("(","");
+        String img_size = filename.split("RES")[1];
+
+        System.out.println("img_size: hhh-------" + img_size + "--------hhh");
+
+        // current filename mouse18864_teraconvert/RES(35001x27299x10392)   : y x z
+        int img_size_x_i = Integer.parseInt(img_size.split("x")[1]);
+        int img_size_y_i = Integer.parseInt(img_size.split("x")[0]);
+        int img_size_z_i = Integer.parseInt(img_size.split("x")[2]);
+
         switch (direction){
+
             case "Left":
-                offset_x_i -= size_i/2;
-                offset_x = Integer.toString(offset_x_i);
+                if ( (offset_x_i - size_i/2 -1) == 0 ){
+                    System.out.println("----- You have already reached left boundary!!! -----");
+                    Toast_in_Thread("You have already reached left boundary!!!");
+                    return;
+                }else {
+                    offset_x_i -= size_i/2 + 1;
+                    if (offset_x_i - size_i/2 <= 0)
+                        offset_x_i = size_i/2 + 1;
+                }
                 break;
+
             case "Right":
-                offset_x_i += size_i/2;
-                offset_x = Integer.toString(offset_x_i);
+                if ( (offset_x_i + size_i/2) == img_size_x_i - 1 ){
+                    Toast_in_Thread("You have already reached right boundary!!!");
+                    return;
+                }else {
+                    offset_x_i += size_i/2;
+                    if (offset_x_i + size_i/2 > img_size_x_i - 1)
+                        offset_x_i = img_size_x_i - 1 - size_i/2;
+                }
                 break;
+
             case "Top":
-                offset_y_i -= size_i/2;
-                offset_y = Integer.toString(offset_y_i);
+                if ( (offset_y_i - size_i/2 -1) == 0 ){
+                    Toast_in_Thread("You have already reached top boundary!!!");
+                    return;
+                }else {
+                    offset_y_i -= size_i/2 + 1;
+                    if (offset_y_i - size_i/2 <= 0)
+                        offset_y_i = size_i/2 + 1;
+                }
                 break;
+
             case "Bottom":
-                offset_y_i += size_i/2;
-                offset_y = Integer.toString(offset_y_i);
+                if ( (offset_y_i + size_i/2) == img_size_y_i - 1 ){
+                    Toast_in_Thread("You have already reached bottom boundary!!!");
+                    return;
+                }else {
+                    offset_y_i += size_i/2;
+                    if (offset_y_i + size_i/2 > img_size_y_i - 1)
+                        offset_y_i = img_size_y_i - 1 - size_i/2;
+                }
                 break;
+
             case "Front":
-                offset_z_i -= size_i/2;
-                offset_z = Integer.toString(offset_z_i);
+                if ( (offset_z_i - size_i/2 -1) == 0 ){
+                    Toast_in_Thread("You have already reached front boundary!!!");
+                    return;
+                }else {
+                    offset_z_i -= size_i/2 + 1;
+                    if (offset_z_i - size_i/2 <= 0)
+                        offset_z_i = size_i/2 + 1;
+                }
                 break;
+
             case "Back":
-                offset_z_i += size_i/2;
-                offset_z = Integer.toString(offset_z_i);
+                if ( (offset_z_i + size_i/2) == img_size_z_i - 1 ){
+                    Toast_in_Thread("You have already reached back boundary!!!");
+                    return;
+                }else {
+                    offset_z_i += size_i/2;
+                    if (offset_z_i + size_i/2 > img_size_z_i - 1)
+                        offset_z_i = img_size_z_i - 1 - size_i/2;
+                }
                 break;
+
+//            case "Left":
+//                offset_x_i -= size_i/2;
+//                offset_x = Integer.toString(offset_x_i);
+//                break;
+//            case "Right":
+//                offset_x_i += size_i/2;
+//                offset_x = Integer.toString(offset_x_i);
+//                break;
+//            case "Top":
+//                offset_y_i -= size_i/2;
+//                offset_y = Integer.toString(offset_y_i);
+//                break;
+//            case "Bottom":
+//                offset_y_i += size_i/2;
+//                offset_y = Integer.toString(offset_y_i);
+//                break;
+//            case "Front":
+//                offset_z_i -= size_i/2;
+//                offset_z = Integer.toString(offset_z_i);
+//                break;
+//            case "Back":
+//                offset_z_i += size_i/2;
+//                offset_z = Integer.toString(offset_z_i);
+//                break;
         }
 
+        offset_x = Integer.toString(offset_x_i);
+        offset_y = Integer.toString(offset_y_i);
+        offset_z = Integer.toString(offset_z_i);
 
         offset = offset_x + "_" + offset_y + "_" + offset_z + "_" + size;
         setoffset_Remote(offset, filename, context);
@@ -961,7 +1159,7 @@ public class Remote_Socket extends Socket {
         String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
 
         if (!JudgeBounding(input)){
-            Toast_in_Thread("Please make sure all the information is right !");
+            Toast_in_Thread("Please make sure the size of block not beyond the img !");
         }else {
             PullImageBlock(input[0], input[1], input[2], input[3], true);
         }
@@ -1192,7 +1390,7 @@ public class Remote_Socket extends Socket {
             Make_Connect();
 
             if (CheckConnection()){
-                offset = offset_new[0] + "_" + offset_new[1] + "_" + offset_new[2] + "_" + offset_new[3];
+                offset = input[0] + "_" + input[1] + "_" + input[2] + "_" + input[3];
                 setoffset_Remote(offset, filename.split("/")[0] + "/" + res_temp.get(res_index - 1), mContext);
                 setNeuronNumber_Remote(Neuron_Number_Selected, filename.split("/")[0] + "/" + res_temp.get(res_index - 1), mContext);
                 PullImageBlock(input[0], input[1], input[2], input[3], true);
@@ -1251,12 +1449,14 @@ public class Remote_Socket extends Socket {
             for (int i = 0; i < arraylist.size(); i++){
                 String line = arraylist.get(i);
 
-                String display = line.split(" ")[0] + ": ";
+                String display = line.split(" ")[0] + ": " + "arbor " + line.split(" ")[1];
 
-                if (line.substring(line.length() - 1).equals("0")){
-                    display = display + "No";
+                display = display + "  by " + line.split(" ")[9];
+
+                if (line.split(" ")[8].equals("0")){
+                    display = display + "  No";
                 }else {
-                    display = display + "Yes";
+                    display = display + "  Yes";
                 }
 
                 info = info + display + "\n\n";
@@ -1323,13 +1523,23 @@ public class Remote_Socket extends Socket {
 
             }else {
 
-                String filename = getFilename_Remote_Check(mContext);
-                String offset = getoffset_Remote_Check(mContext, filename);
-                System.out.println(filename);
+//                String filename = getFilename_Remote_Check(mContext);
+//                String offset = getoffset_Remote_Check(mContext, filename);
+//                System.out.println(filename);
+                //                String offset_final = offsetSwitch(filename, offset);
 
-                String offset_final = offsetSwitch(filename, offset);
-                String Check_Info = filename + offset_final + ";1" + ":ArborCheck.\n";
 
+                String boundingbox = Pos_Selected.substring(ordinalIndexOf(Pos_Selected, ";", 3)+1);
+                String brain_num = getFilename_Remote(mContext);
+                String neuron_num = getNeuronNumber_Remote(mContext, brain_num);
+//                String result = brain_num.split("_")[0] + "_" + neuron_num.split("_")[0] + "_" + getArborNum(mContext,brain_num.split("RES")[0]);
+
+//                String result = neuron_num + ";" +getBoundingBox(mContext,brain_num);
+                String result = neuron_num + ";" +boundingbox;
+//                String Check_Info = result + ";1;" + getUserAccount_Check(mContext) + ":ArborCheck.\n";
+                String Check_Info = result + ";1;" + getUserAccount_Check(mContext) + ";" + getArborNum(mContext,brain_num.split("RES")[0]).split(":")[0].split(" ")[1] +":ArborCheck.\n";
+
+                Log.i(TAG,Check_Info);
                 Send_Message(Check_Info);
             }
 
@@ -1363,13 +1573,17 @@ public class Remote_Socket extends Socket {
 
             }else {
 
-                String filename = getFilename_Remote_Check(mContext);
-                String offset = getoffset_Remote_Check(mContext, filename);
-                System.out.println(filename);
+                String boundingbox = Pos_Selected.substring(ordinalIndexOf(Pos_Selected, ";", 3)+1);
+                String brain_num = getFilename_Remote(mContext);
+                String neuron_num = getNeuronNumber_Remote(mContext, brain_num);
+//                String result = brain_num.split("_")[0] + "_" + neuron_num.split("_")[0] + "_" + getArborNum(mContext,brain_num.split("RES")[0]);
 
-                String offset_final = offsetSwitch(filename, offset);
-                String Check_Info = filename + offset_final + ";0" + ":ArborCheck.\n";
+//                String result = neuron_num + ";" +getBoundingBox(mContext,brain_num);
+                String result = neuron_num + ";" +boundingbox;
+//                String Check_Info = result + ";1;" + getUserAccount_Check(mContext) + ":ArborCheck.\n";
+                String Check_Info = result + ";0;" + getUserAccount_Check(mContext) + ";" + getArborNum(mContext,brain_num.split("RES")[0]).split(":")[0].split(" ")[1] +":ArborCheck.\n";
 
+                Log.i(TAG,Check_Info);
                 Send_Message(Check_Info);
 
             }
@@ -1560,32 +1774,53 @@ public class Remote_Socket extends Socket {
 
     private boolean JudgeBounding(String[] input){
 
-        int x_offset_i = Integer.parseInt(input[0]);
-        int y_offset_i = Integer.parseInt(input[1]);
-        int z_offset_i = Integer.parseInt(input[2]);
-        int size_i = Integer.parseInt(input[3]);
+        int[] offset_i = new int[4];
+        offset_i[0] = Integer.parseInt(input[0]);
+        offset_i[1] = Integer.parseInt(input[1]);
+        offset_i[2] = Integer.parseInt(input[2]);
+        offset_i[3] = Integer.parseInt(input[3]);
 
-        String filename = getFilename(mContext).replace("(","");
-        filename = filename.replace(")","");
+        String filename_root = getFilename_Remote(mContext);
+        String filename = filename_root.replace(")","").replace("(","");
         String size = filename.split("RES")[1];
 
         System.out.println("hhh-------" + size + "--------hhh");
 
         // current filename mouse18864_teraconvert/RES(35001x27299x10392)   : y x z
-        int x_size = Integer.parseInt(size.split("x")[1]);
-        int y_size = Integer.parseInt(size.split("x")[0]);
-        int z_size = Integer.parseInt(size.split("x")[2]);
+        int[] img_size = new int[3];
+        img_size[0] = Integer.parseInt(size.split("x")[1]);
+        img_size[1] = Integer.parseInt(size.split("x")[0]);
+        img_size[2] = Integer.parseInt(size.split("x")[2]);
 
+        for (int i=0; i<3; i++){
+            if ((offset_i[i] < offset_i[3]/2 ) && (offset_i[i] > img_size[i] -1 - offset_i[3]/2))
+                return false;
 
-        if ( ( x_offset_i - size_i/2 < 0 ) || ( x_offset_i + size_i/2 > x_size -2) )
-            return false;
+            if (offset_i[i] <= offset_i[3]/2){
+                offset_i[i] = offset_i[3]/2 + 1;
+                input[i] = Integer.toString(offset_i[i]);
+            }
 
-        if ( ( y_offset_i - size_i/2 < 0 ) || ( y_offset_i + size_i/2 > y_size -2) )
-            return false;
+            if (offset_i[i] > img_size[i] -1 - offset_i[3]/2){
+                offset_i[i] = img_size[i] -1 - offset_i[3]/2;
+                input[i] = Integer.toString(offset_i[i]);
+            }
 
-        if ( ( z_offset_i - size_i/2 < 0 ) || ( z_offset_i + size_i/2 > z_size -2) )
-            return false;
+        }
 
+        String offset = input[0] + "_" + input[1] + "_" + input[2] + "_" +input[3];
+        setoffset_Remote(offset, filename_root, mContext);
+
+        Log.v(TAG, offset);
+
+//        if ( ( x_offset_i - size_i/2 < 0 ) || ( x_offset_i + size_i/2 > x_size -2) )
+//            return false;
+//
+//        if ( ( y_offset_i - size_i/2 < 0 ) || ( y_offset_i + size_i/2 > y_size -2) )
+//            return false;
+//
+//        if ( ( z_offset_i - size_i/2 < 0 ) || ( z_offset_i + size_i/2 > z_size -2) )
+//            return false;
 
         return true;
     }
@@ -1679,7 +1914,7 @@ public class Remote_Socket extends Socket {
                     for (int j = 0; j < num; j++){
                         i++;
                         String offset = arraylist.get(i).split(":")[1];
-                        point_list.add("arbor:" + offset);
+                        point_list.add("arbor " + (j+1) + ":" + offset);
                         Log.v("Neuron_Info: ", " " + Neuron_Info_temp.size());
 
                     }
@@ -1823,11 +2058,13 @@ public class Remote_Socket extends Socket {
 
     }
 
-    String[] Transform(Vector<String> strings){
+    String[] Transform(Vector<String> strings, int start, int end){
 
-        String[] string_list = new String[strings.size()];
-        for (int i = 0; i < strings.size(); i++){
-            string_list[i] = strings.get(i);
+//        String[] string_list = new String[strings.size()];
+        String[] string_list = new String[end - start];
+        int j = 0;
+        for (int i = start; i < end; i++){
+            string_list[j++] = strings.get(i);
         }
 
         return string_list;
@@ -1865,5 +2102,11 @@ public class Remote_Socket extends Socket {
         }
     }
 
+    public static int ordinalIndexOf(String str, String substr, int n) {
+        int pos = str.indexOf(substr);
+        while (--n > 0 && pos != -1)
+            pos = str.indexOf(substr, pos + 1);
+        return pos;
+    }
 
 }
