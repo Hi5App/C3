@@ -156,17 +156,20 @@ import io.agora.rtc.RtcEngine;
 import io.agora.rtc.models.UserInfo;
 
 import static com.example.basic.BitmapRotation.getBitmapDegree;
+import static com.example.basic.SettingFileManager.getArborNum;
 import static com.example.basic.SettingFileManager.getFilename_Local;
 import static com.example.basic.SettingFileManager.getFilename_Remote;
 import static com.example.basic.SettingFileManager.getFilename_Remote_Check;
 import static com.example.basic.SettingFileManager.getNeuronNumber_Remote;
 import static com.example.basic.SettingFileManager.getSelectSource;
 import static com.example.basic.SettingFileManager.getUserAccount;
+import static com.example.basic.SettingFileManager.getUserAccount_Check;
 import static com.example.basic.SettingFileManager.getoffset_Local;
 import static com.example.basic.SettingFileManager.getoffset_Remote;
 import static com.example.basic.SettingFileManager.getoffset_Remote_Check;
 import static com.example.basic.SettingFileManager.setSelectSource;
 import static com.example.basic.SettingFileManager.setUserAccount;
+import static com.example.basic.SettingFileManager.setUserAccount_Check;
 import static com.example.basic.SettingFileManager.setoffset_Local;
 import static com.example.server_connect.RemoteImg.getFilename;
 import static com.example.server_connect.RemoteImg.getoffset;
@@ -498,7 +501,10 @@ public class MainActivity extends AppCompatActivity {
                             result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
                         }
                     }else {
-                        result = name.split("__")[0];
+//                        result = name.split("__")[0];
+                        String brain_num = getFilename_Remote(context);
+                        String neuron_num = getNeuronNumber_Remote(context, brain_num);
+                        result = brain_num.split("_")[0] + "_" + neuron_num.split("_")[1] + "_" + getArborNum(context,brain_num.split("RES")[0]);
                     }
 
                     setFilename(result);
@@ -753,7 +759,8 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                if (isBigData_Remote && DrawMode){
+//                if (isBigData_Remote && DrawMode){
+                if (isBigData_Remote){
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -778,7 +785,8 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                if (isBigData_Remote && DrawMode){
+//                if (isBigData_Remote && DrawMode){
+                if (isBigData_Remote){
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -821,8 +829,14 @@ public class MainActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        remote_socket.Check_Yes(false);
-                        Toast_in_Thread("Check Yes Successfully");
+                        if (getUserAccount_Check(context).equals("--11--") || getUserAccount_Check(context).equals("")){
+//                            PopUp_UserAccount(MainActivity.this);
+                            Toast_in_Thread("Please Input your User name first in more functions !");
+                        }else {
+                            remote_socket.Check_Yes(false);
+                            Toast_in_Thread("Check Yes Successfully");
+                        }
+
                     }
                 }).start();
             }
@@ -835,8 +849,13 @@ public class MainActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        remote_socket.Check_No(false);
-                        Toast_in_Thread("Check No Successfully");
+                        if (getUserAccount_Check(context).equals("--11--") || getUserAccount_Check(context).equals("")){
+//                            PopUp_UserAccount(MainActivity.this);
+                            Toast_in_Thread("Please Input your User name first in more functions !");
+                        }else {
+                            remote_socket.Check_No(false);
+                            Toast_in_Thread("Check No Successfully");
+                        }
                     }
                 }).start();
             }
@@ -1216,14 +1235,32 @@ public class MainActivity extends AppCompatActivity {
 
         neuron_list = new ImageButton(this);
         neuron_list.setImageResource(R.drawable.ic_assignment_black_24dp);
+        neuron_list.setOnLongClickListener(new Button.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                if (DrawMode){
+                    push_info_swc = SaveSWC_Block_Auto();
+                    remote_socket.Select_Neuron_Fast();
+                }else {
+                    remote_socket.Select_Neuron_Fast();
+//                    remote_socket.Select_Arbor_Fast();
+                }
+                return true;
+            }
+        });
+
+
         neuron_list.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 if (DrawMode){
                     push_info_swc = SaveSWC_Block_Auto();
-                    remote_socket.Select_Neuron_Fast();
+                    remote_socket.Next_Neuron();
+//                    remote_socket.Select_Neuron_Fast();
                 }else {
+//                    remote_socket.Select_Neuron_Fast();
                     remote_socket.Select_Arbor_Fast();
                 }
 
@@ -1475,7 +1512,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "About", "Help"},
+                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "Account Name", "About", "Help"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -1602,6 +1639,10 @@ public class MainActivity extends AppCompatActivity {
 
                                     case "Settings":
                                         setSettings();
+                                        break;
+
+                                    case "Account Name":
+                                        PopUp_UserAccount(MainActivity.this);
                                         break;
 
                                     case "Crash Info":
@@ -5102,7 +5143,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200826a 22:24 UTC+8 build",
+                                "Version: 20200828a 09:56 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5135,7 +5176,7 @@ public class MainActivity extends AppCompatActivity {
     public void Select_img(){
         Context context = this;
         new XPopup.Builder(this)
-                .asCenterList("Select Remote Server", new String[]{"AliYun Server", "SEU Server", "Local Server"},
+                .asCenterList("Select Remote Server", new String[]{"SEU Server", "AliYun Server", "Local Server"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -5209,7 +5250,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 remote_socket.DisConnectFromHost();
                 remote_socket.ConnectServer(ip);
-                remote_socket.Select_Brain();
+                remote_socket.Select_Brain(true);
             }
         });
         thread.start();
@@ -5225,7 +5266,8 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 remote_socket.DisConnectFromHost();
                 remote_socket.ConnectServer(ip);
-                remote_socket.Select_Arbor();
+//                remote_socket.Select_Arbor();
+                remote_socket.Select_Brain(false);
             }
         });
         thread.start();
@@ -5423,7 +5465,8 @@ public class MainActivity extends AppCompatActivity {
 //                            PushSWC_Block_Auto(push_info[0], push_info[1]);
 
                         }else {
-                            remote_socket.Selectblock_fast_Check(context, false, text);
+                            remote_socket.Selectblock_fast(context, false, text);
+//                            remote_socket.Selectblock_fast_Check(context, false, text);
                         }
                     }
 
@@ -7201,26 +7244,28 @@ public class MainActivity extends AppCompatActivity {
         @SuppressLint("ClickableViewAccessibility")
         public boolean onTouchEvent(MotionEvent motionEvent) {
 
-            //ACTION_DOWN不return true，就无触发后面的各个事件
-            if (motionEvent != null) {
-                final float normalizedX = toOpenGLCoord(this, motionEvent.getX(), true);
-                final float normalizedY = toOpenGLCoord(this, motionEvent.getY(), false);
+            try {
+
+                //ACTION_DOWN不return true，就无触发后面的各个事件
+                if (motionEvent != null) {
+                    final float normalizedX = toOpenGLCoord(this, motionEvent.getX(), true);
+                    final float normalizedY = toOpenGLCoord(this, motionEvent.getY(), false);
 //
 //                final float normalizedX =motionEvent.getX();
 //                final float normalizedY =motionEvent.getY();
 
-                switch (motionEvent.getActionMasked()) {
-                    case MotionEvent.ACTION_DOWN:
-                        X = normalizedX;
-                        Y = normalizedY;
-                        if (ifPainting || ifDeletingLine || ifSpliting || ifChangeLineType || ifDeletingMultiMarker) {
-                            lineDrawed.add(X);
-                            lineDrawed.add(Y);
-                            lineDrawed.add(-1.0f);
-                            myrenderer.setIfPainting(true);
-                            requestRender();
-                            Log.v("actionPointerDown", "Paintinggggggggggg");
-                        }
+                    switch (motionEvent.getActionMasked()) {
+                        case MotionEvent.ACTION_DOWN:
+                            X = normalizedX;
+                            Y = normalizedY;
+                            if (ifPainting || ifDeletingLine || ifSpliting || ifChangeLineType || ifDeletingMultiMarker) {
+                                lineDrawed.add(X);
+                                lineDrawed.add(Y);
+                                lineDrawed.add(-1.0f);
+                                myrenderer.setIfPainting(true);
+                                requestRender();
+                                Log.v("actionPointerDown", "Paintinggggggggggg");
+                            }
 //                        if (ifPoint) {
 //                            Log.v("actionPointerDown", "Pointinggggggggggg");
 //                            if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
@@ -7244,95 +7289,95 @@ public class MainActivity extends AppCompatActivity {
 //                            myrenderer.setIfPainting(true);
 //                            requestRender();
 //                        }
-                        break;
-                    case MotionEvent.ACTION_POINTER_DOWN:
-                        lineDrawed.clear();
-                        myrenderer.setIfPainting(false);
-                        requestRender();
-                        isZooming = true;
-                        isZoomingNotStop = true;
-                        float x1 = toOpenGLCoord(this, motionEvent.getX(1), true);
-                        float y1 = toOpenGLCoord(this, motionEvent.getY(1), false);
+                            break;
+                        case MotionEvent.ACTION_POINTER_DOWN:
+                            lineDrawed.clear();
+                            myrenderer.setIfPainting(false);
+                            requestRender();
+                            isZooming = true;
+                            isZoomingNotStop = true;
+                            float x1 = toOpenGLCoord(this, motionEvent.getX(1), true);
+                            float y1 = toOpenGLCoord(this, motionEvent.getY(1), false);
 
 //                        float x1=motionEvent.getX(1);
 //                        float y1=motionEvent.getY(1);
-                        dis_start = computeDis(normalizedX, x1, normalizedY, y1);
-                        dis_x_start = x1 - normalizedX;
-                        dis_y_start = y1 - normalizedY;
+                            dis_start = computeDis(normalizedX, x1, normalizedY, y1);
+                            dis_x_start = x1 - normalizedX;
+                            dis_y_start = y1 - normalizedY;
 
-                        x0_start = normalizedX;
-                        y0_start = normalizedY;
-                        x1_start = x1;
-                        y1_start = y1;
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        if (isZooming && isZoomingNotStop) {
+                            x0_start = normalizedX;
+                            y0_start = normalizedY;
+                            x1_start = x1;
+                            y1_start = y1;
+                            break;
+                        case MotionEvent.ACTION_MOVE:
+                            if (isZooming && isZoomingNotStop) {
 
-                            float x2 = toOpenGLCoord(this, motionEvent.getX(1), true);
-                            float y2 = toOpenGLCoord(this, motionEvent.getY(1), false);
+                                float x2 = toOpenGLCoord(this, motionEvent.getX(1), true);
+                                float y2 = toOpenGLCoord(this, motionEvent.getY(1), false);
 
 //                            float x2=motionEvent.getX(1);
 //                            float y2=motionEvent.getY(1);
-                            double dis = computeDis(normalizedX, x2, normalizedY, y2);
-                            double scale = dis / dis_start;
+                                double dis = computeDis(normalizedX, x2, normalizedY, y2);
+                                double scale = dis / dis_start;
 //                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker) {
                                 myrenderer.zoom((float) scale);
 //                            }
-                            float dis_x = x2 - normalizedX;
-                            float dis_y = y2 - normalizedY;
-                            float ave_x = (x2 - x1_start + normalizedX - x0_start) / 2;
-                            float ave_y = (y2 - y1_start + normalizedY - y0_start) / 2;
-                            if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
-                                if (myrenderer.getIfDownSampling() == false)
-                                    myrenderer.setIfDownSampling(true);
-                            }
+                                float dis_x = x2 - normalizedX;
+                                float dis_y = y2 - normalizedY;
+                                float ave_x = (x2 - x1_start + normalizedX - x0_start) / 2;
+                                float ave_y = (y2 - y1_start + normalizedY - y0_start) / 2;
+                                if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
+                                    if (myrenderer.getIfDownSampling() == false)
+                                        myrenderer.setIfDownSampling(true);
+                                }
 //                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker){
 //                                myrenderer.rotate2f(dis_x_start, dis_x, dis_y_start, dis_y);
 //                            }else {
 //                                myrenderer.rotate(dis_x - dis_x_start, dis_y - dis_y_start, (float) (computeDis(dis_x, dis_x_start, dis_y, dis_y_start)));
                                 myrenderer.rotate(ave_x, ave_y, (float)(computeDis((x2 + normalizedX) / 2, (x1_start + x0_start) / 2, (y2 + normalizedY) / 2, (y1_start + y0_start) / 2)));
 //                            }
-                            //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
-                            requestRender();
-                            dis_start = dis;
-                            dis_x_start = dis_x;
-                            dis_y_start = dis_y;
-                            x0_start = normalizedX;
-                            y0_start = normalizedY;
-                            x1_start = x2;
-                            y1_start = y2;
-                        } else {
-                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker && !ifChangeMarkerType && !ifDeletingMultiMarker) {
-                                if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
-                                    if (myrenderer.getIfDownSampling() == false)
-                                        myrenderer.setIfDownSampling(true);
-                                }
-                                myrenderer.rotate(normalizedX - X, normalizedY - Y, (float) (computeDis(normalizedX, X, normalizedY, Y)));
-
                                 //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
                                 requestRender();
-                                X = normalizedX;
-                                Y = normalizedY;
+                                dis_start = dis;
+                                dis_x_start = dis_x;
+                                dis_y_start = dis_y;
+                                x0_start = normalizedX;
+                                y0_start = normalizedY;
+                                x1_start = x2;
+                                y1_start = y2;
                             } else {
-                                lineDrawed.add(normalizedX);
-                                lineDrawed.add(normalizedY);
-                                lineDrawed.add(-1.0f);
+                                if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker && !ifChangeMarkerType && !ifDeletingMultiMarker) {
+                                    if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
+                                        if (myrenderer.getIfDownSampling() == false)
+                                            myrenderer.setIfDownSampling(true);
+                                    }
+                                    myrenderer.rotate(normalizedX - X, normalizedY - Y, (float) (computeDis(normalizedX, X, normalizedY, Y)));
 
-                                myrenderer.setLineDrawed(lineDrawed);
-                                requestRender();
+                                    //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
+                                    requestRender();
+                                    X = normalizedX;
+                                    Y = normalizedY;
+                                } else {
+                                    lineDrawed.add(normalizedX);
+                                    lineDrawed.add(normalizedY);
+                                    lineDrawed.add(-1.0f);
 
-                                invalidate();
+                                    myrenderer.setLineDrawed(lineDrawed);
+                                    requestRender();
+
+                                    invalidate();
+                                }
                             }
-                        }
-                        break;
-                    case MotionEvent.ACTION_POINTER_UP:
+                            break;
+                        case MotionEvent.ACTION_POINTER_UP:
 //                        isZooming = false;
-                        isZoomingNotStop = false;
-                        myrenderer.setIfDownSampling(false);
-                        X = normalizedX;
-                        Y = normalizedY;
-                        lineDrawed.clear();
-                        myrenderer.setIfPainting(false);
+                            isZoomingNotStop = false;
+                            myrenderer.setIfDownSampling(false);
+                            X = normalizedX;
+                            Y = normalizedY;
+                            lineDrawed.clear();
+                            myrenderer.setIfPainting(false);
 //                        if (ifPainting){
 //                            lineDrawed.clear();
 //                            myrenderer.setLineDrawed(lineDrawed);
@@ -7342,42 +7387,42 @@ public class MainActivity extends AppCompatActivity {
 //                            requestRender();
 //
 //                        }
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        if (!isZooming) {
-                            try {
-                                if (ifPoint) {
-                                    Log.v("actionUp", "Pointinggggggggggg");
-                                    if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
-                                        myrenderer.add2DMarker(normalizedX, normalizedY);
-                                    else {
-                                        myrenderer.setMarkerDrawed(normalizedX, normalizedY);
-                                    }
-                                    Log.v("actionPointerDown", "(" + X + "," + Y + ")");
-                                    requestRender();
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            if (!isZooming) {
+                                try {
+                                    if (ifPoint) {
+                                        Log.v("actionUp", "Pointinggggggggggg");
+                                        if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
+                                            myrenderer.add2DMarker(normalizedX, normalizedY);
+                                        else {
+                                            myrenderer.setMarkerDrawed(normalizedX, normalizedY);
+                                        }
+                                        Log.v("actionPointerDown", "(" + X + "," + Y + ")");
+                                        requestRender();
 
-                                }
-                                if (ifDeletingMarker) {
-                                    Log.v("actionUp", "DeletingMarker");
-                                    myrenderer.deleteMarkerDrawed(normalizedX, normalizedY);
-                                    requestRender();
-                                }
-                                if (ifDeletingMultiMarker) {
-                                    myrenderer.deleteMultiMarkerByStroke(lineDrawed);
-                                    requestRender();
-                                }
-                                if (ifChangeMarkerType) {
-                                    myrenderer.changeMarkerType(normalizedX, normalizedY);
-                                    requestRender();
-                                }
-                                if (ifPainting) {
-                                    Vector<Integer> segids = new Vector<>();
-                                    myrenderer.setIfPainting(false);
+                                    }
+                                    if (ifDeletingMarker) {
+                                        Log.v("actionUp", "DeletingMarker");
+                                        myrenderer.deleteMarkerDrawed(normalizedX, normalizedY);
+                                        requestRender();
+                                    }
+                                    if (ifDeletingMultiMarker) {
+                                        myrenderer.deleteMultiMarkerByStroke(lineDrawed);
+                                        requestRender();
+                                    }
+                                    if (ifChangeMarkerType) {
+                                        myrenderer.changeMarkerType(normalizedX, normalizedY);
+                                        requestRender();
+                                    }
+                                    if (ifPainting) {
+                                        Vector<Integer> segids = new Vector<>();
+                                        myrenderer.setIfPainting(false);
 //                            myrenderer.addLineDrawed(lineDrawed);
 
-                                    if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
-                                        myrenderer.add2DCurve(lineDrawed);
-                                    else {
+                                        if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
+                                            myrenderer.add2DCurve(lineDrawed);
+                                        else {
 //                                        int lineType = myrenderer.getLastLineType();
 //                                        if (lineType != 3) {
 ////                                            int segid = myrenderer.addLineDrawed(lineDrawed);
@@ -7401,47 +7446,47 @@ public class MainActivity extends AppCompatActivity {
 //                                        } else {
 //                                            myrenderer.addBackgroundLineDrawed(lineDrawed);
 //                                        }
-                                        Callable<String> task = new Callable<String>() {
-                                            @Override
-                                            public String call() throws Exception {
-                                                int lineType = myrenderer.getLastLineType();
-                                                if (lineType != 2) {
+                                            Callable<String> task = new Callable<String>() {
+                                                @Override
+                                                public String call() throws Exception {
+                                                    int lineType = myrenderer.getLastLineType();
+                                                    if (lineType != 2) {
 //                                            int segid = myrenderer.addLineDrawed(lineDrawed);
 //                                    segids.add(segid);
 //                            requestRender();
 //                                                    int [] curUndo = new int[1];
 //                                                    curUndo[0] = -1;
 
-                                                    V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed);
-                                                    System.out.println("feature");
+                                                        V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed);
+                                                        System.out.println("feature");
 //                                                    System.out.println(v_neuronSWC_list.seg.size());
-                                                    if (seg != null) {
-                                                        V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
-                                                        myrenderer.addLineDrawed2(lineDrawed, v_neuronSWC_list, seg);
-                                                        myrenderer.deleteFromCur(seg, v_neuronSWC_list[0]);
-                                                    }
+                                                        if (seg != null) {
+                                                            V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
+                                                            myrenderer.addLineDrawed2(lineDrawed, v_neuronSWC_list, seg);
+                                                            myrenderer.deleteFromCur(seg, v_neuronSWC_list[0]);
+                                                        }
 //                                                    else {
 //                                                        Toast.makeText(getContext(), "Please make sure the curve is inside the bounding box", Toast.LENGTH_LONG);
 //                                                    }
 //                                            myrenderer.deleteFromNew(segid);
-                                                } else {
-                                                    myrenderer.addBackgroundLineDrawed(lineDrawed);
+                                                    } else {
+                                                        myrenderer.addBackgroundLineDrawed(lineDrawed);
+                                                    }
+                                                    requestRender();
+                                                    return "succeed";
                                                 }
-                                                requestRender();
-                                                return "succeed";
-                                            }
-                                        };
-                                        ExecutorService exeService = Executors.newSingleThreadExecutor();
-                                        Future<String> future = exeService.submit(task);
-                                        try {
-                                            String result = future.get(1500, TimeUnit.MILLISECONDS);
-                                            System.err.println("Result:" + result);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                            System.out.println("unfinished in 1.5 seconds");
+                                            };
+                                            ExecutorService exeService = Executors.newSingleThreadExecutor();
+                                            Future<String> future = exeService.submit(task);
+                                            try {
+                                                String result = future.get(1500, TimeUnit.MILLISECONDS);
+                                                System.err.println("Result:" + result);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                                System.out.println("unfinished in 1.5 seconds");
 //                                            exeService.shutdown();
 //                                            future.cancel(true);
-                                        }
+                                            }
 //                                int lineType = myrenderer.getLastLineType();
 //                                if (lineType != 3) {
 //                                    int segid = myrenderer.addLineDrawed(lineDrawed);
@@ -7453,7 +7498,7 @@ public class MainActivity extends AppCompatActivity {
 //                                } else {
 //                                    myrenderer.addBackgroundLineDrawed(lineDrawed);
 //                                }
-                                    }
+                                        }
 //                            requestRender();
 ////
 //                            if (myrenderer.deleteFromNew(segid)) {
@@ -7474,52 +7519,57 @@ public class MainActivity extends AppCompatActivity {
 //                                }
 //                            }).start();
 ////                            myrenderer.addLineDrawed2(lineDrawed);
-                                    lineDrawed.clear();
-                                    myrenderer.setLineDrawed(lineDrawed);
+                                        lineDrawed.clear();
+                                        myrenderer.setLineDrawed(lineDrawed);
 //
-                                    requestRender();
-                                }
+                                        requestRender();
+                                    }
 //                            requestRender();
 
-                                if (ifDeletingLine) {
-                                    myrenderer.setIfPainting(false);
-                                    myrenderer.deleteLine1(lineDrawed);
-                                    lineDrawed.clear();
-                                    myrenderer.setLineDrawed(lineDrawed);
-                                    requestRender();
+                                    if (ifDeletingLine) {
+                                        myrenderer.setIfPainting(false);
+                                        myrenderer.deleteLine1(lineDrawed);
+                                        lineDrawed.clear();
+                                        myrenderer.setLineDrawed(lineDrawed);
+                                        requestRender();
+                                    }
+                                    if (ifSpliting) {
+                                        myrenderer.setIfPainting(false);
+                                        myrenderer.splitCurve(lineDrawed);
+                                        lineDrawed.clear();
+                                        myrenderer.setLineDrawed(lineDrawed);
+                                        requestRender();
+                                    }
+                                    if (ifChangeLineType) {
+                                        myrenderer.setIfPainting(false);
+                                        int type = myrenderer.getLastLineType();
+                                        myrenderer.changeLineType(lineDrawed, type);
+                                        lineDrawed.clear();
+                                        myrenderer.setLineDrawed(lineDrawed);
+                                        requestRender();
+                                    }
+                                } catch (Exception e){
+                                    e.printStackTrace();
                                 }
-                                if (ifSpliting) {
-                                    myrenderer.setIfPainting(false);
-                                    myrenderer.splitCurve(lineDrawed);
-                                    lineDrawed.clear();
-                                    myrenderer.setLineDrawed(lineDrawed);
-                                    requestRender();
-                                }
-                                if (ifChangeLineType) {
-                                    myrenderer.setIfPainting(false);
-                                    int type = myrenderer.getLastLineType();
-                                    myrenderer.changeLineType(lineDrawed, type);
-                                    lineDrawed.clear();
-                                    myrenderer.setLineDrawed(lineDrawed);
-                                    requestRender();
-                                }
-                            } catch (Exception e){
-                                e.printStackTrace();
+                                lineDrawed.clear();
+                                myrenderer.setIfPainting(false);
                             }
                             lineDrawed.clear();
                             myrenderer.setIfPainting(false);
-                        }
-                        lineDrawed.clear();
-                        myrenderer.setIfPainting(false);
-                        requestRender();
-                        isZooming = false;
-                        myrenderer.setIfDownSampling(false);
-                        break;
-                    default:
-                        break;
+                            requestRender();
+                            isZooming = false;
+                            myrenderer.setIfDownSampling(false);
+                            break;
+                        default:
+                            break;
+                    }
+                    return true;
                 }
-                return true;
+
+            }catch (IllegalArgumentException e){
+                e.printStackTrace();
             }
+
             return false;
         }
 
@@ -7547,7 +7597,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("File Open & Save", new String[]{"Open LocalFile", "Open BigData", "Load SWCFile","Camera"},
+                .asCenterList("File Open & Save", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile","Camera"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -7721,6 +7771,66 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
+
+    public void PopUp_UserAccount(Context context){
+
+        new MDDialog.Builder(context)
+//              .setContentView(customizedView)
+                .setContentView(R.layout.user_account_check)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+                        EditText et = (EditText) contentView.findViewById(R.id.userAccount_edit_check);
+                        String userAccount = getUserAccount_Check(context);
+
+                        if (userAccount.equals("--11--")){
+                            userAccount = "";
+                        }
+
+                        et.setText(userAccount);
+                    }
+                })
+                .setTitle("UserName for Check")
+                .setNegativeButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
+                        EditText et = (EditText) contentView.findViewById(R.id.userAccount_edit_check);
+
+                        String userAccount   = et.getText().toString();
+
+
+                        if( !userAccount.isEmpty() ){
+                            setUserAccount_Check(userAccount, context);
+
+                        }else{
+                            PopUp_UserAccount(context);
+                            Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                    }
+                })
+                .setWidthMaxDp(600)
+                .create()
+                .show();
+
+    }
 
     public void PopUp_Chat(Context context){
 
@@ -7962,8 +8072,15 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void LoadBigFile_Remote(String filepath){
-        myrenderer.SetPath(filepath);
 
+        Log.v("MainActivity",remote_socket.getIp());
+        if (remote_socket.getIp().equals("39.100.35.131")){
+            setSelectSource("Remote Server Aliyun",context);
+        } else if (remote_socket.getIp().equals("223.3.33.234")){
+            setSelectSource("Remote Server SEU",context);
+        }
+
+        myrenderer.SetPath(filepath);
         setFileName(filepath);
 
         System.out.println("------" + filepath + "------");
@@ -7971,22 +8088,17 @@ public class MainActivity extends AppCompatActivity {
         isBigData_Local = false;
         myGLSurfaceView.requestRender();
 
-        Log.v("MainActivity",remote_socket.getIp());
-        if (remote_socket.getIp().equals("39.100.35.131")){
-            setSelectSource("Remote Server Aliyun",context);
-        } else if(remote_socket.getIp().equals("223.3.33.234")){
-            setSelectSource("Remote Server SEU",context);
-        }
 
         SetButtons();
 
-        PullSwc_block_Auto(DrawMode);
-        LoadMarker();
+//        PullSwc_block_Auto(DrawMode);
+        PullSwc_block_Auto(true);
 
         //  for apo sync
 //        PullApo_block_Auto();
 
         if (DrawMode){
+            LoadMarker();
             if (!push_info_swc[0].equals("New")){
                 PushSWC_Block_Auto(push_info_swc[0], push_info_swc[1]);
             }
