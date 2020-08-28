@@ -2465,7 +2465,7 @@ public class MyPattern{
         drawListBuffer.position(0);
     }
 
-    public void test(){
-
+    public boolean ifImageLoaded(){
+        return !(image == null);
     }
 }

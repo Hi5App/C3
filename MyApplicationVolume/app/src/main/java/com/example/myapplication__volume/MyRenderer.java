@@ -331,9 +331,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        if (ifGame){
-            setVisual(gamePosition, gameDir);
-        }
+//        if (ifGame){
+//            setVisual(gamePosition, gameDir);
+////            setVisual(gamePosition, gameDir);
+//        }
 //        onDrawFrame(gl);
 //        Matrix.perspectiveM(projectionMatrix,0,45,1,0.1f,100f);
 
@@ -345,6 +346,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     //绘制画面
     @Override
     public void onDrawFrame(GL10 gl){
+
+        if (ifGame){
+            setVisual(gamePosition, gameDir);
+//            setVisual(gamePosition, gameDir);
+        }
 
 //        GLES30.glClearColor(0.5f, 0.4f, 0.3f, 1.0f);
 //        GLES30.glClearColor(1.0f, 0.5f, 0.0f, 1.0f);
@@ -364,9 +370,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        GLES30.glClearColor(0.929f, 0.906f, 0.965f, 1.0f);
 
         if (myPattern == null || myPattern2D == null){
+//            System.out.println("CCCCCCCCCCC");
+//            if (img == null)
+//                System.out.println("DDDDDDDDDDDDD");
             if (ifFileSupport){
-                if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD)
+//                System.out.println("FFFFFFFFFFF");
+                if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD) {
+//                    System.out.println("EEEEEEEEEE");
                     myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
+                }
                 if (fileType == FileType.PNG || fileType == FileType.JPG)
                     myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
 
@@ -484,9 +496,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Log.v("onDrawFrame", "draw_axis");
 
         if (!ifNavigationLococation){
-            if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD)
+            if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD) {
+//                System.out.println("BBBBBBBBBBBBB");
+//                if (!myPattern.ifImageLoaded())
+//                    System.out.println("HHHHHHHHHHHHHHH");
                 myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, screen_w, screen_h, texture[0], ifDownSampling);
-
+            }
             if (fileType == FileType.JPG || fileType == FileType.PNG)
                 myPattern2D.draw(finalMatrix);
 
@@ -4793,11 +4808,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    public boolean driveMode(float [] vertexPoints, float [] direction){
+    public boolean driveMode(float [] vertexPoints, float [] direction, float [] head){
 //        int size = vertexPoints.length;
-        if (myPattern == null)
+        if (myPattern == null) {
             return false;
-
+        }
 
         short [] drawlistTriangle = new short[]{
                 0, 1, 2
@@ -4863,13 +4878,37 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 -direction[1], direction[0], 0
         };
 
-        float a = (float)(angle * 180 / Math.PI);
-        Matrix.setRotateM(rotationMatrix, 0, a, axis[0], axis[1], axis[2]);
+        if (axis[0] == 0 && axis[1] == 0){
+            Matrix.setIdentityM(rotationMatrix,0);
+        } else {
+            float a = (float)(angle * 180 / Math.PI);
+            Matrix.setRotateM(rotationMatrix, 0, a, axis[0], axis[1], axis[2]);
+        }
+
+
+
 //        Matrix.multiplyMM(rotationMatrix, 0, rotate, 0, rotationMatrix, 0);
 
-        Matrix.scaleM(zoomMatrix, 0, 10.0f, 10.0f, 10.0f);
-        cur_scale *= 10.0f;
+        float [] headE = new float[]{head[0], head[1], head[2], 1};
+        float [] headAfter = new float[4];
+        Matrix.multiplyMV(headAfter, 0, rotationMatrix, 0, headE, 0);
 
+        float [] rotation2Matrix = new float[16];
+        if (headAfter[0] == 0){
+            Matrix.setIdentityM(rotation2Matrix, 0);
+        } else {
+            double angle2 = Math.acos(headAfter[1] / Math.sqrt(headAfter[0] * headAfter[0] + headAfter[1] * headAfter[1] + headAfter[2] * headAfter[2]));
+            float a2 = (float) (angle2 * 180 / Math.PI);
+
+
+            Matrix.setRotateM(rotation2Matrix, 0, a2, 0, 0, -headAfter[0]);
+
+            Matrix.multiplyMM(rotationMatrix, 0, rotation2Matrix, 0, rotationMatrix, 0);
+        }
+
+        Matrix.setIdentityM(zoomMatrix,0);
+        Matrix.scaleM(zoomMatrix, 0, 10.0f, 10.0f, 10.0f);
+        cur_scale = 10.0f;
 
         int size = vertexPoints.length;
         if (size == 9){
@@ -4879,7 +4918,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         } else if (size == 12){
             System.out.println("Square");
             myPattern.setDrawListBuffer(drawlistSquare);
-            myPattern.setDrawlistLength(drawlistTriangle.length);
+            myPattern.setDrawlistLength(drawlistSquare.length);
         } else if (size == 15){
             System.out.println("Pentagon");
             myPattern.setDrawListBuffer(drawlistPentagon);
@@ -4894,6 +4933,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         myPattern.setVertex(vertexPoints);
+
         return true;
 
     }
@@ -4994,8 +5034,16 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return filepath;
     }
 
-    private void setVisual(float [] position, float [] dir){
+    public void updateVisual(){
+        setVisual(gamePosition, gameDir);
+        System.out.print(gamePosition[0]);
+        System.out.print(' ');
+        System.out.print(gamePosition[1]);
+        System.out.print(' ');
+        System.out.println(gamePosition[2]);
+    }
 
+    private void setVisual(float [] position, float [] dir){
 
         ArrayList<Integer> sec_proj1 = new ArrayList<Integer>();
         ArrayList<Integer> sec_proj2 = new ArrayList<Integer>();
@@ -5345,12 +5393,37 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        boolean gameSucceed = driveMode(vertexPoints, dir);
+        float [] head = locateHead(dir[0], dir[1], dir[2]);
+
+        boolean gameSucceed = driveMode(vertexPoints, dir, head);
 //        if (!gameSucceed){
 //            Toast.makeText(context, "wrong vertex to draw", Toast.LENGTH_SHORT);
 //        } else {
 //            myGLSurfaceView.requestRender();
 //        }
+    }
+
+    public static float[] locateHead(float m, float n, float p){
+        // (x0,y0,z0)是mark的坐标，（x,n,p）是mark前进方向的向量，Pix还是block的大小
+        // 1.首先求防止头脚颠倒的向量。 先求一个与方向向量垂直，且与XOZ 平行的向量（则与XOZ法向量垂直（0,1,0））,然后可以直接利用向量积来求。
+        // 然后防止头脚颠倒的向量是与前面两个向量(方向向量和与其垂直的向量)垂直的向量（也可以直接利用向量积就可以求出来）
+        // 向量积：(a1,b1,c1)与(a2,b2,c2) 向量积 (b1c2-b2c1,a2c1-a1c2,a1b2-a2b1)
+        // 方向向量(m,n,p)是 (a1,b1,c1)
+
+//        float[] XOZ = {0,1,0}; // (a2,b2,c2)
+//        float[] dir_ver = new float[3];
+
+        float[] des = new float[3];
+//        dir_ver[0] = p; //a2
+//        dir_ver[1] = 0; //b2
+//        dir_ver[2] = m; //c2
+
+        des[0] = n*m;
+        des[1] = p*p-m*m;
+        des[2] = -p*n;
+
+        return des;
+
     }
 
     public void setGamePosition(float [] position){

@@ -8,16 +8,23 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
 import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -30,7 +37,16 @@ public class GameActivity extends AppCompatActivity {
     private float[] position;
     private float[] dir;
 
+    private float [] moveDir;
+    private float [] viewRotateDir;
+
     private Context context;
+
+    private Timer timer;
+    private TimerTask task;
+
+    private Handler TimerHandler;
+    Runnable myTimerRun;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -75,8 +91,171 @@ public class GameActivity extends AppCompatActivity {
         ll.removeView(rockerView2);
         this.addContentView(rockerView2, lp_rocker2);
 
+//        Button Check_Yes = new Button(this);
+//        Check_Yes.setText("Y");
+//
+//        FrameLayout.LayoutParams lp_check_yes = new FrameLayout.LayoutParams(120, 120);
+//        lp_check_yes.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+//        lp_check_yes.setMargins(0, 0, 20, 500);
+//        this.addContentView(Check_Yes, lp_check_yes);
+//
+//        Check_Yes.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+////                boolean [] b = {false};
+//                timer = new Timer();
+//                task = new TimerTask() {
+//                    @Override
+//                    public void run() {
+//                        System.out.println("AAAAA");
+//                        try {
+//                            b[0] = true;
+//                            System.out.print(moveDir[0]);
+//                            System.out.print(' ');
+//                            System.out.print(moveDir[1]);
+//
+//                            System.out.print(viewRotateDir[0]);
+//                            System.out.print(' ');
+//                            System.out.print(viewRotateDir[1]);
+//                        } catch (Exception e){
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                };
+//                timer.schedule(task, 0, 1000);
+//                if (b[0]){
+//                    System.out.println("HHHHHHHHHHHH");
+//                }
+//            }
+//        });
+
+        moveDir = new float[]{0f, 0f, 0f};
+        viewRotateDir = new float[]{0f, 0f, 0f};
+
+        rockerView1.setRockerChangeListener(new MyRockerView.RockerChangeListener() {
+            @Override
+            public void report(float x, float y) {
+
+                moveDir[0] = x;
+                moveDir[1] = y;
+//                System.out.println(x);
+//                System.out.println(y);
+            }
+        });
+
+        rockerView2.setRockerChangeListener(new MyRockerView.RockerChangeListener() {
+            @Override
+            public void report(float x, float y) {
+
+                viewRotateDir[0] = x;
+                viewRotateDir[1] = y;
+            }
+        });
+
+//        final boolean[] b = {false};
+//
+        timer = new Timer();
+        task = new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    float angleH = viewRotateDir[0] / 20;
+                    float angleV = viewRotateDir[1] / 20;
+//                    System.out.println("SSSSSSSSSSSSSSSS");
+//                    System.out.print(viewRotateDir[0]);
+//                    System.out.print(' ');
+//                    System.out.print(rotationHMatrix[1]);
+//                    System.out.print(' ');
+//                    System.out.println(viewRotateDir[1]);
+                    if (angleH != 0 && angleV != 0) {
+                        float[] head = MyRenderer.locateHead(dir[0], dir[1], dir[2]);
+                        float[] axisV = new float[]{dir[1] * head[2] - dir[2] * head[1], dir[2] * head[0] - dir[0] * head[2], dir[0] * head[1] - dir[1] * head[0]};
+
+                        float[] rotationHMatrix = new float[16];
+                        float[] rotationVMatrix = new float[16];
+                        float[] rotationMatrix = new float[16];
+
+                        if (angleH > 0) {
+                            Matrix.setRotateM(rotationHMatrix, 0, angleH, head[0], head[1], head[2]);
+                        } else {
+                            Matrix.setRotateM(rotationHMatrix, 0, -angleH, -head[0], -head[1], -head[2]);
+                        }
+                        if (angleV > 0) {
+                            Matrix.setRotateM(rotationVMatrix, 0, angleV, axisV[0], axisV[1], axisV[2]);
+                        } else {
+                            Matrix.setRotateM(rotationVMatrix, 0, -angleV, -axisV[0], -axisV[1], -axisV[2]);
+                        }
+                        Matrix.multiplyMM(rotationMatrix, 0, rotationHMatrix, 0, rotationVMatrix, 0);
+
+                        float[] dirE = new float[]{dir[0], dir[1], dir[2], 1};
+
+                        Matrix.multiplyMV(dirE, 0, rotationVMatrix, 0, dirE, 0);
+                        dir = new float[]{dirE[0], dirE[1], dirE[2]};
+                        myrenderer.setGameDir(dir);
+                        System.out.println("SSSSSSSSSSSSSSSS");
+                        System.out.print(head[0]);
+                        System.out.print(' ');
+                        System.out.print(head[1]);
+                        System.out.print(' ');
+                        System.out.println(head[2]);
+                        System.out.print(dir[0]);
+                        System.out.print(' ');
+                        System.out.print(dir[1]);
+                        System.out.print(' ');
+                        System.out.println(dir[2]);
+
+//                        myrenderer.updateVisual();
+                        myGLSurfaceView.requestRender();
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        };
+        timer.schedule(task, 0, 100);
+//
+//        if (b[0]){
+//            System.out.println("DDDDDDDDDDDDDDDD");
+//        }
+
+//        Handler handler = new Handler() {
+//            @Override
+//            public void handleMessage(Message msg) {
+//                if (msg.what == 1){
+//                    Toast.makeText(context, "sssssssssssss", Toast.LENGTH_LONG);
+//                }
+//                super.handleMessage(msg);
+//
+//            }
+//        };
+//
+//        class MyThread extends Thread {//这里也可用Runnable接口实现
+//            @Override
+//            public void run() {
+//                while (true){
+//                    try {
+//                        Thread.sleep(1000);//每隔1s执行一次
+//                        Message msg = new Message();
+//                        msg.what = 1;
+//                        handler.sendMessage(msg);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                }
+//            }
+//        }
+//        new Thread(new MyThread()).start();
+
 //        setVisual();
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        myGLSurfaceView.onPause();
+        Log.v("onPause", "start-----");
     }
 
     @Override
@@ -459,12 +638,12 @@ public class GameActivity extends AppCompatActivity {
             }
         }
 
-        boolean gameSucceed = myrenderer.driveMode(vertexPoints, dir);
-        if (!gameSucceed){
-            Toast.makeText(context, "wrong vertex to draw", Toast.LENGTH_SHORT);
-        } else {
-            myGLSurfaceView.requestRender();
-        }
+//        boolean gameSucceed = myrenderer.driveMode(vertexPoints, dir);
+//        if (!gameSucceed){
+//            Toast.makeText(context, "wrong vertex to draw", Toast.LENGTH_SHORT);
+//        } else {
+//            myGLSurfaceView.requestRender();
+//        }
     }
 
     class MyGLSurfaceView extends GLSurfaceView {

@@ -1592,7 +1592,7 @@ public class MainActivity extends AppCompatActivity {
                                             Intent gameIntent = new Intent(MainActivity.this, GameActivity.class);
                                             gameIntent.putExtra("FilePath", myrenderer.getFilePath());
                                             gameIntent.putExtra("Position", new float[]{0.5f, 0.5f, 0.5f});
-                                            gameIntent.putExtra("Dir", new float[]{1, 1, 1});
+                                            gameIntent.putExtra("Dir", new float[]{0, 0, 1});
                                             startActivity(gameIntent);
                                         }catch (Exception e){
                                             e.printStackTrace();
@@ -8650,12 +8650,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        boolean gameSucceed = myrenderer.driveMode(vertexPoints, dir);
-        if (!gameSucceed){
-            Toast.makeText(context, "wrong vertex to draw", Toast.LENGTH_SHORT);
-        } else {
-            myGLSurfaceView.requestRender();
-        }
+//        boolean gameSucceed = myrenderer.driveMode(vertexPoints, dir);
+//        if (!gameSucceed){
+//            Toast.makeText(context, "wrong vertex to draw", Toast.LENGTH_SHORT);
+//        } else {
+//            myGLSurfaceView.requestRender();
+//        }
     }
 
 }
