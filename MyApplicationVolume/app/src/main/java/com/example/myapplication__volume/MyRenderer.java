@@ -4942,12 +4942,78 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
-    public ArrayList<Float> tangentPlane(float x0,float y0,float z0,float m,float n, float p,float t,float Pix){
+    public float[] head(float m, float n, float p){
+        // (x0,y0,z0)是mark的坐标，（x,n,p）是mark前进方向的向量，Pix还是block的大小
+        // 1.首先求防止头脚颠倒的向量。 先求一个与方向向量垂直，且与XOZ 平行的向量（则与XOZ法向量垂直（0,1,0））,然后可以直接利用向量积来求。
+        // 然后防止头脚颠倒的向量是与前面两个向量(方向向量和与其垂直的向量)垂直的向量（也可以直接利用向量积就可以求出来）
+        // 向量积：(a1,b1,c1)与(a2,b2,c2) 向量积 (b1c2-b2c1,a2c1-a1c2,a1b2-a2b1)
+        // 方向向量(m,n,p)是 (a1,b1,c1)
+
+        // float[] XOZ = {0,1,0}; // (a2,b2,c2)
+//        float[] dir_ver = new float[3];
+
+        float[] des = new float[3];
+//        dir_ver[0] = p; //a2
+//        dir_ver[1] = 0; //b2
+//        dir_ver[2] = m; //c2
+
+        des[0] = n*m;
+        des[1] = p*p-m*m;
+        des[2] = -p*n;
+
+        return des;
+
+    }
+    public float[] angle(float x0, float y0, float z0, float m, float n, float p){
+        // (x0,y0,z0)是mark的坐标，（x,n,p）是mark前进方向的向量，Pix还是block的大小
+        // 1.首先求防止头脚颠倒的向量。 先求一个与方向向量垂直，且与XOZ 平行的向量（则与XOZ法向量垂直（0,1,0））,然后可以直接利用向量积来求。
+        // 然后防止头脚颠倒的向量是与前面两个向量(方向向量和与其垂直的向量)垂直的向量（也可以直接利用向量积就可以求出来）
+        // 向量积：(a1,b1,c1)与(a2,b2,c2) 向量积 (b1c2-b2c1,a2c1-a1c2,a1b2-a2b1)
+        // 方向向量(m,n,p)是 (a1,b1,c1)
+        // 2.视角所在的点与前面的方向向量和求出来的防止颠倒的向量在同一平面，视角看进去的法向量应该也是在这个平面里的，可以先求法向量好求一点。
+        // 如何求这个平面呢：方向向量和求出来的防止颠倒的向量做向量积得到平面的法向量，然后利用平面的点法式。
+        // 到这里可以得到他和方向向量所在的平面方程：p(m^2-n^2-p^2)(X-x0)+m(p^2-m^2-n^2)(Z-z0)=0,没有Y，所以平面一定过Y轴
+        // 最后没有用到这个平面. 视角在mark的斜上后方，那视角的后肯定是针对方向向量来说的后，上应该就和防止头脚颠倒的这个方向。
+//        float[] XOZ = {0,1,0}; // (a2,b2,c2)
+//        float[] dir_ver = new float[3];
+
+
+        float[] head = new float[3];
+        float[] des = new float[6]; //数组的前三位存视角坐标，后三位用来存看进去的法向量
+
+//        final float rad = (float) (45*(Math.PI/180)); //一般都要把角度转换成弧度。 前面的45就是我们常用的角度，是可以看情况定的
+        final float behind = 40; //用它来控制视角相对于mark向后移了多少
+        final float up = 40; //用它来控制视角相对于mark向后上抬了多少
+        final float front = 40; //它来控制mark在方向向量的方向上，视角可以看到的赛道长度,然后就可以确定法向量
+//        dir_ver[0] = p; //a2
+//        dir_ver[1] = 0; //b2
+//        dir_ver[2] = m; //c2
+        m = (float) (m/Math.sqrt(m*m+n*n+p*p));
+        n = (float) (n/Math.sqrt(m*m+n*n+p*p));
+        p = (float) (p/Math.sqrt(m*m+n*n+p*p)); //都先归一化一下，防止方向向量会超过1 （其实也没必要好像，但是考虑到block大小是1）
+
+        head = head(m,n,p); //求出来 防止头脚颠倒的向量
+        head[0] = (float) (head[0]/Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2]));
+        head[1] = (float) (head[1]/Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2]));
+        head[2] = (float) (head[2]/Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2]));
+
+        des[0] = x0-behind*m+up*head[0];
+        des[1] = y0-behind*n+up*head[1];
+        des[2] = z0-behind*p+up*head[2];  // 求出来的这个视角的法向量，就用mark沿着方向向量前进一点的点，减去视角的坐标
+
+        des[3] = (x0+front*m)-des[0];
+        des[4] = (y0+front*n)-des[1];
+        des[5] = (z0+front*p)-des[2];
+
+        return des;
+    }
+
+    public ArrayList<Float> tangentPlane(float x0,float y0,float z0,float m,float n, float p,float Pix){
 // (x0,y0,z0)是视角的那个点，(m,n,p)是法向量，t是法线参数方程的参数t，Pix是block的像素
         ArrayList<Float> sec = new ArrayList<Float>();
-        float x1 = x0 + m*t;
-        float y1 = y0 + n*t;
-        float z1 = z0 + p*t;
+        float x1 = x0; // + m*t;
+        float y1 = y0; // + n*t;
+        float z1 = z0; // + p*t;
 
         if (m!=0  & ((n*y1+p*z1)/m+x1) <= Pix & ((n*y1+p*z1)/m+x1)>=0){
             sec.add((n*y1+p*z1)/m+x1);
@@ -5048,18 +5114,46 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         System.out.println(gamePosition[2]);
     }
 
-    private void setVisual(float [] position, float [] dir){
+    public void setVisual(float [] position, float [] dir){
 
         ArrayList<Integer> sec_proj1 = new ArrayList<Integer>();
         ArrayList<Integer> sec_proj2 = new ArrayList<Integer>();
         ArrayList<Integer> sec_proj3 = new ArrayList<Integer>();
         ArrayList<Integer> sec_proj4 = new ArrayList<Integer>();
         ArrayList<Float> sec_anti = new ArrayList<Float>();
+        ArrayList<Float> sec_copy = new ArrayList<Float>();
+        float gravity_X = 0;
+        float gravity_Y = 0;
+        float gravity_Z = 0;
 
-        ArrayList<Float> tangent = tangentPlane(position[0], position[1], position[2], dir[0], dir[1], dir[2], 0, 1);
+        ArrayList<Float> tangent = tangentPlane(position[0], position[1], position[2], dir[0], dir[1], dir[2],1);
+        sec_copy = (ArrayList<Float>) tangent.clone();
 
         System.out.println("TangentPlane:::::");
         System.out.println(tangent.size());
+
+        for (int i=0;i<tangent.size();i+=3) {
+            gravity_X += tangent.get(i);
+        }
+        for (int i=0;i<tangent.size();i+=3) {
+            gravity_Y += tangent.get(i+1);
+        }
+        for (int i=0;i<tangent.size();i+=3) {
+            gravity_Z += tangent.get(i+2);
+        }
+        gravity_X /= (tangent.size()/3);
+        gravity_Y /= (tangent.size()/3);
+        gravity_Z /= (tangent.size()/3);
+
+        for (int i=0;i<tangent.size();i+=3) {
+            tangent.set(i,tangent.get(i)-gravity_X);
+        }
+        for (int i=0;i<tangent.size();i+=3) {
+            tangent.set(i+1, tangent.get(i+1)-gravity_Y);
+        }
+        for (int i=0;i<tangent.size();i+=3) {
+            tangent.set(i+2, tangent.get(i+2)-gravity_Z);
+        }
 
         //然后对三维坐标进行映射
         if (dir[2]==0)
@@ -5238,8 +5332,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }// 第四象限
 
             }
-        }
-
 
 
 
@@ -5363,7 +5455,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     }
                 }
             }
-        }
+        }        }
+
 
 
         for(int i=0;i<sec_proj1.size();i++) {
