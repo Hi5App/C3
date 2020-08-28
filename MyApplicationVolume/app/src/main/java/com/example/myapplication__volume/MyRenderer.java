@@ -331,10 +331,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
 
+
 //        if (ifGame){
 //            setVisual(gamePosition, gameDir);
 ////            setVisual(gamePosition, gameDir);
 //        }
+
 //        onDrawFrame(gl);
 //        Matrix.perspectiveM(projectionMatrix,0,45,1,0.1f,100f);
 
@@ -4810,9 +4812,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public boolean driveMode(float [] vertexPoints, float [] direction, float [] head){
 //        int size = vertexPoints.length;
+
         if (myPattern == null) {
             return false;
         }
+
 
         short [] drawlistTriangle = new short[]{
                 0, 1, 2
@@ -5033,6 +5037,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public String getFilePath(){
         return filepath;
     }
+
 
     public void updateVisual(){
         setVisual(gamePosition, gameDir);
@@ -5393,15 +5398,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
 
+
         float [] head = locateHead(dir[0], dir[1], dir[2]);
 
         boolean gameSucceed = driveMode(vertexPoints, dir, head);
+
 //        if (!gameSucceed){
 //            Toast.makeText(context, "wrong vertex to draw", Toast.LENGTH_SHORT);
 //        } else {
 //            myGLSurfaceView.requestRender();
 //        }
     }
+
 
     public static float[] locateHead(float m, float n, float p){
         // (x0,y0,z0)是mark的坐标，（x,n,p）是mark前进方向的向量，Pix还是block的大小
@@ -5425,6 +5433,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return des;
 
     }
+
 
     public void setGamePosition(float [] position){
         gamePosition = position;

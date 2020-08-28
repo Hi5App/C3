@@ -8,6 +8,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
 import android.opengl.GLSurfaceView;
+
 import android.opengl.Matrix;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,12 +18,15 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+
 import android.view.View;
 import android.widget.Button;
+
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -37,6 +41,7 @@ public class GameActivity extends AppCompatActivity {
     private float[] position;
     private float[] dir;
 
+
     private float [] moveDir;
     private float [] viewRotateDir;
 
@@ -44,9 +49,9 @@ public class GameActivity extends AppCompatActivity {
 
     private Timer timer;
     private TimerTask task;
-
     private Handler TimerHandler;
     Runnable myTimerRun;
+
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -189,7 +194,7 @@ public class GameActivity extends AppCompatActivity {
 
                         float[] dirE = new float[]{dir[0], dir[1], dir[2], 1};
 
-                        Matrix.multiplyMV(dirE, 0, rotationVMatrix, 0, dirE, 0);
+                        Matrix.multiplyMV(dirE, 0, rotationMatrix, 0, dirE, 0);
                         dir = new float[]{dirE[0], dirE[1], dirE[2]};
                         myrenderer.setGameDir(dir);
                         System.out.println("SSSSSSSSSSSSSSSS");
@@ -637,13 +642,13 @@ public class GameActivity extends AppCompatActivity {
                 System.out.print("\n");
             }
         }
-
 //        boolean gameSucceed = myrenderer.driveMode(vertexPoints, dir);
 //        if (!gameSucceed){
 //            Toast.makeText(context, "wrong vertex to draw", Toast.LENGTH_SHORT);
 //        } else {
 //            myGLSurfaceView.requestRender();
 //        }
+
     }
 
     class MyGLSurfaceView extends GLSurfaceView {
