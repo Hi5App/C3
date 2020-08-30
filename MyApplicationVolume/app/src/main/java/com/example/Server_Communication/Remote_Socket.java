@@ -602,6 +602,7 @@ public class Remote_Socket extends Socket {
                 }
 
             }
+
         }else {
 
             new MDDialog.Builder(mContext)
@@ -775,7 +776,11 @@ public class Remote_Socket extends Socket {
         if (isDrawMode){
             RES_Selected = RESs[RESs.length - 1];
         }else {
-            RES_Selected = RESs[0];
+            if (2 > RESs.length - 1){
+                RES_Selected = RESs[RESs.length - 1];
+            }else {
+                RES_Selected = RESs[2];
+            }
         }
 
         setFilename_Remote(BrainNumber_Selected + "/" + RES_Selected, mContext);   //  18454/RES250x250x250
@@ -1030,8 +1035,8 @@ public class Remote_Socket extends Socket {
     }
 
     private void PullImageBlock_fast(Context context, String direction){
-        String filename = getFilename_Remote(context);        // BrainNumber: 18465/RES250x250x250
-        String offset = getoffset_Remote(context, filename);  // offset:
+        String filename_root = getFilename_Remote(context);        // BrainNumber: 18465/RES250x250x250
+        String offset = getoffset_Remote(context, filename_root);  // offset:
 
         String offset_x = offset.split("_")[0];
         String offset_y = offset.split("_")[1];
@@ -1043,7 +1048,7 @@ public class Remote_Socket extends Socket {
         int offset_y_i = Integer.parseInt(offset_y);
         int offset_z_i = Integer.parseInt(offset_z);
 
-        filename = filename.replace(")","").replace("(","");
+        String filename = filename_root.replace(")","").replace("(","");
         String img_size = filename.split("RES")[1];
 
         System.out.println("img_size: hhh-------" + img_size + "--------hhh");
@@ -1153,7 +1158,7 @@ public class Remote_Socket extends Socket {
         offset_z = Integer.toString(offset_z_i);
 
         offset = offset_x + "_" + offset_y + "_" + offset_z + "_" + size;
-        setoffset_Remote(offset, filename, context);
+        setoffset_Remote(offset, filename_root, context);
 
         System.out.println("---------" + offset + "---------");
         String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
@@ -1328,35 +1333,7 @@ public class Remote_Socket extends Socket {
             return;
         }
 
-        float ratio = getRatio(res_temp.get(res_index + 1), res_cur);
-        String offset = getoffset_Remote(mContext, filename);
-        String[] offset_new = getNewOffset(offset, ratio);
-
-        setFilename_Remote(filename.split("/")[0] + "/" + res_temp.get(res_index + 1), mContext);
-        RES_Selected = res_temp.get(res_index + 1);
-
-
-        String[] input = JudgeEven(offset_new[0], offset_new[1], offset_new[2], offset_new[3]);
-        if (!JudgeBounding(input)){
-
-            setFilename_Remote(filename, mContext);
-            RES_Selected = res_cur;
-            Toast_in_Thread("Check the Bounding Box !");
-
-        }else {
-            Make_Connect();
-
-            if (CheckConnection()){
-                offset = offset_new[0] + "_" + offset_new[1] + "_" + offset_new[2] + "_" + offset_new[3];
-                setoffset_Remote(offset, filename.split("/")[0] + "/" + res_temp.get(res_index + 1), mContext);
-                setNeuronNumber_Remote(Neuron_Number_Selected, filename.split("/")[0] + "/" + res_temp.get(res_index + 1), mContext);
-                PullImageBlock(input[0], input[1], input[2], input[3], true);
-            }else {
-                setFilename_Remote(filename, mContext);
-                RES_Selected = res_cur;
-                Toast_in_Thread("Can't Connect Server, Try Again Later !");
-            }
-        }
+        switchRES(res_cur, res_temp.get(res_index + 1));
 
     }
 
@@ -1372,34 +1349,43 @@ public class Remote_Socket extends Socket {
             return;
         }
 
-        float ratio = getRatio(res_temp.get(res_index - 1), res_cur);
-        String offset = getoffset_Remote(mContext, filename);
-        String[] offset_new = getNewOffset(offset, ratio);
+        switchRES(res_cur, res_temp.get(res_index - 1));
 
-        setFilename_Remote(filename.split("/")[0] + "/" + res_temp.get(res_index - 1), mContext);
-        RES_Selected = res_temp.get(res_index - 1);
+    }
 
-        String[] input = JudgeEven(offset_new[0], offset_new[1], offset_new[2], offset_new[3]);
-        if (!JudgeBounding(input)){
 
-            setFilename_Remote(filename, mContext);
-            RES_Selected = res_cur;
-            Toast_in_Thread("Check the Bounding Box !");
+    private void switchRES(String RES_current, String RES_object){
 
-        }else {
-            Make_Connect();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String filename = getFilename_Remote(mContext);
+                String offset = getoffset_Remote(mContext, filename);
 
-            if (CheckConnection()){
-                offset = input[0] + "_" + input[1] + "_" + input[2] + "_" + input[3];
-                setoffset_Remote(offset, filename.split("/")[0] + "/" + res_temp.get(res_index - 1), mContext);
-                setNeuronNumber_Remote(Neuron_Number_Selected, filename.split("/")[0] + "/" + res_temp.get(res_index - 1), mContext);
-                PullImageBlock(input[0], input[1], input[2], input[3], true);
-            }else {
-                setFilename_Remote(filename, mContext);
-                RES_Selected = res_cur;
-                Toast_in_Thread("Can't Connect Server, Try Again Later !");
+                float ratio = getRatio(RES_object, RES_current);
+                String[] offset_new = getNewOffset(offset, ratio);
+
+                String filename_new = filename.split("/")[0] + "/" + RES_object;
+                setFilename_Remote(filename_new, mContext);
+                RES_Selected = RES_object;
+
+                String[] input = JudgeEven(offset_new[0], offset_new[1], offset_new[2], offset_new[3]);
+                JudgeBounding(input);
+
+                Make_Connect();
+                if (CheckConnection()){
+                    offset = input[0] + "_" + input[1] + "_" + input[2] + "_" + input[3];
+                    setoffset_Remote(offset, filename_new, mContext);
+                    setNeuronNumber_Remote(Neuron_Number_Selected, filename_new, mContext);
+                    PullImageBlock(input[0], input[1], input[2], input[3], true);
+                }else {
+                    setFilename_Remote(filename, mContext);
+                    RES_Selected = RES_current;
+                    Toast_in_Thread("Can't Connect Server, Try Again Later !");
+                }
             }
-        }
+        });
+        thread.start();
 
     }
 
@@ -2007,6 +1993,31 @@ public class Remote_Socket extends Socket {
         return marker_list;
 
     }
+
+
+    public void switchRES(){
+
+        Vector<String> res_temp = getRES(mContext, BrainNumber_Selected);
+        String filename = getFilename_Remote(mContext);   // BrainNumber: 18465/RES250x250x250
+        String res_cur  = filename.split("/")[1];   // RES: RES250x250x250
+        int res_index = res_temp.indexOf(res_cur);
+        res_temp.set(res_index, res_temp.get(res_index) + "   √");
+
+        new XPopup.Builder(mContext)
+//        .maxWidth(400)
+//        .maxHeight(1350)
+                .asCenterList("Select a RES", Transform(res_temp,0, res_temp.size()),
+                        new OnSelectListener() {
+                            @RequiresApi(api = Build.VERSION_CODES.N)
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switchRES(res_cur, text.replace("   √",""));
+                            }
+                        })
+                .show();
+
+    }
+
 
     private String offsetSwitch(String filename, String offset_old){
 

@@ -290,6 +290,7 @@ public class MainActivity extends AppCompatActivity {
     private static Button navigation_back;
     private static Button blue_pen;
     private static Button red_pen;
+    private static Button res_list;
     private static ImageButton sync_push;
     private static ImageButton sync_pull;
 
@@ -309,6 +310,7 @@ public class MainActivity extends AppCompatActivity {
     private static FrameLayout.LayoutParams lp_sync_pull;
     private static FrameLayout.LayoutParams lp_neuron_list;
     private static FrameLayout.LayoutParams lp_blue_color;
+    private static FrameLayout.LayoutParams lp_res_list;
     private static FrameLayout.LayoutParams lp_red_color;
     private FrameLayout.LayoutParams lp_animation_i;
     private static FrameLayout.LayoutParams lp_undo;
@@ -440,6 +442,7 @@ public class MainActivity extends AppCompatActivity {
                             if (DrawMode){
                                 Check_Yes.setVisibility(View.GONE);
                                 Check_No.setVisibility(View.GONE);
+                                res_list.setVisibility(View.GONE);
                                 sync_pull.setVisibility(View.VISIBLE);
                                 sync_push.setVisibility(View.VISIBLE);
                                 neuron_list.setVisibility(View.VISIBLE);
@@ -449,6 +452,7 @@ public class MainActivity extends AppCompatActivity {
                             else {
                                 Check_Yes.setVisibility(View.VISIBLE);
                                 Check_No.setVisibility(View.VISIBLE);
+                                res_list.setVisibility(View.VISIBLE);
                                 sync_pull.setVisibility(View.VISIBLE);
                                 sync_push.setVisibility(View.GONE);
                                 neuron_list.setVisibility(View.VISIBLE);
@@ -1176,6 +1180,23 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        lp_res_list = new FrameLayout.LayoutParams(120, 120);
+        lp_res_list.gravity = Gravity.TOP | Gravity.LEFT;
+        lp_res_list.setMargins(20, 490, 0, 0);
+
+
+        res_list = new Button(this);
+        res_list.setText("R");
+        res_list.setTextColor(Color.BLUE);
+
+        res_list.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                remote_socket.switchRES();
+            }
+        });
+
+
 
         lp_red_color = new FrameLayout.LayoutParams(120, 120);
         lp_red_color.gravity = Gravity.TOP | Gravity.LEFT;
@@ -1305,6 +1326,7 @@ public class MainActivity extends AppCompatActivity {
         this.addContentView(sync_pull, lp_sync_pull);
         this.addContentView(sync_push, lp_sync_push);
         this.addContentView(neuron_list, lp_neuron_list);
+        this.addContentView(res_list, lp_res_list);
         this.addContentView(red_pen, lp_red_color);
         this.addContentView(blue_pen, lp_blue_color);
 
@@ -1319,6 +1341,7 @@ public class MainActivity extends AppCompatActivity {
         sync_pull.setVisibility(View.GONE);
         sync_push.setVisibility(View.GONE);
         neuron_list.setVisibility(View.GONE);
+        res_list.setVisibility(View.GONE);
         red_pen.setVisibility(View.GONE);
         blue_pen.setVisibility(View.GONE);
 
@@ -1864,6 +1887,7 @@ public class MainActivity extends AppCompatActivity {
                                     Check_No.setVisibility(View.GONE);
                                     sync_pull.setVisibility(View.GONE);
                                     neuron_list.setVisibility(View.GONE);
+                                    res_list.setVisibility(View.GONE);
                                 }
                             }
                             isBigData_Remote = false;
@@ -1940,6 +1964,7 @@ public class MainActivity extends AppCompatActivity {
                                 Check_No.setVisibility(View.GONE);
                                 sync_pull.setVisibility(View.GONE);
                                 neuron_list.setVisibility(View.GONE);
+                                res_list.setVisibility(View.GONE);
                             }
                         }
                         isBigData_Remote = false;
@@ -5143,7 +5168,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200830a 09:42 UTC+8 build",
+                                "Version: 20200830b 15:42 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -8191,6 +8216,7 @@ public class MainActivity extends AppCompatActivity {
                     Check_No.setVisibility(View.GONE);
                     Check_Yes.setVisibility(View.GONE);
                     neuron_list.setVisibility(View.GONE);
+                    res_list.setVisibility(View.GONE);
                 }else {
                     sync_push.setVisibility(View.GONE);
                     neuron_list.setVisibility(View.GONE);
@@ -8237,7 +8263,8 @@ public class MainActivity extends AppCompatActivity {
                 if (!DrawMode){
                     Check_No.setVisibility(View.VISIBLE);
                     Check_Yes.setVisibility(View.VISIBLE);
-                    neuron_list.setVisibility(View.GONE);
+                    neuron_list.setVisibility(View.VISIBLE);
+                    res_list.setVisibility(View.VISIBLE);
                 }else {
                     sync_push.setVisibility(View.VISIBLE);
                     neuron_list.setVisibility(View.VISIBLE);
@@ -8403,6 +8430,9 @@ public class MainActivity extends AppCompatActivity {
 
         lp_red_color.setMargins(0, 630, 20, 0);
         red_pen.setLayoutParams(lp_red_color);
+
+        lp_res_list.setMargins(0, 540, 20, 0);
+        res_list.setLayoutParams(lp_res_list);
     }
 
     private void gameStart(){
