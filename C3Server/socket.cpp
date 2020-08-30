@@ -183,7 +183,8 @@ void Socket::processMsg(const QString &msg)
 }
 void Socket::ArborCheck(QString msg)
 {
-    QRegExp tmp("(.*);(.*);(.*);(.*);(.*);(.*);(.*);(.*);(.*)");//17302_00001;x1;x2;y1;y2;z1;z2;flag
+    QRegExp tmp("(.*);(.*);(.*);(.*);(.*);(.*);(.*);(.*);(.*);(.*)");//17302_00001;x1;x2;y1;y2;z1;z2;flag;id;arN
+    qDebug()<<msg;
     if(tmp.indexIn(msg)!=-1)
     {
         QString filename=tmp.cap(1).trimmed();
@@ -197,6 +198,7 @@ void Socket::ArborCheck(QString msg)
 
         int flag=tmp.cap(8).toInt();
         QString id=tmp.cap(9).trimmed();
+        int arN=tmp.cap(10).toUInt();
         int n=5;
 
 
@@ -209,11 +211,13 @@ void Socket::ArborCheck(QString msg)
         if(f->open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Append))
         {
             QTextStream tsm(f);
-            tsm<<filename<<" "<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<" "<<id<<endl;
+            qDebug()<<filename<<" "<<arN<<" "<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<" "<<id<<endl;
+            tsm<<filename<<" "<<arN<<" "<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<" "<<id<<endl;
             f->close();
 
         }else if(n-->0)
         {
+            qDebug()<<f->errorString();
             QElapsedTimer t;
             t.start();
             while(t.elapsed()<2000);
@@ -272,6 +276,7 @@ void Socket::sendMsg(const QString &msg) const
     dts<<quint64(0)<<quint64(0)<<msg.toUtf8();
     dts.device()->seek(0);
     dts<<(quint64)(block.size())<<(quint64)(block.size()-sizeof(quint64)*2)<<msg.toUtf8();
+    qDebug()<<"send MSG:"<<block;
     socket->write(block);
     socket->waitForBytesWritten();
 }
@@ -363,11 +368,28 @@ void Socket::getAndSendSWCBlock(QString msg)
         int z2=tmp.cap(7).toInt();
         int cnt=tmp.cap(8).toInt();
         x1*=cnt;x2*=cnt;y1*=cnt;y2*=cnt;z1*=cnt;z2*=cnt;
+        NeuronTree nt;
+        if(!QFile(QCoreApplication::applicationDirPath()+"/data/"+name).exists())
+        {
+            if(!QDir(QCoreApplication::applicationDirPath()+"/tmp").exists())
+            {
+                QDir(QCoreApplication::applicationDirPath()).mkdir("tmp");
+            }
+            x1/=cnt;x2/=cnt;y1/=cnt;y2/=cnt;z1/=cnt;z2/=cnt;
+            QString BBSWCNAME=QCoreApplication::applicationDirPath()+"/tmp/blockGet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6__%7.swc")
+                    .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2).arg(cnt);
+//            nt = resample(nt, cnt);
+            writeSWC_file(BBSWCNAME,nt);
+            sendFile("blockGet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6__%7.swc")
+                     .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2).arg(cnt),2);
+            return;
+        }
 
         __START:
-        NeuronTree nt;
+
         --n;
         qDebug()<<"Get SWC in BB:"<<5-n;
+
         nt=readSWC_file(QCoreApplication::applicationDirPath()+"/data/"+name);
         if(nt.flag!=false)
         {
