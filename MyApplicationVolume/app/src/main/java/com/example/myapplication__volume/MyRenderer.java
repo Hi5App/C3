@@ -230,6 +230,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private float [] gamePosition = new float[3];
     private float [] gameDir = new float[3];
+    private float [] gameHead = new float[3];
 
     private boolean ifGame = false;
 
@@ -350,7 +351,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 gl){
 
         if (ifGame){
-            setVisual(gamePosition, gameDir);
+            setVisual(gamePosition, gameDir, gameHead);
 //            setVisual(gamePosition, gameDir);
         }
 
@@ -4964,7 +4965,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return des;
 
     }
-    public float[] angle(float x0, float y0, float z0, float m, float n, float p){
+    public float[] thirdPersonAngle(float x0, float y0, float z0, float m, float n, float p){
         // (x0,y0,z0)是mark的坐标，（x,n,p）是mark前进方向的向量，Pix还是block的大小
         // 1.首先求防止头脚颠倒的向量。 先求一个与方向向量垂直，且与XOZ 平行的向量（则与XOZ法向量垂直（0,1,0））,然后可以直接利用向量积来求。
         // 然后防止头脚颠倒的向量是与前面两个向量(方向向量和与其垂直的向量)垂直的向量（也可以直接利用向量积就可以求出来）
@@ -5106,7 +5107,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
     public void updateVisual(){
-        setVisual(gamePosition, gameDir);
+        setVisual(gamePosition, gameDir, gameHead);
         System.out.print(gamePosition[0]);
         System.out.print(' ');
         System.out.print(gamePosition[1]);
@@ -5114,7 +5115,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         System.out.println(gamePosition[2]);
     }
 
-    public void setVisual(float [] position, float [] dir){
+    public void setVisual(float [] position, float [] dir, float [] head){
+
+        float [] thirdPerson = thirdPersonAngle(position[0], position[1], position[2], dir[0], dir[1], dir[2]);
+        position = new float[]{thirdPerson[3], thirdPerson[4], thirdPerson[5]};
+        dir = new float[]{thirdPerson[0], thirdPerson[1], thirdPerson[2]};
 
         ArrayList<Integer> sec_proj1 = new ArrayList<Integer>();
         ArrayList<Integer> sec_proj2 = new ArrayList<Integer>();
@@ -5460,24 +5465,24 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
         for(int i=0;i<sec_proj1.size();i++) {
-            sec_anti.add(tangent.get(sec_proj1.get(i)));
-            sec_anti.add(tangent.get(sec_proj1.get(i)+1));
-            sec_anti.add(tangent.get(sec_proj1.get(i)+2));
+            sec_anti.add(sec_copy.get(sec_proj1.get(i)));
+            sec_anti.add(sec_copy.get(sec_proj1.get(i)+1));
+            sec_anti.add(sec_copy.get(sec_proj1.get(i)+2));
         }
         for(int i=0;i<sec_proj2.size();i++) {
-            sec_anti.add(tangent.get(sec_proj2.get(i)));
-            sec_anti.add(tangent.get(sec_proj2.get(i)+1));
-            sec_anti.add(tangent.get(sec_proj2.get(i)+2));
+            sec_anti.add(sec_copy.get(sec_proj2.get(i)));
+            sec_anti.add(sec_copy.get(sec_proj2.get(i)+1));
+            sec_anti.add(sec_copy.get(sec_proj2.get(i)+2));
         }
         for(int i=0;i<sec_proj3.size();i++) {
-            sec_anti.add(tangent.get(sec_proj3.get(i)));
-            sec_anti.add(tangent.get(sec_proj3.get(i)+1));
-            sec_anti.add(tangent.get(sec_proj3.get(i)+2));
+            sec_anti.add(sec_copy.get(sec_proj3.get(i)));
+            sec_anti.add(sec_copy.get(sec_proj3.get(i)+1));
+            sec_anti.add(sec_copy.get(sec_proj3.get(i)+2));
         }
         for(int i=0;i<sec_proj4.size();i++) {
-            sec_anti.add(tangent.get(sec_proj4.get(i)));
-            sec_anti.add(tangent.get(sec_proj4.get(i)+1));
-            sec_anti.add(tangent.get(sec_proj4.get(i)+2));
+            sec_anti.add(sec_copy.get(sec_proj4.get(i)));
+            sec_anti.add(sec_copy.get(sec_proj4.get(i)+1));
+            sec_anti.add(sec_copy.get(sec_proj4.get(i)+2));
         }
 
         float [] vertexPoints = new float[sec_anti.size()];
@@ -5492,7 +5497,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
 
-        float [] head = locateHead(dir[0], dir[1], dir[2]);
+//        float [] head = locateHead(dir[0], dir[1], dir[2]);
 
         boolean gameSucceed = driveMode(vertexPoints, dir, head);
 
@@ -5536,8 +5541,28 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         gameDir = dir;
     }
 
+    public void setGameHead(float [] head) {
+        gameHead = head;
+    }
+
     public void setIfGame(boolean b){
         ifGame = b;
+    }
+
+    public void addMarker(float [] position){
+        float [] new_marker = ModeltoVolume(position);
+
+        ImageMarker imageMarker_drawed = new ImageMarker(new_marker[0],
+                new_marker[1],
+                new_marker[2]);
+
+        imageMarker_drawed.type = lastMarkerType;
+
+        markerList.add(imageMarker_drawed);
+    }
+
+    public void clearMarkerList(){
+        markerList.clear();
     }
 }
 

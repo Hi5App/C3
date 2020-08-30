@@ -1628,7 +1628,7 @@ public class MainActivity extends AppCompatActivity {
                                         try {
                                             Intent gameIntent = new Intent(MainActivity.this, GameActivity.class);
                                             gameIntent.putExtra("FilePath", myrenderer.getFilePath());
-                                            gameIntent.putExtra("Position", new float[]{0.5f, 0.5f, 0.5f});
+                                            gameIntent.putExtra("Position", new float[]{0.75f, 0.75f, 0.75f});
                                             gameIntent.putExtra("Dir", new float[]{0, 0, 1});
                                             startActivity(gameIntent);
                                         }catch (Exception e){
@@ -5143,7 +5143,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200828a 09:56 UTC+8 build",
+                                "Version: 20200830a 09:42 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

@@ -40,6 +40,7 @@ public class GameActivity extends AppCompatActivity {
 
     private float[] position;
     private float[] dir;
+    private float[] head;
 
 
     private float [] moveDir;
@@ -62,6 +63,7 @@ public class GameActivity extends AppCompatActivity {
         filepath = extras.getString("FilePath");
         position = extras.getFloatArray("Position");
         dir = extras.getFloatArray("Dir");
+        head = MyRenderer.locateHead(dir[0], dir[1], dir[2]);
 
         context = getApplicationContext();
 
@@ -74,6 +76,8 @@ public class GameActivity extends AppCompatActivity {
         myrenderer.SetPath(filepath);
         myrenderer.setGamePosition(position);
         myrenderer.setGameDir(dir);
+        myrenderer.setGameHead(head);
+        myrenderer.addMarker(position);
         myrenderer.setIfGame(true);
 
         myGLSurfaceView = new GameActivity.MyGLSurfaceView(this);
@@ -164,54 +168,89 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    float angleH = viewRotateDir[0] / 20;
-                    float angleV = viewRotateDir[1] / 20;
+                    float angleH = viewRotateDir[0] / 100;
+                    float angleV = viewRotateDir[1] / 100;
+                    float x = moveDir[0] / 10000;
+                    float y = moveDir[1] / 10000;
 //                    System.out.println("SSSSSSSSSSSSSSSS");
 //                    System.out.print(viewRotateDir[0]);
 //                    System.out.print(' ');
 //                    System.out.print(rotationHMatrix[1]);
 //                    System.out.print(' ');
 //                    System.out.println(viewRotateDir[1]);
-                    if (angleH != 0 && angleV != 0) {
-                        float[] head = MyRenderer.locateHead(dir[0], dir[1], dir[2]);
-                        float[] axisV = new float[]{dir[1] * head[2] - dir[2] * head[1], dir[2] * head[0] - dir[0] * head[2], dir[0] * head[1] - dir[1] * head[0]};
-
-                        float[] rotationHMatrix = new float[16];
-                        float[] rotationVMatrix = new float[16];
-                        float[] rotationMatrix = new float[16];
-
-                        if (angleH > 0) {
-                            Matrix.setRotateM(rotationHMatrix, 0, angleH, head[0], head[1], head[2]);
-                        } else {
-                            Matrix.setRotateM(rotationHMatrix, 0, -angleH, -head[0], -head[1], -head[2]);
-                        }
-                        if (angleV > 0) {
-                            Matrix.setRotateM(rotationVMatrix, 0, angleV, axisV[0], axisV[1], axisV[2]);
-                        } else {
-                            Matrix.setRotateM(rotationVMatrix, 0, -angleV, -axisV[0], -axisV[1], -axisV[2]);
-                        }
-                        Matrix.multiplyMM(rotationMatrix, 0, rotationHMatrix, 0, rotationVMatrix, 0);
-
+                    if (angleH != 0 || angleV != 0 || x != 0 || y != 0) {
                         float[] dirE = new float[]{dir[0], dir[1], dir[2], 1};
+                        float[] headE = new float[]{head[0], head[1], head[2], 1};
+                        float[] axisV = new float[3];
+                        if (angleH != 0 && angleV != 0) {
+//                        float[] head = MyRenderer.locateHead(dir[0], dir[1], dir[2]);
+//                        float[] head = new float[]{0, 1, 0};
+//                        float[] axisV = new float[]{dir[1] * head[2] - dir[2] * head[1], dir[2] * head[0] - dir[0] * head[2], dir[0] * head[1] - dir[1] * head[0]};
 
-                        Matrix.multiplyMV(dirE, 0, rotationMatrix, 0, dirE, 0);
-                        dir = new float[]{dirE[0], dirE[1], dirE[2]};
+                            float[] rotationHMatrix = new float[16];
+                            float[] rotationVMatrix = new float[16];
+//                        float[] rotationMatrix = new float[16];
+
+                            if (angleH > 0) {
+                                Matrix.setRotateM(rotationHMatrix, 0, angleH, head[0], head[1], head[2]);
+                            } else {
+                                Matrix.setRotateM(rotationHMatrix, 0, -angleH, -head[0], -head[1], -head[2]);
+                            }
+
+//                        float[] dirE = new float[]{dir[0], dir[1], dir[2], 1};
+//                        float[] headE = new float[]{head[0], head[1], head[2], 1};
+//                        float[] dirF = new float[4];
+                            Matrix.multiplyMV(dirE, 0, rotationHMatrix, 0, dirE, 0);
+
+                            axisV = new float[]{dirE[1] * head[2] - dirE[2] * head[1], dirE[2] * head[0] - dirE[0] * head[2], dirE[0] * head[1] - dirE[1] * head[0]};
+
+                            if (angleV > 0) {
+                                Matrix.setRotateM(rotationVMatrix, 0, angleV, axisV[0], axisV[1], axisV[2]);
+                            } else {
+                                Matrix.setRotateM(rotationVMatrix, 0, -angleV, -axisV[0], -axisV[1], -axisV[2]);
+                            }
+                            Matrix.multiplyMV(dirE, 0, rotationVMatrix, 0, dirE, 0);
+                            Matrix.multiplyMV(headE, 0, rotationVMatrix, 0, headE, 0);
+
+
+                            dir = new float[]{dirE[0], dirE[1], dirE[2]};
+                            head = new float[]{headE[0], headE[1], headE[2]};
+                        }
+                        if (x != 0 && y != 0) {
+                            axisV = new float[]{dirE[1] * head[2] - dirE[2] * head[1], dirE[2] * head[0] - dirE[0] * head[2], dirE[0] * head[1] - dirE[1] * head[0]};
+                            float XL = (float)Math.sqrt(axisV[0] * axisV[0] + axisV[1] * axisV[1] + axisV[2] * axisV[2]);
+                            float [] X = new float[]{axisV[0] / XL, axisV[1] / XL, axisV[2] / XL};
+                            float YL = (float)Math.sqrt(dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2]);
+                            float [] Y = new float[]{dir[0] / YL, dir[1] / YL, dir[2] / YL};
+
+                            position[0] = position[0] - X[0] * x - Y[0] * y;
+                            position[1] = position[1] - X[1] * x - Y[1] * y;
+                            position[2] = position[2] - X[2] * x - Y[2] * y;
+
+                            myrenderer.clearMarkerList();
+                            myrenderer.addMarker(position);
+                        }
+
                         myrenderer.setGameDir(dir);
+                        myrenderer.setGameHead(head);
+                        myrenderer.setGamePosition(position);
+
                         System.out.println("SSSSSSSSSSSSSSSS");
-                        System.out.print(head[0]);
+//                        System.out.print(head[0]);
+//                        System.out.print(' ');
+//                        System.out.print(head[1]);
+//                        System.out.print(' ');
+//                        System.out.println(head[2]);
+                        System.out.print(position[0]);
                         System.out.print(' ');
-                        System.out.print(head[1]);
+                        System.out.print(position[1]);
                         System.out.print(' ');
-                        System.out.println(head[2]);
-                        System.out.print(dir[0]);
-                        System.out.print(' ');
-                        System.out.print(dir[1]);
-                        System.out.print(' ');
-                        System.out.println(dir[2]);
+                        System.out.println(position[2]);
 
 //                        myrenderer.updateVisual();
                         myGLSurfaceView.requestRender();
                     }
+
                 } catch (Exception e){
                     e.printStackTrace();
                 }
@@ -301,7 +340,7 @@ public class GameActivity extends AppCompatActivity {
         ArrayList<Integer> sec_proj4 = new ArrayList<Integer>();
         ArrayList<Float> sec_anti = new ArrayList<Float>();
 
-        ArrayList<Float> tangent = myrenderer.tangentPlane(position[0], position[1], position[2], dir[0], dir[1], dir[2], 0, 1);
+        ArrayList<Float> tangent = myrenderer.tangentPlane(position[0], position[1], position[2], dir[0], dir[1], dir[2],  1);
 
         System.out.println("TangentPlane:::::");
         System.out.println(tangent.size());
