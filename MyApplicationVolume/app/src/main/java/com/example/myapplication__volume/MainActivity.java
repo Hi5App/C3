@@ -1163,12 +1163,13 @@ public class MainActivity extends AppCompatActivity {
 
         blue_pen = new Button(this);
         blue_pen.setText("B");
-        blue_pen.setTextColor(Color.BLUE);
 
         blue_pen.setOnClickListener(new Button.OnClickListener(){
             @Override
             public void onClick(View v) {
                 myrenderer.pencolorchange(PenColor.valueOf("BLUE").ordinal());
+                blue_pen.setTextColor(Color.BLUE);
+                red_pen.setTextColor(Color.BLACK);
             }
         });
 
@@ -1197,12 +1198,13 @@ public class MainActivity extends AppCompatActivity {
 
         red_pen = new Button(this);
         red_pen.setText("R");
-        red_pen.setTextColor(Color.RED);
 
         red_pen.setOnClickListener(new Button.OnClickListener(){
             @Override
             public void onClick(View v) {
                 myrenderer.pencolorchange(PenColor.valueOf("RED").ordinal());
+                red_pen.setTextColor(Color.RED);
+                blue_pen.setTextColor(Color.BLACK);
             }
         });
 
@@ -5166,7 +5168,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200831b 09:18 UTC+8 build",
+                                "Version: 20200831c 15:18 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
