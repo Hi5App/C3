@@ -931,14 +931,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         // Set the camera position (View matrix)
         Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 
-
-//        if (fileType == FileType.V3draw || fileType == FileType.TIF)
-//            myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
-//
-//        myAxis = new MyAxis(mz);
-//        myDraw = new MyDraw();
-//        myAnimation = new MyAnimation();
-
     }
 
     public void SetSWCPath(String message){
@@ -1201,7 +1193,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        }
 //    }
 
-
+    /**
+     * Reset rotation matrix for big data mode : button 3d rotation
+     */
+    public void resetRotation(){
+        Matrix.setIdentityM(rotationMatrix, 0);
+        Matrix.setRotateM(rotationMatrix, 0, 0, -1.0f, -1.0f, 0.0f);
+    }
 
     public void rotate(float dx, float dy, float dis){
 //        Log.v("wwww", "66666666666666666");

@@ -955,7 +955,12 @@ public class MainActivity extends AppCompatActivity {
 
         Rotation_i.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                Rotation();
+                if (isBigData_Remote && !DrawMode){
+                    myrenderer.resetRotation();
+                    myGLSurfaceView.requestRender();
+                }else {
+                    Rotation();
+                }
             }
         });
 
@@ -5168,7 +5173,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200831c 15:18 UTC+8 build",
+                                "Version: 20200831d 20:18 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -7941,41 +7946,57 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void Select_Block(){
 
-        String source = getSelectSource(this);
-        String ip = "";
-        switch (source){
-            case "Remote Server Aliyun":
-            case "Remote Server SEU":
-                if (source.equals("Remote Server Aliyun")){
-                    ip = ip_ALiYun;
-                }else {
-                    ip = ip_SEU;
-                }
-                if (DrawMode){
-                    remote_socket.DisConnectFromHost();
-                    remote_socket.ConnectServer(ip);
-                    remote_socket.LoadNeuronTxt();
-                    remote_socket.SelectBlock();
-                }else {
-                    String arbor_num = getFilename_Remote_Check(context);
-                    if (!arbor_num.equals("--11--")){
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                String source = getSelectSource(context);
+                String ip = "";
+                switch (source){
+                    case "Remote Server Aliyun":
+                    case "Remote Server SEU":
+                        if (source.equals("Remote Server Aliyun")){
+                            ip = ip_ALiYun;
+                        }else if(source.equals("Remote Server SEU")){
+                            ip = ip_SEU;
+                        }else {
+                            Toast_in_Thread("Something Wrong when choose Remote Server !");
+                            return;
+                        }
+
                         remote_socket.DisConnectFromHost();
                         remote_socket.ConnectServer(ip);
-                        remote_socket.LoadNeuronTxt();
-                        remote_socket.Send_Arbor_Number(arbor_num);
-                    }else {
-                        Toast_in_Thread("Select a Img First !");
-                    }
+                        remote_socket.LoadNeuronTxt(DrawMode);
+                        remote_socket.SelectBlock();
 
+//                        if (DrawMode){
+//                            remote_socket.DisConnectFromHost();
+//                            remote_socket.ConnectServer(ip);
+//                            remote_socket.LoadNeuronTxt(DrawMode);
+//                            remote_socket.SelectBlock();
+//                        }else {
+//                            String arbor_num = getFilename_Remote_Check(context);
+//                            if (!arbor_num.equals("--11--")){
+//                                remote_socket.DisConnectFromHost();
+//                                remote_socket.ConnectServer(ip);
+//                                remote_socket.LoadNeuronTxt(DrawMode);
+//                                remote_socket.Send_Arbor_Number(arbor_num);
+//                            }else {
+//                                Toast_in_Thread("Select a Img First !");
+//                            }
+//
+//                        }
+                        break;
+                    case "Local Server":
+                        bigImgReader.PopUp(context);
+                        break;
+                    default:
+                        Toast_in_Thread("Load a File First !");
+                        break;
                 }
-                break;
-            case "Local Server":
-                bigImgReader.PopUp(context);
-                break;
-            default:
-                Toast_in_Thread("Load a File First !");
-                break;
-        }
+            }
+        });
+        thread.start();
 
     }
 
@@ -8004,6 +8025,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         myrenderer.SetPath(filepath);
+        myrenderer.zoom(1.8f);
         setFileName(filepath);
 
         System.out.println("------" + filepath + "------");
@@ -8025,11 +8047,6 @@ public class MainActivity extends AppCompatActivity {
             if (!push_info_swc[0].equals("New")){
                 PushSWC_Block_Auto(push_info_swc[0], push_info_swc[1]);
             }
-
-            //  for apo sync
-//            if (!push_info_apo[0].equals("New")){
-//                PushAPO_Block_Auto(push_info_swc[0], push_info_swc[1]);
-//            }
         }
 
     }
