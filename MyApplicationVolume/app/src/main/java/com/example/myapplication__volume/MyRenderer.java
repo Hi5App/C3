@@ -4878,9 +4878,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 0f, 0f, -1f
         };
 
-        double angle = Math.acos(-direction[2] / Math.sqrt(direction[0] * direction[0] + direction[1] * direction[1] + direction[2] * direction[2]));
+        double angle = Math.acos(direction[2] / Math.sqrt(direction[0] * direction[0] + direction[1] * direction[1] + direction[2] * direction[2]));
         float [] axis = new float[]{
-                -direction[1], direction[0], 0
+                direction[1], -direction[0], 0
         };
 
         if (axis[0] == 0 && axis[1] == 0){
@@ -4906,7 +4906,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float a2 = (float) (angle2 * 180 / Math.PI);
 
 
-            Matrix.setRotateM(rotation2Matrix, 0, a2, 0, 0, -headAfter[0]);
+//            Matrix.setRotateM(rotation2Matrix, 0, a2, 0, 0, -headAfter[0]);
+            Matrix.setRotateM(rotation2Matrix, 0, a2, -headAfter[2], 0, headAfter[0]);
 
             Matrix.multiplyMM(rotationMatrix, 0, rotation2Matrix, 0, rotationMatrix, 0);
         }
@@ -4965,8 +4966,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return des;
 
     }
-    public float[] thirdPersonAngle(float x0, float y0, float z0, float m, float n, float p){
-        // (x0,y0,z0)是mark的坐标，（x,n,p）是mark前进方向的向量，Pix还是block的大小
+    public float[] thirdPersonAngle(float x0, float y0, float z0, float m, float n, float p, float h1, float h2, float h3){
+        // (x0,y0,z0)是mark的坐标，（m,n,p）是mark前进方向的向量,(h1,h2,h3)是防止头脚颠倒的向量
         // 1.首先求防止头脚颠倒的向量。 先求一个与方向向量垂直，且与XOZ 平行的向量（则与XOZ法向量垂直（0,1,0））,然后可以直接利用向量积来求。
         // 然后防止头脚颠倒的向量是与前面两个向量(方向向量和与其垂直的向量)垂直的向量（也可以直接利用向量积就可以求出来）
         // 向量积：(a1,b1,c1)与(a2,b2,c2) 向量积 (b1c2-b2c1,a2c1-a1c2,a1b2-a2b1)
@@ -4979,13 +4980,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        float[] dir_ver = new float[3];
 
 
-        float[] head = new float[3];
+        float[] head = {h1,h2,h3};
         float[] des = new float[6]; //数组的前三位存视角坐标，后三位用来存看进去的法向量
 
 //        final float rad = (float) (45*(Math.PI/180)); //一般都要把角度转换成弧度。 前面的45就是我们常用的角度，是可以看情况定的
-        final float behind = 40; //用它来控制视角相对于mark向后移了多少
-        final float up = 40; //用它来控制视角相对于mark向后上抬了多少
-        final float front = 40; //它来控制mark在方向向量的方向上，视角可以看到的赛道长度,然后就可以确定法向量
+        final float behind = 0.1f; //用它来控制视角相对于mark向后移了多少
+        final float up = 0.1f; //用它来控制视角相对于mark向后上抬了多少
+        final float front = 0.1f; //它来控制mark在方向向量的方向上，视角可以看到的赛道长度,然后就可以确定法向量
 //        dir_ver[0] = p; //a2
 //        dir_ver[1] = 0; //b2
 //        dir_ver[2] = m; //c2
@@ -4993,7 +4994,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         n = (float) (n/Math.sqrt(m*m+n*n+p*p));
         p = (float) (p/Math.sqrt(m*m+n*n+p*p)); //都先归一化一下，防止方向向量会超过1 （其实也没必要好像，但是考虑到block大小是1）
 
-        head = head(m,n,p); //求出来 防止头脚颠倒的向量
         head[0] = (float) (head[0]/Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2]));
         head[1] = (float) (head[1]/Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2]));
         head[2] = (float) (head[2]/Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2]));
@@ -5001,6 +5001,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         des[0] = x0-behind*m+up*head[0];
         des[1] = y0-behind*n+up*head[1];
         des[2] = z0-behind*p+up*head[2];  // 求出来的这个视角的法向量，就用mark沿着方向向量前进一点的点，减去视角的坐标
+
+        float[] aid = {des[0]-x0,des[1]-y0,des[2]-z0}; // 只是一个辅助的中间变量
+        if ((head[0]*aid[0]+head[1]*aid[1]+head[2]*aid[2])/(Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2])*Math.sqrt(aid[0]*aid[0]+aid[1]*aid[1]+aid[2]*aid[2])) < 0){
+            des[0] = x0-behind*m-up*head[0];
+            des[1] = y0-behind*n-up*head[1];
+            des[2] = z0-behind*p-up*head[2];  // 为了使视角跟防止头脚颠倒的向量 保持一致： 同时在上或者同时在下
+        }
 
         des[3] = (x0+front*m)-des[0];
         des[4] = (y0+front*n)-des[1];
@@ -5116,10 +5123,45 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public void setVisual(float [] position, float [] dir, float [] head){
+//        System.out.println("AAAAAAAAAAA");
+//        System.out.print(position[0]);
+//        System.out.print(' ');
+//        System.out.print(position[1]);
+//        System.out.print(' ');
+//        System.out.println(position[2]);
+//        System.out.print(dir[0]);
+//        System.out.print(' ');
+//        System.out.print(dir[1]);
+//        System.out.print(' ');
+//        System.out.println(dir[2]);
+//
+//        float [] thirdPerson = thirdPersonAngle(position[0], position[1], position[2], dir[0], dir[1], dir[2], head[0], head[1], head[2]);
+//        dir = new float[]{thirdPerson[3], thirdPerson[4], thirdPerson[5]};
+//        position = new float[]{thirdPerson[0], thirdPerson[1], thirdPerson[2]};
+//        float [] thirdHead = locateHead(dir[0], dir[1], dir[2]);
+//        float acos = thirdHead[0] * head[0] + thirdHead[1] * head[1] + thirdHead[2] * head[2];
+//        if (acos > 0){
+//            head = thirdHead;
+//        } else {
+//            head = new float[]{-thirdHead[0], -thirdHead[1], -thirdHead[2]};
+//        }
 
-        float [] thirdPerson = thirdPersonAngle(position[0], position[1], position[2], dir[0], dir[1], dir[2]);
-        position = new float[]{thirdPerson[3], thirdPerson[4], thirdPerson[5]};
-        dir = new float[]{thirdPerson[0], thirdPerson[1], thirdPerson[2]};
+        System.out.println("AAAAAAAAAAA");
+        System.out.print(position[0]);
+        System.out.print(' ');
+        System.out.print(position[1]);
+        System.out.print(' ');
+        System.out.println(position[2]);
+        System.out.print(head[0]);
+        System.out.print(' ');
+        System.out.print(head[1]);
+        System.out.print(' ');
+        System.out.println(head[2]);
+        System.out.print(dir[0]);
+        System.out.print(' ');
+        System.out.print(dir[1]);
+        System.out.print(' ');
+        System.out.println(dir[2]);
 
         ArrayList<Integer> sec_proj1 = new ArrayList<Integer>();
         ArrayList<Integer> sec_proj2 = new ArrayList<Integer>();

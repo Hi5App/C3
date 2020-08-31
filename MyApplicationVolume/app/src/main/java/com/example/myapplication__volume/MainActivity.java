@@ -1535,7 +1535,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "Account Name", "About", "Help"},
+                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "Account Name", "Game", "About", "Help"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -1648,14 +1648,19 @@ public class MainActivity extends AppCompatActivity {
 //                                        } else {
 //                                            myGLSurfaceView.requestRender();
 //                                        }
-                                        try {
-                                            Intent gameIntent = new Intent(MainActivity.this, GameActivity.class);
-                                            gameIntent.putExtra("FilePath", myrenderer.getFilePath());
-                                            gameIntent.putExtra("Position", new float[]{0.75f, 0.75f, 0.75f});
-                                            gameIntent.putExtra("Dir", new float[]{0, 0, 1});
-                                            startActivity(gameIntent);
-                                        }catch (Exception e){
-                                            e.printStackTrace();
+                                        if (!myrenderer.getIfFileLoaded()){
+                                            Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
+
+                                        }else {
+                                            try {
+                                                Intent gameIntent = new Intent(MainActivity.this, GameActivity.class);
+                                                gameIntent.putExtra("FilePath", myrenderer.getFilePath());
+                                                gameIntent.putExtra("Position", new float[]{0.5f, 0.5f, 0.5f});
+                                                gameIntent.putExtra("Dir", new float[]{1, 1, 1});
+                                                startActivity(gameIntent);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                         }
 //                                        gameStart();
                                         break;
@@ -5168,7 +5173,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200830b 15:42 UTC+8 build",
+                                "Version: 20200831a 09:13 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

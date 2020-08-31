@@ -175,9 +175,9 @@ public class GameActivity extends AppCompatActivity {
 //                    System.out.println("SSSSSSSSSSSSSSSS");
 //                    System.out.print(viewRotateDir[0]);
 //                    System.out.print(' ');
-//                    System.out.print(rotationHMatrix[1]);
+//                    System.out.print(moveDir[0]);
 //                    System.out.print(' ');
-//                    System.out.println(viewRotateDir[1]);
+//                    System.out.println(moveDir[1]);
                     if (angleH != 0 || angleV != 0 || x != 0 || y != 0) {
                         float[] dirE = new float[]{dir[0], dir[1], dir[2], 1};
                         float[] headE = new float[]{head[0], head[1], head[2], 1};
@@ -191,11 +191,11 @@ public class GameActivity extends AppCompatActivity {
                             float[] rotationVMatrix = new float[16];
 //                        float[] rotationMatrix = new float[16];
 
-                            if (angleH > 0) {
-                                Matrix.setRotateM(rotationHMatrix, 0, angleH, head[0], head[1], head[2]);
-                            } else {
-                                Matrix.setRotateM(rotationHMatrix, 0, -angleH, -head[0], -head[1], -head[2]);
-                            }
+//                            if (angleH > 0) {
+                                Matrix.setRotateM(rotationHMatrix, 0, -angleH, head[0], head[1], head[2]);
+//                            } else {
+//                                Matrix.setRotateM(rotationHMatrix, 0, -angleH, -head[0], -head[1], -head[2]);
+//                            }
 
 //                        float[] dirE = new float[]{dir[0], dir[1], dir[2], 1};
 //                        float[] headE = new float[]{head[0], head[1], head[2], 1};
@@ -204,11 +204,11 @@ public class GameActivity extends AppCompatActivity {
 
                             axisV = new float[]{dirE[1] * head[2] - dirE[2] * head[1], dirE[2] * head[0] - dirE[0] * head[2], dirE[0] * head[1] - dirE[1] * head[0]};
 
-                            if (angleV > 0) {
-                                Matrix.setRotateM(rotationVMatrix, 0, angleV, axisV[0], axisV[1], axisV[2]);
-                            } else {
-                                Matrix.setRotateM(rotationVMatrix, 0, -angleV, -axisV[0], -axisV[1], -axisV[2]);
-                            }
+//                            if (angleV > 0) {
+                                Matrix.setRotateM(rotationVMatrix, 0, -angleV, axisV[0], axisV[1], axisV[2]);
+//                            } else {
+//                                Matrix.setRotateM(rotationVMatrix, 0, -angleV, -axisV[0], -axisV[1], -axisV[2]);
+//                            }
                             Matrix.multiplyMV(dirE, 0, rotationVMatrix, 0, dirE, 0);
                             Matrix.multiplyMV(headE, 0, rotationVMatrix, 0, headE, 0);
 
@@ -223,9 +223,9 @@ public class GameActivity extends AppCompatActivity {
                             float YL = (float)Math.sqrt(dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2]);
                             float [] Y = new float[]{dir[0] / YL, dir[1] / YL, dir[2] / YL};
 
-                            position[0] = position[0] - X[0] * x - Y[0] * y;
-                            position[1] = position[1] - X[1] * x - Y[1] * y;
-                            position[2] = position[2] - X[2] * x - Y[2] * y;
+                            position[0] = position[0] + X[0] * x - Y[0] * y;
+                            position[1] = position[1] + X[1] * x - Y[1] * y;
+                            position[2] = position[2] + X[2] * x - Y[2] * y;
 
                             myrenderer.clearMarkerList();
                             myrenderer.addMarker(position);
@@ -235,17 +235,17 @@ public class GameActivity extends AppCompatActivity {
                         myrenderer.setGameHead(head);
                         myrenderer.setGamePosition(position);
 
-                        System.out.println("SSSSSSSSSSSSSSSS");
+//                        System.out.println("SSSSSSSSSSSSSSSS");
 //                        System.out.print(head[0]);
 //                        System.out.print(' ');
 //                        System.out.print(head[1]);
 //                        System.out.print(' ');
 //                        System.out.println(head[2]);
-                        System.out.print(position[0]);
-                        System.out.print(' ');
-                        System.out.print(position[1]);
-                        System.out.print(' ');
-                        System.out.println(position[2]);
+//                        System.out.print(position[0]);
+//                        System.out.print(' ');
+//                        System.out.print(position[1]);
+//                        System.out.print(' ');
+//                        System.out.println(position[2]);
 
 //                        myrenderer.updateVisual();
                         myGLSurfaceView.requestRender();
