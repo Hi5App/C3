@@ -15,6 +15,12 @@ import java.util.Vector;
 
 public class SettingFileManager {
 
+
+    // getFileName_Remote: brain_number  18454
+    //
+
+
+
     public SettingFileManager(){
 
     }
@@ -389,6 +395,82 @@ public class SettingFileManager {
         }
 
     }
+
+
+    /**
+     * get the ip address from local file
+     * @return ip latest address you input
+     */
+    public static String getUserAccount_Check(Context context){
+        String userAccount = null;
+
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/Check_userAccount.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "--11--";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get Chat_userAccount", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                line = buffreader.readLine();
+                userAccount = line;
+                inputStream.close();//关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get Check_userAccount", userAccount);
+        return userAccount;
+    }
+
+    /**
+     * put the ip address you input to local file
+     * @param userAccount the ip address currently input
+     */
+    public static void setUserAccount_Check(String userAccount, Context context){
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/Check_userAccount.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("set local filename", "Fail to create file");
+            }
+        }
+
+        try {
+
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(userAccount.getBytes());
+            outStream.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
     /**
      * get the ip address from local file
@@ -969,8 +1051,162 @@ public class SettingFileManager {
      * get the offset from local file
      * @return offset latest address you input
      */
+    public static String getBoundingBox(Context context, String filename){
+        String offset = "";
+
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/BoundingBox/" + filename + ".txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "--11--";
+
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get offset", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                line = buffreader.readLine();
+                offset = line;
+
+                inputStream.close();//关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get offset", offset);
+        return offset;
+    }
+
+    /**
+     * put the offset you input to local file
+     * @param boundingbox the offset currently input
+     */
+    public static void setBoundingBox(String boundingbox, String filename, Context context){
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/BoundingBox/" + filename + ".txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("get boundingbox", "Fail to create file");
+            }
+        }
+
+        try {
+
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(boundingbox.getBytes());
+            outStream.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    /**
+     * get the offset from local file
+     * @return offset latest address you input
+     */
+    public static String getArborNum(Context context, String filename){
+        String offset = "";
+
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/ArborNum/" + filename + ".txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "--11--";
+
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get offset", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                line = buffreader.readLine();
+                offset = line;
+
+                inputStream.close();//关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get offset", offset);
+        return offset;
+    }
+
+    /**
+     * put the offset you input to local file
+     * @param ArborNum the offset currently input
+     */
+    public static void setArborNum(String ArborNum, String filename, Context context){
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/ArborNum/" + filename + ".txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("get ArborNum", "Fail to create file");
+            }
+        }
+
+        try {
+
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(ArborNum.getBytes());
+            outStream.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    /**
+     * get the offset from local file
+     * @return offset latest address you input
+     */
     public static String getSelectSource(Context context){
-        String source = null;
+        String source = "";
 
 
         String filepath = context.getExternalFilesDir(null).toString();
@@ -1008,10 +1244,14 @@ public class SettingFileManager {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return "Error";
         }
         Log.v("get source", source);
         return source;
     }
+
+
+
 
     /**
      * put the offset you input to local file
@@ -1026,7 +1266,7 @@ public class SettingFileManager {
                 dir.mkdirs();
                 file.createNewFile();
             }catch (Exception e){
-                Log.v("get offset", "Fail to create file");
+                Log.v("set SelectSource", "Fail to create file");
             }
         }
 

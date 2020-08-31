@@ -156,17 +156,20 @@ import io.agora.rtc.RtcEngine;
 import io.agora.rtc.models.UserInfo;
 
 import static com.example.basic.BitmapRotation.getBitmapDegree;
+import static com.example.basic.SettingFileManager.getArborNum;
 import static com.example.basic.SettingFileManager.getFilename_Local;
 import static com.example.basic.SettingFileManager.getFilename_Remote;
 import static com.example.basic.SettingFileManager.getFilename_Remote_Check;
 import static com.example.basic.SettingFileManager.getNeuronNumber_Remote;
 import static com.example.basic.SettingFileManager.getSelectSource;
 import static com.example.basic.SettingFileManager.getUserAccount;
+import static com.example.basic.SettingFileManager.getUserAccount_Check;
 import static com.example.basic.SettingFileManager.getoffset_Local;
 import static com.example.basic.SettingFileManager.getoffset_Remote;
 import static com.example.basic.SettingFileManager.getoffset_Remote_Check;
 import static com.example.basic.SettingFileManager.setSelectSource;
 import static com.example.basic.SettingFileManager.setUserAccount;
+import static com.example.basic.SettingFileManager.setUserAccount_Check;
 import static com.example.basic.SettingFileManager.setoffset_Local;
 import static com.example.server_connect.RemoteImg.getFilename;
 import static com.example.server_connect.RemoteImg.getoffset;
@@ -182,6 +185,9 @@ public class MainActivity extends AppCompatActivity {
 //    private Operate [] process = new Operate[UNDO_LIMIT];
 
     public static final String File_path = "com.example.myfirstapp.MESSAGE";
+
+    public static final String ip_SEU = "223.3.33.234";
+    public static final String ip_ALiYun = "39.100.35.131";
 
     private SensorManager mSensorManager;
     private Timer timer=null;
@@ -287,6 +293,7 @@ public class MainActivity extends AppCompatActivity {
     private static Button navigation_back;
     private static Button blue_pen;
     private static Button red_pen;
+    private static Button res_list;
     private static ImageButton sync_push;
     private static ImageButton sync_pull;
 
@@ -306,6 +313,7 @@ public class MainActivity extends AppCompatActivity {
     private static FrameLayout.LayoutParams lp_sync_pull;
     private static FrameLayout.LayoutParams lp_neuron_list;
     private static FrameLayout.LayoutParams lp_blue_color;
+    private static FrameLayout.LayoutParams lp_res_list;
     private static FrameLayout.LayoutParams lp_red_color;
     private FrameLayout.LayoutParams lp_animation_i;
     private static FrameLayout.LayoutParams lp_undo;
@@ -437,6 +445,7 @@ public class MainActivity extends AppCompatActivity {
                             if (DrawMode){
                                 Check_Yes.setVisibility(View.GONE);
                                 Check_No.setVisibility(View.GONE);
+                                res_list.setVisibility(View.GONE);
                                 sync_pull.setVisibility(View.VISIBLE);
                                 sync_push.setVisibility(View.VISIBLE);
                                 neuron_list.setVisibility(View.VISIBLE);
@@ -446,6 +455,7 @@ public class MainActivity extends AppCompatActivity {
                             else {
                                 Check_Yes.setVisibility(View.VISIBLE);
                                 Check_No.setVisibility(View.VISIBLE);
+                                res_list.setVisibility(View.VISIBLE);
                                 sync_pull.setVisibility(View.VISIBLE);
                                 sync_push.setVisibility(View.GONE);
                                 neuron_list.setVisibility(View.VISIBLE);
@@ -454,16 +464,6 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
 
-                    }
-
-                    if (isBigData_Remote){
-//                        String filename = getFilename(context);
-//                        String offset = getoffset(context, filename);
-//
-//                        String offset_x = offset.split("_")[0];
-//                        String offset_y = offset.split("_")[1];
-//                        String offset_z = offset.split("_")[2];
-//                        Toast.makeText(getContext(),"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
                     }
 
                     if (isBigData_Local){
@@ -498,7 +498,10 @@ public class MainActivity extends AppCompatActivity {
                             result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
                         }
                     }else {
-                        result = name.split("__")[0];
+//                        result = name.split("__")[0];
+                        String brain_num = getFilename_Remote(context);
+                        String neuron_num = getNeuronNumber_Remote(context, brain_num);
+                        result = brain_num.split("_")[0] + "_" + neuron_num.split("_")[1] + "_" + getArborNum(context,brain_num.split("/")[0] + "_" + neuron_num);
                     }
 
                     setFilename(result);
@@ -753,7 +756,8 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                if (isBigData_Remote && DrawMode){
+//                if (isBigData_Remote && DrawMode){
+                if (isBigData_Remote){
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -778,7 +782,8 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                if (isBigData_Remote && DrawMode){
+//                if (isBigData_Remote && DrawMode){
+                if (isBigData_Remote){
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -821,8 +826,14 @@ public class MainActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        remote_socket.Check_Yes(false);
-                        Toast_in_Thread("Check Yes Successfully");
+                        if (getUserAccount_Check(context).equals("--11--") || getUserAccount_Check(context).equals("")){
+//                            PopUp_UserAccount(MainActivity.this);
+                            Toast_in_Thread("Please Input your User name first in more functions !");
+                        }else {
+                            remote_socket.Check_Yes(false);
+                            Toast_in_Thread("Check Yes Successfully");
+                        }
+
                     }
                 }).start();
             }
@@ -835,8 +846,13 @@ public class MainActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        remote_socket.Check_No(false);
-                        Toast_in_Thread("Check No Successfully");
+                        if (getUserAccount_Check(context).equals("--11--") || getUserAccount_Check(context).equals("")){
+//                            PopUp_UserAccount(MainActivity.this);
+                            Toast_in_Thread("Please Input your User name first in more functions !");
+                        }else {
+                            remote_socket.Check_No(false);
+                            Toast_in_Thread("Check No Successfully");
+                        }
                     }
                 }).start();
             }
@@ -1157,6 +1173,23 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        lp_res_list = new FrameLayout.LayoutParams(120, 120);
+        lp_res_list.gravity = Gravity.TOP | Gravity.LEFT;
+        lp_res_list.setMargins(20, 490, 0, 0);
+
+
+        res_list = new Button(this);
+        res_list.setText("R");
+        res_list.setTextColor(Color.BLUE);
+
+        res_list.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                remote_socket.switchRES();
+            }
+        });
+
+
 
         lp_red_color = new FrameLayout.LayoutParams(120, 120);
         lp_red_color.gravity = Gravity.TOP | Gravity.LEFT;
@@ -1216,14 +1249,32 @@ public class MainActivity extends AppCompatActivity {
 
         neuron_list = new ImageButton(this);
         neuron_list.setImageResource(R.drawable.ic_assignment_black_24dp);
+        neuron_list.setOnLongClickListener(new Button.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                if (DrawMode){
+                    push_info_swc = SaveSWC_Block_Auto();
+                    remote_socket.Select_Neuron_Fast();
+                }else {
+                    remote_socket.Select_Neuron_Fast();
+//                    remote_socket.Select_Arbor_Fast();
+                }
+                return true;
+            }
+        });
+
+
         neuron_list.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 if (DrawMode){
                     push_info_swc = SaveSWC_Block_Auto();
-                    remote_socket.Select_Neuron_Fast();
+                    remote_socket.Next_Neuron();
+//                    remote_socket.Select_Neuron_Fast();
                 }else {
+//                    remote_socket.Select_Neuron_Fast();
                     remote_socket.Select_Arbor_Fast();
                 }
 
@@ -1268,6 +1319,7 @@ public class MainActivity extends AppCompatActivity {
         this.addContentView(sync_pull, lp_sync_pull);
         this.addContentView(sync_push, lp_sync_push);
         this.addContentView(neuron_list, lp_neuron_list);
+        this.addContentView(res_list, lp_res_list);
         this.addContentView(red_pen, lp_red_color);
         this.addContentView(blue_pen, lp_blue_color);
 
@@ -1282,6 +1334,7 @@ public class MainActivity extends AppCompatActivity {
         sync_pull.setVisibility(View.GONE);
         sync_push.setVisibility(View.GONE);
         neuron_list.setVisibility(View.GONE);
+        res_list.setVisibility(View.GONE);
         red_pen.setVisibility(View.GONE);
         blue_pen.setVisibility(View.GONE);
 
@@ -1475,7 +1528,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "About", "Help"},
+                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "Account Name", "Game", "About", "Help"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -1588,11 +1641,29 @@ public class MainActivity extends AppCompatActivity {
 //                                        } else {
 //                                            myGLSurfaceView.requestRender();
 //                                        }
-                                        gameStart();
+                                        if (!myrenderer.getIfFileLoaded()){
+                                            Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
+
+                                        }else {
+                                            try {
+                                                Intent gameIntent = new Intent(MainActivity.this, GameActivity.class);
+                                                gameIntent.putExtra("FilePath", myrenderer.getFilePath());
+                                                gameIntent.putExtra("Position", new float[]{0.5f, 0.5f, 0.5f});
+                                                gameIntent.putExtra("Dir", new float[]{1, 1, 1});
+                                                startActivity(gameIntent);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+//                                        gameStart();
                                         break;
 
                                     case "Settings":
                                         setSettings();
+                                        break;
+
+                                    case "Account Name":
+                                        PopUp_UserAccount(MainActivity.this);
                                         break;
 
                                     case "Crash Info":
@@ -1605,8 +1676,8 @@ public class MainActivity extends AppCompatActivity {
 
                                     case "Help":
                                         try{
-                                            Intent intent = new Intent(MainActivity.this, HelpActivity.class);
-                                            startActivity(intent);
+                                            Intent helpIntent = new Intent(MainActivity.this, HelpActivity.class);
+                                            startActivity(helpIntent);
                                         } catch (Exception e){
                                             e.printStackTrace();
                                         }
@@ -1814,6 +1885,7 @@ public class MainActivity extends AppCompatActivity {
                                     Check_No.setVisibility(View.GONE);
                                     sync_pull.setVisibility(View.GONE);
                                     neuron_list.setVisibility(View.GONE);
+                                    res_list.setVisibility(View.GONE);
                                 }
                             }
                             isBigData_Remote = false;
@@ -1890,6 +1962,7 @@ public class MainActivity extends AppCompatActivity {
                                 Check_No.setVisibility(View.GONE);
                                 sync_pull.setVisibility(View.GONE);
                                 neuron_list.setVisibility(View.GONE);
+                                res_list.setVisibility(View.GONE);
                             }
                         }
                         isBigData_Remote = false;
@@ -5093,7 +5166,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200826a 22:24 UTC+8 build",
+                                "Version: 20200831b 09:18 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5126,30 +5199,28 @@ public class MainActivity extends AppCompatActivity {
     public void Select_img(){
         Context context = this;
         new XPopup.Builder(this)
-                .asCenterList("Select Remote Server", new String[]{"AliYun Server", "SEU Server", "Local Server"},
+                .asCenterList("Select Remote Server", new String[]{"SEU Server", "AliYun Server", "Local Server"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text) {
                                     case "AliYun Server":
-                                        String ip = "39.100.35.131";
-//                                        String ip = "192.168.31.11";
-                                        if (DrawMode){
-                                            BigFileRead_Remote(ip);
-                                        }else {
-                                            BigFileRead_Remote_Check(ip);
-                                        }
+                                        Toast_in_Thread("The Server is under Maintenance !");
+//                                        setSelectSource("Remote Server Aliyun",context);
+//                                        if (DrawMode){
+//                                            BigFileRead_Remote(ip_ALiYun);
+//                                        }else {
+//                                            BigFileRead_Remote_Check(ip_ALiYun);
+//                                        }
                                         break;
 
                                     case "SEU Server":
+                                        setSelectSource("Remote Server SEU",context);
                                         if (DrawMode){
-                                            BigFileRead_Remote("223.3.33.234");
+                                            BigFileRead_Remote(ip_SEU);
                                         }else {
-                                            BigFileRead_Remote_Check("223.3.33.234");
+                                            BigFileRead_Remote_Check(ip_SEU);
                                         }
-//
-//                                        BigFileRead_Remote("223.3.33.234");
-//                                        Toast.makeText(getContext(), "The server is not available now", Toast.LENGTH_SHORT).show();
                                         break;
 
                                     case "Local Server":
@@ -5200,7 +5271,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 remote_socket.DisConnectFromHost();
                 remote_socket.ConnectServer(ip);
-                remote_socket.Select_Brain();
+                remote_socket.Select_Brain(true);
             }
         });
         thread.start();
@@ -5216,7 +5287,8 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 remote_socket.DisConnectFromHost();
                 remote_socket.ConnectServer(ip);
-                remote_socket.Select_Arbor();
+//                remote_socket.Select_Arbor();
+                remote_socket.Select_Brain(false);
             }
         });
         thread.start();
@@ -5414,7 +5486,8 @@ public class MainActivity extends AppCompatActivity {
 //                            PushSWC_Block_Auto(push_info[0], push_info[1]);
 
                         }else {
-                            remote_socket.Selectblock_fast_Check(context, false, text);
+                            remote_socket.Selectblock_fast(context, false, text);
+//                            remote_socket.Selectblock_fast_Check(context, false, text);
                         }
                     }
 
@@ -5475,13 +5548,8 @@ public class MainActivity extends AppCompatActivity {
         String offset   = null;
         float[] neuron = null; float[] block = null; float[] size = null;
         if (isBigData_Remote){
-            if (DrawMode){
-                filename = getFilename_Remote(this);
-                offset   = getoffset_Remote(this, filename);
-            }else {
-                filename = getFilename_Remote_Check(this);
-                offset   = getoffset_Remote_Check(this, filename);
-            }
+            filename = getFilename_Remote(this);
+            offset   = getoffset_Remote(this, filename);
         }
         if (isBigData_Local){
             filename = SettingFileManager.getFilename_Local(this);
@@ -5516,14 +5584,15 @@ public class MainActivity extends AppCompatActivity {
             size   = new float[]{size_block, size_block, size_block};
         }else {
 
-            int offset_x_i = ( Integer.parseInt(offset.split(";")[0]) + Integer.parseInt(offset.split(";")[1]) ) / 2 -1;
-            int offset_y_i = ( Integer.parseInt(offset.split(";")[2]) + Integer.parseInt(offset.split(";")[3]) ) / 2 -1;
-            int offset_z_i = ( Integer.parseInt(offset.split(";")[4]) + Integer.parseInt(offset.split(";")[5]) ) / 2 -1;
-            int size_i     = ( Integer.parseInt(offset.split(";")[1]) - Integer.parseInt(offset.split(";")[0]) );
+            String[] offset_arr = offset.split("_");
+            int[] offset_arr_i = new int[4];
+            for (int i =0; i<offset_arr_i.length; i++){
+                offset_arr_i[i] = Integer.parseInt(offset_arr[i]);
+            }
 
-            neuron = remote_socket.getImg_size_f();
-            block  = new float[]{offset_x_i, offset_y_i, offset_z_i};
-            size   = new float[]{size_i, size_i, size_i};
+            block  = new float[]{offset_arr_i[0], offset_arr_i[1], offset_arr_i[2]};
+            size   = new float[]{offset_arr_i[3], offset_arr_i[3], offset_arr_i[3]};
+            neuron = remote_socket.getImg_size_f(block);
 
         }
 
@@ -5544,76 +5613,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private String getip(){
-        String ip = null;
 
-        String filepath = getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/ip.txt");
-        if (!file.exists()){
-            try {
-                File dir = new File(file.getParent());
-                dir.mkdirs();
-                file.createNewFile();
-
-                String str = "39.100.35.131";
-                FileOutputStream outStream = new FileOutputStream(file);
-                outStream.write(str.getBytes());
-                outStream.close();
-
-            }catch (Exception e){
-                Log.v("get ip", "Fail to create file");
-                e.printStackTrace();
-            }
-        }
-
-        try {
-            FileInputStream inputStream = new FileInputStream(file);
-            if (inputStream != null) {
-                InputStreamReader inputreader
-                        = new InputStreamReader(inputStream, "UTF-8");
-                BufferedReader buffreader = new BufferedReader(inputreader);
-                String line = "";
-
-                line = buffreader.readLine();
-                ip = line;
-
-//                //分行读取
-//                while ((line = buffreader.readLine()) != null) {
-//                    ip = line;
-//                }
-                inputStream.close();//关闭输入流
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Log.v("get ip", ip);
-        return ip;
-    }
-
-    private void setip(String ip){
-        String filepath = getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/ip.txt");
-        if (!file.exists()){
-            try {
-                File dir = new File(file.getParent());
-                dir.mkdirs();
-                file.createNewFile();
-            }catch (Exception e){
-                Log.v("get ip", "Fail to create file");
-            }
-        }
-
-        try {
-
-            FileOutputStream outStream = new FileOutputStream(file);
-            outStream.write(ip.getBytes());
-            outStream.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
 
     private void SaveSWC() {
         context = this;
@@ -7192,26 +7192,28 @@ public class MainActivity extends AppCompatActivity {
         @SuppressLint("ClickableViewAccessibility")
         public boolean onTouchEvent(MotionEvent motionEvent) {
 
-            //ACTION_DOWN不return true，就无触发后面的各个事件
-            if (motionEvent != null) {
-                final float normalizedX = toOpenGLCoord(this, motionEvent.getX(), true);
-                final float normalizedY = toOpenGLCoord(this, motionEvent.getY(), false);
+            try {
+
+                //ACTION_DOWN不return true，就无触发后面的各个事件
+                if (motionEvent != null) {
+                    final float normalizedX = toOpenGLCoord(this, motionEvent.getX(), true);
+                    final float normalizedY = toOpenGLCoord(this, motionEvent.getY(), false);
 //
 //                final float normalizedX =motionEvent.getX();
 //                final float normalizedY =motionEvent.getY();
 
-                switch (motionEvent.getActionMasked()) {
-                    case MotionEvent.ACTION_DOWN:
-                        X = normalizedX;
-                        Y = normalizedY;
-                        if (ifPainting || ifDeletingLine || ifSpliting || ifChangeLineType || ifDeletingMultiMarker) {
-                            lineDrawed.add(X);
-                            lineDrawed.add(Y);
-                            lineDrawed.add(-1.0f);
-                            myrenderer.setIfPainting(true);
-                            requestRender();
-                            Log.v("actionPointerDown", "Paintinggggggggggg");
-                        }
+                    switch (motionEvent.getActionMasked()) {
+                        case MotionEvent.ACTION_DOWN:
+                            X = normalizedX;
+                            Y = normalizedY;
+                            if (ifPainting || ifDeletingLine || ifSpliting || ifChangeLineType || ifDeletingMultiMarker) {
+                                lineDrawed.add(X);
+                                lineDrawed.add(Y);
+                                lineDrawed.add(-1.0f);
+                                myrenderer.setIfPainting(true);
+                                requestRender();
+                                Log.v("actionPointerDown", "Paintinggggggggggg");
+                            }
 //                        if (ifPoint) {
 //                            Log.v("actionPointerDown", "Pointinggggggggggg");
 //                            if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
@@ -7235,95 +7237,95 @@ public class MainActivity extends AppCompatActivity {
 //                            myrenderer.setIfPainting(true);
 //                            requestRender();
 //                        }
-                        break;
-                    case MotionEvent.ACTION_POINTER_DOWN:
-                        lineDrawed.clear();
-                        myrenderer.setIfPainting(false);
-                        requestRender();
-                        isZooming = true;
-                        isZoomingNotStop = true;
-                        float x1 = toOpenGLCoord(this, motionEvent.getX(1), true);
-                        float y1 = toOpenGLCoord(this, motionEvent.getY(1), false);
+                            break;
+                        case MotionEvent.ACTION_POINTER_DOWN:
+                            lineDrawed.clear();
+                            myrenderer.setIfPainting(false);
+                            requestRender();
+                            isZooming = true;
+                            isZoomingNotStop = true;
+                            float x1 = toOpenGLCoord(this, motionEvent.getX(1), true);
+                            float y1 = toOpenGLCoord(this, motionEvent.getY(1), false);
 
 //                        float x1=motionEvent.getX(1);
 //                        float y1=motionEvent.getY(1);
-                        dis_start = computeDis(normalizedX, x1, normalizedY, y1);
-                        dis_x_start = x1 - normalizedX;
-                        dis_y_start = y1 - normalizedY;
+                            dis_start = computeDis(normalizedX, x1, normalizedY, y1);
+                            dis_x_start = x1 - normalizedX;
+                            dis_y_start = y1 - normalizedY;
 
-                        x0_start = normalizedX;
-                        y0_start = normalizedY;
-                        x1_start = x1;
-                        y1_start = y1;
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        if (isZooming && isZoomingNotStop) {
+                            x0_start = normalizedX;
+                            y0_start = normalizedY;
+                            x1_start = x1;
+                            y1_start = y1;
+                            break;
+                        case MotionEvent.ACTION_MOVE:
+                            if (isZooming && isZoomingNotStop) {
 
-                            float x2 = toOpenGLCoord(this, motionEvent.getX(1), true);
-                            float y2 = toOpenGLCoord(this, motionEvent.getY(1), false);
+                                float x2 = toOpenGLCoord(this, motionEvent.getX(1), true);
+                                float y2 = toOpenGLCoord(this, motionEvent.getY(1), false);
 
 //                            float x2=motionEvent.getX(1);
 //                            float y2=motionEvent.getY(1);
-                            double dis = computeDis(normalizedX, x2, normalizedY, y2);
-                            double scale = dis / dis_start;
+                                double dis = computeDis(normalizedX, x2, normalizedY, y2);
+                                double scale = dis / dis_start;
 //                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker) {
                                 myrenderer.zoom((float) scale);
 //                            }
-                            float dis_x = x2 - normalizedX;
-                            float dis_y = y2 - normalizedY;
-                            float ave_x = (x2 - x1_start + normalizedX - x0_start) / 2;
-                            float ave_y = (y2 - y1_start + normalizedY - y0_start) / 2;
-                            if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
-                                if (myrenderer.getIfDownSampling() == false)
-                                    myrenderer.setIfDownSampling(true);
-                            }
+                                float dis_x = x2 - normalizedX;
+                                float dis_y = y2 - normalizedY;
+                                float ave_x = (x2 - x1_start + normalizedX - x0_start) / 2;
+                                float ave_y = (y2 - y1_start + normalizedY - y0_start) / 2;
+                                if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
+                                    if (myrenderer.getIfDownSampling() == false)
+                                        myrenderer.setIfDownSampling(true);
+                                }
 //                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker){
 //                                myrenderer.rotate2f(dis_x_start, dis_x, dis_y_start, dis_y);
 //                            }else {
 //                                myrenderer.rotate(dis_x - dis_x_start, dis_y - dis_y_start, (float) (computeDis(dis_x, dis_x_start, dis_y, dis_y_start)));
                                 myrenderer.rotate(ave_x, ave_y, (float)(computeDis((x2 + normalizedX) / 2, (x1_start + x0_start) / 2, (y2 + normalizedY) / 2, (y1_start + y0_start) / 2)));
 //                            }
-                            //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
-                            requestRender();
-                            dis_start = dis;
-                            dis_x_start = dis_x;
-                            dis_y_start = dis_y;
-                            x0_start = normalizedX;
-                            y0_start = normalizedY;
-                            x1_start = x2;
-                            y1_start = y2;
-                        } else {
-                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker && !ifChangeMarkerType && !ifDeletingMultiMarker) {
-                                if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
-                                    if (myrenderer.getIfDownSampling() == false)
-                                        myrenderer.setIfDownSampling(true);
-                                }
-                                myrenderer.rotate(normalizedX - X, normalizedY - Y, (float) (computeDis(normalizedX, X, normalizedY, Y)));
-
                                 //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
                                 requestRender();
-                                X = normalizedX;
-                                Y = normalizedY;
+                                dis_start = dis;
+                                dis_x_start = dis_x;
+                                dis_y_start = dis_y;
+                                x0_start = normalizedX;
+                                y0_start = normalizedY;
+                                x1_start = x2;
+                                y1_start = y2;
                             } else {
-                                lineDrawed.add(normalizedX);
-                                lineDrawed.add(normalizedY);
-                                lineDrawed.add(-1.0f);
+                                if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker && !ifChangeMarkerType && !ifDeletingMultiMarker) {
+                                    if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
+                                        if (myrenderer.getIfDownSampling() == false)
+                                            myrenderer.setIfDownSampling(true);
+                                    }
+                                    myrenderer.rotate(normalizedX - X, normalizedY - Y, (float) (computeDis(normalizedX, X, normalizedY, Y)));
 
-                                myrenderer.setLineDrawed(lineDrawed);
-                                requestRender();
+                                    //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
+                                    requestRender();
+                                    X = normalizedX;
+                                    Y = normalizedY;
+                                } else {
+                                    lineDrawed.add(normalizedX);
+                                    lineDrawed.add(normalizedY);
+                                    lineDrawed.add(-1.0f);
 
-                                invalidate();
+                                    myrenderer.setLineDrawed(lineDrawed);
+                                    requestRender();
+
+                                    invalidate();
+                                }
                             }
-                        }
-                        break;
-                    case MotionEvent.ACTION_POINTER_UP:
+                            break;
+                        case MotionEvent.ACTION_POINTER_UP:
 //                        isZooming = false;
-                        isZoomingNotStop = false;
-                        myrenderer.setIfDownSampling(false);
-                        X = normalizedX;
-                        Y = normalizedY;
-                        lineDrawed.clear();
-                        myrenderer.setIfPainting(false);
+                            isZoomingNotStop = false;
+                            myrenderer.setIfDownSampling(false);
+                            X = normalizedX;
+                            Y = normalizedY;
+                            lineDrawed.clear();
+                            myrenderer.setIfPainting(false);
 //                        if (ifPainting){
 //                            lineDrawed.clear();
 //                            myrenderer.setLineDrawed(lineDrawed);
@@ -7333,42 +7335,42 @@ public class MainActivity extends AppCompatActivity {
 //                            requestRender();
 //
 //                        }
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        if (!isZooming) {
-                            try {
-                                if (ifPoint) {
-                                    Log.v("actionUp", "Pointinggggggggggg");
-                                    if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
-                                        myrenderer.add2DMarker(normalizedX, normalizedY);
-                                    else {
-                                        myrenderer.setMarkerDrawed(normalizedX, normalizedY);
-                                    }
-                                    Log.v("actionPointerDown", "(" + X + "," + Y + ")");
-                                    requestRender();
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            if (!isZooming) {
+                                try {
+                                    if (ifPoint) {
+                                        Log.v("actionUp", "Pointinggggggggggg");
+                                        if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
+                                            myrenderer.add2DMarker(normalizedX, normalizedY);
+                                        else {
+                                            myrenderer.setMarkerDrawed(normalizedX, normalizedY);
+                                        }
+                                        Log.v("actionPointerDown", "(" + X + "," + Y + ")");
+                                        requestRender();
 
-                                }
-                                if (ifDeletingMarker) {
-                                    Log.v("actionUp", "DeletingMarker");
-                                    myrenderer.deleteMarkerDrawed(normalizedX, normalizedY);
-                                    requestRender();
-                                }
-                                if (ifDeletingMultiMarker) {
-                                    myrenderer.deleteMultiMarkerByStroke(lineDrawed);
-                                    requestRender();
-                                }
-                                if (ifChangeMarkerType) {
-                                    myrenderer.changeMarkerType(normalizedX, normalizedY);
-                                    requestRender();
-                                }
-                                if (ifPainting) {
-                                    Vector<Integer> segids = new Vector<>();
-                                    myrenderer.setIfPainting(false);
+                                    }
+                                    if (ifDeletingMarker) {
+                                        Log.v("actionUp", "DeletingMarker");
+                                        myrenderer.deleteMarkerDrawed(normalizedX, normalizedY);
+                                        requestRender();
+                                    }
+                                    if (ifDeletingMultiMarker) {
+                                        myrenderer.deleteMultiMarkerByStroke(lineDrawed);
+                                        requestRender();
+                                    }
+                                    if (ifChangeMarkerType) {
+                                        myrenderer.changeMarkerType(normalizedX, normalizedY);
+                                        requestRender();
+                                    }
+                                    if (ifPainting) {
+                                        Vector<Integer> segids = new Vector<>();
+                                        myrenderer.setIfPainting(false);
 //                            myrenderer.addLineDrawed(lineDrawed);
 
-                                    if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
-                                        myrenderer.add2DCurve(lineDrawed);
-                                    else {
+                                        if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
+                                            myrenderer.add2DCurve(lineDrawed);
+                                        else {
 //                                        int lineType = myrenderer.getLastLineType();
 //                                        if (lineType != 3) {
 ////                                            int segid = myrenderer.addLineDrawed(lineDrawed);
@@ -7392,47 +7394,47 @@ public class MainActivity extends AppCompatActivity {
 //                                        } else {
 //                                            myrenderer.addBackgroundLineDrawed(lineDrawed);
 //                                        }
-                                        Callable<String> task = new Callable<String>() {
-                                            @Override
-                                            public String call() throws Exception {
-                                                int lineType = myrenderer.getLastLineType();
-                                                if (lineType != 2) {
+                                            Callable<String> task = new Callable<String>() {
+                                                @Override
+                                                public String call() throws Exception {
+                                                    int lineType = myrenderer.getLastLineType();
+                                                    if (lineType != 2) {
 //                                            int segid = myrenderer.addLineDrawed(lineDrawed);
 //                                    segids.add(segid);
 //                            requestRender();
 //                                                    int [] curUndo = new int[1];
 //                                                    curUndo[0] = -1;
 
-                                                    V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed);
-                                                    System.out.println("feature");
+                                                        V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed);
+                                                        System.out.println("feature");
 //                                                    System.out.println(v_neuronSWC_list.seg.size());
-                                                    if (seg != null) {
-                                                        V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
-                                                        myrenderer.addLineDrawed2(lineDrawed, v_neuronSWC_list, seg);
-                                                        myrenderer.deleteFromCur(seg, v_neuronSWC_list[0]);
-                                                    }
+                                                        if (seg != null) {
+                                                            V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
+                                                            myrenderer.addLineDrawed2(lineDrawed, v_neuronSWC_list, seg);
+                                                            myrenderer.deleteFromCur(seg, v_neuronSWC_list[0]);
+                                                        }
 //                                                    else {
 //                                                        Toast.makeText(getContext(), "Please make sure the curve is inside the bounding box", Toast.LENGTH_LONG);
 //                                                    }
 //                                            myrenderer.deleteFromNew(segid);
-                                                } else {
-                                                    myrenderer.addBackgroundLineDrawed(lineDrawed);
+                                                    } else {
+                                                        myrenderer.addBackgroundLineDrawed(lineDrawed);
+                                                    }
+                                                    requestRender();
+                                                    return "succeed";
                                                 }
-                                                requestRender();
-                                                return "succeed";
-                                            }
-                                        };
-                                        ExecutorService exeService = Executors.newSingleThreadExecutor();
-                                        Future<String> future = exeService.submit(task);
-                                        try {
-                                            String result = future.get(1500, TimeUnit.MILLISECONDS);
-                                            System.err.println("Result:" + result);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                            System.out.println("unfinished in 1.5 seconds");
+                                            };
+                                            ExecutorService exeService = Executors.newSingleThreadExecutor();
+                                            Future<String> future = exeService.submit(task);
+                                            try {
+                                                String result = future.get(1500, TimeUnit.MILLISECONDS);
+                                                System.err.println("Result:" + result);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                                System.out.println("unfinished in 1.5 seconds");
 //                                            exeService.shutdown();
 //                                            future.cancel(true);
-                                        }
+                                            }
 //                                int lineType = myrenderer.getLastLineType();
 //                                if (lineType != 3) {
 //                                    int segid = myrenderer.addLineDrawed(lineDrawed);
@@ -7444,7 +7446,7 @@ public class MainActivity extends AppCompatActivity {
 //                                } else {
 //                                    myrenderer.addBackgroundLineDrawed(lineDrawed);
 //                                }
-                                    }
+                                        }
 //                            requestRender();
 ////
 //                            if (myrenderer.deleteFromNew(segid)) {
@@ -7465,52 +7467,57 @@ public class MainActivity extends AppCompatActivity {
 //                                }
 //                            }).start();
 ////                            myrenderer.addLineDrawed2(lineDrawed);
-                                    lineDrawed.clear();
-                                    myrenderer.setLineDrawed(lineDrawed);
+                                        lineDrawed.clear();
+                                        myrenderer.setLineDrawed(lineDrawed);
 //
-                                    requestRender();
-                                }
+                                        requestRender();
+                                    }
 //                            requestRender();
 
-                                if (ifDeletingLine) {
-                                    myrenderer.setIfPainting(false);
-                                    myrenderer.deleteLine1(lineDrawed);
-                                    lineDrawed.clear();
-                                    myrenderer.setLineDrawed(lineDrawed);
-                                    requestRender();
+                                    if (ifDeletingLine) {
+                                        myrenderer.setIfPainting(false);
+                                        myrenderer.deleteLine1(lineDrawed);
+                                        lineDrawed.clear();
+                                        myrenderer.setLineDrawed(lineDrawed);
+                                        requestRender();
+                                    }
+                                    if (ifSpliting) {
+                                        myrenderer.setIfPainting(false);
+                                        myrenderer.splitCurve(lineDrawed);
+                                        lineDrawed.clear();
+                                        myrenderer.setLineDrawed(lineDrawed);
+                                        requestRender();
+                                    }
+                                    if (ifChangeLineType) {
+                                        myrenderer.setIfPainting(false);
+                                        int type = myrenderer.getLastLineType();
+                                        myrenderer.changeLineType(lineDrawed, type);
+                                        lineDrawed.clear();
+                                        myrenderer.setLineDrawed(lineDrawed);
+                                        requestRender();
+                                    }
+                                } catch (Exception e){
+                                    e.printStackTrace();
                                 }
-                                if (ifSpliting) {
-                                    myrenderer.setIfPainting(false);
-                                    myrenderer.splitCurve(lineDrawed);
-                                    lineDrawed.clear();
-                                    myrenderer.setLineDrawed(lineDrawed);
-                                    requestRender();
-                                }
-                                if (ifChangeLineType) {
-                                    myrenderer.setIfPainting(false);
-                                    int type = myrenderer.getLastLineType();
-                                    myrenderer.changeLineType(lineDrawed, type);
-                                    lineDrawed.clear();
-                                    myrenderer.setLineDrawed(lineDrawed);
-                                    requestRender();
-                                }
-                            } catch (Exception e){
-                                e.printStackTrace();
+                                lineDrawed.clear();
+                                myrenderer.setIfPainting(false);
                             }
                             lineDrawed.clear();
                             myrenderer.setIfPainting(false);
-                        }
-                        lineDrawed.clear();
-                        myrenderer.setIfPainting(false);
-                        requestRender();
-                        isZooming = false;
-                        myrenderer.setIfDownSampling(false);
-                        break;
-                    default:
-                        break;
+                            requestRender();
+                            isZooming = false;
+                            myrenderer.setIfDownSampling(false);
+                            break;
+                        default:
+                            break;
+                    }
+                    return true;
                 }
-                return true;
+
+            }catch (IllegalArgumentException e){
+                e.printStackTrace();
             }
+
             return false;
         }
 
@@ -7538,7 +7545,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("File Open & Save", new String[]{"Open LocalFile", "Open BigData", "Load SWCFile","Camera"},
+                .asCenterList("File Open & Save", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile","Camera"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -7713,6 +7720,66 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    public void PopUp_UserAccount(Context context){
+
+        new MDDialog.Builder(context)
+//              .setContentView(customizedView)
+                .setContentView(R.layout.user_account_check)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+                        EditText et = (EditText) contentView.findViewById(R.id.userAccount_edit_check);
+                        String userAccount = getUserAccount_Check(context);
+
+                        if (userAccount.equals("--11--")){
+                            userAccount = "";
+                        }
+
+                        et.setText(userAccount);
+                    }
+                })
+                .setTitle("UserName for Check")
+                .setNegativeButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
+                        EditText et = (EditText) contentView.findViewById(R.id.userAccount_edit_check);
+
+                        String userAccount   = et.getText().toString();
+
+
+                        if( !userAccount.isEmpty() ){
+                            setUserAccount_Check(userAccount, context);
+
+                        }else{
+                            PopUp_UserAccount(context);
+                            Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                    }
+                })
+                .setWidthMaxDp(600)
+                .create()
+                .show();
+
+    }
+
     public void PopUp_Chat(Context context){
 
         new MDDialog.Builder(context)
@@ -7878,9 +7945,9 @@ public class MainActivity extends AppCompatActivity {
             case "Remote Server Aliyun":
             case "Remote Server SEU":
                 if (source.equals("Remote Server Aliyun")){
-                    ip = "39.100.35.131";
+                    ip = ip_ALiYun;
                 }else {
-                    ip = "223.3.33.234";
+                    ip = ip_SEU;
                 }
                 if (DrawMode){
                     remote_socket.DisConnectFromHost();
@@ -7908,33 +7975,6 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
-//        Context context = this;
-//        new XPopup.Builder(this)
-////        .maxWidth(400)
-////        .maxHeight(1350)
-//                .asCenterList("Select block", new String[]{"Remote Server", "Local Server"},
-//                        new OnSelectListener() {
-//                            @Override
-//                            public void onSelect(int position, String text) {
-//                                switch (text) {
-//                                    case "Remote Server":
-////                                        remoteImg.Selectblock(context, false);
-//                                        String ip = "39.100.35.131";
-//                                        remote_socket.DisConnectFromHost();
-//                                        remote_socket.ConnectServer(ip);
-//                                        remote_socket.SelectBlock();
-//                                        break;
-//                                    case "Local Server":
-//                                        bigImgReader.PopUp(context);
-//                                        break;
-//                                    default:
-////                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();
-//                                        Toast.makeText(getContext(), "Default in file", Toast.LENGTH_SHORT).show();
-//
-//                                }
-//                            }
-//                        })
-//                .show();
     }
 
 
@@ -7953,8 +7993,15 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void LoadBigFile_Remote(String filepath){
-        myrenderer.SetPath(filepath);
 
+        Log.v("MainActivity",remote_socket.getIp());
+        if (remote_socket.getIp().equals(ip_ALiYun)){
+            setSelectSource("Remote Server Aliyun",context);
+        } else if (remote_socket.getIp().equals(ip_SEU)){
+            setSelectSource("Remote Server SEU",context);
+        }
+
+        myrenderer.SetPath(filepath);
         setFileName(filepath);
 
         System.out.println("------" + filepath + "------");
@@ -7962,22 +8009,17 @@ public class MainActivity extends AppCompatActivity {
         isBigData_Local = false;
         myGLSurfaceView.requestRender();
 
-        Log.v("MainActivity",remote_socket.getIp());
-        if (remote_socket.getIp().equals("39.100.35.131")){
-            setSelectSource("Remote Server Aliyun",context);
-        } else if(remote_socket.getIp().equals("223.3.33.234")){
-            setSelectSource("Remote Server SEU",context);
-        }
 
         SetButtons();
 
-        PullSwc_block_Auto(DrawMode);
-        LoadMarker();
+//        PullSwc_block_Auto(DrawMode);
+        PullSwc_block_Auto(true);
 
         //  for apo sync
 //        PullApo_block_Auto();
 
         if (DrawMode){
+            LoadMarker();
             if (!push_info_swc[0].equals("New")){
                 PushSWC_Block_Auto(push_info_swc[0], push_info_swc[1]);
             }
@@ -8070,6 +8112,7 @@ public class MainActivity extends AppCompatActivity {
                     Check_No.setVisibility(View.GONE);
                     Check_Yes.setVisibility(View.GONE);
                     neuron_list.setVisibility(View.GONE);
+                    res_list.setVisibility(View.GONE);
                 }else {
                     sync_push.setVisibility(View.GONE);
                     neuron_list.setVisibility(View.GONE);
@@ -8116,7 +8159,8 @@ public class MainActivity extends AppCompatActivity {
                 if (!DrawMode){
                     Check_No.setVisibility(View.VISIBLE);
                     Check_Yes.setVisibility(View.VISIBLE);
-                    neuron_list.setVisibility(View.GONE);
+                    neuron_list.setVisibility(View.VISIBLE);
+                    res_list.setVisibility(View.VISIBLE);
                 }else {
                     sync_push.setVisibility(View.VISIBLE);
                     neuron_list.setVisibility(View.VISIBLE);
@@ -8282,6 +8326,9 @@ public class MainActivity extends AppCompatActivity {
 
         lp_red_color.setMargins(0, 630, 20, 0);
         red_pen.setLayoutParams(lp_red_color);
+
+        lp_res_list.setMargins(0, 540, 20, 0);
+        res_list.setLayoutParams(lp_res_list);
     }
 
     private void gameStart(){
@@ -8299,336 +8346,33 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<Integer> sec_proj4 = new ArrayList<Integer>();
         ArrayList<Float> sec_anti = new ArrayList<Float>();
 
-        ArrayList<Float> tangent = myrenderer.tangentPlane(startPoint[0], startPoint[1], startPoint[2], dir[0], dir[1], dir[2], 0, 1);
+
+        ArrayList<Float> tangent = myrenderer.tangentPlane(startPoint[0], startPoint[1], startPoint[2], dir[0], dir[1], dir[2], 1);
+
+//        ArrayList<Integer> initial_marker = new ArrayList<Integer>();
+//        ArrayList<Integer> angle = new ArrayList<Integer>();
+//        ArrayList<ArrayList<Integer>> import_marker= new ArrayList<ArrayList<Integer>>();
+//
+//        float[] des = myrenderer.angle(64,64,64,1,0,0);
+//
+//        initial_marker.add(64);
+//        initial_marker.add(64);
+//        initial_marker.add(64);
+//        angle.add((int) des[0]);
+//        angle.add((int) des[1]);
+//        angle.add((int) des[2]);
+//
+//        import_marker.add(initial_marker);
+//        import_marker.add(angle);
+//        myrenderer.importMarker(import_marker);
+//
+//        ArrayList<Float> tangent = myrenderer.tangentPlane(startPoint[0], startPoint[1], startPoint[2], dir[0], dir[1], dir[2], 128);
+//>>>>>>> Stashed changes
 
         System.out.println("TangentPlane:::::");
         System.out.println(tangent.size());
 
-        //然后对三维坐标进行映射
-        if (dir[2]==0)
-        //先判断切面是不是与XOY面垂直，如果垂直就映射到XOZ平面
-        {
-            for (int i=0;i<tangent.size();i+=3) {
-                if(tangent.get(i)>=0 & tangent.get(i+2)>=0) {
 
-                    sec_proj1.add(i);
-
-                }// 第一象限
-                else if(tangent.get(i)<=0 & tangent.get(i+2)>=0) {
-
-                    sec_proj2.add(i);
-
-                }// 第二象限
-                else if(tangent.get(i)<=0 & tangent.get(i+2)<=0) {
-
-                    sec_proj3.add(i);
-
-                }// 第三象限
-                else if(tangent.get(i)>=0 & tangent.get(i+2)<=0) {
-
-                    sec_proj4.add(i);
-
-                }// 第四象限
-
-            }
-
-
-
-            //只用判断大于1的情况，如果没有那就刚好不用管了，如果只有一个元素，那也不用排序了
-            if (sec_proj1.size()>1) {
-                for (int i=0;i<sec_proj1.size();i++) {
-                    for (int j=0;j<sec_proj1.size()-i-1;j++) {
-                        if(tangent.get(sec_proj1.get(j))!=0 & tangent.get(sec_proj1.get(j+1))!=0) {
-                            if(tangent.get(sec_proj1.get(j)+2)/tangent.get(sec_proj1.get(j)) > tangent.get(sec_proj1.get(j+1)+2)/tangent.get(sec_proj1.get(j+1))) {
-                                int temp = sec_proj1.get(j);
-                                sec_proj1.set(j, sec_proj1.get(j+1));
-                                sec_proj1.set(j+1, temp); //冒泡排序
-                            }
-                        }
-                        else {
-                            if(tangent.get(sec_proj1.get(j))==0 & tangent.get(sec_proj1.get(j+1))==0) {
-                                if(tangent.get(sec_proj1.get(j)+2)<tangent.get(sec_proj1.get(j+1)+2)) {
-                                    int temp = sec_proj1.get(j);
-                                    sec_proj1.set(j, sec_proj1.get(j+1));
-                                    sec_proj1.set(j+1, temp); //冒泡排序
-                                }
-                            }
-                            else {
-                                if(tangent.get(sec_proj1.get(j))==0) {
-                                    int temp = sec_proj1.get(j);
-                                    sec_proj1.set(j, sec_proj1.get(j+1));
-                                    sec_proj1.set(j+1, temp); //冒泡排序
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (sec_proj2.size()>1) {
-                for (int i=0;i<sec_proj2.size();i++) {
-                    for (int j=0;j<sec_proj2.size()-i-1;j++) {
-                        if(tangent.get(sec_proj2.get(j))!=0 & tangent.get(sec_proj2.get(j+1))!=0) {
-                            if(tangent.get(sec_proj2.get(j)+2)/tangent.get(sec_proj2.get(j)) > tangent.get(sec_proj2.get(j+1)+2)/tangent.get(sec_proj2.get(j+1))) {
-                                int temp = sec_proj2.get(j);
-                                sec_proj2.set(j, sec_proj2.get(j+1));
-                                sec_proj2.set(j+1, temp); //冒泡排序
-                            }
-                        }
-                        else {
-                            if(tangent.get(sec_proj2.get(j))==0 & tangent.get(sec_proj2.get(j+1))==0) {
-                                if(tangent.get(sec_proj2.get(j)+2)<tangent.get(sec_proj2.get(j+1)+2)) {
-                                    int temp = sec_proj2.get(j);
-                                    sec_proj2.set(j, sec_proj2.get(j+1));
-                                    sec_proj2.set(j+1, temp); //冒泡排序
-                                }
-                            }
-                            else {
-                                if(tangent.get(sec_proj2.get(j))==0) {
-                                    int temp = sec_proj2.get(j);
-                                    sec_proj2.set(j, sec_proj2.get(j+1));
-                                    sec_proj2.set(j+1, temp); //冒泡排序
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (sec_proj3.size()>1) {
-                for (int i=0;i<sec_proj3.size();i++) {
-                    for (int j=0;j<sec_proj3.size()-i-1;j++) {
-                        if(tangent.get(sec_proj3.get(j))!=0 & tangent.get(sec_proj3.get(j+1))!=0) {
-                            if(tangent.get(sec_proj3.get(j)+2)/tangent.get(sec_proj3.get(j)) > tangent.get(sec_proj3.get(j+1)+2)/tangent.get(sec_proj3.get(j+1))) {
-                                int temp = sec_proj3.get(j);
-                                sec_proj3.set(j, sec_proj3.get(j+1));
-                                sec_proj3.set(j+1, temp); //冒泡排序
-                            }
-                        }
-                        else {
-                            if(tangent.get(sec_proj3.get(j))==0 & tangent.get(sec_proj3.get(j+1))==0) {
-                                if(tangent.get(sec_proj3.get(j)+2)<tangent.get(sec_proj3.get(j+1)+2)) {
-                                    int temp = sec_proj3.get(j);
-                                    sec_proj3.set(j, sec_proj3.get(j+1));
-                                    sec_proj3.set(j+1, temp); //冒泡排序
-                                }
-                            }
-                            else {
-                                if(tangent.get(sec_proj3.get(j))==0) {
-                                    int temp = sec_proj3.get(j);
-                                    sec_proj3.set(j, sec_proj3.get(j+1));
-                                    sec_proj3.set(j+1, temp); //冒泡排序
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (sec_proj4.size()>1) {
-                for (int i=0;i<sec_proj4.size();i++) {
-                    for (int j=0;j<sec_proj4.size()-i-1;j++) {
-                        if(tangent.get(sec_proj4.get(j))!=0 & tangent.get(sec_proj4.get(j+1))!=0) {
-                            if(tangent.get(sec_proj4.get(j)+2)/tangent.get(sec_proj4.get(j)) > tangent.get(sec_proj4.get(j+1)+2)/tangent.get(sec_proj4.get(j+1))) {
-                                int temp = sec_proj4.get(j);
-                                sec_proj4.set(j, sec_proj4.get(j+1));
-                                sec_proj4.set(j+1, temp); //冒泡排序
-                            }
-                        }
-                        else {
-                            if(tangent.get(sec_proj4.get(j))==0 & tangent.get(sec_proj4.get(j+1))==0) {
-                                if(tangent.get(sec_proj4.get(j)+1)<tangent.get(sec_proj4.get(j+1)+1)) {
-                                    int temp = sec_proj4.get(j);
-                                    sec_proj4.set(j, sec_proj4.get(j+1));
-                                    sec_proj4.set(j+1, temp); //冒泡排序
-                                }
-                            }
-                            else {
-                                if(tangent.get(sec_proj4.get(j))==0) {
-                                    int temp = sec_proj4.get(j);
-                                    sec_proj4.set(j, sec_proj4.get(j+1));
-                                    sec_proj4.set(j+1, temp); //冒泡排序
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-
-        }
-        else {
-            for (int i=0;i<tangent.size();i+=3) {
-                if(tangent.get(i)>=0 & tangent.get(i+1)>=0) {
-
-                    sec_proj1.add(i);
-
-                }// 第一象限
-                else if(tangent.get(i)<=0 & tangent.get(i+1)>=0) {
-
-                    sec_proj2.add(i);
-
-                }// 第二象限
-                else if(tangent.get(i)<=0 & tangent.get(i+1)<=0) {
-
-                    sec_proj3.add(i);
-
-                }// 第三象限
-                else if(tangent.get(i)>=0 & tangent.get(i+1)<=0) {
-
-                    sec_proj4.add(i);
-
-                }// 第四象限
-
-            }
-        }
-
-
-
-
-
-        //只用判断大于1的情况，如果没有那就刚好不用管了，如果只有一个元素，那也不用排序了
-        if (sec_proj1.size()>1) {
-            for (int i=0;i<sec_proj1.size();i++) {
-                for (int j=0;j<sec_proj1.size()-i-1;j++) {
-                    if(tangent.get(sec_proj1.get(j))!=0 & tangent.get(sec_proj1.get(j+1))!=0) {
-                        if(tangent.get(sec_proj1.get(j)+1)/tangent.get(sec_proj1.get(j)) > tangent.get(sec_proj1.get(j+1)+1)/tangent.get(sec_proj1.get(j+1))) {
-                            int temp = sec_proj1.get(j);
-                            sec_proj1.set(j, sec_proj1.get(j+1));
-                            sec_proj1.set(j+1, temp); //冒泡排序
-                        }
-                    }
-                    else {
-                        if(tangent.get(sec_proj1.get(j))==0 & tangent.get(sec_proj1.get(j+1))==0) {
-                            if(tangent.get(sec_proj1.get(j)+1)<tangent.get(sec_proj1.get(j+1)+1)) {
-                                int temp = sec_proj1.get(j);
-                                sec_proj1.set(j, sec_proj1.get(j+1));
-                                sec_proj1.set(j+1, temp); //冒泡排序
-                            }
-                        }
-                        else {
-                            if(tangent.get(sec_proj1.get(j))==0) {
-                                int temp = sec_proj1.get(j);
-                                sec_proj1.set(j, sec_proj1.get(j+1));
-                                sec_proj1.set(j+1, temp); //冒泡排序
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (sec_proj2.size()>1) {
-            for (int i=0;i<sec_proj2.size();i++) {
-                for (int j=0;j<sec_proj2.size()-i-1;j++) {
-                    if(tangent.get(sec_proj2.get(j))!=0 & tangent.get(sec_proj2.get(j+1))!=0) {
-                        if(tangent.get(sec_proj2.get(j)+1)/tangent.get(sec_proj2.get(j)) > tangent.get(sec_proj2.get(j+1)+1)/tangent.get(sec_proj2.get(j+1))) {
-                            int temp = sec_proj2.get(j);
-                            sec_proj2.set(j, sec_proj2.get(j+1));
-                            sec_proj2.set(j+1, temp); //冒泡排序
-                        }
-                    }
-                    else {
-                        if(tangent.get(sec_proj2.get(j))==0 & tangent.get(sec_proj2.get(j+1))==0) {
-                            if(tangent.get(sec_proj2.get(j)+1)<tangent.get(sec_proj2.get(j+1)+1)) {
-                                int temp = sec_proj2.get(j);
-                                sec_proj2.set(j, sec_proj2.get(j+1));
-                                sec_proj2.set(j+1, temp); //冒泡排序
-                            }
-                        }
-                        else {
-                            if(tangent.get(sec_proj2.get(j))==0) {
-                                int temp = sec_proj2.get(j);
-                                sec_proj2.set(j, sec_proj2.get(j+1));
-                                sec_proj2.set(j+1, temp); //冒泡排序
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (sec_proj3.size()>1) {
-            for (int i=0;i<sec_proj3.size();i++) {
-                for (int j=0;j<sec_proj3.size()-i-1;j++) {
-                    if(tangent.get(sec_proj3.get(j))!=0 & tangent.get(sec_proj3.get(j+1))!=0) {
-                        if(tangent.get(sec_proj3.get(j)+1)/tangent.get(sec_proj3.get(j)) > tangent.get(sec_proj3.get(j+1)+1)/tangent.get(sec_proj3.get(j+1))) {
-                            int temp = sec_proj3.get(j);
-                            sec_proj3.set(j, sec_proj3.get(j+1));
-                            sec_proj3.set(j+1, temp); //冒泡排序
-                        }
-                    }
-                    else {
-                        if(tangent.get(sec_proj3.get(j))==0 & tangent.get(sec_proj3.get(j+1))==0) {
-                            if(tangent.get(sec_proj3.get(j)+1)<tangent.get(sec_proj3.get(j+1)+1)) {
-                                int temp = sec_proj3.get(j);
-                                sec_proj3.set(j, sec_proj3.get(j+1));
-                                sec_proj3.set(j+1, temp); //冒泡排序
-                            }
-                        }
-                        else {
-                            if(tangent.get(sec_proj3.get(j))==0) {
-                                int temp = sec_proj3.get(j);
-                                sec_proj3.set(j, sec_proj3.get(j+1));
-                                sec_proj3.set(j+1, temp); //冒泡排序
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (sec_proj4.size()>1) {
-            for (int i=0;i<sec_proj4.size();i++) {
-                for (int j=0;j<sec_proj4.size()-i-1;j++) {
-                    if(tangent.get(sec_proj4.get(j))!=0 & tangent.get(sec_proj4.get(j+1))!=0) {
-                        if(tangent.get(sec_proj4.get(j)+1)/tangent.get(sec_proj4.get(j)) > tangent.get(sec_proj4.get(j+1)+1)/tangent.get(sec_proj4.get(j+1))) {
-                            int temp = sec_proj4.get(j);
-                            sec_proj4.set(j, sec_proj4.get(j+1));
-                            sec_proj4.set(j+1, temp); //冒泡排序
-                        }
-                    }
-                    else {
-                        if(tangent.get(sec_proj4.get(j))==0 & tangent.get(sec_proj4.get(j+1))==0) {
-                            if(tangent.get(sec_proj4.get(j)+1)<tangent.get(sec_proj4.get(j+1)+1)) {
-                                int temp = sec_proj4.get(j);
-                                sec_proj4.set(j, sec_proj4.get(j+1));
-                                sec_proj4.set(j+1, temp); //冒泡排序
-                            }
-                        }
-                        else {
-                            if(tangent.get(sec_proj4.get(j))==0) {
-                                int temp = sec_proj4.get(j);
-                                sec_proj4.set(j, sec_proj4.get(j+1));
-                                sec_proj4.set(j+1, temp); //冒泡排序
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-
-        for(int i=0;i<sec_proj1.size();i++) {
-            sec_anti.add(tangent.get(sec_proj1.get(i)));
-            sec_anti.add(tangent.get(sec_proj1.get(i)+1));
-            sec_anti.add(tangent.get(sec_proj1.get(i)+2));
-        }
-        for(int i=0;i<sec_proj2.size();i++) {
-            sec_anti.add(tangent.get(sec_proj2.get(i)));
-            sec_anti.add(tangent.get(sec_proj2.get(i)+1));
-            sec_anti.add(tangent.get(sec_proj2.get(i)+2));
-        }
-        for(int i=0;i<sec_proj3.size();i++) {
-            sec_anti.add(tangent.get(sec_proj3.get(i)));
-            sec_anti.add(tangent.get(sec_proj3.get(i)+1));
-            sec_anti.add(tangent.get(sec_proj3.get(i)+2));
-        }
-        for(int i=0;i<sec_proj4.size();i++) {
-            sec_anti.add(tangent.get(sec_proj4.get(i)));
-            sec_anti.add(tangent.get(sec_proj4.get(i)+1));
-            sec_anti.add(tangent.get(sec_proj4.get(i)+2));
-        }
 
         float [] vertexPoints = new float[sec_anti.size()];
         for (int i = 0; i < sec_anti.size(); i++){
@@ -8641,12 +8385,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        boolean gameSucceed = myrenderer.driveMode(vertexPoints, dir);
-        if (!gameSucceed){
-            Toast.makeText(context, "wrong vertex to draw", Toast.LENGTH_SHORT);
-        } else {
-            myGLSurfaceView.requestRender();
-        }
+//        boolean gameSucceed = myrenderer.driveMode(vertexPoints, dir);
+//        if (!gameSucceed){
+//            Toast.makeText(context, "wrong vertex to draw", Toast.LENGTH_SHORT);
+//        } else {
+//            myGLSurfaceView.requestRender();
+//        }
     }
 
 }
