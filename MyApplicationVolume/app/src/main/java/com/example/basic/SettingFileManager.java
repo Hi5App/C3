@@ -1244,6 +1244,7 @@ public class SettingFileManager {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return "Error";
         }
         Log.v("get source", source);
         return source;

@@ -186,6 +186,9 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String File_path = "com.example.myfirstapp.MESSAGE";
 
+    public static final String ip_SEU = "223.3.33.234";
+    public static final String ip_ALiYun = "39.100.35.131";
+
     private SensorManager mSensorManager;
     private Timer timer=null;
 
@@ -463,16 +466,6 @@ public class MainActivity extends AppCompatActivity {
 
                     }
 
-                    if (isBigData_Remote){
-//                        String filename = getFilename(context);
-//                        String offset = getoffset(context, filename);
-//
-//                        String offset_x = offset.split("_")[0];
-//                        String offset_y = offset.split("_")[1];
-//                        String offset_z = offset.split("_")[2];
-//                        Toast.makeText(getContext(),"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
-                    }
-
                     if (isBigData_Local){
                         String filename = SettingFileManager.getFilename_Local(context);
                         String offset = SettingFileManager.getoffset_Local(context, filename);
@@ -508,7 +501,7 @@ public class MainActivity extends AppCompatActivity {
 //                        result = name.split("__")[0];
                         String brain_num = getFilename_Remote(context);
                         String neuron_num = getNeuronNumber_Remote(context, brain_num);
-                        result = brain_num.split("_")[0] + "_" + neuron_num.split("_")[1] + "_" + getArborNum(context,brain_num.split("RES")[0]);
+                        result = brain_num.split("_")[0] + "_" + neuron_num.split("_")[1] + "_" + getArborNum(context,brain_num.split("/")[0] + "_" + neuron_num);
                     }
 
                     setFilename(result);
@@ -5173,7 +5166,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200831a 09:13 UTC+8 build",
+                                "Version: 20200831b 09:18 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5212,24 +5205,22 @@ public class MainActivity extends AppCompatActivity {
                             public void onSelect(int position, String text) {
                                 switch (text) {
                                     case "AliYun Server":
-                                        String ip = "39.100.35.131";
-//                                        String ip = "192.168.31.11";
-                                        if (DrawMode){
-                                            BigFileRead_Remote(ip);
-                                        }else {
-                                            BigFileRead_Remote_Check(ip);
-                                        }
+                                        Toast_in_Thread("The Server is under Maintenance !");
+//                                        setSelectSource("Remote Server Aliyun",context);
+//                                        if (DrawMode){
+//                                            BigFileRead_Remote(ip_ALiYun);
+//                                        }else {
+//                                            BigFileRead_Remote_Check(ip_ALiYun);
+//                                        }
                                         break;
 
                                     case "SEU Server":
+                                        setSelectSource("Remote Server SEU",context);
                                         if (DrawMode){
-                                            BigFileRead_Remote("223.3.33.234");
+                                            BigFileRead_Remote(ip_SEU);
                                         }else {
-                                            BigFileRead_Remote_Check("223.3.33.234");
+                                            BigFileRead_Remote_Check(ip_SEU);
                                         }
-//
-//                                        BigFileRead_Remote("223.3.33.234");
-//                                        Toast.makeText(getContext(), "The server is not available now", Toast.LENGTH_SHORT).show();
                                         break;
 
                                     case "Local Server":
@@ -5557,13 +5548,8 @@ public class MainActivity extends AppCompatActivity {
         String offset   = null;
         float[] neuron = null; float[] block = null; float[] size = null;
         if (isBigData_Remote){
-            if (DrawMode){
-                filename = getFilename_Remote(this);
-                offset   = getoffset_Remote(this, filename);
-            }else {
-                filename = getFilename_Remote_Check(this);
-                offset   = getoffset_Remote_Check(this, filename);
-            }
+            filename = getFilename_Remote(this);
+            offset   = getoffset_Remote(this, filename);
         }
         if (isBigData_Local){
             filename = SettingFileManager.getFilename_Local(this);
@@ -5598,14 +5584,15 @@ public class MainActivity extends AppCompatActivity {
             size   = new float[]{size_block, size_block, size_block};
         }else {
 
-            int offset_x_i = ( Integer.parseInt(offset.split(";")[0]) + Integer.parseInt(offset.split(";")[1]) ) / 2 -1;
-            int offset_y_i = ( Integer.parseInt(offset.split(";")[2]) + Integer.parseInt(offset.split(";")[3]) ) / 2 -1;
-            int offset_z_i = ( Integer.parseInt(offset.split(";")[4]) + Integer.parseInt(offset.split(";")[5]) ) / 2 -1;
-            int size_i     = ( Integer.parseInt(offset.split(";")[1]) - Integer.parseInt(offset.split(";")[0]) );
+            String[] offset_arr = offset.split("_");
+            int[] offset_arr_i = new int[4];
+            for (int i =0; i<offset_arr_i.length; i++){
+                offset_arr_i[i] = Integer.parseInt(offset_arr[i]);
+            }
 
-            neuron = remote_socket.getImg_size_f();
-            block  = new float[]{offset_x_i, offset_y_i, offset_z_i};
-            size   = new float[]{size_i, size_i, size_i};
+            block  = new float[]{offset_arr_i[0], offset_arr_i[1], offset_arr_i[2]};
+            size   = new float[]{offset_arr_i[3], offset_arr_i[3], offset_arr_i[3]};
+            neuron = remote_socket.getImg_size_f(block);
 
         }
 
@@ -5626,76 +5613,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private String getip(){
-        String ip = null;
 
-        String filepath = getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/ip.txt");
-        if (!file.exists()){
-            try {
-                File dir = new File(file.getParent());
-                dir.mkdirs();
-                file.createNewFile();
-
-                String str = "39.100.35.131";
-                FileOutputStream outStream = new FileOutputStream(file);
-                outStream.write(str.getBytes());
-                outStream.close();
-
-            }catch (Exception e){
-                Log.v("get ip", "Fail to create file");
-                e.printStackTrace();
-            }
-        }
-
-        try {
-            FileInputStream inputStream = new FileInputStream(file);
-            if (inputStream != null) {
-                InputStreamReader inputreader
-                        = new InputStreamReader(inputStream, "UTF-8");
-                BufferedReader buffreader = new BufferedReader(inputreader);
-                String line = "";
-
-                line = buffreader.readLine();
-                ip = line;
-
-//                //分行读取
-//                while ((line = buffreader.readLine()) != null) {
-//                    ip = line;
-//                }
-                inputStream.close();//关闭输入流
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Log.v("get ip", ip);
-        return ip;
-    }
-
-    private void setip(String ip){
-        String filepath = getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/ip.txt");
-        if (!file.exists()){
-            try {
-                File dir = new File(file.getParent());
-                dir.mkdirs();
-                file.createNewFile();
-            }catch (Exception e){
-                Log.v("get ip", "Fail to create file");
-            }
-        }
-
-        try {
-
-            FileOutputStream outStream = new FileOutputStream(file);
-            outStream.write(ip.getBytes());
-            outStream.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
 
     private void SaveSWC() {
         context = this;
@@ -8027,9 +7945,9 @@ public class MainActivity extends AppCompatActivity {
             case "Remote Server Aliyun":
             case "Remote Server SEU":
                 if (source.equals("Remote Server Aliyun")){
-                    ip = "39.100.35.131";
+                    ip = ip_ALiYun;
                 }else {
-                    ip = "223.3.33.234";
+                    ip = ip_SEU;
                 }
                 if (DrawMode){
                     remote_socket.DisConnectFromHost();
@@ -8057,33 +7975,6 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
-//        Context context = this;
-//        new XPopup.Builder(this)
-////        .maxWidth(400)
-////        .maxHeight(1350)
-//                .asCenterList("Select block", new String[]{"Remote Server", "Local Server"},
-//                        new OnSelectListener() {
-//                            @Override
-//                            public void onSelect(int position, String text) {
-//                                switch (text) {
-//                                    case "Remote Server":
-////                                        remoteImg.Selectblock(context, false);
-//                                        String ip = "39.100.35.131";
-//                                        remote_socket.DisConnectFromHost();
-//                                        remote_socket.ConnectServer(ip);
-//                                        remote_socket.SelectBlock();
-//                                        break;
-//                                    case "Local Server":
-//                                        bigImgReader.PopUp(context);
-//                                        break;
-//                                    default:
-////                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();
-//                                        Toast.makeText(getContext(), "Default in file", Toast.LENGTH_SHORT).show();
-//
-//                                }
-//                            }
-//                        })
-//                .show();
     }
 
 
@@ -8104,9 +7995,9 @@ public class MainActivity extends AppCompatActivity {
     public static void LoadBigFile_Remote(String filepath){
 
         Log.v("MainActivity",remote_socket.getIp());
-        if (remote_socket.getIp().equals("39.100.35.131")){
+        if (remote_socket.getIp().equals(ip_ALiYun)){
             setSelectSource("Remote Server Aliyun",context);
-        } else if (remote_socket.getIp().equals("223.3.33.234")){
+        } else if (remote_socket.getIp().equals(ip_SEU)){
             setSelectSource("Remote Server SEU",context);
         }
 

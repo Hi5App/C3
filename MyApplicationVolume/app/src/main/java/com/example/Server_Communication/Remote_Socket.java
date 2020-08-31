@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.Vector;
 
 import cn.carbs.android.library.MDDialog;
@@ -234,17 +235,16 @@ public class Remote_Socket extends Socket {
                 String[] file_string = information.split(":");
                 String[] file_list = file_string[0].split(";");
 
-                for (int i = 0; i < file_list.length; i++)
-                    Log.v("onReadyRead", file_list[i]);
+//                for (int i = 0; i < file_list.length; i++)
+//                    Log.v("onReadyRead", file_list[i]);
 
                 ShowListDialog(file_list);
-//                ShowListDialog(mContext, file_list, "CurrentDirImgDownExp");
             }else if (information.contains(CurrentDirArborDownExp)){
                 String[] file_string = information.split(":");
                 String[] file_list = file_string[0].split(";");
 
                 for (int i = 0; i < file_list.length; i++){
-                    Log.v("onReadyRead", file_list[i]);
+//                    Log.v("onReadyRead", file_list[i]);
                     Arbor_Check_List.add(file_list[i]);
                 }
 
@@ -983,8 +983,17 @@ public class Remote_Socket extends Socket {
                                     String boundingbox = text.substring(ordinalIndexOf(text, ";", 3)+1);
                                     String ArborNum = text.substring(0, ordinalIndexOf(text, ";", 3));
                                     String filename = getFilename_Remote(mContext);
-                                    setBoundingBox(boundingbox, filename, mContext);
-                                    setArborNum(ArborNum, filename.split("RES")[0], mContext);
+                                    String neuron_num = getNeuronNumber_Remote(mContext,filename);
+                                    setArborNum(ArborNum, filename.split("/")[0] + "_" + neuron_num, mContext);
+
+                                    Log.i(TAG,ArborNum);
+                                    Log.i(TAG,filename.split("RES")[0]);
+
+                                    Vector<String> res_temp = getRES(mContext, BrainNumber_Selected);
+                                    String res_cur  = filename.split("/")[1];   // RES: RES250x250x250
+                                    float ratio = getRatio(res_cur, res_temp.lastElement());
+                                    String boundingbox_new = getNewBoundingBox(boundingbox, ratio);
+                                    setBoundingBox(boundingbox_new, filename + "/" + neuron_num + "/" + ArborNum.split(":")[0].replace(" ","_"), mContext);
                                 }
 
                                 PopUp(false);
@@ -1305,18 +1314,23 @@ public class Remote_Socket extends Socket {
         return new int[]{end_x - start_x, end_y - start_y, end_z - start_z};
     }
 
-    public float[] getImg_size_f(){
+    public float[] getImg_size_f(float[] block_offset){
 
-        String filename = getFilename_Remote_Check(mContext);
+        String filename = getFilename_Remote(mContext);
+        String neuron_num = getNeuronNumber_Remote(mContext,filename);
+        String ArborNum = getArborNum(mContext,filename.split("/")[0] + "_" + neuron_num);
+        String boundingBox = getBoundingBox(mContext,filename + "/" + neuron_num + "/" + ArborNum.split(":")[0].replace(" ","_"));
 
-        int start_x = Integer.parseInt(filename.split("RES")[1].split("__")[1]);
-        int end_x   = Integer.parseInt(filename.split("RES")[1].split("__")[2]);
-        int start_y = Integer.parseInt(filename.split("RES")[1].split("__")[3]);
-        int end_y   = Integer.parseInt(filename.split("RES")[1].split("__")[4]);
-        int start_z = Integer.parseInt(filename.split("RES")[1].split("__")[5]);
-        int end_z   = Integer.parseInt(filename.split("RES")[1].split("__")[6]);
+        String[] boundingBox_arr = boundingBox.split(";");
+        int[] boundingbox_arr_i = new int[boundingBox_arr.length];
+        for (int i=0; i<boundingBox_arr.length; i++){
+            boundingbox_arr_i[i] =  Integer.parseInt(boundingBox_arr[i]);
+        }
+        block_offset[0] -= boundingbox_arr_i[0];
+        block_offset[1] -= boundingbox_arr_i[2];
+        block_offset[2] -= boundingbox_arr_i[4];
 
-        return new float[]{end_x - start_x, end_y - start_y, end_z - start_z};
+        return new float[]{boundingbox_arr_i[1] - boundingbox_arr_i[0], boundingbox_arr_i[3] - boundingbox_arr_i[2], boundingbox_arr_i[5] - boundingbox_arr_i[4]};
     }
 
 
@@ -1377,6 +1391,12 @@ public class Remote_Socket extends Socket {
                     offset = input[0] + "_" + input[1] + "_" + input[2] + "_" + input[3];
                     setoffset_Remote(offset, filename_new, mContext);
                     setNeuronNumber_Remote(Neuron_Number_Selected, filename_new, mContext);
+
+                    String ArborNum = getArborNum(mContext,filename.split("/")[0] + "_" + Neuron_Number_Selected);
+                    String boundingbox = getBoundingBox(mContext,filename + "/" + Neuron_Number_Selected + "/" + ArborNum.split(":")[0].replace(" ","_"));
+                    String boundingbox_new = getNewBoundingBox(boundingbox, ratio);
+                    setBoundingBox(boundingbox_new, filename_new + "/" + Neuron_Number_Selected + "/" + ArborNum.split(":")[0].replace(" ","_"), mContext);
+
                     PullImageBlock(input[0], input[1], input[2], input[3], true);
                 }else {
                     setFilename_Remote(filename, mContext);
@@ -1523,7 +1543,8 @@ public class Remote_Socket extends Socket {
 //                String result = neuron_num + ";" +getBoundingBox(mContext,brain_num);
                 String result = neuron_num + ";" +boundingbox;
 //                String Check_Info = result + ";1;" + getUserAccount_Check(mContext) + ":ArborCheck.\n";
-                String Check_Info = result + ";1;" + getUserAccount_Check(mContext) + ";" + getArborNum(mContext,brain_num.split("RES")[0]).split(":")[0].split(" ")[1] +":ArborCheck.\n";
+                String Check_Info = result + ";1;" + getUserAccount_Check(mContext) + ";" +
+                        getArborNum(mContext,brain_num.split("/")[0] + "_" + neuron_num).split(":")[0].split(" ")[1] +":ArborCheck.\n";
 
                 Log.i(TAG,Check_Info);
                 Send_Message(Check_Info);
@@ -1567,7 +1588,8 @@ public class Remote_Socket extends Socket {
 //                String result = neuron_num + ";" +getBoundingBox(mContext,brain_num);
                 String result = neuron_num + ";" +boundingbox;
 //                String Check_Info = result + ";1;" + getUserAccount_Check(mContext) + ":ArborCheck.\n";
-                String Check_Info = result + ";0;" + getUserAccount_Check(mContext) + ";" + getArborNum(mContext,brain_num.split("RES")[0]).split(":")[0].split(" ")[1] +":ArborCheck.\n";
+                String Check_Info = result + ";0;" + getUserAccount_Check(mContext) + ";" +
+                        getArborNum(mContext,brain_num.split("/")[0] + "_" + neuron_num).split(":")[0].split(" ")[1] +":ArborCheck.\n";
 
                 Log.i(TAG,Check_Info);
                 Send_Message(Check_Info);
@@ -1627,6 +1649,24 @@ public class Remote_Socket extends Socket {
                 Integer.toString((int) offset_y_float),
                 Integer.toString((int) offset_z_float),
                 size};
+
+    }
+
+    private String getNewBoundingBox(String boundingbox, float ratio){
+
+        String[] offset = boundingbox.split(";");
+        int[] offset_f = new int[offset.length];
+
+        for (int i=0; i<offset.length; i++){
+            offset_f[i] = (int) ( Float.parseFloat(offset[i]) * ratio );
+            offset[i] = Integer.toString(offset_f[i]);
+        }
+
+        String result = offset[0];
+        for (int i=1; i<offset.length; i++){
+            result += ";" + offset[i];
+        }
+        return result;
 
     }
 
