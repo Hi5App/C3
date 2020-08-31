@@ -2,13 +2,14 @@
 #include "server.h"
 
 #include <iostream>
-//<<<<<<< HEAD
 #include <QFileInfo>
 #include <limits>
+
 void getApo(QString brainDir,QString apoDir);
 void writeBrainInfo(QString apoDir,QString infoWithTxt);
 void getBB(const V_NeuronSWC_list& T,const QString & Filename);
-
+void writeCheckBrainInfo(QString swcPath,QString infoWithTxt);
+void combineData(QString swcPath,QString apoPath,QString dstPath);
 //image dir:put brain image
 //image
 //  --brainnumber dir
@@ -18,46 +19,43 @@ void getBB(const V_NeuronSWC_list& T,const QString & Filename);
 //data dir:put anotation data such as swc
 //tmp dir:put some temp file(after use will delete)
 //neuronInfo dir:a whole brain info save as a .txt in it,will send to user.
-//int sum=0;
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    Server server;
-    if(!server.listen(QHostAddress::Any,9000))
-        exit(0);
-    else
-        std::cout<<"Server start:Version 1.1(HL)\n";
 
-//    getApo("C:/Users/Brain/Desktop/C3-preconstruction-8200/18454_to C3","C:/Users/Brain/Desktop/18454");
-//    writeBrainInfo("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/mouse18454_teraconvert.txt");
-    return a.exec();
-}
+
 //    if(argc==1)
 //    {
-//        Server server;
-//        if(!server.listen(QHostAddress::Any,9000))
-//            exit(0);
-//        else
-//            std::cout<<"Server start:Version 1.1(HL)\n";
-//    }else
+        Server server;
+        if(!server.listen(QHostAddress::Any,9000))
+            exit(0);
+        else
+            std::cout<<"Server start:Version 1.2(HL)\n";
+//    }else if(argc==3)
 //    {
-//        if(argc==4)
+//        writeCheckBrainInfo(argv[1],argv[2]);
+//                    qDebug()<<"end";
+//        //    writeCheckBrainInfo("C:/Users/Brain/Desktop/17302_check","C:/Users/Brain/Desktop/mouse17302_teraconvert.txt");
+//    }else if(argc==5)
+//    {
+//        if(QString(argv[1]).toUInt()==0)
 //        {
-//            if(argv[1]=="1")
-//            {
-//                writeBrainInfo(QString(argv[2]),QString(argv[3]));
-//            }else if(argv[1]=="2")
-//            {
+//            getApo(argv[2],argv[3]);
+//            writeBrainInfo(argv[3],argv[4]);
 
-//            }else if(argv[1]=="3")
-//            {
-
-//            }
+//            qDebug()<<"end";
+//        //    getApo("C:/Users/Brain/Desktop/C3-preconstruction-8200/18454_to C3","C:/Users/Brain/Desktop/18454");
+//        //    writeBrainInfo("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/mouse18454_teraconvert.txt");
+//        }else if(QString(argv[1]).toUInt()==1)
+//        {
+//            combineData(argv[2],argv[3],argv[4]);
+//                        qDebug()<<"end";
+////            combineData("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/18454_to C3","C:/Users/Brain/Desktop/res");
 //        }
 //    }
-
-
-
+    return a.exec();
+}
 //    qDebug()<<list.size();
 
 
@@ -97,6 +95,79 @@ int main(int argc, char *argv[])
 //    return a.exec();
 //}
 
+void combineData(QString swcPath,QString apoPath,QString dstPath)
+{
+    QDir swcDir(swcPath);
+    QDir apoDir(apoPath);
+    QDir dstDir(dstPath);
+    auto apoList=apoDir.entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot);
+
+    QStringList noSwcList;
+    QStringList enSwcList;
+    QStringList emSwcList;
+
+    for(auto apo:apoList)
+    {
+        QString apoBaseName=apo.baseName();
+        if(QFile(swcPath+"/"+apoBaseName+".swc").exists())
+        {
+            auto nt=readSWC_file(swcPath+"/"+apoBaseName+".swc");
+            if(nt.listNeuron.size()!=0)
+            {
+                enSwcList.push_back(apoBaseName);
+                {
+                    auto markers=readAPO_file(apoPath+"/"+apoBaseName+"/"+apoBaseName+".apo");
+                    {
+                        dstDir.mkdir(apoBaseName);
+                        QString tempname =dstPath+"/"+apoBaseName+"/"+apoBaseName+".ano";
+                        QFile anofile(tempname);
+                        anofile.open(QIODevice::WriteOnly);
+                        QString str1="APOFILE="+apoBaseName+".ano.apo";
+                        QString str2="SWCFILE="+apoBaseName+".ano.eswc";
+
+                        QTextStream out(&anofile);
+                        out<<str1<<endl<<str2;
+                        anofile.close();
+                    }
+                    writeAPO_file(dstPath+"/"+apoBaseName+"/"+apoBaseName+".ano.apo",markers);
+                    writeESWC_file(dstPath+"/"+apoBaseName+"/"+apoBaseName+".ano.eswc",nt);
+                }
+            }else
+            {
+                emSwcList.push_back(apoBaseName);
+            }
+        }else
+        {
+            noSwcList.push_back(apoBaseName);
+        }
+    }
+
+    QFile resF(dstPath+"/result.txt");
+    if(resF.open(QIODevice::Text|QIODevice::WriteOnly))
+    {
+        QTextStream stream(&resF);
+        stream<<"noSwcList:"<<noSwcList.size()<<endl;
+        for(auto i:noSwcList)
+        {
+            stream<<i<<endl;
+        }
+        stream<<"enSwcList:"<<enSwcList.size()<<endl;
+        for(auto i:enSwcList)
+        {
+            stream<<i<<endl;
+        }
+        stream<<"emSwcList:"<<emSwcList.size()<<endl;
+        for(auto i:emSwcList)
+        {
+            stream<<i<<endl;
+        }
+        resF.close();
+    }
+
+    qDebug()<<"end";
+}
+
+
 vector<uint> getBB(const V_NeuronSWC_list& T)
 {
     uint x1,x2,y1,y2,z1,z2;
@@ -115,14 +186,13 @@ vector<uint> getBB(const V_NeuronSWC_list& T)
         }
     }
     if(x1<x2&&y1<y2&&z1<z2){
-        qDebug()<<ceil((x2-x1)/4)*ceil((y2-y1)/4)*ceil((z2-z1)/4)/1000000000.0;
 
-        x1=floor(x1/4);
-        x2=ceil(x2/4);
-        y1=floor(y1/4);
-        y2=ceil(y2/4);
-        z1=floor(z1/4);
-        z2=ceil(z2/4);
+        x1=floor(x1);
+        x2=ceil(x2);
+        y1=floor(y1);
+        y2=ceil(y2);
+        z1=floor(z1);
+        z2=ceil(z2);
         return vector<uint>{x1,x2,y1,y2,z1,z2};
     }
     return vector<uint>();
@@ -177,8 +247,8 @@ void writeBrainInfo(QString apoDir,QString infoWithTxt)
                      <<";"<<QString::number(int(apos[0].y))
                      <<";"<<QString::number(int(apos[0].z))<<endl
                      <<"arbor:0";
-                NeuronTree nt;
-                writeSWC_file(apoDir+"/"+list[i].baseName()+".swc",nt);
+//                NeuronTree nt;
+//                writeSWC_file(apoDir+"/"+list[i].baseName()+".swc",nt);
                 if(i!=list.count()-1)
                     stream<<endl;
 
@@ -214,14 +284,14 @@ void writeCheckBrainInfo(QString swcPath,QString infoWithTxt)
                 qDebug()<<"error:"<<list[i].fileName();
                 continue;
             }
-            for(int i=0;i<nt.listNeuron.size();i++)
+            for(int j=0;j<nt.listNeuron.size();j++)
             {
-                if(nt.listNeuron[i].pn==-1)
+                if(nt.listNeuron[j].pn==-1)
                 {
                     stream<<"##"<<list[i].baseName()<<endl
-                         <<"soma:"<<QString::number(int(nt.listNeuron[i].x))
-                         <<";"<<QString::number(int(nt.listNeuron[i].y))
-                         <<";"<<QString::number(int(nt.listNeuron[i].z))<<endl;
+                         <<"soma:"<<QString::number(int(nt.listNeuron[j].x))
+                         <<";"<<QString::number(int(nt.listNeuron[j].y))
+                         <<";"<<QString::number(int(nt.listNeuron[j].z))<<endl;
                            break;
                 }
             }
@@ -269,8 +339,8 @@ void writeCheckBrainInfo(QString swcPath,QString infoWithTxt)
                 {
                     if(nt3.listNeuron[i].pn==-1)
                     {
-                            stream<<QString::number(cnt++)<<":"<<QString::number(nt3.listNeuron[i].x)<<";"<<QString::number(nt3.listNeuron[i].y)
-                                 <<";"<<QString::number(nt3.listNeuron[i].z)<<";"<<QString::number(v3.at(0))<<";"<<QString::number(v3.at(1))
+                            stream<<QString::number(cnt++)<<":"<<QString::number(int(nt3.listNeuron[i].x))<<";"<<QString::number(int(nt3.listNeuron[i].y))
+                                 <<";"<<QString::number(int(nt3.listNeuron[i].z))<<";"<<QString::number(v3.at(0))<<";"<<QString::number(v3.at(1))
                                 <<";"<<QString::number(v3.at(2))<<";"<<QString::number(v3.at(3))
                                 <<";"<<QString::number(v3.at(4))<<";"<<QString::number(v3.at(5))<<endl;
 
@@ -286,8 +356,8 @@ void writeCheckBrainInfo(QString swcPath,QString infoWithTxt)
                 {
                     if(nt2.listNeuron[i].pn==-1)
                     {
-                            stream<<QString::number(cnt++)<<":"<<QString::number(nt2.listNeuron[i].x)<<";"<<QString::number(nt2.listNeuron[i].y)
-                                 <<";"<<QString::number(nt2.listNeuron[i].z)<<";"<<QString::number(v2.at(0))<<";"<<QString::number(v2.at(1))
+                            stream<<QString::number(cnt++)<<":"<<QString::number(int(nt2.listNeuron[i].x))<<";"<<QString::number(int(nt2.listNeuron[i].y))
+                                 <<";"<<QString::number(int(nt2.listNeuron[i].z))<<";"<<QString::number(v2.at(0))<<";"<<QString::number(v2.at(1))
                                 <<";"<<QString::number(v2.at(2))<<";"<<QString::number(v2.at(3))
                                 <<";"<<QString::number(v2.at(4))<<";"<<QString::number(v2.at(5))<<endl;
 
@@ -303,8 +373,8 @@ void writeCheckBrainInfo(QString swcPath,QString infoWithTxt)
                 {
                     if(ntother.listNeuron[i].pn==-1)
                     {
-                            stream<<QString::number(cnt++)<<":"<<QString::number(ntother.listNeuron[i].x)<<";"<<QString::number(ntother.listNeuron[i].y)
-                                 <<";"<<QString::number(ntother.listNeuron[i].z)<<";"<<QString::number(vo.at(0))<<";"<<QString::number(vo.at(1))
+                            stream<<QString::number(cnt++)<<":"<<QString::number(int(ntother.listNeuron[i].x))<<";"<<QString::number(int(ntother.listNeuron[i].y))
+                                 <<";"<<QString::number(int(ntother.listNeuron[i].z))<<";"<<QString::number(vo.at(0))<<";"<<QString::number(vo.at(1))
                                 <<";"<<QString::number(vo.at(2))<<";"<<QString::number(vo.at(3))
                                 <<";"<<QString::number(vo.at(4))<<";"<<QString::number(vo.at(5))<<endl;
 
