@@ -147,7 +147,7 @@ void Socket::processMsg(const QString &msg)
         sendFile(filename,0);//0:data/filename //
     }else if(ImageDownRex.indexIn(msg)!=-1)
     {
-        sendMsg(currentImg()+":currentDirImg");
+        sendMsg(currentBrain()+":currentDirImg");
     }else if(BrainNumberRex.indexIn(msg)!=-1)
     {
         QString filename=BrainNumberRex.cap(1).trimmed();
@@ -338,10 +338,10 @@ QString Socket::currentDir() const
     return  dataFileList.join(";");
 }
 
-QString Socket::currentImg() const
+QString Socket::currentBrain() const
 {
-    QString imgPath=QCoreApplication::applicationDirPath()+"/"+IMAGEDIR;
-    QStringList imgDirList=QDir(imgPath).entryList(QDir::Dirs|QDir::NoDotAndDotDot);
+    QString brainPath=QCoreApplication::applicationDirPath()+"/"+"brainInfo";
+    QStringList imgDirList=QDir(brainPath).entryList(QDir::Files|QDir::NoDotAndDotDot);
     return imgDirList.join(";");
 }
 
