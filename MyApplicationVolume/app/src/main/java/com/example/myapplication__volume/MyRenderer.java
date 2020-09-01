@@ -705,8 +705,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             //
             if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.SWC || fileType == FileType.APO || fileType == FileType.ANO || fileType == FileType.V3dPBD)
-//                if (myAxis != null && !ifGame)
                 if (myAxis != null && !ifGame)
+//                if (myAxis != null)
                     myAxis.draw(finalMatrix);
 
 //            System.out.println("---- draw myImg ----");
@@ -5148,56 +5148,56 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public void setVisual(float [] position, float [] dir, float [] head){
-//        System.out.println("AAAAAAAAAAA");
-//        System.out.print(position[0]);
-//        System.out.print(' ');
-//        System.out.print(position[1]);
-//        System.out.print(' ');
-//        System.out.println(position[2]);
-//        System.out.print(dir[0]);
-//        System.out.print(' ');
-//        System.out.print(dir[1]);
-//        System.out.print(' ');
-//        System.out.println(dir[2]);
+        System.out.println("AAAAAAAAAAA");
+        System.out.print(position[0]);
+        System.out.print(' ');
+        System.out.print(position[1]);
+        System.out.print(' ');
+        System.out.println(position[2]);
+        System.out.print(dir[0]);
+        System.out.print(' ');
+        System.out.print(dir[1]);
+        System.out.print(' ');
+        System.out.println(dir[2]);
 //
-//        float [] thirdPerson = thirdPersonAngle(position[0], position[1], position[2], dir[0], dir[1], dir[2], head[0], head[1], head[2]);
-//        float [] thirdDir = new float[]{thirdPerson[3], thirdPerson[4], thirdPerson[5]};
-//        float [] axis = new float[]{thirdDir[0] * head[1] - head[0] * thirdDir[1], thirdDir[1] * head[2] - head[2] * thirdDir[1], thirdDir[2] * head[0] - head[2] * thirdDir[0]};
-//        dir = thirdDir;
-//        position = new float[]{thirdPerson[0], thirdPerson[1], thirdPerson[2]};
-////        float [] thirdHead = locateHead(dir[0], dir[1], dir[2]);
-//        float [] thirdHead = new float[]{axis[0] * thirdDir[1] - thirdDir[0] * axis[1], axis[1] * thirdDir[2] - axis[2] * thirdDir[1], axis[2] * thirdDir[0] - axis[0] * thirdDir[2]};
-//        float acos = thirdHead[0] * head[0] + thirdHead[1] * head[1] + thirdHead[2] * head[2];
-//        if (acos > 0){
-//            head = thirdHead;
-//        } else {
-//            head = new float[]{-thirdHead[0], -thirdHead[1], -thirdHead[2]};
-//        }
+        float [] thirdPerson = thirdPersonAngle(position[0], position[1], position[2], dir[0], dir[1], dir[2], head[0], head[1], head[2]);
+        float [] thirdDir = new float[]{thirdPerson[3], thirdPerson[4], thirdPerson[5]};
+        float [] axis = new float[]{thirdDir[1] * head[2] - head[2] * thirdDir[1], thirdDir[2] * head[0] - head[2] * thirdDir[0], thirdDir[0] * head[1] - head[0] * thirdDir[1]};
+        dir = thirdDir;
+        position = new float[]{thirdPerson[0], thirdPerson[1], thirdPerson[2]};
+//        float [] thirdHead = locateHead(dir[0], dir[1], dir[2]);
+        float [] thirdHead = new float[]{axis[1] * thirdDir[2] - thirdDir[1] * axis[2], axis[2] * thirdDir[0] - axis[0] * thirdDir[2], axis[0] * thirdDir[1] - axis[1] * thirdDir[0]};
+        float acos = thirdHead[0] * head[0] + thirdHead[1] * head[1] + thirdHead[2] * head[2];
+        if (acos > 0){
+            head = thirdHead;
+        } else {
+            head = new float[]{-thirdHead[0], -thirdHead[1], -thirdHead[2]};
+        }
 //        if (head[0] * axis[0] + head[1] * axis[1] + head[2] * axis[2] == 0)
 //            System.out.println("MMMMMMMMMMMMMMMMMMMMM");
 
-//        System.out.println("AAAAAAAAAAA");
-//        System.out.println(head[0] * axis[0] + head[1] * axis[1] + head[2] * axis[2]);
-//        System.out.print(axis[0]);
-//        System.out.print(' ');
-//        System.out.print(axis[1]);
-//        System.out.print(' ');
-//        System.out.println(axis[2]);
-//        System.out.print(position[0]);
-//        System.out.print(' ');
-//        System.out.print(position[1]);
-//        System.out.print(' ');
-//        System.out.println(position[2]);
-//        System.out.print(head[0]);
-//        System.out.print(' ');
-//        System.out.print(head[1]);
-//        System.out.print(' ');
-//        System.out.println(head[2]);
-//        System.out.print(dir[0]);
-//        System.out.print(' ');
-//        System.out.print(dir[1]);
-//        System.out.print(' ');
-//        System.out.println(dir[2]);
+        System.out.println("AAAAAAAAAAA");
+        System.out.println(head[0] * axis[0] + head[1] * axis[1] + head[2] * axis[2]);
+        System.out.print(axis[0]);
+        System.out.print(' ');
+        System.out.print(axis[1]);
+        System.out.print(' ');
+        System.out.println(axis[2]);
+        System.out.print(position[0]);
+        System.out.print(' ');
+        System.out.print(position[1]);
+        System.out.print(' ');
+        System.out.println(position[2]);
+        System.out.print(head[0]);
+        System.out.print(' ');
+        System.out.print(head[1]);
+        System.out.print(' ');
+        System.out.println(head[2]);
+        System.out.print(dir[0]);
+        System.out.print(' ');
+        System.out.print(dir[1]);
+        System.out.print(' ');
+        System.out.println(dir[2]);
 
         ArrayList<Integer> sec_proj1 = new ArrayList<Integer>();
         ArrayList<Integer> sec_proj2 = new ArrayList<Integer>();
@@ -5577,7 +5577,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 //        float [] head = locateHead(dir[0], dir[1], dir[2]);
 
-        boolean gameSucceed = driveMode(vertexPoints, dir, head);
+        boolean gameSucceed = driveMode(vertexPoints, thirdDir, head);
 
 //        if (!gameSucceed){
 //            Toast.makeText(context, "wrong vertex to draw", Toast.LENGTH_SHORT);
