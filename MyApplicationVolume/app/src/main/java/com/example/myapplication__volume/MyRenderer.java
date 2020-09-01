@@ -332,6 +332,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
 
+        if (ifGame) {
+            Matrix.setIdentityM(translateMatrix, 0);//建立单位矩阵
+
+            if (!ifNavigationLococation) {
+                Matrix.translateM(translateMatrix, 0, -0.5f * mz[0], -0.5f * mz[1], -0.5f * mz[2]);
+            } else {
+                Matrix.translateM(translateMatrix, 0, -0.5f * mz_neuron[0], -0.5f * mz_neuron[1], -0.5f * mz_neuron[2]);
+            }
+        }
 
 //        if (ifGame){
 //            setVisual(gamePosition, gameDir);
@@ -350,6 +359,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl){
 
+        setMatrix();
+//
         if (ifGame){
             setVisual(gamePosition, gameDir, gameHead);
 //            setVisual(gamePosition, gameDir);
@@ -416,7 +427,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 //        Log.v("onDrawFrame", Arrays.toString(rotationMatrix));
 
-        setMatrix();
+//        setMatrix();
 
         if (myAnimation != null){
             if (myAnimation.status){
@@ -694,6 +705,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             //
             if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.SWC || fileType == FileType.APO || fileType == FileType.ANO || fileType == FileType.V3dPBD)
+//                if (myAxis != null && !ifGame)
                 if (myAxis != null && !ifGame)
                     myAxis.draw(finalMatrix);
 
@@ -808,14 +820,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Matrix.setRotateM(rotationYMatrix, 0, angleY, 0.0f, 1.0f, 0.0f);
 
 //        Log.v("roatation",Arrays.toString(rotationMatrix));
-
-        Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
-
-
-        if (!ifNavigationLococation){
-            Matrix.translateM(translateMatrix,0,-0.5f * mz[0],-0.5f * mz[1],-0.5f * mz[2]);
-        }else {
-            Matrix.translateM(translateMatrix,0,-0.5f * mz_neuron[0],-0.5f * mz_neuron[1],-0.5f * mz_neuron[2]);
+        if (!ifGame) {
+            Matrix.setIdentityM(translateMatrix, 0);//建立单位矩阵
+//
+//
+            if (!ifNavigationLococation) {
+                Matrix.translateM(translateMatrix, 0, -0.5f * mz[0], -0.5f * mz[1], -0.5f * mz[2]);
+            } else {
+                Matrix.translateM(translateMatrix, 0, -0.5f * mz_neuron[0], -0.5f * mz_neuron[1], -0.5f * mz_neuron[2]);
+            }
         }
 //        Matrix.multiplyMM(translateMatrix, 0, zoomMatrix, 0, translateMatrix, 0);
         Matrix.setIdentityM(translateAfterMatrix, 0);
@@ -4911,8 +4924,22 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         Matrix.setIdentityM(zoomMatrix,0);
-        Matrix.scaleM(zoomMatrix, 0, 10.0f, 10.0f, 10.0f);
-        cur_scale = 10.0f;
+        Matrix.scaleM(zoomMatrix, 0, 8f, 8f, 8f);
+        cur_scale = 8f;
+
+        Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
+
+        if (!ifNavigationLococation){
+            Matrix.translateM(translateMatrix,0,-0.5f * mz[0],-0.5f * mz[1],-0.5f * mz[2]);
+        }else {
+            Matrix.translateM(translateMatrix,0,-0.5f * mz_neuron[0],-0.5f * mz_neuron[1],-0.5f * mz_neuron[2]);
+        }
+
+        float [] tm = new float[16];
+        Matrix.setIdentityM(tm, 0);
+        Matrix.translateM(tm, 0, 0.5f - gamePosition[0], 0.5f - gamePosition[1], 0.5f - gamePosition[2]);
+
+        Matrix.multiplyMM(translateMatrix, 0, tm, 0, translateMatrix, 0);
 
         int size = vertexPoints.length;
         if (size == 9){
@@ -5134,32 +5161,43 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        System.out.println(dir[2]);
 //
 //        float [] thirdPerson = thirdPersonAngle(position[0], position[1], position[2], dir[0], dir[1], dir[2], head[0], head[1], head[2]);
-//        dir = new float[]{thirdPerson[3], thirdPerson[4], thirdPerson[5]};
+//        float [] thirdDir = new float[]{thirdPerson[3], thirdPerson[4], thirdPerson[5]};
+//        float [] axis = new float[]{thirdDir[0] * head[1] - head[0] * thirdDir[1], thirdDir[1] * head[2] - head[2] * thirdDir[1], thirdDir[2] * head[0] - head[2] * thirdDir[0]};
+//        dir = thirdDir;
 //        position = new float[]{thirdPerson[0], thirdPerson[1], thirdPerson[2]};
-//        float [] thirdHead = locateHead(dir[0], dir[1], dir[2]);
+////        float [] thirdHead = locateHead(dir[0], dir[1], dir[2]);
+//        float [] thirdHead = new float[]{axis[0] * thirdDir[1] - thirdDir[0] * axis[1], axis[1] * thirdDir[2] - axis[2] * thirdDir[1], axis[2] * thirdDir[0] - axis[0] * thirdDir[2]};
 //        float acos = thirdHead[0] * head[0] + thirdHead[1] * head[1] + thirdHead[2] * head[2];
 //        if (acos > 0){
 //            head = thirdHead;
 //        } else {
 //            head = new float[]{-thirdHead[0], -thirdHead[1], -thirdHead[2]};
 //        }
+//        if (head[0] * axis[0] + head[1] * axis[1] + head[2] * axis[2] == 0)
+//            System.out.println("MMMMMMMMMMMMMMMMMMMMM");
 
-        System.out.println("AAAAAAAAAAA");
-        System.out.print(position[0]);
-        System.out.print(' ');
-        System.out.print(position[1]);
-        System.out.print(' ');
-        System.out.println(position[2]);
-        System.out.print(head[0]);
-        System.out.print(' ');
-        System.out.print(head[1]);
-        System.out.print(' ');
-        System.out.println(head[2]);
-        System.out.print(dir[0]);
-        System.out.print(' ');
-        System.out.print(dir[1]);
-        System.out.print(' ');
-        System.out.println(dir[2]);
+//        System.out.println("AAAAAAAAAAA");
+//        System.out.println(head[0] * axis[0] + head[1] * axis[1] + head[2] * axis[2]);
+//        System.out.print(axis[0]);
+//        System.out.print(' ');
+//        System.out.print(axis[1]);
+//        System.out.print(' ');
+//        System.out.println(axis[2]);
+//        System.out.print(position[0]);
+//        System.out.print(' ');
+//        System.out.print(position[1]);
+//        System.out.print(' ');
+//        System.out.println(position[2]);
+//        System.out.print(head[0]);
+//        System.out.print(' ');
+//        System.out.print(head[1]);
+//        System.out.print(' ');
+//        System.out.println(head[2]);
+//        System.out.print(dir[0]);
+//        System.out.print(' ');
+//        System.out.print(dir[1]);
+//        System.out.print(' ');
+//        System.out.println(dir[2]);
 
         ArrayList<Integer> sec_proj1 = new ArrayList<Integer>();
         ArrayList<Integer> sec_proj2 = new ArrayList<Integer>();
