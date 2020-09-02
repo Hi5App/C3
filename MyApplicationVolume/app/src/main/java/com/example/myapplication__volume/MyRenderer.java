@@ -154,6 +154,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private final float[] RTMatrix = new float[16];
     private final float[] ZRTMatrix = new float[16];
     private final float[] mMVP2DMatrix = new float[16];
+    private final float[] translateSmallMapMatrix = new float[16];
+    private final float[] zoomSmallMapMatrix = new float[16];
+    private final float[] finalSmallMapMatrix = new float[16];
     private float[] ArotationMatrix = new float[16];
 
 
@@ -364,6 +367,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //
         if (ifGame){
             setVisual(gamePosition, gameDir, gameHead);
+
+            setSmallMapMatrix();
 //            setVisual(gamePosition, gameDir);
         }
 
@@ -637,7 +642,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                             myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, radius);
                         }
 //                Log.v("onDrawFrame: ", "(" + markerDrawed.get(i) + ", " + markerDrawed.get(i+1) + ", " + markerDrawed.get(i+2) + ")");
-
+                        if (ifGame){
+                            if (imageMarker.radius == 5) {
+                                myDraw.drawMarker(finalSmallMapMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, 0.01f);
+                            } else {
+                                myDraw.drawMarker(finalSmallMapMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, radius);
+                            }
+                        }
                     }
                 }
 
@@ -706,9 +717,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             //
             if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.SWC || fileType == FileType.APO || fileType == FileType.ANO || fileType == FileType.V3dPBD)
-                if (myAxis != null && !ifGame)
-//                if (myAxis != null)
-                    myAxis.draw(finalMatrix);
+//                if (myAxis != null && !ifGame)
+                if (myAxis != null) {
+                    if (!ifGame) {
+                        myAxis.draw(finalMatrix);
+                    } else {
+                        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
+                        myAxis.draw(finalSmallMapMatrix);
+                        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+                    }
+                }
+
 
 //            System.out.println("---- draw myImg ----");
 
@@ -857,7 +876,50 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Matrix.multiplyMM(translateAfterMatrix, 0, zoomAfterMatrix, 0, translateAfterMatrix, 0);
     }
 
+    private void setSmallMapMatrix(){
+        Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
 
+        Matrix.multiplyMM(mMVP2DMatrix, 0, vPMatrix, 0, zoomMatrix, 0);
+        // Set the Rotation matrix
+//        Matrix.setRotateM(rotationMatrix, 0, angle, 0.0f, 1.0f, 0.0f);
+//        Matrix.setRotateM(rotationXMatrix, 0, angleX, 1.0f, 0.0f, 0.0f);
+//        Matrix.setRotateM(rotationYMatrix, 0, angleY, 0.0f, 1.0f, 0.0f);
+
+//        Log.v("roatation",Arrays.toString(rotationMatrix));
+//        if (!ifGame) {
+        Matrix.setIdentityM(translateSmallMapMatrix, 0);//建立单位矩阵
+//
+//
+        if (!ifNavigationLococation) {
+            Matrix.translateM(translateSmallMapMatrix, 0, -0.5f * mz[0], -0.5f * mz[1], -0.5f * mz[2]);
+        } else {
+            Matrix.translateM(translateSmallMapMatrix, 0, -0.5f * mz_neuron[0], -0.5f * mz_neuron[1], -0.5f * mz_neuron[2]);
+        }
+
+//        Matrix.translateM(translateSmallMapMatrix, 0, 1f, -0.5f, -1.5f);
+//        }
+//        Matrix.multiplyMM(translateMatrix, 0, zoomMatrix, 0, translateMatrix, 0);
+        Matrix.setIdentityM(translateAfterMatrix, 0);
+
+        Matrix.translateM(translateAfterMatrix, 0, 2.3f, 0.5f, 0.5f);
+
+        Matrix.setIdentityM(zoomSmallMapMatrix, 0);
+        Matrix.scaleM(zoomSmallMapMatrix, 0, 0.5f, 0.5f, 0.5f);
+//        Matrix.translateM(translateAfterMatrix, 0, 0, 0, -cur_scale);
+
+        // Combine the rotation matrix with the projection and camera view
+        // Note that the vPMatrix factor *must be first* in order
+        // for the matrix multiplication product to be correct.
+//        Matrix.multiplyMM(rotationMatrix, 0, rotationYMatrix, 0, rotationXMatrix, 0);
+//        Matrix.multiplyMM(rotationMatrix, 0, zoomMatrix, 0, rotationMatrix, 0);
+        Matrix.multiplyMM(modelMatrix, 0, rotationMatrix, 0, translateSmallMapMatrix, 0);
+
+        Matrix.multiplyMM(RTMatrix, 0, zoomSmallMapMatrix, 0, modelMatrix, 0);
+
+        Matrix.multiplyMM(ZRTMatrix, 0, translateAfterMatrix, 0, RTMatrix, 0);
+
+        Matrix.multiplyMM(finalSmallMapMatrix, 0, vPMatrix, 0, ZRTMatrix, 0);      //ZRTMatrix代表modelMatrix
+    }
 
 
 

@@ -1569,9 +1569,9 @@ public class MainActivity extends AppCompatActivity {
         String[] item_list = null;
 
         if (DrawMode){
-            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "About", "Help"};
+            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "Game", "About", "Help"};
         }else{
-            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "Account Name", "About", "Help"};
+            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "Account Name", "Game","About", "Help"};
         }
 
         new XPopup.Builder(this)
@@ -5198,7 +5198,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200902a 10:52 UTC+8 build",
+                                "Version: 20200902b 12:02 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
