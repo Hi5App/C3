@@ -214,6 +214,11 @@ void Socket::ArborCheck(QString msg)
             qDebug()<<filename<<" "<<arN<<" "<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<" "<<id<<endl;
             tsm<<filename<<" "<<arN<<" "<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<" "<<id<<endl;
             f->close();
+            switch (flag) {
+            case 0:QFile(QCoreApplication::applicationDirPath()+"/data/"+filename+".swc").copy(QCoreApplication::applicationDirPath()+"/data/markfalse/"+filename+".swc");break;
+            case 1:QFile(QCoreApplication::applicationDirPath()+"/data/"+filename+".swc").copy(QCoreApplication::applicationDirPath()+"/data/marktrue/"+filename+".swc");break;
+            case 2:QFile(QCoreApplication::applicationDirPath()+"/data/"+filename+".swc").copy(QCoreApplication::applicationDirPath()+"/data/markNone/"+filename+".swc");break;
+            }
 
         }else if(n-->0)
         {

@@ -39,6 +39,9 @@ int main(int argc, char *argv[])
 //    }
 //                combineDataWithoutCombine("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/18454_to C3","C:/Users/Brain/Desktop/res");
 
+//    writeCheckBrainInfo("C:/Users/Brain/Desktop/swcpath","C:/Users/Brain/Desktop/respath/mouse17300_teraconvert.txt","C:/Users/Brain/Desktop/respath");
+
+
     if(argc==1)
     {
         Server server;
@@ -203,7 +206,6 @@ void combineData(QString swcPath,QString apoPath,QString dstPath)
     qDebug()<<"end";
 }
 
-
 vector<uint> getBB(const V_NeuronSWC_list& T)
 {
     uint x1,x2,y1,y2,z1,z2;
@@ -289,7 +291,7 @@ void writeBrainInfo(QString apoDir,QString infoWithTxt)
                     stream<<endl;
 
             }
-
+            f.close();
         }else
         {
             qDebug()<<"failed!"<<f.errorString();
@@ -307,7 +309,8 @@ void writeCheckBrainInfo(QString swcPath,QString resInfo,QString resPath)
     {
         QString l;
         QRegExp swcNameExp("(.*)_(.*)_(.*)_(.*).v3draw_x(.*)_y(.*)_z(.*)_(.*)");
-        if(swcNameExp.indexIn(list[i].baseName())!=-1)
+        qDebug()<<list[i].fileName();
+        if(swcNameExp.indexIn(list[i].fileName())!=-1)
         {
             QString brainId=swcNameExp.cap(1).trimmed();
             uint centerx=swcNameExp.cap(2).toDouble();
@@ -328,9 +331,11 @@ void writeCheckBrainInfo(QString swcPath,QString resInfo,QString resPath)
             writeSWC_file(resPath+"/"+neuronId+".swc",readSWC_file(list[i].absoluteFilePath()));
         }
     }
-    QString infoWithTxt="check"+resInfo;
 
+    QString infoWithTxt=resPath+"/check"+QFileInfo(resInfo).fileName();
+    qDebug()<<"info:"<<infoWithTxt;
     QFile f(infoWithTxt);
+
     if(f.open(QIODevice::WriteOnly|QIODevice::Text))
     {
         QTextStream stream(&f);
@@ -360,7 +365,7 @@ void writeCheckBrainInfo(QString swcPath,QString resInfo,QString resPath)
                         stream<<"arbor:"<<1<<endl;
             stream<<1<<":"<<swcList[i].cor[0]*2<<";"<<swcList[i].cor[1]*2<<swcList[i].cor[2]*2<<endl;
         }
-
+        f.close();
     }
 
 
