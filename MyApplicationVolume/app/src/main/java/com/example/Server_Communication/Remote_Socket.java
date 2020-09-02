@@ -112,6 +112,10 @@ public class Remote_Socket extends Socket {
     public static String Offset_Selected = "Empty";
     public static boolean isDrawMode = true;
 
+    public static HashMap<String, Vector<String>> Neuron_Arbor_checked = new HashMap<>();
+    public static HashMap<String, String> Neuron_checked = new HashMap<>();
+
+
     public Remote_Socket(Context context){
 
         isSocketSet = false;
@@ -826,15 +830,25 @@ public class Remote_Socket extends Socket {
 
         String filename = getFilename_Remote(mContext);
         String neuron_num = getNeuronNumber_Remote(mContext,filename);
+        Vector<String> Neuron_Number_List_show = new Vector<>();
 
         if (!neuron_num.equals("--11--")){
-            Vector<String> Neuron_Number_List_show = Adjust_Index();
-            Select_Neuron(Transform(Neuron_Number_List_show, 0, Neuron_Number_List_show.size()));
-
+            Neuron_Number_List_show = Adjust_Index();
         }else {
-            Select_Neuron(Transform(Neuron_Number_List, 0, Neuron_Number_List.size()));
-
+            Neuron_Number_List_show = Neuron_Number_List;
         }
+
+        if (!isDrawMode){
+            Update_Check_Result();
+            for (int i=0; i<Neuron_Number_List_show.size(); i++){
+                String neuron_num_display = Neuron_Number_List_show.get(i);
+                if (Neuron_checked.containsKey(neuron_num_display)){
+                    Neuron_Number_List_show.set(i, neuron_num_display + " " + Neuron_checked.get(neuron_num_display));
+                }
+            }
+        }
+
+        Select_Neuron(Transform(Neuron_Number_List_show, 0, Neuron_Number_List_show.size()));
 
 //        new XPopup.Builder(mContext)
 ////        .maxWidth(400)
@@ -861,7 +875,7 @@ public class Remote_Socket extends Socket {
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                Neuron_Number_Selected = text;
+                                Neuron_Number_Selected = text.split(" ")[0];
 
                                 if (isDrawMode){
                                     System.out.println(Neuron_Number_Selected);
@@ -882,6 +896,18 @@ public class Remote_Socket extends Socket {
 //                                        Pos_Selected = Neuron_Info.get(Neuron_Number_Selected).get(0);
 //                                        PopUp(false);
 
+                                        Vector<String> arbor_list = Neuron_Info.get(Neuron_Number_Selected);
+                                        if (Neuron_Arbor_checked.containsKey(Neuron_Number_Selected)){
+                                            Vector<String> arbor_list_checked = Neuron_Arbor_checked.get(Neuron_Number_Selected);
+                                            for (int i=1; i<arbor_list.size(); i++){
+                                                String arbor_num = arbor_list.get(i);
+                                                if (arbor_list_checked.contains(arbor_num.split(":")[0])){
+                                                    arbor_list.set(i, "√ " + arbor_num);
+                                                }
+                                            }
+                                            Neuron_Info.put(Neuron_Number_Selected,arbor_list);
+                                        }
+
                                         Select_Pos(Transform(Neuron_Info.get(Neuron_Number_Selected), 1, Neuron_Info.get(Neuron_Number_Selected).size()));
                                         setNeuronNumber_Remote(Neuron_Number_Selected, BrainNumber_Selected + "/" + RES_Selected, mContext);  //18454_00002
                                     }else {
@@ -898,7 +924,15 @@ public class Remote_Socket extends Socket {
 
     public void Select_Neuron_Fast(){
 
+        Update_Check_Result();
         Vector<String> Neuron_Number_List_show = Adjust_Index();
+
+        for (int i=0; i<Neuron_Number_List_show.size(); i++){
+            String neuron_num_display = Neuron_Number_List_show.get(i);
+            if (Neuron_checked.containsKey(neuron_num_display)){
+                Neuron_Number_List_show.set(i, neuron_num_display + " " + Neuron_checked.get(neuron_num_display));
+            }
+        }
 
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -926,8 +960,23 @@ public class Remote_Socket extends Socket {
         String filename = getFilename_Remote(mContext);
         Neuron_Number_Selected = getNeuronNumber_Remote(mContext,filename);
 
+        Update_Check_Result();
+
         System.out.println(Neuron_Number_Selected);
         if (Neuron_Info.get(Neuron_Number_Selected) != null) {
+
+            Vector<String> arbor_list = Neuron_Info.get(Neuron_Number_Selected);
+            if (Neuron_Arbor_checked.containsKey(Neuron_Number_Selected)){
+                Vector<String> arbor_list_checked = Neuron_Arbor_checked.get(Neuron_Number_Selected);
+                for (int i=1; i<arbor_list.size(); i++){
+                    String arbor_num = arbor_list.get(i);
+                    if (arbor_list_checked.contains(arbor_num.split(":")[0])){
+                        arbor_list.set(i, "√ " + arbor_num);
+                    }
+                }
+                Neuron_Info.put(Neuron_Number_Selected,arbor_list);
+            }
+
             Select_Pos(Transform(Neuron_Info.get(Neuron_Number_Selected), 1, Neuron_Info.get(Neuron_Number_Selected).size()));
             setNeuronNumber_Remote(Neuron_Number_Selected, BrainNumber_Selected + "/" + RES_Selected, mContext);  //18454_00002
         }else {
@@ -969,8 +1018,8 @@ public class Remote_Socket extends Socket {
         Log.v("Adjust_Index"," " + index);
 
         int start = Math.max(index - 1, 0);
-        int end   = (index - 1) > 0 ? Neuron_Number_List.size() + index : Neuron_Number_List.size() + index - 1;
-        for (int i = start; i <= end; i++){
+        int end   = (index - 1) > 0 ? Neuron_Number_List.size() + index-1 : Neuron_Number_List.size();
+        for (int i = start; i < end; i++){
             Neuron_Number_List_show.add(Neuron_Number_List.get(i % Neuron_Number_List.size()));
         }
 
@@ -1016,7 +1065,7 @@ public class Remote_Socket extends Socket {
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                Pos_Selected = text;
+                                Pos_Selected = text.replace("√ ","");
 
                                 if (!isDrawMode){
                                     String boundingbox = text.substring(ordinalIndexOf(text, ";", 3)+1);
@@ -1544,6 +1593,88 @@ public class Remote_Socket extends Socket {
 
     }
 
+
+    private void Update_Check_Result(){
+
+        Make_Connect();
+
+        if (CheckConnection()){
+
+            Send_Message("From Android Client :GetArborResult.\n");
+
+            String Store_path_check_txt = Store_path + "/Check/Check_Result";
+            String Final_Path = Get_File(Store_path_check_txt, true);
+
+            if (Final_Path.equals("Error")){
+                Toast_in_Thread("Something Error When Get_File");
+                return;
+            }
+            Process_Result(Final_Path);
+
+        }else {
+            Toast_in_Thread("Something Error When Get_Check_Result");
+            return;
+        }
+
+    }
+
+
+    public void Process_Result(String File_Path){
+
+        ArrayList<String> arraylist = new ArrayList<String>();
+        File file = new File(File_Path);
+
+        if (!file.exists()){
+            Toast_in_Thread("Fail to Open TXT File !");
+            return;
+        }
+
+        try {
+            FileInputStream fid = new FileInputStream(file);
+            InputStreamReader isr = new InputStreamReader(fid);
+            BufferedReader br = new BufferedReader(isr);
+            String str;
+            while ((str = br.readLine()) != null) {
+                arraylist.add(str.trim());
+            }
+
+            for (int i = 0; i < arraylist.size(); i++) {
+                String line = arraylist.get(i);
+
+                String neuron_num = line.split(" ")[0];
+                String arbor_num  = "arbor " + line.split(" ")[1];
+                String account    = line.split(" ")[9];
+
+                if (Neuron_Arbor_checked.containsKey(neuron_num)){
+                    Vector<String> arbor_list = Neuron_Arbor_checked.get(neuron_num);
+                    if (!arbor_list.contains(arbor_num)){
+                        arbor_list.add(arbor_num);
+                    }
+                    Neuron_Arbor_checked.put(neuron_num,arbor_list);
+                }else {
+                    Vector<String> arbor_list_new = new Vector<>();
+                    arbor_list_new.add(arbor_num);
+                    Neuron_Arbor_checked.put(neuron_num,arbor_list_new);
+                }
+
+                if (!Neuron_checked.containsKey(neuron_num)){
+                    Neuron_checked.put(neuron_num,account);
+                }
+            }
+
+            for (String neuron_num : Neuron_Arbor_checked.keySet()){
+                if ( (Neuron_Info.get(neuron_num) == null) || !(Neuron_Arbor_checked.get(neuron_num).size() >= Neuron_Info.get(neuron_num).size()-1) ){
+                    Neuron_checked.remove(neuron_num);
+                }
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast_in_Thread("Fail to Read TXT File !");
+        }
+
+    }
 
 
 

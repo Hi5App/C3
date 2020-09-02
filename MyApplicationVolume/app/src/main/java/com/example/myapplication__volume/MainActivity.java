@@ -850,9 +850,9 @@ public class MainActivity extends AppCompatActivity {
         Check_Uncertain.setVisibility(View.GONE);
 
 
-        Check_Yes.setOnClickListener(new Button.OnClickListener() {
+        Check_Yes.setOnLongClickListener(new Button.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
+            public boolean onLongClick(View view) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -866,13 +866,15 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 }).start();
+                return true;
             }
         });
 
 
-        Check_No.setOnClickListener(new Button.OnClickListener() {
+
+        Check_No.setOnLongClickListener(new Button.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
+            public boolean onLongClick(View view) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -881,17 +883,18 @@ public class MainActivity extends AppCompatActivity {
                             Toast_in_Thread("Please Input your User name first in more functions !");
                         }else {
                             remote_socket.Check_Result("NO");
-                            Toast_in_Thread("Check No Successfully");
+                            Toast_in_Thread("Check Yes Successfully");
                         }
+
                     }
                 }).start();
+                return true;
             }
         });
 
-
-        Check_Uncertain.setOnClickListener(new Button.OnClickListener() {
+        Check_Uncertain.setOnLongClickListener(new Button.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
+            public boolean onLongClick(View view) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -900,12 +903,33 @@ public class MainActivity extends AppCompatActivity {
                             Toast_in_Thread("Please Input your User name first in more functions !");
                         }else {
                             remote_socket.Check_Result("UNCERTAIN");
-                            Toast_in_Thread("Check Uncertain Successfully");
+                            Toast_in_Thread("Check Yes Successfully");
                         }
+
                     }
                 }).start();
+                return true;
             }
         });
+
+
+//        Check_Uncertain.setOnClickListener(new Button.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        if (getUserAccount_Check(context).equals("--11--") || getUserAccount_Check(context).equals("")){
+////                            PopUp_UserAccount(MainActivity.this);
+//                            Toast_in_Thread("Please Input your User name first in more functions !");
+//                        }else {
+//                            remote_socket.Check_Result("UNCERTAIN");
+//                            Toast_in_Thread("Check Uncertain Successfully");
+//                        }
+//                    }
+//                }).start();
+//            }
+//        });
 
 
 
@@ -5198,7 +5222,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200902b 12:02 UTC+8 build",
+                                "Version: 20200902c 16:02 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
