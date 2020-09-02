@@ -114,6 +114,7 @@ import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_list;
 import com.tracingfunc.gsdt.GSDT;
 import com.tracingfunc.gsdt.ParaGSDT;
+import com.warkiz.widget.IndicatorSeekBar;
 
 //import org.opencv.android.OpenCVLoader;
 
@@ -157,6 +158,7 @@ import io.agora.rtc.models.UserInfo;
 
 import static com.example.basic.BitmapRotation.getBitmapDegree;
 import static com.example.basic.SettingFileManager.getArborNum;
+import static com.example.basic.SettingFileManager.getContrast;
 import static com.example.basic.SettingFileManager.getFilename_Local;
 import static com.example.basic.SettingFileManager.getFilename_Remote;
 import static com.example.basic.SettingFileManager.getFilename_Remote_Check;
@@ -167,6 +169,7 @@ import static com.example.basic.SettingFileManager.getUserAccount_Check;
 import static com.example.basic.SettingFileManager.getoffset_Local;
 import static com.example.basic.SettingFileManager.getoffset_Remote;
 import static com.example.basic.SettingFileManager.getoffset_Remote_Check;
+import static com.example.basic.SettingFileManager.setContrast;
 import static com.example.basic.SettingFileManager.setSelectSource;
 import static com.example.basic.SettingFileManager.setUserAccount;
 import static com.example.basic.SettingFileManager.setUserAccount_Check;
@@ -265,6 +268,7 @@ public class MainActivity extends AppCompatActivity {
     private static Button Zoom_out;
     private static Button Check_Yes;
     private static Button Check_No;
+    private static Button Check_Uncertain;
     private static Button Zoom_in_Big;
     private static Button Zoom_out_Big;
     private Button Rotation;
@@ -445,6 +449,7 @@ public class MainActivity extends AppCompatActivity {
                             if (DrawMode){
                                 Check_Yes.setVisibility(View.GONE);
                                 Check_No.setVisibility(View.GONE);
+                                Check_Uncertain.setVisibility(View.GONE);
                                 res_list.setVisibility(View.GONE);
                                 sync_pull.setVisibility(View.VISIBLE);
                                 sync_push.setVisibility(View.VISIBLE);
@@ -455,6 +460,7 @@ public class MainActivity extends AppCompatActivity {
                             else {
                                 Check_Yes.setVisibility(View.VISIBLE);
                                 Check_No.setVisibility(View.VISIBLE);
+                                Check_Uncertain.setVisibility(View.VISIBLE);
                                 res_list.setVisibility(View.VISIBLE);
                                 sync_pull.setVisibility(View.VISIBLE);
                                 sync_push.setVisibility(View.GONE);
@@ -606,6 +612,20 @@ public class MainActivity extends AppCompatActivity {
 
         String[] info = {"xxx"};
 //        System.out.println(info[2]);
+
+        byte i = -100;
+        Log.i("onCreate","i: " + i);
+        Log.i("onCreate","i: " + Integer.toHexString(i));
+
+        int i_i = i & 0xff;
+        Log.i("onCreate","i: " + i_i);
+        Log.i("onCreate","i: " + Integer.toHexString(i_i));
+
+        byte i_transfer = (byte) ( i_i & 0xff );
+        Log.i("onCreate","i: " + i_transfer);
+        Log.i("onCreate","i: " + Integer.toHexString(i_transfer));
+
+
 
 
         isBigData_Remote = false;
@@ -806,18 +826,28 @@ public class MainActivity extends AppCompatActivity {
         Check_No = new Button(this);
         Check_No.setText("N");
 
+        Check_Uncertain = new Button(this);
+        Check_Uncertain.setText("?");
+
+
         FrameLayout.LayoutParams lp_check_yes = new FrameLayout.LayoutParams(120, 120);
         lp_check_yes.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_check_yes.setMargins(0, 0, 20, 500);
+        lp_check_yes.setMargins(0, 0, 20, 590);
         this.addContentView(Check_Yes, lp_check_yes);
 
         FrameLayout.LayoutParams lp_check_no = new FrameLayout.LayoutParams(120, 120);
         lp_check_no.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_check_no.setMargins(0, 0, 20, 410);
+        lp_check_no.setMargins(0, 0, 20, 500);
         this.addContentView(Check_No, lp_check_no);
+
+        FrameLayout.LayoutParams lp_check_uncertain = new FrameLayout.LayoutParams(120, 120);
+        lp_check_uncertain.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        lp_check_uncertain.setMargins(0, 0, 20, 410);
+        this.addContentView(Check_Uncertain, lp_check_uncertain);
 
         Check_Yes.setVisibility(View.GONE);
         Check_No.setVisibility(View.GONE);
+        Check_Uncertain.setVisibility(View.GONE);
 
 
         Check_Yes.setOnClickListener(new Button.OnClickListener() {
@@ -830,7 +860,7 @@ public class MainActivity extends AppCompatActivity {
 //                            PopUp_UserAccount(MainActivity.this);
                             Toast_in_Thread("Please Input your User name first in more functions !");
                         }else {
-                            remote_socket.Check_Yes(false);
+                            remote_socket.Check_Result("YES");
                             Toast_in_Thread("Check Yes Successfully");
                         }
 
@@ -850,13 +880,33 @@ public class MainActivity extends AppCompatActivity {
 //                            PopUp_UserAccount(MainActivity.this);
                             Toast_in_Thread("Please Input your User name first in more functions !");
                         }else {
-                            remote_socket.Check_No(false);
+                            remote_socket.Check_Result("NO");
                             Toast_in_Thread("Check No Successfully");
                         }
                     }
                 }).start();
             }
         });
+
+
+        Check_Uncertain.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (getUserAccount_Check(context).equals("--11--") || getUserAccount_Check(context).equals("")){
+//                            PopUp_UserAccount(MainActivity.this);
+                            Toast_in_Thread("Please Input your User name first in more functions !");
+                        }else {
+                            remote_socket.Check_Result("UNCERTAIN");
+                            Toast_in_Thread("Check Uncertain Successfully");
+                        }
+                    }
+                }).start();
+            }
+        });
+
 
 
         FrameLayout.LayoutParams lp_draw_i = new FrameLayout.LayoutParams(230, 160);
@@ -1516,26 +1566,19 @@ public class MainActivity extends AppCompatActivity {
      */
     public void More_icon(){
         SettingFileManager settingFileManager = new SettingFileManager();
-        String DownSample_mode;
-        String BigData_mode = "";
-
-        if (myrenderer.getIfNeedDownSample()){
-            DownSample_mode = "Normal Rotate";
-        } else {
-            DownSample_mode = "Downsample When Rotate";
-        }
+        String[] item_list = null;
 
         if (DrawMode){
-            BigData_mode = "Switch to Check Mode";
+            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "About", "Help"};
         }else{
-            BigData_mode = "Switch to Draw Mode";
+            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "Account Name", "About", "Help"};
         }
-
 
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "Account Name", "Game", "About", "Help"},
+//                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Sensor Information", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "Account Name", "Game", "About", "Help"},
+                .asCenterList("More Functions...", item_list,
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -1562,34 +1605,14 @@ public class MainActivity extends AppCompatActivity {
                                         PopUp_Chat(MainActivity.this);
                                         break;
 
-                                    case "Sensor Information":
-                                        SensorInfo();
-                                        break;
+//                                    case "Sensor Information":
+//                                        SensorInfo();
+//                                        break;
 
 //                                    case "Corner Detection":
 //                                        myrenderer.corner_detection();
 //                                        myGLSurfaceView.requestRender();
 //                                        break;
-
-                                    case "Downsample When Rotate":
-                                        myrenderer.setIfNeedDownSample(true);
-                                        settingFileManager.setDownSampleMode("DownSampleYes", getContext());
-                                        break;
-
-                                    case "Normal Rotate":
-                                        myrenderer.setIfNeedDownSample(false);
-                                        settingFileManager.setDownSampleMode("DownSampleNo", getContext());
-                                        break;
-
-                                    case "Switch to Check Mode":
-                                        DrawMode = false;
-                                        settingFileManager.setBigDataMode("Check Mode", getContext());
-                                        break;
-
-                                    case "Switch to Draw Mode":
-                                        DrawMode = true;
-                                        settingFileManager.setBigDataMode("Draw Mode", getContext());
-                                        break;
 
                                     case "Game":
                                         System.out.println("Game Start!!!!!!!");
@@ -1890,6 +1913,7 @@ public class MainActivity extends AppCompatActivity {
                                 else{
                                     Check_Yes.setVisibility(View.GONE);
                                     Check_No.setVisibility(View.GONE);
+                                    Check_Uncertain.setVisibility(View.GONE);
                                     sync_pull.setVisibility(View.GONE);
                                     neuron_list.setVisibility(View.GONE);
                                     res_list.setVisibility(View.GONE);
@@ -1967,6 +1991,7 @@ public class MainActivity extends AppCompatActivity {
                             else{
                                 Check_Yes.setVisibility(View.GONE);
                                 Check_No.setVisibility(View.GONE);
+                                Check_Uncertain.setVisibility(View.GONE);
                                 sync_pull.setVisibility(View.GONE);
                                 neuron_list.setVisibility(View.GONE);
                                 res_list.setVisibility(View.GONE);
@@ -5173,7 +5198,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200901b 20:52 UTC+8 build",
+                                "Version: 20200902a 10:52 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -6098,6 +6123,10 @@ public class MainActivity extends AppCompatActivity {
                                 ifChecked2[1] = isChecked;
                             }
                         });
+
+                        int contrast = Integer.parseInt(getContrast(context));
+                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
+                        seekbar.setProgress(contrast);
                     }
                 })
                 .setNegativeButton(new View.OnClickListener() {
@@ -6133,6 +6162,11 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
 
+                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
+                        int contrast = seekbar.getProgress();
+                        setContrast(Integer.toString(contrast),context);
+                        myrenderer.resetContrast(contrast);
+                        myGLSurfaceView.requestRender();
                     }
                 })
                 .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
@@ -7301,7 +7335,7 @@ public class MainActivity extends AppCompatActivity {
                                 y0_start = normalizedY;
                                 x1_start = x2;
                                 y1_start = y2;
-                            } else {
+                            } else if (!isZooming){
                                 if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker && !ifChangeMarkerType && !ifDeletingMultiMarker) {
                                     if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
                                         if (myrenderer.getIfDownSampling() == false)
@@ -7552,7 +7586,8 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("File Open & Save", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile","Camera"},
+//                .asCenterList("File Open & Save", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile","Camera"},
+                .asCenterList("File Open & Save", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -7566,9 +7601,9 @@ public class MainActivity extends AppCompatActivity {
                                     case "Load SWCFile":
                                         LoadSWC();
                                         break;
-                                    case"Camera":
-                                        Camera();
-                                        break;
+//                                    case"Camera":
+//                                        Camera();
+//                                        break;
                                     default:
                                         Toast.makeText(getContext(), "Default in file", Toast.LENGTH_SHORT).show();
 
@@ -8025,6 +8060,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         myrenderer.SetPath(filepath);
+//        myrenderer.resetContrast();
         myrenderer.zoom(1.8f);
         setFileName(filepath);
 
@@ -8032,15 +8068,9 @@ public class MainActivity extends AppCompatActivity {
         isBigData_Remote = true;
         isBigData_Local = false;
         myGLSurfaceView.requestRender();
-
-
         SetButtons();
 
-//        PullSwc_block_Auto(DrawMode);
         PullSwc_block_Auto(true);
-
-        //  for apo sync
-//        PullApo_block_Auto();
 
         if (DrawMode){
             LoadMarker();
@@ -8130,6 +8160,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!DrawMode){
                     Check_No.setVisibility(View.GONE);
                     Check_Yes.setVisibility(View.GONE);
+                    Check_Uncertain.setVisibility(View.GONE);
                     neuron_list.setVisibility(View.GONE);
                     res_list.setVisibility(View.GONE);
                 }else {
@@ -8178,6 +8209,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!DrawMode){
                     Check_No.setVisibility(View.VISIBLE);
                     Check_Yes.setVisibility(View.VISIBLE);
+                    Check_Uncertain.setVisibility(View.VISIBLE);
                     neuron_list.setVisibility(View.VISIBLE);
                     res_list.setVisibility(View.VISIBLE);
                 }else {

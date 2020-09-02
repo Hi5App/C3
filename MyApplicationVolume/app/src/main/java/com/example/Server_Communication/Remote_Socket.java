@@ -1500,8 +1500,10 @@ public class Remote_Socket extends Socket {
 
                 if (line.split(" ")[8].equals("0")){
                     display = display + "  No";
-                }else {
+                }else if (line.split(" ")[8].equals("1")){
                     display = display + "  Yes";
+                }else {
+                    display = display + "  Uncertain";
                 }
 
                 info = info + display + "\n\n";
@@ -1545,6 +1547,51 @@ public class Remote_Socket extends Socket {
 
 
 
+    public void Check_Result(String check_result){
+
+        String result_code = "";
+
+        switch(check_result){
+            case "NO":
+                result_code = ";0;";
+                break;
+            case "YES":
+                result_code = ";1;";
+                break;
+            case "UNCERTAIN":
+                result_code = ";2;";
+                break;
+            default:
+                Toast_in_Thread("Unsupported check result !");
+                return;
+        }
+
+        Make_Connect();
+
+        if (CheckConnection()){
+
+            String boundingbox = Pos_Selected.substring(ordinalIndexOf(Pos_Selected, ";", 3)+1);
+            String brain_num = getFilename_Remote(mContext);
+            String neuron_num = getNeuronNumber_Remote(mContext, brain_num);
+
+            String result = neuron_num + ";" +boundingbox;
+            String Check_Info = result + result_code + getUserAccount_Check(mContext) + ";" +
+                    getArborNum(mContext,brain_num.split("/")[0] + "_" + neuron_num).split(":")[0].split(" ")[1] +":ArborCheck.\n";
+
+            Log.i(TAG,Check_Info);
+            Send_Message(Check_Info);
+
+        }else {
+            Toast_in_Thread("Can't Connect Server, Try Again Later !");
+        }
+
+    }
+
+
+    /**
+     * just for backup
+     * @param isDrawMode if in DrawMode
+     */
     public void Check_Yes(boolean isDrawMode){
 
         Make_Connect();
@@ -1592,53 +1639,6 @@ public class Remote_Socket extends Socket {
         }else {
             Toast_in_Thread("Can't Connect Server, Try Again Later !");
         }
-
-    }
-
-
-    public void Check_No(boolean isDrawMode){
-
-        Make_Connect();
-
-        if (CheckConnection()){
-
-            if (isDrawMode){
-
-                String filename = getFilename_Remote(mContext);
-                String neuron_number = getNeuronNumber_Remote(mContext, filename);
-                String offset = getoffset_Remote(mContext, filename);
-                int[] index = BigImgReader.getIndex(offset);
-                System.out.println(filename);
-
-                String ratio = Integer.toString(getRatio_SWC());
-
-                String Check_info = neuron_number + "__" +
-                        index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
-
-                Send_Message(Check_info + "__" + ratio + "__0" + ":SwcCheck.\n");
-
-            }else {
-
-                String boundingbox = Pos_Selected.substring(ordinalIndexOf(Pos_Selected, ";", 3)+1);
-                String brain_num = getFilename_Remote(mContext);
-                String neuron_num = getNeuronNumber_Remote(mContext, brain_num);
-//                String result = brain_num.split("_")[0] + "_" + neuron_num.split("_")[0] + "_" + getArborNum(mContext,brain_num.split("RES")[0]);
-
-//                String result = neuron_num + ";" +getBoundingBox(mContext,brain_num);
-                String result = neuron_num + ";" +boundingbox;
-//                String Check_Info = result + ";1;" + getUserAccount_Check(mContext) + ":ArborCheck.\n";
-                String Check_Info = result + ";0;" + getUserAccount_Check(mContext) + ";" +
-                        getArborNum(mContext,brain_num.split("/")[0] + "_" + neuron_num).split(":")[0].split(" ")[1] +":ArborCheck.\n";
-
-                Log.i(TAG,Check_Info);
-                Send_Message(Check_Info);
-
-            }
-
-        }else {
-            Toast_in_Thread("Can't Connect Server, Try Again Later !");
-        }
-
 
     }
 

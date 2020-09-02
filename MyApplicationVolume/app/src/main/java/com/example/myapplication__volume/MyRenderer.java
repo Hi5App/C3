@@ -77,6 +77,7 @@ import javax.microedition.khronos.opengles.GL10;
 import static com.example.basic.BitmapRotation.getBitmapDegree;
 import static com.example.basic.BitmapRotation.rotateBitmapByDegree;
 import static com.example.basic.BitmapRotation.setOrientation;
+import static com.example.basic.SettingFileManager.getContrast;
 import static com.example.myapplication__volume.Myapplication.getContext;
 import static javax.microedition.khronos.opengles.GL10.GL_ALPHA_TEST;
 import static javax.microedition.khronos.opengles.GL10.GL_BLEND;
@@ -191,6 +192,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private int lastLineType = 3;
     private int lastMarkerType = 3;
+    private float contrast;
 
 
     private String filepath = ""; //文件路径
@@ -242,8 +244,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        GLES30.glClearColor(1.0f, 0.89f, 0.51f, 1.0f);
         //深蓝
         GLES30.glClearColor(0.098f, 0.098f, 0.439f, 1.0f);
-
-
+        contrast = ( Integer.parseInt(getContrast(getContext())) / 100.0f) + 1.0f;
 
         Log.v("onSurfaceCreated:","successfully");
 
@@ -514,7 +515,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                System.out.println("BBBBBBBBBBBBB");
 //                if (!myPattern.ifImageLoaded())
 //                    System.out.println("HHHHHHHHHHHHHHH");
-                myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, screen_w, screen_h, texture[0], ifDownSampling);
+                myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, screen_w, screen_h, texture[0], ifDownSampling, contrast);
             }
             if (fileType == FileType.JPG || fileType == FileType.PNG)
                 myPattern2D.draw(finalMatrix);
@@ -1294,6 +1295,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
+    public void resetContrast(float contrast){
+        this.contrast = (contrast/100.f) + 1.0f;
+    }
+
+
     //矩阵乘法
     private float [] multiplyMatrix(float [] m1, float [] m2){
         float [] m = new float[9];
@@ -1836,22 +1842,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         myPattern = null;
-
-//        try {
-//            ParcelFileDescriptor parcelFileDescriptor =
-//                    MainActivity.getContext().getContentResolver().openFileDescriptor(uri, "r");
-//
-//            is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-//
-//            length = (int)parcelFileDescriptor.getStatSize();
-//
-//            Log.v("MyPattern","Successfully load intensity");
-//
-//        }catch (Exception e){
-//            Log.v("MyPattern","Some problems in the MyPattern when load intensity");
-//        }
-
-
         grayscale =  img.getData();
 
         data_length = img.getDatatype().ordinal();

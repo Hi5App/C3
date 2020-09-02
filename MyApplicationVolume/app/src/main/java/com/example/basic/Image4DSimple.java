@@ -294,6 +294,10 @@ public class Image4DSimple {
         this.data = data;
     }
 
+    public void resetData(byte[] data) {
+        this.data = data;
+    }
+
     public boolean setData(Image4DSimple image){
         return this.setDataFromImage(image.getData(),image.getSz0(),image.getSz1(),image.getSz2(),image.getSz3(),image.getDatatype(), image.geiIsBig());
     }

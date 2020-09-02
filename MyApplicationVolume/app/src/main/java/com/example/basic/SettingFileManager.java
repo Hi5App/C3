@@ -29,7 +29,7 @@ public class SettingFileManager {
         String DownSampleMode = null;
 
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/DownSampleMode.txt");
+        File file = new File(filepath + "/config/Settings/DownSampleMode.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -70,7 +70,7 @@ public class SettingFileManager {
 
     public void setDownSampleMode(String DownSampleMode, Context context){
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/DownSampleMode.txt");
+        File file = new File(filepath + "/config/Settings/DownSampleMode.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -98,7 +98,7 @@ public class SettingFileManager {
         String BigDataMode = null;
 
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/BigDataMode.txt");
+        File file = new File(filepath + "/config/Settings/BigDataMode.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -139,7 +139,7 @@ public class SettingFileManager {
 
     public void setBigDataMode(String BigDataMode, Context context){
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/BigDataMode.txt");
+        File file = new File(filepath + "/config/Settings/BigDataMode.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -1274,6 +1274,87 @@ public class SettingFileManager {
 
             FileOutputStream outStream = new FileOutputStream(file);
             outStream.write(source.getBytes());
+            outStream.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * get the offset from local file
+     * @return offset latest address you input
+     */
+    public static String getContrast(Context context){
+        String source = "";
+
+
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/Settings/Contrast" + ".txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "0";
+
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get offset", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                line = buffreader.readLine();
+                source = line;
+
+                inputStream.close();//关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error";
+        }
+        Log.v("get source", source);
+        return source;
+    }
+
+
+
+
+    /**
+     * put the offset you input to local file
+     * @param contrast the contrast currently input
+     */
+    public static void setContrast(String contrast, Context context){
+        String filepath = context.getExternalFilesDir(null).toString();
+        File file = new File(filepath + "/config/Settings/Contrast" + ".txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("set SelectSource", "Fail to create file");
+            }
+        }
+
+        try {
+
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(contrast.getBytes());
             outStream.close();
 
         } catch (Exception e) {
