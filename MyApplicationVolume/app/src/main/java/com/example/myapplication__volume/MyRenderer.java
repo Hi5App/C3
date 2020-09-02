@@ -718,7 +718,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             //
             if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.SWC || fileType == FileType.APO || fileType == FileType.ANO || fileType == FileType.V3dPBD)
 //                if (myAxis != null && !ifGame)
-                if (myAxis != null) {
+                if (myAxis != null)
+                {
                     if (!ifGame) {
                         myAxis.draw(finalMatrix);
                     } else {
@@ -4976,8 +4977,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         Matrix.setIdentityM(zoomMatrix,0);
-        Matrix.scaleM(zoomMatrix, 0, 8f, 8f, 8f);
-        cur_scale = 8f;
+        Matrix.scaleM(zoomMatrix, 0, 4f, 4f, 4f);
+        cur_scale = 4f;
+
+//        contrast = Float.parseFloat(getContrast(getContext()));
+//        Log.d("contrast",String.valueOf(contrast));
+
+        resetContrast(30);
 
         Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
 
@@ -5061,9 +5067,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         float[] des = new float[6]; //数组的前三位存视角坐标，后三位用来存看进去的法向量
 
 //        final float rad = (float) (45*(Math.PI/180)); //一般都要把角度转换成弧度。 前面的45就是我们常用的角度，是可以看情况定的
-        final float behind = 0.1f; //用它来控制视角相对于mark向后移了多少
-        final float up = 0.1f; //用它来控制视角相对于mark向后上抬了多少
-        final float front = 0.1f; //它来控制mark在方向向量的方向上，视角可以看到的赛道长度,然后就可以确定法向量
+        final float behind = 0.2f; //用它来控制视角相对于mark向后移了多少
+        final float up = 0.2f; //用它来控制视角相对于mark向后上抬了多少
+        final float front = 0.2f; //它来控制mark在方向向量的方向上，视角可以看到的赛道长度,然后就可以确定法向量
 //        dir_ver[0] = p; //a2
 //        dir_ver[1] = 0; //b2
 //        dir_ver[2] = m; //c2
