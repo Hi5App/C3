@@ -50,6 +50,7 @@ public class MyPattern{
     private int colorHandle = 1;
     private int vPMatrixHandle;
     private int dimHandle;
+    private int contrastHandle;
     private int trAMatrixHandle;
 
     private int positionHandle_suqre;
@@ -459,6 +460,7 @@ public class MyPattern{
                     "uniform highp sampler3D uVolData;" +
                     "uniform sampler2D uTransferFunction;" +
                     "uniform highp float dim[3];" +
+                    "uniform highp float contrast;" +
                     "layout (location = 0) out vec4 fragColor;" +
 
 //                    "const float numberOfSlices = 128.0;" +
@@ -498,7 +500,7 @@ public class MyPattern{
 //                    "     tf_value = texture(uVolData, vec3(1.0 - vpos.x, 1.0 - vpos.y, vpos.z));" +
 //                    "     tf_value = texture(uVolData, vec3(vpos.x, 1.0 - vpos.y, vpos.z));" +
 //                    "     value = vec4(tf_value.x);" +
-                    " value = vec4(tf_value.x, tf_value.y, tf_value.z, tf_value.x);" +
+                    " value = vec4(tf_value.x * contrast, tf_value.y * contrast, tf_value.z * contrast, tf_value.x);" +
 
                     "     if(value.r > accum.r)\n" +
                     "         accum.r = value.r;\n" +
@@ -1068,7 +1070,7 @@ public class MyPattern{
 
 
 
-    public void drawVolume_3d(float[] mvpMatrix, float [] translateAfterMatrix, int width, int height, int texture, boolean ifDownSampling) {
+    public void drawVolume_3d(float[] mvpMatrix, float [] translateAfterMatrix, int width, int height, int texture, boolean ifDownSampling, float contrast) {
 
 //        if(count == 0){
 //            count ++;
@@ -1131,6 +1133,8 @@ public class MyPattern{
         dimHandle = GLES30.glGetUniformLocation(mProgram_raycasting, "dim");
         GLES20.glUniform1fv(dimHandle,3, dimBuffer);
 
+        contrastHandle = GLES30.glGetUniformLocation(mProgram_raycasting, "contrast");
+        GLES20.glUniform1f(contrastHandle,contrast);
 
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0); //设置使用的纹理编号
         if (ifDownSampling)

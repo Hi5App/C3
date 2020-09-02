@@ -526,8 +526,8 @@ public class Remote_Socket extends Socket {
 
                 Log.v("Send_Brain_Number","Start to Send BrainNumber.");
 
-                BrainNumber_Selected = BrainNumber;
-                setFilename_Remote(BrainNumber, mContext);
+                BrainNumber_Selected = BrainNumber.replace("check","");
+                setFilename_Remote(BrainNumber.replace("check",""), mContext);
                 Send_Message(BrainNumber + ":BrainNumber.\n");
 
                 String Store_path_txt = Store_path + "/BrainInfo";
@@ -573,144 +573,183 @@ public class Remote_Socket extends Socket {
 
     private void PopUp(boolean isDirect){
 
-        if (!isDirect){
-            String offset_x, offset_y, offset_z, size;
+        String offset_x, offset_y, offset_z, size;
 
+        if (isDirect){
+            String filename = getFilename_Remote(mContext);
+            String offset = getoffset_Remote(mContext, filename);
+            offset_x = offset.split("_")[0];
+            offset_y = offset.split("_")[1];
+            offset_z = offset.split("_")[2];
+            size     = offset.split("_")[3];
+        }else {
             String[] offset_transform = transform_offset();
             offset_x = offset_transform[0];
             offset_y = offset_transform[1];
             offset_z = offset_transform[2];
-//                                size     = offset_transform[3];
             size     = "128";
+//            size     = offset_transform[3];
+        }
 
-            String offset = offset_x + "_" + offset_y + "_" + offset_z + "_" + size;
-            String filename = getFilename_Remote(mContext);
-            setoffset_Remote(offset, filename, mContext);
+        String offset = offset_x + "_" + offset_y + "_" + offset_z + "_" + size;
+        String filename = getFilename_Remote(mContext);
+        setoffset_Remote(offset, filename, mContext);
 
-            String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
+        String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
 
-            if (!JudgeBounding(input)){
-                PopUp(isDirect);
-                Toast.makeText(mContext, "Please Make sure All the Information is Right !", Toast.LENGTH_SHORT).show();
+        if (!JudgeBounding(input)){
+            PopUp(isDirect);
+            Toast.makeText(mContext, "Please Make sure All the Information is Right !", Toast.LENGTH_SHORT).show();
+        }else {
+            Make_Connect();
+
+            if (CheckConnection()){
+                PullImageBlock(input[0], input[1], input[2], input[3], false);
             }else {
-                Make_Connect();
-
-                if (CheckConnection()){
-                    PullImageBlock(input[0], input[1], input[2], input[3], false);
-                }else {
-                    Toast_in_Thread("Can't Connect Server, Try Again Later !");
-                }
-
+                Toast_in_Thread("Can't Connect Server, Try Again Later !");
             }
 
-        }else {
-
-            new MDDialog.Builder(mContext)
-//              .setContentView(customizedView)
-                    .setContentView(R.layout.image_bais_select)
-                    .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                        @Override
-                        public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-                            EditText et1 = (EditText) contentView.findViewById(R.id.edit1);
-                            EditText et2 = (EditText) contentView.findViewById(R.id.edit2);
-                            EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
-                            EditText et4 = (EditText) contentView.findViewById(R.id.edit4);
-
-                            String offset, offset_x, offset_y, offset_z, size;
-
-                            if (isDirect){
-
-                                String filename = getFilename_Remote(mContext);
-                                offset = getoffset_Remote(mContext, filename);
-                                offset_x = offset.split("_")[0];
-                                offset_y = offset.split("_")[1];
-                                offset_z = offset.split("_")[2];
-                                size     = offset.split("_")[3];
-
-                            }else {
-
-                                String[] offset_transform = transform_offset();
-                                offset_x = offset_transform[0];
-                                offset_y = offset_transform[1];
-                                offset_z = offset_transform[2];
-//                                size     = offset_transform[3];
-                                size     = "128";
-
-                            }
-
-                            et1.setText(offset_x);
-                            et2.setText(offset_y);
-                            et3.setText(offset_z);
-                            et4.setText(size);
-
-                        }
-                    })
-                    .setTitle("Download Image")
-                    .setNegativeButton(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                        }
-                    })
-                    .setPositiveButton(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                        }
-                    })
-                    .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                        @Override
-                        public void onClick(View clickedView, View contentView) {
-
-                            //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
-                            EditText et1 = (EditText) contentView.findViewById(R.id.edit1);
-                            EditText et2 = (EditText) contentView.findViewById(R.id.edit2);
-                            EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
-                            EditText et4 = (EditText) contentView.findViewById(R.id.edit4);
-
-                            String offset_x   = et1.getText().toString();
-                            String offset_y   = et2.getText().toString();
-                            String offset_z   = et3.getText().toString();
-                            String size       = et4.getText().toString();
-
-                            if( !offset_x.isEmpty() && !offset_y.isEmpty() && !offset_z.isEmpty() && !size.isEmpty()){
-
-                                String offset = offset_x + "_" + offset_y + "_" + offset_z + "_" + size;
-
-                                String filename = getFilename_Remote(mContext);
-                                setoffset_Remote(offset, filename, mContext);
-
-                                String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
-
-                                if (!JudgeBounding(input)){
-                                    PopUp(isDirect);
-                                    Toast.makeText(mContext, "Please Make sure All the Information is Right !", Toast.LENGTH_SHORT).show();
-                                }else {
-                                    Make_Connect();
-
-                                    if (CheckConnection()){
-                                        PullImageBlock(input[0], input[1], input[2], input[3], false);
-                                    }else {
-                                        Toast_in_Thread("Can't Connect Server, Try Again Later !");
-                                    }
-
-                                }
-
-                            }else{
-
-                                Toast.makeText(mContext, "Please Make sure All the Information is Right !", Toast.LENGTH_SHORT).show();
-                            }
-
-                        }
-                    })
-                    .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                        @Override
-                        public void onClick(View clickedView, View contentView) {
-
-                        }
-                    })
-                    .setWidthMaxDp(600)
-                    .create()
-                    .show();
         }
+
+
+//        if (!isDirect){
+//            String offset_x, offset_y, offset_z, size;
+//
+//            String[] offset_transform = transform_offset();
+//            offset_x = offset_transform[0];
+//            offset_y = offset_transform[1];
+//            offset_z = offset_transform[2];
+////                                size     = offset_transform[3];
+//            size     = "128";
+//
+//            String offset = offset_x + "_" + offset_y + "_" + offset_z + "_" + size;
+//            String filename = getFilename_Remote(mContext);
+//            setoffset_Remote(offset, filename, mContext);
+//
+//            String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
+//
+//            if (!JudgeBounding(input)){
+//                PopUp(isDirect);
+//                Toast.makeText(mContext, "Please Make sure All the Information is Right !", Toast.LENGTH_SHORT).show();
+//            }else {
+//                Make_Connect();
+//
+//                if (CheckConnection()){
+//                    PullImageBlock(input[0], input[1], input[2], input[3], false);
+//                }else {
+//                    Toast_in_Thread("Can't Connect Server, Try Again Later !");
+//                }
+//
+//            }
+//
+//        }else {
+//
+//            new MDDialog.Builder(mContext)
+////              .setContentView(customizedView)
+//                    .setContentView(R.layout.image_bais_select)
+//                    .setContentViewOperator(new MDDialog.ContentViewOperator() {
+//                        @Override
+//                        public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+//                            EditText et1 = (EditText) contentView.findViewById(R.id.edit1);
+//                            EditText et2 = (EditText) contentView.findViewById(R.id.edit2);
+//                            EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
+//                            EditText et4 = (EditText) contentView.findViewById(R.id.edit4);
+//
+//                            String offset, offset_x, offset_y, offset_z, size;
+//
+//                            if (isDirect){
+//
+//                                String filename = getFilename_Remote(mContext);
+//                                offset = getoffset_Remote(mContext, filename);
+//                                offset_x = offset.split("_")[0];
+//                                offset_y = offset.split("_")[1];
+//                                offset_z = offset.split("_")[2];
+//                                size     = offset.split("_")[3];
+//
+//                            }else {
+//
+//                                String[] offset_transform = transform_offset();
+//                                offset_x = offset_transform[0];
+//                                offset_y = offset_transform[1];
+//                                offset_z = offset_transform[2];
+////                                size     = offset_transform[3];
+//                                size     = "128";
+//
+//                            }
+//
+//                            et1.setText(offset_x);
+//                            et2.setText(offset_y);
+//                            et3.setText(offset_z);
+//                            et4.setText(size);
+//
+//                        }
+//                    })
+//                    .setTitle("Download Image")
+//                    .setNegativeButton(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View v) {
+//                        }
+//                    })
+//                    .setPositiveButton(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View v) {
+//                        }
+//                    })
+//                    .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+//                        @Override
+//                        public void onClick(View clickedView, View contentView) {
+//
+//                            //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
+//                            EditText et1 = (EditText) contentView.findViewById(R.id.edit1);
+//                            EditText et2 = (EditText) contentView.findViewById(R.id.edit2);
+//                            EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
+//                            EditText et4 = (EditText) contentView.findViewById(R.id.edit4);
+//
+//                            String offset_x   = et1.getText().toString();
+//                            String offset_y   = et2.getText().toString();
+//                            String offset_z   = et3.getText().toString();
+//                            String size       = et4.getText().toString();
+//
+//                            if( !offset_x.isEmpty() && !offset_y.isEmpty() && !offset_z.isEmpty() && !size.isEmpty()){
+//
+//                                String offset = offset_x + "_" + offset_y + "_" + offset_z + "_" + size;
+//
+//                                String filename = getFilename_Remote(mContext);
+//                                setoffset_Remote(offset, filename, mContext);
+//
+//                                String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
+//
+//                                if (!JudgeBounding(input)){
+//                                    PopUp(isDirect);
+//                                    Toast.makeText(mContext, "Please Make sure All the Information is Right !", Toast.LENGTH_SHORT).show();
+//                                }else {
+//                                    Make_Connect();
+//
+//                                    if (CheckConnection()){
+//                                        PullImageBlock(input[0], input[1], input[2], input[3], false);
+//                                    }else {
+//                                        Toast_in_Thread("Can't Connect Server, Try Again Later !");
+//                                    }
+//
+//                                }
+//
+//                            }else{
+//
+//                                Toast.makeText(mContext, "Please Make sure All the Information is Right !", Toast.LENGTH_SHORT).show();
+//                            }
+//
+//                        }
+//                    })
+//                    .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+//                        @Override
+//                        public void onClick(View clickedView, View contentView) {
+//
+//                        }
+//                    })
+//                    .setWidthMaxDp(600)
+//                    .create()
+//                    .show();
+//        }
 
     }
 
@@ -1461,8 +1500,10 @@ public class Remote_Socket extends Socket {
 
                 if (line.split(" ")[8].equals("0")){
                     display = display + "  No";
-                }else {
+                }else if (line.split(" ")[8].equals("1")){
                     display = display + "  Yes";
+                }else {
+                    display = display + "  Uncertain";
                 }
 
                 info = info + display + "\n\n";
@@ -1506,6 +1547,51 @@ public class Remote_Socket extends Socket {
 
 
 
+    public void Check_Result(String check_result){
+
+        String result_code = "";
+
+        switch(check_result){
+            case "NO":
+                result_code = ";0;";
+                break;
+            case "YES":
+                result_code = ";1;";
+                break;
+            case "UNCERTAIN":
+                result_code = ";2;";
+                break;
+            default:
+                Toast_in_Thread("Unsupported check result !");
+                return;
+        }
+
+        Make_Connect();
+
+        if (CheckConnection()){
+
+            String boundingbox = Pos_Selected.substring(ordinalIndexOf(Pos_Selected, ";", 3)+1);
+            String brain_num = getFilename_Remote(mContext);
+            String neuron_num = getNeuronNumber_Remote(mContext, brain_num);
+
+            String result = neuron_num + ";" +boundingbox;
+            String Check_Info = result + result_code + getUserAccount_Check(mContext) + ";" +
+                    getArborNum(mContext,brain_num.split("/")[0] + "_" + neuron_num).split(":")[0].split(" ")[1] +":ArborCheck.\n";
+
+            Log.i(TAG,Check_Info);
+            Send_Message(Check_Info);
+
+        }else {
+            Toast_in_Thread("Can't Connect Server, Try Again Later !");
+        }
+
+    }
+
+
+    /**
+     * just for backup
+     * @param isDrawMode if in DrawMode
+     */
     public void Check_Yes(boolean isDrawMode){
 
         Make_Connect();
@@ -1553,53 +1639,6 @@ public class Remote_Socket extends Socket {
         }else {
             Toast_in_Thread("Can't Connect Server, Try Again Later !");
         }
-
-    }
-
-
-    public void Check_No(boolean isDrawMode){
-
-        Make_Connect();
-
-        if (CheckConnection()){
-
-            if (isDrawMode){
-
-                String filename = getFilename_Remote(mContext);
-                String neuron_number = getNeuronNumber_Remote(mContext, filename);
-                String offset = getoffset_Remote(mContext, filename);
-                int[] index = BigImgReader.getIndex(offset);
-                System.out.println(filename);
-
-                String ratio = Integer.toString(getRatio_SWC());
-
-                String Check_info = neuron_number + "__" +
-                        index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
-
-                Send_Message(Check_info + "__" + ratio + "__0" + ":SwcCheck.\n");
-
-            }else {
-
-                String boundingbox = Pos_Selected.substring(ordinalIndexOf(Pos_Selected, ";", 3)+1);
-                String brain_num = getFilename_Remote(mContext);
-                String neuron_num = getNeuronNumber_Remote(mContext, brain_num);
-//                String result = brain_num.split("_")[0] + "_" + neuron_num.split("_")[0] + "_" + getArborNum(mContext,brain_num.split("RES")[0]);
-
-//                String result = neuron_num + ";" +getBoundingBox(mContext,brain_num);
-                String result = neuron_num + ";" +boundingbox;
-//                String Check_Info = result + ";1;" + getUserAccount_Check(mContext) + ":ArborCheck.\n";
-                String Check_Info = result + ";0;" + getUserAccount_Check(mContext) + ";" +
-                        getArborNum(mContext,brain_num.split("/")[0] + "_" + neuron_num).split(":")[0].split(" ")[1] +":ArborCheck.\n";
-
-                Log.i(TAG,Check_Info);
-                Send_Message(Check_Info);
-
-            }
-
-        }else {
-            Toast_in_Thread("Can't Connect Server, Try Again Later !");
-        }
-
 
     }
 
@@ -1966,14 +2005,28 @@ public class Remote_Socket extends Socket {
     }
 
 
-    public void LoadNeuronTxt(){
 
+    public void LoadNeuronTxt(boolean isDrawMode){
+
+        this.isDrawMode = isDrawMode;
         Store_path = mContext.getExternalFilesDir(null).toString();
 
         String Store_path_txt = Store_path + "/BrainInfo/";
-        String filename = getFilename_Remote(mContext).split("/")[0];
-        Log.v("LoadTXT",Store_path_txt + filename);
-        Analyze_TXT(Store_path_txt + filename + ".txt");
+        String filename_root = getFilename_Remote(mContext);
+        String[] filename_break = filename_root.split("/");
+
+        String info_txt = "";
+        if (isDrawMode){
+            info_txt = Store_path_txt + filename_break[0] + ".txt";
+        }else {
+            info_txt = Store_path_txt + "check" + filename_break[0] + ".txt";
+        }
+
+        Analyze_TXT(info_txt);
+
+        BrainNumber_Selected = filename_break[0];
+        RES_Selected = filename_break[1];
+        Neuron_Number_Selected = getNeuronNumber_Remote(mContext,filename_root);
 
     }
 
@@ -2044,7 +2097,7 @@ public class Remote_Socket extends Socket {
         res_temp.set(res_index, res_temp.get(res_index) + "   √");
 
         new XPopup.Builder(mContext)
-//        .maxWidth(400)
+        .maxWidth(850)
 //        .maxHeight(1350)
                 .asCenterList("Select a RES", Transform(res_temp,0, res_temp.size()),
                         new OnSelectListener() {

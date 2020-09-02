@@ -77,6 +77,7 @@ import javax.microedition.khronos.opengles.GL10;
 import static com.example.basic.BitmapRotation.getBitmapDegree;
 import static com.example.basic.BitmapRotation.rotateBitmapByDegree;
 import static com.example.basic.BitmapRotation.setOrientation;
+import static com.example.basic.SettingFileManager.getContrast;
 import static com.example.myapplication__volume.Myapplication.getContext;
 import static javax.microedition.khronos.opengles.GL10.GL_ALPHA_TEST;
 import static javax.microedition.khronos.opengles.GL10.GL_BLEND;
@@ -153,6 +154,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private final float[] RTMatrix = new float[16];
     private final float[] ZRTMatrix = new float[16];
     private final float[] mMVP2DMatrix = new float[16];
+    private final float[] translateSmallMapMatrix = new float[16];
+    private final float[] zoomSmallMapMatrix = new float[16];
+    private final float[] finalSmallMapMatrix = new float[16];
     private float[] ArotationMatrix = new float[16];
 
 
@@ -191,6 +195,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private int lastLineType = 3;
     private int lastMarkerType = 3;
+    private float contrast;
 
 
     private String filepath = ""; //文件路径
@@ -242,8 +247,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        GLES30.glClearColor(1.0f, 0.89f, 0.51f, 1.0f);
         //深蓝
         GLES30.glClearColor(0.098f, 0.098f, 0.439f, 1.0f);
-
-
+        contrast = ( Integer.parseInt(getContrast(getContext())) / 100.0f) + 1.0f;
 
         Log.v("onSurfaceCreated:","successfully");
 
@@ -332,6 +336,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
 
+        if (ifGame) {
+            Matrix.setIdentityM(translateMatrix, 0);//建立单位矩阵
+
+            if (!ifNavigationLococation) {
+                Matrix.translateM(translateMatrix, 0, -0.5f * mz[0], -0.5f * mz[1], -0.5f * mz[2]);
+            } else {
+                Matrix.translateM(translateMatrix, 0, -0.5f * mz_neuron[0], -0.5f * mz_neuron[1], -0.5f * mz_neuron[2]);
+            }
+        }
 
 //        if (ifGame){
 //            setVisual(gamePosition, gameDir);
@@ -350,8 +363,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl){
 
+        setMatrix();
+//
         if (ifGame){
             setVisual(gamePosition, gameDir, gameHead);
+
+            setSmallMapMatrix();
 //            setVisual(gamePosition, gameDir);
         }
 
@@ -416,7 +433,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 //        Log.v("onDrawFrame", Arrays.toString(rotationMatrix));
 
-        setMatrix();
+//        setMatrix();
 
         if (myAnimation != null){
             if (myAnimation.status){
@@ -503,7 +520,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                System.out.println("BBBBBBBBBBBBB");
 //                if (!myPattern.ifImageLoaded())
 //                    System.out.println("HHHHHHHHHHHHHHH");
-                myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, screen_w, screen_h, texture[0], ifDownSampling);
+                myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, screen_w, screen_h, texture[0], ifDownSampling, contrast);
             }
             if (fileType == FileType.JPG || fileType == FileType.PNG)
                 myPattern2D.draw(finalMatrix);
@@ -625,7 +642,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                             myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, radius);
                         }
 //                Log.v("onDrawFrame: ", "(" + markerDrawed.get(i) + ", " + markerDrawed.get(i+1) + ", " + markerDrawed.get(i+2) + ")");
-
+                        if (ifGame){
+                            if (imageMarker.radius == 5) {
+                                myDraw.drawMarker(finalSmallMapMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, 0.01f);
+                            } else {
+                                myDraw.drawMarker(finalSmallMapMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, radius);
+                            }
+                        }
                     }
                 }
 
@@ -694,8 +717,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             //
             if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.SWC || fileType == FileType.APO || fileType == FileType.ANO || fileType == FileType.V3dPBD)
-                if (myAxis != null && !ifGame)
-                    myAxis.draw(finalMatrix);
+//                if (myAxis != null && !ifGame)
+                if (myAxis != null) {
+                    if (!ifGame) {
+                        myAxis.draw(finalMatrix);
+                    } else {
+                        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
+                        myAxis.draw(finalSmallMapMatrix);
+                        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+                    }
+                }
+
 
 //            System.out.println("---- draw myImg ----");
 
@@ -808,14 +840,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Matrix.setRotateM(rotationYMatrix, 0, angleY, 0.0f, 1.0f, 0.0f);
 
 //        Log.v("roatation",Arrays.toString(rotationMatrix));
-
-        Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
-
-
-        if (!ifNavigationLococation){
-            Matrix.translateM(translateMatrix,0,-0.5f * mz[0],-0.5f * mz[1],-0.5f * mz[2]);
-        }else {
-            Matrix.translateM(translateMatrix,0,-0.5f * mz_neuron[0],-0.5f * mz_neuron[1],-0.5f * mz_neuron[2]);
+        if (!ifGame) {
+            Matrix.setIdentityM(translateMatrix, 0);//建立单位矩阵
+//
+//
+            if (!ifNavigationLococation) {
+                Matrix.translateM(translateMatrix, 0, -0.5f * mz[0], -0.5f * mz[1], -0.5f * mz[2]);
+            } else {
+                Matrix.translateM(translateMatrix, 0, -0.5f * mz_neuron[0], -0.5f * mz_neuron[1], -0.5f * mz_neuron[2]);
+            }
         }
 //        Matrix.multiplyMM(translateMatrix, 0, zoomMatrix, 0, translateMatrix, 0);
         Matrix.setIdentityM(translateAfterMatrix, 0);
@@ -843,7 +876,50 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Matrix.multiplyMM(translateAfterMatrix, 0, zoomAfterMatrix, 0, translateAfterMatrix, 0);
     }
 
+    private void setSmallMapMatrix(){
+        Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
 
+        Matrix.multiplyMM(mMVP2DMatrix, 0, vPMatrix, 0, zoomMatrix, 0);
+        // Set the Rotation matrix
+//        Matrix.setRotateM(rotationMatrix, 0, angle, 0.0f, 1.0f, 0.0f);
+//        Matrix.setRotateM(rotationXMatrix, 0, angleX, 1.0f, 0.0f, 0.0f);
+//        Matrix.setRotateM(rotationYMatrix, 0, angleY, 0.0f, 1.0f, 0.0f);
+
+//        Log.v("roatation",Arrays.toString(rotationMatrix));
+//        if (!ifGame) {
+        Matrix.setIdentityM(translateSmallMapMatrix, 0);//建立单位矩阵
+//
+//
+        if (!ifNavigationLococation) {
+            Matrix.translateM(translateSmallMapMatrix, 0, -0.5f * mz[0], -0.5f * mz[1], -0.5f * mz[2]);
+        } else {
+            Matrix.translateM(translateSmallMapMatrix, 0, -0.5f * mz_neuron[0], -0.5f * mz_neuron[1], -0.5f * mz_neuron[2]);
+        }
+
+//        Matrix.translateM(translateSmallMapMatrix, 0, 1f, -0.5f, -1.5f);
+//        }
+//        Matrix.multiplyMM(translateMatrix, 0, zoomMatrix, 0, translateMatrix, 0);
+        Matrix.setIdentityM(translateAfterMatrix, 0);
+
+        Matrix.translateM(translateAfterMatrix, 0, 2.3f, 0.5f, 0.5f);
+
+        Matrix.setIdentityM(zoomSmallMapMatrix, 0);
+        Matrix.scaleM(zoomSmallMapMatrix, 0, 0.5f, 0.5f, 0.5f);
+//        Matrix.translateM(translateAfterMatrix, 0, 0, 0, -cur_scale);
+
+        // Combine the rotation matrix with the projection and camera view
+        // Note that the vPMatrix factor *must be first* in order
+        // for the matrix multiplication product to be correct.
+//        Matrix.multiplyMM(rotationMatrix, 0, rotationYMatrix, 0, rotationXMatrix, 0);
+//        Matrix.multiplyMM(rotationMatrix, 0, zoomMatrix, 0, rotationMatrix, 0);
+        Matrix.multiplyMM(modelMatrix, 0, rotationMatrix, 0, translateSmallMapMatrix, 0);
+
+        Matrix.multiplyMM(RTMatrix, 0, zoomSmallMapMatrix, 0, modelMatrix, 0);
+
+        Matrix.multiplyMM(ZRTMatrix, 0, translateAfterMatrix, 0, RTMatrix, 0);
+
+        Matrix.multiplyMM(finalSmallMapMatrix, 0, vPMatrix, 0, ZRTMatrix, 0);      //ZRTMatrix代表modelMatrix
+    }
 
 
 
@@ -930,14 +1006,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Matrix.setIdentityM(translateAfterMatrix, 0);
         // Set the camera position (View matrix)
         Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
-
-
-//        if (fileType == FileType.V3draw || fileType == FileType.TIF)
-//            myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
-//
-//        myAxis = new MyAxis(mz);
-//        myDraw = new MyDraw();
-//        myAnimation = new MyAnimation();
 
     }
 
@@ -1201,7 +1269,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        }
 //    }
 
-
+    /**
+     * Reset rotation matrix for big data mode : button 3d rotation
+     */
+    public void resetRotation(){
+        Matrix.setIdentityM(rotationMatrix, 0);
+        Matrix.setRotateM(rotationMatrix, 0, 0, -1.0f, -1.0f, 0.0f);
+    }
 
     public void rotate(float dx, float dy, float dis){
 //        Log.v("wwww", "66666666666666666");
@@ -1282,6 +1356,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         zoom(0.6f);
 
     }
+
+    public void resetContrast(float contrast){
+        this.contrast = (contrast/100.f) + 1.0f;
+    }
+
 
     //矩阵乘法
     private float [] multiplyMatrix(float [] m1, float [] m2){
@@ -1825,22 +1904,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         myPattern = null;
-
-//        try {
-//            ParcelFileDescriptor parcelFileDescriptor =
-//                    MainActivity.getContext().getContentResolver().openFileDescriptor(uri, "r");
-//
-//            is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-//
-//            length = (int)parcelFileDescriptor.getStatSize();
-//
-//            Log.v("MyPattern","Successfully load intensity");
-//
-//        }catch (Exception e){
-//            Log.v("MyPattern","Some problems in the MyPattern when load intensity");
-//        }
-
-
         grayscale =  img.getData();
 
         data_length = img.getDatatype().ordinal();
@@ -4913,8 +4976,22 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         Matrix.setIdentityM(zoomMatrix,0);
-        Matrix.scaleM(zoomMatrix, 0, 10.0f, 10.0f, 10.0f);
-        cur_scale = 10.0f;
+        Matrix.scaleM(zoomMatrix, 0, 8f, 8f, 8f);
+        cur_scale = 8f;
+
+        Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
+
+        if (!ifNavigationLococation){
+            Matrix.translateM(translateMatrix,0,-0.5f * mz[0],-0.5f * mz[1],-0.5f * mz[2]);
+        }else {
+            Matrix.translateM(translateMatrix,0,-0.5f * mz_neuron[0],-0.5f * mz_neuron[1],-0.5f * mz_neuron[2]);
+        }
+
+        float [] tm = new float[16];
+        Matrix.setIdentityM(tm, 0);
+        Matrix.translateM(tm, 0, 0.5f - gamePosition[0], 0.5f - gamePosition[1], 0.5f - gamePosition[2]);
+
+        Matrix.multiplyMM(translateMatrix, 0, tm, 0, translateMatrix, 0);
 
         int size = vertexPoints.length;
         if (size == 9){
@@ -5123,30 +5200,41 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public void setVisual(float [] position, float [] dir, float [] head){
-//        System.out.println("AAAAAAAAAAA");
-//        System.out.print(position[0]);
-//        System.out.print(' ');
-//        System.out.print(position[1]);
-//        System.out.print(' ');
-//        System.out.println(position[2]);
-//        System.out.print(dir[0]);
-//        System.out.print(' ');
-//        System.out.print(dir[1]);
-//        System.out.print(' ');
-//        System.out.println(dir[2]);
+        System.out.println("AAAAAAAAAAA");
+        System.out.print(position[0]);
+        System.out.print(' ');
+        System.out.print(position[1]);
+        System.out.print(' ');
+        System.out.println(position[2]);
+        System.out.print(dir[0]);
+        System.out.print(' ');
+        System.out.print(dir[1]);
+        System.out.print(' ');
+        System.out.println(dir[2]);
 //
-//        float [] thirdPerson = thirdPersonAngle(position[0], position[1], position[2], dir[0], dir[1], dir[2], head[0], head[1], head[2]);
-//        dir = new float[]{thirdPerson[3], thirdPerson[4], thirdPerson[5]};
-//        position = new float[]{thirdPerson[0], thirdPerson[1], thirdPerson[2]};
+        float [] thirdPerson = thirdPersonAngle(position[0], position[1], position[2], dir[0], dir[1], dir[2], head[0], head[1], head[2]);
+        float [] thirdDir = new float[]{thirdPerson[3], thirdPerson[4], thirdPerson[5]};
+        float [] axis = new float[]{thirdDir[1] * head[2] - head[2] * thirdDir[1], thirdDir[2] * head[0] - head[2] * thirdDir[0], thirdDir[0] * head[1] - head[0] * thirdDir[1]};
+        dir = thirdDir;
+        position = new float[]{thirdPerson[0], thirdPerson[1], thirdPerson[2]};
 //        float [] thirdHead = locateHead(dir[0], dir[1], dir[2]);
-//        float acos = thirdHead[0] * head[0] + thirdHead[1] * head[1] + thirdHead[2] * head[2];
-//        if (acos > 0){
-//            head = thirdHead;
-//        } else {
-//            head = new float[]{-thirdHead[0], -thirdHead[1], -thirdHead[2]};
-//        }
+        float [] thirdHead = new float[]{axis[1] * thirdDir[2] - thirdDir[1] * axis[2], axis[2] * thirdDir[0] - axis[0] * thirdDir[2], axis[0] * thirdDir[1] - axis[1] * thirdDir[0]};
+        float acos = thirdHead[0] * head[0] + thirdHead[1] * head[1] + thirdHead[2] * head[2];
+        if (acos > 0){
+            head = thirdHead;
+        } else {
+            head = new float[]{-thirdHead[0], -thirdHead[1], -thirdHead[2]};
+        }
+//        if (head[0] * axis[0] + head[1] * axis[1] + head[2] * axis[2] == 0)
+//            System.out.println("MMMMMMMMMMMMMMMMMMMMM");
 
         System.out.println("AAAAAAAAAAA");
+        System.out.println(head[0] * axis[0] + head[1] * axis[1] + head[2] * axis[2]);
+        System.out.print(axis[0]);
+        System.out.print(' ');
+        System.out.print(axis[1]);
+        System.out.print(' ');
+        System.out.println(axis[2]);
         System.out.print(position[0]);
         System.out.print(' ');
         System.out.print(position[1]);
@@ -5541,7 +5629,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 //        float [] head = locateHead(dir[0], dir[1], dir[2]);
 
-        boolean gameSucceed = driveMode(vertexPoints, dir, head);
+        boolean gameSucceed = driveMode(vertexPoints, thirdDir, head);
 
 //        if (!gameSucceed){
 //            Toast.makeText(context, "wrong vertex to draw", Toast.LENGTH_SHORT);
