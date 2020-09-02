@@ -301,6 +301,9 @@ public class Socket_Receive {
                     int FileName_size_int = (int) bytesToLong(FileName_size);
                     int Data_size_int = (int) bytesToLong(Data_size);
 
+                    Log.v("Get_Block: Data", Long.toString(bytesToLong(Data_size)));
+                    Log.v("Get_Block: FileName", Long.toString(bytesToLong(FileName_size)));
+
                     if (Data_size_int <= 16 + FileName_size_int){
                         Toast_in_Thread("Fail to Download File, Try Again Later !");
                         return;
@@ -312,8 +315,8 @@ public class Socket_Receive {
                     String FileName_String = new String(FileName_String_byte, StandardCharsets.UTF_8);
                     String FileName_SubString = FileName_String.substring(4, FileName_String.length());
 
-                    Log.v("Get_Block: Data", Long.toString(bytesToLong(Data_size)));
-                    Log.v("Get_Block: FileName", Long.toString(bytesToLong(FileName_size)));
+//                    Log.v("Get_Block: Data", Long.toString(bytesToLong(Data_size)));
+//                    Log.v("Get_Block: FileName", Long.toString(bytesToLong(FileName_size)));
 //                    Log.v("Get_Block", FileName_String);
 //                    Log.v("Get_Block", FileName_SubString);
 
