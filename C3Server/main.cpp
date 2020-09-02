@@ -46,11 +46,6 @@ int main(int argc, char *argv[])
             exit(0);
         else
             std::cout<<"Server start:Version 1.2(HL)\n";
-    }else if(argc==3)
-    {
-        writeCheckBrainInfo(argv[1],argv[2]);
-                    qDebug()<<"end";
-        //    writeCheckBrainInfo("C:/Users/Brain/Desktop/17302_check","C:/Users/Brain/Desktop/mouse17302_teraconvert.txt");
     }else if(argc==5)
     {
         if(QString(argv[1]).toUInt()==0)
@@ -69,6 +64,11 @@ int main(int argc, char *argv[])
         }else if(QString(argv[1]).toUInt()==2)
         {
             combineDataWithoutCombine(argv[2],argv[3],argv[4]);
+                        qDebug()<<"end";
+//            combineDataWithoutCombine("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/18454_to C3","C:/Users/Brain/Desktop/res");
+        }else if(QString(argv[1]).toUInt()==3)
+        {
+            writeCheckBrainInfo(argv[2],argv[3],argv[4]);
                         qDebug()<<"end";
 //            combineDataWithoutCombine("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/18454_to C3","C:/Users/Brain/Desktop/res");
         }
