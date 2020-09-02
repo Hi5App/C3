@@ -341,7 +341,14 @@ QString Socket::currentDir() const
 QString Socket::currentBrain() const
 {
     QString brainPath=QCoreApplication::applicationDirPath()+"/"+"brainInfo";
-    QStringList imgDirList=QDir(brainPath).entryList(QDir::Files|QDir::NoDotAndDotDot);
+
+    auto list=QDir(brainPath).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
+
+    QStringList imgDirList;
+    imgDirList.clear();
+    for(auto i:list)
+        imgDirList.push_back(i.baseName());
+
     return imgDirList.join(";");
 }
 

@@ -10,6 +10,7 @@ void writeBrainInfo(QString apoDir,QString infoWithTxt);
 void getBB(const V_NeuronSWC_list& T,const QString & Filename);
 void writeCheckBrainInfo(QString swcPath,QString infoWithTxt);
 void combineData(QString swcPath,QString apoPath,QString dstPath);
+void combineDataWithoutCombine(QString swcPath,QString apoPath,QString dstPath);
 //image dir:put brain image
 //image
 //  --brainnumber dir
@@ -24,36 +25,48 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-
-//    if(argc==1)
+//    QDir dir("C:/Users/Brain/Desktop/C3_check_test");
+//    auto list=dir.entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
+//    for(auto i : list)
 //    {
+//        writeSWC_file(i.baseName().left(11)+".swc",readSWC_file(i.absoluteFilePath()));
+//    }
+//                combineDataWithoutCombine("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/18454_to C3","C:/Users/Brain/Desktop/res");
+
+    if(argc==1)
+    {
         Server server;
         if(!server.listen(QHostAddress::Any,9000))
             exit(0);
         else
             std::cout<<"Server start:Version 1.2(HL)\n";
-//    }else if(argc==3)
-//    {
-//        writeCheckBrainInfo(argv[1],argv[2]);
-//                    qDebug()<<"end";
-//        //    writeCheckBrainInfo("C:/Users/Brain/Desktop/17302_check","C:/Users/Brain/Desktop/mouse17302_teraconvert.txt");
-//    }else if(argc==5)
-//    {
-//        if(QString(argv[1]).toUInt()==0)
-//        {
-//            getApo(argv[2],argv[3]);
-//            writeBrainInfo(argv[3],argv[4]);
+    }else if(argc==3)
+    {
+        writeCheckBrainInfo(argv[1],argv[2]);
+                    qDebug()<<"end";
+        //    writeCheckBrainInfo("C:/Users/Brain/Desktop/17302_check","C:/Users/Brain/Desktop/mouse17302_teraconvert.txt");
+    }else if(argc==5)
+    {
+        if(QString(argv[1]).toUInt()==0)
+        {
+            getApo(argv[2],argv[3]);
+            writeBrainInfo(argv[3],argv[4]);
 
-//            qDebug()<<"end";
-//        //    getApo("C:/Users/Brain/Desktop/C3-preconstruction-8200/18454_to C3","C:/Users/Brain/Desktop/18454");
-//        //    writeBrainInfo("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/mouse18454_teraconvert.txt");
-//        }else if(QString(argv[1]).toUInt()==1)
-//        {
-//            combineData(argv[2],argv[3],argv[4]);
-//                        qDebug()<<"end";
-////            combineData("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/18454_to C3","C:/Users/Brain/Desktop/res");
-//        }
-//    }
+            qDebug()<<"end";
+        //    getApo("C:/Users/Brain/Desktop/C3-preconstruction-8200/18454_to C3","C:/Users/Brain/Desktop/18454");
+        //    writeBrainInfo("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/mouse18454_teraconvert.txt");
+        }else if(QString(argv[1]).toUInt()==1)
+        {
+            combineData(argv[2],argv[3],argv[4]);
+                        qDebug()<<"end";
+//            combineData("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/18454_to C3","C:/Users/Brain/Desktop/res");
+        }else if(QString(argv[1]).toUInt()==2)
+        {
+            combineDataWithoutCombine(argv[2],argv[3],argv[4]);
+                        qDebug()<<"end";
+//            combineDataWithoutCombine("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/18454_to C3","C:/Users/Brain/Desktop/res");
+        }
+    }
     return a.exec();
 }
 //    qDebug()<<list.size();
@@ -94,6 +107,77 @@ int main(int argc, char *argv[])
 //    qDebug()<<sum;
 //    return a.exec();
 //}
+void combineDataWithoutCombine(QString swcPath,QString apoPath,QString dstPath)
+{
+    QDir swcDir(swcPath);
+    QDir apoDir(apoPath);
+    QDir dstDir(dstPath);
+    auto apoList=apoDir.entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot);
+
+    QStringList noSwcList;
+    QStringList enSwcList;
+    QStringList emSwcList;
+
+    for(auto apo:apoList)
+    {
+        QString apoBaseName=apo.baseName();
+        if(QFile(swcPath+"/"+apoBaseName+".swc").exists())
+        {
+            auto nt=readSWC_file(swcPath+"/"+apoBaseName+".swc");
+            if(nt.listNeuron.size()!=0)
+            {
+                enSwcList.push_back(apoBaseName);
+//                {
+//                    auto markers=readAPO_file(apoPath+"/"+apoBaseName+"/"+apoBaseName+".apo");
+//                    {
+//                        dstDir.mkdir(apoBaseName);
+//                        QString tempname =dstPath+"/"+apoBaseName+"/"+apoBaseName+".ano";
+//                        QFile anofile(tempname);
+//                        anofile.open(QIODevice::WriteOnly);
+//                        QString str1="APOFILE="+apoBaseName+".ano.apo";
+//                        QString str2="SWCFILE="+apoBaseName+".ano.eswc";
+
+//                        QTextStream out(&anofile);
+//                        out<<str1<<endl<<str2;
+//                        anofile.close();
+//                    }
+//                    writeAPO_file(dstPath+"/"+apoBaseName+"/"+apoBaseName+".ano.apo",markers);
+//                    writeESWC_file(dstPath+"/"+apoBaseName+"/"+apoBaseName+".ano.eswc",nt);
+//                }
+            }else
+            {
+                emSwcList.push_back(apoBaseName);
+            }
+        }else
+        {
+            noSwcList.push_back(apoBaseName);
+        }
+    }
+
+    QFile resF(dstPath+"/result.txt");
+    if(resF.open(QIODevice::Text|QIODevice::WriteOnly))
+    {
+        QTextStream stream(&resF);
+        stream<<"noSwcList:"<<noSwcList.size()<<endl;
+        for(auto i:noSwcList)
+        {
+            stream<<i<<endl;
+        }
+        stream<<"enSwcList:"<<enSwcList.size()<<endl;
+        for(auto i:enSwcList)
+        {
+            stream<<i<<endl;
+        }
+        stream<<"emSwcList:"<<emSwcList.size()<<endl;
+        for(auto i:emSwcList)
+        {
+            stream<<i<<endl;
+        }
+        resF.close();
+    }
+
+    qDebug()<<"end";
+}
 
 void combineData(QString swcPath,QString apoPath,QString dstPath)
 {
