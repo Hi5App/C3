@@ -235,19 +235,6 @@ public class GameActivity extends AppCompatActivity {
                         myrenderer.setGameHead(head);
                         myrenderer.setGamePosition(position);
 
-//                        System.out.println("SSSSSSSSSSSSSSSS");
-//                        System.out.print(head[0]);
-//                        System.out.print(' ');
-//                        System.out.print(head[1]);
-//                        System.out.print(' ');
-//                        System.out.println(head[2]);
-//                        System.out.print(position[0]);
-//                        System.out.print(' ');
-//                        System.out.print(position[1]);
-//                        System.out.print(' ');
-//                        System.out.println(position[2]);
-
-//                        myrenderer.updateVisual();
                         myGLSurfaceView.requestRender();
                     }
 
@@ -257,42 +244,6 @@ public class GameActivity extends AppCompatActivity {
             }
         };
         timer.schedule(task, 0, 100);
-//
-//        if (b[0]){
-//            System.out.println("DDDDDDDDDDDDDDDD");
-//        }
-
-//        Handler handler = new Handler() {
-//            @Override
-//            public void handleMessage(Message msg) {
-//                if (msg.what == 1){
-//                    Toast.makeText(context, "sssssssssssss", Toast.LENGTH_LONG);
-//                }
-//                super.handleMessage(msg);
-//
-//            }
-//        };
-//
-//        class MyThread extends Thread {//这里也可用Runnable接口实现
-//            @Override
-//            public void run() {
-//                while (true){
-//                    try {
-//                        Thread.sleep(1000);//每隔1s执行一次
-//                        Message msg = new Message();
-//                        msg.what = 1;
-//                        handler.sendMessage(msg);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//
-//                }
-//            }
-//        }
-//        new Thread(new MyThread()).start();
-
-//        setVisual();
-
     }
 
     @Override
@@ -318,16 +269,11 @@ public class GameActivity extends AppCompatActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.back:
-//                try {
-//                    Intent intent = new Intent(HelpActivity.this, MainActivity.class);
-//                    startActivity(intent);
-//                }catch (Exception e){
-//                    e.printStackTrace();
-//                }
+                timer.cancel();
+                task.cancel();
                 finish();
             default:
                 return true;
-//                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -729,5 +675,12 @@ public class GameActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    public void onDestroy() {
+        super.onDestroy();
+
+        timer.cancel();
+        task.cancel();
     }
 }
