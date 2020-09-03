@@ -61,7 +61,7 @@ public class V_NeuronSWC implements Cloneable{
 
     // void printInfo();
 
-    int nrows() {return row.size();}
+    public int nrows() {return row.size();}
 
     // V_SWCNodes unique_nodes_info(); //determine the unique nodes
 

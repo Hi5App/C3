@@ -149,6 +149,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private final float[] rotationYMatrix = new float[16];
     private final float[] rotationZMatrix = new float[16];
     private final float[] translateMatrix = new float[16];//平移矩阵
+    private final float[] translateAfterMoveMatrix = new float[16];
     private final float[] translateAfterMatrix = new float[16];
     private final float[] modelMatrix = new float[16];
     private final float[] RTMatrix = new float[16];
@@ -566,6 +567,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                    System.out.println("in draw line--------------"+j);
 //                    System.out.println("type: "+parent.type);
                             myDraw.drawLine(finalMatrix, lines, (int) parent.type);
+                            if (ifGame)
+                                myDraw.drawLine(finalSmallMapMatrix, lines, (int)parent.type);
                             lines.clear();
                         }
                     }
@@ -863,6 +866,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Matrix.multiplyMM(rotationMatrix, 0, rotationYMatrix, 0, rotationXMatrix, 0);
 //        Matrix.multiplyMM(rotationMatrix, 0, zoomMatrix, 0, rotationMatrix, 0);
         Matrix.multiplyMM(modelMatrix, 0, rotationMatrix, 0, translateMatrix, 0);
+        if (ifGame){
+            Matrix.multiplyMM(modelMatrix, 0, translateAfterMoveMatrix, 0, modelMatrix, 0);
+        }
 
         Matrix.multiplyMM(RTMatrix, 0, zoomMatrix, 0, modelMatrix, 0);
 
@@ -2637,7 +2643,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 
-    private float[] ModeltoVolume(float[] input){
+    public float[] ModeltoVolume(float[] input){
         if (input == null)
             return null;
 
@@ -2649,7 +2655,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return result;
     }
 
-    private float[] VolumetoModel(float[] input){
+    public float[] VolumetoModel(float[] input){
         if (input == null)
             return null;
 
@@ -4983,7 +4989,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        contrast = Float.parseFloat(getContrast(getContext()));
 //        Log.d("contrast",String.valueOf(contrast));
 
-        resetContrast(30);
+//        resetContrast(30);
 
         Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
 
@@ -4993,11 +4999,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             Matrix.translateM(translateMatrix,0,-0.5f * mz_neuron[0],-0.5f * mz_neuron[1],-0.5f * mz_neuron[2]);
         }
 
-        float [] tm = new float[16];
-        Matrix.setIdentityM(tm, 0);
-        Matrix.translateM(tm, 0, 0.5f - gamePosition[0], 0.5f - gamePosition[1], 0.5f - gamePosition[2]);
+//        float [] tm = new float[16];
+        Matrix.setIdentityM(translateAfterMoveMatrix, 0);
+        Matrix.translateM(translateAfterMoveMatrix, 0, 0.5f - gamePosition[0], 0.5f - gamePosition[1], 0.5f - gamePosition[2]);
 
-        Matrix.multiplyMM(translateMatrix, 0, tm, 0, translateMatrix, 0);
+//        Matrix.multiplyMM(translateAfterMatrix, 0, tm, 0, translateAfterMatrix, 0);
 
         int size = vertexPoints.length;
         if (size == 9){
@@ -5699,6 +5705,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public void clearMarkerList(){
         markerList.clear();
+    }
+
+    public void clearCurSwcList(){
+        curSwcList.clear();
+    }
+
+    public void addSwc(V_NeuronSWC seg){
+        curSwcList.append(seg);
     }
 }
 

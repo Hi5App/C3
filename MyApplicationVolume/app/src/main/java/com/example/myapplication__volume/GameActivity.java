@@ -25,6 +25,9 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.tracingfunc.gd.V_NeuronSWC;
+import com.tracingfunc.gd.V_NeuronSWC_unit;
+
 import java.util.ArrayList;
 
 import java.util.Timer;
@@ -50,9 +53,10 @@ public class GameActivity extends AppCompatActivity {
 
     private Timer timer;
     private TimerTask task;
-    private Handler TimerHandler;
-    Runnable myTimerRun;
 
+    private V_NeuronSWC travelPath;
+
+    private float [] lastPlace;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -140,6 +144,19 @@ public class GameActivity extends AppCompatActivity {
 
         moveDir = new float[]{0f, 0f, 0f};
         viewRotateDir = new float[]{0f, 0f, 0f};
+
+        travelPath = new V_NeuronSWC();
+        V_NeuronSWC_unit startPoint = new V_NeuronSWC_unit();
+        startPoint.n = 0;
+        startPoint.parent = -1;
+        float [] startPlace = myrenderer.ModeltoVolume(position);
+        startPoint.x = startPlace[0];
+        startPoint.y = startPlace[1];
+        startPoint.z = startPlace[2];
+        startPoint.type = 2;
+        travelPath.append(startPoint);
+
+        lastPlace = new float[]{position[0], position[1], position[2]};
 
         rockerView1.setRockerChangeListener(new MyRockerView.RockerChangeListener() {
             @Override
@@ -229,6 +246,26 @@ public class GameActivity extends AppCompatActivity {
 
                             myrenderer.clearMarkerList();
                             myrenderer.addMarker(position);
+
+                            if (((position[0] - lastPlace[0]) * (position[0] - lastPlace[0])
+                            + (position[1] - lastPlace[1]) * (position[1] - lastPlace[1])
+                            + (position[2] - lastPlace[2]) * (position[2] - lastPlace[2])) > 0.001) {
+
+                                V_NeuronSWC_unit newPoint = new V_NeuronSWC_unit();
+                                newPoint.parent = travelPath.nrows() - 1;
+                                newPoint.n = travelPath.nrows();
+                                newPoint.type = 2;
+                                float[] newPlace = myrenderer.ModeltoVolume(position);
+                                newPoint.x = newPlace[0];
+                                newPoint.y = newPlace[1];
+                                newPoint.z = newPlace[2];
+                                travelPath.append(newPoint);
+
+                                myrenderer.clearCurSwcList();
+                                myrenderer.addSwc(travelPath);
+
+                                lastPlace = new float[]{position[0], position[1], position[2]};
+                            }
                         }
 
                         myrenderer.setGameDir(dir);
