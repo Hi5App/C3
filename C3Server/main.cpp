@@ -24,7 +24,7 @@ void combineDataWithoutCombine(QString swcPath,QString apoPath,QString dstPath);
 struct checkInfo
 {
     QString brainId;
-    std::array<uint,6> cor;
+    std::array<uint,9> cor;
 };
 
 int main(int argc, char *argv[])
@@ -40,42 +40,43 @@ int main(int argc, char *argv[])
 //                combineDataWithoutCombine("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/18454_to C3","C:/Users/Brain/Desktop/res");
 
 //    writeCheckBrainInfo("C:/Users/Brain/Desktop/swcpath","C:/Users/Brain/Desktop/respath/mouse17300_teraconvert.txt","C:/Users/Brain/Desktop/respath");
+    Server server;
+    if(!server.listen(QHostAddress::Any,9000))
+        exit(0);
+    else
+        std::cout<<"Server start:Version 1.2(HL)\n";
 
+//    if(argc==1)
+//    {
 
-    if(argc==1)
-    {
-        Server server;
-        if(!server.listen(QHostAddress::Any,9000))
-            exit(0);
-        else
-            std::cout<<"Server start:Version 1.2(HL)\n";
-    }else if(argc==5)
-    {
-        if(QString(argv[1]).toUInt()==0)
-        {
-            getApo(argv[2],argv[3]);
-            writeBrainInfo(argv[3],argv[4]);
+//    }else if(argc==5)
+//    {
+//        if(QString(argv[1]).toUInt()==0)
+//        {
+//            getApo(argv[2],argv[3]);
+//            writeBrainInfo(argv[3],argv[4]);
 
-            qDebug()<<"end";
-        //    getApo("C:/Users/Brain/Desktop/C3-preconstruction-8200/18454_to C3","C:/Users/Brain/Desktop/18454");
-        //    writeBrainInfo("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/mouse18454_teraconvert.txt");
-        }else if(QString(argv[1]).toUInt()==1)
-        {
-            combineData(argv[2],argv[3],argv[4]);
-                        qDebug()<<"end";
-//            combineData("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/18454_to C3","C:/Users/Brain/Desktop/res");
-        }else if(QString(argv[1]).toUInt()==2)
-        {
-            combineDataWithoutCombine(argv[2],argv[3],argv[4]);
-                        qDebug()<<"end";
-//            combineDataWithoutCombine("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/18454_to C3","C:/Users/Brain/Desktop/res");
-        }else if(QString(argv[1]).toUInt()==3)
-        {
-            writeCheckBrainInfo(argv[2],argv[3],argv[4]);
-                        qDebug()<<"end";
-//            combineDataWithoutCombine("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/18454_to C3","C:/Users/Brain/Desktop/res");
-        }
-    }
+//            qDebug()<<"end";
+//        //    getApo("C:/Users/Brain/Desktop/C3-preconstruction-8200/18454_to C3","C:/Users/Brain/Desktop/18454");
+//        //    writeBrainInfo("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/mouse18454_teraconvert.txt");
+//        }else if(QString(argv[1]).toUInt()==1)
+//        {
+//            combineData(argv[2],argv[3],argv[4]);
+//                        qDebug()<<"end";
+////            combineData("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/18454_to C3","C:/Users/Brain/Desktop/res");
+//        }else if(QString(argv[1]).toUInt()==2)
+//        {
+//            combineDataWithoutCombine(argv[2],argv[3],argv[4]);
+//                        qDebug()<<"end";
+////            combineDataWithoutCombine("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/18454_to C3","C:/Users/Brain/Desktop/res");
+//        }else if(QString(argv[1]).toUInt()==3)
+//        {
+//            writeCheckBrainInfo(argv[2],argv[3],argv[4]);
+//                        qDebug()<<"end";
+////            combineDataWithoutCombine("C:/Users/Brain/Desktop/18454","C:/Users/Brain/Desktop/18454_to C3","C:/Users/Brain/Desktop/res");
+//        }
+//        exit(0);
+//    }
     return a.exec();
 }
 
@@ -319,6 +320,7 @@ void writeCheckBrainInfo(QString swcPath,QString resInfo,QString resPath)
             uint lx=swcNameExp.cap(5).toUInt();
             uint ly=swcNameExp.cap(6).toUInt();
             uint lz=swcNameExp.cap(7).toUInt();
+
             QString neuronId;
             QTextStream s(&neuronId);
             s<<brainId<<"_";
@@ -326,9 +328,16 @@ void writeCheckBrainInfo(QString swcPath,QString resInfo,QString resPath)
             s.setPadChar('0');
             s<<i+1;
 
-            checkInfo info={neuronId,{centerx,centery,centerz,lx,ly,lz}};
-            swcList.push_back(info);
+
+
             writeSWC_file(resPath+"/"+neuronId+".swc",readSWC_file(list[i].absoluteFilePath()));
+            {
+                auto nt=readSWC_file(list[i].absoluteFilePath());
+                auto V_list=NeuronTree__2__V_NeuronSWC_list(nt);
+                auto bb=getBB(V_list);
+                checkInfo info={neuronId,{centerx,centery,centerz,bb[0],bb[1],bb[2],bb[3],bb[4],bb[5]}};
+                swcList.push_back(info);
+            }
         }
     }
 
@@ -358,12 +367,16 @@ void writeCheckBrainInfo(QString swcPath,QString resInfo,QString resPath)
             stream<<QString::number(i+1)<<":"<<swcList[i].brainId<<endl;
         }
         stream<<endl<<"#Neuron Info"<<endl;
+        const int arborCnt=1;
         for(int i=0;i<swcList.size();i++)
         {
             stream<<"##"<<swcList[i].brainId<<endl
                  <<"soma:"<<0<<";"<<0<<";"<<0<<endl;
-                        stream<<"arbor:"<<1<<endl;
-            stream<<1<<":"<<swcList[i].cor[0]*2<<";"<<swcList[i].cor[1]*2<<swcList[i].cor[2]*2<<endl;
+                        stream<<"arbor:"<<arborCnt<<endl;
+            stream<<arborCnt<<":"<<swcList[i].cor[0]*2<<";"<<swcList[i].cor[1]*2<<";"<<swcList[i].cor[2]*2<<";"
+                 <<swcList[i].cor[3]*2<<";"<<swcList[i].cor[4]*2<<";"<<swcList[4].cor[2]*2<<";"
+                 <<swcList[i].cor[6]*2<<";"<<swcList[i].cor[7]*2<<";"<<swcList[4].cor[7]*2
+                 <<endl;
         }
         f.close();
     }
