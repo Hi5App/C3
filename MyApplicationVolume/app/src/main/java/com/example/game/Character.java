@@ -172,6 +172,7 @@ public class Character {
     public float [] getThirdHead(){
         float [] thirdDir = new float[3];
         float [] thirdPos = new float[3];
+
         thirdPersonAngle(0.1f, 0.1f, 0.1f, thirdDir, thirdPos);
 
         float [] axis = new float[]{thirdDir[1] * head[2] - head[2] * thirdDir[1], thirdDir[2] * head[0] - head[2] * thirdDir[0], thirdDir[0] * head[1] - head[0] * thirdDir[1]};
