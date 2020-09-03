@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.content.FileProvider;
 
 import com.example.ImageReader.BigImgReader;
 import com.example.basic.NeuronTree;
@@ -1500,7 +1501,7 @@ public class Remote_Socket extends Socket {
     }
 
 
-    public void PullCheckResult(){
+    public void PullCheckResult(boolean ifShare){
 
         Make_Connect();
 
@@ -1516,7 +1517,21 @@ public class Remote_Socket extends Socket {
                 return;
             }
 
-            Display_Result(Final_Path);
+            if (!ifShare){
+                Display_Result(Final_Path);
+            }else {
+                File file = new File(Final_Path);
+                if (file.exists()){
+                    Intent intent = new Intent();
+                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    intent.setAction(Intent.ACTION_SEND);
+                    intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(mContext, "com.example.myapplication__volume.provider", new File(Final_Path)));  //传输图片或者文件 采用流的方式
+                    intent.setType("*/*");   //分享文件
+                    mContext.startActivity(Intent.createChooser(intent, "Share From C3"));
+                }else {
+                    Toast_in_Thread("File does not exist");
+                }
+            }
         }
 
     }

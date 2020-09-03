@@ -1318,8 +1318,19 @@ public class MainActivity extends AppCompatActivity {
                     //  for apo sync
 //                    PullApo_block_Manual();
                 }else {
-                    remote_socket.PullCheckResult();
+                    remote_socket.PullCheckResult(false);
                 }
+            }
+        });
+
+        sync_pull.setOnLongClickListener(new Button.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+
+                if (!DrawMode){
+                    remote_socket.PullCheckResult(true);
+                }
+                return true;
             }
         });
 
@@ -5222,7 +5233,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200903a 19:26 UTC+8 build",
+                                "Version: 20200903b 19:34 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
