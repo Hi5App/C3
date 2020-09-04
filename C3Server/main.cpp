@@ -374,8 +374,8 @@ void writeCheckBrainInfo(QString swcPath,QString resInfo,QString resPath)
                  <<"soma:"<<0<<";"<<0<<";"<<0<<endl;
                         stream<<"arbor:"<<arborCnt<<endl;
             stream<<arborCnt<<":"<<swcList[i].cor[0]*2<<";"<<swcList[i].cor[1]*2<<";"<<swcList[i].cor[2]*2<<";"
-                 <<swcList[i].cor[3]*2<<";"<<swcList[i].cor[4]*2<<";"<<swcList[4].cor[2]*2<<";"
-                 <<swcList[i].cor[6]*2<<";"<<swcList[i].cor[7]*2<<";"<<swcList[4].cor[7]*2
+                 <<swcList[i].cor[3]*2<<";"<<swcList[i].cor[4]*2<<";"<<swcList[i].cor[5]*2<<";"
+                 <<swcList[i].cor[6]*2<<";"<<swcList[i].cor[7]*2<<";"<<swcList[4].cor[8]*2
                  <<endl;
         }
         f.close();
