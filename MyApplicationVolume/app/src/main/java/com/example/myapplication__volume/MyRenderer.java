@@ -3921,6 +3921,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                             V_NeuronSWC_unit firstClone = first.clone();
                             V_NeuronSWC_unit firstClone2 = first.clone();
                             newSeg1.append(firstClone);
+                            firstClone.parent = -1;
                             newSeg2.append(firstClone2);
                         }catch (Exception e){
                             System.out.println(e.getMessage());
