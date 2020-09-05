@@ -18,6 +18,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.util.ArrayList;
 
 import static com.example.myapplication__volume.Myapplication.getContext;
 
@@ -31,6 +32,8 @@ public class MyPattern{
     private final int mProgram_simple;
     private final int mProgram_raycasting;
     private final int mProgram_curve;
+
+//    private final int mProgram_threshold;
 
 
     private FloatBuffer vertexBuffer;
@@ -46,12 +49,15 @@ public class MyPattern{
     private FloatBuffer colorBuffer_suqre;
     private ShortBuffer drawListBuffer_suqre;
 
+    private MyRenderer myrenderer;
+
     private int positionHandle = 0;
     private int colorHandle = 1;
     private int vPMatrixHandle;
     private int dimHandle;
     private int contrastHandle;
     private int trAMatrixHandle;
+//    private int thresholdHandle;
 
     private int positionHandle_suqre;
     private int colorHandle_square;
@@ -70,6 +76,9 @@ public class MyPattern{
     private IntBuffer imageIntDSBuffer;
     private ByteBuffer imageBuffer_FBO;
 
+    private ByteTranslate byteTranslate;
+    private MyRenderer myRenderer;
+
     private int[] vol_tex = new int[1]; //生成纹理id;
     private int[] fbo_tex = new int[1]; //生成纹理id;
     private int[] vol_texDS = new int[1];
@@ -77,6 +86,7 @@ public class MyPattern{
 
     private int[] fbo = new int[1];//生成framebuffer
     private int[] rbo = new int[1];//生成renderbuffer
+
 
     private final int fboBackCoord;
 
@@ -97,6 +107,8 @@ public class MyPattern{
     private float[] vertexPoints;
     private float[] Colors;
     private float[] dim;
+
+//    private float threshold = (float)(myrenderer.threshold) / 255;
 
 
 //    private final float[] vertexPoints={
@@ -461,6 +473,7 @@ public class MyPattern{
                     "uniform sampler2D uTransferFunction;" +
                     "uniform highp float dim[3];" +
                     "uniform highp float contrast;" +
+//                    "uniform highp float threshold;" +
                     "layout (location = 0) out vec4 fragColor;" +
 
 //                    "const float numberOfSlices = 128.0;" +
@@ -515,8 +528,26 @@ public class MyPattern{
                     "         break;" +
                     "     }" +
                     "  accum.a = 1.0;" +
+//                    "  float threshold = (float)(myrenderer.threshold) / 255;" +
+//                    "  float r,g,b;" +
+//
+//                    "  r = accum.r;" +
+//                    "  g = accum.g;" +
+//                    "  b = accum.b;" +
+//                    "  float gray = r*0.3+g*0.59+b*0.11;" +
+//                    "  if(gray < threshold){" +
+//                    "    gray = 0.0;" +
+//                    "  }else{" +
+//                    "    gray = 1.0;}" +
+////                    "  newpixel = accum.a | (gray << 16) | (gray << 8) | gray" +
+////                    "  fragColor = newpixel;" +
+//                    "  accum.r = gray;" +
+//                    "  accum.g = gray;" +
+//                    "  accum.b = gray;" +
                     "  fragColor = accum;" +
                     "}";
+
+
 
 
 
@@ -665,6 +696,9 @@ public class MyPattern{
 
         mProgram_raycasting = initProgram(vertexShaderCode_2, fragmentShaderCode_2);
         Log.v("mProgram_raycasting", Integer.toString(mProgram_raycasting));
+
+//        mProgram_threshold = initProgram(vertexShaderCode_2, fragmentShaderCode_2);
+//        Log.v("mProgram_threshold", Integer.toString(mProgram_threshold));
 
 
         mProgram_curve = initProgram(vertexShaderCode_curve, fragmentShaderCode_curve);
@@ -1069,6 +1103,12 @@ public class MyPattern{
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+//    public void deliver_threshold(float threshold){
+//        thresholdHandle = GLES30.glGetUniformLocation(mProgram_threshold, "threshold");
+//        GLES20.glUniform1f(thresholdHandle,threshold);
+//
+////        threshold = (float)(myrenderer.threshold) / 255;
+//    }
 
     public void drawVolume_3d(float[] mvpMatrix, float [] translateAfterMatrix, int width, int height, int texture, boolean ifDownSampling, float contrast) {
 
@@ -1777,6 +1817,90 @@ public class MyPattern{
 //            }
 //        }
 
+
+
+
+        int[] data_gray = new int[(data_image.length + 1)/4];
+
+        int j = 0;
+        for (int i = 0; i < data_image.length; i += 4){
+            data_gray[j] = byteTranslate.byte1ToInt(data_image[i]);//(int)((float)data_image[i] * 0.3 + (float)data_image[i+1] * 0.59 + (float)data_image[i+2] * 0.11);
+            j++;
+        }
+
+
+// 下面是迭代法求二值化阈值
+//                 求出最大灰度值和最小灰度值
+        float Gmax=data_gray[0],Gmin=data_gray[0];
+        for (int i=0;i<data_gray.length;i++){
+            if (data_gray[i]>Gmax)
+                Gmax = data_gray[i];
+            if (data_gray[i]<Gmin)
+                Gmin = data_gray[i];
+        }
+//        Log.d("GGGmax",String.valueOf(Gmax));
+//        Log.d("GGGmin",String.valueOf(Gmin));
+        //获取灰度直方图,其中histogram的下标表示灰度，下标对应的值表示有多少个像素对应的灰度这个灰度
+//        int ii,jj,t,count1 = 0, count2 = 0, sum1 = 0, sum2 = 0;
+//        int bp,fp;
+        int[] histogram = new int[256];
+        for (int t = (int) Gmin; t<=Gmax; t++){
+            for (int index=0;index<data_gray.length;index++)
+                if (data_gray[index] == t){
+//                    Log.d("t",String.valueOf(t));
+                    histogram[t]++;}
+        }
+        // 迭代法求最佳分割阈值
+        int T = 0;
+        int newT = (int) ((Gmax + Gmin) / 2); //初始的阈值
+        // 求背景（黑色的）和前景（前面白色的神经元信号）的平均灰度值bp和fp
+        while (T != newT){
+            int sum1=0,sum2=0,count1=0,count2=0;
+            int fp,bp;
+            for (int ii = (int) Gmin; ii<newT; ii++){
+                count1 += histogram[ii]; //背景像素点的个数
+                sum1 += histogram[ii] * ii; //背景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
+            }
+            bp = (count1 == 0) ? 0: (sum1 / count1); //背景像素点的平均灰度值
+
+            for (int jj = newT; jj<Gmax; jj++){
+                count2 += histogram[jj]; //前景像素点的个数
+                sum2 += histogram[jj] * jj; //前景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
+            }
+            fp = (count2 == 0) ? 0: (sum2 / count2); //前景像素点的平均灰度值
+            T = newT;
+            newT = (bp + fp) / 2;
+
+        }
+        int threshold = newT; //最佳阈值
+//        Log.d("threshold",String.valueOf(threshold));
+//
+
+
+        if (threshold >= 35 & threshold <= 45 )
+            threshold += 2;
+        else if (threshold < 35) //防止threshold太小了。
+            threshold = 35;
+//        Log.d("newthreshold",String.valueOf(threshold));
+        for (int i=0;i<data_gray.length;i++){
+            if (data_gray[i] > threshold)
+                data_gray[i] = 255;
+            else
+                data_gray[i] = 0;
+//            Log.d("newthreshold",String.valueOf(threshold));
+        }
+        for (int i = 0; i < data_image.length; i += 4){
+            data_image[i] = (byte) data_gray[i/4];
+            data_image[i+1] = (byte) data_gray[i/4];
+            data_image[i+2] = (byte) data_gray[i/4];
+        }
+//
+//
+////        for (int i = 0; i < 20; i++)
+////            Log.d("data_image_copy_gray",i + "-" +String.valueOf(data_image[i]) + "-" + String.valueOf(data_gray_copy[i]) + "-" + String.valueOf(data_gray[i]));
+//        Log.d("DATA_IMAGE",String.valueOf(data_image));
+//
+//        myrenderer.binarization(data_image);
 
         return data_image;
     }
