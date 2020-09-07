@@ -182,7 +182,7 @@ import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 //    private int UNDO_LIMIT = 5;
 //    private enum Operate {DRAW, DELETE, SPLIT};
 //    private Operate [] process = new Operate[UNDO_LIMIT];
@@ -1431,21 +1431,26 @@ public class MainActivity extends AppCompatActivity {
         blue_pen.setVisibility(View.GONE);
 
 
-        SettingFileManager settingFileManager = new SettingFileManager();
-        String DownSampleMode = settingFileManager.getDownSampleMode(this);
-        if (DownSampleMode.equals("DownSampleYes")){
-            myrenderer.setIfNeedDownSample(true);
-        }else if (DownSampleMode.equals("DownSampleNo")){
-            myrenderer.setIfNeedDownSample(false);
-        }
+//        SettingFileManager settingFileManager = new SettingFileManager();
+//        String DownSampleMode = settingFileManager.getDownSampleMode(this);
+//        preferenceSetting.getDownSampleMode();
+//        if (DownSampleMode.equals("DownSampleYes")){
+//            myrenderer.setIfNeedDownSample(true);
+//        }else if (DownSampleMode.equals("DownSampleNo")){
+//            myrenderer.setIfNeedDownSample(false);
+//        }
 
-        // "CheckMode"  for check, "DrawMode" for draw
-        String BigDataMode = settingFileManager.getBigDataMode(this);
-        if (BigDataMode.equals("Draw Mode")){
-            DrawMode = true;
-        }else if (BigDataMode.equals("Check Mode")){
-            DrawMode = false;
-        }
+        // set Check Mode  & DownSample Mode
+        myrenderer.setIfDownSampling(preferenceSetting.getDownSampleMode());
+        DrawMode = !preferenceSetting.getCheckMode();
+
+//        // "CheckMode"  for check, "DrawMode" for draw
+//        String BigDataMode = settingFileManager.getBigDataMode(this);
+//        if (BigDataMode.equals("Draw Mode")){
+//            DrawMode = true;
+//        }else if (BigDataMode.equals("Check Mode")){
+//            DrawMode = false;
+//        }
 
         // Set the permission for user
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
@@ -5233,7 +5238,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200907b 17:53 UTC+8 build",
+                                "Version: 20200907C 21:53 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -6126,10 +6131,8 @@ public class MainActivity extends AppCompatActivity {
     private void setSettings(){
 
         SettingFileManager settingFileManager = new SettingFileManager();
-        boolean [] ifChecked = new boolean[2];
-        boolean [] ifChecked2 = new boolean[2];
-        ifChecked[0] = false;
-        ifChecked2[0] = false;
+        boolean [] downsample = new boolean[1];
+        boolean [] check = new boolean[1];
 
         MDDialog mdDialog = new MDDialog.Builder(this)
                 .setContentView(R.layout.settings)
@@ -6137,31 +6140,33 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void operate(View contentView) {
                         Switch downsample_on_off = contentView.findViewById(R.id.switch_rotation_mode);
-                        boolean ifDownSample = myrenderer.getIfNeedDownSample();
+                        Switch check_on_off = contentView.findViewById(R.id.switch_check_mode);
+                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
+
+                        boolean ifDownSample = preferenceSetting.getDownSampleMode();
+                        int contrast = preferenceSetting.getContrast();
+
                         downsample_on_off.setChecked(ifDownSample);
+                        check_on_off.setChecked(!DrawMode);
+                        seekbar.setProgress(contrast);
+
+                        downsample[0] = downsample_on_off.isChecked();
+                        check[0]      = check_on_off.isChecked();
 
                         downsample_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                             @Override
                             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                ifChecked[0] = true;
-                                ifChecked[1] = isChecked;
+                                downsample[0] = isChecked;
                             }
                         });
-
-                        Switch check_on_off = contentView.findViewById(R.id.switch_check_mode);
-                        check_on_off.setChecked(!DrawMode);
 
                         check_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                             @Override
                             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                ifChecked2[0] = true;
-                                ifChecked2[1] = isChecked;
+                                check[0] = isChecked;
                             }
                         });
 
-                        int contrast = Integer.parseInt(getContrast(context));
-                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
-                        seekbar.setProgress(contrast);
                     }
                 })
                 .setNegativeButton(new View.OnClickListener() {
@@ -6179,29 +6184,40 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
                     @Override
                     public void onClick(View clickedView, View contentView) {
-                        if (ifChecked[0]) {
-                            myrenderer.setIfNeedDownSample(ifChecked[1]);
-                            if (ifChecked[1]) {
-                                settingFileManager.setDownSampleMode("DownSampleYes", getContext());
-                            } else {
-                                settingFileManager.setDownSampleMode("DownSampleNo", getContext());
-                            }
-                        }
-
-                        if (ifChecked2[0]) {
-                            DrawMode = !ifChecked2[1];
-                            if (ifChecked2[1]) {
-                                settingFileManager.setBigDataMode("Check Mode", getContext());
-                            } else {
-                                settingFileManager.setBigDataMode("Draw Mode", getContext());
-                            }
-                        }
-
                         IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
                         int contrast = seekbar.getProgress();
-                        setContrast(Integer.toString(contrast),context);
+
+                        myrenderer.setIfDownSampling(downsample[0]);
                         myrenderer.resetContrast(contrast);
+                        DrawMode = !check[0];
+
+                        preferenceSetting.setPref(downsample[0], check[0], contrast);
                         myGLSurfaceView.requestRender();
+
+//                        if (ifChecked[0]) {
+//                            myrenderer.setIfNeedDownSample(ifChecked[1]);
+//                            if (ifChecked[1]) {
+//                                settingFileManager.setDownSampleMode("DownSampleYes", getContext());
+//                            } else {
+//                                settingFileManager.setDownSampleMode("DownSampleNo", getContext());
+//                            }
+//                        }
+//
+//                        if (ifChecked2[0]) {
+//                            DrawMode = !ifChecked2[1];
+//                            if (ifChecked2[1]) {
+//                                settingFileManager.setBigDataMode("Check Mode", getContext());
+//                            } else {
+//                                settingFileManager.setBigDataMode("Draw Mode", getContext());
+//                            }
+//                        }
+//
+//                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
+//                        int contrast = seekbar.getProgress();
+//                        setContrast(Integer.toString(contrast),context);
+
+//                        myrenderer.resetContrast(contrast);
+//                        myGLSurfaceView.requestRender();
                     }
                 })
                 .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
