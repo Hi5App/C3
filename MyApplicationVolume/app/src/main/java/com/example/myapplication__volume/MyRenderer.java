@@ -4314,16 +4314,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public String saveCurrentSwc(String dir) throws Exception{
         String error = "";
         NeuronTree nt = this.getNeuronTree();
-        if(nt.listNeuron.size()>0){
+
+        //  save the swc file even if current swc is empty
+
+//        if(nt.listNeuron.size()>0){
             String filePath = dir + "/" + nt.name + ".swc";
             System.out.println("filepath: "+filePath);
             boolean ifExits = nt.writeSWC_file(filePath);
             if (ifExits)
                 error = "This file already exits";
             return error;
-        }else {
-            return error = "Current swc is empty!";
-        }
+//        }else {
+//            return error = "Current swc is empty!";
+//        }
 
     }
 

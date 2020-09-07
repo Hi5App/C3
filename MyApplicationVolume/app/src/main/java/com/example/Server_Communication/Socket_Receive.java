@@ -33,6 +33,8 @@ public class Socket_Receive {
 
     private Context mContext;
 
+    private static final int LIMIT_SIZE = 30000000;
+
     public Socket_Receive(Context context){
         mContext = context;
     }
@@ -306,6 +308,11 @@ public class Socket_Receive {
 
                     if (Data_size_int <= 16 + FileName_size_int){
                         Toast_in_Thread("Fail to Download File, Try Again Later !");
+                        return;
+                    }
+
+                    if (Data_size_int >= LIMIT_SIZE || FileName_size_int >= LIMIT_SIZE){
+                        Toast_in_Thread("Something Wrong when Download File, Try again please !");
                         return;
                     }
 

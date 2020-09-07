@@ -4701,10 +4701,10 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 }
             }
-            if (error.equals("Current swc is empty!")){
-                Toast_in_Thread("Current swc file is empty!");
-                return false;
-            }
+//            if (error.equals("Current swc is empty!")){
+//                Toast_in_Thread("Current swc file is empty!");
+//                return false;
+//            }
         } else{
             System.out.println("save SWC to " + dir_str + "/" + SwcFileName + ".swc");
         }
@@ -5233,7 +5233,7 @@ public class MainActivity extends AppCompatActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200904a 17:24 UTC+8 build",
+                                "Version: 20200907a 17:34 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -8096,7 +8096,7 @@ public class MainActivity extends AppCompatActivity {
 
         myrenderer.SetPath(filepath);
 //        myrenderer.resetContrast();
-        myrenderer.zoom(1.8f);
+        myrenderer.zoom(2.2f);
         setFileName(filepath);
 
         System.out.println("------" + filepath + "------");
