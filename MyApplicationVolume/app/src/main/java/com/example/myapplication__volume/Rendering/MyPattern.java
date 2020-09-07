@@ -57,7 +57,7 @@ public class MyPattern{
     private int dimHandle;
     private int contrastHandle;
     private int trAMatrixHandle;
-//    private int thresholdHandle;
+    private int thresholdHandle;
 
     private int positionHandle_suqre;
     private int colorHandle_square;
@@ -107,6 +107,13 @@ public class MyPattern{
     private float[] vertexPoints;
     private float[] Colors;
     private float[] dim;
+
+    private int threshold;
+
+    private boolean ifGame = false;
+
+    public static enum Mode{NORMAL, GAME};
+    private Mode mode = Mode.NORMAL;
 
 //    private float threshold = (float)(myrenderer.threshold) / 255;
 
@@ -473,7 +480,7 @@ public class MyPattern{
                     "uniform sampler2D uTransferFunction;" +
                     "uniform highp float dim[3];" +
                     "uniform highp float contrast;" +
-//                    "uniform highp float threshold;" +
+                    "uniform highp float threshold;" +
                     "layout (location = 0) out vec4 fragColor;" +
 
 //                    "const float numberOfSlices = 128.0;" +
@@ -527,7 +534,18 @@ public class MyPattern{
                     "     if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || accum.a>=1.0)" +
                     "         break;" +
                     "     }" +
-                    "  accum.a = 1.0;" +
+                    "     accum.a = 1.0;" +
+                    "     if(threshold != 0.0){\n" +
+                    "         if (accum.r > threshold){\n" +
+                    "             accum.r = 1.0;" +
+                    "             accum.g = 1.0;" +
+                    "             accum.b = 1.0;" +
+                    "         }else{\n" +
+                    "             accum.r = 0.0;" +
+                    "             accum.g = 0.0;" +
+                    "             accum.b = 0.0;" +
+                    "         }\n" +
+                    "    }\n" +
 //                    "  float threshold = (float)(myrenderer.threshold) / 255;" +
 //                    "  float r,g,b;" +
 //
@@ -679,11 +697,13 @@ public class MyPattern{
 
 
 
-    public MyPattern(String filepath, InputStream is, long length, int width, int height, Image4DSimple img, float[] mz) {
+    public MyPattern(String filepath, InputStream is, long length, int width, int height, Image4DSimple img, float[] mz, Mode m) {
 
         image = img;
 
         dim = mz;
+
+        mode = m;
 
         setPoint(mz);
 
@@ -1175,6 +1195,13 @@ public class MyPattern{
 
         contrastHandle = GLES30.glGetUniformLocation(mProgram_raycasting, "contrast");
         GLES20.glUniform1f(contrastHandle,contrast);
+
+        thresholdHandle = GLES30.glGetUniformLocation(mProgram_raycasting, "threshold");
+        if (mode == Mode.GAME) {
+            GLES20.glUniform1f(thresholdHandle, (float)threshold/255);
+        }else {
+            GLES20.glUniform1f(thresholdHandle, 0);
+        }
 
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0); //设置使用的纹理编号
         if (ifDownSampling)
@@ -1819,81 +1846,85 @@ public class MyPattern{
 
 
 
+        if (mode == Mode.GAME) {
 
-        int[] data_gray = new int[(data_image.length + 1)/4];
+            int[] data_gray = new int[(data_image.length + 1) / 4];
 
-        int j = 0;
-        for (int i = 0; i < data_image.length; i += 4){
-            data_gray[j] = byteTranslate.byte1ToInt(data_image[i]);//(int)((float)data_image[i] * 0.3 + (float)data_image[i+1] * 0.59 + (float)data_image[i+2] * 0.11);
-            j++;
-        }
+            int j = 0;
+            for (int i = 0; i < data_image.length; i += 4) {
+                data_gray[j] = byteTranslate.byte1ToInt(data_image[i]);//(int)((float)data_image[i] * 0.3 + (float)data_image[i+1] * 0.59 + (float)data_image[i+2] * 0.11);
+                j++;
+            }
 
 
 // 下面是迭代法求二值化阈值
 //                 求出最大灰度值和最小灰度值
-        float Gmax=data_gray[0],Gmin=data_gray[0];
-        for (int i=0;i<data_gray.length;i++){
-            if (data_gray[i]>Gmax)
-                Gmax = data_gray[i];
-            if (data_gray[i]<Gmin)
-                Gmin = data_gray[i];
-        }
+
+            float Gmax = data_gray[0], Gmin = data_gray[0];
+            for (int i = 0; i < data_gray.length; i++) {
+                if (data_gray[i] > Gmax)
+                    Gmax = data_gray[i];
+                if (data_gray[i] < Gmin)
+                    Gmin = data_gray[i];
+            }
 //        Log.d("GGGmax",String.valueOf(Gmax));
 //        Log.d("GGGmin",String.valueOf(Gmin));
-        //获取灰度直方图,其中histogram的下标表示灰度，下标对应的值表示有多少个像素对应的灰度这个灰度
+            //获取灰度直方图,其中histogram的下标表示灰度，下标对应的值表示有多少个像素对应的灰度这个灰度
 //        int ii,jj,t,count1 = 0, count2 = 0, sum1 = 0, sum2 = 0;
 //        int bp,fp;
-        int[] histogram = new int[256];
-        for (int t = (int) Gmin; t<=Gmax; t++){
-            for (int index=0;index<data_gray.length;index++)
-                if (data_gray[index] == t){
+            int[] histogram = new int[256];
+            for (int t = (int) Gmin; t <= Gmax; t++) {
+                for (int index = 0; index < data_gray.length; index++)
+                    if (data_gray[index] == t) {
 //                    Log.d("t",String.valueOf(t));
-                    histogram[t]++;}
-        }
-        // 迭代法求最佳分割阈值
-        int T = 0;
-        int newT = (int) ((Gmax + Gmin) / 2); //初始的阈值
-        // 求背景（黑色的）和前景（前面白色的神经元信号）的平均灰度值bp和fp
-        while (T != newT){
-            int sum1=0,sum2=0,count1=0,count2=0;
-            int fp,bp;
-            for (int ii = (int) Gmin; ii<newT; ii++){
-                count1 += histogram[ii]; //背景像素点的个数
-                sum1 += histogram[ii] * ii; //背景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
+                        histogram[t]++;
+                    }
             }
-            bp = (count1 == 0) ? 0: (sum1 / count1); //背景像素点的平均灰度值
+            // 迭代法求最佳分割阈值
+            int T = 0;
+            int newT = (int) ((Gmax + Gmin) / 2); //初始的阈值
+            // 求背景（黑色的）和前景（前面白色的神经元信号）的平均灰度值bp和fp
+            while (T != newT) {
+                int sum1 = 0, sum2 = 0, count1 = 0, count2 = 0;
+                int fp, bp;
+                for (int ii = (int) Gmin; ii < newT; ii++) {
+                    count1 += histogram[ii]; //背景像素点的个数
+                    sum1 += histogram[ii] * ii; //背景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
+                }
+                bp = (count1 == 0) ? 0 : (sum1 / count1); //背景像素点的平均灰度值
 
-            for (int jj = newT; jj<Gmax; jj++){
-                count2 += histogram[jj]; //前景像素点的个数
-                sum2 += histogram[jj] * jj; //前景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
+                for (int jj = newT; jj < Gmax; jj++) {
+                    count2 += histogram[jj]; //前景像素点的个数
+                    sum2 += histogram[jj] * jj; //前景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
+                }
+                fp = (count2 == 0) ? 0 : (sum2 / count2); //前景像素点的平均灰度值
+                T = newT;
+                newT = (bp + fp) / 2;
+
             }
-            fp = (count2 == 0) ? 0: (sum2 / count2); //前景像素点的平均灰度值
-            T = newT;
-            newT = (bp + fp) / 2;
-
-        }
-        int threshold = newT; //最佳阈值
+            threshold = newT; //最佳阈值
 //        Log.d("threshold",String.valueOf(threshold));
 //
 
 
-        if (threshold >= 35 & threshold <= 45 )
-            threshold += 2;
-        else if (threshold < 35) //防止threshold太小了。
-            threshold = 35;
+            if (threshold >= 35 & threshold <= 45)
+                threshold += 2;
+            else if (threshold < 35) //防止threshold太小了。
+                threshold = 35;
+        }
 //        Log.d("newthreshold",String.valueOf(threshold));
-        for (int i=0;i<data_gray.length;i++){
-            if (data_gray[i] > threshold)
-                data_gray[i] = 255;
-            else
-                data_gray[i] = 0;
-//            Log.d("newthreshold",String.valueOf(threshold));
-        }
-        for (int i = 0; i < data_image.length; i += 4){
-            data_image[i] = (byte) data_gray[i/4];
-            data_image[i+1] = (byte) data_gray[i/4];
-            data_image[i+2] = (byte) data_gray[i/4];
-        }
+//        for (int i=0;i<data_gray.length;i++){
+//            if (data_gray[i] > threshold)
+//                data_gray[i] = 255;
+//            else
+//                data_gray[i] = 0;
+////            Log.d("newthreshold",String.valueOf(threshold));
+//        }
+//        for (int i = 0; i < data_image.length; i += 4){
+//            data_image[i] = (byte) data_gray[i/4];
+//            data_image[i+1] = (byte) data_gray[i/4];
+//            data_image[i+2] = (byte) data_gray[i/4];
+//        }
 //
 //
 ////        for (int i = 0; i < 20; i++)
@@ -2595,5 +2626,9 @@ public class MyPattern{
 
     public boolean ifImageLoaded(){
         return !(image == null);
+    }
+
+    public void setIfGame(boolean b){
+        ifGame = b;
     }
 }

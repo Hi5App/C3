@@ -243,6 +243,9 @@ public class GameActivity extends AppCompatActivity {
                             position[0] = position[0] + X[0] * x - Y[0] * y;
                             position[1] = position[1] + X[1] * x - Y[1] * y;
                             position[2] = position[2] + X[2] * x - Y[2] * y;
+//                            position[0] = position[0] - Y[0] * y;
+//                            position[1] = position[1] - Y[1] * y;
+//                            position[2] = position[2] - Y[2] * y;
 
                             myrenderer.clearMarkerList();
                             myrenderer.addMarker(position);
@@ -267,6 +270,8 @@ public class GameActivity extends AppCompatActivity {
                                 lastPlace = new float[]{position[0], position[1], position[2]};
                             }
                         }
+
+//                        myrenderer.moveBlock(x, 0, -y);
 
                         myrenderer.setGameDir(dir);
                         myrenderer.setGameHead(head);

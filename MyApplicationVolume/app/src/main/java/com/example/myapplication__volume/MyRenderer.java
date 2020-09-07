@@ -153,6 +153,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private final float[] translateAfterMoveMatrix = new float[16];
     private final float[] translateAfterMatrix = new float[16];
     private final float[] modelMatrix = new float[16];
+    private final float[] TMMatrix = new float[16];
     private final float[] RTMatrix = new float[16];
     private final float[] ZRTMatrix = new float[16];
     private final float[] mMVP2DMatrix = new float[16];
@@ -238,6 +239,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private float [] gamePosition = new float[3];
     private float [] gameDir = new float[3];
     private float [] gameHead = new float[3];
+    private float [] thirdPosition = new float[3];
+    private float [] thirdDir = new float[3];
+    private float [] thirdHead = new float[3];
 
     private boolean ifGame = false;
     public static int threshold = 0;
@@ -296,7 +300,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD) {
             System.out.println("onSurfaceChanged");
-            myPattern = new MyPattern(filepath, is, length, width, height, img, mz);
+            if (ifGame) {
+                myPattern = new MyPattern(filepath, is, length, width, height, img, mz, MyPattern.Mode.GAME);
+            } else {
+                myPattern = new MyPattern(filepath, is, length, width, height, img, mz, MyPattern.Mode.NORMAL);
+            }
+//            myPattern.setIfGame(ifGame);
         }
         if (fileType == FileType.PNG || fileType == FileType.JPG)
             myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
@@ -349,6 +358,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
 
+//        Matrix.setIdentityM(translateAfterMoveMatrix, 0);
+
 //        if (ifGame){
 //            setVisual(gamePosition, gameDir);
 ////            setVisual(gamePosition, gameDir);
@@ -366,7 +377,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl){
 
-        setMatrix();
+
 //
         if (ifGame){
             setVisual(gamePosition, gameDir, gameHead);
@@ -374,6 +385,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             setSmallMapMatrix();
 //            setVisual(gamePosition, gameDir);
         }
+
+        setMatrix();
 
 //        GLES30.glClearColor(0.5f, 0.4f, 0.3f, 1.0f);
 //        GLES30.glClearColor(1.0f, 0.5f, 0.0f, 1.0f);
@@ -400,7 +413,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                System.out.println("FFFFFFFFFFF");
                 if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD) {
 //                    System.out.println("EEEEEEEEEE");
-                    myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz);
+                    if (ifGame) {
+                        myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz, MyPattern.Mode.GAME);
+                    } else {
+                        myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz, MyPattern.Mode.NORMAL);
+                    }
+//                    myPattern.setIfGame(ifGame);
                 }
                 if (fileType == FileType.PNG || fileType == FileType.JPG)
                     myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
@@ -869,14 +887,24 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Matrix.multiplyMM(rotationMatrix, 0, zoomMatrix, 0, rotationMatrix, 0);
         Matrix.multiplyMM(modelMatrix, 0, rotationMatrix, 0, translateMatrix, 0);
         if (ifGame){
-            Matrix.multiplyMM(modelMatrix, 0, translateAfterMoveMatrix, 0, modelMatrix, 0);
+//            Matrix.multiplyMM(modelMatrix, 0, translateAfterMoveMatrix, 0, modelMatrix, 0);
+
+            Matrix.multiplyMM(RTMatrix, 0, zoomMatrix, 0, modelMatrix, 0);
+            Matrix.multiplyMM(TMMatrix, 0, translateAfterMoveMatrix, 0, RTMatrix, 0);  //translateAfterMoveMatrix会随面朝方向的改变而改变 从而达到绕图像中心，即控制角色所在位置旋转的效果
+
+            Matrix.multiplyMM(ZRTMatrix, 0, translateAfterMatrix, 0, TMMatrix, 0);
+
+            Matrix.multiplyMM(finalMatrix, 0, vPMatrix, 0, ZRTMatrix, 0);
+        } else {
+//        Matrix.multiplyMM(modelMatrix, 0, rotationMatrix, 0, translateMatrix, 0);
+
+
+            Matrix.multiplyMM(RTMatrix, 0, zoomMatrix, 0, modelMatrix, 0);
+
+            Matrix.multiplyMM(ZRTMatrix, 0, translateAfterMatrix, 0, RTMatrix, 0);
+
+            Matrix.multiplyMM(finalMatrix, 0, vPMatrix, 0, ZRTMatrix, 0);      //ZRTMatrix代表modelMatrix
         }
-
-        Matrix.multiplyMM(RTMatrix, 0, zoomMatrix, 0, modelMatrix, 0);
-
-        Matrix.multiplyMM(ZRTMatrix, 0, translateAfterMatrix, 0, RTMatrix, 0);
-
-        Matrix.multiplyMM(finalMatrix, 0, vPMatrix, 0, ZRTMatrix, 0);      //ZRTMatrix代表modelMatrix
 
 //        Matrix.multiplyMM(finalMatrix, 0, zoomMatrix, 0, scratch, 0);
 
@@ -5813,7 +5841,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 //        float [] tm = new float[16];
         Matrix.setIdentityM(translateAfterMoveMatrix, 0);
-        Matrix.translateM(translateAfterMoveMatrix, 0, 0.5f - gamePosition[0], 0.5f - gamePosition[1], 0.5f - gamePosition[2]);
+        float [] dis = new float[]{ gamePosition[0] - 0.5f, gamePosition[1] - 0.5f, gamePosition[2] - 0.5f };
+        convertToPerspective(dis);
+//        Matrix.translateM(translateAfterMoveMatrix, 0, 0.5f - gamePosition[0], 0.5f - gamePosition[1], 0.5f - gamePosition[2]);
 
 //        Matrix.multiplyMM(translateAfterMatrix, 0, tm, 0, translateAfterMatrix, 0);
 
@@ -5885,34 +5915,37 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         float[] des = new float[6]; //数组的前三位存视角坐标，后三位用来存看进去的法向量
 
 //        final float rad = (float) (45*(Math.PI/180)); //一般都要把角度转换成弧度。 前面的45就是我们常用的角度，是可以看情况定的
-        final float behind = 0.2f; //用它来控制视角相对于mark向后移了多少
-        final float up = 0.2f; //用它来控制视角相对于mark向后上抬了多少
-        final float front = 0.2f; //它来控制mark在方向向量的方向上，视角可以看到的赛道长度,然后就可以确定法向量
+        final float behind = 0.1f; //用它来控制视角相对于mark向后移了多少
+        final float up = 0.1f; //用它来控制视角相对于mark向后上抬了多少
+        final float front = 0.3f; //它来控制mark在方向向量的方向上，视角可以看到的赛道长度,然后就可以确定法向量
 //        dir_ver[0] = p; //a2
 //        dir_ver[1] = 0; //b2
 //        dir_ver[2] = m; //c2
-        m = (float) (m/Math.sqrt(m*m+n*n+p*p));
-        n = (float) (n/Math.sqrt(m*m+n*n+p*p));
-        p = (float) (p/Math.sqrt(m*m+n*n+p*p)); //都先归一化一下，防止方向向量会超过1 （其实也没必要好像，但是考虑到block大小是1）
+        float newM = (float) (m/Math.sqrt(m*m+n*n+p*p));
+        float newN = (float) (n/Math.sqrt(m*m+n*n+p*p));
+        float newP = (float) (p/Math.sqrt(m*m+n*n+p*p)); //都先归一化一下，防止方向向量会超过1 （其实也没必要好像，但是考虑到block大小是1）
 
-        head[0] = (float) (head[0]/Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2]));
-        head[1] = (float) (head[1]/Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2]));
-        head[2] = (float) (head[2]/Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2]));
+        float newH1 = (float) (head[0]/Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2]));
+        float newH2 = (float) (head[1]/Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2]));
+        float newH3 = (float) (head[2]/Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2]));
 
-        des[0] = x0-behind*m+up*head[0];
-        des[1] = y0-behind*n+up*head[1];
-        des[2] = z0-behind*p+up*head[2];  // 求出来的这个视角的法向量，就用mark沿着方向向量前进一点的点，减去视角的坐标
+        des[0] = x0-behind*newM+up*newH1;
+        des[1] = y0-behind*newN+up*newH2;
+        des[2] = z0-behind*newP+up*newH3;  // 求出来的这个视角的法向量，就用mark沿着方向向量前进一点的点，减去视角的坐标
+//        des[0] = x0-behind*newM;
+//        des[1] = y0-behind*newN;
+//        des[2] = z0-behind*newP;  // 求出来的这个视角的法向量，就用mark沿着方向向量前进一点的点，减去视角的坐标
 
         float[] aid = {des[0]-x0,des[1]-y0,des[2]-z0}; // 只是一个辅助的中间变量
         if ((head[0]*aid[0]+head[1]*aid[1]+head[2]*aid[2])/(Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2])*Math.sqrt(aid[0]*aid[0]+aid[1]*aid[1]+aid[2]*aid[2])) < 0){
-            des[0] = x0-behind*m-up*head[0];
-            des[1] = y0-behind*n-up*head[1];
-            des[2] = z0-behind*p-up*head[2];  // 为了使视角跟防止头脚颠倒的向量 保持一致： 同时在上或者同时在下
+            des[0] = x0-behind*newM-up*newH1;
+            des[1] = y0-behind*newN-up*newH2;
+            des[2] = z0-behind*newP-up*newH3;  // 为了使视角跟防止头脚颠倒的向量 保持一致： 同时在上或者同时在下
         }
 
-        des[3] = (x0+front*m)-des[0];
-        des[4] = (y0+front*n)-des[1];
-        des[5] = (z0+front*p)-des[2];
+        des[3] = (x0+front*newM)-des[0];
+        des[4] = (y0+front*newN)-des[1];
+        des[5] = (z0+front*newP)-des[2];
 
         return des;
     }
@@ -6030,6 +6063,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         System.out.print(position[1]);
         System.out.print(' ');
         System.out.println(position[2]);
+        System.out.print(head[0]);
+        System.out.print(' ');
+        System.out.print(head[1]);
+        System.out.print(' ');
+        System.out.println(head[2]);
         System.out.print(dir[0]);
         System.out.print(' ');
         System.out.print(dir[1]);
@@ -6037,17 +6075,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         System.out.println(dir[2]);
 //
         float [] thirdPerson = thirdPersonAngle(position[0], position[1], position[2], dir[0], dir[1], dir[2], head[0], head[1], head[2]);
-        float [] thirdDir = new float[]{thirdPerson[3], thirdPerson[4], thirdPerson[5]};
-        float [] axis = new float[]{thirdDir[1] * head[2] - head[2] * thirdDir[1], thirdDir[2] * head[0] - head[2] * thirdDir[0], thirdDir[0] * head[1] - head[0] * thirdDir[1]};
+        thirdDir = new float[]{thirdPerson[3], thirdPerson[4], thirdPerson[5]};
+        float [] axis = new float[]{thirdDir[1] * head[2] - head[1] * thirdDir[2], thirdDir[2] * head[0] - head[2] * thirdDir[0], thirdDir[0] * head[1] - head[0] * thirdDir[1]};
         dir = thirdDir;
         position = new float[]{thirdPerson[0], thirdPerson[1], thirdPerson[2]};
+        thirdPosition = new float[]{thirdPerson[0], thirdPerson[1], thirdPerson[2]};
 //        float [] thirdHead = locateHead(dir[0], dir[1], dir[2]);
-        float [] thirdHead = new float[]{axis[1] * thirdDir[2] - thirdDir[1] * axis[2], axis[2] * thirdDir[0] - axis[0] * thirdDir[2], axis[0] * thirdDir[1] - axis[1] * thirdDir[0]};
+        thirdHead = new float[]{axis[1] * thirdDir[2] - thirdDir[1] * axis[2], axis[2] * thirdDir[0] - axis[0] * thirdDir[2], axis[0] * thirdDir[1] - axis[1] * thirdDir[0]};
         float acos = thirdHead[0] * head[0] + thirdHead[1] * head[1] + thirdHead[2] * head[2];
         if (acos > 0){
             head = thirdHead;
         } else {
             head = new float[]{-thirdHead[0], -thirdHead[1], -thirdHead[2]};
+            thirdHead = new float[]{-thirdHead[0], -thirdHead[1], -thirdHead[2]};
         }
 //        if (head[0] * axis[0] + head[1] * axis[1] + head[2] * axis[2] == 0)
 //            System.out.println("MMMMMMMMMMMMMMMMMMMMM");
@@ -6453,7 +6493,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 //        float [] head = locateHead(dir[0], dir[1], dir[2]);
 
-        boolean gameSucceed = driveMode(vertexPoints, thirdDir, head);
+        boolean gameSucceed = driveMode(vertexPoints, dir, head);
 
 //        if (!gameSucceed){
 //            Toast.makeText(context, "wrong vertex to draw", Toast.LENGTH_SHORT);
@@ -6525,6 +6565,36 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public void addSwc(V_NeuronSWC seg){
         curSwcList.append(seg);
+    }
+
+    private void convertToPerspective(float [] dis){
+        System.out.println("AAAAAAAAAAA");
+        System.out.print(dis[0]);
+        System.out.print(' ');
+        System.out.print(dis[1]);
+        System.out.print(' ');
+        System.out.println(dis[2]);
+        System.out.print(gameDir[0]);
+        System.out.print(' ');
+        System.out.print(gameDir[1]);
+        System.out.print(' ');
+        System.out.println(gameDir[2]);
+
+        float z = (thirdDir[0] * dis[0] + thirdDir[1] * dis[1] + thirdDir[2] * dis[2]) / (float)Math.sqrt(thirdDir[0] * thirdDir[0] + thirdDir[1] * thirdDir[1] + thirdDir[2] * thirdDir[2]);
+        float y = (thirdHead[0] * dis[0] + thirdHead[1] * dis[1] + thirdHead[2] * dis[2]) / (float)Math.sqrt(thirdHead[0] * thirdHead[0] + thirdHead[1] * thirdHead[1] + thirdHead[2] * thirdHead[2]);
+        float [] axis = new float[]{thirdDir[1] * thirdHead[2] - thirdHead[1] * thirdDir[2], thirdDir[2] * thirdHead[0] - thirdHead[2] * thirdDir[0], thirdDir[0] * thirdHead[1] - thirdHead[0] * thirdDir[1]};
+//        System.out.print(axis[0]);
+//        System.out.print(' ');
+//        System.out.print(axis[1]);
+//        System.out.print(' ');
+//        System.out.println(axis[2]);
+        float x = (axis[0] * dis[0] + axis[1] * dis[1] + axis[2] * dis[2]) / (float)Math.sqrt(axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]);
+        System.out.print(x);
+        System.out.print(' ');
+        System.out.print(y);
+        System.out.print(' ');
+        System.out.println(z);
+        Matrix.translateM(translateAfterMoveMatrix, 0, x, -y, -z);
     }
 }
 
