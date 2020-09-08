@@ -4661,7 +4661,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200908a 13:53 UTC+8 build",
+                                "Version: 20200908b 17:59 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

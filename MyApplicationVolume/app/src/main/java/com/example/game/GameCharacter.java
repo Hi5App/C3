@@ -4,7 +4,7 @@ import android.opengl.Matrix;
 
 import java.util.ArrayList;
 
-public class Character {
+public class GameCharacter {
     private float [] position;
     private float [] dir;
     private float [] head;
@@ -13,16 +13,22 @@ public class Character {
     private float [] thirdDir;
     private float [] thirdHead;
 
-    public Character(){
+    public GameCharacter(){
         position = new float[3];
         dir = new float[3];
         head = new float[3];
+        thirdPosition = new float[3];
+        thirdDir = new float[3];
+        thirdHead = new float[3];
     }
 
-    public Character(float [] position, float [] dir, float [] head){
+    public GameCharacter(float [] position, float [] dir, float [] head){
         this.position = position;
         this.dir = dir;
         this.head = head;
+        thirdPosition = new float[3];
+        thirdDir = new float[3];
+        thirdHead = new float[3];
     }
 
     public void setPosition(float [] position){
@@ -69,6 +75,10 @@ public class Character {
         return thirdDir;
     }
 
+    public float [] getThirdHead() {
+        return thirdHead;
+    }
+
     public void rotateDir(float angleH, float angleV){
         float [] dirE = new float[]{dir[0], dir[1], dir[2], 1};
         float [] headE = new float[]{head[0], head[1], head[2], 1};
@@ -78,7 +88,7 @@ public class Character {
             float[] rotationHMatrix = new float[16];
             float[] rotationVMatrix = new float[16];
 
-            Matrix.setRotateM(rotationHMatrix, 0, -angleH, head[0], head[1], head[2]);
+            Matrix.setRotateM(rotationHMatrix, 0, angleH, head[0], head[1], head[2]);
 
             Matrix.multiplyMV(dirE, 0, rotationHMatrix, 0, dirE, 0);
 
@@ -96,20 +106,20 @@ public class Character {
 
     public void movePosition(float x, float y){
 
-        if (x != 0 && y != 0) {
-            float [] axisV = new float[]{dir[1] * head[2] - dir[2] * head[1], dir[2] * head[0] - dir[0] * head[2], dir[0] * head[1] - dir[1] * head[0]};
-            float XL = (float)Math.sqrt(axisV[0] * axisV[0] + axisV[1] * axisV[1] + axisV[2] * axisV[2]);
-            float [] X = new float[]{axisV[0] / XL, axisV[1] / XL, axisV[2] / XL};
-            float YL = (float)Math.sqrt(dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2]);
-            float [] Y = new float[]{dir[0] / YL, dir[1] / YL, dir[2] / YL};
 
-            position[0] = position[0] + X[0] * x - Y[0] * y;
-            position[1] = position[1] + X[1] * x - Y[1] * y;
-            position[2] = position[2] + X[2] * x - Y[2] * y;
+        float [] axisV = new float[]{dir[1] * head[2] - dir[2] * head[1], dir[2] * head[0] - dir[0] * head[2], dir[0] * head[1] - dir[1] * head[0]};
+        float XL = (float)Math.sqrt(axisV[0] * axisV[0] + axisV[1] * axisV[1] + axisV[2] * axisV[2]);
+        float [] X = new float[]{axisV[0] / XL, axisV[1] / XL, axisV[2] / XL};
+        float YL = (float)Math.sqrt(dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2]);
+        float [] Y = new float[]{dir[0] / YL, dir[1] / YL, dir[2] / YL};
+
+        position[0] = position[0] + X[0] * x - Y[0] * y;
+        position[1] = position[1] + X[1] * x - Y[1] * y;
+        position[2] = position[2] + X[2] * x - Y[2] * y;
 
 //            myrenderer.clearMarkerList();
 //            myrenderer.addMarker(position);
-        }
+
     }
 
     public void thirdPersonAngle(float behind, float up, float front, float [] thirdPos, float [] thirdDir){
@@ -145,9 +155,10 @@ public class Character {
         tempDir[1] = tempDir[1] / tempDirLength;
         tempDir[2] = tempDir[2] / tempDirLength; //都先归一化一下，防止方向向量会超过1 （其实也没必要好像，但是考虑到block大小是1）
 
-        tempHead[0] = (float) (tempHead[0]/Math.sqrt(tempHead[0]*tempHead[0]+tempHead[1]*tempHead[1]+tempHead[2]*tempHead[2]));
-        tempHead[1] = (float) (tempHead[1]/Math.sqrt(tempHead[0]*tempHead[0]+tempHead[1]*tempHead[1]+tempHead[2]*tempHead[2]));
-        tempHead[2] = (float) (tempHead[2]/Math.sqrt(tempHead[0]*tempHead[0]+tempHead[1]*tempHead[1]+tempHead[2]*tempHead[2]));
+        tempHead[0] = (float) (head[0]/Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2]));
+        tempHead[1] = (float) (head[1]/Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2]));
+        tempHead[2] = (float) (head[2]/Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2]));
+
 
         des[0] = x0-behind*tempDir[0]+up*tempHead[0];
         des[1] = y0-behind*tempDir[0]+up*tempHead[1];
@@ -164,26 +175,30 @@ public class Character {
         des[4] = (y0+front*tempDir[1])-des[1];
         des[5] = (z0+front*tempDir[2])-des[2];
 
-        thirdPos = new float[]{des[0], des[1], des[2]};
-        thirdDir = new float[]{des[3], des[4], des[5]};
+//        thirdPos = new float[]{des[0], des[1], des[2]};
+        thirdPos[0] = des[0];
+        thirdPos[1] = des[1];
+        thirdPos[2] = des[2];
+//        thirdDir = new float[]{des[3], des[4], des[5]};
+        thirdDir[0] = des[3];
+        thirdDir[1] = des[4];
+        thirdDir[2] = des[5];
 
     }
 
-    public float [] getThirdHead(){
-        float [] thirdDir = new float[3];
-        float [] thirdPos = new float[3];
+    public void setThirdPersonal(){
 
-        thirdPersonAngle(0.1f, 0.1f, 0.1f, thirdDir, thirdPos);
+        thirdPersonAngle(0.1f, 0.1f, 0.3f, thirdPosition, thirdDir);
 
-        float [] axis = new float[]{thirdDir[1] * head[2] - head[2] * thirdDir[1], thirdDir[2] * head[0] - head[2] * thirdDir[0], thirdDir[0] * head[1] - head[0] * thirdDir[1]};
+        float [] axis = new float[]{thirdDir[1] * head[2] - head[1] * thirdDir[2], thirdDir[2] * head[0] - head[2] * thirdDir[0], thirdDir[0] * head[1] - head[0] * thirdDir[1]};
 
 //        float [] thirdHead = locateHead(dir[0], dir[1], dir[2]);
-        float [] thirdHead = new float[]{axis[1] * thirdDir[2] - thirdDir[1] * axis[2], axis[2] * thirdDir[0] - axis[0] * thirdDir[2], axis[0] * thirdDir[1] - axis[1] * thirdDir[0]};
+        thirdHead = new float[]{axis[1] * thirdDir[2] - thirdDir[1] * axis[2], axis[2] * thirdDir[0] - axis[0] * thirdDir[2], axis[0] * thirdDir[1] - axis[1] * thirdDir[0]};
         float acos = thirdHead[0] * head[0] + thirdHead[1] * head[1] + thirdHead[2] * head[2];
         if (acos > 0){
-            return thirdHead;
+
         } else {
-            return new float[]{-thirdHead[0], -thirdHead[1], -thirdHead[2]};
+            thirdHead = new float[]{-thirdHead[0], -thirdHead[1], -thirdHead[2]};
         }
     }
 
@@ -304,7 +319,7 @@ public class Character {
         }
 
         //然后对三维坐标进行映射
-        if (dir[2]==0)
+        if (thirdDir[2]==0)
         //先判断切面是不是与XOY面垂直，如果垂直就映射到XOZ平面
         {
             for (int i=0;i<tangent.size();i+=3) {
