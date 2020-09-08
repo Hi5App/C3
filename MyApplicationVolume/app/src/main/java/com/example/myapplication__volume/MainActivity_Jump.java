@@ -72,7 +72,7 @@ import com.example.basic.ImageMarker;
 import com.example.basic.LocationSimple;
 import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
-import com.example.basic.SettingFileManager;
+import com.example.datastore.SettingFileManager;
 import com.example.myapplication__volume.FileReader.AnoReader;
 import com.example.myapplication__volume.FileReader.ApoReader;
 import com.example.myapplication__volume.FileReader.SwcReader;

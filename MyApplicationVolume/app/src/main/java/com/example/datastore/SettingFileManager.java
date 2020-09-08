@@ -1,4 +1,4 @@
-package com.example.basic;
+package com.example.datastore;
 
 import android.content.Context;
 import android.util.Log;
@@ -171,7 +171,7 @@ public class SettingFileManager {
         String filename = null;
 
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/Local_filename.txt");
+        File file = new File(filepath + "/Config/Local_filename.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -214,7 +214,7 @@ public class SettingFileManager {
      */
     public static void setFilename_Local(String filename, Context context){
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/Local_filename.txt");
+        File file = new File(filepath + "/Config/Local_filename.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -254,7 +254,7 @@ public class SettingFileManager {
 //        int offset_z_i = Integer.parseInt(offset_z)/2;
 
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/" + filename + "_Local.txt");
+        File file = new File(filepath + "/Config/" + filename + "_Local.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -298,7 +298,7 @@ public class SettingFileManager {
      */
     public static void setoffset_Local(String offset, String filename, Context context){
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/" + filename + "_Local.txt");
+        File file = new File(filepath + "/Config/" + filename + "_Local.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -330,7 +330,7 @@ public class SettingFileManager {
         String userAccount = null;
 
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/Chat_userAccount.txt");
+        File file = new File(filepath + "/Config/Chat_userAccount.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -373,7 +373,7 @@ public class SettingFileManager {
      */
     public static void setUserAccount(String userAccount, Context context){
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/Chat_userAccount.txt");
+        File file = new File(filepath + "/Config/Chat_userAccount.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -405,7 +405,7 @@ public class SettingFileManager {
         String userAccount = null;
 
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/Check_userAccount.txt");
+        File file = new File(filepath + "/Config/Check_userAccount.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -448,7 +448,7 @@ public class SettingFileManager {
      */
     public static void setUserAccount_Check(String userAccount, Context context){
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/Check_userAccount.txt");
+        File file = new File(filepath + "/Config/Check_userAccount.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -480,7 +480,7 @@ public class SettingFileManager {
         String filename = null;
 
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/Remote_filename.txt");
+        File file = new File(filepath + "/Config/Remote_Filename.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -523,7 +523,7 @@ public class SettingFileManager {
      */
     public static void setFilename_Remote(String filename, Context context){
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/Remote_filename.txt");
+        File file = new File(filepath + "/Config/Remote_Filename.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -559,7 +559,7 @@ public class SettingFileManager {
         String offset_z = "0";
 
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/" + filename + ".txt");
+        File file = new File(filepath + "/Config/Brain/" + filename + "/Offset.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -603,7 +603,7 @@ public class SettingFileManager {
      */
     public static void setoffset_Remote(String offset, String filename, Context context){
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/" + filename + ".txt");
+        File file = new File(filepath + "/Config/Brain/" + filename + "/Offset.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -635,7 +635,7 @@ public class SettingFileManager {
     public static String getNeuronNumber_Remote(Context context, String filename){
         String number = "";
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/" + filename + "_Neuron_Number" + ".txt");
+        File file = new File(filepath + "/Config/Brain/" + filename + "/NeuronNum" + ".txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -679,7 +679,7 @@ public class SettingFileManager {
      */
     public static void setNeuronNumber_Remote(String number, String filename, Context context){
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/" + filename + "_Neuron_Number" + ".txt");
+        File file = new File(filepath + "/Config/Brain/" + filename + "/NeuronNum" + ".txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -710,7 +710,7 @@ public class SettingFileManager {
     public static Vector<String> getRES(Context context, String BrainNumber){
         Vector<String> res = new Vector<>() ;
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/RES/" + BrainNumber + ".txt");
+        File file = new File(filepath + "/Config/RES/" + BrainNumber + ".txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -759,7 +759,7 @@ public class SettingFileManager {
      */
     public static void setRES(String[] RES, String BrainNumber, Context context){
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/RES/" + BrainNumber + ".txt");
+        File file = new File(filepath + "/Config/RES/" + BrainNumber + ".txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -800,7 +800,7 @@ public class SettingFileManager {
         String filename = null;
 
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/Check/Remote_filename.txt");
+        File file = new File(filepath + "/Config/Check/Remote_filename.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -844,7 +844,7 @@ public class SettingFileManager {
      */
     public static void setFilename_Remote_Check(String filename, Context context){
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/Check/Remote_filename.txt");
+        File file = new File(filepath + "/Config/Check/Remote_filename.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -884,7 +884,7 @@ public class SettingFileManager {
         String offset_z_2 = "129";
 
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/Check/Offset/" + filename + ".txt");
+        File file = new File(filepath + "/Config/Check/Offset/" + filename + ".txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -930,7 +930,7 @@ public class SettingFileManager {
      */
     public static void setoffset_Remote_Check(String offset, String filename, Context context){
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/Check/Offset/" + filename + ".txt");
+        File file = new File(filepath + "/Config/Check/Offset/" + filename + ".txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -965,7 +965,7 @@ public class SettingFileManager {
         Vector<String> Arbor_List = new Vector<>();
 
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/Check/Arbor_List.txt");
+        File file = new File(filepath + "/Config/Check/Arbor_List.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -1014,7 +1014,7 @@ public class SettingFileManager {
      */
     public static void setArbor_List_Check(String[] Arbor_List, Context context){
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/Check/Arbor_List.txt");
+        File file = new File(filepath + "/Config/Check/Arbor_List.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -1055,7 +1055,7 @@ public class SettingFileManager {
         String offset = "";
 
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/BoundingBox/" + filename + ".txt");
+        File file = new File(filepath + "/Check/BoundingBox/" + filename + ".txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -1100,7 +1100,7 @@ public class SettingFileManager {
      */
     public static void setBoundingBox(String boundingbox, String filename, Context context){
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/BoundingBox/" + filename + ".txt");
+        File file = new File(filepath + "/Check/BoundingBox/" + filename + ".txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -1132,7 +1132,7 @@ public class SettingFileManager {
         String offset = "";
 
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/ArborNum/" + filename + ".txt");
+        File file = new File(filepath + "/Check/ArborNum/" + filename + ".txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -1177,7 +1177,7 @@ public class SettingFileManager {
      */
     public static void setArborNum(String ArborNum, String filename, Context context){
         String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/ArborNum/" + filename + ".txt");
+        File file = new File(filepath + "/Check/ArborNum/" + filename + ".txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());

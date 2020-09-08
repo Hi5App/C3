@@ -3,18 +3,14 @@ package com.example.ImageReader;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.basic.Image4DSimple;
-import com.example.basic.SettingFileManager;
-import com.example.myapplication__volume.JumpActivity;
+import com.example.datastore.SettingFileManager;
 import com.example.myapplication__volume.MainActivity;
-import com.example.myapplication__volume.MainActivity_Jump;
-import com.example.myapplication__volume.MyRenderer;
 import com.example.myapplication__volume.R;
 
 import java.io.BufferedInputStream;
@@ -27,9 +23,9 @@ import java.util.List;
 
 import cn.carbs.android.library.MDDialog;
 
-import static com.example.basic.SettingFileManager.getFilename_Local;
-import static com.example.basic.SettingFileManager.getoffset_Local;
-import static com.example.basic.SettingFileManager.setoffset_Local;
+import static com.example.datastore.SettingFileManager.getFilename_Local;
+import static com.example.datastore.SettingFileManager.getoffset_Local;
+import static com.example.datastore.SettingFileManager.setoffset_Local;
 import static com.example.myapplication__volume.MainActivity.setFilename;
 
 public class BigImgReader {

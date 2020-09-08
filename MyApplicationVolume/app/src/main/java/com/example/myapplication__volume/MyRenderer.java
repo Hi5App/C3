@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.opengl.GLES10;
 import android.opengl.GLES30;
@@ -59,7 +58,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -76,8 +74,6 @@ import javax.microedition.khronos.opengles.GL10;
 
 import static com.example.basic.BitmapRotation.getBitmapDegree;
 import static com.example.basic.BitmapRotation.rotateBitmapByDegree;
-import static com.example.basic.BitmapRotation.setOrientation;
-import static com.example.basic.SettingFileManager.getContrast;
 import static com.example.myapplication__volume.Myapplication.getContext;
 import static javax.microedition.khronos.opengles.GL10.GL_ALPHA_TEST;
 import static javax.microedition.khronos.opengles.GL10.GL_BLEND;
@@ -254,7 +250,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        GLES30.glClearColor(1.0f, 0.89f, 0.51f, 1.0f);
         //深蓝
         GLES30.glClearColor(0.098f, 0.098f, 0.439f, 1.0f);
-        contrast = ( Integer.parseInt(getContrast(getContext())) / 100.0f) + 1.0f;
 
         Log.v("onSurfaceCreated:","successfully");
 

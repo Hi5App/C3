@@ -1,18 +1,14 @@
 package com.example.Server_Communication;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
-import android.os.Looper;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,27 +17,18 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
 
 import com.example.ImageReader.BigImgReader;
-import com.example.basic.NeuronTree;
-import com.example.basic.SettingFileManager;
 import com.example.myapplication__volume.MainActivity;
 import com.example.myapplication__volume.R;
-import com.example.server_connect.Filesocket_receive;
-import com.feature_calc_func.MorphologyCalculate;
 import com.lxj.xpopup.XPopup;
-import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
-
-import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -49,36 +36,29 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
-import java.util.StringJoiner;
 import java.util.Vector;
 
 import cn.carbs.android.library.MDDialog;
 
-import static com.example.basic.SettingFileManager.getArborNum;
-import static com.example.basic.SettingFileManager.getArbor_List__Check;
-import static com.example.basic.SettingFileManager.getBoundingBox;
-import static com.example.basic.SettingFileManager.getFilename_Local;
-import static com.example.basic.SettingFileManager.getFilename_Remote;
-import static com.example.basic.SettingFileManager.getFilename_Remote_Check;
-import static com.example.basic.SettingFileManager.getNeuronNumber_Remote;
-import static com.example.basic.SettingFileManager.getRES;
-import static com.example.basic.SettingFileManager.getUserAccount;
-import static com.example.basic.SettingFileManager.getUserAccount_Check;
-import static com.example.basic.SettingFileManager.getoffset_Local;
-import static com.example.basic.SettingFileManager.getoffset_Remote;
-import static com.example.basic.SettingFileManager.getoffset_Remote_Check;
-import static com.example.basic.SettingFileManager.setArborNum;
-import static com.example.basic.SettingFileManager.setArbor_List_Check;
-import static com.example.basic.SettingFileManager.setBoundingBox;
-import static com.example.basic.SettingFileManager.setFilename_Remote;
-import static com.example.basic.SettingFileManager.setFilename_Remote_Check;
-import static com.example.basic.SettingFileManager.setNeuronNumber_Remote;
-import static com.example.basic.SettingFileManager.setRES;
-import static com.example.basic.SettingFileManager.setoffset_Remote;
-import static com.example.basic.SettingFileManager.setoffset_Remote_Check;
-import static com.example.server_connect.RemoteImg.getFilename;
-import static com.example.server_connect.RemoteImg.getoffset;
+import static com.example.datastore.SettingFileManager.getArborNum;
+import static com.example.datastore.SettingFileManager.getArbor_List__Check;
+import static com.example.datastore.SettingFileManager.getBoundingBox;
+import static com.example.datastore.SettingFileManager.getFilename_Remote;
+import static com.example.datastore.SettingFileManager.getFilename_Remote_Check;
+import static com.example.datastore.SettingFileManager.getNeuronNumber_Remote;
+import static com.example.datastore.SettingFileManager.getRES;
+import static com.example.datastore.SettingFileManager.getUserAccount_Check;
+import static com.example.datastore.SettingFileManager.getoffset_Remote;
+import static com.example.datastore.SettingFileManager.getoffset_Remote_Check;
+import static com.example.datastore.SettingFileManager.setArborNum;
+import static com.example.datastore.SettingFileManager.setArbor_List_Check;
+import static com.example.datastore.SettingFileManager.setBoundingBox;
+import static com.example.datastore.SettingFileManager.setFilename_Remote;
+import static com.example.datastore.SettingFileManager.setFilename_Remote_Check;
+import static com.example.datastore.SettingFileManager.setNeuronNumber_Remote;
+import static com.example.datastore.SettingFileManager.setRES;
+import static com.example.datastore.SettingFileManager.setoffset_Remote;
+import static com.example.datastore.SettingFileManager.setoffset_Remote_Check;
 
 public class Remote_Socket extends Socket {
 
@@ -1067,6 +1047,7 @@ public class Remote_Socket extends Socket {
                             @Override
                             public void onSelect(int position, String text) {
                                 Pos_Selected = text.replace("√ ","");
+                                text = text.replace("√ ","");
 
                                 if (!isDrawMode){
                                     String boundingbox = text.substring(ordinalIndexOf(text, ";", 3)+1);

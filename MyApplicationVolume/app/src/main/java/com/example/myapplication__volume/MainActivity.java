@@ -3,7 +3,6 @@ package com.example.myapplication__volume;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
@@ -19,15 +18,12 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraManager;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
@@ -40,9 +36,7 @@ import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.util.Xml;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -62,7 +56,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -70,32 +63,26 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import com.example.ImageReader.BigImgReader;
 import com.example.Server_Communication.Remote_Socket;
 import com.example.basic.CrashHandler;
 import com.example.basic.DragFloatActionButton;
-import com.example.ImageReader.BigImgReader;
 import com.example.basic.FileManager;
 import com.example.basic.Image4DSimple;
 import com.example.basic.ImageMarker;
 import com.example.basic.LocationSimple;
 import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
-import com.example.basic.SettingFileManager;
+import com.example.datastore.SettingFileManager;
 import com.example.myapplication__volume.FileReader.AnoReader;
 import com.example.myapplication__volume.FileReader.ApoReader;
-import com.example.myapplication__volume.FileReader.SwcReader;
-import com.example.server_connect.Filesocket_receive;
-import com.example.server_connect.Filesocket_send;
-import com.example.server_connect.RemoteImg;
 import com.feature_calc_func.MorphologyCalculate;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.learning.opimageline.Consensus;
 import com.learning.opimageline.DetectLine;
 import com.learning.pixelclassification.PixelClassification;
@@ -116,23 +103,12 @@ import com.tracingfunc.gsdt.GSDT;
 import com.tracingfunc.gsdt.ParaGSDT;
 import com.warkiz.widget.IndicatorSeekBar;
 
-//import org.opencv.android.OpenCVLoader;
-
-import org.xmlpull.v1.XmlPullParser;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -156,30 +132,22 @@ import io.agora.rtc.IRtcEngineEventHandler;
 import io.agora.rtc.RtcEngine;
 import io.agora.rtc.models.UserInfo;
 
-import static com.example.basic.BitmapRotation.getBitmapDegree;
-import static com.example.basic.SettingFileManager.getArborNum;
-import static com.example.basic.SettingFileManager.getContrast;
-import static com.example.basic.SettingFileManager.getFilename_Local;
-import static com.example.basic.SettingFileManager.getFilename_Remote;
-import static com.example.basic.SettingFileManager.getFilename_Remote_Check;
-import static com.example.basic.SettingFileManager.getNeuronNumber_Remote;
-import static com.example.basic.SettingFileManager.getSelectSource;
-import static com.example.basic.SettingFileManager.getUserAccount;
-import static com.example.basic.SettingFileManager.getUserAccount_Check;
-import static com.example.basic.SettingFileManager.getoffset_Local;
-import static com.example.basic.SettingFileManager.getoffset_Remote;
-import static com.example.basic.SettingFileManager.getoffset_Remote_Check;
-import static com.example.basic.SettingFileManager.setContrast;
-import static com.example.basic.SettingFileManager.setSelectSource;
-import static com.example.basic.SettingFileManager.setUserAccount;
-import static com.example.basic.SettingFileManager.setUserAccount_Check;
-import static com.example.basic.SettingFileManager.setoffset_Local;
+import static com.example.datastore.SettingFileManager.getArborNum;
+import static com.example.datastore.SettingFileManager.getFilename_Remote;
+import static com.example.datastore.SettingFileManager.getNeuronNumber_Remote;
+import static com.example.datastore.SettingFileManager.getSelectSource;
+import static com.example.datastore.SettingFileManager.getUserAccount;
+import static com.example.datastore.SettingFileManager.getUserAccount_Check;
+import static com.example.datastore.SettingFileManager.getoffset_Remote;
+import static com.example.datastore.SettingFileManager.setSelectSource;
+import static com.example.datastore.SettingFileManager.setUserAccount;
+import static com.example.datastore.SettingFileManager.setUserAccount_Check;
 import static com.example.server_connect.RemoteImg.getFilename;
-import static com.example.server_connect.RemoteImg.getoffset;
-
 import static java.lang.Math.abs;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
+
+//import org.opencv.android.OpenCVLoader;
 
 
 public class MainActivity extends BaseActivity {
@@ -188,6 +156,7 @@ public class MainActivity extends BaseActivity {
 //    private Operate [] process = new Operate[UNDO_LIMIT];
 
     public static final String File_path = "com.example.myfirstapp.MESSAGE";
+    private static final String TAG = "MainActivity";
 
     public static final String ip_SEU = "223.3.33.234";
     public static final String ip_ALiYun = "39.100.35.131";
@@ -334,7 +303,7 @@ public class MainActivity extends BaseActivity {
     private RandomForest rf = null;
 
 
-    private static RemoteImg remoteImg;
+//    private static RemoteImg remoteImg;
     @SuppressLint("StaticFieldLeak")
     private static Remote_Socket remote_socket;
     private BigImgReader bigImgReader;
@@ -1431,26 +1400,11 @@ public class MainActivity extends BaseActivity {
         blue_pen.setVisibility(View.GONE);
 
 
-//        SettingFileManager settingFileManager = new SettingFileManager();
-//        String DownSampleMode = settingFileManager.getDownSampleMode(this);
-//        preferenceSetting.getDownSampleMode();
-//        if (DownSampleMode.equals("DownSampleYes")){
-//            myrenderer.setIfNeedDownSample(true);
-//        }else if (DownSampleMode.equals("DownSampleNo")){
-//            myrenderer.setIfNeedDownSample(false);
-//        }
-
         // set Check Mode  & DownSample Mode
-        myrenderer.setIfDownSampling(preferenceSetting.getDownSampleMode());
+        myrenderer.setIfNeedDownSample(preferenceSetting.getDownSampleMode());
+        myrenderer.resetContrast(preferenceSetting.getContrast());
         DrawMode = !preferenceSetting.getCheckMode();
 
-//        // "CheckMode"  for check, "DrawMode" for draw
-//        String BigDataMode = settingFileManager.getBigDataMode(this);
-//        if (BigDataMode.equals("Draw Mode")){
-//            DrawMode = true;
-//        }else if (BigDataMode.equals("Check Mode")){
-//            DrawMode = false;
-//        }
 
         // Set the permission for user
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
@@ -1461,7 +1415,6 @@ public class MainActivity extends BaseActivity {
 
 
         myGLSurfaceView.requestRender();
-        remoteImg = new RemoteImg();
         remote_socket = new Remote_Socket(this);
         bigImgReader = new BigImgReader();
 
@@ -1566,11 +1519,11 @@ public class MainActivity extends BaseActivity {
                                         break;
 
                                     case "Upload SWC":
-                                        UploadSWC();
+//                                        UploadSWC();
                                         break;
 
                                     case "Download SWC":
-                                        DownloadSWC();
+//                                        DownloadSWC();
                                         break;
 
                                     default:
@@ -1781,30 +1734,7 @@ public class MainActivity extends BaseActivity {
                 }
                 break;
             }
-//            case PERMISSION_REQ_ID_RECORD_AUDIO: {
-//                if (grantResults.length > 0
-//                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-////                    initAgoraEngineAndJoinChannel();
-//                } else {
-//                    showLongToast("No permission for " + Manifest.permission.RECORD_AUDIO);
-//                    finish();
-//                }
-//                break;
-//            }
-
-
         }
-
-//        if (requestCode == REQUEST_PERMISSION_CODE) {
-//            for (int i = 0; i < permissions.length; i++) {
-//                Log.i("MainActivity", "申请的权限为：" + permissions[i] + ",申请结果：" + grantResults[i]);
-//            }
-//        }
-//        if (requestCode == REQUEST_TAKE_PHOTO) {
-//            for (int i = 0; i < permissions.length; i++) {
-//                Log.i("MainActivity", "申请的权限为：" + permissions[i] + ",申请结果：" + grantResults[i]);
-//            }
-//        }
     }
 
 
@@ -2001,17 +1931,17 @@ public class MainActivity extends BaseActivity {
                 }
 
 
-                if (ifUpload) {
-
-                    ParcelFileDescriptor parcelFileDescriptor =
-                            getContentResolver().openFileDescriptor(uri, "r");
-                    InputStream is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-                    long length = (int) parcelFileDescriptor.getStatSize();
-
-                    FileManager fileManager = new FileManager();
-                    String filename = fileManager.getFileName(uri);
-                    SendSwc("39.100.35.131", this, is, length, filename);
-                }
+//                if (ifUpload) {
+//
+//                    ParcelFileDescriptor parcelFileDescriptor =
+//                            getContentResolver().openFileDescriptor(uri, "r");
+//                    InputStream is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+//                    long length = (int) parcelFileDescriptor.getStatSize();
+//
+//                    FileManager fileManager = new FileManager();
+//                    String filename = fileManager.getFileName(uri);
+//                    SendSwc("39.100.35.131", this, is, length, filename);
+//                }
 
 
                 if (ifLoadLocal) {
@@ -2089,453 +2019,13 @@ public class MainActivity extends BaseActivity {
                 Toast.makeText(this, " Fail to load file  ", Toast.LENGTH_SHORT).show();
                 Log.v("MainActivity", "111222");
                 Log.v("Exception", e.toString());
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             }
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            }
         }
     }
 
-    /**
-     *
-     * @param ip
-     * @param context
-     * @param is
-     * @param length
-     * @param filename
-     */
-    private void SendSwc(String ip, Context context, InputStream is, long length, String filename) {
-        //新建一个线程，用于初始化socket和检测是否有接收到新的消息
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-
-                if (Looper.myLooper() == null) {
-                    Looper.prepare();
-                }
-                Log.v("SendSwc", "here we are");
-
-                try {
-                    remoteImg.ip = ip;
-                    Log.v("SendSwc", "connext socket");
-                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
-                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
-                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
-
-                    if (remoteImg.ImgSocket.isConnected()) {
-
-                        String content_id = remoteImg.ImgReader.readLine();
-                        remoteImg.id = Integer.parseInt(content_id.split(":")[0]);
-                        Log.v("ConnectServer", content_id);
-
-                        remoteImg.isSocketSet = true;
-                        Toast.makeText(getContext(), "Start to upload!!!", Toast.LENGTH_SHORT).show();
-                        if (!remoteImg.isOutputShutdown()) {
-                            Log.v("SendSwc: ", "Connect with Server successfully");
-                            remoteImg.ImgPWriter.println("connect for android client" + ":import.");
-                            remoteImg.ImgPWriter.flush();
-
-
-                            String content = remoteImg.ImgReader.readLine();
-//                            //接收来自服务器的消息
-//                            if(remoteImg.ImgSocket.isConnected()) {
-//                                if(!remoteImg.ImgSocket.isInputShutdown()) {
-//                                    /*读取一行字符串，读取的内容来自于客户机
-//                                    reader.readLine()方法是一个阻塞方法，
-//                                    从调用这个方法开始，该线程会一直处于阻塞状态，
-//                                    直到接收到新的消息，代码才会往下走*/
-//                                    String content = "";
-//                                    while ((content = remoteImg.ImgReader.readLine()) != null) {
-//                                        Log.v("---------Image------:", content);
-//                                        if (!((Activity) context).isFinishing()){
-//                                            Log.v("Download SWC file: ", content);
-////                                            remoteImg.onReadyRead(content, context);
-//                                            Looper.loop();
-//                                        }
-//                                    }
-//
-//                                }
-//                            }
-
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    //TODO  todo somthing here
-
-                                    try {
-                                        Log.v("SendSwc: ", "Start to connect filesend_server");
-
-                                        Filesocket_send filesocket_send = new Filesocket_send();
-                                        filesocket_send.filesocket = new Socket(ip, 9001);
-                                        filesocket_send.mReader = new BufferedReader(new InputStreamReader(filesocket_send.filesocket.getInputStream(), "UTF-8"));
-                                        filesocket_send.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_send.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
-
-
-                                        Log.v("before filesocket_send:", "Connect with Server successfully");
-
-                                        if (filesocket_send.filesocket.isConnected()) {
-
-                                            filesocket_send.mPWriter.println(remoteImg.id + ":manage handle.");
-                                            filesocket_send.mPWriter.flush();
-
-                                            Context[] contexts = new Context[1];
-                                            contexts[0] = context;
-
-                                            Log.v("filesocket_send: ", "Connect with Server successfully");
-
-                                            filesocket_send.sendImg(filename, is, length, context);
-//                                            Looper.loop();
-
-                                        }
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-
-                                }
-                            }, 1000);  //延迟10秒执行
-
-
-                            Looper.loop();
-
-                        }
-
-
-                    } else {
-                        Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
-                        Looper.loop();
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
-                    Looper.loop();
-                }
-            }
-        };
-        thread.start();
-
-    }
-
-
-    /**
-     *
-     * @param ip ip of cloud server
-     * @param context context of current activity
-     * @param is inputstream of file
-     * @param length length of file
-     * @param filename name of swc file
-     */
-    private void PushSwc(String ip, Context context, InputStream is, long length, String filename) {
-        //新建一个线程，用于初始化socket和检测是否有接收到新的消息
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-
-                if (Looper.myLooper() == null) {
-                    Looper.prepare();
-                }
-                Log.v("SendSwc", "here we are");
-
-                remoteImg.disconnectFromHost();
-
-                try {
-                    remoteImg.ip = ip;
-//                    if (!remoteImg.isSocketSet) {
-                        Log.v("SendSwc", "connext socket");
-                        remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
-                        remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
-                        remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
-//                    }
-
-
-                    if (remoteImg.ImgSocket.isConnected()) {
-
-                        remoteImg.isSocketSet = true;
-                        Toast.makeText(getContext(), "Start to upload!!!", Toast.LENGTH_SHORT).show();
-                        if (!remoteImg.isOutputShutdown()) {
-                            Log.v("SendSwc: ", "Connect with Server successfully");
-                            remoteImg.ImgPWriter.println("connect for android client" + ":import.");
-                            remoteImg.ImgPWriter.flush();
-
-//                            String content = remoteImg.ImgReader.readLine();
-
-//                            //接收来自服务器的消息
-//                            if(remoteImg.ImgSocket.isConnected()) {
-//                                if(!remoteImg.ImgSocket.isInputShutdown()) {
-//                                    /*读取一行字符串，读取的内容来自于客户机
-//                                    reader.readLine()方法是一个阻塞方法，
-//                                    从调用这个方法开始，该线程会一直处于阻塞状态，
-//                                    直到接收到新的消息，代码才会往下走*/
-//                                    String content = "";
-//                                    while ((content = remoteImg.ImgReader.readLine()) != null) {
-//                                        Log.v("---------Image------:", content);
-//                                        if (!((Activity) context).isFinishing()){
-//                                            Log.v("Download SWC file: ", content);
-////                                            remoteImg.onReadyRead(content, context);
-//                                            Looper.loop();
-//                                        }
-//                                    }
-//
-//                                }
-//                            }
-
-//                            System.out.println(content);
-//                            if (content.contains(":import port.")){
-//
-//                                try {
-//                                    Log.v("SendSwc: ", "Start to connect filesend_server");
-//
-//                                    Filesocket_send filesocket_send = new Filesocket_send();
-//                                    filesocket_send.filesocket = new Socket(ip, 9001);
-//                                    filesocket_send.mReader = new BufferedReader(new InputStreamReader(filesocket_send.filesocket.getInputStream(), "UTF-8"));
-//                                    filesocket_send.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_send.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
-//
-//
-//                                    Log.v("before filesocket_send:", "Connect with Server successfully");
-//
-//                                    if (filesocket_send.filesocket.isConnected()) {
-//
-//                                        Context[] contexts = new Context[1];
-//                                        contexts[0] = context;
-//
-//                                        Log.v("filesocket_send: ", "Connect with Server successfully");
-//
-//                                        filesocket_send.sendImg(filename, is, length, context);
-//
-//                                    }
-//                                } catch (Exception e) {
-//                                    e.printStackTrace();
-//                                }
-//                            }
-
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    //TODO  todo somthing here
-
-                                    try {
-                                        Log.v("SendSwc: ", "Start to connect filesend_server");
-
-                                        Filesocket_send filesocket_send = new Filesocket_send();
-                                        filesocket_send.filesocket = new Socket(ip, 9001);
-                                        filesocket_send.mReader = new BufferedReader(new InputStreamReader(filesocket_send.filesocket.getInputStream(), "UTF-8"));
-                                        filesocket_send.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_send.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
-
-
-                                        Log.v("before filesocket_send:", "Connect with Server successfully");
-
-                                        if (filesocket_send.filesocket.isConnected()) {
-
-                                            Context[] contexts = new Context[1];
-                                            contexts[0] = context;
-
-                                            Log.v("filesocket_send: ", "Connect with Server successfully");
-                                            filesocket_send.sendImg_test(filename, is, length, context);
-
-//                                            if (filesocket_send.sendImg_test(filename, is, length, context, myrenderer)){
-//
-//                                                Message msg = new Message();
-//                                                msg.what = 1;
-//                                                uiHandler.sendMessage(msg);
-//
-                                            Log.v("filesocket_send: ", "Connect with Server successfully");
-                                            System.out.println("------ Upload file successfully!!! -------");
-////                                                NeuronTree nt = NeuronTree.readSWC_file("/storage/emulated/0/Download/" + filename);
-////                                                myrenderer.importNeuronTree(nt);
-////                                                myGLSurfaceView.requestRender();
-////                                                Toast.makeText(context, "Upload file successfully!!!", Toast.LENGTH_SHORT).show();
-//                                            }
-
-
-
-//                                            Looper.loop();
-                                        }
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-
-                                }
-                            }, 1000);  //延迟1秒执行
-
-
-
-                        }
-
-
-                    } else {
-                        Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
-                        Looper.loop();
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
-                    Looper.loop();
-                }
-            }
-        };
-        thread.start();
-
-    }
-
-
-    public void DownloadSwc(String ip, Context context) {
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-
-                if (Looper.myLooper() == null) {
-                    Looper.prepare();
-                }
-
-                try {
-                    remoteImg.ip = ip;
-//                    if (!remoteImg.isSocketSet) {
-
-                        Log.v("DownloadSwc: ", "Connect server");
-
-                        remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
-                        remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
-                        remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
-//                    }
-
-                    Log.v("DownloadSwc: ", "here we are 2");
-
-                    if (remoteImg.ImgSocket.isConnected()) {
-                        remoteImg.isSocketSet = true;
-                        Log.v("DownloadSwc: ", "Connect with Server successfully");
-                        Toast.makeText(getContext(), "Connect with Server successfully", Toast.LENGTH_SHORT).show();
-                        remoteImg.ImgPWriter.println("connect from android client" + ":down.");
-                        remoteImg.ImgPWriter.flush();
-
-                    } else {
-                        Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
-                    }
-
-                    //接收来自服务器的消息
-                    while (remoteImg.ImgSocket.isConnected()) {
-                        if (!remoteImg.ImgSocket.isInputShutdown()) {
-                        /*读取一行字符串，读取的内容来自于客户机
-                        reader.readLine()方法是一个阻塞方法，
-                        从调用这个方法开始，该线程会一直处于阻塞状态，
-                        直到接收到新的消息，代码才会往下走*/
-                            String content = "";
-                            while ((content = remoteImg.ImgReader.readLine()) != null) {
-                                Log.v("---------Image------:", content);
-                                if (!((Activity) context).isFinishing()) {
-                                    Log.v("Download SWC file: ", content);
-                                    remoteImg.onReadyRead(content, context);
-                                    Looper.loop();
-                                }
-                            }
-
-                        }
-                        Thread.sleep(200);
-                    }
-
-                    Looper.loop();
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
-                    Looper.loop();
-                }
-            }
-        };
-        thread.start();
-
-    }
-
-
-
-    private static void PullSwc_block(String ip, Context context){
-
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-//                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-
-                if (Looper.myLooper() == null) {
-                    Looper.prepare();
-                }
-
-                try {
-                    remoteImg.ip = ip;
-
-                    Log.v("DownloadSwc: ", "Connect server");
-
-                    remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
-                    remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
-                    remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
-
-                    if (remoteImg.ImgSocket.isConnected()){
-                        String content = remoteImg.ImgReader.readLine();
-                        remoteImg.id = Integer.parseInt(content.split(":")[0]);
-                        Log.v("ConnectServer", content);
-
-                    }
-
-                    Filesocket_receive filesocket_receive = new Filesocket_receive();
-                    filesocket_receive.filesocket = new Socket(ip, 9002);
-                    filesocket_receive.mReader = new BufferedReader(new InputStreamReader(filesocket_receive.filesocket.getInputStream(), "UTF-8"));
-                    filesocket_receive.mPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(filesocket_receive.filesocket.getOutputStream(), StandardCharsets.UTF_8)));
-                    filesocket_receive.IsDown = true;
-                    filesocket_receive.path = context.getExternalFilesDir(null).toString() + "/Sync/BlockGet";
-
-                    if (remoteImg.ImgSocket.isConnected() && filesocket_receive.filesocket.isConnected()){
-                        filesocket_receive.mPWriter.println(remoteImg.id + ":manage handle.");
-                        filesocket_receive.mPWriter.flush();
-                    }
-
-                    Log.v("PullSwc: ", "here we are 2");
-
-                    if (remoteImg.ImgSocket.isConnected()) {
-                        remoteImg.isSocketSet = true;
-                        Log.v("PullSwc: ", "Connect with Server successfully");
-                        Toast.makeText(getContext(), "Connect with Server successfully", Toast.LENGTH_SHORT).show();
-
-                        String filename = getFilename(context);
-                        String offset = getoffset(context, filename);
-                        int[] index = BigImgReader.getIndex(offset);
-                        System.out.println(filename);
-
-                        String SwcFileName = filename.split("RES")[0] + "__" +
-                                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5];
-
-                        remoteImg.ImgPWriter.println(SwcFileName + ":GetBBSwc.");
-                        remoteImg.ImgPWriter.flush();
-
-                        filesocket_receive.readFile("blockGet__" + SwcFileName + ".swc", context);
-
-                        filesocket_receive = null;
-
-                        NeuronTree nt = NeuronTree.readSWC_file(context.getExternalFilesDir(null).toString() + "/Sync/BlockGet/" +  "blockGet__" + SwcFileName + ".swc");
-                        myrenderer.SetSwcLoaded();
-                        myrenderer.importNeuronTree(nt);
-                        myGLSurfaceView.requestRender();
-//                        uiHandler.sendEmptyMessage(1);
-                        remoteImg.disconnectFromHost();
-
-                        Looper.loop();
-
-                    } else {
-                        Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
-                        remoteImg.disconnectFromHost();
-                        Looper.loop();
-                    }
-
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
-                    remoteImg.disconnectFromHost();
-                    Looper.loop();
-                }
-            }
-        };
-        thread.start();
-    }
 
 
     private void PullSwc_block_Manual(boolean isDrawMode){
@@ -2647,33 +2137,6 @@ public class MainActivity extends BaseActivity {
             myGLSurfaceView.requestRender();
         }catch (Exception e){
             Toast_in_Thread_static("Something Wrong when open Swc File !");
-        }
-
-    }
-
-
-
-    public void disconnectFromHost(){
-
-        System.out.println("---- disconnect from host ----");
-        try {
-
-            if (remoteImg.ImgSocket != null){
-                remoteImg.ImgSocket.close();
-            }
-
-            if (remoteImg.ImgSocket != null){
-                remoteImg.ImgReader.close();
-            }
-
-            if (remoteImg.ImgSocket != null){
-                remoteImg.ImgPWriter.close();
-            }
-
-
-        } catch (IOException e) {
-
-            e.printStackTrace();
         }
 
     }
@@ -4426,57 +3889,17 @@ public class MainActivity extends BaseActivity {
 
 
 
-
-
-
-    /**
-     * function for the Sync button
-     *
-     * @param v the button: Sync
-     */
-    private void Sync(final View v) {
-        new XPopup.Builder(this)
-                .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"Upload SWC", "Download SWC"},
-                        new int[]{},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                switch (text) {
-                                    case "Upload SWC":
-//                                        UploadSWC();
-//                                        PushSWC_Block();
-                                        break;
-
-                                    case "Download SWC":
-                                        DownloadSWC();
-                                        break;
-                                }
-                            }
-                        })
-                .show();
-    }
-
-
-
-    private void UploadSWC() {
-
-        ifUpload = true;
-        ifImport = false;
-        ifAnalyze = false;
-
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        startActivityForResult(intent, 1);
-    }
-
-
-    private void DownloadSWC() {
-
-        Log.v("DownloadSWC: ", "here we are");
-        DownloadSwc("39.100.35.131", this);
-    }
+//    private void UploadSWC() {
+//
+//        ifUpload = true;
+//        ifImport = false;
+//        ifAnalyze = false;
+//
+//        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+//        intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
+//        intent.addCategory(Intent.CATEGORY_OPENABLE);
+//        startActivityForResult(intent, 1);
+//    }
 
 
     private void LoadSWC() {
@@ -5238,7 +4661,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200907C 21:53 UTC+8 build",
+                                "Version: 20200908a 13:53 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5367,110 +4790,6 @@ public class MainActivity extends BaseActivity {
 
     }
 
-    private void ConnectServer(String ip, Context context){
-
-        remoteImg.setip(ip, context);
-        //新建一个线程，用于初始化socket和检测是否有接收到新的消息
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                Looper.prepare();
-
-                remoteImg.disconnectFromHost();
-
-                try {
-
-                        Log.v("ConnectServer","start to connect server");
-                        remoteImg.ip = ip;
-                        remoteImg.ImgSocket = new Socket(ip, Integer.parseInt("9000"));
-                        remoteImg.ImgReader = new BufferedReader(new InputStreamReader(remoteImg.ImgSocket.getInputStream(), "UTF-8"));
-                        remoteImg.ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(remoteImg.ImgSocket.getOutputStream(), StandardCharsets.UTF_8)));
-
-
-                    if(remoteImg.ImgSocket.isConnected()){
-                        String content = remoteImg.ImgReader.readLine();
-                        remoteImg.id = Integer.parseInt(content.split(":")[0]);
-                        Log.v("ConnectServer", content);
-
-                        Log.v("ConnectServer","send some message to server");
-                        remoteImg.isSocketSet = true;
-//                        Toast.makeText(getContext(), "Connect with Server successfully", Toast.LENGTH_SHORT).show();
-                        Toast_in_Thread("hello world");
-                        remoteImg.ImgPWriter.println( "connect for android client" + ":choose3.");
-                        remoteImg.ImgPWriter.flush();
-
-                    }else {
-                        Log.v("ConnectServer","fail to connect server");
-                        Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
-                    }
-
-                    //接收来自服务器的消息
-                    if(remoteImg.ImgSocket.isConnected()) {
-                        if(!remoteImg.ImgSocket.isInputShutdown()) {
-                        /*读取一行字符串，读取的内容来自于客户机
-                        reader.readLine()方法是一个阻塞方法，
-                        从调用这个方法开始，该线程会一直处于阻塞状态，
-                        直到接收到新的消息，代码才会往下走*/
-                            String content = "";
-                            Log.v("---------Image------:", "start to readline");
-
-                            boolean[] isFinished = {false};
-
-                            if ((content = remoteImg.ImgReader.readLine()) != null) {
-
-                                isFinished[0] = true;
-                                Log.v("---------Image------:", content);
-                                if (!((Activity) context).isFinishing()){
-                                    if (Looper.myLooper() == null)
-                                        Looper.prepare();
-                                    remoteImg.onReadyRead(content, context);
-                                    Looper.loop();
-                                }
-
-//                                long l2 = System.currentTimeMillis();
-//                                if (l2 - l1 < maxtimeout){
-//
-//                                }else {
-//                                    ShowToast(context, "---Timeout---");
-//                                }
-                            }
-
-
-
-//                            TimerTask ft = new TimerTask(){
-//                                public void run(){
-//                                    if (!isFinished[0]){
-//                                        Log.v("---------Image------:", "start to close bufferreader");
-//
-//                                        try {
-//                                            remoteImg.ImgReader.close();
-//                                            ShowToast(context, "---Timeout---");
-//                                            Log.v("---------Image------:", "bufferreader closed!");
-//                                        } catch (IOException e) {
-//                                            e.printStackTrace();
-//                                            Log.v("---------Image------:", "fail to close bufferreader!");
-//                                        }
-//                                    }
-//                                }
-//                            };
-//
-//                            (new Timer()).schedule(ft, 5 * 1000);
-
-                        }
-                    }
-
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(getContext(), "Can't connect, try again please!", Toast.LENGTH_SHORT).show();
-                    Looper.loop();
-                }
-            }
-        };
-        thread.start();
-
-    }
-
 
     public void Toast_in_Thread(String message){
         runOnUiThread(new Runnable() {
@@ -5488,47 +4807,6 @@ public class MainActivity extends BaseActivity {
         bundle.putString("Toast_msg",message);
         msg.setData(bundle);
         puiHandler.sendMessage(msg);
-    }
-
-    public void Block_switch(View v){
-        context = v.getContext();
-        new XPopup.Builder(this)
-                .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-
-                .asAttachList(new String[]{"Left", "Right", "Top", "Bottom", "Front", "Back"},
-
-                        new int[]{},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                switch (text) {
-                                    case "Left":
-                                        remoteImg.Selectblock_fast(context, false, "Left");
-                                        break;
-
-                                    case "Right":
-                                        remoteImg.Selectblock_fast(context, false, "Right");
-                                        break;
-
-                                    case "Top":
-                                        remoteImg.Selectblock_fast(context, false, "Top");
-                                        break;
-
-                                    case "Bottom":
-                                        remoteImg.Selectblock_fast(context, false, "Bottom");
-                                        break;
-
-                                    case "Front":
-                                        remoteImg.Selectblock_fast(context, false, "Front");
-                                        break;
-
-                                    case "Back":
-                                        remoteImg.Selectblock_fast(context, false, "Back");
-                                        break;
-                                }
-                            }
-                        })
-                .show();
     }
 
 
@@ -6130,7 +5408,6 @@ public class MainActivity extends BaseActivity {
 
     private void setSettings(){
 
-        SettingFileManager settingFileManager = new SettingFileManager();
         boolean [] downsample = new boolean[1];
         boolean [] check = new boolean[1];
 
@@ -6187,10 +5464,11 @@ public class MainActivity extends BaseActivity {
                         IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
                         int contrast = seekbar.getProgress();
 
-                        myrenderer.setIfDownSampling(downsample[0]);
+                        myrenderer.setIfNeedDownSample(downsample[0]);
                         myrenderer.resetContrast(contrast);
                         DrawMode = !check[0];
 
+                        Log.v(TAG,"downsample: " + downsample[0] + ", check: " + check[0] + ",contrast: " + contrast);
                         preferenceSetting.setPref(downsample[0], check[0], contrast);
                         myGLSurfaceView.requestRender();
 
@@ -6480,9 +5758,7 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        remoteImg.disconnectFromHost();
         context = null;
-        remoteImg = null;
 
         if (timer != null){
             timer.cancel();
@@ -6501,7 +5777,6 @@ public class MainActivity extends BaseActivity {
         super.onPause();
         myGLSurfaceView.onPause();
         Log.v("onPause", "start-----");
-        remoteImg.disconnectFromHost();
     }
 
     @Override
@@ -6519,7 +5794,6 @@ public class MainActivity extends BaseActivity {
 //            Log.i("cv", "OpenCV library found inside package. Using it!");
 //
 //        }
-//        remoteImg = new RemoteImg();
     }
 
 
