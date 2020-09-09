@@ -519,7 +519,7 @@ public class Remote_Socket extends Socket {
                 String Final_Path = Get_File(Store_path_txt, true);
 
                 if (Final_Path.equals("Error")){
-                    Toast_in_Thread("Something Error When Get_File");
+                    Toast_in_Thread("Something Error When get BrainInfo");
                     return;
                 }
 
@@ -1494,7 +1494,7 @@ public class Remote_Socket extends Socket {
             String Final_Path = Get_File(Store_path_check_txt, true);
 
             if (Final_Path.equals("Error")){
-                Toast_in_Thread("Something Error When Get_File");
+                Toast_in_Thread("Something Error When Pull Check result");
                 return;
             }
 
@@ -1604,7 +1604,7 @@ public class Remote_Socket extends Socket {
             String Final_Path = Get_File(Store_path_check_txt, true);
 
             if (Final_Path.equals("Error")){
-                Toast_in_Thread("Something Error When Get_File");
+                Toast_in_Thread("Something Error When Get_Check_Result");
                 return;
             }
             Process_Result(Final_Path);

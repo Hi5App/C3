@@ -75,7 +75,7 @@ public class Socket_Send {
     public void Send_File(Socket socket, String filename, InputStream is, long length_content){
 
         if (!socket.isConnected()){
-            Toast_in_Thread("Fail to Send_File, Try Again Please !");
+            Toast_in_Thread("Socket is not Connected, Try Again Please !");
             return;
         }
 

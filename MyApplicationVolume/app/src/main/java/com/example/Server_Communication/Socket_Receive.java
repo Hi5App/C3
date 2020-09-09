@@ -128,9 +128,9 @@ public class Socket_Receive {
                     int FileName_size_int = (int) bytesToLong(FileName_size);
 
 
-                    if (Data_size_int <= FileName_size_int + 16){
+                    if (Data_size_int < FileName_size_int + 16){
 
-                        Toast_in_Thread("Can't get the SWC in BB ,please try again");
+//                        Toast_in_Thread("Can't get the SWC in BB ,please try again");
                         return;
 
                     }
