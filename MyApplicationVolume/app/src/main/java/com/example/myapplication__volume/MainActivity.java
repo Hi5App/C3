@@ -320,7 +320,7 @@ public class MainActivity extends BaseActivity {
 
     private static boolean isBigData_Remote;
     private static boolean isBigData_Local;
-    private ProgressBar progressBar;
+    private static ProgressBar progressBar;
 
 
     private int eswc_length;
@@ -485,6 +485,10 @@ public class MainActivity extends BaseActivity {
                 case 5:
                     String Toast_msg = msg.getData().getString("Toast_msg");
                     Toast.makeText(getContext(),Toast_msg, Toast.LENGTH_SHORT).show();
+                    break;
+
+                case 6:
+                    progressBar.setVisibility(View.GONE);
                     break;
 
             }
@@ -830,7 +834,7 @@ public class MainActivity extends BaseActivity {
                             Toast_in_Thread("Please Input your User name first in more functions !");
                         }else {
                             remote_socket.Check_Result("YES");
-                            Toast_in_Thread("Check Yes Successfully");
+                            Toast_in_Thread("Check YES Successfully");
                         }
 
                     }
@@ -852,7 +856,7 @@ public class MainActivity extends BaseActivity {
                             Toast_in_Thread("Please Input your User name first in more functions !");
                         }else {
                             remote_socket.Check_Result("NO");
-                            Toast_in_Thread("Check Yes Successfully");
+                            Toast_in_Thread("Check NO Successfully");
                         }
 
                     }
@@ -872,7 +876,7 @@ public class MainActivity extends BaseActivity {
                             Toast_in_Thread("Please Input your User name first in more functions !");
                         }else {
                             remote_socket.Check_Result("UNCERTAIN");
-                            Toast_in_Thread("Check Yes Successfully");
+                            Toast_in_Thread("Check UNCERTAIN Successfully");
                         }
 
                     }
@@ -3302,7 +3306,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
 
-                .asAttachList(new String[]{"Filter by exemplars"},
+                .asAttachList(new String[]{"Filter by example"},
 
                         new int[]{},
                         new OnSelectListener() {
@@ -3314,9 +3318,17 @@ public class MainActivity extends BaseActivity {
 //                                        FeatureSet();
 //                                        break;
 
-                                    case "Filter by exemplars":
+                                    case "Filter by example":
                                         //调用像素分类接口，显示分类结果
-                                        Learning();
+                                        progressBar.setVisibility(View.VISIBLE);
+
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Learning();
+                                                puiHandler.sendEmptyMessage(6);
+                                            }
+                                        }).start();
                                         break;
 
 
@@ -4661,7 +4673,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200910a 16:59 UTC+8 build",
+                                "Version: 20200910B 19:59 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5807,31 +5819,11 @@ public class MainActivity extends BaseActivity {
             Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_SHORT).show();
             return;
         }
-//        Image4DSimple resampleimg=new Image4DSimple();
-//        Image4DSimple upsampleimg=new Image4DSimple();
         Image4DSimple outImg=new Image4DSimple();
-//        if(img.getSz0()>32&&img.getSz1()>32&&img.getSz2()>32)
-//        {
-//            Image4DSimple.resample3dimg_interp(resampleimg,img,img.getSz0()/32 , img.getSz1()/32, img.getSz2()/32, 1);
-//        }
-//        else
-//        {
-//            resampleimg=img;
-//        }
-//        //对图像进行降采样
-//
-//        System.out.println("downsample image");
+
         NeuronTree nt = myrenderer.getNeuronTree();
         PixelClassification p = new PixelClassification();
 
-        /*boolean[][] selections = new boolean[][]{
-                {true,true,true,true,true,true,true},
-                {true,true,true,true,true,true,true},
-                {false,false,false,false,false,false,false},
-                {false,false,false,false,false,false,false},
-                {false,false,false,false,false,false,false},
-                {true,true,true,true,true,true,true}
-        };*/
         boolean[][] selections = select;
         System.out.println("select is");
         System.out.println(select);
@@ -5842,36 +5834,17 @@ public class MainActivity extends BaseActivity {
         }
 
         Toast.makeText(getContext(), "pixel  classification start~", Toast.LENGTH_SHORT).show();
-//        Looper.loop();
+
         try{
-//            outImg = p.getPixelClassificationResult(resampleimg,nt);
             outImg = p.getPixelClassificationResult(img,nt);
             System.out.println("outImg: "+outImg.getSz0()+" "+outImg.getSz1()+" "+outImg.getSz2()+" "+outImg.getSz3());
             System.out.println(outImg.getData().length);
 
-//            if(img.getSz0()>32&&img.getSz1()>32&&img.getSz2()>32)
-//            {
-//                Image4DSimple.upsample3dimg_interp(upsampleimg, outImg,img.getSz0()/32 , img.getSz1()/32, img.getSz2()/32, 1);
-//            }
-//            else
-//            {
-//                upsampleimg=outImg;
-//            }
-//            System.out.println("upsample image");
-//            myrenderer.ResetImg(upsampleimg);
             myrenderer.ResetImg(outImg);
             myGLSurfaceView.requestRender();
         }catch (Exception e){
             Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
-
-//        Image4DSimple out = new Image4DSimple();
-//        out.setData(img);
-//        myrenderer.ResetImg(out);
-
-
-
-
     }
 
     private void Anisotropic(){

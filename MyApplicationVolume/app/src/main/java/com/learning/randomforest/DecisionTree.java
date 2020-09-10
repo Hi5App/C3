@@ -402,8 +402,8 @@ public class DecisionTree {
         TreeNode root = new TreeNode();
         root.data = train; // public List<int[]> data;
         //System.out.println("creating ");
-        ArrayList<Integer> vars = GetVarsToInclude();//randomly selects Ms' index of attributes from M
-        root.attrArr = vars;
+//        ArrayList<Integer> vars = GetVarsToInclude();//randomly selects Ms' index of attributes from M
+//        root.attrArr = vars;
         RecursiveSplit(root, ntree);
         return root;
     }
@@ -472,6 +472,9 @@ public class DecisionTree {
             int Nsub = parent.data.size();
 //			PrintOutClasses(parent.data);
 
+            ArrayList<Integer> vars = GetVarsToInclude();//randomly selects Ms' index of attributes from M
+            parent.attrArr = vars;
+
             parent.left = new TreeNode();
             parent.left.generation = parent.generation + 1;
             parent.right = new TreeNode();
@@ -481,6 +484,7 @@ public class DecisionTree {
 
             //假如当前属性集为空，返回样本数最多的类;
             if(parent.attrArr.size() == 0){
+                parent.isLeaf = true;
                 parent.Class = GetMajorityClass(parent.data);
                 return;
             }

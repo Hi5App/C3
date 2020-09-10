@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
-import java.util.stream.Collectors;
 
 public class PixelClassification {
     public static double[] sigmaScales = new double[]{0.3,0.7,1,1.6,3.5,5.0,10.0};
@@ -104,7 +103,7 @@ public class PixelClassification {
         Vector<NeuronTree> labels = nt.splitNeuronTreeByType();
         Vector<NeuronTree> labelFB = new Vector<NeuronTree>();
         for(int i=0; i<labels.size(); i++){
-            if(labels.get(i).listNeuron.get(0).type == 2){
+            if(labels.get(i).listNeuron.get(0).type == 3){
                 labelFB.add(labels.get(i));
             }
         }
@@ -112,7 +111,7 @@ public class PixelClassification {
             throw new Exception("Please add foreground label!");
         }
         for(int i=0; i<labels.size(); i++){
-            if(labels.get(i).listNeuron.get(0).type == 3){
+            if(labels.get(i).listNeuron.get(0).type == 2){
                 labelFB.add(labels.get(i));
             }
         }
@@ -156,12 +155,12 @@ public class PixelClassification {
             System.out.println("it is only support V3D_UINT8");
         }
 
-        ArrayList<int[]> partPixelsFeature = new ArrayList<>();
+        ArrayList<float[]> partPixelsFeature = new ArrayList<>();
         byte[] img1dByte = downSampleImg.getData();
-//        int[] img1d = new int[img1dByte.length];
-//        for(int i=0; i<img1dByte.length; i++){
-//            img1d[i] = ByteTranslate.byte1ToInt(img1dByte[i]);
-//        }
+        int[] img1d = new int[img1dByte.length];
+        for(int i=0; i<img1dByte.length; i++){
+            img1d[i] = ByteTranslate.byte1ToInt(img1dByte[i]);
+        }
 
         double mean = 0, std = 0;
         int count = 0;
@@ -220,185 +219,200 @@ public class PixelClassification {
         }
         System.out.println("f: "+f+" b: "+b);
 
+//        byte[] data = new byte[img1dByte.length*3];
+//        Arrays.fill(data, (byte) 0);
+//        for(int i=0; i<img1dByte.length; i++){
+//            data[i] = img1dByte[i];
+//        }
+//        for(int i=img1dByte.length; i<img1dByte.length*2; i++){
+//            if(featureMask0[i-img1dByte.length] == 1){
+//                data[i] = (byte) 60;
+//            }else {
+//                data[i] = (byte) 0;
+//            }
+//        }
+//        result.setDataFromImage(data,downSampleImg.getSz0(),downSampleImg.getSz1(),downSampleImg.getSz2(),3,downSampleImg.getDatatype(),downSampleImg.getIsBig());
+
+
+        int[] featureMask = new int[img1d.length];
+        Arrays.fill(featureMask,0);
+        for(int k=0; k<sz[2]; k++){
+            for(int j=0; j<sz[1]; j++){
+                for(int i=0; i<sz[0]; i++){
+                    int index = k*sz[1]*sz[0] + j*sz[0] + i;
+                    if(featureMask0[index] == 0){
+                        end:
+                        for(int kk=-1; kk<=1; kk++){
+                            int nbk = k + kk;
+                            if(nbk<0 || nbk>=sz[2])
+                                continue;
+                            for(int jj=-1; jj<=1; jj++){
+                                int nbj = j + jj;
+                                if(nbj<0 || nbj>=sz[1])
+                                    continue;
+                                for(int ii=-1; ii<=1; ii++){
+                                    int nbi = i + ii;
+                                    if(nbi<0 || nbi>=sz[0])
+                                        continue;
+                                    int d = Math.abs(kk) + Math.abs(jj) + Math.abs(ii);
+                                    if(d == 0)
+                                        continue;
+                                    int nbIndex = nbk*sz[1]*sz[0] + nbj*sz[0] + nbi;
+                                    if(featureMask0[nbIndex] == 1){
+                                        featureMask[index] = 1;
+                                        break end;
+                                    }
+                                }
+                            }
+                        }
+
+                    }else if(featureMask0[index] == 1){
+                        featureMask[index] = 1;
+                    }
+                }
+            }
+        }
+        int afterF = 0;
+        for(int i=0; i<featureMask.length; i++){
+            if(featureMask[i] == 1)
+                afterF++;
+//            else
+//                featureMask[i] = 1;
+        }
+        System.out.println("afterF: "+afterF);
+
+        Vector<Integer> featureMaskIndex = new Vector<>();
+        for(int i=0; i<featureMask.length; i++){
+            if(featureMask[i] == 1)
+                featureMaskIndex.add(i);
+        }
+
+
+        System.out.println("---------------get feature-----------");
+        for(int i=0; i<selections.length; i++){
+            for(int j=0; j<sigmaScales.length; j++){
+                double sigma = sigmaScales[j];
+                if(selections[i][j]){
+                    int[] outFeature = getFilterFeature(img1d,sz,featureMask,sigma,featureName[i]);
+//                    int[] outFeature = getFeature(img1d,sz,featureMask,sigma,featureName[i]);
+                    float[] partOutFeature = new float[featureMaskIndex.size()];
+                    for(int k=0; k<featureMaskIndex.size(); k++){
+                        int index = featureMaskIndex.get(k);
+                        partOutFeature[k] = outFeature[index];
+                    }
+                    partPixelsFeature.add(partOutFeature);
+                }
+            }
+        }
+
+        System.out.println("feature size: "+partPixelsFeature.size());
+
+        ArrayList<float[]> dataRandomForest = new ArrayList<>();
+        int M = partPixelsFeature.size();
+        for(int i=0; i<featureMaskIndex.size(); i++){
+            float[] features = new float[M+1];
+            for(int j=0; j<M; j++){
+                features[j] = partPixelsFeature.get(j)[i];
+            }
+            features[M] = 0;
+            dataRandomForest.add(features);
+        }
+
+        ArrayList<float[]> trainData = new ArrayList<>();
+        ArrayList<float[]> testData = new ArrayList<>();
+
+//        if(bg){
+//            ArrayList<int[]> data1 = new ArrayList<>();
+//            ArrayList<int[]> data2 = new ArrayList<>();
+//            for(int i=0; i<maskFinal.length; i++){
+//                if(maskFinal[i] == 1){
+//                    int[] features = new int[M+1];
+//                    if (dataRandomForest.get(i).length - 1 >= 0)
+//                        System.arraycopy(dataRandomForest.get(i), 0, features, 0, dataRandomForest.get(i).length - 1);
+//                    features[M] = maskFinal[i];
+//                    data1.add(features);
+//                }else if(maskFinal[i] == 2){
+//                    int[] features = new int[M+1];
+//                    if (dataRandomForest.get(i).length - 1 >= 0)
+//                        System.arraycopy(dataRandomForest.get(i), 0, features, 0, dataRandomForest.get(i).length - 1);
+//                    features[M] = maskFinal[i];
+//                    data2.add(features);
+//                }
+//            }
+//            if(data1.size()>data2.size()*2){
+//                Collections.shuffle(data1);
+//                for(int i=0; i<data2.size()*2; i++){
+//                    trainData.add(data1.get(i));
+//                }
+//                trainData.addAll(data2);
+//            }else {
+//                trainData.addAll(data1);
+//                trainData.addAll(data2);
+//            }
+//        }else{
+        {
+            for(int i=0; i<dataRandomForest.size(); i++){
+                if(maskFinal[featureMaskIndex.get(i)] != 0){
+//                System.out.println("-------------feature------------");
+                    float[] features = new float[M+1];
+                    if (dataRandomForest.get(i).length - 1 >= 0)
+                        System.arraycopy(dataRandomForest.get(i), 0, features, 0, dataRandomForest.get(i).length - 1);
+                    features[M] = maskFinal[featureMaskIndex.get(i)];
+                    trainData.add(features);
+                }
+            }
+        }
+
+        int numTrees = 100;
+        RandomForest rf = new RandomForest(numTrees,trainData,testData);
+        rf.C = C;
+        rf.M = M;
+        rf.Ms = (int) Math.round(Math.log(rf.M)/Math.log(2)+1);
+        rf.start();
+
+        int[] resultClassification = new int[featureMask.length];
+        Arrays.fill(resultClassification,0);
+
+        System.out.println("----------------------classification-----------------");
+
+        for(int i=0; i<dataRandomForest.size(); i++){
+            resultClassification[featureMaskIndex.get(i)] = rf.Evaluate(dataRandomForest.get(i));
+//            if(featureMask[i] == 0){
+//                resultClassification[i] = 0;
+//            }else {
+//                resultClassification[i] = rf.Evaluate(dataRandomForest.get(i));
+//            }
+//            if(i%100==0){
+//                System.out.println(i+" : "+resultClassification[i]);
+//            }
+        }
+
+        int[] pixelIntensity = new int[C];
+        int step = 60/(C-1);
+        for(int i=0; i<C; i++){
+            pixelIntensity[i] = i*step;
+        }
+
         byte[] data = new byte[img1dByte.length*3];
         Arrays.fill(data, (byte) 0);
         for(int i=0; i<img1dByte.length; i++){
             data[i] = img1dByte[i];
         }
         for(int i=img1dByte.length; i<img1dByte.length*2; i++){
-            if(featureMask0[i-img1dByte.length] == 1){
-                data[i] = (byte) 60;
-            }else {
-                data[i] = (byte) 0;
-            }
+            data[i] = (byte) pixelIntensity[resultClassification[i-img1dByte.length]];
+//            if(featureMask0[i-img1dByte.length] == 1){
+//                data[i] = (byte) 60;
+//            }else {
+//                data[i] = (byte) 0;
+//            }
         }
         result.setDataFromImage(data,downSampleImg.getSz0(),downSampleImg.getSz1(),downSampleImg.getSz2(),3,downSampleImg.getDatatype(),downSampleImg.getIsBig());
 
-
-//        int[] featureMask = new int[img1d.length];
-//        Arrays.fill(featureMask,0);
-//        for(int k=0; k<sz[2]; k++){
-//            for(int j=0; j<sz[1]; j++){
-//                for(int i=0; i<sz[0]; i++){
-//                    int index = k*sz[1]*sz[0] + j*sz[0] + i;
-//                    if(featureMask0[index] == 0){
-//                        end:
-//                        for(int kk=-1; kk<=1; kk++){
-//                            int nbk = k + kk;
-//                            if(nbk<0 || nbk>=sz[2])
-//                                continue;
-//                            for(int jj=-1; jj<=1; jj++){
-//                                int nbj = j + jj;
-//                                if(nbj<0 || nbj>=sz[1])
-//                                    continue;
-//                                for(int ii=-1; ii<=1; ii++){
-//                                    int nbi = i + ii;
-//                                    if(nbi<0 || nbi>=sz[0])
-//                                        continue;
-//                                    int d = Math.abs(kk) + Math.abs(jj) + Math.abs(ii);
-//                                    if(d == 0)
-//                                        continue;
-//                                    int nbIndex = nbk*sz[1]*sz[0] + nbj*sz[0] + nbi;
-//                                    if(featureMask0[nbIndex] == 1){
-//                                        featureMask[index] = 1;
-//                                        break end;
-//                                    }
-//                                }
-//                            }
-//                        }
-//
-//                    }else if(featureMask0[index] == 1){
-//                        featureMask[index] = 1;
-//                    }
-//                }
-//            }
-//        }
-//        int afterF = 0;
-//        for(int i=0; i<featureMask.length; i++){
-//            if(featureMask[i] == 1)
-//                afterF++;
-////            else
-////                featureMask[i] = 1;
-//        }
-//        System.out.println("afterF: "+afterF);
-//
-//        Vector<Integer> featureMaskIndex = new Vector<>();
-//        for(int i=0; i<featureMask.length; i++){
-//            if(featureMask[i] == 1)
-//                featureMaskIndex.add(i);
-//        }
-//
-//
-//        System.out.println("---------------get feature-----------");
-//        for(int i=0; i<selections.length; i++){
-//            for(int j=0; j<sigmaScales.length; j++){
-//                double sigma = sigmaScales[j];
-//                if(selections[i][j]){
-//                    int[] outFeature = getFilterFeature(img1d,sz,featureMask,sigma,featureName[i]);
-////                    int[] outFeature = getFeature(img1d,sz,featureMask,sigma,featureName[i]);
-//                    int[] partOutFeature = new int[featureMaskIndex.size()];
-//                    for(int k=0; k<featureMaskIndex.size(); k++){
-//                        int index = featureMaskIndex.get(k);
-//                        partOutFeature[k] = outFeature[index];
-//                    }
-//                    partPixelsFeature.add(partOutFeature);
-//                }
-//            }
-//        }
-//
-//        System.out.println("feature size: "+partPixelsFeature.size());
-//
-//        ArrayList<int[]> dataRandomForest = new ArrayList<>();
-//        int M = partPixelsFeature.size();
-//        for(int i=0; i<featureMaskIndex.size(); i++){
-//            int[] features = new int[M+1];
-//            for(int j=0; j<M; j++){
-//                features[j] = partPixelsFeature.get(j)[i];
-//            }
-//            features[M] = 0;
-//            dataRandomForest.add(features);
-//        }
-//
-//        ArrayList<int[]> trainData = new ArrayList<>();
-//        ArrayList<int[]> testData = new ArrayList<>();
-//
-////        if(bg){
-////            ArrayList<int[]> data1 = new ArrayList<>();
-////            ArrayList<int[]> data2 = new ArrayList<>();
-////            for(int i=0; i<maskFinal.length; i++){
-////                if(maskFinal[i] == 1){
-////                    int[] features = new int[M+1];
-////                    if (dataRandomForest.get(i).length - 1 >= 0)
-////                        System.arraycopy(dataRandomForest.get(i), 0, features, 0, dataRandomForest.get(i).length - 1);
-////                    features[M] = maskFinal[i];
-////                    data1.add(features);
-////                }else if(maskFinal[i] == 2){
-////                    int[] features = new int[M+1];
-////                    if (dataRandomForest.get(i).length - 1 >= 0)
-////                        System.arraycopy(dataRandomForest.get(i), 0, features, 0, dataRandomForest.get(i).length - 1);
-////                    features[M] = maskFinal[i];
-////                    data2.add(features);
-////                }
-////            }
-////            if(data1.size()>data2.size()*2){
-////                Collections.shuffle(data1);
-////                for(int i=0; i<data2.size()*2; i++){
-////                    trainData.add(data1.get(i));
-////                }
-////                trainData.addAll(data2);
-////            }else {
-////                trainData.addAll(data1);
-////                trainData.addAll(data2);
-////            }
-////        }else{
-//        {
-//            for(int i=0; i<dataRandomForest.size(); i++){
-//                if(maskFinal[featureMaskIndex.get(i)] != 0){
-////                System.out.println("-------------feature------------");
-//                    int[] features = new int[M+1];
-//                    if (dataRandomForest.get(i).length - 1 >= 0)
-//                        System.arraycopy(dataRandomForest.get(i), 0, features, 0, dataRandomForest.get(i).length - 1);
-//                    features[M] = maskFinal[featureMaskIndex.get(i)];
-//                    trainData.add(features);
-//                }
-//            }
-//        }
-//
-//        int numTrees = 100;
-//        RandomForest rf = new RandomForest(numTrees,trainData,testData);
-//        rf.C = C;
-//        rf.M = M;
-//        rf.Ms = (int) Math.round(Math.log(rf.M)/Math.log(2)+1);
-//        rf.start();
-//
-//        int[] resultClassification = new int[featureMask.length];
-//        Arrays.fill(resultClassification,0);
-//
-//        System.out.println("----------------------classification-----------------");
-//
-//        for(int i=0; i<dataRandomForest.size(); i++){
-//            resultClassification[featureMaskIndex.get(i)] = rf.Evaluate(dataRandomForest.get(i));
-////            if(featureMask[i] == 0){
-////                resultClassification[i] = 0;
-////            }else {
-////                resultClassification[i] = rf.Evaluate(dataRandomForest.get(i));
-////            }
-////            if(i%100==0){
-////                System.out.println(i+" : "+resultClassification[i]);
-////            }
-//        }
-//
-//        int[] pixelIntensity = new int[C];
-//        int step = 255/(C-1);
-//        for(int i=0; i<C; i++){
-//            pixelIntensity[i] = i*step;
-//        }
-//
 //        byte[] data = new byte[featureMask.length];
 //        for(int i=0; i<featureMask.length; i++){
 //            data[i] = (byte) pixelIntensity[resultClassification[i]];
 //        }
-//
+
 //        result.setDataFromImage(data,downSampleImg.getSz0(),downSampleImg.getSz1(),downSampleImg.getSz2(),downSampleImg.getSz3(),Image4DSimple.ImagePixelType.V3D_UINT8,downSampleImg.getIsBig());
 
         System.out.println("cost time: "+(double)(System.currentTimeMillis()-startTime)/1000+" s");
@@ -413,7 +427,7 @@ public class PixelClassification {
         }
     }
 
-    public void setIs64Cube(boolean is128Cube) {
+    public void setIs128Cube(boolean is128Cube) {
         this.is128Cube = is128Cube;
     }
 
