@@ -233,12 +233,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private int degree = 0;
 
-    private float [] gamePosition = new float[3];
-    private float [] gameDir = new float[3];
-    private float [] gameHead = new float[3];
-    private float [] thirdPosition = new float[3];
-    private float [] thirdDir = new float[3];
-    private float [] thirdHead = new float[3];
+//    private float [] gamePosition = new float[3];
+//    private float [] gameDir = new float[3];
+//    private float [] gameHead = new float[3];
+//    private float [] thirdPosition = new float[3];
+//    private float [] thirdDir = new float[3];
+//    private float [] thirdHead = new float[3];
 
     private GameCharacter gameCharacter;
 
@@ -6048,11 +6048,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public void updateVisual(){
         setVisual(gameCharacter);
-        System.out.print(gamePosition[0]);
-        System.out.print(' ');
-        System.out.print(gamePosition[1]);
-        System.out.print(' ');
-        System.out.println(gamePosition[2]);
     }
 
     public void setVisual(GameCharacter gameCharacter){
@@ -6540,17 +6535,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
-    public void setGamePosition(float [] position){
-        gamePosition = position;
-    }
-
-    public void setGameDir(float [] dir){
-        gameDir = dir;
-    }
-
-    public void setGameHead(float [] head) {
-        gameHead = head;
-    }
+//    public void setGamePosition(float [] position){
+//        gamePosition = position;
+//    }
+//
+//    public void setGameDir(float [] dir){
+//        gameDir = dir;
+//    }
+//
+//    public void setGameHead(float [] head) {
+//        gameHead = head;
+//    }
 
     public void setIfGame(boolean b){
         ifGame = b;
@@ -6581,17 +6576,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     private void convertToPerspective(float [] dis){
-        System.out.println("AAAAAAAAAAA");
-        System.out.print(dis[0]);
-        System.out.print(' ');
-        System.out.print(dis[1]);
-        System.out.print(' ');
-        System.out.println(dis[2]);
-        System.out.print(gameDir[0]);
-        System.out.print(' ');
-        System.out.print(gameDir[1]);
-        System.out.print(' ');
-        System.out.println(gameDir[2]);
 
         float [] thirdDir = gameCharacter.getThirdDir();
         float [] thirdHead = gameCharacter.getThirdHead();

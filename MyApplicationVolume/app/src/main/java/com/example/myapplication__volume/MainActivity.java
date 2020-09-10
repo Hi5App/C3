@@ -203,6 +203,7 @@ public class MainActivity extends BaseActivity {
     private static MyRenderer myrenderer;
     private static final String DEBUG_TAG = "Gestures";
     private static Context context;
+    private static Context mainContext;
     private long length;
     private InputStream is;
     private String filepath = "";
@@ -371,6 +372,8 @@ public class MainActivity extends BaseActivity {
     private static String[] push_info_apo = {"New", "New"};
 
     private BasePopupView drawPopupView;
+
+    private static boolean ifGame = false;
 
 
     HashMap<Integer, String> User_Map = new HashMap<Integer, String>();
@@ -1423,6 +1426,7 @@ public class MainActivity extends BaseActivity {
         bigImgReader = new BigImgReader();
 
         context = getApplicationContext();
+        mainContext = this;
 
         progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleSmall);
 
@@ -1668,20 +1672,23 @@ public class MainActivity extends BaseActivity {
 //                                        } else {
 //                                            myGLSurfaceView.requestRender();
 //                                        }
-                                        if (!myrenderer.getIfFileLoaded()){
-                                            Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
+                                        ifGame = true;
+                                        Select_map();
 
-                                        }else {
-                                            try {
-                                                Intent gameIntent = new Intent(MainActivity.this, GameActivity.class);
-                                                gameIntent.putExtra("FilePath", myrenderer.getFilePath());
-                                                gameIntent.putExtra("Position", new float[]{0.5f, 0.5f, 0.5f});
-                                                gameIntent.putExtra("Dir", new float[]{1, 1, 1});
-                                                startActivity(gameIntent);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
+//                                        if (!myrenderer.getIfFileLoaded()){
+//                                            Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
+//
+//                                        }else {
+//                                            try {
+//                                                Intent gameIntent = new Intent(MainActivity.this, GameActivity.class);
+//                                                gameIntent.putExtra("FilePath", myrenderer.getFilePath());
+//                                                gameIntent.putExtra("Position", new float[]{0.5f, 0.5f, 0.5f});
+//                                                gameIntent.putExtra("Dir", new float[]{1, 1, 1});
+//                                                startActivity(gameIntent);
+//                                            } catch (Exception e) {
+//                                                e.printStackTrace();
+//                                            }
+//                                        }
 //                                        gameStart();
                                         break;
 
@@ -4744,6 +4751,31 @@ public class MainActivity extends BaseActivity {
 
     }
 
+    public void Select_map(){
+        Context context = this;
+        new XPopup.Builder(this)
+                .asCenterList("Select Remote Server", new String[]{"SEU Server", "Local Server"},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text){
+                                    case "SEU Server":
+                                        setSelectSource("Remote Server SEU", context);
+                                        BigFileRead_Remote(ip_SEU);
+
+                                        break;
+
+                                    case "Local Server":
+                                        BigFileRead_local();
+                                        break;
+
+                                    default:
+                                        Toast.makeText(getContext(), "Something Wrong Here", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }).show();
+    }
+
 
     private void BigFileRead_local(){
         String[] filename_list = bigImgReader.ChooseFile(this);
@@ -4824,7 +4856,7 @@ public class MainActivity extends BaseActivity {
 
 
     public void Block_navigate(String text){
-        context = this;
+//        context = this;
 
 
         Timer timer = new Timer();
@@ -4978,7 +5010,7 @@ public class MainActivity extends BaseActivity {
 
 
     private void SaveSWC() {
-        context = this;
+//        context = this;
         MDDialog mdDialog = new MDDialog.Builder(this)
                 .setContentView(R.layout.save_swc)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
@@ -7377,6 +7409,24 @@ public class MainActivity extends BaseActivity {
             }
         }
 
+        if (ifGame){
+
+            if (!myrenderer.getIfFileLoaded()){
+                Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
+
+            }else {
+                try {
+                    Log.v("GameIntent", "inNNNNNNNNNNNNNNNNNNNNN");
+                    Intent gameIntent = new Intent(context, GameActivity.class);
+                    gameIntent.putExtra("FilePath", myrenderer.getFilePath());
+                    gameIntent.putExtra("Position", new float[]{0.5f, 0.5f, 0.5f});
+                    gameIntent.putExtra("Dir", new float[]{1, 1, 1});
+                    mainContext.startActivity(gameIntent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public static void LoadBigFile_Local(String filepath_local){

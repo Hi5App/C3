@@ -1258,6 +1258,80 @@ public class Remote_Socket extends Socket {
 
     }
 
+    public void PullImageBlock_Dir(Context context, float [] dir){
+        String filename_root = getFilename_Remote(context);        // BrainNumber: 18465/RES250x250x250
+        String offset = getoffset_Remote(context, filename_root);  // offset:
+
+        String offset_x = offset.split("_")[0];
+        String offset_y = offset.split("_")[1];
+        String offset_z = offset.split("_")[2];
+        String size     = offset.split("_")[3];
+
+        int size_i     = Integer.parseInt(size);
+        int offset_x_i = Integer.parseInt(offset_x);
+        int offset_y_i = Integer.parseInt(offset_y);
+        int offset_z_i = Integer.parseInt(offset_z);
+
+        String filename = filename_root.replace(")","").replace("(","");
+        String img_size = filename.split("RES")[1];
+
+        System.out.println("img_size: hhh-------" + img_size + "--------hhh");
+
+        // current filename mouse18864_teraconvert/RES(35001x27299x10392)   : y x z
+        int img_size_x_i = Integer.parseInt(img_size.split("x")[1]);
+        int img_size_y_i = Integer.parseInt(img_size.split("x")[0]);
+        int img_size_z_i = Integer.parseInt(img_size.split("x")[2]);
+
+        float [] normalDir = new float[3];
+        normalDir[0] = dir[0] / (float)Math.sqrt((dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2]));
+        normalDir[1] = dir[1] / (float)Math.sqrt((dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2]));
+        normalDir[2] = dir[2] / (float)Math.sqrt((dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2]));
+
+        offset_x_i += normalDir[0] * size_i / 2;
+        offset_y_i += normalDir[1] * size_i / 2;
+        offset_z_i += normalDir[2] * size_i / 2;
+
+        if (offset_x_i - size_i / 2 < 1){
+            Toast_in_Thread("You have already reached boundary!!!");
+            offset_x_i = size_i / 2 + 1;
+        } else if (offset_x_i + size_i/2 > img_size_x_i - 1){
+            Toast_in_Thread("You have already reached  boundary!!!");
+            offset_x_i = img_size_x_i - size_i / 2 - 1;
+        }
+
+        if (offset_y_i - size_i / 2 < 1){
+            Toast_in_Thread("You have already reached  boundary!!!");
+            offset_y_i = size_i / 2 + 1;
+        } else if (offset_y_i + size_i / 2 > img_size_y_i - 1){
+            Toast_in_Thread("You have already reached  boundary!!!");
+            offset_y_i = img_size_y_i - size_i / 2 - 1;
+        }
+
+        if (offset_z_i - size_i / 2 < 1){
+            Toast_in_Thread("You have already reached  boundary!!!");
+            offset_z_i = size_i / 2 + 1;
+        } else if (offset_z_i + size_i / 2 > img_size_z_i - 1){
+            Toast_in_Thread("You have already reached  boundary!!!");
+            offset_z_i = img_size_z_i - size_i / 2 - 1;
+        }
+
+        offset_x = Integer.toString(offset_x_i);
+        offset_y = Integer.toString(offset_y_i);
+        offset_z = Integer.toString(offset_z_i);
+
+        offset = offset_x + "_" + offset_y + "_" + offset_z + "_" + size;
+        setoffset_Remote(offset, filename_root, context);
+
+        System.out.println("---------" + offset + "---------");
+        String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
+
+        if (!JudgeBounding(input)){
+            Toast_in_Thread("Please make sure the size of block not beyond the img !");
+        }else {
+            PullImageBlock(input[0], input[1], input[2], input[3], true);
+        }
+    }
+
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void Selectblock_fast_Check(Context context, boolean source, String direction){

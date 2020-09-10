@@ -1,11 +1,13 @@
 package com.example.myapplication__volume;
 
+import androidx.annotation.LongDef;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.SyncStatusObserver;
 import android.content.pm.ConfigurationInfo;
 import android.opengl.GLSurfaceView;
 
@@ -14,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.LoginFilter;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -25,6 +28,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.example.Server_Communication.Remote_Socket;
 import com.example.game.GameCharacter;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
@@ -59,6 +63,8 @@ public class GameActivity extends BaseActivity {
 
     private float [] lastPlace;
 
+    private Remote_Socket remoteSocket;
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +92,8 @@ public class GameActivity extends BaseActivity {
 
         gameCharacter = new GameCharacter(position, dir, head);
         myrenderer.setGameCharacter(gameCharacter);
+
+        remoteSocket = new Remote_Socket(this);
 
         myrenderer.addMarker(position);
         myrenderer.setIfGame(true);
@@ -252,6 +260,12 @@ public class GameActivity extends BaseActivity {
 //                            position[0] = position[0] + X[0] * x - Y[0] * y;
 //                            position[1] = position[1] + X[1] * x - Y[1] * y;
 //                            position[2] = position[2] + X[2] * x - Y[2] * y;
+
+//                            if (gameCharacter.closeToBoundary()){
+//                                remoteSocket.PullImageBlock_Dir(context, gameCharacter.getDir());
+//                                Thread.sleep(8000);
+//                                gameCharacter.movePosition(0, -1.0f);
+//                            }
 
                             myrenderer.clearMarkerList();
                             myrenderer.addMarker(position);
