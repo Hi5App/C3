@@ -34,6 +34,9 @@ public class Socket_Receive {
     private Context mContext;
 
     private static final int LIMIT_SIZE = 30000000;
+    private static String SOCKET_CLOSED = "socket is closed or fail to connect";
+    private static String EMPTY_MSG = "the msg is empty";
+    private static String EMPTY_FILE_PATH = "the file path is empty";
 
     public Socket_Receive(Context context){
         mContext = context;
@@ -42,7 +45,7 @@ public class Socket_Receive {
     public String Get_Message(Socket socket) {
 
         if (!socket.isConnected()){
-            Toast_in_Thread("Fail to Get_Message, Try Again Please !");
+//            Toast_in_Thread("Fail to Get_Message, Try Again Please !");
             return null;
         }
 
@@ -105,11 +108,10 @@ public class Socket_Receive {
     public String Get_File(Socket socket, String file_path, boolean Need_Waited){
 
         if (!socket.isConnected()){
-            Toast_in_Thread("Fail to Get_File, Try Again Please !");
-            return "Error";
+            return SOCKET_CLOSED;
         }
 
-        String[] File_Name_Complete = {"Error"};
+        String[] File_Name_Complete = {EMPTY_FILE_PATH};
 
         Thread thread = new Thread() {
             public void run() {
@@ -129,10 +131,7 @@ public class Socket_Receive {
 
 
                     if (Data_size_int < FileName_size_int + 16){
-
-//                        Toast_in_Thread("Can't get the SWC in BB ,please try again");
                         return;
-
                     }
 
                     //读取 Msg 内容

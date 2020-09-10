@@ -78,6 +78,10 @@ public class Remote_Socket extends Socket {
     private Socket_Send socket_send;
     private Socket_Receive socket_receive;
 
+    private static String SOCKET_CLOSED = "socket is closed or fail to connect";
+    private static String EMPTY_MSG = "the msg is empty";
+    private static String EMPTY_FILE_PATH = "the file path is empty";
+
     public static String TAG = "Remote_Socket";
     public static String ArborNumber_Selected = "Empty";
     public static String BrainNumber_Selected = "Empty";
@@ -140,7 +144,7 @@ public class Remote_Socket extends Socket {
                         Log.v("ConnectServer", "Connect Server Successfully !");
 
                     } else {
-                        Toast_in_Thread("Can't Connect, Try Again Please !");
+                        Toast_in_Thread("Can't Connect Server, Try Again Please !");
                     }
 
 
@@ -449,7 +453,7 @@ public class Remote_Socket extends Socket {
         Send_Message("connect for android client" + ":GetArborList.\n");
         String Msg = Get_Message();
 
-        if (Msg.equals("Error")){
+        if (Msg.equals(EMPTY_MSG)){
             Toast_in_Thread("Something Wrong When Select_Arbor !");
             return;
         }
@@ -465,11 +469,15 @@ public class Remote_Socket extends Socket {
         Send_Message("connect for android client" + ":choose3.\n");
         String Msg = Get_Message();
 
-        if (Msg.equals("Error")){
-            Toast_in_Thread("Something Wrong When Select_Brain !");
+        if (Msg == null){
+            Toast_in_Thread("Socket disconnect When Select_Brain !");
             return;
         }
 
+        if (Msg.equals(EMPTY_MSG)){
+            Toast_in_Thread("Fail to read the Brain List !");
+            return;
+        }
         onReadyRead(Msg);
 
     }
@@ -518,8 +526,8 @@ public class Remote_Socket extends Socket {
                 String Store_path_txt = Store_path + "/BrainInfo";
                 String Final_Path = Get_File(Store_path_txt, true);
 
-                if (Final_Path.equals("Error")){
-                    Toast_in_Thread("Something Error When get BrainInfo");
+                if (Final_Path.equals(EMPTY_FILE_PATH) || Final_Path.equals(SOCKET_CLOSED)){
+                    Toast_in_Thread("Failed to get BrainInfo");
                     return;
                 }
 
@@ -1599,18 +1607,17 @@ public class Remote_Socket extends Socket {
         if (CheckConnection()){
 
             Send_Message("From Android Client :GetArborResult.\n");
-
             String Store_path_check_txt = Store_path + "/Check/Check_Result";
             String Final_Path = Get_File(Store_path_check_txt, true);
 
-            if (Final_Path.equals("Error")){
-                Toast_in_Thread("Something Error When Get_Check_Result");
+            if (Final_Path.equals(EMPTY_MSG) || Final_Path.equals(SOCKET_CLOSED)){
+                Toast_in_Thread("Something Wrong When Update_Check_Result");
                 return;
             }
             Process_Result(Final_Path);
 
         }else {
-            Toast_in_Thread("Something Error When Get_Check_Result");
+            Toast_in_Thread("Socket disconnect When Update_Check_Result");
             return;
         }
 
@@ -1888,7 +1895,7 @@ public class Remote_Socket extends Socket {
 
         if (ManageSocket == null || ManageSocket.isClosed()){
             Log.d("Get_Message","ManageSocket.isClosed()");
-            return "Error";
+            return SOCKET_CLOSED;
         }
 
         String msg = socket_receive.Get_Message(ManageSocket);
@@ -1896,7 +1903,7 @@ public class Remote_Socket extends Socket {
         if (msg != null)
             return msg;
         else
-            return "Error";
+            return EMPTY_MSG;
     }
 
 
