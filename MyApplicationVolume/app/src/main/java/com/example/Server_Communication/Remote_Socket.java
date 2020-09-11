@@ -1,6 +1,7 @@
 package com.example.Server_Communication;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -767,6 +768,10 @@ public class Remote_Socket extends Socket {
                     if (img.exists() && img.length()>0){
 
                         Log.d("PullImageBlock","The File exists Already !");
+
+                        ActivityManager activityManager = (ActivityManager)mContext.getSystemService(Context.ACTIVITY_SERVICE);
+                        String runningActivity = activityManager.getRunningTasks(1).get(0).topActivity.getClassName();
+                        Log.v("RunningActivity", runningActivity);
                         MainActivity.LoadBigFile_Remote(Store_path_Img + "/" + StoreFilename);
 
                     } else {

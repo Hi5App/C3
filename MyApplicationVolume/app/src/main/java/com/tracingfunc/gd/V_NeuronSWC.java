@@ -150,4 +150,10 @@ public class V_NeuronSWC implements Cloneable{
     // }
     // vector <int> getAllIndexof3DPos(const V_NeuronSWC_unit & subject_node, int noninclude_ind) {return getAllIndexof3DPos(subject_node.data[2], subject_node.data[3], subject_node.data[4], noninclude_ind);}
     // vector <int> getAllIndexof3DPos(const V_NeuronSWC_unit * subject_node, int noninclude_ind) {return getAllIndexof3DPos(subject_node->data[2], subject_node->data[3], subject_node->data[4], noninclude_ind);}
+
+    public void move(float [] dis){
+        for (int i = 0; i < row.size(); i++){
+            row.get(i).move(dis);
+        }
+    }
 }

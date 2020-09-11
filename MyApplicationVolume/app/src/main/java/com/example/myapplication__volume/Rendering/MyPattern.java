@@ -1508,6 +1508,7 @@ public class MyPattern{
                     GLES30.GL_UNSIGNED_BYTE,
                     imageBuffer
             );
+            imageBuffer.clear();
         }else if (data_length == 2){
             short [] image_data = getIntensity_short3d(data_src);
 //            imageShortBuffer = ShortBuffer.allocate(image_data.length)
@@ -1582,6 +1583,7 @@ public class MyPattern{
                     GLES30.GL_UNSIGNED_BYTE,
                     imageDSBuffer
             );
+            imageDSBuffer.clear();
         }else if (data_length == 2){
             short [] image_data = getIntensity_short3dDownSample(data_src);
 //            imageShortBuffer = ShortBuffer.allocate(image_data.length)

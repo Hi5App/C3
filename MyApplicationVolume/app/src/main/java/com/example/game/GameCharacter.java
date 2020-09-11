@@ -647,7 +647,7 @@ public class GameCharacter {
     }
 
     public boolean closeToBoundary(){
-        if (position[0] < 0.8 || position[0] > 0.2 || position[1] < 0.8 || position[1] > 0.2 || position[2] < 0.8 || position[2] > 0.2)
+        if (position[0] > 0.8 || position[0] < 0.2 || position[1] > 0.8 || position[1] < 0.2 || position[2] > 0.8 || position[2] < 0.2)
             return true;
 
         return false;

@@ -154,12 +154,10 @@ public class MainActivity extends BaseActivity {
 //    private int UNDO_LIMIT = 5;
 //    private enum Operate {DRAW, DELETE, SPLIT};
 //    private Operate [] process = new Operate[UNDO_LIMIT];
+    public static final String NAME = "com.example.myapplication__volume.MainActivity";
 
     public static final String File_path = "com.example.myfirstapp.MESSAGE";
     private static final String TAG = "MainActivity";
-
-    public static final String ip_SEU = "223.3.33.234";
-    public static final String ip_ALiYun = "39.100.35.131";
 
     private SensorManager mSensorManager;
     private Timer timer=null;
@@ -202,7 +200,7 @@ public class MainActivity extends BaseActivity {
     private static MyGLSurfaceView myGLSurfaceView;
     private static MyRenderer myrenderer;
     private static final String DEBUG_TAG = "Gestures";
-    private static Context context;
+//    private static Context context;
     private static Context mainContext;
     private long length;
     private InputStream is;
@@ -1438,7 +1436,7 @@ public class MainActivity extends BaseActivity {
         remote_socket = new Remote_Socket(this);
         bigImgReader = new BigImgReader();
 
-        context = getApplicationContext();
+//        context = getApplicationContext();
         mainContext = this;
 
         progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleSmall);
@@ -4693,7 +4691,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200911a 19:19 UTC+8 build",
+                                "Version: 20200911b 22:06 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4847,15 +4845,6 @@ public class MainActivity extends BaseActivity {
 
     }
 
-
-    public void Toast_in_Thread(String message){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(context, message,Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
 
     public static void Toast_in_Thread_static(String message){
         Message msg = new Message();
@@ -7395,48 +7384,44 @@ public class MainActivity extends BaseActivity {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void LoadBigFile_Remote(String filepath){
 
-        Log.v("MainActivity",remote_socket.getIp());
-        if (remote_socket.getIp().equals(ip_ALiYun)){
-            setSelectSource("Remote Server Aliyun",context);
-        } else if (remote_socket.getIp().equals(ip_SEU)){
-            setSelectSource("Remote Server SEU",context);
-        }
-
-        myrenderer.SetPath(filepath);
-//        myrenderer.resetContrast();
-        myrenderer.zoom(2.2f);
-        setFileName(filepath);
-
-        System.out.println("------" + filepath + "------");
-        isBigData_Remote = true;
-        isBigData_Local = false;
-        myGLSurfaceView.requestRender();
-        SetButtons();
-
-        PullSwc_block_Auto(true);
-
-        if (DrawMode){
-            LoadMarker();
-            if (!push_info_swc[0].equals("New")){
-                PushSWC_Block_Auto(push_info_swc[0], push_info_swc[1]);
-            }
-        }
 
         if (ifGame){
 
-            if (!myrenderer.getIfFileLoaded()){
-                Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
+            try {
+                Log.v("GameIntent", "inNNNNNNNNNNNNNNNNNNNNN");
+                Intent gameIntent = new Intent(mainContext, GameActivity.class);
+                gameIntent.putExtra("FilePath", filepath);
+                gameIntent.putExtra("Position", new float[]{0.5f, 0.5f, 0.5f});
+                gameIntent.putExtra("Dir", new float[]{1, 1, 1});
+                mainContext.startActivity(gameIntent);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }else {
 
-            }else {
-                try {
-                    Log.v("GameIntent", "inNNNNNNNNNNNNNNNNNNNNN");
-                    Intent gameIntent = new Intent(context, GameActivity.class);
-                    gameIntent.putExtra("FilePath", myrenderer.getFilePath());
-                    gameIntent.putExtra("Position", new float[]{0.5f, 0.5f, 0.5f});
-                    gameIntent.putExtra("Dir", new float[]{1, 1, 1});
-                    mainContext.startActivity(gameIntent);
-                } catch (Exception e) {
-                    e.printStackTrace();
+            Log.v("MainActivity",remote_socket.getIp());
+            if (remote_socket.getIp().equals(ip_ALiYun)){
+                setSelectSource("Remote Server Aliyun",context);
+            } else if (remote_socket.getIp().equals(ip_SEU)){
+                setSelectSource("Remote Server SEU",context);
+            }
+
+            myrenderer.SetPath(filepath);
+            myrenderer.zoom(2.2f);
+            setFileName(filepath);
+
+            System.out.println("------" + filepath + "------");
+            isBigData_Remote = true;
+            isBigData_Local = false;
+            myGLSurfaceView.requestRender();
+            SetButtons();
+
+            PullSwc_block_Auto(true);
+
+            if (DrawMode){
+                LoadMarker();
+                if (!push_info_swc[0].equals("New")){
+                    PushSWC_Block_Auto(push_info_swc[0], push_info_swc[1]);
                 }
             }
         }

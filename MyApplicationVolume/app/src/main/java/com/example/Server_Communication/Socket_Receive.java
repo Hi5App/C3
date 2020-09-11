@@ -1,6 +1,7 @@
 package com.example.Server_Communication;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
@@ -8,6 +9,8 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
+import com.example.game.GameCharacter;
+import com.example.myapplication__volume.GameActivity;
 import com.example.myapplication__volume.MainActivity;
 
 import java.io.DataInputStream;
@@ -25,6 +28,7 @@ public class Socket_Receive {
 
     private Context mContext;
 
+    private static final String TAG = "Socket_Receive";
     private static final int LIMIT_SIZE = 30000000;
     private static String SOCKET_CLOSED = "socket is closed or fail to connect";
     private static String EMPTY_MSG = "the msg is empty";
@@ -239,7 +243,16 @@ public class Socket_Receive {
             return;
         }
 
-        MainActivity.showProgressBar();
+        ActivityManager activityManager=(ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+        String runningActivity=activityManager.getRunningTasks(1).get(0).topActivity.getClassName();
+        Log.v(TAG,"runningActivity:  " + runningActivity);
+
+        if (runningActivity.equals(MainActivity.NAME)){
+            MainActivity.showProgressBar();
+        }else if (runningActivity.equals(GameActivity.NAME)){
+            GameActivity.showProgressBar();
+        }
+
         boolean[] ifDownloaded = { false };
         String[] FileName = { "" };
 
@@ -378,7 +391,11 @@ public class Socket_Receive {
                     isFinished[0] = true;
                     ifDownloaded[0] = true;
 
-                    MainActivity.hideProgressBar();
+                    if (runningActivity.equals(MainActivity.NAME)){
+                        MainActivity.hideProgressBar();
+                    }else if (runningActivity.equals(GameActivity.NAME)){
+                        GameActivity.hideProgressBar();
+                    }
 
                     FileName[0] = FileName_SubString;
 
@@ -403,8 +420,14 @@ public class Socket_Receive {
 
 
         if (ifDownloaded[0]){
+//            MainActivity.LoadBigFile_Remote(file_path + "/" + FileName[0]);
 
-            MainActivity.LoadBigFile_Remote(file_path + "/" + FileName[0]);
+            if (runningActivity.equals(MainActivity.NAME)){
+                MainActivity.LoadBigFile_Remote(file_path + "/" + FileName[0]);
+            }else if (runningActivity.equals(GameActivity.NAME)){
+                Log.v(TAG,"GameActivity.LoadBigFile_Remote start ...");
+                GameActivity.LoadBigFile_Remote(file_path + "/" + FileName[0]);
+            }
 
         }
 

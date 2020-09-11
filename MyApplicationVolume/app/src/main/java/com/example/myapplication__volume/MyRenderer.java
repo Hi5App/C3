@@ -60,6 +60,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -380,14 +381,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 //
-        if (ifGame){
-            setVisual(gameCharacter);
+//        if (ifGame) {
+//            if (myPattern == null)
+//                myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz, MyPattern.Mode.GAME);
+//        }
 
-            setSmallMapMatrix();
-//            setVisual(gamePosition, gameDir);
-        }
 
-        setMatrix();
 
 //        GLES30.glClearColor(0.5f, 0.4f, 0.3f, 1.0f);
 //        GLES30.glClearColor(1.0f, 0.5f, 0.0f, 1.0f);
@@ -407,19 +406,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        GLES30.glClearColor(0.929f, 0.906f, 0.965f, 1.0f);
 
         if (myPattern == null || myPattern2D == null){
-//            System.out.println("CCCCCCCCCCC");
-//            if (img == null)
-//                System.out.println("DDDDDDDDDDDDD");
             if (ifFileSupport){
-//                System.out.println("FFFFFFFFFFF");
                 if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD) {
-//                    System.out.println("EEEEEEEEEE");
                     if (ifGame) {
+
+                        Log.v("MyRenderer","ifGame  ondrawframe");
                         myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz, MyPattern.Mode.GAME);
                     } else {
                         myPattern = new MyPattern(filepath, is, length, screen_w, screen_h, img, mz, MyPattern.Mode.NORMAL);
                     }
-//                    myPattern.setIfGame(ifGame);
                 }
                 if (fileType == FileType.PNG || fileType == FileType.JPG)
                     myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
@@ -438,7 +433,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
 
+        if (ifGame){
+            setVisual(gameCharacter);
 
+            setSmallMapMatrix();
+//            setVisual(gamePosition, gameDir);
+        }
+
+        setMatrix();
 
 
         //把颜色缓冲区设置为我们预设的颜色
@@ -536,6 +538,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 //        Log.v("onDrawFrame", "draw_axis");
+
+        Log.v("MyRenderer", "finalMatrix: " + Arrays.toString(finalMatrix));
 
         if (!ifNavigationLococation){
             if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD) {
@@ -6071,33 +6075,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        System.out.print(' ');
 //        System.out.println(dir[2]);
 //
-        float [] position = gameCharacter.getPosition();
-        float [] head = gameCharacter.getHead();
-        float [] dir = gameCharacter.getDir();
 
         gameCharacter.setThirdPersonal();
 
         float [] thirdHead = gameCharacter.getThirdHead();
         float [] thirdDir = gameCharacter.getThirdDir();
         float [] thirdPosition = gameCharacter.getThirdPosition();
-
-//        float [] thirdPerson = thirdPersonAngle(position[0], position[1], position[2], dir[0], dir[1], dir[2], head[0], head[1], head[2]);
-//        thirdDir = new float[]{thirdPerson[3], thirdPerson[4], thirdPerson[5]};
-//        float [] axis = new float[]{thirdDir[1] * head[2] - head[1] * thirdDir[2], thirdDir[2] * head[0] - head[2] * thirdDir[0], thirdDir[0] * head[1] - head[0] * thirdDir[1]};
-//        dir = thirdDir;
-//        position = new float[]{thirdPerson[0], thirdPerson[1], thirdPerson[2]};
-//        thirdPosition = new float[]{thirdPerson[0], thirdPerson[1], thirdPerson[2]};
-////        float [] thirdHead = locateHead(dir[0], dir[1], dir[2]);
-//        thirdHead = new float[]{axis[1] * thirdDir[2] - thirdDir[1] * axis[2], axis[2] * thirdDir[0] - axis[0] * thirdDir[2], axis[0] * thirdDir[1] - axis[1] * thirdDir[0]};
-//        float acos = thirdHead[0] * head[0] + thirdHead[1] * head[1] + thirdHead[2] * head[2];
-//        if (acos > 0){
-//            head = thirdHead;
-//        } else {
-//            head = new float[]{-thirdHead[0], -thirdHead[1], -thirdHead[2]};
-//            thirdHead = new float[]{-thirdHead[0], -thirdHead[1], -thirdHead[2]};
-//        }
-//        if (head[0] * axis[0] + head[1] * axis[1] + head[2] * axis[2] == 0)
-//            System.out.println("MMMMMMMMMMMMMMMMMMMMM");
 
         System.out.println("AAAAAAAAAAA");
 //        System.out.println(head[0] * axis[0] + head[1] * axis[1] + head[2] * axis[2]);

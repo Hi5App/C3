@@ -1,5 +1,7 @@
 package com.tracingfunc.gd;
 
+import android.util.Log;
+
 import java.util.Vector;
 
 public class V_NeuronSWC_unit implements Cloneable {
@@ -38,5 +40,14 @@ public class V_NeuronSWC_unit implements Cloneable {
                 mUnit.elementAt(i).parent = (i<=0)? -1: (mUnit.elementAt(i).n -1);
             }
         }
+    }
+
+    public void move(float [] dis){
+        Log.v("movebefore", Double.toString(x) + ' ' + Double.toString(y) + ' ' + Double.toString(z));
+        x += dis[0];
+        y += dis[1];
+        z += dis[2];
+        Log.v("moveafter", Double.toString(x) + ' ' + Double.toString(y) + ' ' + Double.toString(z));
+
     }
 }
