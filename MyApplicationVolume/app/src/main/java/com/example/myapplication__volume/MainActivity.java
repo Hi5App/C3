@@ -3,6 +3,7 @@ package com.example.myapplication__volume;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
@@ -397,8 +398,16 @@ public class MainActivity extends BaseActivity {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what){
+                case 0:
+                    popupView.show();
+                    Activity activity = getActivityFromContext(mainContext);
+                    activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                    break;
                 case 1:
                     popupView.dismiss();
+                    Activity activity_2 = getActivityFromContext(mainContext);
+                    activity_2.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     break;
                 case 2:
                     if (isBigData_Remote || isBigData_Local){
@@ -4691,7 +4700,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200911b 22:06 UTC+8 build",
+                                "Version: 20200911c 22:16 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -7369,7 +7378,7 @@ public class MainActivity extends BaseActivity {
 
 
     public static void showProgressBar(){
-        popupView.show();
+        puiHandler.sendEmptyMessage(0);
     }
 
     public static void hideProgressBar(){
@@ -7383,7 +7392,6 @@ public class MainActivity extends BaseActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void LoadBigFile_Remote(String filepath){
-
 
         if (ifGame){
 
@@ -7468,8 +7476,6 @@ public class MainActivity extends BaseActivity {
     public static void Time_Out(){
         hideProgressBar();
         puiHandler.sendEmptyMessage(3);
-//        Toast_in_Thread("Time out, please try again!")
-//        Toast.makeText(context, "Time out, please try again!", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -7764,7 +7770,6 @@ public class MainActivity extends BaseActivity {
 //        myrenderer.importMarker(import_marker);
 //
 //        ArrayList<Float> tangent = myrenderer.tangentPlane(startPoint[0], startPoint[1], startPoint[2], dir[0], dir[1], dir[2], 128);
-//>>>>>>> Stashed changes
 
         System.out.println("TangentPlane:::::");
         System.out.println(tangent.size());

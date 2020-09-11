@@ -3,6 +3,11 @@ package com.example.myapplication__volume;
 import android.content.Context;
 import android.os.Bundle;
 import android.widget.Toast;
+import android.app.Activity;
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.os.Bundle;
+import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,4 +40,32 @@ public class BaseActivity extends AppCompatActivity {
             }
         });
     }
+
+
+    public static Activity getActivityFromView(View view) {
+        if (null != view) {
+            Context context = view.getContext();
+            while (context instanceof ContextWrapper) {
+                if (context instanceof Activity) {
+                    return (Activity) context;
+                }
+                context = ((ContextWrapper) context).getBaseContext();
+            }
+        }
+        return null;
+    }
+
+
+    public static Activity getActivityFromContext(Context context) {
+        if (context != null) {
+            while (context instanceof ContextWrapper) {
+                if (context instanceof Activity) {
+                    return (Activity) context;
+                }
+                context = ((ContextWrapper) context).getBaseContext();
+            }
+        }
+        return null;
+    }
+
 }

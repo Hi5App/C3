@@ -9,7 +9,6 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
-import com.example.game.GameCharacter;
 import com.example.myapplication__volume.GameActivity;
 import com.example.myapplication__volume.MainActivity;
 
@@ -254,6 +253,7 @@ public class Socket_Receive {
         }
 
         boolean[] ifDownloaded = { false };
+        boolean[] isTimeOut = { false };
         String[] FileName = { "" };
 
 
@@ -263,9 +263,6 @@ public class Socket_Receive {
 
                     Log.v("Get_Block", "Start to Read Block");
                     DataInputStream in = new DataInputStream((FileInputStream)(socket.getInputStream()));
-
-                    boolean[] isFinished = { false };
-
 
                     Timer timer = new Timer();
                     timer.schedule(new TimerTask() {
@@ -284,9 +281,10 @@ public class Socket_Receive {
                             // current time cost 45s
                             Log.v("Get_Block: ", "Time: " + Long.toString(stopTime - startTime) + "ms" ) ;
 
-                            if (!isFinished[0]){
+                            if (!ifDownloaded[0]){
                                 try {
 
+                                    isTimeOut[0] = true;
                                     MainActivity.Time_Out();
                                     in.close();
 
@@ -329,11 +327,6 @@ public class Socket_Receive {
                     in.read(FileName_String_byte, 0, FileName_size_int - 4);
                     String FileName_String = new String(FileName_String_byte, StandardCharsets.UTF_8);
                     String FileName_SubString = FileName_String.substring(4, FileName_String.length());
-
-//                    Log.v("Get_Block: Data", Long.toString(bytesToLong(Data_size)));
-//                    Log.v("Get_Block: FileName", Long.toString(bytesToLong(FileName_size)));
-//                    Log.v("Get_Block", FileName_String);
-//                    Log.v("Get_Block", FileName_SubString);
 
                     byte[] FileContent_byte = new byte[4];
                     in.read(FileContent_byte, 0, 4);
@@ -384,12 +377,11 @@ public class Socket_Receive {
                         }
                         out.write(File_Content_End);
                     }
-
                     out.close();
 
                     Log.v("File Size", "Size :" + file.length());
-                    isFinished[0] = true;
                     ifDownloaded[0] = true;
+                    FileName[0] = FileName_SubString;
 
                     if (runningActivity.equals(MainActivity.NAME)){
                         MainActivity.hideProgressBar();
@@ -397,11 +389,10 @@ public class Socket_Receive {
                         GameActivity.hideProgressBar();
                     }
 
-                    FileName[0] = FileName_SubString;
-
                 }catch (Exception e){
                     e.printStackTrace();
-                    Toast_in_Thread("Fail to Download Block");
+                    if (!isTimeOut[0])
+                        Toast_in_Thread("Fail to Download Block");
                 }
 
             }
@@ -420,15 +411,12 @@ public class Socket_Receive {
 
 
         if (ifDownloaded[0]){
-//            MainActivity.LoadBigFile_Remote(file_path + "/" + FileName[0]);
-
             if (runningActivity.equals(MainActivity.NAME)){
                 MainActivity.LoadBigFile_Remote(file_path + "/" + FileName[0]);
             }else if (runningActivity.equals(GameActivity.NAME)){
                 Log.v(TAG,"GameActivity.LoadBigFile_Remote start ...");
                 GameActivity.LoadBigFile_Remote(file_path + "/" + FileName[0]);
             }
-
         }
 
     }
