@@ -12,7 +12,7 @@ import java.nio.FloatBuffer;
 
 public class MyPattern2D {
 
-    private final String vertexShaderCode =
+    private static final String vertexShaderCode =
             "#version 300 es\n" +
                     "layout (location = 0) in vec4 vPosition;" +
                     "layout (location = 1) in vec2 vCoordinate;" +
@@ -25,7 +25,7 @@ public class MyPattern2D {
                     "  aCoordinate = vCoordinate;" +
                     "}";
 
-    private final String fragmentShaderCode =
+    private static final String fragmentShaderCode =
             "#version 300 es\n" +
                     "precision mediump float;" +
 
@@ -56,7 +56,7 @@ public class MyPattern2D {
     private int height;
 
     private Bitmap mBitmap;
-    private final int mProgram;
+    private static int mProgram;
 
     private float[] mMVPMatrix = new float[16];
     private float[] mz = new float[3];
@@ -72,14 +72,19 @@ public class MyPattern2D {
 
         mBitmap = bitmap;
 
-        mProgram = initProgram(vertexShaderCode, fragmentShaderCode);
+
 
         mz = vmz;
 
         createTexture();
     }
 
-    private int initProgram(String vertShaderCode, String fragmShaderCode){
+    public static void initProgram(){
+        mProgram = initProgram(vertexShaderCode, fragmentShaderCode);
+    }
+
+
+    private static int initProgram(String vertShaderCode, String fragmShaderCode){
 
         //加载着色器
         int vertexShader = loadShader(GLES30.GL_VERTEX_SHADER,

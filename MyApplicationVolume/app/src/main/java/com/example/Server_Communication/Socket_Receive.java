@@ -1,7 +1,6 @@
 package com.example.Server_Communication;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
@@ -10,22 +9,15 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 
 import com.example.myapplication__volume.MainActivity;
-import com.example.myapplication__volume.MainActivity_Jump;
 
-import org.apache.commons.io.IOUtils;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -130,7 +122,11 @@ public class Socket_Receive {
                     int FileName_size_int = (int) bytesToLong(FileName_size);
 
 
-                    if (Data_size_int < FileName_size_int + 16){
+                    if ((Data_size_int < FileName_size_int + 16)){
+                        return;
+                    }
+
+                    if ((FileName_size_int > LIMIT_SIZE) || (Data_size_int > LIMIT_SIZE)){
                         return;
                     }
 

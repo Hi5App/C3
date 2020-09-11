@@ -28,12 +28,16 @@ public class MKTest {
         mUidevice = UiDevice.getInstance(mInstrumentation);
     }
 
+
+    /*
+    Test for pre-construction
+     */
     @Test
     public void DemoTest() throws RemoteException, InterruptedException {
 
         // start the app
         mUidevice.click(928,1077);
-        Thread.sleep(500);
+        Thread.sleep(1000);
 
         //open the file
         mUidevice.findObject(By.res("com.example.myapplication__volume:id/file")).click();
@@ -44,18 +48,37 @@ public class MKTest {
         Thread.sleep(2000);
 
         mUidevice.findObject(By.text("Select Block")).click();
-        Thread.sleep(4000);
+        Thread.sleep(6000);
 
         // click the draw button
         mUidevice.click(115,380);
         Thread.sleep(3000);
         mUidevice.click(140,720);
         Thread.sleep(2000);
-        mUidevice.click(740,710);
+        mUidevice.click(800,560);
         Thread.sleep(2000);
 
+        for (int i=0; i<1000; i++){
 
+            //change pen blue
+            mUidevice.click(65,685);
+            Thread.sleep(2000);
 
+            mUidevice.swipe(700,980,340,1200,10);
+            Thread.sleep(4000);
+
+            //change pen red
+            mUidevice.click(65,780);
+            Thread.sleep(2000);
+
+            mUidevice.swipe(700,1180,340,1400,10);
+            Thread.sleep(4000);
+
+            mUidevice.click(1000,770);
+            Thread.sleep(8000);
+//            Test_Unit();
+        }
+//        Test_for_PreConstruction();
 
 //        Draw Curve
 
@@ -69,7 +92,39 @@ public class MKTest {
 
 
 
-    private void Test_for_PreConstruction(){
+//        mUidevice.findObject(By.text("Open BigData")).click();
+//        Thread.sleep(2000);
+//
+//        mUidevice.findObject(By.text("Select Block")).click();
+//        Thread.sleep(6000);
+
+    private void Test_Unit(){
+        Log.v("Task","----------------------  start task  ----------------------");
+        try {
+
+            //change pen blue
+            mUidevice.click(65,685);
+            Thread.sleep(2000);
+
+            mUidevice.drag(700,980,340,1200,10);
+            Thread.sleep(4000);
+
+            //change pen red
+            mUidevice.click(65,780);
+            Thread.sleep(2000);
+
+            mUidevice.drag(700,1180,340,1400,10);
+            Thread.sleep(4000);
+
+            mUidevice.click(1000,770);
+            Thread.sleep(6000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void Test_for_PreConstruction() throws InterruptedException {
         ScheduledExecutorService ses = Executors.newScheduledThreadPool(4);
         ses.scheduleWithFixedDelay(new Task("fixed-delay"), 3, 15, TimeUnit.SECONDS);
     }
@@ -86,12 +141,14 @@ public class MKTest {
         public void run() {
             Log.v("Task","----------------------  start task  ----------------------");
             try {
+                mUidevice.click(65,685);
+                Thread.sleep(2000);
 
 
 
 
 
-                Thread.sleep(500);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

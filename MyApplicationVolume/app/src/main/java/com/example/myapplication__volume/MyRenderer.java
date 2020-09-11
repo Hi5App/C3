@@ -256,6 +256,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         Log.v("onSurfaceCreated:","successfully");
 
+        MyPattern.initProgram();
+        MyPattern2D.initProgram();
+
 //        SetFileType();
 
 //        if (fileType == FileType.V3draw || fileType == FileType.TIF)

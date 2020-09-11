@@ -724,8 +724,14 @@ public class MainActivity extends BaseActivity {
                     Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
                     return;
                 }
-                myrenderer.zoom_in();
-                myGLSurfaceView.requestRender();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        myrenderer.zoom_in();
+                        myGLSurfaceView.requestRender();
+                    }
+                }).start();
+
             }
         });
 
@@ -738,8 +744,15 @@ public class MainActivity extends BaseActivity {
                     Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
                     return;
                 }
-                myrenderer.zoom_out();
-                myGLSurfaceView.requestRender();
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        myrenderer.zoom_out();
+                        myGLSurfaceView.requestRender();
+                    }
+                }).start();
+
             }
         });
 
@@ -4680,7 +4693,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200910B 19:59 UTC+8 build",
+                                "Version: 20200911a 19:19 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

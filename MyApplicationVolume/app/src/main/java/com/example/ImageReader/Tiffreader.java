@@ -40,12 +40,12 @@ public class Tiffreader {
             int numofbits = options.outBitsPerSample;
             boolean isBig = false;
 
-            System.out.println("dirCount: " + Integer.toString(dirCount));
-            System.out.println("datatype: " + Integer.toString(datatype));
-            System.out.println("numofbits: " + Integer.toString(numofbits));
-            System.out.println("width_0: " + width_0);
-            System.out.println("height_0: " + height_0);
-            System.out.println("options.inPreferredConfig: " + options.inPreferredConfig);
+//            System.out.println("dirCount: " + Integer.toString(dirCount));
+//            System.out.println("datatype: " + Integer.toString(datatype));
+//            System.out.println("numofbits: " + Integer.toString(numofbits));
+//            System.out.println("width_0: " + width_0);
+//            System.out.println("height_0: " + height_0);
+//            System.out.println("options.inPreferredConfig: " + options.inPreferredConfig);
 
             Image4DSimple image = new Image4DSimple();
             int totalUnit = dirCount * width_0 * height_0;
@@ -69,9 +69,9 @@ public class Tiffreader {
                 int width = options.outWidth;
                 int height = options.outHeight;
 
-                System.out.println("curDir: " + curDir);
-                System.out.println("Width: " + width);
-                System.out.println("height: " + height);
+//                System.out.println("curDir: " + curDir);
+//                System.out.println("Width: " + width);
+//                System.out.println("height: " + height);
 
                 if (width != width_0 || height != height_0){
                     System.out.println("Images of stack are not of the same dimensions!");

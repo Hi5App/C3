@@ -9,7 +9,6 @@ import android.util.Log;
 import com.example.basic.ByteTranslate;
 import com.example.basic.Image4DSimple;
 import com.example.myapplication__volume.JumpActivity;
-import com.example.myapplication__volume.MainActivity_Jump;
 import com.example.myapplication__volume.MyRenderer;
 
 import java.io.InputStream;
@@ -18,7 +17,6 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import java.util.ArrayList;
 
 import static com.example.myapplication__volume.Myapplication.getContext;
 
@@ -29,9 +27,9 @@ public class MyPattern{
     private int count = 0;
 
     //两个shader program
-    private final int mProgram_simple;
-    private final int mProgram_raycasting;
-    private final int mProgram_curve;
+    private static int mProgram_simple;
+    private static int mProgram_raycasting;
+    private static int mProgram_curve;
 
 //    private final int mProgram_threshold;
 
@@ -417,7 +415,7 @@ public class MyPattern{
     //opengl es 3.0~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 
 
-    private final String vertexShaderCode_1 =
+    private static final String vertexShaderCode_1 =
             "#version 300 es\n" +
                     "layout (location = 0) in vec4 a_position;" +
                     "layout (location = 1) in vec4 a_color;" +
@@ -433,7 +431,7 @@ public class MyPattern{
 
 
 
-    private final String fragmentShaderCode_1 =
+    private static final String fragmentShaderCode_1 =
             "#version 300 es\n" +
                     "precision mediump float;" +
 
@@ -447,7 +445,7 @@ public class MyPattern{
 
 
 
-    private final String vertexShaderCode_2 =
+    private static final String vertexShaderCode_2 =
             // This matrix member variable provides a hook to manipulate
             // the coordinates of the objects that use this vertex shader
             "#version 300 es\n" +
@@ -467,7 +465,7 @@ public class MyPattern{
 
 
 
-    private final String fragmentShaderCode_2 =
+    private static final String fragmentShaderCode_2 =
             "#version 300 es\n" +
 //            "#extension GL_OES_texture_3D : enable\n" +
                     "precision highp float;" +
@@ -674,7 +672,7 @@ public class MyPattern{
 
     //draw points
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    private final String vertexShaderCode_curve =
+    private static final String vertexShaderCode_curve =
             "#version 300 es\n" +
                     "layout (location = 0) in vec4 vPosition;\n" +
                     "void main() {\n" +
@@ -683,7 +681,7 @@ public class MyPattern{
                     "}\n";
 
 
-    private final String fragmentShaderCode_curve =
+    private static final String fragmentShaderCode_curve =
             "#version 300 es\n" +
                     "precision mediump float;\n" +
                     "out vec4 fragColor;\n" +
@@ -696,19 +694,7 @@ public class MyPattern{
 
 
 
-
-    public MyPattern(String filepath, InputStream is, long length, int width, int height, Image4DSimple img, float[] mz, Mode m) {
-
-        image = img;
-
-        dim = mz;
-
-        mode = m;
-
-        setPoint(mz);
-
-//        setPoint_2();
-
+    public static void initProgram(){
         //创建两个着色器程序
         mProgram_simple = initProgram(vertexShaderCode_1, fragmentShaderCode_1);
         Log.v("mProgram_simple", Integer.toString(mProgram_simple));
@@ -723,8 +709,22 @@ public class MyPattern{
 
         mProgram_curve = initProgram(vertexShaderCode_curve, fragmentShaderCode_curve);
         Log.v("mProgram_curve", Integer.toString(mProgram_curve));
+    }
 
+    public MyPattern(String filepath, InputStream is, long length, int width, int height, Image4DSimple img, float[] mz, Mode m) {
+
+        image = img;
+
+        dim = mz;
+
+        mode = m;
+
+        setPoint(mz);
+
+//        setPoint_2();
 //
+
+
 //        mProgram_axis = initProgram(vertexShaderCode_axis, fragmentShaderCode_axis);
 //        Log.v("mProgram_line", Integer.toString(mProgram_axis));
 
@@ -1162,6 +1162,7 @@ public class MyPattern{
 
         //解除绑定
         GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0);
+//        GLES30.glClear(fboBackCoord);
 
 
 //        //Add program to OpenGL ES environment
@@ -2473,7 +2474,7 @@ public class MyPattern{
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //创建着色器程序
-    private int initProgram(String vertShaderCode, String fragmShaderCode){
+    private static int initProgram(String vertShaderCode, String fragmShaderCode){
 
         //加载着色器
         int vertexShader = loadShader(GLES30.GL_VERTEX_SHADER,
