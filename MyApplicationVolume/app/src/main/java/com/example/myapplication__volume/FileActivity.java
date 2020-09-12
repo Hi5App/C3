@@ -76,7 +76,7 @@ public class FileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         Intent intent = getIntent();
-        String message_1 = intent.getStringExtra(MyRenderer.OUTOFMEM_MESSAGE);
+        String message_1 = intent.getStringExtra(MyRenderer.OUT_OF_MEMORY);
         if (message_1 != null){
             Toast toast = Toast.makeText(FileActivity.this, message_1, Toast.LENGTH_LONG);
             toast.show();

@@ -48,15 +48,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".JumpActivity"
-            android:parentActivityName=".MainActivity">
-
-            <!-- The meta-data tag is required if you support API level 15 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".JumpActivity" />
-        </activity>
-        <activity
             android:name=".MainActivity_Jump"
             android:parentActivityName=".MainActivity">
 
@@ -80,7 +71,7 @@
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".JumpActivity" />
+                android:value=".VoiceChatViewActivity" />
         </activity>
 
         <provider

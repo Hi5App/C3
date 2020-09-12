@@ -2,19 +2,14 @@ package com.example.server_connect;
 
 import android.app.ActivityManager;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
-import com.example.myapplication__volume.JumpActivity;
 import com.example.myapplication__volume.MainActivity;
 import com.example.myapplication__volume.MainActivity_Jump;
-import com.example.myapplication__volume.MyRenderer;
-import com.lxj.xpopup.XPopup;
-import com.lxj.xpopup.core.BasePopupView;
 
 import org.apache.commons.io.IOUtils;
 
@@ -32,12 +27,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import static com.example.myapplication__volume.JumpActivity.EXTRA_MESSAGE;
-import static com.example.myapplication__volume.JumpActivity.Timeout;
-import static com.example.myapplication__volume.MainActivity.hideProgressBar;
-import static com.example.myapplication__volume.MainActivity.showProgressBar;
-import static com.example.myapplication__volume.MyRenderer.FILE_PATH;
 
 
 public class Filesocket_receive {

@@ -590,26 +590,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        System.out.println("------------------");
-        System.out.println("onCreate");
-
-        String[] info = {"xxx"};
-//        System.out.println(info[2]);
-
-        byte i = -100;
-        Log.i("onCreate","i: " + i);
-        Log.i("onCreate","i: " + Integer.toHexString(i));
-
-        int i_i = i & 0xff;
-        Log.i("onCreate","i: " + i_i);
-        Log.i("onCreate","i: " + Integer.toHexString(i_i));
-
-        byte i_transfer = (byte) ( i_i & 0xff );
-        Log.i("onCreate","i: " + i_transfer);
-        Log.i("onCreate","i: " + Integer.toHexString(i_transfer));
-
-
-
+        Log.v(TAG,"------------------ onCreate ------------------");
 
         isBigData_Remote = false;
         isBigData_Local  = false;
@@ -620,8 +601,8 @@ public class MainActivity extends BaseActivity {
         myrenderer = new MyRenderer();
 
 
-        Intent intent2 = getIntent();
-        String MSG = intent2.getStringExtra(MyRenderer.OUTOFMEM_MESSAGE);
+        Intent intent = getIntent();
+        String MSG = intent.getStringExtra(MyRenderer.OUT_OF_MEMORY);
 
         if (MSG != null)
             Toast.makeText(this, MSG, Toast.LENGTH_SHORT).show();
@@ -4700,7 +4681,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200911c 22:16 UTC+8 build",
+                                "Version: 20200912a 15:16 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

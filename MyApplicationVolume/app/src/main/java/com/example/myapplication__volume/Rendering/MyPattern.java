@@ -8,7 +8,7 @@ import android.util.Log;
 
 import com.example.basic.ByteTranslate;
 import com.example.basic.Image4DSimple;
-import com.example.myapplication__volume.JumpActivity;
+import com.example.myapplication__volume.MainActivity;
 import com.example.myapplication__volume.MyRenderer;
 
 import java.io.InputStream;
@@ -711,80 +711,44 @@ public class MyPattern{
         Log.v("mProgram_curve", Integer.toString(mProgram_curve));
     }
 
-    public MyPattern(String filepath, InputStream is, long length, int width, int height, Image4DSimple img, float[] mz, Mode m) {
+    public MyPattern(int width, int height, Image4DSimple img, float[] mz, Mode m) {
 
         image = img;
-
         dim = mz;
-
         mode = m;
 
         setPoint(mz);
 
-//        setPoint_2();
-//
-
-
-//        mProgram_axis = initProgram(vertexShaderCode_axis, fragmentShaderCode_axis);
-//        Log.v("mProgram_line", Integer.toString(mProgram_axis));
-
-        Log.v("MyPattern", "Init all the programs");
-
-
-
-//        mProgram = initProgram(vertexShaderCode, fragmentShaderCode);
-
-//        Log.v("mProgram()",Integer.toString(mProgram));
-
         //设置一下buffer
         BufferSet();
-//        BufferSet_Square();
 
-        //设置文件路径
-        SetPath(filepath);
-
-//        setInputStream(is);
-//        setLength(length);
+//        //设置文件路径
+//        SetPath(filepath);
 
         //加载纹理
         try {
             initTexture_3d();
-//            downSample();
         }catch (Exception e){
-
             e.printStackTrace();
             Context context = getContext();
-//            Toast.makeText(context,"Out of memory when load file",Toast.LENGTH_SHORT).show();
-
-            Intent intent = new Intent(context, JumpActivity.class);
-            String message = "Out of memory when load file";
-            intent.putExtra(JumpActivity.Out_of_memory, message);
+            Intent intent = new Intent(context, MainActivity.class);
+            String message = "File to Init Texture !";
+            intent.putExtra(MyRenderer.OUT_OF_MEMORY, message);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         }catch (OutOfMemoryError error){
             error.printStackTrace();
-
             Context context = getContext();
-            Intent intent = new Intent(context, JumpActivity.class);
+            Intent intent = new Intent(context, MainActivity.class);
             String message = "Out of memory when load file";
-            intent.putExtra(JumpActivity.Out_of_memory, message);
+            intent.putExtra(MyRenderer.OUT_OF_MEMORY, message);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
-
-//            Context context = getContext();
-//            Toast.makeText(context,"Out of memory when load file",Toast.LENGTH_SHORT).show();
         }
-        //        initTexture();
-
-        Log.v("init()","success!!!!!!!!!!!!!!!");
 
         fboBackCoord = initFBO(width, height);
 
     }
-
-//    private Context getContext() {
-//    }
-
 
     private void setPoint(float[] mz){
 
@@ -1130,7 +1094,7 @@ public class MyPattern{
 ////        threshold = (float)(myrenderer.threshold) / 255;
 //    }
 
-    public void drawVolume_3d(float[] mvpMatrix, float [] translateAfterMatrix, int width, int height, int texture, boolean ifDownSampling, float contrast) {
+    public void drawVolume_3d(float[] mvpMatrix, float [] translateAfterMatrix, boolean ifDownSampling, float contrast) {
 
 //        if(count == 0){
 //            count ++;

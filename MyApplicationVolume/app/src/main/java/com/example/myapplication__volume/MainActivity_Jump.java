@@ -377,7 +377,7 @@ public class MainActivity_Jump extends AppCompatActivity {
         }
 
         Intent intent2 = getIntent();
-        String MSG = intent2.getStringExtra(MyRenderer.OUTOFMEM_MESSAGE);
+        String MSG = intent2.getStringExtra(MyRenderer.OUT_OF_MEMORY);
 
         if (MSG != null)
             Toast.makeText(this, MSG, Toast.LENGTH_SHORT).show();

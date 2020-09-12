@@ -139,11 +139,8 @@ public class Remote_Socket extends Socket {
                     ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(ManageSocket.getOutputStream(), StandardCharsets.UTF_8)));
 
                     if (ManageSocket.isConnected()) {
-
                         isSocketSet = true;
-//                        Toast_in_Thread("Connect Server Successfully !");
                         Log.v("ConnectServer", "Connect Server Successfully !");
-
                     } else {
                         Toast_in_Thread("Can't Connect Server, Try Again Please !");
                     }

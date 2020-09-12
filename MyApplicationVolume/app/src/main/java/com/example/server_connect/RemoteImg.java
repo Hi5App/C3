@@ -4,7 +4,6 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Looper;
 import android.util.Log;
@@ -14,9 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
-import com.example.myapplication__volume.JumpActivity;
 import com.example.myapplication__volume.MainActivity;
-import com.example.myapplication__volume.MainActivity_Jump;
 import com.example.myapplication__volume.R;
 
 import java.io.BufferedReader;
@@ -30,14 +27,9 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileStore;
 import java.util.Arrays;
 
 import cn.carbs.android.library.MDDialog;
-
-import static com.example.myapplication__volume.JumpActivity.EXTRA_MESSAGE;
-import static com.example.myapplication__volume.MainActivity_Jump.LoadRemoteFile;
-import static com.example.myapplication__volume.MyRenderer.FILE_PATH;
 
 public class RemoteImg extends Socket {
     public String ip;
