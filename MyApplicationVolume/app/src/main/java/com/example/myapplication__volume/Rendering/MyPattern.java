@@ -23,6 +23,7 @@ import static com.example.myapplication__volume.Myapplication.getContext;
 
 public class MyPattern{
 
+    private static final String TAG = "MyPattern";
     private final int scale = 128;
     private int count = 0;
 
@@ -748,6 +749,60 @@ public class MyPattern{
 
         fboBackCoord = initFBO(width, height);
 
+    }
+
+
+    /**
+     * the function will be called each time when gc collect the object
+     */
+    @Override
+    protected void finalize(){
+        Log.v(TAG,"finalize() is called");
+
+        GLES30.glDeleteTextures( //删除纹理对象
+                1, //删除纹理id的数量
+                fbo_tex, //纹理id的数组
+                0  //偏移量
+        );
+
+        GLES30.glDeleteTextures( //删除纹理对象
+                1, //删除纹理id的数量
+                vol_tex, //纹理id的数组
+                0  //偏移量
+        );
+
+        GLES30.glDeleteTextures( //删除纹理对象
+                1, //删除纹理id的数量
+                vol_texDS, //纹理id的数组
+                0  //偏移量
+        );
+
+    }
+
+
+    /**
+     * clean the texture
+     */
+    public void free(){
+        Log.v(TAG,"free() is called");
+
+        GLES30.glDeleteTextures( //删除纹理对象
+                1, //删除纹理id的数量
+                fbo_tex, //纹理id的数组
+                0  //偏移量
+        );
+
+        GLES30.glDeleteTextures( //删除纹理对象
+                1, //删除纹理id的数量
+                vol_tex, //纹理id的数组
+                0  //偏移量
+        );
+
+        GLES30.glDeleteTextures( //删除纹理对象
+                1, //删除纹理id的数量
+                vol_texDS, //纹理id的数组
+                0  //偏移量
+        );
     }
 
     private void setPoint(float[] mz){

@@ -30,7 +30,7 @@ public class MKTest {
 
 
     /*
-    Test for pre-construction
+    Test for pre-construction for MEIZU
      */
     @Test
     public void DemoTest() throws RemoteException, InterruptedException {
@@ -48,7 +48,7 @@ public class MKTest {
         Thread.sleep(2000);
 
         mUidevice.findObject(By.text("Select Block")).click();
-        Thread.sleep(6000);
+        Thread.sleep(8000);
 
         // click the draw button
         mUidevice.click(115,380);
@@ -75,6 +75,67 @@ public class MKTest {
             Thread.sleep(4000);
 
             mUidevice.click(1000,770);
+            Thread.sleep(8000);
+//            Test_Unit();
+        }
+//        Test_for_PreConstruction();
+
+//        Draw Curve
+
+
+//        mUidevice.findObject(By.text("+")).click();
+
+        Thread.sleep(2000);
+
+    }
+
+
+    /*
+   Test for pre-construction  for OnePlus
+    */
+    @Test
+    public void OnePlusTest() throws RemoteException, InterruptedException {
+
+        // start the app
+        mUidevice.click(185,1290);
+        Thread.sleep(1000);
+
+        //open the file
+        mUidevice.findObject(By.res("com.example.myapplication__volume:id/file")).click();
+        Thread.sleep(500);
+
+
+        mUidevice.findObject(By.text("Open BigData")).click();
+        Thread.sleep(2000);
+
+        mUidevice.findObject(By.text("Select Block")).click();
+        Thread.sleep(8000);
+
+        // click the draw button
+        mUidevice.click(120,460);
+        Thread.sleep(3000);
+        mUidevice.click(200,840);
+        Thread.sleep(2000);
+        mUidevice.click(830,650);
+        Thread.sleep(2000);
+
+        for (int i=0; i<1000; i++){
+
+            //change pen blue
+            mUidevice.click(50,720);
+            Thread.sleep(2000);
+
+            mUidevice.swipe(950,1250,320,1500,10);
+            Thread.sleep(4000);
+
+            //change pen red
+            mUidevice.click(50,800);
+            Thread.sleep(2000);
+
+            mUidevice.swipe(950,1700,320,1950,10);
+            Thread.sleep(4000);
+
+            mUidevice.click(1360,810);
             Thread.sleep(8000);
 //            Test_Unit();
         }

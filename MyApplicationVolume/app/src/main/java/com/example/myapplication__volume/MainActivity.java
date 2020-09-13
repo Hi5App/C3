@@ -4681,7 +4681,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200912a 15:16 UTC+8 build",
+                                "Version: 20200913a 16:16 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5455,6 +5455,7 @@ public class MainActivity extends BaseActivity {
                         Switch downsample_on_off = contentView.findViewById(R.id.switch_rotation_mode);
                         Switch check_on_off = contentView.findViewById(R.id.switch_check_mode);
                         IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
+                        TextView clean_cache = contentView.findViewById(R.id.clean_cache);
 
                         boolean ifDownSample = preferenceSetting.getDownSampleMode();
                         int contrast = preferenceSetting.getContrast();
@@ -5477,6 +5478,13 @@ public class MainActivity extends BaseActivity {
                             @Override
                             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                                 check[0] = isChecked;
+                            }
+                        });
+
+                        clean_cache.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                cleanCache();
                             }
                         });
 
@@ -5508,30 +5516,6 @@ public class MainActivity extends BaseActivity {
                         preferenceSetting.setPref(downsample[0], check[0], contrast);
                         myGLSurfaceView.requestRender();
 
-//                        if (ifChecked[0]) {
-//                            myrenderer.setIfNeedDownSample(ifChecked[1]);
-//                            if (ifChecked[1]) {
-//                                settingFileManager.setDownSampleMode("DownSampleYes", getContext());
-//                            } else {
-//                                settingFileManager.setDownSampleMode("DownSampleNo", getContext());
-//                            }
-//                        }
-//
-//                        if (ifChecked2[0]) {
-//                            DrawMode = !ifChecked2[1];
-//                            if (ifChecked2[1]) {
-//                                settingFileManager.setBigDataMode("Check Mode", getContext());
-//                            } else {
-//                                settingFileManager.setBigDataMode("Draw Mode", getContext());
-//                            }
-//                        }
-//
-//                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
-//                        int contrast = seekbar.getProgress();
-//                        setContrast(Integer.toString(contrast),context);
-
-//                        myrenderer.resetContrast(contrast);
-//                        myGLSurfaceView.requestRender();
                     }
                 })
                 .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
@@ -5545,6 +5529,28 @@ public class MainActivity extends BaseActivity {
 
         mdDialog.show();
         mdDialog.getWindow().setLayout(1000, 1500);
+    }
+
+
+    public void cleanCache(){
+        AlertDialog aDialog = new AlertDialog.Builder(context)
+                .setTitle("Clean All The Img Cache")
+                .setMessage("Are you sure to CLEAN ALL IMG CACHE?")
+                .setIcon(R.mipmap.ic_launcher)
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        deleteImg();
+                    }
+                })
+
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .create();
+        aDialog.show();
     }
 
 
@@ -7374,8 +7380,11 @@ public class MainActivity extends BaseActivity {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void LoadBigFile_Remote(String filepath){
 
+        Log.v("MainActivity","LoadBigFile_Remote()");
+
         if (ifGame){
 
+            Log.v("MainActivity","LoadBigFile_Remote() ifGame");
             try {
                 Log.v("GameIntent", "inNNNNNNNNNNNNNNNNNNNNN");
                 Intent gameIntent = new Intent(mainContext, GameActivity.class);
@@ -7388,6 +7397,7 @@ public class MainActivity extends BaseActivity {
             }
         }else {
 
+            Log.v("MainActivity","LoadBigFile_Remote() ifGame");
             Log.v("MainActivity",remote_socket.getIp());
             if (remote_socket.getIp().equals(ip_ALiYun)){
                 setSelectSource("Remote Server Aliyun",context);
@@ -7414,6 +7424,7 @@ public class MainActivity extends BaseActivity {
                 }
             }
         }
+
     }
 
     public static void LoadBigFile_Local(String filepath_local){

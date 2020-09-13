@@ -12,6 +12,7 @@ import java.nio.FloatBuffer;
 
 public class MyPattern2D {
 
+    private static final String TAG = "MyPattern2D";
     private static final String vertexShaderCode =
             "#version 300 es\n" +
                     "layout (location = 0) in vec4 vPosition;" +
@@ -77,6 +78,21 @@ public class MyPattern2D {
         mz = vmz;
 
         createTexture();
+    }
+
+    /**
+     * the function will be called each time when gc collect the object
+     */
+    @Override
+    protected void finalize(){
+        Log.v(TAG,"finalize() is called");
+
+        GLES30.glDeleteTextures( //删除纹理对象
+                1, //删除纹理id的数量
+                texture, //纹理id的数组
+                0  //偏移量
+        );
+
     }
 
     public static void initProgram(){

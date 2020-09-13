@@ -871,6 +871,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        MarkerList_loaded.clear();
 
         if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD){
+            Log.v(TAG,"Before setImage()");
             setImage();
             ifFileLoaded = true;
             ifFileSupport = true;
@@ -1820,6 +1821,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
 
+        Log.v(TAG,"Before myPattern.free()");
+
+        if (myPattern != null){
+            Log.v(TAG,"myPattern.free()");
+            myPattern.free();
+        }
         myPattern = null;
         grayscale =  img.getData();
 
