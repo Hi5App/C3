@@ -75,9 +75,9 @@ public class MyDraw {
 //    final float radius = 0.02f;
     final float splitRadius = 0.005f;
 
-    private final int mProgram_marker;
-    private final int mProgram_line;
-    private final int mProgram_points;
+    private static int mProgram_marker;
+    private static int mProgram_line;
+    private static int mProgram_points;
 
     private FloatBuffer vertexBuffer_marker;
     private FloatBuffer normalizeBuffer_marker;
@@ -95,14 +95,14 @@ public class MyDraw {
     private float[] vertexPoints_marker;
     private float[] colorPoints_marker;
 
-    private int vertexPoints_handle = 0;
-    private int normalizePoints_handle = 1;
-    private int colorPoints_handle = 2;
+    private static int vertexPoints_handle = 0;
+    private static int normalizePoints_handle = 1;
+    private static int colorPoints_handle = 2;
 
 
 //    private float[] normalizePoints_marker = createNormlizes();
 
-    private final String vertexShaderCode_line =
+    private static final String vertexShaderCode_line =
             // This matrix member variable provides a hook to manipulate
             // the coordinates of the objects that use this vertex shader
             "#version 300 es\n" +
@@ -119,7 +119,7 @@ public class MyDraw {
 
 
 
-    private final String fragmentShaderCode_line =
+    private static final String fragmentShaderCode_line =
             "#version 300 es\n" +
                     "precision mediump float;" +
                     "in vec4 vOutColor;" +
@@ -132,7 +132,7 @@ public class MyDraw {
 
 
 
-    private final String vertexShaderCode_marker =
+    private static final String vertexShaderCode_marker =
             // This matrix member variable provides a hook to manipulate
             // the coordinates of the objects that use this vertex shader
             "#version 300 es\n" +
@@ -160,7 +160,7 @@ public class MyDraw {
 
 
 
-    private final String fragmentShaderCode_maeker =
+    private static final String fragmentShaderCode_maeker =
             "#version 300 es\n" +
                     "precision mediump float;" +
 
@@ -177,7 +177,7 @@ public class MyDraw {
 
     //draw points
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    private final String vertexShaderCode_points =
+    private static final String vertexShaderCode_points =
             "#version 300 es\n" +
                     "layout (location = 0) in vec4 vPosition;\n" +
                     "void main() {\n" +
@@ -186,7 +186,7 @@ public class MyDraw {
                     "}\n";
 
 
-    private final String fragmentShaderCode_points =
+    private static final String fragmentShaderCode_points =
             "#version 300 es\n" +
                     "precision mediump float;\n" +
                     "out vec4 fragColor;\n" +
@@ -198,8 +198,7 @@ public class MyDraw {
                     "}\n";
 
 
-    public MyDraw(){
-
+    public static void initProgram(){
         //for the marker
         mProgram_marker = initProgram(vertexShaderCode_marker, fragmentShaderCode_maeker);
         Log.v("MyDraw", "init the mProgram_marker");
@@ -211,6 +210,13 @@ public class MyDraw {
         //for the points
         mProgram_points = initProgram(vertexShaderCode_points, fragmentShaderCode_points);
         Log.v("MyDraw", "init the mProgram_points");
+
+    }
+
+
+    public MyDraw(){
+
+
 
         BufferSet_Normalize();
 
@@ -644,7 +650,7 @@ public class MyDraw {
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //创建着色器程序
-    private int initProgram(String vertShaderCode, String fragmShaderCode){
+    private static int initProgram(String vertShaderCode, String fragmShaderCode){
 
         //加载着色器
         int vertexShader = loadShader(GLES30.GL_VERTEX_SHADER,

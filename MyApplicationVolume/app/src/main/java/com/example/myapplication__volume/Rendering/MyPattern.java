@@ -11,7 +11,6 @@ import com.example.basic.Image4DSimple;
 import com.example.myapplication__volume.MainActivity;
 import com.example.myapplication__volume.MyRenderer;
 
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -44,14 +43,15 @@ public class MyPattern{
     private FloatBuffer dimBuffer;
 
     private FloatBuffer vertexBuffer_curve;
-
-
-
-    private FloatBuffer vertexBuffer_suqre;
     private FloatBuffer colorBuffer_suqre;
-    private ShortBuffer drawListBuffer_suqre;
 
-    private MyRenderer myrenderer;
+    private ByteBuffer  imageBuffer;
+    private ByteBuffer  imageDSBuffer;
+    private ShortBuffer imageShortBuffer;
+    private ShortBuffer imageShortDSBuffer;
+    private IntBuffer   imageIntBuffer;
+    private IntBuffer   imageIntDSBuffer;
+    private ByteBuffer  imageBuffer_FBO;
 
     private int positionHandle = 0;
     private int colorHandle = 1;
@@ -65,21 +65,7 @@ public class MyPattern{
     private int colorHandle_square;
     private int vPMatrixHandle_square;
 
-    private String filepath = ""; //文件路径
-    private InputStream is;
-    private long length;
-
-
-    private ByteBuffer imageBuffer;
-    private ByteBuffer imageDSBuffer;
-    private ShortBuffer imageShortBuffer;
-    private ShortBuffer imageShortDSBuffer;
-    private IntBuffer imageIntBuffer;
-    private IntBuffer imageIntDSBuffer;
-    private ByteBuffer imageBuffer_FBO;
-
     private ByteTranslate byteTranslate;
-    private MyRenderer myRenderer;
 
     private int[] vol_tex = new int[1]; //生成纹理id;
     private int[] fbo_tex = new int[1]; //生成纹理id;
@@ -115,6 +101,7 @@ public class MyPattern{
     private int threshold;
 
     private boolean ifGame = false;
+    private boolean isNeedRelease= false;
 
     public static enum Mode{NORMAL, GAME};
     private Mode mode = Mode.NORMAL;
@@ -795,31 +782,6 @@ public class MyPattern{
 
     }
 
-
-    /**
-     * clean the texture
-     */
-    public void free(){
-        Log.v(TAG,"free() is called");
-
-        GLES30.glDeleteTextures( //删除纹理对象
-                1, //删除纹理id的数量
-                fbo_tex, //纹理id的数组
-                0  //偏移量
-        );
-
-        GLES30.glDeleteTextures( //删除纹理对象
-                1, //删除纹理id的数量
-                vol_tex, //纹理id的数组
-                0  //偏移量
-        );
-
-        GLES30.glDeleteTextures( //删除纹理对象
-                1, //删除纹理id的数量
-                vol_texDS, //纹理id的数组
-                0  //偏移量
-        );
-    }
 
     private void setPoint(float[] mz){
 
@@ -2627,14 +2589,66 @@ public class MyPattern{
     }
 
 
+    public boolean getNeedRelease(){
+        Log.i(TAG,"getNeedRelease(): " + isNeedRelease);
+        return isNeedRelease;
+    }
+
+
+    public void setNeedRelease(){
+        Log.i(TAG,"setNeedRelease()");
+        isNeedRelease = true;
+    }
 
 
 
 
+    /**
+     * clean the texture
+     */
+    public void free(){
+        Log.i(TAG,"free() is called");
 
+        GLES30.glDeleteTextures( //删除纹理对象
+                1, //删除纹理id的数量
+                fbo_tex, //纹理id的数组
+                0  //偏移量
+        );
 
+        GLES30.glDeleteTextures( //删除纹理对象
+                1, //删除纹理id的数量
+                vol_tex, //纹理id的数组
+                0  //偏移量
+        );
 
+        GLES30.glDeleteTextures( //删除纹理对象
+                1, //删除纹理id的数量
+                vol_texDS, //纹理id的数组
+                0  //偏移量
+        );
 
+        vertexBuffer.clear();
+        vertexBuffer = null;
+
+        colorBuffer.clear();
+        colorBuffer = null;
+
+        drawListBuffer.clear();
+        drawListBuffer = null;
+
+        dimBuffer.clear();
+        dimBuffer = null;
+
+        imageBuffer.clear();
+        imageBuffer = null;
+
+        imageDSBuffer.clear();
+        imageDSBuffer = null;
+
+        imageBuffer_FBO.clear();
+        imageBuffer_FBO = null;
+
+    }
 
 
 
@@ -2705,27 +2719,6 @@ public class MyPattern{
 
         return shader;
     }
-
-
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    //设置文件路径
-    private void SetPath(String message){
-
-        filepath = message;
-    }
-
-
-
-    //设置文件路径
-    private void setInputStream(InputStream Is){
-        is = Is;
-    }
-
-    private void setLength(long Length){
-        length = Length;
-    }
-
 
 
     private void createMarker(byte [] data_image, int vol_w, int vol_h, int vol_d, int cx, int cy, int cz){

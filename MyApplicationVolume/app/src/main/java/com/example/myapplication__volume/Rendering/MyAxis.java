@@ -10,18 +10,21 @@ import java.nio.ShortBuffer;
 
 public class MyAxis {
 
-    private final int mProgram_axis;
+    private static final String TAG = "MyAxis";
+
+    private static int mProgram_axis;
+    private static int mProgram_border;
 
     private FloatBuffer vertexBuffer_axis;
     private FloatBuffer colorBuffer_axis;
-
-    private final int mProgram_border;
 
     private FloatBuffer vertexBuffer_border;
     private ShortBuffer ListBuffer_border;
 
     private float[] vertexAxis;
     private float[] vertexBorder;
+
+    private boolean isNeedRelease = false;
 
 
     //坐标系
@@ -100,7 +103,7 @@ public class MyAxis {
 
     //draw the axis
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    private final String vertexShaderCode_axis =
+    private static final String vertexShaderCode_axis =
             "#version 300 es\n" +
                     "layout (location = 0) in vec4 vPosition;\n" +
                     "layout (location = 1) in vec4 vColor;\n" +
@@ -117,7 +120,7 @@ public class MyAxis {
                     "}\n";
 
 
-    private final String fragmentShaderCode_axis =
+    private static final String fragmentShaderCode_axis =
             "#version 300 es\n" +
                     "precision mediump float;\n" +
 
@@ -132,7 +135,7 @@ public class MyAxis {
 
     //draw the border
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    private final String vertexShaderCode_border =
+    private static final String vertexShaderCode_border =
             "#version 300 es\n" +
                     "layout (location = 0) in vec4 vPosition;\n" +
 
@@ -146,7 +149,7 @@ public class MyAxis {
                     "}\n";
 
 
-    private final String fragmentShaderCode_border =
+    private static final String fragmentShaderCode_border =
             "#version 300 es\n" +
                     "precision mediump float;\n" +
 
@@ -157,13 +160,17 @@ public class MyAxis {
                     "}\n";
 
 
-    public MyAxis(float[] dim){
+    public static void initProgram(){
 
         mProgram_axis = initProgram(vertexShaderCode_axis, fragmentShaderCode_axis);
         Log.v("mProgram_line", Integer.toString(mProgram_axis));
 
         mProgram_border = initProgram(vertexShaderCode_border, fragmentShaderCode_border);
         Log.v("mProgram_border", Integer.toString(mProgram_border));
+    }
+
+
+    public MyAxis(float[] dim){
 
         setPoints(dim);
 
@@ -324,11 +331,36 @@ public class MyAxis {
     }
 
 
+    public boolean getNeedRelease(){
+        Log.i(TAG,"getNeedRelease(): " + isNeedRelease);
+        return isNeedRelease;
+    }
+
+
+    public void setNeedRelease(){
+        Log.i(TAG,"setNeedRelease()");
+        isNeedRelease = true;
+    }
+
+    public void free(){
+
+        colorBuffer_axis.clear();
+        colorBuffer_axis = null;
+
+        vertexBuffer_axis.clear();
+        vertexBuffer_axis = null;
+
+        vertexBuffer_border.clear();
+        vertexBuffer_border = null;
+
+    }
+
+
 
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //创建着色器程序
-    private int initProgram(String vertShaderCode, String fragmShaderCode){
+    private static int initProgram(String vertShaderCode, String fragmShaderCode){
 
         //加载着色器
         int vertexShader = loadShader(GLES30.GL_VERTEX_SHADER,

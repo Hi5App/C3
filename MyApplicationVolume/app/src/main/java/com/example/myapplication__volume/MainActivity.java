@@ -4681,7 +4681,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200914b 15:37 UTC+8 build",
+                                "Version: 20200914c 22:37 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4720,13 +4720,13 @@ public class MainActivity extends BaseActivity {
                             public void onSelect(int position, String text) {
                                 switch (text) {
                                     case "AliYun Server":
-                                        Toast_in_Thread("The Server is under Maintenance !");
-//                                        setSelectSource("Remote Server Aliyun",context);
-//                                        if (DrawMode){
-//                                            BigFileRead_Remote(ip_ALiYun);
-//                                        }else {
-//                                            BigFileRead_Remote_Check(ip_ALiYun);
-//                                        }
+//                                        Toast_in_Thread("The Server is under Maintenance !");
+                                        setSelectSource("Remote Server Aliyun",context);
+                                        if (DrawMode){
+                                            BigFileRead_Remote(ip_ALiYun);
+                                        }else {
+                                            BigFileRead_Remote_Check(ip_ALiYun);
+                                        }
                                         break;
 
                                     case "SEU Server":
@@ -4848,8 +4848,6 @@ public class MainActivity extends BaseActivity {
 
 
     public void Block_navigate(String text){
-//        context = this;
-
 
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -4979,6 +4977,9 @@ public class MainActivity extends BaseActivity {
             block  = new float[]{offset_arr_i[0], offset_arr_i[1], offset_arr_i[2]};
             size   = new float[]{offset_arr_i[3], offset_arr_i[3], offset_arr_i[3]};
             neuron = remote_socket.getImg_size_f(block);
+
+            Log.i(TAG,Arrays.toString(block));
+            Log.i(TAG,Arrays.toString(neuron));
 
         }
 

@@ -67,13 +67,13 @@ public class MyPattern2D {
     private FloatBuffer bPos;
     private FloatBuffer bCoord;
 
+    private boolean isNeedRelease;
+
     public MyPattern2D(Bitmap bitmap, int w, int h, float [] vmz){
         width = w;
         height = h;
 
         mBitmap = bitmap;
-
-
 
         mz = vmz;
 
@@ -92,6 +92,23 @@ public class MyPattern2D {
                 texture, //纹理id的数组
                 0  //偏移量
         );
+
+    }
+
+    public void free(){
+        Log.i(TAG,"free() is called");
+
+        GLES30.glDeleteTextures( //删除纹理对象
+                1, //删除纹理id的数量
+                texture, //纹理id的数组
+                0  //偏移量
+        );
+
+        bPos.clear();
+        bPos = null;
+
+        bCoord.clear();
+        bCoord = null;
 
     }
 
@@ -245,4 +262,16 @@ public class MyPattern2D {
         bCoord.put(sCoord);
         bCoord.position(0);
     }
+
+    public boolean getNeedRelease(){
+        Log.i(TAG,"getNeedRelease(): " + isNeedRelease);
+        return isNeedRelease;
+    }
+
+
+    public void setNeedRelease(){
+        Log.i(TAG,"setNeedRelease()");
+        isNeedRelease = true;
+    }
+
 }

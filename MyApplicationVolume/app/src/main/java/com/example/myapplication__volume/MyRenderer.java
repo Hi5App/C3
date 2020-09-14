@@ -248,16 +248,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     //初次渲染画面
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
+        Log.v("onSurfaceCreated:","successfully");
+
         //深蓝
         GLES30.glClearColor(0.098f, 0.098f, 0.439f, 1.0f);
-
-        Log.v("onSurfaceCreated:","successfully");
 
         /*
         init shader program
          */
         MyPattern.initProgram();
         MyPattern2D.initProgram();
+        MyAxis.initProgram();
+        MyDraw.initProgram();
+        MyNavLoc.initProgram();
 
         /*
         init matrix
@@ -289,23 +292,38 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         if (surfaceChanged){
             Log.v(TAG,"---------------   init img when SurfaceChanged  -------------");
             if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD) {
+                if (myPattern != null){
+                    myPattern.free();
+                    myPattern = null;
+                }
+
                 if (ifGame) {
                     myPattern = new MyPattern(width, height, img, mz, MyPattern.Mode.GAME);
                 } else {
                     myPattern = new MyPattern(width, height, img, mz, MyPattern.Mode.NORMAL);
                 }
-//            myPattern.setIfGame(ifGame);
             }
 
-            if (fileType == FileType.PNG || fileType == FileType.JPG)
+            if (fileType == FileType.PNG || fileType == FileType.JPG){
+                if (myPattern2D != null){
+                    myPattern2D.free();
+                    myPattern2D = null;
+                }
                 myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
+            }
 
             if (fileType == FileType.TIF || fileType == FileType.V3draw || fileType == FileType.V3dPBD
                     || fileType == FileType.SWC || fileType == FileType.APO || fileType == FileType.ANO) {
-                myAxis = new MyAxis(mz);
+                if (myAxis == null || myAxis.getNeedRelease()){
+                    if (myAxis != null)
+                        myAxis.free();
+                    myAxis = new MyAxis(mz);
+                }
             }
-            myDraw = new MyDraw();
-            myAnimation = new MyAnimation();
+            if (myDraw == null)
+                myDraw = new MyDraw();
+            if (myAnimation == null)
+                myAnimation = new MyAnimation();
         }
 
 
@@ -326,8 +344,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
-//        Matrix.orthoM(projectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
-
         float ratio = (float) width / height;
         if (fileType == FileType.PNG || fileType == FileType.JPG) {
             if (width > height) {
@@ -409,19 +425,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         if (judgeImg()){
 
-
-//            if (ifGame) {
-//                myPattern = new MyPattern(screen_w, screen_h, img, mz, MyPattern.Mode.GAME);
-//            } else {
-//                myPattern = new MyPattern(screen_w, screen_h, img, mz, MyPattern.Mode.NORMAL);
-//            }
-
             /*
             init the {MyPattern, MyPattern2D, MyAxis, MyDraw, MyAnimation}
             */
-            if (myPattern == null || myPattern2D == null){
+            if (myPattern == null || myPattern2D == null || myPattern.getNeedRelease() || myPattern2D.getNeedRelease()){
                 if (ifFileSupport){
                     if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD) {
+                        if (myPattern != null){
+                            myPattern.free();
+                            myPattern = null;
+                        }
+
                         if (ifGame) {
                             Log.v("MyRenderer","ifGame  ondrawframe");
                             myPattern = new MyPattern(screen_w, screen_h, img, mz, MyPattern.Mode.GAME);
@@ -429,13 +443,21 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                             myPattern = new MyPattern(screen_w, screen_h, img, mz, MyPattern.Mode.NORMAL);
                         }
                     }
-                    if (fileType == FileType.PNG || fileType == FileType.JPG)
+                    if (fileType == FileType.PNG || fileType == FileType.JPG){
+                        if(myPattern2D != null){
+                            myPattern2D.free();
+                            myPattern = null;
+                        }
                         myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
+                    }
 
                     if (fileType == FileType.TIF || fileType == FileType.V3draw || fileType == FileType.V3dPBD ||
                             fileType == FileType.SWC || fileType == FileType.APO || fileType == FileType.ANO){
-                        if (myAxis == null)
+                        if (myAxis == null || myAxis.getNeedRelease()){
+                            if (myAxis != null)
+                                myAxis.free();
                             myAxis = new MyAxis(mz);
+                        }
                     }
                     if (myDraw == null)
                         myDraw = new MyDraw();
@@ -726,7 +748,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
         }else {
-            Toast.makeText(context_myrenderer,"Something Wrong When Renderer, reload File Please !",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(),"Something Wrong When Renderer, reload File Please !",Toast.LENGTH_SHORT).show();
         }
 
 
@@ -875,15 +897,16 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void SetPath(String message){
 
+        cur_scale = 1.0f;
         filepath = message;
         SetFileType();
 
-        myAxis = null;
-        cur_scale = 1.0f;
+        if (myAxis != null){
+            myAxis.setNeedRelease();
+        }
 
         curSwcList.clear();
         markerList.clear();
-//        MarkerList_loaded.clear();
 
         if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD){
             Log.v(TAG,"Before setImage()");
@@ -1839,10 +1862,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Log.v(TAG,"Before myPattern.free()");
 
         if (myPattern != null){
-            Log.v(TAG,"myPattern.free()");
-            myPattern.free();
+            myPattern.setNeedRelease();
         }
-        myPattern = null;
+
         grayscale =  img.getData();
 
         data_length = img.getDatatype().ordinal();
@@ -4738,14 +4760,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD) {
 
                     //init MyPattern
-                    if (screen_w<0 || screen_h<0 ||img == null || mz == null)
+                    if (screen_w<0 || screen_h<0 ||img == null || mz == null){
+                        Log.v(TAG,"judgeImg:   screen_w<0 || screen_h<0 ||img == null || mz == null");
                         return false;
+                    }
                 }
                 if (fileType == FileType.PNG || fileType == FileType.JPG){
 
                     //init MyPattern2D
-                    if (bitmap2D == null || sz[0]<0 || sz[1]<0 || mz == null)
+                    if (bitmap2D == null || sz[0]<0 || sz[1]<0 || mz == null){
+                        Log.v(TAG,"judgeImg:   bitmap2D == null || sz[0]<0 || sz[1]<0 || mz == null");
                         return false;
+                    }
                 }
 
                 if (fileType == FileType.TIF || fileType == FileType.V3draw || fileType == FileType.V3dPBD ||

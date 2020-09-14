@@ -10,9 +10,9 @@ import java.nio.ShortBuffer;
 
 public class MyNavLoc {
 
-    private final int mProgram_axis;
-    private final int mProgram_border_img;
-    private final int mProgram_border_block;
+    private static int mProgram_axis;
+    private static int mProgram_border_img;
+    private static int mProgram_border_block;
 
 
     private FloatBuffer vertexBuffer_axis;
@@ -55,7 +55,7 @@ public class MyNavLoc {
 
     //draw the axis
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    private final String vertexShaderCode_axis =
+    private static final String vertexShaderCode_axis =
             "#version 300 es\n" +
                     "layout (location = 0) in vec4 vPosition;\n" +
                     "layout (location = 1) in vec4 vColor;\n" +
@@ -72,7 +72,7 @@ public class MyNavLoc {
                     "}\n";
 
 
-    private final String fragmentShaderCode_axis =
+    private static final String fragmentShaderCode_axis =
             "#version 300 es\n" +
                     "precision mediump float;\n" +
 
@@ -87,7 +87,7 @@ public class MyNavLoc {
 
     //draw the border of img
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    private final String vertexShaderCode_border_img =
+    private static final String vertexShaderCode_border_img =
             "#version 300 es\n" +
                     "layout (location = 0) in vec4 vPosition;\n" +
 
@@ -101,7 +101,7 @@ public class MyNavLoc {
                     "}\n";
 
 
-    private final String fragmentShaderCode_border_img =
+    private static final String fragmentShaderCode_border_img =
             "#version 300 es\n" +
                     "precision mediump float;\n" +
 
@@ -114,7 +114,7 @@ public class MyNavLoc {
 
     //draw the border of block
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    private final String vertexShaderCode_border_block =
+    private static final String vertexShaderCode_border_block =
             "#version 300 es\n" +
                     "layout (location = 0) in vec4 vPosition;\n" +
 
@@ -128,7 +128,7 @@ public class MyNavLoc {
                     "}\n";
 
 
-    private final String fragmentShaderCode_border_block =
+    private static final String fragmentShaderCode_border_block =
             "#version 300 es\n" +
                     "precision mediump float;\n" +
 
@@ -139,8 +139,7 @@ public class MyNavLoc {
                     "}\n";
 
 
-    public MyNavLoc(float[] dim, float[] block_pos){
-
+    public static void initProgram(){
         mProgram_axis = initProgram(vertexShaderCode_axis, fragmentShaderCode_axis);
         Log.v("mProgram_line", Integer.toString(mProgram_axis));
 
@@ -149,6 +148,9 @@ public class MyNavLoc {
 
         mProgram_border_block = initProgram(vertexShaderCode_border_block, fragmentShaderCode_border_block);
         Log.v("mProgram_border", Integer.toString(mProgram_border_block));
+    }
+
+    public MyNavLoc(float[] dim, float[] block_pos){
 
         setPoints(dim, block_pos);
 
@@ -363,7 +365,7 @@ public class MyNavLoc {
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //创建着色器程序
-    private int initProgram(String vertShaderCode, String fragmShaderCode){
+    private static int initProgram(String vertShaderCode, String fragmShaderCode){
 
         //加载着色器
         int vertexShader = loadShader(GLES30.GL_VERTEX_SHADER,

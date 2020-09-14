@@ -1484,6 +1484,9 @@ public class Remote_Socket extends Socket {
         block_offset[1] -= boundingbox_arr_i[2];
         block_offset[2] -= boundingbox_arr_i[4];
 
+        Log.i(TAG,Arrays.toString(boundingbox_arr_i));
+        Log.i(TAG,Arrays.toString(block_offset));
+
         return new float[]{boundingbox_arr_i[1] - boundingbox_arr_i[0], boundingbox_arr_i[3] - boundingbox_arr_i[2], boundingbox_arr_i[5] - boundingbox_arr_i[4]};
     }
 
