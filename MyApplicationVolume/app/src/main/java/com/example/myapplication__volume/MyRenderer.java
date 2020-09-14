@@ -520,8 +520,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                          System.out.println("in draw line--------------"+j);
 //                          System.out.println("type: "+parent.type);
                                 myDraw.drawLine(finalMatrix, lines, (int) parent.type);
-                                if (ifGame)
-                                    myDraw.drawLine(finalSmallMapMatrix, lines, (int)parent.type);
+                                if (ifGame) {
+                                    float x = lines.get(0) / mz[0] - 0.5f;
+                                    float y = lines.get(1) / mz[1] - 0.5f;
+                                    float z = lines.get(2) / mz[2] - 0.5f;
+                                    if (Math.sqrt((double)(x * x + y * y + z * z)) < 1) {
+                                        myDraw.drawLine(finalSmallMapMatrix, lines, (int) parent.type);
+                                    }
+                                }
                                 lines.clear();
                             }
                         }
