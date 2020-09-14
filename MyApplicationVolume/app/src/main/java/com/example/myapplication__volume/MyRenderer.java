@@ -609,6 +609,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
                 }
 
+//                if (ifGame){
+//                    Log.v("onDrawFrame", "DrawGameModel");
+//                    float [] position = gameCharacter.getPosition();
+//                    float [] positionModel = VolumetoModel(position);
+//                    Log.v("onDrawFrame", Arrays.toString(positionModel));
+//                    myDraw.drawGameModel(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType);
+//                    myDraw.drawMarker(finalSmallMapMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
+//                }
+
 
                 /*
                 draw white trace of line that the user paint

@@ -36,8 +36,11 @@ public class MyPattern{
 
 
     private FloatBuffer vertexBuffer;
+    private FloatBuffer vertexPreBuffer;
     private FloatBuffer colorBuffer;
+    private FloatBuffer colorPreBuffer;
     private ShortBuffer drawListBuffer;
+    private ShortBuffer drawListPreBuffer;
     private FloatBuffer dimBuffer;
 
     private FloatBuffer vertexBuffer_curve;
@@ -104,7 +107,9 @@ public class MyPattern{
     private Image4DSimple image;
 
     private float[] vertexPoints;
+    private float[] vertexPointsPre;
     private float[] Colors;
+    private float[] ColorsPre;
     private float[] dim;
 
     private int threshold;
@@ -198,6 +203,17 @@ public class MyPattern{
 
 
     private final short[] drawlist = {
+
+            0, 1, 2,      0, 2, 3,    // Front face
+            4, 5, 6,      4, 6, 7,    // Back face
+            8, 9, 10,     8, 10, 11,  // Top face
+            12, 13, 14,   12, 14, 15, // Bottom face
+            16, 17, 18,   16, 18, 19, // Right face
+            20, 21, 22,   20, 22, 23  // Left face
+
+    };
+
+    private final short[] drawlistPre = {
 
             0, 1, 2,      0, 2, 3,    // Front face
             4, 5, 6,      4, 6, 7,    // Back face
@@ -845,6 +861,44 @@ public class MyPattern{
                     0.0f, mz[1], 0.0f,
             };
 
+        vertexPointsPre = new float[]{
+                // Front face
+                0.0f,  0.0f,  mz[2],
+                mz[0], 0.0f,  mz[2],
+                mz[0], mz[1], mz[2],
+                0.0f,  mz[1], mz[2],
+
+                // Back face
+                0.0f,  0.0f,  0.0f,
+                0.0f,  mz[1], 0.0f,
+                mz[0], mz[1], 0.0f,
+                mz[0], 0.0f,  0.0f,
+
+                // Top face
+                0.0f, mz[1],  0.0f,
+                0.0f, mz[1],  mz[2],
+                mz[0], mz[1], mz[2],
+                mz[0], mz[1], 0.0f,
+
+                // Bottom face
+                0.0f,  0.0f, 0.0f,
+                mz[0], 0.0f, 0.0f,
+                mz[0], 0.0f, mz[2],
+                0.0f,  0.0f, mz[2],
+
+                // Right face
+                mz[0], 0.0f,  0.0f,
+                mz[0], mz[1], 0.0f,
+                mz[0], mz[1], mz[2],
+                mz[0], 0.0f,  mz[2],
+
+                // Left face
+                0.0f, 0.0f,  0.0f,
+                0.0f, 0.0f,  mz[2],
+                0.0f, mz[1], mz[2],
+                0.0f, mz[1], 0.0f,
+        };
+
 //        vertexPoints = new float[]{
 //                // Back face
 //                0.0f,  0.0f,  0.0f,
@@ -907,6 +961,44 @@ public class MyPattern{
                     0.0f, mz[1], mz[2], 1.0f,
                     0.0f, mz[1], 0.0f,  1.0f,
             };
+
+            ColorsPre = new float[]{
+                // Front face
+                0.0f,  0.0f,  mz[2], 1.0f,
+                mz[0], 0.0f,  mz[2], 1.0f,
+                mz[0], mz[1], mz[2], 1.0f,
+                0.0f,  mz[1], mz[2], 1.0f,
+
+                // Back face
+                0.0f,  0.0f,  0.0f, 1.0f,
+                0.0f,  mz[1], 0.0f, 1.0f,
+                mz[0], mz[1], 0.0f, 1.0f,
+                mz[0], 0.0f,  0.0f, 1.0f,
+
+                // Top face
+                0.0f, mz[1],  0.0f,  1.0f,
+                0.0f, mz[1],  mz[2], 1.0f,
+                mz[0], mz[1], mz[2], 1.0f,
+                mz[0], mz[1], 0.0f,  1.0f,
+
+                // Bottom face
+                0.0f,  0.0f, 0.0f,  1.0f,
+                mz[0], 0.0f, 0.0f,  1.0f,
+                mz[0], 0.0f, mz[2], 1.0f,
+                0.0f,  0.0f, mz[2], 1.0f,
+
+                // Right face
+                mz[0], 0.0f,  0.0f,  1.0f,
+                mz[0], mz[1], 0.0f,  1.0f,
+                mz[0], mz[1], mz[2], 1.0f,
+                mz[0], 0.0f,  mz[2], 1.0f,
+
+                // Left face
+                0.0f, 0.0f,  0.0f,  1.0f,
+                0.0f, 0.0f,  mz[2], 1.0f,
+                0.0f, mz[1], mz[2], 1.0f,
+                0.0f, mz[1], 0.0f,  1.0f,
+        };
 
 //            Colors = new float[]{
 //                    // Back face
@@ -1174,7 +1266,7 @@ public class MyPattern{
 
 
         // first pass draw
-        drawCube(mvpMatrix, translateAfterMatrix, mProgram_simple);
+        drawCubePre(mvpMatrix, mProgram_simple);
 
 //        Log.v("draw","success!!!!!!!!!!");
 
@@ -1239,7 +1331,7 @@ public class MyPattern{
         // 将纹理单元传递片段着色器的uBackCoord
         GLES30.glUniform1i(GLES30.glGetUniformLocation(mProgram_raycasting,"uBackCoord"), 1);
 
-        drawCube(mvpMatrix, translateAfterMatrix, mProgram_raycasting);
+        drawCube(mvpMatrix, mProgram_raycasting);
 
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,0); //解除绑定指定的纹理id
         GLES30.glBindTexture(GLES30.GL_TEXTURE_3D,0); //解除绑定指定的纹理id
@@ -2221,7 +2313,40 @@ public class MyPattern{
 
 
 
-    public void drawCube(float[] mvpMatrix, float[] translateAfterMatrix, int mProgram) {
+    public void drawCubePre(float[] mvpMatrix, int mProgram) {
+
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
+
+
+//        Log.v("mProgram()",Integer.toString(mProgram));
+//
+//        Log.v("before gethandle","success!!!!!!!!!!");
+
+        // get the common handle
+        getHandle(mProgram);
+
+//        Log.v("gethandle","success!!!!!!!!!!");
+
+
+        // Pass the projection and view transformation to the shader
+        GLES30.glUniformMatrix4fv(vPMatrixHandle, 1, false, mvpMatrix, 0);
+//        GLES30.glUniformMatrix4fv(trAMatrixHandle, 1, false, translateAfterMatrix, 0);
+        // 准备坐标数据
+        GLES30.glVertexAttribPointer(positionHandle, 3, GLES30.GL_FLOAT, false, 0, vertexPreBuffer);
+
+        // 准备颜色数据
+        GLES30.glVertexAttribPointer(colorHandle, 4, GLES30.GL_FLOAT, false, 0, colorPreBuffer);
+
+        // 通过索引来绘制
+        GLES30.glDrawElements(GLES30.GL_TRIANGLES, 36, GLES30.GL_UNSIGNED_SHORT, drawListPreBuffer);
+
+        // 禁止顶点数组的句柄
+        GLES30.glDisableVertexAttribArray(positionHandle);
+        GLES30.glDisableVertexAttribArray(colorHandle);
+
+    }
+
+    public void drawCube(float[] mvpMatrix, int mProgram) {
 
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
 
@@ -2307,6 +2432,13 @@ public class MyPattern{
         vertexBuffer.put(vertexPoints);
         vertexBuffer.position(0);
 
+        vertexPreBuffer = ByteBuffer.allocateDirect(vertexPointsPre.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        //传入指定的坐标数据
+        vertexPreBuffer.put(vertexPointsPre);
+        vertexPreBuffer.position(0);
+
 
         //分配内存空间,每个浮点型占4字节空间
         colorBuffer = ByteBuffer.allocateDirect(Colors.length * 4)
@@ -2315,6 +2447,14 @@ public class MyPattern{
         //传入指定的颜色数据
         colorBuffer.put(Colors);
         colorBuffer.position(0);
+
+        //分配内存空间,每个浮点型占4字节空间
+        colorPreBuffer = ByteBuffer.allocateDirect(ColorsPre.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        //传入指定的颜色数据
+        colorPreBuffer.put(ColorsPre);
+        colorPreBuffer.position(0);
 
 
         //分配内存空间,每个short型占4字节空间
@@ -2325,6 +2465,13 @@ public class MyPattern{
         drawListBuffer.put(drawlist);
         drawListBuffer.position(0);
 
+        //分配内存空间,每个short型占4字节空间
+        drawListPreBuffer = ByteBuffer.allocateDirect(drawlistPre.length * 2)
+                .order(ByteOrder.nativeOrder())
+                .asShortBuffer();
+        //传入指定的索引数据
+        drawListPreBuffer.put(drawlistPre);
+        drawListPreBuffer.position(0);
 
         //分配内存空间,每个浮点型占4字节空间
         dimBuffer = ByteBuffer.allocateDirect(dim.length * 4)

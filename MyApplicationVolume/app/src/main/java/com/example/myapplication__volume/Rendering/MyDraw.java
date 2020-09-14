@@ -20,6 +20,56 @@ public class MyDraw {
             {1f,1f,0f}
     } ;
 
+    private final float [] modelVertex = {
+        0.020f, 0.000f, 0.010f,
+        0.007f, 0.000f, 0.010f,
+        0.007f, 0.002f, 0.010f,
+
+        0.007f, 0.002f, 0.010f,
+        -0.007f, 0.002f, 0.010f,
+        0.000f, 0.010f, 0.010f,
+
+        -0.007f, 0.002f, 0.010f,
+        -0.007f, 0.000f, 0.010f,
+        -0.020f, 0.000f, 0.010f,
+
+        0.007f, 0.000f, 0.010f,
+        0.007f, 0.002f, 0.010f,
+        -0.007f, 0.002f, 0.010f,
+
+        0.007f, 0.000f, 0.010f,
+        -0.007f, 0.000f, 0.010f,
+        -0.007f, 0.002f, 0.010f,
+
+        0.000f, 0.000f, -0.010f,
+        0.007f, 0.000f, 0.010f,
+        -0.007f, 0.000f, 0.010f,
+
+        0.000f, 0.000f, -0.010f,
+        0.007f, 0.000f, 0.010f,
+        0.020f, 0.000f, 0.010f,
+
+        0.000f, 0.000f, -0.010f,
+        0.020f, 0.000f, 0.010f,
+        0.007f, 0.002f, 0.010f,
+
+        0.000f, 0.000f, -0.010f,
+        0.007f, 0.002f, 0.010f,
+        0.000f, 0.010f, 0.010f,
+
+        0.000f, 0.000f, -0.010f,
+        0.000f, 0.010f, 0.010f,
+        -0.007f, 0.002f, 0.010f,
+
+        0.000f, 0.000f, -0.010f,
+        -0.007f, 0.002f, 0.010f,
+        -0.020f, 0.000f, 0.010f,
+
+        0.000f, 0.000f, -0.010f,
+        -0.020f, 0.000f, 0.010f,
+        -0.007f, 0.000f, 0.010f,
+    };
+
     float n = 100;
 //    final float radius = 0.1f;
 //    final float radius = 0.02f;
@@ -166,6 +216,31 @@ public class MyDraw {
 
     }
 
+    private void BufferSet_GameModel(float x, float y, float z, int type){
+
+
+
+        // for the marker
+        //分配内存空间,每个浮点型占4字节空间
+        vertexBuffer_marker = ByteBuffer.allocateDirect(modelVertex.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        //传入指定的坐标数据
+        vertexBuffer_marker.put(modelVertex);
+        vertexBuffer_marker.position(0);
+
+        colorPoints_marker = new float[modelVertex.length];//colormap[type];
+        for(int i=0; i<colorPoints_marker.length; i++){
+            colorPoints_marker[i] = colormap[type%7][i%3];
+        }
+        colorBuffer_marker = ByteBuffer.allocateDirect(colorPoints_marker.length*4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        colorBuffer_marker.put(colorPoints_marker);
+        colorBuffer_marker.position(0);
+
+    }
+
 
     private void BufferSet_Marker(float x, float y, float z, int type, float r){
 
@@ -291,6 +366,68 @@ public class MyDraw {
 //
 //    }
 
+    public void drawGameModel(float[] mvpMatrix, float[] modelMatrix, float x, float y, float z, int type){
+//        System.out.println("set marker");
+
+        BufferSet_GameModel(x, y, z, type);
+
+//        System.out.println("set marker end");
+
+        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
+
+        GLES30.glUseProgram(mProgram_marker);
+
+
+        //准备坐标数据
+        GLES30.glVertexAttribPointer(vertexPoints_handle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_marker);
+        //启用顶点的句柄
+        GLES30.glEnableVertexAttribArray(vertexPoints_handle);
+
+
+        //准备f法向量数据
+        GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker);
+
+        //准备f法向量数据
+        // GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker);
+        //启用顶点的句柄
+        GLES30.glEnableVertexAttribArray(normalizePoints_handle);
+
+        //准备颜色数据
+        GLES30.glVertexAttribPointer(colorPoints_handle,3,GLES30.GL_FLOAT, false, 0,colorBuffer_marker);
+        GLES30.glEnableVertexAttribArray(colorPoints_handle);
+
+
+
+
+        // get handle to vertex shader's uMVPMatrix member
+        int vPMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_marker,"uMVPMatrix");
+
+        // Pass the projection and view transformation to the shader
+        GLES30.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
+
+
+        // get handle to vertex shader's uMVPMatrix member
+        int normalizeMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_marker,"uNormalMatrix");
+
+        // Pass the projection and view transformation to the shader
+        GLES30.glUniformMatrix4fv(normalizeMatrixHandle_marker, 1, false, modelMatrix, 0);
+
+
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, modelMatrix.length/3);
+
+//        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length/3);
+
+
+        //禁止顶点数组的句柄
+        GLES30.glDisableVertexAttribArray(vertexPoints_handle);
+        GLES30.glDisableVertexAttribArray(normalizePoints_handle);
+
+        GLES30.glDisableVertexAttribArray(colorPoints_handle);
+
+
+        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+
+    }
 
     public void drawMarker(float[] mvpMatrix, float[] modelMatrix, float x, float y, float z, int type, float radius){
 //        System.out.println("set marker");
