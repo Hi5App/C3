@@ -222,15 +222,20 @@ public class MyDraw {
 
     private void BufferSet_GameModel(float x, float y, float z, int type){
 
-
+        float [] vertexAfterMove = new float[modelVertex.length];
+        for (int i = 0; i < modelVertex.length / 3; i++){
+            vertexAfterMove[i * 3] = modelVertex[i * 3] * 10 + x;
+            vertexAfterMove[i * 3 + 1] = modelVertex[i * 3 + 1] * 10 + y;
+            vertexAfterMove[i * 3 + 2] = modelVertex[i * 3 + 2] * 10 + z;
+        }
 
         // for the marker
         //分配内存空间,每个浮点型占4字节空间
-        vertexBuffer_marker = ByteBuffer.allocateDirect(modelVertex.length * 4)
+        vertexBuffer_marker = ByteBuffer.allocateDirect(vertexAfterMove.length * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
         //传入指定的坐标数据
-        vertexBuffer_marker.put(modelVertex);
+        vertexBuffer_marker.put(vertexAfterMove);
         vertexBuffer_marker.position(0);
 
         colorPoints_marker = new float[modelVertex.length];//colormap[type];
