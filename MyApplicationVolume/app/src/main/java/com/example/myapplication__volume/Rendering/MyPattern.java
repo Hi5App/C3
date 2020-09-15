@@ -111,86 +111,6 @@ public class MyPattern{
 //    private float threshold = (float)(myrenderer.threshold) / 255;
 
 
-//    private final float[] vertexPoints={
-//            // Front face
-//            0.0f, 0.0f, 1.0f,
-//            1.0f, 0.0f, 1.0f,
-//            1.0f, 1.0f, 1.0f,
-//            0.0f, 1.0f, 1.0f,
-//
-//            // Back face
-//            0.0f, 0.0f, 0.0f,
-//            0.0f, 1.0f, 0.0f,
-//            1.0f, 1.0f, 0.0f,
-//            1.0f, 0.0f, 0.0f,
-//
-//            // Top face
-//            0.0f, 1.0f, 0.0f,
-//            0.0f, 1.0f, 1.0f,
-//            1.0f, 1.0f, 1.0f,
-//            1.0f, 1.0f, 0.0f,
-//
-//            // Bottom face
-//            0.0f, 0.0f, 0.0f,
-//            1.0f, 0.0f, 0.0f,
-//            1.0f, 0.0f, 1.0f,
-//            0.0f, 0.0f, 1.0f,
-//
-//            // Right face
-//            1.0f, 0.0f, 0.0f,
-//            1.0f, 1.0f, 0.0f,
-//            1.0f, 1.0f, 1.0f,
-//            1.0f, 0.0f, 1.0f,
-//
-//            // Left face
-//            0.0f, 0.0f, 0.0f,
-//            0.0f, 0.0f, 1.0f,
-//            0.0f, 1.0f, 1.0f,
-//            0.0f, 1.0f, 0.0f,
-//    };
-//
-//
-//
-//    private final float[] Colors={
-//            // Front face
-//            0.0f, 0.0f, 1.0f, 1.0f,
-//            1.0f, 0.0f, 1.0f, 1.0f,
-//            1.0f, 1.0f, 1.0f, 1.0f,
-//            0.0f, 1.0f, 1.0f, 1.0f,
-//
-//            // Back face
-//            0.0f, 0.0f, 0.0f, 1.0f,
-//            0.0f, 1.0f, 0.0f, 1.0f,
-//            1.0f, 1.0f, 0.0f, 1.0f,
-//            1.0f, 0.0f, 0.0f, 1.0f,
-//
-//            // Top face
-//            0.0f, 1.0f, 0.0f, 1.0f,
-//            0.0f, 1.0f, 1.0f, 1.0f,
-//            1.0f, 1.0f, 1.0f, 1.0f,
-//            1.0f, 1.0f, 0.0f, 1.0f,
-//
-//            // Bottom face
-//            0.0f, 0.0f, 0.0f, 1.0f,
-//            1.0f, 0.0f, 0.0f, 1.0f,
-//            1.0f, 0.0f, 1.0f, 1.0f,
-//            0.0f, 0.0f, 1.0f, 1.0f,
-//
-//            // Right face
-//            1.0f, 0.0f, 0.0f, 1.0f,
-//            1.0f, 1.0f, 0.0f, 1.0f,
-//            1.0f, 1.0f, 1.0f, 1.0f,
-//            1.0f, 0.0f, 1.0f, 1.0f,
-//
-//            // Left face
-//            0.0f, 0.0f, 0.0f, 1.0f,
-//            0.0f, 0.0f, 1.0f, 1.0f,
-//            0.0f, 1.0f, 1.0f, 1.0f,
-//            0.0f, 1.0f, 0.0f, 1.0f,
-//    };
-
-
-
     private final short[] drawlist = {
 
             0, 1, 2,      0, 2, 3,    // Front face
@@ -214,28 +134,6 @@ public class MyPattern{
     };
 
     private int drawlistLength = 36;
-
-//    private final short[] drawlist = {
-//            0, 1, 2,      0, 2, 3,    // Front face
-//            4, 5, 6,      4, 6, 7,    // Back face
-//            8, 9, 10,     8, 10, 11,  // Top face
-//            12, 13, 14,
-//            1, 12, 13,    2, 13, 14,    3, 12, 14
-//    };
-
-
-
-
-
-//    private final float[] vertexPoints_curve={
-//            0.0f, 0.5f, -1.0f,
-//            -0.5f, -0.5f, -1.0f,
-//            0.5f, -0.5f, -1.0f
-//    };
-//
-
-
-
 
 
     private final float[] vertexPoints_square={
@@ -726,8 +624,8 @@ public class MyPattern{
 //        Log.v("mProgram_threshold", Integer.toString(mProgram_threshold));
 
 
-        mProgram_curve = initProgram(vertexShaderCode_curve, fragmentShaderCode_curve);
-        Log.v("mProgram_curve", Integer.toString(mProgram_curve));
+//        mProgram_curve = initProgram(vertexShaderCode_curve, fragmentShaderCode_curve);
+//        Log.v("mProgram_curve", Integer.toString(mProgram_curve));
     }
 
     public MyPattern(int width, int height, Image4DSimple img, float[] mz, Mode m) {
@@ -740,9 +638,6 @@ public class MyPattern{
 
         //设置一下buffer
         BufferSet();
-
-//        //设置文件路径
-//        SetPath(filepath);
 
         //加载纹理
         try {
@@ -876,31 +771,6 @@ public class MyPattern{
                 0.0f, mz[1], 0.0f,
         };
 
-//        vertexPoints = new float[]{
-//                // Back face
-//                0.0f,  0.0f,  0.0f,
-//                0.0f,  mz[1], 0.0f,
-//                mz[0], mz[1], 0.0f,
-//                mz[0], 0.0f,  0.0f,
-//
-//                // Top face
-//                0.0f, mz[1],  0.0f,
-//                0.0f, mz[1],  mz[2],
-//                mz[0], mz[1], mz[2],
-//                mz[0], mz[1], 0.0f,
-//
-//                // Right face
-//                mz[0], 0.0f,  0.0f,
-//                mz[0], mz[1], 0.0f,
-//                mz[0], mz[1], mz[2],
-//                mz[0], 0.0f,  mz[2],
-//
-//                //
-//                0.0f, 0.0f, 0.0f,
-//                0.0f, mz[1], mz[2],
-//                mz[0], 0, mz[2],
-//        };
-
             Colors= new float[]{
                     // Front face
                     0.0f,  0.0f,  mz[2], 1.0f,
@@ -977,151 +847,6 @@ public class MyPattern{
                 0.0f, mz[1], 0.0f,  1.0f,
         };
 
-//            Colors = new float[]{
-//                    // Back face
-//                    0.0f,  0.0f,  0.0f, 1.0f,
-//                    0.0f,  mz[1], 0.0f, 1.0f,
-//                    mz[0], mz[1], 0.0f, 1.0f,
-//                    mz[0], 0.0f,  0.0f, 1.0f,
-//
-//                    // Top face
-//                    0.0f, mz[1],  0.0f, 1.0f,
-//                    0.0f, mz[1],  mz[2], 1.0f,
-//                    mz[0], mz[1], mz[2], 1.0f,
-//                    mz[0], mz[1], 0.0f, 1.0f,
-//
-//                    // Right face
-//                    mz[0], 0.0f,  0.0f, 1.0f,
-//                    mz[0], mz[1], 0.0f, 1.0f,
-//                    mz[0], mz[1], mz[2], 1.0f,
-//                    mz[0], 0.0f,  mz[2], 1.0f,
-//
-//                    //
-//                    0.0f, 0.0f, 0.0f, 1.0f,
-//                    0.0f, mz[1], mz[2], 1.0f,
-//                    mz[0], 0, mz[2], 1.0f,
-//            };
-
-//        Colors= new float[]{
-//                // Front face
-//                0.0f, 0.0f, 1.0f, 1.0f,
-//                1.0f, 0.0f, 1.0f, 1.0f,
-//                1.0f, 1.0f, 1.0f, 1.0f,
-//                0.0f, 1.0f, 1.0f, 1.0f,
-//
-//                // Back face
-//                0.0f, 0.0f, 0.0f, 1.0f,
-//                0.0f, 1.0f, 0.0f, 1.0f,
-//                1.0f, 1.0f, 0.0f, 1.0f,
-//                1.0f, 0.0f, 0.0f, 1.0f,
-//
-//                // Top face
-//                0.0f, 1.0f, 0.0f, 1.0f,
-//                0.0f, 1.0f, 1.0f, 1.0f,
-//                1.0f, 1.0f, 1.0f, 1.0f,
-//                1.0f, 1.0f, 0.0f, 1.0f,
-//
-//                // Bottom face
-//                0.0f, 0.0f, 0.0f, 1.0f,
-//                1.0f, 0.0f, 0.0f, 1.0f,
-//                1.0f, 0.0f, 1.0f, 1.0f,
-//                0.0f, 0.0f, 1.0f, 1.0f,
-//
-//                // Right face
-//                1.0f, 0.0f, 0.0f, 1.0f,
-//                1.0f, 1.0f, 0.0f, 1.0f,
-//                1.0f, 1.0f, 1.0f, 1.0f,
-//                1.0f, 0.0f, 1.0f, 1.0f,
-//
-//                // Left face
-//                0.0f, 0.0f, 0.0f, 1.0f,
-//                0.0f, 0.0f, 1.0f, 1.0f,
-//                0.0f, 1.0f, 1.0f, 1.0f,
-//                0.0f, 1.0f, 0.0f, 1.0f,
-//        };
-
-    }
-
-
-    private void setPoint_2(){
-
-            vertexPoints= new float[]{
-                    // Front face
-                    0.0f, 0.0f, 1.0f,
-                    1.0f, 0.0f, 1.0f,
-                    1.0f, 1.0f, 1.0f,
-                    0.0f, 1.0f, 1.0f,
-
-                    // Back face
-                    0.0f, 0.0f, 0.0f,
-                    0.0f, 1.0f, 0.0f,
-                    1.0f, 1.0f, 0.0f,
-                    1.0f, 0.0f, 0.0f,
-
-                    // Top face
-                    0.0f, 1.0f, 0.0f,
-                    0.0f, 1.0f, 1.0f,
-                    1.0f, 1.0f, 1.0f,
-                    1.0f, 1.0f, 0.0f,
-
-                    // Bottom face
-                    0.0f, 0.0f, 0.0f,
-                    1.0f, 0.0f, 0.0f,
-                    1.0f, 0.0f, 1.0f,
-                    0.0f, 0.0f, 1.0f,
-
-                    // Right face
-                    1.0f, 0.0f, 0.0f,
-                    1.0f, 1.0f, 0.0f,
-                    1.0f, 1.0f, 1.0f,
-                    1.0f, 0.0f, 1.0f,
-
-                    // Left face
-                    0.0f, 0.0f, 0.0f,
-                    0.0f, 0.0f, 1.0f,
-                    0.0f, 1.0f, 1.0f,
-                    0.0f, 1.0f, 0.0f,
-            };
-
-
-
-            Colors= new float[]{
-                    // Front face
-                    0.0f, 0.0f, 1.0f, 1.0f,
-                    1.0f, 0.0f, 1.0f, 1.0f,
-                    1.0f, 1.0f, 1.0f, 1.0f,
-                    0.0f, 1.0f, 1.0f, 1.0f,
-
-                    // Back face
-                    0.0f, 0.0f, 0.0f, 1.0f,
-                    0.0f, 1.0f, 0.0f, 1.0f,
-                    1.0f, 1.0f, 0.0f, 1.0f,
-                    1.0f, 0.0f, 0.0f, 1.0f,
-
-                    // Top face
-                    0.0f, 1.0f, 0.0f, 1.0f,
-                    0.0f, 1.0f, 1.0f, 1.0f,
-                    1.0f, 1.0f, 1.0f, 1.0f,
-                    1.0f, 1.0f, 0.0f, 1.0f,
-
-                    // Bottom face
-                    0.0f, 0.0f, 0.0f, 1.0f,
-                    1.0f, 0.0f, 0.0f, 1.0f,
-                    1.0f, 0.0f, 1.0f, 1.0f,
-                    0.0f, 0.0f, 1.0f, 1.0f,
-
-                    // Right face
-                    1.0f, 0.0f, 0.0f, 1.0f,
-                    1.0f, 1.0f, 0.0f, 1.0f,
-                    1.0f, 1.0f, 1.0f, 1.0f,
-                    1.0f, 0.0f, 1.0f, 1.0f,
-
-                    // Left face
-                    0.0f, 0.0f, 0.0f, 1.0f,
-                    0.0f, 0.0f, 1.0f, 1.0f,
-                    0.0f, 1.0f, 1.0f, 1.0f,
-                    0.0f, 1.0f, 0.0f, 1.0f,
-            };
     }
 
 
@@ -1320,33 +1045,33 @@ public class MyPattern{
 
 
 
-
-    //用来画线的时候生成轨迹
-    public void draw_points(float [] linePoints, int num){
-
-        GLES30.glUseProgram(mProgram_curve);
-
-        BufferSet_Curve(linePoints);
-
-        //准备坐标数据
-        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_curve);
-        //启用顶点的句柄
-        GLES30.glEnableVertexAttribArray(0);
-
-        //绘制三个点
-        GLES30.glDrawArrays(GLES30.GL_POINTS, 0, num);
-
-        //绘制直线
-//        GLES30.glDrawArrays(GLES30.GL_LINE_STRIP, 0, 2);
-//        GLES30.glLineWidth(10);
-
-//        //绘制三角形
-//        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 3);
-
-        //禁止顶点数组的句柄
-        GLES30.glDisableVertexAttribArray(0);
-
-    }
+//
+//    //用来画线的时候生成轨迹
+//    public void draw_points(float [] linePoints, int num){
+//
+//        GLES30.glUseProgram(mProgram_curve);
+//
+//        BufferSet_Curve(linePoints);
+//
+//        //准备坐标数据
+//        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_curve);
+//        //启用顶点的句柄
+//        GLES30.glEnableVertexAttribArray(0);
+//
+//        //绘制三个点
+//        GLES30.glDrawArrays(GLES30.GL_POINTS, 0, num);
+//
+//        //绘制直线
+////        GLES30.glDrawArrays(GLES30.GL_LINE_STRIP, 0, 2);
+////        GLES30.glLineWidth(10);
+//
+////        //绘制三角形
+////        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 3);
+//
+//        //禁止顶点数组的句柄
+//        GLES30.glDisableVertexAttribArray(0);
+//
+//    }
 
 
 
@@ -1597,6 +1322,7 @@ public class MyPattern{
                     imageBuffer
             );
             imageBuffer.clear();
+            imageBuffer = null;
         }else if (data_length == 2){
             short [] image_data = getIntensity_short3d(data_src);
 //            imageShortBuffer = ShortBuffer.allocate(image_data.length)
@@ -1617,6 +1343,8 @@ public class MyPattern{
                     GLES30.GL_UNSIGNED_SHORT,
                     imageShortBuffer
             );
+            imageShortBuffer.clear();
+            imageShortBuffer = null;
         }else if (data_length == 4){
             int [] image_data = getIntensity_int3d(data_src);
             imageIntBuffer = IntBuffer.wrap(image_data);
@@ -1633,6 +1361,8 @@ public class MyPattern{
                     GLES30.GL_UNSIGNED_INT,
                     imageIntBuffer
             );
+            imageIntBuffer.clear();
+            imageIntBuffer = null;
         }
 
         GLES30.glBindTexture(GLES30.GL_TEXTURE_3D,0);
@@ -1672,6 +1402,7 @@ public class MyPattern{
                     imageDSBuffer
             );
             imageDSBuffer.clear();
+            imageDSBuffer = null;
         }else if (data_length == 2){
             short [] image_data = getIntensity_short3dDownSample(data_src);
 //            imageShortBuffer = ShortBuffer.allocate(image_data.length)
@@ -1692,6 +1423,8 @@ public class MyPattern{
                     GLES30.GL_UNSIGNED_SHORT,
                     imageShortDSBuffer
             );
+            imageShortDSBuffer.clear();
+            imageShortDSBuffer = null;
         }else if (data_length == 4){
             int [] image_data = getIntensity_int3dDownSample(data_src);
             imageIntDSBuffer = IntBuffer.wrap(image_data);
@@ -1708,6 +1441,8 @@ public class MyPattern{
                     GLES30.GL_UNSIGNED_INT,
                     imageIntDSBuffer
             );
+            imageIntDSBuffer.clear();
+            imageIntDSBuffer = null;
         }
 
         GLES30.glBindTexture(GLES30.GL_TEXTURE_3D,0);
@@ -2464,15 +2199,15 @@ public class MyPattern{
     }
 
 
-    private void BufferSet_Curve(float [] vertexPoints_curve){
-        //分配内存空间,每个浮点型占4字节空间
-        vertexBuffer_curve = ByteBuffer.allocateDirect(vertexPoints_curve.length * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer();
-        //传入指定的坐标数据
-        vertexBuffer_curve.put(vertexPoints_curve);
-        vertexBuffer_curve.position(0);
-    }
+//    private void BufferSet_Curve(float [] vertexPoints_curve){
+//        //分配内存空间,每个浮点型占4字节空间
+//        vertexBuffer_curve = ByteBuffer.allocateDirect(vertexPoints_curve.length * 4)
+//                .order(ByteOrder.nativeOrder())
+//                .asFloatBuffer();
+//        //传入指定的坐标数据
+//        vertexBuffer_curve.put(vertexPoints_curve);
+//        vertexBuffer_curve.position(0);
+//    }
 
 
 
@@ -2645,6 +2380,18 @@ public class MyPattern{
                 0  //偏移量
         );
 
+
+        GLES30.glDeleteFramebuffers(
+                1,
+                fbo,
+                0);
+
+
+        GLES30.glDeleteRenderbuffers(
+                1,
+                rbo,
+                0);
+
         vertexBuffer.clear();
         vertexBuffer = null;
 
@@ -2657,14 +2404,23 @@ public class MyPattern{
         dimBuffer.clear();
         dimBuffer = null;
 
-        imageBuffer.clear();
-        imageBuffer = null;
-
-        imageDSBuffer.clear();
-        imageDSBuffer = null;
+//        imageBuffer.clear();
+//        imageBuffer = null;
+//
+//        imageDSBuffer.clear();
+//        imageDSBuffer = null;
 
         imageBuffer_FBO.clear();
         imageBuffer_FBO = null;
+
+        vertexPreBuffer.clear();
+        vertexPreBuffer = null;
+
+        colorPreBuffer.clear();
+        colorPreBuffer = null;
+
+        drawListPreBuffer.clear();
+        drawListPreBuffer = null;
 
     }
 

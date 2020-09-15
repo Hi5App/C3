@@ -650,6 +650,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     if(linePoints.length > 0){
                         int num = linePoints.length / 3;
                         myDraw.drawPoints(linePoints, num);
+                        myDraw.freePoint();
                     }
                 }
 
@@ -899,6 +900,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void SetPath(String message){
 
+        curSwcList.clear();
+        markerList.clear();
         cur_scale = 1.0f;
         filepath = message;
         SetFileType();
@@ -907,8 +910,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             myAxis.setNeedRelease();
         }
 
-        curSwcList.clear();
-        markerList.clear();
+        if (myDraw != null){
+            myDraw.freeLine();
+            myDraw.freeMarker();
+        }
 
         if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD){
             Log.v(TAG,"Before setImage()");

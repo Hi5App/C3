@@ -80,10 +80,10 @@ public class MyDraw {
     private static int mProgram_points;
 
     private FloatBuffer vertexBuffer_marker;
+    private FloatBuffer colorBuffer_marker;
     private FloatBuffer normalizeBuffer_marker;
     private FloatBuffer normalizeBuffer_marker_small;
     private FloatBuffer vertexBuffer_line;
-    private FloatBuffer colorBuffer_marker;
     private FloatBuffer colorBuffer_line;
     private FloatBuffer vertexBuffer_points;
 
@@ -216,8 +216,6 @@ public class MyDraw {
 
     public MyDraw(){
 
-
-
         BufferSet_Normalize();
 
     }
@@ -263,7 +261,7 @@ public class MyDraw {
 
         colorPoints_marker = new float[vertexPoints_marker.length];//colormap[type];
         for(int i=0; i<colorPoints_marker.length; i++){
-            colorPoints_marker[i] = colormap[type%7][i%3];
+            colorPoints_marker[i] = colormap[type % 7][i % 3];
         }
         colorBuffer_marker = ByteBuffer.allocateDirect(colorPoints_marker.length*4)
                 .order(ByteOrder.nativeOrder())
@@ -795,6 +793,37 @@ public class MyDraw {
         }
 
         return f;
+    }
+
+
+    public void freeMarker(){
+        if (vertexBuffer_marker != null){
+            vertexBuffer_marker.clear();
+            vertexBuffer_marker = null;
+        }
+        if (colorBuffer_marker != null){
+            colorBuffer_marker.clear();
+            colorBuffer_marker = null;
+        }
+    }
+
+
+    public void freeLine(){
+        if (vertexBuffer_line != null){
+            vertexBuffer_line.clear();
+            vertexBuffer_line = null;
+        }
+        if (colorBuffer_line != null){
+            colorBuffer_line.clear();
+            colorBuffer_line = null;
+        }
+    }
+
+    public void freePoint(){
+        if (vertexBuffer_points != null){
+            vertexBuffer_points.clear();
+            vertexBuffer_points = null;
+        }
     }
 
 }

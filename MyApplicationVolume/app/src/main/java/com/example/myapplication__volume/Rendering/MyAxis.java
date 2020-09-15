@@ -343,6 +343,7 @@ public class MyAxis {
     }
 
     public void free(){
+        Log.i(TAG,"free() is called in MyAxis");
 
         colorBuffer_axis.clear();
         colorBuffer_axis = null;
@@ -352,6 +353,9 @@ public class MyAxis {
 
         vertexBuffer_border.clear();
         vertexBuffer_border = null;
+
+        ListBuffer_border.clear();
+        ListBuffer_border = null;
 
     }
 
