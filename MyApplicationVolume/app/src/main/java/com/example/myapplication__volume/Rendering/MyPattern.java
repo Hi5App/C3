@@ -45,6 +45,7 @@ public class MyPattern{
     private FloatBuffer vertexBuffer_curve;
     private FloatBuffer colorBuffer_suqre;
 
+
     private ByteBuffer  imageBuffer;
     private ByteBuffer  imageDSBuffer;
     private ShortBuffer imageShortBuffer;
@@ -52,6 +53,7 @@ public class MyPattern{
     private IntBuffer   imageIntBuffer;
     private IntBuffer   imageIntDSBuffer;
     private ByteBuffer  imageBuffer_FBO;
+
 
     private int positionHandle = 0;
     private int colorHandle = 1;
@@ -537,16 +539,29 @@ public class MyPattern{
                     "         break;" +
                     "     }" +
                     "     accum.a = 1.0;" +
+//                    "     float old_contrast = contrast;" +
                     "     if(threshold != 0.0){\n" +
-                    "         if (accum.r > threshold){\n" +
-                    "             accum.r = 1.0;" +
-                    "             accum.g = 1.0;" +
-                    "             accum.b = 1.0;" +
+//                    "         accum.r /= old_contrast;" +
+//                    "         accum.g /= old_contrast;" +
+//                    "         accum.b /= old_contrast;" +
+
+                    "         if (accum.r > 2.0*threshold){\n" +
+                    "             accum.r *= contrast;" +
+                    "             accum.g *= contrast;" +
+                    "             accum.b *= contrast;" +
+//                    "             accum.r = 1.0;" +
+//                    "             accum.g = 1.0;" +
+//                    "             accum.b = 1.0;" +
                     "         }else{\n" +
-                    "             accum.r = 0.0;" +
-                    "             accum.g = 0.0;" +
-                    "             accum.b = 0.0;" +
+                    "             accum.r /= contrast;" +
+                    "             accum.g /= contrast;" +
+                    "             accum.b /= contrast;" +
+//                    "             accum.r = 0.0;" +
+//                    "             accum.g = 0.0;" +
+//                    "             accum.b = 0.0;" +
                     "         }\n" +
+
+
                     "    }\n" +
 //                    "  float threshold = (float)(myrenderer.threshold) / 255;" +
 //                    "  float r,g,b;" +
@@ -1979,7 +1994,7 @@ public class MyPattern{
 
             }
             threshold = newT; //最佳阈值
-//        Log.d("threshold",String.valueOf(threshold));
+        Log.d("threshold",String.valueOf(threshold));
 //
 
 
@@ -1987,6 +2002,9 @@ public class MyPattern{
                 threshold += 2;
             else if (threshold < 35) //防止threshold太小了。
                 threshold = 35;
+
+//            myRenderer.resetContrast(1000);
+            Log.d("newthreshold",String.valueOf(threshold));
         }
 //        Log.d("newthreshold",String.valueOf(threshold));
 //        for (int i=0;i<data_gray.length;i++){

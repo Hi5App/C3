@@ -451,6 +451,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
                     }
 
+
                     if (fileType == FileType.TIF || fileType == FileType.V3draw || fileType == FileType.V3dPBD ||
                             fileType == FileType.SWC || fileType == FileType.APO || fileType == FileType.ANO){
                         if (myAxis == null || myAxis.getNeedRelease()){
@@ -463,6 +464,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         myDraw = new MyDraw();
                     if (myAnimation == null)
                         myAnimation = new MyAnimation();
+
 
                     ifFileSupport = false;
                 }
@@ -5774,7 +5776,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        contrast = Float.parseFloat(getContrast(getContext()));
 //        Log.d("contrast",String.valueOf(contrast));
 
-//        resetContrast(30);
+        resetContrast(100);
 
         Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
 
@@ -5863,7 +5865,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        final float rad = (float) (45*(Math.PI/180)); //一般都要把角度转换成弧度。 前面的45就是我们常用的角度，是可以看情况定的
         final float behind = 0.1f; //用它来控制视角相对于mark向后移了多少
         final float up = 0.1f; //用它来控制视角相对于mark向后上抬了多少
-        final float front = 0.3f; //它来控制mark在方向向量的方向上，视角可以看到的赛道长度,然后就可以确定法向量
+        final float front = -0.1f; //它来控制mark在方向向量的方向上，视角可以看到的赛道长度,然后就可以确定法向量
 //        dir_ver[0] = p; //a2
 //        dir_ver[1] = 0; //b2
 //        dir_ver[2] = m; //c2
