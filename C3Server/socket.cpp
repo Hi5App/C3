@@ -121,7 +121,7 @@ void Socket::processMsg(const QString &msg)
     QRegExp DownRex("(.*):down.\n");
     QRegExp FileDownRex("(.*):choose1.\n");
 
-    QRegExp ImageDownRex("(.*):choose3.\n");//要求发送全脑图像列表
+    QRegExp ImageDownRex("(.*):choose3_(.*).\n");//要求发送全脑图像列表
     QRegExp BrainNumberRex("(.*):BrainNumber.\n");//脑图像编号
     QRegExp ImgBlockRex("(.*):imgblock.\n");
 
@@ -147,7 +147,10 @@ void Socket::processMsg(const QString &msg)
         sendFile(filename,0);//0:data/filename //
     }else if(ImageDownRex.indexIn(msg)!=-1)
     {
-        sendMsg(currentBrain()+":currentDirImg");
+        if(ImageDownRex.cap(2)=="check")
+        sendMsg(currentBrain(1)+":currentDirImg");
+        else
+            sendMsg(currentBrain(0)+":currentDirImg");
     }else if(BrainNumberRex.indexIn(msg)!=-1)
     {
         QString filename=BrainNumberRex.cap(1).trimmed();
@@ -343,7 +346,7 @@ QString Socket::currentDir() const
     return  dataFileList.join(";");
 }
 
-QString Socket::currentBrain() const
+QString Socket::currentBrain(const int j) const
 {
     QString brainPath=QCoreApplication::applicationDirPath()+"/"+"brainInfo";
 
@@ -352,7 +355,18 @@ QString Socket::currentBrain() const
     QStringList imgDirList;
     imgDirList.clear();
     for(auto i:list)
-        imgDirList.push_back(i.baseName());
+    {
+        if(j==0)
+        {
+            if(!i.baseName().contains("check")) imgDirList.push_back(i.baseName());
+        }else if(j==1)
+        {
+            if(i.baseName().contains("check")) imgDirList.push_back(i.baseName());
+        }
+
+    }
+
+
 
     return imgDirList.join(";");
 }
@@ -511,7 +525,7 @@ void Socket::getAndSendImageBlock(QString msg)
 
     QString namepart1=QString::number(socket->socketDescriptor())+"_"+filename1+QString::number(blocksize)+"_";
     QString vaa3dPath=QCoreApplication::applicationDirPath();
-    QString order =QString("xvfb-run -a %0/vaa3d -x %1/plugins/image_geometry/crop3d_image_series/libcropped3DImageSeries.so "
+    QString order =QString("xvfb-run -d %0/vaa3d -x %1/plugins/image_geometry/crop3d_image_series/libcropped3DImageSeries.so "
                             "-f cropTerafly -i %2/%3/ %4.apo %5/tmp/%6 -p %7 %8 %9")
             .arg(vaa3dPath).arg(vaa3dPath)
             .arg(QCoreApplication::applicationDirPath()+"/"+IMAGEDIR).arg(filename).arg(string).arg(QCoreApplication::applicationDirPath()).arg(namepart1).arg(blocksize).arg(blocksize).arg(blocksize);
