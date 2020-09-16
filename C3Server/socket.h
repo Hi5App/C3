@@ -38,7 +38,7 @@ private:
     void processMsg(const QString & msg);
     void readFile(const QString &filename);//need to do something
     QString currentDir()const;
-    QString currentBrain()const;
+    QString currentBrain(const int i)const;
     QString currentArbors()const;
     void getAndSendImageBlock(QString msg);
     void getAndSendSWCBlock(QString msg);
