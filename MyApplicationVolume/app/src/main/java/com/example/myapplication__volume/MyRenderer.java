@@ -642,9 +642,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 if (ifGame){
                     Log.v("onDrawFrame", "DrawGameModel");
                     float [] position = gameCharacter.getPosition();
+                    float [] dir = gameCharacter.getPosition().clone();
+                    float [] head = gameCharacter.getHead().clone();
+                    normalize(dir);
+                    normalize(head);
                     float [] positionModel = position;
                     Log.v("onDrawFrame", Arrays.toString(positionModel));
-                    myDraw.drawMarker(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
+//                    myDraw.drawMarker(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
+                    myDraw.drawGameModel(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, dir, head);
                     myDraw.drawMarker(finalSmallMapMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
                 }
 
@@ -905,6 +910,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     //设置文件路径
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void SetPath(String message){
+
 
         curSwcList.clear();
         markerList.clear();
@@ -5715,8 +5721,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         Matrix.setIdentityM(zoomMatrix,0);
-        Matrix.scaleM(zoomMatrix, 0, 4f, 4f, 4f);
-        cur_scale = 4f;
+        Matrix.scaleM(zoomMatrix, 0, 8f, 8f, 8f);
+        cur_scale = 8f;
 
 //        byte[] color = img.getData();
 //        byte[] gray = new byte[color.length];

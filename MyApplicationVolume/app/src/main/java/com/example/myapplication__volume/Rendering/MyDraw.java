@@ -6,6 +6,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 
 public class MyDraw {
@@ -20,61 +21,90 @@ public class MyDraw {
             {1f,1f,0f}
     } ;
 
-//    private final float [] modelVertex = {
-//        0.020f, 0.000f, 0.010f,
-//        0.007f, 0.000f, 0.010f,
-//        0.007f, 0.002f, 0.010f,
-//
-//        0.007f, 0.002f, 0.010f,
-//        -0.007f, 0.002f, 0.010f,
-//        0.000f, 0.010f, 0.010f,
-//
-//        -0.007f, 0.002f, 0.010f,
-//        -0.007f, 0.000f, 0.010f,
-//        -0.020f, 0.000f, 0.010f,
-//
-//        0.007f, 0.000f, 0.010f,
-//        0.007f, 0.002f, 0.010f,
-//        -0.007f, 0.002f, 0.010f,
-//
-//        0.007f, 0.000f, 0.010f,
-//        -0.007f, 0.000f, 0.010f,
-//        -0.007f, 0.002f, 0.010f,
-//
-//        0.000f, 0.000f, -0.010f,
-//        0.007f, 0.000f, 0.010f,
-//        -0.007f, 0.000f, 0.010f,
-//
-//        0.000f, 0.000f, -0.010f,
-//        0.007f, 0.000f, 0.010f,
-//        0.020f, 0.000f, 0.010f,
-//
-//        0.000f, 0.000f, -0.010f,
-//        0.020f, 0.000f, 0.010f,
-//        0.007f, 0.002f, 0.010f,
-//
-//        0.000f, 0.000f, -0.010f,
-//        0.007f, 0.002f, 0.010f,
-//        0.000f, 0.010f, 0.010f,
-//
-//        0.000f, 0.000f, -0.010f,
-//        0.000f, 0.010f, 0.010f,
-//        -0.007f, 0.002f, 0.010f,
-//
-//        0.000f, 0.000f, -0.010f,
-//        -0.007f, 0.002f, 0.010f,
-//        -0.020f, 0.000f, 0.010f,
-//
-//        0.000f, 0.000f, -0.010f,
-//        -0.020f, 0.000f, 0.010f,
-//        -0.007f, 0.000f, 0.010f,
-//    };
-
-    private float [] modelVertex = {
-            0.000f, 0.000f, 0.010f,
-            0.010f, 0.000f, -0.005f,
-            -0.010f, 0.000f, -0.005f,
+    private final float [] modelVertex = {
+        //1:123
+        0.020f, 0.000f, 0.010f,
+        0.007f, 0.000f, 0.010f,
+        0.007f, 0.002f, 0.010f,
+        //2:345
+        0.007f, 0.002f, 0.010f,
+        -0.007f, 0.002f, 0.010f,
+        0.000f, 0.010f, 0.010f,
+        //3:467
+        -0.007f, 0.002f, 0.010f,
+        -0.007f, 0.000f, 0.010f,
+        -0.020f, 0.000f, 0.010f,
+        //4:234
+        0.007f, 0.000f, 0.010f,
+        0.007f, 0.002f, 0.010f,
+        -0.007f, 0.002f, 0.010f,
+        //5:264
+        0.007f, 0.000f, 0.010f,
+        -0.007f, 0.000f, 0.010f,
+        -0.007f, 0.002f, 0.010f,
+        //6:826
+        0.000f, 0.000f, -0.010f,
+        0.007f, 0.000f, 0.010f,
+        -0.007f, 0.000f, 0.010f,
+        //7:821
+        0.000f, 0.000f, -0.010f,
+        0.007f, 0.000f, 0.010f,
+        0.020f, 0.000f, 0.010f,
+        //8:813
+        0.000f, 0.000f, -0.010f,
+        0.020f, 0.000f, 0.010f,
+        0.007f, 0.002f, 0.010f,
+        //9:835
+        0.000f, 0.000f, -0.010f,
+        0.007f, 0.002f, 0.010f,
+        0.000f, 0.010f, 0.010f,
+        //10:854
+        0.000f, 0.000f, -0.010f,
+        0.000f, 0.010f, 0.010f,
+        -0.007f, 0.002f, 0.010f,
+        //11:847
+        0.000f, 0.000f, -0.010f,
+        -0.007f, 0.002f, 0.010f,
+        -0.020f, 0.000f, 0.010f,
+        //12:876
+        0.000f, 0.000f, -0.010f,
+        -0.020f, 0.000f, 0.010f,
+        -0.007f, 0.000f, 0.010f,
     };
+
+
+
+    private final float[] Vertex = {
+
+             0.020f, 0.000f, -0.010f,   // 0
+             0.007f, 0.000f, -0.010f,   // 1
+             0.007f, 0.002f, -0.010f,   // 2
+            -0.007f, 0.002f, -0.010f,   // 3
+             0.000f, 0.010f, -0.010f,   // 4
+            -0.007f, 0.000f, -0.010f,   // 5
+            -0.020f, 0.000f, -0.010f,   // 6
+             0.000f, 0.000f,  0.010f,   // 7
+
+    };
+
+    private final short[] drawList_model = {
+            0, 2, 1,    2, 4, 3,    3, 6, 5,
+            2, 3, 5,    2, 5, 1,    0, 7, 6,
+            0, 7, 2,    2, 7, 4,    7, 3, 4,    7, 6, 3
+    };
+
+
+    private final short[] drawList_skeleton= {
+            0, 1,   0, 2,   1, 2,   2, 3,   1, 5,
+            3, 5,   3, 6,   5, 6,   2, 4,   3, 4,
+            7, 0,   7, 1,   7, 2,   7, 3,   7, 4,   7, 5,   7, 6
+    };
+
+//    private float [] modelVertex = {
+//            0.000f, 0.000f, 0.010f,
+//            0.010f, 0.000f, -0.005f,
+//            -0.010f, 0.000f, -0.005f,
+//    };
 
    float n = 100;
 //    final float radius = 0.1f;
@@ -87,11 +117,15 @@ public class MyDraw {
 
     private FloatBuffer vertexBuffer_marker;
     private FloatBuffer colorBuffer_marker;
+    private FloatBuffer colorBuffer_model;
+    private FloatBuffer colorBuffer_skeleton;
     private FloatBuffer normalizeBuffer_marker;
     private FloatBuffer normalizeBuffer_marker_small;
     private FloatBuffer vertexBuffer_line;
     private FloatBuffer colorBuffer_line;
     private FloatBuffer vertexBuffer_points;
+    private ShortBuffer drawListBuffer_model;
+    private ShortBuffer drawListBuffer_skeleton;
 
     float[] normalMatrix = new float[16];
     float[] normalMatrix_before = new float[16];
@@ -100,6 +134,8 @@ public class MyDraw {
     private float[] normalizePoints_marker_small;
     private float[] vertexPoints_marker;
     private float[] colorPoints_marker;
+    private float[] colorPoints_model;
+    private float[] colorPoints_skeleton;
 
     private static int vertexPoints_handle = 0;
     private static int normalizePoints_handle = 1;
@@ -226,14 +262,42 @@ public class MyDraw {
 
     }
 
-    private void BufferSet_GameModel(float x, float y, float z, int type){
+    private void BufferSet_GameModel(float x, float y, float z, int type, float [] dir, float [] head){
 
         float [] vertexAfterMove = new float[modelVertex.length];
-        for (int i = 0; i < modelVertex.length / 3; i++){
-            vertexAfterMove[i * 3] = modelVertex[i * 3] * 10 + x;
-            vertexAfterMove[i * 3 + 1] = modelVertex[i * 3 + 1] * 10 + y;
-            vertexAfterMove[i * 3 + 2] = modelVertex[i * 3 + 2] * 10 + z;
+        float [] axis = new float[]{dir[1] * head[2] - dir[2] * head[1], dir[2] * head[0] - dir[0] * head[2], dir[1] * head[2] - dir[2] * head[1]};
+
+//        for (int i = 0; i < modelVertex.length / 3; i++){
+//            vertexAfterMove[i * 3] = x + (modelVertex[i * 3] * axis[0] + modelVertex[i * 3 + 1] * head[0] + modelVertex[i * 3 + 2] * dir[0]) * 10;
+//            vertexAfterMove[i * 3 + 1] = y + (modelVertex[i * 3] * axis[1] + modelVertex[i * 3 + 1] * head[1] + modelVertex[i * 3 + 2] * dir[1]) * 10;
+//            vertexAfterMove[i * 3 + 2] = z + (modelVertex[i * 3] * axis[2] + modelVertex[i * 3 + 1] * head[2] + modelVertex[i * 3 + 2] * dir[2]) * 10;
+//        }
+
+
+        for (int i = 0; i < Vertex.length / 3; i++){
+            vertexAfterMove[i * 3] = x + (Vertex[i * 3] * axis[0] + Vertex[i * 3 + 1] * head[0] + Vertex[i * 3 + 2] * dir[0]);
+            vertexAfterMove[i * 3 + 1] = y + (Vertex[i * 3] * axis[1] + Vertex[i * 3 + 1] * head[1] + Vertex[i * 3 + 2] * dir[1]);
+            vertexAfterMove[i * 3 + 2] = z + (Vertex[i * 3] * axis[2] + Vertex[i * 3 + 1] * head[2] + Vertex[i * 3 + 2] * dir[2]);
         }
+//
+//        vertexAfterMove[0] = x + 0.010f * dir[0];
+//        vertexAfterMove[1] = y + 0.010f * dir[1];
+//        vertexAfterMove[2] = z + 0.010f * dir[2];
+//
+//        vertexAfterMove[3] = x + 0.005f * axis[0];
+//        vertexAfterMove[4] = y + 0.005f * axis[1];
+//        vertexAfterMove[5] = z + 0.005f * axis[2];
+//
+//        vertexAfterMove[6] = x - 0.005f * axis[0];
+//        vertexAfterMove[7] = y - 0.005f * axis[1];
+//        vertexAfterMove[8] = z - 0.005f * axis[2];
+
+
+//        for (int i = 0; i < modelVertex.length / 3; i++){
+//            vertexAfterMove[i * 3] = modelVertex[i * 3] * 10 + x;
+//            vertexAfterMove[i * 3 + 1] = modelVertex[i * 3 + 1] * 10 + y;
+//            vertexAfterMove[i * 3 + 2] = modelVertex[i * 3 + 2] * 10 + z;
+//        }
 
         // for the marker
         //分配内存空间,每个浮点型占4字节空间
@@ -244,15 +308,44 @@ public class MyDraw {
         vertexBuffer_marker.put(vertexAfterMove);
         vertexBuffer_marker.position(0);
 
-        colorPoints_marker = new float[modelVertex.length];//colormap[type];
-        for(int i=0; i<colorPoints_marker.length; i++){
-            colorPoints_marker[i] = colormap[type%7][i%3];
+        colorPoints_model = new float[drawList_model.length * 3];//colormap[type];
+        for(int i=0; i<colorPoints_model.length; i++){
+            colorPoints_model[i] = colormap[type%7][i%3];
         }
-        colorBuffer_marker = ByteBuffer.allocateDirect(colorPoints_marker.length*4)
+        colorBuffer_model = ByteBuffer.allocateDirect(colorPoints_model.length*4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
-        colorBuffer_marker.put(colorPoints_marker);
-        colorBuffer_marker.position(0);
+        colorBuffer_model.put(colorPoints_model);
+        colorBuffer_model.position(0);
+
+
+        colorPoints_skeleton = new float[drawList_skeleton.length * 3];//colormap[type];
+        for(int i=0; i<colorPoints_skeleton.length; i++){
+            colorPoints_skeleton[i] = colormap[1][i%3];
+        }
+        colorBuffer_skeleton = ByteBuffer.allocateDirect(colorPoints_skeleton.length*4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        colorBuffer_skeleton.put(colorPoints_skeleton);
+        colorBuffer_skeleton.position(0);
+
+
+        //分配内存空间,每个short型占4字节空间
+        drawListBuffer_model = ByteBuffer.allocateDirect(drawList_model.length * 2)
+                .order(ByteOrder.nativeOrder())
+                .asShortBuffer();
+        //传入指定的索引数据
+        drawListBuffer_model.put(drawList_model);
+        drawListBuffer_model.position(0);
+
+        //分配内存空间,每个short型占4字节空间
+        drawListBuffer_skeleton = ByteBuffer.allocateDirect(drawList_skeleton.length * 2)
+                .order(ByteOrder.nativeOrder())
+                .asShortBuffer();
+        //传入指定的索引数据
+        drawListBuffer_skeleton.put(drawList_skeleton);
+        drawListBuffer_skeleton.position(0);
+
 
     }
 
@@ -381,10 +474,10 @@ public class MyDraw {
 //
 //    }
 
-    public void drawGameModel(float[] mvpMatrix, float[] modelMatrix, float x, float y, float z, int type){
+    public void drawGameModel(float[] mvpMatrix, float[] modelMatrix, float x, float y, float z, int type, float [] dir, float [] head){
 //        System.out.println("set marker");
 
-        BufferSet_GameModel(x, y, z, type);
+        BufferSet_GameModel(x, y, z, type, dir, head);
 
 //        System.out.println("set marker end");
 
@@ -408,7 +501,7 @@ public class MyDraw {
         GLES30.glEnableVertexAttribArray(normalizePoints_handle);
 
         //准备颜色数据
-        GLES30.glVertexAttribPointer(colorPoints_handle,3,GLES30.GL_FLOAT, false, 0,colorBuffer_marker);
+        GLES30.glVertexAttribPointer(colorPoints_handle,3,GLES30.GL_FLOAT, false, 0,colorBuffer_model);
         GLES30.glEnableVertexAttribArray(colorPoints_handle);
 
 
@@ -428,7 +521,18 @@ public class MyDraw {
         GLES30.glUniformMatrix4fv(normalizeMatrixHandle_marker, 1, false, modelMatrix, 0);
 
 
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, modelVertex.length/3);
+//        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, modelVertex.length/3);
+
+        // 通过索引来绘制
+        GLES30.glDrawElements(GLES30.GL_TRIANGLES, drawList_model.length, GLES30.GL_UNSIGNED_SHORT, drawListBuffer_model);
+
+//        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+
+        GLES30.glVertexAttribPointer(colorPoints_handle,3,GLES30.GL_FLOAT, false, 0, colorBuffer_skeleton);
+        GLES30.glEnableVertexAttribArray(colorPoints_handle);
+
+        GLES30.glLineWidth(5);
+        GLES30.glDrawElements(GLES30.GL_LINES, drawList_skeleton.length, GLES30.GL_UNSIGNED_SHORT, drawListBuffer_skeleton);
 
 //        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length/3);
 
@@ -487,7 +591,7 @@ public class MyDraw {
         GLES30.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
 
 
-        // get handle to vertex shader's uMVPMatrix member
+        // get handle to vertex shader's uNormalMatrix member
         int normalizeMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_marker,"uNormalMatrix");
 
         // Pass the projection and view transformation to the shader

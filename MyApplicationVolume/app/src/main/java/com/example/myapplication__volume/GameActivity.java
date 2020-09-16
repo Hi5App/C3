@@ -289,8 +289,11 @@ public class GameActivity extends BaseActivity {
                                 float [] dis = new float[]{64 - volumnePosition[0], 64 - volumnePosition[1], 64 - volumnePosition[2]};
                                 Log.v("DISSSSS", Arrays.toString(dis));
                                 gameCharacter.setPosition(new float[]{0.5f, 0.5f, 0.5f});
+
                                 travelPath.move(dis);
 
+                                myrenderer.clearCurSwcList();
+                                myrenderer.addSwc(travelPath);
 //                                myrenderer.clearCurSwcList();
 //                                myrenderer.addSwc(travelPath);
 

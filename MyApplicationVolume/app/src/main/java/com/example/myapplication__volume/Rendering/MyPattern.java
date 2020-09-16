@@ -1012,8 +1012,8 @@ public class MyPattern{
 
         thresholdHandle = GLES30.glGetUniformLocation(mProgram_raycasting, "threshold");
         if (mode == Mode.GAME) {
-//            GLES20.glUniform1f(thresholdHandle, 0);
-            GLES20.glUniform1f(thresholdHandle, (float)threshold/255);
+            GLES20.glUniform1f(thresholdHandle, 0);
+//            GLES20.glUniform1f(thresholdHandle, (float)threshold/255);
         }else {
             GLES20.glUniform1f(thresholdHandle, 0);
         }
