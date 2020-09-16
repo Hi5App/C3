@@ -29,9 +29,9 @@ public class Socket_Receive {
 
     private static final String TAG = "Socket_Receive";
     private static final int LIMIT_SIZE = 30000000;
-    private static String SOCKET_CLOSED = "socket is closed or fail to connect";
-    private static String EMPTY_MSG = "the msg is empty";
-    private static String EMPTY_FILE_PATH = "the file path is empty";
+    private static final String SOCKET_CLOSED = "socket is closed or fail to connect";
+    private static final String EMPTY_MSG = "the msg is empty";
+    private static final String EMPTY_FILE_PATH = "the file path is empty";
 
     public Socket_Receive(Context context){
         mContext = context;
@@ -40,11 +40,10 @@ public class Socket_Receive {
     public String Get_Message(Socket socket) {
 
         if (!socket.isConnected()){
-//            Toast_in_Thread("Fail to Get_Message, Try Again Please !");
             return null;
         }
 
-        final String[] Msg = {""};
+        final String[] Msg = {null};
         Thread thread = new Thread() {
             public void run() {
                 try {
@@ -62,9 +61,16 @@ public class Socket_Receive {
                     int Message_size_int = (int) bytesToLong(Message_size);
 
 
-                    if (Data_size_int != Message_size_int + 4){
-//                        Log.i("readfile IoUtils", Integer.toString(IOUtils.copy(in, outputStream)));
+                    if (Data_size_int != Message_size_int + 16){
+                        Log.i(TAG,"Wrong message !");
+                        return;
                     }
+
+                    if ((Message_size_int > LIMIT_SIZE) || (Data_size_int > LIMIT_SIZE)){
+                        Log.i(TAG,"Wrong Size Message!");
+                        return;
+                    }
+
 
                     //读取 Msg 内容
                     byte[] Msg_String_byte = new byte[Message_size_int];

@@ -2208,6 +2208,9 @@ public class Remote_Socket extends Socket {
 
                 }
 
+//                Log.i(TAG,Arrays.toString(Transform(RES_List,0,RES_List.size())));
+//                Log.i(TAG,Arrays.toString(Transform(Neuron_Number_List,0,Neuron_Number_List.size())));
+
                 RES_List = RES_List_temp;
                 Neuron_Number_List = Neuron_Number_List_temp;
                 Neuron_Info = Neuron_Info_temp;
