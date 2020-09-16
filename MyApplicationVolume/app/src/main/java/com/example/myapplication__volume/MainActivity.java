@@ -486,7 +486,7 @@ public class MainActivity extends BaseActivity {
 //                        result = name.split("__")[0];
                         String brain_num = getFilename_Remote(context);
                         String neuron_num = getNeuronNumber_Remote(context, brain_num);
-                        result = brain_num.split("_")[0] + "_" + neuron_num.split("_")[1] + "_" + getArborNum(context,brain_num.split("/")[0] + "_" + neuron_num);
+                        result = brain_num.split("_")[0] + "_" + neuron_num.split("_")[1] + "_" + getArborNum(context,brain_num.split("/")[0] + "_" + neuron_num).split(":")[0];
                     }
 
                     setFilename(result);
@@ -4681,7 +4681,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200916b 11:02 UTC+8 build",
+                                "Version: 20200916c 11:13 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4700,7 +4700,6 @@ public class MainActivity extends BaseActivity {
 
         try {
             startActivityForResult(intent,1);
-//            startActivityForResult(Intent.createChooser(intent, "Open folder"), 1);
 
         }catch (Exception e){
             e.printStackTrace();

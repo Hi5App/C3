@@ -121,7 +121,7 @@ public class Remote_Socket extends Socket {
 
     public void ConnectServer(String ip_server){
 
-//        Log.v("ConnectServer","Start to Connect Server !");
+        Log.i("ConnectServer","Start to Connect Server !");
 
         if (ManageSocket != null && !ManageSocket.isClosed() && ManageSocket.isConnected()){
             return;
@@ -140,7 +140,7 @@ public class Remote_Socket extends Socket {
 
                     if (ManageSocket.isConnected()) {
                         isSocketSet = true;
-                        Log.v("ConnectServer", "Connect Server Successfully !");
+                        Log.i("ConnectServer", "Connect Server Successfully !");
                     } else {
                         Toast_in_Thread("Can't Connect Server, Try Again Please !");
                     }
@@ -464,7 +464,12 @@ public class Remote_Socket extends Socket {
 
         this.isDrawMode = isDrawMode;
 
-        Send_Message("connect for android client" + ":choose3.\n");
+        if (isDrawMode){
+            Send_Message("connect for android client" + ":choose3_pre.\n");
+        }else {
+            Send_Message("connect for android client" + ":choose3_check.\n");
+        }
+
         String Msg = Get_Message();
 
         if (Msg == null){
