@@ -20,57 +20,63 @@ public class MyDraw {
             {1f,1f,0f}
     } ;
 
-    private final float [] modelVertex = {
-        0.020f, 0.000f, 0.010f,
-        0.007f, 0.000f, 0.010f,
-        0.007f, 0.002f, 0.010f,
+//    private final float [] modelVertex = {
+//        0.020f, 0.000f, 0.010f,
+//        0.007f, 0.000f, 0.010f,
+//        0.007f, 0.002f, 0.010f,
+//
+//        0.007f, 0.002f, 0.010f,
+//        -0.007f, 0.002f, 0.010f,
+//        0.000f, 0.010f, 0.010f,
+//
+//        -0.007f, 0.002f, 0.010f,
+//        -0.007f, 0.000f, 0.010f,
+//        -0.020f, 0.000f, 0.010f,
+//
+//        0.007f, 0.000f, 0.010f,
+//        0.007f, 0.002f, 0.010f,
+//        -0.007f, 0.002f, 0.010f,
+//
+//        0.007f, 0.000f, 0.010f,
+//        -0.007f, 0.000f, 0.010f,
+//        -0.007f, 0.002f, 0.010f,
+//
+//        0.000f, 0.000f, -0.010f,
+//        0.007f, 0.000f, 0.010f,
+//        -0.007f, 0.000f, 0.010f,
+//
+//        0.000f, 0.000f, -0.010f,
+//        0.007f, 0.000f, 0.010f,
+//        0.020f, 0.000f, 0.010f,
+//
+//        0.000f, 0.000f, -0.010f,
+//        0.020f, 0.000f, 0.010f,
+//        0.007f, 0.002f, 0.010f,
+//
+//        0.000f, 0.000f, -0.010f,
+//        0.007f, 0.002f, 0.010f,
+//        0.000f, 0.010f, 0.010f,
+//
+//        0.000f, 0.000f, -0.010f,
+//        0.000f, 0.010f, 0.010f,
+//        -0.007f, 0.002f, 0.010f,
+//
+//        0.000f, 0.000f, -0.010f,
+//        -0.007f, 0.002f, 0.010f,
+//        -0.020f, 0.000f, 0.010f,
+//
+//        0.000f, 0.000f, -0.010f,
+//        -0.020f, 0.000f, 0.010f,
+//        -0.007f, 0.000f, 0.010f,
+//    };
 
-        0.007f, 0.002f, 0.010f,
-        -0.007f, 0.002f, 0.010f,
-        0.000f, 0.010f, 0.010f,
-
-        -0.007f, 0.002f, 0.010f,
-        -0.007f, 0.000f, 0.010f,
-        -0.020f, 0.000f, 0.010f,
-
-        0.007f, 0.000f, 0.010f,
-        0.007f, 0.002f, 0.010f,
-        -0.007f, 0.002f, 0.010f,
-
-        0.007f, 0.000f, 0.010f,
-        -0.007f, 0.000f, 0.010f,
-        -0.007f, 0.002f, 0.010f,
-
-        0.000f, 0.000f, -0.010f,
-        0.007f, 0.000f, 0.010f,
-        -0.007f, 0.000f, 0.010f,
-
-        0.000f, 0.000f, -0.010f,
-        0.007f, 0.000f, 0.010f,
-        0.020f, 0.000f, 0.010f,
-
-        0.000f, 0.000f, -0.010f,
-        0.020f, 0.000f, 0.010f,
-        0.007f, 0.002f, 0.010f,
-
-        0.000f, 0.000f, -0.010f,
-        0.007f, 0.002f, 0.010f,
-        0.000f, 0.010f, 0.010f,
-
-        0.000f, 0.000f, -0.010f,
-        0.000f, 0.010f, 0.010f,
-        -0.007f, 0.002f, 0.010f,
-
-        0.000f, 0.000f, -0.010f,
-        -0.007f, 0.002f, 0.010f,
-        -0.020f, 0.000f, 0.010f,
-
-        0.000f, 0.000f, -0.010f,
-        -0.020f, 0.000f, 0.010f,
-        -0.007f, 0.000f, 0.010f,
+    private float [] modelVertex = {
+            0.000f, 0.000f, 0.010f,
+            0.010f, 0.000f, -0.005f,
+            -0.010f, 0.000f, -0.005f,
     };
 
-    float n = 100;
+   float n = 100;
 //    final float radius = 0.1f;
 //    final float radius = 0.02f;
     final float splitRadius = 0.005f;
@@ -222,15 +228,20 @@ public class MyDraw {
 
     private void BufferSet_GameModel(float x, float y, float z, int type){
 
-
+        float [] vertexAfterMove = new float[modelVertex.length];
+        for (int i = 0; i < modelVertex.length / 3; i++){
+            vertexAfterMove[i * 3] = modelVertex[i * 3] * 10 + x;
+            vertexAfterMove[i * 3 + 1] = modelVertex[i * 3 + 1] * 10 + y;
+            vertexAfterMove[i * 3 + 2] = modelVertex[i * 3 + 2] * 10 + z;
+        }
 
         // for the marker
         //分配内存空间,每个浮点型占4字节空间
-        vertexBuffer_marker = ByteBuffer.allocateDirect(modelVertex.length * 4)
+        vertexBuffer_marker = ByteBuffer.allocateDirect(vertexAfterMove.length * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
         //传入指定的坐标数据
-        vertexBuffer_marker.put(modelVertex);
+        vertexBuffer_marker.put(vertexAfterMove);
         vertexBuffer_marker.position(0);
 
         colorPoints_marker = new float[modelVertex.length];//colormap[type];
@@ -417,7 +428,7 @@ public class MyDraw {
         GLES30.glUniformMatrix4fv(normalizeMatrixHandle_marker, 1, false, modelMatrix, 0);
 
 
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, modelMatrix.length/3);
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, modelVertex.length/3);
 
 //        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length/3);
 

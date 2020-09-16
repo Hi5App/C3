@@ -435,7 +435,7 @@ public class MyPattern{
 
                     "     if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || accum.a>=1.0)" +
                     "         break;" +
-                    "     }" +
+                    "  }" +
                     "     accum.a = 1.0;" +
 //                    "     float old_contrast = contrast;" +
                     "     if(threshold != 0.0){\n" +
@@ -1012,6 +1012,7 @@ public class MyPattern{
 
         thresholdHandle = GLES30.glGetUniformLocation(mProgram_raycasting, "threshold");
         if (mode == Mode.GAME) {
+//            GLES20.glUniform1f(thresholdHandle, 0);
             GLES20.glUniform1f(thresholdHandle, (float)threshold/255);
         }else {
             GLES20.glUniform1f(thresholdHandle, 0);
@@ -1109,6 +1110,7 @@ public class MyPattern{
 
         GLES30.glFramebufferRenderbuffer(GLES30.GL_FRAMEBUFFER, GLES30.GL_DEPTH_ATTACHMENT, GLES30.GL_RENDERBUFFER, rbo[0]);
 
+        GLES30.glBindRenderbuffer(GLES30.GL_RENDERBUFFER, 0);
 
         GLES30.glGenTextures(  //创建纹理对象
                 1, //产生纹理id的数量

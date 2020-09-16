@@ -360,7 +360,7 @@ public class MainActivity_Jump extends AppCompatActivity {
         Intent intent1 = getIntent();
         String filepath = intent1.getStringExtra(MyRenderer.FILE_PATH);
 
-        myrenderer = new MyRenderer();
+        myrenderer = new MyRenderer(this);
         if (filepath != null) {
             myrenderer.SetPath(filepath);
             System.out.println("------" + filepath + "------");

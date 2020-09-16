@@ -1,6 +1,7 @@
 package com.example.myapplication__volume;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -245,6 +246,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private boolean ifGame = false;
     public static int threshold = 0;
 
+
+    public MyRenderer(Context context){
+        context_myrenderer = context;
+    }
     //初次渲染画面
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
@@ -422,7 +427,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         GLES30.glEnable(GL_BLEND);
         GLES30.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
         if (judgeImg()){
 
             /*
@@ -493,11 +497,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             if (!ifNavigationLococation){
                 if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD) {
                     //draw the volume img
-                    myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, ifDownSampling, contrast);
+                    if (myPattern != null)
+                        myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, ifDownSampling, contrast);
                 }
                 if (fileType == FileType.JPG || fileType == FileType.PNG){
                     //draw the 2D img
-                    myPattern2D.draw(finalMatrix);
+                    if (myPattern2D != null)
+                        myPattern2D.draw(finalMatrix);
                 }
 
                 /*
@@ -633,14 +639,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
                 }
 
-//                if (ifGame){
-//                    Log.v("onDrawFrame", "DrawGameModel");
-//                    float [] position = gameCharacter.getPosition();
-//                    float [] positionModel = VolumetoModel(position);
-//                    Log.v("onDrawFrame", Arrays.toString(positionModel));
-//                    myDraw.drawGameModel(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType);
-//                    myDraw.drawMarker(finalSmallMapMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
-//                }
+                if (ifGame){
+                    Log.v("onDrawFrame", "DrawGameModel");
+                    float [] position = gameCharacter.getPosition();
+                    float [] positionModel = position;
+                    Log.v("onDrawFrame", Arrays.toString(positionModel));
+                    myDraw.drawMarker(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
+                    myDraw.drawMarker(finalSmallMapMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
+                }
 
 
                 /*
@@ -751,7 +757,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
         }else {
-            Toast.makeText(getContext(),"Something Wrong When Renderer, reload File Please !",Toast.LENGTH_SHORT).show();
+            Toast_in_Thread("Something Wrong When Render, reload File Please !");
         }
 
 
@@ -6537,6 +6543,20 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public GameCharacter getGameCharacter(){
         return gameCharacter;
     }
+
+    /**
+     * toast info in the thread
+     * @param message the message you wanna toast
+     */
+    public void Toast_in_Thread(String message){
+        ((Activity) context_myrenderer).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getContext(), message,Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 }
 
 

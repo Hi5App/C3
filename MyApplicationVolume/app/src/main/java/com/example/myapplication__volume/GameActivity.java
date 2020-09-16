@@ -1,57 +1,34 @@
 package com.example.myapplication__volume;
 
-import androidx.annotation.LongDef;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SyncStatusObserver;
 import android.content.pm.ConfigurationInfo;
 import android.opengl.GLSurfaceView;
-
-import android.opengl.Matrix;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.LoginFilter;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-
-import android.view.View;
-import android.widget.Button;
-
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.Toolbar;
+
 import com.example.Server_Communication.Remote_Socket;
-import com.example.datastore.SettingFileManager;
 import com.example.game.GameCharacter;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
 
-import java.io.File;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import static com.example.datastore.SettingFileManager.getArborNum;
-import static com.example.datastore.SettingFileManager.getFilename_Remote;
-import static com.example.datastore.SettingFileManager.getNeuronNumber_Remote;
-import static com.example.datastore.SettingFileManager.getSelectSource;
-import static com.example.datastore.SettingFileManager.setSelectSource;
-import static com.example.server_connect.RemoteImg.getFilename;
 
 public class GameActivity extends BaseActivity {
 
@@ -125,7 +102,7 @@ public class GameActivity extends BaseActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        myrenderer = new MyRenderer();
+        myrenderer = new MyRenderer(this);
         myrenderer.SetPath(filepath);
         myrenderer.resetContrast(preferenceSetting.getContrast());
 //        myrenderer.setGamePosition(position);
@@ -137,7 +114,7 @@ public class GameActivity extends BaseActivity {
 
         remoteSocket = new Remote_Socket(this);
 
-        myrenderer.addMarker(position);
+//        myrenderer.addMarker(position);
         myrenderer.setIfGame(true);
 
         myGLSurfaceView = new GameActivity.MyGLSurfaceView(this);
@@ -314,19 +291,19 @@ public class GameActivity extends BaseActivity {
                                 gameCharacter.setPosition(new float[]{0.5f, 0.5f, 0.5f});
                                 travelPath.move(dis);
 
-                                myrenderer.clearCurSwcList();
-                                myrenderer.addSwc(travelPath);
+//                                myrenderer.clearCurSwcList();
+//                                myrenderer.addSwc(travelPath);
 
-                                myrenderer.clearMarkerList();
-                                myrenderer.addMarker(new float[]{0.5f, 0.5f, 0.5f});
+//                                myrenderer.clearMarkerList();
+//                                myrenderer.addMarker(new float[]{0.5f, 0.5f, 0.5f});
 
                                 lastPlace = new float[]{0.5f, 0.5f, 0.5f};
                             } else {
 
                                 float[] position = gameCharacter.getPosition();
 
-                                myrenderer.clearMarkerList();
-                                myrenderer.addMarker(position);
+//                                myrenderer.clearMarkerList();
+//                                myrenderer.addMarker(position);
 
                                 if (((position[0] - lastPlace[0]) * (position[0] - lastPlace[0])
                                         + (position[1] - lastPlace[1]) * (position[1] - lastPlace[1])
@@ -399,6 +376,7 @@ public class GameActivity extends BaseActivity {
             case R.id.back:
                 timer.cancel();
                 task.cancel();
+                MainActivity.setIfGame(false);
                 finish();
             default:
                 return true;
