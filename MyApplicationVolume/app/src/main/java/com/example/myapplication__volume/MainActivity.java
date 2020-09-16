@@ -4681,7 +4681,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200916a 09:30 UTC+8 build",
+                                "Version: 20200916b 11:02 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -7786,6 +7786,10 @@ public class MainActivity extends BaseActivity {
 //        } else {
 //            myGLSurfaceView.requestRender();
 //        }
+    }
+
+    public static void setIfGame(boolean b){
+        ifGame = b;
     }
 
 }

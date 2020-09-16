@@ -427,10 +427,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         GLES30.glEnable(GL_BLEND);
         GLES30.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
-        fileType = FileType.V3draw;
-        ifFileSupport = true;
-
         if (judgeImg()){
 
             /*
@@ -643,14 +639,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
                 }
 
-//                if (ifGame){
-//                    Log.v("onDrawFrame", "DrawGameModel");
-//                    float [] position = gameCharacter.getPosition();
-//                    float [] positionModel = position;
-//                    Log.v("onDrawFrame", Arrays.toString(positionModel));
-//                    myDraw.drawGameModel(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType);
-//                    myDraw.drawMarker(finalSmallMapMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
-//                }
+                if (ifGame){
+                    Log.v("onDrawFrame", "DrawGameModel");
+                    float [] position = gameCharacter.getPosition();
+                    float [] positionModel = position;
+                    Log.v("onDrawFrame", Arrays.toString(positionModel));
+                    myDraw.drawMarker(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
+                    myDraw.drawMarker(finalSmallMapMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
+                }
 
 
                 /*

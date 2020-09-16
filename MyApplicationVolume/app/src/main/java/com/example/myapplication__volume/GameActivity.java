@@ -114,7 +114,7 @@ public class GameActivity extends BaseActivity {
 
         remoteSocket = new Remote_Socket(this);
 
-        myrenderer.addMarker(position);
+//        myrenderer.addMarker(position);
         myrenderer.setIfGame(true);
 
         myGLSurfaceView = new GameActivity.MyGLSurfaceView(this);
@@ -291,19 +291,19 @@ public class GameActivity extends BaseActivity {
                                 gameCharacter.setPosition(new float[]{0.5f, 0.5f, 0.5f});
                                 travelPath.move(dis);
 
-                                myrenderer.clearCurSwcList();
-                                myrenderer.addSwc(travelPath);
+//                                myrenderer.clearCurSwcList();
+//                                myrenderer.addSwc(travelPath);
 
-                                myrenderer.clearMarkerList();
-                                myrenderer.addMarker(new float[]{0.5f, 0.5f, 0.5f});
+//                                myrenderer.clearMarkerList();
+//                                myrenderer.addMarker(new float[]{0.5f, 0.5f, 0.5f});
 
                                 lastPlace = new float[]{0.5f, 0.5f, 0.5f};
                             } else {
 
                                 float[] position = gameCharacter.getPosition();
 
-                                myrenderer.clearMarkerList();
-                                myrenderer.addMarker(position);
+//                                myrenderer.clearMarkerList();
+//                                myrenderer.addMarker(position);
 
                                 if (((position[0] - lastPlace[0]) * (position[0] - lastPlace[0])
                                         + (position[1] - lastPlace[1]) * (position[1] - lastPlace[1])
@@ -376,6 +376,7 @@ public class GameActivity extends BaseActivity {
             case R.id.back:
                 timer.cancel();
                 task.cancel();
+                MainActivity.setIfGame(false);
                 finish();
             default:
                 return true;
