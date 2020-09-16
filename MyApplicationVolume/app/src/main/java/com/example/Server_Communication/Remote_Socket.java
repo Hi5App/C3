@@ -179,7 +179,7 @@ public class Remote_Socket extends Socket {
         String ImportportExp = ":importport.\n";
 
 
-        Log.v("onReadyRead", information);
+        Log.i("onReadyRead", information);
 
         if(information != null){
 
@@ -201,12 +201,12 @@ public class Remote_Socket extends Socket {
                  *  something
                  */
             }else if (information.contains(CurrentDirDownExp)){
-                Log.v("onReadyRead", "CurrentDirDownExp  here we are");
+                Log.i("onReadyRead", "CurrentDirDownExp  here we are");
                 String [] file_string = information.split(":");
                 String [] file_list = file_string[0].split(";");
 
                 for (int i = 0; i < file_list.length; i++)
-                    Log.v("onReadyRead", file_list[i]);
+                    Log.i("onReadyRead", file_list[i]);
 
                 ShowListDialog(mContext, file_list, "CurrentDirDownExp");
 
@@ -215,7 +215,7 @@ public class Remote_Socket extends Socket {
                 String [] file_list = file_string[0].split(";");
 
                 for (int i = 0; i < file_list.length; i++)
-                    Log.v("onReadyRead", file_list[i]);
+                    Log.i("onReadyRead", file_list[i]);
 
                 ShowListDialog(mContext, file_list, "CurrentDirLoadExp");
             }else if (information.contains(CurrentDirImgDownExp)) {
@@ -223,7 +223,7 @@ public class Remote_Socket extends Socket {
                 String[] file_list = file_string[0].split(";");
 
 //                for (int i = 0; i < file_list.length; i++)
-//                    Log.v("onReadyRead", file_list[i]);
+//                    Log.i("onReadyRead", file_list[i]);
 
                 ShowListDialog(file_list);
             }else if (information.contains(CurrentDirArborDownExp)){
@@ -231,7 +231,7 @@ public class Remote_Socket extends Socket {
                 String[] file_list = file_string[0].split(";");
 
                 for (int i = 0; i < file_list.length; i++){
-//                    Log.v("onReadyRead", file_list[i]);
+//                    Log.i("onReadyRead", file_list[i]);
                     Arbor_Check_List.add(file_list[i]);
                 }
 
@@ -262,7 +262,7 @@ public class Remote_Socket extends Socket {
 
 //                Toast.makeText(context,"你点击了" + items[which], Toast.LENGTH_SHORT).show();
 
-                Log.v("ShowListDialog", type);
+                Log.i("ShowListDialog", type);
 
                 Send_Brain_Number(items[which]);
 
@@ -271,11 +271,11 @@ public class Remote_Socket extends Socket {
                 if (type.equals("CurrentDirLoadExp"))
 //                    send1(items[which], context);
                 if (type == "CurrentDirImgDownExp" ){
-                    Log.v("ShowListDialog","Start to Send BrainNumber.");
+                    Log.i("ShowListDialog","Start to Send BrainNumber.");
                     Send_Brain_Number(items[which]);
                 }
 
-//                Log.v("ShowListDialog","Start to Send BrainNumber.");
+//                Log.i("ShowListDialog","Start to Send BrainNumber.");
 
             }
         });
@@ -491,7 +491,7 @@ public class Remote_Socket extends Socket {
 
         Make_Connect();
 
-        Log.v("Send_Brain_Number","Start to Send ArborNumber.");
+        Log.i("Send_Brain_Number","Start to Send ArborNumber.");
 
         ArborNumber_Selected = ArborNumber;
         setFilename_Remote_Check(ArborNumber, mContext);
@@ -520,7 +520,7 @@ public class Remote_Socket extends Socket {
 
                 Make_Connect();
 
-                Log.v("Send_Brain_Number","Start to Send BrainNumber.");
+                Log.i("Send_Brain_Number","Start to Send BrainNumber.");
 
                 BrainNumber_Selected = BrainNumber.replace("check","");
                 setFilename_Remote(BrainNumber.replace("check",""), mContext);
@@ -552,7 +552,7 @@ public class Remote_Socket extends Socket {
 
         if (getFilename_Remote(mContext).equals("--11--")){
             Toast.makeText(mContext,"Select a Remote File First, please !", Toast.LENGTH_SHORT).show();
-            Log.v("SelectBlock","The File is not Selected");
+            Log.i("SelectBlock","The File is not Selected");
             return;
         }
 
@@ -773,7 +773,7 @@ public class Remote_Socket extends Socket {
 
                         ActivityManager activityManager = (ActivityManager)mContext.getSystemService(Context.ACTIVITY_SERVICE);
                         String runningActivity = activityManager.getRunningTasks(1).get(0).topActivity.getClassName();
-                        Log.v("RunningActivity", runningActivity);
+                        Log.i("RunningActivity", runningActivity);
                         MainActivity.LoadBigFile_Remote(Store_path_Img + "/" + StoreFilename);
 
                     } else {
@@ -782,7 +782,7 @@ public class Remote_Socket extends Socket {
                         Send_Message(msg);
 
                         Get_Img(Store_path_Img,true);
-                        Log.v("PullImageBlock", "x: " + offset_x + ", y:" + offset_y + ", z:" +offset_z + ", size: " + size +  " successfully---------");
+                        Log.i("PullImageBlock", "x: " + offset_x + ", y:" + offset_y + ", z:" +offset_z + ", size: " + size +  " successfully---------");
 
                     }
 
@@ -1011,7 +1011,7 @@ public class Remote_Socket extends Socket {
         String neuron_num = getNeuronNumber_Remote(mContext,filename);
 
         int index = Neuron_Number_List.indexOf(neuron_num);
-        Log.v("Adjust_Index"," " + index);
+        Log.i("Adjust_Index"," " + index);
 
         int start = Math.max(index - 1, 0);
         int end   = (index - 1) > 0 ? Neuron_Number_List.size() + index-1 : Neuron_Number_List.size();
@@ -1031,7 +1031,7 @@ public class Remote_Socket extends Socket {
             String arbor_name = getFilename_Remote_Check(mContext);
 
             int index = Neuron_Number_List.indexOf(arbor_name);
-            Log.v("Adjust_Index"," " + index);
+            Log.i("Adjust_Index"," " + index);
             if (index >= 0){
 
                 int start = Math.max(index - 1, 0);
@@ -2008,7 +2008,7 @@ public class Remote_Socket extends Socket {
     private void Make_Connect(){
 
         if (ManageSocket == null || !CheckConnection()){
-            Log.v("Make_Connect","Connect Again");
+            Log.i("Make_Connect","Connect Again");
             ConnectServer(ip);
         }
 
@@ -2052,7 +2052,7 @@ public class Remote_Socket extends Socket {
         result[2] = Integer.toString(z_offset_i);
         result[3] = Integer.toString(size_i);
 
-        Log.v("JudgeEven", Arrays.toString(result));
+        Log.i("JudgeEven", Arrays.toString(result));
 
         return result;
     }
@@ -2096,7 +2096,7 @@ public class Remote_Socket extends Socket {
         String offset = input[0] + "_" + input[1] + "_" + input[2] + "_" +input[3];
         setoffset_Remote(offset, filename_root, mContext);
 
-        Log.v(TAG, offset);
+        Log.i(TAG, offset);
 
 //        if ( ( x_offset_i - size_i/2 < 0 ) || ( x_offset_i + size_i/2 > x_size -2) )
 //            return false;
@@ -2200,7 +2200,7 @@ public class Remote_Socket extends Socket {
                         i++;
                         String offset = arraylist.get(i).split(":")[1];
                         point_list.add("arbor " + (j+1) + ":" + offset);
-                        Log.v("Neuron_Info: ", " " + Neuron_Info_temp.size());
+                        Log.i("Neuron_Info: ", " " + Neuron_Info_temp.size());
 
                     }
 
@@ -2263,7 +2263,7 @@ public class Remote_Socket extends Socket {
         ArrayList<ArrayList<Integer>> marker_list = new ArrayList<ArrayList<Integer>>();
 
         float ratio = getRatio_SWC();
-        Log.v("getMarker", "ratio: " + ratio);
+        Log.i("getMarker", "ratio: " + ratio);
 
         String[] soma_index = Neuron_Info.get(Neuron_Number_Selected).get(0).split(":")[1].split(";");
 
@@ -2282,11 +2282,11 @@ public class Remote_Socket extends Socket {
 //            int y = (int) ( Marker_List.get(i+1) / (float) ratio);
 //            int z = (int) ( Marker_List.get(i+2) / (float) ratio);
 //
-//            Log.v("Remote_Socket", Neuron_Info.get(Neuron_Number_Selected).get(0));
+//            Log.i("Remote_Socket", Neuron_Info.get(Neuron_Number_Selected).get(0));
 //
 //
 //
-////            Log.v("getMarker","(" + x + ", " + y + ", " + z + ")");
+////            Log.i("getMarker","(" + x + ", " + y + ", " + z + ")");
 //
 //            if (x >= index[0] && y >= index[1] && z>= index[2] &&
 //                x < index[3] && y < index[4] && z < index[5]){
@@ -2296,13 +2296,13 @@ public class Remote_Socket extends Socket {
 //                marker.add(z - index[2]);
 //                marker_list.add(marker);
 //
-//                Log.v("getMarker","(" + x + ", " + y + ", " + z + ")");
+//                Log.i("getMarker","(" + x + ", " + y + ", " + z + ")");
 //
 //            }
 //        }
 
-        Log.v("getMarker",marker_list.size() + " !");
-        Log.v("getMarker",Marker_List.size() + " !");
+        Log.i("getMarker",marker_list.size() + " !");
+        Log.i("getMarker",Marker_List.size() + " !");
         return marker_list;
 
     }

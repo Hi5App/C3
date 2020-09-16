@@ -49,7 +49,7 @@ public class Socket_Receive {
             public void run() {
                 try {
 
-                    Log.v("Get_Message", "start to read file");
+                    Log.i("Get_Message", "start to read file");
                     DataInputStream in = new DataInputStream((FileInputStream) (socket.getInputStream()));
 
                     //前两个 uint64 记录传输内容的总长度 和 文件名的长度
@@ -63,7 +63,7 @@ public class Socket_Receive {
 
 
                     if (Data_size_int != Message_size_int + 4){
-//                        Log.v("readfile IoUtils", Integer.toString(IOUtils.copy(in, outputStream)));
+//                        Log.i("readfile IoUtils", Integer.toString(IOUtils.copy(in, outputStream)));
                     }
 
                     //读取 Msg 内容
@@ -74,9 +74,9 @@ public class Socket_Receive {
                     String Msg_SubString = Msg_String.substring(4);
 
 
-                    Log.v("Get_Msg: Data_size", Long.toString(bytesToLong(Data_size)));
-                    Log.v("Get_Msg: Message_size", Long.toString(bytesToLong(Message_size)));
-                    Log.v("Get_Msg", Msg_SubString);
+                    Log.i("Get_Msg: Data_size", Long.toString(bytesToLong(Data_size)));
+                    Log.i("Get_Msg: Message_size", Long.toString(bytesToLong(Message_size)));
+                    Log.i("Get_Msg", Msg_SubString);
 
 
                     Msg[0] = Msg_SubString;
@@ -94,7 +94,7 @@ public class Socket_Receive {
             e.printStackTrace();
         }
 
-        Log.v("Get_Message: ", "Receive Msg Successfully !");
+        Log.i("Get_Message: ", "Receive Msg Successfully !");
         return Msg[0];
 
     }
@@ -112,7 +112,7 @@ public class Socket_Receive {
             public void run() {
                 try {
 
-                    Log.v("Get_Message", "start to read file");
+                    Log.i("Get_Message", "start to read file");
                     DataInputStream in = new DataInputStream((FileInputStream) (socket.getInputStream()));
 
                     //前两个 uint64 记录传输内容的总长度 和 文件名的长度
@@ -146,10 +146,10 @@ public class Socket_Receive {
                     }
 
 
-                    Log.v("Get_Msg: Data_size", Long.toString(bytesToLong(Data_size)));
-                    Log.v("Get_Msg: FileName_size", Long.toString(bytesToLong(FileName_size)));
-                    Log.v("Get_Msg", FileName_String);
-                    Log.v("Get_Msg", FileName_SubString);
+                    Log.i("Get_Msg: Data_size", Long.toString(bytesToLong(Data_size)));
+                    Log.i("Get_Msg: FileName_size", Long.toString(bytesToLong(FileName_size)));
+                    Log.i("Get_Msg", FileName_String);
+                    Log.i("Get_Msg", FileName_SubString);
 
 
 //                    for (byte a : FileName_String_byte){
@@ -164,7 +164,7 @@ public class Socket_Receive {
                     File dir = new File(file_path);
                     if (!dir.exists()){
                         if(dir.mkdirs()){
-                            Log.v("Get_File", "Create dirs Successfully !");
+                            Log.i("Get_File", "Create dirs Successfully !");
                         }
                     }
 
@@ -172,7 +172,7 @@ public class Socket_Receive {
                     File file = new File(file_path + "/" + FileName_SubString);
                     if(!file.exists()){
                         if (file.createNewFile()){
-                            Log.v("Get_File", "Create file Successfully !");
+                            Log.i("Get_File", "Create file Successfully !");
                         }
                     }
 
@@ -227,7 +227,7 @@ public class Socket_Receive {
 
         }
 
-        Log.v("Get_File: ", "Receive File Successfully !");
+        Log.i("Get_File: ", "Receive File Successfully !");
 
         return File_Name_Complete[0];
 
@@ -244,7 +244,7 @@ public class Socket_Receive {
 
         ActivityManager activityManager=(ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
         String runningActivity=activityManager.getRunningTasks(1).get(0).topActivity.getClassName();
-        Log.v(TAG,"runningActivity:  " + runningActivity);
+        Log.i(TAG,"runningActivity:  " + runningActivity);
 
         if (runningActivity.equals(MainActivity.NAME)){
             MainActivity.showProgressBar();
@@ -261,14 +261,14 @@ public class Socket_Receive {
             public void run() {
                 try{
 
-                    Log.v("Get_Block", "Start to Read Block");
+                    Log.i("Get_Block", "Start to Read Block");
                     DataInputStream in = new DataInputStream((FileInputStream)(socket.getInputStream()));
 
                     Timer timer = new Timer();
                     timer.schedule(new TimerTask() {
                         public void run() {
 
-                            Log.v("--- Get_Block ---", "Start TimerTask");
+                            Log.i("--- Get_Block ---", "Start TimerTask");
 
                             long startTime=System.currentTimeMillis();
 
@@ -279,7 +279,7 @@ public class Socket_Receive {
                             long stopTime=System.currentTimeMillis();
 
                             // current time cost 45s
-                            Log.v("Get_Block: ", "Time: " + Long.toString(stopTime - startTime) + "ms" ) ;
+                            Log.i("Get_Block: ", "Time: " + Long.toString(stopTime - startTime) + "ms" ) ;
 
                             if (!ifDownloaded[0]){
                                 try {
@@ -290,7 +290,7 @@ public class Socket_Receive {
 
                                 } catch (IOException e) {
                                     e.printStackTrace();
-                                    Log.v("--- Get_Block ---", "Fail to Close DataInputStream!");
+                                    Log.i("--- Get_Block ---", "Fail to Close DataInputStream!");
                                 }
                             }
 
@@ -309,8 +309,8 @@ public class Socket_Receive {
                     int FileName_size_int = (int) bytesToLong(FileName_size);
                     int Data_size_int = (int) bytesToLong(Data_size);
 
-                    Log.v("Get_Block: Data", Long.toString(bytesToLong(Data_size)));
-                    Log.v("Get_Block: FileName", Long.toString(bytesToLong(FileName_size)));
+                    Log.i("Get_Block: Data", Long.toString(bytesToLong(Data_size)));
+                    Log.i("Get_Block: FileName", Long.toString(bytesToLong(FileName_size)));
 
                     if (Data_size_int <= 16 + FileName_size_int){
                         Toast_in_Thread("Fail to Download File, Try Again Later !");
@@ -331,12 +331,12 @@ public class Socket_Receive {
                     byte[] FileContent_byte = new byte[4];
                     in.read(FileContent_byte, 0, 4);
 
-                    Log.v("Get: FileContent_size", Long.toString(bytesToInt(FileContent_byte)));
+                    Log.i("Get: FileContent_size", Long.toString(bytesToInt(FileContent_byte)));
 
                     File dir = new File(file_path);
                     if (!dir.exists()){
                         if(dir.mkdirs()){
-                            Log.v("Get_File", "Create dirs Successfully !");
+                            Log.i("Get_File", "Create dirs Successfully !");
                         }
                     }
 
@@ -344,7 +344,7 @@ public class Socket_Receive {
                     File file = new File(file_path + "/" + FileName_SubString);
                     if(!file.exists()){
                         if (file.createNewFile()){
-                            Log.v("Get_File", "Create file Successfully !");
+                            Log.i("Get_File", "Create file Successfully !");
                         }
                     }
 
@@ -357,12 +357,17 @@ public class Socket_Receive {
                     byte [] File_Content = new byte[1024];
                     byte [] File_Content_End = new byte[End];
 
+//                    Log.i(TAG,"Start to Receive img");
+//
+//                    long startTime=System.currentTimeMillis();
+
                     for(int i = 0; i< Loop; i++){
 
                         if (in.available() < 1024){
                             i--;
                             continue;
                         }
+//                        Log.i(TAG,"read img: " + i +"; Total size: " + Loop);
                         in.read(File_Content, 0, 1024);
                         out.write(File_Content);
                     }
@@ -379,7 +384,11 @@ public class Socket_Receive {
                     }
                     out.close();
 
-                    Log.v("File Size", "Size :" + file.length());
+//                    long stopTime=System.currentTimeMillis();
+//
+//                    Log.i(TAG,"Receive img cost: " + ( stopTime - startTime )+"ms");
+
+                    Log.i("File Size", "Size :" + file.length());
                     ifDownloaded[0] = true;
                     FileName[0] = FileName_SubString;
 
@@ -414,7 +423,7 @@ public class Socket_Receive {
             if (runningActivity.equals(MainActivity.NAME)){
                 MainActivity.LoadBigFile_Remote(file_path + "/" + FileName[0]);
             }else if (runningActivity.equals(GameActivity.NAME)){
-                Log.v(TAG,"GameActivity.LoadBigFile_Remote start ...");
+                Log.i(TAG,"GameActivity.LoadBigFile_Remote start ...");
                 GameActivity.LoadBigFile_Remote(file_path + "/" + FileName[0]);
             }
         }

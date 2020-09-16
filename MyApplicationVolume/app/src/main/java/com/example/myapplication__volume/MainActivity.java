@@ -476,7 +476,10 @@ public class MainActivity extends BaseActivity {
                     if (DrawMode){
                         String source = getSelectSource(context);
                         if (source.equals("Remote Server Aliyun")){
-                            result = name.split("_")[1].substring(0,name.split("_")[1].length()-3);
+                            String filename = getFilename(context);
+                            String brain_number = getNeuronNumber_Remote(context,filename);
+                            result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
+//                            result = name.split("_")[1].substring(0,name.split("_")[1].length()-3);
                         }else if(source.equals("Remote Server SEU")){
                             String filename = getFilename(context);
                             String brain_number = getNeuronNumber_Remote(context,filename);
