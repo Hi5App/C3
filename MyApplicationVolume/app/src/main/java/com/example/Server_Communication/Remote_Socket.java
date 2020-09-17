@@ -462,6 +462,8 @@ public class Remote_Socket extends Socket {
 
     public void Select_Brain(boolean isDrawMode){
 
+        backup();
+
         this.isDrawMode = isDrawMode;
 
         if (isDrawMode){
@@ -584,7 +586,6 @@ public class Remote_Socket extends Socket {
             offset_y = offset_transform[1];
             offset_z = offset_transform[2];
             size     = "128";
-//            size     = offset_transform[3];
         }
 
         String offset = offset_x + "_" + offset_y + "_" + offset_z + "_" + size;
@@ -920,6 +921,7 @@ public class Remote_Socket extends Socket {
 
     public void Select_Neuron_Fast(){
 
+        backup();
         Update_Check_Result();
         Vector<String> Neuron_Number_List_show = Adjust_Index();
 
@@ -1129,6 +1131,8 @@ public class Remote_Socket extends Socket {
     }
 
     private void PullImageBlock_fast(Context context, String direction){
+        backup();
+
         String filename_root = getFilename_Remote(context);        // BrainNumber: 18465/RES250x250x250
         String offset = getoffset_Remote(context, filename_root);  // offset:
 
@@ -2307,6 +2311,18 @@ public class Remote_Socket extends Socket {
         Log.i("getMarker",marker_list.size() + " !");
         Log.i("getMarker",Marker_List.size() + " !");
         return marker_list;
+
+    }
+
+
+    public void backup(){
+        String fileName = getFilename_Remote(mContext);
+        String neuronNum = getNeuronNumber_Remote(mContext,fileName);
+        String offset = getoffset_Remote(mContext,fileName);
+
+        socket_receive.setFileName_Backup(fileName);
+        socket_receive.setNeuronNum_Backup(neuronNum);
+        socket_receive.setOffset_Backup(offset);
 
     }
 

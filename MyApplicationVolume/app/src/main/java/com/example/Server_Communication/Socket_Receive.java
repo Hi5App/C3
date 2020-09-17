@@ -23,6 +23,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.example.datastore.SettingFileManager.setFilename_Remote;
+import static com.example.datastore.SettingFileManager.setNeuronNumber_Remote;
+import static com.example.datastore.SettingFileManager.setoffset_Remote;
+
 public class Socket_Receive {
 
     private Context mContext;
@@ -32,6 +36,10 @@ public class Socket_Receive {
     private static final String SOCKET_CLOSED = "socket is closed or fail to connect";
     private static final String EMPTY_MSG = "the msg is empty";
     private static final String EMPTY_FILE_PATH = "the file path is empty";
+
+    private String fileName_Backup = "";
+    private String neuronNum_Backup = "";
+    private String offset_Backup = "";
 
     public Socket_Receive(Context context){
         mContext = context;
@@ -54,6 +62,8 @@ public class Socket_Receive {
                     //前两个 uint64 记录传输内容的总长度 和 文件名的长度
                     byte[] Data_size = new byte[8];
                     byte[] Message_size = new byte[8];
+
+                    while(in.available() < 16);
                     in.read(Data_size, 0, 8);
                     in.read(Message_size, 0, 8);
 
@@ -74,6 +84,7 @@ public class Socket_Receive {
 
                     //读取 Msg 内容
                     byte[] Msg_String_byte = new byte[Message_size_int];
+                    while(in.available() < Message_size_int);
                     in.read(Msg_String_byte, 0, Message_size_int);
 
                     String Msg_String = new String(Msg_String_byte, StandardCharsets.UTF_8);
@@ -124,6 +135,8 @@ public class Socket_Receive {
                     //前两个 uint64 记录传输内容的总长度 和 文件名的长度
                     byte[] Data_size = new byte[8];
                     byte[] FileName_size = new byte[8];
+
+                    while(in.available() < 16);
                     in.read(Data_size, 0, 8);
                     in.read(FileName_size, 0, 8);
 
@@ -141,6 +154,7 @@ public class Socket_Receive {
 
                     //读取 Msg 内容
                     byte[] FileName_String_byte = new byte[FileName_size_int];
+                    while(in.available() < FileName_size_int);
                     in.read(FileName_String_byte, 0, FileName_size_int);
 
                     String FileName_String = new String(FileName_String_byte, StandardCharsets.UTF_8);
@@ -284,11 +298,16 @@ public class Socket_Receive {
 
                             long stopTime=System.currentTimeMillis();
 
-                            // current time cost 45s
                             Log.i("Get_Block: ", "Time: " + Long.toString(stopTime - startTime) + "ms" ) ;
 
                             if (!ifDownloaded[0]){
                                 try {
+
+                                    if (!fileName_Backup.equals("") && !neuronNum_Backup.equals("") && !offset_Backup.equals("")) {
+                                        setFilename_Remote(fileName_Backup,mContext);
+                                        setNeuronNumber_Remote(neuronNum_Backup,fileName_Backup,mContext);
+                                        setoffset_Remote(offset_Backup,fileName_Backup,mContext);
+                                    }
 
                                     isTimeOut[0] = true;
                                     MainActivity.Time_Out();
@@ -308,6 +327,7 @@ public class Socket_Receive {
                     byte [] Data_size = new byte[8];
                     byte [] FileName_size = new byte[8];
 
+                    while (in.available() < 16);
                     in.read(Data_size, 0, 8);
                     in.read(FileName_size, 0, 8);
 
@@ -330,11 +350,15 @@ public class Socket_Receive {
 
                     //读取文件名和内容
                     byte [] FileName_String_byte = new byte[FileName_size_int - 4];
+
+                    while (in.available() < FileName_size_int - 4);
                     in.read(FileName_String_byte, 0, FileName_size_int - 4);
                     String FileName_String = new String(FileName_String_byte, StandardCharsets.UTF_8);
                     String FileName_SubString = FileName_String.substring(4, FileName_String.length());
 
                     byte[] FileContent_byte = new byte[4];
+
+                    while (in.available() < 4);
                     in.read(FileContent_byte, 0, 4);
 
                     Log.i("Get: FileContent_size", Long.toString(bytesToInt(FileContent_byte)));
@@ -436,6 +460,17 @@ public class Socket_Receive {
 
     }
 
+    public void setFileName_Backup(String fileName_Backup) {
+        this.fileName_Backup = fileName_Backup;
+    }
+
+    public void setNeuronNum_Backup(String neuronNum_Backup) {
+        this.neuronNum_Backup = neuronNum_Backup;
+    }
+
+    public void setOffset_Backup(String offset_Backup) {
+        this.offset_Backup = offset_Backup;
+    }
 
     /**
      * toast info in the thread
