@@ -244,6 +244,7 @@ public class MainActivity extends BaseActivity {
     private ImageButton Rotation_i;
     private ImageButton Hide_i;
     private static ImageButton Undo_i;
+    private static ImageButton Redo_i;
     private ImageButton Sync_i;
     private Button Sync;
     private Button Switch;
@@ -290,6 +291,7 @@ public class MainActivity extends BaseActivity {
     private static FrameLayout.LayoutParams lp_red_color;
     private FrameLayout.LayoutParams lp_animation_i;
     private static FrameLayout.LayoutParams lp_undo;
+    private static FrameLayout.LayoutParams lp_redo;
 
     private Button PixelClassification;
     private boolean[][]select= {{true,true,true,false,false,false,false},
@@ -1065,7 +1067,12 @@ public class MainActivity extends BaseActivity {
 
         Undo_i.setOnClickListener(new Button.OnClickListener(){
             public void onClick(View v){
-                boolean undoSuccess = myrenderer.undo2();
+                boolean undoSuccess = false;
+                try {
+                    undoSuccess = myrenderer.undo2();
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
                 if (!undoSuccess) {
                     Toast.makeText(context, "nothing to undo", Toast.LENGTH_SHORT).show();
                 }
@@ -1073,6 +1080,23 @@ public class MainActivity extends BaseActivity {
             }
         });
 
+        lp_redo = new FrameLayout.LayoutParams(120, 120);
+        lp_redo.setMargins(0, 20, 20, 0);
+
+        Redo_i = new ImageButton(this);
+        Redo_i.setImageResource(R.drawable.ic_redo);
+        Redo_i.setBackgroundResource(R.drawable.circle_normal);
+        ll_hs_back.addView(Redo_i, lp_redo);
+
+        Redo_i.setOnClickListener(new Button.OnClickListener(){
+            public void onClick(View v){
+                boolean redoSuccess = myrenderer.redo();
+                if (!redoSuccess){
+                    Toast_in_Thread("nothing to redo");
+                }
+                myGLSurfaceView.requestRender();
+            }
+        });
 
         FrameLayout.LayoutParams lp_downsample = new FrameLayout.LayoutParams(120, 120);
 
@@ -1852,13 +1876,17 @@ public class MainActivity extends BaseActivity {
                                     Toast.makeText(this,"Make sure the .apo file is right",Toast.LENGTH_SHORT).show();
                                     break;
                                 }
+
                                 myrenderer.importApo(apo);
+                                myrenderer.saveUndo();
                                 break;
                             case ".SWC":
                             case ".ESWC":
                                 Log.v("onActivityResult", ".eswc");
                                 NeuronTree nt = NeuronTree.readSWC_file(uri);
+
                                 myrenderer.importNeuronTree(nt);
+                                myrenderer.saveUndo();
                                 break;
 
                             case ".ANO":
@@ -1872,8 +1900,10 @@ public class MainActivity extends BaseActivity {
 
                                 NeuronTree nt2 = NeuronTree.readSWC_file(swc_path);
                                 ano_apo = apoReader_1.read(apo_path);
+
                                 myrenderer.importNeuronTree(nt2);
                                 myrenderer.importApo(ano_apo);
+                                myrenderer.saveUndo();
                                 break;
 
                             default:
@@ -2034,6 +2064,8 @@ public class MainActivity extends BaseActivity {
                 Toast.makeText(this, " Fail to load file  ", Toast.LENGTH_SHORT).show();
                 Log.v("MainActivity", "111222");
                 Log.v("Exception", e.toString());
+            } catch (CloneNotSupportedException e){
+                Log.v("Exception:", e.toString());
             }
 //            } catch (FileNotFoundException e) {
 //                e.printStackTrace();
@@ -3178,6 +3210,7 @@ public class MainActivity extends BaseActivity {
 
                                                     try {
                                                         GDTracing();
+                                                        myrenderer.saveUndo();
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
@@ -3219,6 +3252,7 @@ public class MainActivity extends BaseActivity {
 
                                                     try {
                                                         APP2();
+                                                        myrenderer.saveUndo();
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
@@ -4684,7 +4718,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200917a 10:53 UTC+8 build",
+                                "Version: 20200918a 09:37 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5127,7 +5161,7 @@ public class MainActivity extends BaseActivity {
             Looper.loop();
             return;
         }
-        myrenderer.saveUndo();
+
         ArrayList<ImageMarker> markers = myrenderer.getMarkerList().getMarkers();
         try {
             ParaAPP2 p = new ParaAPP2();
@@ -5202,7 +5236,7 @@ public class MainActivity extends BaseActivity {
             Looper.loop();
             return;
         }
-        myrenderer.saveUndo();
+
         ArrayList<ImageMarker> markers = myrenderer.getMarkerList().getMarkers();
         if (markers.size() <= 1) {
             Log.v("GDTracing", "Please generate at least two markers!");
@@ -6703,7 +6737,7 @@ public class MainActivity extends BaseActivity {
 //                            myrenderer.setLineDrawed(lineDrawed);
 //                            requestRender();
 //
-//                            myrenderer.setIfPainting(false);
+//                            myrenderer.setIfPaiFting(false);
 //                            requestRender();
 //
 //                        }
@@ -6776,13 +6810,13 @@ public class MainActivity extends BaseActivity {
 //                            requestRender();
 //                                                    int [] curUndo = new int[1];
 //                                                    curUndo[0] = -1;
-
-                                                        V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed);
+                                                        V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
+                                                        V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed, v_neuronSWC_list);
                                                         System.out.println("feature");
 //                                                    System.out.println(v_neuronSWC_list.seg.size());
                                                         if (seg != null) {
-                                                            V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
-                                                            myrenderer.addLineDrawed2(lineDrawed, v_neuronSWC_list, seg);
+//                                                            V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
+                                                            myrenderer.addLineDrawed2(lineDrawed, seg);
                                                             myrenderer.deleteFromCur(seg, v_neuronSWC_list[0]);
                                                         }
 //                                                    else {

@@ -86,7 +86,7 @@ import static javax.microedition.khronos.opengles.GL10.GL_SRC_ALPHA;
 public class MyRenderer implements GLSurfaceView.Renderer {
     private static final String TAG = "MyRenderer";
     private int UNDO_LIMIT = 20;
-    private int curUndo = 0;
+    private int curUndo = -1;
     private enum Operate {DRAWCURVE, DELETECURVE, DRAWMARKER, DELETEMARKER, CHANGELINETYPE, SPLIT};
     private Vector<Operate> process = new Vector<>();
     private Vector<V_NeuronSWC> undoDrawList = new Vector<>();
@@ -266,6 +266,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         MyAxis.initProgram();
         MyDraw.initProgram();
         MyNavLoc.initProgram();
+
+        V_NeuronSWC_list v_neuronSWC_list = new V_NeuronSWC_list();
+        MarkerList markerList = new MarkerList();
+
+        undoCurveList.add(v_neuronSWC_list);
+        undoMarkerList.add(markerList);
+        curUndo = 0;
 
         /*
         init matrix
@@ -915,6 +922,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         curSwcList.clear();
         markerList.clear();
         cur_scale = 1.0f;
+
+        undoCurveList.clear();
+        undoMarkerList.clear();
+
+        V_NeuronSWC_list v_neuronSWC_list = new V_NeuronSWC_list();
+        MarkerList markerList = new MarkerList();
+
+        undoCurveList.add(v_neuronSWC_list);
+        undoMarkerList.add(markerList);
+        curUndo = 0;
+
         filepath = message;
         SetFileType();
 
@@ -1194,14 +1212,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public void deleteAllTracing() {
 
+        for (int i = curSwcList.seg.size(); i >= 0; i--){
+            curSwcList.deleteSeg(i);
+        }
+
         try {
             saveUndo();
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
-        }
-
-        for (int i = curSwcList.seg.size(); i >= 0; i--){
-            curSwcList.deleteSeg(i);
         }
     }
 
@@ -1467,25 +1485,27 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             if (pnpoly(line, positionVolumne[0], positionVolumne[1])){
 
                 if (!already){
-                    MarkerList tempMarkerList = markerList.clone();
-                    V_NeuronSWC_list tempCurveList = curSwcList.clone();
-
-                    if (curUndo < UNDO_LIMIT){
-                        curUndo += 1;
-                        undoMarkerList.add(tempMarkerList);
-                        undoCurveList.add(tempCurveList);
-                    } else {
-                        undoMarkerList.remove(0);
-                        undoCurveList.remove(0);
-                        undoMarkerList.add(tempMarkerList);
-                        undoCurveList.add(tempCurveList);
-                    }
+//                    saveUndo();
+//                    MarkerList tempMarkerList = markerList.clone();
+//                    V_NeuronSWC_list tempCurveList = curSwcList.clone();
+//
+//                    if (curUndo < UNDO_LIMIT){
+//                        curUndo += 1;
+//                        undoMarkerList.add(tempMarkerList);
+//                        undoCurveList.add(tempCurveList);
+//                    } else {
+//                        undoMarkerList.remove(0);
+//                        undoCurveList.remove(0);
+//                        undoMarkerList.add(tempMarkerList);
+//                        undoCurveList.add(tempCurveList);
+//                    }
                     already = true;
                 }
 
                 markerList.remove(tobeDeleted);
             }
         }
+        saveUndo();
     }
 
     public boolean pnpoly(ArrayList<Float> line, float x, float y){
@@ -1698,22 +1718,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             imageMarker_drawed.type = lastMarkerType;
             System.out.println("set type to 3");
 
-            MarkerList tempMarkerList = markerList.clone();
-            V_NeuronSWC_list tempCurveList = curSwcList.clone();
-
-            if (curUndo < UNDO_LIMIT){
-                curUndo += 1;
-                undoMarkerList.add(tempMarkerList);
-                undoCurveList.add(tempCurveList);
-            } else {
-                undoMarkerList.remove(0);
-                undoCurveList.remove(0);
-                undoMarkerList.add(tempMarkerList);
-                undoCurveList.add(tempCurveList);
-            }
+//            saveUndo();
 
             markerList.add(imageMarker_drawed);
 
+            saveUndo();
 //            if (process.size() < UNDO_LIMIT){
 //                process.add(Operate.DRAWMARKER);
 //                undoDrawMarkerList.add(imageMarker_drawed);
@@ -1763,19 +1772,21 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             if (dx < 0.08 && dy < 0.08){
                 ImageMarker temp = markerList.get(i);
 
-                MarkerList tempMarkerList = markerList.clone();
-                V_NeuronSWC_list tempCurveList = curSwcList.clone();
+//                saveUndo();
 
-                if (curUndo < UNDO_LIMIT){
-                    curUndo += 1;
-                    undoMarkerList.add(tempMarkerList);
-                    undoCurveList.add(tempCurveList);
-                } else {
-                    undoMarkerList.remove(0);
-                    undoCurveList.remove(0);
-                    undoMarkerList.add(tempMarkerList);
-                    undoCurveList.add(tempCurveList);
-                }
+//                MarkerList tempMarkerList = markerList.clone();
+//                V_NeuronSWC_list tempCurveList = curSwcList.clone();
+//
+//                if (curUndo < UNDO_LIMIT){
+//                    curUndo += 1;
+//                    undoMarkerList.add(tempMarkerList);
+//                    undoCurveList.add(tempCurveList);
+//                } else {
+//                    undoMarkerList.remove(0);
+//                    undoCurveList.remove(0);
+//                    undoMarkerList.add(tempMarkerList);
+//                    undoCurveList.add(tempCurveList);
+//                }
 
                 markerList.remove(i);
 //                if (process.size() < UNDO_LIMIT){
@@ -1788,6 +1799,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                    removeFirstUndo(first);
 //                    undoDeleteMarkerList.add(temp);
 //                }
+                saveUndo();
                 break;
             }
         }
@@ -1812,22 +1824,26 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             if (dx < 0.08 && dy < 0.08){
 
-                MarkerList tempMarkerList = markerList.clone();
-                V_NeuronSWC_list tempCurveList = curSwcList.clone();
+//                saveUndo();
 
-                if (curUndo < UNDO_LIMIT){
-                    curUndo += 1;
-                    undoMarkerList.add(tempMarkerList);
-                    undoCurveList.add(tempCurveList);
-                } else {
-                    undoMarkerList.remove(0);
-                    undoCurveList.remove(0);
-                    undoMarkerList.add(tempMarkerList);
-                    undoCurveList.add(tempCurveList);
-                }
+//                MarkerList tempMarkerList = markerList.clone();
+//                V_NeuronSWC_list tempCurveList = curSwcList.clone();
+//
+//                if (curUndo < UNDO_LIMIT){
+//                    curUndo += 1;
+//                    undoMarkerList.add(tempMarkerList);
+//                    undoCurveList.add(tempCurveList);
+//                } else {
+//                    undoMarkerList.remove(0);
+//                    undoCurveList.remove(0);
+//                    undoMarkerList.add(tempMarkerList);
+//                    undoCurveList.add(tempCurveList);
+//                }
 
                 ImageMarker temp = markerList.get(i);
                 temp.type = lastMarkerType;
+
+                saveUndo();
 
                 break;
             }
@@ -3128,7 +3144,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void addLineDrawed2(ArrayList<Float> line, V_NeuronSWC_list [] v_neuronSWC_lists, V_NeuronSWC background_seg) throws CloneNotSupportedException {
+    public void addLineDrawed2(ArrayList<Float> line, V_NeuronSWC background_seg) throws CloneNotSupportedException {
         if (img.getData() == null){
             return;
         }
@@ -3227,23 +3243,26 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
             }
 
-            MarkerList tempMarkerList = markerList.clone();
-            V_NeuronSWC_list tempCurveList = curSwcList.clone();
+//            V_NeuronSWC_list tempCurveList = saveUndo();
+//            MarkerList tempMarkerList = markerList.clone();
+//            V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
-            if (curUndo < UNDO_LIMIT){
-                curUndo += 1;
-                undoMarkerList.add(tempMarkerList);
-                undoCurveList.add(tempCurveList);
-            } else {
-                undoMarkerList.remove(0);
-                undoCurveList.remove(0);
-                undoMarkerList.add(tempMarkerList);
-                undoCurveList.add(tempCurveList);
-            }
+//            if (curUndo < UNDO_LIMIT){
+//                curUndo += 1;
+//                undoMarkerList.add(tempMarkerList);
+//                undoCurveList.add(tempCurveList);
+//            } else {
+//                undoMarkerList.remove(0);
+//                undoCurveList.remove(0);
+//                undoMarkerList.add(tempMarkerList);
+//                undoCurveList.add(tempCurveList);
+//            }
 
-            v_neuronSWC_lists[0] = tempCurveList;
+//            v_neuronSWC_lists[0] = tempCurveList;
 
             curSwcList.append(seg);
+
+//            saveUndo();
 //            if (process.size() < UNDO_LIMIT){
 //                process.add(Operate.DRAWCURVE);
 //                undoDrawList.add(seg);
@@ -3475,21 +3494,26 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
             }
 
-            MarkerList tempMarkerList = markerList.clone();
-            V_NeuronSWC_list tempCurveList = curSwcList.clone();
+//            saveUndo();
 
-            if (curUndo < UNDO_LIMIT){
-                curUndo += 1;
-                undoMarkerList.add(tempMarkerList);
-                undoCurveList.add(tempCurveList);
-            } else {
-                undoMarkerList.remove(0);
-                undoCurveList.remove(0);
-                undoMarkerList.add(tempMarkerList);
-                undoCurveList.add(tempCurveList);
-            }
+//            MarkerList tempMarkerList = markerList.clone();
+//            V_NeuronSWC_list tempCurveList = curSwcList.clone();
+//
+//            if (curUndo < UNDO_LIMIT){
+//                curUndo += 1;
+//                undoMarkerList.add(tempMarkerList);
+//                undoCurveList.add(tempCurveList);
+//            } else {
+//                undoMarkerList.remove(0);
+//                undoCurveList.remove(0);
+//                undoMarkerList.add(tempMarkerList);
+//                undoCurveList.add(tempCurveList);
+//            }
 
             curSwcList.append(seg);
+
+            saveUndo();
+
 //            if (process.size() < UNDO_LIMIT){
 //                process.add(Operate.DRAWCURVE);
 //                undoDrawList.add(seg);
@@ -3586,27 +3610,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
             }
 
-            MarkerList tempMarkerList = markerList.clone();
-            V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
-            if (curUndo < UNDO_LIMIT){
-                curUndo += 1;
-                undoMarkerList.add(tempMarkerList);
-                undoCurveList.add(tempCurveList);
-            } else {
-                undoMarkerList.remove(0);
-                undoCurveList.remove(0);
-                undoMarkerList.add(tempMarkerList);
-                undoCurveList.add(tempCurveList);
-            }
 
 //            c[0] = undoMarkerList.size();
 
 //            markerList = (ArrayList<ImageMarker>)MarkerList.clone();
-            v_neuronSWC_list[0] = tempCurveList;
+//            v_neuronSWC_list[0] = tempCurveList;
 
 
             curSwcList.append(seg);
+
+//            saveUndo();
+
+            v_neuronSWC_list[0] = saveUndo();;
 
 //            v_neuronSWC_list[0] = curSwcList.clone();
 
@@ -3645,7 +3661,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return true;
     }
 
-    public boolean deleteFromCur(V_NeuronSWC seg, V_NeuronSWC_list v_neuronSWC_list){
+    public boolean deleteFromCur(V_NeuronSWC seg, V_NeuronSWC_list v_neuronSWC_list) throws CloneNotSupportedException {
         System.out.println("nnnnnn");
 //        int index = undoDrawList.indexOf(seg);
 //        if (index != -1){
@@ -3668,8 +3684,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             curUndo -= 1;
         }
 
-        return curSwcList.seg.remove(seg);
+//        saveUndo();
 
+        boolean b = curSwcList.seg.remove(seg);
+
+        saveUndo();
+
+        return b;
     }
 
 
@@ -3749,21 +3770,25 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             toBeDeleted.add(curSwcList.seg.get(index));
         }
 
-        MarkerList tempMarkerList = markerList.clone();
-        V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
-        if (curUndo < UNDO_LIMIT){
-            curUndo += 1;
-            undoMarkerList.add(tempMarkerList);
-            undoCurveList.add(tempCurveList);
-        } else {
-            undoMarkerList.remove(0);
-            undoCurveList.remove(0);
-            undoMarkerList.add(tempMarkerList);
-            undoCurveList.add(tempCurveList);
-        }
+
+//        MarkerList tempMarkerList = markerList.clone();
+//        V_NeuronSWC_list tempCurveList = curSwcList.clone();
+//
+//        if (curUndo < UNDO_LIMIT){
+//            curUndo += 1;
+//            undoMarkerList.add(tempMarkerList);
+//            undoCurveList.add(tempCurveList);
+//        } else {
+//            undoMarkerList.remove(0);
+//            undoCurveList.remove(0);
+//            undoMarkerList.add(tempMarkerList);
+//            undoCurveList.add(tempCurveList);
+//        }
 
         curSwcList.deleteMutiSeg(indexToBeDeleted);
+
+        saveUndo();
 
 //        if (process.size() < UNDO_LIMIT){
 //            process.add(Operate.DELETECURVE);
@@ -3897,23 +3922,28 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                             }
                         }
 
-                        MarkerList tempMarkerList = markerList.clone();
-                        V_NeuronSWC_list tempCurveList = curSwcList.clone();
+//                        saveUndo();
 
-                        if (curUndo < UNDO_LIMIT){
-                            curUndo += 1;
-                            undoMarkerList.add(tempMarkerList);
-                            undoCurveList.add(tempCurveList);
-                        } else {
-                            undoMarkerList.remove(0);
-                            undoCurveList.remove(0);
-                            undoMarkerList.add(tempMarkerList);
-                            undoCurveList.add(tempCurveList);
-                        }
+//                        MarkerList tempMarkerList = markerList.clone();
+//                        V_NeuronSWC_list tempCurveList = curSwcList.clone();
+//
+//                        if (curUndo < UNDO_LIMIT){
+//                            curUndo += 1;
+//                            undoMarkerList.add(tempMarkerList);
+//                            undoCurveList.add(tempCurveList);
+//                        } else {
+//                            undoMarkerList.remove(0);
+//                            undoCurveList.remove(0);
+//                            undoMarkerList.add(tempMarkerList);
+//                            undoCurveList.add(tempCurveList);
+//                        }
 
                         curSwcList.deleteSeg(j);
                         curSwcList.append(newSeg1);
                         curSwcList.append(newSeg2);
+
+                        saveUndo();
+
 //                        splitPoints.add(pchildm[0]);
 //                        splitPoints.add(pchildm[1]);
 //                        splitPoints.add(pchildm[2]);
@@ -4043,19 +4073,21 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        MarkerList tempMarkerList = markerList.clone();
-        V_NeuronSWC_list tempCurveList = curSwcList.clone();
+//        saveUndo();
 
-        if (curUndo < UNDO_LIMIT){
-            curUndo += 1;
-            undoMarkerList.add(tempMarkerList);
-            undoCurveList.add(tempCurveList);
-        } else {
-            undoMarkerList.remove(0);
-            undoCurveList.remove(0);
-            undoMarkerList.add(tempMarkerList);
-            undoCurveList.add(tempCurveList);
-        }
+//        MarkerList tempMarkerList = markerList.clone();
+//        V_NeuronSWC_list tempCurveList = curSwcList.clone();
+//
+//        if (curUndo < UNDO_LIMIT){
+//            curUndo += 1;
+//            undoMarkerList.add(tempMarkerList);
+//            undoCurveList.add(tempCurveList);
+//        } else {
+//            undoMarkerList.remove(0);
+//            undoCurveList.remove(0);
+//            undoMarkerList.add(tempMarkerList);
+//            undoCurveList.add(tempCurveList);
+//        }
 
         for(V_NeuronSWC seg : this.curSwcList.seg ){
             if (seg.to_be_deleted){
@@ -4065,6 +4097,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 seg.to_be_deleted = false;
             }
         }
+
+        saveUndo();
 
 //        if (process.size() < UNDO_LIMIT){
 //            process.add(Operate.CHANGELINETYPE);
@@ -4110,6 +4144,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
 
+        saveUndo();
 //        if (process.size() < UNDO_LIMIT){
 //            process.add(Operate.CHANGELINETYPE);
 //            undoLineType.add(ChangeLineType);
@@ -4162,11 +4197,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
     public void importNeuronTree(NeuronTree nt){
-
-        if (ifLoadSWC){
-            deleteAllTracing();
-            ifLoadSWC = false;
-        }
+//
+//        if (ifLoadSWC){
+//            deleteAllTracing();
+//            ifLoadSWC = false;
+//        }
 
         System.out.println("----------------importNeuronTree----------------");
         try{
@@ -4492,21 +4527,35 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return true;
     }
 
-    public boolean undo2(){
+    public boolean undo2() throws CloneNotSupportedException {
         if (curUndo == 0)
             return false;
 
+//        curUndo -= 1;
+//        System.out.println("undosize");
+//        System.out.println(undoMarkerList.size());
+//        System.out.println("lastsize");
+//        System.out.println(undoMarkerList.get(undoMarkerList.size() - 1).size());
+        Log.v("undo2","markerList.size()" + undoMarkerList.get(curUndo).size());
+        markerList = undoMarkerList.get(curUndo - 1).clone();
+        curSwcList = undoCurveList.get(curUndo - 1).clone();
         curUndo -= 1;
-        System.out.println("undosize");
-        System.out.println(undoMarkerList.size());
-        System.out.println("lastsize");
-        System.out.println(undoMarkerList.get(undoMarkerList.size() - 1).size());
-        markerList = undoMarkerList.get(undoMarkerList.size() - 1);
-        curSwcList = undoCurveList.get(undoCurveList.size() - 1);
-        undoMarkerList.remove(undoMarkerList.size() - 1);
-        undoCurveList.remove(undoCurveList.size() - 1);
+//        undoMarkerList.remove(undoMarkerList.size() - 1);
+//        undoCurveList.remove(undoCurveList.size() - 1);
+        Log.v("undo2","curUndo" + curUndo);
         System.out.println("cursize");
         System.out.println(markerList.size());
+
+        return true;
+    }
+
+    public boolean redo(){
+        if (curUndo >= undoMarkerList.size() - 1)
+            return false;
+
+        markerList = undoMarkerList.get(curUndo + 1);
+        curSwcList = undoCurveList.get(curUndo + 1);
+        curUndo += 1;
 
         return true;
     }
@@ -4862,21 +4911,38 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return ifShowSWC;
     }
 
-    public void saveUndo() throws CloneNotSupportedException {
+    public V_NeuronSWC_list saveUndo() throws CloneNotSupportedException {
 
         MarkerList tempMarkerList = markerList.clone();
         V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
+        Log.v("MarkerList", "undoMarkerList.get(curUndo).size()" + Integer.toString(undoMarkerList.get(curUndo).size()));
+        Log.v("MarkerList", "markerList.size()" + Integer.toString(markerList.size()));
+
+        for (int i = undoMarkerList.size() - 1; i > curUndo; i--){
+            undoMarkerList.remove(i);
+            undoCurveList.remove(i);
+        }
+
+        Log.v("MarkerList", Integer.toString(undoMarkerList.get(curUndo).size()));
         if (curUndo < UNDO_LIMIT){
+
             curUndo += 1;
             undoMarkerList.add(tempMarkerList);
             undoCurveList.add(tempCurveList);
         } else {
+
             undoMarkerList.remove(0);
             undoCurveList.remove(0);
             undoMarkerList.add(tempMarkerList);
             undoCurveList.add(tempCurveList);
         }
+
+        Log.v("MarkerList", Integer.toString(undoMarkerList.get(curUndo).size()));
+        Log.v("SaveUndo:", Integer.toString(curUndo));
+        Log.v("UndoList:", Integer.toString(undoMarkerList.size()));
+
+        return tempCurveList;
     }
 
     public int[] getBinaryImg(){
@@ -4885,12 +4951,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public byte[] binarization(byte[] data_image){
-        //        int x=0;
-//        for (int i=0;i<data_image.length;i++){
-//            if (data_image[i] >100  & x<30){
-//                Log.d("iiiii",i+ " " + String.valueOf((data_image[i])));
-//            x++;}
-//        }
 
         int[] data_gray = new int[(data_image.length + 1)/4];
 //        float rate = 0.8f;
@@ -4899,153 +4959,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             data_gray[j] = byteTranslate.byte1ToInt(data_image[i]);//(int)((float)data_image[i] * 0.3 + (float)data_image[i+1] * 0.59 + (float)data_image[i+2] * 0.11);
             j++;
         }
-////        for ( int i =0; i < data_gray.length;i++){
-////            if (data_gray[i] < 0)
-////                Log.d("GRAYYY",String.valueOf(data_gray[i]));
-////        }
-//
-////        int[] data_gray_copy = data_gray.clone();
-//        float[] data_gray_average_cross = new float[data_gray.length];
-//        float[] data_gray_average_rectangle = new float[data_gray.length];
-////        int vol_hh = (int) Math.pow(((float)(vol_h + vol_w + vol_d))*vol_d/vol_h,1.0/3);
-////        int vol_ww = (int)((float)vol_hh * vol_h / vol_w);
-////        int vol_dd = (int)((float)vol_hh * vol_w / vol_d);
-//        int vol_hh = 2;
-//        int vol_ww = 2;
-//        int vol_dd = 2;
-////        Log.d("hh-ww-dd",String.valueOf(vol_hh)+"-"+String.valueOf(vol_ww)+"-"+String.valueOf(vol_dd));
-//        int OOO = 0;
-//        int OOO_i = 0;
-//        int count_count = 0;
-//
-//        for (int h = 0; h < vol_h; h++)
-//            for (int w = 0; w < vol_w; w++)
-//                for (int d = 0; d < vol_d; d++){
-//                    int index = h * vol_w + w + d*vol_w*vol_h;
-//                    int index_h1 = Math.max((h-2) * vol_w + w + d*vol_w*vol_h,0);
-//                    int index_h2 = Math.max((h-1) * vol_w + w + d*vol_w*vol_h,0);
-//                    int index_h3 = Math.min((h+1) * vol_w + w + d*vol_w*vol_h,vol_h);
-//                    int index_h4 = Math.min((h+2) * vol_w + w + d*vol_w*vol_h,vol_h);
-//                    int index_w1 = Math.max(h * vol_w + (w-2) + d*vol_w*vol_h,0);
-//                    int index_w2 = Math.max(h * vol_w + (w-1) + d*vol_w*vol_h,0);
-//                    int index_w3 = Math.min(h * vol_w + (w+1) + d*vol_w*vol_h,vol_w);
-//                    int index_w4 = Math.min(h * vol_w + (w+2) + d*vol_w*vol_h,vol_w);
-//                    int index_d1 = Math.max(h * vol_w + w + (d-2)*vol_w*vol_h,0);
-//                    int index_d2 = Math.max(h * vol_w + w + (d-1)*vol_w*vol_h,0);
-//                    int index_d3 = Math.min(h * vol_w + w + (d+1)*vol_w*vol_h,vol_d);
-//                    int index_d4 = Math.min(h * vol_w + w + (d+2)*vol_w*vol_h,vol_d);
-//
-//                    int index_h5 = Math.max((h-4) * vol_w + w + d*vol_w*vol_h,0);
-//                    int index_h6 = Math.max((h-3) * vol_w + w + d*vol_w*vol_h,0);
-//                    int index_h7 = Math.min((h+3) * vol_w + w + d*vol_w*vol_h,vol_h);
-//                    int index_h8 = Math.min((h+4) * vol_w + w + d*vol_w*vol_h,vol_h);
-//                    int index_w5 = Math.max(h * vol_w + (w-4) + d*vol_w*vol_h,0);
-//                    int index_w6 = Math.max(h * vol_w + (w-3) + d*vol_w*vol_h,0);
-//                    int index_w7 = Math.min(h * vol_w + (w+3) + d*vol_w*vol_h,vol_w);
-//                    int index_w8 = Math.min(h * vol_w + (w+4) + d*vol_w*vol_h,vol_w);
-//                    int index_d5 = Math.max(h * vol_w + w + (d-4)*vol_w*vol_h,0);
-//                    int index_d6 = Math.max(h * vol_w + w + (d-3)*vol_w*vol_h,0);
-//                    int index_d7 = Math.min(h * vol_w + w + (d+3)*vol_w*vol_h,vol_d);
-//                    int index_d8 = Math.min(h * vol_w + w + (d+4)*vol_w*vol_h,vol_d);
-//
-//                    int index_h9 = Math.max((h-6) * vol_w + w + d*vol_w*vol_h,0);
-//                    int index_h10 = Math.max((h-5) * vol_w + w + d*vol_w*vol_h,0);
-//                    int index_h11 = Math.min((h+5) * vol_w + w + d*vol_w*vol_h,vol_h);
-//                    int index_h12 = Math.min((h+6) * vol_w + w + d*vol_w*vol_h,vol_h);
-//                    int index_w9 = Math.max(h * vol_w + (w-6) + d*vol_w*vol_h,0);
-//                    int index_w10 = Math.max(h * vol_w + (w-5) + d*vol_w*vol_h,0);
-//                    int index_w11 = Math.min(h * vol_w + (w+5) + d*vol_w*vol_h,vol_w);
-//                    int index_w12 = Math.min(h * vol_w + (w+6) + d*vol_w*vol_h,vol_w);
-//                    int index_d9 = Math.max(h * vol_w + w + (d-6)*vol_w*vol_h,0);
-//                    int index_d10 = Math.max(h * vol_w + w + (d-5)*vol_w*vol_h,0);
-//                    int index_d11 = Math.min(h * vol_w + w + (d+5)*vol_w*vol_h,vol_d);
-//                    int index_d12 = Math.min(h * vol_w + w + (d+6)*vol_w*vol_h,vol_d);
-//
-//
-//
-//                    data_gray_average_cross[index] = (data_gray[index]+data_gray[index_h1]+data_gray[index_h2]+data_gray[index_h3]+data_gray[index_h4]+data_gray[index_w1]+data_gray[index_w2]
-//                            +data_gray[index_w3]+data_gray[index_w4]+data_gray[index_d1]+data_gray[index_d2]+data_gray[index_d3]+data_gray[index_d4]
-//                            +data_gray[index_h5]+data_gray[index_h6]+data_gray[index_h7]+data_gray[index_h8]+data_gray[index_w5]+data_gray[index_w6]
-//                            +data_gray[index_w7]+data_gray[index_w8]+data_gray[index_d5]+data_gray[index_d6]+data_gray[index_d7]+data_gray[index_d8]
-//                            +data_gray[index_h9]+data_gray[index_h10]+data_gray[index_h11]+data_gray[index_h12]+data_gray[index_w9]+data_gray[index_w10]
-//                            +data_gray[index_w11]+data_gray[index_w12]+data_gray[index_d9]+data_gray[index_d10]+data_gray[index_d11]+data_gray[index_d12]
-//                            )/37;
-//                }
-//
-//
-//        for (int h = 0; h < vol_h; h++)
-//            for (int w = 0; w < vol_w; w++)
-//                for (int d = 0; d < vol_d; d++){
-////                    int h1 = Math.max(1,h-vol_hh/2);
-////                    int h2 = Math.min(vol_h,h+vol_hh/2);
-////                    int w1 = Math.max(1,h-vol_ww/2);
-////                    int w2 = Math.min(vol_w,h+vol_ww/2);
-////                    int d1 = Math.max(1,h-vol_dd/2);
-////                    int d2 = Math.min(vol_d,h+vol_hh/2);
-//                    int h1 = h-vol_hh/2;
-//                    int h2 = h+vol_hh/2+1;
-//                    int w1 = w-vol_ww/2;
-//                    int w2 = w+vol_ww/2+1;
-//                    int d1 = d-vol_dd/2;
-//                    int d2 = d+vol_hh/2+1;
-//                      if (h1<0)
-//                          h1 = 0;
-//                      if (w1<0)
-//                          w1 = 0;
-//                      if (d1<0)
-//                          d1=0;
-//                      if(h2>vol_h)
-//                          h2 = vol_h;
-//                      if(w2>vol_w)
-//                          w2 = vol_w;
-//                      if(d2>vol_d)
-//                          d2 = vol_d;
-//
-//
-//                    float avg = 0;
-//                    int count = 0;
-////                    int[] mini_gray = new int[(h2-h1)*(w2-w1)*(d2-d1)];
-//                    for (int ii = h1; ii < h2; ii++)
-//                        for (int jj = w1; jj < w2; jj++)
-//                            for ( int kk = d1; kk < d2; kk++){
-//                                int central = (h1+h2)/2*vol_w + (w1+w2)/2 + (d1+d2)/2*vol_w*vol_h;
-//                                int index = ii * vol_w + jj + kk*vol_w*vol_h;
-////                                if (Math.abs(data_gray[central]-data_gray[index])<5){
-//                                    avg += data_gray[index];
-////                                    mini_gray[count] = data_gray[index];
-//                                    count++;
-////                                }
-//
-//                            }
-//                    if (count_count<50){
-//                        Log.d("COUNT",String.valueOf(count));
-//                        count_count++;
-//                    }
-//
-//                    if(avg == 0) OOO++;
-////                    Log.d("ddddd",String.valueOf(d));
-////                    Log.d("vol_dddd",String.valueOf(vol_dd));
-//
-//                    int index = h * vol_w + w + d*vol_w*vol_h;
-////                    if (index == 2097151){
-////                        Log.d("h-w-d",String.valueOf(h)+"-"+String.valueOf(w)+"-"+String.valueOf(d));
-////                    }
-////                    data_gray_average[index] =  (avg / ((h2-h1)*(w2-w1)*(d2-d1)));
-//                    data_gray_average_rectangle[index] =  avg / count;
-////                    data_gray_average_rectangle[index] =  threshold;
-//                }
-//
-//        for (int i=0;i<data_image.length;i++)
-//            if (data_image[i] == 0) OOO_i++;
-//        Log.d("OOO",String.valueOf(OOO) + "-" + String.valueOf(OOO_i));
-//        for (int i=0; i<20; i++){
-//            Log.d("compare",i + "-" + String.valueOf(data_gray[i]) + "-" +String.valueOf(data_gray_average_rectangle[i]));
-//        }
-//        for (int i=0;i<data_gray.length;i++){
-//            if ((data_gray[i]-data_gray_average_rectangle[i])>5 & data_gray[i]>50)
-////              if (data_gray[i]<data_gray_average[i] & data_gray[i]>50)
-//                Log.d("extreme",i + "-" + String.valueOf(data_gray[i]) + "-" +String.valueOf(data_gray_average_rectangle[i]));
-//        }
 
 // 下面是迭代法求二值化阈值
 //                 求出最大灰度值和最小灰度值
@@ -5093,505 +5006,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         int threshold = newT; //最佳阈值
         Log.d("threshold",String.valueOf(threshold));
 
-//        for (int h = 0; h < vol_h; h++)
-//            for (int w = 0; w < vol_w; w++)
-//                for (int d = 0; d < vol_d; d++){
-//                    int index = h * vol_w + w + d*vol_w*vol_h;
-//                    float average_rectangle = data_gray_average_rectangle[index];
-//                    float average_cross = data_gray_average_cross[index];
-////                    data_gray[index] = (data_gray[index] < ((average_rectangle*average_rectangle/(average_rectangle+average_cross)+average_cross*average_cross/(average_rectangle+average_cross))*rate)) ? 255:0;
-////                    data_gray[index] = (data_gray[index] < (average_rectangle*rate)) ? 255:0;
-//                    data_gray[index] = (data_gray[index] < average_rectangle) ? 255:0;
-////                    data_gray[index] = ((average_rectangle*average_rectangle/(average_rectangle+average_cross) + average_cross*average_cross/(average_rectangle+average_cross)) < 42) ? 0:255;
-////                    data_gray[index] = (average_rectangle <= threshold) ? 0:255;
-//
-//
-////                    if (data_gray_average[index] < 50)
-////                        data_gray[index] = 0;
-////                    else
-////                        data_gray[index] = 255;
-//                }
 
-
-//
-//        float Gmax1=data_gray[vol_h/2*vol_w/2*vol_d/2],Gmin1=data_gray[vol_h/2*vol_w/2*vol_d/2];
-//        for (int h = 0; h < vol_h/2; h++)
-//            for (int w = 0; w < vol_w/2; w++)
-//                for (int d = 0; d < vol_d/2; d++){
-//                    int index = h * vol_w + w + d*vol_w*vol_h;
-//                    if (data_gray[index] > Gmax1)
-//                        Gmax1 = data_gray[index];
-//                    if (data_gray[index] < Gmin1)
-//                        Gmin1 = data_gray[index];
-//                }
-//
-//        int[] histogram1 = new int[256];
-//        for (int t = (int) Gmin1; t<=Gmax1; t++){
-//            for (int h = 0; h < vol_h/2; h++)
-//                for (int w = 0; w < vol_w/2; w++)
-//                    for (int d = 0; d < vol_d/2; d++){
-//                        int index = h * vol_w + w + d*vol_w*vol_h;
-//                        if (data_gray[index] == t){
-//                            //                    Log.d("t",String.valueOf(t));
-//                            histogram1[t]++;}
-//                    }
-//
-//        }
-//
-//        int T1 = 0;
-//        int newT1 = (int) ((Gmax1 + Gmin1) / 2); //初始的阈值
-//        // 求背景（黑色的）和前景（前面白色的神经元信号）的平均灰度值bp和fp
-//        while (T1 != newT1){
-//            int sum1=0,sum2=0,count1=0,count2=0;
-//            int fp,bp;
-//            for (int ii = (int) Gmin1; ii<newT1; ii++){
-//                count1 += histogram1[ii]; //背景像素点的个数
-//                sum1 += histogram1[ii] * ii; //背景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
-//            }
-//            bp = (count1 == 0) ? 0: (sum1 / count1); //背景像素点的平均灰度值
-//
-//            for (int jj = newT1; jj<Gmax1; jj++){
-//                count2 += histogram1[jj]; //前景像素点的个数
-//                sum2 += histogram1[jj] * jj; //前景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
-//            }
-//            fp = (count2 == 0) ? 0: (sum2 / count2); //前景像素点的平均灰度值
-//            T1 = newT1;
-//            newT1 = (bp + fp) / 2;
-//
-//        }
-//        int threshold1 = newT1; //最佳阈值
-//        Log.d("threshold1",String.valueOf(threshold1));
-//
-//        for (int h = 0; h < vol_h/2; h++)
-//            for (int w = 0; w < vol_w/2; w++)
-//                for (int d = 0; d < vol_d/2; d++){
-//                    int index = h * vol_w + w + d*vol_w*vol_h;
-//                    if (data_gray[index] > threshold1)
-//                        data_gray[index] = 255;
-//                    else
-//                        data_gray[index] = 0;
-//        }
-//
-//
-//        float Gmax2=data_gray[vol_h/2*vol_w/2*vol_d/2],Gmin2=data_gray[vol_h/2*vol_w/2*vol_d/2];
-//        for (int h = 0; h < vol_h/2; h++)
-//            for (int w = 0; w < vol_w/2; w++)
-//                for (int d = vol_d/2; d < vol_d; d++){
-//                    int index = h * vol_w + w + d*vol_w*vol_h;
-//                    if (data_gray[index] > Gmax2)
-//                        Gmax2 = data_gray[index];
-//                    if (data_gray[index] < Gmin2)
-//                        Gmin2 = data_gray[index];
-//                }
-//
-//        int[] histogram2 = new int[256];
-//        for (int t = (int) Gmin2; t<=Gmax2; t++){
-//            for (int h = 0; h < vol_h/2; h++)
-//                for (int w = 0; w < vol_w/2; w++)
-//                    for (int d = vol_d/2; d < vol_d; d++){
-//                        int index = h * vol_w + w + d*vol_w*vol_h;
-//                        if (data_gray[index] == t){
-//                            //                    Log.d("t",String.valueOf(t));
-//                            histogram2[t]++;}
-//                    }
-//
-//        }
-//
-//        int T2 = 0;
-//        int newT2 = (int) ((Gmax2 + Gmin2) / 2); //初始的阈值
-//        // 求背景（黑色的）和前景（前面白色的神经元信号）的平均灰度值bp和fp
-//        while (T2 != newT2){
-//            int sum1=0,sum2=0,count1=0,count2=0;
-//            int fp,bp;
-//            for (int ii = (int) Gmin2; ii<newT2; ii++){
-//                count1 += histogram2[ii]; //背景像素点的个数
-//                sum1 += histogram2[ii] * ii; //背景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
-//            }
-//            bp = (count1 == 0) ? 0: (sum1 / count1); //背景像素点的平均灰度值
-//
-//            for (int jj = newT2; jj<Gmax2; jj++){
-//                count2 += histogram2[jj]; //前景像素点的个数
-//                sum2 += histogram2[jj] * jj; //前景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
-//            }
-//            fp = (count2 == 0) ? 0: (sum2 / count2); //前景像素点的平均灰度值
-//            T2 = newT2;
-//            newT2 = (bp + fp) / 2;
-//
-//        }
-//        int threshold2 = newT2; //最佳阈值
-//        Log.d("threshold2",String.valueOf(threshold2));
-//
-//        for (int h = 0; h < vol_h/2; h++)
-//            for (int w = 0; w < vol_w/2; w++)
-//                for (int d = vol_d/2; d < vol_d; d++){
-//                    int index = h * vol_w + w + d*vol_w*vol_h;
-//                    if (data_gray[index] > threshold2)
-//                        data_gray[index] = 255;
-//                    else
-//                        data_gray[index] = 0;
-//                }
-//
-//
-//
-//
-//        float Gmax3=data_gray[vol_h/2*vol_w/2*vol_d/2],Gmin3=data_gray[vol_h/2*vol_w/2*vol_d/2];
-//        for (int h = vol_h/2; h < vol_h; h++)
-//            for (int w = 0; w < vol_w/2; w++)
-//                for (int d = 0; d < vol_d/2; d++){
-//                    int index = h * vol_w + w + d*vol_w*vol_h;
-//                    if (data_gray[index] > Gmax3)
-//                        Gmax3 = data_gray[index];
-//                    if (data_gray[index] < Gmin3)
-//                        Gmin3 = data_gray[index];
-//                }
-//
-//        int[] histogram3 = new int[256];
-//        for (int t = (int) Gmin3; t<=Gmax3; t++){
-//            for (int h = vol_h/2; h < vol_h; h++)
-//                for (int w = 0; w < vol_w/2; w++)
-//                    for (int d = 0; d < vol_d/2; d++){
-//                        int index = h * vol_w + w + d*vol_w*vol_h;
-//                        if (data_gray[index] == t){
-//                            //                    Log.d("t",String.valueOf(t));
-//                            histogram3[t]++;}
-//                    }
-//
-//        }
-//
-//        int T3 = 0;
-//        int newT3 = (int) ((Gmax3 + Gmin3) / 2); //初始的阈值
-//        // 求背景（黑色的）和前景（前面白色的神经元信号）的平均灰度值bp和fp
-//        while (T3 != newT3){
-//            int sum1=0,sum2=0,count1=0,count2=0;
-//            int fp,bp;
-//            for (int ii = (int) Gmin3; ii<newT3; ii++){
-//                count1 += histogram3[ii]; //背景像素点的个数
-//                sum1 += histogram3[ii] * ii; //背景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
-//            }
-//            bp = (count1 == 0) ? 0: (sum1 / count1); //背景像素点的平均灰度值
-//
-//            for (int jj = newT3; jj<Gmax3; jj++){
-//                count2 += histogram3[jj]; //前景像素点的个数
-//                sum2 += histogram3[jj] * jj; //前景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
-//            }
-//            fp = (count2 == 0) ? 0: (sum2 / count2); //前景像素点的平均灰度值
-//            T3 = newT3;
-//            newT3 = (bp + fp) / 2;
-//
-//        }
-//        int threshold3 = newT3; //最佳阈值
-//        Log.d("threshold3",String.valueOf(threshold3));
-//
-//
-//        for (int h = vol_h/2; h < vol_h; h++)
-//            for (int w = 0; w < vol_w/2; w++)
-//                for (int d = 0; d < vol_d/2; d++){
-//                    int index = h * vol_w + w + d*vol_w*vol_h;
-//                    if (data_gray[index] > threshold3)
-//                        data_gray[index] = 255;
-//                    else
-//                        data_gray[index] = 0;
-//                }
-//
-//
-//
-//        float Gmax4=data_gray[vol_h/2*vol_w/2*vol_d/2],Gmin4=data_gray[vol_h/2*vol_w/2*vol_d/2];
-//        for (int h = vol_h/2; h < vol_h; h++)
-//            for (int w = 0; w < vol_w/2; w++)
-//                for (int d = vol_d/2; d < vol_d; d++){
-//                    int index = h * vol_w + w + d*vol_w*vol_h;
-//                    if (data_gray[index] > Gmax4)
-//                        Gmax4 = data_gray[index];
-//                    if (data_gray[index] < Gmin4)
-//                        Gmin4 = data_gray[index];
-//                }
-//
-//        int[] histogram4 = new int[256];
-//        for (int t = (int) Gmin4; t<=Gmax4; t++){
-//            for (int h = vol_h/2; h < vol_h; h++)
-//                for (int w = 0; w < vol_w/2; w++)
-//                    for (int d = vol_d/2; d < vol_d; d++){
-//                        int index = h * vol_w + w + d*vol_w*vol_h;
-//                        if (data_gray[index] == t){
-//                            //                    Log.d("t",String.valueOf(t));
-//                            histogram4[t]++;}
-//                    }
-//
-//        }
-//
-//        int T4 = 0;
-//        int newT4 = (int) ((Gmax4 + Gmin4) / 2); //初始的阈值
-//        // 求背景（黑色的）和前景（前面白色的神经元信号）的平均灰度值bp和fp
-//        while (T4 != newT4){
-//            int sum1=0,sum2=0,count1=0,count2=0;
-//            int fp,bp;
-//            for (int ii = (int) Gmin4; ii<newT4; ii++){
-//                count1 += histogram4[ii]; //背景像素点的个数
-//                sum1 += histogram4[ii] * ii; //背景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
-//            }
-//            bp = (count1 == 0) ? 0: (sum1 / count1); //背景像素点的平均灰度值
-//
-//            for (int jj = newT4; jj<Gmax4; jj++){
-//                count2 += histogram4[jj]; //前景像素点的个数
-//                sum2 += histogram4[jj] * jj; //前景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
-//            }
-//            fp = (count2 == 0) ? 0: (sum2 / count2); //前景像素点的平均灰度值
-//            T4 = newT4;
-//            newT4 = (bp + fp) / 2;
-//
-//        }
-//        int threshold4 = newT4; //最佳阈值
-//        Log.d("threshold4",String.valueOf(threshold4));
-//
-//        for (int h = vol_h/2; h < vol_h; h++)
-//            for (int w = 0; w < vol_w/2; w++)
-//                for (int d = vol_d/2; d < vol_d; d++){
-//                    int index = h * vol_w + w + d*vol_w*vol_h;
-//                    if (data_gray[index] > threshold4)
-//                        data_gray[index] = 255;
-//                    else
-//                        data_gray[index] = 0;
-//                }
-//
-//
-//
-//
-//        float Gmax5=data_gray[vol_h/2*vol_w/2*vol_d/2],Gmin5=data_gray[vol_h/2*vol_w/2*vol_d/2];
-//        for (int h = 0; h < vol_h/2; h++)
-//            for (int w = vol_w/2; w < vol_w; w++)
-//                for (int d = 0; d < vol_d/2; d++){
-//                    int index = h * vol_w + w + d*vol_w*vol_h;
-//                    if (data_gray[index] > Gmax5)
-//                        Gmax5 = data_gray[index];
-//                    if (data_gray[index] < Gmin5)
-//                        Gmin5 = data_gray[index];
-//                }
-//
-//        int[] histogram5 = new int[256];
-//        for (int t = (int) Gmin5; t<=Gmax5; t++){
-//            for (int h = 0; h < vol_h/2; h++)
-//                for (int w = vol_w/2; w < vol_w; w++)
-//                    for (int d = 0; d < vol_d/2; d++){
-//                        int index = h * vol_w + w + d*vol_w*vol_h;
-//                        if (data_gray[index] == t){
-//                            //                    Log.d("t",String.valueOf(t));
-//                            histogram5[t]++;}
-//                    }
-//
-//        }
-//
-//        int T5 = 0;
-//        int newT5 = (int) ((Gmax5 + Gmin5) / 2); //初始的阈值
-//        // 求背景（黑色的）和前景（前面白色的神经元信号）的平均灰度值bp和fp
-//        while (T5 != newT5){
-//            int sum1=0,sum2=0,count1=0,count2=0;
-//            int fp,bp;
-//            for (int ii = (int) Gmin5; ii<newT5; ii++){
-//                count1 += histogram5[ii]; //背景像素点的个数
-//                sum1 += histogram5[ii] * ii; //背景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
-//            }
-//            bp = (count1 == 0) ? 0: (sum1 / count1); //背景像素点的平均灰度值
-//
-//            for (int jj = newT5; jj<Gmax5; jj++){
-//                count2 += histogram5[jj]; //前景像素点的个数
-//                sum2 += histogram5[jj] * jj; //前景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
-//            }
-//            fp = (count2 == 0) ? 0: (sum2 / count2); //前景像素点的平均灰度值
-//            T5 = newT5;
-//            newT5 = (bp + fp) / 2;
-//
-//        }
-//        int threshold5 = newT5; //最佳阈值
-//        Log.d("threshold5",String.valueOf(threshold5));
-//
-//        for (int h = 0; h < vol_h/2; h++)
-//            for (int w = vol_w/2; w < vol_w; w++)
-//                for (int d = 0; d < vol_d/2; d++){
-//                    int index = h * vol_w + w + d*vol_w*vol_h;
-//                    if (data_gray[index] > threshold5)
-//                        data_gray[index] = 255;
-//                    else
-//                        data_gray[index] = 0;
-//                }
-//
-//
-//
-//        float Gmax6=data_gray[vol_h/2*vol_w/2*vol_d/2],Gmin6=data_gray[vol_h/2*vol_w/2*vol_d/2];
-//        for (int h = 0; h < vol_h/2; h++)
-//            for (int w = vol_w/2; w < vol_w; w++)
-//                for (int d = vol_d/2; d < vol_d; d++){
-//                    int index = h * vol_w + w + d*vol_w*vol_h;
-//                    if (data_gray[index] > Gmax6)
-//                        Gmax6 = data_gray[index];
-//                    if (data_gray[index] < Gmin6)
-//                        Gmin6 = data_gray[index];
-//                }
-//
-//        int[] histogram6 = new int[256];
-//        for (int t = (int) Gmin6; t<=Gmax6; t++){
-//            for (int h = 0; h < vol_h/2; h++)
-//                for (int w = vol_w/2; w < vol_w; w++)
-//                    for (int d = vol_d/2; d < vol_d; d++){
-//                        int index = h * vol_w + w + d*vol_w*vol_h;
-//                        if (data_gray[index] == t){
-//                            //                    Log.d("t",String.valueOf(t));
-//                            histogram6[t]++;}
-//                    }
-//
-//        }
-//
-//        int T6 = 0;
-//        int newT6 = (int) ((Gmax6 + Gmin6) / 2); //初始的阈值
-//        // 求背景（黑色的）和前景（前面白色的神经元信号）的平均灰度值bp和fp
-//        while (T6 != newT6){
-//            int sum1=0,sum2=0,count1=0,count2=0;
-//            int fp,bp;
-//            for (int ii = (int) Gmin6; ii<newT6; ii++){
-//                count1 += histogram6[ii]; //背景像素点的个数
-//                sum1 += histogram6[ii] * ii; //背景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
-//            }
-//            bp = (count1 == 0) ? 0: (sum1 / count1); //背景像素点的平均灰度值
-//
-//            for (int jj = newT6; jj<Gmax6; jj++){
-//                count2 += histogram6[jj]; //前景像素点的个数
-//                sum2 += histogram6[jj] * jj; //前景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
-//            }
-//            fp = (count2 == 0) ? 0: (sum2 / count2); //前景像素点的平均灰度值
-//            T6 = newT6;
-//            newT6 = (bp + fp) / 2;
-//
-//        }
-//        int threshold6 = newT6; //最佳阈值
-//        Log.d("threshold6",String.valueOf(threshold6));
-//
-//        for (int h = 0; h < vol_h/2; h++)
-//            for (int w = vol_w/2; w < vol_w; w++)
-//                for (int d = vol_d/2; d < vol_d; d++){
-//                    int index = h * vol_w + w + d*vol_w*vol_h;
-//                    if (data_gray[index] > threshold6)
-//                        data_gray[index] = 255;
-//                    else
-//                        data_gray[index] = 0;
-//                }
-//
-//
-//
-//        float Gmax7=data_gray[vol_h/2*vol_w/2*vol_d/2],Gmin7=data_gray[vol_h/2*vol_w/2*vol_d/2];
-//        for (int h = vol_h/2; h < vol_h; h++)
-//            for (int w = vol_w/2; w < vol_w; w++)
-//                for (int d = 0; d < vol_d/2; d++){
-//                    int index = h * vol_w + w + d*vol_w*vol_h;
-//                    if (data_gray[index] > Gmax7)
-//                        Gmax7 = data_gray[index];
-//                    if (data_gray[index] < Gmin7)
-//                        Gmin7 = data_gray[index];
-//                }
-//
-//        int[] histogram7 = new int[256];
-//        for (int t = (int) Gmin7; t<=Gmax7; t++){
-//            for (int h = vol_h/2; h < vol_h; h++)
-//                for (int w = vol_w/2; w < vol_w; w++)
-//                    for (int d = 0; d < vol_d/2; d++){
-//                        int index = h * vol_w + w + d*vol_w*vol_h;
-//                        if (data_gray[index] == t){
-//                            //                    Log.d("t",String.valueOf(t));
-//                            histogram7[t]++;}
-//                    }
-//
-//        }
-//
-//        int T7 = 0;
-//        int newT7 = (int) ((Gmax7 + Gmin7) / 2); //初始的阈值
-//        // 求背景（黑色的）和前景（前面白色的神经元信号）的平均灰度值bp和fp
-//        while (T7 != newT7){
-//            int sum1=0,sum2=0,count1=0,count2=0;
-//            int fp,bp;
-//            for (int ii = (int) Gmin7; ii<newT7; ii++){
-//                count1 += histogram7[ii]; //背景像素点的个数
-//                sum1 += histogram7[ii] * ii; //背景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
-//            }
-//            bp = (count1 == 0) ? 0: (sum1 / count1); //背景像素点的平均灰度值
-//
-//            for (int jj = newT7; jj<Gmax7; jj++){
-//                count2 += histogram7[jj]; //前景像素点的个数
-//                sum2 += histogram7[jj] * jj; //前景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
-//            }
-//            fp = (count2 == 0) ? 0: (sum2 / count2); //前景像素点的平均灰度值
-//            T7 = newT7;
-//            newT7 = (bp + fp) / 2;
-//
-//        }
-//        int threshold7 = newT7; //最佳阈值
-//        Log.d("threshold7",String.valueOf(threshold7));
-//
-//        for (int h = vol_h/2; h < vol_h; h++)
-//            for (int w = vol_w/2; w < vol_w; w++)
-//                for (int d = 0; d < vol_d/2; d++){
-//                    int index = h * vol_w + w + d*vol_w*vol_h;
-//                    if (data_gray[index] > threshold7)
-//                        data_gray[index] = 255;
-//                    else
-//                        data_gray[index] = 0;
-//                }
-//
-//
-//        float Gmax8=data_gray[vol_h/2*vol_w/2*vol_d/2],Gmin8=data_gray[vol_h/2*vol_w/2*vol_d/2];
-//        for (int h = vol_h/2; h < vol_h; h++)
-//            for (int w = vol_w/2; w < vol_w; w++)
-//                for (int d = vol_d/2; d < vol_d; d++){
-//                    int index = h * vol_w + w + d*vol_w*vol_h;
-//                    if (data_gray[index] > Gmax8)
-//                        Gmax8 = data_gray[index];
-//                    if (data_gray[index] < Gmin8)
-//                        Gmin8 = data_gray[index];
-//                }
-//
-//        int[] histogram8 = new int[256];
-//        for (int t = (int) Gmin8; t<=Gmax8; t++){
-//            for (int h = vol_h/2; h < vol_h; h++)
-//                for (int w = vol_w/2; w < vol_w; w++)
-//                    for (int d = vol_d/2; d < vol_d; d++){
-//                        int index = h * vol_w + w + d*vol_w*vol_h;
-//                        if (data_gray[index] == t){
-//                            //                    Log.d("t",String.valueOf(t));
-//                            histogram8[t]++;}
-//                    }
-//
-//        }
-//
-//        int T8 = 0;
-//        int newT8 = (int) ((Gmax8 + Gmin8) / 2); //初始的阈值
-//        // 求背景（黑色的）和前景（前面白色的神经元信号）的平均灰度值bp和fp
-//        while (T8 != newT8){
-//            int sum1=0,sum2=0,count1=0,count2=0;
-//            int fp,bp;
-//            for (int ii = (int) Gmin8; ii<newT8; ii++){
-//                count1 += histogram8[ii]; //背景像素点的个数
-//                sum1 += histogram8[ii] * ii; //背景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
-//            }
-//            bp = (count1 == 0) ? 0: (sum1 / count1); //背景像素点的平均灰度值
-//
-//            for (int jj = newT8; jj<Gmax8; jj++){
-//                count2 += histogram8[jj]; //前景像素点的个数
-//                sum2 += histogram8[jj] * jj; //前景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
-//            }
-//            fp = (count2 == 0) ? 0: (sum2 / count2); //前景像素点的平均灰度值
-//            T8 = newT8;
-//            newT8 = (bp + fp) / 2;
-//
-//        }
-//        int threshold8 = newT8; //最佳阈值
-//        Log.d("threshold8",String.valueOf(threshold8));
-//
-//        for (int h = vol_h/2; h < vol_h; h++)
-//            for (int w = vol_w/2; w < vol_w; w++)
-//                for (int d = vol_d/2; d < vol_d; d++){
-//                    int index = h * vol_w + w + d*vol_w*vol_h;
-//                    if (data_gray[index] > threshold8)
-//                        data_gray[index] = 255;
-//                    else
-//                        data_gray[index] = 0;
-//                }
 
         if (threshold >= 35 & threshold <= 45 )
             threshold += 2;
