@@ -45,6 +45,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -915,7 +916,7 @@ public class MainActivity extends BaseActivity {
 
 
 
-        FrameLayout.LayoutParams lp_draw_i = new FrameLayout.LayoutParams(230, 160);
+        FrameLayout.LayoutParams lp_draw_i = new FrameLayout.LayoutParams(200, 160);
 
         draw_i = new ImageButton(this);
         draw_i.setImageResource(R.drawable.ic_draw_main);
@@ -933,7 +934,7 @@ public class MainActivity extends BaseActivity {
         });
 
 
-        FrameLayout.LayoutParams lp_tracing_i = new FrameLayout.LayoutParams(230, 160);
+        FrameLayout.LayoutParams lp_tracing_i = new FrameLayout.LayoutParams(200, 160);
 
 
         tracing_i=new ImageButton(this);
@@ -957,7 +958,7 @@ public class MainActivity extends BaseActivity {
             }
         });*/
 
-        FrameLayout.LayoutParams lp_classify_i = new FrameLayout.LayoutParams(230, 160);
+        FrameLayout.LayoutParams lp_classify_i = new FrameLayout.LayoutParams(200, 160);
 
         classify_i=new ImageButton(this);
         classify_i.setImageResource(R.drawable.ic_classify_mid);
@@ -999,7 +1000,7 @@ public class MainActivity extends BaseActivity {
 
         FrameLayout.LayoutParams lp_rotation = new FrameLayout.LayoutParams(120, 120);
         lp_rotation.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_rotation.setMargins(0, 0, 20, 20);
+        lp_rotation.setMargins(0, 0, 160, 20);
 
         Rotation_i = new ImageButton(this);
         Rotation_i.setImageResource(R.drawable.ic_3d_rotation_red_24dp);
@@ -1022,7 +1023,7 @@ public class MainActivity extends BaseActivity {
 
         FrameLayout.LayoutParams lp_hide = new FrameLayout.LayoutParams(120, 120);
         lp_hide.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_hide.setMargins(0, 0, 160, 20);
+        lp_hide.setMargins(0, 0, 20, 20);
 //        @SuppressLint("ResourceType") XmlPullParser parser = MainActivity.this.getResources().getXml(R.layout.activity_main);
 //        AttributeSet attributes = Xml.asAttributeSet(parser);
 //        MyRockerView rockerView = new MyRockerView(context, attributes);
@@ -1111,7 +1112,7 @@ public class MainActivity extends BaseActivity {
         });
 
 
-        lp_animation_i = new FrameLayout.LayoutParams(230, 160);
+        lp_animation_i = new FrameLayout.LayoutParams(200, 160);
         animation_i = new ImageButton(this);
         animation_i.setImageResource(R.drawable.ic_animation);
         animation_i.setId(animation_id);
@@ -1512,7 +1513,8 @@ public class MainActivity extends BaseActivity {
                 File_icon();
                 return true;
             case R.id.share:
-                Share_icon();
+                ShareScreenShot();
+//                Share_icon();
                 return true;
             case R.id.more:
                 More_icon();
@@ -1598,9 +1600,9 @@ public class MainActivity extends BaseActivity {
         String[] item_list = null;
 
         if (DrawMode){
-            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "Game", "About", "Help"};
+            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "About", "Help"};
         }else{
-            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "Account Name", "Game","About", "Help"};
+            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "Account Name", "About", "Help"};
         }
 
         new XPopup.Builder(this)
@@ -3190,7 +3192,7 @@ public class MainActivity extends BaseActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"APP2", "GD", "Save SWC file"},
+                .asAttachList(new String[]{"APP2", "GD", "Save SWCFile"},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -3210,7 +3212,7 @@ public class MainActivity extends BaseActivity {
 
                                                     try {
                                                         GDTracing();
-                                                        myrenderer.saveUndo();
+
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
@@ -3252,7 +3254,7 @@ public class MainActivity extends BaseActivity {
 
                                                     try {
                                                         APP2();
-                                                        myrenderer.saveUndo();
+
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
@@ -3282,7 +3284,7 @@ public class MainActivity extends BaseActivity {
 ////                                        LineDetect(v);
 //                                        break;
 
-                                    case "Save SWC file":
+                                    case "Save SWCFile":
                                         SaveSWC();
                                         break;
 
@@ -4641,6 +4643,7 @@ public class MainActivity extends BaseActivity {
                                         myrenderer.myAnimation.Stop();
                                         ifAnimation = false;
                                         ll_top.removeView(animation_i);
+                                        Rotation_i.setVisibility(View.VISIBLE);
                                         break;
 
                                     default:
@@ -4730,6 +4733,8 @@ public class MainActivity extends BaseActivity {
 
     private void loadLocalFile(){
         ifLoadLocal = true;
+        ifImport = false;
+        ifAnalyze = false;
 
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
@@ -4750,12 +4755,12 @@ public class MainActivity extends BaseActivity {
     public void Select_img(){
         Context context = this;
         new XPopup.Builder(this)
-                .asCenterList("Select Remote Server", new String[]{"SEU Server", "AliYun Server", "Local Server"},
+                .asCenterList("Select Server", new String[]{"SEU Server", "Aliyun Server", "Local Server"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text) {
-                                    case "AliYun Server":
+                                    case "Aliyun Server":
 //                                        Toast_in_Thread("The Server is under Maintenance !");
                                         setSelectSource("Remote Server Aliyun",context);
                                         if (DrawMode){
@@ -5041,6 +5046,7 @@ public class MainActivity extends BaseActivity {
     private void SaveSWC() {
 //        context = this;
         MDDialog mdDialog = new MDDialog.Builder(this)
+
                 .setContentView(R.layout.save_swc)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
                     @Override
@@ -5048,12 +5054,12 @@ public class MainActivity extends BaseActivity {
 
                     }
                 })
-                .setNegativeButton(new View.OnClickListener() {
+                .setNegativeButton("Cancel", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
                 })
-                .setPositiveButton(new View.OnClickListener() {
+                .setPositiveButton("Confirm", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
@@ -5072,7 +5078,7 @@ public class MainActivity extends BaseActivity {
                         myrenderer.reNameCurrentSwc(swcFileName);
 
 //                        String dir = getExternalFilesDir(null).toString();
-                        String dir_str = "/storage/emulated/0/C3";
+                        String dir_str = "/storage/emulated/0/C3/SWCSaved";
 
                         File dir = new File(dir_str);
                         if (!dir.exists()) {
@@ -5117,7 +5123,14 @@ public class MainActivity extends BaseActivity {
                                             }
                                         })
                                         .create();
+//                                Window window = aDialog.getWindow();
+//                                WindowManager.LayoutParams params = window.getAttributes();
+//                                params.x = 10;
+//                                params.y = 200;
+//                                window.setAttributes(params);
                                 aDialog.show();
+//                                window.setGravity(Gravity.TOP);
+
                             }
 //                            Toast.makeText(context, error, Toast.LENGTH_LONG).show();
                         } else{
@@ -5132,10 +5145,11 @@ public class MainActivity extends BaseActivity {
                     }
                 })
                 .setTitle("Save SWC File")
+
                 .create();
 
         mdDialog.show();
-        mdDialog.getWindow().setLayout(1000, 1500);
+//        mdDialog.getWindow().setLayout(1000, 1500);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -5197,6 +5211,7 @@ public class MainActivity extends BaseActivity {
             }
             Toast.makeText(getContext(), "APP2-Tracing finish, size of result swc: " + Integer.toString(nt.listNeuron.size()), Toast.LENGTH_SHORT).show();
             myrenderer.importNeuronTree(nt);
+            myrenderer.saveUndo();
             myGLSurfaceView.requestRender();
             progressBar.setVisibility(View.INVISIBLE);
             Looper.loop();
@@ -5280,6 +5295,7 @@ public class MainActivity extends BaseActivity {
 
         Toast.makeText(getContext(), "GD-Tracing finished, size of result swc: " + Integer.toString(outswc.listNeuron.size()), Toast.LENGTH_SHORT).show();
         myrenderer.importNeuronTree(outswc);
+        myrenderer.saveUndo();
         myGLSurfaceView.requestRender();
         progressBar.setVisibility(View.INVISIBLE);
         Looper.loop();
@@ -5442,7 +5458,7 @@ public class MainActivity extends BaseActivity {
 
 //        ar_mdDialog.show();
         ar_mdDialog.show();
-        ar_mdDialog.getWindow().setLayout(1000, 1500);
+//        ar_mdDialog.getWindow().setLayout(1000, 1500);
 
     }
 
@@ -5527,13 +5543,13 @@ public class MainActivity extends BaseActivity {
 
                     }
                 })
-                .setNegativeButton(new View.OnClickListener() {
+                .setNegativeButton("Cancel", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
                     }
                 })
-                .setPositiveButton(new View.OnClickListener() {
+                .setPositiveButton("Confirm", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
@@ -5565,7 +5581,7 @@ public class MainActivity extends BaseActivity {
                 .create();
 
         mdDialog.show();
-        mdDialog.getWindow().setLayout(1000, 1500);
+//        mdDialog.getWindow().setLayout(1000, 1500);
     }
 
 
@@ -5601,10 +5617,11 @@ public class MainActivity extends BaseActivity {
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                String file_path = CrashHandler.getCrashFilePath(getApplicationContext()) + "/" + text;
+                                String file_path = CrashHandler.getCrashFilePath(getApplicationContext()) + "/" + text + ".txt";
                                 File file = new File(file_path);
                                 if (file.exists()){
                                     Intent intent = new Intent();
+
                                     intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                                     intent.setAction(Intent.ACTION_SEND);
                                     intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "com.example.myapplication__volume.provider", new File(file_path)));  //传输图片或者文件 采用流的方式
@@ -5666,12 +5683,12 @@ public class MainActivity extends BaseActivity {
 
                     }
                 })
-                .setNegativeButton(new View.OnClickListener() {
+                .setNegativeButton("Cancel", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
                 })
-                .setPositiveButton(new View.OnClickListener() {
+                .setPositiveButton("Confirm", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
@@ -5732,7 +5749,7 @@ public class MainActivity extends BaseActivity {
                 .create();
 
         mdDialog.show();
-        mdDialog.getWindow().setLayout(1000, 1500);
+//        mdDialog.getWindow().setLayout(1000, 1500);
     }
 
 
@@ -6238,12 +6255,12 @@ public class MainActivity extends BaseActivity {
                     }
                 })
                 .setTitle("Feature Set")
-                .setNegativeButton(new View.OnClickListener() {
+                .setNegativeButton("Cancel", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
                 })
-                .setPositiveButton(new View.OnClickListener() {
+                .setPositiveButton("Confirm", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
@@ -6421,12 +6438,12 @@ public class MainActivity extends BaseActivity {
                     }
                 })
                 .setTitle("Pen Set")
-                .setNegativeButton(new View.OnClickListener() {
+                .setNegativeButton("Cancel", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
                 })
-                .setPositiveButton(new View.OnClickListener() {
+                .setPositiveButton("Confirm", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
@@ -6502,12 +6519,12 @@ public class MainActivity extends BaseActivity {
                     }
                 })
                 .setTitle("Marker Color Set")
-                .setNegativeButton(new View.OnClickListener() {
+                .setNegativeButton("Cancel", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
                 })
-                .setPositiveButton(new View.OnClickListener() {
+                .setPositiveButton("Confirm", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
@@ -6952,7 +6969,7 @@ public class MainActivity extends BaseActivity {
 //        .maxWidth(400)
 //        .maxHeight(1350)
 //                .asCenterList("File Open & Save", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile","Camera"},
-                .asCenterList("File Open & Save", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile"},
+                .asCenterList("File Open", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -7146,12 +7163,12 @@ public class MainActivity extends BaseActivity {
                     }
                 })
                 .setTitle("UserName for Check")
-                .setNegativeButton(new View.OnClickListener() {
+                .setNegativeButton("Cancel", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
                 })
-                .setPositiveButton(new View.OnClickListener() {
+                .setPositiveButton("Confirm", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
@@ -7209,12 +7226,12 @@ public class MainActivity extends BaseActivity {
                     }
                 })
                 .setTitle("Voice Chat")
-                .setNegativeButton(new View.OnClickListener() {
+                .setNegativeButton("Cancel", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
                 })
-                .setPositiveButton(new View.OnClickListener() {
+                .setPositiveButton("Confirm", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
@@ -7318,7 +7335,7 @@ public class MainActivity extends BaseActivity {
     public void loadBigData(){
 
         new XPopup.Builder(this)
-                .asCenterList("BigData File",new String[]{"Select File", "Select Block", "Download by http"},
+                .asCenterList("BigData File",new String[]{"Select File", "Open RecentBlock"},
                         new OnSelectListener() {
                             @RequiresApi(api = Build.VERSION_CODES.N)
                             @Override
@@ -7328,13 +7345,13 @@ public class MainActivity extends BaseActivity {
                                         Select_img();
                                         break;
 
-                                    case "Select Block":
+                                    case "Open RecentBlock":
                                         Select_Block();
                                         break;
-
-                                    case "Download by http":
-                                        downloadFile();
-                                        break;
+//
+//                                    case "Download by http":
+//                                        downloadFile();
+//                                        break;
                                 }
                             }
                         })
@@ -7524,6 +7541,7 @@ public class MainActivity extends BaseActivity {
         Rotation_i.setVisibility(View.GONE);
         Hide_i.setVisibility(View.GONE);
         Undo_i.setVisibility(View.GONE);
+        Redo_i.setVisibility(View.GONE);
 
         if (isBigData_Remote || isBigData_Local){
             navigation_back.setVisibility(View.GONE);
@@ -7573,6 +7591,7 @@ public class MainActivity extends BaseActivity {
         Rotation_i.setVisibility(View.VISIBLE);
         Hide_i.setVisibility(View.VISIBLE);
         Undo_i.setVisibility(View.VISIBLE);
+        Redo_i.setVisibility(View.VISIBLE);
 
         if (isBigData_Remote || isBigData_Local){
             navigation_back.setVisibility(View.VISIBLE);
@@ -7826,6 +7845,11 @@ public class MainActivity extends BaseActivity {
 
     public static void setIfGame(boolean b){
         ifGame = b;
+    }
+
+    public static void actionStart(Context context){
+        Intent intent = new Intent(context, MainActivity.class);
+        context.startActivity(intent);
     }
 
 }
