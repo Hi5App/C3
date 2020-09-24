@@ -1,0 +1,4 @@
+Model\LoginModel.class
+Entity\User.class
+Servlet\LoginServlet.class
+Servlet\RegisterServlet.class
