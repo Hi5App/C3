@@ -45,7 +45,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -80,9 +79,12 @@ import com.example.basic.ImageMarker;
 import com.example.basic.LocationSimple;
 import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
+import com.example.chat.ChatManager;
+import com.example.chat.MessageUtil;
 import com.example.datastore.SettingFileManager;
 import com.example.myapplication__volume.FileReader.AnoReader;
 import com.example.myapplication__volume.FileReader.ApoReader;
+import com.example.myapplication__volume.ui.login.LoginActivity;
 import com.feature_calc_func.MorphologyCalculate;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.learning.opimageline.Consensus;
@@ -118,6 +120,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -133,6 +136,15 @@ import io.agora.rtc.Constants;
 import io.agora.rtc.IRtcEngineEventHandler;
 import io.agora.rtc.RtcEngine;
 import io.agora.rtc.models.UserInfo;
+import io.agora.rtm.ErrorInfo;
+import io.agora.rtm.ResultCallback;
+import io.agora.rtm.RtmClient;
+import io.agora.rtm.RtmClientListener;
+import io.agora.rtm.RtmFileMessage;
+import io.agora.rtm.RtmImageMessage;
+import io.agora.rtm.RtmMediaOperationProgress;
+import io.agora.rtm.RtmMessage;
+import io.agora.rtm.RtmStatusCode;
 
 import static com.example.datastore.SettingFileManager.getArborNum;
 import static com.example.datastore.SettingFileManager.getFilename_Remote;
@@ -380,6 +392,12 @@ public class MainActivity extends BaseActivity {
 
     HashMap<Integer, String> User_Map = new HashMap<Integer, String>();
 
+    public static String USERNAME = "username";
+
+    private String username;
+
+    private RtmClientListener mClientListener;
+
     @SuppressLint("HandlerLeak")
     private Handler uiHandler = new Handler(){
         // 覆写这个方法，接收并处理消息。
@@ -587,6 +605,8 @@ public class MainActivity extends BaseActivity {
         }
     };
 
+    private RtmClient mRtmClient;
+
 
     /**
      * The onCreate Function
@@ -597,6 +617,8 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.v(TAG,"------------------ onCreate ------------------");
+
+
 
         isBigData_Remote = false;
         isBigData_Local  = false;
@@ -609,6 +631,15 @@ public class MainActivity extends BaseActivity {
 
         Intent intent = getIntent();
         String MSG = intent.getStringExtra(MyRenderer.OUT_OF_MEMORY);
+        username = intent.getStringExtra(USERNAME);
+
+        ChatManager mChatManager = Myapplication.the().getChatManager();
+        mRtmClient = mChatManager.getRtmClient();
+
+        doLoginChat();
+
+        mClientListener = new MyRtmClientListener();
+        mChatManager.registerListener(mClientListener);
 
         if (MSG != null)
             Toast.makeText(this, MSG, Toast.LENGTH_SHORT).show();
@@ -1600,9 +1631,9 @@ public class MainActivity extends BaseActivity {
         String[] item_list = null;
 
         if (DrawMode){
-            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "About", "Help"};
+            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Chat", "Animate", "Settings", "Crash Info", "About", "Help"};
         }else{
-            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "Account Name", "About", "Help"};
+            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Chat", "Animate", "Settings", "Crash Info", "Account Name", "About", "Help"};
         }
 
         new XPopup.Builder(this)
@@ -1636,6 +1667,10 @@ public class MainActivity extends BaseActivity {
                                         PopUp_Chat(MainActivity.this);
                                         break;
 
+                                    case "Chat":
+
+                                        break;
+
 //                                    case "Sensor Information":
 //                                        SensorInfo();
 //                                        break;
@@ -1647,79 +1682,10 @@ public class MainActivity extends BaseActivity {
 
                                     case "Game":
                                         System.out.println("Game Start!!!!!!!");
-//                                        float [] vertexPoints = new float[]{
-//                                                // Back face
-//                                                0.0f,  0.0f,  0.0f,
-//                                                0.0f,  1, 0.0f,
-//                                                1, 1, 0.0f,
-//                                                1, 0.0f,  0.0f,
-//
-//                                                // Top face
-//                                                0.0f, 1,  0.0f,
-//                                                0.0f, 1,  1,
-//                                                1, 1, 1,
-//                                                1, 1, 0.0f,
-//
-//                                                // Right face
-//                                                1, 0.0f,  0.0f,
-//                                                1, 1, 0.0f,
-//                                                1, 1, 1,
-//                                                1, 0.0f,  1,
-//
-//                                                //
-//                                                0.0f, 0.0f, 0.0f,
-//                                                0.0f, 1, 1,
-//                                                1, 0, 1,
-//                                        };
 
-//                                        float [] startPoint = new float[]{
-//                                                0.5f, 0.5f, 0.5f
-//                                        };
-//
-//                                        float [] dir = new float[]{
-//                                                1, 1, -1
-//                                        };
-//
-//                                        ArrayList<Float> tangent = myrenderer.tangentPlane(startPoint[0], startPoint[1], startPoint[2], dir[0], dir[1], dir[2], 0, 1);
-//
-//                                        System.out.println("TangentPlane:::::");
-//                                        System.out.println(tangent.size());
-//
-//                                        float [] vertexPoints = new float[tangent.size()];
-//                                        for (int i = 0; i < tangent.size(); i++){
-//
-//                                            vertexPoints[i] = tangent.get(i);
-//                                            System.out.print(vertexPoints[i]);
-//                                            System.out.print(" ");
-//                                            if (i % 3 == 2){
-//                                                System.out.print("\n");
-//                                            }
-//                                        }
-//
-//                                        boolean gameSucceed = myrenderer.driveMode(vertexPoints, dir);
-//                                        if (!gameSucceed){
-//                                            Toast.makeText(context, "wrong vertex to draw", Toast.LENGTH_SHORT);
-//                                        } else {
-//                                            myGLSurfaceView.requestRender();
-//                                        }
                                         ifGame = true;
                                         Select_map();
 
-//                                        if (!myrenderer.getIfFileLoaded()){
-//                                            Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
-//
-//                                        }else {
-//                                            try {
-//                                                Intent gameIntent = new Intent(MainActivity.this, GameActivity.class);
-//                                                gameIntent.putExtra("FilePath", myrenderer.getFilePath());
-//                                                gameIntent.putExtra("Position", new float[]{0.5f, 0.5f, 0.5f});
-//                                                gameIntent.putExtra("Dir", new float[]{1, 1, 1});
-//                                                startActivity(gameIntent);
-//                                            } catch (Exception e) {
-//                                                e.printStackTrace();
-//                                            }
-//                                        }
-//                                        gameStart();
                                         break;
 
                                     case "Settings":
@@ -1791,6 +1757,20 @@ public class MainActivity extends BaseActivity {
             return false;
         }
         return true;
+    }
+
+    public void chooseChatMode(){
+        new XPopup.Builder(this)
+                .asCenterList("Choose Chat Mode", new String[]{"Peer Radio", "Selection Tab Channel"},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text){
+
+                                }
+                            }
+                        }).show();
+
     }
 
 
@@ -4721,12 +4701,14 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200918a 09:37 UTC+8 build",
+                                "Version: 20200924a 22:08 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
                             }
                         })
+                .setCancelText("Cancel")
+                .setConfirmText("Confirm")
                 .show();
     }
 
@@ -7557,6 +7539,7 @@ public class MainActivity extends BaseActivity {
 
             if (isBigData_Remote) {
                 if (!DrawMode){
+
                     Check_No.setVisibility(View.GONE);
                     Check_Yes.setVisibility(View.GONE);
                     Check_Uncertain.setVisibility(View.GONE);
@@ -7847,9 +7830,102 @@ public class MainActivity extends BaseActivity {
         ifGame = b;
     }
 
-    public static void actionStart(Context context){
+    public static void actionStart(Context context, String username){
         Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra(USERNAME, username);
         context.startActivity(intent);
     }
 
+    private void doLoginChat(){
+        mRtmClient.login(null, username, new ResultCallback<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.i(TAG, "login success");
+            }
+
+            @Override
+            public void onFailure(ErrorInfo errorInfo) {
+                Log.i(TAG, "login failed: " + errorInfo.getErrorCode());
+                LoginActivity.actionStart(context);
+            }
+        });
+    }
+
+    class MyRtmClientListener implements RtmClientListener {
+
+        @Override
+        public void onConnectionStateChanged(final int state, int reason) {
+            runOnUiThread(() -> {
+                switch (state) {
+                    case RtmStatusCode.ConnectionState.CONNECTION_STATE_RECONNECTING:
+                        Toast_in_Thread(getString(R.string.reconnecting));
+                        break;
+                    case RtmStatusCode.ConnectionState.CONNECTION_STATE_ABORTED:
+                        Toast_in_Thread(getString(R.string.account_offline));
+                        setResult(MessageUtil.ACTIVITY_RESULT_CONN_ABORTED);
+                        finish();
+                        break;
+                }
+            });
+        }
+
+        @SuppressLint("LongLogTag")
+        @Override
+        public void onMessageReceived(final RtmMessage message, final String peerId) {
+            Log.d("onMessageRecievedFromPeer", message.getText() + " from " + peerId);
+//            runOnUiThread(() -> {
+//                if (peerId.equals(mPeerId)) {
+//                    MessageBean messageBean = new MessageBean(peerId, message, false);
+//                    messageBean.setBackground(getMessageColor(peerId));
+//                    mMessageBeanList.add(messageBean);
+//                    mMessageAdapter.notifyItemRangeChanged(mMessageBeanList.size(), 1);
+//                    mRecyclerView.scrollToPosition(mMessageBeanList.size() - 1);
+//                } else {
+//                    MessageUtil.addMessageBean(peerId, message);
+//                }
+//            });
+        }
+
+        @SuppressLint("LongLogTag")
+        @Override
+        public void onImageMessageReceivedFromPeer(final RtmImageMessage rtmImageMessage, final String peerId) {
+            Log.d("onMessageRecievedFromPeer", rtmImageMessage.getText() + " from " + peerId);
+//            runOnUiThread(() -> {
+//                if (peerId.equals(mPeerId)) {
+//                    MessageBean messageBean = new MessageBean(peerId, rtmImageMessage, false);
+//                    messageBean.setBackground(getMessageColor(peerId));
+//                    mMessageBeanList.add(messageBean);
+//                    mMessageAdapter.notifyItemRangeChanged(mMessageBeanList.size(), 1);
+//                    mRecyclerView.scrollToPosition(mMessageBeanList.size() - 1);
+//                } else {
+//                    MessageUtil.addMessageBean(peerId, rtmImageMessage);
+//                }
+//            });
+        }
+
+        @Override
+        public void onFileMessageReceivedFromPeer(RtmFileMessage rtmFileMessage, String s) {
+
+        }
+
+        @Override
+        public void onMediaUploadingProgress(RtmMediaOperationProgress rtmMediaOperationProgress, long l) {
+
+        }
+
+        @Override
+        public void onMediaDownloadingProgress(RtmMediaOperationProgress rtmMediaOperationProgress, long l) {
+
+        }
+
+        @Override
+        public void onTokenExpired() {
+
+        }
+
+        @Override
+        public void onPeersOnlineStatusChanged(Map<String, Integer> map) {
+
+        }
+    }
 }

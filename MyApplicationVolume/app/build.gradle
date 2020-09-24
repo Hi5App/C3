@@ -70,6 +70,8 @@ dependencies {
 
     implementation 'com.xw.repo:bubbleseekbar:3.20-lite'
     implementation 'com.github.warkiz.widget:indicatorseekbar:2.1.2'
+    implementation 'com.squareup.okhttp3:okhttp:3.4.1'
+    implementation 'io.agora.rtm:rtm-sdk:1.4.0'
 
     //for auto test
     androidTestImplementation 'com.android.support.test.uiautomator:uiautomator-v18:2.1.3'

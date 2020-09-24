@@ -22,6 +22,7 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.GET_TASKS" />
 
+
     <application
         android:name=".Myapplication"
         android:allowBackup="true"
@@ -33,11 +34,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
+        android:networkSecurityConfig="@xml/network_security_config"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <activity
-            android:name=".ui.login.LoginActivity"
-            android:label="@string/title_activity_login">
+        <activity android:name=".ui.login.RegisterActivity"></activity>
+        <activity android:name=".ui.login.LoginActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".GameActivity"
@@ -46,13 +51,7 @@
         <activity
             android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation|layoutDirection|screenSize"
-            android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".MainActivity_Jump"
             android:parentActivityName=".MainActivity">

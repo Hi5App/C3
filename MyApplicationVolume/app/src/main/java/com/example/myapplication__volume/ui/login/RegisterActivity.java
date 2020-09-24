@@ -33,26 +33,26 @@ import com.example.myapplication__volume.R;
 import com.example.myapplication__volume.ui.login.LoginViewModel;
 import com.example.myapplication__volume.ui.login.LoginViewModelFactory;
 
-public class LoginActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity {
 
-    private LoginViewModel loginViewModel;
+    private RegisterViewModel registerViewModel;
+
+    final private int REGISTER_ON_CLICK = 2;
 
     EditText usernameEditText;
     EditText passwordEditText;
-    Button loginButton;
-    ProgressBar loadingProgressBar;
+    EditText emailEditText;
     Button registerButton;
-
-    final private int SIGN_IN_ON_CLICK = 1;
+    ProgressBar loadingProgressBar;
 
     private Handler handler=new Handler(){
         @SuppressLint("HandlerLeak")
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what){
-                case SIGN_IN_ON_CLICK:
+                case REGISTER_ON_CLICK:
                     loadingProgressBar.setVisibility(View.VISIBLE);
-                    loginViewModel.login(usernameEditText.getText().toString(),
+                    registerViewModel.register(emailEditText.getText().toString(), usernameEditText.getText().toString(),
                             passwordEditText.getText().toString());
                     Log.d("LoginButton:", "onClickkkkkkkk");
                     break;
@@ -65,49 +65,51 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        loginViewModel = ViewModelProviders.of(this, new LoginViewModelFactory())
-                .get(LoginViewModel.class);
+        setContentView(R.layout.activity_register);
+        registerViewModel = ViewModelProviders.of(this, new RegisterViewModelFactory())
+                .get(RegisterViewModel.class);
 
-        usernameEditText = findViewById(R.id.username);
-        passwordEditText = findViewById(R.id.password);
-        loginButton = findViewById(R.id.login);
+        usernameEditText = findViewById(R.id.register_username);
+        passwordEditText = findViewById(R.id.register_password);
+        emailEditText = findViewById(R.id.register_email);
+        registerButton = findViewById(R.id.register);
         loadingProgressBar = findViewById(R.id.loading);
-        registerButton = findViewById(R.id.goto_register);
 
-        loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
+        registerViewModel.getRegisterFormState().observe(this, new Observer<RegisterFormState>() {
             @Override
-            public void onChanged(@Nullable LoginFormState loginFormState) {
-                if (loginFormState == null) {
+            public void onChanged(@Nullable RegisterFormState registerFormState) {
+                if (registerFormState == null) {
                     return;
                 }
-                loginButton.setEnabled(loginFormState.isDataValid());
-                if (loginFormState.getUsernameError() != null) {
-                    usernameEditText.setError(getString(loginFormState.getUsernameError()));
+                registerButton.setEnabled(registerFormState.isDataValid());
+                if (registerFormState.getEmailError() != null){
+                    emailEditText.setError(getString(registerFormState.getEmailError()));
                 }
-                if (loginFormState.getPasswordError() != null) {
-                    passwordEditText.setError(getString(loginFormState.getPasswordError()));
+                if (registerFormState.getUsernameError() != null) {
+                    usernameEditText.setError(getString(registerFormState.getUsernameError()));
+                }
+                if (registerFormState.getPasswordError() != null) {
+                    passwordEditText.setError(getString(registerFormState.getPasswordError()));
                 }
             }
         });
 
-        loginViewModel.getLoginResult().observe(this, new Observer<LoginResult>() {
+        registerViewModel.getRegisterResult().observe(this, new Observer<RegisterResult>() {
             @Override
-            public void onChanged(@Nullable LoginResult loginResult) {
+            public void onChanged(@Nullable RegisterResult registerResult) {
                 Log.d("LoginResultOnChanged", "innnnnn");
-                if (loginResult == null) {
+                if (registerResult == null) {
                     return;
                 }
                 loadingProgressBar.setVisibility(View.GONE);
-                if (loginResult.getError() != null) {
-                    showLoginFailed(loginResult.getError());
+                if (registerResult.getError() != null) {
+                    showRegisterFailed(registerResult.getError());
                 }
-                if (loginResult.getSuccess() != null) {
+                if (registerResult.getSuccess() != null) {
                     Log.d("LoginResultOnChanged", "getSuccess");
-//                    MainActivity.actionStart(LoginActivity.this);
-                    MainActivity.actionStart(LoginActivity.this, loginResult.getSuccess().getDisplayName());
+                    LoginActivity.actionStart(RegisterActivity.this);
 
-                    updateUiWithUser(loginResult.getSuccess());
+                    updateUiWithUser(registerResult.getSuccess());
                 }
                 setResult(Activity.RESULT_OK);
 
@@ -129,42 +131,35 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                loginViewModel.loginDataChanged(usernameEditText.getText().toString(),
+                registerViewModel.registerDataChanged(emailEditText.getText().toString(), usernameEditText.getText().toString(),
                         passwordEditText.getText().toString());
             }
         };
         usernameEditText.addTextChangedListener(afterTextChangedListener);
         passwordEditText.addTextChangedListener(afterTextChangedListener);
+        emailEditText.addTextChangedListener(afterTextChangedListener);
         passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-//                    loginViewModel.login(usernameEditText.getText().toString(),
-//                            passwordEditText.getText().toString());
-                    handler.sendEmptyMessage(SIGN_IN_ON_CLICK);
+                    registerViewModel.register(emailEditText.getText().toString(), usernameEditText.getText().toString(),
+                            passwordEditText.getText().toString());
                 }
                 return false;
             }
         });
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
+        registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                handler.sendEmptyMessage(SIGN_IN_ON_CLICK);
-//                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                handler.sendEmptyMessage(REGISTER_ON_CLICK);
+//                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
 //                startActivity(intent);
-//                MainActivity.actionStart(LoginActivity.this);
+//                LoginActivity.actionStart(RegisterActivity.this);
             }
         });
 
-        registerButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                RegisterActivity.actionStart(LoginActivity.this);
-            }
-        });
     }
 
     private void updateUiWithUser(LoggedInUserView model) {
@@ -173,19 +168,12 @@ public class LoginActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
     }
 
-    private void showLoginFailed(@StringRes Integer errorString) {
+    private void showRegisterFailed(@StringRes Integer errorString) {
         Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
     }
 
     public static void actionStart(Context context){
-        Intent intent = new Intent(context, LoginActivity.class);
+        Intent intent = new Intent(context, RegisterActivity.class);
         context.startActivity(intent);
     }
-
-
-
-
-
-
-
 }
