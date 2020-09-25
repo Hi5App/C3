@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp" >
+
+        <TextView
+            android:id="@+id/channel_name"
+            android:layout_width="80dp"
+            android:layout_height="48dp"
+            android:layout_alignParentLeft="true"
+            android:gravity="center|left"
+            android:text="Channel"
+            android:textColor="#bb333333" />
+
+        <EditText
+            android:id="@+id/channel_name_edit"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/channel_name"
+            android:hint="@string/hint_channel"
+            android:background="@null"
+            android:textColor="#ee333333"
+            android:textCursorDrawable="@drawable/color_cursor" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_alignLeft="@id/channel_name_edit"
+            android:layout_alignRight="@id/channel_name_edit"
+            android:layout_below="@id/channel_name_edit"
+            android:background="#33333333" />
+    </RelativeLayout>
+
+
+</LinearLayout>

@@ -80,6 +80,7 @@ import com.example.basic.LocationSimple;
 import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
 import com.example.chat.ChatManager;
+import com.example.chat.MessageActivity;
 import com.example.chat.MessageUtil;
 import com.example.datastore.SettingFileManager;
 import com.example.myapplication__volume.FileReader.AnoReader;
@@ -397,6 +398,8 @@ public class MainActivity extends BaseActivity {
     private String username;
 
     private RtmClientListener mClientListener;
+
+    boolean mIsPeerToPeerMode = true;
 
     @SuppressLint("HandlerLeak")
     private Handler uiHandler = new Handler(){
@@ -1668,7 +1671,7 @@ public class MainActivity extends BaseActivity {
                                         break;
 
                                     case "Chat":
-
+                                        chooseChatMode();
                                         break;
 
 //                                    case "Sensor Information":
@@ -1766,13 +1769,132 @@ public class MainActivity extends BaseActivity {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text){
-
+                                    case "Peer Radio":
+                                        peerToPeer();
+                                        break;
+                                    case "Selection Tab Channel":
+                                        chooseChannel();
+                                        break;
                                 }
                             }
                         }).show();
 
     }
 
+    private void peerToPeer(){
+        MDDialog mdDialog = new MDDialog.Builder(this)
+                .setContentView(R.layout.peer_chat)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+
+                    }
+                })
+                .setNegativeButton("Cancel", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton(R.string.btn_chat, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        Log.d("PeerToPeer", "Start To Chat");
+                        EditText targetEdit = (EditText)contentView.findViewById(R.id.target_name_edit);
+                        String mTargetName = targetEdit.getText().toString();
+                        if (mTargetName.equals("")) {
+                            Toast_in_Thread(getString(R.string.account_empty));
+                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
+                            Toast_in_Thread(getString(R.string.account_too_long));
+                        } else if (mTargetName.startsWith(" ")) {
+                            Toast_in_Thread(getString(R.string.account_starts_with_space));
+                        } else if (mTargetName.equals("null")) {
+                            Toast_in_Thread(getString(R.string.account_literal_null));
+                        } else if (mTargetName.equals(username)) {
+                            Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
+                        } else {
+                            openMessagActivity(true, mTargetName);
+//                            mChatButton.setEn
+//                            jumpToMessageActivity();
+                        }
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                    }
+                })
+                .setTitle(R.string.title_peer_msg)
+
+                .create();
+
+        mdDialog.show();
+    }
+
+    private void chooseChannel(){
+        MDDialog mdDialog = new MDDialog.Builder(this)
+                .setContentView(R.layout.channel_chat)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+
+                    }
+                })
+                .setNegativeButton("Cancel", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton(R.string.btn_join, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        EditText targetEdit = (EditText)contentView.findViewById(R.id.channel_name_edit);
+                        String mTargetName = targetEdit.getText().toString();
+                        if (mTargetName.equals("")) {
+                            Toast_in_Thread(getString(R.string.channel_name_empty));
+                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
+                            Toast_in_Thread(getString(R.string.channel_name_too_long));
+                        } else if (mTargetName.startsWith(" ")) {
+                            Toast_in_Thread(getString(R.string.channel_name_starts_with_space));
+                        } else if (mTargetName.equals("null")) {
+                            Toast_in_Thread(getString(R.string.channel_name_literal_null));
+                        }  else {
+                            openMessagActivity(false, mTargetName);
+//                            mChatButton.setEn
+//                            jumpToMessageActivity();
+                        }
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                    }
+                })
+                .setTitle(R.string.title_peer_msg)
+
+                .create();
+
+        mdDialog.show();
+    }
+
+    private void openMessagActivity(boolean isPeerToPeerMode, String targetName){
+        Intent intent = new Intent(MainActivity.this, MessageActivity.class);
+        intent.putExtra(MessageUtil.INTENT_EXTRA_IS_PEER_MODE, isPeerToPeerMode);
+        intent.putExtra(MessageUtil.INTENT_EXTRA_TARGET_NAME, targetName);
+        intent.putExtra(MessageUtil.INTENT_EXTRA_USER_ID, username);
+        startActivity(intent);
+    }
 
     /**
      *
