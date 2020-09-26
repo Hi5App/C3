@@ -1129,7 +1129,7 @@ public class SettingFileManager {
      * @return offset latest address you input
      */
     public static String getArborNum(Context context, String filename){
-        String offset = "";
+        String arbor_num = "";
 
         String filepath = context.getExternalFilesDir(null).toString();
         File file = new File(filepath + "/Check/ArborNum/" + filename + ".txt");
@@ -1160,15 +1160,15 @@ public class SettingFileManager {
                 String line = "";
 
                 line = buffreader.readLine();
-                offset = line;
+                arbor_num = line;
 
                 inputStream.close();//关闭输入流
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.v("get offset", offset);
-        return offset;
+        Log.i("get arbor_num", arbor_num);
+        return arbor_num;
     }
 
     /**

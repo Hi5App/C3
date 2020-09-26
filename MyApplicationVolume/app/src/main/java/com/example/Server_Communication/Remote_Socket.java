@@ -18,6 +18,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
 
 import com.example.ImageReader.BigImgReader;
+import com.example.datastore.ExcelUtil;
 import com.example.myapplication__volume.MainActivity;
 import com.example.myapplication__volume.R;
 import com.lxj.xpopup.XPopup;
@@ -812,16 +813,23 @@ public class Remote_Socket extends Socket {
 
     public void Select_RES(String[] RESs){
 
-
-        if (isDrawMode){
-            RES_Selected = RESs[RESs.length - 1];
-        }else {
-            if (2 > RESs.length - 1){
+        try{
+            if (isDrawMode){
                 RES_Selected = RESs[RESs.length - 1];
             }else {
-                RES_Selected = RESs[2];
+                if (2 > RESs.length - 1){
+                    RES_Selected = RESs[RESs.length - 1];
+                }else {
+                    RES_Selected = RESs[2];
+                }
             }
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast_in_Thread("Something Wrong with the BrainInfo.txt");
+            return;
         }
+
+
 
         setFilename_Remote(BrainNumber_Selected + "/" + RES_Selected, mContext);   //  18454/RES250x250x250
 
@@ -845,7 +853,8 @@ public class Remote_Socket extends Socket {
             }
         }
 
-        Select_Neuron(Transform(Neuron_Number_List_show, 0, Neuron_Number_List_show.size()));
+        String[] Neuron_Number_List_show_array = Transform(Neuron_Number_List_show, 0, Neuron_Number_List_show.size());
+        Select_Neuron(Neuron_Number_List_show_array, ellipsize(Neuron_Number_List_show_array));
 
 //        new XPopup.Builder(mContext)
 ////        .maxWidth(400)
@@ -863,16 +872,22 @@ public class Remote_Socket extends Socket {
 
     }
 
-    public void Select_Neuron(String[] Neurons){
+    public void Select_Neuron(String[] Neurons, String[] Neurons_show){
+
+//        for (int i=0; i<Neurons.length; i++){
+//            Log.i("Select_Neuron",Neurons[i] + "Neurons_show[]: " + Neurons_show[i]);
+//        }
 
         new XPopup.Builder(mContext)
 //        .maxWidth(400)
         .maxHeight(1350)
-                .asCenterList("Select a Neuron", Neurons,
+                .asCenterList("Select a Neuron", Neurons_show,
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                Neuron_Number_Selected = text.split(" ")[0];
+
+                                Log.d(TAG,"position: " + position);
+                                Neuron_Number_Selected = Neurons[position].split(" ")[0];
 
                                 if (isDrawMode){
                                     System.out.println(Neuron_Number_Selected);
@@ -932,10 +947,11 @@ public class Remote_Socket extends Socket {
             }
         }
 
+        String[] Neuron_Number_List_show_array = Transform(Neuron_Number_List_show, 0, Neuron_Number_List_show.size());
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Select_Neuron(Transform(Neuron_Number_List_show, 0, Neuron_Number_List_show.size()));
+                Select_Neuron(Neuron_Number_List_show_array, ellipsize(Neuron_Number_List_show_array));
             }
         });
 
@@ -943,17 +959,6 @@ public class Remote_Socket extends Socket {
     }
 
     public void Select_Arbor_Fast(){
-
-//        Vector<String> Arbor_Number_List_show = Adjust_Index_Check();
-//
-//        Thread thread = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                ShowListDialog_Check(Transform(Arbor_Number_List_show));
-//            }
-//        });s
-//
-//        thread.start();
 
         String filename = getFilename_Remote(mContext);
         Neuron_Number_Selected = getNeuronNumber_Remote(mContext,filename);
@@ -966,6 +971,12 @@ public class Remote_Socket extends Socket {
             Vector<String> arbor_list = Neuron_Info.get(Neuron_Number_Selected);
             if (Neuron_Arbor_checked.containsKey(Neuron_Number_Selected)){
                 Vector<String> arbor_list_checked = Neuron_Arbor_checked.get(Neuron_Number_Selected);
+
+                if (! arbor_list_checked.contains(getArborNum(mContext,
+                        filename.split("/")[0] + "_" + Neuron_Number_Selected).split(":")[0])){
+                    Toast_in_Thread("You haven't finished the check of current Arbor yet !");
+                }
+
                 for (int i=1; i<arbor_list.size(); i++){
                     String arbor_num = arbor_list.get(i);
                     if (arbor_list_checked.contains(arbor_num.split(":")[0])){
@@ -973,6 +984,8 @@ public class Remote_Socket extends Socket {
                     }
                 }
                 Neuron_Info.put(Neuron_Number_Selected,arbor_list);
+            }else {
+                Toast_in_Thread("You haven't finished the check of current Arbor yet !");
             }
 
             Select_Pos(Transform(Neuron_Info.get(Neuron_Number_Selected), 1, Neuron_Info.get(Neuron_Number_Selected).size()));
@@ -980,8 +993,6 @@ public class Remote_Socket extends Socket {
         }else {
             Toast_in_Thread("Something Wrong When choose Arbor");
         }
-
-//        Select_Neuron(Transform(Neuron_Number_List, 0, Neuron_Number_List.size()));
 
     }
 
@@ -1225,30 +1236,6 @@ public class Remote_Socket extends Socket {
                 }
                 break;
 
-//            case "Left":
-//                offset_x_i -= size_i/2;
-//                offset_x = Integer.toString(offset_x_i);
-//                break;
-//            case "Right":
-//                offset_x_i += size_i/2;
-//                offset_x = Integer.toString(offset_x_i);
-//                break;
-//            case "Top":
-//                offset_y_i -= size_i/2;
-//                offset_y = Integer.toString(offset_y_i);
-//                break;
-//            case "Bottom":
-//                offset_y_i += size_i/2;
-//                offset_y = Integer.toString(offset_y_i);
-//                break;
-//            case "Front":
-//                offset_z_i -= size_i/2;
-//                offset_z = Integer.toString(offset_z_i);
-//                break;
-//            case "Back":
-//                offset_z_i += size_i/2;
-//                offset_z = Integer.toString(offset_z_i);
-//                break;
         }
 
         offset_x = Integer.toString(offset_x_i);
@@ -1597,17 +1584,25 @@ public class Remote_Socket extends Socket {
             if (!ifShare){
                 Display_Result(Final_Path);
             }else {
-                File file = new File(Final_Path);
-                if (file.exists()){
-                    Intent intent = new Intent();
-                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    intent.setAction(Intent.ACTION_SEND);
-                    intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(mContext, "com.example.myapplication__volume.provider", new File(Final_Path)));  //传输图片或者文件 采用流的方式
-                    intent.setType("*/*");   //分享文件
-                    mContext.startActivity(Intent.createChooser(intent, "Share From C3"));
-                }else {
-                    Toast_in_Thread("File does not exist");
+                try {
+                    String excel_filepath = Final_Path.replace(".txt",".xls");
+                    CreateCheckExcel(excel_filepath, Final_Path);
+
+                    File excel_file = new File(excel_filepath);
+                    if (excel_file.exists()){
+                        Intent intent = new Intent();
+                        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        intent.setAction(Intent.ACTION_SEND);
+                        intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(mContext, "com.example.myapplication__volume.provider", excel_file));  //传输图片或者文件 采用流的方式
+                        intent.setType("*/*");   //分享文件
+                        mContext.startActivity(Intent.createChooser(intent, "Share From C3"));
+                    }else {
+                        Toast_in_Thread("File does not exist");
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
+
             }
         }
 
@@ -1652,6 +1647,9 @@ public class Remote_Socket extends Socket {
                 info = info + display + "\n\n";
             }
 
+            br.close();
+            isr.close();
+            fid.close();
 
             String finalInfo = info;
             MDDialog mdDialog = new MDDialog.Builder(mContext)
@@ -1659,25 +1657,14 @@ public class Remote_Socket extends Socket {
                     .setContentViewOperator(new MDDialog.ContentViewOperator() {
                         @Override
                         public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-                            //analysis_result next page
                             TextView display_info = (TextView) contentView.findViewById(R.id.check_result);
-                           display_info.setText(finalInfo);
+                            display_info.setText(finalInfo);
                         }
                     })
                     .setTitle("Check Result")
                     .create();
             mdDialog.show();
             mdDialog.getWindow().setLayout(1000, 1500);
-
-
-//            new XPopup.Builder(mContext)
-//                    .asConfirm("Check Result", info,
-//                            new OnConfirmListener() {
-//                                @Override
-//                                public void onConfirm() {
-//                                }
-//                            })
-//                    .show();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -1687,6 +1674,45 @@ public class Remote_Socket extends Socket {
 
     }
 
+
+    private void CreateCheckExcel(String excel_filepath, String filepath){
+
+        try{
+            File excel_file = new File(excel_filepath);
+            File file = new File(filepath);
+            if (!excel_file.exists()){
+                if (excel_file.createNewFile()){
+                    Log.i(TAG,"PullCheckResult create file successfully !");
+                }
+            }
+
+            if (!file.exists()){
+                Log.i(TAG,"CreateCheckExcel Can't open the file");
+            }
+
+            ArrayList<String[]> arrayList = new ArrayList<>();
+            FileInputStream fid = new FileInputStream(file);
+            InputStreamReader isr = new InputStreamReader(fid);
+            BufferedReader br = new BufferedReader(isr);
+            String str;
+
+            while ((str = br.readLine()) != null) {
+                arrayList.add(str.trim().split(" "));
+            }
+            br.close();
+            isr.close();
+            fid.close();
+
+            String[] titles = {"Neuron_num", "Arbor_num", "X_start", "X_end", "Y_start", "Y_end", "Z_start", "Z_end",
+                                "Check_result (0 for yes, 1 for no, 2 for uncertain)", "Checker"};
+
+            ExcelUtil.WriteExcel(excel_filepath, titles, arrayList);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
 
     private void Update_Check_Result(){
 
@@ -2403,13 +2429,26 @@ public class Remote_Socket extends Socket {
 
     String[] Transform(Vector<String> strings, int start, int end){
 
-//        String[] string_list = new String[strings.size()];
         String[] string_list = new String[end - start];
         int j = 0;
-        for (int i = start; i < end; i++){
-            string_list[j++] = strings.get(i);
+        for (int i = start; i < end; i++) {
+                string_list[j++] = strings.get(i);
         }
+        return string_list;
+    }
 
+    private String[] ellipsize(String[] strings){
+
+        String[] string_list = new String[strings.length];
+
+        for (int i=0; i<strings.length; i++){
+            String item = strings[i];
+            if (item.length() > 22){
+                string_list[i] = item.substring(0,10) + "..." + item.substring(item.length()-10);
+            }else {
+                string_list[i] = item;
+            }
+        }
         return string_list;
     }
 

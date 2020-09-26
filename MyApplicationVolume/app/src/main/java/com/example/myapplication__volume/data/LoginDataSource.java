@@ -3,21 +3,12 @@ package com.example.myapplication__volume.data;
 import android.util.Log;
 
 import com.example.myapplication__volume.data.model.LoggedInUser;
-import com.example.server_connect.HttpUtil;
-import com.tracingfunc.gd.V_NeuronSWC;
-import com.tracingfunc.gd.V_NeuronSWC_list;
+import com.example.Server_Communication.HttpUtil;
 
 import java.io.IOException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.Response;
 
 /**

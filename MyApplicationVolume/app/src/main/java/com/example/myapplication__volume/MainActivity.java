@@ -157,7 +157,6 @@ import static com.example.datastore.SettingFileManager.getoffset_Remote;
 import static com.example.datastore.SettingFileManager.setSelectSource;
 import static com.example.datastore.SettingFileManager.setUserAccount;
 import static com.example.datastore.SettingFileManager.setUserAccount_Check;
-import static com.example.server_connect.RemoteImg.getFilename;
 import static java.lang.Math.abs;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -500,12 +499,12 @@ public class MainActivity extends BaseActivity {
                     if (DrawMode){
                         String source = getSelectSource(context);
                         if (source.equals("Remote Server Aliyun")){
-                            String filename = getFilename(context);
+                            String filename = getFilename_Remote(context);
                             String brain_number = getNeuronNumber_Remote(context,filename);
                             result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
 //                            result = name.split("_")[1].substring(0,name.split("_")[1].length()-3);
                         }else if(source.equals("Remote Server SEU")){
-                            String filename = getFilename(context);
+                            String filename = getFilename_Remote(context);
                             String brain_number = getNeuronNumber_Remote(context,filename);
                             result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
                         }
@@ -4823,7 +4822,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200924a 22:08 UTC+8 build",
+                                "Version: 20200926a 16:08 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

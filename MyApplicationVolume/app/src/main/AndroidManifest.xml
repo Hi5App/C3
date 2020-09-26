@@ -55,23 +55,6 @@
             android:configChanges="keyboardHidden|orientation|layoutDirection|screenSize"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".MainActivity_Jump"
-            android:parentActivityName=".MainActivity">
-
-            <!-- The meta-data tag is required if you support API level 15 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity_Jump" />
-        </activity>
-        <activity
-            android:name=".ConnectActivity"
-            android:label="Connect"
-            android:parentActivityName=".MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ConnectActivity" />
-        </activity>
-        <activity
             android:name=".VoiceChatViewActivity"
             android:parentActivityName=".MainActivity">
 
