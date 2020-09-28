@@ -278,8 +278,8 @@ void Socket::ArborCheck(QString msg)
         if(f->open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Append))
         {
             QTextStream tsm(f);
-            qDebug()<<filename<<" "<<arN<<" "<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<" "<<id<<endl;
-            tsm<<filename<<" "<<arN<<" "<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<" "<<id<<endl;
+//            qDebug()<<filename<<" "<<arN<<" "<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<" "<<id<<endl;
+            tsm<<filename<<" "<<arN<<" "<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<" "<<id<<QTime::currentTime().toString()<<endl;
             f->close();
             switch (flag) {
             case 0:QFile(QCoreApplication::applicationDirPath()+"/data/"+filename+".swc").rename(QCoreApplication::applicationDirPath()+"/data/markfalse/"+filename+".swc");break;
