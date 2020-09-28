@@ -17,11 +17,9 @@ public:
     ~Server();
 private:
     void incomingConnection(qintptr handle) override;
-//    void setSwcInBB(QString name,int x1,int x2,int y1,int y2,int z1,int z2);
 private slots:
-//    bool setSwcInBBByStruct(QString name,int x1,int x2,int y1,int y2,int z1,int z2);
 private:
-//    QList<SetInfo> setInfos;
+
 
 };
 

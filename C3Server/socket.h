@@ -26,7 +26,6 @@ class Socket : public QThread
     Q_OBJECT
 public:
     Socket(qintptr socketID,QObject *parent=0);
-    static QHash<QString,QReadWriteLock> fileLocks;
 protected:
     void run() override;
     void sendMsg(const QString &msg)const;//
@@ -43,10 +42,10 @@ private:
     void getAndSendImageBlock(QString msg);
     void getAndSendSWCBlock(QString msg);
     void setSwcInBB(QString name,int x1,int x2,int y1,int y2,int z1,int z2,int cnt);
-    void swcCheck(QString msg);
+//    void swcCheck(QString msg);
     void ArborCheck(QString msg);
-    void getAndSendArborBlock(QString msg);
-    void getAndSendArborSwcBlock(QString msg);
+//    void getAndSendArborBlock(QString msg);
+//    void getAndSendArborSwcBlock(QString msg);
 
 
 public slots:

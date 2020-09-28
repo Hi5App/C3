@@ -38,6 +38,7 @@ HEADERS += \
     basic_c_fun/v3d_curvetracepara.h \
     basic_c_fun/v3d_message.h \
     basic_c_fun/v_neuronswc.h \
+    dataprepro.h \
     neuron_editing/apo_xforms.h \
     neuron_editing/global_feature_compute.h \
     neuron_editing/neuron_format_converter.h \

@@ -3,8 +3,9 @@
 #include <QByteArray>
 #include <QHostAddress>
 #include <resampling.h>
+#include <QtGlobal>
 #define IMAGEDIR "image" // where is image data
-QHash<QString,QReadWriteLock> Socket::fileLocks;
+
 Socket::Socket(qintptr socketID,QObject *parent):QThread(parent)
 {
     socketDescriptor=socketID;
@@ -25,6 +26,82 @@ void Socket::run()
     this->exec();
 }
 
+void Socket::sendMsg(const QString &msg) const
+{
+    QByteArray block;
+    QDataStream dts(&block,QIODevice::WriteOnly);
+    dts<<quint64(0)<<quint64(0)<<msg.toUtf8();
+    dts.device()->seek(0);
+    dts<<(quint64)(block.size())<<(quint64)(block.size()-sizeof(quint64)*2)<<msg.toUtf8();
+    socket->write(block);
+    socket->waitForBytesWritten();
+}
+//data file :mul read and write
+//image file:mul read
+//brainInfo file:mul read
+
+void Socket::sendFile(const QString &filename, int type) const
+{
+    //type:use it to find Dir;
+    //need to modify
+    //type:0 down file from data dir
+    //type:1 down brain file from neuronInfo dir;
+    //type:2 send image block/bb block from tmp dir;
+    //type:3 send arbor mark txt ;
+    QString filePath;
+    filePath.clear();
+    switch (type) {
+        case 0:filePath=QCoreApplication::applicationDirPath()+"/data/"+filename;break;
+        case 1:filePath=QCoreApplication::applicationDirPath()+"/brainInfo/"+filename;break;
+        case 2:filePath=QCoreApplication::applicationDirPath()+"/tmp/"+filename;break;
+        case 3:filePath=QCoreApplication::applicationDirPath()+"/arbormark/"+filename;break;
+    default: return;
+    }
+
+    QFile f(filePath);
+            int count=5;
+    if(f.exists()&&socket->state()==QAbstractSocket::ConnectedState)
+    {
+
+        __START:
+        count--;
+        if(f.open(QIODevice::ReadOnly))
+        {
+            QByteArray filedata=f.readAll();
+            QByteArray block;
+            QDataStream dts(&block,QIODevice::WriteOnly);
+
+            dts<<quint64(0)<<quint64(0)<<filename.toUtf8()<<filedata;
+            dts.device()->seek(0);
+            dts<<(quint64)(block.size())
+              <<(quint64)(block.size()-sizeof(quint64)*2-filedata.size())<<filename.toUtf8()<<filedata;
+
+            socket->write(block);
+            socket->waitForBytesWritten();
+            f.close();
+            if(type==2) f.remove();
+            qDebug()<<"send "<<filePath<<" success ";
+        }else
+        {
+            if(count<=0)
+            {
+                qCritical()<<"Critical Error:can not open file "<<filePath;
+                return ;
+            }
+            QElapsedTimer t;
+            t.start();
+            while(t.elapsed()<2000);
+            qWarning()<<"Can not open file:"<<filePath<<",try again!" ;
+            goto __START;
+        }
+
+    }
+    else
+    {
+        qDebug()<<"can not send "<<filePath<<" please check it!";
+    }
+}
+
 void Socket::onReadyRead()
 {
     if(dataInfo.dataReadedSize==0)
@@ -35,7 +112,7 @@ void Socket::onReadyRead()
             QDataStream in(socket);
             in>>dataInfo.dataSize>>dataInfo.stringSize;
 
-            qDebug()<<socket->peerAddress().toString()<<" "<<socket->socketDescriptor()<<" "<<"dataSize="<<dataInfo.dataSize<<",stringSize="<<dataInfo.stringSize;
+//            qDebug()<<socket->peerAddress().toString()<<" "<<socket->socketDescriptor()<<" "<<"dataSize="<<dataInfo.dataSize<<",stringSize="<<dataInfo.stringSize;
             dataInfo.dataReadedSize=2*sizeof(quint64);
             if(dataInfo.dataSize>256*1024*1024)
             {
@@ -126,11 +203,8 @@ void Socket::processMsg(const QString &msg)
     QRegExp ImgBlockRex("(.*):imgblock.\n");
 
     QRegExp GetBBSWCRex("(.*):GetBBSwc.\n");
-    QRegExp SwcCheckRex("(.*):SwcCheck.\n");
 
     QRegExp GetArborListRex("(.*):GetArborList.\n");
-    QRegExp GetArborRex("(.*):GetArbor.\n");
-    QRegExp GetArborSwcRex("(.*):GetArborSwc.\n");
     QRegExp ArborCheckRex("(.*):ArborCheck.\n");
     QRegExp GetArborResultRex("(.*):GetArborResult.\n");
     qDebug()<<"MSG:"<<msg;
@@ -162,19 +236,9 @@ void Socket::processMsg(const QString &msg)
     }else if(GetBBSWCRex.indexIn(msg)!=-1)
     {
         getAndSendSWCBlock(GetBBSWCRex.cap(1).trimmed());//mul read and write
-    }else if(SwcCheckRex.indexIn(msg)!=-1)
-    {
-        swcCheck(SwcCheckRex.cap(1).trimmed());
     }else if(GetArborListRex.indexIn(msg)!=-1)
     {
         sendMsg(currentArbors()+":currentDirArbor");
-    }
-    else if(GetArborRex.indexIn(msg)!=-1)
-    {
-        getAndSendArborBlock(GetArborRex.cap(1).trimmed());
-    }else if(GetArborSwcRex.indexIn(msg)!=-1)
-    {
-        getAndSendArborSwcBlock(GetArborSwcRex.cap(1).trimmed());
     }else if(ArborCheckRex.indexIn(msg)!=-1)
     {
         ArborCheck(ArborCheckRex.cap(1).trimmed());
@@ -218,9 +282,9 @@ void Socket::ArborCheck(QString msg)
             tsm<<filename<<" "<<arN<<" "<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<" "<<id<<endl;
             f->close();
             switch (flag) {
-            case 0:QFile(QCoreApplication::applicationDirPath()+"/data/"+filename+".swc").copy(QCoreApplication::applicationDirPath()+"/data/markfalse/"+filename+".swc");break;
-            case 1:QFile(QCoreApplication::applicationDirPath()+"/data/"+filename+".swc").copy(QCoreApplication::applicationDirPath()+"/data/marktrue/"+filename+".swc");break;
-            case 2:QFile(QCoreApplication::applicationDirPath()+"/data/"+filename+".swc").copy(QCoreApplication::applicationDirPath()+"/data/markNone/"+filename+".swc");break;
+            case 0:QFile(QCoreApplication::applicationDirPath()+"/data/"+filename+".swc").rename(QCoreApplication::applicationDirPath()+"/data/markfalse/"+filename+".swc");break;
+            case 1:QFile(QCoreApplication::applicationDirPath()+"/data/"+filename+".swc").rename(QCoreApplication::applicationDirPath()+"/data/marktrue/"+filename+".swc");break;
+            case 2:QFile(QCoreApplication::applicationDirPath()+"/data/"+filename+".swc").rename(QCoreApplication::applicationDirPath()+"/data/markNone/"+filename+".swc");break;
             }
 
         }else if(n-->0)
@@ -235,110 +299,6 @@ void Socket::ArborCheck(QString msg)
     }
 }
 
-void Socket::swcCheck(QString msg)
-{
-    QRegExp tmp("(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)");
-    if(tmp.indexIn(msg)!=-1)
-    {
-        QString filename=tmp.cap(1).trimmed();
-        int cnt=tmp.cap(8).toInt();
-        int x1=tmp.cap(2).toInt()*cnt;
-        int x2=tmp.cap(3).toInt()*cnt;
-        int y1=tmp.cap(4).toInt()*cnt;
-        int y2=tmp.cap(5).toInt()*cnt;
-        int z1=tmp.cap(6).toInt()*cnt;
-        int z2=tmp.cap(7).toInt()*cnt;
-
-        int flag=tmp.cap(9).toInt();
-        int n=5;
-        if(!QDir(QCoreApplication::applicationDirPath()+"/mark").exists())
-        {
-            QDir(QCoreApplication::applicationDirPath()).mkdir("mark");
-        }
-        QFile *f=new QFile(QCoreApplication::applicationDirPath()+"/mark/"+filename+".txt");
-        __START:
-        if(f->open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Append))
-        {
-            QTextStream tsm(f);
-            tsm<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<endl;
-            f->close();
-
-        }else if(n-->0)
-        {
-            QElapsedTimer t;
-            t.start();
-            while(t.elapsed()<2000);
-            goto __START;
-        }
-    }
-
-}
-
-//data file :mul read and write
-//image file:mul read
-//brainInfo file:mul read
-void Socket::sendMsg(const QString &msg) const
-{
-    QByteArray block;
-    QDataStream dts(&block,QIODevice::WriteOnly);
-    dts<<quint64(0)<<quint64(0)<<msg.toUtf8();
-    dts.device()->seek(0);
-    dts<<(quint64)(block.size())<<(quint64)(block.size()-sizeof(quint64)*2)<<msg.toUtf8();
-    qDebug()<<"send MSG:"<<block;
-    socket->write(block);
-    socket->waitForBytesWritten();
-}
-void Socket::sendFile(const QString &filename, int type) const
-{
-    //type:use it to find Dir;
-    //need to modify
-    //type:0 down file from data dir
-    //type:1 down brain file from neuronInfo dir;
-    //type:2 send image block/bb block from tmp dir;
-    QString filePath;
-    switch (type) {
-        case 0:filePath.clear();filePath=QCoreApplication::applicationDirPath()+"/data/"+filename;break;
-        case 1:filePath.clear();filePath=QCoreApplication::applicationDirPath()+"/brainInfo/"+filename;break;
-        case 2:filePath.clear();filePath=QCoreApplication::applicationDirPath()+"/tmp/"+filename;break;
-        case 3:filePath.clear();filePath=QCoreApplication::applicationDirPath()+"/arbormark/"+filename;break;
-    default: break;
-    }
-    qDebug()<<"filepath:"<<filePath;
-    QFile f(filePath);
-    if(f.exists()&&socket->state()==QAbstractSocket::ConnectedState)
-    {
-        __START:
-        if(f.open(QIODevice::ReadOnly))
-        {
-
-            QByteArray filedata=f.readAll();
-            QByteArray block;
-            QDataStream dts(&block,QIODevice::WriteOnly);
-            dts<<quint64(0)<<quint64(0)<<filename.toUtf8()<<filedata;
-            dts.device()->seek(0);
-            dts<<(quint64)(block.size())
-              <<(quint64)(block.size()-sizeof(quint64)*2-filedata.size())<<filename.toUtf8()<<filedata;
-
-            socket->write(block);
-            socket->waitForBytesWritten();
-            qDebug()<<"send "<<filePath<<" success ";
-
-            f.close();
-
-            if(type==2) f.remove();
-        }else
-        {
-            QElapsedTimer t;
-            t.start();
-            while(t.elapsed()<2000);
-            goto __START;
-        }
-    }
-    else
-    {
-        qDebug()<<"can not send "<<filePath<<" please check it!";
-    }
-}
 QString Socket::currentDir() const
 {
     QString dataPath=QCoreApplication::applicationDirPath()+"/data";
@@ -633,120 +593,120 @@ void Socket::setSwcInBB(QString name, int x1, int x2, int y1, int y2, int z1, in
 
 }
 
-void Socket::getAndSendArborBlock(QString msg)
-{
-    qDebug()<<"getAndSendImageBlock:"<<msg;
-    QStringList paraList=msg.split(";",QString::SkipEmptyParts);
-    QString filename1=paraList.at(0).trimmed();
-    QString filename=filename1+".v3draw";//1. tf name/RES  2. .v3draw// test:RES54600x34412x9847__x1__x2__y1__y2__z1__z2;
+//void Socket::getAndSendArborBlock(QString msg)
+//{
+//    qDebug()<<"getAndSendImageBlock:"<<msg;
+//    QStringList paraList=msg.split(";",QString::SkipEmptyParts);
+//    QString filename1=paraList.at(0).trimmed();
+//    QString filename=filename1+".v3draw";//1. tf name/RES  2. .v3draw// test:RES54600x34412x9847__x1__x2__y1__y2__z1__z2;
 
-    int x1pos=paraList.at(1).toInt();
-    int x2pos=paraList.at(2).toInt();
-    int y1pos=paraList.at(3).toInt();
-    int y2pos=paraList.at(4).toInt();
-    int z1pos=paraList.at(5).toInt();
-    int z2pos=paraList.at(6).toInt();
-    if(!QDir(QCoreApplication::applicationDirPath()+"/tmp").exists())
-    {
-        QDir(QCoreApplication::applicationDirPath()).mkdir("tmp");
-    }
-    QString vaa3dPath=QCoreApplication::applicationDirPath();
-    QString string=QCoreApplication::applicationDirPath()+"/tmp/"+filename1+
-            QString("%0__%1__%2__%3__%4__%5__%6.v3dpbd").arg(socket->socketDescriptor()).arg(x1pos).arg(x2pos).arg(y1pos).arg(y2pos).arg(z1pos).arg(z2pos);
-    QString order =QString("xvfb-run -a %0/vaa3d -x %1/plugins/image_geometry/crop3d_image_series/libcropped3DImageSeries.so "
-                            "-f crop3d_raw -i %2/%3 -o %4 -p %5 %6 %7 %8 %9 %10 0")
-            .arg(vaa3dPath).arg(vaa3dPath).arg(QCoreApplication::applicationDirPath()+"/arbors").arg(filename).
-            arg(string).arg(x1pos).arg(x2pos).arg(y1pos).arg(y2pos).arg(z1pos).arg(z2pos);
-    qDebug()<<"order="<<order;
-        QProcess p;
-    if(p.execute(order.toStdString().c_str())!=-1||p.execute(order.toStdString().c_str())!=-2)
-    {
-        sendFile(filename1+QString("%0__%1__%2__%3__%4__%5__%6.v3dpbd").arg(socket->socketDescriptor()).arg(x1pos).arg(x2pos).arg(y1pos).arg(y2pos).arg(z1pos).arg(z2pos),2);
-    }else
-    {
-        sendMsg(QString("Can't get the image in BB ,please try again??%1:ERROR").arg(msg+":imgblock.\n"));
-    }
-}
+//    int x1pos=paraList.at(1).toInt();
+//    int x2pos=paraList.at(2).toInt();
+//    int y1pos=paraList.at(3).toInt();
+//    int y2pos=paraList.at(4).toInt();
+//    int z1pos=paraList.at(5).toInt();
+//    int z2pos=paraList.at(6).toInt();
+//    if(!QDir(QCoreApplication::applicationDirPath()+"/tmp").exists())
+//    {
+//        QDir(QCoreApplication::applicationDirPath()).mkdir("tmp");
+//    }
+//    QString vaa3dPath=QCoreApplication::applicationDirPath();
+//    QString string=QCoreApplication::applicationDirPath()+"/tmp/"+filename1+
+//            QString("%0__%1__%2__%3__%4__%5__%6.v3dpbd").arg(socket->socketDescriptor()).arg(x1pos).arg(x2pos).arg(y1pos).arg(y2pos).arg(z1pos).arg(z2pos);
+//    QString order =QString("xvfb-run -a %0/vaa3d -x %1/plugins/image_geometry/crop3d_image_series/libcropped3DImageSeries.so "
+//                            "-f crop3d_raw -i %2/%3 -o %4 -p %5 %6 %7 %8 %9 %10 0")
+//            .arg(vaa3dPath).arg(vaa3dPath).arg(QCoreApplication::applicationDirPath()+"/arbors").arg(filename).
+//            arg(string).arg(x1pos).arg(x2pos).arg(y1pos).arg(y2pos).arg(z1pos).arg(z2pos);
+//    qDebug()<<"order="<<order;
+//        QProcess p;
+//    if(p.execute(order.toStdString().c_str())!=-1||p.execute(order.toStdString().c_str())!=-2)
+//    {
+//        sendFile(filename1+QString("%0__%1__%2__%3__%4__%5__%6.v3dpbd").arg(socket->socketDescriptor()).arg(x1pos).arg(x2pos).arg(y1pos).arg(y2pos).arg(z1pos).arg(z2pos),2);
+//    }else
+//    {
+//        sendMsg(QString("Can't get the image in BB ,please try again??%1:ERROR").arg(msg+":imgblock.\n"));
+//    }
+//}
 
-void Socket::getAndSendArborSwcBlock(QString msg)
-{
-    QRegExp tmp("(.*)RES(.*);(.*);(.*);(.*);(.*);(.*);(.*)");
-    int n=5;//重复5次，每次延时2S
-    if(tmp.indexIn(msg)!=-1)
-    {
-        QString name=tmp.cap(1)+".swc";
-        int x1=tmp.cap(3).toInt();
-        int x2=tmp.cap(4).toInt();
-        int y1=tmp.cap(5).toInt();
-        int y2=tmp.cap(6).toInt();
-        int z1=tmp.cap(7).toInt();
-        int z2=tmp.cap(8).toInt();
+//void Socket::getAndSendArborSwcBlock(QString msg)
+//{
+//    QRegExp tmp("(.*)RES(.*);(.*);(.*);(.*);(.*);(.*);(.*)");
+//    int n=5;//重复5次，每次延时2S
+//    if(tmp.indexIn(msg)!=-1)
+//    {
+//        QString name=tmp.cap(1)+".swc";
+//        int x1=tmp.cap(3).toInt();
+//        int x2=tmp.cap(4).toInt();
+//        int y1=tmp.cap(5).toInt();
+//        int y2=tmp.cap(6).toInt();
+//        int z1=tmp.cap(7).toInt();
+//        int z2=tmp.cap(8).toInt();
 
 
-        __START:
-        NeuronTree nt;
-        --n;
-        qDebug()<<"Get SWC in BB:"<<5-n;
-        nt=readSWC_file(QCoreApplication::applicationDirPath()+"/arborswc/"+name);
-        if(nt.flag!=false)
-        {
-            V_NeuronSWC_list testVNL=NeuronTree__2__V_NeuronSWC_list(nt);
-            V_NeuronSWC_list tosave;
-            for(int i=0;i<testVNL.seg.size();i++)
-            {
-                NeuronTree SS;
-                V_NeuronSWC seg_temp =  testVNL.seg.at(i);
-                seg_temp.reverse();
-                for(int j=0;j<seg_temp.row.size();j++)
-                {
-                    if(seg_temp.row.at(j).x>=x1&&seg_temp.row.at(j).x<=x2
-                            &&seg_temp.row.at(j).y>=y1&&seg_temp.row.at(j).y<=y2
-                            &&seg_temp.row.at(j).z>=z1&&seg_temp.row.at(j).z<=z2)
-                    {
-                        tosave.seg.push_back(seg_temp);
-                        break;
-                    }
-                }
-            }
-            qDebug()<<"get nt size:"<<tosave.seg.size();
-            nt=V_NeuronSWC_list__2__NeuronTree(tosave);
-            for(int i=0;i<nt.listNeuron.size();i++)
-            {
-                (nt.listNeuron[i].x/=4)-=x1;
-                (nt.listNeuron[i].y/=4)-=y1;
-                (nt.listNeuron[i].z/=4)-=z1;
-            }
-            if(!QDir(QCoreApplication::applicationDirPath()+"/tmp").exists())
-            {
-                QDir(QCoreApplication::applicationDirPath()).mkdir("tmp");
-            }
+//        __START:
+//        NeuronTree nt;
+//        --n;
+//        qDebug()<<"Get SWC in BB:"<<5-n;
+//        nt=readSWC_file(QCoreApplication::applicationDirPath()+"/arborswc/"+name);
+//        if(nt.flag!=false)
+//        {
+//            V_NeuronSWC_list testVNL=NeuronTree__2__V_NeuronSWC_list(nt);
+//            V_NeuronSWC_list tosave;
+//            for(int i=0;i<testVNL.seg.size();i++)
+//            {
+//                NeuronTree SS;
+//                V_NeuronSWC seg_temp =  testVNL.seg.at(i);
+//                seg_temp.reverse();
+//                for(int j=0;j<seg_temp.row.size();j++)
+//                {
+//                    if(seg_temp.row.at(j).x>=x1&&seg_temp.row.at(j).x<=x2
+//                            &&seg_temp.row.at(j).y>=y1&&seg_temp.row.at(j).y<=y2
+//                            &&seg_temp.row.at(j).z>=z1&&seg_temp.row.at(j).z<=z2)
+//                    {
+//                        tosave.seg.push_back(seg_temp);
+//                        break;
+//                    }
+//                }
+//            }
+//            qDebug()<<"get nt size:"<<tosave.seg.size();
+//            nt=V_NeuronSWC_list__2__NeuronTree(tosave);
+//            for(int i=0;i<nt.listNeuron.size();i++)
+//            {
+//                (nt.listNeuron[i].x/=4)-=x1;
+//                (nt.listNeuron[i].y/=4)-=y1;
+//                (nt.listNeuron[i].z/=4)-=z1;
+//            }
+//            if(!QDir(QCoreApplication::applicationDirPath()+"/tmp").exists())
+//            {
+//                QDir(QCoreApplication::applicationDirPath()).mkdir("tmp");
+//            }
 
-            QString BBSWCNAME=QCoreApplication::applicationDirPath()+"/tmp/blockGet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6.swc")
-                    .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2);
-            writeSWC_file(BBSWCNAME,nt);
-            sendFile("blockGet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6.swc")
-                     .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2),2);
-            return;
-        }
-        else
-        {
-            if(!n)
-            {
-                qDebug()<<"error:"<<msg<<" failed 5 times to get SWC IN BB:"<<msg;
-                goto __ERROR;
-            }else
-            {
+//            QString BBSWCNAME=QCoreApplication::applicationDirPath()+"/tmp/blockGet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6.swc")
+//                    .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2);
+//            writeSWC_file(BBSWCNAME,nt);
+//            sendFile("blockGet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6.swc")
+//                     .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2),2);
+//            return;
+//        }
+//        else
+//        {
+//            if(!n)
+//            {
+//                qDebug()<<"error:"<<msg<<" failed 5 times to get SWC IN BB:"<<msg;
+//                goto __ERROR;
+//            }else
+//            {
 
-                QElapsedTimer t;
-                t.start();
-                while(t.elapsed()<2000);
-                goto __START;
-            }
-        }
-    }else
-    {
-        qDebug()<<"error:"<<msg<<" does not match tmp";
-    }
-    __ERROR:
-        sendMsg(QString("Can't get the SWC in BB ,please try again??%1:ERROR").arg(msg+":GetArborSwc.\n"));
-}
+//                QElapsedTimer t;
+//                t.start();
+//                while(t.elapsed()<2000);
+//                goto __START;
+//            }
+//        }
+//    }else
+//    {
+//        qDebug()<<"error:"<<msg<<" does not match tmp";
+//    }
+//    __ERROR:
+//        sendMsg(QString("Can't get the SWC in BB ,please try again??%1:ERROR").arg(msg+":GetArborSwc.\n"));
+//}
