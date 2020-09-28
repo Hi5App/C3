@@ -77,11 +77,13 @@ import com.example.basic.FileManager;
 import com.example.basic.Image4DSimple;
 import com.example.basic.ImageMarker;
 import com.example.basic.LocationSimple;
+import com.example.basic.MsgPopup;
 import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
 import com.example.chat.ChatManager;
 import com.example.chat.MessageActivity;
 import com.example.chat.MessageUtil;
+import com.example.chat.model.MessageBean;
 import com.example.datastore.SettingFileManager;
 import com.example.myapplication__volume.FileReader.AnoReader;
 import com.example.myapplication__volume.FileReader.ApoReader;
@@ -94,6 +96,7 @@ import com.learning.pixelclassification.PixelClassification;
 import com.learning.randomforest.RandomForest;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
+import com.lxj.xpopup.enums.PopupAnimation;
 import com.lxj.xpopup.enums.PopupPosition;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
@@ -398,7 +401,7 @@ public class MainActivity extends BaseActivity {
 
     private RtmClientListener mClientListener;
 
-    boolean mIsPeerToPeerMode = true;
+    public static Map<String, List<MessageBean>> messageMap = new HashMap<>();
 
     @SuppressLint("HandlerLeak")
     private Handler uiHandler = new Handler(){
@@ -1892,6 +1895,7 @@ public class MainActivity extends BaseActivity {
         intent.putExtra(MessageUtil.INTENT_EXTRA_IS_PEER_MODE, isPeerToPeerMode);
         intent.putExtra(MessageUtil.INTENT_EXTRA_TARGET_NAME, targetName);
         intent.putExtra(MessageUtil.INTENT_EXTRA_USER_ID, username);
+//        intent.putExtra(MessageUtil.INTENT_EXTRA_MESSAGE_LIST, messageMap.get(targetName));
         startActivity(intent);
     }
 
@@ -2174,6 +2178,20 @@ public class MainActivity extends BaseActivity {
 //                e.printStackTrace();
 //            }
         }
+    }
+
+    private boolean isTopActivity(){
+        ActivityManager manager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> runningTaskInfos = manager.getRunningTasks(1);
+        String cmpNameTemp = null;
+        if(runningTaskInfos != null){
+            cmpNameTemp = runningTaskInfos.get(0).topActivity.toString();
+        }
+        if(cmpNameTemp == null){
+            return false;
+        }
+        Log.d("isTopActivity", cmpNameTemp);
+        return cmpNameTemp.equals("ComponentInfo{com.example.myapplication__volume/com.example.myapplication__volume.MainActivity}");
     }
 
 
@@ -4822,7 +4840,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200926a 16:08 UTC+8 build",
+                                "Version: 20200928a 22:27 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5968,6 +5986,8 @@ public class MainActivity extends BaseActivity {
             timerTask.cancel();
             timerTask = null;
         }
+
+
     }
 
     //renderer 的生存周期和activity保持一致
@@ -7099,79 +7119,63 @@ public class MainActivity extends BaseActivity {
 
     }
 
-    public void Experiment_icon(){
-        Context context = this;
-        new XPopup.Builder(this)
-                .setPopupCallback(new SimpleCallback() { //设置显示和隐藏的回调
-                    @Override
-                    public void onDismiss() {
-                        // 完全隐藏的时候执行
-//                        Toast.makeText(getContext(), "GSDT function start~", Toast.LENGTH_SHORT).show();
-//                        GD_Tracing();
-                    }
-                })
-//        .maxWidth(400)
-//        .maxHeight(1350)
-                .asCenterList("Experimental Features", new String[]{"Detect Line", "Detect Corner", "GSDT","Anisotropic", "VoiceChat-1to1", "For Developer(Classify)"},
-                        new OnSelectListener() {
-//                            @Override
-                            public void onSelect(int position, String text) {
-                                switch (text) {
-                                    case "Detect Line":
-                                        LineDetect();
-                                        break;
-                                    case "Detect Corner":
+//    public void Experiment_icon(){
+//        Context context = this;
+//        new XPopup.Builder(this)
+//                .setPopupCallback(new SimpleCallback() { //设置显示和隐藏的回调
+//                    @Override
+//                    public void onDismiss() {
+//                        // 完全隐藏的时候执行
+////                        Toast.makeText(getContext(), "GSDT function start~", Toast.LENGTH_SHORT).show();
+////                        GD_Tracing();
+//                    }
+//                })
+////        .maxWidth(400)
+////        .maxHeight(1350)
+//                .asCenterList("Experimental Features", new String[]{"Detect Line", "Detect Corner", "GSDT","Anisotropic", "VoiceChat-1to1", "For Developer(Classify)"},
+//                        new OnSelectListener() {
+////                            @Override
+//                            public void onSelect(int position, String text) {
+//                                switch (text) {
+//                                    case "Detect Line":
+//                                        LineDetect();
+//                                        break;
+//                                    case "Detect Corner":
+////                                        try {
+//////                                            progressBar.setVisibility(View.VISIBLE);
+//////                                            timer = new Timer();
+//////                                            timerTask = new TimerTask() {
+//////                                                @Override
+//////                                                public void run() {
+//////                                                    myrenderer.corner_detection();
+//////                                                    myGLSurfaceView.requestRender();
+//////                                                    progressBar.setVisibility(View.INVISIBLE);
+//////                                                }
+//////                                            };
+////////                                            progressBar.setVisibility(View.INVISIBLE);
+//////                                        }catch (Exception e){
+//////                                            e.printStackTrace();
+//////                                        }
+////                                        timer.schedule(timerTask, 0);
+//                                        if (myrenderer.if2dImageLoaded()){
+//                                            myrenderer.corner_detection();
+//                                            myGLSurfaceView.requestRender();
+//                                        } else {
+//                                            Toast.makeText(getContext(), "Please load a 2d image first", Toast.LENGTH_SHORT).show();
+//                                        }
+//                                        break;
+//                                    case "GSDT":
+//                                        //gsdt检测斑点（eg.soma）
 //                                        try {
-////                                            progressBar.setVisibility(View.VISIBLE);
-////                                            timer = new Timer();
-////                                            timerTask = new TimerTask() {
-////                                                @Override
-////                                                public void run() {
-////                                                    myrenderer.corner_detection();
-////                                                    myGLSurfaceView.requestRender();
-////                                                    progressBar.setVisibility(View.INVISIBLE);
-////                                                }
-////                                            };
-//////                                            progressBar.setVisibility(View.INVISIBLE);
-////                                        }catch (Exception e){
-////                                            e.printStackTrace();
-////                                        }
-//                                        timer.schedule(timerTask, 0);
-                                        if (myrenderer.if2dImageLoaded()){
-                                            myrenderer.corner_detection();
-                                            myGLSurfaceView.requestRender();
-                                        } else {
-                                            Toast.makeText(getContext(), "Please load a 2d image first", Toast.LENGTH_SHORT).show();
-                                        }
-                                        break;
-                                    case "GSDT":
-                                        //gsdt检测斑点（eg.soma）
-                                        try {
-                                            Log.v("Mainactivity", "GSDT function.");
-                                            Toast.makeText(getContext(), "GSDT function start~", Toast.LENGTH_SHORT).show();
-//                                            Timer timer = new Timer();
-                                            progressBar.setVisibility(View.VISIBLE);
-                                            timer = new Timer();
-                                            timerTask = new TimerTask() {
-                                                @RequiresApi(api = Build.VERSION_CODES.N)
-                                                @Override
-                                                public void run() {
-                                                    try {
-                                                        Log.v("Mainactivity", "GSDT start.");
-                                                        GSDT_Fun();
-                                                        Log.v("Mainactivity", "GSDT end.");
-                                                    } catch (Exception e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                }
-                                            };
-                                            timer.schedule(timerTask, 0);
-
-//                                            timer.schedule(new TimerTask() {
+//                                            Log.v("Mainactivity", "GSDT function.");
+//                                            Toast.makeText(getContext(), "GSDT function start~", Toast.LENGTH_SHORT).show();
+////                                            Timer timer = new Timer();
+//                                            progressBar.setVisibility(View.VISIBLE);
+//                                            timer = new Timer();
+//                                            timerTask = new TimerTask() {
 //                                                @RequiresApi(api = Build.VERSION_CODES.N)
 //                                                @Override
 //                                                public void run() {
-//
 //                                                    try {
 //                                                        Log.v("Mainactivity", "GSDT start.");
 //                                                        GSDT_Fun();
@@ -7179,40 +7183,41 @@ public class MainActivity extends BaseActivity {
 //                                                    } catch (Exception e) {
 //                                                        e.printStackTrace();
 //                                                    }
-//
 //                                                }
-//                                            }, 0); // 延时0秒
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                        break;
-                                    case"Anisotropic":
-                                        //调用各向异性滤波，显示滤波结果
-                                        try {
-                                            Log.v("Mainactivity", "Anisotropic function.");
-                                            Toast.makeText(getContext(), "Anisotropic function start~, it will take about 6 mins", Toast.LENGTH_SHORT).show();
-//                                            Timer timer = new Timer();
-                                            progressBar.setVisibility(View.VISIBLE);
-                                            timer = new Timer();
-                                            timerTask = new TimerTask() {
-                                                @RequiresApi(api = Build.VERSION_CODES.N)
-                                                @Override
-                                                public void run() {
-                                                    try {
-                                                        Log.v("Mainactivity", "Anisotropic start.");
-                                                        Anisotropic();
-                                                        Log.v("Mainactivity", "Anisotropic end.");
-                                                    } catch (Exception e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                }
-                                            };
-                                            timer.schedule(timerTask, 0);
-//                                            timer.schedule(new TimerTask() {
+//                                            };
+//                                            timer.schedule(timerTask, 0);
+//
+////                                            timer.schedule(new TimerTask() {
+////                                                @RequiresApi(api = Build.VERSION_CODES.N)
+////                                                @Override
+////                                                public void run() {
+////
+////                                                    try {
+////                                                        Log.v("Mainactivity", "GSDT start.");
+////                                                        GSDT_Fun();
+////                                                        Log.v("Mainactivity", "GSDT end.");
+////                                                    } catch (Exception e) {
+////                                                        e.printStackTrace();
+////                                                    }
+////
+////                                                }
+////                                            }, 0); // 延时0秒
+//                                        } catch (Exception e) {
+//                                            e.printStackTrace();
+//                                        }
+//                                        break;
+//                                    case"Anisotropic":
+//                                        //调用各向异性滤波，显示滤波结果
+//                                        try {
+//                                            Log.v("Mainactivity", "Anisotropic function.");
+//                                            Toast.makeText(getContext(), "Anisotropic function start~, it will take about 6 mins", Toast.LENGTH_SHORT).show();
+////                                            Timer timer = new Timer();
+//                                            progressBar.setVisibility(View.VISIBLE);
+//                                            timer = new Timer();
+//                                            timerTask = new TimerTask() {
 //                                                @RequiresApi(api = Build.VERSION_CODES.N)
 //                                                @Override
 //                                                public void run() {
-//
 //                                                    try {
 //                                                        Log.v("Mainactivity", "Anisotropic start.");
 //                                                        Anisotropic();
@@ -7220,31 +7225,46 @@ public class MainActivity extends BaseActivity {
 //                                                    } catch (Exception e) {
 //                                                        e.printStackTrace();
 //                                                    }
-//
 //                                                }
-//                                            }, 0); // 延时0秒
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                        break;
-
-                                    case "VoiceChat-1to1":
-                                        PopUp_Chat(context);
-                                        break;
-
-                                    case "For Developer(Classify)":
-                                        FeatureSet();
-                                        break;
-
-                                    default:
-//                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();
-                                        Toast.makeText(getContext(), "Default in file", Toast.LENGTH_SHORT).show();
-
-                                }
-                            }
-                        })
-                .show();
-    }
+//                                            };
+//                                            timer.schedule(timerTask, 0);
+////                                            timer.schedule(new TimerTask() {
+////                                                @RequiresApi(api = Build.VERSION_CODES.N)
+////                                                @Override
+////                                                public void run() {
+////
+////                                                    try {
+////                                                        Log.v("Mainactivity", "Anisotropic start.");
+////                                                        Anisotropic();
+////                                                        Log.v("Mainactivity", "Anisotropic end.");
+////                                                    } catch (Exception e) {
+////                                                        e.printStackTrace();
+////                                                    }
+////
+////                                                }
+////                                            }, 0); // 延时0秒
+//                                        } catch (Exception e) {
+//                                            e.printStackTrace();
+//                                        }
+//                                        break;
+//
+//                                    case "VoiceChat-1to1":
+//                                        PopUp_Chat(context);
+//                                        break;
+//
+//                                    case "For Developer(Classify)":
+//                                        FeatureSet();
+//                                        break;
+//
+//                                    default:
+////                                        Toast.makeText(context, "Default in analysis", Toast.LENGTH_SHORT).show();
+//                                        Toast.makeText(getContext(), "Default in file", Toast.LENGTH_SHORT).show();
+//
+//                                }
+//                            }
+//                        })
+//                .show();
+//    }
 
 
     public void PopUp_UserAccount(Context context){
@@ -7993,24 +8013,67 @@ public class MainActivity extends BaseActivity {
         @SuppressLint("LongLogTag")
         @Override
         public void onMessageReceived(final RtmMessage message, final String peerId) {
-            Log.d("onMessageRecievedFromPeer", message.getText() + " from " + peerId);
-//            runOnUiThread(() -> {
-//                if (peerId.equals(mPeerId)) {
-//                    MessageBean messageBean = new MessageBean(peerId, message, false);
-//                    messageBean.setBackground(getMessageColor(peerId));
-//                    mMessageBeanList.add(messageBean);
-//                    mMessageAdapter.notifyItemRangeChanged(mMessageBeanList.size(), 1);
-//                    mRecyclerView.scrollToPosition(mMessageBeanList.size() - 1);
-//                } else {
-//                    MessageUtil.addMessageBean(peerId, message);
-//                }
-//            });
+            if (isTopActivity()) {
+                Log.d("onMessageRecievedFromPeer", message.getText() + " from " + peerId);
+                runOnUiThread(() -> {
+
+                    MessageUtil.addMessageBean(peerId, message);
+
+
+                    MsgPopup msgPopup = new MsgPopup(getContext());
+                    msgPopup.setText(peerId + ": " + message.getText());
+                    TextView msgText = msgPopup.findViewById(R.id.msg_text);
+                    msgText.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Log.d("MsgText", "OnClick");
+                            openMessagActivity(true, peerId);
+                        }
+                    });
+
+                    BasePopupView xMsgPopup = new XPopup.Builder(context)
+                            .hasShadowBg(false)
+                            .popupAnimation(PopupAnimation.ScaleAlphaFromCenter)
+                            .isCenterHorizontal(true)
+                            .offsetY(200)
+                            .asCustom(msgPopup);
+
+                    xMsgPopup.show();
+
+
+                });
+            }
         }
 
         @SuppressLint("LongLogTag")
         @Override
         public void onImageMessageReceivedFromPeer(final RtmImageMessage rtmImageMessage, final String peerId) {
-            Log.d("onMessageRecievedFromPeer", rtmImageMessage.getText() + " from " + peerId);
+            if (isTopActivity()) {
+                Log.d("onMessageRecievedFromPeer", rtmImageMessage.getText() + " from " + peerId);
+                runOnUiThread(() -> {
+                    MessageUtil.addMessageBean(peerId, rtmImageMessage);
+                    MsgPopup msgPopup = new MsgPopup(getContext());
+                    msgPopup.setText(peerId + ": [Image]");
+                    TextView msgText = msgPopup.findViewById(R.id.msg_text);
+                    msgText.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Log.d("MsgText", "OnClick");
+                            openMessagActivity(true, peerId);
+                        }
+                    });
+                    new XPopup.Builder(context)
+                            .hasShadowBg(false)
+                            .popupAnimation(PopupAnimation.ScaleAlphaFromCenter)
+                            .isCenterHorizontal(true)
+                            .offsetY(200)
+                            .asCustom(msgPopup)
+                            .show();
+
+                });
+            }
+
+
 //            runOnUiThread(() -> {
 //                if (peerId.equals(mPeerId)) {
 //                    MessageBean messageBean = new MessageBean(peerId, rtmImageMessage, false);

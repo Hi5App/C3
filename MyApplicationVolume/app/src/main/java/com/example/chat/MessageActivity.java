@@ -22,6 +22,7 @@ import com.example.chat.adapter.MessageAdapter;
 import com.example.chat.model.MessageBean;
 import com.example.chat.model.MessageListBean;
 import com.example.myapplication__volume.BaseActivity;
+import com.example.myapplication__volume.MainActivity;
 import com.example.myapplication__volume.Myapplication;
 import com.example.myapplication__volume.R;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -90,6 +91,11 @@ public class MessageActivity extends BaseActivity {
         mUserId = intent.getStringExtra(MessageUtil.INTENT_EXTRA_USER_ID);
         String targetName = intent.getStringExtra(MessageUtil.INTENT_EXTRA_TARGET_NAME);
 
+//        mMessageBeanList = MainActivity.messageMap.get(targetName);
+//        for (int i = 0; i < mMessageBeanList.size(); i++){
+//            mMessageBeanList.get(i).setBackground(getMessageColor(targetName));
+//        }
+
         mTitleTextView = findViewById(R.id.message_title);
         if (mIsPeerToPeerMode) {
             mPeerId = targetName;
@@ -98,6 +104,7 @@ public class MessageActivity extends BaseActivity {
             // load history chat records
             MessageListBean messageListBean = MessageUtil.getExistMessageListBean(mPeerId);
             if (messageListBean != null) {
+
                 mMessageBeanList.addAll(messageListBean.getMessageBeanList());
             }
 

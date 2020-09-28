@@ -106,12 +106,16 @@ public class LoginActivity extends AppCompatActivity {
 //                    MainActivity.actionStart(LoginActivity.this);
                     MainActivity.actionStart(LoginActivity.this, loginResult.getSuccess().getDisplayName());
 
+
+
                     updateUiWithUser(loginResult.getSuccess());
+
+                    finish();
                 }
                 setResult(Activity.RESULT_OK);
 
                 //Complete and destroy login activity once successful
-                finish();
+//                finish();
             }
         });
 
