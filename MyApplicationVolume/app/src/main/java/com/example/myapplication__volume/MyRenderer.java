@@ -1223,14 +1223,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    private void JumptoFileActivity(String errormsg){
-        Context context = getContext();
-        Intent intent = new Intent(context, FileActivity.class);
-        intent.putExtra(MyRenderer.FILE_SUPPORT_ERROR, errormsg);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
-    }
-
     public void setInputStream(InputStream Is){
 
         is = Is;

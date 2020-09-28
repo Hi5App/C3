@@ -79,9 +79,13 @@ import com.example.basic.ImageMarker;
 import com.example.basic.LocationSimple;
 import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
+import com.example.chat.ChatManager;
+import com.example.chat.MessageActivity;
+import com.example.chat.MessageUtil;
 import com.example.datastore.SettingFileManager;
 import com.example.myapplication__volume.FileReader.AnoReader;
 import com.example.myapplication__volume.FileReader.ApoReader;
+import com.example.myapplication__volume.ui.login.LoginActivity;
 import com.feature_calc_func.MorphologyCalculate;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.learning.opimageline.Consensus;
@@ -117,6 +121,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -132,6 +137,15 @@ import io.agora.rtc.Constants;
 import io.agora.rtc.IRtcEngineEventHandler;
 import io.agora.rtc.RtcEngine;
 import io.agora.rtc.models.UserInfo;
+import io.agora.rtm.ErrorInfo;
+import io.agora.rtm.ResultCallback;
+import io.agora.rtm.RtmClient;
+import io.agora.rtm.RtmClientListener;
+import io.agora.rtm.RtmFileMessage;
+import io.agora.rtm.RtmImageMessage;
+import io.agora.rtm.RtmMediaOperationProgress;
+import io.agora.rtm.RtmMessage;
+import io.agora.rtm.RtmStatusCode;
 
 import static com.example.datastore.SettingFileManager.getArborNum;
 import static com.example.datastore.SettingFileManager.getFilename_Remote;
@@ -143,7 +157,6 @@ import static com.example.datastore.SettingFileManager.getoffset_Remote;
 import static com.example.datastore.SettingFileManager.setSelectSource;
 import static com.example.datastore.SettingFileManager.setUserAccount;
 import static com.example.datastore.SettingFileManager.setUserAccount_Check;
-import static com.example.server_connect.RemoteImg.getFilename;
 import static java.lang.Math.abs;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -379,6 +392,14 @@ public class MainActivity extends BaseActivity {
 
     HashMap<Integer, String> User_Map = new HashMap<Integer, String>();
 
+    public static String USERNAME = "username";
+
+    private String username;
+
+    private RtmClientListener mClientListener;
+
+    boolean mIsPeerToPeerMode = true;
+
     @SuppressLint("HandlerLeak")
     private Handler uiHandler = new Handler(){
         // 覆写这个方法，接收并处理消息。
@@ -478,12 +499,12 @@ public class MainActivity extends BaseActivity {
                     if (DrawMode){
                         String source = getSelectSource(context);
                         if (source.equals("Remote Server Aliyun")){
-                            String filename = getFilename(context);
+                            String filename = getFilename_Remote(context);
                             String brain_number = getNeuronNumber_Remote(context,filename);
                             result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
 //                            result = name.split("_")[1].substring(0,name.split("_")[1].length()-3);
                         }else if(source.equals("Remote Server SEU")){
-                            String filename = getFilename(context);
+                            String filename = getFilename_Remote(context);
                             String brain_number = getNeuronNumber_Remote(context,filename);
                             result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
                         }
@@ -586,6 +607,8 @@ public class MainActivity extends BaseActivity {
         }
     };
 
+    private RtmClient mRtmClient;
+
 
     /**
      * The onCreate Function
@@ -596,6 +619,8 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.v(TAG,"------------------ onCreate ------------------");
+
+
 
         isBigData_Remote = false;
         isBigData_Local  = false;
@@ -608,6 +633,15 @@ public class MainActivity extends BaseActivity {
 
         Intent intent = getIntent();
         String MSG = intent.getStringExtra(MyRenderer.OUT_OF_MEMORY);
+        username = intent.getStringExtra(USERNAME);
+
+        ChatManager mChatManager = Myapplication.the().getChatManager();
+        mRtmClient = mChatManager.getRtmClient();
+
+        doLoginChat();
+
+        mClientListener = new MyRtmClientListener();
+        mChatManager.registerListener(mClientListener);
 
         if (MSG != null)
             Toast.makeText(this, MSG, Toast.LENGTH_SHORT).show();
@@ -915,7 +949,7 @@ public class MainActivity extends BaseActivity {
 
 
 
-        FrameLayout.LayoutParams lp_draw_i = new FrameLayout.LayoutParams(230, 160);
+        FrameLayout.LayoutParams lp_draw_i = new FrameLayout.LayoutParams(200, 160);
 
         draw_i = new ImageButton(this);
         draw_i.setImageResource(R.drawable.ic_draw_main);
@@ -933,7 +967,7 @@ public class MainActivity extends BaseActivity {
         });
 
 
-        FrameLayout.LayoutParams lp_tracing_i = new FrameLayout.LayoutParams(230, 160);
+        FrameLayout.LayoutParams lp_tracing_i = new FrameLayout.LayoutParams(200, 160);
 
 
         tracing_i=new ImageButton(this);
@@ -957,7 +991,7 @@ public class MainActivity extends BaseActivity {
             }
         });*/
 
-        FrameLayout.LayoutParams lp_classify_i = new FrameLayout.LayoutParams(230, 160);
+        FrameLayout.LayoutParams lp_classify_i = new FrameLayout.LayoutParams(200, 160);
 
         classify_i=new ImageButton(this);
         classify_i.setImageResource(R.drawable.ic_classify_mid);
@@ -999,7 +1033,7 @@ public class MainActivity extends BaseActivity {
 
         FrameLayout.LayoutParams lp_rotation = new FrameLayout.LayoutParams(120, 120);
         lp_rotation.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_rotation.setMargins(0, 0, 20, 20);
+        lp_rotation.setMargins(0, 0, 160, 20);
 
         Rotation_i = new ImageButton(this);
         Rotation_i.setImageResource(R.drawable.ic_3d_rotation_red_24dp);
@@ -1022,7 +1056,7 @@ public class MainActivity extends BaseActivity {
 
         FrameLayout.LayoutParams lp_hide = new FrameLayout.LayoutParams(120, 120);
         lp_hide.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_hide.setMargins(0, 0, 160, 20);
+        lp_hide.setMargins(0, 0, 20, 20);
 //        @SuppressLint("ResourceType") XmlPullParser parser = MainActivity.this.getResources().getXml(R.layout.activity_main);
 //        AttributeSet attributes = Xml.asAttributeSet(parser);
 //        MyRockerView rockerView = new MyRockerView(context, attributes);
@@ -1111,7 +1145,7 @@ public class MainActivity extends BaseActivity {
         });
 
 
-        lp_animation_i = new FrameLayout.LayoutParams(230, 160);
+        lp_animation_i = new FrameLayout.LayoutParams(200, 160);
         animation_i = new ImageButton(this);
         animation_i.setImageResource(R.drawable.ic_animation);
         animation_i.setId(animation_id);
@@ -1512,7 +1546,8 @@ public class MainActivity extends BaseActivity {
                 File_icon();
                 return true;
             case R.id.share:
-                Share_icon();
+                ShareScreenShot();
+//                Share_icon();
                 return true;
             case R.id.more:
                 More_icon();
@@ -1598,9 +1633,9 @@ public class MainActivity extends BaseActivity {
         String[] item_list = null;
 
         if (DrawMode){
-            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "Game", "About", "Help"};
+            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Chat", "Animate", "Settings", "Crash Info", "About", "Help"};
         }else{
-            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Animate", "Settings", "Crash Info", "Account Name", "Game","About", "Help"};
+            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Chat", "Animate", "Settings", "Crash Info", "Account Name", "About", "Help"};
         }
 
         new XPopup.Builder(this)
@@ -1634,6 +1669,10 @@ public class MainActivity extends BaseActivity {
                                         PopUp_Chat(MainActivity.this);
                                         break;
 
+                                    case "Chat":
+                                        chooseChatMode();
+                                        break;
+
 //                                    case "Sensor Information":
 //                                        SensorInfo();
 //                                        break;
@@ -1645,79 +1684,10 @@ public class MainActivity extends BaseActivity {
 
                                     case "Game":
                                         System.out.println("Game Start!!!!!!!");
-//                                        float [] vertexPoints = new float[]{
-//                                                // Back face
-//                                                0.0f,  0.0f,  0.0f,
-//                                                0.0f,  1, 0.0f,
-//                                                1, 1, 0.0f,
-//                                                1, 0.0f,  0.0f,
-//
-//                                                // Top face
-//                                                0.0f, 1,  0.0f,
-//                                                0.0f, 1,  1,
-//                                                1, 1, 1,
-//                                                1, 1, 0.0f,
-//
-//                                                // Right face
-//                                                1, 0.0f,  0.0f,
-//                                                1, 1, 0.0f,
-//                                                1, 1, 1,
-//                                                1, 0.0f,  1,
-//
-//                                                //
-//                                                0.0f, 0.0f, 0.0f,
-//                                                0.0f, 1, 1,
-//                                                1, 0, 1,
-//                                        };
 
-//                                        float [] startPoint = new float[]{
-//                                                0.5f, 0.5f, 0.5f
-//                                        };
-//
-//                                        float [] dir = new float[]{
-//                                                1, 1, -1
-//                                        };
-//
-//                                        ArrayList<Float> tangent = myrenderer.tangentPlane(startPoint[0], startPoint[1], startPoint[2], dir[0], dir[1], dir[2], 0, 1);
-//
-//                                        System.out.println("TangentPlane:::::");
-//                                        System.out.println(tangent.size());
-//
-//                                        float [] vertexPoints = new float[tangent.size()];
-//                                        for (int i = 0; i < tangent.size(); i++){
-//
-//                                            vertexPoints[i] = tangent.get(i);
-//                                            System.out.print(vertexPoints[i]);
-//                                            System.out.print(" ");
-//                                            if (i % 3 == 2){
-//                                                System.out.print("\n");
-//                                            }
-//                                        }
-//
-//                                        boolean gameSucceed = myrenderer.driveMode(vertexPoints, dir);
-//                                        if (!gameSucceed){
-//                                            Toast.makeText(context, "wrong vertex to draw", Toast.LENGTH_SHORT);
-//                                        } else {
-//                                            myGLSurfaceView.requestRender();
-//                                        }
                                         ifGame = true;
                                         Select_map();
 
-//                                        if (!myrenderer.getIfFileLoaded()){
-//                                            Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
-//
-//                                        }else {
-//                                            try {
-//                                                Intent gameIntent = new Intent(MainActivity.this, GameActivity.class);
-//                                                gameIntent.putExtra("FilePath", myrenderer.getFilePath());
-//                                                gameIntent.putExtra("Position", new float[]{0.5f, 0.5f, 0.5f});
-//                                                gameIntent.putExtra("Dir", new float[]{1, 1, 1});
-//                                                startActivity(gameIntent);
-//                                            } catch (Exception e) {
-//                                                e.printStackTrace();
-//                                            }
-//                                        }
-//                                        gameStart();
                                         break;
 
                                     case "Settings":
@@ -1791,6 +1761,139 @@ public class MainActivity extends BaseActivity {
         return true;
     }
 
+    public void chooseChatMode(){
+        new XPopup.Builder(this)
+                .asCenterList("Choose Chat Mode", new String[]{"Peer Radio", "Selection Tab Channel"},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text){
+                                    case "Peer Radio":
+                                        peerToPeer();
+                                        break;
+                                    case "Selection Tab Channel":
+                                        chooseChannel();
+                                        break;
+                                }
+                            }
+                        }).show();
+
+    }
+
+    private void peerToPeer(){
+        MDDialog mdDialog = new MDDialog.Builder(this)
+                .setContentView(R.layout.peer_chat)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+
+                    }
+                })
+                .setNegativeButton("Cancel", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton(R.string.btn_chat, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        Log.d("PeerToPeer", "Start To Chat");
+                        EditText targetEdit = (EditText)contentView.findViewById(R.id.target_name_edit);
+                        String mTargetName = targetEdit.getText().toString();
+                        if (mTargetName.equals("")) {
+                            Toast_in_Thread(getString(R.string.account_empty));
+                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
+                            Toast_in_Thread(getString(R.string.account_too_long));
+                        } else if (mTargetName.startsWith(" ")) {
+                            Toast_in_Thread(getString(R.string.account_starts_with_space));
+                        } else if (mTargetName.equals("null")) {
+                            Toast_in_Thread(getString(R.string.account_literal_null));
+                        } else if (mTargetName.equals(username)) {
+                            Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
+                        } else {
+                            openMessagActivity(true, mTargetName);
+//                            mChatButton.setEn
+//                            jumpToMessageActivity();
+                        }
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                    }
+                })
+                .setTitle(R.string.title_peer_msg)
+
+                .create();
+
+        mdDialog.show();
+    }
+
+    private void chooseChannel(){
+        MDDialog mdDialog = new MDDialog.Builder(this)
+                .setContentView(R.layout.channel_chat)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+
+                    }
+                })
+                .setNegativeButton("Cancel", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton(R.string.btn_join, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        EditText targetEdit = (EditText)contentView.findViewById(R.id.channel_name_edit);
+                        String mTargetName = targetEdit.getText().toString();
+                        if (mTargetName.equals("")) {
+                            Toast_in_Thread(getString(R.string.channel_name_empty));
+                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
+                            Toast_in_Thread(getString(R.string.channel_name_too_long));
+                        } else if (mTargetName.startsWith(" ")) {
+                            Toast_in_Thread(getString(R.string.channel_name_starts_with_space));
+                        } else if (mTargetName.equals("null")) {
+                            Toast_in_Thread(getString(R.string.channel_name_literal_null));
+                        }  else {
+                            openMessagActivity(false, mTargetName);
+//                            mChatButton.setEn
+//                            jumpToMessageActivity();
+                        }
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                    }
+                })
+                .setTitle(R.string.title_peer_msg)
+
+                .create();
+
+        mdDialog.show();
+    }
+
+    private void openMessagActivity(boolean isPeerToPeerMode, String targetName){
+        Intent intent = new Intent(MainActivity.this, MessageActivity.class);
+        intent.putExtra(MessageUtil.INTENT_EXTRA_IS_PEER_MODE, isPeerToPeerMode);
+        intent.putExtra(MessageUtil.INTENT_EXTRA_TARGET_NAME, targetName);
+        intent.putExtra(MessageUtil.INTENT_EXTRA_USER_ID, username);
+        startActivity(intent);
+    }
 
     /**
      *
@@ -3190,7 +3293,7 @@ public class MainActivity extends BaseActivity {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"APP2", "GD", "Save SWC file"},
+                .asAttachList(new String[]{"APP2", "GD", "Save SWCFile"},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -3210,7 +3313,7 @@ public class MainActivity extends BaseActivity {
 
                                                     try {
                                                         GDTracing();
-                                                        myrenderer.saveUndo();
+
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
@@ -3252,7 +3355,7 @@ public class MainActivity extends BaseActivity {
 
                                                     try {
                                                         APP2();
-                                                        myrenderer.saveUndo();
+
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
@@ -3282,7 +3385,7 @@ public class MainActivity extends BaseActivity {
 ////                                        LineDetect(v);
 //                                        break;
 
-                                    case "Save SWC file":
+                                    case "Save SWCFile":
                                         SaveSWC();
                                         break;
 
@@ -4641,6 +4744,7 @@ public class MainActivity extends BaseActivity {
                                         myrenderer.myAnimation.Stop();
                                         ifAnimation = false;
                                         ll_top.removeView(animation_i);
+                                        Rotation_i.setVisibility(View.VISIBLE);
                                         break;
 
                                     default:
@@ -4718,18 +4822,22 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200918a 09:37 UTC+8 build",
+                                "Version: 20200926a 16:08 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
                             }
                         })
+                .setCancelText("Cancel")
+                .setConfirmText("Confirm")
                 .show();
     }
 
 
     private void loadLocalFile(){
         ifLoadLocal = true;
+        ifImport = false;
+        ifAnalyze = false;
 
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
@@ -4750,12 +4858,12 @@ public class MainActivity extends BaseActivity {
     public void Select_img(){
         Context context = this;
         new XPopup.Builder(this)
-                .asCenterList("Select Remote Server", new String[]{"SEU Server", "AliYun Server", "Local Server"},
+                .asCenterList("Select Server", new String[]{"SEU Server", "Aliyun Server", "Local Server"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text) {
-                                    case "AliYun Server":
+                                    case "Aliyun Server":
 //                                        Toast_in_Thread("The Server is under Maintenance !");
                                         setSelectSource("Remote Server Aliyun",context);
                                         if (DrawMode){
@@ -5041,6 +5149,7 @@ public class MainActivity extends BaseActivity {
     private void SaveSWC() {
 //        context = this;
         MDDialog mdDialog = new MDDialog.Builder(this)
+
                 .setContentView(R.layout.save_swc)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
                     @Override
@@ -5048,12 +5157,12 @@ public class MainActivity extends BaseActivity {
 
                     }
                 })
-                .setNegativeButton(new View.OnClickListener() {
+                .setNegativeButton("Cancel", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
                 })
-                .setPositiveButton(new View.OnClickListener() {
+                .setPositiveButton("Confirm", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
@@ -5072,7 +5181,7 @@ public class MainActivity extends BaseActivity {
                         myrenderer.reNameCurrentSwc(swcFileName);
 
 //                        String dir = getExternalFilesDir(null).toString();
-                        String dir_str = "/storage/emulated/0/C3";
+                        String dir_str = "/storage/emulated/0/C3/SWCSaved";
 
                         File dir = new File(dir_str);
                         if (!dir.exists()) {
@@ -5117,7 +5226,14 @@ public class MainActivity extends BaseActivity {
                                             }
                                         })
                                         .create();
+//                                Window window = aDialog.getWindow();
+//                                WindowManager.LayoutParams params = window.getAttributes();
+//                                params.x = 10;
+//                                params.y = 200;
+//                                window.setAttributes(params);
                                 aDialog.show();
+//                                window.setGravity(Gravity.TOP);
+
                             }
 //                            Toast.makeText(context, error, Toast.LENGTH_LONG).show();
                         } else{
@@ -5132,10 +5248,11 @@ public class MainActivity extends BaseActivity {
                     }
                 })
                 .setTitle("Save SWC File")
+
                 .create();
 
         mdDialog.show();
-        mdDialog.getWindow().setLayout(1000, 1500);
+//        mdDialog.getWindow().setLayout(1000, 1500);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -5197,6 +5314,7 @@ public class MainActivity extends BaseActivity {
             }
             Toast.makeText(getContext(), "APP2-Tracing finish, size of result swc: " + Integer.toString(nt.listNeuron.size()), Toast.LENGTH_SHORT).show();
             myrenderer.importNeuronTree(nt);
+            myrenderer.saveUndo();
             myGLSurfaceView.requestRender();
             progressBar.setVisibility(View.INVISIBLE);
             Looper.loop();
@@ -5280,6 +5398,7 @@ public class MainActivity extends BaseActivity {
 
         Toast.makeText(getContext(), "GD-Tracing finished, size of result swc: " + Integer.toString(outswc.listNeuron.size()), Toast.LENGTH_SHORT).show();
         myrenderer.importNeuronTree(outswc);
+        myrenderer.saveUndo();
         myGLSurfaceView.requestRender();
         progressBar.setVisibility(View.INVISIBLE);
         Looper.loop();
@@ -5442,7 +5561,7 @@ public class MainActivity extends BaseActivity {
 
 //        ar_mdDialog.show();
         ar_mdDialog.show();
-        ar_mdDialog.getWindow().setLayout(1000, 1500);
+//        ar_mdDialog.getWindow().setLayout(1000, 1500);
 
     }
 
@@ -5527,13 +5646,13 @@ public class MainActivity extends BaseActivity {
 
                     }
                 })
-                .setNegativeButton(new View.OnClickListener() {
+                .setNegativeButton("Cancel", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
                     }
                 })
-                .setPositiveButton(new View.OnClickListener() {
+                .setPositiveButton("Confirm", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
@@ -5565,7 +5684,7 @@ public class MainActivity extends BaseActivity {
                 .create();
 
         mdDialog.show();
-        mdDialog.getWindow().setLayout(1000, 1500);
+//        mdDialog.getWindow().setLayout(1000, 1500);
     }
 
 
@@ -5601,10 +5720,11 @@ public class MainActivity extends BaseActivity {
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                String file_path = CrashHandler.getCrashFilePath(getApplicationContext()) + "/" + text;
+                                String file_path = CrashHandler.getCrashFilePath(getApplicationContext()) + "/" + text + ".txt";
                                 File file = new File(file_path);
                                 if (file.exists()){
                                     Intent intent = new Intent();
+
                                     intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                                     intent.setAction(Intent.ACTION_SEND);
                                     intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "com.example.myapplication__volume.provider", new File(file_path)));  //传输图片或者文件 采用流的方式
@@ -5666,12 +5786,12 @@ public class MainActivity extends BaseActivity {
 
                     }
                 })
-                .setNegativeButton(new View.OnClickListener() {
+                .setNegativeButton("Cancel", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
                 })
-                .setPositiveButton(new View.OnClickListener() {
+                .setPositiveButton("Confirm", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
@@ -5732,7 +5852,7 @@ public class MainActivity extends BaseActivity {
                 .create();
 
         mdDialog.show();
-        mdDialog.getWindow().setLayout(1000, 1500);
+//        mdDialog.getWindow().setLayout(1000, 1500);
     }
 
 
@@ -6238,12 +6358,12 @@ public class MainActivity extends BaseActivity {
                     }
                 })
                 .setTitle("Feature Set")
-                .setNegativeButton(new View.OnClickListener() {
+                .setNegativeButton("Cancel", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
                 })
-                .setPositiveButton(new View.OnClickListener() {
+                .setPositiveButton("Confirm", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
@@ -6421,12 +6541,12 @@ public class MainActivity extends BaseActivity {
                     }
                 })
                 .setTitle("Pen Set")
-                .setNegativeButton(new View.OnClickListener() {
+                .setNegativeButton("Cancel", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
                 })
-                .setPositiveButton(new View.OnClickListener() {
+                .setPositiveButton("Confirm", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
@@ -6502,12 +6622,12 @@ public class MainActivity extends BaseActivity {
                     }
                 })
                 .setTitle("Marker Color Set")
-                .setNegativeButton(new View.OnClickListener() {
+                .setNegativeButton("Cancel", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
                 })
-                .setPositiveButton(new View.OnClickListener() {
+                .setPositiveButton("Confirm", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
@@ -6952,7 +7072,7 @@ public class MainActivity extends BaseActivity {
 //        .maxWidth(400)
 //        .maxHeight(1350)
 //                .asCenterList("File Open & Save", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile","Camera"},
-                .asCenterList("File Open & Save", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile"},
+                .asCenterList("File Open", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -7146,12 +7266,12 @@ public class MainActivity extends BaseActivity {
                     }
                 })
                 .setTitle("UserName for Check")
-                .setNegativeButton(new View.OnClickListener() {
+                .setNegativeButton("Cancel", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
                 })
-                .setPositiveButton(new View.OnClickListener() {
+                .setPositiveButton("Confirm", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
@@ -7209,12 +7329,12 @@ public class MainActivity extends BaseActivity {
                     }
                 })
                 .setTitle("Voice Chat")
-                .setNegativeButton(new View.OnClickListener() {
+                .setNegativeButton("Cancel", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
                 })
-                .setPositiveButton(new View.OnClickListener() {
+                .setPositiveButton("Confirm", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
@@ -7318,7 +7438,7 @@ public class MainActivity extends BaseActivity {
     public void loadBigData(){
 
         new XPopup.Builder(this)
-                .asCenterList("BigData File",new String[]{"Select File", "Select Block", "Download by http"},
+                .asCenterList("BigData File",new String[]{"Select File", "Open RecentBlock"},
                         new OnSelectListener() {
                             @RequiresApi(api = Build.VERSION_CODES.N)
                             @Override
@@ -7328,13 +7448,13 @@ public class MainActivity extends BaseActivity {
                                         Select_img();
                                         break;
 
-                                    case "Select Block":
+                                    case "Open RecentBlock":
                                         Select_Block();
                                         break;
-
-                                    case "Download by http":
-                                        downloadFile();
-                                        break;
+//
+//                                    case "Download by http":
+//                                        downloadFile();
+//                                        break;
                                 }
                             }
                         })
@@ -7524,6 +7644,7 @@ public class MainActivity extends BaseActivity {
         Rotation_i.setVisibility(View.GONE);
         Hide_i.setVisibility(View.GONE);
         Undo_i.setVisibility(View.GONE);
+        Redo_i.setVisibility(View.GONE);
 
         if (isBigData_Remote || isBigData_Local){
             navigation_back.setVisibility(View.GONE);
@@ -7539,6 +7660,7 @@ public class MainActivity extends BaseActivity {
 
             if (isBigData_Remote) {
                 if (!DrawMode){
+
                     Check_No.setVisibility(View.GONE);
                     Check_Yes.setVisibility(View.GONE);
                     Check_Uncertain.setVisibility(View.GONE);
@@ -7573,6 +7695,7 @@ public class MainActivity extends BaseActivity {
         Rotation_i.setVisibility(View.VISIBLE);
         Hide_i.setVisibility(View.VISIBLE);
         Undo_i.setVisibility(View.VISIBLE);
+        Redo_i.setVisibility(View.VISIBLE);
 
         if (isBigData_Remote || isBigData_Local){
             navigation_back.setVisibility(View.VISIBLE);
@@ -7828,4 +7951,102 @@ public class MainActivity extends BaseActivity {
         ifGame = b;
     }
 
+    public static void actionStart(Context context, String username){
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra(USERNAME, username);
+        context.startActivity(intent);
+    }
+
+    private void doLoginChat(){
+        mRtmClient.login(null, username, new ResultCallback<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.i(TAG, "login success");
+            }
+
+            @Override
+            public void onFailure(ErrorInfo errorInfo) {
+                Log.i(TAG, "login failed: " + errorInfo.getErrorCode());
+                LoginActivity.actionStart(context);
+            }
+        });
+    }
+
+    class MyRtmClientListener implements RtmClientListener {
+
+        @Override
+        public void onConnectionStateChanged(final int state, int reason) {
+            runOnUiThread(() -> {
+                switch (state) {
+                    case RtmStatusCode.ConnectionState.CONNECTION_STATE_RECONNECTING:
+                        Toast_in_Thread(getString(R.string.reconnecting));
+                        break;
+                    case RtmStatusCode.ConnectionState.CONNECTION_STATE_ABORTED:
+                        Toast_in_Thread(getString(R.string.account_offline));
+                        setResult(MessageUtil.ACTIVITY_RESULT_CONN_ABORTED);
+                        finish();
+                        break;
+                }
+            });
+        }
+
+        @SuppressLint("LongLogTag")
+        @Override
+        public void onMessageReceived(final RtmMessage message, final String peerId) {
+            Log.d("onMessageRecievedFromPeer", message.getText() + " from " + peerId);
+//            runOnUiThread(() -> {
+//                if (peerId.equals(mPeerId)) {
+//                    MessageBean messageBean = new MessageBean(peerId, message, false);
+//                    messageBean.setBackground(getMessageColor(peerId));
+//                    mMessageBeanList.add(messageBean);
+//                    mMessageAdapter.notifyItemRangeChanged(mMessageBeanList.size(), 1);
+//                    mRecyclerView.scrollToPosition(mMessageBeanList.size() - 1);
+//                } else {
+//                    MessageUtil.addMessageBean(peerId, message);
+//                }
+//            });
+        }
+
+        @SuppressLint("LongLogTag")
+        @Override
+        public void onImageMessageReceivedFromPeer(final RtmImageMessage rtmImageMessage, final String peerId) {
+            Log.d("onMessageRecievedFromPeer", rtmImageMessage.getText() + " from " + peerId);
+//            runOnUiThread(() -> {
+//                if (peerId.equals(mPeerId)) {
+//                    MessageBean messageBean = new MessageBean(peerId, rtmImageMessage, false);
+//                    messageBean.setBackground(getMessageColor(peerId));
+//                    mMessageBeanList.add(messageBean);
+//                    mMessageAdapter.notifyItemRangeChanged(mMessageBeanList.size(), 1);
+//                    mRecyclerView.scrollToPosition(mMessageBeanList.size() - 1);
+//                } else {
+//                    MessageUtil.addMessageBean(peerId, rtmImageMessage);
+//                }
+//            });
+        }
+
+        @Override
+        public void onFileMessageReceivedFromPeer(RtmFileMessage rtmFileMessage, String s) {
+
+        }
+
+        @Override
+        public void onMediaUploadingProgress(RtmMediaOperationProgress rtmMediaOperationProgress, long l) {
+
+        }
+
+        @Override
+        public void onMediaDownloadingProgress(RtmMediaOperationProgress rtmMediaOperationProgress, long l) {
+
+        }
+
+        @Override
+        public void onTokenExpired() {
+
+        }
+
+        @Override
+        public void onPeersOnlineStatusChanged(Map<String, Integer> map) {
+
+        }
+    }
 }

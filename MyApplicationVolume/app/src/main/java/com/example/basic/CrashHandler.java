@@ -114,6 +114,9 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
     public static String[] getCrashReportFiles(Context ctx) {
         File filesDir = new File(getCrashFilePath(ctx));
         String[] fileNames = filesDir.list();
+        for (int i = 0; i < fileNames.length; i++){
+            fileNames[i] = fileNames[i].substring(0, fileNames[i].indexOf("."));
+        }
 //        int length = fileNames.length;
 //        String[] filePaths = new String[length];
 //        for (int i = 0; i < length; i++) {
