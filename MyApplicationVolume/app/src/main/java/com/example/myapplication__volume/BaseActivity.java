@@ -30,7 +30,7 @@ public class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         dataManager = new DataManager(this);
         preferenceSetting = new PreferenceSetting(this);
-        context = this;
+        context = getApplicationContext();
         Log.v("BaseActivity","onCreate()");
         ActivityCollector.addActivity(this);
     }
@@ -79,14 +79,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
 
-    public static void deleteImg(){
-        Log.v("BaseActivity","deleteImg()");
-        String img_path = context.getExternalFilesDir(null).toString() + "/Img";
-        Log.v("BaseActivity","img_path" + img_path);
 
-        File file = new File(img_path);
-        RecursionDeleteFile(file);
-    }
 
     public static void RecursionDeleteFile(File file) {
         if (file.isFile()) {

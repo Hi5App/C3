@@ -51,7 +51,7 @@ public class GameActivity extends BaseActivity {
     private float [] moveDir;
     private float [] viewRotateDir;
 
-    private Context context;
+    private static Context gameContext;
 
     private Timer timer;
     private TimerTask task;
@@ -77,7 +77,7 @@ public class GameActivity extends BaseActivity {
                     break;
 
                 default:
-                    Toast.makeText(BaseActivity.context,"Something Wrong in puiHandler !",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(gameContext,"Something Wrong in puiHandler !",Toast.LENGTH_SHORT).show();
             }
         }
     };
@@ -95,7 +95,7 @@ public class GameActivity extends BaseActivity {
 
         progressBar = new XPopup.Builder(this).asLoading("Downloading...");
 
-        context = getApplicationContext();
+        gameContext = getApplicationContext();
 
         setContentView(R.layout.activity_game);
 
@@ -283,7 +283,7 @@ public class GameActivity extends BaseActivity {
                             if (gameCharacter.closeToBoundary()){
                                 remoteSocket.DisConnectFromHost();
                                 remoteSocket.ConnectServer(ip_SEU);
-                                remoteSocket.PullImageBlock_Dir(context, gameCharacter.getDir());
+                                remoteSocket.PullImageBlock_Dir(gameContext, gameCharacter.getDir());
 //                                Thread.sleep(8000);
                                 float [] volumnePosition = myrenderer.ModeltoVolume(gameCharacter.getPosition());
                                 float [] dis = new float[]{64 - volumnePosition[0], 64 - volumnePosition[1], 64 - volumnePosition[2]};
@@ -437,5 +437,7 @@ public class GameActivity extends BaseActivity {
 
         timer.cancel();
         task.cancel();
+
+        gameContext = null;
     }
 }

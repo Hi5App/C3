@@ -48,6 +48,7 @@
 
     <string name="title_peer_msg">Peer to peer message</string>
     <string name="title_channel_message">Channel message</string>
+    <string name="title_peer_voice">Peer to peer chat</string>
     <string name="hint_friend">Friends name</string>
     <string name="hint_channel">Channel name</string>
     <string name="hint_enable_offline_message">Enable offline message</string>
@@ -69,8 +70,10 @@
     <string name="single_input">Single line input</string>\
     <string name="str_send">Send</string>
     <string name="send_msg_failed">Failed to send message</string>
+    <string name="call_failed">Failed to call</string>
     <string name="peer_offline">Peer is offline</string>
     <string name="message_cached">Message cached by server</string>
+    <string name="call_cached">Call cached by server</string>
 
 
 </resources>

@@ -133,6 +133,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import Jama.Matrix;
 import cn.carbs.android.library.MDDialog;
@@ -401,7 +402,7 @@ public class MainActivity extends BaseActivity {
 
     private RtmClientListener mClientListener;
 
-    public static Map<String, List<MessageBean>> messageMap = new HashMap<>();
+    private final String callMsgPattern = "##CallFrom.*##In##.*##";
 
     @SuppressLint("HandlerLeak")
     private Handler uiHandler = new Handler(){
@@ -611,6 +612,7 @@ public class MainActivity extends BaseActivity {
     };
 
     private RtmClient mRtmClient;
+    private ChatManager mChatManager;
 
 
     /**
@@ -638,7 +640,7 @@ public class MainActivity extends BaseActivity {
         String MSG = intent.getStringExtra(MyRenderer.OUT_OF_MEMORY);
         username = intent.getStringExtra(USERNAME);
 
-        ChatManager mChatManager = Myapplication.the().getChatManager();
+        mChatManager = Myapplication.the().getChatManager();
         mRtmClient = mChatManager.getRtmClient();
 
         doLoginChat();
@@ -1669,7 +1671,8 @@ public class MainActivity extends BaseActivity {
                                         break;
 
                                     case "VoiceChat - 1 to 1":
-                                        PopUp_Chat(MainActivity.this);
+//                                        PopUp_Chat(MainActivity.this);
+                                        chooseVoiceChatMode();
                                         break;
 
                                     case "Chat":
@@ -1909,7 +1912,7 @@ public class MainActivity extends BaseActivity {
     @RequiresApi(api = Build.VERSION_CODES.N)
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        Context context = this;
+//        Context context = this;
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
 //            System.out.println("BBBBB");
@@ -4840,7 +4843,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200928a 22:27 UTC+8 build",
+                                "Version: 20200929a 20:08 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4874,7 +4877,7 @@ public class MainActivity extends BaseActivity {
 
 
     public void Select_img(){
-        Context context = this;
+//        Context context = this;
         new XPopup.Builder(this)
                 .asCenterList("Select Server", new String[]{"SEU Server", "Aliyun Server", "Local Server"},
                         new OnSelectListener() {
@@ -4915,7 +4918,7 @@ public class MainActivity extends BaseActivity {
     }
 
     public void Select_map(){
-        Context context = this;
+//        Context context = this;
         new XPopup.Builder(this)
                 .asCenterList("Select Remote Server", new String[]{"SEU Server", "Local Server"},
                         new OnSelectListener() {
@@ -5215,7 +5218,7 @@ public class MainActivity extends BaseActivity {
                         if (error != "") {
                             if (error == "This file already exits"){
 //                                Toast.makeText(context, error, Toast.LENGTH_LONG).show();
-                                AlertDialog aDialog = new AlertDialog.Builder(context)
+                                AlertDialog aDialog = new AlertDialog.Builder(mainContext)
                                         .setTitle("This file already exits")
                                         .setMessage("Are you sure to overwrite it?")
                                         .setIcon(R.mipmap.ic_launcher)
@@ -5707,7 +5710,7 @@ public class MainActivity extends BaseActivity {
 
 
     public void cleanCache(){
-        AlertDialog aDialog = new AlertDialog.Builder(context)
+        AlertDialog aDialog = new AlertDialog.Builder(mainContext)
                 .setTitle("Clean All The Img Cache")
                 .setMessage("Are you sure to CLEAN ALL IMG CACHE?")
                 .setIcon(R.mipmap.ic_launcher)
@@ -5725,6 +5728,15 @@ public class MainActivity extends BaseActivity {
                 })
                 .create();
         aDialog.show();
+    }
+
+    private void deleteImg(){
+        Log.v("BaseActivity","deleteImg()");
+        String img_path = context.getExternalFilesDir(null).toString() + "/Img";
+        Log.v("BaseActivity","img_path" + img_path);
+
+        File file = new File(img_path);
+        RecursionDeleteFile(file);
     }
 
 
@@ -5975,7 +5987,8 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        context = null;
+
+        mainContext = null;
 
         if (timer != null){
             timer.cancel();
@@ -7327,6 +7340,116 @@ public class MainActivity extends BaseActivity {
 
     }
 
+    public void chooseVoiceChatMode(){
+        new XPopup.Builder(this)
+                .asCenterList("Choose Voice Chat Mode", new String[]{"Peer Radio", "Selection Tab Channel"},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text){
+                                    case "Peer Radio":
+                                        peerToPeerChat();
+                                        break;
+                                    case "Selection Tab Channel":
+                                        PopUp_Chat(mainContext);
+                                        break;
+                                }
+                            }
+                        }).show();
+
+    }
+
+    private void peerToPeerChat(){
+        MDDialog mdDialog = new MDDialog.Builder(this)
+                .setContentView(R.layout.peer_chat)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+
+                    }
+                })
+                .setNegativeButton("Cancel", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton(R.string.btn_chat, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        Log.d("PeerToPeer", "Start To Chat");
+                        EditText targetEdit = (EditText)contentView.findViewById(R.id.target_name_edit);
+                        String mTargetName = targetEdit.getText().toString();
+                        if (mTargetName.equals("")) {
+                            Toast_in_Thread(getString(R.string.account_empty));
+                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
+                            Toast_in_Thread(getString(R.string.account_too_long));
+                        } else if (mTargetName.startsWith(" ")) {
+                            Toast_in_Thread(getString(R.string.account_starts_with_space));
+                        } else if (mTargetName.equals("null")) {
+                            Toast_in_Thread(getString(R.string.account_literal_null));
+                        } else if (mTargetName.equals(username)) {
+                            Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
+                        } else {
+                            callTarget(mTargetName);
+                        }
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                    }
+                })
+                .setTitle(R.string.title_peer_voice)
+
+                .create();
+
+        mdDialog.show();
+    }
+
+    private void callTarget(String target){
+        String channelName = target + "And" + username;
+        String callMessage = "##CalledFrom" + username + "In" + channelName + "##";
+        RtmMessage message = mRtmClient.createMessage();
+        message.setText(callMessage);
+
+        MessageBean messageBean = new MessageBean(username, message, true);
+
+        mRtmClient.sendMessageToPeer(target, message, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                runOnUiThread(() -> {
+                    VoiceChat(channelName, username);
+                });
+
+            }
+
+            @Override
+            public void onFailure(ErrorInfo errorInfo) {
+                final int errorCode = errorInfo.getErrorCode();
+                runOnUiThread(() -> {
+                    switch (errorCode){
+                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_TIMEOUT:
+                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_FAILURE:
+                            Toast_in_Thread(getString(R.string.call_failed));
+                            break;
+                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_PEER_UNREACHABLE:
+                            Toast_in_Thread(getString(R.string.peer_offline));
+                            break;
+                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_CACHED_BY_SERVER:
+                            Toast_in_Thread(getString(R.string.call_cached));
+                            break;
+                    }
+                });
+            }
+        });
+    }
+
     public void PopUp_Chat(Context context){
 
         new MDDialog.Builder(context)
@@ -8015,33 +8138,62 @@ public class MainActivity extends BaseActivity {
         public void onMessageReceived(final RtmMessage message, final String peerId) {
             if (isTopActivity()) {
                 Log.d("onMessageRecievedFromPeer", message.getText() + " from " + peerId);
-                runOnUiThread(() -> {
+                String msg = message.getText();
+                if (Pattern.matches(callMsgPattern, message.getText())) {
 
-                    MessageUtil.addMessageBean(peerId, message);
+                    String targetName = msg.substring(10, msg.indexOf("##In##"));
+                    String channelName = msg.substring(msg.indexOf("##In##") + 6, msg.lastIndexOf("##"));
+                    runOnUiThread(() -> {
+                        MsgPopup msgPopup = new MsgPopup(mainContext);
+                        msgPopup.setText("Called From " + targetName);
+                        TextView msgText = msgPopup.findViewById(R.id.msg_text);
+                        msgText.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Log.d("MsgText", "OnClick");
+                                VoiceChat(channelName, username);
+                            }
+                        });
 
+                        BasePopupView xMsgPopup = new XPopup.Builder(mainContext)
+                                .hasShadowBg(false)
+                                .popupAnimation(PopupAnimation.ScaleAlphaFromCenter)
+                                .isCenterHorizontal(true)
+                                .offsetY(200)
+                                .asCustom(msgPopup);
 
-                    MsgPopup msgPopup = new MsgPopup(getContext());
-                    msgPopup.setText(peerId + ": " + message.getText());
-                    TextView msgText = msgPopup.findViewById(R.id.msg_text);
-                    msgText.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Log.d("MsgText", "OnClick");
-                            openMessagActivity(true, peerId);
-                        }
+                        xMsgPopup.show();
                     });
+                } else {
+                    runOnUiThread(() -> {
 
-                    BasePopupView xMsgPopup = new XPopup.Builder(context)
-                            .hasShadowBg(false)
-                            .popupAnimation(PopupAnimation.ScaleAlphaFromCenter)
-                            .isCenterHorizontal(true)
-                            .offsetY(200)
-                            .asCustom(msgPopup);
+                        MessageUtil.addMessageBean(peerId, message);
 
-                    xMsgPopup.show();
+                        MsgPopup msgPopup = new MsgPopup(mainContext);
+                        msgPopup.setText(peerId + ": " + message.getText());
+                        TextView msgText = msgPopup.findViewById(R.id.msg_text);
+                        msgText.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Log.d("MsgText", "OnClick");
+                                openMessagActivity(true, peerId);
+                            }
+                        });
+
+                        BasePopupView xMsgPopup = new XPopup.Builder(mainContext)
+                                .hasShadowBg(false)
+                                .popupAnimation(PopupAnimation.ScaleAlphaFromCenter)
+                                .isCenterHorizontal(true)
+                                .offsetY(200)
+                                .asCustom(msgPopup);
+
+                        xMsgPopup.show();
+
+                        Log.d("onMessageReceived", "runOnUiThread");
 
 
-                });
+                    });
+                }
             }
         }
 
@@ -8052,7 +8204,7 @@ public class MainActivity extends BaseActivity {
                 Log.d("onMessageRecievedFromPeer", rtmImageMessage.getText() + " from " + peerId);
                 runOnUiThread(() -> {
                     MessageUtil.addMessageBean(peerId, rtmImageMessage);
-                    MsgPopup msgPopup = new MsgPopup(getContext());
+                    MsgPopup msgPopup = new MsgPopup(mainContext);
                     msgPopup.setText(peerId + ": [Image]");
                     TextView msgText = msgPopup.findViewById(R.id.msg_text);
                     msgText.setOnClickListener(new View.OnClickListener() {
@@ -8062,7 +8214,7 @@ public class MainActivity extends BaseActivity {
                             openMessagActivity(true, peerId);
                         }
                     });
-                    new XPopup.Builder(context)
+                    new XPopup.Builder(mainContext)
                             .hasShadowBg(false)
                             .popupAnimation(PopupAnimation.ScaleAlphaFromCenter)
                             .isCenterHorizontal(true)
