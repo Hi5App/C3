@@ -1637,9 +1637,9 @@ public class MainActivity extends BaseActivity {
         String[] item_list = null;
 
         if (DrawMode){
-            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Chat", "Animate", "Settings", "Crash Info", "About", "Help"};
+            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Animate", "Settings", "Crash Info", "About", "Help"};
         }else{
-            item_list = new String[]{"Analyze SWC", "VoiceChat - 1 to 1", "Chat", "Animate", "Settings", "Crash Info", "Account Name", "About", "Help"};
+            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Animate", "Settings", "Crash Info", "Account Name", "About", "Help"};
         }
 
         new XPopup.Builder(this)
@@ -1669,12 +1669,12 @@ public class MainActivity extends BaseActivity {
                                         }
                                         break;
 
-                                    case "VoiceChat - 1 to 1":
+                                    case "VoiceChat":
 //                                        PopUp_Chat(MainActivity.this);
                                         chooseVoiceChatMode();
                                         break;
 
-                                    case "Chat":
+                                    case "MessageChat":
                                         chooseChatMode();
                                         break;
 
@@ -1768,12 +1768,12 @@ public class MainActivity extends BaseActivity {
 
     public void chooseChatMode(){
         new XPopup.Builder(this)
-                .asCenterList("Choose Chat Mode", new String[]{"Peer Radio", "Selection Tab Channel"},
+                .asCenterList("Choose Chat Mode", new String[]{"Peer Chat", "Selection Tab Channel"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text){
-                                    case "Peer Radio":
+                                    case "Peer Chat":
                                         peerToPeer();
                                         break;
                                     case "Selection Tab Channel":
@@ -1885,7 +1885,7 @@ public class MainActivity extends BaseActivity {
 
                     }
                 })
-                .setTitle(R.string.title_peer_msg)
+                .setTitle(R.string.title_channel_message)
 
                 .create();
 
@@ -4842,7 +4842,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200929B 22:08 UTC+8 build",
+                                "Version: 20200929c 22:22 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -7342,12 +7342,12 @@ public class MainActivity extends BaseActivity {
 
     public void chooseVoiceChatMode(){
         new XPopup.Builder(this)
-                .asCenterList("Choose Voice Chat Mode", new String[]{"Peer Radio", "Selection Tab Channel"},
+                .asCenterList("Choose Voice Chat Mode", new String[]{"Peer Chat", "Selection Tab Channel"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text){
-                                    case "Peer Radio":
+                                    case "Peer Chat":
                                         peerToPeerChat();
                                         break;
                                     case "Selection Tab Channel":
@@ -7414,7 +7414,7 @@ public class MainActivity extends BaseActivity {
 
     private void callTarget(String target){
         String channelName = target + "And" + username;
-        String callMessage = "##CallFrom" + username + "#In#" + channelName + "##";
+        String callMessage = "##CallFrom" + username + "##In##" + channelName + "##";
         RtmMessage message = mRtmClient.createMessage();
         message.setText(callMessage);
 
@@ -8144,7 +8144,7 @@ public class MainActivity extends BaseActivity {
                     String targetName = msg.substring(10, msg.indexOf("##In##"));
                     String channelName = msg.substring(msg.indexOf("##In##") + 6, msg.lastIndexOf("##"));
                     runOnUiThread(() -> {
-                        MsgPopup msgPopup = new MsgPopup(mainContext);
+                        MsgPopup msgPopup = new MsgPopup(mainContext, 20000);
                         msgPopup.setText("Called From " + targetName);
                         TextView msgText = msgPopup.findViewById(R.id.msg_text);
                         msgText.setOnClickListener(new View.OnClickListener() {
@@ -8156,6 +8156,7 @@ public class MainActivity extends BaseActivity {
                         });
 
                         BasePopupView xMsgPopup = new XPopup.Builder(mainContext)
+                                .dismissOnBackPressed(false)
                                 .hasShadowBg(false)
                                 .popupAnimation(PopupAnimation.ScaleAlphaFromCenter)
                                 .isCenterHorizontal(true)
@@ -8169,7 +8170,7 @@ public class MainActivity extends BaseActivity {
 
                         MessageUtil.addMessageBean(peerId, message);
 
-                        MsgPopup msgPopup = new MsgPopup(mainContext);
+                        MsgPopup msgPopup = new MsgPopup(mainContext, 3000);
                         msgPopup.setText(peerId + ": " + message.getText());
                         TextView msgText = msgPopup.findViewById(R.id.msg_text);
                         msgText.setOnClickListener(new View.OnClickListener() {
@@ -8204,7 +8205,7 @@ public class MainActivity extends BaseActivity {
                 Log.d("onMessageRecievedFromPeer", rtmImageMessage.getText() + " from " + peerId);
                 runOnUiThread(() -> {
                     MessageUtil.addMessageBean(peerId, rtmImageMessage);
-                    MsgPopup msgPopup = new MsgPopup(mainContext);
+                    MsgPopup msgPopup = new MsgPopup(mainContext, 3000);
                     msgPopup.setText(peerId + ": [Image]");
                     TextView msgText = msgPopup.findViewById(R.id.msg_text);
                     msgText.setOnClickListener(new View.OnClickListener() {

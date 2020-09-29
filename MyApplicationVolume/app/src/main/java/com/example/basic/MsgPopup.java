@@ -14,9 +14,9 @@ import com.lxj.xpopup.core.PositionPopupView;
 public class MsgPopup extends PositionPopupView {
     private CountTimer countTimer;
 
-    public MsgPopup(@Nullable Context context){
+    public MsgPopup(@Nullable Context context, int millisInFuture){
         super(context);
-        countTimer = new CountTimer(3000, 500);
+        countTimer = new CountTimer(millisInFuture, 500);
         countTimer.start();
     }
 
