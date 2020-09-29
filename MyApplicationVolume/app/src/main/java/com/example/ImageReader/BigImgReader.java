@@ -1,17 +1,16 @@
 package com.example.ImageReader;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.example.basic.Image4DSimple;
 import com.example.datastore.SettingFileManager;
 import com.example.myapplication__volume.MainActivity;
 import com.example.myapplication__volume.R;
+import com.lxj.xpopup.XPopup;
+import com.lxj.xpopup.interfaces.OnSelectListener;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -26,6 +25,7 @@ import cn.carbs.android.library.MDDialog;
 import static com.example.datastore.SettingFileManager.getFilename_Local;
 import static com.example.datastore.SettingFileManager.getoffset_Local;
 import static com.example.datastore.SettingFileManager.setoffset_Local;
+import static com.example.myapplication__volume.MainActivity.Toast_in_Thread_static;
 import static com.example.myapplication__volume.MainActivity.setFilename;
 
 public class BigImgReader {
@@ -227,13 +227,13 @@ public class BigImgReader {
         File path = new File(server_path);
         if (!path.exists()) {
             path.mkdirs();
-            Toast.makeText(context, "The folder doesn't exist", Toast.LENGTH_SHORT).show();
+            Toast_in_Thread_static("The folder doesn't exist");
         }
 
         File[] files = path.listFiles();
         if (files == null) {
             Log.e("error", "空目录");
-            Toast.makeText(context, "There is no file in the server folder", Toast.LENGTH_SHORT).show();
+            Toast_in_Thread_static("There is no file in the server folder");
             return null;
         }
 
@@ -259,29 +259,17 @@ public class BigImgReader {
      */
     public void ShowListDialog(final Context context, final String[] items) {
 
-        final String[] file_selected = {null};
-        boolean[] flag = {false};
-        AlertDialog.Builder listDialog =
-                new AlertDialog.Builder(context);
-        listDialog.setTitle("选择要下载的文件");
-        listDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                flag[0] = true;
-            }
-        });
-        listDialog.setItems(items, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                flag[0] = true;
-                file_selected[0] = items[which];
-                Toast.makeText(context,"你点击了" + items[which], Toast.LENGTH_SHORT).show();
-                setFilename(items[which]);
-                SettingFileManager.setFilename_Local(items[which], context);
-                PopUp(context);
-            }
-        });
-        listDialog.show();
+        new XPopup.Builder(context)
+                .asCenterList("Select the File", items, new OnSelectListener(){
+
+                    @Override
+                    public void onSelect(int position, String text) {
+                        Toast_in_Thread_static("You choose " + text);
+                        setFilename(text);
+                        SettingFileManager.setFilename_Local(text, context);
+                        PopUp(context);
+                    }
+                }).show();
 
     }
 
@@ -290,7 +278,7 @@ public class BigImgReader {
         final int[][] index = {null};
 
         if (getFilename_Local(context).equals("--11--")){
-            Toast.makeText(context,"Select file first!", Toast.LENGTH_SHORT).show();
+            Toast_in_Thread_static("Select file first!");
             return null;
         }
 
@@ -321,13 +309,13 @@ public class BigImgReader {
 
                     }
                 })
-                .setTitle("Download image")
-                .setNegativeButton(new View.OnClickListener() {
+                .setTitle("Input the offset")
+                .setNegativeButton("CANCEL",new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
                 })
-                .setPositiveButton(new View.OnClickListener() {
+                .setPositiveButton("CONFIRM",new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
@@ -357,7 +345,7 @@ public class BigImgReader {
 
                             if (!JudgeBounding(input, context)){
                                 PopUp(context);
-                                Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+                                Toast_in_Thread_static("Please make sure all the information is right!!!");
                             }else {
                                 index[0] = new int[4];
                                 index[0] = new int[]{Integer.parseInt(input[0]),
@@ -368,24 +356,13 @@ public class BigImgReader {
                                 offset = input[0] + "_" + input[1] + "_" + input[2] + "_" + input[3];
                                 setoffset_Local(offset, filename, context);
 
-                                /** a new activity: mainactivity_jump **/
-
-//                                Intent intent = new Intent(context, MainActivity_Jump.class);
-//                                String message = "/storage/emulated/0/C3/Server/" + filename + ".v3draw";
-//                                intent.putExtra(MyRenderer.LOCAL_FILE_PATH, message);
-//                                context.startActivity(intent);
-
                                 MainActivity.LoadBigFile_Local("/storage/emulated/0/C3/Server/" + filename + ".v3draw");
 
-//                                Intent intent = new Intent(context, JumpActivity.class);
-//                                String message = "/storage/emulated/0/C3/Server/" + filename + ".v3draw";
-//                                intent.putExtra(BIG_LOCAL_FILE_PATH, message);
-//                                context.startActivity(intent);
                             }
 
                         }else{
                             PopUp(context);
-                            Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+                            Toast_in_Thread_static("Please make sure all the information is right!!!");
                         }
 
                     }
@@ -496,7 +473,7 @@ public class BigImgReader {
             case "Left":
                 if ( (offset_x_i - size_i/2) == 0 ){
                     System.out.println("----- You have already reached left boundary!!! -----");
-                    Toast.makeText(context,"You have already reached left boundary!!!",Toast.LENGTH_SHORT).show();
+                    Toast_in_Thread_static("You have already reached left boundary!!!");
                     return null;
                 }else {
                     offset_x_i -= size_i/2;
@@ -507,7 +484,7 @@ public class BigImgReader {
 
             case "Right":
                 if ( (offset_x_i + size_i/2) == img_size_x_i - 1 ){
-                    Toast.makeText(context,"You have already reached right boundary!!!",Toast.LENGTH_SHORT).show();
+                    Toast_in_Thread_static("You have already reached right boundary!!!");
                     return null;
                 }else {
                     offset_x_i += size_i/2;
@@ -518,7 +495,7 @@ public class BigImgReader {
 
             case "Top":
                 if ( (offset_y_i - size_i/2) == 0 ){
-                    Toast.makeText(context,"You have already reached top boundary!!!",Toast.LENGTH_SHORT).show();
+                    Toast_in_Thread_static("You have already reached top boundary!!!");
                     return null;
                 }else {
                     offset_y_i -= size_i/2;
@@ -529,7 +506,7 @@ public class BigImgReader {
 
             case "Bottom":
                 if ( (offset_y_i + size_i/2) == img_size_y_i - 1 ){
-                    Toast.makeText(context,"You have already reached bottom boundary!!!",Toast.LENGTH_SHORT).show();
+                    Toast_in_Thread_static("You have already reached bottom boundary!!!");
                     return null;
                 }else {
                     offset_y_i += size_i/2;
@@ -540,7 +517,7 @@ public class BigImgReader {
 
             case "Front":
                 if ( (offset_z_i - size_i/2) == 0 ){
-                    Toast.makeText(context,"You have already reached front boundary!!!",Toast.LENGTH_SHORT).show();
+                    Toast_in_Thread_static("You have already reached front boundary!!!");
                     return null;
                 }else {
                     offset_z_i -= size_i/2;
@@ -551,7 +528,7 @@ public class BigImgReader {
 
             case "Back":
                 if ( (offset_z_i + size_i/2) == img_size_z_i - 1 ){
-                    Toast.makeText(context,"You have already reached back boundary!!!",Toast.LENGTH_SHORT).show();
+                    Toast_in_Thread_static("You have already reached back boundary!!!");
                     return null;
                 }else {
                     offset_z_i += size_i/2;

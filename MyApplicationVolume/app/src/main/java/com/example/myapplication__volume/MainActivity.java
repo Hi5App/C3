@@ -100,7 +100,6 @@ import com.lxj.xpopup.enums.PopupAnimation;
 import com.lxj.xpopup.enums.PopupPosition;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
-import com.lxj.xpopup.interfaces.SimpleCallback;
 import com.tracingfunc.app2.ParaAPP2;
 import com.tracingfunc.app2.V3dNeuronAPP2Tracing;
 import com.tracingfunc.gd.CurveTracePara;
@@ -4843,7 +4842,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200929a 20:08 UTC+8 build",
+                                "Version: 20200929B 22:08 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -7102,6 +7101,7 @@ public class MainActivity extends BaseActivity {
     public void File_icon(){
 
         new XPopup.Builder(this)
+//                .hasShadowBg(false)
 //        .maxWidth(400)
 //        .maxHeight(1350)
 //                .asCenterList("File Open & Save", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile","Camera"},
@@ -7414,7 +7414,7 @@ public class MainActivity extends BaseActivity {
 
     private void callTarget(String target){
         String channelName = target + "And" + username;
-        String callMessage = "##CalledFrom" + username + "In" + channelName + "##";
+        String callMessage = "##CallFrom" + username + "#In#" + channelName + "##";
         RtmMessage message = mRtmClient.createMessage();
         message.setText(callMessage);
 

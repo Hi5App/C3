@@ -30,7 +30,7 @@ public class ExcelUtil {
             }
 
             for (int i = 1; i <= arrayList.size(); i++) {
-                for (int j = 0; j < titles.length; j++) {
+                for (int j = 0; j < arrayList.get(i - 1).length; j++) {
                     sheet.addCell(new Label(j, i, arrayList.get(i - 1)[j]));
                 }
             }

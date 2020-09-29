@@ -1704,7 +1704,7 @@ public class Remote_Socket extends Socket {
             fid.close();
 
             String[] titles = {"Neuron_num", "Arbor_num", "X_start", "X_end", "Y_start", "Y_end", "Z_start", "Z_end",
-                                "Check_result (0 for yes, 1 for no, 2 for uncertain)", "Checker"};
+                                "Check_result (0 for yes, 1 for no, 2 for uncertain)", "Checker", "Check_Time"};
 
             ExcelUtil.WriteExcel(excel_filepath, titles, arrayList);
 

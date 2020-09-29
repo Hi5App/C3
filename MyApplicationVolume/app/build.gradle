@@ -20,7 +20,10 @@ android {
         }
 
         release {
-            minifyEnabled false
+            zipAlignEnabled true
+            minifyEnabled true
+            // 移除无用的resource文件
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -71,7 +74,7 @@ dependencies {
 
     implementation 'com.xw.repo:bubbleseekbar:3.20-lite'
     implementation 'com.github.warkiz.widget:indicatorseekbar:2.1.2'
-    implementation 'com.squareup.okhttp3:okhttp:3.4.1'
+    implementation 'com.squareup.okhttp3:okhttp:3.14.0'
     implementation 'io.agora.rtm:rtm-sdk:1.4.0'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
     implementation 'com.github.bumptech.glide:glide:4.11.0'
