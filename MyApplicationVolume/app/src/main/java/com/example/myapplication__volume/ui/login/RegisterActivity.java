@@ -104,6 +104,9 @@ public class RegisterActivity extends AppCompatActivity {
                 loadingProgressBar.setVisibility(View.GONE);
                 if (registerResult.getError() != null) {
                     showRegisterFailed(registerResult.getError());
+
+                } else if (registerResult.getErrorString() != null){
+                    showRegisterFailed(registerResult.getErrorString());
                 }
                 if (registerResult.getSuccess() != null) {
                     Log.d("LoginResultOnChanged", "getSuccess");
@@ -169,6 +172,9 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void showRegisterFailed(@StringRes Integer errorString) {
+        Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
+    }
+    private void showRegisterFailed(String errorString) {
         Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
     }
 

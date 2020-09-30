@@ -1,5 +1,6 @@
 package com.example.myapplication__volume.ui.login;
 
+import android.util.Log;
 import android.util.Patterns;
 
 import androidx.lifecycle.LiveData;
@@ -33,12 +34,15 @@ public class RegisterViewModel extends ViewModel {
         // can be launched in a separate asynchronous job
         Result<LoggedInUser> result = registerRespository.register(email, username, password);
 
+        Log.d("RegisterViewModel", "register");
+
         if (result instanceof Result.Success) {
             LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
             registerResult.setValue(new RegisterResult(new LoggedInUserView(data.getDisplayName())));
 
         } else {
-            registerResult.setValue(new RegisterResult(R.string.register_failed));
+//            registerResult.setValue(new RegisterResult(R.string.register_failed));
+            registerResult.setValue(new RegisterResult(((Result.Error) result).getError().getMessage()));
         }
     }
 

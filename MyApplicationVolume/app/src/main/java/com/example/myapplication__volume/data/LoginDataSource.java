@@ -19,17 +19,17 @@ public class LoginDataSource {
     private String responseData;
     private boolean ifResponsed = false;
     private final String ip = "http:www.baidu.com";
-    private final String ipLogin = "http:10.194.211.159:8080/Server_C3/LoginServlet";
-    private final String ipRegister = "http:10.194.211.159:8080/Server_C3/RegisterServlet";
-//    private final String ipLogin = "http:39.100.35.131:8080/Server_C3/LoginServlet";
-//    private final String ipRegister = "http:39.100.35.131:8080/Server_C3/RegisterServlet";
+//    private final String ipLogin = "http:10.194.211.159:8080/Server_C3/LoginServlet";
+//    private final String ipRegister = "http:10.194.211.159:8080/Server_C3/RegisterServlet";
+    private final String ipLogin = "http:39.100.35.131:8080/Server_C3/LoginServlet";
+    private final String ipRegister = "http:39.100.35.131:8080/Server_C3/RegisterServlet";
 
     public Result<LoggedInUser> login(String username, String password) {
 
         try {
             loginWithOkHttp(ipLogin, username, password);
             while (!ifResponsed){
-                System.out.println("aaa");
+                Log.d("RegisterLoop", "AAAAAAAAAAAAAAAAA");
             }
             ifResponsed = false;
             if (responseData.equals("true")){
@@ -51,7 +51,14 @@ public class LoginDataSource {
     public Result<LoggedInUser> register(String email, String username, String password){
         try {
             registerWithOkHttp(ipRegister, email, username, password);
-            while (!ifResponsed){ }
+            while (!ifResponsed){
+                Log.d("RegisterLoop", "AAAAAAAAAAAAAAAAA");
+            }
+//            while (true) {
+//                Log.d("RegisterLoop", "AAAAAAAAAAAAAAAAA");
+//                if (ifResponsed)
+//                    break;
+//            }
             ifResponsed = false;
             if (responseData.equals("true")) {
                 Log.d("LoginDataSource", "register");
@@ -60,7 +67,8 @@ public class LoginDataSource {
                                 java.util.UUID.randomUUID().toString(),
                                 username);
                 return new Result.Success<>(fakeUser);
-            } else {
+            } else{
+                Log.d("RegisterDataSource", "register");
                 return new Result.Error(new IOException(responseData));
             }
 
@@ -113,14 +121,14 @@ public class LoginDataSource {
             public void onFailure(Call call, IOException e) {
                 responseData = "Connect Failed When Register";
                 ifResponsed = true;
-                Log.d("RegisterWithHttp", "responseData: " + responseData);
+                Log.i("RegisterWithHttp", "responseData: " + responseData);
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 responseData = response.body().string();
                 ifResponsed = true;
-                Log.d("RegisterWithHttp", "responseData: " + responseData);
+                Log.i("RegisterWithHttp", "responseData: " + responseData);
             }
         });
     }

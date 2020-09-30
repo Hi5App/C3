@@ -25,10 +25,15 @@ public class HttpUtil {
                 .post(body)
                 .build();
         client.newCall(request).enqueue(callback);
+        client.connectionPool().evictAll();
     }
     //注册
     public static void registerWithOkHttp(String address,String email, String username,String password,okhttp3.Callback callback){
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .build();;
         RequestBody body = new FormBody.Builder()
                 .add("registerEmail",email)
                 .add("registerUsername", username)
@@ -39,5 +44,6 @@ public class HttpUtil {
                 .post(body)
                 .build();
         client.newCall(request).enqueue(callback);
+        client.connectionPool().evictAll();
     }
 }

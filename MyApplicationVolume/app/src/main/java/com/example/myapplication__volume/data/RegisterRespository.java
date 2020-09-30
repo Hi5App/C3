@@ -1,5 +1,7 @@
 package com.example.myapplication__volume.data;
 
+import android.util.Log;
+
 import com.example.myapplication__volume.data.model.LoggedInUser;
 
 public class RegisterRespository {
@@ -32,6 +34,7 @@ public class RegisterRespository {
     public Result<LoggedInUser> register(String email, String username, String password) {
         // handle login
         Result<LoggedInUser> result = dataSource.register(email, username, password);
+        Log.d("RegisterRespository", "register");
         if (result instanceof Result.Success) {
             setLoggedInUser(((Result.Success<LoggedInUser>) result).getData());
         }

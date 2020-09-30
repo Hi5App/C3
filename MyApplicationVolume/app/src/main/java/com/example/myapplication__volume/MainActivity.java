@@ -98,6 +98,7 @@ import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.enums.PopupAnimation;
 import com.lxj.xpopup.enums.PopupPosition;
+import com.lxj.xpopup.interfaces.OnCancelListener;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.tracingfunc.app2.ParaAPP2;
@@ -4842,7 +4843,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200929c 22:22 UTC+8 build",
+                                "Version: 20200930a 14:46 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -8047,25 +8048,6 @@ public class MainActivity extends BaseActivity {
 
         ArrayList<Float> tangent = myrenderer.tangentPlane(startPoint[0], startPoint[1], startPoint[2], dir[0], dir[1], dir[2], 1);
 
-//        ArrayList<Integer> initial_marker = new ArrayList<Integer>();
-//        ArrayList<Integer> angle = new ArrayList<Integer>();
-//        ArrayList<ArrayList<Integer>> import_marker= new ArrayList<ArrayList<Integer>>();
-//
-//        float[] des = myrenderer.angle(64,64,64,1,0,0);
-//
-//        initial_marker.add(64);
-//        initial_marker.add(64);
-//        initial_marker.add(64);
-//        angle.add((int) des[0]);
-//        angle.add((int) des[1]);
-//        angle.add((int) des[2]);
-//
-//        import_marker.add(initial_marker);
-//        import_marker.add(angle);
-//        myrenderer.importMarker(import_marker);
-//
-//        ArrayList<Float> tangent = myrenderer.tangentPlane(startPoint[0], startPoint[1], startPoint[2], dir[0], dir[1], dir[2], 128);
-
         System.out.println("TangentPlane:::::");
         System.out.println(tangent.size());
 
@@ -8143,27 +8125,134 @@ public class MainActivity extends BaseActivity {
 
                     String targetName = msg.substring(10, msg.indexOf("##In##"));
                     String channelName = msg.substring(msg.indexOf("##In##") + 6, msg.lastIndexOf("##"));
+                    final boolean[] answered = {false};
                     runOnUiThread(() -> {
-                        MsgPopup msgPopup = new MsgPopup(mainContext, 20000);
-                        msgPopup.setText("Called From " + targetName);
-                        TextView msgText = msgPopup.findViewById(R.id.msg_text);
-                        msgText.setOnClickListener(new View.OnClickListener() {
+
+
+                        BasePopupView calledPopup = new XPopup.Builder(mainContext)
+                                .dismissOnTouchOutside(false)
+                                .dismissOnBackPressed(false)
+                                .asConfirm("Phone Call", "from " + targetName, "Reject", "Answer",
+                                new OnConfirmListener() {
+                                    @Override
+                                    public void onConfirm() {
+                                        answered[0] = true;
+
+                                        VoiceChat(channelName, username);
+                                        String callMessage = "##SuccessToAnswer##";
+                                        RtmMessage answerMessage = mRtmClient.createMessage();
+                                        answerMessage.setText(callMessage);
+
+                                        mRtmClient.sendMessageToPeer(targetName, answerMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+
+                                            }
+
+                                            @Override
+                                            public void onFailure(ErrorInfo errorInfo) {
+
+                                            }
+                                        });
+                                    }
+                                }, new OnCancelListener() {
+                                    @Override
+                                    public void onCancel() {
+                                        answered[0] = true;
+
+                                        String callMessage = "##RefuseToAnswer##";
+                                        RtmMessage refuseMessage = mRtmClient.createMessage();
+                                        refuseMessage.setText(callMessage);
+
+                                        mRtmClient.sendMessageToPeer(targetName, refuseMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+
+                                            }
+
+                                            @Override
+                                            public void onFailure(ErrorInfo errorInfo) {
+
+                                            }
+                                        });
+                                    }
+                                }, false);
+                        calledPopup.show();
+                        calledPopup.delayDismiss(20000);
+                        calledPopup.dismissWith(new Runnable() {
                             @Override
-                            public void onClick(View view) {
-                                Log.d("MsgText", "OnClick");
-                                VoiceChat(channelName, username);
+                            public void run() {
+                                if (answered[0] == false){
+                                    String callMessage = "##TimeOutToAnswer##";
+                                    RtmMessage timeOutMessage = mRtmClient.createMessage();
+                                    timeOutMessage.setText(callMessage);
+
+                                    mRtmClient.sendMessageToPeer(targetName, timeOutMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+
+                                        }
+
+                                        @Override
+                                        public void onFailure(ErrorInfo errorInfo) {
+
+                                        }
+                                    });
+                                }
                             }
                         });
 
-                        BasePopupView xMsgPopup = new XPopup.Builder(mainContext)
-                                .dismissOnBackPressed(false)
-                                .hasShadowBg(false)
-                                .popupAnimation(PopupAnimation.ScaleAlphaFromCenter)
-                                .isCenterHorizontal(true)
-                                .offsetY(200)
-                                .asCustom(msgPopup);
+                    });
+//                    try {
+//                        Thread.sleep(30000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                    if (answered[0] == false){
+//                        String callMessage = "##TimeOutToAnswer##";
+//                        RtmMessage timeOutMessage = mRtmClient.createMessage();
+//                        timeOutMessage.setText(callMessage);
+//
+//                        mRtmClient.sendMessageToPeer(targetName, timeOutMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+//
+//                            }
+//
+//                            @Override
+//                            public void onFailure(ErrorInfo errorInfo) {
+//
+//                            }
+//                        });
+//                    }
+                } else if (msg.equals("##RefuseToAnswer##")){
+                    runOnUiThread(() -> {
+                        Toast_in_Thread("Target Refused To Answer");
+                        fab.setVisibility(View.GONE);
+                        try {
+                            leaveChannel();
+                            RtcEngine.destroy();
+                        } catch (Exception e){
+                            Toast_in_Thread(e.getMessage());
+                        }
+                        mRtcEngine = null;
+                    });
 
-                        xMsgPopup.show();
+                } else if (msg.equals("##SuccessToAnswer##")){
+                    runOnUiThread(() -> {
+                        Toast_in_Thread("Connection Succeeded");
+                    });
+                } else if (msg.equals("##TimeOutToAnswer##")){
+                    runOnUiThread(() -> {
+                        Toast_in_Thread("Target Time Out To Answer");
+                        fab.setVisibility(View.GONE);
+                        try {
+                            leaveChannel();
+                            RtcEngine.destroy();
+                        } catch (Exception e){
+                            Toast_in_Thread(e.getMessage());
+                        }
+                        mRtcEngine = null;
                     });
                 } else {
                     runOnUiThread(() -> {
