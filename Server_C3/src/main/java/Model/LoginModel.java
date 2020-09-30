@@ -5,12 +5,12 @@ import java.sql.*;
 
 public class LoginModel {
     private static String DBUNAME = "root";
-//    private static String DBUPWD = "~Qq1122xjhxf";
+//    private static String DBUPWD = "~Qq1122SEU";
     private static String DBUPWD = "111qqq2341xjh";
     private static String DRIVER = "com.mysql.cj.jdbc.Driver";
     private static String URL = "jdbc:mysql://localhost:3306/userinfo?&serverTimezone=UTC&useSSL=false";
 
-    public static boolean login(User user){
+    public static String login(User user){
         String loginAccount = user.getLoginAccount();
         String loginPassword = user.getLoginPassword();
         Connection con = null;
@@ -48,14 +48,14 @@ public class LoginModel {
                 e.printStackTrace();
             }
             if (count==1){
-                return true;
+                return "true";
             }else{
-                return false;
+                return "false";
             }
         }
     }
 
-    public static boolean register(User user){
+    public static String register(User user){
         String loginAccount = user.getLoginAccount();
         String loginPassword = user.getLoginPassword();
         String loginEmail= user.getLoginEmail();
@@ -63,10 +63,75 @@ public class LoginModel {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         int count = 0;
+        try {
+            Class.forName(DRIVER);
+            con = DriverManager.getConnection(URL,DBUNAME,DBUPWD);
+            pstmt = con.prepareStatement("select count(*)from useraccount where account=?");
+            pstmt.setString(1,loginAccount);
+            rs = pstmt.executeQuery();
+            if (rs.next()){
+                count = rs.getInt(1);
+            }
+        }catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            try{
+                if (rs!=null){
+                    rs.close();
+                }
+                if (pstmt!=null){
+                    pstmt.close();
+                }
+                if (con!=null){
+                    con.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            if (count>0) {
+                return " Account Already exist";
+            }
+        }
+
+
+        try {
+            Class.forName(DRIVER);
+            con = DriverManager.getConnection(URL,DBUNAME,DBUPWD);
+            pstmt = con.prepareStatement("select count(*)from useraccount where email=?");
+            pstmt.setString(1,loginEmail);
+            rs = pstmt.executeQuery();
+            if (rs.next()){
+                count = rs.getInt(1);
+            }
+        }catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            try{
+                if (rs!=null){
+                    rs.close();
+                }
+                if (pstmt!=null){
+                    pstmt.close();
+                }
+                if (con!=null){
+                    con.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            if (count>0) {
+                return " Email Already exist";
+            }
+        }
+
         try{
             Class.forName(DRIVER);
             con = DriverManager.getConnection(URL,DBUNAME,DBUPWD);
-            pstmt = con.prepareStatement("insert into useraccount values (?,?,?)");
+            pstmt = con.prepareStatement("insert into useraccount (account, password, email) values (?,?,?)");
             pstmt.setString(1,loginAccount);
             pstmt.setString(2,loginPassword);
             pstmt.setString(3,loginEmail);
@@ -90,9 +155,9 @@ public class LoginModel {
                 e.printStackTrace();
             }
             if (count==1){
-                return true;
+                return "true";
             }else{
-                return false;
+                return "false";
             }
         }
     }

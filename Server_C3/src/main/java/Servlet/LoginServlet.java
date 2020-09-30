@@ -21,11 +21,12 @@ public class LoginServlet extends HttpServlet {
         String loginAccount = request.getParameter("loginAccount");
         String loginPassword = request.getParameter("loginPassword");
         User user = new User(loginAccount,loginPassword);
-        boolean result = LoginModel.login(user);
+        String result = LoginModel.login(user);
         System.out.println("登录账号："+loginAccount+",登陆密码："+loginPassword+",登录结果"+result);
         response.setCharacterEncoding("UTF-8");
         //通过PrintWriter返回给客户端操作结果
         PrintWriter writer = response.getWriter();
         writer.print(result);
+        writer.flush();
     }
 }

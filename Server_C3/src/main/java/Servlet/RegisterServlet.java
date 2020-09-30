@@ -22,10 +22,11 @@ public class RegisterServlet extends HttpServlet {
         String registerEmail = request.getParameter("registerEmail");
         String registerPassword = request.getParameter("registerPassword");
         User registerUser = new User(registerAccount,registerEmail,registerPassword);
-        boolean rs = LoginModel.register(registerUser);
+        String rs = LoginModel.register(registerUser);
         System.out.println("注册账号："+registerAccount+",注册邮箱："+registerEmail+",注册密码："+registerPassword+",注册结果"+rs);
         //通过PrintWriter返回给客户端操作结果
         PrintWriter writer = response.getWriter();
         writer.print(rs);
+        writer.flush();
     }
 }
