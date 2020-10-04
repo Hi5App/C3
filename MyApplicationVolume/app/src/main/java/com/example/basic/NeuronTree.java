@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.myapplication__volume.MainActivity;
@@ -170,8 +171,10 @@ public class NeuronTree extends BasicSurfObj {
             File f = new File(swcfile);
             if (f.exists())
                 return true;
-
-            f.createNewFile();
+            if (!f.createNewFile()){
+                Log.e("NeuronTree","Fail to create file !");
+                return true;
+            }
             FileOutputStream fid = new FileOutputStream(f);
             OutputStreamWriter writer = new OutputStreamWriter(fid, "UTF-8");
             writer.append("#name \n");

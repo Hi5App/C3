@@ -1361,7 +1361,7 @@ public class MainActivity extends BaseActivity {
                     //  for apo sync
 //                    PullApo_block_Manual();
                 }else {
-                    remote_socket.PullCheckResult(false);
+                    remote_socket.pullCheckResult(false);
                 }
             }
         });
@@ -1371,7 +1371,7 @@ public class MainActivity extends BaseActivity {
             public boolean onLongClick(View view) {
 
                 if (!DrawMode){
-                    remote_socket.PullCheckResult(true);
+                    remote_socket.pullCheckResult(true);
                 }
                 return true;
             }
@@ -1947,7 +1947,7 @@ public class MainActivity extends BaseActivity {
 //            System.out.println(info.orientation);
 //            int degree = getBitmapDegree(showPic.getAbsolutePath());
 //            System.out.println(degree);
-            myrenderer.SetPath(showPic.getAbsolutePath());
+            myrenderer.setPath(showPic.getAbsolutePath());
             //System.out.println(showPic.getAbsolutePath());
             myGLSurfaceView.requestRender();
             return;
@@ -2024,7 +2024,7 @@ public class MainActivity extends BaseActivity {
 
                     else {
                         System.out.println("-------- open --------");
-                        myrenderer.SetSWCPath(filePath);
+                        myrenderer.setSWCPath(filePath);
                         ifLoadLocal = false;
                         if (isBigData_Remote || isBigData_Local){
                             if (isBigData_Remote){
@@ -2073,7 +2073,7 @@ public class MainActivity extends BaseActivity {
 
                 if (ifAnalyze) {
                     MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
-                    List features = morphologyCalculate.Calculate(uri, false);
+                    List features = morphologyCalculate.calculate(uri, false);
 
 //                    fl = new ArrayList<double[]>(features);
 //                    if (features.size() != 0) displayResult(features);
@@ -2101,7 +2101,7 @@ public class MainActivity extends BaseActivity {
 
                 if (ifLoadLocal) {
                     System.out.println("load local");
-                    myrenderer.SetPath(filePath);
+                    myrenderer.setPath(filePath);
                     System.out.println(filePath);
 
                     if (isBigData_Remote || isBigData_Local){
@@ -2155,7 +2155,7 @@ public class MainActivity extends BaseActivity {
                 }
 
                 if (ifDownloadByHttp) {
-                    myrenderer.SetPath(filePath);
+                    myrenderer.setPath(filePath);
                     ifDownloadByHttp = false;
                 }
 
@@ -2215,7 +2215,7 @@ public class MainActivity extends BaseActivity {
 
                 try {
                     NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
-                    myrenderer.SetSwcLoaded();
+                    myrenderer.setSwcLoaded();
                     myrenderer.importNeuronTree(nt);
                     myGLSurfaceView.requestRender();
                     uiHandler.sendEmptyMessage(1);
@@ -2243,7 +2243,7 @@ public class MainActivity extends BaseActivity {
 
         try {
             NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
-            myrenderer.SetSwcLoaded();
+            myrenderer.setSwcLoaded();
             myrenderer.importNeuronTree(nt);
             myGLSurfaceView.requestRender();
         }catch (Exception e){
@@ -2463,7 +2463,7 @@ public class MainActivity extends BaseActivity {
             }
         }
 
-        myrenderer.SetPath(photoFilePath);
+        myrenderer.setPath(photoFilePath);
 
         myGLSurfaceView.requestRender();
 
@@ -2811,7 +2811,7 @@ public class MainActivity extends BaseActivity {
 
                                     case "Set PenColor":
                                         //调用选择画笔窗口
-                                        PenSet();
+                                        penSet();
 
                                         break;
 
@@ -2864,7 +2864,7 @@ public class MainActivity extends BaseActivity {
                                         break;
 
                                     case "Set MColor":
-                                        MarkerPenSet();
+                                        markerPenSet();
                                         break;
 
                                     case "Change MColor":
@@ -3081,7 +3081,7 @@ public class MainActivity extends BaseActivity {
                                 break;
 
                             case "Set MColor":
-                                MarkerPenSet();
+                                markerPenSet();
                                 break;
 
                             case "Change MColor":
@@ -3239,7 +3239,7 @@ public class MainActivity extends BaseActivity {
 
                                     case "Set PenColor":
                                         //调用选择画笔窗口
-                                        PenSet();
+                                        penSet();
 
                                         break;
 
@@ -4499,7 +4499,7 @@ public class MainActivity extends BaseActivity {
 
                         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
 
-                        StartSensorListening();//启动传感数据采集(注册三个传感器）
+                        startSensorListening();//启动传感数据采集(注册三个传感器）
 
                     }
 
@@ -4509,7 +4509,7 @@ public class MainActivity extends BaseActivity {
         si_mdDialog.show();
         si_mdDialog.getWindow().setLayout(1000, 1500);
 
-        si_mdDialog.setOnDismissListener(si_mdDialog->StopSensorListening());
+        si_mdDialog.setOnDismissListener(si_mdDialog-> stopSensorListening());
 
 //        StopSensorListening();
 
@@ -4593,8 +4593,9 @@ public class MainActivity extends BaseActivity {
                         System.out.println("----- sb is null----- ");
                     if (etLight == null)
                         System.out.println("----- etLight is null----- ");
-
-                    etLight.setText(sb.toString());
+                    else {
+                        etLight.setText(sb.toString());
+                    }
                     LightData[0] = e.values[0];
                     break;
                 case Sensor.TYPE_PRESSURE:   //线性加速度传感器
@@ -4646,7 +4647,7 @@ public class MainActivity extends BaseActivity {
         }
     };
 
-    public void StartSensorListening()
+    public void startSensorListening()
     {
         //super.onResume();
         Log.v("StartSensorListening","Here we are!!!");
@@ -4680,7 +4681,7 @@ public class MainActivity extends BaseActivity {
                 Sensor.TYPE_ROTATION_VECTOR),SensorManager.SENSOR_DELAY_NORMAL);
     }
 
-    public void StopSensorListening()
+    public void stopSensorListening()
     {
         Toast.makeText(getContext(), "Sensor stopped", Toast.LENGTH_SHORT).show();
         mSensorManager.unregisterListener(listener);
@@ -4716,7 +4717,7 @@ public class MainActivity extends BaseActivity {
                                             break;
                                         }
                                         MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
-                                        List<double[]> features = morphologyCalculate.CalculatefromNT(nt, false);
+                                        List<double[]> features = morphologyCalculate.calculatefromNT(nt, false);
                                         fl = new ArrayList<double[]>(features);
                                         if (features.size() != 0) displayResult(features);
                                         else Toast.makeText(getContext(), "the file is empty", Toast.LENGTH_SHORT).show();
@@ -4843,7 +4844,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20200930a 14:46 UTC+8 build",
+                                "Version: 20201004a 21:46 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4974,8 +4975,8 @@ public class MainActivity extends BaseActivity {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                remote_socket.DisConnectFromHost();
-                remote_socket.ConnectServer(ip);
+                remote_socket.disConnectFromHost();
+                remote_socket.connectServer(ip);
                 remote_socket.Select_Brain(true);
             }
         });
@@ -4990,8 +4991,8 @@ public class MainActivity extends BaseActivity {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                remote_socket.DisConnectFromHost();
-                remote_socket.ConnectServer(ip);
+                remote_socket.disConnectFromHost();
+                remote_socket.connectServer(ip);
 //                remote_socket.Select_Arbor();
                 remote_socket.Select_Brain(false);
             }
@@ -5215,7 +5216,7 @@ public class MainActivity extends BaseActivity {
                         } catch (Exception e) {
                             Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
-                        if (error != "") {
+                        if (!error.equals("")) {
                             if (error == "This file already exits"){
 //                                Toast.makeText(context, error, Toast.LENGTH_LONG).show();
                                 AlertDialog aDialog = new AlertDialog.Builder(mainContext)
@@ -5228,7 +5229,7 @@ public class MainActivity extends BaseActivity {
                                                 String errorMessage = "";
                                                 try{
                                                     errorMessage = myrenderer.oversaveCurrentSwc(dir_str);
-                                                    if (errorMessage == "")
+                                                    if (errorMessage.equals(""))
                                                         Toast.makeText(getContext(),"Overwrite successfully!", Toast.LENGTH_SHORT).show();
                                                     if (errorMessage == "Overwrite failed!")
                                                         Toast.makeText(getContext(),"Overwrite failed!", Toast.LENGTH_SHORT).show();
@@ -5736,7 +5737,7 @@ public class MainActivity extends BaseActivity {
         Log.v("BaseActivity","img_path" + img_path);
 
         File file = new File(img_path);
-        RecursionDeleteFile(file);
+        recursionDeleteFile(file);
     }
 
 
@@ -6060,7 +6061,7 @@ public class MainActivity extends BaseActivity {
             System.out.println("outImg: "+outImg.getSz0()+" "+outImg.getSz1()+" "+outImg.getSz2()+" "+outImg.getSz3());
             System.out.println(outImg.getData().length);
 
-            myrenderer.ResetImg(outImg);
+            myrenderer.resetImg(outImg);
             myGLSurfaceView.requestRender();
         }catch (Exception e){
             Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -6101,7 +6102,7 @@ public class MainActivity extends BaseActivity {
             }else {
                 //输出滤波结果
                 Toast.makeText(getContext(), "Run successfully.", Toast.LENGTH_SHORT).show();
-                myrenderer.ResetImg(img);
+                myrenderer.resetImg(img);
                 myGLSurfaceView.requestRender();
                 Toast.makeText(getContext(), "Have been shown on the screen.", Toast.LENGTH_SHORT).show();
             }
@@ -6379,7 +6380,7 @@ public class MainActivity extends BaseActivity {
     }
 
 
-    public void FeatureSet(){
+    public void featureSet(){
 
         new MDDialog.Builder(this)
                 .setContentView(R.layout.pixel_choose)
@@ -6506,7 +6507,7 @@ public class MainActivity extends BaseActivity {
             Log.v("GSDT", "GSDT function finished");
 
             //preparations for show
-            myrenderer.ResetImg(p.outImage);
+            myrenderer.resetImg(p.outImage);
             myrenderer.getMarkerList().getMarkers().addAll(p.markers);//blue marker
             myrenderer.getMarkerList().add(p.MaxMarker);//red marker
             myGLSurfaceView.requestRender();
@@ -6541,7 +6542,7 @@ public class MainActivity extends BaseActivity {
 
 
     //画笔颜色设置
-    public void PenSet(){
+    public void penSet(){
 
         String [] pcolor = new String[1];
 
@@ -6622,7 +6623,7 @@ public class MainActivity extends BaseActivity {
                 .show();
     }
 
-    public void MarkerPenSet(){
+    public void markerPenSet(){
 
         String [] pcolor = new String[1];
 
@@ -7628,10 +7629,10 @@ public class MainActivity extends BaseActivity {
                             return;
                         }
 
-                        remote_socket.DisConnectFromHost();
-                        remote_socket.ConnectServer(ip);
-                        remote_socket.LoadNeuronTxt(DrawMode);
-                        remote_socket.SelectBlock();
+                        remote_socket.disConnectFromHost();
+                        remote_socket.connectServer(ip);
+                        remote_socket.loadNeuronTxt(DrawMode);
+                        remote_socket.selectBlock();
 
 //                        if (DrawMode){
 //                            remote_socket.DisConnectFromHost();
@@ -7706,7 +7707,7 @@ public class MainActivity extends BaseActivity {
                 setSelectSource("Remote Server SEU",context);
             }
 
-            myrenderer.SetPath(filepath);
+            myrenderer.setPath(filepath);
             myrenderer.zoom(2.2f);
             setFileName(filepath);
 

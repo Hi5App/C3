@@ -84,7 +84,7 @@ public class Remote_Socket extends Socket {
     private static String EMPTY_MSG = "the msg is empty";
     private static String EMPTY_FILE_PATH = "the file path is empty";
 
-    public static String TAG = "Remote_Socket";
+    public static final String TAG = "Remote_Socket";
     public static String ArborNumber_Selected = "Empty";
     public static String BrainNumber_Selected = "Empty";
     public static Vector<String> RES_List = new Vector<>();
@@ -92,7 +92,7 @@ public class Remote_Socket extends Socket {
     public static Vector<String> Neuron_Number_List = new Vector<>();
     public static HashMap<String, Vector<String>> Neuron_Info = new HashMap<>();
     public static Vector<String> Soma_List = new Vector<>();
-    public static ArrayList<Integer> Marker_List = new ArrayList<Integer>();
+    public static ArrayList<Integer> marker_List = new ArrayList<Integer>();
     public static String RES_Selected = "Empty";
     public static String Neuron_Number_Selected = "Empty";
     public static String Pos_Selected = "Empty";
@@ -120,9 +120,9 @@ public class Remote_Socket extends Socket {
     }
 
 
-    public void ConnectServer(String ip_server){
+    public void connectServer(String ip_server){
 
-        Log.i("ConnectServer","Start to Connect Server !");
+        Log.i("connectServer","Start to Connect Server !");
 
         if (ManageSocket != null && !ManageSocket.isClosed() && ManageSocket.isConnected()){
             return;
@@ -141,7 +141,7 @@ public class Remote_Socket extends Socket {
 
                     if (ManageSocket.isConnected()) {
                         isSocketSet = true;
-                        Log.i("ConnectServer", "Connect Server Successfully !");
+                        Log.i("connectServer", "Connect Server Successfully !");
                     } else {
                         Toast_in_Thread("Can't Connect Server, Try Again Please !");
                     }
@@ -209,7 +209,7 @@ public class Remote_Socket extends Socket {
                 for (int i = 0; i < file_list.length; i++)
                     Log.i("onReadyRead", file_list[i]);
 
-                ShowListDialog(mContext, file_list, "CurrentDirDownExp");
+                showListDialog(mContext, file_list, "CurrentDirDownExp");
 
             }else if (information.contains(CurrentDirLoadExp)){
                 String [] file_string = information.split(":");
@@ -218,7 +218,7 @@ public class Remote_Socket extends Socket {
                 for (int i = 0; i < file_list.length; i++)
                     Log.i("onReadyRead", file_list[i]);
 
-                ShowListDialog(mContext, file_list, "CurrentDirLoadExp");
+                showListDialog(mContext, file_list, "CurrentDirLoadExp");
             }else if (information.contains(CurrentDirImgDownExp)) {
                 String[] file_string = information.split(":");
                 String[] file_list = file_string[0].split(";");
@@ -226,7 +226,7 @@ public class Remote_Socket extends Socket {
 //                for (int i = 0; i < file_list.length; i++)
 //                    Log.i("onReadyRead", file_list[i]);
 
-                ShowListDialog(file_list);
+                showListDialog(file_list);
             }else if (information.contains(CurrentDirArborDownExp)){
                 String[] file_string = information.split(":");
                 String[] file_list = file_string[0].split(";");
@@ -238,7 +238,7 @@ public class Remote_Socket extends Socket {
 
                 setArbor_List_Check(file_list,mContext);
                 Vector<String> adjust_str = Adjust_Index_Check();
-                ShowListDialog_Check(Transform(adjust_str, 0, adjust_str.size()));
+                showListDialog_Check(Transform(adjust_str, 0, adjust_str.size()));
             }
         }
     }
@@ -251,7 +251,7 @@ public class Remote_Socket extends Socket {
      * @param items the list of filename
      * @param type the communication type
      */
-    private void ShowListDialog(final Context context, final String[] items, final String type) {
+    private void showListDialog(final Context context, final String[] items, final String type) {
 
         AlertDialog.Builder listDialog =
                 new AlertDialog.Builder(context);
@@ -263,7 +263,7 @@ public class Remote_Socket extends Socket {
 
 //                Toast.makeText(context,"你点击了" + items[which], Toast.LENGTH_SHORT).show();
 
-                Log.i("ShowListDialog", type);
+                Log.i("showListDialog", type);
 
                 Send_Brain_Number(items[which]);
 
@@ -272,11 +272,11 @@ public class Remote_Socket extends Socket {
                 if (type.equals("CurrentDirLoadExp"))
 //                    send1(items[which], context);
                 if (type == "CurrentDirImgDownExp" ){
-                    Log.i("ShowListDialog","Start to Send BrainNumber.");
+                    Log.i("showListDialog","Start to Send BrainNumber.");
                     Send_Brain_Number(items[which]);
                 }
 
-//                Log.i("ShowListDialog","Start to Send BrainNumber.");
+//                Log.i("showListDialog","Start to Send BrainNumber.");
 
             }
         });
@@ -285,7 +285,7 @@ public class Remote_Socket extends Socket {
     }
 
 
-    public void ShowListDialog(final String[] items) {
+    public void showListDialog(final String[] items) {
 
         new XPopup.Builder(mContext)
 //        .maxWidth(400)
@@ -303,7 +303,7 @@ public class Remote_Socket extends Socket {
     }
 
 
-    public void ShowListDialog_Check(final String[] items){
+    public void showListDialog_Check(final String[] items){
 
         new XPopup.Builder(mContext)
 //        .maxWidth(400)
@@ -551,7 +551,7 @@ public class Remote_Socket extends Socket {
 
 
 
-    public void SelectBlock(){
+    public void selectBlock(){
 
         if (getFilename_Remote(mContext).equals("--11--")){
             Toast.makeText(mContext,"Select a Remote File First, please !", Toast.LENGTH_SHORT).show();
@@ -1565,7 +1565,7 @@ public class Remote_Socket extends Socket {
     }
 
 
-    public void PullCheckResult(boolean ifShare){
+    public void pullCheckResult(boolean ifShare){
 
         Make_Connect();
 
@@ -1706,7 +1706,7 @@ public class Remote_Socket extends Socket {
             String[] titles = {"Neuron_num", "Arbor_num", "X_start", "X_end", "Y_start", "Y_end", "Z_start", "Z_end",
                                 "Check_result (0 for yes, 1 for no, 2 for uncertain)", "Checker", "Check_Time"};
 
-            ExcelUtil.WriteExcel(excel_filepath, titles, arrayList);
+            ExcelUtil.writeExcel(excel_filepath, titles, arrayList);
 
         }catch (Exception e){
             e.printStackTrace();
@@ -2039,7 +2039,7 @@ public class Remote_Socket extends Socket {
 
         if (ManageSocket == null || !CheckConnection()){
             Log.i("Make_Connect","Connect Again");
-            ConnectServer(ip);
+            connectServer(ip);
         }
 
     }
@@ -2142,7 +2142,7 @@ public class Remote_Socket extends Socket {
 
 
 
-    public void DisConnectFromHost(){
+    public void disConnectFromHost(){
 
         System.out.println("---- Disconnect from Host ----");
         try {
@@ -2220,9 +2220,9 @@ public class Remote_Socket extends Socket {
                     point_list.add(arraylist.get(++i));
 
                     String[] marker = arraylist.get(i).split(":")[1].split(";");
-                    Marker_List.add(Integer.parseInt(marker[0]));
-                    Marker_List.add(Integer.parseInt(marker[1]));
-                    Marker_List.add(Integer.parseInt(marker[2]));
+                    marker_List.add(Integer.parseInt(marker[0]));
+                    marker_List.add(Integer.parseInt(marker[1]));
+                    marker_List.add(Integer.parseInt(marker[2]));
 
                     String[] split = arraylist.get(++i).split(":");
                     int num = Integer.parseInt(split[1]);
@@ -2259,7 +2259,7 @@ public class Remote_Socket extends Socket {
 
 
 
-    public void LoadNeuronTxt(boolean isDrawMode){
+    public void loadNeuronTxt(boolean isDrawMode){
 
         this.isDrawMode = isDrawMode;
         Store_path = mContext.getExternalFilesDir(null).toString();
@@ -2283,7 +2283,7 @@ public class Remote_Socket extends Socket {
 
     }
 
-    public void LoadArborTxt(){
+    public void loadArborTxt(){
 
         Arbor_Check_List = getArbor_List__Check(mContext);
 
@@ -2335,7 +2335,7 @@ public class Remote_Socket extends Socket {
 //        }
 
         Log.i("getMarker",marker_list.size() + " !");
-        Log.i("getMarker",Marker_List.size() + " !");
+        Log.i("getMarker", marker_List.size() + " !");
         return marker_list;
 
     }

@@ -2,6 +2,7 @@ package com.example.chat;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -23,7 +24,10 @@ public class ChatImageUtil {
     public static String getCacheFile(Context context, String id) {
         File parent = new File(context.getCacheDir(), CACHE_DIR);
         if (!parent.exists()) {
-            parent.mkdirs();
+            if (!parent.mkdirs()){
+                Log.e("ChatImageUtil","Fail to create directory !");
+                return null;
+            }
         }
         return new File(parent, id).getAbsolutePath();
     }

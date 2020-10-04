@@ -25,142 +25,142 @@ public class SettingFileManager {
 
     }
 
-    public String getDownSampleMode(Context context){
-        String DownSampleMode = null;
-
-        String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/Settings/DownSampleMode.txt");
-        if (!file.exists()){
-            try {
-                File dir = new File(file.getParent());
-                dir.mkdirs();
-                file.createNewFile();
-
-                String str = "DownSampleYes";
-                FileOutputStream outStream = new FileOutputStream(file);
-                outStream.write(str.getBytes());
-                outStream.close();
-
-            }catch (Exception e){
-                Log.v("get DownSampleMode", "Fail to create file");
-                e.printStackTrace();
-            }
-        }
-
-        try {
-            FileInputStream inputStream = new FileInputStream(file);
-            if (inputStream != null) {
-                InputStreamReader inputreader
-                        = new InputStreamReader(inputStream, "UTF-8");
-                BufferedReader buffreader = new BufferedReader(inputreader);
-                String line = "";
-
-                line = buffreader.readLine();
-                DownSampleMode = line;
-
-                inputStream.close();//关闭输入流
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Log.v("get DownSampleMode", DownSampleMode);
-        return DownSampleMode;
-    }
-
-
-    public void setDownSampleMode(String DownSampleMode, Context context){
-        String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/Settings/DownSampleMode.txt");
-        if (!file.exists()){
-            try {
-                File dir = new File(file.getParent());
-                dir.mkdirs();
-                file.createNewFile();
-            }catch (Exception e){
-                Log.v("get DownSampleMode", "Fail to create file");
-            }
-        }
-
-        try {
-
-            FileOutputStream outStream = new FileOutputStream(file);
-            outStream.write(DownSampleMode.getBytes());
-            outStream.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-
-    public String getBigDataMode(Context context){
-        String BigDataMode = null;
-
-        String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/Settings/BigDataMode.txt");
-        if (!file.exists()){
-            try {
-                File dir = new File(file.getParent());
-                dir.mkdirs();
-                file.createNewFile();
-
-                String str = "Draw Mode";
-                FileOutputStream outStream = new FileOutputStream(file);
-                outStream.write(str.getBytes());
-                outStream.close();
-
-            }catch (Exception e){
-                Log.v("get BigDataMode", "Fail to create file");
-                e.printStackTrace();
-            }
-        }
-
-        try {
-            FileInputStream inputStream = new FileInputStream(file);
-            if (inputStream != null) {
-                InputStreamReader inputreader
-                        = new InputStreamReader(inputStream, "UTF-8");
-                BufferedReader buffreader = new BufferedReader(inputreader);
-                String line = "";
-
-                line = buffreader.readLine();
-                BigDataMode = line;
-
-                inputStream.close();//关闭输入流
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Log.v("get BigDataMode", BigDataMode);
-        return BigDataMode;
-    }
-
-
-    public void setBigDataMode(String BigDataMode, Context context){
-        String filepath = context.getExternalFilesDir(null).toString();
-        File file = new File(filepath + "/config/Settings/BigDataMode.txt");
-        if (!file.exists()){
-            try {
-                File dir = new File(file.getParent());
-                dir.mkdirs();
-                file.createNewFile();
-            }catch (Exception e){
-                Log.v("get BigDataMode", "Fail to create file");
-            }
-        }
-
-        try {
-
-            FileOutputStream outStream = new FileOutputStream(file);
-            outStream.write(BigDataMode.getBytes());
-            outStream.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
+//    public String getDownSampleMode(Context context){
+//        String DownSampleMode = null;
+//
+//        String filepath = context.getExternalFilesDir(null).toString();
+//        File file = new File(filepath + "/config/Settings/DownSampleMode.txt");
+//        if (!file.exists()){
+//            try {
+//                File dir = new File(file.getParent());
+//                dir.mkdirs();
+//                file.createNewFile();
+//
+//                String str = "DownSampleYes";
+//                FileOutputStream outStream = new FileOutputStream(file);
+//                outStream.write(str.getBytes());
+//                outStream.close();
+//
+//            }catch (Exception e){
+//                Log.v("get DownSampleMode", "Fail to create file");
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        try {
+//            FileInputStream inputStream = new FileInputStream(file);
+//            if (inputStream != null) {
+//                InputStreamReader inputreader
+//                        = new InputStreamReader(inputStream, "UTF-8");
+//                BufferedReader buffreader = new BufferedReader(inputreader);
+//                String line = "";
+//
+//                line = buffreader.readLine();
+//                DownSampleMode = line;
+//
+//                inputStream.close();//关闭输入流
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        Log.v("get DownSampleMode", DownSampleMode);
+//        return DownSampleMode;
+//    }
+//
+//
+//    public void setDownSampleMode(String DownSampleMode, Context context){
+//        String filepath = context.getExternalFilesDir(null).toString();
+//        File file = new File(filepath + "/config/Settings/DownSampleMode.txt");
+//        if (!file.exists()){
+//            try {
+//                File dir = new File(file.getParent());
+//                dir.mkdirs();
+//                file.createNewFile();
+//            }catch (Exception e){
+//                Log.v("get DownSampleMode", "Fail to create file");
+//            }
+//        }
+//
+//        try {
+//
+//            FileOutputStream outStream = new FileOutputStream(file);
+//            outStream.write(DownSampleMode.getBytes());
+//            outStream.close();
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
+//
+//
+//    public String getBigDataMode(Context context){
+//        String BigDataMode = null;
+//
+//        String filepath = context.getExternalFilesDir(null).toString();
+//        File file = new File(filepath + "/config/Settings/BigDataMode.txt");
+//        if (!file.exists()){
+//            try {
+//                File dir = new File(file.getParent());
+//                dir.mkdirs();
+//                file.createNewFile();
+//
+//                String str = "Draw Mode";
+//                FileOutputStream outStream = new FileOutputStream(file);
+//                outStream.write(str.getBytes());
+//                outStream.close();
+//
+//            }catch (Exception e){
+//                Log.v("get BigDataMode", "Fail to create file");
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        try {
+//            FileInputStream inputStream = new FileInputStream(file);
+//            if (inputStream != null) {
+//                InputStreamReader inputreader
+//                        = new InputStreamReader(inputStream, "UTF-8");
+//                BufferedReader buffreader = new BufferedReader(inputreader);
+//                String line = "";
+//
+//                line = buffreader.readLine();
+//                BigDataMode = line;
+//
+//                inputStream.close();//关闭输入流
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        Log.v("get BigDataMode", BigDataMode);
+//        return BigDataMode;
+//    }
+//
+//
+//    public void setBigDataMode(String BigDataMode, Context context){
+//        String filepath = context.getExternalFilesDir(null).toString();
+//        File file = new File(filepath + "/config/Settings/BigDataMode.txt");
+//        if (!file.exists()){
+//            try {
+//                File dir = new File(file.getParent());
+//                dir.mkdirs();
+//                file.createNewFile();
+//            }catch (Exception e){
+//                Log.v("get BigDataMode", "Fail to create file");
+//            }
+//        }
+//
+//        try {
+//
+//            FileOutputStream outStream = new FileOutputStream(file);
+//            outStream.write(BigDataMode.getBytes());
+//            outStream.close();
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
 
 
     /**
@@ -175,8 +175,14 @@ public class SettingFileManager {
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
-                dir.mkdirs();
-                file.createNewFile();
+                if (!dir.exists()){
+                    if (!dir.mkdirs()){
+                        Log.e("SettingFileManager","Fail to create directory !");
+                    }
+                }
+                if (!file.createNewFile()){
+                    Log.e("SettingFileManager","Fail to create file !");
+                }
 
                 String str = "--11--";
                 FileOutputStream outStream = new FileOutputStream(file);
@@ -218,8 +224,14 @@ public class SettingFileManager {
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
-                dir.mkdirs();
-                file.createNewFile();
+                if (!dir.exists()){
+                    if (!dir.mkdirs()){
+                        Log.e("SettingFileManager","Fail to create directory !");
+                    }
+                }
+                if (!file.createNewFile()){
+                    Log.e("SettingFileManager","Fail to create file !");
+                }
             }catch (Exception e){
                 Log.v("set local filename", "Fail to create file");
             }

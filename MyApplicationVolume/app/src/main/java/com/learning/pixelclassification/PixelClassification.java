@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Vector;
 
 public class PixelClassification {
-    public static double[] sigmaScales = new double[]{0.3,0.7,1,1.6,3.5,5.0,10.0};
-    public static String[] featureName = new String[]{"GaussianSmoothing",
+    public static final double[] sigmaScales = new double[]{0.3,0.7,1,1.6,3.5,5.0,10.0};
+    public static final String[] featureName = new String[]{"GaussianSmoothing",
             "LaplacianOfGaussian",
             "StructureTensorEigenvalues",
             "HessianOfGaussianEigenvalues",

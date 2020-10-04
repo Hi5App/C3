@@ -6,7 +6,7 @@ import android.renderscript.Element;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
 
-public class blur {
+public class Blur {
     /*
      * 使用RenderScript实现高斯模糊的算法
      */
@@ -28,7 +28,8 @@ public class blur {
         allOut.copyTo(outBitmap);
         bitmap.recycle();
 
-        rs.destroy();
+        if (rs != null)
+            rs.destroy();
 
         return outBitmap;
 

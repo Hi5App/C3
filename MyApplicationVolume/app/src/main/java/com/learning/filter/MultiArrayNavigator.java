@@ -1,6 +1,5 @@
 package com.learning.filter;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
 public class MultiArrayNavigator {
@@ -46,7 +45,7 @@ public class MultiArrayNavigator {
         return true;
     }
 
-    public boolean Next(){
+    public boolean next(){
         int iTmp = 0;
         if(innerDimension == iTmp){
             iTmp++;

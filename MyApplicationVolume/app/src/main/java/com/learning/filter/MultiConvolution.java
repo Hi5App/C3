@@ -1,6 +1,5 @@
 package com.learning.filter;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Vector;
 
@@ -16,9 +15,9 @@ public class MultiConvolution {
         int[] destTmpLine = new int[srcTmpLine.length];
         SeparableConvolution.convolveLine(srcTmpLine,maskTmpLine,destTmpLine,kernels.get(0));
         tNav.setLine(destTmpLine);
-        while (sNav.Next()){
-            maskNav.Next();
-            tNav.Next();
+        while (sNav.next()){
+            maskNav.next();
+            tNav.next();
             srcTmpLine = sNav.getLine();
             maskTmpLine = maskNav.getLine();
             SeparableConvolution.convolveLine(srcTmpLine,maskTmpLine,destTmpLine,kernels.get(0));
@@ -34,8 +33,8 @@ public class MultiConvolution {
             int[] destTmpLineD = new int[tmpLine.length];
             SeparableConvolution.convolveLine(tmpLine,maskTmpLineD,destTmpLineD,kernels.get(d));
             tNavD.setLine(destTmpLineD);
-            while (tNavD.Next()){
-                maskNavD.Next();
+            while (tNavD.next()){
+                maskNavD.next();
                 tmpLine = tNavD.getLine();
                 maskTmpLineD = maskNavD.getLine();
                 SeparableConvolution.convolveLine(tmpLine,maskTmpLineD,destTmpLineD,kernels.get(d));

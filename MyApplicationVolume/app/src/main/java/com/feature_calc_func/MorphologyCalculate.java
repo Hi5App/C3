@@ -562,7 +562,7 @@ public class MorphologyCalculate {
 //    }
 
 
-    public List<double[]> Calculate(Uri uri, boolean isglobal) {
+    public List<double[]> calculate(Uri uri, boolean isglobal) {
         readSWC_file_nt reader = new readSWC_file_nt();
         MorphologyCalculate MC = new MorphologyCalculate();
         //test data
@@ -581,7 +581,7 @@ public class MorphologyCalculate {
     }
 
 
-    public List<double[]> CalculatefromNT(NeuronTree nt, boolean isglobal) {
+    public List<double[]> calculatefromNT(NeuronTree nt, boolean isglobal) {
 
         MorphologyCalculate MC = new MorphologyCalculate();
 

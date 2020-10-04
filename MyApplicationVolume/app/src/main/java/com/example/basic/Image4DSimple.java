@@ -570,7 +570,7 @@ public class Image4DSimple {
     public static Image4DSimple loadImage(String filepath, String filetype){
         Image4DSimple image = new Image4DSimple();
 
-        if (filetype == ".V3DRAW"){
+        if (filetype.equals(".V3DRAW")){
             Rawreader rr = new Rawreader();
             File file = new File(filepath);
             long length = 0;
@@ -610,7 +610,7 @@ public class Image4DSimple {
             }
         }
 
-        else if (filetype == ".TIF"){
+        else if (filetype.equals(".TIF")){
             Context context = getContext();
             Tiffreader tr = new Tiffreader();
             File file = new File(filepath);
@@ -637,7 +637,9 @@ public class Image4DSimple {
                 String dir_str = context.getExternalFilesDir(null).toString() + "/temp_tif";
                 File dir = new File(dir_str);
                 if (!dir.exists()) {
-                    dir.mkdirs();
+                    if (!dir.mkdirs()){
+                        Log.e("Image4DSimple","Fail to create directory !");
+                    }
                 }
 
                 File temp_file = new File(dir_str + "/" + filename);
@@ -663,7 +665,7 @@ public class Image4DSimple {
             }
         }
 
-        else if (filetype == ".V3DPBD"){
+        else if (filetype.equals(".V3DPBD")){
             ImageLoaderBasic il = new ImageLoaderBasic();
             File file = new File(filepath);
             long length = 0;

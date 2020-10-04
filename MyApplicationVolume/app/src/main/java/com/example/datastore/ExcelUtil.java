@@ -16,7 +16,7 @@ public class ExcelUtil {
 
     }
 
-    public static void WriteExcel(String filepath, String[] titles, ArrayList<String[]> arrayList) {
+    public static void writeExcel(String filepath, String[] titles, ArrayList<String[]> arrayList) {
 
         try {
 

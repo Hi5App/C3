@@ -84,7 +84,7 @@ public class BaseActivity extends AppCompatActivity {
 
 
 
-    public static void RecursionDeleteFile(File file) {
+    public static void recursionDeleteFile(File file) {
         if (file.isFile()) {
             file.delete();
             return;
@@ -100,7 +100,7 @@ public class BaseActivity extends AppCompatActivity {
             int count = 1;
             for (File f : childFile) {
                 Log.v("RecursionDeleteFile","count: " + count++);
-                RecursionDeleteFile(f);
+                recursionDeleteFile(f);
             }
             file.delete();
         }

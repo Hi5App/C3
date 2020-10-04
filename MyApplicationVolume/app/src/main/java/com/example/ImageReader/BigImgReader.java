@@ -226,8 +226,9 @@ public class BigImgReader {
         String server_path = "/storage/emulated/0/C3/Server";
         File path = new File(server_path);
         if (!path.exists()) {
-            path.mkdirs();
-            Toast_in_Thread_static("The folder doesn't exist");
+            if (!path.mkdirs()){
+                Toast_in_Thread_static("Fail to create the folder!");
+            }
         }
 
         File[] files = path.listFiles();
@@ -536,6 +537,8 @@ public class BigImgReader {
                         offset_z_i = img_size_z_i - 1 - size_i/2;
                 }
                 break;
+            default:
+                Log.e("BigImgReader","something wrong when SelectBlock_fast");
         }
 
         offset_x = Integer.toString(offset_x_i);

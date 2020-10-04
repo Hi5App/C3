@@ -493,7 +493,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             if (myAnimation != null){
                 if (myAnimation.status){
-                    AnimationRotation();
+                    animationRotation();
                 }
             }
 
@@ -543,7 +543,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                     float x = (int) child.x;
                                     float y = (int) child.y;
                                     float z = (int) child.z;
-                                    float[] position = VolumetoModel(new float[]{x, y, z});
+                                    float[] position = volumetoModel(new float[]{x, y, z});
                                     myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int) child.type);
                                     continue;
                                 }
@@ -596,7 +596,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                     float x = (int) child.x;
                                     float y = (int) child.y;
                                     float z = (int) child.z;
-                                    float[] position = VolumetoModel(new float[]{x, y, z});
+                                    float[] position = volumetoModel(new float[]{x, y, z});
                                     myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int) child.type);
                                     continue;
                                 }
@@ -627,7 +627,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         for (int i = 0; i < markerList.size(); i++) {
 //                      System.out.println("start draw marker---------------------");
                             ImageMarker imageMarker = markerList.get(i);
-                            float[] markerModel = VolumetoModel(new float[]{imageMarker.x, imageMarker.y, imageMarker.z});
+                            float[] markerModel = volumetoModel(new float[]{imageMarker.x, imageMarker.y, imageMarker.z});
                             if (imageMarker.radius == 5) {
                                 myDraw.drawMarker(finalMatrix, modelMatrix, markerModel[0], markerModel[1], markerModel[2], imageMarker.type, 0.01f);
                             } else {
@@ -916,7 +916,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     //设置文件路径
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void SetPath(String message){
+    public void setPath(String message){
 
 
         curSwcList.clear();
@@ -1003,7 +1003,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
-    public void SetSWCPath(String message){
+    public void setSWCPath(String message){
         filepath = message;
         SetFileType();
 
@@ -1237,7 +1237,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     /**
      * set rotationMatrix when the animation run
      */
-    public void AnimationRotation(){
+    public void animationRotation(){
 
         float[] arotationMatrix = new float[16];
         arotationMatrix = myAnimation.Rotation();
@@ -1408,7 +1408,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     break;
                 }
             }
-            result = ModeltoVolume(result);
+            result = modeltoVolume(result);
             System.out.println(result[0]);
             System.out.println(result[1]);
             return result;
@@ -1463,7 +1463,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         boolean already = false;
         for (int i = markerList.size() - 1; i >= 0; i--){
             ImageMarker tobeDeleted = markerList.get(i);
-            float[] markerModel = VolumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
+            float[] markerModel = volumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
             float [] position = new float[4];
             position[0] = markerModel[0];
             position[1] = markerModel[1];
@@ -1747,7 +1747,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public void deleteMarkerDrawed(float x, float y) throws CloneNotSupportedException {
         for (int i = 0; i < markerList.size(); i++){
             ImageMarker tobeDeleted = markerList.get(i);
-            float[] markerModel = VolumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
+            float[] markerModel = volumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
             float [] position = new float[4];
             position[0] = markerModel[0];
             position[1] = markerModel[1];
@@ -1800,7 +1800,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public void changeMarkerType(float x, float y) throws CloneNotSupportedException {
         for (int i = 0; i < markerList.size(); i++){
             ImageMarker tobeDeleted = markerList.get(i);
-            float[] markerModel = VolumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
+            float[] markerModel = volumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
             float [] position = new float[4];
             position[0] = markerModel[0];
             position[1] = markerModel[1];
@@ -1943,7 +1943,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
-    public void ResetImg(Image4DSimple new_img){
+    public void resetImg(Image4DSimple new_img){
 
         img = new_img;
         myPattern = null;
@@ -2248,8 +2248,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            loc2_index[i] = loc2[i] * sz[i];
 //        }
 
-        loc1_index = ModeltoVolume(loc1);
-        loc2_index = ModeltoVolume(loc2);
+        loc1_index = modeltoVolume(loc1);
+        loc2_index = modeltoVolume(loc2);
 
 //        float f = 0.8f;
 
@@ -2608,7 +2608,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 
-    public float[] ModeltoVolume(float[] input){
+    public float[] modeltoVolume(float[] input){
         if (input == null)
             return null;
 
@@ -2620,7 +2620,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return result;
     }
 
-    public float[] VolumetoModel(float[] input){
+    public float[] volumetoModel(float[] input){
         if (input == null)
             return null;
 
@@ -2743,8 +2743,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             float [] mid_point_pixel = new float[3];
             float [] front_point_pixel = new float[3];
-            mid_point_pixel = ModeltoVolume(temp1);
-            front_point_pixel = ModeltoVolume(temp2);
+            mid_point_pixel = modeltoVolume(temp1);
+            front_point_pixel = modeltoVolume(temp2);
 //            for (int j = 0; j < 3; j++){
 //                mid_point_pixel[j] = temp1[j] * sz[j];
 //                front_point_pixel[j] = temp2[j] * sz[j];
@@ -2796,7 +2796,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 break;
             }
 
-            result_pos = VolumetoModel(result_pos);
+            result_pos = volumetoModel(result_pos);
 
             for (int j = 0; j < 3; j++){
                 result.add(result_pos[j]);
@@ -2824,7 +2824,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         float head_y = line[1];
 //        float [] result = new float[line.length];
         ArrayList<Float> result = new ArrayList<Float>();
-        float [] head_result = VolumetoModel(solveMarkerCenter(head_x, head_y));
+        float [] head_result = volumetoModel(solveMarkerCenter(head_x, head_y));
         if (head_result == null){
             return null;
         }
@@ -2858,8 +2858,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             float [] mid_point_pixel = new float[3];
             float [] front_point_pixel = new float[3];
-            mid_point_pixel = ModeltoVolume(temp1);
-            front_point_pixel = ModeltoVolume(temp2);
+            mid_point_pixel = modeltoVolume(temp1);
+            front_point_pixel = modeltoVolume(temp2);
 //            for (int j = 0; j < 3; j++){
 //                mid_point_pixel[j] = temp1[j] * sz[j];
 //                front_point_pixel[j] = temp2[j] * sz[j];
@@ -2911,7 +2911,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 break;
             }
 
-            result_pos = VolumetoModel(result_pos);
+            result_pos = volumetoModel(result_pos);
 
             for (int j = 0; j < 3; j++){
                 result.add(result_pos[j]);
@@ -2964,8 +2964,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             get_NearFar_Marker_2(cur_pos[0], cur_pos[1], loc_near, loc_far);
             if (make_Point_near_2(loc_near, loc_far)){
 
-                float[] loc_near_volume = ModeltoVolume(loc_near);
-                float[] loc_far_volume = ModeltoVolume(loc_far);
+                float[] loc_near_volume = modeltoVolume(loc_near);
+                float[] loc_far_volume = modeltoVolume(loc_far);
                 nearpos_vec.add(new MyMarker(loc_near_volume[0], loc_near_volume[1], loc_near_volume[2]));
                 farpos_vec.add(new MyMarker(loc_far_volume[0], loc_far_volume[1], loc_far_volume[2]));
 
@@ -2997,8 +2997,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 get_NearFar_Marker_2(cur_pos[0], cur_pos[1], loc_near, loc_far);
                 if (make_Point_near_2(loc_near, loc_far)){
 
-                    float[] loc_near_volume = ModeltoVolume(loc_near);
-                    float[] loc_far_volume = ModeltoVolume(loc_far);
+                    float[] loc_near_volume = modeltoVolume(loc_near);
+                    float[] loc_far_volume = modeltoVolume(loc_far);
                     nearpos_vec.add(new MyMarker(loc_near_volume[0], loc_near_volume[1], loc_near_volume[2]));
                     farpos_vec.add(new MyMarker(loc_far_volume[0], loc_far_volume[1], loc_far_volume[2]));
 
@@ -3338,7 +3338,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     u.parent = -1;
                 else
                     u.parent = max_n + i;
-                float[] xyz = ModeltoVolume(new float[]{lineAdded.get(i*3+0),lineAdded.get(i*3+1),lineAdded.get(i*3+2)});
+                float[] xyz = modeltoVolume(new float[]{lineAdded.get(i*3+0),lineAdded.get(i*3+1),lineAdded.get(i*3+2)});
                 u.x = xyz[0];
                 u.y = xyz[1];
                 u.z = xyz[2];
@@ -3435,7 +3435,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     u.parent = -1;
                 else
                     u.parent = max_n + i;
-                float[] xyz = ModeltoVolume(new float[]{lineAdded.get(i*3+0),lineAdded.get(i*3+1),lineAdded.get(i*3+2)});
+                float[] xyz = modeltoVolume(new float[]{lineAdded.get(i*3+0),lineAdded.get(i*3+1),lineAdded.get(i*3+2)});
                 u.x = xyz[0];
                 u.y = xyz[1];
                 u.z = xyz[2];
@@ -3551,7 +3551,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     u.parent = -1;
                 else
                     u.parent = max_n + i;
-                float[] xyz = ModeltoVolume(new float[]{lineAdded.get(i*3+0),lineAdded.get(i*3+1),lineAdded.get(i*3+2)});
+                float[] xyz = modeltoVolume(new float[]{lineAdded.get(i*3+0),lineAdded.get(i*3+1),lineAdded.get(i*3+2)});
                 u.x = xyz[0];
                 u.y = xyz[1];
                 u.z = xyz[2];
@@ -3720,8 +3720,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     V_NeuronSWC_unit parent = swcUnitMap.get(k);
                     float[] pchild = {(float) child.x, (float) child.y, (float) child.z};
                     float[] pparent = {(float) parent.x, (float) parent.y, (float) parent.z};
-                    float[] pchildm = VolumetoModel(pchild);
-                    float[] pparentm = VolumetoModel(pparent);
+                    float[] pchildm = volumetoModel(pchild);
+                    float[] pparentm = volumetoModel(pparent);
                     float[] p2 = {pchildm[0],pchildm[1],pchildm[2],1.0f};
                     float[] p1 = {pparentm[0],pparentm[1],pparentm[2],1.0f};
 
@@ -3834,8 +3834,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     V_NeuronSWC_unit parent = swcUnitMap.get(k);
                     float[] pchild = {(float) child.x, (float) child.y, (float) child.z};
                     float[] pparent = {(float) parent.x, (float) parent.y, (float) parent.z};
-                    float[] pchildm = VolumetoModel(pchild);
-                    float[] pparentm = VolumetoModel(pparent);
+                    float[] pchildm = volumetoModel(pchild);
+                    float[] pparentm = volumetoModel(pparent);
                     float[] p2 = {pchildm[0],pchildm[1],pchildm[2],1.0f};
                     float[] p1 = {pparentm[0],pparentm[1],pparentm[2],1.0f};
 
@@ -4029,8 +4029,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     V_NeuronSWC_unit parent = swcUnitMap.get(k);
                     float[] pchild = {(float) child.x, (float) child.y, (float) child.z};
                     float[] pparent = {(float) parent.x, (float) parent.y, (float) parent.z};
-                    float[] pchildm = VolumetoModel(pchild);
-                    float[] pparentm = VolumetoModel(pparent);
+                    float[] pchildm = volumetoModel(pchild);
+                    float[] pparentm = volumetoModel(pparent);
                     float[] p2 = {pchildm[0],pchildm[1],pchildm[2],1.0f};
                     float[] p1 = {pparentm[0],pparentm[1],pparentm[2],1.0f};
 
@@ -4847,7 +4847,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return true;
     }
 
-    public void SetSwcLoaded(){
+    public void setSwcLoaded(){
         ifLoadSWC = true;
     }
 
@@ -5904,7 +5904,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public void addMarker(float [] position){
-        float [] new_marker = ModeltoVolume(position);
+        float [] new_marker = modeltoVolume(position);
 
         ImageMarker imageMarker_drawed = new ImageMarker(new_marker[0],
                 new_marker[1],

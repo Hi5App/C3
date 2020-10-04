@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.myapplication__volume.BuildConfig;
 import com.example.myapplication__volume.R;
@@ -179,7 +180,9 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
             path = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name) + "/Crash/";
             File file = new File(path);
             if (!file.exists()) {
-                file.mkdirs();
+                if (!file.mkdirs()){
+                    Toast.makeText(context,"Fail to create the folder !",Toast.LENGTH_SHORT).show();
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

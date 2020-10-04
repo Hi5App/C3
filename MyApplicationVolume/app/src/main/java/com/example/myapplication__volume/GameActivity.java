@@ -103,7 +103,7 @@ public class GameActivity extends BaseActivity {
         setSupportActionBar(toolbar);
 
         myrenderer = new MyRenderer(this);
-        myrenderer.SetPath(filepath);
+        myrenderer.setPath(filepath);
         myrenderer.resetContrast(preferenceSetting.getContrast());
 //        myrenderer.setGamePosition(position);
 //        myrenderer.setGameDir(dir);
@@ -182,7 +182,7 @@ public class GameActivity extends BaseActivity {
         V_NeuronSWC_unit startPoint = new V_NeuronSWC_unit();
         startPoint.n = 0;
         startPoint.parent = -1;
-        float [] startPlace = myrenderer.ModeltoVolume(position);
+        float [] startPlace = myrenderer.modeltoVolume(position);
         startPoint.x = startPlace[0];
         startPoint.y = startPlace[1];
         startPoint.z = startPlace[2];
@@ -281,11 +281,11 @@ public class GameActivity extends BaseActivity {
 //                            position[2] = position[2] + X[2] * x - Y[2] * y;
 
                             if (gameCharacter.closeToBoundary()){
-                                remoteSocket.DisConnectFromHost();
-                                remoteSocket.ConnectServer(ip_SEU);
+                                remoteSocket.disConnectFromHost();
+                                remoteSocket.connectServer(ip_SEU);
                                 remoteSocket.PullImageBlock_Dir(gameContext, gameCharacter.getDir());
 //                                Thread.sleep(8000);
-                                float [] volumnePosition = myrenderer.ModeltoVolume(gameCharacter.getPosition());
+                                float [] volumnePosition = myrenderer.modeltoVolume(gameCharacter.getPosition());
                                 float [] dis = new float[]{64 - volumnePosition[0], 64 - volumnePosition[1], 64 - volumnePosition[2]};
                                 Log.v("DISSSSS", Arrays.toString(dis));
                                 gameCharacter.setPosition(new float[]{0.5f, 0.5f, 0.5f});
@@ -316,7 +316,7 @@ public class GameActivity extends BaseActivity {
                                     newPoint.parent = travelPath.nrows() - 1;
                                     newPoint.n = travelPath.nrows();
                                     newPoint.type = 2;
-                                    float[] newPlace = myrenderer.ModeltoVolume(position);
+                                    float[] newPlace = myrenderer.modeltoVolume(position);
                                     newPoint.x = newPlace[0];
                                     newPoint.y = newPlace[1];
                                     newPoint.z = newPlace[2];
@@ -397,7 +397,7 @@ public class GameActivity extends BaseActivity {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void LoadBigFile_Remote(String filepath){
 
-        myrenderer.SetPath(filepath);
+        myrenderer.setPath(filepath);
 //        myGLSurfaceView.requestRender();
 
     }

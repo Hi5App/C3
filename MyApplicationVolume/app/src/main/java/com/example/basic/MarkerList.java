@@ -1,5 +1,7 @@
 package com.example.basic;
 
+import android.util.Log;
+
 import com.example.myapplication__volume.Rendering.MyDraw;
 
 import java.io.File;
@@ -43,6 +45,7 @@ public class MarkerList implements Cloneable {
     }
 
     public MarkerList clone() throws CloneNotSupportedException {
+        super.clone();
         ArrayList<ImageMarker> new_markers = (ArrayList<ImageMarker>)markers.clone();
         MarkerList new_imageMaker = new MarkerList(new_markers);
 
@@ -54,17 +57,13 @@ public class MarkerList implements Cloneable {
     }
 
     public boolean saveAsApo(String filepath){
-//        String dir_str = "/storage/emulated/0/C3";
-//
-//        File dir = new File(dir_str);
-//        if (!dir.exists()) {
-//            dir.mkdirs();
-//        }
 
-//        String filepath = dir + "/" + filename + ".apo";
         try {
             File f = new File(filepath);
-            f.createNewFile();
+            if (!f.createNewFile()){
+                Log.e("MarkerList","Fail to create file !");
+                return false;
+            }
             FileOutputStream fid = new FileOutputStream(f);
             OutputStreamWriter writer = new OutputStreamWriter(fid, "UTF-8");
 

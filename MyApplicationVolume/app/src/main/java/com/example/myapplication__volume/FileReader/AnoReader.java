@@ -131,7 +131,7 @@ public class AnoReader {
 
 
 
-    public void CallApoReader(Uri uri){
+    public void callApoReader(Uri uri){
 
         context.grantUriPermission(context.getPackageName(), uri,
                 Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -149,7 +149,7 @@ public class AnoReader {
         }
     }
 
-    public void CallSwcReader(Uri uri){
+    public void callSwcReader(Uri uri){
 
         context.grantUriPermission(context.getPackageName(), uri,
                 Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -166,16 +166,6 @@ public class AnoReader {
         }catch (Exception e){
             Log.v("ReadAnoException", e.getMessage());
         }
-    }
-
-
-
-    public Uri getApo_result(){
-        return apo_uri;
-    }
-
-    public Uri getSwc_result(){
-        return swc_uri;
     }
 
     public String getApo_Path(){

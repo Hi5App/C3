@@ -789,12 +789,19 @@ public class DecisionTree {
         public int compare(Object o1, Object o2){
             float a = ((float[])o1)[m];
             float b = ((float[])o2)[m];
-            if (a < b)
-                return -1;
-            if (a > b)
+            int result = Float.compare(a,b);
+            if (result > 0)
                 return 1;
+            else if (result < 0)
+                return -1;
             else
                 return 0;
+//            if (a < b)
+//                return -1;
+//            if (a > b)
+//                return 1;
+//            else
+//                return 0;
         }
     }
     /**

@@ -1,6 +1,5 @@
 package com.example.ImageReader;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 
@@ -8,15 +7,7 @@ import com.example.basic.Image4DSimple;
 
 import org.beyka.tiffbitmapfactory.TiffBitmapFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import static com.example.myapplication__volume.MainActivity.getContext;
 
 public class Tiffreader {
 
@@ -155,36 +146,33 @@ public class Tiffreader {
 
     }
 
-    public InputStream Bitmap2InputStream(Bitmap bm, int quality) {
-          ByteArrayOutputStream baos = new ByteArrayOutputStream();
-          bm.compress(Bitmap.CompressFormat.PNG, quality, baos);
-          InputStream is = new ByteArrayInputStream(baos.toByteArray());
-          return is;
-    }
-
-    private void SaveBitmap(Bitmap bmp, String filename){
-        Context context = getContext();
-        String dir_str = context.getExternalFilesDir(null).toString() + "/temp_tif";
-        File dir = new File(dir_str);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-
-        try {
-
-            File temp_file = new File(dir_str + "/" + filename);
-            OutputStream out = new FileOutputStream(temp_file);
-            bmp.compress(Bitmap.CompressFormat.JPEG, 90, out);
-
-            System.out.println("Filename:  " + filename);
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-//    private int Byte2Int(byte n){
-//
+//    public InputStream Bitmap2InputStream(Bitmap bm, int quality) {
+//          ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//          bm.compress(Bitmap.CompressFormat.PNG, quality, baos);
+//          InputStream is = new ByteArrayInputStream(baos.toByteArray());
+//          return is;
 //    }
+//
+//    private void SaveBitmap(Bitmap bmp, String filename){
+//        Context context = getContext();
+//        String dir_str = context.getExternalFilesDir(null).toString() + "/temp_tif";
+//        File dir = new File(dir_str);
+//        if (!dir.exists()) {
+//            dir.mkdirs();
+//        }
+//
+//        try {
+//
+//            File temp_file = new File(dir_str + "/" + filename);
+//            OutputStream out = new FileOutputStream(temp_file);
+//            bmp.compress(Bitmap.CompressFormat.JPEG, 90, out);
+//
+//            System.out.println("Filename:  " + filename);
+//
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
 
 }
