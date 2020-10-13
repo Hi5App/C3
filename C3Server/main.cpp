@@ -4,8 +4,42 @@
 #include <iostream>
 #include <QFileInfo>
 #include <limits>
+#include <QTextStream>
 
 #include "dataprepro.h"
+void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QByteArray localMsg = msg.toLocal8Bit();
+    const char *file = context.file ? context.file : "";
+    const char *function = context.function ? context.function : "";
+    QString time;
+    time = QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss");
+    QFile outputFile("customMessageLog.txt");
+    outputFile.open(QIODevice::WriteOnly | QIODevice::Append);
+    QTextStream textStream(&outputFile);
+    switch (type) {
+    case QtDebugMsg:
+        fprintf(stderr, "%s Debug: %s (%s:%u, %s)\n",time.toStdString().c_str(), localMsg.constData(), file, context.line, function);
+        textStream<<QString("%1 Debug: %2 (%3:%4, %5)\n").arg(time.toStdString().c_str()).arg(localMsg.constData()).arg(file).arg(context.line).arg(function);
+        break;
+    case QtInfoMsg:
+        fprintf(stderr, "%s Info: %s (%s:%u, %s)\n", time.toStdString().c_str(),localMsg.constData(), file, context.line, function);
+        textStream<<QString("%1 Debug: %2 (%3:%4, %5)\n").arg(time.toStdString().c_str()).arg(localMsg.constData()).arg(file).arg(context.line).arg(function);
+        break;
+    case QtWarningMsg:
+        fprintf(stderr, "%s Warning: %s (%s:%u, %s)\n", time.toStdString().c_str(),localMsg.constData(), file, context.line, function);
+        textStream<<QString("%1 Debug: %2 (%3:%4, %5)\n").arg(time.toStdString().c_str()).arg(localMsg.constData()).arg(file).arg(context.line).arg(function);
+        break;
+    case QtCriticalMsg:
+        fprintf(stderr, "%s Critical: %s (%s:%u, %s)\n", time.toStdString().c_str(),localMsg.constData(), file, context.line, function);
+        textStream<<QString("%1 Debug: %2 (%3:%4, %5)\n").arg(time.toStdString().c_str()).arg(localMsg.constData()).arg(file).arg(context.line).arg(function);
+        break;
+    case QtFatalMsg:
+        fprintf(stderr, "%s Fatal: %s (%s:%u, %s)\n", time.toStdString().c_str(),localMsg.constData(), file, context.line, function);
+        textStream<<QString("%1 Debug: %2 (%3:%4, %5)\n").arg(time.toStdString().c_str()).arg(localMsg.constData()).arg(file).arg(context.line).arg(function);
+        break;
+    }
+}
 
 void getApo(QString brainDir,QString apoDir);
 void writeBrainInfo(QString apoDir,QString infoWithTxt);
@@ -27,7 +61,7 @@ void combineDataWithoutCombine(QString swcPath,QString apoPath,QString dstPath);
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-
+       qInstallMessageHandler(myMessageOutput);
 //    QDir dir("C:/Users/Brain/Desktop/C3_check_test");
 //    auto list=dir.entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
 //    for(auto i : list)
@@ -39,15 +73,15 @@ int main(int argc, char *argv[])
 
 
 
-       auto dir=QDir("/Users/huanglei/Desktop/1");
-       auto files=dir.entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
-       for(auto f:files)
-       {
-           auto temp=readSWC_file(f.absoluteFilePath());
-           auto BB=getBB(NeuronTree__2__V_NeuronSWC_list(temp));
-           qDebug()<<f.fileName()<<" :"<<BB[0]<<","<<BB[1]<<","<<BB[2]<<","<<BB[3]<<","<<BB[4]<<","<<BB[5];
-       }
-       exit(0);
+//       auto dir=QDir("/Users/huanglei/Desktop/1");
+//       auto files=dir.entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
+//       for(auto f:files)
+//       {
+//           auto temp=readSWC_file(f.absoluteFilePath());
+//           auto BB=getBB(NeuronTree__2__V_NeuronSWC_list(temp));
+//           qDebug()<<f.fileName()<<" :"<<BB[0]<<","<<BB[1]<<","<<BB[2]<<","<<BB[3]<<","<<BB[4]<<","<<BB[5];
+//       }
+//       exit(0);
 //    Server server;
 //    if(!server.listen(QHostAddress::Any,9000))
 //        exit(0);
@@ -57,7 +91,7 @@ int main(int argc, char *argv[])
     if(argc==1)
     {
             Server server;
-            if(!server.listen(QHostAddress::Any,9000))
+            if(!server.listen(QHostAddress::Any,8000))
                 exit(0);
             else
                 std::cout<<"Server start:Version 1.2(HL)\n";
