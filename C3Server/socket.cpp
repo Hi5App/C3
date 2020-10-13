@@ -279,7 +279,7 @@ void Socket::ArborCheck(QString msg)
         {
             QTextStream tsm(f);
 //            qDebug()<<filename<<" "<<arN<<" "<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<" "<<id<<endl;
-            tsm<<filename<<" "<<arN<<" "<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<" "<<id<<QTime::currentTime().toString()<<endl;
+            tsm<<filename<<" "<<arN<<" "<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<" "<<id<<" "<<QDateTime::currentDateTime().toString("yyyy/MM/dd_hh:mm:ss")<<endl;
             f->close();
             switch (flag) {
             case 0:QFile(QCoreApplication::applicationDirPath()+"/data/"+filename+".swc").rename(QCoreApplication::applicationDirPath()+"/data/markfalse/"+filename+".swc");break;
