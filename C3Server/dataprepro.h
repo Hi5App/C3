@@ -496,4 +496,35 @@ void writeCheckInfos1(QString swcDirPath,QString resDirPath)
 }
 
 
+void getInBB(QString filename,vector<uint> BB)
+{
+    auto nt=readSWC_file(filename);
+    V_NeuronSWC_list testVNL=NeuronTree__2__V_NeuronSWC_list(nt);
+    V_NeuronSWC_list tosave;
+    for(int i=0;i<testVNL.seg.size();i++)
+    {
+        NeuronTree SS;
+        V_NeuronSWC seg_temp =  testVNL.seg.at(i);
+        seg_temp.reverse();
+        for(int j=0;j<seg_temp.row.size();j++)
+        {
+            if(seg_temp.row.at(j).x>=BB[0]&&seg_temp.row.at(j).x<=BB[1]
+                    &&seg_temp.row.at(j).y>=BB[2]&&seg_temp.row.at(j).y<=BB[3]
+                    &&seg_temp.row.at(j).z>=BB[4]&&seg_temp.row.at(j).z<=BB[5])
+            {
+                tosave.seg.push_back(seg_temp);
+                break;
+            }
+        }
+    }
+    nt=V_NeuronSWC_list__2__NeuronTree(tosave);
+    for(auto & node:nt.listNeuron)
+    {
+        node.x-=BB[0];
+        node.y-=BB[2];
+        node.z-=BB[4];
+    }
+    writeSWC_file(QFileInfo(filename).fileName().left(11)+".swc",nt);
+}
+
 #endif // DATAPREPRO_H

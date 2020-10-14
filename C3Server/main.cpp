@@ -73,20 +73,16 @@ int main(int argc, char *argv[])
 
 
 
-//       auto dir=QDir("/Users/huanglei/Desktop/1");
-//       auto files=dir.entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
-//       for(auto f:files)
-//       {
-//           auto temp=readSWC_file(f.absoluteFilePath());
-//           auto BB=getBB(NeuronTree__2__V_NeuronSWC_list(temp));
-//           qDebug()<<f.fileName()<<" :"<<BB[0]<<","<<BB[1]<<","<<BB[2]<<","<<BB[3]<<","<<BB[4]<<","<<BB[5];
-//       }
-//       exit(0);
-//    Server server;
-//    if(!server.listen(QHostAddress::Any,9000))
-//        exit(0);
-//    else
-//        std::cout<<"Server start:Version 1.2(HL)\n";
+       auto dir=QDir("/Users/huanglei/Desktop/1/rawdata");
+       auto files=dir.entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
+       for(auto f:files)
+       {
+           auto temp=readSWC_file(f.absoluteFilePath());
+           qDebug()<<f.fileName()<<":"<<getBB(NeuronTree__2__V_NeuronSWC_list(temp));
+           getInBB(f.absoluteFilePath(),getBB(NeuronTree__2__V_NeuronSWC_list(temp)));
+       }
+       exit(0);
+
 
     if(argc==1)
     {
