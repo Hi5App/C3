@@ -1638,9 +1638,9 @@ public class MainActivity extends BaseActivity {
         String[] item_list = null;
 
         if (DrawMode){
-            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Animate", "Settings", "Crash Info", "About", "Help"};
+            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Animate", "Settings", "Crash Info", "Game", "About", "Help"};
         }else{
-            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Animate", "Settings", "Crash Info", "Account Name", "About", "Help"};
+            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Animate", "Settings", "Crash Info", "Account Name", "Game", "About", "Help"};
         }
 
         new XPopup.Builder(this)
@@ -4844,7 +4844,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20201004a 21:46 UTC+8 build",
+                                "Version: 20201015a 21:46 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4921,11 +4921,18 @@ public class MainActivity extends BaseActivity {
     public void Select_map(){
 //        Context context = this;
         new XPopup.Builder(this)
-                .asCenterList("Select Remote Server", new String[]{"SEU Server", "Local Server"},
+                .asCenterList("Select Remote Server", new String[]{"Aliyun Server", "SEU Server", "Local Server"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text){
+                                    case "Aliyun Server":
+//                                        Toast_in_Thread("The Server is under Maintenance !");
+                                        setSelectSource("Remote Server Aliyun",context);
+                                        BigFileRead_Remote(ip_ALiYun);
+
+                                        break;
+
                                     case "SEU Server":
                                         setSelectSource("Remote Server SEU", context);
                                         BigFileRead_Remote(ip_SEU);

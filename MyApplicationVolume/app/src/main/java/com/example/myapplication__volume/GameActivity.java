@@ -308,25 +308,25 @@ public class GameActivity extends BaseActivity {
 //                                myrenderer.clearMarkerList();
 //                                myrenderer.addMarker(position);
 
-                                if (((position[0] - lastPlace[0]) * (position[0] - lastPlace[0])
-                                        + (position[1] - lastPlace[1]) * (position[1] - lastPlace[1])
-                                        + (position[2] - lastPlace[2]) * (position[2] - lastPlace[2])) > 0.001) {
+//                                if (((position[0] - lastPlace[0]) * (position[0] - lastPlace[0])
+//                                        + (position[1] - lastPlace[1]) * (position[1] - lastPlace[1])
+//                                        + (position[2] - lastPlace[2]) * (position[2] - lastPlace[2])) > 0.001) {
 
-                                    V_NeuronSWC_unit newPoint = new V_NeuronSWC_unit();
-                                    newPoint.parent = travelPath.nrows() - 1;
-                                    newPoint.n = travelPath.nrows();
-                                    newPoint.type = 2;
-                                    float[] newPlace = myrenderer.modeltoVolume(position);
-                                    newPoint.x = newPlace[0];
-                                    newPoint.y = newPlace[1];
-                                    newPoint.z = newPlace[2];
-                                    travelPath.append(newPoint);
+                                V_NeuronSWC_unit newPoint = new V_NeuronSWC_unit();
+                                newPoint.parent = travelPath.nrows() - 1;
+                                newPoint.n = travelPath.nrows();
+                                newPoint.type = 2;
+                                float[] newPlace = myrenderer.modeltoVolume(position);
+                                newPoint.x = newPlace[0];
+                                newPoint.y = newPlace[1];
+                                newPoint.z = newPlace[2];
+                                travelPath.append(newPoint);
 
-                                    myrenderer.clearCurSwcList();
-                                    myrenderer.addSwc(travelPath);
+                                myrenderer.clearCurSwcList();
+                                myrenderer.addSwc(travelPath);
 
-                                    lastPlace = new float[]{position[0], position[1], position[2]};
-                                }
+                                lastPlace = new float[]{position[0], position[1], position[2]};
+//                                }
                             }
                         }
 

@@ -188,7 +188,7 @@ public class GameCharacter {
 
     public void setThirdPersonal(){
 
-        thirdPersonAngle(0.1f, 0.1f, 0.3f, thirdPosition, thirdDir);
+        thirdPersonAngle(0.1f, 0.03f, 0.3f, thirdPosition, thirdDir);
 
         float [] axis = new float[]{thirdDir[1] * head[2] - head[1] * thirdDir[2], thirdDir[2] * head[0] - head[2] * thirdDir[0], thirdDir[0] * head[1] - head[0] * thirdDir[1]};
 

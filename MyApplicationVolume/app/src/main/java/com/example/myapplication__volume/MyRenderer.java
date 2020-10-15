@@ -141,7 +141,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     // vPMatrix is an abbreviation for "Model View Projection Matrix"
     private final float[] scratch = new float[16];
     private final float[] vPMatrix = new float[16];
-    private final float[] projectionMatrix = new float[16];
+//    private final float[] projectionMatrix = new float[16];
+    private final float[] paraProjectionMatrix = new float[16];
+    private final float[] persProjectionMatrix = new float[16];
     private final float[] viewMatrix = new float[16];
     private final float[] rotationMatrix =new float[16];
     private final float[] rotationXMatrix = new float[16];
@@ -357,19 +359,27 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
         float ratio = (float) width / height;
-        if (fileType == FileType.PNG || fileType == FileType.JPG) {
-            if (width > height) {
-                Matrix.orthoM(projectionMatrix, 0, -ratio, ratio, -1, 1, 1, 100);
-            } else {
-                Matrix.orthoM(projectionMatrix, 0, -1, 1, -1 / ratio, 1 / ratio, 1, 100);
-            }
-        }else {
+//        if (fileType == FileType.PNG || fileType == FileType.JPG) {
+//            if (width > height) {
+//                Matrix.orthoM(projectionMatrix, 0, -ratio, ratio, -1, 1, 1, 100);
+//            } else {
+//                Matrix.orthoM(projectionMatrix, 0, -1, 1, -1 / ratio, 1 / ratio, 1, 100);
+//            }
+//        }else {
+//
+//            if (width > height) {
+//                Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1, 1, 2, 100);
+//            } else {
+//                Matrix.frustumM(projectionMatrix, 0, -1, 1, -1 / ratio, 1 / ratio, 2, 100);
+//            }
+//        }
 
-            if (width > height) {
-                Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1, 1, 2f, 100);
-            } else {
-                Matrix.frustumM(projectionMatrix, 0, -1, 1, -1 / ratio, 1 / ratio, 2f, 100);
-            }
+        if (width > height) {
+            Matrix.orthoM(paraProjectionMatrix, 0, -ratio, ratio, -1, 1, 1, 100);
+            Matrix.frustumM(persProjectionMatrix, 0, -ratio, ratio, -1, 1, 2f, 100);
+        } else {
+            Matrix.orthoM(paraProjectionMatrix, 0, -1, 1, -1 / ratio, 1 / ratio, 1, 100);
+            Matrix.frustumM(persProjectionMatrix, 0, -1, 1, -1 / ratio, 1 / ratio, 2f, 100);
         }
 
         if (ifGame) {
@@ -798,7 +808,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private void setMatrix(){
 
         // Calculate the projection and view transformation
-        Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
+        if (fileType == FileType.PNG || fileType == FileType.JPG){
+            Matrix.multiplyMM(vPMatrix, 0, paraProjectionMatrix, 0, viewMatrix, 0);
+        } else {
+            Matrix.multiplyMM(vPMatrix, 0, persProjectionMatrix, 0, viewMatrix, 0);
+        }
 
         Matrix.multiplyMM(mMVP2DMatrix, 0, vPMatrix, 0, zoomMatrix, 0);
         // Set the Rotation matrix
@@ -820,8 +834,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Matrix.multiplyMM(translateMatrix, 0, zoomMatrix, 0, translateMatrix, 0);
         Matrix.setIdentityM(translateAfterMatrix, 0);
 
-        Matrix.translateM(translateAfterMatrix, 0, 0, 0, cur_scale);
-//        Matrix.translateM(translateAfterMatrix, 0, 0, 0, -cur_scale);
+        if (!ifGame) {
+            Matrix.translateM(translateAfterMatrix, 0, 0, 0, cur_scale / 2 * (float)Math.sqrt(3));
+        } else {
+            Matrix.translateM(translateAfterMatrix, 0, 0, 0, cur_scale / 2);
+
+        }
+        //        Matrix.translateM(translateAfterMatrix, 0, 0, 0, -cur_scale);
 
         // Combine the rotation matrix with the projection and camera view
         // Note that the vPMatrix factor *must be first* in order
@@ -832,8 +851,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         if (ifGame){
 //            Matrix.multiplyMM(modelMatrix, 0, translateAfterMoveMatrix, 0, modelMatrix, 0);
 
-            Matrix.multiplyMM(RTMatrix, 0, zoomMatrix, 0, modelMatrix, 0);
-            Matrix.multiplyMM(TMMatrix, 0, translateAfterMoveMatrix, 0, RTMatrix, 0);  //translateAfterMoveMatrix会随面朝方向的改变而改变 从而达到绕图像中心，即控制角色所在位置旋转的效果
+            Matrix.multiplyMM(modelMatrix, 0, translateAfterMoveMatrix, 0, modelMatrix, 0);
+            Matrix.multiplyMM(TMMatrix, 0, zoomMatrix, 0, modelMatrix, 0);
+//            Matrix.multiplyMM(TMMatrix, 0, translateAfterMoveMatrix, 0, TMMatrix, 0);  //translateAfterMoveMatrix会随面朝方向的改变而改变 从而达到绕图像中心，即控制角色所在位置旋转的效果
 
             Matrix.multiplyMM(ZRTMatrix, 0, translateAfterMatrix, 0, TMMatrix, 0);
 
@@ -857,7 +877,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     private void setSmallMapMatrix(){
-        Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
+        Matrix.multiplyMM(vPMatrix, 0, paraProjectionMatrix, 0, viewMatrix, 0);
 
         Matrix.multiplyMM(mMVP2DMatrix, 0, vPMatrix, 0, zoomMatrix, 0);
         // Set the Rotation matrix
@@ -5052,45 +5072,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 0, 3, 4,
         };
 
-        short [] drawlist6square = new short[] {
-            0, 1, 2,      0, 2, 3,    // Front face
-            4, 5, 6,      4, 6, 7,    // Back face
-            8, 9, 10,     8, 10, 11,  // Top face
-            12, 13, 14,   12, 14, 15, // Bottom face
-            16, 17, 18,   16, 18, 19, // Right face
-            20, 21, 22,   20, 22, 23  // Left face
-        };
-
-        short [] drawlist3square4triangle = new short[]{
-                0, 1, 2,      0, 2, 3,    // Front face
-                4, 5, 6,      4, 6, 7,    // Back face
-                8, 9, 10,     8, 10, 11,  // Top face
-                12, 13, 14,
-                1, 12, 13,    2, 13, 14,    3, 12, 14
-        };
-
-        short [] drawlist6square1triangle = new short[]{
-                0, 1, 2,      0, 2, 3,    // Front face
-                4, 5, 6,      4, 6, 7,    // Back face
-                8, 9, 10,     8, 10, 11,  // Top face
-                12, 13, 14,   12, 14, 15, // Bottom face
-                16, 17, 18,   16, 18, 19, // Right face
-                20, 21, 22,   20, 22, 23,  // Left face
-                24, 25, 26
-        };
-
         float ratio = (float) screen_w / screen_h;
 
-        if (screen_w > screen_h) {
-            Matrix.orthoM(projectionMatrix, 0, -ratio, ratio, -1, 1, 1, 100);
-        } else {
-            Matrix.orthoM(projectionMatrix, 0, -1, 1, -1 / ratio, 1 / ratio, 1, 100);
-        }
+//        if (screen_w > screen_h) {
+////            Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1, 1, 1, 100);
+////        } else {
+////            Matrix.frustumM(projectionMatrix, 0, -1, 1, -1 / ratio, 1 / ratio, 1, 100);
+////        }
 
         float [] rotate = new float[16];
 
         float [] aim = new float[]{
-                0f, 0f, -1f
+                0f, 0f, 1f
         };
 
         double angle = Math.acos(direction[2] / Math.sqrt(direction[0] * direction[0] + direction[1] * direction[1] + direction[2] * direction[2]));
@@ -5104,10 +5097,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float a = (float)(angle * 180 / Math.PI);
             Matrix.setRotateM(rotationMatrix, 0, a, axis[0], axis[1], axis[2]);
         }
-
-
-
-//        Matrix.multiplyMM(rotationMatrix, 0, rotate, 0, rotationMatrix, 0);
 
         float [] headE = new float[]{head[0], head[1], head[2], 1};
         float [] headAfter = new float[4];
@@ -5128,77 +5117,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         Matrix.setIdentityM(zoomMatrix,0);
-        Matrix.scaleM(zoomMatrix, 0, 8f, 8f, 8f);
-        cur_scale = 8f;
-
-//        byte[] color = img.getData();
-//        byte[] gray = new byte[color.length];
-//        for (int i=0;i<gray.length;i++){
-////            int red = (gray[i] & 0x00FF0000) >> 16;
-////            int green = (gray[i] & 0x0000FF00) >> 8;
-////            int blue = gray[i] & 0x000000FF;
-//            gray[i] = (byte) byteTranslate.byte1ToInt(color[i]);  //(byte)((int)((float) red * 0.3 + (float) green * 0.59 + (float) blue * 0.11));
-//        }
-//        // 求出最大灰度值和最小灰度值
-//        int Gmax=gray[0],Gmin=gray[0];
-//        for (int i=0;i<gray.length;i++){
-//            if (gray[i]>Gmax)
-//                Gmax = gray[i];
-//            if (gray[i]<Gmin)
-//                Gmin = gray[i];
-//        }
-////        Log.d("GGGmax",String.valueOf(Gmax));
-////        Log.d("GGGmin",String.valueOf(Gmin));
-//        //获取灰度直方图,其中histogram的下标表示灰度，下标对应的值表示有多少个像素对应的灰度这个灰度
-//        int i,j,t,count1 = 0, count2 = 0, sum1 = 0, sum2 = 0;
-//        int bp,fp;
-//        int[] histogram = new int[256];
-//        for (t = Gmin;t<=Gmax;t++){
-//            for (int index=0;index<gray.length;index++)
-//                if (gray[index] == t){
-////                    Log.d("t",String.valueOf(t));
-//                    histogram[t]++;}
-//        }
-//        // 迭代法求最佳分割阈值
-//        int T = 0;
-//        int newT = (Gmax + Gmin) / 2; //初始的阈值
-//        // 求背景（黑色的）和前景（前面白色的神经元信号）的平均灰度值bp和fp
-//        while (T != newT){
-//            for (i = 0; i<T; i++){
-//                count1 += histogram[i]; //背景像素点的个数
-//                sum1 += histogram[i] * i; //背景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
-//            }
-//            bp = (count1 == 0) ? 0: (sum1 / count1); //背景像素点的平均灰度值
-//
-//            for (j = i; j<histogram.length; j++){
-//                count2 += histogram[j]; //前景像素点的个数
-//                sum2 += histogram[j] * j; //前景像素的的灰度总值 i为灰度值，histogram[i]为对应的个数
-//            }
-//            fp = (count2 == 0) ? 0: (sum2 / count2); //前景像素点的平均灰度值
-//            T = newT;
-//            newT = (bp + fp) / 2;
-//
-//        }
-//        threshold = newT; //最佳阈值
-//        myPattern.deliver_threshold(0.1f);
-//        Log.d("threshold",String.valueOf((float)threshold / 255));
-
-        //二值化
-//        for (int index =0; index<gray.length; index++){
-//            if (gray[index] > 0)
-//                gray[index] = (byte) 255;
-//            else
-//                gray[index] = (byte) 0;
-//        }
-//        img.resetData(gray);
-
-//        byte[] gray = img.getData();
-//        for (int i=0;i<gray.length;i++)
-//            Log.d("gray",i + "-" + String.valueOf(gray[i]));
-
-
-//        contrast = Float.parseFloat(getContrast(getContext()));
-//        Log.d("contrast",String.valueOf(contrast));
+        Matrix.scaleM(zoomMatrix, 0, 16f, 16f, 16f);
+        cur_scale = 16f;
 
         resetContrast(100);
 
@@ -5210,14 +5130,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             Matrix.translateM(translateMatrix,0,-0.5f * mz_neuron[0],-0.5f * mz_neuron[1],-0.5f * mz_neuron[2]);
         }
 
-//        float [] tm = new float[16];
         Matrix.setIdentityM(translateAfterMoveMatrix, 0);
         float [] gamePosition = gameCharacter.getPosition();
         float [] dis = new float[]{ gamePosition[0] - 0.5f, gamePosition[1] - 0.5f, gamePosition[2] - 0.5f };
         convertToPerspective(dis);
-//        Matrix.translateM(translateAfterMoveMatrix, 0, 0.5f - gamePosition[0], 0.5f - gamePosition[1], 0.5f - gamePosition[2]);
-
-//        Matrix.multiplyMM(translateAfterMatrix, 0, tm, 0, translateAfterMatrix, 0);
 
         int size = vertexPoints.length;
         if (size == 9){

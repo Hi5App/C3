@@ -419,10 +419,11 @@ public class MyPattern{
                     "     vec4 tf_value;" +
 //                    "     tf_value = texture(uVolData, vpos.xyz);" +
                     "     tf_value = texture(uVolData, vec3(1.0 - vpos.x/dim[0], 1.0 - vpos.y/dim[1], vpos.z/dim[2]));" +
+//                    "     if (vpos" +
 //                    "     tf_value = texture(uVolData, vec3(1.0 - vpos.x, 1.0 - vpos.y, vpos.z));" +
 //                    "     tf_value = texture(uVolData, vec3(vpos.x, 1.0 - vpos.y, vpos.z));" +
 //                    "     value = vec4(tf_value.x);" +
-                    " value = vec4(tf_value.x * contrast, tf_value.y * contrast, tf_value.z * contrast, tf_value.x);" +
+                    "     value = vec4(tf_value.x * contrast, tf_value.y * contrast, tf_value.z * contrast, tf_value.x);" +
 
                     "     if(value.r > accum.r)\n" +
                     "         accum.r = value.r;\n" +
@@ -436,31 +437,31 @@ public class MyPattern{
                     "     if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || accum.a>=1.0)" +
                     "         break;" +
                     "  }" +
-                    "     accum.a = 1.0;" +
+                    "  accum.a = 1.0;" +
 //                    "     float old_contrast = contrast;" +
-                    "     if(threshold != 0.0){\n" +
+                    "  if(threshold != 0.0){\n" +
 //                    "         accum.r /= old_contrast;" +
 //                    "         accum.g /= old_contrast;" +
 //                    "         accum.b /= old_contrast;" +
 
-                    "         if (accum.r > 2.0*threshold){\n" +
-                    "             accum.r *= contrast;" +
-                    "             accum.g *= contrast;" +
-                    "             accum.b *= contrast;" +
+                    "      if (accum.r > 2.0*threshold){\n" +
+                    "          accum.r *= contrast;" +
+                    "          accum.g *= contrast;" +
+                    "          accum.b *= contrast;" +
 //                    "             accum.r = 1.0;" +
 //                    "             accum.g = 1.0;" +
 //                    "             accum.b = 1.0;" +
-                    "         }else{\n" +
-                    "             accum.r /= contrast;" +
-                    "             accum.g /= contrast;" +
-                    "             accum.b /= contrast;" +
+                    "      }else{\n" +
+                    "          accum.r /= contrast;" +
+                    "          accum.g /= contrast;" +
+                    "          accum.b /= contrast;" +
 //                    "             accum.r = 0.0;" +
 //                    "             accum.g = 0.0;" +
 //                    "             accum.b = 0.0;" +
-                    "         }\n" +
+                    "      }\n" +
 
 
-                    "    }\n" +
+                    "  }\n" +
 //                    "  float threshold = (float)(myrenderer.threshold) / 255;" +
 //                    "  float r,g,b;" +
 //
