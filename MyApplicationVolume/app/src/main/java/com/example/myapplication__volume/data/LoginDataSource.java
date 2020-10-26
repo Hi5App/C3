@@ -3,7 +3,7 @@ package com.example.myapplication__volume.data;
 import android.util.Log;
 
 import com.example.myapplication__volume.data.model.LoggedInUser;
-import com.example.Server_Communication.HttpUtil;
+import com.example.server_communication.HttpUtil;
 
 import java.io.IOException;
 
@@ -29,7 +29,7 @@ public class LoginDataSource {
         try {
             loginWithOkHttp(ipLogin, username, password);
             while (!ifResponsed){
-                Log.d("RegisterLoop", "AAAAAAAAAAAAAAAAA");
+                Log.d("LoginLoop", "AAAAAAAAAAAAAAAAA");
             }
             ifResponsed = false;
             if (responseData.equals("true")){

@@ -35,6 +35,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+
+        <activity
+            android:name="com.example.chat.ChatActivity"
+            android:label="@string/app_name">
+        </activity>
         <activity android:name="com.example.chat.MessageActivity"
 
             ></activity>

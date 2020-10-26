@@ -19,7 +19,7 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.Toolbar;
 
-import com.example.Server_Communication.Remote_Socket;
+import com.example.server_communication.Remote_Socket;
 import com.example.game.GameCharacter;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;

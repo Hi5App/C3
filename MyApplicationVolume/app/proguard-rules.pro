@@ -64,3 +64,20 @@
 # Animal Sniffer compileOnly dependency to ensure APIs are compatible with older versions of Java.
 -dontwarn org.codehaus.mojo.animal_sniffer.*
 #-------------- okio end ---------------
+
+
+#-------------- jxl end ---------------
+
+#指出jar包路徑
+-libraryjars ./libs/jxl-2.6.jar
+
+-dontwarn jxl.**
+-dontwarn jxl.write.**
+
+-keep class jxl.**{ *;}
+-keep class jxl.write.**{ *;}
+-keep class jxl.biff.**{ *;}
+-keep public class * extends jxl.**
+-keep public class * extends jxl.write.**
+#-------------- jxl end ---------------
+

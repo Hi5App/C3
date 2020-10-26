@@ -38,7 +38,7 @@
     <string name="action_sign_in">Sign in</string>
     <string name="action_register">Register</string>
     <string name="action_register_now"><u>Register Now</u></string>
-    <string name="welcome">"Welcome !"</string>
+    <string name="welcome">"Welcome ,"</string>
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_email">Not a valid email</string>
     <string name="invalid_password">Password must be >5 characters</string>
@@ -47,6 +47,8 @@
     <string name="reconnecting">Network reconnecting ...</string>
     <string name="account_offline">Connection lost</string>
 
+    <string name="title_add_friends">Add Friends</string>
+    \
     <string name="title_peer_msg">Peer to peer message</string>
     <string name="title_channel_message">Channel message</string>
     <string name="title_peer_voice">Peer to peer chat</string>
@@ -77,6 +79,14 @@
     <string name="call_cached">Call cached by server</string>
     <string name="email_exist">Email Already Exists</string>
     <string name="account_exit">Username Already Exists</string>
+
+
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_contacts">Contacts</string>
+    <string name="title_chats">Chats</string>
+    <string name="title_me">Me</string>
 
 
 </resources>

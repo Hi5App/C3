@@ -2,7 +2,7 @@ package com.example.basic;
 
 import android.util.Log;
 
-import com.example.myapplication__volume.Rendering.MyDraw;
+import com.example.myapplication__volume.rendering.MyDraw;
 
 import java.io.File;
 import java.io.FileOutputStream;

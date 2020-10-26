@@ -7,9 +7,12 @@ import com.example.myapplication__volume.BuildConfig;
 import com.example.myapplication__volume.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import io.agora.rtm.ErrorInfo;
+import io.agora.rtm.ResultCallback;
 import io.agora.rtm.RtmClient;
 import io.agora.rtm.RtmClientListener;
 import io.agora.rtm.RtmFileMessage;
@@ -141,5 +144,26 @@ public class ChatManager {
     public void removeAllOfflineMessages(String peerId) {
         mMessagePool.removeAllOfflineMessages(peerId);
     }
+
+    /**
+     * add friends
+     * @param peerId
+     */
+    public void addFriends(final String peerId){
+        mRtmClient.subscribePeersOnlineStatus(Collections.singleton(peerId), new ResultCallback<Void>(){
+
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.i("addFriends","add friends successfully !");
+            }
+
+            @Override
+            public void onFailure(ErrorInfo errorInfo) {
+
+            }
+        });
+
+    }
+
 }
 

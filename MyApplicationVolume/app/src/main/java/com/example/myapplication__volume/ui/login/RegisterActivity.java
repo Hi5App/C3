@@ -2,18 +2,9 @@ package com.example.myapplication__volume.ui.login;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
@@ -28,10 +19,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.myapplication__volume.MainActivity;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+
 import com.example.myapplication__volume.R;
-import com.example.myapplication__volume.ui.login.LoginViewModel;
-import com.example.myapplication__volume.ui.login.LoginViewModelFactory;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -45,6 +39,7 @@ public class RegisterActivity extends AppCompatActivity {
     Button registerButton;
     ProgressBar loadingProgressBar;
 
+    @SuppressLint("HandlerLeak")
     private Handler handler=new Handler(){
         @SuppressLint("HandlerLeak")
         @Override

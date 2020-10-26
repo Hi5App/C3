@@ -40,8 +40,8 @@ public class LoginActivity extends AppCompatActivity {
 
     final private int SIGN_IN_ON_CLICK = 1;
 
+    @SuppressLint("HandlerLeak")
     private Handler handler=new Handler(){
-        @SuppressLint("HandlerLeak")
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what){
@@ -171,7 +171,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void updateUiWithUser(LoggedInUserView model) {
-        String welcome = getString(R.string.welcome) + model.getDisplayName();
+        String welcome = getString(R.string.welcome) + model.getDisplayName() + " !";
         // TODO : initiate successful logged in experience
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
     }

@@ -70,7 +70,8 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.example.ImageReader.BigImgReader;
-import com.example.Server_Communication.Remote_Socket;
+import com.example.chat.ChatActivity;
+import com.example.server_communication.Remote_Socket;
 import com.example.basic.CrashHandler;
 import com.example.basic.DragFloatActionButton;
 import com.example.basic.FileManager;
@@ -85,8 +86,8 @@ import com.example.chat.MessageActivity;
 import com.example.chat.MessageUtil;
 import com.example.chat.model.MessageBean;
 import com.example.datastore.SettingFileManager;
-import com.example.myapplication__volume.FileReader.AnoReader;
-import com.example.myapplication__volume.FileReader.ApoReader;
+import com.example.myapplication__volume.fileReader.AnoReader;
+import com.example.myapplication__volume.fileReader.ApoReader;
 import com.example.myapplication__volume.ui.login.LoginActivity;
 import com.feature_calc_func.MorphologyCalculate;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -1638,9 +1639,9 @@ public class MainActivity extends BaseActivity {
         String[] item_list = null;
 
         if (DrawMode){
-            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Animate", "Settings", "Crash Info", "Game", "About", "Help"};
+            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Chat", "Animate", "Settings", "Crash Info", "Game", "About", "Help"};
         }else{
-            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Animate", "Settings", "Crash Info", "Account Name", "Game", "About", "Help"};
+            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Chat", "Animate", "Settings", "Crash Info", "Account Name", "Game", "About", "Help"};
         }
 
         new XPopup.Builder(this)
@@ -1687,7 +1688,9 @@ public class MainActivity extends BaseActivity {
 //                                        myrenderer.corner_detection();
 //                                        myGLSurfaceView.requestRender();
 //                                        break;
-
+                                    case "Chat":
+                                        openChatActivity();
+                                        break;
                                     case "Game":
                                         System.out.println("Game Start!!!!!!!");
 
@@ -1767,6 +1770,58 @@ public class MainActivity extends BaseActivity {
         return true;
     }
 
+
+    /**
+     * add friends
+     */
+    public void addFriends(){
+        MDDialog mdDialog = new MDDialog.Builder(this)
+                .setContentView(R.layout.peer_chat)
+                .setNegativeButton("Cancel", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton(R.string.btn_chat, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        Log.d("PeerToPeer", "Start To Chat");
+                        EditText targetEdit = (EditText)contentView.findViewById(R.id.target_name_edit);
+                        String mTargetName = targetEdit.getText().toString();
+                        if (mTargetName.equals("")) {
+                            Toast_in_Thread(getString(R.string.account_empty));
+                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
+                            Toast_in_Thread(getString(R.string.account_too_long));
+                        } else if (mTargetName.startsWith(" ")) {
+                            Toast_in_Thread(getString(R.string.account_starts_with_space));
+                        } else if (mTargetName.equals("null")) {
+                            Toast_in_Thread(getString(R.string.account_literal_null));
+                        } else if (mTargetName.equals(username)) {
+                            Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
+                        } else {
+                            mChatManager.addFriends(mTargetName);
+                        }
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                    }
+                })
+                .setTitle(R.string.title_add_friends)
+                .create();
+
+        mdDialog.show();
+    }
+
+
+    
     public void chooseChatMode(){
         new XPopup.Builder(this)
                 .asCenterList("Choose Chat Mode", new String[]{"Peer Chat", "Selection Tab Channel"},
@@ -1822,7 +1877,7 @@ public class MainActivity extends BaseActivity {
                         } else if (mTargetName.equals(username)) {
                             Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
                         } else {
-                            openMessagActivity(true, mTargetName);
+                            openMessageActivity(true, mTargetName);
 //                            mChatButton.setEn
 //                            jumpToMessageActivity();
                         }
@@ -1874,7 +1929,7 @@ public class MainActivity extends BaseActivity {
                         } else if (mTargetName.equals("null")) {
                             Toast_in_Thread(getString(R.string.channel_name_literal_null));
                         }  else {
-                            openMessagActivity(false, mTargetName);
+                            openMessageActivity(false, mTargetName);
 //                            mChatButton.setEn
 //                            jumpToMessageActivity();
                         }
@@ -1893,12 +1948,17 @@ public class MainActivity extends BaseActivity {
         mdDialog.show();
     }
 
-    private void openMessagActivity(boolean isPeerToPeerMode, String targetName){
+    private void openMessageActivity(boolean isPeerToPeerMode, String targetName){
         Intent intent = new Intent(MainActivity.this, MessageActivity.class);
         intent.putExtra(MessageUtil.INTENT_EXTRA_IS_PEER_MODE, isPeerToPeerMode);
         intent.putExtra(MessageUtil.INTENT_EXTRA_TARGET_NAME, targetName);
         intent.putExtra(MessageUtil.INTENT_EXTRA_USER_ID, username);
 //        intent.putExtra(MessageUtil.INTENT_EXTRA_MESSAGE_LIST, messageMap.get(targetName));
+        startActivity(intent);
+    }
+
+    private void openChatActivity(){
+        Intent intent = new Intent(MainActivity.this, ChatActivity.class);
         startActivity(intent);
     }
 
@@ -4844,7 +4904,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20201015a 21:46 UTC+8 build",
+                                "Version: 20201026a 16:46 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5418,7 +5478,8 @@ public class MainActivity extends BaseActivity {
             Looper.loop();
         }
         for (int i = 0; i < outswc.listNeuron.size(); i++) {
-            outswc.listNeuron.get(i).type = 6;
+//            outswc.listNeuron.get(i).type = 4;
+            outswc.listNeuron.get(i).type = 5;
         }
 
         if (Looper.myLooper() == null) {
@@ -8274,7 +8335,7 @@ public class MainActivity extends BaseActivity {
                             @Override
                             public void onClick(View view) {
                                 Log.d("MsgText", "OnClick");
-                                openMessagActivity(true, peerId);
+                                openMessageActivity(true, peerId);
                             }
                         });
 
@@ -8309,7 +8370,7 @@ public class MainActivity extends BaseActivity {
                         @Override
                         public void onClick(View view) {
                             Log.d("MsgText", "OnClick");
-                            openMessagActivity(true, peerId);
+                            openMessageActivity(true, peerId);
                         }
                     });
                     new XPopup.Builder(mainContext)
@@ -8359,6 +8420,11 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onPeersOnlineStatusChanged(Map<String, Integer> map) {
+            String[] peerName = (String[]) map.keySet().toArray();
+            int status = map.get(peerName[0]);
+            switch (status){
+//                case
+            }
 
         }
     }
