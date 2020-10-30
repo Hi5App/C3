@@ -32,6 +32,7 @@ import com.example.basic.MyAnimation;
 import com.example.basic.NeuronTree;
 import com.example.basic.XYZ;
 import com.example.game.GameCharacter;
+
 import com.example.myapplication__volume.fileReader.AnoReader;
 import com.example.myapplication__volume.fileReader.ApoReader;
 import com.example.myapplication__volume.rendering.MyAxis;
@@ -40,6 +41,9 @@ import com.example.myapplication__volume.rendering.MyMarker;
 import com.example.myapplication__volume.rendering.MyNavLoc;
 import com.example.myapplication__volume.rendering.MyPattern;
 import com.example.myapplication__volume.rendering.MyPattern2D;
+
+import com.example.myapplication__volume.Rendering.MyPatternGame;
+
 import com.tracingfunc.cornerDetection.HarrisCornerDetector;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_list;
@@ -107,6 +111,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private MyPattern myPattern;
     private MyPattern2D myPattern2D;
+    private MyPatternGame myPatternGame;
     private MyAxis myAxis;
     private MyDraw myDraw;
     public  MyAnimation myAnimation;
@@ -151,6 +156,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private final float[] rotationZMatrix = new float[16];
     private final float[] translateMatrix = new float[16];//平移矩阵
     private final float[] translateAfterMoveMatrix = new float[16];
+    private final float[] translateAfterMoveViewMatrix = new float[16];
+    private final float[] translateThirdViewMatrix = new float[16];
     private final float[] translateAfterMatrix = new float[16];
     private final float[] modelMatrix = new float[16];
     private final float[] TMMatrix = new float[16];
@@ -166,6 +173,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private final float[] zoomMatrix = new float[16];//缩放矩阵
     private final float[] zoomAfterMatrix = new float[16];
     private final float[] finalMatrix = new float[16];//缩放矩阵
+    private final float[] finalGameModelMatrix = new float[16];
+    private final float[] zoomGameModelMatrix = new float[16];
     private float[] linePoints = {
 
     };
@@ -265,6 +274,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
          */
         MyPattern.initProgram();
         MyPattern2D.initProgram();
+        MyPatternGame.initProgram();
         MyAxis.initProgram();
         MyDraw.initProgram();
         MyNavLoc.initProgram();
@@ -312,8 +322,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
 
                 if (ifGame) {
-                    myPattern = new MyPattern(width, height, img, mz, MyPattern.Mode.GAME);
+//                    myPattern = new MyPattern(width, height, img, mz, MyPattern.Mode.GAME);
+                    myPatternGame = new MyPatternGame(width, height, img, mz, sz);
                 } else {
+//                    myPatternGame = new MyPatternGame(width, height, img, mz, sz);
                     myPattern = new MyPattern(width, height, img, mz, MyPattern.Mode.NORMAL);
                 }
             }
@@ -449,7 +461,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             /*
             init the {MyPattern, MyPattern2D, MyAxis, MyDraw, MyAnimation}
             */
-            if (myPattern == null || myPattern2D == null || myPattern.getNeedRelease() || myPattern2D.getNeedRelease()){
+            if (myPattern == null || myPattern2D == null || myPatternGame == null || myPattern.getNeedRelease() || myPattern2D.getNeedRelease()){
                 if (ifFileSupport){
                     if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD) {
                         if (myPattern != null){
@@ -459,9 +471,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
                         if (ifGame) {
                             Log.v("MyRenderer","ifGame  ondrawframe");
-                            myPattern = new MyPattern(screen_w, screen_h, img, mz, MyPattern.Mode.GAME);
+//                            myPattern = new MyPattern(screen_w, screen_h, img, mz, MyPattern.Mode.GAME);
+                            myPatternGame = new MyPatternGame(screen_w, screen_h, img, mz, sz);
                         } else {
                             myPattern = new MyPattern(screen_w, screen_h, img, mz, MyPattern.Mode.NORMAL);
+//                            myPatternGame = new MyPatternGame(screen_w, screen_h, img, mz, sz);
                         }
                     }
                     if (fileType == FileType.PNG || fileType == FileType.JPG){
@@ -514,8 +528,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             if (!ifNavigationLococation){
                 if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD) {
                     //draw the volume img
-                    if (myPattern != null)
-                        myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, ifDownSampling, contrast);
+                    if (myPattern != null || myPatternGame != null)
+                        if (ifGame) {
+                            myPatternGame.drawMap(finalMatrix);
+                        } else {
+                            myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, ifDownSampling, contrast);
+//                            myPatternGame.drawMap(finalMatrix);
+                        }
                 }
                 if (fileType == FileType.JPG || fileType == FileType.PNG){
                     //draw the 2D img
@@ -657,6 +676,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
 
                 if (ifGame){
+                    setGameModelMatrix();
                     Log.v("onDrawFrame", "DrawGameModel");
                     float [] position = gameCharacter.getPosition();
                     float [] dir = gameCharacter.getPosition().clone();
@@ -666,7 +686,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     float [] positionModel = position;
                     Log.v("onDrawFrame", Arrays.toString(positionModel));
 //                    myDraw.drawMarker(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
-                    myDraw.drawGameModel(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, dir, head);
+                    myDraw.drawGameModel(finalGameModelMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, dir, head);
                     myDraw.drawMarker(finalSmallMapMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
                 }
 
@@ -835,10 +855,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Matrix.setIdentityM(translateAfterMatrix, 0);
 
         if (!ifGame) {
-            Matrix.translateM(translateAfterMatrix, 0, 0, 0, cur_scale / 2 * (float)Math.sqrt(3));
-        } else {
-            Matrix.translateM(translateAfterMatrix, 0, 0, 0, cur_scale / 2);
-
+            Matrix.translateM(translateAfterMatrix, 0, 0, 0, cur_scale / 2 * (float) Math.sqrt(3));
         }
         //        Matrix.translateM(translateAfterMatrix, 0, 0, 0, -cur_scale);
 
@@ -848,10 +865,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Matrix.multiplyMM(rotationMatrix, 0, rotationYMatrix, 0, rotationXMatrix, 0);
 //        Matrix.multiplyMM(rotationMatrix, 0, zoomMatrix, 0, rotationMatrix, 0);
         Matrix.multiplyMM(modelMatrix, 0, rotationMatrix, 0, translateMatrix, 0);
+
+        Log.d(TAG, "modelMatrix: " + Arrays.toString(modelMatrix));
+
         if (ifGame){
 //            Matrix.multiplyMM(modelMatrix, 0, translateAfterMoveMatrix, 0, modelMatrix, 0);
 
+            Matrix.setIdentityM(translateThirdViewMatrix, 0);
+            Matrix.translateM(translateThirdViewMatrix, 0, 0, 0, 0.2f);
+
+            Matrix.multiplyMM(modelMatrix, 0, translateThirdViewMatrix, 0, modelMatrix, 0);
+
             Matrix.multiplyMM(modelMatrix, 0, translateAfterMoveMatrix, 0, modelMatrix, 0);
+
             Matrix.multiplyMM(TMMatrix, 0, zoomMatrix, 0, modelMatrix, 0);
 //            Matrix.multiplyMM(TMMatrix, 0, translateAfterMoveMatrix, 0, TMMatrix, 0);  //translateAfterMoveMatrix会随面朝方向的改变而改变 从而达到绕图像中心，即控制角色所在位置旋转的效果
 
@@ -874,6 +900,44 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Matrix.setIdentityM(translateAfterMatrix, 0);
 //        Matrix.translateM(translateAfterMatrix, 0, 0.0f, 0.0f, -0.1f);
 //        Matrix.multiplyMM(translateAfterMatrix, 0, zoomAfterMatrix, 0, translateAfterMatrix, 0);
+    }
+
+    private void setGameModelMatrix(){
+
+        Matrix.multiplyMM(vPMatrix, 0, persProjectionMatrix, 0, viewMatrix, 0);
+
+        Matrix.setIdentityM(translateAfterMatrix, 0);
+//        Matrix.translateM(translateAfterMatrix, 0, 0, 0, 50);
+
+        Matrix.setIdentityM(zoomGameModelMatrix, 0);
+
+        Matrix.scaleM(zoomGameModelMatrix, 0, 10f, 10f, 10f);
+
+        //        Matrix.translateM(translateAfterMatrix, 0, 0, 0, -cur_scale);
+
+        // Combine the rotation matrix with the projection and camera view
+        // Note that the vPMatrix factor *must be first* in order
+        // for the matrix multiplication product to be correct.
+//        Matrix.multiplyMM(rotationMatrix, 0, rotationYMatrix, 0, rotationXMatrix, 0);
+//        Matrix.multiplyMM(rotationMatrix, 0, zoomMatrix, 0, rotationMatrix, 0);
+//        Matrix.multiplyMM(modelMatrix, 0, rotationMatrix, 0, translateMatrix, 0);
+
+//        Log.d(TAG, "modelMatrix: " + Arrays.toString(modelMatrix));
+        Matrix.multiplyMM(modelMatrix, 0, rotationMatrix, 0, translateMatrix, 0);
+
+        Matrix.setIdentityM(translateThirdViewMatrix, 0);
+        Matrix.translateM(translateThirdViewMatrix, 0, 0, 0, 0.2f);
+
+        Matrix.multiplyMM(modelMatrix, 0, translateThirdViewMatrix, 0, modelMatrix, 0);
+
+        Matrix.multiplyMM(modelMatrix, 0, translateAfterMoveMatrix, 0, modelMatrix, 0);
+
+        Matrix.multiplyMM(TMMatrix, 0, zoomGameModelMatrix, 0, modelMatrix, 0);
+
+        Matrix.multiplyMM(ZRTMatrix, 0, translateAfterMatrix, 0, TMMatrix, 0);
+
+        Matrix.multiplyMM(finalGameModelMatrix, 0, vPMatrix, 0, ZRTMatrix, 0);
+
     }
 
     private void setSmallMapMatrix(){
@@ -1159,6 +1223,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             mz[1] = (float) sz[1]/max_dim;
             mz[2] = Math.max(mz[0], mz[1]);
 
+        }
+
+        if (myPattern2D != null){
+            myPattern2D.setNeedRelease();
         }
 
     }
@@ -5049,7 +5117,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public boolean driveMode(float [] vertexPoints, float [] direction, float [] head){
 //        int size = vertexPoints.length;
 
-        if (myPattern == null) {
+        Log.d(TAG, "DriveMode");
+
+        if (myPatternGame == null) {
             return false;
         }
 
@@ -5109,16 +5179,16 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             double angle2 = Math.acos(headAfter[1] / Math.sqrt(headAfter[0] * headAfter[0] + headAfter[1] * headAfter[1] + headAfter[2] * headAfter[2]));
             float a2 = (float) (angle2 * 180 / Math.PI);
 
-
 //            Matrix.setRotateM(rotation2Matrix, 0, a2, 0, 0, -headAfter[0]);
+
             Matrix.setRotateM(rotation2Matrix, 0, a2, -headAfter[2], 0, headAfter[0]);
 
             Matrix.multiplyMM(rotationMatrix, 0, rotation2Matrix, 0, rotationMatrix, 0);
         }
 
         Matrix.setIdentityM(zoomMatrix,0);
-        Matrix.scaleM(zoomMatrix, 0, 16f, 16f, 16f);
-        cur_scale = 16f;
+        Matrix.scaleM(zoomMatrix, 0, 100f, 100f, 100f);
+        cur_scale = 100f;
 
         resetContrast(100);
 
@@ -5135,29 +5205,36 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         float [] dis = new float[]{ gamePosition[0] - 0.5f, gamePosition[1] - 0.5f, gamePosition[2] - 0.5f };
         convertToPerspective(dis);
 
-        int size = vertexPoints.length;
-        if (size == 9){
-            System.out.println("Triangle");
-            myPattern.setDrawListBuffer(drawlistTriangle);
-            myPattern.setDrawlistLength(drawlistTriangle.length);
-        } else if (size == 12){
-            System.out.println("Square");
-            myPattern.setDrawListBuffer(drawlistSquare);
-            myPattern.setDrawlistLength(drawlistSquare.length);
-        } else if (size == 15){
-            System.out.println("Pentagon");
-            myPattern.setDrawListBuffer(drawlistPentagon);
-            myPattern.setDrawlistLength(drawlistPentagon.length);
-        } else if (size == 18){
-            System.out.println("Hexagon");
-            myPattern.setDrawListBuffer(drawlistHexagon);
-            myPattern.setDrawlistLength(drawlistHexagon.length);
-        } else {
-            System.out.println("wrong vertex to draw");
-            return false;
-        }
+        float [] thirdPosition = gameCharacter.getThirdPosition();
+        float [] thirdDis = new float[]{thirdPosition[0] - 0.5f, thirdPosition[1] - 0.5f, thirdPosition[2] - 0.5f};
 
-        myPattern.setVertex(vertexPoints);
+
+        Log.d(TAG, "translateAfterMoveMatrix: " + Arrays.toString(translateAfterMoveMatrix));
+
+
+//        int size = vertexPoints.length;
+//        if (size == 9){
+//            System.out.println("Triangle");
+//            myPattern.setDrawListBuffer(drawlistTriangle);
+//            myPattern.setDrawlistLength(drawlistTriangle.length);
+//        } else if (size == 12){
+//            System.out.println("Square");
+//            myPattern.setDrawListBuffer(drawlistSquare);
+//            myPattern.setDrawlistLength(drawlistSquare.length);
+//        } else if (size == 15){
+//            System.out.println("Pentagon");
+//            myPattern.setDrawListBuffer(drawlistPentagon);
+//            myPattern.setDrawlistLength(drawlistPentagon.length);
+//        } else if (size == 18){
+//            System.out.println("Hexagon");
+//            myPattern.setDrawListBuffer(drawlistHexagon);
+//            myPattern.setDrawlistLength(drawlistHexagon.length);
+//        } else {
+//            System.out.println("wrong vertex to draw");
+//            return false;
+//        }
+//
+//        myPattern.setVertex(vertexPoints);
 
         return true;
 

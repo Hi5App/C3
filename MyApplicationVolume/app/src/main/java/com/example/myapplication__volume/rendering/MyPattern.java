@@ -320,7 +320,7 @@ public class MyPattern{
 
 
     private static final String vertexShaderCode_1 =
-            "#version 300 es\n" +
+                    "#version 300 es\n" +
                     "layout (location = 0) in vec4 a_position;" +
                     "layout (location = 1) in vec4 a_color;" +
                     "uniform mat4 uMVPMatrix;" +
@@ -336,7 +336,7 @@ public class MyPattern{
 
 
     private static final String fragmentShaderCode_1 =
-            "#version 300 es\n" +
+                    "#version 300 es\n" +
                     "precision mediump float;" +
 
                     "in vec4 backColor;" +
@@ -350,13 +350,13 @@ public class MyPattern{
 
 
     private static final String vertexShaderCode_2 =
-            // This matrix member variable provides a hook to manipulate
-            // the coordinates of the objects that use this vertex shader
-            "#version 300 es\n" +
+                    // This matrix member variable provides a hook to manipulate
+                    // the coordinates of the objects that use this vertex shader
+                    "#version 300 es\n" +
                     "precision highp float;" +
                     "uniform mat4 uMVPMatrix;" +
-                    "layout (location = 0) in vec4 a_color;" +
-                    "layout (location = 1) in vec4 a_position;" +
+                    "layout (location = 0) in vec4 a_position;" +
+                    "layout (location = 1) in vec4 a_color;" +
 
                     "out vec4 pos;" +
                     "out vec4 frontColor;"+
@@ -370,7 +370,7 @@ public class MyPattern{
 
 
     private static final String fragmentShaderCode_2 =
-            "#version 300 es\n" +
+                    "#version 300 es\n" +
 //            "#extension GL_OES_texture_3D : enable\n" +
                     "precision highp float;" +
 

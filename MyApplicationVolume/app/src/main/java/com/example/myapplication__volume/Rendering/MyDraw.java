@@ -1,6 +1,7 @@
 package com.example.myapplication__volume.rendering;
 
 import android.opengl.GLES30;
+import android.opengl.Matrix;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -83,7 +84,7 @@ public class MyDraw {
              0.000f, 0.010f, -0.010f,   // 4
             -0.007f, 0.000f, -0.010f,   // 5
             -0.020f, 0.000f, -0.010f,   // 6
-             0.000f, 0.000f,  0.010f,   // 7
+             0.000f, 0.000f,  0.020f,   // 7
 
     };
 
@@ -114,6 +115,7 @@ public class MyDraw {
     private static int mProgram_marker;
     private static int mProgram_line;
     private static int mProgram_points;
+    private static int mProgram_game;
 
     private FloatBuffer vertexBuffer_marker;
     private FloatBuffer colorBuffer_marker;
@@ -217,6 +219,32 @@ public class MyDraw {
                     "  FragColor = vec4(markerColor.rgb * vLighting, 1.0);" +
                     "}";
 
+    private static final String vertexShaderCode_game =
+            "#version 300 es\n" +
+                    "layout (location = 0) in vec4 vPosition;" +
+                    "layout (location = 2) in vec4 vColor;"+
+
+                    "uniform mat4 uMVPMatrix;" +
+
+                    "out vec4 vOutColor;" +
+
+                    "void main() {" +
+                    "    gl_Position = vPosition;" +
+                    "    vOutColor = vColor;"+
+                    "}";
+
+    private static final String fragmentShaderCode_game =
+            "#version 300 es\n" +
+                    "precision mediump float;" +
+
+                    "in vec4 vOutColor;" +
+
+                    "out vec4 FragColor;" +
+
+                    "void main() {" +
+                    "  FragColor = vOutColor;"+
+                    "}";
+
     //draw points
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     private static final String vertexShaderCode_points =
@@ -253,6 +281,9 @@ public class MyDraw {
         mProgram_points = initProgram(vertexShaderCode_points, fragmentShaderCode_points);
         Log.v("MyDraw", "init the mProgram_points");
 
+        mProgram_game = initProgram(vertexShaderCode_game, fragmentShaderCode_game);
+        Log.v("MyDraw", "init the mProgram_game");
+
     }
 
 
@@ -275,9 +306,12 @@ public class MyDraw {
 
 
         for (int i = 0; i < Vertex.length / 3; i++){
-            vertexAfterMove[i * 3] = x + (Vertex[i * 3] * axis[0] + Vertex[i * 3 + 1] * head[0] + Vertex[i * 3 + 2] * dir[0]);
-            vertexAfterMove[i * 3 + 1] = y + (Vertex[i * 3] * axis[1] + Vertex[i * 3 + 1] * head[1] + Vertex[i * 3 + 2] * dir[1]);
-            vertexAfterMove[i * 3 + 2] = z + (Vertex[i * 3] * axis[2] + Vertex[i * 3 + 1] * head[2] + Vertex[i * 3 + 2] * dir[2]);
+//            vertexAfterMove[i * 3] = x + (Vertex[i * 3] * axis[0] + Vertex[i * 3 + 1] * head[0] + Vertex[i * 3 + 2] * dir[0]) * 10;
+//            vertexAfterMove[i * 3 + 1] = y + (Vertex[i * 3] * axis[1] + Vertex[i * 3 + 1] * head[1] + Vertex[i * 3 + 2] * dir[1]) * 10;
+//            vertexAfterMove[i * 3 + 2] = z + (Vertex[i * 3] * axis[2] + Vertex[i * 3 + 1] * head[2] + Vertex[i * 3 + 2] * dir[2]) * 10;
+            vertexAfterMove[i * 3] = x + (Vertex[i * 3]) * 10;
+            vertexAfterMove[i * 3 + 1] = y + (Vertex[i * 3 + 1]) * 10;
+            vertexAfterMove[i * 3 + 2] = z + (Vertex[i * 3 + 2]) * 10;
         }
 //
 //        vertexAfterMove[0] = x + 0.010f * dir[0];
@@ -477,13 +511,18 @@ public class MyDraw {
     public void drawGameModel(float[] mvpMatrix, float[] modelMatrix, float x, float y, float z, int type, float [] dir, float [] head){
 //        System.out.println("set marker");
 
-        BufferSet_GameModel(x, y, z, type, dir, head);
+        Log.d("drawGameModel", "aaaaaaaaa");
+
+        float [] locAfterRotate = new float[4];
+        Matrix.multiplyMV(locAfterRotate, 0, mvpMatrix, 0, new float[]{x, y, z, 1.0f}, 0);
+
+        BufferSet_GameModel(locAfterRotate[0], locAfterRotate[1], locAfterRotate[2], type, dir, head);
 
 //        System.out.println("set marker end");
 
         GLES30.glDisable(GLES30.GL_DEPTH_TEST);
 
-        GLES30.glUseProgram(mProgram_marker);
+        GLES30.glUseProgram(mProgram_game);
 
 
         //准备坐标数据
@@ -492,13 +531,13 @@ public class MyDraw {
         GLES30.glEnableVertexAttribArray(vertexPoints_handle);
 
 
-        //准备f法向量数据
-        GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker);
-
-        //准备f法向量数据
-        // GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker);
-        //启用顶点的句柄
-        GLES30.glEnableVertexAttribArray(normalizePoints_handle);
+//        //准备f法向量数据
+//        GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker);
+//
+//        //准备f法向量数据
+//        // GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker);
+//        //启用顶点的句柄
+//        GLES30.glEnableVertexAttribArray(normalizePoints_handle);
 
         //准备颜色数据
         GLES30.glVertexAttribPointer(colorPoints_handle,3,GLES30.GL_FLOAT, false, 0,colorBuffer_model);
@@ -508,17 +547,17 @@ public class MyDraw {
 
 
         // get handle to vertex shader's uMVPMatrix member
-        int vPMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_marker,"uMVPMatrix");
+        int vPMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_game,"uMVPMatrix");
 
         // Pass the projection and view transformation to the shader
         GLES30.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
 
 
         // get handle to vertex shader's uMVPMatrix member
-        int normalizeMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_marker,"uNormalMatrix");
+//        int normalizeMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_marker,"uNormalMatrix");
 
         // Pass the projection and view transformation to the shader
-        GLES30.glUniformMatrix4fv(normalizeMatrixHandle_marker, 1, false, modelMatrix, 0);
+//        GLES30.glUniformMatrix4fv(normalizeMatrixHandle_marker, 1, false, modelMatrix, 0);
 
 
 //        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, modelVertex.length/3);
