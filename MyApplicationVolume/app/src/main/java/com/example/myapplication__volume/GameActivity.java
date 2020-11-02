@@ -19,6 +19,7 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.datastore.SettingFileManager;
 import com.example.server_communication.Remote_Socket;
 import com.example.game.GameCharacter;
 import com.lxj.xpopup.XPopup;
@@ -26,6 +27,8 @@ import com.lxj.xpopup.core.BasePopupView;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -61,6 +64,8 @@ public class GameActivity extends BaseActivity {
     private float [] lastPlace;
 
     private Remote_Socket remoteSocket;
+
+    final private static String TAG = "GAMEACTIVITY";
 
     @SuppressLint("HandlerLeak")
     private static Handler puiHandler = new Handler(){
@@ -364,7 +369,7 @@ public class GameActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.help_menu, menu);
+        getMenuInflater().inflate(R.menu.game_menu, menu);
         return true;
     }
 
@@ -381,6 +386,15 @@ public class GameActivity extends BaseActivity {
                 task.cancel();
                 MainActivity.setIfGame(false);
                 finish();
+                return true;
+
+            case R.id.save_game:
+                if (saveGame())
+                    Toast_in_Thread("Saved Successfully");
+                else
+                    Toast_in_Thread("Failed To Save!!!");
+                return true;
+
             default:
                 return true;
         }
@@ -400,6 +414,61 @@ public class GameActivity extends BaseActivity {
         myrenderer.setPath(filepath);
 //        myGLSurfaceView.requestRender();
 
+    }
+
+    public boolean saveGame(){
+        String filename_root = SettingFileManager.getFilename_Remote(context);
+        String offset = SettingFileManager.getoffset_Remote(context, filename_root);
+
+        String offset_x = offset.split("_")[0];
+        String offset_y = offset.split("_")[1];
+        String offset_z = offset.split("_")[2];
+        String size     = offset.split("_")[3];
+
+        int size_i     = Integer.parseInt(size);
+        int offset_x_i = Integer.parseInt(offset_x);
+        int offset_y_i = Integer.parseInt(offset_y);
+        int offset_z_i = Integer.parseInt(offset_z);
+
+        float x_pos = gameCharacter.getPosition()[0];
+        float y_pos = gameCharacter.getPosition()[1];
+        float z_pos = gameCharacter.getPosition()[2];
+
+        float x_dir = gameCharacter.getDir()[0];
+        float y_dir = gameCharacter.getDir()[1];
+        float z_dir = gameCharacter.getDir()[2];
+
+        String pos_str = Float.toString(x_pos) + ' ' + Float.toString(y_pos) + ' ' + Float.toString(z_pos);
+        String dir_str = Float.toString(x_dir) + ' ' + Float.toString(y_dir) + ' ' + Float.toString(z_dir);
+
+        String externalFileDir = context.getExternalFilesDir(null).toString();
+        String str = filename_root + '\n' + offset + '\n' + pos_str + '\n' + dir_str;
+        File file = new File(externalFileDir + "/Game/" + filename_root + "/archives.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+//                String str = filename_root + '\n' + offset + '\n' + pos_str + '\n' + dir_str;
+
+            }catch (Exception e){
+                Log.v(TAG, "failed to create archive file");
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        try {
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(str.getBytes());
+            outStream.close();
+        } catch (Exception e){
+            Log.v(TAG, "failed to write archive");
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     class MyGLSurfaceView extends GLSurfaceView {
