@@ -1,32 +1,37 @@
 ﻿#include "server.h"
-#include <QFileSystemWatcher>
+
 #include <QFile>
-#include <QFileInfoList>
 #include <QFileInfo>
-#include <QSet>
-#include <QString>
+#include <QFileInfoList>
+#include <QFileSystemWatcher>
+
 #include <QtConcurrent>
 #include <QFuture>
-#include <QSqlQuery>
-#include <array>
+
+#include <QSet>
+#include <QString>
+
 #include <QSqlError>
+#include <QSqlQuery>
+
 #include <QtGlobal>
-extern QString IMAGE;
-extern QString PREAPO;
+
+extern QString IMAGE;//图像文件夹
+extern QString PREAPO;//预重建的输入apo文件夹
+extern QString PROSWC;//检查的swc输入文件夹
+extern QString FULLSWC;//swc数据存放文件夹
 Server::Server(QObject *parent):QTcpServer(parent)
 {
     qDebug()<<"Thread ID"<<QThread::currentThreadId();
     db=QSqlDatabase::addDatabase("QSQLITE","C3");
     if(!imageInit()){
         qFatal("cannot init image,please check image data");
-    }else if(!anoInit()){
-        qFatal("cannot init ano,please check image data");
     }
 
 
     fileWatcher.addPath(QCoreApplication::applicationDirPath()+"/"+IMAGE);
     fileWatcher.addPath(QCoreApplication::applicationDirPath()+"/input/"+PREAPO);
-
+    fileWatcher.addPath(QCoreApplication::applicationDirPath()+"/input/"+PROSWC);
     connect(&fileWatcher,SIGNAL(directoryChanged(const QString &)),this,SLOT(directoryUpdated(const QString &)));
 }
 
@@ -36,8 +41,63 @@ void Server::directoryUpdated(const QString &path){
             exit(-1);
         }
     }else if(path.contains(PREAPO)){
-
+        if(!apoChanged()){
+            exit(-1);
+        }
+    }else if(path.contains(PROSWC)){
+        if(!swcChanged()){
+            exit(-1);
+        }
     }
+}
+
+bool Server::swcChanged(){
+    if(isTableExist("Swc")){
+         //create table Swc
+        QSqlQuery query(db);
+        if(!query.exec("CREATE TABLE Swc ("
+                       "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                       "Neuron_id VARCHAR,"
+                       "Brain_id VARCHAR,"
+                       "Tag VARCHAR,"
+                       "Time0 VARCHAR,"
+                       "Time1 VARCHAR,"
+                       "Soma_position VARCHAR,"
+                       "Pre_Swc VARCHAR,"
+                       "Re_Swc VARCHAR,"
+                       "ArborN VARCHAR)")
+                ){
+            qDebug()<<query.lastError().text();
+            return false;
+        }
+    }
+
+    QFileInfoList swcList=QDir(QCoreApplication::applicationDirPath()+"/input/"+PROSWC).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
+    QStringList future = QtConcurrent::blockingMapped(swcList,cac_pos);
+    QStringList neuron_ids;
+    QStringList brain_ids;
+    QStringList tags;
+    QStringList arborN;
+    QStringList reSWCs;
+    for(QString & s:future){
+        auto list=s.split(";");
+        neuron_ids.push_back(list[0]);
+        brain_ids.push_back(list[0].split("_")[0]);
+        tags.push_back("3");
+        arborN.push_back(list[1]);
+        reSWCs.push_back(QCoreApplication::applicationDirPath()+"/"+FULLSWC+"/"+list[0]+".swc");
+    }
+    QSqlQuery query(db);
+    query.prepare("REPLACE INTO Swc (Neuron_id,Brain_id,Tag,Re_Swc,ArborN) VALUES (?,?,?,?,?)");
+    query.addBindValue(neuron_ids);
+    query.addBindValue(brain_ids);
+    query.addBindValue(tags);
+    query.addBindValue(arborN);
+    query.addBindValue(reSWCs);
+    if(!query.execBatch()){
+        return false;
+    }
+    return true;
 }
 
 bool  Server::imageChanged()
@@ -62,7 +122,7 @@ bool  Server::imageChanged()
     QStringList imageNames;
     std::array<QStringList,6> resLists;
     for(auto & imageName:addSet){
-        QFileInfo info=(QCoreApplication::applicationDirPath()+"/"+IMAGE+"/"+imageName);
+        QFileInfo info=QFileInfo(QCoreApplication::applicationDirPath()+"/"+IMAGE+"/"+imageName);
         imageNames.push_back(info.fileName());
         QStringList resList=QDir(info.absoluteFilePath()).entryList(QDir::NoDotAndDotDot|QDir::Dirs);
         sort(resList.begin(),resList.end(),
@@ -96,7 +156,58 @@ bool  Server::imageChanged()
     return true;
 }
 
+bool Server::apoChanged(){
+    if(isTableExist("Swc")){
+         //create table Swc
+        QSqlQuery query(db);
+        if(!query.exec("CREATE TABLE Swc ("
+                       "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                       "Neuron_id VARCHAR,"
+                       "Brain_id VARCHAR,"
+                       "Tag VARCHAR,"
+                       "Time0 VARCHAR,"
+                       "Time1 VARCHAR,"
+                       "Soma_position VARCHAR,"
+                       "Pre_Swc VARCHAR,"
+                       "Re_Swc VARCHAR,"
+                       "ArborN VARCHAR)")
+                ){
+            qDebug()<<query.lastError().text();
+            return false;
+        }
+    }
+    QFileInfoList apoList=QDir(QCoreApplication::applicationDirPath()+"/input/"+PREAPO).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
+    QSqlQuery query(db);
+    query.prepare("INSERT OR IGNORE INTO Swc (Neuron_id,Brain_id,Tag,Time0,Soma_position) VALUES (?,?,?,?,?)");
+    QStringList neuron_ids;
+    QStringList brain_ids;
+    QStringList tags;
+    QStringList time0s;
+    QStringList somaPositions;
+    for(auto & apo:apoList){
+        neuron_ids.push_back(apo.baseName());
+        brain_ids.push_back(apo.baseName().split('_')[0]);
+        tags.push_back("0");
+        time0s.push_back(QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
+        auto cords=readAPO_file(apo.absoluteFilePath());
+        somaPositions.push_back(QString("%1_%2_%3").arg(int(cords[0].x)).arg(int(cords[0].y)).arg(int(cords[0].z)));
+    }
+    query.addBindValue(neuron_ids);
+    query.addBindValue(brain_ids);
+    query.addBindValue(tags);
+    query.addBindValue(time0s);
+    query.addBindValue(somaPositions);
+    if(!query.execBatch()){
+        return false;
+    }
+    for(auto & apo:apoList){
+        if(!QFile::remove(apo.absoluteFilePath())){
+            qDebug()<<"failed to remove "<<apo.fileName();
+        }
+    }
+    return true;
 
+}
 void Server::incomingConnection(qintptr handle)
 {
     Socket* socket=new Socket(handle);
@@ -144,11 +255,11 @@ bool Server::imageInit(){
     if(!query.exec("CREATE TABLE ImageRes ("
                    "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                    "name VARCHAR,"
-                   "RES1 VARCHAR"
-                   "RES2 VARCHAR"
-                   "RES3 VARCHAR"
-                   "RES4 VARCHAR"
-                   "RES5 VARCHAR"
+                   "RES1 VARCHAR,"
+                   "RES2 VARCHAR,"
+                   "RES3 VARCHAR,"
+                   "RES4 VARCHAR,"
+                   "RES5 VARCHAR,"
                    "RES6 VARCHAR)")
             ){
         qDebug()<<query.lastError().text();
@@ -167,9 +278,7 @@ bool Server::imageInit(){
     return true;
 }
 
-bool Server::anoInit(){
-    return true;
-}
+
 
 bool Server::isTableExist(QString tableName){
 
@@ -187,7 +296,4 @@ bool Server::isTableExist(QString tableName){
         }
     }
 }
-Server::~Server()
-{
 
-}
