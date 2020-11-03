@@ -1,13 +1,21 @@
 package com.example.chat.chatlist;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.chat.ChatManager;
+import com.example.chat.MessageActivity;
+import com.example.chat.MessageUtil;
+import com.example.myapplication__volume.Myapplication;
 import com.example.myapplication__volume.R;
 
 import java.util.ArrayList;
@@ -24,6 +32,7 @@ public class ContactAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private List<String> mContactList; // 联系人名称List（转换成拼音）
     private List<Contact> resultList; // 最终结果（包含分组的字母）
     private List<String> characterList; // 字母List
+    private ChatManager mChatManager;
 
     public enum ITEM_TYPE {
         ITEM_TYPE_CHARACTER,
@@ -34,6 +43,7 @@ public class ContactAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         mContext = context;
         mLayoutInflater = LayoutInflater.from(context);
         mContactNames = contactNames;
+        mChatManager = Myapplication.the().getChatManager();
 
         handleContact();
     }
@@ -76,7 +86,16 @@ public class ContactAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         if (viewType == ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal()) {
             return new CharacterHolder(mLayoutInflater.inflate(R.layout.item_character, parent, false));
         } else {
-            return new ContactHolder(mLayoutInflater.inflate(R.layout.item_contact, parent, false));
+            final RecyclerView.ViewHolder holder = new ContactHolder(mLayoutInflater.inflate(R.layout.item_contact, parent, false));
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int position = holder.getAdapterPosition();
+                    Contact contact = resultList.get(position);
+                    startMsgPeerToPeer(contact.getmName());
+                }
+            });
+            return holder;
         }
     }
 
@@ -129,5 +148,43 @@ public class ContactAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
 
         return -1; // -1不会滑动
+    }
+
+
+    private void startMsgPeerToPeer(String peer){
+        Log.d("PeerToPeer", "Start To Chat");
+        if (peer.equals("")) {
+            Toast_in_Thread(mContext.getString(R.string.account_empty));
+        } else if (peer.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
+            Toast_in_Thread(mContext.getString(R.string.account_too_long));
+        } else if (peer.startsWith(" ")) {
+            Toast_in_Thread(mContext.getString(R.string.account_starts_with_space));
+        } else if (peer.equals("null")) {
+            Toast_in_Thread(mContext.getString(R.string.account_literal_null));
+        } else if (peer.equals(mChatManager.getUsername())) {
+            Toast_in_Thread(mContext.getString(R.string.account_cannot_be_yourself));
+        } else {
+            openMessageActivity(true, peer);
+        }
+    }
+
+
+    private void openMessageActivity(boolean isPeerToPeerMode, String targetName){
+        Intent intent = new Intent(mContext, MessageActivity.class);
+        intent.putExtra(MessageUtil.INTENT_EXTRA_IS_PEER_MODE, isPeerToPeerMode);
+        intent.putExtra(MessageUtil.INTENT_EXTRA_TARGET_NAME, targetName);
+        intent.putExtra(MessageUtil.INTENT_EXTRA_USER_ID, mChatManager.getUsername());
+//        intent.putExtra(MessageUtil.INTENT_EXTRA_MESSAGE_LIST, messageMap.get(targetName));
+        mContext.startActivity(intent);
+    }
+
+
+    public void Toast_in_Thread(String message){
+        ((Activity) mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(mContext, message,Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

@@ -19,10 +19,14 @@ public class LoginDataSource {
     private String responseData;
     private boolean ifResponsed = false;
     private final String ip = "http:www.baidu.com";
-//    private final String ipLogin = "http:10.194.211.159:8080/Server_C3/LoginServlet";
-//    private final String ipRegister = "http:10.194.211.159:8080/Server_C3/RegisterServlet";
-    private final String ipLogin = "http:39.100.35.131:8080/Server_C3/LoginServlet";
-    private final String ipRegister = "http:39.100.35.131:8080/Server_C3/RegisterServlet";
+    private final String ipLogin = "http:192.168.1.108:8080/Server_C3/LoginServlet";
+    private final String ipRegister = "http:192.168.1.108:8080/Server_C3/RegisterServlet";
+    private final String ipAddFriends = "http:192.168.1.108:8080/Server_C3/AddFriendsServlet";
+    private final String ipQueryFriends = "http:192.168.1.108:8080/Server_C3/QueryFriendsServlet";
+
+//    private final String ipLogin = "http:39.100.35.131:8080/Server_C3/LoginServlet";
+//    private final String ipRegister = "http:39.100.35.131:8080/Server_C3/RegisterServlet";
+//    private final String ipAddFriends = "http:39.100.35.131:8080/Server_C3/AddFriendsServlet";
 
     public Result<LoggedInUser> login(String username, String password) {
 
@@ -78,6 +82,56 @@ public class LoginDataSource {
         }
     }
 
+
+    public String addFriends(String username, String peer){
+        try {
+            addFriendsWithOkHttp(ipAddFriends, username, peer);
+
+            while (!ifResponsed){
+                Log.d("AddFriendsLoop", "AAAAAAAAAAAAAAAAA");
+            }
+
+            ifResponsed = false;
+            if (responseData.equals("true")) {
+                Log.d("LoginDataSource", "addFriends successfully !");
+                Log.e("LoginDataSource","username: " + username + " & peer: " + peer);
+            } else{
+                Log.e("LoginDataSource","Something Wrong when add Friends: " + responseData);
+                return responseData;
+            }
+        }catch (Exception e){
+            Log.e("LoginDataSource","Something Wrong when add Friends!");
+            return "Something Wrong when add Friends!";
+        }
+        return "true";
+    }
+
+
+    public String queryFriends(String username){
+        try {
+            queryFriendsWithOkHttp(ipQueryFriends, username);
+
+            while (!ifResponsed){
+                Log.d("RegisterLoop", "AAAAAAAAAAAAAAAAA");
+            }
+
+            ifResponsed = false;
+            if (responseData.equals("true")) {
+                Log.d("LoginDataSource", "queryFriends successfully !");
+                Log.e("LoginDataSource","username: " + username);
+            } else{
+                Log.e("LoginDataSource","Something Wrong when add Friends: " + responseData);
+                return responseData;
+            }
+        }catch (Exception e){
+            Log.e("LoginDataSource","Something Wrong when add Friends!");
+            return "Something Wrong when add Friends!";
+        }
+        return "true";
+    }
+
+
+
     private void loginWithOkHttp(String address, String account, String password){
         HttpUtil.loginWithOkHttp(address, account, password, new Callback() {
             @Override
@@ -129,6 +183,43 @@ public class LoginDataSource {
                 responseData = response.body().string();
                 ifResponsed = true;
                 Log.i("RegisterWithHttp", "responseData: " + responseData);
+            }
+        });
+    }
+
+
+    private void addFriendsWithOkHttp(String address, String username, String peer){
+        HttpUtil.addFriendsWithOkHttp(address, username, peer, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                responseData = "Connect Failed When Register";
+                ifResponsed = true;
+                Log.i("addFriendsWithOkHttp", "responseData: " + responseData);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                responseData = response.body().string();
+                ifResponsed = true;
+                Log.i("addFriendsWithOkHttp", "responseData: " + responseData);
+            }
+        });
+    }
+
+    private void queryFriendsWithOkHttp(String address, String username){
+        HttpUtil.queryFriendsWithOkHttp(address, username, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                responseData = "Connect Failed When Register";
+                ifResponsed = true;
+                Log.i("addFriendsWithOkHttp", "responseData: " + responseData);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                responseData = response.body().string();
+                ifResponsed = true;
+                Log.i("addFriendsWithOkHttp", "responseData: " + responseData);
             }
         });
     }

@@ -648,6 +648,7 @@ public class MainActivity extends BaseActivity {
 
         mClientListener = new MyRtmClientListener();
         mChatManager.registerListener(mClientListener);
+        mChatManager.setUsername(username);
 
         if (MSG != null)
             Toast.makeText(this, MSG, Toast.LENGTH_SHORT).show();
@@ -1769,6 +1770,7 @@ public class MainActivity extends BaseActivity {
         }
         return true;
     }
+
 
 
     /**
@@ -4904,7 +4906,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20201103a 15:55 UTC+8 build",
+                                "Version: 20201103b 15:55 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
