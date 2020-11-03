@@ -46,4 +46,39 @@ public class HttpUtil {
         client.newCall(request).enqueue(callback);
         client.connectionPool().evictAll();
     }
+    //添加好友
+    public static void addFriendsWithOkHttp(String address, String username, String peer, okhttp3.Callback callback){
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .build();;
+        RequestBody body = new FormBody.Builder()
+                .add("Username", username)
+                .add("Peer", peer)
+                .build();
+        Request request = new Request.Builder()
+                .url(address)
+                .post(body)
+                .build();
+        client.newCall(request).enqueue(callback);
+        client.connectionPool().evictAll();
+    }
+    //查询好友
+    public static void queryFriendsWithOkHttp(String address, String username, okhttp3.Callback callback){
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .build();;
+        RequestBody body = new FormBody.Builder()
+                .add("Username", username)
+                .build();
+        Request request = new Request.Builder()
+                .url(address)
+                .post(body)
+                .build();
+        client.newCall(request).enqueue(callback);
+        client.connectionPool().evictAll();
+    }
 }

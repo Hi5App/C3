@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.example.myapplication__volume.BuildConfig;
 import com.example.myapplication__volume.R;
+import com.example.myapplication__volume.data.FriendsManagerRepository;
+import com.example.myapplication__volume.data.LoginDataSource;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +31,8 @@ public class ChatManager {
     private SendMessageOptions mSendMsgOptions;
     private List<RtmClientListener> mListenerList = new ArrayList<>();
     private RtmMessagePool mMessagePool = new RtmMessagePool();
+    private FriendsManagerRepository friendsManagerRepository;
+    private static String username;
 
     public ChatManager(Context context) {
         mContext = context;
@@ -36,6 +40,7 @@ public class ChatManager {
 
     public void init() {
         String appID = mContext.getString(R.string.agora_app_id);
+        friendsManagerRepository = FriendsManagerRepository.getInstance(new LoginDataSource());
 
         try {
             mRtmClient = RtmClient.createInstance(mContext, appID, new RtmClientListener() {
@@ -149,9 +154,9 @@ public class ChatManager {
      * add friends
      * @param peerId
      */
-    public void addFriends(final String peerId){
-        mRtmClient.subscribePeersOnlineStatus(Collections.singleton(peerId), new ResultCallback<Void>(){
+    public String addFriends(final String peerId){
 
+        mRtmClient.subscribePeersOnlineStatus(Collections.singleton(peerId), new ResultCallback<Void>(){
             @Override
             public void onSuccess(Void aVoid) {
                 Log.i("addFriends","add friends successfully !");
@@ -163,7 +168,26 @@ public class ChatManager {
             }
         });
 
+        return friendsManagerRepository.addFriends(getUsername(), peerId);
+
     }
 
+
+    /**
+     * query friends
+     */
+    public String queryFriends(){
+
+        return friendsManagerRepository.queryFriends(getUsername());
+
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 }
 
