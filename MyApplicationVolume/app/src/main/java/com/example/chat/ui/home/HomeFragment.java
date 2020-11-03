@@ -1,9 +1,11 @@
 package com.example.chat.ui.home;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -33,34 +35,43 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 //        super.onCreate(savedInstanceState);
-        homeViewModel =
-                ViewModelProviders.of(this).get(HomeViewModel.class);
-        View root = inflater.inflate(R.layout.chat_view, container, false);
         mChatManager = Myapplication.the().getChatManager();
         String friendslist = mChatManager.queryFriends();
-        contactNames = friendslist.split(";");
+        homeViewModel =
+                ViewModelProviders.of(this).get(HomeViewModel.class);
+        View root;
+        if (friendslist.equals("")){
+            root = inflater.inflate(R.layout.fragment_home, container, false);
+            final TextView textView = root.findViewById(R.id.text_home);
+            textView.setText("No friends yet !");
+        }else {
+            root = inflater.inflate(R.layout.chat_view, container, false);
+            Log.e("HomeFragment",friendslist);
+            contactNames = friendslist.split(";");
 
 //        contactNames = new String[] {"朱一行", "邢飞", "赵轩", "黄磊", "郭妍妍", "薛杰", "刘健", "叶想桥", "熊烽", "成诗琪", "员之曦", "钟烨", "刘迪", "袁京洲", "李莹鑫", "$01", "*100", "zyh"};
-        contactList = (RecyclerView) root.findViewById(R.id.contact_list);
-        letterView = (LetterView) root.findViewById(R.id.letter_view);
-        layoutManager = new LinearLayoutManager(getContext());
-        adapter = new ContactAdapter(getContext(), contactNames);
+            contactList = (RecyclerView) root.findViewById(R.id.contact_list);
+            letterView = (LetterView) root.findViewById(R.id.letter_view);
+            layoutManager = new LinearLayoutManager(getContext());
+            adapter = new ContactAdapter(getContext(), contactNames);
 
-        contactList.setLayoutManager(layoutManager);
-        contactList.addItemDecoration(new DividerItemDecoration(getContext(), com.example.chat.chatlist.DividerItemDecoration.VERTICAL_LIST));
-        contactList.setAdapter(adapter);
+            contactList.setLayoutManager(layoutManager);
+            contactList.addItemDecoration(new DividerItemDecoration(getContext(), com.example.chat.chatlist.DividerItemDecoration.VERTICAL_LIST));
+            contactList.setAdapter(adapter);
 
-        letterView.setCharacterListener(new LetterView.CharacterClickListener() {
-            @Override
-            public void clickCharacter(String character) {
-                layoutManager.scrollToPositionWithOffset(adapter.getScrollPosition(character),0);
-            }
+            letterView.setCharacterListener(new LetterView.CharacterClickListener() {
+                @Override
+                public void clickCharacter(String character) {
+                    layoutManager.scrollToPositionWithOffset(adapter.getScrollPosition(character),0);
+                }
 
-            @Override
-            public void clickArrow() {
-                layoutManager.scrollToPositionWithOffset(0,0);
-            }
-        });
+                @Override
+                public void clickArrow() {
+                    layoutManager.scrollToPositionWithOffset(0,0);
+                }
+            });
+        }
+
 
         return root;
     }
