@@ -1,4 +1,4 @@
-package com.example.server_communication;
+package com.example.server_communicator;
 
 import android.app.Activity;
 import android.app.ActivityManager;

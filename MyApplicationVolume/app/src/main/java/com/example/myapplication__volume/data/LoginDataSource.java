@@ -3,7 +3,7 @@ package com.example.myapplication__volume.data;
 import android.util.Log;
 
 import com.example.myapplication__volume.data.model.LoggedInUser;
-import com.example.server_communication.HttpUtil;
+import com.example.server_communicator.HttpUtil;
 
 import java.io.IOException;
 

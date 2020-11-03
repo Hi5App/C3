@@ -71,7 +71,7 @@ import androidx.core.content.FileProvider;
 
 import com.example.ImageReader.BigImgReader;
 import com.example.chat.ChatActivity;
-import com.example.server_communication.Remote_Socket;
+import com.example.server_communicator.Remote_Socket;
 import com.example.basic.CrashHandler;
 import com.example.basic.DragFloatActionButton;
 import com.example.basic.FileManager;
@@ -4904,7 +4904,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20201030a 22:20 UTC+8 build",
+                                "Version: 20201103a 15:55 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
