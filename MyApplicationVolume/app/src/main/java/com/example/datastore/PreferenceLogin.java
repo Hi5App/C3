@@ -12,28 +12,28 @@ public class PreferenceLogin {
 
     public PreferenceLogin(Context context){
         mContext = context;
-        pref = mContext.getSharedPreferences("settings",Context.MODE_PRIVATE);
+        pref = mContext.getSharedPreferences("Login",Context.MODE_PRIVATE);
     }
 
-    public void setPref(boolean DownSampleMode, boolean CheckMode, int Contrast){
+    public void setPref(String username, String password, boolean rem_or_not){
         editor = pref.edit();
-        editor.putBoolean("DownSampleMode",DownSampleMode);
-        editor.putBoolean("CheckMode",CheckMode);
-        editor.putInt("Contrast",Contrast);
+        editor.putString("Username",username);
+        editor.putString("Password",password);
+        editor.putBoolean("Rem_or_not",rem_or_not);
         editor.apply();
 
     }
 
-    public boolean getDownSampleMode(){
-        return pref.getBoolean("DownSampleMode",true);
+    public String getUsername(){
+        return pref.getString("Username","");
     }
 
-    public boolean getCheckMode(){
-        return pref.getBoolean("CheckMode",false);
+    public String getPassword(){
+        return pref.getString("Password","");
     }
 
-    public int getContrast(){
-        return pref.getInt("Contrast",0);
+    public boolean getRem_or_not(){
+        return pref.getBoolean("Rem_or_not",false);
     }
 
 }

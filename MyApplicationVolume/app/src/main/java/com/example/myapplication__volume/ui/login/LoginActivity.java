@@ -14,6 +14,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -25,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.example.datastore.PreferenceLogin;
 import com.example.myapplication__volume.MainActivity;
 import com.example.myapplication__volume.R;
 
@@ -37,6 +39,8 @@ public class LoginActivity extends AppCompatActivity {
     Button loginButton;
     ProgressBar loadingProgressBar;
     Button registerButton;
+    CheckBox remember_pwd;
+    PreferenceLogin preferenceLogin;
 
     final private int SIGN_IN_ON_CLICK = 1;
 
@@ -64,15 +68,20 @@ public class LoginActivity extends AppCompatActivity {
         loginViewModel = ViewModelProviders.of(this, new LoginViewModelFactory())
                 .get(LoginViewModel.class);
 
+        preferenceLogin = new PreferenceLogin(this);
         usernameEditText = findViewById(R.id.username);
         passwordEditText = findViewById(R.id.password);
         loginButton = findViewById(R.id.login);
         loadingProgressBar = findViewById(R.id.loading);
         registerButton = findViewById(R.id.goto_register);
+        remember_pwd = findViewById(R.id.remember_pwd);
 
-
-//        usernameEditText.setText("zyh");
-//        passwordEditText.setText("12345678");
+        if (preferenceLogin.getRem_or_not()){
+            usernameEditText.setText(preferenceLogin.getUsername());
+            passwordEditText.setText(preferenceLogin.getPassword());
+            remember_pwd.setChecked(true);
+            loginButton.setEnabled(true);
+        }
 
         loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
             @Override
@@ -106,8 +115,6 @@ public class LoginActivity extends AppCompatActivity {
 //                    MainActivity.actionStart(LoginActivity.this);
                     MainActivity.actionStart(LoginActivity.this, loginResult.getSuccess().getDisplayName());
 
-
-
                     updateUiWithUser(loginResult.getSuccess());
 
                     finish();
@@ -136,6 +143,7 @@ public class LoginActivity extends AppCompatActivity {
                         passwordEditText.getText().toString());
             }
         };
+
         usernameEditText.addTextChangedListener(afterTextChangedListener);
         passwordEditText.addTextChangedListener(afterTextChangedListener);
         passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -154,11 +162,13 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 handler.sendEmptyMessage(SIGN_IN_ON_CLICK);
-//                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-//                startActivity(intent);
-//                MainActivity.actionStart(LoginActivity.this);
+                if (remember_pwd.isChecked()){
+                    preferenceLogin.setPref(usernameEditText.getText().toString(),
+                            passwordEditText.getText().toString(),true);
+                }else {
+                    preferenceLogin.setPref("","",false);
+                }
             }
         });
 

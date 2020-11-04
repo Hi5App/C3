@@ -1,4 +1,4 @@
-package com.example.chat.ui.notifications;
+package com.example.chat.ui.me;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -10,7 +10,7 @@ public class MeViewModel extends ViewModel {
 
     public MeViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is notifications fragment");
+        mText.setValue("This is Me fragment");
     }
 
     public LiveData<String> getText() {

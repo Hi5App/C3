@@ -1,4 +1,4 @@
-package com.example.chat.ui.home;
+package com.example.chat.ui.contacts;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -21,9 +21,9 @@ import com.example.myapplication__volume.Myapplication;
 import com.example.myapplication__volume.R;
 
 
-public class HomeFragment extends Fragment {
+public class ContactsFragment extends Fragment {
 
-    private HomeViewModel homeViewModel;
+    private ContactsViewModel contactsViewModel;
 
     private RecyclerView contactList;
     private String[] contactNames;
@@ -37,8 +37,8 @@ public class HomeFragment extends Fragment {
 //        super.onCreate(savedInstanceState);
         mChatManager = Myapplication.the().getChatManager();
         String friendslist = mChatManager.queryFriends();
-        homeViewModel =
-                ViewModelProviders.of(this).get(HomeViewModel.class);
+        contactsViewModel =
+                ViewModelProviders.of(this).get(ContactsViewModel.class);
         View root;
         if (friendslist.equals("")){
             root = inflater.inflate(R.layout.fragment_home, container, false);

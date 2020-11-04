@@ -1,4 +1,4 @@
-package com.example.chat.ui.dashboard;
+package com.example.chat.ui.chats;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

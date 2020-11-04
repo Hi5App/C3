@@ -15,6 +15,13 @@ public class User {
         this.loginAccount = loginAccount;
         this.loginPassword = loginPassword;
     }
+
+    public User(String loginAccount){
+        this.loginAccount = loginAccount;
+        this.loginEmail = null;
+        this.loginPassword = null;
+    }
+
     public String getLoginEmail() {
         return loginEmail;
     }
