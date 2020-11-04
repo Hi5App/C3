@@ -35,10 +35,11 @@
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
     <string name="prompt_username">Username</string>
+    <string name="remember_password">Remember password ?</string>
     <string name="action_sign_in">Sign in</string>
     <string name="action_register">Register</string>
     <string name="action_register_now"><u>Register Now</u></string>
-    <string name="welcome">"Welcome ,"</string>
+    <string name="welcome">"Welcome, "</string>
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_email">Not a valid email</string>
     <string name="invalid_password">Password must be >5 characters</string>
@@ -62,6 +63,7 @@
     <string name="channel_name_literal_null">Channel name can not be \"null\"</string>
     <string name="btn_chat">Chat</string>
     <string name="btn_join">Join</string>
+    <string name="btn_add">Add</string>
 
     <string name="account_empty">Account can not be empty</string>
     <string name="account_too_long">Account can not exceed 64 characters</string>

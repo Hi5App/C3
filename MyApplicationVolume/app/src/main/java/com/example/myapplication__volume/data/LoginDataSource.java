@@ -3,7 +3,7 @@ package com.example.myapplication__volume.data;
 import android.util.Log;
 
 import com.example.myapplication__volume.data.model.LoggedInUser;
-import com.example.server_communication.HttpUtil;
+import com.example.server_communicator.HttpUtil;
 
 import java.io.IOException;
 
@@ -19,14 +19,16 @@ public class LoginDataSource {
     private String responseData;
     private boolean ifResponsed = false;
     private final String ip = "http:www.baidu.com";
-    private final String ipLogin = "http:192.168.1.108:8080/Server_C3/LoginServlet";
-    private final String ipRegister = "http:192.168.1.108:8080/Server_C3/RegisterServlet";
-    private final String ipAddFriends = "http:192.168.1.108:8080/Server_C3/AddFriendsServlet";
-    private final String ipQueryFriends = "http:192.168.1.108:8080/Server_C3/QueryFriendsServlet";
+//    private final String ipLogin = "http:192.168.1.108:8080/Server_C3/LoginServlet";
+//    private final String ipRegister = "http:192.168.1.108:8080/Server_C3/RegisterServlet";
+//    private final String ipAddFriends = "http:192.168.1.108:8080/Server_C3/AddFriendsServlet";
+//    private final String ipQueryFriends = "http:192.168.1.108:8080/Server_C3/QueryFriendsServlet";
 
-//    private final String ipLogin = "http:39.100.35.131:8080/Server_C3/LoginServlet";
-//    private final String ipRegister = "http:39.100.35.131:8080/Server_C3/RegisterServlet";
-//    private final String ipAddFriends = "http:39.100.35.131:8080/Server_C3/AddFriendsServlet";
+    private final String ipLogin = "http:39.100.35.131:8080/Server_C3/LoginServlet";
+    private final String ipRegister = "http:39.100.35.131:8080/Server_C3/RegisterServlet";
+    private final String ipAddFriends = "http:39.100.35.131:8080/Server_C3/AddFriendsServlet";
+    private final String ipQueryFriends = "http:39.100.35.131:8080/Server_C3/QueryFriendsServlet";
+
 
     public Result<LoggedInUser> login(String username, String password) {
 
@@ -112,7 +114,7 @@ public class LoginDataSource {
             queryFriendsWithOkHttp(ipQueryFriends, username);
 
             while (!ifResponsed){
-                Log.d("RegisterLoop", "AAAAAAAAAAAAAAAAA");
+                Log.d("QueryLoop", "AAAAAAAAAAAAAAAAA");
             }
 
             ifResponsed = false;
@@ -120,7 +122,7 @@ public class LoginDataSource {
                 Log.d("LoginDataSource", "queryFriends successfully !");
                 Log.e("LoginDataSource","username: " + username);
             } else{
-                Log.e("LoginDataSource","Something Wrong when add Friends: " + responseData);
+                Log.e("LoginDataSource","Something Wrong when query Friends: " + responseData);
                 return responseData;
             }
         }catch (Exception e){
@@ -210,16 +212,16 @@ public class LoginDataSource {
         HttpUtil.queryFriendsWithOkHttp(address, username, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                responseData = "Connect Failed When Register";
+                responseData = "Connect Failed When queryFriendsWithOkHttp";
                 ifResponsed = true;
-                Log.i("addFriendsWithOkHttp", "responseData: " + responseData);
+                Log.i("queryFriendsWithOkHttp", "responseData: " + responseData);
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 responseData = response.body().string();
                 ifResponsed = true;
-                Log.i("addFriendsWithOkHttp", "responseData: " + responseData);
+                Log.i("queryFriendsWithOkHttp", "responseData: " + responseData);
             }
         });
     }

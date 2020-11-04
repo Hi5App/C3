@@ -1,4 +1,7 @@
+Model\FriendsModel.class
 Model\LoginModel.class
-Entity\User.class
 Servlet\LoginServlet.class
 Servlet\RegisterServlet.class
+Servlet\AddFriendsServlet.class
+Entity\User.class
+Servlet\QueryFriendsServlet.class

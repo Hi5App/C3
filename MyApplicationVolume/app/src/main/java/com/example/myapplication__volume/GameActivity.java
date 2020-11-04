@@ -20,16 +20,21 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.datastore.SettingFileManager;
-import com.example.server_communication.Remote_Socket;
+import com.example.server_communicator.Remote_Socket;
 import com.example.game.GameCharacter;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
+import com.lxj.xpopup.interfaces.OnCancelListener;
+import com.lxj.xpopup.interfaces.OnConfirmListener;
+import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -100,7 +105,7 @@ public class GameActivity extends BaseActivity {
 
         progressBar = new XPopup.Builder(this).asLoading("Downloading...");
 
-        gameContext = getApplicationContext();
+        gameContext = this;
 
         setContentView(R.layout.activity_game);
 
@@ -288,7 +293,7 @@ public class GameActivity extends BaseActivity {
                             if (gameCharacter.closeToBoundary()){
                                 remoteSocket.disConnectFromHost();
                                 remoteSocket.connectServer(ip_SEU);
-                                remoteSocket.PullImageBlock_Dir(gameContext, gameCharacter.getDir());
+                                remoteSocket.PullImageBlock_Dir(context, gameCharacter.getDir());
 //                                Thread.sleep(8000);
                                 float [] volumnePosition = myrenderer.modeltoVolume(gameCharacter.getPosition());
                                 float [] dis = new float[]{64 - volumnePosition[0], 64 - volumnePosition[1], 64 - volumnePosition[2]};
@@ -389,10 +394,11 @@ public class GameActivity extends BaseActivity {
                 return true;
 
             case R.id.save_game:
-                if (saveGame())
-                    Toast_in_Thread("Saved Successfully");
-                else
-                    Toast_in_Thread("Failed To Save!!!");
+                archiveList(true);
+//                if (saveGame(0))
+//                    Toast_in_Thread("Saved Successfully");
+//                else
+//                    Toast_in_Thread("Failed To Save!!!");
                 return true;
 
             default:
@@ -416,19 +422,97 @@ public class GameActivity extends BaseActivity {
 
     }
 
-    public boolean saveGame(){
+    private void archiveList(boolean saving){
+        String externalFileDir = context.getExternalFilesDir(null).toString();
+        String [] fileList = {"[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]"};
+        File file = new File(externalFileDir + "/Game/Archives");
+        if (file.exists()){
+            try {
+                for (int i = 0; i < 10; i++) {
+                    File tempFile = new File(externalFileDir + "/Game/Archives/Archive_" + i);
+                    if (!tempFile.exists()) {
+                        tempFile.mkdir();
+                    } else {
+                        File [] archiveFiles = tempFile.listFiles();
+                        if (archiveFiles.length > 0){
+                            fileList[i] = archiveFiles[0].getName().split(".txt")[0];
+                        }
+                    }
+                }
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+
+//            File[] tempList = file.listFiles();
+
+//            for (int i = 0; i < tempList.length; i++){
+//                if (tempList[i].isDirectory()){
+//                    if (Pattern.matches("Archive_[0-9]", tempList[i].getName())){
+//                        File [] archiveFile = tempList[i].listFiles();
+//                        if (archiveFile.length != 0){
+//                            fileList[i] = archiveFile[0].getName();
+//                        }
+//                    }
+//                }
+//            }
+        } else {
+            File parent = file.getParentFile();
+            if (!parent.exists()){
+                parent.mkdir();
+            }
+            file.mkdir();
+            for (int i = 0; i < 10; i++){
+                File tempFile = new File(externalFileDir + "/Game/Archives/Archive_" + i);
+                tempFile.mkdir();
+            }
+        }
+
+        new XPopup.Builder(this)
+                .asCenterList("Archives", fileList,
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                if (text.equals("[Empty Archive]")){
+                                    if (saving){
+                                        if (saveGame(position))
+                                            Toast_in_Thread("Saved Successfully");
+                                        else
+                                            Toast_in_Thread("Failed To Save!!!");
+                                    }
+                                } else {
+                                    if (saving){
+                                        new XPopup.Builder(gameContext)
+                                                .dismissOnTouchOutside(false)
+                                                .asConfirm("Archive", "Are you sure to overwrite this archive?", "Cancel", "Confirm",
+                                                        new OnConfirmListener() {
+                                                            @Override
+                                                            public void onConfirm() {
+                                                                if (saveGame(position))
+                                                                    Toast_in_Thread("Saved Successfully");
+                                                                else
+                                                                    Toast_in_Thread("Failed To Save!!!");
+                                                            }
+                                                        },
+                                                        new OnCancelListener() {
+                                                            @Override
+                                                            public void onCancel() {
+                                                                archiveList(true);
+                                                            }
+                                                        },false).show();
+                                    }
+                                }
+                            }
+                        }).show();
+    }
+
+    public boolean saveGame(int num){
         String filename_root = SettingFileManager.getFilename_Remote(context);
         String offset = SettingFileManager.getoffset_Remote(context, filename_root);
 
-        String offset_x = offset.split("_")[0];
-        String offset_y = offset.split("_")[1];
-        String offset_z = offset.split("_")[2];
-        String size     = offset.split("_")[3];
-
-        int size_i     = Integer.parseInt(size);
-        int offset_x_i = Integer.parseInt(offset_x);
-        int offset_y_i = Integer.parseInt(offset_y);
-        int offset_z_i = Integer.parseInt(offset_z);
+        SimpleDateFormat sdf = new SimpleDateFormat();// 格式化时间
+        sdf.applyPattern("yyyy-MM-dd HH:mm:ss a");// a为am/pm的标记
+        Date date = new Date();// 获取当前时间
+        String date_str = sdf.format(date);
 
         float x_pos = gameCharacter.getPosition()[0];
         float y_pos = gameCharacter.getPosition()[1];
@@ -443,24 +527,41 @@ public class GameActivity extends BaseActivity {
 
         String externalFileDir = context.getExternalFilesDir(null).toString();
         String str = filename_root + '\n' + offset + '\n' + pos_str + '\n' + dir_str;
-        File file = new File(externalFileDir + "/Game/" + filename_root + "/archives.txt");
+//        File file = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num + "/" + date_str + ".txt");
+        File file = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num);
         if (!file.exists()){
             try {
-                File dir = new File(file.getParent());
-                dir.mkdirs();
-                file.createNewFile();
+//                File dir = new File(file.getParent());
+//                dir.mkdirs();
+//                file.createNewFile();
+                file.mkdir();
 
 //                String str = filename_root + '\n' + offset + '\n' + pos_str + '\n' + dir_str;
 
             }catch (Exception e){
-                Log.v(TAG, "failed to create archive file");
+                Log.v(TAG, "failed to create archive dir");
                 e.printStackTrace();
                 return false;
             }
         }
 
+        File [] oldFiles = file.listFiles();
+        for (int i = 0; i < oldFiles.length; i++){
+            oldFiles[i].delete();
+        }
+
+        File archiveFile = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num + "/" + date_str + ".txt");
+
         try {
-            FileOutputStream outStream = new FileOutputStream(file);
+            archiveFile.createNewFile();
+        } catch (Exception e) {
+            Log.v(TAG, "failed to create archive file");
+            e.printStackTrace();
+            return false;
+        }
+
+        try {
+            FileOutputStream outStream = new FileOutputStream(archiveFile);
             outStream.write(str.getBytes());
             outStream.close();
         } catch (Exception e){

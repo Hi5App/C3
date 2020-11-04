@@ -13,6 +13,14 @@
     <servlet-name>RegisterServlet</servlet-name>
     <servlet-class>Servlet.RegisterServlet</servlet-class>
   </servlet>
+  <servlet>
+    <servlet-name>AddFriendsServlet</servlet-name>
+    <servlet-class>Servlet.AddFriendsServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>QueryFriendsServlet</servlet-name>
+    <servlet-class>Servlet.QueryFriendsServlet</servlet-class>
+  </servlet>
 
   <servlet-mapping>
     <servlet-name>LoginServlet</servlet-name>
@@ -21,6 +29,14 @@
   <servlet-mapping>
     <servlet-name>RegisterServlet</servlet-name>
     <url-pattern>/RegisterServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>AddFriendsServlet</servlet-name>
+    <url-pattern>/AddFriendsServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>QueryFriendsServlet</servlet-name>
+    <url-pattern>/QueryFriendsServlet</url-pattern>
   </servlet-mapping>
 
 

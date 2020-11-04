@@ -1,4 +1,4 @@
-package com.example.server_communication;
+package com.example.server_communicator;
 
 import java.util.concurrent.TimeUnit;
 

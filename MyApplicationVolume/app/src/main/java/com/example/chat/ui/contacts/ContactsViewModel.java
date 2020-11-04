@@ -1,16 +1,16 @@
-package com.example.chat.ui.notifications;
+package com.example.chat.ui.contacts;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class MeViewModel extends ViewModel {
+public class ContactsViewModel extends ViewModel {
 
     private MutableLiveData<String> mText;
 
-    public MeViewModel() {
+    public ContactsViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is notifications fragment");
+        mText.setValue("No friends yet !");
     }
 
     public LiveData<String> getText() {

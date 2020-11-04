@@ -80,7 +80,7 @@ public class ChatActivity extends AppCompatActivity {
                     public void onClick(View v) {
                     }
                 })
-                .setPositiveButton(R.string.btn_chat, new View.OnClickListener() {
+                .setPositiveButton(R.string.btn_add, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
