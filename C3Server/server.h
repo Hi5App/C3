@@ -21,11 +21,11 @@ private:
     QFileSystemWatcher fileWatcher;
     QSqlDatabase db;
 private:
-    bool isTableExist(QString);
+//    bool isTableExist(QString);
     bool initImage();//初始化C3数据库的图像表
     bool initPreApo();
     bool initPreSwc();
-    bool initProof();
+    bool initReswc();
     bool initCheck();
 };
 

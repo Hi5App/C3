@@ -19,46 +19,83 @@ struct DataInfo{
     //数据包格式
     //dataSize+stringSize+STRING+(FILE);
 };
+//需要去分辨率的层数
 
+extern QString IMAGE;//图像文件夹
+extern QString PREAPO;//预重建的输入apo文件夹
+extern QString PRESWC;//检查的swc输入文件夹
+extern QString PRERESSWC;//预重建结果文件夹
+extern QString PROOFSWC;//校验数据的文件夹
+extern QString FULLSWC;//swc数据存放文件夹
+extern QString BRAININFO;//放置brainInfo的文件夹
 
+extern QString IMAGETABLENAME;//图像数据表
+extern QString PRERETABLENAME;//预重建数据表
+extern QString RESWCTABLENAME;//重建完成数据表
+extern QString PROOFTABLENAME;//校验数据表
+extern QString CHECKTABLENAME;//校验结果数据表
 class Socket : public QThread
 {
     Q_OBJECT
 public:
-    Socket(qintptr socketID,QObject *parent=0);
+    Socket(qintptr socketID,QObject *parent=0);//
 protected:
-    void run() override; 
+    void run() override; //
 private:
     QTcpSocket *socket;
     qintptr socketDescriptor;
     DataInfo dataInfo;    
 public slots:
-    void onReadyRead();
+    void onReadyRead();//
 private:
     //translate function
     void sendMsg(const QString &msg)const;//
     bool sendFile(const QString &filePath,const QString filename)const;//
     //read file
-    void readFile(const QString &filename);
-    void processFile(QString filepath,QString filename);//process readed file
+    void readFile(const QString &filename);//
+    void processFile(QString filepath,QString filename);
     //send file
-    void SendFile(const QString &filename,int type)const;//
+    void SendFile(const QString &filename,int type)const;
     //Msg Process
-    void processMsg(const QString & msg);
+    void processMsg(const QString & msg);//需要确定消息格式
 
-    void processBrain(const QString & paraString)
-    void processBrainNumber(const QString & paraString);//根据脑图的id和模式返回神经元列表
+    QRegExp ImageDownRex("(.*):choose3_(.*).\n");//要求发送全脑图像列表//db
+    /*
+     * "0":表示预重建
+     * "1":表示校验
+     */
+    QRegExp BrainNumberRex("(.*):BrainNumber.\n");//根据脑图的id和模式返回神经元列表
+    /*模式：2位数
+     * 第一位决定是否是要求列表还是下一个可用的神经元
+     * 0:下一个
+     * 1:列表
+     * 第二位决定预重建/校验
+     * 0:预重建
+     * 1:校验
+     */
+    QRegExp ImgBlockRex("(.*):imgblock.\n");//选定的神经元的名称，返回图像
+    QRegExp GetBBSWCRex("(.*):GetBBSwc.\n");//获取局部神经元处理数据
+    QRegExp ArborCheckRex("(.*):ArborCheck.\n");
+    QRegExp GetArborResultRex("(.*):GetArborResult.\n");
+
+    qDebug()<<"MSG:"<<msg;
+
+    void processBrain(const QString & paraString);
+    void processBrainNumber(const QString & paraString);
     void processImageBlock(const QString & paraString);
     void processBBSWC(const QString &paraString);
     void processProof(const QString &paraString);
     void processResult(const QString &paraString);
 
+    void funcNext(QString brain_id, bool preOrProof);
+    void funcList(QString brain_id, bool preOrProof);
+    void getAndSendImageBlock(QString msg,QString N="0");
 
 //    QString currentDir()const;
 
     QString getNeuronList(const QString brain_id,const int i)const;
     QString currentArbors()const;
-    void getAndSendImageBlock(QString msg);
+
     void getAndSendSWCBlock(QString msg);
     void setSwcInBB(QString name,int x1,int x2,int y1,int y2,int z1,int z2,int cnt);
 //    void swcCheck(QString msg);
@@ -67,7 +104,7 @@ private:
 //    void getAndSendArborSwcBlock(QString msg);
 
 
-    void currentBrain(const int i)const;//发送的是脑图的id
+//    void currentBrain(const int i)const;//发送的是脑图的id
 
 //
 //private:

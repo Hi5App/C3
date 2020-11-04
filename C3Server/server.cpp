@@ -42,9 +42,7 @@ Server::Server(QObject *parent):QTcpServer(parent)
     db.setHostName("localhost");
     db.setUserName("root");
     db.setPassword("");
-    if(!(db.open()&&initImage()&&initPreApo()&&initPreSwc())){
-        qFatal("cannot init image,please check image data");
-    }
+
     if(!db.open()){
         qFatal("cannot connect DB");
         exit(-1);
@@ -54,7 +52,10 @@ Server::Server(QObject *parent):QTcpServer(parent)
     }else if(!initPreApo()){
         qFatal("cannot init PREAPO");
         exit(-1);
-    }else if(!initProof()){
+    }else if(!initPreSwc()){
+        qFatal("cannot init PRESWC");
+        exit(-1);
+    }else if(!initReswc()){
         qFatal("cannot init PROOF");
         exit(-1);
     }else if(!initCheck()){
@@ -63,128 +64,6 @@ Server::Server(QObject *parent):QTcpServer(parent)
     }
     qDebug()<<">---------init server sucess!---------<";
 }
-
-bool Server::initPreSwc(){
-    QSqlQuery query(db);
-
-    {
-        //create table Swc
-        QString  order="id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                       "name VARCHAR NOT NULL,"
-                       "Neuron_id VARCHAR NOT NULL,"
-                       "Brain_id VARCHAR NOT NULL,"
-                       "Arbor_Position VARCHAR NOT NULL,"
-                       "Tag VARCHAR NOT NULL,"
-                       "MAINPATH VARCHAR NOT NULL";
-        QString sql=QString("CREATE TABLE (%1) IF NOT EXISTS %2").arg(order).arg(RESWCTABLENAME);
-        if(!query.exec(sql)){
-            qDebug()<<query.lastError().text();
-            return false;
-        }
-    }
-//QString sql=QString("drop table if exists %1").arg(IMAGETABLENAME);
-    QFileInfoList swcList=QDir(QCoreApplication::applicationDirPath()+PRESWC).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
-    QStringList future = QtConcurrent::blockingMapped(swcList,cac_pos);
-    QStringList nameList;
-    QStringList neuronList;
-    QStringList brainList;
-    QStringList positionList;
-    QStringList tagList;
-    QStringList swcPath;
-    {
-        for(QString & s:future){
-            auto list=s.trimmed().split(";");
-            nameList.push_back(list[0]);
-            neuronList.push_back(list[0].left(list[0].lastIndexOf('_')));
-            brainList.push_back(list[0].left(list[0].indexOf('_')));
-            positionList.push_back(list[1]);
-            tagList.push_back("0");
-            swcPath.push_back(QCoreApplication::applicationDirPath()+"/data/"+PROOFSWC+"/"+list[0]);
-        }
-
-        QString sql="INSERT INTO %1 (name,Neuron_id,Brain_id,Arbor_Position,Tag,MAINPATH) VALUES (?,?,?,?,?,?)";
-        query.prepare(sql);
-        query.addBindValue(nameList);
-        query.addBindValue(neuronList);
-        query.addBindValue(brainList);
-        query.addBindValue(positionList);
-        query.addBindValue(tagList);
-        query.addBindValue(swcPath);
-        if(!query.execBatch()){
-            return false;
-        }
-    }
-    return true;
-}
-
-bool Server::initPreApo(){
-    QSqlQuery query(db);
-    {
-        QString order="id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                      "Neuron_id VARCHAR NOT NULL,"
-                      "Brain_id VARCHAR NOT NULL,"
-                      "Tag VARCHAR NOT NULL,"
-                      "Time0 VARCHAR NOT NULL,"
-                      "Time1 VARCHAR NOT NULL,"
-                      "Soma_position VARCHAR NOT NULL,"
-                      "Pre_Swc VARCHAR NOT NULL,"
-                      "User VARCHAR NOT NULL";
-        QString sql=QString("CREATE TABLE (%1) IF NOT EXISTS %2").arg(order).arg(PRERETABLENAME);
-        if(!query.exec(sql)){
-            qDebug()<<query.lastError().text();
-            return false;
-        }
-    }
-
-    QStringList neuron_ids;
-    QStringList brain_ids;
-    QStringList tags;
-    QStringList time0s;
-    QStringList time1s;
-    QStringList somaPositions;
-    QStringList preSWCs;
-    QStringList users;
-
-    {
-        QFileInfoList apoList=QDir(QCoreApplication::applicationDirPath()+PREAPO).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
-        //    query.prepare("INSERT OR IGNORE INTO Swc (Neuron_id,Brain_id,Tag,Time0,Soma_position) VALUES (?,?,?,?,?)");
-        for(auto & apo:apoList){
-            neuron_ids.push_back(apo.baseName());
-            brain_ids.push_back(apo.baseName().left(apo.baseName().indexOf('_')).trimmed());
-            tags.push_back("0");
-            time0s.push_back(QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
-            time1s.push_back("-1");
-            {
-                auto cords=readAPO_file(apo.absoluteFilePath());
-                if(cords.size()!=1) continue;
-                somaPositions.push_back(QString("%1_%2_%3").arg(int(cords[0].x)).arg(int(cords[0].y)).arg(int(cords[0].z)));
-            }
-            preSWCs.push_back("-1");
-            users.push_back("-1");
-            if(!QFile::remove(apo.absoluteFilePath())){
-                qDebug()<<"failed to remove "<<apo.fileName();
-            }
-        }
-    }
-
-    {
-        QString sql=QString("INSERT IGNORE INTO %1 (Neuron_id,Brain_id,Tag,Time0,Time1,Soma_position,Pre_Swc,User) VALUES (?,?,?,?,?,?,?,?)");
-        query.prepare(sql);
-        query.addBindValue(neuron_ids);
-        query.addBindValue(brain_ids);
-        query.addBindValue(tags);
-        query.addBindValue(time0s);
-        query.addBindValue(time1s);
-        query.addBindValue(somaPositions);
-        query.addBindValue(preSWCs);
-        query.addBindValue(users);
-        if(!query.execBatch()){
-            return false;
-        }
-    }
-    return true;
-}
-
 bool Server::initImage(){
 
     QDir imageDir(QCoreApplication::applicationDirPath()+"/"+IMAGE);
@@ -198,7 +77,6 @@ bool Server::initImage(){
     }
 
     QSqlQuery query(db);
-
     {
         QString sql=QString("drop table if exists %1").arg(IMAGETABLENAME);
         if(!query.exec(sql)){
@@ -279,8 +157,127 @@ bool Server::initImage(){
     }
     return true;
 }
+bool Server::initPreApo(){
+    QSqlQuery query(db);
+    {
+        QString order="id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                      "Neuron_id VARCHAR NOT NULL,"
+                      "Brain_id VARCHAR NOT NULL,"
+                      "Tag VARCHAR NOT NULL,"
+                      "Time0 VARCHAR NOT NULL,"
+                      "Time1 VARCHAR NOT NULL,"
+                      "Soma_position VARCHAR NOT NULL,"
+                      "Pre_Swc VARCHAR NOT NULL,"
+                      "User VARCHAR NOT NULL";
+        QString sql=QString("CREATE TABLE (%1) IF NOT EXISTS %2").arg(order).arg(PRERETABLENAME);
+        if(!query.exec(sql)){
+            qDebug()<<query.lastError().text();
+            return false;
+        }
+    }
 
-bool Server::initProof()
+    QStringList neuron_ids;
+    QStringList brain_ids;
+    QStringList tags;
+    QStringList time0s;
+    QStringList time1s;
+    QStringList somaPositions;
+    QStringList preSWCs;
+    QStringList users;
+
+    {
+        QFileInfoList apoList=QDir(QCoreApplication::applicationDirPath()+PREAPO).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
+        //    query.prepare("INSERT OR IGNORE INTO Swc (Neuron_id,Brain_id,Tag,Time0,Soma_position) VALUES (?,?,?,?,?)");
+        for(auto & apo:apoList){
+            neuron_ids.push_back(apo.baseName());
+            brain_ids.push_back(apo.baseName().left(apo.baseName().indexOf('_')).trimmed());
+            tags.push_back("0");
+            time0s.push_back(QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
+            time1s.push_back("-1");
+            {
+                auto cords=readAPO_file(apo.absoluteFilePath());
+                if(cords.size()!=1) continue;
+                somaPositions.push_back(QString("%1_%2_%3").arg(int(cords[0].x)).arg(int(cords[0].y)).arg(int(cords[0].z)));
+            }
+            preSWCs.push_back("-1");
+            users.push_back("-1");
+            if(!QFile::remove(apo.absoluteFilePath())){
+                qDebug()<<"failed to remove "<<apo.fileName();
+            }
+        }
+    }
+
+    {
+        QString sql=QString("INSERT IGNORE INTO %1 (Neuron_id,Brain_id,Tag,Time0,Time1,Soma_position,Pre_Swc,User) VALUES (?,?,?,?,?,?,?,?)");
+        query.prepare(sql);
+        query.addBindValue(neuron_ids);
+        query.addBindValue(brain_ids);
+        query.addBindValue(tags);
+        query.addBindValue(time0s);
+        query.addBindValue(time1s);
+        query.addBindValue(somaPositions);
+        query.addBindValue(preSWCs);
+        query.addBindValue(users);
+        if(!query.execBatch()){
+            return false;
+        }
+    }
+    return true;
+}
+bool Server::initPreSwc(){
+    QSqlQuery query(db);
+
+    {
+        //create table Swc
+        QString  order="id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                       "name VARCHAR NOT NULL,"
+                       "Neuron_id VARCHAR NOT NULL,"
+                       "Brain_id VARCHAR NOT NULL,"
+                       "Arbor_Position VARCHAR NOT NULL,"
+                       "Tag VARCHAR NOT NULL,"
+                       "MAINPATH VARCHAR NOT NULL";
+        QString sql=QString("CREATE TABLE (%1) IF NOT EXISTS %2").arg(order).arg(PROOFTABLENAME);
+        if(!query.exec(sql)){
+            qDebug()<<query.lastError().text();
+            return false;
+        }
+    }
+//QString sql=QString("drop table if exists %1").arg(IMAGETABLENAME);
+    QFileInfoList swcList=QDir(QCoreApplication::applicationDirPath()+PRESWC).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
+    QStringList future = QtConcurrent::blockingMapped(swcList,cac_pos);
+    QStringList nameList;
+    QStringList neuronList;
+    QStringList brainList;
+    QStringList positionList;
+    QStringList tagList;
+    QStringList swcPath;
+    {
+        for(QString & s:future){
+            auto list=s.trimmed().split(";");
+            nameList.push_back(list[0]);
+            neuronList.push_back(list[0].left(list[0].lastIndexOf('_')));
+            brainList.push_back(list[0].left(list[0].indexOf('_')));
+            positionList.push_back(list[1]);
+            tagList.push_back("0");
+            swcPath.push_back(QCoreApplication::applicationDirPath()+"/data/"+PROOFSWC+"/"+list[0]);
+        }
+
+        QString sql="INSERT INTO %1 (name,Neuron_id,Brain_id,Arbor_Position,Tag,MAINPATH) VALUES (?,?,?,?,?,?)";
+        query.prepare(sql);
+        query.addBindValue(nameList);
+        query.addBindValue(neuronList);
+        query.addBindValue(brainList);
+        query.addBindValue(positionList);
+        query.addBindValue(tagList);
+        query.addBindValue(swcPath);
+        if(!query.execBatch()){
+            return false;
+        }
+    }
+    return true;
+}
+
+bool Server::initReswc()
 {
     QSqlQuery query(db);
     {
@@ -294,7 +291,7 @@ bool Server::initProof()
                       "Tag VARCHAR NOT NULL,"
                       "CelltypeRough VARCHAR NOT NULL,"
                       "Celltype VARCHAR NOT NULL";
-        QString sql=QString("CREATE TABLE (%1) IF NOT EXISTS %2").arg(order).arg(PROOFTABLENAME);
+        QString sql=QString("CREATE TABLE (%1) IF NOT EXISTS %2").arg(order).arg(RESWCTABLENAME);
         if(!query.exec(sql)){
             qDebug()<<query.lastError().text();
             return false;
@@ -333,21 +330,21 @@ void Server::incomingConnection(qintptr handle)
     socket->start();
 }
 
-bool Server::isTableExist(QString tableName){
+//bool Server::isTableExist(QString tableName){
 
-    QSqlQuery query;
-    query.exec(QString("select count(*) from sqlite_master where type='table' and name='%1'").arg(tableName));
-    if(query.next())
-    {
-        if(query.value(0).toInt()==0)
-        {
-            return false;
-          // 表不存在
-        }else{
-            return true;
-            //表存在
-        }
-    }
-    return false;
-}
+//    QSqlQuery query;
+//    query.exec(QString("select count(*) from sqlite_master where type='table' and name='%1'").arg(tableName));
+//    if(query.next())
+//    {
+//        if(query.value(0).toInt()==0)
+//        {
+//            return false;
+//          // 表不存在
+//        }else{
+//            return true;
+//            //表存在
+//        }
+//    }
+//    return false;
+//}
 
