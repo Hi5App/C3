@@ -30,8 +30,11 @@ import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -50,6 +53,8 @@ public class GameActivity extends BaseActivity {
 
     private String filepath;
     private static BasePopupView progressBar;
+
+    private BasePopupView archiveListPopup;
 
 //    private float[] position;
 //    private float[] dir;
@@ -79,10 +84,13 @@ public class GameActivity extends BaseActivity {
         public void handleMessage(Message msg) {
             switch (msg.what){
                 case SHOW_PROGRESSBAR:
+                    Log.v("HandleMessage", "progressBar.show()");
                     progressBar.show();
                     break;
 
                 case HIDE_PROGRESSBAR:
+                    Log.v("HandleManager", "progressbar.dismiss()");
+                    progressBar.dismiss();
                     progressBar.dismiss();
                     break;
 
@@ -401,6 +409,10 @@ public class GameActivity extends BaseActivity {
 //                    Toast_in_Thread("Failed To Save!!!");
                 return true;
 
+            case R.id.load_game:
+                archiveList(false);
+                return true;
+
             default:
                 return true;
         }
@@ -419,6 +431,7 @@ public class GameActivity extends BaseActivity {
 
         myrenderer.setPath(filepath);
 //        myGLSurfaceView.requestRender();
+        myGLSurfaceView.requestRender();
 
     }
 
@@ -467,7 +480,8 @@ public class GameActivity extends BaseActivity {
             }
         }
 
-        new XPopup.Builder(this)
+        archiveListPopup = new XPopup.Builder(this)
+                .autoDismiss(false)
                 .asCenterList("Archives", fileList,
                         new OnSelectListener() {
                             @Override
@@ -496,16 +510,23 @@ public class GameActivity extends BaseActivity {
                                                         new OnCancelListener() {
                                                             @Override
                                                             public void onCancel() {
-                                                                archiveList(true);
+//                                                                archiveList(true);
                                                             }
                                                         },false).show();
+                                    } else {
+                                        if (loadGame(position))
+                                            Toast_in_Thread("Loaded successfully");
+                                        else
+                                            Toast_in_Thread("Failed To Load!!!");
                                     }
                                 }
                             }
-                        }).show();
+                        });
+        archiveListPopup.show();
     }
 
     public boolean saveGame(int num){
+        archiveListPopup.dismiss();
         String filename_root = SettingFileManager.getFilename_Remote(context);
         String offset = SettingFileManager.getoffset_Remote(context, filename_root);
 
@@ -569,6 +590,69 @@ public class GameActivity extends BaseActivity {
             e.printStackTrace();
             return false;
         }
+        return true;
+    }
+
+    private boolean loadGame(int num){
+        archiveListPopup.dismiss();
+        String archiveImageName;
+        String archiveOffset;
+        float [] pos = new float[3];
+        float [] dir = new float[3];
+        String externalFileDir = context.getExternalFilesDir(null).toString();
+        File file = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num);
+        if (!file.exists()){
+            file.mkdir();
+            return false;
+        }
+
+        File [] tempList = file.listFiles();
+        if(tempList.length == 0){
+            return false;
+        }
+
+        try{
+            FileInputStream inStream = new FileInputStream(tempList[0]);
+            if (inStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                line = buffreader.readLine();
+                archiveImageName = line;
+
+                line = buffreader.readLine();
+                archiveOffset = line;
+
+                line = buffreader.readLine();
+                pos[0] = Float.parseFloat(line.split(" ")[0]);
+                pos[1] = Float.parseFloat(line.split(" ")[1]);
+                pos[2] = Float.parseFloat(line.split(" ")[2]);
+
+                line = buffreader.readLine();
+                dir[0] = Float.parseFloat(line.split(" ")[0]);
+                dir[1] = Float.parseFloat(line.split(" ")[1]);
+                dir[2] = Float.parseFloat(line.split(" ")[2]);
+
+                inStream.close();//关闭输入流
+
+                float [] head = MyRenderer.locateHead(dir[0], dir[1], dir[2]);
+
+                gameCharacter = new GameCharacter(pos, dir, head);
+
+                if (archiveImageName != null && archiveOffset != null){
+                    remoteSocket.disConnectFromHost();
+                    remoteSocket.connectServer(ip_SEU);
+                    remoteSocket.pullImageBlockWhenLoadGame(archiveImageName, archiveOffset);
+
+
+                }
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
         return true;
     }
 

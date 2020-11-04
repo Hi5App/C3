@@ -9,8 +9,15 @@
         android:icon="@drawable/ic_baseline_save_24" />
 
     <item
-        android:id="@+id/back"
+        android:id="@+id/load_game"
         android:orderInCategory="2"
+        android:title="load"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_archive" />
+
+    <item
+        android:id="@+id/back"
+        android:orderInCategory="3"
         android:title="back"
         app:showAsAction="always"
         android:icon="@drawable/ic_baseline_clear_24" />

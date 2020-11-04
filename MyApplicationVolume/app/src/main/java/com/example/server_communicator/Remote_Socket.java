@@ -19,7 +19,9 @@ import androidx.core.content.FileProvider;
 
 import com.example.ImageReader.BigImgReader;
 import com.example.datastore.ExcelUtil;
+import com.example.myapplication__volume.GameActivity;
 import com.example.myapplication__volume.MainActivity;
+import com.example.myapplication__volume.Myapplication;
 import com.example.myapplication__volume.R;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnSelectListener;
@@ -601,7 +603,7 @@ public class Remote_Socket extends Socket {
 
         if (!JudgeBounding(input)){
             PopUp(isDirect);
-            Toast.makeText(mContext, "Please Make sure All the Information is Right !", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, "Please Make Sure All the Information is Right !", Toast.LENGTH_SHORT).show();
         }else {
             Make_Connect();
 
@@ -613,147 +615,9 @@ public class Remote_Socket extends Socket {
 
         }
 
-
-//        if (!isDirect){
-//            String offset_x, offset_y, offset_z, size;
-//
-//            String[] offset_transform = transform_offset();
-//            offset_x = offset_transform[0];
-//            offset_y = offset_transform[1];
-//            offset_z = offset_transform[2];
-////                                size     = offset_transform[3];
-//            size     = "128";
-//
-//            String offset = offset_x + "_" + offset_y + "_" + offset_z + "_" + size;
-//            String filename = getFilename_Remote(mContext);
-//            setoffset_Remote(offset, filename, mContext);
-//
-//            String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
-//
-//            if (!JudgeBounding(input)){
-//                PopUp(isDirect);
-//                Toast.makeText(mContext, "Please Make sure All the Information is Right !", Toast.LENGTH_SHORT).show();
-//            }else {
-//                Make_Connect();
-//
-//                if (CheckConnection()){
-//                    PullImageBlock(input[0], input[1], input[2], input[3], false);
-//                }else {
-//                    Toast_in_Thread("Can't Connect Server, Try Again Later !");
-//                }
-//
-//            }
-//
-//        }else {
-//
-//            new MDDialog.Builder(mContext)
-////              .setContentView(customizedView)
-//                    .setContentView(R.layout.image_bais_select)
-//                    .setContentViewOperator(new MDDialog.ContentViewOperator() {
-//                        @Override
-//                        public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-//                            EditText et1 = (EditText) contentView.findViewById(R.id.edit1);
-//                            EditText et2 = (EditText) contentView.findViewById(R.id.edit2);
-//                            EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
-//                            EditText et4 = (EditText) contentView.findViewById(R.id.edit4);
-//
-//                            String offset, offset_x, offset_y, offset_z, size;
-//
-//                            if (isDirect){
-//
-//                                String filename = getFilename_Remote(mContext);
-//                                offset = getoffset_Remote(mContext, filename);
-//                                offset_x = offset.split("_")[0];
-//                                offset_y = offset.split("_")[1];
-//                                offset_z = offset.split("_")[2];
-//                                size     = offset.split("_")[3];
-//
-//                            }else {
-//
-//                                String[] offset_transform = transform_offset();
-//                                offset_x = offset_transform[0];
-//                                offset_y = offset_transform[1];
-//                                offset_z = offset_transform[2];
-////                                size     = offset_transform[3];
-//                                size     = "128";
-//
-//                            }
-//
-//                            et1.setText(offset_x);
-//                            et2.setText(offset_y);
-//                            et3.setText(offset_z);
-//                            et4.setText(size);
-//
-//                        }
-//                    })
-//                    .setTitle("Download Image")
-//                    .setNegativeButton(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-//                        }
-//                    })
-//                    .setPositiveButton(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-//                        }
-//                    })
-//                    .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                        @Override
-//                        public void onClick(View clickedView, View contentView) {
-//
-//                            //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
-//                            EditText et1 = (EditText) contentView.findViewById(R.id.edit1);
-//                            EditText et2 = (EditText) contentView.findViewById(R.id.edit2);
-//                            EditText et3 = (EditText) contentView.findViewById(R.id.edit3);
-//                            EditText et4 = (EditText) contentView.findViewById(R.id.edit4);
-//
-//                            String offset_x   = et1.getText().toString();
-//                            String offset_y   = et2.getText().toString();
-//                            String offset_z   = et3.getText().toString();
-//                            String size       = et4.getText().toString();
-//
-//                            if( !offset_x.isEmpty() && !offset_y.isEmpty() && !offset_z.isEmpty() && !size.isEmpty()){
-//
-//                                String offset = offset_x + "_" + offset_y + "_" + offset_z + "_" + size;
-//
-//                                String filename = getFilename_Remote(mContext);
-//                                setoffset_Remote(offset, filename, mContext);
-//
-//                                String[] input = JudgeEven(offset_x, offset_y, offset_z, size);
-//
-//                                if (!JudgeBounding(input)){
-//                                    PopUp(isDirect);
-//                                    Toast.makeText(mContext, "Please Make sure All the Information is Right !", Toast.LENGTH_SHORT).show();
-//                                }else {
-//                                    Make_Connect();
-//
-//                                    if (CheckConnection()){
-//                                        PullImageBlock(input[0], input[1], input[2], input[3], false);
-//                                    }else {
-//                                        Toast_in_Thread("Can't Connect Server, Try Again Later !");
-//                                    }
-//
-//                                }
-//
-//                            }else{
-//
-//                                Toast.makeText(mContext, "Please Make sure All the Information is Right !", Toast.LENGTH_SHORT).show();
-//                            }
-//
-//                        }
-//                    })
-//                    .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                        @Override
-//                        public void onClick(View clickedView, View contentView) {
-//
-//                        }
-//                    })
-//                    .setWidthMaxDp(600)
-//                    .create()
-//                    .show();
-//        }
-
     }
+
+
 
 
     private void PullImageBlock(final String offset_x, final String offset_y, final String offset_z, final String size, boolean NeedWaited){
@@ -813,6 +677,54 @@ public class Remote_Socket extends Socket {
     }
 
 
+    public void pullImageBlockWhenLoadGame(String filename, String offset){
+
+        Thread thread = new Thread(){
+
+            @Override
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            public void run(){
+                String offset_x = offset.split("_")[0];
+                String offset_y = offset.split("_")[1];
+                String offset_z = offset.split("_")[2];
+                String size = offset.split("_")[3];
+
+                String store_path = mContext.getExternalFilesDir(null).toString();
+                String storeFilename = filename +
+                        "_" + offset_x + "_" + offset_y + "_" + offset_z + "_" + size +"_" + size +"_" + size + ".v3dpbd";
+
+                File img = new File(store_path + "/Img/" + storeFilename);
+
+                if (img.exists() && img.length()>0){
+
+                    Log.d("PullImageBlock","The File exists Already !");
+
+                    ActivityManager activityManager = (ActivityManager)mContext.getSystemService(Context.ACTIVITY_SERVICE);
+                    String runningActivity = activityManager.getRunningTasks(1).get(0).topActivity.getClassName();
+                    Log.i("RunningActivity", runningActivity);
+                    GameActivity.LoadBigFile_Remote(store_path + "/Img/" + storeFilename);
+
+                } else {
+
+                    String msg = filename + "__" + offset_x + "__" + offset_y + "__" + offset_z + "__" + size + ":imgblock.\n";
+                    Send_Message(msg);
+
+                    Get_Img(store_path +"/Img",false);
+                    Log.i("PullImageBlock", "x: " + offset_x + ", y:" + offset_y + ", z:" +offset_z + ", size: " + size +  " successfully---------");
+
+                }
+            }
+        };
+
+        thread.start();
+
+        try{
+            thread.join();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
 
 
     public void Select_RES(String[] RESs){
