@@ -13,9 +13,9 @@
 #include <QHash>
 #include <QReadWriteLock>
 struct DataInfo{
-    quint64 dataSize;
-    quint64 stringSize;
-    quint64 dataReadedSize;
+    qint32 dataSize;
+    qint32 stringSize;
+    qint32 dataReadedSize;
     //数据包格式
     //dataSize+stringSize+STRING+(FILE);
 };
@@ -27,17 +27,36 @@ class Socket : public QThread
 public:
     Socket(qintptr socketID,QObject *parent=0);
 protected:
-    void run() override;
-    void sendMsg(const QString &msg)const;//
-    void sendFile(const QString &filename,int type)const;//
+    void run() override; 
 private:
     QTcpSocket *socket;
     qintptr socketDescriptor;
-    DataInfo dataInfo;
+    DataInfo dataInfo;    
+public slots:
+    void onReadyRead();
+private:
+    //translate function
+    void sendMsg(const QString &msg)const;//
+    bool sendFile(const QString &filePath,const QString filename)const;//
+    //read file
+    void readFile(const QString &filename);
+    void processFile(QString filepath,QString filename);//process readed file
+    //send file
+    void SendFile(const QString &filename,int type)const;//
+    //Msg Process
     void processMsg(const QString & msg);
-    void readFile(const QString &filename);//need to do something
-    QString currentDir()const;
-    QString currentBrain(const int i)const;
+
+    void processBrain(const QString & paraString)
+    void processBrainNumber(const QString & paraString);//根据脑图的id和模式返回神经元列表
+    void processImageBlock(const QString & paraString);
+    void processBBSWC(const QString &paraString);
+    void processProof(const QString &paraString);
+    void processResult(const QString &paraString);
+
+
+//    QString currentDir()const;
+
+    QString getNeuronList(const QString brain_id,const int i)const;
     QString currentArbors()const;
     void getAndSendImageBlock(QString msg);
     void getAndSendSWCBlock(QString msg);
@@ -48,9 +67,12 @@ private:
 //    void getAndSendArborSwcBlock(QString msg);
 
 
-public slots:
-    void onReadyRead();//
-signals:
+    void currentBrain(const int i)const;//发送的是脑图的id
+
+//
+//private:
+//    static const int ProcessCnt=10;
+//    static QProcess p[ProcessCnt];
 
 
 };
