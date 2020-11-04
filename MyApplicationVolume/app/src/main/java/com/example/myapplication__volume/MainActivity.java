@@ -386,6 +386,12 @@ public class MainActivity extends BaseActivity {
         BLACK, WHITE, RED, BLUE, GREEN, PURPLE, YELLOW
     }
 
+    private enum VoicePattern {
+        PEER_TO_PEER, CHAT_ROOM, UNCERTAIN
+    }
+
+    private VoicePattern voicePattern = VoicePattern.UNCERTAIN;
+    private int chat_room_num = 0;
 
     private static String[] push_info_swc = {"New", "New"};
     private static String[] push_info_apo = {"New", "New"};
@@ -393,7 +399,6 @@ public class MainActivity extends BaseActivity {
     private BasePopupView drawPopupView;
 
     private static boolean ifGame = false;
-
 
     HashMap<Integer, String> User_Map = new HashMap<Integer, String>();
 
@@ -562,8 +567,27 @@ public class MainActivity extends BaseActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    Log.e("onUserOffline","Here we are !");
                     String userAccount = User_Map.get(uid);
                     onRemoteUserLeft(userAccount, reason);
+                    if (voicePattern == VoicePattern.PEER_TO_PEER){
+                        fab.setVisibility(View.GONE);
+                        leaveChannel();
+                        RtcEngine.destroy();
+                        mRtcEngine = null;
+                        Log.e("onUserOffline","voicePattern == VoicePattern.PEER_TO_PEER");
+                    }else if (voicePattern == VoicePattern.CHAT_ROOM){
+                        chat_room_num--;
+                        Log.e("onUserOffline","chat_room_num: " + chat_room_num);
+                        if (chat_room_num == 0){
+                            fab.setVisibility(View.GONE);
+                            leaveChannel();
+                            RtcEngine.destroy();
+                            mRtcEngine = null;
+                            Log.e("onUserOffline","voicePattern == VoicePattern.CHAT_ROOM");
+                        }
+                    }
+
                 }
             });
         }
@@ -605,6 +629,10 @@ public class MainActivity extends BaseActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    if (voicePattern == VoicePattern.CHAT_ROOM){
+                        chat_room_num++;
+                        Log.e("onUserInfoUpdated","chat_room_num: " + chat_room_num);
+                    }
                     User_Map.put(user.uid, user.userAccount);
                     onRemoteUserJoined(user.userAccount);
                 }
@@ -4906,7 +4934,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20201104a 14:36 UTC+8 build",
+                                "Version: 20201104b 22:16 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -7468,6 +7496,8 @@ public class MainActivity extends BaseActivity {
                             Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
                         } else {
                             callTarget(mTargetName);
+                            voicePattern = VoicePattern.PEER_TO_PEER;
+                            Log.e("peerToPeerChat","voicePattern = VoicePattern.PEER_TO_PEER");
                         }
                     }
                 })
@@ -7568,6 +7598,7 @@ public class MainActivity extends BaseActivity {
                         if( !Channel.isEmpty() && !userAccount.isEmpty() ){
                             VoiceChat(Channel, userAccount);
                             setUserAccount(userAccount, context);
+                            voicePattern = VoicePattern.CHAT_ROOM;
 
                         }else{
                             PopUp_Chat(context);
@@ -8048,11 +8079,17 @@ public class MainActivity extends BaseActivity {
     // Tutorial Step 3
     private void leaveChannel() {
         mRtcEngine.leaveChannel();
+        voicePattern = VoicePattern.UNCERTAIN;
+        chat_room_num = 0;
     }
 
     // Tutorial Step 4
     private void onRemoteUserLeft(String userAccount, int reason) {
-        showLongToast("user " + userAccount + " left : " + reason);
+        if (voicePattern == VoicePattern.PEER_TO_PEER){
+            showLongToast("The CALL is End !");
+        }else {
+            showLongToast("user " + userAccount + " left : " + reason);
+        }
     }
 
     // Tutorial Step 4
@@ -8274,28 +8311,6 @@ public class MainActivity extends BaseActivity {
                         });
 
                     });
-//                    try {
-//                        Thread.sleep(30000);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                    if (answered[0] == false){
-//                        String callMessage = "##TimeOutToAnswer##";
-//                        RtmMessage timeOutMessage = mRtmClient.createMessage();
-//                        timeOutMessage.setText(callMessage);
-//
-//                        mRtmClient.sendMessageToPeer(targetName, timeOutMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
-//                            @Override
-//                            public void onSuccess(Void aVoid) {
-//
-//                            }
-//
-//                            @Override
-//                            public void onFailure(ErrorInfo errorInfo) {
-//
-//                            }
-//                        });
-//                    }
                 } else if (msg.equals("##RefuseToAnswer##")){
                     runOnUiThread(() -> {
                         Toast_in_Thread("Target Refused To Answer");
