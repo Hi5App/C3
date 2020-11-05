@@ -709,7 +709,7 @@ public class Remote_Socket extends Socket {
                     String msg = filename + "__" + offset_x + "__" + offset_y + "__" + offset_z + "__" + size + ":imgblock.\n";
                     Send_Message(msg);
 
-                    Get_Img(store_path +"/Img",false);
+                    Get_Img(store_path +"/Img",true);
                     Log.i("PullImageBlock", "x: " + offset_x + ", y:" + offset_y + ", z:" +offset_z + ", size: " + size +  " successfully---------");
 
                 }
@@ -718,11 +718,11 @@ public class Remote_Socket extends Socket {
 
         thread.start();
 
-        try{
-            thread.join();
-        } catch (Exception e){
-            e.printStackTrace();
-        }
+//        try{
+//            thread.join();
+//        } catch (Exception e){
+//            e.printStackTrace();
+//        }
 
     }
 

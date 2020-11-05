@@ -269,6 +269,7 @@ public class Socket_Receive {
         if (runningActivity.equals(MainActivity.NAME)){
             MainActivity.showProgressBar();
         }else if (runningActivity.equals(GameActivity.NAME)){
+
             GameActivity.showProgressBar();
         }
 
