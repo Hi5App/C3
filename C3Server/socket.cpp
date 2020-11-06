@@ -206,10 +206,7 @@ void Socket::SendFile(const QString &filename, int type) const
     QString filePath;
     filePath.clear();
     switch (type) {
-        case 0:filePath=QCoreApplication::applicationDirPath()+"/data/"+filename;break;
-        case 1:filePath=QCoreApplication::applicationDirPath()+"/brainInfo/"+filename;break;
         case 2:filePath=QCoreApplication::applicationDirPath()+"/tmp/"+filename;break;
-        case 3:filePath=QCoreApplication::applicationDirPath()+"/arbormark/"+filename;break;
     default: return;
     }
     if(sendFile(filePath,filename)&&type==2){
@@ -249,6 +246,7 @@ void Socket::processMsg(const QString &msg)
     QRegExp GetBBSWCRex("(.*):GetBBSwc.\n");//获取局部神经元处理数据
     QRegExp ArborCheckRex("(.*):ArborCheck.\n");
     QRegExp GetArborResultRex("(.*):GetArborResult.\n");
+    QRegExp BRINRESRex("(.*):BRAINRES.\n");
     if(ImageDownRex.indexIn(msg)!=-1)
     {
         processBrain(ImageDownRex.cap(1).trimmed());
@@ -278,6 +276,8 @@ void Socket::processMsg(const QString &msg)
     {
         processResult(GetArborResultRex.cap(1).trimmed());
 //        SendFile("arborcheck.txt",3);
+    }else if(BRINRESRex.indexIn(msg)!=-1){
+        processRes(BRINRESRex.cap(1).trimmed());
     }
     qDebug()<<"process Msg end";
 }
@@ -337,7 +337,7 @@ void Socket::processBBSWC(const QString &paraString)
 
 void Socket::processProof(const QString &paraString)
 {
-
+    ArborCheck(paraString);
 }
 
 void Socket::processResult(const QString &paraString)
@@ -411,272 +411,6 @@ void Socket::funcList(QString brain_id,bool preOrProof)
         }
     }
     sendMsg("List:"+result.join("/"));
-}
-
-
-void Socket::ArborCheck(QString msg)
-{
-    QRegExp tmp("(.*);(.*);(.*);(.*);(.*);(.*);(.*);(.*);(.*);(.*)");//17302_00001;x1;x2;y1;y2;z1;z2;flag;id;arN
-    qDebug()<<msg;
-    if(tmp.indexIn(msg)!=-1)
-    {
-        QString filename=tmp.cap(1).trimmed();
-
-        int x1=tmp.cap(2).toInt();
-        int x2=tmp.cap(3).toInt();
-        int y1=tmp.cap(4).toInt();
-        int y2=tmp.cap(5).toInt();
-        int z1=tmp.cap(6).toInt();
-        int z2=tmp.cap(7).toInt();
-
-        int flag=tmp.cap(8).toInt();
-        QString id=tmp.cap(9).trimmed();
-        int arN=tmp.cap(10).toUInt();
-        int n=5;
-
-
-        if(!QDir(QCoreApplication::applicationDirPath()+"/arbormark").exists())
-        {
-            QDir(QCoreApplication::applicationDirPath()).mkdir("arbormark");
-        }
-        QFile *f=new QFile(QCoreApplication::applicationDirPath()+"/arbormark/"+"arborcheck.txt");
-        __START1:
-        if(f->open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Append))
-        {
-            QTextStream tsm(f);
-//            qDebug()<<filename<<" "<<arN<<" "<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<" "<<id<<endl;
-            tsm<<filename<<" "<<arN<<" "<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<" "<<flag<<" "<<id<<" "<<QDateTime::currentDateTime().toString("yyyy/MM/dd_hh:mm:ss")<<endl;
-            f->close();
-            switch (flag) {
-            case 0:QFile(QCoreApplication::applicationDirPath()+"/data/"+filename+".swc").rename(QCoreApplication::applicationDirPath()+"/data/markfalse/"+filename+".swc");break;
-            case 1:QFile(QCoreApplication::applicationDirPath()+"/data/"+filename+".swc").rename(QCoreApplication::applicationDirPath()+"/data/marktrue/"+filename+".swc");break;
-            case 2:QFile(QCoreApplication::applicationDirPath()+"/data/"+filename+".swc").rename(QCoreApplication::applicationDirPath()+"/data/markNone/"+filename+".swc");break;
-            }
-
-        }else if(n-->0)
-        {
-            qDebug()<<f->errorString();
-            QElapsedTimer t;
-            t.start();
-            while(t.elapsed()<2000);
-            goto __START1;
-        }
-
-    }
-}
-
-//QString Socket::currentDir() const
-//{
-//    QString dataPath=QCoreApplication::applicationDirPath()+"/data";
-//    QStringList dataFileList=QDir(dataPath).entryList(QDir::Files|QDir::NoDotAndDotDot);
-//    return  dataFileList.join(";");
-//}
-
-QString Socket::currentBrain(const int j) const
-{
-//    QString brainPath=QCoreApplication::applicationDirPath()+"/"+"brainInfo";
-
-//    auto list=QDir(brainPath).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
-
-//    QStringList imgDirList;
-//    imgDirList.clear();
-//    for(auto i:list)
-//    {
-//        if(j==0)
-//        {
-//            if(!i.baseName().contains("check")) imgDirList.push_back(i.baseName());
-//        }else if(j==1)
-//        {
-//            if(i.baseName().contains("check")) imgDirList.push_back(i.baseName());
-//        }
-
-//    }
-//    return imgDirList.join(";");
-
-    QSqlDatabase db=QSqlDatabase::addDatabase("QMYSQL","C3");
-    db.setHostName("localhost");
-    db.setUserName("root");
-    db.setPassword("");
-    if(!db.open()){
-        qDebug()<<"can not open db";
-    }
-    QSqlQuery query(db);
-    query.prepare("SELECT * FROM Swc WHERE tag = ?");
-    if(j==0)
-        query.addBindValue("0");
-    else
-        query.addBindValue("3");
-    if(query.exec()){
-        QSet<QString> brainSet;
-        while (query.next()) {
-            brainSet.insert(query.value(1).toString());
-        }
-        QStringList brainList=QStringList(brainSet.begin(),brainSet.end());
-        brainList.sort();
-        return brainList.join(";");
-    }
-    return "";
-}
-
-QString Socket::getNeuronList(const QString brain_id,const int i)const
-{
-    QSqlDatabase db=QSqlDatabase::addDatabase("QMYSQL","C3");
-    db.setHostName("localhost");
-    db.setUserName("root");
-    db.setPassword("");
-    if(!db.open()){
-        qDebug()<<"can not open db";
-    }
-    QSqlQuery query(db);
-
-    if(i==0)
-    {
-        query.prepare("SELECT * FROM Swc WHERE tag = ? and brain = ?");
-        query.addBindValue("0");
-        query.addBindValue(brain_id);
-        if(query.exec())
-        {
-            QStringList res;
-            while (query.next()) {
-                res+=(QStringList()<<query.value(0).toString()<<query.value(5).toString()).join("*_*");
-            }
-            return res.join("..*..");
-        }
-    }
-    else
-    {
-        query.prepare("SELECT * FROM Arbor ORDER BY neuron_id WHERE tag = ? and brain = ?");
-        query.addBindValue("0");
-        query.addBindValue(brain_id);
-        if(query.exec())
-        {
-            QMultiMap<QString,QString> resMap;
-            while (query.next()) {
-                resMap.insertMulti(query.value(0).toString(),query.value(2).toString()+"/"+query.value(3).toString());
-            }
-            QStringList res;
-            for(auto & k:resMap.keys()){
-                QStringList valueList(resMap.value(k).begin(),resMap.value(k).end());
-                res<< QString(k+"\\"+valueList.join("\\"));
-
-            }
-            return res.join("..*..");
-        }
-    }
-    return "";
-}
-
-QString Socket::currentArbors() const
-{
-    QString imgPath=QCoreApplication::applicationDirPath()+"/arbors";
-    QStringList imgDirList=QDir(imgPath).entryList(QDir::Files|QDir::NoDotAndDotDot);
-    return imgDirList.join(";");
-}
-
-
-void Socket::getAndSendSWCBlock(QString msg)
-{
-    QRegExp tmp("(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)");
-    int n=5;//重复5次，每次延时2S
-    if(tmp.indexIn(msg)!=-1)
-    {
-        QString name=tmp.cap(1).trimmed();
-        int x1=tmp.cap(2).toInt();
-        int x2=tmp.cap(3).toInt();
-        int y1=tmp.cap(4).toInt();
-        int y2=tmp.cap(5).toInt();
-        int z1=tmp.cap(6).toInt();
-        int z2=tmp.cap(7).toInt();
-        int cnt=tmp.cap(8).toInt();
-
-        x1*=cnt;x2*=cnt;y1*=cnt;y2*=cnt;z1*=cnt;z2*=cnt;
-        QString filepath;
-
-        NeuronTree nt;
-        if(!QFile(QCoreApplication::applicationDirPath()+"/data/"+name).exists())
-        {
-            if(!QDir(QCoreApplication::applicationDirPath()+"/tmp").exists())
-            {
-                QDir(QCoreApplication::applicationDirPath()).mkdir("tmp");
-            }
-            x1/=cnt;x2/=cnt;y1/=cnt;y2/=cnt;z1/=cnt;z2/=cnt;
-            QString BBSWCNAME=QCoreApplication::applicationDirPath()+"/tmp/blockGet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6__%7.swc")
-                    .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2).arg(cnt);
-//            nt = resample(nt, cnt);
-            writeSWC_file(BBSWCNAME,nt);
-            SendFile("blockGet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6__%7.swc")
-                     .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2).arg(cnt),2);
-            return;
-        }
-
-        __START:
-
-        --n;
-        qDebug()<<"Get SWC in BB:"<<5-n;
-
-        nt=readSWC_file(QCoreApplication::applicationDirPath()+"/data/"+name);
-        if(nt.flag!=false)
-        {
-            V_NeuronSWC_list testVNL=NeuronTree__2__V_NeuronSWC_list(nt);
-            V_NeuronSWC_list tosave;
-            for(int i=0;i<testVNL.seg.size();i++)
-            {
-                NeuronTree SS;
-                V_NeuronSWC seg_temp =  testVNL.seg.at(i);
-                seg_temp.reverse();
-                for(int j=0;j<seg_temp.row.size();j++)
-                {
-                    if(seg_temp.row.at(j).x>=x1&&seg_temp.row.at(j).x<=x2
-                            &&seg_temp.row.at(j).y>=y1&&seg_temp.row.at(j).y<=y2
-                            &&seg_temp.row.at(j).z>=z1&&seg_temp.row.at(j).z<=z2)
-                    {
-                        tosave.seg.push_back(seg_temp);
-                        break;
-                    }
-                }
-            }
-            qDebug()<<"get nt size:"<<tosave.seg.size();
-            nt=V_NeuronSWC_list__2__NeuronTree(tosave);
-            for(int i=0;i<nt.listNeuron.size();i++)
-            {
-                (nt.listNeuron[i].x-=x1)/=cnt;
-                (nt.listNeuron[i].y-=y1)/=cnt;
-                (nt.listNeuron[i].z-=z1)/=cnt;
-            }
-            if(!QDir(QCoreApplication::applicationDirPath()+"/tmp").exists())
-            {
-                QDir(QCoreApplication::applicationDirPath()).mkdir("tmp");
-            }
-            x1/=cnt;x2/=cnt;y1/=cnt;y2/=cnt;z1/=cnt;z2/=cnt;
-            QString BBSWCNAME=QCoreApplication::applicationDirPath()+"/tmp/blockGet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6__%7.swc")
-                    .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2).arg(cnt);
-//            nt = resample(nt, cnt);
-            writeSWC_file(BBSWCNAME,nt);
-            SendFile("blockGet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6__%7.swc")
-                     .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2).arg(cnt),2);
-            return;
-        }
-        else
-        {
-            if(!n)
-            {
-                qDebug()<<"error:"<<msg<<" failed 5 times to get SWC IN BB:"<<msg;
-                goto __ERROR;
-            }else
-            {
-
-                QElapsedTimer t;
-                t.start();
-                while(t.elapsed()<2000);
-                goto __START;
-            }
-        }
-    }else
-    {
-        qDebug()<<"error:"<<msg<<" does not match tmp";
-    }
-    __ERROR:
-        sendMsg(QString("Can't get the SWC in BB ,please try again??%1:ERROR").arg(msg+":GetBBSwc.\n"));
 }
 
 void Socket::getAndSendImageBlock(QString msg,QString N)
@@ -763,6 +497,199 @@ void Socket::getAndSendImageBlock(QString msg,QString N)
     }else
     {
         sendMsg(QString("Can't get the image in BB ,please try again??%1:ERROR").arg(msg+":imgblock.\n"));
+    }
+}
+
+void Socket::getAndSendSWCBlock(QString msg)
+{
+    QRegExp tmp("(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)");
+    int n=5;//重复5次，每次延时2S
+    if(tmp.indexIn(msg)!=-1)
+    {
+        QString name=tmp.cap(1).trimmed();
+        int x1=tmp.cap(2).toInt();
+        int x2=tmp.cap(3).toInt();
+        int y1=tmp.cap(4).toInt();
+        int y2=tmp.cap(5).toInt();
+        int z1=tmp.cap(6).toInt();
+        int z2=tmp.cap(7).toInt();
+        int cnt=tmp.cap(8).toInt();
+
+        x1*=cnt;x2*=cnt;y1*=cnt;y2*=cnt;z1*=cnt;z2*=cnt;
+        //根据名称查询相关的数据库-> 找到swc的路径
+        QString filepath;
+        {
+            QSqlDatabase db=QSqlDatabase::addDatabase("QMYSQL","C3");
+            db.setHostName("localhost");
+            db.setUserName("root");
+            db.setPassword("");
+            if(!db.open()){
+                qFatal("cannot connect DB when processBrain");
+                return;
+            }
+            QSqlQuery query(db);
+            QString sql;
+            if(name.count('_')==1){
+                sql=QString("SELECT Pre_Swc FROM %1 WHERE Neuron_id = ? ").arg(PRERETABLENAME);
+
+            }else if(name.count('_')==2){
+                sql=QString("SELECT MAINPATH FROM %1 WHERE name = ? ").arg(PROOFTABLENAME);
+            }else{
+                return ;
+            }
+            query.prepare(sql);
+            query.addBindValue(name);
+            if(query.exec())
+            {
+                if(query.next()){
+                    filepath=query.value(1).toString();
+                }
+            }
+        }
+
+        NeuronTree nt;
+        if(!QFile(filepath).exists())
+        {
+            if(!QDir(QCoreApplication::applicationDirPath()+"/tmp").exists())
+            {
+                QDir(QCoreApplication::applicationDirPath()).mkdir("tmp");
+            }
+            x1/=cnt;x2/=cnt;y1/=cnt;y2/=cnt;z1/=cnt;z2/=cnt;
+            QString BBSWCNAME=QCoreApplication::applicationDirPath()+"/tmp/blockGet__"+name+QString("__%1__%2__%3__%4__%5__%6__%7.swc")
+                    .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2).arg(cnt);
+//            nt = resample(nt, cnt);
+            writeSWC_file(BBSWCNAME,nt);
+            SendFile("blockGet__"+name+QString("__%1__%2__%3__%4__%5__%6__%7.swc")
+                     .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2).arg(cnt),2);
+            return;
+        }
+
+        __START:
+
+        --n;
+        qDebug()<<"Get SWC in BB:"<<5-n;
+
+        nt=readSWC_file(filepath);
+        if(nt.flag!=false)
+        {
+            V_NeuronSWC_list testVNL=NeuronTree__2__V_NeuronSWC_list(nt);
+            V_NeuronSWC_list tosave;
+            for(int i=0;i<testVNL.seg.size();i++)
+            {
+                NeuronTree SS;
+                V_NeuronSWC seg_temp =  testVNL.seg.at(i);
+                seg_temp.reverse();
+                for(int j=0;j<seg_temp.row.size();j++)
+                {
+                    if(seg_temp.row.at(j).x>=x1&&seg_temp.row.at(j).x<=x2
+                            &&seg_temp.row.at(j).y>=y1&&seg_temp.row.at(j).y<=y2
+                            &&seg_temp.row.at(j).z>=z1&&seg_temp.row.at(j).z<=z2)
+                    {
+                        tosave.seg.push_back(seg_temp);
+                        break;
+                    }
+                }
+            }
+            qDebug()<<"get nt size:"<<tosave.seg.size();
+            nt=V_NeuronSWC_list__2__NeuronTree(tosave);
+            for(int i=0;i<nt.listNeuron.size();i++)
+            {
+                (nt.listNeuron[i].x-=x1)/=cnt;
+                (nt.listNeuron[i].y-=y1)/=cnt;
+                (nt.listNeuron[i].z-=z1)/=cnt;
+            }
+            if(!QDir(QCoreApplication::applicationDirPath()+"/tmp").exists())
+            {
+                QDir(QCoreApplication::applicationDirPath()).mkdir("tmp");
+            }
+            x1/=cnt;x2/=cnt;y1/=cnt;y2/=cnt;z1/=cnt;z2/=cnt;
+            QString BBSWCNAME=QCoreApplication::applicationDirPath()+"/tmp/blockGet__"+QFileInfo(name).baseName()+QString("__%1__%2__%3__%4__%5__%6__%7.swc")
+                    .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2).arg(cnt);
+//            nt = resample(nt, cnt);
+            writeSWC_file(BBSWCNAME,nt);
+            SendFile("blockGet__"+name+QString("__%1__%2__%3__%4__%5__%6__%7.swc")
+                     .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2).arg(cnt),2);
+            return;
+        }
+        else
+        {
+            if(!n)
+            {
+                qDebug()<<"error:"<<msg<<" failed 5 times to get SWC IN BB:"<<msg;
+                goto __ERROR;
+            }else
+            {
+
+                QElapsedTimer t;
+                t.start();
+                while(t.elapsed()<2000);
+                goto __START;
+            }
+        }
+    }else
+    {
+        qDebug()<<"error:"<<msg<<" does not match tmp";
+    }
+    __ERROR:
+        sendMsg(QString("Can't get the SWC in BB ,please try again??%1:ERROR").arg(msg+":GetBBSwc.\n"));
+}
+
+
+
+void Socket::ArborCheck(QString msg)
+{
+    QRegExp tmp("(.*);(.*);(.*)");//17302_00001;flag;id;
+    if(tmp.indexIn(msg)!=-1)
+    {
+        QString filename=tmp.cap(1).trimmed();
+        int flag=tmp.cap(8).toInt();
+        QString id=tmp.cap(9).trimmed();
+        int n=5;
+
+        QString filepath;
+        {
+            QSqlDatabase db=QSqlDatabase::addDatabase("QMYSQL","C3");
+            db.setHostName("localhost");
+            db.setUserName("root");
+            db.setPassword("");
+            if(!db.open()){
+                qFatal("cannot connect DB when processBrain");
+                return;
+            }
+            QSqlQuery query(db);
+            QString sql;
+            sql=QString("UPDATE %1 SET Tag = %2, Time = %3 , User = %4 WHERE name = ? ")
+                    .arg(CHECKTABLENAME).arg(QString::number(flag))
+                    .arg(QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss")).arg(id);
+
+            query.prepare(sql);
+            query.addBindValue(filename);
+            if(query.exec())
+            {
+                sql=QString("SELECT * INTO %1 WHERE NEURON_ID = ?").arg(CHECKTABLENAME);
+                query.prepare(sql);
+                query.addBindValue(filename.left(filename.lastIndexOf('_')));
+                if(query.exec())
+                {
+                    //注释 以为表Swc 写好
+//                    while(query.next()){
+//                        if(query.value(4).toString()=="-1"){
+//                            sql=QString("UPDATE %1 SET Tag = %2, Time = %3 , User = %4 WHERE name = ? ")
+//                                    .arg(CHECKTABLENAME).arg(QString::number(flag))
+//                                    .arg(QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss")).arg(id);
+//                        }
+//                    }
+                    sql=QString("UPDATE %1 SET Tag = %2 WHERE name = ? ")
+                            .arg(PROOFTABLENAME).arg(QString::number(1));
+                    query.prepare(sql);
+                    query.addBindValue(filename);
+                    if(query.exec())
+                    {
+
+                    }
+                }
+            }
+        }
     }
 }
 

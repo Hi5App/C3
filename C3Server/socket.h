@@ -59,26 +59,26 @@ private:
     //Msg Process
     void processMsg(const QString & msg);//需要确定消息格式
 
-    QRegExp ImageDownRex("(.*):choose3_(.*).\n");//要求发送全脑图像列表//db
-    /*
-     * "0":表示预重建
-     * "1":表示校验
-     */
-    QRegExp BrainNumberRex("(.*):BrainNumber.\n");//根据脑图的id和模式返回神经元列表
-    /*模式：2位数
-     * 第一位决定是否是要求列表还是下一个可用的神经元
-     * 0:下一个
-     * 1:列表
-     * 第二位决定预重建/校验
-     * 0:预重建
-     * 1:校验
-     */
-    QRegExp ImgBlockRex("(.*):imgblock.\n");//选定的神经元的名称，返回图像
-    QRegExp GetBBSWCRex("(.*):GetBBSwc.\n");//获取局部神经元处理数据
-    QRegExp ArborCheckRex("(.*):ArborCheck.\n");
-    QRegExp GetArborResultRex("(.*):GetArborResult.\n");
+//    QRegExp ImageDownRex("(.*):choose3_(.*).\n");//要求发送全脑图像列表//db
+//    /*
+//     * "0":表示预重建
+//     * "1":表示校验
+//     */
+//    QRegExp BrainNumberRex("(.*):BrainNumber.\n");//根据脑图的id和模式返回神经元列表
+//    /*模式：2位数
+//     * 第一位决定是否是要求列表还是下一个可用的神经元
+//     * 0:下一个
+//     * 1:列表
+//     * 第二位决定预重建/校验
+//     * 0:预重建
+//     * 1:校验
+//     */
+//    QRegExp ImgBlockRex("(.*):imgblock.\n");//选定的神经元的名称，返回图像
+//    QRegExp GetBBSWCRex("(.*):GetBBSwc.\n");//获取局部神经元处理数据
+//    QRegExp ArborCheckRex("(.*):ArborCheck.\n");
+//    QRegExp GetArborResultRex("(.*):GetArborResult.\n");
 
-    qDebug()<<"MSG:"<<msg;
+//    qDebug()<<"MSG:"<<msg;
 
     void processBrain(const QString & paraString);
     void processBrainNumber(const QString & paraString);
@@ -86,20 +86,22 @@ private:
     void processBBSWC(const QString &paraString);
     void processProof(const QString &paraString);
     void processResult(const QString &paraString);
+    void processRes(const QString &paraString);
 
     void funcNext(QString brain_id, bool preOrProof);
     void funcList(QString brain_id, bool preOrProof);
     void getAndSendImageBlock(QString msg,QString N="0");
-
+    void getAndSendSWCBlock(QString msg);
+    void ArborCheck(QString msg);
 //    QString currentDir()const;
 
     QString getNeuronList(const QString brain_id,const int i)const;
     QString currentArbors()const;
 
-    void getAndSendSWCBlock(QString msg);
+
     void setSwcInBB(QString name,int x1,int x2,int y1,int y2,int z1,int z2,int cnt);
 //    void swcCheck(QString msg);
-    void ArborCheck(QString msg);
+
 //    void getAndSendArborBlock(QString msg);
 //    void getAndSendArborSwcBlock(QString msg);
 
