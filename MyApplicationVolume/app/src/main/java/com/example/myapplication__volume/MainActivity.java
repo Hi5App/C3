@@ -71,6 +71,7 @@ import androidx.core.content.FileProvider;
 
 import com.example.ImageReader.BigImgReader;
 import com.example.chat.ChatActivity;
+import com.example.game.GameCharacter;
 import com.example.server_communicator.Remote_Socket;
 import com.example.basic.CrashHandler;
 import com.example.basic.DragFloatActionButton;
@@ -112,12 +113,14 @@ import com.tracingfunc.gsdt.GSDT;
 import com.tracingfunc.gsdt.ParaGSDT;
 import com.warkiz.widget.IndicatorSeekBar;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -409,6 +412,10 @@ public class MainActivity extends BaseActivity {
     private RtmClientListener mClientListener;
 
     private final String callMsgPattern = "##CallFrom.*##In##.*##";
+
+    private static float [] gamePositionForIntent = {0.5f, 0.5f, 0.5f};
+    private static float [] gameDirForIntent = {1, 1, 1};
+    private static float [] gameHeadForIntent = {1, 0, -1};
 
     @SuppressLint("HandlerLeak")
     private Handler uiHandler = new Handler(){
@@ -4934,7 +4941,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20201104b 22:16 UTC+8 build",
+                                "Version: 20201105a 22:48 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5011,26 +5018,20 @@ public class MainActivity extends BaseActivity {
     public void Select_map(){
 //        Context context = this;
         new XPopup.Builder(this)
-                .asCenterList("Select Remote Server", new String[]{"Aliyun Server", "SEU Server", "Local Server"},
+                .asCenterList("Game Start", new String[]{"New Game", "Load Game"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text){
-                                    case "Aliyun Server":
-//                                        Toast_in_Thread("The Server is under Maintenance !");
-                                        setSelectSource("Remote Server Aliyun",context);
-                                        BigFileRead_Remote(ip_ALiYun);
 
-                                        break;
-
-                                    case "SEU Server":
+                                    case "New Game":
                                         setSelectSource("Remote Server SEU", context);
                                         BigFileRead_Remote(ip_SEU);
 
                                         break;
 
-                                    case "Local Server":
-                                        BigFileRead_local();
+                                    case "Load Game":
+                                        loadGameList();
                                         break;
 
                                     default:
@@ -5040,6 +5041,136 @@ public class MainActivity extends BaseActivity {
                         }).show();
     }
 
+    private void loadGameList(){
+        String externalFileDir = context.getExternalFilesDir(null).toString();
+        String [] fileList = {"[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]"};
+        File file = new File(externalFileDir + "/Game/Archives");
+        if (file.exists()){
+            try {
+                for (int i = 0; i < 10; i++) {
+                    File tempFile = new File(externalFileDir + "/Game/Archives/Archive_" + i);
+                    if (!tempFile.exists()) {
+                        tempFile.mkdir();
+                    } else {
+                        File [] archiveFiles = tempFile.listFiles();
+                        if (archiveFiles.length > 0){
+                            fileList[i] = archiveFiles[0].getName().split(".txt")[0];
+                        }
+                    }
+                }
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+
+//            File[] tempList = file.listFiles();
+
+//            for (int i = 0; i < tempList.length; i++){
+//                if (tempList[i].isDirectory()){
+//                    if (Pattern.matches("Archive_[0-9]", tempList[i].getName())){
+//                        File [] archiveFile = tempList[i].listFiles();
+//                        if (archiveFile.length != 0){
+//                            fileList[i] = archiveFile[0].getName();
+//                        }
+//                    }
+//                }
+//            }
+        } else {
+            File parent = file.getParentFile();
+            if (!parent.exists()){
+                parent.mkdir();
+            }
+            file.mkdir();
+            for (int i = 0; i < 10; i++){
+                File tempFile = new File(externalFileDir + "/Game/Archives/Archive_" + i);
+                tempFile.mkdir();
+            }
+        }
+
+        new XPopup.Builder(this)
+                .autoDismiss(false)
+                .asCenterList("Archives", fileList,
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                if (text.equals("[Empty Archive]")){
+
+                                } else {
+                                    if (loadGame(position))
+                                        Toast_in_Thread("Loaded successfully");
+                                    else
+                                        Toast_in_Thread("Failed To Load!!!");
+                                }
+                            }
+                        }).show();
+    }
+
+    private boolean loadGame(int num){
+        String archiveImageName;
+        String archiveOffset;
+        float [] pos = new float[3];
+        float [] dir = new float[3];
+        float [] head = new float[3];
+        String externalFileDir = context.getExternalFilesDir(null).toString();
+        File file = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num);
+        if (!file.exists()){
+            file.mkdir();
+            return false;
+        }
+
+        File [] tempList = file.listFiles();
+        if(tempList.length == 0){
+            return false;
+        }
+
+        try{
+            FileInputStream inStream = new FileInputStream(tempList[0]);
+            if (inStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                line = buffreader.readLine();
+                archiveImageName = line;
+
+                line = buffreader.readLine();
+                archiveOffset = line;
+
+                line = buffreader.readLine();
+                pos[0] = Float.parseFloat(line.split(" ")[0]);
+                pos[1] = Float.parseFloat(line.split(" ")[1]);
+                pos[2] = Float.parseFloat(line.split(" ")[2]);
+
+                line = buffreader.readLine();
+                dir[0] = Float.parseFloat(line.split(" ")[0]);
+                dir[1] = Float.parseFloat(line.split(" ")[1]);
+                dir[2] = Float.parseFloat(line.split(" ")[2]);
+
+                line = buffreader.readLine();
+                head[0] = Float.parseFloat(line.split(" ")[0]);
+                head[1] = Float.parseFloat(line.split(" ")[1]);
+                head[2] = Float.parseFloat(line.split(" ")[2]);
+
+                inStream.close();//关闭输入流
+
+                gamePositionForIntent = pos;
+                gameDirForIntent = dir;
+                gameHeadForIntent = head;
+
+                if (archiveImageName != null && archiveOffset != null){
+                    remote_socket.disConnectFromHost();
+                    remote_socket.connectServer(ip_SEU);
+                    remote_socket.pullImageBlockWhenLoadGame(archiveImageName, archiveOffset);
+
+                }
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
 
     private void BigFileRead_local(){
         String[] filename_list = bigImgReader.ChooseFile(this);
@@ -7792,9 +7923,13 @@ public class MainActivity extends BaseActivity {
                 Log.v("GameIntent", "inNNNNNNNNNNNNNNNNNNNNN");
                 Intent gameIntent = new Intent(mainContext, GameActivity.class);
                 gameIntent.putExtra("FilePath", filepath);
-                gameIntent.putExtra("Position", new float[]{0.5f, 0.5f, 0.5f});
-                gameIntent.putExtra("Dir", new float[]{1, 1, 1});
+                gameIntent.putExtra("Position", gamePositionForIntent);
+                gameIntent.putExtra("Dir", gameDirForIntent);
+                gameIntent.putExtra("Head", gameHeadForIntent);
                 mainContext.startActivity(gameIntent);
+                gamePositionForIntent = new float[]{0.5f, 0.5f, 0.5f};
+                gameDirForIntent = new float[]{1, 1, 1};
+                gameHeadForIntent = new float[]{1, 0, -1};
             } catch (Exception e) {
                 e.printStackTrace();
             }

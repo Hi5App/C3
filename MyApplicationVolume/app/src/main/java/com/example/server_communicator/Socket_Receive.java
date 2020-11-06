@@ -269,6 +269,7 @@ public class Socket_Receive {
         if (runningActivity.equals(MainActivity.NAME)){
             MainActivity.showProgressBar();
         }else if (runningActivity.equals(GameActivity.NAME)){
+
             GameActivity.showProgressBar();
         }
 
@@ -425,6 +426,7 @@ public class Socket_Receive {
                     if (runningActivity.equals(MainActivity.NAME)){
                         MainActivity.hideProgressBar();
                     }else if (runningActivity.equals(GameActivity.NAME)){
+                        Log.i("HideProgressBar", "!!!!!!!!");
                         GameActivity.hideProgressBar();
                     }
 
