@@ -19,6 +19,7 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.ImageReader.BigImgReader;
 import com.example.datastore.SettingFileManager;
 import com.example.server_communicator.Remote_Socket;
 import com.example.game.GameCharacter;
@@ -34,12 +35,17 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static com.example.datastore.SettingFileManager.getFilename_Remote;
+import static com.example.datastore.SettingFileManager.getNeuronNumber_Remote;
+import static com.example.datastore.SettingFileManager.getoffset_Remote;
 
 public class GameActivity extends BaseActivity {
 
@@ -679,6 +685,111 @@ public class GameActivity extends BaseActivity {
         }
 
         return true;
+    }
+
+    private void updateSwcToServer(){
+        String [] result = {"New", "New"};
+        result = SaveSWC_Block_Auto();
+
+        if (!result[0].equals("New")  && !result[1].equals("New")){
+            PushSWC_Block_Auto(result[0], result[1]);
+        }
+    }
+
+    private String[] SaveSWC_Block_Auto(){
+
+        String filepath = this.getExternalFilesDir(null).toString();
+        String swc_file_path = filepath + "/Sync/BlockSet";
+        File dir = new File(swc_file_path);
+
+        if (!dir.exists()){
+            if (!dir.mkdirs())
+                Toast.makeText(this,"Fail to create file: PushSWC_Block", Toast.LENGTH_SHORT).show();
+        }
+
+        String filename = getFilename_Remote(this);
+        String neuron_number = getNeuronNumber_Remote(this, filename);
+        String offset = getoffset_Remote(this, filename);
+        System.out.println(offset);
+        int[] index = BigImgReader.getIndex(offset);
+        System.out.println(filename);
+
+        String ratio = Integer.toString(remoteSocket.getRatio_SWC());
+        String SwcFileName = "blockSet__" + neuron_number + "__" +
+                index[0] + "__" + index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
+
+        System.out.println(SwcFileName);
+
+        if (Save_curSwc_fast(SwcFileName, swc_file_path)){
+            return new String[]{ swc_file_path, SwcFileName };
+        }
+
+        Log.v("SaveSWC_Block_Auto","Save Successfully !");
+        return new String[]{"Error", "Error"};
+    }
+
+    private boolean Save_curSwc_fast(String SwcFileName, String dir_str){
+
+        System.out.println("start to save-------");
+        myrenderer.reNameCurrentSwc(SwcFileName);
+
+        String error = "init";
+        try {
+            error = myrenderer.saveCurrentSwc(dir_str);
+            System.out.println("error:" + error);
+        } catch (Exception e) {
+            Toast_in_Thread(e.getMessage());
+            return false;
+        }
+        if (!error.equals("")) {
+            if (error.equals("This file already exits")){
+                String errorMessage = "";
+                try{
+                    errorMessage = myrenderer.oversaveCurrentSwc(dir_str);
+                    if (errorMessage == "Overwrite failed!"){
+                        Toast_in_Thread("Fail to save swc file: Save_curSwc_fast");
+                        return false;
+                    }
+                }catch (Exception e){
+                    System.out.println(errorMessage);
+                    Toast_in_Thread(e.getMessage());
+                    return false;
+                }
+            }
+//            if (error.equals("Current swc is empty!")){
+//                Toast_in_Thread("Current swc file is empty!");
+//                return false;
+//            }
+        } else{
+            System.out.println("save SWC to " + dir_str + "/" + SwcFileName + ".swc");
+        }
+        return true;
+    }
+
+    private void PushSWC_Block_Auto(String swc_file_path, String SwcFileName){
+
+        if (swc_file_path.equals("Error"))
+            return;
+
+        File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
+        if (!SwcFile.exists()){
+            Toast_in_Thread("Something Wrong When Upload SWC, Try Again Please !");
+            return;
+        }
+        try {
+            System.out.println("Start to push swc file");
+            InputStream is = new FileInputStream(SwcFile);
+            long length = SwcFile.length();
+
+            if (length <= 0 || length > Math.pow(2, 28)){
+                Toast_in_Thread("Something Wrong When Upload SWC, Try Again Please !");
+                return;
+            }
+            remoteSocket.PushSwc_block(SwcFileName + ".swc", is, length);
+
+        } catch (Exception e){
+            System.out.println("----" + e.getMessage() + "----");
+        }
     }
 
     class MyGLSurfaceView extends GLSurfaceView {
