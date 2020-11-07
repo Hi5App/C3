@@ -312,7 +312,8 @@ public class GameActivity extends BaseActivity {
                                 float [] volumnePosition = myrenderer.modeltoVolume(gameCharacter.getPosition());
                                 float [] dis = new float[]{64 - volumnePosition[0], 64 - volumnePosition[1], 64 - volumnePosition[2]};
                                 Log.v("DISSSSS", Arrays.toString(dis));
-                                gameCharacter.setPosition(new float[]{0.5f, 0.5f, 0.5f});
+//                                gameCharacter.setPosition(new float[]{0.5f, 0.5f, 0.5f});
+                                gameCharacter.moveBack(gameCharacter.getDir(), 0.5f);
 
                                 travelPath.move(dis);
 

@@ -652,4 +652,10 @@ public class GameCharacter {
 
         return false;
     }
+
+    public void moveBack(float [] dir, float dis){
+        position[0] -= dir[0] * dis;
+        position[1] -= dir[1] * dis;
+        position[2] -= dir[2] * dis;
+    }
 }
