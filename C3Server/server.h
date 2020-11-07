@@ -16,7 +16,7 @@ private:
     void incomingConnection(qintptr handle) override;
 
 private slots:
-    void directoryUpdated(const QString &path);
+//    void directoryUpdated(const QString &path);
 private:
     QFileSystemWatcher fileWatcher;
     QSqlDatabase db;

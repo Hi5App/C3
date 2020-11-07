@@ -308,7 +308,8 @@ void Socket::processBrain(const QString & paraString)
             brains.insert(query.value(0).toString());
         }
     }
-    sendMsg(paraString+";BRAINS;"+QStringList(brains.begin(),brains.end()).join("_"));
+
+    sendMsg(paraString+";BRAINS;"+brains.values().join("_"));
 }
 
 void Socket::processBrainNumber(const QString & paraString)
@@ -341,6 +342,11 @@ void Socket::processProof(const QString &paraString)
 }
 
 void Socket::processResult(const QString &paraString)
+{
+
+}
+
+void Socket::processRes(const QString &paraString)
 {
 
 }
