@@ -39,9 +39,10 @@ Server::Server(QObject *parent):QTcpServer(parent)
 {
     qDebug()<<"Thread ID"<<QThread::currentThreadId();
     db=QSqlDatabase::addDatabase("QMYSQL","C3");
+    db.setDatabaseName("BrainTell");
     db.setHostName("localhost");
     db.setUserName("root");
-    db.setPassword("");
+    db.setPassword("1234");
 
     if(!db.open()){
         qFatal("cannot connect DB");
@@ -66,7 +67,8 @@ Server::Server(QObject *parent):QTcpServer(parent)
 }
 bool Server::initImage(){
 
-    QDir imageDir(QCoreApplication::applicationDirPath()+"/"+IMAGE);
+    QDir imageDir(IMAGE);
+    qDebug()<<imageDir.absolutePath();
     QFileInfoList imageList=imageDir.entryInfoList(QDir::NoDotAndDotDot|QDir::Dirs);
     int maxRES=-1;
     for(auto & image:imageList){
@@ -79,6 +81,7 @@ bool Server::initImage(){
     QSqlQuery query(db);
     {
         QString sql=QString("drop table if exists %1").arg(IMAGETABLENAME);
+        qDebug()<<sql;
         if(!query.exec(sql)){
             qDebug()<<query.lastError().text();
             return false;
@@ -89,13 +92,14 @@ bool Server::initImage(){
         QString resOrder="";
         for(int i=1;i<=maxRES;i++)
         {
-            resOrder+=QString(",RES%1 VARCHAR NOT NULL").arg(i);
+            resOrder+=QString(",RES%1 VARCHAR(100) NOT NULL").arg(i);
         }
         QString sql=QString("CREATE TABLE %1 ("
-                          "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                          "BrainId VARCHAR NOT NULL,"
-                          "MainPath VARCHAR NOT NULL"
+                          "id INTEGER PRIMARY KEY AUTO_INCREMENT,"
+                          "BrainId VARCHAR(100) NOT NULL,"
+                          "MainPath VARCHAR(500) NOT NULL"
                           "%2)").arg(IMAGETABLENAME).arg(resOrder);
+        qDebug()<<sql;
         if(!query.exec(sql)){
             qDebug()<<query.lastError().text();
             return false;
@@ -134,16 +138,18 @@ bool Server::initImage(){
            resLists[i].push_back("");
        }
     }
+    qDebug()<<resLists;
 
     {
-        QString partOrder1="BrainId MainPath";
+        QString partOrder1="BrainId,MainPath";
         QString partOrder2="?,?";
         for(int i=1;i<=maxRES;i++)
         {
-            partOrder1+=QString(" RES%1").arg(i);
+            partOrder1+=QString(",RES%1").arg(i);
             partOrder2+=",?";
         }
-        QString sql=QString("INSERT INTO %1 (%2) VALUES (%3))").arg(IMAGETABLENAME).arg(partOrder1).arg(partOrder2);
+        QString sql=QString("INSERT INTO %1 (%2) VALUES (%3)").arg(IMAGETABLENAME).arg(partOrder1).arg(partOrder2);
+        qDebug()<<sql;
         query.prepare(sql);
         query.addBindValue(imageNames);
         query.addBindValue(mainPathLists);
@@ -160,16 +166,17 @@ bool Server::initImage(){
 bool Server::initPreApo(){
     QSqlQuery query(db);
     {
-        QString order="id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                      "Neuron_id VARCHAR NOT NULL,"
-                      "Brain_id VARCHAR NOT NULL,"
-                      "Tag VARCHAR NOT NULL,"
-                      "Time0 VARCHAR NOT NULL,"
-                      "Time1 VARCHAR NOT NULL,"
-                      "Soma_position VARCHAR NOT NULL,"
-                      "Pre_Swc VARCHAR NOT NULL,"
-                      "User VARCHAR NOT NULL";
-        QString sql=QString("CREATE TABLE (%1) IF NOT EXISTS %2").arg(order).arg(PRERETABLENAME);
+        QString order="id INTEGER PRIMARY KEY AUTO_INCREMENT,"
+                      "Neuron_id VARCHAR(100) NOT NULL,"
+                      "Brain_id VARCHAR(100) NOT NULL,"
+                      "Tag VARCHAR(100) NOT NULL,"
+                      "Time0 VARCHAR(100) NOT NULL,"
+                      "Time1 VARCHAR(100) NOT NULL,"
+                      "Soma_position VARCHAR(200) NOT NULL,"
+                      "Pre_Swc VARCHAR(1000) NOT NULL,"
+                      "User VARCHAR(50) NOT NULL";
+        QString sql=QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(PRERETABLENAME).arg(order);
+        qDebug()<<sql;
         if(!query.exec(sql)){
             qDebug()<<query.lastError().text();
             return false;
@@ -186,7 +193,7 @@ bool Server::initPreApo(){
     QStringList users;
 
     {
-        QFileInfoList apoList=QDir(QCoreApplication::applicationDirPath()+PREAPO).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
+        QFileInfoList apoList=QDir(PREAPO).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
         //    query.prepare("INSERT OR IGNORE INTO Swc (Neuron_id,Brain_id,Tag,Time0,Soma_position) VALUES (?,?,?,?,?)");
         for(auto & apo:apoList){
             neuron_ids.push_back(apo.baseName());
@@ -219,6 +226,7 @@ bool Server::initPreApo(){
         query.addBindValue(preSWCs);
         query.addBindValue(users);
         if(!query.execBatch()){
+            qDebug()<<query.lastError().text();
             return false;
         }
     }
@@ -229,21 +237,21 @@ bool Server::initPreSwc(){
 
     {
         //create table Swc
-        QString  order="id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                       "name VARCHAR NOT NULL,"
-                       "Neuron_id VARCHAR NOT NULL,"
-                       "Brain_id VARCHAR NOT NULL,"
-                       "Arbor_Position VARCHAR NOT NULL,"
-                       "Tag VARCHAR NOT NULL,"
-                       "MAINPATH VARCHAR NOT NULL";
-        QString sql=QString("CREATE TABLE (%1) IF NOT EXISTS %2").arg(order).arg(PROOFTABLENAME);
+        QString  order="id INTEGER PRIMARY KEY AUTO_INCREMENT,"
+                       "name VARCHAR(100) NOT NULL,"
+                       "Neuron_id VARCHAR(100) NOT NULL,"
+                       "Brain_id VARCHAR(100) NOT NULL,"
+                       "Arbor_Position VARCHAR(200) NOT NULL,"
+                       "Tag VARCHAR(40) NOT NULL,"
+                       "MAINPATH VARCHAR(1000) NOT NULL";
+        QString sql=QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(PROOFTABLENAME).arg(order);
         if(!query.exec(sql)){
             qDebug()<<query.lastError().text();
             return false;
         }
     }
 //QString sql=QString("drop table if exists %1").arg(IMAGETABLENAME);
-    QFileInfoList swcList=QDir(QCoreApplication::applicationDirPath()+PRESWC).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
+    QFileInfoList swcList=QDir(PRESWC).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
     QStringList future = QtConcurrent::blockingMapped(swcList,cac_pos);
     QStringList nameList;
     QStringList neuronList;
@@ -259,10 +267,11 @@ bool Server::initPreSwc(){
             brainList.push_back(list[0].left(list[0].indexOf('_')));
             positionList.push_back(list[1]);
             tagList.push_back("0");
-            swcPath.push_back(QCoreApplication::applicationDirPath()+"/data/"+PROOFSWC+"/"+list[0]);
+            swcPath.push_back(PROOFSWC+"/"+list[0]);
+            qDebug()<<QFile(PRESWC+"/"+list[0]).rename(PROOFSWC+"/"+list[0]);
         }
 
-        QString sql="INSERT INTO %1 (name,Neuron_id,Brain_id,Arbor_Position,Tag,MAINPATH) VALUES (?,?,?,?,?,?)";
+        QString sql=QString("INSERT INTO %1 (name,Neuron_id,Brain_id,Arbor_Position,Tag,MAINPATH) VALUES (?,?,?,?,?,?)").arg(PROOFTABLENAME);
         query.prepare(sql);
         query.addBindValue(nameList);
         query.addBindValue(neuronList);
@@ -271,6 +280,7 @@ bool Server::initPreSwc(){
         query.addBindValue(tagList);
         query.addBindValue(swcPath);
         if(!query.execBatch()){
+            qDebug()<<query.lastError().text();
             return false;
         }
     }
@@ -281,17 +291,18 @@ bool Server::initReswc()
 {
     QSqlQuery query(db);
     {
-        QString order="id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                      "Neuron_id VARCHAR NOT NULL,"
-                      "Brain_id VARCHAR NOT NULL,"
-                      "Ano VARCHAR NOT NULL,"
-                      "APO VARCHAR NOT NULL,"
-                      "SWC VARCHAR NOT NULL,"
-                      "Fold VARCHAR NOT NULL,"
-                      "Tag VARCHAR NOT NULL,"
-                      "CelltypeRough VARCHAR NOT NULL,"
-                      "Celltype VARCHAR NOT NULL";
-        QString sql=QString("CREATE TABLE (%1) IF NOT EXISTS %2").arg(order).arg(RESWCTABLENAME);
+        QString order="id INTEGER PRIMARY KEY AUTO_INCREMENT,"
+                      "Neuron_id VARCHAR(100) NOT NULL,"
+                      "Brain_id VARCHAR(100) NOT NULL,"
+                      "Ano VARCHAR(1000) NOT NULL,"
+                      "APO VARCHAR(1000) NOT NULL,"
+                      "SWC VARCHAR(1000) NOT NULL,"
+                      "Fold VARCHAR(1000) NOT NULL,"
+                      "Tag VARCHAR(40) NOT NULL,"
+                      "CelltypeRough VARCHAR(100) NOT NULL,"
+                      "Celltype VARCHAR(100) NOT NULL";
+        QString sql=QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(RESWCTABLENAME).arg(order);
+        qDebug()<<sql;
         if(!query.exec(sql)){
             qDebug()<<query.lastError().text();
             return false;
@@ -306,14 +317,15 @@ bool Server::initCheck()
 {
     QSqlQuery query(db);
     {
-        QString order="id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                      "name VARCHAR NOT NULL,"
-                      "Neuron_id VARCHAR NOT NULL,"
-                      "Brain_id VARCHAR NOT NULL,"
-                      "Tag VARCHAR NOT NULL,"
-                      "Time VARCHAR NOT NULL,"
-                      "User VARCHAR NOT NULL";
-        QString sql=QString("CREATE TABLE (%1) IF NOT EXISTS %2").arg(order).arg(CHECKTABLENAME);
+        QString order="id INTEGER PRIMARY KEY AUTO_INCREMENT,"
+                      "name VARCHAR(100) NOT NULL,"
+                      "Neuron_id VARCHAR(100) NOT NULL,"
+                      "Brain_id VARCHAR(100) NOT NULL,"
+                      "Tag VARCHAR(40) NOT NULL,"
+                      "Time VARCHAR(100) NOT NULL,"
+                      "User VARCHAR(40) NOT NULL";
+        QString sql=QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(CHECKTABLENAME).arg(order);
+        qDebug()<<sql;
         if(!query.exec(sql)){
             qDebug()<<query.lastError().text();
             return false;

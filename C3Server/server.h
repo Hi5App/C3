@@ -37,7 +37,7 @@ inline Server::~Server()
 inline QString cac_pos(const QFileInfo &info){
     //计算arbor的中心坐标
     //移动swc文件到FULLSWC文件夹
-    return QString("%1;%2_%3_%4");
+    return QString("%1;%2_%3_%4").arg(info.fileName()).arg(QString::number(0)).arg(QString::number(0)).arg(QString::number(0));
     //return name;pos
 }
 #endif // SERVER_H

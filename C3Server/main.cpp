@@ -7,20 +7,19 @@
 
 #include "dataprepro.h"
 
-QString IMAGE=QCoreApplication::applicationDirPath()+"/image";//图像文件夹
-QString PREAPO=QCoreApplication::applicationDirPath()+"/input/APO";//预重建的输入apo文件夹
-QString PRESWC=QCoreApplication::applicationDirPath()+"/input/SWC";//检查的swc输入文件夹
-QString PRERESSWC=QCoreApplication::applicationDirPath()+"/data/PeReconstructionResult";//预重建结果文件夹
-QString PROOFSWC=QCoreApplication::applicationDirPath()+"/data/ProofedSWC";//校验数据的文件夹
-QString FULLSWC=QCoreApplication::applicationDirPath()+"/data/FullSWC";//swc数据存放文件夹
+QString IMAGE;//图像文件夹
+QString PREAPO;//预重建的输入apo文件夹
+QString PRESWC;//检查的swc输入文件夹
+QString PRERESSWC;//预重建结果文件夹
+QString PROOFSWC;//校验数据的文件夹
+QString FULLSWC;//swc数据存放文件夹
 //extern QString BRAININFO;//放置brainInfo的文件
 
-QString IMAGETABLENAME="Table0";//图像数据表
-QString PRERETABLENAME="Table1";//预重建数据表
-QString RESWCTABLENAME="Table2";//重建完成数据表
-QString PROOFTABLENAME="Table3";//校验数据表
-QString CHECKTABLENAME="Table4";//校验结果数据表
-
+ QString IMAGETABLENAME="Table0";//图像数据表
+ QString PRERETABLENAME="Table1";//预重建数据表
+ QString RESWCTABLENAME="Table2";//重建完成数据表
+ QString PROOFTABLENAME="Table3";//校验数据表
+ QString CHECKTABLENAME="Table4";//校验结果数据表
 void getApo(QString brainDir,QString apoDir);
 void writeBrainInfo(QString apoDir,QString infoWithTxt);
 void getBB(const V_NeuronSWC_list& T,const QString & Filename);
@@ -41,6 +40,15 @@ void combineDataWithoutCombine(QString swcPath,QString apoPath,QString dstPath);
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
+     IMAGE=QCoreApplication::applicationDirPath()+"/image";//图像文件夹
+     PREAPO=QCoreApplication::applicationDirPath()+"/input/APO";//预重建的输入apo文件夹
+     PRESWC=QCoreApplication::applicationDirPath()+"/input/SWC";//检查的swc输入文件夹
+     PRERESSWC=QCoreApplication::applicationDirPath()+"/data/PeReconstructionResult";//预重建结果文件夹
+     PROOFSWC=QCoreApplication::applicationDirPath()+"/data/ProofedSWC";//校验数据的文件夹
+     FULLSWC=QCoreApplication::applicationDirPath()+"/data/FullSWC";//swc数据存放文件夹
+    //extern QString BRAININFO;//放置brainInfo的文件
+
+
     qDebug()<<QSqlDatabase::drivers();
     Server server;
     if(!server.listen(QHostAddress::Any,9000))

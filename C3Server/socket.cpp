@@ -284,8 +284,10 @@ void Socket::processMsg(const QString &msg)
 
 void Socket::processBrain(const QString & paraString)
 {
-    QSqlDatabase db=QSqlDatabase::addDatabase("QMYSQL","C3");
+    QSqlDatabase db=QSqlDatabase::addDatabase("QMYSQL",QString::number(socket->socketDescriptor()));
+    db.setDatabaseName("BrainTell");
     db.setHostName("localhost");
+
     db.setUserName("root");
     db.setPassword("");
     if(!db.open()){
@@ -353,8 +355,10 @@ void Socket::processRes(const QString &paraString)
 
 void Socket::funcNext(QString brain_id,bool preOrProof)
 {
-    QSqlDatabase db=QSqlDatabase::addDatabase("QMYSQL","C3");
+    QSqlDatabase db=QSqlDatabase::addDatabase("QMYSQL",QString::number(socket->socketDescriptor()));
+    db.setDatabaseName("BrainTell");
     db.setHostName("localhost");
+
     db.setUserName("root");
     db.setPassword("");
     if(!db.open()){
@@ -390,7 +394,9 @@ void Socket::funcNext(QString brain_id,bool preOrProof)
 void Socket::funcList(QString brain_id,bool preOrProof)
 {
     QStringList result;
-    QSqlDatabase db=QSqlDatabase::addDatabase("QMYSQL","C3");
+    QSqlDatabase db=QSqlDatabase::addDatabase("QMYSQL",QString::number(socket->socketDescriptor()));
+    db.setDatabaseName("BrainTell");
+
     db.setHostName("localhost");
     db.setUserName("root");
     db.setPassword("");
@@ -467,8 +473,10 @@ void Socket::getAndSendImageBlock(QString msg,QString N)
     QString vaa3dPath=QCoreApplication::applicationDirPath();
     QString filepath;
     {
-        QSqlDatabase db=QSqlDatabase::addDatabase("QMYSQL","C3");
+        QSqlDatabase db=QSqlDatabase::addDatabase("QMYSQL",QString::number(socket->socketDescriptor()));
+        db.setDatabaseName("BrainTell");
         db.setHostName("localhost");
+
         db.setUserName("root");
         db.setPassword("");
         if(!db.open()){
@@ -525,7 +533,9 @@ void Socket::getAndSendSWCBlock(QString msg)
         //根据名称查询相关的数据库-> 找到swc的路径
         QString filepath;
         {
-            QSqlDatabase db=QSqlDatabase::addDatabase("QMYSQL","C3");
+            QSqlDatabase db=QSqlDatabase::addDatabase("QMYSQL",QString::number(socket->socketDescriptor()));
+            db.setDatabaseName("BrainTell");
+
             db.setHostName("localhost");
             db.setUserName("root");
             db.setPassword("");
@@ -654,7 +664,8 @@ void Socket::ArborCheck(QString msg)
 
         QString filepath;
         {
-            QSqlDatabase db=QSqlDatabase::addDatabase("QMYSQL","C3");
+            QSqlDatabase db=QSqlDatabase::addDatabase("QMYSQL",QString::number(socket->socketDescriptor()));
+            db.setDatabaseName("BrainTell");
             db.setHostName("localhost");
             db.setUserName("root");
             db.setPassword("");
