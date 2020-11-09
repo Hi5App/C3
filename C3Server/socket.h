@@ -21,19 +21,7 @@ struct DataInfo{
 };
 //需要去分辨率的层数
 
-extern QString IMAGE;//图像文件夹
-extern QString PREAPO;//预重建的输入apo文件夹
-extern QString PRESWC;//检查的swc输入文件夹
-extern QString PRERESSWC;//预重建结果文件夹
-extern QString PROOFSWC;//校验数据的文件夹
-extern QString FULLSWC;//swc数据存放文件夹
-extern QString BRAININFO;//放置brainInfo的文件夹
 
-extern QString IMAGETABLENAME;//图像数据表
-extern QString PRERETABLENAME;//预重建数据表
-extern QString RESWCTABLENAME;//重建完成数据表
-extern QString PROOFTABLENAME;//校验数据表
-extern QString CHECKTABLENAME;//校验结果数据表
 class Socket : public QThread
 {
     Q_OBJECT
@@ -99,14 +87,14 @@ private:
     QString currentArbors()const;
 
 
-    void setSwcInBB(QString name,int x1,int x2,int y1,int y2,int z1,int z2,int cnt);
-//    void swcCheck(QString msg);
+    bool setSwcInBB(QString name,QString filepath,int x1,int x2,int y1,int y2,int z1,int z2,int cnt);
+    void swcCheck(QString msg);
 
-//    void getAndSendArborBlock(QString msg);
-//    void getAndSendArborSwcBlock(QString msg);
+    void getAndSendArborBlock(QString msg);
+    void getAndSendArborSwcBlock(QString msg);
 
 
-//    void currentBrain(const int i)const;//发送的是脑图的id
+    void currentBrain(const int i)const;//发送的是脑图的id
 
 //
 //private:

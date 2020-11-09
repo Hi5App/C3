@@ -28,7 +28,6 @@ extern QString PRESWC;//检查的swc输入文件夹
 extern QString PRERESSWC;//预重建结果文件夹
 extern QString PROOFSWC;//校验数据的文件夹
 extern QString FULLSWC;//swc数据存放文件夹
-extern QString BRAININFO;//放置brainInfo的文件夹
 
 extern QString IMAGETABLENAME;//图像数据表
 extern QString PRERETABLENAME;//预重建数据表
@@ -97,7 +96,8 @@ bool Server::initImage(){
         QString sql=QString("CREATE TABLE %1 ("
                           "id INTEGER PRIMARY KEY AUTO_INCREMENT,"
                           "BrainId VARCHAR(100) NOT NULL,"
-                          "MainPath VARCHAR(500) NOT NULL"
+                          "MainPath VARCHAR(500) NOT NULL,"
+                          "N VARCHAR(20) NOT NULL"
                           "%2)").arg(IMAGETABLENAME).arg(resOrder);
         qDebug()<<sql;
         if(!query.exec(sql)){
@@ -108,6 +108,7 @@ bool Server::initImage(){
 
     QStringList imageNames;
     QStringList mainPathLists;
+    QStringList NList;
     QVector<QStringList> resLists(maxRES);
     for(auto &image:imageList){
         imageNames.push_back(image.fileName());
@@ -130,6 +131,7 @@ bool Server::initImage(){
                 return false;
             }
         });
+        NList.push_back(QString::number(resList.count()));
        for(int i=0;i<resList.size();i++){
            resLists[i].push_back(resList[i]);
        }
@@ -141,18 +143,19 @@ bool Server::initImage(){
     qDebug()<<resLists;
 
     {
-        QString partOrder1="BrainId,MainPath";
-        QString partOrder2="?,?";
+        QString partOrder1="BrainId,MainPath,N";
+        QString partOrder2="?,?,?";
         for(int i=1;i<=maxRES;i++)
         {
             partOrder1+=QString(",RES%1").arg(i);
             partOrder2+=",?";
         }
-        QString sql=QString("INSERT INTO %1 (%2) VALUES (%3)").arg(IMAGETABLENAME).arg(partOrder1).arg(partOrder2);
+        QString sql=QString("INSERT IGNORE INTO %1 (%2) VALUES (%3)").arg(IMAGETABLENAME).arg(partOrder1).arg(partOrder2);
         qDebug()<<sql;
         query.prepare(sql);
         query.addBindValue(imageNames);
         query.addBindValue(mainPathLists);
+        query.addBindValue(NList);
         for(int i=0;i<maxRES;i++)
             query.addBindValue(resLists[i]);
         if(!query.execBatch()){
@@ -215,7 +218,9 @@ bool Server::initPreApo(){
     }
 
     {
-        QString sql=QString("INSERT IGNORE INTO %1 (Neuron_id,Brain_id,Tag,Time0,Time1,Soma_position,Pre_Swc,User) VALUES (?,?,?,?,?,?,?,?)");
+        QString sql=QString("INSERT IGNORE INTO %1 (Neuron_id,Brain_id,Tag,Time0,Time1,Soma_position,Pre_Swc,User) VALUES (?,?,?,?,?,?,?,?)"
+                            " SELECT Neuron_id FROM %1"
+                            ).arg(PRERETABLENAME);
         query.prepare(sql);
         query.addBindValue(neuron_ids);
         query.addBindValue(brain_ids);
@@ -230,6 +235,13 @@ bool Server::initPreApo(){
             return false;
         }
     }
+
+    {
+        QFileInfoList apoList=QDir(PREAPO).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
+        for(auto & info:apoList){
+            QFile(info.absoluteFilePath()).remove();
+        }
+    }
     return true;
 }
 bool Server::initPreSwc(){
@@ -238,12 +250,12 @@ bool Server::initPreSwc(){
     {
         //create table Swc
         QString  order="id INTEGER PRIMARY KEY AUTO_INCREMENT,"
-                       "name VARCHAR(100) NOT NULL,"
+                       "Name VARCHAR(100) NOT NULL,"
                        "Neuron_id VARCHAR(100) NOT NULL,"
                        "Brain_id VARCHAR(100) NOT NULL,"
                        "Arbor_Position VARCHAR(200) NOT NULL,"
                        "Tag VARCHAR(40) NOT NULL,"
-                       "MAINPATH VARCHAR(1000) NOT NULL";
+                       "MainPath VARCHAR(1000) NOT NULL";
         QString sql=QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(PROOFTABLENAME).arg(order);
         if(!query.exec(sql)){
             qDebug()<<query.lastError().text();
@@ -260,18 +272,21 @@ bool Server::initPreSwc(){
     QStringList tagList;
     QStringList swcPath;
     {
+
         for(QString & s:future){
             auto list=s.trimmed().split(";");
+            if(!( QFile(PRESWC+"/"+list[0]).rename(PROOFSWC+"/"+list[0]))) {continue;}
             nameList.push_back(list[0]);
             neuronList.push_back(list[0].left(list[0].lastIndexOf('_')));
             brainList.push_back(list[0].left(list[0].indexOf('_')));
             positionList.push_back(list[1]);
             tagList.push_back("0");
             swcPath.push_back(PROOFSWC+"/"+list[0]);
-            qDebug()<<QFile(PRESWC+"/"+list[0]).rename(PROOFSWC+"/"+list[0]);
         }
 
-        QString sql=QString("INSERT INTO %1 (name,Neuron_id,Brain_id,Arbor_Position,Tag,MAINPATH) VALUES (?,?,?,?,?,?)").arg(PROOFTABLENAME);
+        QString sql=QString("INSERT IGNORE INTO %1 (Name,Neuron_id,Brain_id,Arbor_Position,Tag,MAINPATH) VALUES (?,?,?,?,?,?)"
+                            " SELECT Name FROM %1"
+                            ).arg(PROOFTABLENAME);
         query.prepare(sql);
         query.addBindValue(nameList);
         query.addBindValue(neuronList);
@@ -295,8 +310,8 @@ bool Server::initReswc()
                       "Neuron_id VARCHAR(100) NOT NULL,"
                       "Brain_id VARCHAR(100) NOT NULL,"
                       "Ano VARCHAR(1000) NOT NULL,"
-                      "APO VARCHAR(1000) NOT NULL,"
-                      "SWC VARCHAR(1000) NOT NULL,"
+                      "Apo VARCHAR(1000) NOT NULL,"
+                      "Swc VARCHAR(1000) NOT NULL,"
                       "Fold VARCHAR(1000) NOT NULL,"
                       "Tag VARCHAR(40) NOT NULL,"
                       "CelltypeRough VARCHAR(100) NOT NULL,"
@@ -318,7 +333,7 @@ bool Server::initCheck()
     QSqlQuery query(db);
     {
         QString order="id INTEGER PRIMARY KEY AUTO_INCREMENT,"
-                      "name VARCHAR(100) NOT NULL,"
+                      "Name VARCHAR(100) NOT NULL,"
                       "Neuron_id VARCHAR(100) NOT NULL,"
                       "Brain_id VARCHAR(100) NOT NULL,"
                       "Tag VARCHAR(40) NOT NULL,"

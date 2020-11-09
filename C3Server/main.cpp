@@ -4,22 +4,31 @@
 #include <iostream>
 #include <QFileInfo>
 #include <limits>
-
 #include "dataprepro.h"
+
+const QString c3Image="image";
+const QString c3Apo="APO";
+const QString c3CSwc="SWC";
+const QString c3RSwc="PeReconstructionResult";
+const QString c3PSwc="ProofedSWC";
+const QString c3FSwc="FullSWC";
+
+const QString c3Input="input";
+const QString c3Data="data";
 
 QString IMAGE;//图像文件夹
 QString PREAPO;//预重建的输入apo文件夹
 QString PRESWC;//检查的swc输入文件夹
 QString PRERESSWC;//预重建结果文件夹
 QString PROOFSWC;//校验数据的文件夹
-QString FULLSWC;//swc数据存放文件夹
-//extern QString BRAININFO;//放置brainInfo的文件
+QString FULLSWC;
 
- QString IMAGETABLENAME="Table0";//图像数据表
- QString PRERETABLENAME="Table1";//预重建数据表
- QString RESWCTABLENAME="Table2";//重建完成数据表
- QString PROOFTABLENAME="Table3";//校验数据表
- QString CHECKTABLENAME="Table4";//校验结果数据表
+
+QString IMAGETABLENAME="Table0";//图像数据表
+QString PRERETABLENAME="Table1";//预重建数据表
+QString RESWCTABLENAME="Table2";//重建完成数据表
+QString PROOFTABLENAME="Table3";//校验数据表
+QString CHECKTABLENAME="Table4";//校验结果数据表
 void getApo(QString brainDir,QString apoDir);
 void writeBrainInfo(QString apoDir,QString infoWithTxt);
 void getBB(const V_NeuronSWC_list& T,const QString & Filename);
@@ -40,15 +49,42 @@ void combineDataWithoutCombine(QString swcPath,QString apoPath,QString dstPath);
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-     IMAGE=QCoreApplication::applicationDirPath()+"/image";//图像文件夹
-     PREAPO=QCoreApplication::applicationDirPath()+"/input/APO";//预重建的输入apo文件夹
-     PRESWC=QCoreApplication::applicationDirPath()+"/input/SWC";//检查的swc输入文件夹
-     PRERESSWC=QCoreApplication::applicationDirPath()+"/data/PeReconstructionResult";//预重建结果文件夹
-     PROOFSWC=QCoreApplication::applicationDirPath()+"/data/ProofedSWC";//校验数据的文件夹
-     FULLSWC=QCoreApplication::applicationDirPath()+"/data/FullSWC";//swc数据存放文件夹
-    //extern QString BRAININFO;//放置brainInfo的文件
+
+    const QString inputDir=QCoreApplication::applicationDirPath()+"/"+c3Input;
+    const QString dataDir=QCoreApplication::applicationDirPath()+"/"+c3Data;
 
 
+    IMAGE=QCoreApplication::applicationDirPath()+"/"+c3Image;//图像文件夹
+    PREAPO=inputDir+"/"+c3Apo;//预重建的输入apo文件夹
+    PRESWC=inputDir+"/"+c3CSwc;//检查的swc输入文件夹
+    PRERESSWC=dataDir+"/"+c3RSwc;//预重建结果文件夹
+    PROOFSWC=dataDir+"/"+c3PSwc;//校验数据的文件夹
+    FULLSWC=dataDir+"/"+c3PSwc;
+
+    if(!QDir(IMAGE).exists()){
+        QDir(QCoreApplication::applicationDirPath()).mkdir(c3Image);
+    }
+    if(!QDir(inputDir).exists()){
+        QDir(QCoreApplication::applicationDirPath()).mkdir(c3Input);
+    }
+    if(!QDir(PREAPO).exists()){
+        QDir(inputDir).mkdir(c3Apo);
+    }
+    if(!QDir(PRESWC).exists()){
+        QDir(inputDir).mkdir(c3CSwc);
+    }
+    if(!QDir(dataDir).exists()){
+        QDir(QCoreApplication::applicationDirPath()).mkdir(c3Data);
+    }
+    if(!QDir(PRERESSWC).exists()){
+        QDir(dataDir).mkdir(c3RSwc);
+    }
+    if(!QDir(PROOFSWC).exists()){
+        QDir(dataDir).mkdir(c3PSwc);
+    }
+    if(!QDir(FULLSWC).exists()){
+        QDir(dataDir).mkdir(c3FSwc);
+    }
     qDebug()<<QSqlDatabase::drivers();
     Server server;
     if(!server.listen(QHostAddress::Any,9000))
