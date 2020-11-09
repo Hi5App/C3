@@ -23,17 +23,17 @@
  * 上述IMAGE、PREAPO、PRESWC文件夹跟新后请重启服务器程序，程序将根据上述文件的变动维护数据库（防止读写冲突及其他方式下可能的死锁）黄磊
  */
 extern QString IMAGE;//图像文件夹
-extern QString PREAPO;//预重建的输入apo文件夹
-extern QString PRESWC;//检查的swc输入文件夹
-extern QString PRERESSWC;//预重建结果文件夹
-extern QString PROOFSWC;//校验数据的文件夹
-extern QString FULLSWC;//swc数据存放文件夹
+extern QString InPreApo;//预重建的输入apo文件夹
+extern QString InProSwc;//检查的swc输入文件夹
+extern QString PeResSwc;//预重建结果文件夹
+extern QString ProofSwc;//校验数据的文件夹
+extern QString FullSwc;//swc数据存放文件夹
 
-extern QString IMAGETABLENAME;//图像数据表
-extern QString PRERETABLENAME;//预重建数据表
-extern QString RESWCTABLENAME;//重建完成数据表
-extern QString PROOFTABLENAME;//校验数据表
-extern QString CHECKTABLENAME;//校验结果数据表
+extern QString ImageTableName;//图像数据表
+extern QString PreReTableName;//预重建数据表
+extern QString ReSwcTableName;//重建完成数据表
+extern QString ProofTableName;//校验数据表
+extern QString ChResTableName;//校验结果数据表
 Server::Server(QObject *parent):QTcpServer(parent)
 {
     qDebug()<<"Thread ID"<<QThread::currentThreadId();
@@ -79,7 +79,7 @@ bool Server::initImage(){
 
     QSqlQuery query(db);
     {
-        QString sql=QString("drop table if exists %1").arg(IMAGETABLENAME);
+        QString sql=QString("drop table if exists %1").arg(ImageTableName);
         qDebug()<<sql;
         if(!query.exec(sql)){
             qDebug()<<query.lastError().text();
@@ -98,7 +98,7 @@ bool Server::initImage(){
                           "BrainId VARCHAR(100) NOT NULL,"
                           "MainPath VARCHAR(500) NOT NULL,"
                           "N VARCHAR(20) NOT NULL"
-                          "%2)").arg(IMAGETABLENAME).arg(resOrder);
+                          "%2)").arg(ImageTableName).arg(resOrder);
         qDebug()<<sql;
         if(!query.exec(sql)){
             qDebug()<<query.lastError().text();
@@ -150,7 +150,7 @@ bool Server::initImage(){
             partOrder1+=QString(",RES%1").arg(i);
             partOrder2+=",?";
         }
-        QString sql=QString("INSERT IGNORE INTO %1 (%2) VALUES (%3)").arg(IMAGETABLENAME).arg(partOrder1).arg(partOrder2);
+        QString sql=QString("INSERT IGNORE INTO %1 (%2) VALUES (%3)").arg(ImageTableName).arg(partOrder1).arg(partOrder2);
         qDebug()<<sql;
         query.prepare(sql);
         query.addBindValue(imageNames);
@@ -178,7 +178,7 @@ bool Server::initPreApo(){
                       "Soma_position VARCHAR(200) NOT NULL,"
                       "Pre_Swc VARCHAR(1000) NOT NULL,"
                       "User VARCHAR(50) NOT NULL";
-        QString sql=QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(PRERETABLENAME).arg(order);
+        QString sql=QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(PreReTableName).arg(order);
         qDebug()<<sql;
         if(!query.exec(sql)){
             qDebug()<<query.lastError().text();
@@ -196,7 +196,7 @@ bool Server::initPreApo(){
     QStringList users;
 
     {
-        QFileInfoList apoList=QDir(PREAPO).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
+        QFileInfoList apoList=QDir(InPreApo).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
         //    query.prepare("INSERT OR IGNORE INTO Swc (Neuron_id,Brain_id,Tag,Time0,Soma_position) VALUES (?,?,?,?,?)");
         for(auto & apo:apoList){
             neuron_ids.push_back(apo.baseName());
@@ -220,7 +220,7 @@ bool Server::initPreApo(){
     {
         QString sql=QString("INSERT IGNORE INTO %1 (Neuron_id,Brain_id,Tag,Time0,Time1,Soma_position,Pre_Swc,User) VALUES (?,?,?,?,?,?,?,?)"
                             " SELECT Neuron_id FROM %1"
-                            ).arg(PRERETABLENAME);
+                            ).arg(PreReTableName);
         query.prepare(sql);
         query.addBindValue(neuron_ids);
         query.addBindValue(brain_ids);
@@ -237,7 +237,7 @@ bool Server::initPreApo(){
     }
 
     {
-        QFileInfoList apoList=QDir(PREAPO).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
+        QFileInfoList apoList=QDir(InPreApo).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
         for(auto & info:apoList){
             QFile(info.absoluteFilePath()).remove();
         }
@@ -256,14 +256,14 @@ bool Server::initPreSwc(){
                        "Arbor_Position VARCHAR(200) NOT NULL,"
                        "Tag VARCHAR(40) NOT NULL,"
                        "MainPath VARCHAR(1000) NOT NULL";
-        QString sql=QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(PROOFTABLENAME).arg(order);
+        QString sql=QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(ProofTableName).arg(order);
         if(!query.exec(sql)){
             qDebug()<<query.lastError().text();
             return false;
         }
     }
 //QString sql=QString("drop table if exists %1").arg(IMAGETABLENAME);
-    QFileInfoList swcList=QDir(PRESWC).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
+    QFileInfoList swcList=QDir(InProSwc).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
     QStringList future = QtConcurrent::blockingMapped(swcList,cac_pos);
     QStringList nameList;
     QStringList neuronList;
@@ -275,18 +275,18 @@ bool Server::initPreSwc(){
 
         for(QString & s:future){
             auto list=s.trimmed().split(";");
-            if(!( QFile(PRESWC+"/"+list[0]).rename(PROOFSWC+"/"+list[0]))) {continue;}
+            if(!( QFile(InProSwc+"/"+list[0]).rename(ProofSwc+"/"+list[0]))) {continue;}
             nameList.push_back(list[0]);
             neuronList.push_back(list[0].left(list[0].lastIndexOf('_')));
             brainList.push_back(list[0].left(list[0].indexOf('_')));
             positionList.push_back(list[1]);
             tagList.push_back("0");
-            swcPath.push_back(PROOFSWC+"/"+list[0]);
+            swcPath.push_back(ProofSwc+"/"+list[0]);
         }
 
         QString sql=QString("INSERT IGNORE INTO %1 (Name,Neuron_id,Brain_id,Arbor_Position,Tag,MAINPATH) VALUES (?,?,?,?,?,?)"
                             " SELECT Name FROM %1"
-                            ).arg(PROOFTABLENAME);
+                            ).arg(ProofTableName);
         query.prepare(sql);
         query.addBindValue(nameList);
         query.addBindValue(neuronList);
@@ -316,7 +316,7 @@ bool Server::initReswc()
                       "Tag VARCHAR(40) NOT NULL,"
                       "CelltypeRough VARCHAR(100) NOT NULL,"
                       "Celltype VARCHAR(100) NOT NULL";
-        QString sql=QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(RESWCTABLENAME).arg(order);
+        QString sql=QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(ReSwcTableName).arg(order);
         qDebug()<<sql;
         if(!query.exec(sql)){
             qDebug()<<query.lastError().text();
@@ -339,7 +339,7 @@ bool Server::initCheck()
                       "Tag VARCHAR(40) NOT NULL,"
                       "Time VARCHAR(100) NOT NULL,"
                       "User VARCHAR(40) NOT NULL";
-        QString sql=QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(CHECKTABLENAME).arg(order);
+        QString sql=QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(ChResTableName).arg(order);
         qDebug()<<sql;
         if(!query.exec(sql)){
             qDebug()<<query.lastError().text();

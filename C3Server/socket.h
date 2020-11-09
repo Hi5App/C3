@@ -46,28 +46,6 @@ private:
     void SendFile(const QString &filename,int type)const;
     //Msg Process
     void processMsg(const QString & msg);//需要确定消息格式
-
-//    QRegExp ImageDownRex("(.*):choose3_(.*).\n");//要求发送全脑图像列表//db
-//    /*
-//     * "0":表示预重建
-//     * "1":表示校验
-//     */
-//    QRegExp BrainNumberRex("(.*):BrainNumber.\n");//根据脑图的id和模式返回神经元列表
-//    /*模式：2位数
-//     * 第一位决定是否是要求列表还是下一个可用的神经元
-//     * 0:下一个
-//     * 1:列表
-//     * 第二位决定预重建/校验
-//     * 0:预重建
-//     * 1:校验
-//     */
-//    QRegExp ImgBlockRex("(.*):imgblock.\n");//选定的神经元的名称，返回图像
-//    QRegExp GetBBSWCRex("(.*):GetBBSwc.\n");//获取局部神经元处理数据
-//    QRegExp ArborCheckRex("(.*):ArborCheck.\n");
-//    QRegExp GetArborResultRex("(.*):GetArborResult.\n");
-
-//    qDebug()<<"MSG:"<<msg;
-
     void processBrain(const QString & paraString);
     void processBrainNumber(const QString & paraString);
     void processImageBlock(const QString & paraString);

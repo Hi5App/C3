@@ -11,20 +11,17 @@
 #include <QMultiMap>
 //#define IMAGE "image" // where is image data
 extern QString IMAGE;//图像文件夹
-extern QString PREAPO;//预重建的输入apo文件夹
-extern QString PRESWC;//检查的swc输入文件夹
-extern QString PRERESSWC;//预重建结果文件夹
-extern QString PROOFSWC;//校验数据的文件夹
-extern QString FULLSWC;//swc数据存放文件夹
-//extern QString BRAININFO;//放置brainInfo的文件夹
-extern QString PROOFTRUESWC;
-extern QString PROOFFALSESWC;
-extern QString PROOFNONESWC;
-extern QString IMAGETABLENAME;//图像数据表
-extern QString PRERETABLENAME;//预重建数据表
-extern QString RESWCTABLENAME;//重建完成数据表
-extern QString PROOFTABLENAME;//校验数据表
-extern QString CHECKTABLENAME;//校验结果数据表
+extern QString InPreApo;//预重建的输入apo文件夹
+extern QString InProSwc;//检查的swc输入文件夹
+extern QString PeResSwc;//预重建结果文件夹
+extern QString ProofSwc;//校验数据的文件夹
+extern QString FullSwc;//swc数据存放文件夹
+
+extern QString ImageTableName;//图像数据表
+extern QString PreReTableName;//预重建数据表
+extern QString ReSwcTableName;//重建完成数据表
+extern QString ProofTableName;//校验数据表
+extern QString ChResTableName;//校验结果数据表
 
 Socket::Socket(qintptr socketID,QObject *parent):QThread(parent)
 {
@@ -269,19 +266,15 @@ void Socket::processMsg(const QString &msg)
     else if(ImgBlockRex.indexIn(msg)!=-1)
     {
         processImageBlock(ImgBlockRex.cap(1).trimmed());
-//        getAndSendImageBlock(ImgBlockRex.cap(1).trimmed());
     }else if(GetBBSWCRex.indexIn(msg)!=-1)
     {
         processBBSWC(GetBBSWCRex.cap(1).trimmed());
-//        getAndSendSWCBlock(GetBBSWCRex.cap(1).trimmed());//mul read and write
     }else if(ArborCheckRex.indexIn(msg)!=-1)
     {
         processProof(ArborCheckRex.cap(1).trimmed());
-//        ArborCheck(ArborCheckRex.cap(1).trimmed());
     }else if(GetArborResultRex.indexIn(msg)!=-1)
     {
         processResult(GetArborResultRex.cap(1).trimmed());
-//        SendFile("arborcheck.txt",3);
     }else if(BRINRESRex.indexIn(msg)!=-1){
         processRes(BRINRESRex.cap(1).trimmed());
     }
@@ -305,9 +298,9 @@ void Socket::processBrain(const QString & paraString)
     QString sql;
     if(paraString=="0"){
         //0:预重建用
-        sql=QString("SELECT Brain_id FROM %1 WHERE tag = ? ORDER BY Brain_id").arg(PRERETABLENAME);
+        sql=QString("SELECT Brain_id FROM %1 WHERE tag = ? ORDER BY Brain_id").arg(PreReTableName);
     }else if(paraString=="1"){
-        sql=QString("SELECT Brain_id FROM %1 WHERE tag = ? ORDER BY Brain_id").arg(PROOFTABLENAME);
+        sql=QString("SELECT Brain_id FROM %1 WHERE tag = ? ORDER BY Brain_id").arg(ProofTableName);
     }
     query.prepare(sql);
     query.addBindValue("0");
@@ -369,7 +362,7 @@ void Socket::processRes(const QString &paraString)
     }
     QSqlQuery query(db);
     QString sql;
-    sql=QString("SELECT * FROM %1 WHERE Brain_id = ?").arg(IMAGETABLENAME);
+    sql=QString("SELECT * FROM %1 WHERE Brain_id = ?").arg(ImageTableName);
     query.prepare(sql);
     query.addBindValue(paraString);
             int cnt=0;
@@ -396,9 +389,9 @@ void Socket::funcNext(QString brain_id,bool preOrProof)
     QSqlQuery query(db);
     QString sql;
     if(preOrProof){
-        sql=QString("SELECT Neuron_id,Soma_position FROM %1 WHERE tag = ? and Brain_id = ? ORDER BY Neuron_id").arg(PRERETABLENAME);
+        sql=QString("SELECT Neuron_id,Soma_position FROM %1 WHERE tag = ? and Brain_id = ? ORDER BY Neuron_id").arg(PreReTableName);
     }else{
-        sql=QString("SELECT name,Arbor_Position FROM %1 WHERE tag = ? and Brain_id = ? ORDER BY Neuron_id").arg(PROOFTABLENAME);
+        sql=QString("SELECT name,Arbor_Position FROM %1 WHERE tag = ? and Brain_id = ? ORDER BY Neuron_id").arg(ProofTableName);
     }
     query.prepare(sql);
     query.addBindValue("0");
@@ -431,9 +424,9 @@ void Socket::funcList(QString brain_id,bool preOrProof)
     QSqlQuery query(db);
     QString sql;
     if(preOrProof){
-        sql=QString("SELECT Neuron_id,Tag,Soma_position FROM %1 WHERE Brain_id = ? ORDER BY Neuron_id").arg(PRERETABLENAME);
+        sql=QString("SELECT Neuron_id,Tag,Soma_position FROM %1 WHERE Brain_id = ? ORDER BY Neuron_id").arg(PreReTableName);
     }else{
-        sql=QString("SELECT name,Tag,Arbor_Position FROM %1 WHERE Brain_id = ? ORDER BY Neuron_id").arg(PROOFTABLENAME);
+        sql=QString("SELECT name,Tag,Arbor_Position FROM %1 WHERE Brain_id = ? ORDER BY Neuron_id").arg(ProofTableName);
     }
     query.prepare(sql);
     query.addBindValue("0");
@@ -515,7 +508,7 @@ void Socket::getAndSendImageBlock(QString msg,QString N)
         }
         QSqlQuery query(db);
         QString sql;
-        sql=QString("SELECT * FROM %1 WHERE Brain_id = ? ").arg(IMAGETABLENAME);
+        sql=QString("SELECT * FROM %1 WHERE Brain_id = ? ").arg(ImageTableName);
         query.prepare(sql);
         query.addBindValue(brain_id);
         if(query.exec())
@@ -576,10 +569,10 @@ void Socket::getAndSendSWCBlock(QString msg)
             QSqlQuery query(db);
             QString sql;
             if(name.count('_')==1){
-                sql=QString("SELECT Pre_Swc FROM %1 WHERE Neuron_id = ? ").arg(PRERETABLENAME);
+                sql=QString("SELECT Pre_Swc FROM %1 WHERE Neuron_id = ? ").arg(PreReTableName);
 
             }else if(name.count('_')==2){
-                sql=QString("SELECT MAINPATH FROM %1 WHERE name = ? ").arg(PROOFTABLENAME);
+                sql=QString("SELECT MAINPATH FROM %1 WHERE name = ? ").arg(ProofTableName);
             }else{
                 return ;
             }
@@ -694,7 +687,7 @@ void Socket::ArborCheck(QString msg)
             QString sql;
 
             sql=QString("INSERT INTO %1 (Name,Neuron_id,Brain_id,Tag,Time,User) VALUES (?,?,?,?,?,?)"
-                                ).arg(CHECKTABLENAME);
+                                ).arg(ChResTableName);
             query.prepare(sql);
             query.addBindValue(filename);
             query.addBindValue(filename.left(filename.lastIndexOf('_')));
@@ -704,14 +697,14 @@ void Socket::ArborCheck(QString msg)
             query.addBindValue(tmp.cap(3));
             if(query.exec())
             {
-                sql=QString("SELECT Tag INTO %1 WHERE Name = ?").arg(PROOFTABLENAME);
+                sql=QString("SELECT Tag INTO %1 WHERE Name = ?").arg(ProofTableName);
                 query.prepare(sql);
                 query.addBindValue(filename);
                 if(query.exec()&&query.value(0)=="0")
                 {
 
                     sql=QString("UPDATE %1 SET Tag = %2 WHERE name = ? ")
-                            .arg(PROOFTABLENAME).arg(QString::number(1));
+                            .arg(ProofTableName).arg(QString::number(1));
                     query.prepare(sql);
                     query.addBindValue(filename);
                     if(!query.exec()){
@@ -750,7 +743,7 @@ bool Socket::setSwcInBB(QString neuron_id,QString tmpfilepath, int x1, int x2, i
             return false;
         }
         QSqlQuery query(db);
-        QString sql=QString("UPDATE %1 SET Tag = ?,Time1 = ? WHERE Neuron_id = ? AND Tag = 0").append(PRERETABLENAME);
+        QString sql=QString("UPDATE %1 SET Tag = ?,Time1 = ? WHERE Neuron_id = ? AND Tag = 0").append(PreReTableName);
         query.prepare(sql);
         query.addBindValue("1");
         query.addBindValue(QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
@@ -771,14 +764,14 @@ bool Socket::setSwcInBB(QString neuron_id,QString tmpfilepath, int x1, int x2, i
             return false;
         }
         QSqlQuery query(db);
-        QString sql=QString("SELECT Pre_Swc FROM %1 WHERE Neuron_id = ?").arg(PRERETABLENAME);
+        QString sql=QString("SELECT Pre_Swc FROM %1 WHERE Neuron_id = ?").arg(PreReTableName);
         query.prepare(sql);
         query.addBindValue(neuron_id);
         if(query.exec()){
             if(query.value(0).toString()!="-1"){
                 filePath=query.value(0).toString();
             }else{
-                filePath=PRERESSWC+"/"+neuron_id+".swc";
+                filePath=PeResSwc+"/"+neuron_id+".swc";
                 writeSWC_file(filePath,NeuronTree());
 
             }
@@ -843,14 +836,14 @@ bool Socket::setSwcInBB(QString neuron_id,QString tmpfilepath, int x1, int x2, i
                 }
                 if(query.value(0).toString()=="-1")
                 {
-                    sql=QString("UPDATE %1 SET Pre_Swc = ?,Tag = ?,Time1 = ? WHERE Neuron_id = ?").append(PRERETABLENAME);
+                    sql=QString("UPDATE %1 SET Pre_Swc = ?,Tag = ?,Time1 = ? WHERE Neuron_id = ?").append(PreReTableName);
                     query.prepare(sql);
                     query.addBindValue(filePath);
                     query.addBindValue("2");
                     query.addBindValue(QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
                     query.addBindValue(neuron_id);
                 }else{
-                    sql=QString("UPDATE %1 SET Pre_Swc = ?,Time1 = ? WHERE Neuron_id = ?").append(PRERETABLENAME);
+                    sql=QString("UPDATE %1 SET Pre_Swc = ?,Time1 = ? WHERE Neuron_id = ?").append(PreReTableName);
                     query.prepare(sql);
                     query.addBindValue(filePath);
                     query.addBindValue(QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
