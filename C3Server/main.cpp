@@ -17,18 +17,20 @@ const QString c3Input="input";
 const QString c3Data="data";
 
 QString IMAGE;//图像文件夹
-QString PREAPO;//预重建的输入apo文件夹
-QString PRESWC;//检查的swc输入文件夹
-QString PRERESSWC;//预重建结果文件夹
-QString PROOFSWC;//校验数据的文件夹
-QString FULLSWC;
+QString InPreApo;//预重建的输入apo文件夹
+QString InProSwc;//检查的swc输入文件夹
+QString InFullSwc;
+
+QString PeResSwc;//预重建结果文件夹
+QString ProofSwc;//校验数据的文件夹
+QString FullSwc;
 
 
-QString IMAGETABLENAME="Table0";//图像数据表
-QString PRERETABLENAME="Table1";//预重建数据表
-QString RESWCTABLENAME="Table2";//重建完成数据表
-QString PROOFTABLENAME="Table3";//校验数据表
-QString CHECKTABLENAME="Table4";//校验结果数据表
+QString ImageTableName="Table0";//图像数据表
+QString PreReTableName="Table1";//预重建数据表
+QString ReSwcTableName="Table2";//重建完成数据表
+QString ProofTableName="Table3";//校验数据表
+QString ChResTableName="Table4";//校验结果数据表
 void getApo(QString brainDir,QString apoDir);
 void writeBrainInfo(QString apoDir,QString infoWithTxt);
 void getBB(const V_NeuronSWC_list& T,const QString & Filename);
@@ -55,11 +57,13 @@ int main(int argc, char *argv[])
 
 
     IMAGE=QCoreApplication::applicationDirPath()+"/"+c3Image;//图像文件夹
-    PREAPO=inputDir+"/"+c3Apo;//预重建的输入apo文件夹
-    PRESWC=inputDir+"/"+c3CSwc;//检查的swc输入文件夹
-    PRERESSWC=dataDir+"/"+c3RSwc;//预重建结果文件夹
-    PROOFSWC=dataDir+"/"+c3PSwc;//校验数据的文件夹
-    FULLSWC=dataDir+"/"+c3PSwc;
+    InPreApo=inputDir+"/"+c3Apo;//预重建的输入apo文件夹
+    InProSwc=inputDir+"/"+c3CSwc;//检查的swc输入文件夹
+    InFullSwc=inputDir+"/"+c3FSwc;
+
+    PeResSwc=dataDir+"/"+c3RSwc;//预重建结果文件夹
+    ProofSwc=dataDir+"/"+c3PSwc;//校验数据的文件夹
+    FullSwc=dataDir+"/"+c3FSwc;
 
     if(!QDir(IMAGE).exists()){
         QDir(QCoreApplication::applicationDirPath()).mkdir(c3Image);
@@ -67,22 +71,26 @@ int main(int argc, char *argv[])
     if(!QDir(inputDir).exists()){
         QDir(QCoreApplication::applicationDirPath()).mkdir(c3Input);
     }
-    if(!QDir(PREAPO).exists()){
+    if(!QDir(InPreApo).exists()){
         QDir(inputDir).mkdir(c3Apo);
     }
-    if(!QDir(PRESWC).exists()){
+    if(!QDir(InProSwc).exists()){
         QDir(inputDir).mkdir(c3CSwc);
     }
+    if(!QDir(InFullSwc).exists()){
+        QDir(inputDir).mkdir(c3FSwc);
+    }
+
     if(!QDir(dataDir).exists()){
         QDir(QCoreApplication::applicationDirPath()).mkdir(c3Data);
     }
-    if(!QDir(PRERESSWC).exists()){
+    if(!QDir(PeResSwc).exists()){
         QDir(dataDir).mkdir(c3RSwc);
     }
-    if(!QDir(PROOFSWC).exists()){
+    if(!QDir(ProofSwc).exists()){
         QDir(dataDir).mkdir(c3PSwc);
     }
-    if(!QDir(FULLSWC).exists()){
+    if(!QDir(FullSwc).exists()){
         QDir(dataDir).mkdir(c3FSwc);
     }
     qDebug()<<QSqlDatabase::drivers();
