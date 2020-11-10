@@ -73,6 +73,8 @@ import com.example.ImageReader.BigImgReader;
 import com.example.chat.ChatActivity;
 import com.example.game.GameCharacter;
 import com.example.server_communicator.Remote_Socket;
+import com.example.basic.ChatHelpUtils;
+
 import com.example.basic.CrashHandler;
 import com.example.basic.DragFloatActionButton;
 import com.example.basic.FileManager;
@@ -82,6 +84,7 @@ import com.example.basic.LocationSimple;
 import com.example.basic.MsgPopup;
 import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
+import com.example.chat.ChatActivity;
 import com.example.chat.ChatManager;
 import com.example.chat.MessageActivity;
 import com.example.chat.MessageUtil;
@@ -90,6 +93,7 @@ import com.example.datastore.SettingFileManager;
 import com.example.myapplication__volume.fileReader.AnoReader;
 import com.example.myapplication__volume.fileReader.ApoReader;
 import com.example.myapplication__volume.ui.login.LoginActivity;
+import com.example.server_communicator.Remote_Socket;
 import com.feature_calc_func.MorphologyCalculate;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.learning.opimageline.Consensus;
@@ -4941,7 +4945,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20201107b 17:53 UTC+8 build",
+                                "Version: 20201110b 21:53 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -7651,7 +7655,7 @@ public class MainActivity extends BaseActivity {
         RtmMessage message = mRtmClient.createMessage();
         message.setText(callMessage);
 
-        MessageBean messageBean = new MessageBean(username, message, true);
+        MessageBean messageBean = new MessageBean(username, message, true, ChatHelpUtils.getCurrentMillisTime());
 
         mRtmClient.sendMessageToPeer(target, message, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
             @Override
@@ -7730,6 +7734,7 @@ public class MainActivity extends BaseActivity {
                             VoiceChat(Channel, userAccount);
                             setUserAccount(userAccount, context);
                             voicePattern = VoicePattern.CHAT_ROOM;
+                            Log.e("PopUp_Chat","voicePattern = VoicePattern.CHAT_ROOM");
 
                         }else{
                             PopUp_Chat(context);
@@ -8223,7 +8228,11 @@ public class MainActivity extends BaseActivity {
         if (voicePattern == VoicePattern.PEER_TO_PEER){
             showLongToast("The CALL is End !");
         }else {
-            showLongToast("user " + userAccount + " left : " + reason);
+            if (chat_room_num > 1){
+                showLongToast("user " + userAccount + " left : " + reason);
+            }else {
+                showLongToast("The CALL is End !");
+            }
         }
     }
 

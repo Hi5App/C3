@@ -104,7 +104,7 @@ public class ChatActivity extends AppCompatActivity {
                         } else {
                             String result = mChatManager.addFriends(mTargetName);
                             if (result.equals("true")){
-                                Toast_in_Thread("Add Friends " + mTargetName + "Successfully !");
+                                Toast_in_Thread("Add Friends " + mTargetName + " Successfully !");
                             }else {
                                 Toast_in_Thread(result);
                             }

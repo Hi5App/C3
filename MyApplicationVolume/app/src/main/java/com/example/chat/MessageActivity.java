@@ -1,28 +1,31 @@
 package com.example.chat;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.example.basic.ChatHelpUtils;
 import com.example.chat.adapter.MessageAdapter;
 import com.example.chat.model.MessageBean;
 import com.example.chat.model.MessageListBean;
 import com.example.myapplication__volume.BaseActivity;
-import com.example.myapplication__volume.MainActivity;
 import com.example.myapplication__volume.Myapplication;
 import com.example.myapplication__volume.R;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -72,7 +75,7 @@ public class MessageActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_message);
+        setContentView(R.layout.activity_wechat_chat);
 //        WindowManager.LayoutParams params = getWindow().getAttributes();
 //        params.height = (int)(getWindowManager().getDefaultDisplay().getHeight() * 0.8);
 //        params.width = (int)(getWindowManager().getDefaultDisplay().getWidth() * 0.8);
@@ -86,6 +89,8 @@ public class MessageActivity extends BaseActivity {
         mClientListener = new MyRtmClientListener();
         mChatManager.registerListener(mClientListener);
 
+
+        /* get the target name*/
         Intent intent = getIntent();
         mIsPeerToPeerMode = intent.getBooleanExtra(MessageUtil.INTENT_EXTRA_IS_PEER_MODE, true);
         mUserId = intent.getStringExtra(MessageUtil.INTENT_EXTRA_USER_ID);
@@ -96,7 +101,47 @@ public class MessageActivity extends BaseActivity {
 //            mMessageBeanList.get(i).setBackground(getMessageColor(targetName));
 //        }
 
-        mTitleTextView = findViewById(R.id.message_title);
+        Toolbar bar = findViewById(R.id.activity_wechat_chat_toolbar);
+        setSupportActionBar(bar);
+        getSupportActionBar().setTitle("");
+        EditText et_msg = findViewById(R.id.message_edittiext);
+        ImageView iv_add = findViewById(R.id.activity_wechat_chat_iv_add);
+        Button btn_send = findViewById(R.id.activity_wechat_chat_btn_send);
+
+        btn_send.startAnimation(getVisibleAnim(false, btn_send));
+        btn_send.setVisibility(View.GONE);
+
+        et_msg.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Log.i("tag", "onTextChanged --- start -> " + start + " , count ->" + count + "，before ->" + before);
+                if (start == 0 && count > 0) {
+                    btn_send.startAnimation(getVisibleAnim(true, btn_send));
+                    btn_send.setVisibility(View.VISIBLE);
+                    iv_add.setVisibility(View.GONE);
+                }
+
+                if (start == 0 && count == 0) {
+                    //btn_send.startAnimation(getVisibleAnim(false, btn_send));
+                    btn_send.setVisibility(View.GONE);
+                    iv_add.startAnimation(getVisibleAnim(true, iv_add));
+                    iv_add.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+//        mTitleTextView = findViewById(R.id.message_title);
+        mTitleTextView = findViewById(R.id.activity_wechat_chat_tv_name);
         if (mIsPeerToPeerMode) {
             mPeerId = targetName;
             mTitleTextView.setText(mPeerId);
@@ -179,7 +224,7 @@ public class MessageActivity extends BaseActivity {
                     @Override
                     public void onSuccess(final RtmImageMessage rtmImageMessage) {
                         runOnUiThread(() -> {
-                            MessageBean messageBean = new MessageBean(mUserId, rtmImageMessage, true);
+                            MessageBean messageBean = new MessageBean(mUserId, rtmImageMessage, true, ChatHelpUtils.getCurrentMillisTime());
                             messageBean.setCacheFile(file);
                             mMessageBeanList.add(messageBean);
                             mMessageAdapter.notifyItemRangeChanged(mMessageBeanList.size(), 1);
@@ -206,13 +251,14 @@ public class MessageActivity extends BaseActivity {
 
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.selection_chat_btn:
+            case R.id.activity_wechat_chat_btn_send:
+                Log.e("onClick","R.id.activity_wechat_chat_btn_send");
                 String msg = mMsgEditText.getText().toString();
                 if (!msg.equals("")) {
                     RtmMessage message = mRtmClient.createMessage();
                     message.setText(msg);
 
-                    MessageBean messageBean = new MessageBean(mUserId, message, true);
+                    MessageBean messageBean = new MessageBean(mUserId, message, true, ChatHelpUtils.getCurrentMillisTime());
                     mMessageBeanList.add(messageBean);
                     mMessageAdapter.notifyItemRangeChanged(mMessageBeanList.size(), 1);
                     mRecyclerView.scrollToPosition(mMessageBeanList.size() - 1);
@@ -385,7 +431,7 @@ public class MessageActivity extends BaseActivity {
         public void onMessageReceived(final RtmMessage message, final String peerId) {
             runOnUiThread(() -> {
                 if (peerId.equals(mPeerId)) {
-                    MessageBean messageBean = new MessageBean(peerId, message, false);
+                    MessageBean messageBean = new MessageBean(peerId, message, false, ChatHelpUtils.getCurrentMillisTime());
                     messageBean.setBackground(getMessageColor(peerId));
                     mMessageBeanList.add(messageBean);
                     mMessageAdapter.notifyItemRangeChanged(mMessageBeanList.size(), 1);
@@ -400,7 +446,7 @@ public class MessageActivity extends BaseActivity {
         public void onImageMessageReceivedFromPeer(final RtmImageMessage rtmImageMessage, final String peerId) {
             runOnUiThread(() -> {
                 if (peerId.equals(mPeerId)) {
-                    MessageBean messageBean = new MessageBean(peerId, rtmImageMessage, false);
+                    MessageBean messageBean = new MessageBean(peerId, rtmImageMessage, false, ChatHelpUtils.getCurrentMillisTime());
                     messageBean.setBackground(getMessageColor(peerId));
                     mMessageBeanList.add(messageBean);
                     mMessageAdapter.notifyItemRangeChanged(mMessageBeanList.size(), 1);
@@ -456,7 +502,7 @@ public class MessageActivity extends BaseActivity {
             runOnUiThread(() -> {
                 String account = fromMember.getUserId();
                 Log.i(TAG, "onMessageReceived account = " + account + " msg = " + message);
-                MessageBean messageBean = new MessageBean(account, message, false);
+                MessageBean messageBean = new MessageBean(account, message, false, ChatHelpUtils.getCurrentMillisTime());
                 messageBean.setBackground(getMessageColor(account));
                 mMessageBeanList.add(messageBean);
                 mMessageAdapter.notifyItemRangeChanged(mMessageBeanList.size(), 1);
@@ -469,7 +515,7 @@ public class MessageActivity extends BaseActivity {
             runOnUiThread(() -> {
                 String account = rtmChannelMember.getUserId();
                 Log.i(TAG, "onMessageReceived account = " + account + " msg = " + rtmImageMessage);
-                MessageBean messageBean = new MessageBean(account, rtmImageMessage, false);
+                MessageBean messageBean = new MessageBean(account, rtmImageMessage, false, ChatHelpUtils.getCurrentMillisTime());
                 messageBean.setBackground(getMessageColor(account));
                 mMessageBeanList.add(messageBean);
                 mMessageAdapter.notifyItemRangeChanged(mMessageBeanList.size(), 1);
@@ -516,5 +562,23 @@ public class MessageActivity extends BaseActivity {
 
     private void showToast(final String text) {
         runOnUiThread(() -> Toast.makeText(MessageActivity.this, text, Toast.LENGTH_SHORT).show());
+    }
+
+
+    private Animation getVisibleAnim(boolean show, View view) {
+        view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        int y = view.getMeasuredHeight() / 4;
+        int x = view.getMeasuredWidth() / 4;
+        if (show) {
+            ScaleAnimation showAnim = new ScaleAnimation(0.01f, 1f, 0.01f, 1f, x, y);
+            showAnim.setDuration(200);
+            return showAnim;
+
+        } else {
+
+            ScaleAnimation hiddenAnim = new ScaleAnimation(1f, 0.01f, 1f, 0.01f, x, y);
+            hiddenAnim.setDuration(200);
+            return hiddenAnim;
+        }
     }
 }

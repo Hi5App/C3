@@ -28,6 +28,12 @@
     <color name="pink_dark">#4B0082</color>
 
     <color name="character_bg">#CCC</color>
+    <color name="colorLightDark">#464644</color>
+    <color name="colorDarkGreen">#02bf1f</color>
+    <color name="colorLightDarkLevel2">#40403e</color>
+    <color name="colorDarkGrey">#abaaaa</color>
+
+
 
 
 </resources>

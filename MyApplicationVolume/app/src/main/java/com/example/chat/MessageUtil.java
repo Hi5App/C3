@@ -1,5 +1,6 @@
 package com.example.chat;
 
+import com.example.basic.ChatHelpUtils;
 import com.example.chat.model.MessageBean;
 import com.example.chat.model.MessageListBean;
 import com.example.myapplication__volume.R;
@@ -7,7 +8,6 @@ import com.example.myapplication__volume.R;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
 
 import io.agora.rtm.RtmMessage;
 
@@ -64,7 +64,7 @@ public class MessageUtil {
     }
 
     public static void addMessageBean(String account, RtmMessage msg) {
-        MessageBean messageBean = new MessageBean(account, msg, false);
+        MessageBean messageBean = new MessageBean(account, msg, false, ChatHelpUtils.getCurrentMillisTime());
         int ret = existMessageListBean(account);
         if (ret == -1) {
             // account not exist new messagelistbean

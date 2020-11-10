@@ -90,5 +90,9 @@
     <string name="title_chats">Chats</string>
     <string name="title_me">Me</string>
 
+    <string name="NA">UnKnown Friend</string>
+    <string name="nullMsg">Null Msg</string>
+
+
 
 </resources>

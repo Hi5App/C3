@@ -1,5 +1,6 @@
 package com.example.chat.model;
 
+import com.example.basic.ChatHelpUtils;
 import com.example.chat.ChatManager;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class MessageListBean {
         List<RtmMessage> messageList = chatManager.getAllOfflineMessages(account);
         for (RtmMessage m : messageList) {
             // All offline messages are from peer users
-            MessageBean bean = new MessageBean(account, m, false);
+            MessageBean bean = new MessageBean(account, m, false, ChatHelpUtils.getCurrentMillisTime());
             messageBeanList.add(bean);
         }
     }

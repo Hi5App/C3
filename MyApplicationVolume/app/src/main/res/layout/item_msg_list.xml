@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/item_wechat_msg_iv_time_stamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/margin"
+        android:background="@drawable/time_stamp_bg"
+        android:gravity="center"
+        android:padding="@dimen/margin"
+        android:text="00:00"
+        android:textColor="@color/white"
+        android:textSize="@dimen/content_text_small" />
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/item_wechat_msg_layout_receiver"
+        android:layout_width="match_parent"
+        android:layout_margin="8dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/item_name_receiver"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/shape_circle_red"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:lines="1"
+            android:textColor="@color/white"
+            android:textSize="10dp" />
+
+
+        <TextView
+            android:id="@+id/item_wechat_msg_tv_receiver_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="45dp"
+            android:textColor="@color/black"
+            android:layout_marginRight="60dp"
+            android:layout_marginLeft="@dimen/margin"
+            android:background="@drawable/receive_msg_bg"
+            android:clickable="true"
+            android:gravity="center_vertical"
+            android:padding="@dimen/margin_img"
+            android:text="@string/nullMsg"
+            android:textSize="@dimen/content_text_16sp" />
+
+        <ImageView
+            android:id="@+id/item_img_receiver"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/item_name_receiver"
+            android:background="@drawable/receive_msg_bg"
+            android:gravity="center"
+            android:padding="5dp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/item_wechat_msg_layout_sender"
+        android:layout_width="match_parent"
+        android:layout_margin="8dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/item_wechat_msg_tv_sender_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="60dp"
+            android:minHeight="45dp"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_toLeftOf="@+id/item_name_sender"
+            android:background="@drawable/send_msg_bg"
+            android:clickable="true"
+            android:gravity="center_vertical"
+            android:padding="@dimen/margin_img"
+            android:textColor="@color/black"
+            android:text="@string/nullMsg"
+            android:textSize="@dimen/content_text_16sp" />
+
+        <TextView
+            android:id="@+id/item_name_sender"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/shape_circle_green"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:lines="1"
+            android:textColor="@color/white"
+            android:textSize="10dp" />
+
+        <ImageView
+            android:id="@+id/item_img_sender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/item_wechat_msg_tv_sender_msg"
+            android:background="@drawable/receive_msg_bg"
+            android:gravity="center"
+            android:padding="5dp"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+
+</LinearLayout>

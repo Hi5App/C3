@@ -8,11 +8,14 @@ public class MessageBean {
     private String cacheFile;
     private int background;
     private boolean beSelf;
+    private long timeStamp;
 
-    public MessageBean(String account, RtmMessage message, boolean beSelf) {
+
+    public MessageBean(String account, RtmMessage message, boolean beSelf, long timeStamp) {
         this.account = account;
         this.message = message;
         this.beSelf = beSelf;
+        this.timeStamp = timeStamp;
     }
 
     public String getAccount() {
@@ -53,5 +56,13 @@ public class MessageBean {
 
     public void setBeSelf(boolean beSelf) {
         this.beSelf = beSelf;
+    }
+
+    public long getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(long timeStamp) {
+        this.timeStamp = timeStamp;
     }
 }

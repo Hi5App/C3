@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -61,6 +62,17 @@
         android:hint="@string/single_input"
         android:lines="1"
         android:padding="5dp" />
+
+    <EditText
+        android:id="@+id/activity_wechat_chat_et_msg"
+        android:layout_width="0dp"
+        android:layout_height="38dp"
+        android:layout_weight="5"
+        android:background="@drawable/et_underline_style"
+        android:layout_alignParentBottom="true"
+        android:textCursorDrawable="@null"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="0dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/message_list"
