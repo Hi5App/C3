@@ -307,22 +307,35 @@ public class GameActivity extends BaseActivity {
                             if (gameCharacter.closeToBoundary()){
                                 remoteSocket.disConnectFromHost();
                                 remoteSocket.connectServer(ip_SEU);
-                                remoteSocket.PullImageBlock_Dir(context, gameCharacter.getDir());
+
 //                                Thread.sleep(8000);
                                 float [] volumnePosition = myrenderer.modeltoVolume(gameCharacter.getPosition());
-                                float [] dis = new float[]{64 - volumnePosition[0], 64 - volumnePosition[1], 64 - volumnePosition[2]};
+//                                float [] dis = new float[]{volumnePosition[0] - 64, volumnePosition[1] - 64, volumnePosition[2] - 64};
+                                float [] dis = new float[]{gameCharacter.getPosition()[0] - 0.5f, gameCharacter.getPosition()[1] - 0.5f, gameCharacter.getPosition()[2] - 0.5f};
                                 Log.v("DISSSSS", Arrays.toString(dis));
-//                                gameCharacter.setPosition(new float[]{0.5f, 0.5f, 0.5f});
-                                gameCharacter.moveBack(gameCharacter.getDir(), 0.5f);
+                                float [] normalDir = new float[3];
+                                normalDir[0] = dis[0] / (float)Math.sqrt((dis[0] * dis[0] + dis[1] * dis[1] + dis[2] * dis[2]));
+                                normalDir[1] = dis[1] / (float)Math.sqrt((dis[0] * dis[0] + dis[1] * dis[1] + dis[2] * dis[2]));
+                                normalDir[2] = dis[2] / (float)Math.sqrt((dis[0] * dis[0] + dis[1] * dis[1] + dis[2] * dis[2]));
+                                float [] negativeDir = {-normalDir[0], -normalDir[1], -normalDir[2]};
 
-                                travelPath.move(dis);
+                                remoteSocket.PullImageBlock_Dir(context, normalDir);
+//                                gameCharacter.setPosition(new float[]{0.5f, 0.5f, 0.5f});
+                                gameCharacter.move(negativeDir, 0.5f);
+
+                                float [] volumneDir = new float[]{64 - volumnePosition[0], 64 - volumnePosition[1], 64 - volumnePosition[2]};
+                                float [] volumneNormalDir = new float[3];
+                                volumneNormalDir[0] = volumneDir[0] / (float)Math.sqrt(volumneDir[0] * volumneDir[0] + volumneDir[1] * volumneDir[1] + volumneDir[2] * volumneDir[2]);
+                                volumneNormalDir[1] = volumneDir[1] / (float)Math.sqrt(volumneDir[0] * volumneDir[0] + volumneDir[1] * volumneDir[1] + volumneDir[2] * volumneDir[2]);
+                                volumneNormalDir[2] = volumneDir[2] / (float)Math.sqrt(volumneDir[0] * volumneDir[0] + volumneDir[1] * volumneDir[1] + volumneDir[2] * volumneDir[2]);
+                                travelPath.move(volumneNormalDir, 64);
 
                                 myrenderer.clearCurSwcList();
                                 myrenderer.addSwc(travelPath);
 //                                myrenderer.clearCurSwcList();
 //                                myrenderer.addSwc(travelPath);
 
-//                                myrenderer.clearMarkerList();
+//                                myrenderer.clearMarkerList();c x
 //                                myrenderer.addMarker(new float[]{0.5f, 0.5f, 0.5f});
 
                                 lastPlace = new float[]{0.5f, 0.5f, 0.5f};

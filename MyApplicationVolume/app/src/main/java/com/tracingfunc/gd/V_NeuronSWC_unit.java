@@ -42,11 +42,11 @@ public class V_NeuronSWC_unit implements Cloneable {
         }
     }
 
-    public void move(float [] dis){
+    public void move(float [] dis, float l){
         Log.v("movebefore", Double.toString(x) + ' ' + Double.toString(y) + ' ' + Double.toString(z));
-        x += dis[0];
-        y += dis[1];
-        z += dis[2];
+        x += dis[0] * l;
+        y += dis[1] * l;
+        z += dis[2] * l;
         Log.v("moveafter", Double.toString(x) + ' ' + Double.toString(y) + ' ' + Double.toString(z));
 
     }
