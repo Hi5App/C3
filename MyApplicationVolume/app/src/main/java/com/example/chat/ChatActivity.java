@@ -15,6 +15,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.chat.ui.contacts.ContactsFragment;
 import com.example.myapplication__volume.Myapplication;
 import com.example.myapplication__volume.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -34,6 +35,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private RtmClient mRtmClient;
     private ChatManager mChatManager;
+    private int FragmentId;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,6 +56,11 @@ public class ChatActivity extends AppCompatActivity {
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         Toolbar toolbar = findViewById(R.id.toolbar_chat);
+
+        FragmentId = navController.getCurrentDestination().getId();
+        if (FragmentId == R.id.navigation_home){
+            Log.e("ChatActivity","id = " + FragmentId);
+        }
 
 //        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
@@ -104,6 +111,10 @@ public class ChatActivity extends AppCompatActivity {
                         } else {
                             String result = mChatManager.addFriends(mTargetName);
                             if (result.equals("true")){
+                                if (FragmentId == R.id.navigation_home){
+                                    ContactsFragment.refresh();
+                                }
+//                                contactsFragment.refresh();
                                 Toast_in_Thread("Add Friends " + mTargetName + " Successfully !");
                             }else {
                                 Toast_in_Thread(result);

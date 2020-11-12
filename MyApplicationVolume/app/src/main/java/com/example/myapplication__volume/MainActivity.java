@@ -70,11 +70,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.example.ImageReader.BigImgReader;
-import com.example.chat.ChatActivity;
-import com.example.game.GameCharacter;
-import com.example.server_communicator.Remote_Socket;
 import com.example.basic.ChatHelpUtils;
-
 import com.example.basic.CrashHandler;
 import com.example.basic.DragFloatActionButton;
 import com.example.basic.FileManager;
@@ -4976,8 +4972,9 @@ public class MainActivity extends BaseActivity {
     }
 
 
-
-
+    /**
+     * select server
+     */
     public void Select_img(){
 //        Context context = this;
         new XPopup.Builder(this)
@@ -5202,11 +5199,20 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    /**
+     * Read Big File from Remote Server
+     * @param ip
+     */
     private void BigFileRead_Remote(String ip){
 
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                /*
+                1.先断开一下连接，以防之前连接过，出现同一个ip连接两次服务器
+                2.与服务器建立socket连接
+                3.获取文件列表
+                 */
                 remote_socket.disConnectFromHost();
                 remote_socket.connectServer(ip);
                 remote_socket.Select_Brain(true);
@@ -7332,7 +7338,9 @@ public class MainActivity extends BaseActivity {
     }
 
 
-
+    /**
+     * open file
+     */
     public void File_icon(){
 
         new XPopup.Builder(this)
@@ -7817,6 +7825,10 @@ public class MainActivity extends BaseActivity {
 
     }
 
+
+    /**
+     * load big data
+     */
     public void loadBigData(){
 
         new XPopup.Builder(this)

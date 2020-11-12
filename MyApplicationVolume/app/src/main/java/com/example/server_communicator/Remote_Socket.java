@@ -21,7 +21,6 @@ import com.example.ImageReader.BigImgReader;
 import com.example.datastore.ExcelUtil;
 import com.example.myapplication__volume.GameActivity;
 import com.example.myapplication__volume.MainActivity;
-import com.example.myapplication__volume.Myapplication;
 import com.example.myapplication__volume.R;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnSelectListener;
@@ -122,10 +121,17 @@ public class Remote_Socket extends Socket {
     }
 
 
+    /**
+     * connect with server
+     * @param ip_server
+     */
     public void connectServer(String ip_server){
 
         Log.i("connectServer","Start to Connect Server !");
 
+        /*
+        如果已经和服务器建立连接了，就返回
+         */
         if (ManageSocket != null && !ManageSocket.isClosed() && ManageSocket.isConnected()){
             return;
         }
@@ -138,13 +144,16 @@ public class Remote_Socket extends Socket {
                 try {
                     ip = ip_server;
                     Log.i(TAG,"ip_server: "+ ip_server);
-                    ManageSocket = new Socket(ip_server, Integer.parseInt("9000"));
+                    ManageSocket = new Socket(ip_server, Integer.parseInt("9000"));             // 服务器的ip和端口号
 //                    ManageSocket = new Socket(ip_server, Integer.parseInt("9100"));
 //                    ManageSocket = new Socket("192.168.1.120", Integer.parseInt("8000"));
 //                    ManageSocket = new Socket("192.168.1.120", Integer.parseInt("8000"));
                     ImgReader = new BufferedReader(new InputStreamReader(ManageSocket.getInputStream(), "UTF-8"));
                     ImgPWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(ManageSocket.getOutputStream(), StandardCharsets.UTF_8)));
 
+                    /*
+                    判断是否成功建立连接
+                     */
                     if (ManageSocket.isConnected()) {
                         isSocketSet = true;
                         Log.i("connectServer", "Connect Server Successfully !");
@@ -163,6 +172,9 @@ public class Remote_Socket extends Socket {
         thread.start();
 
 
+        /*
+        用于暂停主线程，等待子线程执行完成
+         */
         try {
             thread.join();
         } catch (InterruptedException e) {
@@ -172,7 +184,10 @@ public class Remote_Socket extends Socket {
     }
 
 
-
+    /**
+     * process the message received from the server
+     * @param information
+     */
     public void onReadyRead(String information){
 
         String LoginRex = ":log in success.";
@@ -1899,6 +1914,9 @@ public class Remote_Socket extends Socket {
 
     }
 
+
+    // ----------------------------------------------------------------------------------------------------------
+
     private void Send_Message(String message) {
         Make_Connect();
 
@@ -1966,6 +1984,8 @@ public class Remote_Socket extends Socket {
 
     }
 
+
+    // ----------------------------------------------------------------------------------------------------------
 
 
     private String[] JudgeEven(String offset_x, String offset_y, String offset_z, String size){

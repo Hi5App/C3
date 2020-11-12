@@ -19,6 +19,7 @@ import com.example.myapplication__volume.Myapplication;
 import com.example.myapplication__volume.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -178,6 +179,13 @@ public class ContactAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         mContext.startActivity(intent);
     }
 
+
+    public void refreshContact(String[] contactNames){
+        mContactNames = contactNames;
+        Log.e("ContactsAdapter", Arrays.toString(contactNames));
+        Log.e("ContactsAdapter", Arrays.toString(mContactNames));
+        handleContact();
+    }
 
     public void Toast_in_Thread(String message){
         ((Activity) mContext).runOnUiThread(new Runnable() {
