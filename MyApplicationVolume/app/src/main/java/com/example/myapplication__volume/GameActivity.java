@@ -86,7 +86,11 @@ public class GameActivity extends BaseActivity {
 
     final private static String TAG = "GAMEACTIVITY";
 
-    private String scoreString = "00000";
+    private static String scoreString = "00000";
+
+    private static int score = 0;
+
+    private static TextView scoreText;
 
     @SuppressLint("HandlerLeak")
     private static Handler puiHandler = new Handler(){
@@ -166,7 +170,7 @@ public class GameActivity extends BaseActivity {
         ll.removeView(rockerView2);
         this.addContentView(rockerView2, lp_rocker2);
 
-        TextView scoreText = new TextView(this);
+        scoreText = new TextView(this);
         scoreText.setTextColor(Color.YELLOW);
         scoreText.setText(scoreString);
         scoreText.setTypeface(Typeface.DEFAULT_BOLD);
@@ -356,6 +360,8 @@ public class GameActivity extends BaseActivity {
 //                                myrenderer.addMarker(new float[]{0.5f, 0.5f, 0.5f});
 
                                 lastPlace = new float[]{0.5f, 0.5f, 0.5f};
+
+                                myrenderer.setGameCharacter(gameCharacter);
                             } else {
 
                                 float[] position = gameCharacter.getPosition();
@@ -381,6 +387,9 @@ public class GameActivity extends BaseActivity {
                                 myrenderer.addSwc(travelPath);
 
                                 lastPlace = new float[]{position[0], position[1], position[2]};
+
+                                myrenderer.setGameCharacter(gameCharacter);
+                                myrenderer.removeWhileMove();
 //                                }
                             }
                         }
@@ -390,7 +399,7 @@ public class GameActivity extends BaseActivity {
 //                        myrenderer.setGameDir(gameCharacter.getDir());
 //                        myrenderer.setGameHead(gameCharacter.getHead());
 //                        myrenderer.setGamePosition(gameCharacter.getPosition());
-                        myrenderer.setGameCharacter(gameCharacter);
+
 
                         myGLSurfaceView.requestRender();
                     }
@@ -483,6 +492,28 @@ public class GameActivity extends BaseActivity {
         myGLSurfaceView.requestRender();
 
 
+    }
+
+    public static void addScore(int s){
+        score += s;
+
+        updateScore();
+    }
+
+    private static void updateScore(){
+        if (score < 10){
+            scoreString = "0000" + Integer.toString(score);
+        } else if (score >= 10 && score < 100){
+            scoreString = "000" + Integer.toString(score);
+        } else if (score >= 100 && score < 1000){
+            scoreString = "00" + Integer.toString(score);
+        } else if (score >= 1000 && score < 10000){
+            scoreString = "0" + Integer.toString(score);
+        } else {
+            scoreString = Integer.toString(score);
+        }
+        Log.d("UpdateScore", Integer.toString(score) + "   " + scoreString);
+        scoreText.setText(scoreString);
     }
 
     private void archiveList(boolean saving){

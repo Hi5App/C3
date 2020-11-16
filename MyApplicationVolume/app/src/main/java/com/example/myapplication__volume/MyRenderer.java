@@ -5950,6 +5950,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return gameCharacter;
     }
 
+    public void removeWhileMove(){
+        if (myPatternGame == null){
+            return;
+        }
+
+        Log.d("RemoveWhileMove", "Here we are!!!");
+
+        myPatternGame.removePointsByCenter(modeltoVolume(gameCharacter.getPosition()));
+    }
     /**
      * toast info in the thread
      * @param message the message you wanna toast
