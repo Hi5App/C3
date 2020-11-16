@@ -965,7 +965,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Matrix.multiplyMM(translateMatrix, 0, zoomMatrix, 0, translateMatrix, 0);
         Matrix.setIdentityM(translateAfterMatrix, 0);
 
-        Matrix.translateM(translateAfterMatrix, 0, 2.3f, 0.5f, 0.5f);
+        Matrix.translateM(translateAfterMatrix, 0, 2.1f, 0.5f, 0.5f);
 
         Matrix.setIdentityM(zoomSmallMapMatrix, 0);
         Matrix.scaleM(zoomSmallMapMatrix, 0, 0.5f, 0.5f, 0.5f);

@@ -194,8 +194,6 @@ public class MyPatternGame {
         this.sz = sz;
 
         initMap();
-
-
     }
 
     public static void initProgram(){

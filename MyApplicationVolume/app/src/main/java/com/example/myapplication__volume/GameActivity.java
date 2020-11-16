@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
@@ -82,6 +85,8 @@ public class GameActivity extends BaseActivity {
     private Remote_Socket remoteSocket;
 
     final private static String TAG = "GAMEACTIVITY";
+
+    private String scoreString = "00000";
 
     @SuppressLint("HandlerLeak")
     private static Handler puiHandler = new Handler(){
@@ -160,6 +165,18 @@ public class GameActivity extends BaseActivity {
         lp_rocker2.setMargins(20, 0, 0, 20);
         ll.removeView(rockerView2);
         this.addContentView(rockerView2, lp_rocker2);
+
+        TextView scoreText = new TextView(this);
+        scoreText.setTextColor(Color.YELLOW);
+        scoreText.setText(scoreString);
+        scoreText.setTypeface(Typeface.DEFAULT_BOLD);
+        scoreText.setLetterSpacing(0.8f);
+        scoreText.setTextSize(15);
+
+        FrameLayout.LayoutParams lp_score = new FrameLayout.LayoutParams(350, 300);
+        lp_score.gravity = Gravity.TOP | Gravity.RIGHT;
+        lp_score.setMargins(0, 160, 20, 0);
+        this.addContentView(scoreText, lp_score);
 
 //        Button Check_Yes = new Button(this);
 //        Check_Yes.setText("Y");
