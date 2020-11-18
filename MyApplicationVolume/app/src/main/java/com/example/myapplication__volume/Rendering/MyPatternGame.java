@@ -6,6 +6,7 @@ import android.util.Log;
 import com.example.basic.ByteTranslate;
 import com.example.basic.Image4DSimple;
 import com.example.basic.XYZ;
+import com.example.myapplication__volume.GameActivity;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -30,7 +31,8 @@ public class MyPatternGame {
     private int data_length;
     private boolean isBig;
 
-    ArrayList<XYZ> lightPoints = new ArrayList<>();
+    private ArrayList<XYZ> lightPoints = new ArrayList<>();
+    private int [][][] pointRooms = new int[128][128][128];
 
     private int threshold = 0;
 
@@ -194,8 +196,6 @@ public class MyPatternGame {
         this.sz = sz;
 
         initMap();
-
-
     }
 
     public static void initProgram(){
@@ -289,6 +289,7 @@ public class MyPatternGame {
                     for (int z = 0; z < vol_d; z += 3){
                         if (ByteTranslate.byte1ToInt(grayscale[(z * vol_h * vol_w + y * vol_w + x) * 4]) > threshold){
                             lightPoints.add(new XYZ(x, y, z));
+                            pointRooms[x][y][z] = 1;
                         }
                     }
                 }
@@ -301,6 +302,7 @@ public class MyPatternGame {
                     for (int z = 0; z < vol_d; z += 3){
                         if (grayscale[(z * vol_w * vol_h + y * vol_w + x) * 4] > threshold){
                             lightPoints.add(new XYZ(z, y, x));
+                            pointRooms[x][y][z] = 1;
                         }
                     }
                 }
@@ -313,6 +315,7 @@ public class MyPatternGame {
                     for (int z = 0; z < vol_d; z += 3){
                         if (grayscale[(z * vol_w * vol_h + y * vol_w + x) * 4] > threshold){
                             lightPoints.add(new XYZ(z, y, x));
+                            pointRooms[x][y][z] = 1;
                         }
                     }
                 }
@@ -518,5 +521,19 @@ public class MyPatternGame {
         GLES30.glEnableVertexAttribArray(positionHandle);
 //        GLES30.glEnable(colorHandle);
         mvpMatrixHandle = GLES30.glGetUniformLocation(mProgram, "uMVPMatrix");
+    }
+
+    public void removePointsByCenter(float [] centerPos){
+        for (int i = 0; i < lightPoints.size(); i++){
+            XYZ temp = lightPoints.get(i);
+            XYZ dis = new XYZ(temp.x - centerPos[0], temp.y - centerPos[1], temp.z - centerPos[2]);
+            if (XYZ.norm(dis) < 10){
+                Log.d("RemovePointsByCenter", "Removed!!!");
+                lightPoints.remove(i);
+                GameActivity.addScore(10);
+            }
+        }
+
+        bufferSet();
     }
 }
