@@ -1,4 +1,4 @@
-package com.example.myapplication__volume.rendering;
+package com.example.myapplication__volume.render;
 
 public class MyMarker {
     public double x;

@@ -1,4 +1,4 @@
-package com.example.myapplication__volume.rendering;
+package com.example.myapplication__volume.render;
 
 import android.opengl.GLES30;
 import android.util.Log;

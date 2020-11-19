@@ -1,4 +1,4 @@
-package com.example.myapplication__volume.rendering;
+package com.example.myapplication__volume.render;
 
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
