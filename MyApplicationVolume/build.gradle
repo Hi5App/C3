@@ -1,13 +1,13 @@
+import java.text.SimpleDateFormat
+
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
+    apply from: 'script.gradle', to: buildscript
+}
+
+buildscript {
     repositories {
-//        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
-//        //如果上面的阿里云镜像不行，就尝试用下面的的试试。如果用下面的，上面的就注释掉。
-//        //maven { url 'https://maven.aliyun.com/repository/public' }
-//
-//        maven { url 'https://maven.aliyun.com/repository/google' }
-//        maven { url 'https://maven.aliyun.com/repository/jcenter' }
         google()
         jcenter()
         
@@ -28,22 +28,46 @@ allprojects {
 
         maven { url 'https://maven.aliyun.com/repository/google' }
         maven { url 'https://maven.aliyun.com/repository/jcenter' }
+        maven { url "https://jitpack.io" }
         google()
         jcenter()
-//        jcenter { url "jcenter.bintray.com" }
-
-//        maven {
-//            url 'https://maven.google.com'
-//        }
-//        maven {
-//            url "https://maven.aliyun.com/repository/google"
-//        }
-//        maven {
-//            url "https://maven.aliyun.com/repository/jcenter"
-//        }
-
     }
 }
+
+ext {
+    compileSdkVersion = 29
+    buildToolsVersion = '29.0.3'
+    minSdkVersion = 19
+    targetSdkVersion = 28
+    appTargetSdkVersion = 28
+    versionCode = 150
+    versionName = '8.1.0'
+    sdkSourceCompatibility = 1.8
+    sdkTargetCompatibility = 1.8
+    appSourceCompatibility = 1.8
+    appTargetCompatibility = 1.8
+    nimOutputDir = "nim-outputs-${versionName}-${getBuildTime()}-${getGitVersion()}"
+
+    //参考other-sdks 下的版本， 严格按照绑定的NRTC 版本来 ，使用 fetch_nrtc.sh 更新NRTC时会自动修改
+    nosSdkVersion = '1.0.1'
+    reportSdkVersion = '2.0.1'
+}
+
+static def getGitVersion() {
+    try {
+        return 'git rev-parse --short HEAD'.execute().text.trim()
+    } catch (Throwable th) {
+        th.printStackTrace()
+        return ""
+    }
+}
+
+static def getBuildTime() {
+    Date date = new Date()
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd")
+    return simpleDateFormat.format(date)
+}
+
 
 task clean(type: Delete) {
     delete rootProject.buildDir

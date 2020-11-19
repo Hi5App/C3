@@ -15,152 +15,419 @@ import java.util.Vector;
 
 public class SettingFileManager {
 
+    /*
+     Img Info Maintenance
+     ImgInfo  --> Draw -> Brain_Cur.
+                          RES_Cur.
+                          Brain_Num -> RESList.
+                                    -> RES       -> Neuron
+                                                 -> Offset
+
+              --> Check -> Brain_Cur.
+                           RES_Cur.
+                           Brain_Num -> RESList.
+                                     -> RES      -> Arbor
+                                                 -> Offset
+     */
+
 
     // getFileName_Remote: brain_number  18454
     //
 
 
+    private static String filepath = "EMPTY_PATH";
 
-    public SettingFileManager(){
+    public SettingFileManager(Context context){
+        filepath = context.getExternalFilesDir(null).toString();
+    }
+
+
+
+
+    /**
+     * get the latest BrainNum in Draw Mode
+     * @param isDraw if in Draw Mode
+     * @return the BrainNum in Draw Mode you chose currently
+     */
+    public static String getBrainNum_Remote(boolean isDraw){
+        String mode;
+        mode = isDraw ? "/Draw" : "/Check";
+
+        String BrainNum = null;
+        File file = new File(filepath + "/ImgInfo" + mode + "/Brain_Cur.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "--EMPTY--";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get BrainNum", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                BrainNum = buffreader.readLine();
+                buffreader.close();  //关闭ReaderBuffer
+                inputStream.close(); //关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get BrainNum", BrainNum);
+        return BrainNum;
+    }
+
+
+    /**
+     * update the BrainNum
+     * @param BrainNum the BrainNum currently chose
+     * @param isDraw if in Draw Mode
+     */
+    public static void setBrainNum_Remote(String BrainNum, boolean isDraw){
+
+        String mode;
+        mode = isDraw ? "/Draw" : "/Check";
+
+        File file = new File(filepath + "/ImgInfo" + mode + "/Brain_Cur.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("set BrainNum", "Fail to create file");
+            }
+        }
+
+        try {
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(BrainNum.getBytes());
+            outStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
-//    public String getDownSampleMode(Context context){
-//        String DownSampleMode = null;
-//
-//        String filepath = context.getExternalFilesDir(null).toString();
-//        File file = new File(filepath + "/config/Settings/DownSampleMode.txt");
-//        if (!file.exists()){
-//            try {
-//                File dir = new File(file.getParent());
-//                dir.mkdirs();
-//                file.createNewFile();
-//
-//                String str = "DownSampleYes";
-//                FileOutputStream outStream = new FileOutputStream(file);
-//                outStream.write(str.getBytes());
-//                outStream.close();
-//
-//            }catch (Exception e){
-//                Log.v("get DownSampleMode", "Fail to create file");
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        try {
-//            FileInputStream inputStream = new FileInputStream(file);
-//            if (inputStream != null) {
-//                InputStreamReader inputreader
-//                        = new InputStreamReader(inputStream, "UTF-8");
-//                BufferedReader buffreader = new BufferedReader(inputreader);
-//                String line = "";
-//
-//                line = buffreader.readLine();
-//                DownSampleMode = line;
-//
-//                inputStream.close();//关闭输入流
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        Log.v("get DownSampleMode", DownSampleMode);
-//        return DownSampleMode;
-//    }
-//
-//
-//    public void setDownSampleMode(String DownSampleMode, Context context){
-//        String filepath = context.getExternalFilesDir(null).toString();
-//        File file = new File(filepath + "/config/Settings/DownSampleMode.txt");
-//        if (!file.exists()){
-//            try {
-//                File dir = new File(file.getParent());
-//                dir.mkdirs();
-//                file.createNewFile();
-//            }catch (Exception e){
-//                Log.v("get DownSampleMode", "Fail to create file");
-//            }
-//        }
-//
-//        try {
-//
-//            FileOutputStream outStream = new FileOutputStream(file);
-//            outStream.write(DownSampleMode.getBytes());
-//            outStream.close();
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//    }
-//
-//
-//    public String getBigDataMode(Context context){
-//        String BigDataMode = null;
-//
-//        String filepath = context.getExternalFilesDir(null).toString();
-//        File file = new File(filepath + "/config/Settings/BigDataMode.txt");
-//        if (!file.exists()){
-//            try {
-//                File dir = new File(file.getParent());
-//                dir.mkdirs();
-//                file.createNewFile();
-//
-//                String str = "Draw Mode";
-//                FileOutputStream outStream = new FileOutputStream(file);
-//                outStream.write(str.getBytes());
-//                outStream.close();
-//
-//            }catch (Exception e){
-//                Log.v("get BigDataMode", "Fail to create file");
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        try {
-//            FileInputStream inputStream = new FileInputStream(file);
-//            if (inputStream != null) {
-//                InputStreamReader inputreader
-//                        = new InputStreamReader(inputStream, "UTF-8");
-//                BufferedReader buffreader = new BufferedReader(inputreader);
-//                String line = "";
-//
-//                line = buffreader.readLine();
-//                BigDataMode = line;
-//
-//                inputStream.close();//关闭输入流
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        Log.v("get BigDataMode", BigDataMode);
-//        return BigDataMode;
-//    }
-//
-//
-//    public void setBigDataMode(String BigDataMode, Context context){
-//        String filepath = context.getExternalFilesDir(null).toString();
-//        File file = new File(filepath + "/config/Settings/BigDataMode.txt");
-//        if (!file.exists()){
-//            try {
-//                File dir = new File(file.getParent());
-//                dir.mkdirs();
-//                file.createNewFile();
-//            }catch (Exception e){
-//                Log.v("get BigDataMode", "Fail to create file");
-//            }
-//        }
-//
-//        try {
-//
-//            FileOutputStream outStream = new FileOutputStream(file);
-//            outStream.write(BigDataMode.getBytes());
-//            outStream.close();
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//    }
+
+
+    /**
+     * get the latest BrainNum in Draw Mode
+     * @return the BrainNum in Draw Mode you chose currently
+     */
+    public static String getRES_Remote(boolean isDraw){
+        String mode;
+        mode = isDraw ? "/Draw" : "/Check";
+
+        String RES = null;
+        File file = new File(filepath + "/ImgInfo" + mode + "/RES_Cur.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "--EMPTY--";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get RES", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                RES = buffreader.readLine();
+                buffreader.close();  //关闭ReaderBuffer
+                inputStream.close(); //关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get RES", RES);
+        return RES;
+    }
+
+
+
+    /**
+     * update the RES
+     * @param RES the RES currently chose
+     */
+    public static void setRES__Remote(String RES, boolean isDraw){
+
+        String mode;
+        mode = isDraw ? "/Draw" : "/Check";
+
+        File file = new File(filepath + "/ImgInfo" + mode + "/RES_Cur.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("set RES", "Fail to create file");
+            }
+        }
+
+        try {
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(RES.getBytes());
+            outStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+
+    /**
+     * get the latest BrainNum in Draw Mode
+     * @return the BrainNum in Draw Mode you chose currently
+     */
+    public static String getRESList_Remote(String BrainNum, boolean isDraw){
+        String mode;
+        mode = isDraw ? "/Draw" : "/Check";
+
+        String RESList = null;
+        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum + "/RESList.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "--EMPTY--";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get RESList", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                RESList = buffreader.readLine();
+                buffreader.close();  //关闭ReaderBuffer
+                inputStream.close(); //关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get RESList", RESList);
+        return RESList;
+    }
+
+
+    /**
+     * update the RESList
+     * @param RESList the RESList of current Brain
+     */
+    public static void setRESList__Remote(String BrainNum, String RESList, boolean isDraw){
+
+        String mode;
+        mode = isDraw ? "/Draw" : "/Check";
+
+        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum +"/RESList.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("set RESList", "Fail to create file");
+            }
+        }
+
+        try {
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(RESList.getBytes());
+            outStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+
+    /**
+     * get the latest BrainNum in Draw Mode
+     * @return the BrainNum in Draw Mode you chose currently
+     */
+    public static String getNeuronNum_Remote(String BrainNum, boolean isDraw){
+        String mode;
+        mode = isDraw ? "/Draw" : "/Check";
+
+        String NeuronNum = null;
+        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum + "/NeuronNum.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "--EMPTY--";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get NeuronNum", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                NeuronNum = buffreader.readLine();
+                buffreader.close();  //关闭ReaderBuffer
+                inputStream.close(); //关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get NeuronNum", NeuronNum);
+        return NeuronNum;
+    }
+
+
+    /**
+     * update the NeuronNum
+     * @param NeuronNum the NeuronNum of current Brain
+     */
+    public static void setNeuronNum_Remote(String BrainNum, String NeuronNum, boolean isDraw){
+
+        String mode;
+        mode = isDraw ? "/Draw" : "/Check";
+
+        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum +"/NeuronNum.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("set RESList", "Fail to create file");
+            }
+        }
+
+        try {
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(NeuronNum.getBytes());
+            outStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    /**
+     * get the latest BrainNum in Draw Mode
+     * @return the BrainNum in Draw Mode you chose currently
+     */
+    public static String getOffset_Remote(String BrainNum, boolean isDraw){
+        String mode;
+        mode = isDraw ? "/Draw" : "/Check";
+
+        String Offset = null;
+        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum + "/Offset.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "--EMPTY--";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get Offset", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                Offset = buffreader.readLine();
+                buffreader.close();  //关闭ReaderBuffer
+                inputStream.close(); //关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get Offset", Offset);
+        return Offset;
+    }
+
+
+    /**
+     * update the NeuronNum
+     * @param Offset the NeuronNum of current Brain
+     */
+    public static void setOffset_Remote(String BrainNum, String Offset, boolean isDraw){
+
+        String mode;
+        mode = isDraw ? "/Draw" : "/Check";
+
+        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum +"/Offset.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("set Offset", "Fail to create file");
+            }
+        }
+
+        try {
+            FileOutputStream outStream = new FileOutputStream(file);
+            outStream.write(Offset.getBytes());
+            outStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
 
     /**
@@ -482,6 +749,8 @@ public class SettingFileManager {
         }
 
     }
+
+
 
 
     /**

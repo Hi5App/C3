@@ -42,7 +42,7 @@ import com.example.myapplication__volume.rendering.MyNavLoc;
 import com.example.myapplication__volume.rendering.MyPattern;
 import com.example.myapplication__volume.rendering.MyPattern2D;
 
-import com.example.myapplication__volume.Rendering.MyPatternGame;
+import com.example.myapplication__volume.rendering.MyPatternGame;
 
 import com.tracingfunc.cornerDetection.HarrisCornerDetector;
 import com.tracingfunc.gd.V_NeuronSWC;

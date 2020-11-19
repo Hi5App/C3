@@ -17,6 +17,7 @@ import com.example.chat.MessageActivity;
 import com.example.chat.MessageUtil;
 import com.example.myapplication__volume.Myapplication;
 import com.example.myapplication__volume.R;
+import com.netease.nim.uikit.api.NimUIKit;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,7 +94,9 @@ public class ContactAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 public void onClick(View view) {
                     int position = holder.getAdapterPosition();
                     Contact contact = resultList.get(position);
-                    startMsgPeerToPeer(contact.getmName());
+                    // 打开单聊界面
+                    NimUIKit.startP2PSession(mContext, contact.getmName());
+//                    startMsgPeerToPeer(contact.getmName());
                 }
             });
             return holder;

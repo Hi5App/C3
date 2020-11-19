@@ -103,6 +103,10 @@ import com.lxj.xpopup.enums.PopupPosition;
 import com.lxj.xpopup.interfaces.OnCancelListener;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.RequestCallback;
+import com.netease.nimlib.sdk.auth.AuthService;
+import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.tracingfunc.app2.ParaAPP2;
 import com.tracingfunc.app2.V3dNeuronAPP2Tracing;
 import com.tracingfunc.gd.CurveTracePara;
@@ -517,16 +521,15 @@ public class MainActivity extends BaseActivity {
                         String source = getSelectSource(context);
                         if (source.equals("Remote Server Aliyun")){
                             String filename = getFilename_Remote(context);
-                            String brain_number = getNeuronNumber_Remote(context,filename);
+                            String brain_number = getNeuronNumber_Remote(context, filename);
                             result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
 //                            result = name.split("_")[1].substring(0,name.split("_")[1].length()-3);
                         }else if(source.equals("Remote Server SEU")){
                             String filename = getFilename_Remote(context);
-                            String brain_number = getNeuronNumber_Remote(context,filename);
+                            String brain_number = getNeuronNumber_Remote(context, filename);
                             result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
                         }
                     }else {
-//                        result = name.split("__")[0];
                         String brain_num = getFilename_Remote(context);
                         String neuron_num = getNeuronNumber_Remote(context, brain_num);
                         result = brain_num.split("_")[0] + "_" + neuron_num.split("_")[1] + "_" + getArborNum(context,brain_num.split("/")[0] + "_" + neuron_num).split(":")[0];
@@ -1551,7 +1554,49 @@ public class MainActivity extends BaseActivity {
             dir_server.mkdirs();
         }
 
+
+        doLogin();
+
     }
+
+
+
+    public void doLogin() {
+        LoginInfo info = new LoginInfo("xf","123456");
+        RequestCallback<LoginInfo> callback =
+                new RequestCallback<LoginInfo>() {
+                    @Override
+                    public void onSuccess(LoginInfo param) {
+                        Log.e(TAG, "login success");
+//                        MyCache.setAccount();
+                        // your code
+
+
+
+                    }
+
+                    @Override
+                    public void onFailed(int code) {
+                        if (code == 302) {
+                            Log.e(TAG, "账号密码错误");
+                            // your code
+                        } else {
+                            // your code
+                            Log.e(TAG, "Fail to login");
+                        }
+                    }
+
+                    @Override
+                    public void onException(Throwable exception) {
+                        // your code
+                    }
+                };
+
+        //执行手动登录
+        NIMClient.getService(AuthService.class).login(info).setCallback(callback);
+    }
+
+
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -1671,7 +1716,7 @@ public class MainActivity extends BaseActivity {
      * pop up a menu when button more is clicked, include analyze swc file, sensor information, downsample mode, animate and version
      */
     public void More_icon(){
-        SettingFileManager settingFileManager = new SettingFileManager();
+//        SettingFileManager settingFileManager = new SettingFileManager();
         String[] item_list = null;
 
         if (DrawMode){
@@ -4941,7 +4986,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20201116b 21:53 UTC+8 build",
+                                "Version: 20201119a 21:53 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4976,7 +5021,6 @@ public class MainActivity extends BaseActivity {
      * select server
      */
     public void Select_img(){
-//        Context context = this;
         new XPopup.Builder(this)
                 .asCenterList("Select Server", new String[]{"SEU Server", "Aliyun Server", "Local Server"},
                         new OnSelectListener() {
@@ -5201,7 +5245,7 @@ public class MainActivity extends BaseActivity {
 
     /**
      * Read Big File from Remote Server
-     * @param ip
+     * @param ip server ip
      */
     private void BigFileRead_Remote(String ip){
 
@@ -5213,9 +5257,17 @@ public class MainActivity extends BaseActivity {
                 2.与服务器建立socket连接
                 3.获取文件列表
                  */
+//                remote_socket.disConnectFromHost();
+//                remote_socket.connectServer(ip);
+//                remote_socket.select_Brain(true);
+
+
                 remote_socket.disConnectFromHost();
-                remote_socket.connectServer(ip);
-                remote_socket.Select_Brain(true);
+                remote_socket.connectServer("192.168.1.189");
+                remote_socket.setIsDrawMode(true);
+                remote_socket.brainTest();
+
+//                remote_socket.select_Brain(true);
             }
         });
         thread.start();
@@ -5232,7 +5284,7 @@ public class MainActivity extends BaseActivity {
                 remote_socket.disConnectFromHost();
                 remote_socket.connectServer(ip);
 //                remote_socket.Select_Arbor();
-                remote_socket.Select_Brain(false);
+                remote_socket.select_Brain(false);
             }
         });
         thread.start();

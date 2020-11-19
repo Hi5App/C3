@@ -116,6 +116,8 @@ public class ChatManager {
         // Global option, mainly used to determine whether
         // to support offline messages now.
         mSendMsgOptions = new SendMessageOptions();
+        mSendMsgOptions.enableOfflineMessaging = true;
+        mSendMsgOptions.enableHistoricalMessaging = true;
     }
 
     public RtmClient getRtmClient() {
