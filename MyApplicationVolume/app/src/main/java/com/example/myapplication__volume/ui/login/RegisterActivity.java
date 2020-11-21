@@ -35,6 +35,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     EditText usernameEditText;
     EditText passwordEditText;
+    EditText nicknameEditText;
     EditText emailEditText;
     Button registerButton;
     ProgressBar loadingProgressBar;
@@ -48,7 +49,7 @@ public class RegisterActivity extends AppCompatActivity {
                 case REGISTER_ON_CLICK:
                     loadingProgressBar.setVisibility(View.VISIBLE);
                     registerViewModel.register(emailEditText.getText().toString(), usernameEditText.getText().toString(),
-                            passwordEditText.getText().toString());
+                            nicknameEditText.getText().toString(), passwordEditText.getText().toString());
                     Log.d("LoginButton:", "onClickkkkkkkk");
                     break;
                 default:
@@ -65,6 +66,7 @@ public class RegisterActivity extends AppCompatActivity {
                 .get(RegisterViewModel.class);
 
         usernameEditText = findViewById(R.id.register_username);
+        nicknameEditText = findViewById(R.id.register_nickname);
         passwordEditText = findViewById(R.id.register_password);
         emailEditText = findViewById(R.id.register_email);
         registerButton = findViewById(R.id.register);
@@ -82,6 +84,9 @@ public class RegisterActivity extends AppCompatActivity {
                 }
                 if (registerFormState.getUsernameError() != null) {
                     usernameEditText.setError(getString(registerFormState.getUsernameError()));
+                }
+                if (registerFormState.getNicknameError() != null) {
+                    nicknameEditText.setError(getString(registerFormState.getNicknameError()));
                 }
                 if (registerFormState.getPasswordError() != null) {
                     passwordEditText.setError(getString(registerFormState.getPasswordError()));
@@ -102,6 +107,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                 } else if (registerResult.getErrorString() != null){
                     showRegisterFailed(registerResult.getErrorString());
+                    Log.e("LoginResultOnChanged", registerResult.getErrorString());
                 }
                 if (registerResult.getSuccess() != null) {
                     Log.d("LoginResultOnChanged", "getSuccess");
@@ -130,10 +136,11 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 registerViewModel.registerDataChanged(emailEditText.getText().toString(), usernameEditText.getText().toString(),
-                        passwordEditText.getText().toString());
+                        nicknameEditText.getText().toString(), passwordEditText.getText().toString());
             }
         };
         usernameEditText.addTextChangedListener(afterTextChangedListener);
+        nicknameEditText.addTextChangedListener(afterTextChangedListener);
         passwordEditText.addTextChangedListener(afterTextChangedListener);
         emailEditText.addTextChangedListener(afterTextChangedListener);
         passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -142,7 +149,7 @@ public class RegisterActivity extends AppCompatActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     registerViewModel.register(emailEditText.getText().toString(), usernameEditText.getText().toString(),
-                            passwordEditText.getText().toString());
+                            nicknameEditText.getText().toString(), passwordEditText.getText().toString());
                 }
                 return false;
             }

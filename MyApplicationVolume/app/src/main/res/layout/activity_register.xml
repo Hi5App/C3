@@ -11,28 +11,80 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".ui.login.LoginActivity">
 
-    <EditText
-        android:id="@+id/register_email"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="96dp"
-        android:layout_marginEnd="24dp"
-        android:hint="@string/prompt_email"
-        android:inputType="textEmailAddress"
-        android:selectAllOnFocus="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+
+<!--    <EditText-->
+<!--        android:id="@+id/register_username"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="24dp"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:layout_marginEnd="24dp"-->
+<!--        android:hint="@string/prompt_username"-->
+<!--        android:imeActionLabel="@string/action_register"-->
+<!--        android:imeOptions="actionDone"-->
+<!--        android:inputType="text"-->
+<!--        android:selectAllOnFocus="true"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/register_email" />-->
+
+
+<!--    <EditText-->
+<!--        android:id="@+id/register_email"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="24dp"-->
+<!--        android:layout_marginTop="96dp"-->
+<!--        android:layout_marginEnd="24dp"-->
+<!--        android:hint="@string/prompt_email"-->
+<!--        android:inputType="textEmailAddress"-->
+<!--        android:selectAllOnFocus="true"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
+
+
 
     <EditText
         android:id="@+id/register_username"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="96dp"
         android:layout_marginEnd="24dp"
         android:hint="@string/prompt_username"
+        android:inputType="text"
+        android:selectAllOnFocus="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <EditText
+        android:id="@+id/register_email"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:hint="@string/prompt_email"
+        android:imeActionLabel="@string/action_register"
+        android:imeOptions="actionDone"
+        android:inputType="textEmailAddress"
+        android:selectAllOnFocus="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/register_username" />
+
+
+    <EditText
+        android:id="@+id/register_nickname"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:hint="@string/prompt_nickname"
         android:imeActionLabel="@string/action_register"
         android:imeOptions="actionDone"
         android:inputType="text"
@@ -40,6 +92,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/register_email" />
+
+
 
     <EditText
     android:id="@+id/register_password"
@@ -55,7 +109,7 @@
     android:selectAllOnFocus="true"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/register_username" />
+    app:layout_constraintTop_toBottomOf="@+id/register_nickname" />
 
 
 

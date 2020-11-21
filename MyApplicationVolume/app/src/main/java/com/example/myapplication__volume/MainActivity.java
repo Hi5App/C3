@@ -527,7 +527,8 @@ public class MainActivity extends BaseActivity {
                         }else if(source.equals("Remote Server SEU")){
                             String filename = getFilename_Remote(context);
                             String brain_number = getNeuronNumber_Remote(context, filename);
-                            result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
+//                            result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
+                            result = name;
                         }
                     }else {
                         String brain_num = getFilename_Remote(context);
@@ -4375,6 +4376,7 @@ public class MainActivity extends BaseActivity {
         if (swc_file_path.equals("Error"))
             return;
 
+        Log.e("PushSWC_Block_Auto",swc_file_path + "/" + SwcFileName + ".swc");
         File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
         if (!SwcFile.exists()){
             Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
@@ -4389,7 +4391,7 @@ public class MainActivity extends BaseActivity {
                 Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
                 return;
             }
-            remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
+            remote_socket.PushSwc_block("blockSet__18454_00001__100__200__300__228__328__428__2__xf" + ".swc", is, length);
 
         } catch (Exception e){
             System.out.println("----" + e.getMessage() + "----");
@@ -4986,7 +4988,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20201119a 21:53 UTC+8 build",
+                                "Version: 20201121a 21:53 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5021,6 +5023,9 @@ public class MainActivity extends BaseActivity {
      * select server
      */
     public void Select_img(){
+
+        Log.e("Select_img"," ---- Start ----");
+
         new XPopup.Builder(this)
                 .asCenterList("Select Server", new String[]{"SEU Server", "Aliyun Server", "Local Server"},
                         new OnSelectListener() {
@@ -5250,6 +5255,7 @@ public class MainActivity extends BaseActivity {
     private void BigFileRead_Remote(String ip){
 
         Thread thread = new Thread(new Runnable() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void run() {
                 /*
@@ -5262,10 +5268,21 @@ public class MainActivity extends BaseActivity {
 //                remote_socket.select_Brain(true);
 
 
-                remote_socket.disConnectFromHost();
-                remote_socket.connectServer("192.168.1.189");
-                remote_socket.setIsDrawMode(true);
-                remote_socket.brainTest();
+                Toast_in_Thread("Under Maintenance");
+//                remote_socket.disConnectFromHost();
+//                remote_socket.connectServer("192.168.1.140");
+//                remote_socket.setIsDrawMode(true);
+//                remote_socket.ArborCheckTest();
+
+                /*
+                example of swc name:  "blockSet__18454_00001__100__200__300__228__328__428__2__xf"
+                 */
+
+
+//                String filepath = context.getExternalFilesDir(null).toString();
+//                String swc_file_path = filepath + "/Sync/BlockGet";
+//                String filename = "blockGet__18454_00001__100__200__300__228__328__428__2";
+//                PushSWC_Block_Auto(swc_file_path, filename);
 
 //                remote_socket.select_Brain(true);
             }
@@ -8022,14 +8039,16 @@ public class MainActivity extends BaseActivity {
             myGLSurfaceView.requestRender();
             SetButtons();
 
-            PullSwc_block_Auto(true);
+//            PullSwc_block_Auto(true);
 
-            if (DrawMode){
-                LoadMarker();
-                if (!push_info_swc[0].equals("New")){
-                    PushSWC_Block_Auto(push_info_swc[0], push_info_swc[1]);
-                }
-            }
+//            if (DrawMode){
+//                LoadMarker();
+//                if (!push_info_swc[0].equals("New")){
+//                    String filepath = this.getExternalFilesDir(null).toString();
+//                    String swc_file_path = filepath + "/Sync/BlockSet";
+//                    PushSWC_Block_Auto(push_info_swc[0], push_info_swc[1]);
+//                }
+//            }
         }
 
     }

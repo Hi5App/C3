@@ -54,17 +54,12 @@ public class LoginDataSource {
         }
     }
 
-    public Result<LoggedInUser> register(String email, String username, String password){
+    public Result<LoggedInUser> register(String email, String username, String nickname, String password){
         try {
-            registerWithOkHttp(ipRegister, email, username, password);
+            registerWithOkHttp(ipRegister, email, username, nickname, password);
             while (!ifResponsed){
                 Log.d("RegisterLoop", "AAAAAAAAAAAAAAAAA");
             }
-//            while (true) {
-//                Log.d("RegisterLoop", "AAAAAAAAAAAAAAAAA");
-//                if (ifResponsed)
-//                    break;
-//            }
             ifResponsed = false;
             if (responseData.equals("true")) {
                 Log.d("LoginDataSource", "register");
@@ -151,28 +146,10 @@ public class LoginDataSource {
 //                runOnUiThread
             }
         });
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                try{
-//                    OkHttpClient client = new OkHttpClient();    //创建OkHClient实例
-//                    Request request = new Request.Builder()     //发请求创建一个Request对象
-//                            .url("http:www.baidu.com")
-//                            .build();
-//                    Response response = client.newCall(request).execute();  //发请求获取服务器返回的数据
-//                    String responseData = response.body().string();
-//
-//                    Log.d("loginWithOkHttp", "responseData: " + responseData);
-//                } catch (Exception e){
-//                    e.printStackTrace();
-//                }
-//            }
-//        }).start();
-
     }
 
-    private void registerWithOkHttp(String address, String email, String username, String password){
-        HttpUtil.registerWithOkHttp(address, email, username, password, new Callback() {
+    private void registerWithOkHttp(String address, String email, String username, String nickname, String password){
+        HttpUtil.registerWithOkHttp(address, email, username, nickname, password, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 responseData = "Connect Failed When Register";
