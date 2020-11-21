@@ -19,11 +19,12 @@ public class RegisterServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("utf-8");
         String registerAccount = request.getParameter("registerUsername");
+        String registerNickname = request.getParameter("registerNickname");
         String registerEmail = request.getParameter("registerEmail");
         String registerPassword = request.getParameter("registerPassword");
-        User registerUser = new User(registerAccount,registerEmail,registerPassword);
+        User registerUser = new User(registerAccount,registerNickname,registerEmail,registerPassword);
         String rs = LoginModel.register(registerUser);
-        System.out.println("注册账号："+registerAccount+",注册邮箱："+registerEmail+",注册密码："+registerPassword+",注册结果"+rs);
+        System.out.println("注册账号："+registerAccount+"注册用户名："+registerNickname+",注册邮箱："+registerEmail+",注册密码："+registerPassword+",注册结果"+rs);
         //通过PrintWriter返回给客户端操作结果
         PrintWriter writer = response.getWriter();
         writer.print(rs);
