@@ -5,7 +5,7 @@
 #include "respond.h"
 bool Server::init()
 {
-    return initTableForImage();
+    return Respond::initDB();
 }
 
 void Server::incomingConnection(qintptr handle)
@@ -21,7 +21,9 @@ void Server::incomingConnection(qintptr handle)
     connect(socket,SIGNAL(apoForPreChanged()),this,SLOT(slotApoForPreChanged()));
     connect(socket,SIGNAL(fullSwcChanged()),this,SLOT(slotFullSwcChanged()));
     connect(socket,SIGNAL(arborsSwcForProofChanged()),this,SLOT(slotArborSwcForProofChanged()));
+    connect(thread,SIGNAL(started()),socket,SLOT(threadStart()));
     thread->start();
+    qDebug()<<"socket thread start";
 }
 
 void Server::slotImageChanged()

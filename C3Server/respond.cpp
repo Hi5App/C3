@@ -8,6 +8,7 @@
 #include <neuron_editing/neuron_format_converter.h>
 #include <QtConcurrent>
 #include <QMutex>
+#include <QFile>
 extern QString TableForImage;//图像数据表
 extern QString TableForPreReConstruct;//预重建数据表
 extern QString TableForFullSwc;//重建完成数据表
@@ -23,16 +24,18 @@ extern QString ResultForProofSwc;//结果：检查的swc
 extern QString ResultFullSwc;
 
 extern QStringList dbParas;
-const QString vaa3dPath=QCoreApplication::applicationDirPath()+"/vaa3d";
+extern QString vaa3dPath;
 const int columns=2;//columns brfore res1 in TableImage
 
-int Respond::index=0;
-QMutex* Respond::mutex=new QMutex();
-QSqlDatabase Respond::getDataBase()
+namespace Respond {
+
+int index=0;
+QMutex mutex;
+QSqlDatabase getDataBase()
 {
-    Respond::mutex->lock();
-    int index=Respond::index++;
-    Respond::mutex->unlock();
+    mutex.lock();
+    index++;
+    mutex.unlock();
     QSqlDatabase db=QSqlDatabase::addDatabase("QMYSQL",QString::number(index));
     db.setDatabaseName(dbParas[0]);
     db.setHostName(dbParas[1]);
@@ -41,7 +44,7 @@ QSqlDatabase Respond::getDataBase()
     return db;
 }
 
-QString Respond:: getBrainList(const QString type)
+QString  getBrainList(const QString type)
 {
     QSqlDatabase db=Respond::getDataBase();
     if(!db.open()){
@@ -68,7 +71,7 @@ QString Respond:: getBrainList(const QString type)
     }
     return brains.values().join("_");
 }
-QStringList Respond::nextAvailableNeuron(QString brainId,bool preOrProof,qintptr handle)
+QStringList nextAvailableNeuron(QString brainId,bool preOrProof,qintptr handle)
 {
     /*
      * 返回：文件名，文件路径
@@ -102,7 +105,7 @@ QStringList Respond::nextAvailableNeuron(QString brainId,bool preOrProof,qintptr
     }
     return {};
 }
-QString Respond::getAllNeuronList(QString brainId,bool preOrProof)
+QString getAllNeuronList(QString brainId,bool preOrProof)
 {
     QSqlDatabase db=Respond::getDataBase();
     if(!db.open()){
@@ -131,9 +134,9 @@ QString Respond::getAllNeuronList(QString brainId,bool preOrProof)
     }
     return result.join("/");
 }
-QStringList Respond::getImageBlock(QString msg,QString fromNext)
+QStringList getImageBlock(QString msg,QString fromNext)
 {
-
+    qDebug()<<msg;
     /*
      * p1:brain_id;res;x;y;z;size;socket.descriptor
      * p2:Neuron_id/name
@@ -175,9 +178,9 @@ QStringList Respond::getImageBlock(QString msg,QString fromNext)
 
     QString namepart1;
     if(fromNext.isEmpty())
-        namepart1=paraList[6]+"_"+brain_id+QString::number(blocksize)+"_";
+        namepart1=paraList[6]+"_"+brain_id+"_"+QString::number(blocksize)+"_";
     else
-        namepart1=paraList[6]+"_"+fromNext+QString::number(blocksize)+"_";
+        namepart1=paraList[6]+"_"+fromNext+"_"+QString::number(blocksize)+"_";
     //sockeddes_(brian_id(neuron_id/name))_size_
 
     QString filepath;
@@ -189,13 +192,13 @@ QStringList Respond::getImageBlock(QString msg,QString fromNext)
         }
         QSqlQuery query(db);
         QString sql;
-        sql=QString("SELECT * FROM %1 WHERE Brain_id = ? ").arg(TableForImage);
+        sql=QString("SELECT * FROM %1 WHERE Brainid = ? ").arg(TableForImage);
         query.prepare(sql);
         query.addBindValue(brain_id);
         if(query.exec())
         {
             if(query.next()){
-                filepath=query.value(2).toString()+"/"+query.value(columns+res).toString();
+                filepath=query.value(columns-1).toString()+"/"+query.value(columns+res).toString();
             }
         }
     }
@@ -222,7 +225,7 @@ QStringList Respond::getImageBlock(QString msg,QString fromNext)
         return {};
     }
 }
-QStringList Respond::getSwcInBlock(const QString msg)
+QStringList getSwcInBlock(const QString msg)
 {
     QRegExp tmp("(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)");
     int n=5;//重复5次，每次延时2S
@@ -236,6 +239,7 @@ QStringList Respond::getSwcInBlock(const QString msg)
         int z1=tmp.cap(6).toInt();
         int z2=tmp.cap(7).toInt();
         int cnt=tmp.cap(8).toInt();
+        cnt=pow(2,cnt-1);
         //根据名称查询相关的数据库-> 找到swc的路径
         QString filepath;
         {
@@ -260,7 +264,7 @@ QStringList Respond::getSwcInBlock(const QString msg)
             if(query.exec())
             {
                 if(query.next()){
-                    filepath=query.value(1).toString();
+                    filepath=query.value(0).toString();
                 }
             }
         }
@@ -271,7 +275,7 @@ QStringList Respond::getSwcInBlock(const QString msg)
                 .arg(x1).arg(x2).arg(y1).arg(y2).arg(z1).arg(z2).arg(cnt);
 
         NeuronTree nt;
-        if(filepath=="-1")
+        if(filepath=="0")
         {
             writeSWC_file(BBSWCNAME,nt);
             return {BBSWCNAME.right(BBSWCNAME.size()-BBSWCNAME.lastIndexOf('/')),BBSWCNAME};
@@ -338,7 +342,7 @@ QStringList Respond::getSwcInBlock(const QString msg)
     return {};
 }
 
-bool Respond::recordCheck(QString msg)
+bool recordCheck(QString msg)
 {
     QRegExp tmp("(.*);(.*);(.*)");//17302_00001_00001;flag;id;
     if(tmp.indexIn(msg)!=-1)
@@ -348,7 +352,7 @@ bool Respond::recordCheck(QString msg)
             QSqlDatabase db=Respond::getDataBase();
             if(!db.open()){
                 qFatal("cannot connect DB when processBrain");
-                return "";
+                return false;
             }
 
             QSqlQuery query(db);
@@ -377,7 +381,7 @@ bool Respond::recordCheck(QString msg)
     return false;
 }
 
-QString Respond::getResCnt(QString paraString)
+QString getResCnt(QString paraString)
 {
     QSqlDatabase db=Respond::getDataBase();
     if(!db.open()){
@@ -387,19 +391,29 @@ QString Respond::getResCnt(QString paraString)
 
     QSqlQuery query(db);
     QString sql;
-    sql=QString("SELECT * FROM %1 WHERE Brain_id = ?").arg(TableForImage);
+    sql=QString("SELECT * FROM %1 WHERE Brainid = ?").arg(TableForImage);
     query.prepare(sql);
     query.addBindValue(paraString);
-    int cnt=0;
     if(query.exec()&&query.next()){
+        int cnt=query.value(columns).toString().toInt();
+        QStringList result;
 
-        while(query.value(columns+(++cnt))!="0");
+        for(int i=0;i<cnt+1;i++)
+        {
+            result.push_back(query.value(columns+i).toString());
+        }
+        return result.join(';');
+
+    }else
+    {
+        return "0";
     }
-    return QString::number(--cnt);
+
 }
-bool Respond::setSwcInBlock(QString filePath,QString fileName)
+bool setSwcInBlock(QString filePath,QString fileName)
 {
-    QRegExp blockSetRex("blockSet__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*).swc");
+
+    QRegExp blockSetRex("blockSet__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*)__(.*).swc");
     if(blockSetRex.indexIn(fileName)==-1)
     {
         return false;
@@ -412,7 +426,7 @@ bool Respond::setSwcInBlock(QString filePath,QString fileName)
     int z1=blockSetRex.cap(6).toInt();
     int z2=blockSetRex.cap(7).toInt();
     int cnt=blockSetRex.cap(8).toInt();
-
+    cnt=pow(2,cnt-1);
     V_NeuronSWC_list testVNL1;
     {
         NeuronTree nt=readSWC_file(filePath);
@@ -428,13 +442,13 @@ bool Respond::setSwcInBlock(QString filePath,QString fileName)
     QSqlDatabase db=Respond::getDataBase();
     if(!db.open()){
         qFatal("cannot connect DB when processBrain");
-        return "";
+        return {};
     }
     QSqlQuery query(db);
     QString sql=QString("SELECT Pre_Swc FROM %1 WHERE Neuron_id = ?").arg(TableForPreReConstruct);
     query.prepare(sql);
     query.addBindValue(name);
-    if(query.exec()){
+    if(query.exec()&&query.next()){
         if(query.value(0).toString()!="0"){
             filePath=query.value(0).toString();
         }else{
@@ -501,7 +515,7 @@ bool Respond::setSwcInBlock(QString filePath,QString fileName)
                 while(t.elapsed()<2000);
             }
 
-            sql=QString("UPDATE %1 SET Pre_Swc = ?,Tag = ?,Time1 = ? WHERE Neuron_id = ?").append(TableForPreReConstruct);
+            sql=QString("UPDATE %1 SET Pre_Swc = ?,Tag = ?,Time1 = ?,User = ? WHERE Neuron_id = ?").arg(TableForPreReConstruct);
             query.prepare(sql);
             query.addBindValue(filePath);
             if(nt.listNeuron.size()!=0)
@@ -509,10 +523,11 @@ bool Respond::setSwcInBlock(QString filePath,QString fileName)
             else
                 query.addBindValue("1");
             query.addBindValue(QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
+            query.addBindValue(blockSetRex.cap(8).trimmed());
             query.addBindValue(name);
 
             if(!query.exec()){
-                qFatal("can not update in db");
+                qDebug()<<query.lastError();
                 return false;
             }
             return true;
@@ -521,8 +536,7 @@ bool Respond::setSwcInBlock(QString filePath,QString fileName)
     }
 }
 
-
-bool Respond::initDB()
+bool initDB()
 {
     if(!initTableForImage()) return false;
 
@@ -542,7 +556,7 @@ bool Respond::initDB()
                       "Pre_Swc VARCHAR(1000) NOT NULL,"
                       "User VARCHAR(50) NOT NULL";
         QString sql=QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(TableForPreReConstruct).arg(order);
-        qDebug()<<sql;
+        //qDebug()<<sql;
         if(!query.exec(sql)){
             qDebug()<<query.lastError().text();
             return false;
@@ -559,12 +573,10 @@ bool Respond::initDB()
                       "CelltypeRough VARCHAR(100) NOT NULL,"
                       "Celltype VARCHAR(100) NOT NULL";
         QString sql=QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(TableForFullSwc).arg(order);
-        qDebug()<<sql;
+        //qDebug()<<sql;
         if(!query.exec(sql)){
             qDebug()<<query.lastError().text();
             return false;
-        }else{
-            return true;
         }
     }
     {
@@ -587,7 +599,7 @@ bool Respond::initDB()
                       "Time VARCHAR(100) NOT NULL,"
                       "User VARCHAR(40) NOT NULL";
         QString sql=QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(TableForCheckResult).arg(order);
-        qDebug()<<sql;
+        //qDebug()<<sql;
         if(!query.exec(sql)){
             qDebug()<<query.lastError().text();
             return false;
@@ -597,11 +609,11 @@ bool Respond::initDB()
 
 
 }
-
+}
 bool initTableForImage()
 {
     QDir imageDir(IMAGE);
-    qDebug()<<imageDir.absolutePath();
+//    qDebug()<<imageDir.absolutePath();
     QFileInfoList imageList=imageDir.entryInfoList(QDir::NoDotAndDotDot|QDir::Dirs);
     int maxRES=-1;
     for(auto & image:imageList){
@@ -619,7 +631,7 @@ bool initTableForImage()
     QSqlQuery query(db);
     {
         QString sql=QString("drop table if exists %1").arg(TableForImage);
-        qDebug()<<sql;
+        //qDebug()<<sql;
         if(!query.exec(sql)){
             qDebug()<<query.lastError().text();
             return false;
@@ -637,7 +649,7 @@ bool initTableForImage()
                           "MainPath VARCHAR(500) NOT NULL,"
                           "ResCnt VARCHAR(20) NOT NULL"
                           "%2)").arg(TableForImage).arg(resOrder);
-        qDebug()<<sql;
+        //qDebug()<<sql;
         if(!query.exec(sql)){
             qDebug()<<query.lastError().text();
             return false;
@@ -678,7 +690,7 @@ bool initTableForImage()
            resLists[i].push_back("");
        }
     }
-    qDebug()<<resLists;
+//    qDebug()<<resLists;
 
     {
         QString partOrder1="BrainId,MainPath,ResCnt";
@@ -689,7 +701,7 @@ bool initTableForImage()
             partOrder2+=",?";
         }
         QString sql=QString("INSERT IGNORE INTO %1 (%2) VALUES (%3)").arg(TableForImage).arg(partOrder1).arg(partOrder2);
-        qDebug()<<sql;
+        //qDebug()<<sql;
         query.prepare(sql);
         query.addBindValue(imageNames);
         query.addBindValue(mainPathLists);
@@ -744,9 +756,7 @@ bool apoForPreChanged()
             return "";
         }
         QSqlQuery query(db);
-        QString sql=QString("INSERT IGNORE INTO %1 (Neuron_id,Brain_id,Tag,Time0,Time1,Soma_position,Pre_Swc,User) VALUES (?,?,?,?,?,?,?,?)"
-                            " SELECT Neuron_id FROM %1"
-                            ).arg(TableForPreReConstruct);
+        QString sql=QString("INSERT IGNORE INTO %1 (Neuron_id,Brain_id,Tag,Time0,Time1,Soma_position,Pre_Swc,User) VALUES (?,?,?,?,?,?,?,?)").arg(TableForPreReConstruct);
         query.prepare(sql);
         query.addBindValue(neuron_ids);
         query.addBindValue(brain_ids);
@@ -801,17 +811,19 @@ bool arborChanged()
 
         for(QString & s:future){
             auto list=s.trimmed().split(";");
-            if(!( QFile(InSwcProof+"/"+list[0]).rename(ResultForProofSwc+"/"+list[0]))) {continue;}
+            QFile f(InSwcProof+"/"+list[0]+".swc");
+            if(!(f.rename(ResultForProofSwc+"/"+list[0]+".swc"))) {
+                qDebug()<<InSwcProof+"/"+list[0]+".swc"<<f.errorString();
+                continue;}
             nameList.push_back(list[0]);
             neuronList.push_back(list[0].left(list[0].lastIndexOf('_')));
             brainList.push_back(list[0].left(list[0].indexOf('_')));
             positionList.push_back(list[1]);
             tagList.push_back("0");
-            swcPath.push_back(ResultForProofSwc+"/"+list[0]);
+            swcPath.push_back(ResultForProofSwc+"/"+list[0]+".swc");
         }
 
-        QString sql=QString("INSERT IGNORE INTO %1 (Name,Neuron_id,Brain_id,Arbor_Position,Tag,MAINPATH) VALUES (?,?,?,?,?,?)"
-                            " SELECT Name FROM %1"
+        QString sql=QString("INSERT IGNORE INTO %1 (Name,Neuron_id,Brain_id,Arbor_Position,Tag,Swc) VALUES (?,?,?,?,?,?)"
                             ).arg(TableForProof);
         query.prepare(sql);
         query.addBindValue(nameList);

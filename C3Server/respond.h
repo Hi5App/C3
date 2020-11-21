@@ -11,37 +11,37 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QProcess>
+#include <QMutex>b
 //namespace Lock {
 //QMutex mutex;
 //}
 
-class Respond
+namespace Respond
 {
-public:
-    Respond()=default;
+
     //(连接名，数据库名，ip地址，用户名，密码)
-    static QSqlDatabase getDataBase();
+     QSqlDatabase getDataBase();
     //返回可用的Brain
-    static QString getBrainList(const QString type);
+     QString getBrainList(const QString type);
     //返回（文件名，文件路径）
-    static QStringList nextAvailableNeuron(QString brainId,bool preOrProof,qintptr handle);
+     QStringList nextAvailableNeuron(QString brainId,bool preOrProof,qintptr handle);
     //返回 所有Neuron列表 Name；Tag；Position/...
-    static QString getAllNeuronList(QString brainId,bool preOrProof);
+     QString getAllNeuronList(QString brainId,bool preOrProof);
     //返回（文件名，文件路径）
-    static QStringList getImageBlock(QString msg,QString fromNext="");
+     QStringList getImageBlock(QString msg,QString fromNext="");
     //返回（文件名，文件路径）
-    static QStringList getSwcInBlock(QString msg);
+     QStringList getSwcInBlock(QString msg);
     //返回记录的成功/失败
-    static bool recordCheck(QString msg);
+     bool recordCheck(QString msg);
     //返回分辨率数
-    static QString getResCnt(QString paraString);
+     QString getResCnt(QString paraString);
 
-    static bool setSwcInBlock(QString fileName,QString filePath);
+     bool setSwcInBlock(QString fileName,QString filePath);
 
-    static bool initDB();
+     bool initDB();
 
-    static int index;
-    static QMutex *mutex;
+     extern int index;
+     extern QMutex mutex;
 };
 inline void dirCheck(QString dirBaseName)
 {
@@ -64,7 +64,7 @@ inline void releaseProcess(QProcess *p)
 inline QString cac_pos(const QFileInfo &info){
     //计算arbor的中心坐标
     //移动swc文件到FULLSWC文件夹
-    return QString("%1;%2_%3_%4").arg(info.baseName()).arg(QString::number(0)).arg(QString::number(0)).arg(QString::number(0));
+    return QString("%1;%2_%3_%4").arg(info.baseName()).arg(QString::number(4548)).arg(QString::number(14718)).arg(QString::number(5466));
     //return name;pos
 }
 

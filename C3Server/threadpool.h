@@ -2,7 +2,7 @@
 #define THREADPOOL_H
 
 #include <QObject>
-
+#include <QVector>
 class ThreadPool final:public QObject
 {
     Q_OBJECT

@@ -18,9 +18,10 @@ public:
     Socket(qintptr handle,QObject *parent=nullptr);
 public slots:
     void onReadyread();
-private:
+    void threadStart();
+private:    qintptr socketDescriptor;
     QTcpSocket *socket;
-    qintptr socketDescriptor;
+    qintptr handle;
     DataInfo dataInfo;
 
     void sendMsg(const QString& msg)const;

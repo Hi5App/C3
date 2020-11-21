@@ -5,15 +5,20 @@ Socket::Socket(qintptr handle,QObject *parent)
     dataInfo.dataSize=0;
     dataInfo.dataReadedSize=0;
     dataInfo.stringSize=0;
-    socket=new QTcpSocket;
-    socket->setSocketDescriptor(socketDescriptor);
+    this->handle=handle;
 
-    connect(socket,SIGNAL(readyRead()),this,SLOT(onReadyread()));
-    connect(socket,SIGNAL(disconnect()),this,SIGNAL(disconnect()));
+
 }
-
+void Socket::threadStart()
+{
+    socket=new QTcpSocket;
+    socket->setSocketDescriptor(handle);
+    connect(socket,SIGNAL(readyRead()),this,SLOT(onReadyread()));
+    connect(socket,SIGNAL(disconnected()),this,SIGNAL(disconnect()));
+}
 void Socket::sendMsg(const QString& msg)const
 {
+    qDebug()<<"send:"+msg;
     QByteArray block;
     qint32 total=0;
     qint32 datasize=0;
@@ -74,6 +79,7 @@ bool Socket::sendFile(const QString& filePath,const QString& fileName)
             socket->write(block);
             socket->waitForBytesWritten();
             qDebug()<<"send "<<filePath<<" success ";
+            QFile(filePath).remove();
             return true;
         }else
         {
@@ -119,6 +125,7 @@ void Socket::onReadyread()
                 if(dataInfo.dataReadedSize==dataInfo.dataSize)
                 {
                     qDebug()<<"process Msg";
+
                     dataInfo.dataSize=0;dataInfo.stringSize=0;dataInfo.dataReadedSize=0;//reset dataInfo
                     processMsg(filename);
                 }
@@ -161,10 +168,12 @@ void Socket::readFile(const QString& fileName)
     dataInfo.dataSize=0;dataInfo.stringSize=0;dataInfo.dataReadedSize=0;//reset dataInfo
     qDebug()<<"Read file end "<<fileName;
     processFile(filePath,fileName);
+
 }
 
 void Socket::processMsg(const QString& msg)
 {
+    qDebug()<<"process:"+msg;
     QRegExp ImageDownRex("(.*):choose3.\n");
     /*
      * 要求发送全脑图像列表//db
@@ -175,9 +184,9 @@ void Socket::processMsg(const QString& msg)
     /*
      * 根据脑图的id和模式返回神经元列表
      * 17302;0;0
-     * 0:脑图像名称
-     * 1:是否是下一个/列表 0：下一个，1:列表
-     * 2：预重建/校验 0:预重建，1：校验
+     * p0:脑图像名称
+     * p1:是否是下一个/列表 0：下一个，1:列表
+     * p2：预重建/校验 0:预重建，1：校验
      */
     QRegExp ImgBlockRex("(.*):imgblock.\n");//选定的神经元的名称，返回图像
     QRegExp GetBBSWCRex("(.*):GetBBSwc.\n");//获取局部神经元处理数据
@@ -230,7 +239,8 @@ void Socket::processBrainNumber(const QString & paraString)
 
     if(nextOrList){
        auto list=Respond::nextAvailableNeuron(brain_id,preOrProof,socket->socketDescriptor());
-       if(!sendFile(list[0],list[1]))
+       if(list.size()!=2) return;
+       if(!sendFile(list[1],list[0]))
        {
 
        }
@@ -241,7 +251,8 @@ void Socket::processBrainNumber(const QString & paraString)
 void Socket::processImageBlock(const QString & paraString)
 {
     auto list=Respond::getImageBlock(paraString+";"+QString::number(socket->socketDescriptor()));
-    if(!sendFile(list[0],list[1]))
+    if(list.size()!=2) return;
+    if(!sendFile(list[1],list[0]))
     {
 
     }
@@ -249,7 +260,8 @@ void Socket::processImageBlock(const QString & paraString)
 void Socket::processBBSWC(const QString &paraString)
 {
     auto list=Respond::getSwcInBlock(paraString);
-    if(!sendFile(list[0],list[1]))
+    if(list.size()!=2) return;
+    if(!sendFile(list[1],list[0]))
     {
 
     }
@@ -268,6 +280,9 @@ void Socket::processRes(const QString &paraString)
 }
 void Socket::processFile(const QString& filePath,const QString &fileName)//调用文件处理函数
 {
-    Respond::setSwcInBlock(fileName,filePath);
+    if(Respond::setSwcInBlock(filePath,fileName))
+    {
+        QFile(filePath).remove();
+    }
 }
 
