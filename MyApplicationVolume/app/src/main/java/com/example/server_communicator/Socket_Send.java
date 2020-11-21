@@ -36,11 +36,17 @@ public class Socket_Send {
                     OutputStream out = socket.getOutputStream();
 
                     Log.i("Send_Message:", message);
-                    long Message_size = message.getBytes(StandardCharsets.UTF_8).length;
-                    long Data_size = 16 + Message_size;
+//                    long Message_size = message.getBytes(StandardCharsets.UTF_8).length;
+//                    long Data_size = 16 + Message_size;
+//
+//                    byte[] Data_size_Byte = longToBytes(Data_size);
+//                    byte[] Message_size_Byte = longToBytes(Message_size);
 
-                    byte[] Data_size_Byte = longToBytes(Data_size);
-                    byte[] Message_size_Byte = longToBytes(Message_size);
+                    int Message_size = message.getBytes(StandardCharsets.UTF_8).length;
+                    int Data_size = 8 + Message_size;
+
+                    byte[] Data_size_Byte = intToBytes(Data_size);
+                    byte[] Message_size_Byte = intToBytes(Message_size);
 
                     String str = new String(message.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);  // for UTF-8 encoding
 //                    Log.i("Send_Msg: Data_size", Long.toString(bytesToLong(Data_size_Byte)));
@@ -48,8 +54,8 @@ public class Socket_Send {
 //                    Log.i("Send_Msg: message", str);
 
                     //前两个 uint64 记录传输内容的总长度 和 文件名的长度
-                    out.write(Data_size_Byte,0,8);
-                    out.write(Message_size_Byte,0,8);
+                    out.write(Data_size_Byte,0,4);
+                    out.write(Message_size_Byte,0,4);
                     out.write(message.getBytes(StandardCharsets.UTF_8));
 
                     out.flush();
@@ -168,6 +174,13 @@ public class Socket_Send {
     public byte[] longToBytes(long x) {
         ByteBuffer buffer = ByteBuffer.allocate(8);
         buffer.putLong(x);
+        return buffer.array();
+    }
+
+
+    public byte[] intToBytes(int x) {
+        ByteBuffer buffer = ByteBuffer.allocate(4);
+        buffer.putInt(x);
         return buffer.array();
     }
 

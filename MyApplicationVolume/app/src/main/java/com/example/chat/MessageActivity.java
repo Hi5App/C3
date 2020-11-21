@@ -28,6 +28,10 @@ import com.example.chat.model.MessageListBean;
 import com.example.myapplication__volume.BaseActivity;
 import com.example.myapplication__volume.Myapplication;
 import com.example.myapplication__volume.R;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.Observer;
+import com.netease.nimlib.sdk.msg.MsgServiceObserve;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.text.MessageFormat;
@@ -89,6 +93,9 @@ public class MessageActivity extends BaseActivity {
         mClientListener = new MyRtmClientListener();
         mChatManager.registerListener(mClientListener);
 
+
+        NIMClient.getService(MsgServiceObserve.class)
+                .observeReceiveMessage(incomingMessageObserver,true);
 
         /* get the target name*/
         Intent intent = getIntent();
@@ -200,6 +207,20 @@ public class MessageActivity extends BaseActivity {
         mBigImage = findViewById(R.id.big_image);
     }
 
+
+//    private void observerSyncDataComplete() {
+//        boolean syncCompleted = LoginSyncDataStatusObserver.getInstance()
+//                .observeSyncDataCompletedEvent(
+//                        (Observer<Void>) v -> DialogMaker
+//                                .dismissProgressDialog());
+//        //如果数据没有同步完成，弹个进度Dialog
+//        if (!syncCompleted) {
+//            DialogMaker.showProgressDialog(MessageActivity.this, getString(R.string.prepare_data))
+//                    .setCanceledOnTouchOutside(false);
+//        }
+//    }
+
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -209,7 +230,25 @@ public class MessageActivity extends BaseActivity {
             leaveAndReleaseChannel();
         }
         mChatManager.unregisterListener(mClientListener);
+        NIMClient.getService(MsgServiceObserve.class)
+                .observeReceiveMessage(incomingMessageObserver,false);
     }
+
+
+    Observer<List<IMMessage>> incomingMessageObserver =
+            new Observer<List<IMMessage>>() {
+                @Override
+                public void onEvent(List<IMMessage> messages) {
+                    Log.e(TAG,"New Msg");
+                    for (int i = 0; i < messages.size(); i++){
+                        Log.e(TAG,"Msg from " + messages.get(i).getFromNick() + ": " + messages.get(i).getContent());
+                    }
+                    // 处理新收到的消息，为了上传处理方便，SDK 保证参数 messages 全部来自同一个聊天对象。
+                }
+            };
+
+
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

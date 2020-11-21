@@ -28,7 +28,13 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.example.datastore.PreferenceLogin;
 import com.example.myapplication__volume.MainActivity;
+import com.example.myapplication__volume.Nim.DemoCache;
 import com.example.myapplication__volume.R;
+import com.netease.nim.uikit.api.NimUIKit;
+import com.netease.nim.uikit.common.ToastHelper;
+import com.netease.nim.uikit.common.util.log.LogUtil;
+import com.netease.nimlib.sdk.RequestCallback;
+import com.netease.nimlib.sdk.auth.LoginInfo;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -43,6 +49,7 @@ public class LoginActivity extends AppCompatActivity {
     PreferenceLogin preferenceLogin;
 
     final private int SIGN_IN_ON_CLICK = 1;
+    final private String TAG = "LoginActivity";
 
     @SuppressLint("HandlerLeak")
     private Handler handler=new Handler(){
@@ -112,12 +119,11 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 if (loginResult.getSuccess() != null) {
                     Log.d("LoginResultOnChanged", "getSuccess");
-//                    MainActivity.actionStart(LoginActivity.this);
-                    MainActivity.actionStart(LoginActivity.this, loginResult.getSuccess().getDisplayName());
+//                    MainActivity.actionStart(LoginActivity.this, loginResult.getSuccess().getDisplayName());
+//                    updateUiWithUser(loginResult.getSuccess());
+//                    finish();
 
-                    updateUiWithUser(loginResult.getSuccess());
-
-                    finish();
+                    loginNim(loginResult.getSuccess().getDisplayName(), passwordEditText.getText().toString(), loginResult);
                 }
                 setResult(Activity.RESULT_OK);
 
@@ -196,6 +202,45 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
+
+    private void loginNim(String account, String password, LoginResult loginResult){
+        LogUtil.i(TAG, "account: " + account);
+        LogUtil.i(TAG, "password: " + password);
+
+        NimUIKit.login(new LoginInfo(account, password),
+                new RequestCallback<LoginInfo>() {
+
+                    @Override
+                    public void onSuccess(LoginInfo param) {
+                        LogUtil.i(TAG, "login success");
+                        DemoCache.setAccount(account);
+                        // 进入主界面
+                        MainActivity.actionStart(LoginActivity.this, loginResult.getSuccess().getDisplayName());
+                        updateUiWithUser(loginResult.getSuccess());
+                        finish();
+                    }
+
+                    @Override
+                    public void onFailed(int code) {
+                        if (code == 302 || code == 404) {
+                            ToastHelper.showToast(LoginActivity.this,
+                                    R.string.login_failed);
+                        } else if(code == 408) {
+                            ToastHelper.showToast(LoginActivity.this,
+                                    "连接超时： " + account);
+                        }else {
+                            ToastHelper.showToast(LoginActivity.this,
+                                    "登录失败: " + code);
+                        }
+                    }
+
+                    @Override
+                    public void onException(Throwable exception) {
+                        ToastHelper.showToast(LoginActivity.this,
+                                "Exception When Login !");
+                    }
+                });
+    }
 
 
 

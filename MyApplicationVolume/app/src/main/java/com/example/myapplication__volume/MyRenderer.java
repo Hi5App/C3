@@ -35,14 +35,14 @@ import com.example.game.GameCharacter;
 
 import com.example.myapplication__volume.fileReader.AnoReader;
 import com.example.myapplication__volume.fileReader.ApoReader;
-import com.example.myapplication__volume.rendering.MyAxis;
-import com.example.myapplication__volume.rendering.MyDraw;
-import com.example.myapplication__volume.rendering.MyMarker;
-import com.example.myapplication__volume.rendering.MyNavLoc;
-import com.example.myapplication__volume.rendering.MyPattern;
-import com.example.myapplication__volume.rendering.MyPattern2D;
+import com.example.myapplication__volume.render.MyAxis;
+import com.example.myapplication__volume.render.MyDraw;
+import com.example.myapplication__volume.render.MyMarker;
+import com.example.myapplication__volume.render.MyNavLoc;
+import com.example.myapplication__volume.render.MyPattern;
+import com.example.myapplication__volume.render.MyPattern2D;
 
-import com.example.myapplication__volume.Rendering.MyPatternGame;
+import com.example.myapplication__volume.render.MyPatternGame;
 
 import com.tracingfunc.cornerDetection.HarrisCornerDetector;
 import com.tracingfunc.gd.V_NeuronSWC;

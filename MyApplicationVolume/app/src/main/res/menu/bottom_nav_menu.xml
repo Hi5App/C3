@@ -2,14 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/navigation_home"
-        android:icon="@drawable/ic_contact"
-        android:title="@string/title_contacts" />
-
-    <item
         android:id="@+id/navigation_dashboard"
         android:icon="@drawable/ic_chat"
         android:title="@string/title_chats" />
+
+    <item
+        android:id="@+id/navigation_home"
+        android:icon="@drawable/ic_contact"
+        android:title="@string/title_contacts" />
 
     <item
         android:id="@+id/navigation_notifications"
