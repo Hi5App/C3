@@ -1,17 +1,10 @@
 QT -= gui
-QT += network concurrent sql
+QT += sql network concurrent
 CONFIG += c++11 console
 CONFIG -= app_bundle
 
-# The following define makes your compiler emit warnings if you use
-# any Qt feature that has been marked deprecated (the exact warnings
-# depend on your compiler). Please consult the documentation of the
-# deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS
-
-# You can also make your code fail to compile if it uses deprecated APIs.
+# You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
-# You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
@@ -24,8 +17,10 @@ SOURCES += \
         neuron_editing/neuron_sim_scores.cpp \
         neuron_editing/neuron_xforms.cpp \
         neuron_editing/v_neuronswc.cpp \
+        respond.cpp \
         server.cpp \
-        socket.cpp
+        socket.cpp \
+        threadpool.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -38,15 +33,13 @@ HEADERS += \
     basic_c_fun/v3d_curvetracepara.h \
     basic_c_fun/v3d_message.h \
     basic_c_fun/v_neuronswc.h \
-    dataprepro.h \
     neuron_editing/apo_xforms.h \
     neuron_editing/global_feature_compute.h \
     neuron_editing/neuron_format_converter.h \
     neuron_editing/neuron_sim_scores.h \
     neuron_editing/neuron_xforms.h \
     neuron_editing/v_neuronswc.h \
-    resampling.h \
+    respond.h \
     server.h \
-    socket.h
-
-DISTFILES +=
+    socket.h \
+    threadpool.h
