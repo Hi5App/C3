@@ -1,6 +1,8 @@
 package Model;
 
 import Entity.User;
+import NIM.UserManager;
+
 import java.sql.*;
 
 public class LoginModel {
@@ -57,6 +59,7 @@ public class LoginModel {
 
     public static String register(User user){
         String loginAccount = user.getLoginAccount();
+        String loginNickname = user.getLoginNickname();
         String loginPassword = user.getLoginPassword();
         String loginEmail= user.getLoginEmail();
         Connection con = null;
@@ -131,10 +134,11 @@ public class LoginModel {
         try{
             Class.forName(DRIVER);
             con = DriverManager.getConnection(URL,DBUNAME,DBUPWD);
-            pstmt = con.prepareStatement("insert into useraccount (account, password, email) values (?,?,?)");
+            pstmt = con.prepareStatement("insert into useraccount (account, password, email, nickname) values (?,?,?,?)");
             pstmt.setString(1,loginAccount);
             pstmt.setString(2,loginPassword);
             pstmt.setString(3,loginEmail);
+            pstmt.setString(4,loginNickname);
             count = pstmt.executeUpdate();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -155,117 +159,19 @@ public class LoginModel {
                 e.printStackTrace();
             }
             if (count==1){
-                return "true";
-            }else{
-                return "false";
-            }
-        }
-    }
-
-
-    public static String addFriends(User user_1, User user_2){
-
-        String loginAccount_1 = user_1.getLoginAccount();
-        String loginAccount_2 = user_2.getLoginAccount();
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        int count = 0;
-        try {
-            Class.forName(DRIVER);
-            con = DriverManager.getConnection(URL,DBUNAME,DBUPWD);
-            pstmt = con.prepareStatement("select count(*)from useraccount where account=?");
-            pstmt.setString(1,loginAccount_2);
-            rs = pstmt.executeQuery();
-            if (rs.next()){
-                count = rs.getInt(1);
-            }
-        }catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }finally {
-            try{
-                if (rs!=null){
-                    rs.close();
+                boolean result;
+                try {
+                    result = UserManager.createUser(loginAccount, loginNickname, loginPassword);
+                }catch (Exception e){
+                    e.printStackTrace();
+                    return "CreateUser: Something Wrong when create user";
                 }
-                if (pstmt!=null){
-                    pstmt.close();
+                if (result){
+                    return "true";
+                }else {
+                    System.out.println("Something wrong when create user");
+                    return "Something wrong when create user";
                 }
-                if (con!=null){
-                    con.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            if (count<=0) {
-                return " Account not exist";
-            }
-        }
-
-
-        try {
-            Class.forName(DRIVER);
-            con = DriverManager.getConnection(URL,DBUNAME,DBUPWD);
-            pstmt = con.prepareStatement("select count(*)from relationship where ( user1 = ? and user2 = ?) or ( user1 = ? and user2 = ?)");
-            pstmt.setString(1,loginAccount_1);
-            pstmt.setString(2,loginAccount_2);
-            pstmt.setString(3,loginAccount_2);
-            pstmt.setString(4,loginAccount_1);
-            rs = pstmt.executeQuery();
-            if (rs.next()){
-                count = rs.getInt(1);
-            }
-        }catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }finally {
-            try{
-                if (rs!=null){
-                    rs.close();
-                }
-                if (pstmt!=null){
-                    pstmt.close();
-                }
-                if (con!=null){
-                    con.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            if (count>0) {
-                return " Friends Already exist";
-            }
-        }
-
-        try{
-            Class.forName(DRIVER);
-            con = DriverManager.getConnection(URL,DBUNAME,DBUPWD);
-            pstmt = con.prepareStatement("insert into relationship (user1, user2) values (?,?)");
-            pstmt.setString(1,loginAccount_1);
-            pstmt.setString(2,loginAccount_2);
-            count = pstmt.executeUpdate();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }finally {
-            try{
-                if (rs!=null){
-                    rs.close();
-                }
-                if (pstmt!=null){
-                    pstmt.close();
-                }
-                if (con!=null){
-                    con.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            if (count==1){
-                return "true";
             }else{
                 return "false";
             }

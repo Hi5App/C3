@@ -1,7 +1,9 @@
 Model\FriendsModel.class
 Model\LoginModel.class
+NIM\CheckSumBuilder.class
 Servlet\LoginServlet.class
 Servlet\RegisterServlet.class
 Servlet\AddFriendsServlet.class
+NIM\UserManager.class
 Entity\User.class
 Servlet\QueryFriendsServlet.class

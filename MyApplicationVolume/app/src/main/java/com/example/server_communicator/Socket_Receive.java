@@ -100,15 +100,13 @@ public class Socket_Receive {
                     in.read(Msg_String_byte, 0, Message_size_int);
 
                     String Msg_String = new String(Msg_String_byte, StandardCharsets.UTF_8);
-                    String Msg_SubString = Msg_String.substring(4);
+
+                    Log.e("Get_Msg: Data_size", Integer.toString(bytesToInt(Data_size)));
+                    Log.e("Get_Msg: Message_size", Integer.toString(bytesToInt(Message_size)));
+                    Log.e("Get_Msg", Msg_String);
 
 
-                    Log.e("Get_Msg: Data_size", Long.toString(bytesToLong(Data_size)));
-                    Log.e("Get_Msg: Message_size", Long.toString(bytesToLong(Message_size)));
-                    Log.e("Get_Msg", Msg_SubString);
-
-
-                    Msg[0] = Msg_SubString;
+                    Msg[0] = Msg_String;
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -141,7 +139,7 @@ public class Socket_Receive {
             public void run() {
                 try {
 
-                    Log.i("Get_Message", "start to read file");
+                    Log.i("Get_File", "start to read file");
                     DataInputStream in = new DataInputStream((FileInputStream) (socket.getInputStream()));
 
 //                    //前两个 uint64 记录传输内容的总长度 和 文件名的长度
@@ -191,8 +189,8 @@ public class Socket_Receive {
                     }
 
 
-                    Log.i("Get_Msg: Data_size", Long.toString(bytesToLong(Data_size)));
-                    Log.i("Get_Msg: FileName_size", Long.toString(bytesToLong(FileName_size)));
+                    Log.i("Get_Msg: Data_size", Integer.toString(bytesToInt(Data_size)));
+                    Log.i("Get_Msg: FileName_size", Integer.toString(bytesToInt(FileName_size)));
                     Log.i("Get_Msg", FileName_String);
                     Log.i("Get_Msg", FileName_SubString);
 
@@ -372,8 +370,8 @@ public class Socket_Receive {
                     in.read(FileName_size, 0, 4);
 
 
-                    int FileName_size_int = (int) bytesToInt(FileName_size);
-                    int Data_size_int = (int) bytesToInt(Data_size);
+                    int FileName_size_int = bytesToInt(FileName_size);
+                    int Data_size_int = bytesToInt(Data_size);
 
                     Log.i("Get_Block: Data", Integer.toString(bytesToInt(Data_size)));
                     Log.i("Get_Block: FileName", Integer.toString(bytesToInt(FileName_size)));
@@ -396,7 +394,7 @@ public class Socket_Receive {
                     while (in.available() < FileName_size_int);
                     in.read(FileName_String_byte, 0, FileName_size_int);
                     String FileName_String = new String(FileName_String_byte, StandardCharsets.UTF_8);
-                    String FileName_SubString = FileName_String.substring(0, FileName_String.length());
+//                    String FileName_SubString = FileName_String.substring(0, FileName_String.length());
 
 //                    byte[] FileContent_byte = new byte[4];
 //
@@ -413,7 +411,7 @@ public class Socket_Receive {
                     }
 
                     //打开文件，如果没有，则新建文件
-                    File file = new File(file_path + "/" + FileName_SubString);
+                    File file = new File(file_path + "/" + FileName_String);
                     if(!file.exists()){
                         if (file.createNewFile()){
                             Log.i("Get_File", "Create file Successfully !");
@@ -462,7 +460,7 @@ public class Socket_Receive {
 
                     Log.i("File Size", "Size :" + file.length());
                     ifDownloaded[0] = true;
-                    FileName[0] = FileName_SubString;
+                    FileName[0] = FileName_String;
 
                     if (runningActivity.equals(MainActivity.NAME)){
                         MainActivity.hideProgressBar();

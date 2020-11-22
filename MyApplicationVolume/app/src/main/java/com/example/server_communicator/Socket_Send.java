@@ -95,14 +95,14 @@ public class Socket_Send {
 
                     Log.i("sendImg Filename:", filename);
 
-                    long FileName_size = filename.getBytes(StandardCharsets.UTF_8).length;
-                    long Data_size = 16 + FileName_size + length_content;
+                    int FileName_size = filename.getBytes(StandardCharsets.UTF_8).length;
+                    int Data_size = 8 + FileName_size + (int) length_content;
 
-                    byte[] FileName_size_byte = longToBytes(FileName_size);
-                    byte[] Data_size_byte = longToBytes(Data_size);
+                    byte[] FileName_size_byte = intToBytes(FileName_size);
+                    byte[] Data_size_byte = intToBytes(Data_size);
 
-                    out.write(Data_size_byte,0,8);
-                    out.write(FileName_size_byte,0,8);
+                    out.write(Data_size_byte,0,4);
+                    out.write(FileName_size_byte,0,4);
 
 
                     //前两个 uint64 记录传输内容的总长度 和 文件名的长度

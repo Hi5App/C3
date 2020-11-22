@@ -22,7 +22,7 @@ public class FriendsModel {
         try {
             Class.forName(DRIVER);
             con = DriverManager.getConnection(URL,DBUNAME,DBUPWD);
-            pstmt = con.prepareStatement("select count(*)from useraccount where account=?");
+            pstmt = con.prepareStatement("select * from useraccount where account=?");
             pstmt.setString(1,loginAccount_2);
             rs = pstmt.executeQuery();
             if (rs.next()){
@@ -139,7 +139,7 @@ public class FriendsModel {
             pstmt.setString(1,loginAccount);
             pstmt.setString(2,loginAccount);
             rs = pstmt.executeQuery();
-            if (rs.next()){
+            while (rs.next()){
                 System.out.println(count);
                 count++;
                 System.out.println(rs.getString(1));

@@ -28,16 +28,17 @@ public class HttpUtil {
         client.connectionPool().evictAll();
     }
     //注册
-    public static void registerWithOkHttp(String address,String email, String username,String password,okhttp3.Callback callback){
+    public static void registerWithOkHttp(String address,String email, String username, String nickname, String password, okhttp3.Callback callback){
         OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .writeTimeout(10, TimeUnit.SECONDS)
                 .readTimeout(10, TimeUnit.SECONDS)
                 .build();;
         RequestBody body = new FormBody.Builder()
-                .add("registerEmail",email)
+                .add("registerEmail", email)
                 .add("registerUsername", username)
-                .add("registerPassword",password)
+                .add("registerNickname", nickname)
+                .add("registerPassword", password)
                 .build();
         Request request = new Request.Builder()
                 .url(address)

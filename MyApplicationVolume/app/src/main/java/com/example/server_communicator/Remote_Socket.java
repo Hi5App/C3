@@ -317,6 +317,11 @@ public class Remote_Socket extends Socket {
     }
 
     public void brainTest(){
+
+        /*
+        return: 0;BRAINS;18454
+         */
+
         Log.e("brainTest"," ---- Start ----");
         this.isDrawMode = true;
 //        isDrawMode = false;
@@ -344,11 +349,16 @@ public class Remote_Socket extends Socket {
 
 
     public void neuronListTest(){
+
+        /*
+        return: 0:List:18454_00001;0;4548_14718_5466
+         */
+
         Log.e("neuronListTest"," ---- Start ----");
         this.isDrawMode = true;
 //        isDrawMode = false;
 
-        String neuron_num = "17302";
+        String neuron_num = "18454";
         if (this.isDrawMode){
             sendMessage(neuron_num + ";1;0" + ":BrainNumber.\n");
         }else {
@@ -369,14 +379,19 @@ public class Remote_Socket extends Socket {
     }
 
 
-    public void BRINRESRexTest(){
-        Log.e("BRINRESRexTest"," ---- Start ----");
+    public void BRINRESReSTest(){
+
+        /*
+            return: RES:6;RES(13149x17500x5520);RES(1643x2187x690);RES(26298x35000x11041);RES(3287x4375x1380);RES(6574x8750x2760);RES(821x1093x345)
+         */
+
+        Log.e("BRINRESReSTest"," ---- Start ----");
         makeConnect();
 
         //Brain_Num
         //18465
 
-        sendMessage("Brain_Num" + ":BRAINRES.\n");
+        sendMessage("18454" + ":BRAINRES.\n");
 
         String Msg = getMessage();
         if (Msg == null){
@@ -405,7 +420,7 @@ public class Remote_Socket extends Socket {
         this.isDrawMode = true;
 //        isDrawMode = false;
 
-        String neuron_num = "17302";
+        String neuron_num = "18454";
         if (this.isDrawMode){
             sendMessage(neuron_num + ";0;0" + ":BrainNumber.\n");
         }else {
@@ -427,15 +442,15 @@ public class Remote_Socket extends Socket {
         // brain_id;res;x;y;z;size
         // 18465;1;1200;2800;3900;128
 
-        String file_path = mContext.getExternalFilesDir(null).toString() + "/Sync/BlockGet";
-        String SwcFileName = "neuron_number" + "__" +
-                "x_start" + "__" + "y_start" + "__" + "z_start" + "__" + "x_end" + "__" + "y_end" + "__" + "z_end";
+//        String file_path = mContext.getExternalFilesDir(null).toString() + "/Sync/BlockGet";
+//        String SwcFileName = "18454_00001" + "__" +
+//                "x_start" + "__" + "y_start" + "__" + "z_start" + "__" + "x_end" + "__" + "y_end" + "__" + "z_end";
 
         // ratio: highest res / current res
-        sendMessage(SwcFileName + "__" + "ratio" + ":GetBBSwc.\n");
-        getFile(file_path, true);
+//        sendMessage(SwcFileName + "__" + "ratio" + ":imgblock.\n");
+//        getFile(file_path, true);
 
-        sendMessage("18465;1;1200;2800;3900;128");
+        sendMessage("18454;1;1200;2800;3900;128" + ":imgblock.\n");
 
         String Store_path_Img = Store_path + "/Img";
         getImg(Store_path_Img +"/Img",true);
@@ -444,16 +459,20 @@ public class Remote_Socket extends Socket {
     }
 
 
+    // 同之前一样
     public String GetBBSwcTest(){
         Log.e("GetBBSwcTest"," ---- Start ----");
         makeConnect();
 
         String file_path = mContext.getExternalFilesDir(null).toString() + "/Sync/BlockGet";
-        String SwcFileName = "neuron_number" + "__" +
-                "x_start" + "__" + "y_start" + "__" + "z_start" + "__" + "x_end" + "__" + "y_end" + "__" + "z_end";
+//        String SwcFileName = "neuron_num" + "__" +
+//                "x_start" + "__" + "y_start" + "__" + "z_start" + "__" + "x_end" + "__" + "y_end" + "__" + "z_end";
+
+        String SwcFileName = "18454_00001" + "__" +
+                "100" + "__" + "200" + "__" + "300" + "__" + "228" + "__" + "328" + "__" + "428";
 
         // ratio: highest res / current res
-        sendMessage(SwcFileName + "__" + "ratio" + ":GetBBSwc.\n");
+        sendMessage(SwcFileName + "__" + "2" + ":GetBBSwc.\n");
         getFile(file_path, true);
 
         String SwcFilePath = file_path + "/blockGet__" + SwcFileName + "__" + "ratio"  + ".swc";
@@ -471,7 +490,7 @@ public class Remote_Socket extends Socket {
         // neuron_num + arbor_num;flag;id;                flag -- 0:no  1:yes  2:uncertain
         // 17302_00001_00001;0;xf;
 
-        sendMessage("17302_00001_00001;0;xf" + ":ArborCheck.\n");
+        sendMessage("18454_00001_00001;0;xf" + ":ArborCheck.\n");
 
     }
 
