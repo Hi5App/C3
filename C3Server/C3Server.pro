@@ -17,6 +17,7 @@ SOURCES += \
         neuron_editing/neuron_sim_scores.cpp \
         neuron_editing/neuron_xforms.cpp \
         neuron_editing/v_neuronswc.cpp \
+        pFunction/Level0Data/queryandcopy.cpp \
         respond.cpp \
         server.cpp \
         socket.cpp \
@@ -39,6 +40,12 @@ HEADERS += \
     neuron_editing/neuron_sim_scores.h \
     neuron_editing/neuron_xforms.h \
     neuron_editing/v_neuronswc.h \
+    pFunction/Level0Data/block.h \
+    pFunction/Level0Data/cube.h \
+    pFunction/Level0Data/layer.h \
+    pFunction/Level0Data/point.h \
+    pFunction/Level0Data/queryandcopy.h \
+    pFunction/Level0Data/yxfolder.h \
     respond.h \
     server.h \
     socket.h \
