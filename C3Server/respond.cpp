@@ -54,12 +54,19 @@ QString  getBrainList(const QString type)
 
     QSqlQuery query(db);
     QString sql;
+
     if(type=="0"){
         //0:预重建用
-        sql=QString("SELECT Brain_id FROM %1 WHERE tag = ? ORDER BY Brain_id").arg(TableForPreReConstruct);
+        sql=QString("SELECT Brain_id FROM %1 ORDER BY Brain_id").arg(TableForPreReConstruct);
     }else if(type=="1"){
-        sql=QString("SELECT Brain_id FROM %1 WHERE tag = ? ORDER BY Brain_id").arg(TableForProof);
+        sql=QString("SELECT Brain_id FROM %1 ORDER BY Brain_id").arg(TableForProof);
     }
+//    if(type=="0"){
+//        //0:预重建用
+//        sql=QString("SELECT Brain_id FROM %1 WHERE tag = ? ORDER BY Brain_id").arg(TableForPreReConstruct);
+//    }else if(type=="1"){
+//        sql=QString("SELECT Brain_id FROM %1 WHERE tag = ? ORDER BY Brain_id").arg(TableForProof);
+//    }
 
     query.prepare(sql);
     query.addBindValue("0");
