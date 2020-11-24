@@ -37,8 +37,8 @@ android {
         doNotStrip '*/mips64/*.so'
     }
 
-    dataBinding {
-        enabled = true
+    buildFeatures {
+        dataBinding = true
     }
 }
 

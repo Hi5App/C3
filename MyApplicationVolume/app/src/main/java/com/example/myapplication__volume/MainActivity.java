@@ -1904,7 +1904,7 @@ public class MainActivity extends BaseActivity {
     }
 
 
-    
+
     public void chooseChatMode(){
         new XPopup.Builder(this)
                 .asCenterList("Choose Chat Mode", new String[]{"Peer Chat", "Selection Tab Channel"},
@@ -5263,12 +5263,12 @@ public class MainActivity extends BaseActivity {
                 2.与服务器建立socket连接
                 3.获取文件列表
                  */
-//                remote_socket.disConnectFromHost();
-//                remote_socket.connectServer(ip);
-//                remote_socket.select_Brain(true);
+                remote_socket.disConnectFromHost();
+                remote_socket.connectServer(ip);
+                remote_socket.Select_Brain(true);
 
 
-                Toast_in_Thread("Under Maintenance");
+//                Toast_in_Thread("Under Maintenance");
 //                remote_socket.disConnectFromHost();
 //                remote_socket.connectServer("192.168.1.140");
 //                remote_socket.setIsDrawMode(true);
@@ -5301,7 +5301,7 @@ public class MainActivity extends BaseActivity {
                 remote_socket.disConnectFromHost();
                 remote_socket.connectServer(ip);
 //                remote_socket.Select_Arbor();
-                remote_socket.select_Brain(false);
+                remote_socket.Select_Brain(false);
             }
         });
         thread.start();

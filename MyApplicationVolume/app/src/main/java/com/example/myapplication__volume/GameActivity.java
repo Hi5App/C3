@@ -877,8 +877,9 @@ public class GameActivity extends BaseActivity {
             setPreserveEGLContextOnPause(true);
 
             //当发生交互时重新执行渲染， 需要配合requestRender();
-            setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-//            setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+//            setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+            setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+
 
         }
 

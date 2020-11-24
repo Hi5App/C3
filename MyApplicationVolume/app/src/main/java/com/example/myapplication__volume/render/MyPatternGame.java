@@ -6,12 +6,17 @@ import android.util.Log;
 import com.example.basic.ByteTranslate;
 import com.example.basic.Image4DSimple;
 import com.example.basic.XYZ;
+import com.example.game.GameMapPoint;
 import com.example.myapplication__volume.GameActivity;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import static com.example.game.GameMapPoint.distance;
 
 public class MyPatternGame {
 
@@ -31,8 +36,10 @@ public class MyPatternGame {
     private int data_length;
     private boolean isBig;
 
-    private ArrayList<XYZ> lightPoints = new ArrayList<>();
-    private int [][][] pointRooms = new int[128][128][128];
+    private ArrayList<GameMapPoint> lightPoints = new ArrayList<>();
+    private ArrayList<GameMapPoint> removedPoints = new ArrayList<>();
+
+    private float[] gamePos;
 
     private int threshold = 0;
 
@@ -41,10 +48,43 @@ public class MyPatternGame {
     private int mvpMatrixHandle;
 
     private static int mProgramGame;
+    private static int mProgramMarker;
 
     private FloatBuffer vertexBuffer;
 
     private float [] vertexPoints;
+
+    private float [] markerPoints;
+    private float [] markerPoints_half;
+    private float [] markerPoints_quarter;
+
+    private float defaultRadius = 0.002f;
+
+    private float [] markerVertexPoints;
+    private float [] colorPoints_marker;
+
+    private FloatBuffer vertexBuffer_marker;
+    private FloatBuffer colorBuffer_marker;
+
+    private static int vertexPoints_handle = 0;
+    private static int normalizePoints_handle = 1;
+    private static int colorPoints_handle = 2;
+
+    public final static float[][] colormap = {
+            {0f,0f,0f},
+            {1f,1f,1f},
+            {1f,0f,0f},
+            {0f,0f,1f},
+            {0f,1f,0f},
+            {1f,0f,1f},
+            {1f,1f,0f}
+    } ;
+
+    private float [] normalizePoints_marker_small;
+    private FloatBuffer normalizeBuffer_marker_small;
+
+    private Timer timer;
+    private TimerTask task;
 
     private static final String vertexShaderCode_game =
             // This matrix member variable provides a hook to manipulate
@@ -190,16 +230,90 @@ public class MyPatternGame {
                     "     fragColor = vec4(1.0,1.0,1.0,1.0);\n" +
                     "}\n";
 
+    private static final String vertexShaderCode_marker =
+            // This matrix member variable provides a hook to manipulate
+            // the coordinates of the objects that use this vertex shader
+                    "#version 300 es\n" +
+                    "layout (location = 0) in vec4 vPosition;" +
+                    "layout (location = 1) in vec3 aVertexNormal;" +
+                    "layout (location = 2) in vec4 vColor;"+
+
+                    "uniform mat4 uNormalMatrix;" +
+                    "uniform mat4 uMVPMatrix;" +
+
+                    "out vec3 vLighting;" +
+                    "out vec4 vOutColor;" +
+
+                    "void main() {" +
+                    "    gl_Position = uMVPMatrix * vPosition;" +
+
+                    "    vec3 uAmbientColor = vec3(0.2, 0.2, 0.2);\n" +
+                    "    vec3 uDirectionalColor = vec3(0.8, 0.8, 0.8);\n" +
+                    "    vec3 directionalVector = normalize(vec3(-1.0, 1.0, -1.0));\n" +
+                    "    vec3 transformedNormal = (uNormalMatrix * vec4(aVertexNormal, 1.0)).xyz;\n" +
+                    "    float directionalLightWeighting = max(dot(transformedNormal, directionalVector), 0.0);\n" +
+                    "    vLighting = uAmbientColor + uDirectionalColor * directionalLightWeighting;" +
+                    "    vOutColor = vColor;"+
+                    "}";
+
+
+
+    private static final String fragmentShaderCode_marker =
+                    "#version 300 es\n" +
+                    "precision mediump float;" +
+
+                    "in vec4 vOutColor;" +
+                    "in vec3 vLighting;" +
+                    "out vec4 FragColor;" +
+
+                    "void main() {" +
+//                    "  vec4 markerColor = vec4(0.29, 0.13, 0.36, 1.0);" +
+//                    "  vec4 markerColor = vec4(1.0, 0.0, 0.0, 1.0);" +
+                    "  vec4 markerColor = vOutColor;"+
+                    "  FragColor = vec4(markerColor.rgb * vLighting, 1.0);" +
+                    "}";
+
     public MyPatternGame(int width, int height, Image4DSimple img, float [] mz, int [] sz){
         image = img;
         dim = mz;
         this.sz = sz;
 
         initMap();
+
+        markerPoints = createPositions(0, 0, 0, defaultRadius);
+        markerPoints_half = createPositions(0, 0, 0, defaultRadius / 2);
+        markerPoints_quarter = createPositions(0, 0, 0, defaultRadius / 4);
+
+        gamePos = new float[3];
+
+//        timer = new Timer();
+//        task = new TimerTask() {
+//            @Override
+//            public void run() {
+//                if (gamePos == null){
+//                    return;
+//                }
+//
+//                if (removedPoints.size() == 0){
+//                    return;
+//                }
+//
+//                for (int i = 0; i < removedPoints.size(); i++){
+//                    GameMapPoint temp = removedPoints.get(i);
+//                    temp.reduceRadius(0.5f);
+//                    GameMapPoint centerPos = new GameMapPoint(gamePos[0], gamePos[1], gamePos[2]);
+//                    temp.moveTo(centerPos, 0.5f);
+//                    if (distance(temp, centerPos) < 0.01) {
+//                        removedPoints.remove(i);
+//                    }
+//                }
+//            }
+//        };
     }
 
     public static void initProgram(){
         mProgramGame = initProgram(vertexShaderCode_points, fragmentShaderCode_points);
+        mProgramMarker = initProgram(vertexShaderCode_marker, fragmentShaderCode_marker);
     }
 
     private static int initProgram(String vertShaderCode, String fragmShaderCode){
@@ -274,7 +388,7 @@ public class MyPatternGame {
 
         resetLightPoints(dataSrc);
 
-        bufferSet();
+//        bufferSet();
     }
 
     private void resetLightPoints(byte [] dataSrc){
@@ -288,8 +402,8 @@ public class MyPatternGame {
                 for (int y = 0; y < vol_h; y += 3){
                     for (int z = 0; z < vol_d; z += 3){
                         if (ByteTranslate.byte1ToInt(grayscale[(z * vol_h * vol_w + y * vol_w + x) * 4]) > threshold){
-                            lightPoints.add(new XYZ(x, y, z));
-                            pointRooms[x][y][z] = 1;
+                            lightPoints.add(new GameMapPoint(x, y, z));
+
                         }
                     }
                 }
@@ -301,8 +415,8 @@ public class MyPatternGame {
                 for (int y = 0; y < vol_h; y += 3){
                     for (int z = 0; z < vol_d; z += 3){
                         if (grayscale[(z * vol_w * vol_h + y * vol_w + x) * 4] > threshold){
-                            lightPoints.add(new XYZ(z, y, x));
-                            pointRooms[x][y][z] = 1;
+                            lightPoints.add(new GameMapPoint(z, y, x));
+
                         }
                     }
                 }
@@ -314,8 +428,8 @@ public class MyPatternGame {
                 for (int y = 0; y < vol_h; y += 3){
                     for (int z = 0; z < vol_d; z += 3){
                         if (grayscale[(z * vol_w * vol_h + y * vol_w + x) * 4] > threshold){
-                            lightPoints.add(new XYZ(z, y, x));
-                            pointRooms[x][y][z] = 1;
+                            lightPoints.add(new GameMapPoint(z, y, x));
+
                         }
                     }
                 }
@@ -496,6 +610,142 @@ public class MyPatternGame {
         GLES30.glDisable(mvpMatrixHandle);
     }
 
+    public void drawMarker(float [] mvpMatrix, float [] modelMatrix){
+
+        updateRemovedPoints();
+
+        bufferSet_Type(6);
+
+//        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
+
+        GLES30.glUseProgram(mProgramMarker);
+
+        GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker_small);
+
+        //准备f法向量数据
+        // GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker);
+        //启用顶点的句柄
+        GLES30.glEnableVertexAttribArray(normalizePoints_handle);
+
+        //准备颜色数据
+        GLES30.glVertexAttribPointer(colorPoints_handle,3,GLES30.GL_FLOAT, false, 0,colorBuffer_marker);
+        GLES30.glEnableVertexAttribArray(colorPoints_handle);
+
+        // get handle to vertex shader's uMVPMatrix member
+        int vPMatrixHandle_marker = GLES30.glGetUniformLocation(mProgramMarker,"uMVPMatrix");
+
+        // Pass the projection and view transformation to the shader
+        GLES30.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
+
+        // get handle to vertex shader's uNormalMatrix member
+        int normalizeMatrixHandle_marker = GLES30.glGetUniformLocation(mProgramMarker,"uNormalMatrix");
+
+        // Pass the projection and view transformation to the shader
+        GLES30.glUniformMatrix4fv(normalizeMatrixHandle_marker, 1, false, modelMatrix, 0);
+
+//        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length/3);
+
+        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+        for (int i = 0; i < lightPoints.size(); i++){
+            bufferSet_Marker(lightPoints.get(i).x, lightPoints.get(i).y, lightPoints.get(i).z, lightPoints.get(i).radius);
+
+            //准备坐标数据
+            GLES30.glVertexAttribPointer(vertexPoints_handle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_marker);
+            //启用顶点的句柄
+            GLES30.glEnableVertexAttribArray(vertexPoints_handle);
+
+            GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, markerPoints.length/3);
+        }
+
+        Log.d("DrawMarker", "RemovedPoints: " + Integer.toString(removedPoints.size()));
+
+        for (int i = 0; i < removedPoints.size(); i++){
+            bufferSet_Marker(removedPoints.get(i).x, removedPoints.get(i).y, removedPoints.get(i).z, removedPoints.get(i).radius);
+
+            //准备坐标数据
+            GLES30.glVertexAttribPointer(vertexPoints_handle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_marker);
+            //启用顶点的句柄
+            GLES30.glEnableVertexAttribArray(vertexPoints_handle);
+
+            GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, markerPoints.length/3);
+        }
+
+//        bufferSet_Marker(0.5f, 0.5f, 0.5f, 6);
+//
+//        //准备坐标数据
+//        GLES30.glVertexAttribPointer(vertexPoints_handle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_marker);
+//        //启用顶点的句柄
+//        GLES30.glEnableVertexAttribArray(vertexPoints_handle);
+//
+//        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, markerPoints.length/3);
+
+        //禁止顶点数组的句柄
+        GLES30.glDisableVertexAttribArray(vertexPoints_handle);
+        GLES30.glDisableVertexAttribArray(normalizePoints_handle);
+
+        GLES30.glDisableVertexAttribArray(colorPoints_handle);
+    }
+
+    private void bufferSet_Marker(float x, float y, float z, float r){
+
+        if (r == defaultRadius) {
+            markerVertexPoints = new float[markerPoints.length];
+            for (int i = 0; i < markerPoints.length / 3; i++) {
+                markerVertexPoints[i * 3] = x / (float) (sz[0]) * dim[0] + markerPoints[i * 3];
+                markerVertexPoints[i * 3 + 1] = y / (float) (sz[1]) * dim[1] + markerPoints[i * 3 + 1];
+                markerVertexPoints[i * 3 + 2] = z / (float) (sz[2]) * dim[2] + markerPoints[i * 3 + 2];
+            }
+        } else if (r == defaultRadius / 2){
+            markerVertexPoints = new float[markerPoints_half.length];
+            for (int i = 0; i < markerPoints_half.length / 3; i++) {
+                markerVertexPoints[i * 3] = x / (float) (sz[0]) * dim[0] + markerPoints_half[i * 3];
+                markerVertexPoints[i * 3 + 1] = y / (float) (sz[1]) * dim[1] + markerPoints_half[i * 3 + 1];
+                markerVertexPoints[i * 3 + 2] = z / (float) (sz[2]) * dim[2] + markerPoints_half[i * 3 + 2];
+            }
+        } else if (r == defaultRadius / 4){
+            markerVertexPoints = new float[markerPoints_quarter.length];
+            for (int i = 0; i < markerPoints_quarter.length / 3; i++) {
+                markerVertexPoints[i * 3] = x / (float) (sz[0]) * dim[0] + markerPoints_quarter[i * 3];
+                markerVertexPoints[i * 3 + 1] = y / (float) (sz[1]) * dim[1] + markerPoints_quarter[i * 3 + 1];
+                markerVertexPoints[i * 3 + 2] = z / (float) (sz[2]) * dim[2] + markerPoints_quarter[i * 3 + 2];
+            }
+        }
+
+//        markerVertexPoints =createPositions(x / (float)(sz[0]) * dim[0], y / (float)(sz[1]) * dim[1], z / (float)(sz[2]) * dim[2], 0.01f);
+        // for the marker
+        //分配内存空间,每个浮点型占4字节空间
+        vertexBuffer_marker = ByteBuffer.allocateDirect(markerVertexPoints.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        //传入指定的坐标数据
+        vertexBuffer_marker.put(markerVertexPoints);
+        vertexBuffer_marker.position(0);
+
+    }
+
+    private void bufferSet_Type(int type){
+        colorPoints_marker = new float[markerPoints.length];//colormap[type];
+        for(int i=0; i<colorPoints_marker.length; i++){
+            colorPoints_marker[i] = colormap[type % 7][i % 3];
+        }
+        colorBuffer_marker = ByteBuffer.allocateDirect(colorPoints_marker.length*4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        colorBuffer_marker.put(colorPoints_marker);
+        colorBuffer_marker.position(0);
+
+        normalizePoints_marker_small = createNormlizes(6.0f);
+
+        // for the marker
+        //分配内存空间,每个浮点型占4字节空间
+        normalizeBuffer_marker_small = ByteBuffer.allocateDirect(normalizePoints_marker_small.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        //传入指定的坐标数据
+        normalizeBuffer_marker_small.put(normalizePoints_marker_small);
+        normalizeBuffer_marker_small.position(0);
+    }
+
     private void bufferSet(){
         vertexPoints = new float[lightPoints.size() * 3];
         for (int i = 0; i < lightPoints.size(); i++){
@@ -525,15 +775,124 @@ public class MyPatternGame {
 
     public void removePointsByCenter(float [] centerPos){
         for (int i = 0; i < lightPoints.size(); i++){
-            XYZ temp = lightPoints.get(i);
-            XYZ dis = new XYZ(temp.x - centerPos[0], temp.y - centerPos[1], temp.z - centerPos[2]);
-            if (XYZ.norm(dis) < 10){
+            GameMapPoint temp = lightPoints.get(i);
+            GameMapPoint temp2 = new GameMapPoint(centerPos);
+            if (distance(temp, temp2) < 10){
                 Log.d("RemovePointsByCenter", "Removed!!!");
-                lightPoints.remove(i);
+                removedPoints.add(lightPoints.remove(i));
                 GameActivity.addScore(10);
             }
         }
 
         bufferSet();
+    }
+
+    private float[]  createPositions(float x, float y, float z, float r){
+
+        int step = 2;
+
+        if(r <= 0.01f){
+            step = 6;
+        }
+
+        int count = 0;
+        ArrayList<Float> data=new ArrayList<>();
+        float r1,r2;
+        float h1,h2;
+        float sin,cos;
+        for(int i=-90;i<90+step;i+=step){
+            r1 = (float)Math.cos(i * Math.PI / 180.0)          * r;
+            r2 = (float)Math.cos((i + step) * Math.PI / 180.0) * r;
+            h1 = (float)Math.sin(i * Math.PI / 180.0)          * r;
+            h2 = (float)Math.sin((i + step) * Math.PI / 180.0) * r;
+            // 固定纬度, 360 度旋转遍历一条纬线
+            float step2=step*2;
+            for (int j = 0; j < 360 + step; j +=step2 ) {
+                cos = (float) Math.cos(j * Math.PI / 180.0);
+                sin = -(float) Math.sin(j * Math.PI / 180.0);
+
+                data.add(r2 * cos + x);
+                data.add(h2       + y);
+                data.add(r2 * sin + z);
+
+                data.add(r1 * cos + x);
+                data.add(h1       + y);
+                data.add(r1 * sin + z);
+
+                count++;
+//                System.out.println("Count: " + count);
+            }
+        }
+        float[] f=new float[data.size()];
+        for(int i=0;i<f.length;i++){
+            f[i]=data.get(i);
+        }
+
+        return f;
+    }
+
+    private float[]  createNormlizes(float step_input){
+
+        float step = step_input;
+        ArrayList<Float> normlizes=new ArrayList<>();
+        float r1,r2;
+        float h1,h2;
+        float sin,cos;
+        for(float i=-90;i<90+step;i+=step){
+            r1 = (float)Math.cos(i * Math.PI / 180.0)         ;
+            r2 = (float)Math.cos((i + step) * Math.PI / 180.0);
+            h1 = (float)Math.sin(i * Math.PI / 180.0)         ;
+            h2 = (float)Math.sin((i + step) * Math.PI / 180.0);
+            // 固定纬度, 360 度旋转遍历一条纬线
+            float step2=step*2;
+            for (float j = 0.0f; j <360.0f+step; j +=step2 ) {
+                cos = (float) Math.cos(j * Math.PI / 180.0);
+                sin = -(float) Math.sin(j * Math.PI / 180.0);
+
+                normlizes.add(r2 * cos + 0.5f);
+                normlizes.add(h2       + 0.5f);
+                normlizes.add(r2 * sin + 0.5f);
+
+                normlizes.add(r1 * cos + 0.5f);
+                normlizes.add(h1       + 0.5f);
+                normlizes.add(r1 * sin + 0.5f);
+            }
+        }
+        float[] f=new float[normlizes.size()];
+        for(int i=0;i<f.length;i++){
+            f[i]=normlizes.get(i);
+        }
+
+        return f;
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+//        timer.cancel();
+//        task.cancel();
+    }
+
+    private void updateRemovedPoints(){
+        if (gamePos == null){
+            return;
+        }
+
+        if (removedPoints.size() == 0){
+            return;
+        }
+
+        for (int i = 0; i < removedPoints.size(); i++){
+            GameMapPoint temp = removedPoints.get(i);
+            GameMapPoint center = new GameMapPoint(gamePos);
+            temp.moveTo(center, 0.5f);
+            temp.reduceRadius(0.5f);
+//            if (distance(temp, center) < 0.01){
+//                removedPoints.remove(i);
+//            }
+            if (temp.radius < defaultRadius / 4){
+                removedPoints.remove(i);
+            }
+        }
     }
 }

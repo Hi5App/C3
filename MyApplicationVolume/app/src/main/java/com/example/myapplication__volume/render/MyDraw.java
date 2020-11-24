@@ -9,6 +9,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MyDraw {
 
@@ -261,10 +262,10 @@ public class MyDraw {
                     "precision mediump float;\n" +
                     "out vec4 fragColor;\n" +
                     "void main() {\n" +
-                    "if (length(gl_PointCoord  - vec2(0.5)) > 0.5) {\n" +
+                    "    if (length(gl_PointCoord  - vec2(0.5)) > 0.5) {\n" +
                     "        discard;\n" +
                     "    }" +
-                    "     fragColor = vec4(1.0,1.0,1.0,1.0);\n" +
+                    "    fragColor = vec4(1.0,1.0,1.0,1.0);\n" +
                     "}\n";
 
 
@@ -516,12 +517,16 @@ public class MyDraw {
         float [] locAfterRotate = new float[4];
         Matrix.multiplyMV(locAfterRotate, 0, mvpMatrix, 0, new float[]{x, y, z, 1.0f}, 0);
 
-        BufferSet_GameModel(locAfterRotate[0], locAfterRotate[1], locAfterRotate[2], type, dir, head);
+        float [] locAfterDivide = {locAfterRotate[0] / locAfterRotate[3], locAfterRotate[1] / locAfterRotate[3], locAfterRotate[2] / locAfterRotate[3]};
+
+        
+        BufferSet_GameModel(locAfterDivide[0], locAfterDivide[1], locAfterDivide[2], type, dir, head);
 
 //        System.out.println("set marker end");
 
-        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
+        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
 
+//        GLES30.glUseProgram(mProgram_points);
         GLES30.glUseProgram(mProgram_game);
 
 
@@ -653,6 +658,71 @@ public class MyDraw {
 
     }
 
+    public void drawMarkerDepth(float[] mvpMatrix, float[] modelMatrix, float x, float y, float z, int type, float radius){
+//        System.out.println("set marker");
+
+        BufferSet_Marker(x, y, z, type, radius);
+
+//        System.out.println("set marker end");
+
+        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+
+        GLES30.glUseProgram(mProgram_marker);
+
+
+        //准备坐标数据
+        GLES30.glVertexAttribPointer(vertexPoints_handle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_marker);
+        //启用顶点的句柄
+        GLES30.glEnableVertexAttribArray(vertexPoints_handle);
+
+        if (radius < 0.015f){
+            //准备f法向量数据
+            GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker_small);
+        }else {
+            //准备f法向量数据
+            GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker);
+        }
+        //准备f法向量数据
+        // GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker);
+        //启用顶点的句柄
+        GLES30.glEnableVertexAttribArray(normalizePoints_handle);
+
+        //准备颜色数据
+        GLES30.glVertexAttribPointer(colorPoints_handle,3,GLES30.GL_FLOAT, false, 0,colorBuffer_marker);
+        GLES30.glEnableVertexAttribArray(colorPoints_handle);
+
+
+
+
+        // get handle to vertex shader's uMVPMatrix member
+        int vPMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_marker,"uMVPMatrix");
+
+        // Pass the projection and view transformation to the shader
+        GLES30.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
+
+
+        // get handle to vertex shader's uNormalMatrix member
+        int normalizeMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_marker,"uNormalMatrix");
+
+        // Pass the projection and view transformation to the shader
+        GLES30.glUniformMatrix4fv(normalizeMatrixHandle_marker, 1, false, modelMatrix, 0);
+
+
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length/3);
+
+//        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length/3);
+
+
+        //禁止顶点数组的句柄
+        GLES30.glDisableVertexAttribArray(vertexPoints_handle);
+        GLES30.glDisableVertexAttribArray(normalizePoints_handle);
+
+        GLES30.glDisableVertexAttribArray(colorPoints_handle);
+
+
+        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+
+    }
 
 
     public void drawLine(float [] mvpMatrix, ArrayList<Float> lineDrawed, int type){

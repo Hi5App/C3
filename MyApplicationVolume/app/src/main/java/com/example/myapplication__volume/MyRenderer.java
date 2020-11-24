@@ -530,7 +530,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     //draw the volume img
                     if (myPattern != null || myPatternGame != null)
                         if (ifGame) {
-                            myPatternGame.drawMap(finalMatrix);
+//                            myPatternGame.drawMap(finalMatrix);
+                            myPatternGame.drawMarker(finalMatrix, modelMatrix);
                         } else {
                             myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, ifDownSampling, contrast);
 //                            myPatternGame.drawMap(finalMatrix);
@@ -686,8 +687,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     float [] positionModel = position;
                     Log.v("onDrawFrame", Arrays.toString(positionModel));
 //                    myDraw.drawMarker(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
-                    myDraw.drawGameModel(finalGameModelMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, dir, head);
-                    myDraw.drawMarker(finalSmallMapMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
+                    myDraw.drawGameModel(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, dir, head);
+                    myDraw.drawMarkerDepth(finalSmallMapMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
+//                    myDraw.drawMarkerDepth(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
+
                 }
 
 
@@ -836,9 +839,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         Matrix.multiplyMM(mMVP2DMatrix, 0, vPMatrix, 0, zoomMatrix, 0);
         // Set the Rotation matrix
-//        Matrix.setRotateM(rotationMatrix, 0, angle, 0.0f, 1.0f, 0.0f);
-//        Matrix.setRotateM(rotationXMatrix, 0, angleX, 1.0f, 0.0f, 0.0f);
-//        Matrix.setRotateM(rotationYMatrix, 0, angleY, 0.0f, 1.0f, 0.0f);
 
 //        Log.v("roatation",Arrays.toString(rotationMatrix));
         if (!ifGame) {
@@ -857,6 +857,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         if (!ifGame) {
             Matrix.translateM(translateAfterMatrix, 0, 0, 0, cur_scale / 2 * (float) Math.sqrt(3));
         }
+
         //        Matrix.translateM(translateAfterMatrix, 0, 0, 0, -cur_scale);
 
         // Combine the rotation matrix with the projection and camera view
@@ -864,10 +865,16 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         // for the matrix multiplication product to be correct.
 //        Matrix.multiplyMM(rotationMatrix, 0, rotationYMatrix, 0, rotationXMatrix, 0);
 //        Matrix.multiplyMM(rotationMatrix, 0, zoomMatrix, 0, rotationMatrix, 0);
+
+//        if (ifGame){
+//            Matrix.multiplyMM(translateMatrix, 0, translateAfterMoveMatrix, 0, translateMatrix, 0);
+//        }
+
         Matrix.multiplyMM(modelMatrix, 0, rotationMatrix, 0, translateMatrix, 0);
 
         Log.d(TAG, "modelMatrix: " + Arrays.toString(modelMatrix));
 
+        //ZRTMatrix代表modelMatrix
         if (ifGame){
 //            Matrix.multiplyMM(modelMatrix, 0, translateAfterMoveMatrix, 0, modelMatrix, 0);
 
@@ -883,7 +890,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             Matrix.multiplyMM(ZRTMatrix, 0, translateAfterMatrix, 0, TMMatrix, 0);
 
-            Matrix.multiplyMM(finalMatrix, 0, vPMatrix, 0, ZRTMatrix, 0);
         } else {
 //        Matrix.multiplyMM(modelMatrix, 0, rotationMatrix, 0, translateMatrix, 0);
 
@@ -892,8 +898,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             Matrix.multiplyMM(ZRTMatrix, 0, translateAfterMatrix, 0, RTMatrix, 0);
 
-            Matrix.multiplyMM(finalMatrix, 0, vPMatrix, 0, ZRTMatrix, 0);      //ZRTMatrix代表modelMatrix
         }
+        Matrix.multiplyMM(finalMatrix, 0, vPMatrix, 0, ZRTMatrix, 0);
 
 //        Matrix.multiplyMM(finalMatrix, 0, zoomMatrix, 0, scratch, 0);
 
@@ -908,6 +914,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         Matrix.setIdentityM(translateAfterMatrix, 0);
 //        Matrix.translateM(translateAfterMatrix, 0, 0, 0, 50);
+
+//        Matrix.translateM(translateAfterMatrix, 0, 0, 0, cur_scale / 2 * (float) Math.sqrt(3));
 
         Matrix.setIdentityM(zoomGameModelMatrix, 0);
 
