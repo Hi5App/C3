@@ -1,6 +1,9 @@
 package com.example.myapplication__volume.render;
 
+import android.graphics.Bitmap;
+import android.opengl.GLES20;
 import android.opengl.GLES30;
+import android.opengl.GLUtils;
 import android.util.Log;
 
 import com.example.basic.ByteTranslate;
@@ -49,6 +52,7 @@ public class MyPatternGame {
 
     private static int mProgramGame;
     private static int mProgramMarker;
+    private static int mProgramBackground;
 
     private FloatBuffer vertexBuffer;
 
@@ -85,6 +89,25 @@ public class MyPatternGame {
 
     private Timer timer;
     private TimerTask task;
+
+    private Bitmap mBitmap;
+    private int [] backgroundTexture = new int[1];
+
+    private float [] bgPosition;
+    private FloatBuffer bgBuffer;
+
+    private final float[] sCoord={
+            0.0f,0.0f,
+            0.0f,1.0f,
+            1.0f,0.0f,
+            1.0f,1.0f,
+    };
+    private FloatBuffer bCoord;
+
+    private float bgWidth;
+    private float bgHeight;
+
+    private float[] bgMatrix = new float[16];
 
     private static final String vertexShaderCode_game =
             // This matrix member variable provides a hook to manipulate
@@ -273,6 +296,31 @@ public class MyPatternGame {
                     "  FragColor = vec4(markerColor.rgb * vLighting, 1.0);" +
                     "}";
 
+    private static final String vertexShaderCode_background =
+            "#version 300 es\n" +
+                    "layout (location = 0) in vec4 vPosition;" +
+                    "layout (location = 1) in vec2 vCoordinate;" +
+                    "uniform mat4 vMatrix;" +
+
+                    "out vec2 aCoordinate;" +
+
+                    "void main() {" +
+                    "  gl_Position = vMatrix * vPosition;" +
+                    "  aCoordinate = vCoordinate;" +
+                    "}";
+
+    private static final String fragmentShaderCode_background =
+            "#version 300 es\n" +
+                    "precision mediump float;" +
+
+                    "uniform sampler2D vTexture;" +
+                    "in vec2 aCoordinate;" +
+                    "out vec4 fragColor;" +
+
+                    "void main() {" +
+                    "   fragColor = texture(vTexture, aCoordinate);" +
+                    "}";
+
     public MyPatternGame(int width, int height, Image4DSimple img, float [] mz, int [] sz){
         image = img;
         dim = mz;
@@ -314,6 +362,7 @@ public class MyPatternGame {
     public static void initProgram(){
         mProgramGame = initProgram(vertexShaderCode_points, fragmentShaderCode_points);
         mProgramMarker = initProgram(vertexShaderCode_marker, fragmentShaderCode_marker);
+        mProgramBackground = initProgram(vertexShaderCode_background, fragmentShaderCode_background);
     }
 
     private static int initProgram(String vertShaderCode, String fragmShaderCode){
@@ -894,5 +943,108 @@ public class MyPatternGame {
                 removedPoints.remove(i);
             }
         }
+    }
+
+    private void createBGTexture(){
+
+        if(mBitmap!=null&&!mBitmap.isRecycled()){
+
+            Log.d("CreateBGTexture", "!!!!!!");
+
+            //生成纹理
+            GLES30.glGenTextures(1,backgroundTexture,0);
+
+            //生成纹理
+            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,backgroundTexture[0]);
+
+            //设置缩小过滤为使用纹理中坐标最接近的一个像素的颜色作为需要绘制的像素颜色
+            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER,GLES30.GL_NEAREST);
+
+            //设置放大过滤为使用纹理中坐标最接近的若干个颜色，通过加权平均算法得到需要绘制的像素颜色
+            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,GLES30.GL_TEXTURE_MAG_FILTER,GLES30.GL_LINEAR);
+
+            //设置环绕方向S，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
+            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S,GLES30.GL_CLAMP_TO_EDGE);
+
+            //设置环绕方向T，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
+            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T,GLES30.GL_CLAMP_TO_EDGE);
+
+            //根据以上指定的参数，生成一个2D纹理
+            GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, mBitmap, 0);
+
+            GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D);
+
+            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,0);
+        }
+
+    }
+
+    private void setBackgroundBuffer(){
+        bgPosition = new float[]{
+                1, 1, 1,
+                1, 0, 1,
+                0, 1, 1,
+                0, 0, 1
+        };
+        //分配内存空间,每个浮点型占4字节空间
+        bgBuffer = ByteBuffer.allocateDirect(bgPosition.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        //传入指定的坐标数据
+        bgBuffer.put(bgPosition);
+        bgBuffer.position(0);
+
+        //分配内存空间,每个浮点型占4字节空间
+        bCoord = ByteBuffer.allocateDirect(sCoord.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        //传入指定的坐标数据
+        bCoord.put(sCoord);
+        bCoord.position(0);
+    }
+
+    public void setBackground(Bitmap b){
+        Log.d("SetBackground: ", "!!!!!");
+        mBitmap = b;
+        bgWidth = b.getWidth();
+        bgHeight = b.getHeight();
+
+        Log.d("SetBackground: ", Float.toString(bgWidth) + " " + Float.toString(bgHeight));
+
+        createBGTexture();
+    }
+
+    public void drawBackground(float [] vMatrix){
+        bgMatrix = vMatrix;
+
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+
+        GLES20.glUseProgram(mProgramBackground);
+
+        GLES30.glActiveTexture(GLES30.GL_TEXTURE0); //设置使用的纹理编号
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, backgroundTexture[0]); //绑定指定的纹理id
+
+        int glHMatrix = GLES30.glGetUniformLocation(mProgramBackground, "vMatrix");
+        GLES20.glUniformMatrix4fv(glHMatrix,1,false,bgMatrix,0);
+
+        int glHPosition = GLES30.glGetAttribLocation(mProgramBackground, "vPosition");
+        GLES20.glEnableVertexAttribArray(glHPosition);
+
+        int glHCoordinate = GLES30.glGetAttribLocation(mProgramBackground, "vCoordinate");
+        GLES20.glEnableVertexAttribArray(glHCoordinate);
+
+        GLES20.glUniform1i(GLES30.glGetUniformLocation(mProgramBackground, "vTexture"), 0);
+
+//        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
+
+        setBackgroundBuffer();
+
+        //传入顶点坐标
+        GLES20.glVertexAttribPointer(glHPosition, 3, GLES20.GL_FLOAT, false, 0, bgBuffer);
+        //传入纹理坐标
+        GLES20.glVertexAttribPointer(glHCoordinate, 2, GLES20.GL_FLOAT, false, 0, bCoord);
+
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP,0,4);
+
     }
 }

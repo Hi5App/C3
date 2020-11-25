@@ -146,6 +146,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     // vPMatrix is an abbreviation for "Model View Projection Matrix"
     private final float[] scratch = new float[16];
     private final float[] vPMatrix = new float[16];
+    private final float[] paravPMatrix = new float[16];
 //    private final float[] projectionMatrix = new float[16];
     private final float[] paraProjectionMatrix = new float[16];
     private final float[] persProjectionMatrix = new float[16];
@@ -155,10 +156,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private final float[] rotationYMatrix = new float[16];
     private final float[] rotationZMatrix = new float[16];
     private final float[] translateMatrix = new float[16];//平移矩阵
+    private final float[] translateBackgroundMatrix = new float[16];
     private final float[] translateAfterMoveMatrix = new float[16];
     private final float[] translateAfterMoveViewMatrix = new float[16];
     private final float[] translateThirdViewMatrix = new float[16];
     private final float[] translateAfterMatrix = new float[16];
+    private final float[] bgTranslateAfterMoveMatrix = new float[16];
     private final float[] modelMatrix = new float[16];
     private final float[] TMMatrix = new float[16];
     private final float[] RTMatrix = new float[16];
@@ -172,7 +175,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private final float[] zoomMatrix = new float[16];//缩放矩阵
     private final float[] zoomAfterMatrix = new float[16];
+    private final float[] zoomBackgroundMatrix = new float[16];
+    private final float[] bgZTMatrix = new float[16];
+    private final float[] bgRZTMatrix = new float[16];
+    private final float[] bgTRZTMatrix = new float[16];
     private final float[] finalMatrix = new float[16];//缩放矩阵
+    private final float[] paraFinalMatrix = new float[16];//缩放矩阵
     private final float[] finalGameModelMatrix = new float[16];
     private final float[] zoomGameModelMatrix = new float[16];
     private float[] linePoints = {
@@ -689,8 +697,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                    myDraw.drawMarker(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
                     myDraw.drawGameModel(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, dir, head);
                     myDraw.drawMarkerDepth(finalSmallMapMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
-//                    myDraw.drawMarkerDepth(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
 
+                    bitmap2D = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.star);
+                    myPatternGame.setBackground(bitmap2D);
+
+                    setBackgroundMatrix();
+                    myPatternGame.drawBackground(paraFinalMatrix);
+//                    myPattern2D = new MyPattern2D(bitmap2D, bitmap2D.getWidth(),bitmap2D.getHeight(), mz);
+//                    myPattern2D.draw(paraFinalMatrix);
                 }
 
 
@@ -837,6 +851,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             Matrix.multiplyMM(vPMatrix, 0, persProjectionMatrix, 0, viewMatrix, 0);
         }
 
+//        if (ifGame){
+//            Matrix.multiplyMM(paravPMatrix, 0, paraProjectionMatrix, 0, viewMatrix, 0);
+//        }
+
         Matrix.multiplyMM(mMVP2DMatrix, 0, vPMatrix, 0, zoomMatrix, 0);
         // Set the Rotation matrix
 
@@ -901,11 +919,33 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
         Matrix.multiplyMM(finalMatrix, 0, vPMatrix, 0, ZRTMatrix, 0);
 
+//        Matrix.multiplyMM(paraFinalMatrix, 0, paravPMatrix, 0, ZRTMatrix, 0);
+
 //        Matrix.multiplyMM(finalMatrix, 0, zoomMatrix, 0, scratch, 0);
 
 //        Matrix.setIdentityM(translateAfterMatrix, 0);
 //        Matrix.translateM(translateAfterMatrix, 0, 0.0f, 0.0f, -0.1f);
 //        Matrix.multiplyMM(translateAfterMatrix, 0, zoomAfterMatrix, 0, translateAfterMatrix, 0);
+    }
+
+    private void setBackgroundMatrix(){
+        Matrix.multiplyMM(paravPMatrix, 0, paraProjectionMatrix, 0, viewMatrix, 0);
+
+        Matrix.setIdentityM(translateBackgroundMatrix, 0);
+        Matrix.translateM(translateBackgroundMatrix, 0, -0.5f, -0.5f, -0.5f);
+
+        Matrix.setIdentityM(zoomBackgroundMatrix, 0);
+        Matrix.scaleM(zoomBackgroundMatrix, 0, 12f, 6f, 1f);
+
+        Matrix.multiplyMM(bgZTMatrix, 0, zoomBackgroundMatrix, 0, translateBackgroundMatrix, 0);
+        Matrix.multiplyMM(bgRZTMatrix, 0, rotationMatrix, 0, bgZTMatrix, 0);
+
+        Matrix.setIdentityM(bgTranslateAfterMoveMatrix, 0);
+        Matrix.translateM(bgTranslateAfterMoveMatrix, 0, 0, 0, 90f);
+
+        Matrix.multiplyMM(bgTRZTMatrix, 0, bgTranslateAfterMoveMatrix, 0, bgRZTMatrix, 0);
+
+        Matrix.multiplyMM(paraFinalMatrix, 0, paravPMatrix, 0, bgTRZTMatrix, 0);
     }
 
     private void setGameModelMatrix(){
