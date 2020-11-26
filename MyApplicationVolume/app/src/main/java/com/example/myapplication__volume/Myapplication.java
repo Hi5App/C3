@@ -2,10 +2,16 @@ package com.example.myapplication__volume;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 
 import com.example.basic.CrashHandler;
 import com.example.chat.ChatManager;
 import com.example.chat.MessageActivity;
+import com.example.datastore.PreferenceLogin;
+import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.NIMInitManager;
+import com.example.myapplication__volume.Nim.NimSDKOptionConfig;
+import com.example.myapplication__volume.Nim.preference.UserPreferences;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.api.UIKitOptions;
 import com.netease.nimlib.sdk.NIMClient;
@@ -41,9 +47,12 @@ public class Myapplication extends Application {
         mChatManager.init();
 
 
+        DemoCache.setContext(this);
+
         // 4.6.0 开始，第三方推送配置入口改为 SDKOption#mixPushConfig，旧版配置方式依旧支持。
 //        SDKOptions sdkOptions = NimSDKOptionConfig.getSDKOptions(this);
-        NIMClient.init(this, getLoginInfo(), options());
+        NIMClient.init(this, getLoginInfo(), NimSDKOptionConfig.getSDKOptions(this));
+//        NIMClient.init(this, getLoginInfo(), options());
 
 
         // 使用 `NIMUtil` 类可以进行主进程判断。
@@ -53,30 +62,51 @@ public class Myapplication extends Application {
             // 1、UI相关初始化操作
             // 2、相关Service调用
 
+            Log.e(TAG,"NIMUtil.isMainProcess(this)");
             initUIKit();
+
+            // 初始化消息提醒
+            NIMClient.toggleNotification(UserPreferences.getNotificationToggle());
+
+            // 云信sdk相关业务初始化
+            NIMInitManager.getInstance().init(true);
+
         }
 
     }
 
 
     private LoginInfo getLoginInfo() {
-//        PreferenceLogin preferenceLogin = new PreferenceLogin(this);
-//        String account = preferenceLogin.getUsername();
-//        String token = preferenceLogin.getPassword();
-//
-//        if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token)) {
-//            DemoCache.setAccount(account.toLowerCase());
-//            return new LoginInfo(account, token);
-//        } else {
-//            return null;
-//        }
+        PreferenceLogin preferenceLogin = new PreferenceLogin(this);
+        String account = preferenceLogin.getUsername();
+        String token = preferenceLogin.getPassword();
 
-        return null;
+        if (preferenceLogin.getRem_or_not() && !account.equals("") && !token.equals("")) {
+            Log.e(TAG,"account: " + account);
+            Log.e(TAG,"token: "   + token);
+
+            DemoCache.setAccount(account.toLowerCase());
+            return new LoginInfo(account, token);
+        } else {
+            return null;
+        }
     }
 
 
 
     private SDKOptions options(){
+
+
+//        SDKOptions options = new SDKOptions();
+//        // 配置是否需要预下载附件缩略图，默认为 true
+//        options.preloadAttach = true;
+//        options.appKey = "0fda06baee636802cb441b62e6f65549";
+//
+//        return options;
+
+
+
+
         SDKOptions options = new SDKOptions();
 
         // 配置是否需要预下载附件缩略图，默认为 true
@@ -96,6 +126,7 @@ public class Myapplication extends Application {
         options.thumbnailSize = 480 / 2;
 
         return options;
+
     }
 
 

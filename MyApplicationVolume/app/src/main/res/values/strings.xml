@@ -95,6 +95,15 @@
     <string name="NA">UnKnown Friend</string>
     <string name="nullMsg">Null Msg</string>
 
+    <string name="off_line">OFFLINE</string>
+    <string name="on_line_busy">BUSY</string>
+
+    <string name="on_line_pc">PC_ONLINE</string>
+    <string name="on_line_mac">MAC_ONLINE</string>
+    <string name="on_line_web">WEB_ONLINE</string>
+    <string name="client_ios">IOS</string>
+    <string name="client_aos">ANDROID</string>
+    <string name="on_line">ONLINE</string>
 
 
 </resources>

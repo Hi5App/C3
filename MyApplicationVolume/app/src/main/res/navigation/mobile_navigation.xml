@@ -11,11 +11,14 @@
         android:label="@string/title_chats"/>
 <!--        tools:layout="@layout/fragment_dashboard" />-->
 
+
+    <!--        android:name="com.example.chat.ui.contacts.ContactsFragment"-->
+    <!--        android:name="com.netease.nim.uikit.business.contact.ContactsFragment"-->
     <fragment
         android:id="@+id/navigation_home"
         android:name="com.example.chat.ui.contacts.ContactsFragment"
-        android:label="@string/title_contacts"
-        tools:layout="@layout/chat_view" />
+        android:label="@string/title_contacts"/>
+<!--        tools:layout="@layout/chat_view" />-->
 
     <fragment
         android:id="@+id/navigation_notifications"

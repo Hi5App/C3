@@ -38,6 +38,9 @@ import com.netease.nimlib.sdk.auth.LoginInfo;
 
 public class LoginActivity extends AppCompatActivity {
 
+    private static final String KICK_OUT = "KICK_OUT";
+    private static final String KICK_OUT_DESC = "KICK_OUT_DESC";
+
     private LoginViewModel loginViewModel;
 
     EditText usernameEditText;
@@ -88,6 +91,9 @@ public class LoginActivity extends AppCompatActivity {
             passwordEditText.setText(preferenceLogin.getPassword());
             remember_pwd.setChecked(true);
             loginButton.setEnabled(true);
+
+            loginViewModel.login(usernameEditText.getText().toString(),
+                    passwordEditText.getText().toString());
         }
 
         loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
@@ -122,6 +128,12 @@ public class LoginActivity extends AppCompatActivity {
 //                    MainActivity.actionStart(LoginActivity.this, loginResult.getSuccess().getDisplayName());
 //                    updateUiWithUser(loginResult.getSuccess());
 //                    finish();
+                    if (remember_pwd.isChecked()){
+                        preferenceLogin.setPref(usernameEditText.getText().toString(),
+                                passwordEditText.getText().toString(),true);
+                    }else {
+                        preferenceLogin.setPref("","",false);
+                    }
 
                     loginNim(loginResult.getSuccess().getDisplayName(), passwordEditText.getText().toString(), loginResult);
                 }
@@ -214,6 +226,8 @@ public class LoginActivity extends AppCompatActivity {
                     public void onSuccess(LoginInfo param) {
                         LogUtil.i(TAG, "login success");
                         DemoCache.setAccount(account);
+                        NimUIKit.loginSuccess(account);
+
                         // 进入主界面
                         MainActivity.actionStart(LoginActivity.this, loginResult.getSuccess().getDisplayName());
                         updateUiWithUser(loginResult.getSuccess());
@@ -243,6 +257,18 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
+
+    public static void start(Context context) {
+        start(context, false, "");
+    }
+
+    public static void start(Context context, boolean kickOut, String kickOutDesc) {
+        Intent intent = new Intent(context, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.putExtra(KICK_OUT, kickOut);
+        intent.putExtra(KICK_OUT_DESC, kickOutDesc);
+        context.startActivity(intent);
+    }
 
 
 

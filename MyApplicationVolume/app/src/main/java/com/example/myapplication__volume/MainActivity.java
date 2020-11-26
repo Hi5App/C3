@@ -85,7 +85,9 @@ import com.example.chat.ChatManager;
 import com.example.chat.MessageActivity;
 import com.example.chat.MessageUtil;
 import com.example.chat.model.MessageBean;
+import com.example.datastore.PreferenceLogin;
 import com.example.datastore.SettingFileManager;
+import com.example.myapplication__volume.Nim.DemoCache;
 import com.example.myapplication__volume.fileReader.AnoReader;
 import com.example.myapplication__volume.fileReader.ApoReader;
 import com.example.myapplication__volume.ui.login.LoginActivity;
@@ -103,6 +105,7 @@ import com.lxj.xpopup.enums.PopupPosition;
 import com.lxj.xpopup.interfaces.OnCancelListener;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
+import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.auth.AuthService;
@@ -159,9 +162,12 @@ import io.agora.rtm.RtmMediaOperationProgress;
 import io.agora.rtm.RtmMessage;
 import io.agora.rtm.RtmStatusCode;
 
-import static com.example.datastore.SettingFileManager.getArborNum;
+import static com.example.datastore.SettingFileManager.getBrainNum_Remote;
 import static com.example.datastore.SettingFileManager.getFilename_Remote;
+import static com.example.datastore.SettingFileManager.getNeuronNum_Remote;
 import static com.example.datastore.SettingFileManager.getNeuronNumber_Remote;
+import static com.example.datastore.SettingFileManager.getOffsetStr_Remote;
+import static com.example.datastore.SettingFileManager.getRES_Remote;
 import static com.example.datastore.SettingFileManager.getSelectSource;
 import static com.example.datastore.SettingFileManager.getUserAccount;
 import static com.example.datastore.SettingFileManager.getUserAccount_Check;
@@ -533,7 +539,7 @@ public class MainActivity extends BaseActivity {
                     }else {
                         String brain_num = getFilename_Remote(context);
                         String neuron_num = getNeuronNumber_Remote(context, brain_num);
-                        result = brain_num.split("_")[0] + "_" + neuron_num.split("_")[1] + "_" + getArborNum(context,brain_num.split("/")[0] + "_" + neuron_num).split(":")[0];
+                        result = name;
                     }
 
                     setFilename(result);
@@ -918,7 +924,8 @@ public class MainActivity extends BaseActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        if (getUserAccount_Check(context).equals("--11--") || getUserAccount_Check(context).equals("")){
+//                        if (getUserAccount_Check(context).equals("--11--") || getUserAccount_Check(context).equals("")){
+                        if (USERNAME.equals("username")){
 //                            PopUp_UserAccount(MainActivity.this);
                             Toast_in_Thread("Please Input your User name first in more functions !");
                         }else {
@@ -1431,9 +1438,9 @@ public class MainActivity extends BaseActivity {
 
                 if (DrawMode){
                     push_info_swc = SaveSWC_Block_Auto();
-                    remote_socket.Select_Neuron_Fast();
+                    remote_socket.selectNeuronFast();
                 }else {
-                    remote_socket.Select_Neuron_Fast();
+                    remote_socket.selectNeuronFast();
 //                    remote_socket.Select_Arbor_Fast();
                 }
                 return true;
@@ -1446,12 +1453,14 @@ public class MainActivity extends BaseActivity {
             public void onClick(View v) {
 
                 if (DrawMode){
-                    push_info_swc = SaveSWC_Block_Auto();
-                    remote_socket.Next_Neuron();
+//                    push_info_swc = SaveSWC_Block_Auto();
+                    remote_socket.nextNeuron(DrawMode);
+//                    remote_socket.Next_Neuron();
 //                    remote_socket.Select_Neuron_Fast();
                 }else {
 //                    remote_socket.Select_Neuron_Fast();
-                    remote_socket.Select_Arbor_Fast();
+                    remote_socket.nextNeuron(DrawMode);
+//                    remote_socket.Select_Arbor_Fast();
                 }
 
             }
@@ -1555,6 +1564,7 @@ public class MainActivity extends BaseActivity {
             dir_server.mkdirs();
         }
 
+        SettingFileManager settingFileManager = new SettingFileManager(this);
 
         doLogin();
 
@@ -1721,9 +1731,9 @@ public class MainActivity extends BaseActivity {
         String[] item_list = null;
 
         if (DrawMode){
-            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Chat", "Animate", "Settings", "Crash Info", "Game", "About", "Help"};
+            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Chat", "Animate", "Settings", "Crash Info", "Game", "Logout", "About", "Help"};
         }else{
-            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Chat", "Animate", "Settings", "Crash Info", "Account Name", "Game", "About", "Help"};
+            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Chat", "Animate", "Settings", "Crash Info", "Account Name", "Game", "Logout", "About", "Help"};
         }
 
         new XPopup.Builder(this)
@@ -1783,6 +1793,10 @@ public class MainActivity extends BaseActivity {
 
                                     case "Settings":
                                         setSettings();
+                                        break;
+
+                                    case "Logout":
+                                        logout();
                                         break;
 
                                     case "Account Name":
@@ -2350,7 +2364,7 @@ public class MainActivity extends BaseActivity {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
+                String SwcFilePath = remote_socket.pullBBSWC(isDrawMode);
 
                 if (SwcFilePath.equals("Error")){
                     Toast_in_Thread("Something Wrong When Pull Swc File !");
@@ -2376,8 +2390,8 @@ public class MainActivity extends BaseActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
     private static void PullSwc_block_Auto(boolean isDrawMode){
-
-        String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
+        Log.e(TAG, "PullSwc_block_Auto");
+        String SwcFilePath = remote_socket.pullBBSWC(isDrawMode);
 
         if (SwcFilePath.equals("Error")){
             Toast_in_Thread_static("Something Wrong When Pull Swc File !");
@@ -4258,21 +4272,23 @@ public class MainActivity extends BaseActivity {
                 Toast.makeText(this,"Fail to create file: PushSWC_Block", Toast.LENGTH_SHORT).show();
         }
 
-        String filename = getFilename_Remote(this);
-        String neuron_number = getNeuronNumber_Remote(this, filename);
-        String offset = getoffset_Remote(this, filename);
+        String brainNum = getBrainNum_Remote(DrawMode);
+        String res_num = getRES_Remote(brainNum, DrawMode).split(";")[0];
+        String res_detail = getRES_Remote(brainNum, DrawMode).split(";")[1];
+        String neuronNum = getNeuronNum_Remote(brainNum, res_detail, DrawMode);
+        String offset = getOffsetStr_Remote(brainNum, res_detail, DrawMode);
+
         System.out.println(offset);
         int[] index = BigImgReader.getIndex(offset);
         System.out.println(filename);
 
-        String ratio = Integer.toString(remote_socket.getRatio_SWC());
-        String SwcFileName = "blockSet__" + neuron_number + "__" +
-                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
+        String swcFileName = "blockSet__" + neuronNum + "__" +
+                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + res_num;
 
-        System.out.println(SwcFileName);
+        System.out.println(swcFileName);
 
-        if (Save_curSwc_fast(SwcFileName, swc_file_path)){
-            File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
+        if (Save_curSwc_fast(swcFileName, swc_file_path)){
+            File SwcFile = new File(swc_file_path + "/" + swcFileName + ".swc");
             try {
                 System.out.println("Start to push swc file");
                 InputStream is = new FileInputStream(SwcFile);
@@ -4283,7 +4299,7 @@ public class MainActivity extends BaseActivity {
                     return;
                 }
 
-                remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
+                remote_socket.PushSwc_block(swcFileName  + "__" + USERNAME + ".swc", is, length);
 
             } catch (Exception e){
                 System.out.println("----" + e.getMessage() + "----");
@@ -4339,6 +4355,7 @@ public class MainActivity extends BaseActivity {
 
     private String[] SaveSWC_Block_Auto(){
 
+        Log.e("SaveSWC_Block_Auto","Start !");
         String filepath = this.getExternalFilesDir(null).toString();
         String swc_file_path = filepath + "/Sync/BlockSet";
         File dir = new File(swc_file_path);
@@ -4348,16 +4365,18 @@ public class MainActivity extends BaseActivity {
                 Toast.makeText(this,"Fail to create file: PushSWC_Block", Toast.LENGTH_SHORT).show();
         }
 
-        String filename = getFilename_Remote(this);
-        String neuron_number = getNeuronNumber_Remote(this, filename);
-        String offset = getoffset_Remote(this, filename);
+        String brainNum = getBrainNum_Remote(DrawMode);
+        String res_num = getRES_Remote(brainNum, DrawMode).split(";")[0];
+        String res_detail = getRES_Remote(brainNum, DrawMode).split(";")[1];
+        String neuronNum = getNeuronNum_Remote(brainNum, res_detail, DrawMode);
+        String offset = getOffsetStr_Remote(brainNum, res_detail, DrawMode);
+
         System.out.println(offset);
         int[] index = BigImgReader.getIndex(offset);
         System.out.println(filename);
 
-        String ratio = Integer.toString(remote_socket.getRatio_SWC());
-        String SwcFileName = "blockSet__" + neuron_number + "__" +
-                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
+        String SwcFileName = "blockSet__" + neuronNum + "__" +
+                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + res_num;
 
         System.out.println(SwcFileName);
 
@@ -4365,19 +4384,19 @@ public class MainActivity extends BaseActivity {
             return new String[]{ swc_file_path, SwcFileName };
         }
 
-        Log.v("SaveSWC_Block_Auto","Save Successfully !");
+        Log.e("SaveSWC_Block_Auto","Save Successfully !");
         return new String[]{"Error", "Error"};
     }
 
 
 
-    private static void PushSWC_Block_Auto(String swc_file_path, String SwcFileName){
+    private static void PushSWC_Block_Auto(String swc_file_path, String swcFileName){
 
         if (swc_file_path.equals("Error"))
             return;
 
-        Log.e("PushSWC_Block_Auto",swc_file_path + "/" + SwcFileName + ".swc");
-        File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
+        Log.e("PushSWC_Block_Auto",swc_file_path + "/" + swcFileName + ".swc");
+        File SwcFile = new File(swc_file_path + "/" + swcFileName + ".swc");
         if (!SwcFile.exists()){
             Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
             return;
@@ -4391,7 +4410,7 @@ public class MainActivity extends BaseActivity {
                 Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
                 return;
             }
-            remote_socket.PushSwc_block("blockSet__18454_00001__100__200__300__228__328__428__2__xf" + ".swc", is, length);
+            remote_socket.PushSwc_block(swcFileName  + "__" + USERNAME + ".swc", is, length);
 
         } catch (Exception e){
             System.out.println("----" + e.getMessage() + "----");
@@ -5265,7 +5284,10 @@ public class MainActivity extends BaseActivity {
                  */
                 remote_socket.disConnectFromHost();
                 remote_socket.connectServer(ip);
-                remote_socket.Select_Brain(true);
+//                remote_socket.connectServer("192.168.1.140");
+                remote_socket.select_Brain(DrawMode);
+//                remote_socket.neuronNextTest();
+
 
 
 //                Toast_in_Thread("Under Maintenance");
@@ -5298,10 +5320,18 @@ public class MainActivity extends BaseActivity {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+//                remote_socket.disConnectFromHost();
+//                remote_socket.connectServer(ip);
+////                remote_socket.Select_Arbor();
+//                remote_socket.select_Brain(false);
+
                 remote_socket.disConnectFromHost();
                 remote_socket.connectServer(ip);
 //                remote_socket.Select_Arbor();
-                remote_socket.Select_Brain(false);
+                remote_socket.select_Brain(DrawMode);
+
+//                remote_socket.connectServer("192.168.1.140");
+//                remote_socket.select_Brain(DrawMode);
             }
         });
         thread.start();
@@ -5336,18 +5366,17 @@ public class MainActivity extends BaseActivity {
                         Log.v("Block_navigate", text);
                         if (DrawMode){
                             push_info_swc = SaveSWC_Block_Auto();
-
+                            remote_socket.switchBlockFast(text);
                             //  for apo sync
 //                            push_info_apo = SaveAPO_Block_Auto();
-                            remote_socket.Selectblock_fast(context, false, text);
+//                            remote_socket.Selectblock_fast(context, false, text);
 //                            PushSWC_Block_Auto(push_info[0], push_info[1]);
 
                         }else {
-                            remote_socket.Selectblock_fast(context, false, text);
+                            remote_socket.switchBlockFast(text);
 //                            remote_socket.Selectblock_fast_Check(context, false, text);
                         }
                     }
-
                 }
                 if (isBigData_Local){
                     boolean ifNavigationLocation = myrenderer.getNav_location_Mode();
@@ -6016,6 +6045,37 @@ public class MainActivity extends BaseActivity {
         mdDialog.show();
 //        mdDialog.getWindow().setLayout(1000, 1500);
     }
+
+
+    private void logout(){
+
+        AlertDialog aDialog = new AlertDialog.Builder(mainContext)
+                .setTitle("Log out")
+                .setMessage("Are you sure to Log out?")
+                .setIcon(R.mipmap.ic_launcher)
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 清理缓存&注销监听&清除状态
+                        NimUIKit.logout();
+                        DemoCache.clear();
+                        PreferenceLogin preferenceLogin = new PreferenceLogin(MainActivity.this);
+                        preferenceLogin.setPref("","",false);
+                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                        finish();
+                    }
+                })
+
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .create();
+        aDialog.show();
+        // 清理缓存&注销监听&清除状态
+        NimUIKit.logout();
+        DemoCache.clear();    }
 
 
     public void cleanCache(){
@@ -8021,7 +8081,7 @@ public class MainActivity extends BaseActivity {
             }
         }else {
 
-            Log.v("MainActivity","LoadBigFile_Remote() ifGame");
+            Log.v("MainActivity","LoadBigFile_Remote() !ifGame");
             Log.v("MainActivity",remote_socket.getIp());
             if (remote_socket.getIp().equals(ip_ALiYun)){
                 setSelectSource("Remote Server Aliyun",context);
@@ -8039,16 +8099,14 @@ public class MainActivity extends BaseActivity {
             myGLSurfaceView.requestRender();
             SetButtons();
 
-//            PullSwc_block_Auto(true);
+            PullSwc_block_Auto(DrawMode);
 
-//            if (DrawMode){
-//                LoadMarker();
-//                if (!push_info_swc[0].equals("New")){
-//                    String filepath = this.getExternalFilesDir(null).toString();
-//                    String swc_file_path = filepath + "/Sync/BlockSet";
-//                    PushSWC_Block_Auto(push_info_swc[0], push_info_swc[1]);
-//                }
-//            }
+            if (DrawMode){
+                LoadMarker();
+                if (!push_info_swc[0].equals("New")){
+                    PushSWC_Block_Auto(push_info_swc[0], push_info_swc[1]);
+                }
+            }
         }
 
     }
@@ -8076,14 +8134,10 @@ public class MainActivity extends BaseActivity {
 
 
     private static void LoadMarker(){
-
-        String filename = getFilename_Remote(context);
-        String offset = getoffset_Remote(context, filename);
-        int[] index = BigImgReader.getIndex(offset);
-        Log.v("LoadMarker",Arrays.toString(index));
+        Log.e(TAG, "LoadMarker");
 
         ArrayList<ArrayList<Integer>> marker_list = new ArrayList<ArrayList<Integer>>();
-        marker_list = remote_socket.getMarker(index);
+        marker_list = remote_socket.getMarker();
 
         myrenderer.importMarker(marker_list);
         myGLSurfaceView.requestRender();

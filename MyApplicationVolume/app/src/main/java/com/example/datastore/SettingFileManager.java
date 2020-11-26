@@ -18,14 +18,14 @@ public class SettingFileManager {
     /*
      Img Info Maintenance
      ImgInfo  --> Draw -> Brain_Cur.
-                          RES_Cur.
                           Brain_Num -> RESList.
+                                       RES_Cur.
                                     -> RES       -> Neuron
                                                  -> Offset
 
               --> Check -> Brain_Cur.
-                           RES_Cur.
                            Brain_Num -> RESList.
+                                        RES_Cur.
                                      -> RES      -> Arbor
                                                  -> Offset
      */
@@ -127,12 +127,12 @@ public class SettingFileManager {
      * get the latest BrainNum in Draw Mode
      * @return the BrainNum in Draw Mode you chose currently
      */
-    public static String getRES_Remote(boolean isDraw){
+    public static String getRES_Remote(String BrainNum, boolean isDraw){
         String mode;
         mode = isDraw ? "/Draw" : "/Check";
 
         String RES = null;
-        File file = new File(filepath + "/ImgInfo" + mode + "/RES_Cur.txt");
+        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum + "/RES_Cur.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -173,12 +173,15 @@ public class SettingFileManager {
      * update the RES
      * @param RES the RES currently chose
      */
-    public static void setRES__Remote(String RES, boolean isDraw){
+    public static void setRES__Remote(String BrainNum, String RES, boolean isDraw){
+        /*
+        example: 1;RES(13149x17500x5520)
+         */
 
         String mode;
         mode = isDraw ? "/Draw" : "/Check";
 
-        File file = new File(filepath + "/ImgInfo" + mode + "/RES_Cur.txt");
+        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum + "/RES_Cur.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -205,11 +208,11 @@ public class SettingFileManager {
      * get the latest BrainNum in Draw Mode
      * @return the BrainNum in Draw Mode you chose currently
      */
-    public static String getRESList_Remote(String BrainNum, boolean isDraw){
+    public static Vector<String> getRESList_Remote(String BrainNum, boolean isDraw){
         String mode;
         mode = isDraw ? "/Draw" : "/Check";
+        Vector<String> RESList = new Vector<>() ;
 
-        String RESList = null;
         File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum + "/RESList.txt");
         if (!file.exists()){
             try {
@@ -234,14 +237,19 @@ public class SettingFileManager {
                 InputStreamReader inputreader
                         = new InputStreamReader(inputStream, "UTF-8");
                 BufferedReader buffreader = new BufferedReader(inputreader);
-                RESList = buffreader.readLine();
-                buffreader.close();  //关闭ReaderBuffer
-                inputStream.close(); //关闭输入流
+                String line = "";
+
+                while ((line = buffreader.readLine()) != null){
+                    RESList.add(line);
+                }
+                buffreader.close();
+                inputreader.close();
+                inputStream.close();//关闭输入流
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.v("get RESList", RESList);
+        Log.v("get RESList", Arrays.toString(RESList.toArray()));
         return RESList;
     }
 
@@ -250,7 +258,7 @@ public class SettingFileManager {
      * update the RESList
      * @param RESList the RESList of current Brain
      */
-    public static void setRESList__Remote(String BrainNum, String RESList, boolean isDraw){
+    public static void setRESList__Remote(String BrainNum, String[] RESList, boolean isDraw){
 
         String mode;
         mode = isDraw ? "/Draw" : "/Check";
@@ -268,7 +276,15 @@ public class SettingFileManager {
 
         try {
             FileOutputStream outStream = new FileOutputStream(file);
-            outStream.write(RESList.getBytes());
+            OutputStreamWriter osw=new OutputStreamWriter(outStream, "UTF-8");
+            BufferedWriter bw=new BufferedWriter(osw);
+
+            for(String res:RESList){
+                bw.write(res+"\n");
+            }
+
+            bw.close();
+            osw.close();
             outStream.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -282,12 +298,12 @@ public class SettingFileManager {
      * get the latest BrainNum in Draw Mode
      * @return the BrainNum in Draw Mode you chose currently
      */
-    public static String getNeuronNum_Remote(String BrainNum, boolean isDraw){
+    public static String getNeuronNum_Remote(String BrainNum, String RES, boolean isDraw){
         String mode;
         mode = isDraw ? "/Draw" : "/Check";
 
         String NeuronNum = null;
-        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum + "/NeuronNum.txt");
+        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum  + "/" + RES + "/NeuronNum.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -327,12 +343,12 @@ public class SettingFileManager {
      * update the NeuronNum
      * @param NeuronNum the NeuronNum of current Brain
      */
-    public static void setNeuronNum_Remote(String BrainNum, String NeuronNum, boolean isDraw){
+    public static void setNeuronNum_Remote(String BrainNum, String NeuronNum, String RES, boolean isDraw){
 
         String mode;
         mode = isDraw ? "/Draw" : "/Check";
 
-        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum +"/NeuronNum.txt");
+        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum + "/" + RES +"/NeuronNum.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -358,12 +374,58 @@ public class SettingFileManager {
      * get the latest BrainNum in Draw Mode
      * @return the BrainNum in Draw Mode you chose currently
      */
-    public static String getOffset_Remote(String BrainNum, boolean isDraw){
+    public static String[] getOffset_Remote(String BrainNum, String RES, boolean isDraw){
         String mode;
         mode = isDraw ? "/Draw" : "/Check";
 
-        String Offset = null;
-        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum + "/Offset.txt");
+        String[] Offset = null;
+        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum + "/" + RES + "/Offset.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "--EMPTY--";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get Offset", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String offset_str = buffreader.readLine();
+                Offset = offset_str.split("_");
+                buffreader.close();  //关闭ReaderBuffer
+                inputStream.close(); //关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get Offset", Arrays.toString(Offset));
+        return Offset;
+    }
+
+
+    /**
+     * get the latest BrainNum in Draw Mode
+     * @return the BrainNum in Draw Mode you chose currently
+     */
+    public static String getOffsetStr_Remote(String BrainNum, String RES, boolean isDraw){
+        String mode;
+        mode = isDraw ? "/Draw" : "/Check";
+
+        String Offset = "";
+        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum + "/" + RES + "/Offset.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -398,17 +460,16 @@ public class SettingFileManager {
         return Offset;
     }
 
-
     /**
      * update the NeuronNum
      * @param Offset the NeuronNum of current Brain
      */
-    public static void setOffset_Remote(String BrainNum, String Offset, boolean isDraw){
+    public static void setOffset_Remote(String BrainNum, String RES, String Offset, boolean isDraw){
 
         String mode;
         mode = isDraw ? "/Draw" : "/Check";
 
-        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum +"/Offset.txt");
+        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum + "/"+ RES + "/Offset.txt");
         if (!file.exists()){
             try {
                 File dir = new File(file.getParent());
@@ -428,6 +489,189 @@ public class SettingFileManager {
         }
 
     }
+
+
+
+
+
+    /**
+     * get the latest BrainNum in Draw Mode
+     * @return the BrainNum in Draw Mode you chose currently
+     */
+    public static Vector<String> getNeuronList_Remote(String BrainNum, boolean isDraw){
+        String mode;
+        mode = isDraw ? "/Draw" : "/Check";
+        Vector<String> NeuronList = new Vector<>() ;
+
+        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum + "/NeuronList.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "--EMPTY--";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get RESList", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                while ((line = buffreader.readLine()) != null){
+                    NeuronList.add(line);
+                }
+                buffreader.close();
+                inputreader.close();
+                inputStream.close();//关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get NeuronList", Arrays.toString(NeuronList.toArray()));
+        return NeuronList;
+    }
+
+
+    /**
+     * update the RESList
+     * @param NeuronList the RESList of current Brain
+     */
+    public static void setNeuronList__Remote(String BrainNum, String[] NeuronList, boolean isDraw){
+
+        String mode;
+        mode = isDraw ? "/Draw" : "/Check";
+
+        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum +"/NeuronList.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("set RESList", "Fail to create file");
+            }
+        }
+
+        try {
+            FileOutputStream outStream = new FileOutputStream(file);
+            OutputStreamWriter osw=new OutputStreamWriter(outStream, "UTF-8");
+            BufferedWriter bw=new BufferedWriter(osw);
+
+            for(String neuron:NeuronList){
+                bw.write(neuron+"\n");
+            }
+
+            bw.close();
+            osw.close();
+            outStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+
+    /**
+     * get the latest BrainNum in Draw Mode
+     * @return the BrainNum in Draw Mode you chose currently
+     */
+    public static Vector<String> getArborList_Remote(String BrainNum, boolean isDraw){
+        String mode;
+        mode = isDraw ? "/Draw" : "/Check";
+        Vector<String> NeuronList = new Vector<>() ;
+
+        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum + "/NeuronList.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+
+                String str = "--EMPTY--";
+                FileOutputStream outStream = new FileOutputStream(file);
+                outStream.write(str.getBytes());
+                outStream.close();
+
+            }catch (Exception e){
+                Log.v("get RESList", "Fail to create file");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            if (inputStream != null) {
+                InputStreamReader inputreader
+                        = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line = "";
+
+                while ((line = buffreader.readLine()) != null){
+                    NeuronList.add(line);
+                }
+                buffreader.close();
+                inputreader.close();
+                inputStream.close();//关闭输入流
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v("get NeuronList", Arrays.toString(NeuronList.toArray()));
+        return NeuronList;
+    }
+
+
+    /**
+     * update the RESList
+     * @param NeuronList the RESList of current Brain
+     */
+    public static void setArborList__Remote(String BrainNum, String[] NeuronList, boolean isDraw){
+
+        String mode;
+        mode = isDraw ? "/Draw" : "/Check";
+
+        File file = new File(filepath + "/ImgInfo" + mode + "/" + BrainNum +"/NeuronList.txt");
+        if (!file.exists()){
+            try {
+                File dir = new File(file.getParent());
+                dir.mkdirs();
+                file.createNewFile();
+            }catch (Exception e){
+                Log.v("set RESList", "Fail to create file");
+            }
+        }
+
+        try {
+            FileOutputStream outStream = new FileOutputStream(file);
+            OutputStreamWriter osw=new OutputStreamWriter(outStream, "UTF-8");
+            BufferedWriter bw=new BufferedWriter(osw);
+
+            for(String neuron:NeuronList){
+                bw.write(neuron+"\n");
+            }
+
+            bw.close();
+            osw.close();
+            outStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
 
     /**
