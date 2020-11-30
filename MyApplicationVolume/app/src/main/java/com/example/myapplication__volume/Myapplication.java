@@ -56,7 +56,6 @@ public class Myapplication extends Application {
 
 
         // 使用 `NIMUtil` 类可以进行主进程判断。
-        // boolean mainProcess = NIMUtil.isMainProcess(context)
         if (NIMUtil.isMainProcess(this)) {
             // 注意：以下操作必须在主进程中进行
             // 1、UI相关初始化操作

@@ -92,8 +92,8 @@ public class LoginActivity extends AppCompatActivity {
             remember_pwd.setChecked(true);
             loginButton.setEnabled(true);
 
-            loginViewModel.login(usernameEditText.getText().toString(),
-                    passwordEditText.getText().toString());
+//            loginViewModel.login(usernameEditText.getText().toString(),
+//                    passwordEditText.getText().toString());
         }
 
         loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
@@ -111,6 +111,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+
 
         loginViewModel.getLoginResult().observe(this, new Observer<LoginResult>() {
             @Override

@@ -1,12 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    compileSdkVersion 30
+    buildToolsVersion "30.0.2"
+
     defaultConfig {
         applicationId "com.example.myapplication__volume"
         minSdkVersion 22
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -14,6 +15,11 @@ android {
         ndk {
             //设置支持的SO库架构
             abiFilters "armeabi-v7a", "x86","arm64-v8a","x86_64"
+        }
+
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
         }
     }
     buildTypes {
@@ -26,18 +32,22 @@ android {
 
         release {
 //            zipAlignEnabled true
-//            minifyEnabled true
-//            // 移除无用的resource文件
+            minifyEnabled false
+            // 移除无用的resource文件
 //            shrinkResources true
-//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-    }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
+//        release {
+//            shrinkResources true
+//            minifyEnabled true
+//            zipAlignEnabled true
+////            proguardFiles getDefaultProguardFile("proguard-android.txt"), 'proguard.cfg'
+////            signingConfig signingConfigs.release
+//            ext.enableCrashlytics = true
+//        }
 
+    }
 
     sourceSets {
         main {
@@ -58,7 +68,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment:2.3.1'
     implementation 'androidx.navigation:navigation-ui:2.3.1'
     implementation files('libs\\pinyin4j-2.5.0.jar')
-    implementation project(path: ':uikit')
+    api project(path: ':uikit')
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'

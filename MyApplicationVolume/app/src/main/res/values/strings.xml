@@ -31,7 +31,7 @@
     <!-- You can generate a temporary token at https://dashboard.agora.io/projects -->
     <string name="agora_access_token">#YOUR ACCESS TOKEN#</string>
     <string name="title_activity_login">LoginActivity</string>
-    <string name="prompt_email_username">Email/Username</string>
+    <string name="prompt_email_username">Username</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
     <string name="prompt_username">Username (Not repeatable)</string>

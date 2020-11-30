@@ -162,12 +162,9 @@ import io.agora.rtm.RtmMediaOperationProgress;
 import io.agora.rtm.RtmMessage;
 import io.agora.rtm.RtmStatusCode;
 
-import static com.example.datastore.SettingFileManager.getBrainNum_Remote;
+import static com.example.datastore.SettingFileManager.getArborNum;
 import static com.example.datastore.SettingFileManager.getFilename_Remote;
-import static com.example.datastore.SettingFileManager.getNeuronNum_Remote;
 import static com.example.datastore.SettingFileManager.getNeuronNumber_Remote;
-import static com.example.datastore.SettingFileManager.getOffsetStr_Remote;
-import static com.example.datastore.SettingFileManager.getRES_Remote;
 import static com.example.datastore.SettingFileManager.getSelectSource;
 import static com.example.datastore.SettingFileManager.getUserAccount;
 import static com.example.datastore.SettingFileManager.getUserAccount_Check;
@@ -183,7 +180,7 @@ import static java.lang.Math.sqrt;
 
 
 public class MainActivity extends BaseActivity {
-//    private int UNDO_LIMIT = 5;
+    //    private int UNDO_LIMIT = 5;
 //    private enum Operate {DRAW, DELETE, SPLIT};
 //    private Operate [] process = new Operate[UNDO_LIMIT];
     public static final String NAME = "com.example.myapplication__volume.MainActivity";
@@ -232,7 +229,7 @@ public class MainActivity extends BaseActivity {
     private static MyGLSurfaceView myGLSurfaceView;
     private static MyRenderer myrenderer;
     private static final String DEBUG_TAG = "Gestures";
-//    private static Context context;
+    //    private static Context context;
     private static Context mainContext;
     private long length;
     private InputStream is;
@@ -287,7 +284,7 @@ public class MainActivity extends BaseActivity {
     private ImageButton classify_i;
     private static TextView filenametext;
 
-//    private ImageButton buttonUndo_i;
+    //    private ImageButton buttonUndo_i;
     private static ImageButton navigation_left;
     private static ImageButton navigation_right;
     private static ImageButton navigation_up;
@@ -326,17 +323,17 @@ public class MainActivity extends BaseActivity {
 
     private Button PixelClassification;
     private boolean[][]select= {{true,true,true,false,false,false,false},
-    {true,true,true,false,false,false,false},
-    {false,false,false,false,false,false,false},
-    {false,false,false,false,false,false,false},
-    {false,false,false,false,false,false,false},
-    {true,true,true,false,false,false,false}};
+            {true,true,true,false,false,false,false},
+            {false,false,false,false,false,false,false},
+            {false,false,false,false,false,false,false},
+            {false,false,false,false,false,false,false},
+            {true,true,true,false,false,false,false}};
 
     private Button detectLineButton;
     private RandomForest rf = null;
 
 
-//    private static RemoteImg remoteImg;
+    //    private static RemoteImg remoteImg;
     @SuppressLint("StaticFieldLeak")
     private static Remote_Socket remote_socket;
     private BigImgReader bigImgReader;
@@ -539,7 +536,7 @@ public class MainActivity extends BaseActivity {
                     }else {
                         String brain_num = getFilename_Remote(context);
                         String neuron_num = getNeuronNumber_Remote(context, brain_num);
-                        result = name;
+                        result = brain_num.split("_")[0] + "_" + neuron_num.split("_")[1] + "_" + getArborNum(context,brain_num.split("/")[0] + "_" + neuron_num).split(":")[0];
                     }
 
                     setFilename(result);
@@ -924,8 +921,7 @@ public class MainActivity extends BaseActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-//                        if (getUserAccount_Check(context).equals("--11--") || getUserAccount_Check(context).equals("")){
-                        if (USERNAME.equals("username")){
+                        if (getUserAccount_Check(context).equals("--11--") || getUserAccount_Check(context).equals("")){
 //                            PopUp_UserAccount(MainActivity.this);
                             Toast_in_Thread("Please Input your User name first in more functions !");
                         }else {
@@ -1438,9 +1434,9 @@ public class MainActivity extends BaseActivity {
 
                 if (DrawMode){
                     push_info_swc = SaveSWC_Block_Auto();
-                    remote_socket.selectNeuronFast();
+                    remote_socket.Select_Neuron_Fast();
                 }else {
-                    remote_socket.selectNeuronFast();
+                    remote_socket.Select_Neuron_Fast();
 //                    remote_socket.Select_Arbor_Fast();
                 }
                 return true;
@@ -1453,14 +1449,12 @@ public class MainActivity extends BaseActivity {
             public void onClick(View v) {
 
                 if (DrawMode){
-//                    push_info_swc = SaveSWC_Block_Auto();
-                    remote_socket.nextNeuron(DrawMode);
-//                    remote_socket.Next_Neuron();
+                    push_info_swc = SaveSWC_Block_Auto();
+                    remote_socket.Next_Neuron();
 //                    remote_socket.Select_Neuron_Fast();
                 }else {
 //                    remote_socket.Select_Neuron_Fast();
-                    remote_socket.nextNeuron(DrawMode);
-//                    remote_socket.Select_Arbor_Fast();
+                    remote_socket.Select_Arbor_Fast();
                 }
 
             }
@@ -1564,7 +1558,6 @@ public class MainActivity extends BaseActivity {
             dir_server.mkdirs();
         }
 
-        SettingFileManager settingFileManager = new SettingFileManager(this);
 
         doLogin();
 
@@ -1731,9 +1724,9 @@ public class MainActivity extends BaseActivity {
         String[] item_list = null;
 
         if (DrawMode){
-            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Chat", "Animate", "Settings", "Crash Info", "Game", "Logout", "About", "Help"};
+            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Game", "About", "Help"};
         }else{
-            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Chat", "Animate", "Settings", "Crash Info", "Account Name", "Game", "Logout", "About", "Help"};
+            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Account Name", "Game", "About", "Help"};
         }
 
         new XPopup.Builder(this)
@@ -1795,14 +1788,13 @@ public class MainActivity extends BaseActivity {
                                         setSettings();
                                         break;
 
-                                    case "Logout":
-                                        logout();
-                                        break;
-
                                     case "Account Name":
                                         PopUp_UserAccount(MainActivity.this);
                                         break;
 
+                                    case "Logout":
+                                        logout();
+                                        break;
                                     case "Crash Info":
                                         CrashInfoShare();
                                         break;
@@ -2359,12 +2351,12 @@ public class MainActivity extends BaseActivity {
     private void PullSwc_block_Manual(boolean isDrawMode){
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                String SwcFilePath = remote_socket.pullBBSWC(isDrawMode);
+                String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
 
                 if (SwcFilePath.equals("Error")){
                     Toast_in_Thread("Something Wrong When Pull Swc File !");
@@ -2390,8 +2382,8 @@ public class MainActivity extends BaseActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
     private static void PullSwc_block_Auto(boolean isDrawMode){
-        Log.e(TAG, "PullSwc_block_Auto");
-        String SwcFilePath = remote_socket.pullBBSWC(isDrawMode);
+
+        String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
 
         if (SwcFilePath.equals("Error")){
             Toast_in_Thread_static("Something Wrong When Pull Swc File !");
@@ -4272,23 +4264,21 @@ public class MainActivity extends BaseActivity {
                 Toast.makeText(this,"Fail to create file: PushSWC_Block", Toast.LENGTH_SHORT).show();
         }
 
-        String brainNum = getBrainNum_Remote(DrawMode);
-        String res_num = getRES_Remote(brainNum, DrawMode).split(";")[0];
-        String res_detail = getRES_Remote(brainNum, DrawMode).split(";")[1];
-        String neuronNum = getNeuronNum_Remote(brainNum, res_detail, DrawMode);
-        String offset = getOffsetStr_Remote(brainNum, res_detail, DrawMode);
-
+        String filename = getFilename_Remote(this);
+        String neuron_number = getNeuronNumber_Remote(this, filename);
+        String offset = getoffset_Remote(this, filename);
         System.out.println(offset);
         int[] index = BigImgReader.getIndex(offset);
         System.out.println(filename);
 
-        String swcFileName = "blockSet__" + neuronNum + "__" +
-                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + res_num;
+        String ratio = Integer.toString(remote_socket.getRatio_SWC());
+        String SwcFileName = "blockSet__" + neuron_number + "__" +
+                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
 
-        System.out.println(swcFileName);
+        System.out.println(SwcFileName);
 
-        if (Save_curSwc_fast(swcFileName, swc_file_path)){
-            File SwcFile = new File(swc_file_path + "/" + swcFileName + ".swc");
+        if (Save_curSwc_fast(SwcFileName, swc_file_path)){
+            File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
             try {
                 System.out.println("Start to push swc file");
                 InputStream is = new FileInputStream(SwcFile);
@@ -4299,7 +4289,7 @@ public class MainActivity extends BaseActivity {
                     return;
                 }
 
-                remote_socket.PushSwc_block(swcFileName  + "__" + USERNAME + ".swc", is, length);
+                remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
 
             } catch (Exception e){
                 System.out.println("----" + e.getMessage() + "----");
@@ -4355,7 +4345,6 @@ public class MainActivity extends BaseActivity {
 
     private String[] SaveSWC_Block_Auto(){
 
-        Log.e("SaveSWC_Block_Auto","Start !");
         String filepath = this.getExternalFilesDir(null).toString();
         String swc_file_path = filepath + "/Sync/BlockSet";
         File dir = new File(swc_file_path);
@@ -4365,18 +4354,16 @@ public class MainActivity extends BaseActivity {
                 Toast.makeText(this,"Fail to create file: PushSWC_Block", Toast.LENGTH_SHORT).show();
         }
 
-        String brainNum = getBrainNum_Remote(DrawMode);
-        String res_num = getRES_Remote(brainNum, DrawMode).split(";")[0];
-        String res_detail = getRES_Remote(brainNum, DrawMode).split(";")[1];
-        String neuronNum = getNeuronNum_Remote(brainNum, res_detail, DrawMode);
-        String offset = getOffsetStr_Remote(brainNum, res_detail, DrawMode);
-
+        String filename = getFilename_Remote(this);
+        String neuron_number = getNeuronNumber_Remote(this, filename);
+        String offset = getoffset_Remote(this, filename);
         System.out.println(offset);
         int[] index = BigImgReader.getIndex(offset);
         System.out.println(filename);
 
-        String SwcFileName = "blockSet__" + neuronNum + "__" +
-                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + res_num;
+        String ratio = Integer.toString(remote_socket.getRatio_SWC());
+        String SwcFileName = "blockSet__" + neuron_number + "__" +
+                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
 
         System.out.println(SwcFileName);
 
@@ -4384,19 +4371,19 @@ public class MainActivity extends BaseActivity {
             return new String[]{ swc_file_path, SwcFileName };
         }
 
-        Log.e("SaveSWC_Block_Auto","Save Successfully !");
+        Log.v("SaveSWC_Block_Auto","Save Successfully !");
         return new String[]{"Error", "Error"};
     }
 
 
 
-    private static void PushSWC_Block_Auto(String swc_file_path, String swcFileName){
+    private static void PushSWC_Block_Auto(String swc_file_path, String SwcFileName){
 
         if (swc_file_path.equals("Error"))
             return;
 
-        Log.e("PushSWC_Block_Auto",swc_file_path + "/" + swcFileName + ".swc");
-        File SwcFile = new File(swc_file_path + "/" + swcFileName + ".swc");
+        Log.e("PushSWC_Block_Auto",swc_file_path + "/" + SwcFileName + ".swc");
+        File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
         if (!SwcFile.exists()){
             Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
             return;
@@ -4410,7 +4397,7 @@ public class MainActivity extends BaseActivity {
                 Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
                 return;
             }
-            remote_socket.PushSwc_block(swcFileName  + "__" + USERNAME + ".swc", is, length);
+            remote_socket.PushSwc_block("blockSet__18454_00001__100__200__300__228__328__428__2__xf" + ".swc", is, length);
 
         } catch (Exception e){
             System.out.println("----" + e.getMessage() + "----");
@@ -5007,7 +4994,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20201121a 21:53 UTC+8 build",
+                                "Version: 20201201a 00:53 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5284,10 +5271,7 @@ public class MainActivity extends BaseActivity {
                  */
                 remote_socket.disConnectFromHost();
                 remote_socket.connectServer(ip);
-//                remote_socket.connectServer("192.168.1.140");
-                remote_socket.select_Brain(DrawMode);
-//                remote_socket.neuronNextTest();
-
+                remote_socket.Select_Brain(true);
 
 
 //                Toast_in_Thread("Under Maintenance");
@@ -5320,18 +5304,10 @@ public class MainActivity extends BaseActivity {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-//                remote_socket.disConnectFromHost();
-//                remote_socket.connectServer(ip);
-////                remote_socket.Select_Arbor();
-//                remote_socket.select_Brain(false);
-
                 remote_socket.disConnectFromHost();
                 remote_socket.connectServer(ip);
 //                remote_socket.Select_Arbor();
-                remote_socket.select_Brain(DrawMode);
-
-//                remote_socket.connectServer("192.168.1.140");
-//                remote_socket.select_Brain(DrawMode);
+                remote_socket.Select_Brain(false);
             }
         });
         thread.start();
@@ -5366,17 +5342,18 @@ public class MainActivity extends BaseActivity {
                         Log.v("Block_navigate", text);
                         if (DrawMode){
                             push_info_swc = SaveSWC_Block_Auto();
-                            remote_socket.switchBlockFast(text);
+
                             //  for apo sync
 //                            push_info_apo = SaveAPO_Block_Auto();
-//                            remote_socket.Selectblock_fast(context, false, text);
+                            remote_socket.Selectblock_fast(context, false, text);
 //                            PushSWC_Block_Auto(push_info[0], push_info[1]);
 
                         }else {
-                            remote_socket.switchBlockFast(text);
+                            remote_socket.Selectblock_fast(context, false, text);
 //                            remote_socket.Selectblock_fast_Check(context, false, text);
                         }
                     }
+
                 }
                 if (isBigData_Local){
                     boolean ifNavigationLocation = myrenderer.getNav_location_Mode();
@@ -6047,37 +6024,6 @@ public class MainActivity extends BaseActivity {
     }
 
 
-    private void logout(){
-
-        AlertDialog aDialog = new AlertDialog.Builder(mainContext)
-                .setTitle("Log out")
-                .setMessage("Are you sure to Log out?")
-                .setIcon(R.mipmap.ic_launcher)
-                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // 清理缓存&注销监听&清除状态
-                        NimUIKit.logout();
-                        DemoCache.clear();
-                        PreferenceLogin preferenceLogin = new PreferenceLogin(MainActivity.this);
-                        preferenceLogin.setPref("","",false);
-                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                        finish();
-                    }
-                })
-
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .create();
-        aDialog.show();
-        // 清理缓存&注销监听&清除状态
-        NimUIKit.logout();
-        DemoCache.clear();    }
-
-
     public void cleanCache(){
         AlertDialog aDialog = new AlertDialog.Builder(mainContext)
                 .setTitle("Clean All The Img Cache")
@@ -6109,12 +6055,43 @@ public class MainActivity extends BaseActivity {
     }
 
 
+    private void logout(){
+
+        AlertDialog aDialog = new AlertDialog.Builder(mainContext)
+                .setTitle("Log out")
+                .setMessage("Are you sure to Log out?")
+                .setIcon(R.mipmap.ic_launcher)
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 清理缓存&注销监听&清除状态
+                        NimUIKit.logout();
+                        DemoCache.clear();
+                        PreferenceLogin preferenceLogin = new PreferenceLogin(MainActivity.this);
+                        preferenceLogin.setPref("","",false);
+                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                        finish();
+                    }
+                })
+
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .create();
+        aDialog.show();
+        // 清理缓存&注销监听&清除状态
+        NimUIKit.logout();
+        DemoCache.clear();    }
+
+
     private void CrashInfoShare(){
         String[] info_path = CrashHandler.getCrashReportFiles(getApplicationContext());
 
         new XPopup.Builder(this)
 //        .maxWidth(400)
-        .maxHeight(1350)
+                .maxHeight(1350)
                 .asCenterList("Select a Crash Report", info_path,
                         new OnSelectListener() {
                             @Override
@@ -8081,7 +8058,7 @@ public class MainActivity extends BaseActivity {
             }
         }else {
 
-            Log.v("MainActivity","LoadBigFile_Remote() !ifGame");
+            Log.v("MainActivity","LoadBigFile_Remote() ifGame");
             Log.v("MainActivity",remote_socket.getIp());
             if (remote_socket.getIp().equals(ip_ALiYun)){
                 setSelectSource("Remote Server Aliyun",context);
@@ -8099,11 +8076,13 @@ public class MainActivity extends BaseActivity {
             myGLSurfaceView.requestRender();
             SetButtons();
 
-            PullSwc_block_Auto(DrawMode);
+            PullSwc_block_Auto(true);
 
             if (DrawMode){
                 LoadMarker();
                 if (!push_info_swc[0].equals("New")){
+//                    String filepath = this.getExternalFilesDir(null).toString();
+//                    String swc_file_path = filepath + "/Sync/BlockSet";
                     PushSWC_Block_Auto(push_info_swc[0], push_info_swc[1]);
                 }
             }
@@ -8134,10 +8113,14 @@ public class MainActivity extends BaseActivity {
 
 
     private static void LoadMarker(){
-        Log.e(TAG, "LoadMarker");
+
+        String filename = getFilename_Remote(context);
+        String offset = getoffset_Remote(context, filename);
+        int[] index = BigImgReader.getIndex(offset);
+        Log.v("LoadMarker",Arrays.toString(index));
 
         ArrayList<ArrayList<Integer>> marker_list = new ArrayList<ArrayList<Integer>>();
-        marker_list = remote_socket.getMarker();
+        marker_list = remote_socket.getMarker(index);
 
         myrenderer.importMarker(marker_list);
         myGLSurfaceView.requestRender();
@@ -8195,7 +8178,7 @@ public class MainActivity extends BaseActivity {
                     blue_pen.setVisibility(View.GONE);
                     red_pen.setVisibility(View.GONE);
                 }
-                    sync_pull.setVisibility(View.GONE);
+                sync_pull.setVisibility(View.GONE);
             }
         }else {
             Zoom_in.setVisibility(View.GONE);
@@ -8522,50 +8505,50 @@ public class MainActivity extends BaseActivity {
                                 .dismissOnTouchOutside(false)
                                 .dismissOnBackPressed(false)
                                 .asConfirm("Phone Call", "from " + targetName, "Reject", "Answer",
-                                new OnConfirmListener() {
-                                    @Override
-                                    public void onConfirm() {
-                                        answered[0] = true;
-
-                                        VoiceChat(channelName, username);
-                                        String callMessage = "##SuccessToAnswer##";
-                                        RtmMessage answerMessage = mRtmClient.createMessage();
-                                        answerMessage.setText(callMessage);
-
-                                        mRtmClient.sendMessageToPeer(targetName, answerMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
+                                        new OnConfirmListener() {
                                             @Override
-                                            public void onSuccess(Void aVoid) {
+                                            public void onConfirm() {
+                                                answered[0] = true;
 
+                                                VoiceChat(channelName, username);
+                                                String callMessage = "##SuccessToAnswer##";
+                                                RtmMessage answerMessage = mRtmClient.createMessage();
+                                                answerMessage.setText(callMessage);
+
+                                                mRtmClient.sendMessageToPeer(targetName, answerMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+
+                                                    }
+
+                                                    @Override
+                                                    public void onFailure(ErrorInfo errorInfo) {
+
+                                                    }
+                                                });
                                             }
-
+                                        }, new OnCancelListener() {
                                             @Override
-                                            public void onFailure(ErrorInfo errorInfo) {
+                                            public void onCancel() {
+                                                answered[0] = true;
 
+                                                String callMessage = "##RefuseToAnswer##";
+                                                RtmMessage refuseMessage = mRtmClient.createMessage();
+                                                refuseMessage.setText(callMessage);
+
+                                                mRtmClient.sendMessageToPeer(targetName, refuseMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+
+                                                    }
+
+                                                    @Override
+                                                    public void onFailure(ErrorInfo errorInfo) {
+
+                                                    }
+                                                });
                                             }
-                                        });
-                                    }
-                                }, new OnCancelListener() {
-                                    @Override
-                                    public void onCancel() {
-                                        answered[0] = true;
-
-                                        String callMessage = "##RefuseToAnswer##";
-                                        RtmMessage refuseMessage = mRtmClient.createMessage();
-                                        refuseMessage.setText(callMessage);
-
-                                        mRtmClient.sendMessageToPeer(targetName, refuseMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-
-                                            }
-
-                                            @Override
-                                            public void onFailure(ErrorInfo errorInfo) {
-
-                                            }
-                                        });
-                                    }
-                                }, false);
+                                        }, false);
                         calledPopup.show();
                         calledPopup.delayDismiss(20000);
                         calledPopup.dismissWith(new Runnable() {

@@ -40,26 +40,29 @@ android {
     buildFeatures {
         dataBinding = true
     }
+    buildTypes {
+        sdk {
+        }
+    }
 }
 
 dependencies {
     api fileTree(dir: 'libs', include: '*.jar')
-    api("androidx.appcompat:appcompat:${ANDROIDX_APPCOMPAT_VERSION}")
-    api("androidx.legacy:legacy-support-v4:${LEGACY_X_VERSION}")
-    api("com.google.android.material:material:${MATERIAL_GOOGLE_VERSION}")
-    api("androidx.constraintlayout:constraintlayout:${CONSTRAINT_X_VERSION}")
+    api('androidx.appcompat:appcompat:1.2.0')
+    api("androidx.legacy:legacy-support-v4:1.0.0")
+    api("com.google.android.material:material:1.2.1")
+    api("androidx.constraintlayout:constraintlayout:2.0.4")
 
 //    api 'me.everything:overscroll-decor-android:1.0.4'
     api "me.leolin:ShortcutBadger:1.1.22@aar"
 
-    api 'com.github.bumptech.glide:glide:4.9.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
+    api 'com.github.bumptech.glide:glide:4.11.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
     //api 'jp.wasabeef:glide-transformations:3.0.1'
 
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
     //api 'jp.co.cyberagent.android.gpuimage:gpuimage-library:1.4.1' // if you want to use the Glide GPU Filters
 
-    // 网易云信
     // 基础功能 (必需)
     api 'com.netease.nimlib:basesdk:8.1.0'
 
@@ -72,11 +75,9 @@ dependencies {
     // 超大群需要
     api 'com.netease.nimlib:superteam:8.1.0'
 
-    // 全文检索插件
+//    // 全文检索插件
     api 'com.netease.nimlib:lucene:8.1.0'
 
     // 数据库加密
     api 'net.zetetic:android-database-sqlcipher:3.5.9'
-
-
 }
