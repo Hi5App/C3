@@ -126,6 +126,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 if (loginResult.getSuccess() != null) {
                     Log.d("LoginResultOnChanged", "getSuccess");
+
 //                    MainActivity.actionStart(LoginActivity.this, loginResult.getSuccess().getDisplayName());
 //                    updateUiWithUser(loginResult.getSuccess());
 //                    finish();
@@ -135,6 +136,7 @@ public class LoginActivity extends AppCompatActivity {
                     }else {
                         preferenceLogin.setPref("","",false);
                     }
+
 
                     loginNim(loginResult.getSuccess().getDisplayName(), passwordEditText.getText().toString(), loginResult);
                 }

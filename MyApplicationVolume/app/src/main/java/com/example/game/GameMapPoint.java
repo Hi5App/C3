@@ -8,6 +8,7 @@ public class GameMapPoint {
     public int type;
 
     public float radius;
+    public int score;
 
     public GameMapPoint(float _x, float _y, float _z, int t, float r){
         x = _x;
@@ -38,7 +39,7 @@ public class GameMapPoint {
     }
 
     public void reduceRadius(float d){
-        radius = radius / d;
+        radius = radius * d;
     }
 
     public void setPos(float [] pos){
@@ -52,8 +53,12 @@ public class GameMapPoint {
         float disY = g.y - y;
         float disZ = g.z - z;
 
-        x += disX * r;
-        y += disY * r;
-        z += disZ * r;
+        x += disX * (1 - r);
+        y += disY * (1 - r);
+        z += disZ * (1 - r);
+    }
+
+    public void updateScore(){
+
     }
 }

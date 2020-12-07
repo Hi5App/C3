@@ -61,6 +61,7 @@ public class MyPatternGame {
     private float [] markerPoints;
     private float [] markerPoints_half;
     private float [] markerPoints_quarter;
+    private float [] markerPoints_norm;
 
     private float defaultRadius = 0.002f;
 
@@ -96,6 +97,9 @@ public class MyPatternGame {
     private float [] bgPosition;
     private FloatBuffer bgBuffer;
 
+    private float [] bgCoord;
+    private FloatBuffer bgCoordBuffer;
+
     private final float[] sCoord={
             0.0f,0.0f,
             0.0f,1.0f,
@@ -108,6 +112,9 @@ public class MyPatternGame {
     private float bgHeight;
 
     private float[] bgMatrix = new float[16];
+
+    private float bgRadius = 1.0f;
+
 
     private static final String vertexShaderCode_game =
             // This matrix member variable provides a hook to manipulate
@@ -328,9 +335,148 @@ public class MyPatternGame {
 
         initMap();
 
-        markerPoints = createPositions(0, 0, 0, defaultRadius);
-        markerPoints_half = createPositions(0, 0, 0, defaultRadius / 2);
-        markerPoints_quarter = createPositions(0, 0, 0, defaultRadius / 4);
+        setPanoramicPosition();
+
+//        markerPoints = createPositions(0, 0, 0, defaultRadius);
+//        markerPoints_half = createPositions(0, 0, 0, defaultRadius / 2);
+//        markerPoints_quarter = createPositions(0, 0, 0, defaultRadius / 4);
+
+
+        markerPoints_norm = new float[]{
+                1, 0, 0,
+                0, 1, 0,
+                0, 0, 1,
+
+                1, 0, 0,
+                0, -1, 0,
+                0, 0, 1,
+
+                -1, 0, 0,
+                0, 1, 0,
+                0, 0, 1,
+
+                -1, 0, 0,
+                0, -1, 0,
+                0, 0, 1,
+
+                1, 0, 0,
+                0, 1, 0,
+                0, 0, -1,
+
+                1, 0, 0,
+                0, -1, 0,
+                0, 0, -1,
+
+                -1, 0, 0,
+                0, 1, 0,
+                0, 0, -1,
+
+                -1, 0, 0,
+                0, -1, 0,
+                0, 0, -1,
+        };
+
+        markerPoints = new float[]{
+                defaultRadius, 0, 0,
+                0, defaultRadius, 0,
+                0, 0, defaultRadius,
+
+                defaultRadius, 0, 0,
+                0, -defaultRadius, 0,
+                0, 0, defaultRadius,
+
+                -defaultRadius, 0, 0,
+                0, defaultRadius, 0,
+                0, 0, defaultRadius,
+
+                -defaultRadius, 0, 0,
+                0, -defaultRadius, 0,
+                0, 0, defaultRadius,
+
+                defaultRadius, 0, 0,
+                0, defaultRadius, 0,
+                0, 0, -defaultRadius,
+
+                defaultRadius, 0, 0,
+                0, -defaultRadius, 0,
+                0, 0, -defaultRadius,
+
+                -defaultRadius, 0, 0,
+                0, defaultRadius, 0,
+                0, 0, -defaultRadius,
+
+                -defaultRadius, 0, 0,
+                0, -defaultRadius, 0,
+                0, 0, -defaultRadius,
+        };
+
+        markerPoints_half = new float[]{
+                defaultRadius/2, 0, 0,
+                0, defaultRadius/2, 0,
+                0, 0, defaultRadius/2,
+
+                defaultRadius/2, 0, 0,
+                0, -defaultRadius/2, 0,
+                0, 0, defaultRadius/2,
+
+                -defaultRadius/2, 0, 0,
+                0, defaultRadius/2, 0,
+                0, 0, defaultRadius/2,
+
+                -defaultRadius/2, 0, 0,
+                0, -defaultRadius/2, 0,
+                0, 0, defaultRadius/2,
+
+                defaultRadius/2, 0, 0,
+                0, defaultRadius/2, 0,
+                0, 0, -defaultRadius/2,
+
+                defaultRadius/2, 0, 0,
+                0, -defaultRadius/2, 0,
+                0, 0, -defaultRadius/2,
+
+                -defaultRadius/2, 0, 0,
+                0, defaultRadius/2, 0,
+                0, 0, -defaultRadius/2,
+
+                -defaultRadius/2, 0, 0,
+                0, -defaultRadius/2, 0,
+                0, 0, -defaultRadius/2,
+        };
+
+        markerPoints_quarter = new float[]{
+                defaultRadius/4, 0, 0,
+                0, defaultRadius/4, 0,
+                0, 0, defaultRadius/4,
+
+                defaultRadius/4, 0, 0,
+                0, -defaultRadius/4, 0,
+                0, 0, defaultRadius/4,
+
+                -defaultRadius/4, 0, 0,
+                0, defaultRadius/4, 0,
+                0, 0, defaultRadius/4,
+
+                -defaultRadius/4, 0, 0,
+                0, -defaultRadius/4, 0,
+                0, 0, defaultRadius/4,
+
+                defaultRadius/4, 0, 0,
+                0, defaultRadius/4, 0,
+                0, 0, -defaultRadius/4,
+
+                defaultRadius/4, 0, 0,
+                0, -defaultRadius/4, 0,
+                0, 0, -defaultRadius/4,
+
+                -defaultRadius/4, 0, 0,
+                0, defaultRadius/4, 0,
+                0, 0, -defaultRadius/4,
+
+                -defaultRadius/4, 0, 0,
+                0, -defaultRadius/4, 0,
+                0, 0, -defaultRadius/4,
+        };
 
         gamePos = new float[3];
 
@@ -703,7 +849,7 @@ public class MyPatternGame {
             //启用顶点的句柄
             GLES30.glEnableVertexAttribArray(vertexPoints_handle);
 
-            GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, markerPoints.length/3);
+            GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, markerPoints.length/3);
         }
 
         Log.d("DrawMarker", "RemovedPoints: " + Integer.toString(removedPoints.size()));
@@ -716,7 +862,7 @@ public class MyPatternGame {
             //启用顶点的句柄
             GLES30.glEnableVertexAttribArray(vertexPoints_handle);
 
-            GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, markerPoints.length/3);
+            GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, markerPoints.length/3);
         }
 
 //        bufferSet_Marker(0.5f, 0.5f, 0.5f, 6);
@@ -737,27 +883,68 @@ public class MyPatternGame {
 
     private void bufferSet_Marker(float x, float y, float z, float r){
 
-        if (r == defaultRadius) {
-            markerVertexPoints = new float[markerPoints.length];
-            for (int i = 0; i < markerPoints.length / 3; i++) {
-                markerVertexPoints[i * 3] = x / (float) (sz[0]) * dim[0] + markerPoints[i * 3];
-                markerVertexPoints[i * 3 + 1] = y / (float) (sz[1]) * dim[1] + markerPoints[i * 3 + 1];
-                markerVertexPoints[i * 3 + 2] = z / (float) (sz[2]) * dim[2] + markerPoints[i * 3 + 2];
-            }
-        } else if (r == defaultRadius / 2){
-            markerVertexPoints = new float[markerPoints_half.length];
-            for (int i = 0; i < markerPoints_half.length / 3; i++) {
-                markerVertexPoints[i * 3] = x / (float) (sz[0]) * dim[0] + markerPoints_half[i * 3];
-                markerVertexPoints[i * 3 + 1] = y / (float) (sz[1]) * dim[1] + markerPoints_half[i * 3 + 1];
-                markerVertexPoints[i * 3 + 2] = z / (float) (sz[2]) * dim[2] + markerPoints_half[i * 3 + 2];
-            }
-        } else if (r == defaultRadius / 4){
-            markerVertexPoints = new float[markerPoints_quarter.length];
-            for (int i = 0; i < markerPoints_quarter.length / 3; i++) {
-                markerVertexPoints[i * 3] = x / (float) (sz[0]) * dim[0] + markerPoints_quarter[i * 3];
-                markerVertexPoints[i * 3 + 1] = y / (float) (sz[1]) * dim[1] + markerPoints_quarter[i * 3 + 1];
-                markerVertexPoints[i * 3 + 2] = z / (float) (sz[2]) * dim[2] + markerPoints_quarter[i * 3 + 2];
-            }
+//        if (r == defaultRadius) {
+//            markerVertexPoints = new float[markerPoints.length];
+//            for (int i = 0; i < markerPoints.length / 3; i++) {
+//                markerVertexPoints[i * 3] = x / (float) (sz[0]) * dim[0] + markerPoints[i * 3];
+//                markerVertexPoints[i * 3 + 1] = y / (float) (sz[1]) * dim[1] + markerPoints[i * 3 + 1];
+//                markerVertexPoints[i * 3 + 2] = z / (float) (sz[2]) * dim[2] + markerPoints[i * 3 + 2];
+//            }
+//        } else if (r == defaultRadius / 2){
+//            markerVertexPoints = new float[markerPoints_half.length];
+//            for (int i = 0; i < markerPoints_half.length / 3; i++) {
+//                markerVertexPoints[i * 3] = x / (float) (sz[0]) * dim[0] + markerPoints_half[i * 3];
+//                markerVertexPoints[i * 3 + 1] = y / (float) (sz[1]) * dim[1] + markerPoints_half[i * 3 + 1];
+//                markerVertexPoints[i * 3 + 2] = z / (float) (sz[2]) * dim[2] + markerPoints_half[i * 3 + 2];
+//            }
+//        } else if (r == defaultRadius / 4){
+//            markerVertexPoints = new float[markerPoints_quarter.length];
+//            for (int i = 0; i < markerPoints_quarter.length / 3; i++) {
+//                markerVertexPoints[i * 3] = x / (float) (sz[0]) * dim[0] + markerPoints_quarter[i * 3];
+//                markerVertexPoints[i * 3 + 1] = y / (float) (sz[1]) * dim[1] + markerPoints_quarter[i * 3 + 1];
+//                markerVertexPoints[i * 3 + 2] = z / (float) (sz[2]) * dim[2] + markerPoints_quarter[i * 3 + 2];
+//            }
+//        }
+
+        markerPoints = new float[]{
+                r, 0, 0,
+                0, r, 0,
+                0, 0, r,
+
+                r, 0, 0,
+                0, -r, 0,
+                0, 0, r,
+
+                -r, 0, 0,
+                0, r, 0,
+                0, 0, r,
+
+                -r, 0, 0,
+                0, -r, 0,
+                0, 0, r,
+
+                r, 0, 0,
+                0, r, 0,
+                0, 0, -r,
+
+                r, 0, 0,
+                0, -r, 0,
+                0, 0, -r,
+
+                -r, 0, 0,
+                0, r, 0,
+                0, 0, -r,
+
+                -r, 0, 0,
+                0, -r, 0,
+                0, 0, -r,
+        };
+
+        markerVertexPoints = new float[markerPoints.length];
+        for (int i = 0; i < markerPoints.length / 3; i++) {
+            markerVertexPoints[i * 3] = x / (float) (sz[0]) * dim[0] + markerPoints[i * 3];
+            markerVertexPoints[i * 3 + 1] = y / (float) (sz[1]) * dim[1] + markerPoints[i * 3 + 1];
+            markerVertexPoints[i * 3 + 2] = z / (float) (sz[2]) * dim[2] + markerPoints[i * 3 + 2];
         }
 
 //        markerVertexPoints =createPositions(x / (float)(sz[0]) * dim[0], y / (float)(sz[1]) * dim[1], z / (float)(sz[2]) * dim[2], 0.01f);
@@ -783,8 +970,11 @@ public class MyPatternGame {
         colorBuffer_marker.put(colorPoints_marker);
         colorBuffer_marker.position(0);
 
-        normalizePoints_marker_small = createNormlizes(6.0f);
-
+//        normalizePoints_marker_small = createNormlizes(6.0f);
+        normalizePoints_marker_small = new float[markerPoints.length];
+        for (int i = 0; i < normalizePoints_marker_small.length; i++){
+            normalizePoints_marker_small[i] = markerPoints[i] + 0.5f;
+        }
         // for the marker
         //分配内存空间,每个浮点型占4字节空间
         normalizeBuffer_marker_small = ByteBuffer.allocateDirect(normalizePoints_marker_small.length * 4)
@@ -822,10 +1012,17 @@ public class MyPatternGame {
         mvpMatrixHandle = GLES30.glGetUniformLocation(mProgram, "uMVPMatrix");
     }
 
-    public void removePointsByCenter(float [] centerPos){
+    public void removePointsByCenter(float [] pos){
+        float [] centerPos = new float[]{
+                pos[0] * (float) (sz[0]) / dim[0],
+                pos[1] * (float) (sz[1]) / dim[1],
+                pos[2] * (float) (sz[2]) / dim[2]
+        };
+        GameMapPoint temp2 = new GameMapPoint(centerPos);
+
         for (int i = 0; i < lightPoints.size(); i++){
             GameMapPoint temp = lightPoints.get(i);
-            GameMapPoint temp2 = new GameMapPoint(centerPos);
+
             if (distance(temp, temp2) < 10){
                 Log.d("RemovePointsByCenter", "Removed!!!");
                 removedPoints.add(lightPoints.remove(i));
@@ -833,7 +1030,9 @@ public class MyPatternGame {
             }
         }
 
-        bufferSet();
+        gamePos = centerPos;
+
+//        bufferSet();
     }
 
     private float[]  createPositions(float x, float y, float z, float r){
@@ -878,6 +1077,119 @@ public class MyPatternGame {
         }
 
         return f;
+    }
+
+    private void setPanoramicPosition(){
+        int numH = 30;
+        int numV = 30;
+
+        float r1, r2;
+        float h1, h2;
+        float sin1, cos1;
+        float sin2, cos2;
+
+        ArrayList<Float> data = new ArrayList<>();
+        bgPosition = new float[(numV) * (numH) * 18];
+        bgCoord = new float[(numV) * (numH) * 12];
+        for (int i = 0; i < numV; i++){
+            r1 = (float)Math.cos((-90 + i * 180.0 / numV) * Math.PI / 180.0) * bgRadius;
+            r2 = (float)Math.cos((-90 + (i + 1) * 180.0 / numV) * Math.PI / 180.0) * bgRadius;
+            h1 = (float)Math.sin((-90 + i * 180.0 / numV) * Math.PI / 180.0) * bgRadius;
+            h2 = (float)Math.sin((-90 + (i + 1) * 180.0 / numV) * Math.PI / 180.0) * bgRadius;
+            for (int j = 0; j < numH; j++){
+                cos1 = (float) Math.cos(j * 360.0 / numH * Math.PI / 180.0);
+                sin1 = (float) -Math.sin(j * 360.0 / numH * Math.PI / 180.0);
+
+                cos2 = (float) Math.cos((j + 1) * 360 / numH * Math.PI / 180.0);
+                sin2 = (float) -Math.sin((j + 1) * 360 / numH * Math.PI / 180.0);
+                bgPosition[(i * (numH) + j) * 18] = r2 * cos1 + 0.5f;
+                bgPosition[(i * (numH) + j) * 18 + 1] = h2 + 0.5f;
+                bgPosition[(i * (numH) + j) * 18 + 2] = r2 * sin1 + 0.5f;
+
+                bgPosition[(i * (numH) + j) * 18 + 3] = r1 * cos1 + 0.5f;
+                bgPosition[(i * (numH) + j) * 18 + 4] = h1 + 0.5f;
+                bgPosition[(i * (numH) + j) * 18 + 5] = r1 * sin1 + 0.5f;
+
+                bgPosition[(i * (numH) + j) * 18 + 6] = r1 * cos2 + 0.5f;
+                bgPosition[(i * (numH) + j) * 18 + 7] = h1 + 0.5f;
+                bgPosition[(i * (numH) + j) * 18 + 8] = r1 * sin2 + 0.5f;
+
+                bgPosition[(i * (numH) + j) * 18 + 9] = r2 * cos2 + 0.5f;
+                bgPosition[(i * (numH) + j) * 18 + 10] = h2 + 0.5f;
+                bgPosition[(i * (numH) + j) * 18 + 11] = r2 * sin2 + 0.5f;
+
+                bgPosition[(i * (numH) + j) * 18 + 12] = r1 * cos2 + 0.5f;
+                bgPosition[(i * (numH) + j) * 18 + 13] = h1 + 0.5f;
+                bgPosition[(i * (numH) + j) * 18 + 14] = r1 * sin2 + 0.5f;
+
+                bgPosition[(i * (numH) + j) * 18 + 15] = r2 * cos1 + 0.5f;
+                bgPosition[(i * (numH) + j) * 18 + 16] = h2 + 0.5f;
+                bgPosition[(i * (numH) + j) * 18 + 17] = r2 * sin1 + 0.5f;
+//
+//                data.add(r2 * cos + 0.5f);
+//                data.add(h2       + 0.5f);
+//                data.add(r2 * sin + 0.5f);
+//
+//                data.add(r1 * cos + 0.5f);
+//                data.add(h1       + 0.5f);
+//                data.add(r1 * sin + 0.5f);
+
+                bgCoord[(i * (numH) + j) * 12] = (float)j / numH;
+                bgCoord[(i * (numH) + j) * 12 + 1] = (float)(i + 1) / numV;
+
+                bgCoord[(i * (numH) + j) * 12 + 2] = (float)j / numH;
+                bgCoord[(i * (numH) + j) * 12 + 3] = (float)i / numV;
+
+                bgCoord[(i * (numH) + j) * 12 + 4] = (float)(j + 1) / numH;
+                bgCoord[(i * (numH) + j) * 12 + 5] = (float)i / numV;
+
+                bgCoord[(i * (numH) + j) * 12 + 6] = (float)(j + 1) / numH;
+                bgCoord[(i * (numH) + j) * 12 + 7] = (float)(i + 1) / numV;
+
+                bgCoord[(i * (numH) + j) * 12 + 8] = (float)(j + 1) / numH;
+                bgCoord[(i * (numH) + j) * 12 + 9] = (float)i / numV;
+
+                bgCoord[(i * (numH) + j) * 12 + 10] = (float)j / numH;
+                bgCoord[(i * (numH) + j) * 12 + 11] = (float)(i + 1) / numV;
+
+//                bgCoord[(i * (numH) + j) * 12] = 0;
+//                bgCoord[(i * (numH) + j) * 12 + 1] = 1;
+//
+//                bgCoord[(i * (numH) + j) * 12 + 2] = 0;
+//                bgCoord[(i * (numH) + j) * 12 + 3] = 0;
+//
+//                bgCoord[(i * (numH) + j) * 12 + 4] = 1;
+//                bgCoord[(i * (numH) + j) * 12 + 5] = 0;
+//
+//                bgCoord[(i * (numH) + j) * 12 + 6] = 1;
+//                bgCoord[(i * (numH) + j) * 12 + 7] = 1;
+//
+//                bgCoord[(i * (numH) + j) * 12 + 8] = 1;
+//                bgCoord[(i * (numH) + j) * 12 + 9] = 0;
+//
+//                bgCoord[(i * (numH) + j) * 12 + 10] = 0;
+//                bgCoord[(i * (numH) + j) * 12 + 11] = 1;
+            }
+        }
+//        bgPosition = new float[data.size()];
+//        for (int i = 0; i < data.size(); i++){
+//            bgPosition[i] = data.get(i);
+//        }
+
+//        bgPosition = createPositions(0.5f, 0.5f, 0.5f, bgRadius);
+
+        bgBuffer = ByteBuffer.allocateDirect(bgPosition.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        //传入指定的坐标数据
+        bgBuffer.put(bgPosition);
+        bgBuffer.position(0);
+
+        bgCoordBuffer = ByteBuffer.allocateDirect(bgCoord.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        bgCoordBuffer.put(bgCoord);
+        bgCoordBuffer.position(0);
     }
 
     private float[]  createNormlizes(float step_input){
@@ -934,8 +1246,8 @@ public class MyPatternGame {
         for (int i = 0; i < removedPoints.size(); i++){
             GameMapPoint temp = removedPoints.get(i);
             GameMapPoint center = new GameMapPoint(gamePos);
-            temp.moveTo(center, 0.5f);
-            temp.reduceRadius(0.5f);
+            temp.moveTo(center, 0.99f);
+            temp.reduceRadius(0.99f);
 //            if (distance(temp, center) < 0.01){
 //                removedPoints.remove(i);
 //            }
@@ -1037,14 +1349,48 @@ public class MyPatternGame {
 
 //        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
 
-        setBackgroundBuffer();
+//        setBackgroundBuffer();
+//        setPanoramicPosition();
 
         //传入顶点坐标
         GLES20.glVertexAttribPointer(glHPosition, 3, GLES20.GL_FLOAT, false, 0, bgBuffer);
         //传入纹理坐标
-        GLES20.glVertexAttribPointer(glHCoordinate, 2, GLES20.GL_FLOAT, false, 0, bCoord);
+        GLES20.glVertexAttribPointer(glHCoordinate, 2, GLES20.GL_FLOAT, false, 0, bgCoordBuffer);
 
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP,0,4);
+//        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP,0,bgPosition.length / 3);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES,0,bgPosition.length / 3);
 
+    }
+
+    public void free(){
+        if (vertexBuffer != null) {
+            vertexBuffer.clear();
+            vertexBuffer = null;
+        }
+
+        if (vertexBuffer_marker != null) {
+            vertexBuffer_marker.clear();
+            vertexBuffer_marker = null;
+        }
+
+        if (colorBuffer_marker != null) {
+            colorBuffer_marker.clear();
+            colorBuffer_marker = null;
+        }
+
+        if (normalizeBuffer_marker_small != null) {
+            normalizeBuffer_marker_small.clear();
+            normalizeBuffer_marker_small = null;
+        }
+
+        if (bgBuffer != null) {
+            bgBuffer.clear();
+            bgBuffer = null;
+        }
+
+        if (bgCoordBuffer != null) {
+            bgCoordBuffer.clear();
+            bgCoordBuffer = null;
+        }
     }
 }

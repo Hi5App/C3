@@ -46,7 +46,6 @@ public class Myapplication extends Application {
         mChatManager = new ChatManager(this);
         mChatManager.init();
 
-
         DemoCache.setContext(this);
 
         // 4.6.0 开始，第三方推送配置入口改为 SDKOption#mixPushConfig，旧版配置方式依旧支持。
@@ -71,6 +70,7 @@ public class Myapplication extends Application {
             NIMInitManager.getInstance().init(true);
 
         }
+
 
     }
 
