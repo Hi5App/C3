@@ -15,7 +15,9 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,12 +37,15 @@ import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Timer;
@@ -91,6 +96,9 @@ public class GameActivity extends BaseActivity {
     private static int score = 0;
 
     private static TextView scoreText;
+
+    private static ImageButton flagButton;
+    private static ImageButton loadButton;
 
     @SuppressLint("HandlerLeak")
     private static Handler puiHandler = new Handler(){
@@ -181,6 +189,38 @@ public class GameActivity extends BaseActivity {
         lp_score.gravity = Gravity.TOP | Gravity.RIGHT;
         lp_score.setMargins(0, 160, 20, 0);
         this.addContentView(scoreText, lp_score);
+
+        flagButton = new ImageButton(this);
+        flagButton.setImageResource(R.drawable.ic_flag);
+        flagButton.setBackgroundResource(R.drawable.circle_normal);
+
+        flagButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveFlag();
+            }
+        });
+
+        FrameLayout.LayoutParams lp_flag = new FrameLayout.LayoutParams(200, 200);
+        lp_flag.gravity = Gravity.TOP | Gravity.LEFT;
+        lp_flag.setMargins(20, 160, 0, 0);
+        this.addContentView(flagButton, lp_flag);
+
+        loadButton = new ImageButton(this);
+        loadButton.setImageResource(R.drawable.ic_undo_black_24dp);
+        loadButton.setBackgroundResource(R.drawable.circle_normal);
+
+        loadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        FrameLayout.LayoutParams lp_load = new FrameLayout.LayoutParams(200, 200);
+        lp_load.gravity = Gravity.TOP | Gravity.LEFT;
+        lp_load.setMargins(20, 20, 0, 0);
+        this.addContentView(loadButton, lp_load);
 
 //        Button Check_Yes = new Button(this);
 //        Check_Yes.setText("Y");
@@ -678,6 +718,8 @@ public class GameActivity extends BaseActivity {
                 head[2] = Float.parseFloat(line.split(" ")[2]);
 
                 inStream.close();//关闭输入流
+                inputreader.close();
+                buffreader.close();
 
                 gameCharacter = new GameCharacter(pos, dir, head);
 
@@ -695,6 +737,168 @@ public class GameActivity extends BaseActivity {
             e.printStackTrace();
             return false;
         }
+
+        return true;
+    }
+
+    private boolean saveFlag(){
+        String externalFileDir = context.getExternalFilesDir(null).toString();
+        File file = new File(externalFileDir + "/Game/Flags");
+        if (!file.exists()){
+            try {
+                file.mkdir();
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        String filename_root = SettingFileManager.getFilename_Remote(context);
+        String offset = SettingFileManager.getoffset_Remote(context, filename_root);
+
+        float x_pos = gameCharacter.getPosition()[0];
+        float y_pos = gameCharacter.getPosition()[1];
+        float z_pos = gameCharacter.getPosition()[2];
+
+        float x_dir = gameCharacter.getDir()[0];
+        float y_dir = gameCharacter.getDir()[1];
+        float z_dir = gameCharacter.getDir()[2];
+
+        float x_head = gameCharacter.getHead()[0];
+        float y_head = gameCharacter.getHead()[1];
+        float z_head = gameCharacter.getHead()[2];
+
+        String pos_str = Float.toString(x_pos) + ' ' + Float.toString(y_pos) + ' ' + Float.toString(z_pos);
+        String dir_str = Float.toString(x_dir) + ' ' + Float.toString(y_dir) + ' ' + Float.toString(z_dir);
+        String head_str = Float.toString(x_head) + ' ' + Float.toString(y_head) + ' ' + Float.toString(z_head);
+
+        File flagFile = new File(externalFileDir + "/Game/Flags/" + filename_root + ".txt");
+        if (!flagFile.exists()){
+            try {
+                flagFile.createNewFile();
+            } catch (Exception e){
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        try {
+            FileInputStream inStream = new FileInputStream(flagFile);
+            if (inStream != null){
+                InputStreamReader inputreader
+                        = new InputStreamReader(inStream, "UTF-8");
+                BufferedReader reader = new BufferedReader(inputreader);
+                String line;
+                int num = 0;
+                while ((line = reader.readLine()) != null) {
+                    num++;
+                }
+
+                inputreader.close();
+                reader.close();
+
+                String str = Integer.toString(num) + "#" + offset + "#" + pos_str + "#" + dir_str + "#" + head_str;
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(flagFile, true)));
+                writer.write(str);
+
+                writer.close();
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+
+        return true;
+    }
+
+    private boolean loadFlag(){
+        String externalFileDir = context.getExternalFilesDir(null).toString();
+        File file = new File(externalFileDir + "/Game/Flags");
+
+        if (!file.exists()){
+            return false;
+        }
+
+        String filename_root = SettingFileManager.getFilename_Remote(context);
+        File flagFile = new File(externalFileDir + "Game/Flags/" + filename_root + ".txt");
+
+        if (!flagFile.exists()){
+            return false;
+        }
+
+        ArrayList<String> flagList = new ArrayList<>();
+        int num = 0;
+        try {
+            FileInputStream inStream = new FileInputStream(flagFile);
+            if (inStream != null){
+                InputStreamReader inputreader
+                        = new InputStreamReader(inStream, "UTF-8");
+                BufferedReader reader = new BufferedReader(inputreader);
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    num++;
+                    flagList.add(line);
+                }
+
+                inStream.close();
+                inputreader.close();
+                reader.close();
+
+            } else {
+                return false;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+
+        String [] list = new String[num];
+        for (int i = 0; i < num; i++){
+            list[i] = Integer.toString(i + 1);
+        }
+        new XPopup.Builder(this)
+                .autoDismiss(false)
+                .asCenterList("Flags", list, new OnSelectListener() {
+                    @Override
+                    public void onSelect(int position, String text) {
+                        String flagStr = list[position];
+                        String [] temp = flagStr.split("#");
+                        String offset = temp[0];
+                        String pos_str = temp[1];
+                        String dir_str = temp[2];
+                        String head_str = temp[3];
+
+                        float [] pos = new float[3];
+                        float [] dir = new float[3];
+                        float [] head = new float[3];
+
+                        pos[0] = Float.parseFloat(pos_str.split(" ")[0]);
+                        pos[1] = Float.parseFloat(pos_str.split(" ")[1]);
+                        pos[2] = Float.parseFloat(pos_str.split(" ")[2]);
+
+                        dir[0] = Float.parseFloat(dir_str.split(" ")[0]);
+                        dir[1] = Float.parseFloat(dir_str.split(" ")[1]);
+                        dir[2] = Float.parseFloat(dir_str.split(" ")[2]);
+
+                        head[0] = Float.parseFloat(head_str.split(" ")[0]);
+                        head[1] = Float.parseFloat(head_str.split(" ")[1]);
+                        head[2] = Float.parseFloat(head_str.split(" ")[2]);
+
+                        gameCharacter = new GameCharacter(pos, dir, head);
+
+                        if (filename_root != null && offset != null){
+                            remoteSocket.disConnectFromHost();
+                            remoteSocket.connectServer(ip_SEU);
+                            remoteSocket.pullImageBlockWhenLoadGame(filename_root, offset);
+
+                            myrenderer.clearCurSwcList();
+                            travelPath.clear();
+
+                        }
+                    }
+                })
+                .show();
 
         return true;
     }
