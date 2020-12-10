@@ -130,7 +130,12 @@ public abstract class BaseMessageActivity extends UI {
         for (final SessionCustomization.OptionsButton button : buttons) {
             ImageView imageView = new ImageView(activity);
             imageView.setImageResource(button.iconId);
-            imageView.setBackgroundResource(R.drawable.nim_nim_action_bar_button_selector);
+
+            /*
+            after changed:
+            hide the background
+             */
+//            imageView.setBackgroundResource(R.drawable.nim_nim_action_bar_button_selector);
             imageView.setPadding(ScreenUtil.dip2px(10), 0, ScreenUtil.dip2px(10), 0);
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -8,4 +8,9 @@
     <dimen name="content_text_small">12sp</dimen>
     <dimen name="content_text_16sp">16sp</dimen>
     <dimen name="item_margin_left">15dp</dimen>
+
+    <!-- map -->
+    <dimen name="friend_map_btn_height">42dp</dimen>
+    <dimen name="friend_map_bound_padding">80dp</dimen>
+
 </resources>

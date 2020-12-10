@@ -74,8 +74,8 @@ public class LetterIndexView extends View {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 hit = true;
-                setBackgroundColor(getResources().getColor(R.color.contact_letter_idx_bg));
-                mPaint.setColor(touchColor);
+//                setBackgroundColor(getResources().getColor(R.color.contact_letter_idx_bg));
+                mPaint.setColor(normalColor);
                 onHit(event.getY());
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -127,7 +127,7 @@ public class LetterIndexView extends View {
 
     private void onCancel() {
         hit = false;
-        setBackgroundColor(Color.TRANSPARENT);
+//        setBackgroundColor(Color.TRANSPARENT);
         mPaint.setColor(this.normalColor);
         refreshDrawableState();
 

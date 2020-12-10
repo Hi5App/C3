@@ -9,11 +9,13 @@ import com.example.chat.ChatManager;
 import com.example.chat.MessageActivity;
 import com.example.datastore.PreferenceLogin;
 import com.example.myapplication__volume.Nim.DemoCache;
-import com.example.myapplication__volume.Nim.NIMInitManager;
 import com.example.myapplication__volume.Nim.NimSDKOptionConfig;
-import com.example.myapplication__volume.Nim.preference.UserPreferences;
+import com.example.myapplication__volume.Nim.contact.ContactHelper;
+import com.example.myapplication__volume.Nim.session.NimDemoLocationProvider;
+import com.example.myapplication__volume.Nim.session.SessionHelper;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.api.UIKitOptions;
+import com.netease.nim.uikit.business.contact.core.query.PinYin;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.SDKOptions;
 import com.netease.nimlib.sdk.StatusBarNotificationConfig;
@@ -60,14 +62,18 @@ public class Myapplication extends Application {
             // 1、UI相关初始化操作
             // 2、相关Service调用
 
+            // init pinyin
+            PinYin.init(this);
+            PinYin.validate();
+
             Log.e(TAG,"NIMUtil.isMainProcess(this)");
             initUIKit();
 
             // 初始化消息提醒
-            NIMClient.toggleNotification(UserPreferences.getNotificationToggle());
+//            NIMClient.toggleNotification(UserPreferences.getNotificationToggle());
 
             // 云信sdk相关业务初始化
-            NIMInitManager.getInstance().init(true);
+//            NIMInitManager.getInstance().init(true);
 
         }
 
@@ -133,17 +139,17 @@ public class Myapplication extends Application {
         // 初始化
         NimUIKit.init(this, buildUIKitOptions());
 
-//        // 设置地理位置提供者。如果需要发送地理位置消息，该参数必须提供。如果不需要，可以忽略。
-//        NimUIKit.setLocationProvider(new NimDemoLocationProvider());
-//
-//        // IM 会话窗口的定制初始化。
-//        SessionHelper.init();
+        // 设置地理位置提供者。如果需要发送地理位置消息，该参数必须提供。如果不需要，可以忽略。
+        NimUIKit.setLocationProvider(new NimDemoLocationProvider());
+
+        // IM 会话窗口的定制初始化。
+        SessionHelper.init();
 //
 //        // 聊天室聊天窗口的定制初始化。
 //        ChatRoomSessionHelper.init();
 //
-//        // 通讯录列表定制初始化
-//        ContactHelper.init();
+        // 通讯录列表定制初始化
+        ContactHelper.init();
 //
 //        // 添加自定义推送文案以及选项，请开发者在各端（Android、IOS、PC、Web）消息发送时保持一致，以免出现通知不一致的情况
 //        NimUIKit.setCustomPushContentProvider(new DemoPushContentProvider());

@@ -60,6 +60,11 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
     //api 'jp.wasabeef:glide-transformations:3.0.1'
 
+    // ViewModel and LiveData
+    api 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    // Java8 support for Lifecycles
+    api 'androidx.lifecycle:lifecycle-common-java8:2.2.0'
+
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
     //api 'jp.co.cyberagent.android.gpuimage:gpuimage-library:1.4.1' // if you want to use the Glide GPU Filters
 

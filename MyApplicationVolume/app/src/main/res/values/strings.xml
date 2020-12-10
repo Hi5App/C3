@@ -56,6 +56,7 @@
     <string name="title_channel_message">Channel message</string>
     <string name="title_peer_voice">Peer to peer chat</string>
     <string name="hint_friend">Friends name</string>
+    <string name="hint_friend_msg">Enter some verification information</string>
     <string name="hint_channel">Channel name</string>
     <string name="hint_enable_offline_message">Enable offline message</string>
     <string name="account_cannot_be_yourself">Account can not be yourself</string>
@@ -104,6 +105,105 @@
     <string name="client_ios">IOS</string>
     <string name="client_aos">ANDROID</string>
     <string name="on_line">ONLINE</string>
+    
+    <string name="start_session_record">Start the whiteboard record</string>
+    <string name="session_end_record">The whiteboard record is end</string>
 
+    <string name="verify_reminder">Verify Message</string>
+    <string name="clear_all_success">Clear all the Msg successfully</string>
+    <string name="delete_tip">Delete Tip</string>
+    <string name="delete_system_message">Delete this System Msg ?</string>
+    <string name="delete_success">Delete Successfully</string>
+    <string name="agree">Agree</string>
+    <string name="reject">Reject</string>
+    <string name="team_apply_sending">Sending…</string>
+
+
+    <string name="cloud_message_clear_tips">Are you sure to clear the msg history based on the cloud ?</string>
+    <string name="sure_sync">Sure to sync ?</string>
+    <string name="message_history_query_ingore">The cloud msg (被清除消息入库)</string>
+    <string name="message_history_query_remember">The cloud msg (被清除消息不入库)</string>
+    <string name="message_clear_record">Clear local msg (记录操作)</string>
+    <string name="message_clear_not_record">Clear local msg (不记录操作)</string>
+    <string name="cloud_message_clear">clear the cloud msg history</string>
+
+
+
+    <!--  User Profile  -->
+    <string name="user_profile">User Profile</string>
+    <string name="birthday">Birthday</string>
+    <string name="phone">Telephone</string>
+    <string name="email">Email</string>
+    <string name="signature">Signature</string>
+    <string name="head">Head</string>
+    <string name="alias">Alias</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="other">Other</string>
+    <string name="nickname">Nickname</string>
+    <string name="gender">Gender</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="nickname_empty">Nickname can not be empty</string>
+    <string name="user_info_update_failed">Fail to set the user info, Try again please !</string>
+    <string name="user_info_update_success">Set the user info Successfully !</string>
+    <string name="user_information">User Information</string>
+    <string name="user_info_update_cancel">Cancel the update</string>
+    <string name="head_update_success">Update head portrait successfully !</string>
+    <string name="head_update_failed">Fail to update head portrait, Try again please !</string>
+
+
+
+    <string name="snapchat_longclick_to_view">LongClick to view the Picture !</string>
+    <string name="unread">unread</string>
+    <string name="message_info">Message Info</string>
+
+
+    <!-- 群 -->
+    <string name="create_normal_team">Create Normal team</string>
+    <string name="msg_notice">Msg Notice</string>
+    <string name="message_history_query">Message History</string>
+
+
+    <!-- Session -->
+    <string name="input_panel_tip">Tip</string>
+    <string name="input_panel_guess">Guess</string>
+    <string name="input_panel_file">Send File</string>
+    <string name="input_panel_snapchat">SnapChat</string>
+
+
+    <!-- Settings -->
+    <string name="black_list">Black List</string>
+    <string name="offline_push">Offline push</string>
+    <string name="recent_sticky">Recent Sticky</string>
+
+
+
+    <!-- Contacts -->
+    <string name="add_friend">Add Friend</string>
+    <string name="remove_friend">Remove Friend</string>
+    <string name="begin_chat">Chat</string>
+    <string name="remove_friend_tip">删除好友后，将同时解除双方的好友关系</string>
+    <string name="remove_friend_success">删除好友成功</string>
+    <string name="add_friend_self_tip">不能添加自己为好友</string>
+    <string name="add_friend_verify_tip">好友验证请求</string>
+
+
+
+    <!-- Robot -->
+    <string name="nim_robot_title">Chat Robot</string>
+    <string name="robot_start_chat">Start Chat</string>
+
+
+    <!-- location -->
+    <string name="location_navigate">导航</string>
+    <string name="location_loading">正在定位</string>
+    <string name="location_map">地图定位</string>
+    <string name="my_location">我的位置</string>
+    <string name="location_address_unkown">该位置信息暂无</string>
+    <string name="format_mylocation">我的位置：%s</string>
+    <string name="location_address_fail">获取位置信息失败</string>
+    <string name="tools_selected">选择工具</string>
+    <string name="friends_map_navigation_web">在网页中打开</string>
+    <string name="location_open_map_error">打开地图出错</string>
 
 </resources>

@@ -16,7 +16,7 @@
     <!--        android:name="com.netease.nim.uikit.business.contact.ContactsFragment"-->
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.example.chat.ui.contacts.ContactsFragment"
+        android:name="com.example.myapplication__volume.Nim.customization.contact.ContactListFragment"
         android:label="@string/title_contacts"/>
 <!--        tools:layout="@layout/chat_view" />-->
 

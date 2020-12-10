@@ -34,7 +34,13 @@
     <color name="colorDarkGrey">#abaaaa</color>
     <color name="color_blue_3a9efb">#3a9efb</color>
 
+    <color name="color_red_f04c62">#f04c62</color>
+    <color name="help_color">#ff999999</color>
+    <color name="color_grey_666666">#666666</color>
 
+    <!-- main bg color -->
+    <color name="g_child_page_bg_color">#FFFFFF</color>
+    <color name="main_bg_color">#FFFFFF</color>
 
 
 </resources>

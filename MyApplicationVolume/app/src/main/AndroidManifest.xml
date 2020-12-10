@@ -91,6 +91,18 @@
 <!--            </intent-filter>-->
 <!--        </activity>-->
 
+        <activity android:name="com.example.myapplication__volume.Nim.activity.SystemMessageActivity"/>
+        <activity android:name="com.example.myapplication__volume.Nim.contact.activity.RobotProfileActivity"/>
+        <activity android:name="com.example.myapplication__volume.Nim.contact.activity.UserProfileActivity"/>
+        <activity android:name="com.example.myapplication__volume.Nim.contact.activity.UserProfileEditItemActivity"/>
+        <activity android:name="com.example.myapplication__volume.Nim.contact.activity.UserProfileSettingActivity"/>
+        <activity android:name="com.example.myapplication__volume.Nim.session.activity.FileDownloadActivity"/>
+        <activity android:name="com.example.myapplication__volume.Nim.session.activity.MessageHistoryActivity"/>
+        <activity android:name="com.example.myapplication__volume.Nim.session.activity.MessageInfoActivity"/>
+        <activity android:name="com.example.myapplication__volume.Nim.session.activity.WatchMultiRetweetActivity"/>
+        <activity android:name="com.example.myapplication__volume.Nim.session.search.DisplayMessageActivity"/>
+        <activity android:name="com.example.myapplication__volume.Nim.session.search.SearchMessageActivity"/>
+
         <activity
             android:name="com.example.chat.ChatActivity"
             android:label="@string/app_name">

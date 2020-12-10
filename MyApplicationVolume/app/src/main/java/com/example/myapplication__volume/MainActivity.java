@@ -88,8 +88,10 @@ import com.example.chat.model.MessageBean;
 import com.example.datastore.PreferenceLogin;
 import com.example.datastore.SettingFileManager;
 import com.example.myapplication__volume.Nim.DemoCache;
-import com.example.myapplication__volume.fileReader.AnoReader;
-import com.example.myapplication__volume.fileReader.ApoReader;
+import com.example.myapplication__volume.Nim.helper.SystemMessageUnreadManager;
+import com.example.myapplication__volume.Nim.reminder.ReminderManager;
+import com.example.myapplication__volume.FileReader.AnoReader;
+import com.example.myapplication__volume.FileReader.ApoReader;
 import com.example.myapplication__volume.ui.login.LoginActivity;
 import com.example.server_communicator.Remote_Socket;
 import com.feature_calc_func.MorphologyCalculate;
@@ -107,9 +109,11 @@ import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.auth.LoginInfo;
+import com.netease.nimlib.sdk.msg.SystemMessageObserver;
 import com.tracingfunc.app2.ParaAPP2;
 import com.tracingfunc.app2.V3dNeuronAPP2Tracing;
 import com.tracingfunc.gd.CurveTracePara;
@@ -524,14 +528,13 @@ public class MainActivity extends BaseActivity {
                         String source = getSelectSource(context);
                         if (source.equals("Remote Server Aliyun")){
                             String filename = getFilename_Remote(context);
-                            String brain_number = getNeuronNumber_Remote(context, filename);
+                            String brain_number = getNeuronNumber_Remote(context,filename);
                             result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
 //                            result = name.split("_")[1].substring(0,name.split("_")[1].length()-3);
                         }else if(source.equals("Remote Server SEU")){
                             String filename = getFilename_Remote(context);
-                            String brain_number = getNeuronNumber_Remote(context, filename);
-//                            result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
-                            result = name;
+                            String brain_number = getNeuronNumber_Remote(context,filename);
+                            result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
                         }
                     }else {
                         String brain_num = getFilename_Remote(context);
@@ -1558,12 +1561,43 @@ public class MainActivity extends BaseActivity {
             dir_server.mkdirs();
         }
 
-
-        doLogin();
+        initNim();
 
     }
 
 
+
+
+    private void initNim(){
+//        registerMsgUnreadInfoObserver(true);
+        registerSystemMessageObservers(true);
+    }
+
+
+//    /**
+//     * 注册未读消息数量观察者
+//     */
+//    private void registerMsgUnreadInfoObserver(boolean register) {
+//        if (register) {
+//            ReminderManager.getInstance().registerUnreadNumChangedCallback(this);
+//        } else {
+//            ReminderManager.getInstance().unregisterUnreadNumChangedCallback(this);
+//        }
+//    }
+
+    /**
+     * 注册/注销系统消息未读数变化
+     */
+    private void registerSystemMessageObservers(boolean register) {
+        NIMClient.getService(SystemMessageObserver.class).observeUnreadCountChange(
+                sysMsgUnreadCountChangedObserver, register);
+    }
+
+    private Observer<Integer> sysMsgUnreadCountChangedObserver = (Observer<Integer>) unreadCount -> {
+        Log.e("Observer<Integer>","Observer unreadCount");
+        SystemMessageUnreadManager.getInstance().setSysMsgUnreadCount(unreadCount);
+        ReminderManager.getInstance().updateContactUnreadNum(unreadCount);
+    };
 
     public void doLogin() {
         LoginInfo info = new LoginInfo("xf","123456");
@@ -4384,7 +4418,6 @@ public class MainActivity extends BaseActivity {
         if (swc_file_path.equals("Error"))
             return;
 
-        Log.e("PushSWC_Block_Auto",swc_file_path + "/" + SwcFileName + ".swc");
         File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
         if (!SwcFile.exists()){
             Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
@@ -4399,7 +4432,7 @@ public class MainActivity extends BaseActivity {
                 Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
                 return;
             }
-            remote_socket.PushSwc_block("blockSet__18454_00001__100__200__300__228__328__428__2__xf" + ".swc", is, length);
+            remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
 
         } catch (Exception e){
             System.out.println("----" + e.getMessage() + "----");
@@ -4996,7 +5029,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20201209a 10:20 UTC+8 build",
+                                "Version: 20201210a 22:20 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

@@ -206,7 +206,7 @@
     <string name="team_update_failed">群头像设置失败</string>
     <string name="reach_capacity">人数已达上限</string>
     <!-- 消息搜索 -->
-    <string name="message_search_no_result">无结果</string>
+    <string name="message_search_no_result">No result</string>
     <string name="message_search_title">查看聊天内容</string>
 
     <!-- image picker -->

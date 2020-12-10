@@ -1,4 +1,4 @@
-package com.example.myapplication__volume.fileReader;
+package com.example.myapplication__volume.FileReader;
 
 import android.content.Context;
 import android.content.Intent;
@@ -141,7 +141,7 @@ public class AnoReader {
             InputStream is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
             long filesize = (int)parcelFileDescriptor.getStatSize();
 
-            ApoReader apoReader = new ApoReader();
+            com.example.myapplication__volume.FileReader.ApoReader apoReader = new com.example.myapplication__volume.FileReader.ApoReader();
             apo_result = apoReader.read(filesize, is);
 
         }catch (Exception e){
@@ -160,7 +160,7 @@ public class AnoReader {
             InputStream is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
             long filesize = (int)parcelFileDescriptor.getStatSize();
 
-            ApoReader apoReader = new ApoReader();
+            com.example.myapplication__volume.FileReader.ApoReader apoReader = new com.example.myapplication__volume.FileReader.ApoReader();
             swc_result = apoReader.read(filesize, is);
 
         }catch (Exception e){

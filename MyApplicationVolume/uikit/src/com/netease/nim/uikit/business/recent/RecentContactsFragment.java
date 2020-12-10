@@ -82,7 +82,8 @@ public class RecentContactsFragment extends TFragment {
         super.onActivityCreated(savedInstanceState);
         findViews();
         initMessageList();
-        requestMessages(true);
+//        requestMessages(true);
+        requestMessages(false);
         registerObservers(true);
         registerDropCompletedListener(true);
         registerOnlineStateChangeListener(true);

@@ -33,8 +33,8 @@ import com.example.basic.NeuronTree;
 import com.example.basic.XYZ;
 import com.example.game.GameCharacter;
 
-import com.example.myapplication__volume.fileReader.AnoReader;
-import com.example.myapplication__volume.fileReader.ApoReader;
+import com.example.myapplication__volume.FileReader.AnoReader;
+import com.example.myapplication__volume.FileReader.ApoReader;
 import com.example.myapplication__volume.render.MyAxis;
 import com.example.myapplication__volume.render.MyDraw;
 import com.example.myapplication__volume.render.MyMarker;

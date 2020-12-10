@@ -1,4 +1,4 @@
-package com.example.myapplication__volume.fileReader;
+package com.example.myapplication__volume.FileReader;
 
 import android.util.Log;
 

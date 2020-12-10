@@ -15,10 +15,14 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.example.chat.ui.contacts.ContactsFragment;
 import com.example.myapplication__volume.Myapplication;
 import com.example.myapplication__volume.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.RequestCallback;
+import com.netease.nimlib.sdk.friend.FriendService;
+import com.netease.nimlib.sdk.friend.constant.VerifyType;
+import com.netease.nimlib.sdk.friend.model.AddFriendData;
 
 import cn.carbs.android.library.MDDialog;
 import io.agora.rtm.RtmClient;
@@ -98,6 +102,9 @@ public class ChatActivity extends AppCompatActivity {
                         Log.d("PeerToPeer", "Start To Chat");
                         EditText targetEdit = (EditText)contentView.findViewById(R.id.target_name_edit);
                         String mTargetName = targetEdit.getText().toString();
+                        EditText verificationEdit = (EditText)contentView.findViewById(R.id.verification_msg);
+                        String verificationMsg = verificationEdit.getText().toString();
+
                         if (mTargetName.equals("")) {
                             Toast_in_Thread(getString(R.string.account_empty));
                         } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
@@ -111,11 +118,33 @@ public class ChatActivity extends AppCompatActivity {
                         } else {
                             String result = mChatManager.addFriends(mTargetName);
                             if (result.equals("true")){
-                                if (FragmentId == R.id.navigation_home){
-                                    ContactsFragment.refresh();
-                                }
-//                                contactsFragment.refresh();
-                                Toast_in_Thread("Add Friends " + mTargetName + " Successfully !");
+
+                                final VerifyType verifyType = VerifyType.VERIFY_REQUEST; // 发起好友验证请求
+                                String msg = "好友请求附言";
+                                NIMClient.getService(FriendService.class).addFriend(new AddFriendData(mTargetName, verifyType, msg))
+                                        .setCallback(new RequestCallback<Void>() {
+                                            @Override
+                                            public void onSuccess(Void param) {
+                                                Toast_in_Thread("You Request is sent successfully !");
+                                            }
+
+                                            @Override
+                                            public void onFailed(int code) {
+                                                Toast_in_Thread("Fail to send your Request !");
+                                            }
+
+                                            @Override
+                                            public void onException(Throwable exception) {
+                                                Toast_in_Thread("Some Exception occur !");
+                                            }
+                                        });
+
+//                                if (FragmentId == R.id.navigation_home){
+//                                    ContactsFragment.refresh();
+//                                }
+////                                contactsFragment.refresh();
+//                                Toast_in_Thread("Add Friends " + mTargetName + " Successfully !");
+
                             }else {
                                 Toast_in_Thread(result);
                             }
