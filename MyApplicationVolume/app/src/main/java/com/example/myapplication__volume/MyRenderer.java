@@ -4464,7 +4464,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
-    public String oversaveCurrentSwc(String dir) throws Exception{
+    public String oversaveCurrentSwc(String dir){
         String error = "";
         NeuronTree nt = this.getNeuronTree();
         if(nt.listNeuron.size()>0){
@@ -4481,7 +4481,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
-    public String saveCurrentApo(String filepath) throws Exception{
+    public String saveCurrentApo(String filepath){
         String error = "";
         if(markerList.size()>0){
             markerList.saveAsApo(filepath);

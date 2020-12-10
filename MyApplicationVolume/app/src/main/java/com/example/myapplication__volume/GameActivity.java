@@ -25,6 +25,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.ImageReader.BigImgReader;
+import com.example.basic.NeuronTree;
 import com.example.datastore.SettingFileManager;
 import com.example.server_communicator.Remote_Socket;
 import com.example.game.GameCharacter;
@@ -86,6 +87,7 @@ public class GameActivity extends BaseActivity {
     private V_NeuronSWC travelPath;
 
     private float [] lastPlace;
+    private int lastIndex;
 
     private Remote_Socket remoteSocket;
 
@@ -99,6 +101,11 @@ public class GameActivity extends BaseActivity {
 
     private static ImageButton flagButton;
     private static ImageButton loadButton;
+
+    private BufferedWriter swcWriter;
+
+    private String filename_root;
+    private int [] offset;
 
     @SuppressLint("HandlerLeak")
     private static Handler puiHandler = new Handler(){
@@ -222,43 +229,7 @@ public class GameActivity extends BaseActivity {
         lp_load.setMargins(20, 20, 0, 0);
         this.addContentView(loadButton, lp_load);
 
-//        Button Check_Yes = new Button(this);
-//        Check_Yes.setText("Y");
-//
-//        FrameLayout.LayoutParams lp_check_yes = new FrameLayout.LayoutParams(120, 120);
-//        lp_check_yes.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-//        lp_check_yes.setMargins(0, 0, 20, 500);
-//        this.addContentView(Check_Yes, lp_check_yes);
-//
-//        Check_Yes.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-////                boolean [] b = {false};
-//                timer = new Timer();
-//                task = new TimerTask() {
-//                    @Override
-//                    public void run() {
-//                        System.out.println("AAAAA");
-//                        try {
-//                            b[0] = true;
-//                            System.out.print(moveDir[0]);
-//                            System.out.print(' ');
-//                            System.out.print(moveDir[1]);
-//
-//                            System.out.print(viewRotateDir[0]);
-//                            System.out.print(' ');
-//                            System.out.print(viewRotateDir[1]);
-//                        } catch (Exception e){
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                };
-//                timer.schedule(task, 0, 1000);
-//                if (b[0]){
-//                    System.out.println("HHHHHHHHHHHH");
-//                }
-//            }
-//        });
+        initSWCWriter();
 
         moveDir = new float[]{0f, 0f, 0f};
         viewRotateDir = new float[]{0f, 0f, 0f};
@@ -275,6 +246,13 @@ public class GameActivity extends BaseActivity {
         travelPath.append(startPoint);
 
         lastPlace = new float[]{position[0], position[1], position[2]};
+        lastIndex = -1;
+
+        filename_root = SettingFileManager.getFilename_Remote(context);
+        String offset_str = SettingFileManager.getoffset_Remote(context, filename_root);
+        offset[0] = Integer.parseInt(offset_str.split("_")[0]);
+        offset[1] = Integer.parseInt(offset_str.split("_")[1]);
+        offset[2] = Integer.parseInt(offset_str.split("_")[2]);
 
         rockerView1.setRockerChangeListener(new MyRockerView.RockerChangeListener() {
             @Override
@@ -282,8 +260,7 @@ public class GameActivity extends BaseActivity {
 
                 moveDir[0] = x;
                 moveDir[1] = y;
-//                System.out.println(x);
-//                System.out.println(y);
+
             }
         });
 
@@ -346,7 +323,7 @@ public class GameActivity extends BaseActivity {
 //                                myrenderer.clearCurSwcList();
 //                                myrenderer.addSwc(travelPath);
 
-//                                myrenderer.clearMarkerList();c x
+//                                myrenderer.clearMarkerList();
 //                                myrenderer.addMarker(new float[]{0.5f, 0.5f, 0.5f});
 
                                 lastPlace = new float[]{0.5f, 0.5f, 0.5f};
@@ -364,7 +341,8 @@ public class GameActivity extends BaseActivity {
 //                                        + (position[2] - lastPlace[2]) * (position[2] - lastPlace[2])) > 0.001) {
 
                                 V_NeuronSWC_unit newPoint = new V_NeuronSWC_unit();
-                                newPoint.parent = travelPath.nrows() - 1;
+//                                newPoint.parent = travelPath.nrows() - 1;
+                                newPoint.parent = lastIndex;
                                 newPoint.n = travelPath.nrows();
                                 newPoint.type = 2;
                                 float[] newPlace = myrenderer.modeltoVolume(position);
@@ -376,7 +354,13 @@ public class GameActivity extends BaseActivity {
                                 myrenderer.clearCurSwcList();
                                 myrenderer.addSwc(travelPath);
 
+                                swcWriter.append(Long.toString((int)newPoint.n)).append(" ").append(Integer.toString((int)newPoint.type))
+                                        .append(" ").append(String.format("%.3f", newPoint.x + offset[0])).append(" ").append(String.format("%.3f", newPoint.y + offset[1]))
+                                        .append(" ").append(String.format("%.3f", newPoint.z + offset[2])).append(" ").append(String.format("%.3f", 0 ))
+                                        .append(" ").append(Long.toString((int)newPoint.parent)).append("\n");
+
                                 lastPlace = new float[]{position[0], position[1], position[2]};
+                                lastIndex = (int)newPoint.n;
 
                                 myrenderer.setGameCharacter(gameCharacter);
                                 myrenderer.removeWhileMove();
@@ -621,9 +605,10 @@ public class GameActivity extends BaseActivity {
         String pos_str = Float.toString(x_pos) + ' ' + Float.toString(y_pos) + ' ' + Float.toString(z_pos);
         String dir_str = Float.toString(x_dir) + ' ' + Float.toString(y_dir) + ' ' + Float.toString(z_dir);
         String head_str = Float.toString(x_head) + ' ' + Float.toString(y_head) + ' ' + Float.toString(z_head);
+        String last_str = Integer.toString(lastIndex);
 
         String externalFileDir = context.getExternalFilesDir(null).toString();
-        String str = filename_root + '\n' + offset + '\n' + pos_str + '\n' + dir_str + '\n' + head_str;
+        String str = filename_root + '\n' + offset + '\n' + pos_str + '\n' + dir_str + '\n' + head_str + '\n' + last_str;
 //        File file = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num + "/" + date_str + ".txt");
         File file = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num);
         if (!file.exists()){
@@ -698,9 +683,13 @@ public class GameActivity extends BaseActivity {
 
                 line = buffreader.readLine();
                 archiveImageName = line;
+                filename_root = archiveImageName;
 
                 line = buffreader.readLine();
                 archiveOffset = line;
+                offset[0] = Integer.parseInt(archiveOffset.split("_")[0]);
+                offset[1] = Integer.parseInt(archiveOffset.split("_")[1]);
+                offset[2] = Integer.parseInt(archiveOffset.split("_")[2]);
 
                 line = buffreader.readLine();
                 pos[0] = Float.parseFloat(line.split(" ")[0]);
@@ -717,6 +706,10 @@ public class GameActivity extends BaseActivity {
                 head[1] = Float.parseFloat(line.split(" ")[1]);
                 head[2] = Float.parseFloat(line.split(" ")[2]);
 
+                line = buffreader.readLine();
+                lastIndex = Integer.parseInt(line);
+
+
                 inStream.close();//关闭输入流
                 inputreader.close();
                 buffreader.close();
@@ -732,8 +725,9 @@ public class GameActivity extends BaseActivity {
                     travelPath.clear();
 
                 }
+
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -770,6 +764,7 @@ public class GameActivity extends BaseActivity {
         String pos_str = Float.toString(x_pos) + ' ' + Float.toString(y_pos) + ' ' + Float.toString(z_pos);
         String dir_str = Float.toString(x_dir) + ' ' + Float.toString(y_dir) + ' ' + Float.toString(z_dir);
         String head_str = Float.toString(x_head) + ' ' + Float.toString(y_head) + ' ' + Float.toString(z_head);
+        String last_str = Integer.toString(lastIndex);
 
         File flagFile = new File(externalFileDir + "/Game/Flags/" + filename_root + ".txt");
         if (!flagFile.exists()){
@@ -796,7 +791,7 @@ public class GameActivity extends BaseActivity {
                 inputreader.close();
                 reader.close();
 
-                String str = Integer.toString(num) + "#" + offset + "#" + pos_str + "#" + dir_str + "#" + head_str;
+                String str = Integer.toString(num) + "#" + offset + "#" + pos_str + "#" + dir_str + "#" + head_str + "#" + last_str;
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(flagFile, true)));
                 writer.write(str);
 
@@ -819,7 +814,7 @@ public class GameActivity extends BaseActivity {
             return false;
         }
 
-        String filename_root = SettingFileManager.getFilename_Remote(context);
+
         File flagFile = new File(externalFileDir + "Game/Flags/" + filename_root + ".txt");
 
         if (!flagFile.exists()){
@@ -868,6 +863,7 @@ public class GameActivity extends BaseActivity {
                         String pos_str = temp[1];
                         String dir_str = temp[2];
                         String head_str = temp[3];
+                        String last_str = temp[4];
 
                         float [] pos = new float[3];
                         float [] dir = new float[3];
@@ -885,15 +881,25 @@ public class GameActivity extends BaseActivity {
                         head[1] = Float.parseFloat(head_str.split(" ")[1]);
                         head[2] = Float.parseFloat(head_str.split(" ")[2]);
 
-                        gameCharacter = new GameCharacter(pos, dir, head);
-
                         if (filename_root != null && offset != null){
+                            gameCharacter = new GameCharacter(pos, dir, head);
+                            lastIndex = Integer.parseInt(last_str);
+
                             remoteSocket.disConnectFromHost();
                             remoteSocket.connectServer(ip_SEU);
                             remoteSocket.pullImageBlockWhenLoadGame(filename_root, offset);
 
                             myrenderer.clearCurSwcList();
                             travelPath.clear();
+
+                            File swcDir = new File(externalFileDir + "Game/SWCs");
+                            if (swcDir.exists()){
+                                File swcFile = new File(externalFileDir + "Game/SWCs/" + filename_root + ".swc");
+                                if (swcFile.exists()){
+                                    NeuronTree nt = NeuronTree.readSWC_file(externalFileDir + "Game/SWCs/" + filename_root + ".swc");
+                                    myrenderer.importNeuronTree(nt);
+                                }
+                            }
 
                         }
                     }
@@ -1008,6 +1014,34 @@ public class GameActivity extends BaseActivity {
         }
     }
 
+    private void initSWCWriter(){
+        String externalFileDir = context.getExternalFilesDir(null).toString();
+//        String filename_root = SettingFileManager.getFilename_Remote(context);
+
+        File swcDir = new File(externalFileDir + "Game/SWCs");
+        if (!swcDir.exists()){
+            swcDir.mkdir();
+        }
+        File swcFile = new File(externalFileDir + "Game/SWCs/" + filename_root + ".swc");
+
+        if (!swcFile.exists()){
+            try {
+                swcFile.createNewFile();
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        try {
+            swcWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(swcFile, true)));
+
+            swcWriter.write("#name \n");
+            swcWriter.write("#comment \n");
+            swcWriter.write("##n,type,x,y,z,radius,parent\n");
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     class MyGLSurfaceView extends GLSurfaceView {
 
         public MyGLSurfaceView(Context context) {
@@ -1046,6 +1080,12 @@ public class GameActivity extends BaseActivity {
 
         timer.cancel();
         task.cancel();
+
+        try {
+            swcWriter.close();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
 
         gameContext = null;
     }
