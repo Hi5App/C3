@@ -5543,6 +5543,16 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         curSwcList.append(seg);
     }
 
+    public void appendCurSWC(int curSWC, V_NeuronSWC_unit unit){
+        curSwcList.seg.get(curSWC).append(unit);
+    }
+
+    public void moveAllSWC(float [] dir, float dis){
+        for (int i = 0; i < curSwcList.seg.size(); i++){
+            curSwcList.seg.get(i).move(dir, dis);
+        }
+    }
+
     private void convertToPerspective(float [] dis){
 
         float [] thirdDir = gameCharacter.getThirdDir();

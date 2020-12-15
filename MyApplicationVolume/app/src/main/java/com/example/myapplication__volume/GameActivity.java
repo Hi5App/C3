@@ -35,15 +35,20 @@ import com.lxj.xpopup.interfaces.OnCancelListener;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.tracingfunc.gd.V_NeuronSWC;
+import com.tracingfunc.gd.V_NeuronSWC_list;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
+
+import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,6 +56,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Vector;
 
 import static com.example.datastore.SettingFileManager.getFilename_Remote;
 import static com.example.datastore.SettingFileManager.getNeuronNumber_Remote;
@@ -85,9 +91,11 @@ public class GameActivity extends BaseActivity {
     private TimerTask task;
 
     private V_NeuronSWC travelPath;
+    private int curSWC = 0;
 
     private float [] lastPlace;
     private int lastIndex;
+    private int curN;
 
     private Remote_Socket remoteSocket;
 
@@ -105,7 +113,8 @@ public class GameActivity extends BaseActivity {
     private BufferedWriter swcWriter;
 
     private String filename_root;
-    private int [] offset;
+    private int [] offset = new int[3];
+    private int size;
 
     @SuppressLint("HandlerLeak")
     private static Handler puiHandler = new Handler(){
@@ -220,7 +229,7 @@ public class GameActivity extends BaseActivity {
         loadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                loadFlag();
             }
         });
 
@@ -229,12 +238,25 @@ public class GameActivity extends BaseActivity {
         lp_load.setMargins(20, 20, 0, 0);
         this.addContentView(loadButton, lp_load);
 
-        initSWCWriter();
 
         moveDir = new float[]{0f, 0f, 0f};
         viewRotateDir = new float[]{0f, 0f, 0f};
 
-        travelPath = new V_NeuronSWC();
+
+
+        filename_root = SettingFileManager.getFilename_Remote(context);
+        filename_root = filename_root.split("/")[0];
+//        Log.d("Filename_Root", filename_root);
+        String offset_str = SettingFileManager.getoffset_Remote(context, filename_root);
+//        Log.d("Offset_Str", offset_str);
+        offset[0] = Integer.parseInt(offset_str.split("_")[0]);
+        offset[1] = Integer.parseInt(offset_str.split("_")[1]);
+        offset[2] = Integer.parseInt(offset_str.split("_")[2]);
+        size = Integer.parseInt(offset_str.split("_")[3]);
+
+        initSWCWriter();
+
+//        travelPath = new V_NeuronSWC();
         V_NeuronSWC_unit startPoint = new V_NeuronSWC_unit();
         startPoint.n = 0;
         startPoint.parent = -1;
@@ -243,16 +265,22 @@ public class GameActivity extends BaseActivity {
         startPoint.y = startPlace[1];
         startPoint.z = startPlace[2];
         startPoint.type = 2;
-        travelPath.append(startPoint);
+        myrenderer.addSwc(new V_NeuronSWC());
+//        travelPath.append(startPoint);
+        myrenderer.appendCurSWC(curSWC, startPoint);
 
         lastPlace = new float[]{position[0], position[1], position[2]};
-        lastIndex = -1;
+        lastIndex = 0;
+        curN = 1;
 
-        filename_root = SettingFileManager.getFilename_Remote(context);
-        String offset_str = SettingFileManager.getoffset_Remote(context, filename_root);
-        offset[0] = Integer.parseInt(offset_str.split("_")[0]);
-        offset[1] = Integer.parseInt(offset_str.split("_")[1]);
-        offset[2] = Integer.parseInt(offset_str.split("_")[2]);
+        try {
+            swcWriter.append(Long.toString((int)startPoint.n)).append(" ").append(Integer.toString((int)startPoint.type))
+                    .append(" ").append(String.format("%.3f", (startPoint.x + offset[0] - size / 2))).append(" ").append(String.format("%.3f", (startPoint.y + offset[1] - size / 2)))
+                    .append(" ").append(String.format("%.3f", (startPoint.z + offset[2] - size / 2))).append(" ").append(String.format("%.3f", 0.0f ))
+                    .append(" ").append(Long.toString((int)startPoint.parent)).append("\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         rockerView1.setRockerChangeListener(new MyRockerView.RockerChangeListener() {
             @Override
@@ -316,10 +344,11 @@ public class GameActivity extends BaseActivity {
                                 volumneNormalDir[0] = volumneDir[0] / (float)Math.sqrt(volumneDir[0] * volumneDir[0] + volumneDir[1] * volumneDir[1] + volumneDir[2] * volumneDir[2]);
                                 volumneNormalDir[1] = volumneDir[1] / (float)Math.sqrt(volumneDir[0] * volumneDir[0] + volumneDir[1] * volumneDir[1] + volumneDir[2] * volumneDir[2]);
                                 volumneNormalDir[2] = volumneDir[2] / (float)Math.sqrt(volumneDir[0] * volumneDir[0] + volumneDir[1] * volumneDir[1] + volumneDir[2] * volumneDir[2]);
-                                travelPath.move(volumneNormalDir, 64);
+//                                travelPath.move(volumneNormalDir, 64);
+                                myrenderer.moveAllSWC(normalDir, 64);
 
-                                myrenderer.clearCurSwcList();
-                                myrenderer.addSwc(travelPath);
+//                                myrenderer.clearCurSwcList();
+//                                myrenderer.addSwc(travelPath);
 //                                myrenderer.clearCurSwcList();
 //                                myrenderer.addSwc(travelPath);
 
@@ -343,24 +372,29 @@ public class GameActivity extends BaseActivity {
                                 V_NeuronSWC_unit newPoint = new V_NeuronSWC_unit();
 //                                newPoint.parent = travelPath.nrows() - 1;
                                 newPoint.parent = lastIndex;
-                                newPoint.n = travelPath.nrows();
+                                newPoint.n = curN;
                                 newPoint.type = 2;
                                 float[] newPlace = myrenderer.modeltoVolume(position);
                                 newPoint.x = newPlace[0];
                                 newPoint.y = newPlace[1];
                                 newPoint.z = newPlace[2];
-                                travelPath.append(newPoint);
+//                                travelPath.append(newPoint);
+                                myrenderer.appendCurSWC(curSWC, newPoint);
 
-                                myrenderer.clearCurSwcList();
-                                myrenderer.addSwc(travelPath);
-
-                                swcWriter.append(Long.toString((int)newPoint.n)).append(" ").append(Integer.toString((int)newPoint.type))
-                                        .append(" ").append(String.format("%.3f", newPoint.x + offset[0])).append(" ").append(String.format("%.3f", newPoint.y + offset[1]))
-                                        .append(" ").append(String.format("%.3f", newPoint.z + offset[2])).append(" ").append(String.format("%.3f", 0 ))
-                                        .append(" ").append(Long.toString((int)newPoint.parent)).append("\n");
+//                                myrenderer.clearCurSwcList();
+//                                myrenderer.addSwc(travelPath);
 
                                 lastPlace = new float[]{position[0], position[1], position[2]};
                                 lastIndex = (int)newPoint.n;
+                                curN++;
+                                Log.d("LastIndex", Integer.toString(lastIndex));
+
+                                swcWriter.append(Long.toString((int)newPoint.n)).append(" ").append(Integer.toString((int)newPoint.type))
+                                        .append(" ").append(String.format("%.3f", (newPoint.x + offset[0] - size / 2))).append(" ").append(String.format("%.3f", (newPoint.y + offset[1] - size / 2)))
+                                        .append(" ").append(String.format("%.3f", (newPoint.z + offset[2] - size / 2))).append(" ").append(String.format("%.3f", 0.0f ))
+                                        .append(" ").append(Long.toString((int)newPoint.parent)).append("\n");
+
+
 
                                 myrenderer.setGameCharacter(gameCharacter);
                                 myrenderer.removeWhileMove();
@@ -583,7 +617,7 @@ public class GameActivity extends BaseActivity {
     public boolean saveGame(int num){
         archiveListPopup.dismiss();
         String filename_root = SettingFileManager.getFilename_Remote(context);
-        String offset = SettingFileManager.getoffset_Remote(context, filename_root);
+        String offset_str = SettingFileManager.getoffset_Remote(context, filename_root);
 
         SimpleDateFormat sdf = new SimpleDateFormat();// 格式化时间
         sdf.applyPattern("yyyy-MM-dd HH:mm:ss a");// a为am/pm的标记
@@ -606,9 +640,11 @@ public class GameActivity extends BaseActivity {
         String dir_str = Float.toString(x_dir) + ' ' + Float.toString(y_dir) + ' ' + Float.toString(z_dir);
         String head_str = Float.toString(x_head) + ' ' + Float.toString(y_head) + ' ' + Float.toString(z_head);
         String last_str = Integer.toString(lastIndex);
+        String curn_str = Integer.toString(curN);
+        String curSWC_str = Integer.toString(curSWC);
 
         String externalFileDir = context.getExternalFilesDir(null).toString();
-        String str = filename_root + '\n' + offset + '\n' + pos_str + '\n' + dir_str + '\n' + head_str + '\n' + last_str;
+        String str = filename_root + '\n' + offset_str + '\n' + pos_str + '\n' + dir_str + '\n' + head_str + '\n' + last_str + '\n' + curn_str + '\n' + curSWC_str;
 //        File file = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num + "/" + date_str + ".txt");
         File file = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num);
         if (!file.exists()){
@@ -646,6 +682,21 @@ public class GameActivity extends BaseActivity {
             FileOutputStream outStream = new FileOutputStream(archiveFile);
             outStream.write(str.getBytes());
             outStream.close();
+
+            File swcFile = new File(externalFileDir + "/Game/SWCs/" + filename_root + ".swc");
+            if (swcFile.exists()){
+//                InputStream swcInput = new FileInputStream(swcFile);
+                File archiveSWCFile = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num + "/" + filename_root + ".swc");
+                if (archiveSWCFile.exists()) {
+                    archiveSWCFile.delete();
+                }
+                archiveSWCFile.createNewFile();
+//                    OutputStream swcOutput = new FileOutputStream(archiveSWCFile);
+                FileUtils.copyFile(swcFile, archiveSWCFile);
+
+            }
+
+
         } catch (Exception e){
             Log.v(TAG, "failed to write archive");
             e.printStackTrace();
@@ -676,6 +727,19 @@ public class GameActivity extends BaseActivity {
         try{
             FileInputStream inStream = new FileInputStream(tempList[0]);
             if (inStream != null) {
+                File archiveSWCFile = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num + "/" + filename_root + ".swc");
+                if (archiveSWCFile.exists()){
+                    File newSWCFile = new File(externalFileDir + "/Game/SWCs/" + filename_root + ".swc");
+                    if (newSWCFile.exists()){
+                        newSWCFile.delete();
+                    }
+                    newSWCFile.createNewFile();
+
+                    FileUtils.copyFile(archiveSWCFile, newSWCFile);
+                } else {
+                    return false;
+                }
+
                 InputStreamReader inputreader
                         = new InputStreamReader(inStream, "UTF-8");
                 BufferedReader buffreader = new BufferedReader(inputreader);
@@ -690,6 +754,7 @@ public class GameActivity extends BaseActivity {
                 offset[0] = Integer.parseInt(archiveOffset.split("_")[0]);
                 offset[1] = Integer.parseInt(archiveOffset.split("_")[1]);
                 offset[2] = Integer.parseInt(archiveOffset.split("_")[2]);
+                size = Integer.parseInt(archiveOffset.split("_")[3]);
 
                 line = buffreader.readLine();
                 pos[0] = Float.parseFloat(line.split(" ")[0]);
@@ -709,6 +774,11 @@ public class GameActivity extends BaseActivity {
                 line = buffreader.readLine();
                 lastIndex = Integer.parseInt(line);
 
+                line = buffreader.readLine();
+                curN = Integer.parseInt(line);
+
+                line = buffreader.readLine();
+                curSWC = Integer.parseInt(line);
 
                 inStream.close();//关闭输入流
                 inputreader.close();
@@ -722,9 +792,10 @@ public class GameActivity extends BaseActivity {
                     remoteSocket.pullImageBlockWhenLoadGame(archiveImageName, archiveOffset);
 
                     myrenderer.clearCurSwcList();
-                    travelPath.clear();
-
+//                    travelPath.clear();
                 }
+
+
 
             }
         } catch (Exception e) {
@@ -747,7 +818,7 @@ public class GameActivity extends BaseActivity {
         }
 
         String filename_root = SettingFileManager.getFilename_Remote(context);
-        String offset = SettingFileManager.getoffset_Remote(context, filename_root);
+        String offset_str = SettingFileManager.getoffset_Remote(context, filename_root);
 
         float x_pos = gameCharacter.getPosition()[0];
         float y_pos = gameCharacter.getPosition()[1];
@@ -765,6 +836,8 @@ public class GameActivity extends BaseActivity {
         String dir_str = Float.toString(x_dir) + ' ' + Float.toString(y_dir) + ' ' + Float.toString(z_dir);
         String head_str = Float.toString(x_head) + ' ' + Float.toString(y_head) + ' ' + Float.toString(z_head);
         String last_str = Integer.toString(lastIndex);
+        String curn_str = Integer.toString(curN);
+        String curSWC_str = Integer.toString(curSWC);
 
         File flagFile = new File(externalFileDir + "/Game/Flags/" + filename_root + ".txt");
         if (!flagFile.exists()){
@@ -791,7 +864,7 @@ public class GameActivity extends BaseActivity {
                 inputreader.close();
                 reader.close();
 
-                String str = Integer.toString(num) + "#" + offset + "#" + pos_str + "#" + dir_str + "#" + head_str + "#" + last_str;
+                String str = Integer.toString(num) + "#" + offset_str + "#" + pos_str + "#" + dir_str + "#" + head_str + "#" + last_str + "#" + curn_str + "#" + curSWC_str;
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(flagFile, true)));
                 writer.write(str);
 
@@ -815,7 +888,7 @@ public class GameActivity extends BaseActivity {
         }
 
 
-        File flagFile = new File(externalFileDir + "Game/Flags/" + filename_root + ".txt");
+        File flagFile = new File(externalFileDir + "/Game/Flags/" + filename_root + ".txt");
 
         if (!flagFile.exists()){
             return false;
@@ -859,11 +932,13 @@ public class GameActivity extends BaseActivity {
                     public void onSelect(int position, String text) {
                         String flagStr = list[position];
                         String [] temp = flagStr.split("#");
-                        String offset = temp[0];
+                        String offset_str = temp[0];
                         String pos_str = temp[1];
                         String dir_str = temp[2];
                         String head_str = temp[3];
                         String last_str = temp[4];
+                        String curn_str = temp[5];
+                        String curSWC_str = temp[6];
 
                         float [] pos = new float[3];
                         float [] dir = new float[3];
@@ -881,23 +956,52 @@ public class GameActivity extends BaseActivity {
                         head[1] = Float.parseFloat(head_str.split(" ")[1]);
                         head[2] = Float.parseFloat(head_str.split(" ")[2]);
 
-                        if (filename_root != null && offset != null){
+                        if (filename_root != null && offset_str != null){
                             gameCharacter = new GameCharacter(pos, dir, head);
                             lastIndex = Integer.parseInt(last_str);
+                            curN = Integer.parseInt(curn_str);
+                            curSWC = Integer.parseInt(curSWC_str);
 
                             remoteSocket.disConnectFromHost();
                             remoteSocket.connectServer(ip_SEU);
-                            remoteSocket.pullImageBlockWhenLoadGame(filename_root, offset);
+                            remoteSocket.pullImageBlockWhenLoadGame(filename_root, offset_str);
+
+                            offset[0] = Integer.parseInt(offset_str.split("_")[0]);
+                            offset[1] = Integer.parseInt(offset_str.split("_")[1]);
+                            offset[2] = Integer.parseInt(offset_str.split("_")[2]);
+                            size = Integer.parseInt(offset_str.split("_")[3]);
 
                             myrenderer.clearCurSwcList();
-                            travelPath.clear();
+//                            travelPath.clear();
 
-                            File swcDir = new File(externalFileDir + "Game/SWCs");
+                            File swcDir = new File(externalFileDir + "/Game/SWCs");
                             if (swcDir.exists()){
-                                File swcFile = new File(externalFileDir + "Game/SWCs/" + filename_root + ".swc");
+                                File swcFile = new File(externalFileDir + "/Game/SWCs/" + filename_root + ".swc");
                                 if (swcFile.exists()){
-                                    NeuronTree nt = NeuronTree.readSWC_file(externalFileDir + "Game/SWCs/" + filename_root + ".swc");
-                                    myrenderer.importNeuronTree(nt);
+                                    NeuronTree nt = NeuronTree.readSWC_file(externalFileDir + "/Game/SWCs/" + filename_root + ".swc");
+//                                    myrenderer.importNeuronTree(nt);
+                                    try {
+                                        Vector<V_NeuronSWC> segs = nt.devideByBranch();
+                                        for (int i = 0; i < segs.size(); i++){
+                                            V_NeuronSWC seg = segs.get(i);
+                                            for (int j = 0; j < seg.nrows(); j++){
+                                                V_NeuronSWC_unit unit = seg.row.get(j);
+                                                if (unit.x > offset[0] + size / 2 || unit.x < offset[0] - size / 2
+                                                || unit.y > offset[1] + size / 2 || unit.y < offset[1] - size / 2
+                                                || unit.z > offset[2] + size / 2 || unit.z < offset[2] - size / 2){
+                                                    seg.row.remove(unit);
+                                                }
+                                            }
+
+                                            for (int j = 0; j < seg.nrows(); j++){
+                                                if (seg.getIndexofParent(j) == -1){
+                                                    seg.row.get(i).parent = -1;
+                                                }
+                                            }
+                                        }
+                                    } catch (Exception e){
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
 
@@ -1018,11 +1122,17 @@ public class GameActivity extends BaseActivity {
         String externalFileDir = context.getExternalFilesDir(null).toString();
 //        String filename_root = SettingFileManager.getFilename_Remote(context);
 
-        File swcDir = new File(externalFileDir + "Game/SWCs");
+        File swcDir = new File(externalFileDir + "/Game/SWCs");
+//        Log.d("InitSWCWriter", externalFileDir + "/Game/SWCs");
+
         if (!swcDir.exists()){
+            File parent = swcDir.getParentFile();
+            if (!parent.exists())
+                parent.mkdir();
             swcDir.mkdir();
         }
-        File swcFile = new File(externalFileDir + "Game/SWCs/" + filename_root + ".swc");
+        File swcFile = new File(externalFileDir + "/Game/SWCs/" + filename_root + ".swc");
+        Log.d("InitSWCWriter", filename_root + "  " + externalFileDir + "/Game/SWCs/" + filename_root + ".swc");
 
         if (!swcFile.exists()){
             try {
@@ -1065,8 +1175,8 @@ public class GameActivity extends BaseActivity {
             setPreserveEGLContextOnPause(true);
 
             //当发生交互时重新执行渲染， 需要配合requestRender();
-//            setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-            setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+            setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+//            setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
 
         }
