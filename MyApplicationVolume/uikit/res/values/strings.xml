@@ -2,14 +2,14 @@
 <resources>
 
     <!-- common -->
-    <string name="empty"></string>
+    <string name="empty">Empty</string>
     <string name="ok">确定</string>
     <string name="cancel">取消</string>
     <string name="clear_empty">清空</string>
     <string name="iknow">知道了</string>
     <string name="search">搜索</string>
-    <string name="remove">移除</string>
-    <string name="add">添加</string>
+    <string name="remove">Remove</string>
+    <string name="add">Add</string>
     <string name="create">新建</string>
     <string name="without_content">暂无</string>
     <string name="network_is_not_available">网络连接失败，请检查你的网络设置</string>
@@ -24,8 +24,8 @@
     <string name="error">错误</string>
 
     <!-- session -->
-    <string name="input_panel_photo">图 片</string>
-    <string name="input_panel_video">视 频</string>
+    <string name="input_panel_photo">Picture File</string>
+    <string name="input_panel_video">Video File</string>
     <string name="input_panel_location">位 置</string>
     <string name="input_panel_take">拍 摄</string>
     <string name="im_choose_pic">请选择JPG PNG BMP GIF格式的图片文件</string>

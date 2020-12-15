@@ -102,6 +102,9 @@
         <activity android:name="com.example.myapplication__volume.Nim.session.activity.WatchMultiRetweetActivity"/>
         <activity android:name="com.example.myapplication__volume.Nim.session.search.DisplayMessageActivity"/>
         <activity android:name="com.example.myapplication__volume.Nim.session.search.SearchMessageActivity"/>
+        <activity android:name="com.example.myapplication__volume.Nim.file.browser.FileBrowserActivity"/>
+        <activity android:name="com.example.myapplication__volume.Nim.activity.RobotListActivity"/>
+        <activity android:name="com.example.myapplication__volume.Nim.activity.BlackListActivity"/>
 
         <activity
             android:name="com.example.chat.ChatActivity"

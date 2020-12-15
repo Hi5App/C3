@@ -6,12 +6,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.activity.BlackListActivity;
+import com.example.myapplication__volume.Nim.activity.RobotListActivity;
 import com.example.myapplication__volume.Nim.activity.SystemMessageActivity;
 import com.example.myapplication__volume.Nim.helper.SystemMessageUnreadManager;
 import com.example.myapplication__volume.Nim.reminder.ReminderId;
 import com.example.myapplication__volume.Nim.reminder.ReminderItem;
 import com.example.myapplication__volume.Nim.reminder.ReminderManager;
+import com.example.myapplication__volume.Nim.session.SessionHelper;
 import com.example.myapplication__volume.R;
 import com.netease.nim.uikit.business.contact.core.item.AbsContactItem;
 import com.netease.nim.uikit.business.contact.core.item.ItemTypes;
@@ -139,16 +144,18 @@ public class FuncViewHolder extends AbsContactViewHolder<FuncViewHolder.FuncItem
             if (item == VERIFY) {
                 Log.e("FuncViewHolder","item == VERIFY");
                 SystemMessageActivity.start(context);
-//            } else if (item == ROBOT) {
-//                RobotListActivity.start(context);
-//            } else if (item == NORMAL_TEAM) {
+            } else if (item == ROBOT) {
+                RobotListActivity.start(context);
+            } else if (item == NORMAL_TEAM) {
 //                TeamListActivity.start(context, ItemTypes.TEAMS.NORMAL_TEAM);
-//            } else if (item == ADVANCED_TEAM) {
+                Toast.makeText(context,"Team Function is in development !",Toast.LENGTH_SHORT).show();
+            } else if (item == ADVANCED_TEAM) {
+                Toast.makeText(context,"Advanced Team Function is in development !",Toast.LENGTH_SHORT).show();
 //                TeamListActivity.start(context, ItemTypes.TEAMS.ADVANCED_TEAM);
-//            } else if (item == MY_COMPUTER) {
-//                SessionHelper.startP2PSession(context, DemoCache.getAccount());
-//            } else if (item == BLACK_LIST) {
-//                BlackListActivity.start(context);
+            } else if (item == MY_COMPUTER) {
+                SessionHelper.startP2PSession(context, DemoCache.getAccount());
+            } else if (item == BLACK_LIST) {
+                BlackListActivity.start(context);
             }
         }
     }

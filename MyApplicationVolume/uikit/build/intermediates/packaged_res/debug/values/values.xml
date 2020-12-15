@@ -368,7 +368,7 @@
     <item name="widget_video_view_pause" type="id"/>
     <item name="widget_video_view_texture" type="id"/>
     <item name="widget_video_view_time" type="id"/>
-    <string name="add">添加</string>
+    <string name="add">Add</string>
     <string name="advanced_team">高级群</string>
     <string name="all_images">全部图片</string>
     <string name="app_name">Library</string>
@@ -417,7 +417,7 @@
     <string name="download_video">正在下载视频</string>
     <string name="download_video_fail">视频下载失败,请重试</string>
     <string name="edit">编辑</string>
-    <string name="empty"/>
+    <string name="empty">Empty</string>
     <string name="error">错误</string>
     <string name="fail">失败</string>
     <string name="file_transfer_state_downloaded">已下载</string>
@@ -436,9 +436,9 @@
     <string name="image_compressed_size">该原始图片大小为: %1$s,</string>
     <string name="image_show_error">图片显示异常</string>
     <string name="input_panel_location">位 置</string>
-    <string name="input_panel_photo">图 片</string>
+    <string name="input_panel_photo">Picture File</string>
     <string name="input_panel_take">拍 摄</string>
-    <string name="input_panel_video">视 频</string>
+    <string name="input_panel_video">Video File</string>
     <string name="invite_member">邀请成员</string>
     <string name="invite_member_failed">邀请成员失败</string>
     <string name="invite_member_success">邀请成员成功</string>
@@ -529,7 +529,7 @@
     <string name="recording_error">录音失败，请重试</string>
     <string name="recording_init_failed">初始化录音失败</string>
     <string name="recording_max_time">录音达到最大时间，是否发送？</string>
-    <string name="remove">移除</string>
+    <string name="remove">Remove</string>
     <string name="remove_member">移出本群</string>
     <string name="remove_member_failed">移除成员失败</string>
     <string name="remove_member_success">移除成员成功</string>
@@ -631,7 +631,7 @@
     <string name="withdrawn_msg_not_count_notify">撤回(通知不计入未读数)</string>
     <string name="without_content">暂无</string>
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+        
         <item name="colorPrimary">@color/white</item>
         <item name="colorPrimaryDark">@color/color_gray_d9d9d9</item>
         <item name="colorAccent">@color/color_blue_0888ff</item>
@@ -647,7 +647,7 @@
         <item name="windowNoTitle">true</item>
     </style>
     <style name="DarkTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+        
         <item name="colorPrimary">@color/color_black_333333</item>
         <item name="colorPrimaryDark">@color/black</item>
         <item name="colorAccent">@color/color_blue_0888ff</item>
@@ -669,7 +669,7 @@
         <item name="colorPrimaryDark">@color/black</item>
     </style>
     <style name="LightBaseTheme" parent="Theme.AppCompat.NoActionBar">
-        <!-- Customize your theme here. -->
+        
         <item name="colorPrimary">@color/white</item>
         <item name="colorPrimaryDark">@color/white_opacity_80</item>
         <item name="colorAccent">@color/color_blue_0888ff</item>
@@ -755,17 +755,17 @@
     </style>
     <style name="easy_dialog_style" parent="@android:style/Theme.Dialog">
         <item name="android:windowFrame">@null</item>
-        <!-- 边框 -->
+        
         <item name="android:windowIsFloating">true</item>
-        <!-- 是否浮现在activity之上 -->
+        
         <item name="android:windowIsTranslucent">true</item>
-        <!-- 半透明 -->
+        
         <item name="android:windowNoTitle">true</item>
-        <!-- 无标题 -->
+        
         <item name="android:windowBackground">@color/transparent</item>
-        <!-- 背景透明 -->
+        
         <item name="android:backgroundDimEnabled">true</item>
-        <!-- 后面的activity变暗 -->
+        
     </style>
     <style name="edit_text_style">
         <item name="android:textCursorDrawable">@color/black</item>

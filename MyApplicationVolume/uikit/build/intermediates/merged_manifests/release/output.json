@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "applicationId": "com.netease.nim.uikit",
+  "variantType": "LIBRARY",
+  "elements": [
+    {
+      "outputType": {
+        "type": "MERGED_MANIFESTS"
+      },
+      "apkData": {
+        "type": "MAIN",
+        "splits": [],
+        "versionCode": 150,
+        "versionName": "8.1.0",
+        "outputFile": "uikit-release.aar",
+        "fullName": "release",
+        "baseName": "release",
+        "dirName": ""
+      },
+      "path": "../../library_manifest/release/AndroidManifest.xml",
+      "properties": {
+        "packageId": "com.netease.nim.uikit",
+        "split": ""
+      }
+    }
+  ]
+}

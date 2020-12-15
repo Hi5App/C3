@@ -17,9 +17,9 @@ public abstract class AbsNimLog {
 
     protected static void init(LogBase logImpl, String processName, String logDir, String logFileName,
                                int level, int maxLength, int baseLength, boolean shrink, LogBase.LogInterceptor interceptor) {
-        log = logImpl;
-        process = processName;
-        log.init(logDir, logFileName, level, maxLength, baseLength, shrink, interceptor);
+//        log = logImpl;
+//        process = processName;
+//        log.init(logDir, logFileName, level, maxLength, baseLength, shrink, interceptor);
     }
 
     public static void tryFlush() {
@@ -33,59 +33,59 @@ public abstract class AbsNimLog {
     }
 
     public static void v(String tag, String msg) {
-        log.v(buildTag(tag), buildMessage(msg));
+//        log.v(buildTag(tag), buildMessage(msg));
     }
 
     public static void v(String tag, String msg, Throwable thr) {
-        log.v(buildTag(tag), buildMessage(msg), thr);
+//        log.v(buildTag(tag), buildMessage(msg), thr);
     }
 
     public static void d(String tag, String msg) {
-        log.d(buildTag(tag), buildMessage(msg));
+//        log.d(buildTag(tag), buildMessage(msg));
     }
 
     public static void d(String tag, String msg, Throwable thr) {
-        log.d(buildTag(tag), buildMessage(msg), thr);
+//        log.d(buildTag(tag), buildMessage(msg), thr);
     }
 
     public static void i(String tag, String msg) {
-        log.i(buildTag(tag), buildMessage(msg));
+//        log.i(buildTag(tag), buildMessage(msg));
     }
 
     public static void i(String tag, String msg, Throwable thr) {
-        log.i(buildTag(tag), buildMessage(msg), thr);
+//        log.i(buildTag(tag), buildMessage(msg), thr);
     }
 
     public static void w(String tag, String msg) {
-        log.w(buildTag(tag), buildMessage(msg));
+//        log.w(buildTag(tag), buildMessage(msg));
     }
 
     public static void w(String tag, String msg, Throwable thr) {
-        log.w(buildTag(tag), buildMessage(msg), thr);
+//        log.w(buildTag(tag), buildMessage(msg), thr);
     }
 
     public static void w(String tag, Throwable thr) {
-        log.w(buildTag(tag), buildMessage(""), thr);
+//        log.w(buildTag(tag), buildMessage(""), thr);
     }
 
     public static void e(String tag, String msg) {
-        log.e(buildTag(tag), buildMessage(msg));
+//        log.e(buildTag(tag), buildMessage(msg));
     }
 
     public static void e(String tag, String msg, Throwable thr) {
-        log.e(buildTag(tag), buildMessage(msg), thr);
+//        log.e(buildTag(tag), buildMessage(msg), thr);
     }
 
     public static void ui(String msg) {
-        log.i(buildTag("ui"), buildMessage(msg));
+//        log.i(buildTag("ui"), buildMessage(msg));
     }
 
     public static void core(String msg) {
-        log.i(buildTag("core"), buildMessage(msg));
+//        log.i(buildTag("core"), buildMessage(msg));
     }
 
     public static void test(String msg) {
-        log.d(buildTag("test"), buildMessage(msg));
+//        log.d(buildTag("test"), buildMessage(msg));
     }
 
     protected static String buildTag(String tag) {

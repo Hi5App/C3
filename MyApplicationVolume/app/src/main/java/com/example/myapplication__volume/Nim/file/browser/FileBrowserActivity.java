@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import com.example.myapplication__volume.Nim.file.browser.FileBrowserAdapter.FileManagerItem;
 import com.example.myapplication__volume.R;
 import com.netease.nim.uikit.api.wrapper.NimToolBarOptions;
 import com.netease.nim.uikit.common.ToastHelper;
@@ -16,8 +18,6 @@ import com.netease.nim.uikit.common.activity.ToolBarOptions;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
-import com.example.myapplication__volume.Nim.file.browser.FileBrowserAdapter.FileManagerItem;
-
 
 import java.io.File;
 import java.util.ArrayList;
@@ -41,6 +41,7 @@ public class FileBrowserActivity extends UI implements TAdapterDelegate {
     private List<FileManagerItem> fileListItems = new ArrayList<>();
 
     public static void startActivityForResult(Activity activity, int reqCode) {
+        Log.e("startActivityForResult","Successfully Start load localFile");
         Intent intent = new Intent();
         intent.setClass(activity, FileBrowserActivity.class);
         activity.startActivityForResult(intent, reqCode);

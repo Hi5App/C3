@@ -43,4 +43,9 @@
     <color name="main_bg_color">#FFFFFF</color>
 
 
+    <color name="color_network_bar_bg_ee4b62">#ee4b62</color>
+    <color name="color_yellow_fcf3cd">#fcf3cd</color>
+
+
+
 </resources>

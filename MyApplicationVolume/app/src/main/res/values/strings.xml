@@ -186,6 +186,8 @@
     <string name="remove_friend_success">删除好友成功</string>
     <string name="add_friend_self_tip">不能添加自己为好友</string>
     <string name="add_friend_verify_tip">好友验证请求</string>
+    <string name="black_list_tip">你不会接收到列表中联系人的任何消息</string>
+
 
 
 
@@ -205,5 +207,9 @@
     <string name="tools_selected">选择工具</string>
     <string name="friends_map_navigation_web">在网页中打开</string>
     <string name="location_open_map_error">打开地图出错</string>
+
+
+    <!-- Me Fragment -->
+    <string name="settings_me">Settings</string>
 
 </resources>
