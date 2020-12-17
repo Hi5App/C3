@@ -88,7 +88,7 @@ import com.example.chat.model.MessageBean;
 import com.example.datastore.PreferenceLogin;
 import com.example.datastore.SettingFileManager;
 import com.example.myapplication__volume.Nim.DemoCache;
-import com.example.myapplication__volume.Nim.helper.SystemMessageUnreadManager;
+import com.example.myapplication__volume.Nim.main.helper.SystemMessageUnreadManager;
 import com.example.myapplication__volume.Nim.reminder.ReminderManager;
 import com.example.myapplication__volume.FileReader.AnoReader;
 import com.example.myapplication__volume.FileReader.ApoReader;
@@ -5029,7 +5029,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20201215a 16:34 UTC+8 build",
+                                "Version: 20201217a 21:34 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

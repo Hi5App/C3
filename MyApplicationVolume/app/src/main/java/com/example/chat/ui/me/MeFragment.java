@@ -1,5 +1,6 @@
 package com.example.chat.ui.me;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -9,12 +10,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
 import com.example.myapplication__volume.Nim.DemoCache;
 import com.example.myapplication__volume.Nim.contact.activity.UserProfileSettingActivity;
+import com.example.myapplication__volume.Nim.main.activity.SettingsActivity;
 import com.example.myapplication__volume.R;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.api.model.SimpleCallback;
@@ -74,7 +75,8 @@ public class MeFragment extends Fragment {
             if (v == rightArrow) {
                 UserProfileSettingActivity.start(getContext(),account);
             } else if (v == settingsLayout) {
-                Toast.makeText(getContext(),"Settings is in development !", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getContext(), SettingsActivity.class));
+//                Toast.makeText(getContext(),"Settings is in development !", Toast.LENGTH_SHORT).show();
             }
         }
     };

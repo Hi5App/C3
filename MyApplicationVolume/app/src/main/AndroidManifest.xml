@@ -91,7 +91,7 @@
 <!--            </intent-filter>-->
 <!--        </activity>-->
 
-        <activity android:name="com.example.myapplication__volume.Nim.activity.SystemMessageActivity"/>
+        <activity android:name=".Nim.main.activity.SystemMessageActivity"/>
         <activity android:name="com.example.myapplication__volume.Nim.contact.activity.RobotProfileActivity"/>
         <activity android:name="com.example.myapplication__volume.Nim.contact.activity.UserProfileActivity"/>
         <activity android:name="com.example.myapplication__volume.Nim.contact.activity.UserProfileEditItemActivity"/>
@@ -103,8 +103,12 @@
         <activity android:name="com.example.myapplication__volume.Nim.session.search.DisplayMessageActivity"/>
         <activity android:name="com.example.myapplication__volume.Nim.session.search.SearchMessageActivity"/>
         <activity android:name="com.example.myapplication__volume.Nim.file.browser.FileBrowserActivity"/>
-        <activity android:name="com.example.myapplication__volume.Nim.activity.RobotListActivity"/>
-        <activity android:name="com.example.myapplication__volume.Nim.activity.BlackListActivity"/>
+        <activity android:name="com.example.myapplication__volume.Nim.contact.activity.BlackListActivity"/>
+        <activity android:name="com.example.myapplication__volume.Nim.main.activity.CustomNotificationActivity"/>
+        <activity android:name=".Nim.main.activity.RobotListActivity"/>
+        <activity android:name=".Nim.main.activity.TeamListActivity"/>
+        <activity android:name=".Nim.main.activity.SettingsActivity"/>
+        <activity android:name=".Nim.main.activity.NoDisturbActivity"/>
 
         <activity
             android:name="com.example.chat.ChatActivity"
@@ -206,6 +210,8 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
+
     </application>
 
 </manifest>

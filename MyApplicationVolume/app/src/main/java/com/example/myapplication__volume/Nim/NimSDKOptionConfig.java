@@ -33,12 +33,18 @@ public class NimSDKOptionConfig {
     public static SDKOptions getSDKOptions(Context context) {
 
         SDKOptions options = new SDKOptions();
-        // 配置是否需要预下载附件缩略图，默认为 true
-        options.preloadAttach = true;
         options.appKey = "0fda06baee636802cb441b62e6f65549";
+
 
         // 如果将新消息通知提醒托管给SDK完成，需要添加以下配置。
         initStatusBarNotificationConfig(options);
+
+
+//        StatusBarNotificationConfig config = new StatusBarNotificationConfig();
+//        config.notificationEntrance = ChatActivity.class;
+//        config.notificationSmallIconId = R.drawable.ic_me;
+//        options.statusBarNotificationConfig = config;
+
         // 配置 APP 保存图片/语音/文件/log等数据的目录
         options.sdkStorageRootPath = context.getExternalFilesDir(null).toString() + "/nim"; // 可以不设置，那么将采用默认路径
         // 配置是否需要预下载附件缩略图
@@ -60,11 +66,11 @@ public class NimSDKOptionConfig {
         // 是否检查manifest 配置，调试阶段打开，调试通过之后请关掉
         options.checkManifestConfig = true;
         // 是否启用群消息已读功能，默认关闭
-        options.enableTeamMsgAck = false;
+        options.enableTeamMsgAck = true;
         // 打开消息撤回未读数-1的开关
         options.shouldConsiderRevokedMessageUnreadCount = true;
         // 云信私有化配置项
-//        configServerAddress(options, context);
+        configServerAddress(options, context);
 //        options.mixPushConfig = buildMixPushConfig();
         //        options.mNosTokenSceneConfig = createNosTokenScene();
 //        options.loginCustomTag = "登录自定义字段";
@@ -151,7 +157,7 @@ public class NimSDKOptionConfig {
         StatusBarNotificationConfig config = new StatusBarNotificationConfig();
         // 点击通知需要跳转到的界面
         config.notificationEntrance = ChatActivity.class;
-        config.notificationSmallIconId = R.drawable.ic_me;
+        config.notificationSmallIconId = R.mipmap.ic_launcher;
         config.notificationColor = DemoCache.getContext().getResources().getColor(R.color.color_blue_3a9efb);
         // 通知铃声的uri字符串
         config.notificationSound = "android.resource://com.netease.nim.demo/raw/msg";

@@ -100,6 +100,12 @@ public class RecentContactsFragment extends TFragment {
         emptyBg.setVisibility(empty ? View.VISIBLE : View.GONE);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // 进入最近联系人列表界面，建议放在onResume中。表示所有消息无需进行消息提醒。
+//        NIMClient.getService(MsgService.class).setChattingAccount(MsgService.MSG_CHATTING_ACCOUNT_ALL, SessionTypeEnum.None);
+    }
 
     @Override
     public void onDestroy() {

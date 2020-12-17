@@ -14,7 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.myapplication__volume.Nim.helper.MessageHelper;
+import com.example.myapplication__volume.Nim.main.helper.MessageHelper;
 import com.example.myapplication__volume.Nim.session.adapter.MultiRetweetAdapter;
 import com.example.myapplication__volume.Nim.session.extension.MultiRetweetAttachment;
 import com.example.myapplication__volume.R;

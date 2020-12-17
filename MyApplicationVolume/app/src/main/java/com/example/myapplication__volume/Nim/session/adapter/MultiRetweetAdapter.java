@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.myapplication__volume.Nim.DemoCache;
-import com.example.myapplication__volume.Nim.helper.MessageHelper;
+import com.example.myapplication__volume.Nim.main.helper.MessageHelper;
 import com.example.myapplication__volume.R;
 import com.netease.nim.uikit.business.session.activity.WatchMultiRetweetPictureActivity;
 import com.netease.nim.uikit.business.session.emoji.MoonUtil;

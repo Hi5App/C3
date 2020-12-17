@@ -10,7 +10,7 @@ import android.view.View;
 import com.example.myapplication__volume.Nim.DemoCache;
 import com.example.myapplication__volume.Nim.contact.activity.RobotProfileActivity;
 import com.example.myapplication__volume.Nim.contact.activity.UserProfileActivity;
-import com.example.myapplication__volume.Nim.helper.MessageHelper;
+import com.example.myapplication__volume.Nim.main.helper.MessageHelper;
 import com.example.myapplication__volume.Nim.session.action.FileAction;
 import com.example.myapplication__volume.Nim.session.action.GuessAction;
 import com.example.myapplication__volume.Nim.session.action.SnapChatAction;

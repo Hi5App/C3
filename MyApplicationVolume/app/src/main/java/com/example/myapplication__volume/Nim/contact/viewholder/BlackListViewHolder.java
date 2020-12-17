@@ -4,7 +4,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.example.myapplication__volume.Nim.activity.BlackListAdapter;
+import com.example.myapplication__volume.Nim.contact.activity.BlackListAdapter;
 import com.example.myapplication__volume.R;
 import com.netease.nim.uikit.business.uinfo.UserInfoHelper;
 import com.netease.nim.uikit.common.adapter.TViewHolder;

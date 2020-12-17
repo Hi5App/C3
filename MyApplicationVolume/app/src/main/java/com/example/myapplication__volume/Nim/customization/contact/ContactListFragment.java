@@ -1,6 +1,6 @@
 package com.example.myapplication__volume.Nim.customization.contact;
 
-import com.example.myapplication__volume.Nim.viewholder.FuncViewHolder;
+import com.example.myapplication__volume.Nim.main.viewholder.FuncViewHolder;
 import com.netease.nim.uikit.api.model.contact.ContactsCustomization;
 import com.netease.nim.uikit.business.contact.ContactsFragment;
 import com.netease.nim.uikit.business.contact.core.item.AbsContactItem;

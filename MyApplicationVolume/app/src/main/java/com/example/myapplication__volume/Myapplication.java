@@ -5,14 +5,19 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.basic.CrashHandler;
+import com.example.chat.ChatActivity;
 import com.example.chat.ChatManager;
-import com.example.chat.MessageActivity;
 import com.example.datastore.PreferenceLogin;
 import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.NIMInitManager;
 import com.example.myapplication__volume.Nim.NimSDKOptionConfig;
 import com.example.myapplication__volume.Nim.contact.ContactHelper;
+import com.example.myapplication__volume.Nim.event.DemoOnlineStateContentProvider;
+import com.example.myapplication__volume.Nim.mixpush.DemoPushContentProvider;
+import com.example.myapplication__volume.Nim.preference.UserPreferences;
 import com.example.myapplication__volume.Nim.session.NimDemoLocationProvider;
 import com.example.myapplication__volume.Nim.session.SessionHelper;
+import com.huawei.hms.support.common.ActivityMgr;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.api.UIKitOptions;
 import com.netease.nim.uikit.business.contact.core.query.PinYin;
@@ -62,6 +67,8 @@ public class Myapplication extends Application {
             // 1、UI相关初始化操作
             // 2、相关Service调用
 
+            ActivityMgr.INST.init(this);
+
             // init pinyin
             PinYin.init(this);
             PinYin.validate();
@@ -70,10 +77,12 @@ public class Myapplication extends Application {
             initUIKit();
 
             // 初始化消息提醒
-//            NIMClient.toggleNotification(UserPreferences.getNotificationToggle());
+            NIMClient.toggleNotification(UserPreferences.getNotificationToggle());
+//            NIMClient.toggleNotification(true);
 
+            // 包含一些通知栏提醒的设置
             // 云信sdk相关业务初始化
-//            NIMInitManager.getInstance().init(true);
+            NIMInitManager.getInstance().init(true);
 
         }
 
@@ -120,8 +129,8 @@ public class Myapplication extends Application {
 
         // 配置由sdk托管来接收新的消息通知
         StatusBarNotificationConfig config = new StatusBarNotificationConfig();
-        config.notificationEntrance = MessageActivity.class;
-        config.notificationSmallIconId = R.drawable.ic_me;
+        config.notificationEntrance = ChatActivity.class;
+        config.notificationSmallIconId = R.mipmap.ic_launcher;
         options.statusBarNotificationConfig = config;
 
         // 配置文件存储路径
@@ -150,11 +159,11 @@ public class Myapplication extends Application {
 //
         // 通讯录列表定制初始化
         ContactHelper.init();
-//
-//        // 添加自定义推送文案以及选项，请开发者在各端（Android、IOS、PC、Web）消息发送时保持一致，以免出现通知不一致的情况
-//        NimUIKit.setCustomPushContentProvider(new DemoPushContentProvider());
-//
-//        NimUIKit.setOnlineStateContentProvider(new DemoOnlineStateContentProvider());
+
+        // 添加自定义推送文案以及选项，请开发者在各端（Android、IOS、PC、Web）消息发送时保持一致，以免出现通知不一致的情况
+        NimUIKit.setCustomPushContentProvider(new DemoPushContentProvider());
+
+        NimUIKit.setOnlineStateContentProvider(new DemoOnlineStateContentProvider());
     }
 
 
