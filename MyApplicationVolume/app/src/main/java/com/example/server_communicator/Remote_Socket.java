@@ -1,5 +1,6 @@
 package com.example.server_communicator;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
@@ -692,7 +693,13 @@ public class Remote_Socket extends Socket {
     }
 
 
+    @SuppressLint("LongLogTag")
     public void pullImageBlockWhenLoadGame(String filename, String offset){
+
+        Log.d("pullImageBlockWhenLoadGame", filename + " " + offset);
+        socket_receive.setFileName_Backup(filename);
+        socket_receive.setNeuronNum_Backup("-1");
+        socket_receive.setOffset_Backup(offset);
 
         Thread thread = new Thread(){
 
@@ -2287,6 +2294,8 @@ public class Remote_Socket extends Socket {
         socket_receive.setOffset_Backup(offset);
 
     }
+
+
 
 
     public void switchRES(){

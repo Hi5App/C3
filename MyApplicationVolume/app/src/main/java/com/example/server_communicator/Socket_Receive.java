@@ -303,7 +303,6 @@ public class Socket_Receive {
 
                             if (!ifDownloaded[0]){
                                 try {
-
                                     if (!fileName_Backup.equals("") && !neuronNum_Backup.equals("") && !offset_Backup.equals("")) {
                                         setFilename_Remote(fileName_Backup,mContext);
                                         setNeuronNumber_Remote(neuronNum_Backup,fileName_Backup,mContext);

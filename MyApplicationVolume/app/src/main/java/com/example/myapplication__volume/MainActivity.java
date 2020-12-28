@@ -124,6 +124,8 @@ import com.tracingfunc.gsdt.GSDT;
 import com.tracingfunc.gsdt.ParaGSDT;
 import com.warkiz.widget.IndicatorSeekBar;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -173,9 +175,12 @@ import static com.example.datastore.SettingFileManager.getSelectSource;
 import static com.example.datastore.SettingFileManager.getUserAccount;
 import static com.example.datastore.SettingFileManager.getUserAccount_Check;
 import static com.example.datastore.SettingFileManager.getoffset_Remote;
+import static com.example.datastore.SettingFileManager.setFilename_Remote;
+import static com.example.datastore.SettingFileManager.setNeuronNumber_Remote;
 import static com.example.datastore.SettingFileManager.setSelectSource;
 import static com.example.datastore.SettingFileManager.setUserAccount;
 import static com.example.datastore.SettingFileManager.setUserAccount_Check;
+import static com.example.datastore.SettingFileManager.setoffset_Remote;
 import static java.lang.Math.abs;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -427,6 +432,8 @@ public class MainActivity extends BaseActivity {
     private static float [] gamePositionForIntent = {0.5f, 0.5f, 0.5f};
     private static float [] gameDirForIntent = {1, 1, 1};
     private static float [] gameHeadForIntent = {1, 0, -1};
+    private static int gameLastIndexForIntent = -1;
+    private static boolean gameIfNewForIntent = true;
 
     @SuppressLint("HandlerLeak")
     private Handler uiHandler = new Handler(){
@@ -534,7 +541,14 @@ public class MainActivity extends BaseActivity {
                         }else if(source.equals("Remote Server SEU")){
                             String filename = getFilename_Remote(context);
                             String brain_number = getNeuronNumber_Remote(context,filename);
-                            result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
+                            Log.d(TAG, "brain_number: " + brain_number);
+                            Log.d(TAG, "brain_number.split(\"_\")[0]: " + brain_number.split("_")[0]);
+                            if (brain_number.split("_")[0].equals("pre")){
+                                Log.d(TAG, "brain_number.split(\"_\")[0]: " + brain_number.split("_")[0]);
+                                result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[2];
+                            } else {
+                                result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
+                            }
                         }
                     }else {
                         String brain_num = getFilename_Remote(context);
@@ -5029,7 +5043,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20201217a 21:34 UTC+8 build",
+                                "Version: 20201228a 16:07 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5118,6 +5132,8 @@ public class MainActivity extends BaseActivity {
                                     case "New Game":
                                         setSelectSource("Remote Server SEU", context);
                                         BigFileRead_Remote(ip_SEU);
+//                                        setSelectSource("Remote Server Aliyun",context);
+//                                        BigFileRead_Remote(ip_ALiYun);
 
                                         break;
 
@@ -5223,9 +5239,35 @@ public class MainActivity extends BaseActivity {
 
                 line = buffreader.readLine();
                 archiveImageName = line;
+                String tempFilename = archiveImageName.split("/")[0];
+
+                File archiveSWCFile = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num + "/" + tempFilename + ".swc");
+                if (archiveSWCFile.exists()){
+                    File newSWCFile = new File(externalFileDir + "/Game/SWCs/" + tempFilename + ".swc");
+                    if (newSWCFile.exists()){
+                        newSWCFile.delete();
+                    }
+                    newSWCFile.createNewFile();
+
+                    FileUtils.copyFile(archiveSWCFile, newSWCFile);
+                } else {
+                    return false;
+                }
+
+                File archiveFlagFile = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num + "/" + tempFilename + ".txt");
+                if (archiveFlagFile.exists()){
+                    File newFlagFile = new File(externalFileDir + "/Game/Flags/" + tempFilename + ".txt");
+                    if (newFlagFile.exists()){
+                        newFlagFile.delete();
+                    }
+                    newFlagFile.createNewFile();
+
+                    FileUtils.copyFile(archiveFlagFile, newFlagFile);
+                }
 
                 line = buffreader.readLine();
                 archiveOffset = line;
+                Log.d(TAG, "LoadGame offset: " + archiveOffset);
 
                 line = buffreader.readLine();
                 pos[0] = Float.parseFloat(line.split(" ")[0]);
@@ -5242,17 +5284,26 @@ public class MainActivity extends BaseActivity {
                 head[1] = Float.parseFloat(line.split(" ")[1]);
                 head[2] = Float.parseFloat(line.split(" ")[2]);
 
+                line = buffreader.readLine();
+                gameLastIndexForIntent = Integer.parseInt(line);
+
                 inStream.close();//关闭输入流
 
                 gamePositionForIntent = pos;
                 gameDirForIntent = dir;
                 gameHeadForIntent = head;
 
+                gameIfNewForIntent = false;
+
                 if (archiveImageName != null && archiveOffset != null){
                     remote_socket.disConnectFromHost();
                     remote_socket.connectServer(ip_SEU);
+//                    remote_socket.connectServer(ip_ALiYun);
                     remote_socket.pullImageBlockWhenLoadGame(archiveImageName, archiveOffset);
 
+                    setFilename_Remote(archiveImageName, context);
+//                    setNeuronNumber_Remote(neuronNum_Backup,fileName_Backup,mContext);
+                    setoffset_Remote(archiveOffset, archiveImageName, context);
                 }
             }
         } catch (Exception e){
@@ -8084,10 +8135,14 @@ public class MainActivity extends BaseActivity {
                 gameIntent.putExtra("Position", gamePositionForIntent);
                 gameIntent.putExtra("Dir", gameDirForIntent);
                 gameIntent.putExtra("Head", gameHeadForIntent);
+                gameIntent.putExtra("LastIndex", gameLastIndexForIntent);
+                gameIntent.putExtra("IfNewGame", gameIfNewForIntent);
                 mainContext.startActivity(gameIntent);
                 gamePositionForIntent = new float[]{0.5f, 0.5f, 0.5f};
                 gameDirForIntent = new float[]{1, 1, 1};
                 gameHeadForIntent = new float[]{1, 0, -1};
+                gameLastIndexForIntent = -1;
+                gameIfNewForIntent = true;
             } catch (Exception e) {
                 e.printStackTrace();
             }

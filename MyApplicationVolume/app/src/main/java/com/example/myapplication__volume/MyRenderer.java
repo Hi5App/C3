@@ -100,7 +100,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private Vector<Vector<Integer>> undoChangeLineTypeIndex = new Vector<>();
     private Vector<Vector<Integer>> undoLineType = new Vector<>();
     private ArrayList<MarkerList> undoMarkerList = new ArrayList<>();
-//    private ArrayList<ArrayList<ImageMarker>> undoMarkerList = new ArrayList<>();
+    //    private ArrayList<ArrayList<ImageMarker>> undoMarkerList = new ArrayList<>();
     private ArrayList<V_NeuronSWC_list> undoCurveList = new ArrayList<>();
 
     public static final String OUT_OF_MEMORY = "OutOfMemory";
@@ -147,7 +147,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private final float[] scratch = new float[16];
     private final float[] vPMatrix = new float[16];
     private final float[] paravPMatrix = new float[16];
-//    private final float[] projectionMatrix = new float[16];
+    //    private final float[] projectionMatrix = new float[16];
     private final float[] paraProjectionMatrix = new float[16];
     private final float[] persProjectionMatrix = new float[16];
     private final float[] viewMatrix = new float[16];
@@ -202,7 +202,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private ArrayList<Float> swcDrawed = new ArrayList<Float>();
 
-//    private ArrayList<ImageMarker> MarkerList = new ArrayList<ImageMarker>();
+    //    private ArrayList<ImageMarker> MarkerList = new ArrayList<ImageMarker>();
     private MarkerList markerList = new MarkerList();
 
 //    private ArrayList<ImageMarker> MarkerList_loaded = new ArrayList<ImageMarker>();
@@ -265,6 +265,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private boolean ifGame = false;
     public static int threshold = 0;
 
+    private ArrayList<Float> gameFlags = new ArrayList<>();
 
     public MyRenderer(Context context){
         context_myrenderer = context;
@@ -567,6 +568,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 if (ifShowSWC) {
 
                     if (curSwcList.nsegs() > 0) {
+                        Log.d("onDrawFrame", "curSwcList.nsegs(): " + curSwcList.nsegs());
 //                  System.out.println("------------draw curswclist------------------------");
                         ArrayList<Float> lines = new ArrayList<Float>();
                         for (int i = 0; i < curSwcList.seg.size(); i++) {
@@ -589,11 +591,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                 int parentid = (int) child.parent;
                                 if (parentid == -1 || seg.getIndexofParent(j) == -1) {
 //                              System.out.println("parent -1");
-                                    float x = (int) child.x;
-                                    float y = (int) child.y;
-                                    float z = (int) child.z;
-                                    float[] position = volumetoModel(new float[]{x, y, z});
-                                    myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int) child.type);
+                                    if (!ifGame) {
+                                        float x = (int) child.x;
+                                        float y = (int) child.y;
+                                        float z = (int) child.z;
+                                        float[] position = volumetoModel(new float[]{x, y, z});
+                                        myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int) child.type);
+                                    }
                                     continue;
                                 }
                                 V_NeuronSWC_unit parent = swcUnitMap.get(j);
@@ -609,6 +613,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                 lines.add((float) ((child.z) / sz[2] * mz[2]));
 //                          System.out.println("in draw line--------------"+j);
 //                          System.out.println("type: "+parent.type);
+//                                Log.d("DrawLine", lines.toString());
                                 myDraw.drawLine(finalMatrix, lines, (int) parent.type);
                                 if (ifGame) {
                                     float x = lines.get(0) / mz[0] - 0.5f;
@@ -712,6 +717,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                    myDraw.drawMarker(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
                     myDraw.drawGameModel(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, dir, head);
                     myDraw.drawMarkerDepth(finalSmallMapMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
+
+                    for (int i = 0; i < gameFlags.size() / 3; i++){
+                        Log.d(TAG, "drawGameFlag");
+                        myPatternGame.drawFlag(finalMatrix, new float[]{gameFlags.get(i * 3), gameFlags.get(i * 3 + 1), gameFlags.get(i * 3 + 2)}, i+1);
+                    }
 
 //                    bitmap2D = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.star);
 //                    myPatternGame.setBackground(bitmap2D);
@@ -1150,6 +1160,94 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 
     }
+    //设置文件路径
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void setGamePath(String message){
+
+
+//        curSwcList.clear();
+        markerList.clear();
+        cur_scale = 1.0f;
+
+        undoCurveList.clear();
+        undoMarkerList.clear();
+
+        V_NeuronSWC_list v_neuronSWC_list = new V_NeuronSWC_list();
+        MarkerList markerList = new MarkerList();
+
+        undoCurveList.add(v_neuronSWC_list);
+        undoMarkerList.add(markerList);
+        curUndo = 0;
+
+        filepath = message;
+        SetFileType();
+
+        if (myAxis != null){
+            myAxis.setNeedRelease();
+        }
+
+        if (myDraw != null){
+            myDraw.freeLine();
+            myDraw.freeMarker();
+        }
+
+        if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD){
+            Log.v(TAG,"Before setImage()");
+            setImage();
+            ifFileLoaded = true;
+            ifFileSupport = true;
+        }
+
+        else if (fileType == FileType.SWC){
+            bitmap2D = null;
+            myPattern2D = null;
+            img = null;
+            setSWC();
+            ifFileLoaded = true;
+            ifFileSupport = true;
+        }
+
+        else if (fileType == FileType.PNG || fileType == FileType.JPG){
+            loadImage2D();
+            ifFileLoaded = true;
+            ifFileSupport = true;
+        }
+
+        else if (fileType == FileType.APO){
+            bitmap2D = null;
+            myPattern2D = null;
+            img = null;
+            setAPO();
+            ifFileLoaded = true;
+            ifFileSupport = true;
+        }
+
+        else if (fileType == FileType.ANO){
+            bitmap2D = null;
+            myPattern2D = null;
+            img = null;
+            setANO();
+            ifFileLoaded = true;
+            ifFileSupport = true;
+        }
+
+        else {
+            return;
+        }
+
+
+        Log.v("SetPath", Arrays.toString(mz));
+
+        Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
+        Matrix.setIdentityM(zoomMatrix,0);//建立单位矩阵
+        Matrix.setIdentityM(zoomAfterMatrix, 0);
+        Matrix.setIdentityM(rotationMatrix, 0);
+        Matrix.setRotateM(rotationMatrix, 0, 0, -1.0f, -1.0f, 0.0f);
+//        Matrix.setIdentityM(translateAfterMatrix, 0);
+        // Set the camera position (View matrix)
+        Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+
+    }
 
     public void setSWCPath(String message){
         filepath = message;
@@ -1219,7 +1317,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
-//    @RequiresApi(api = Build.VERSION_CODES.N)
+    //    @RequiresApi(api = Build.VERSION_CODES.N)
     private void loadImage2D(){
         File file = new File(filepath);
         long length = 0;
@@ -4452,12 +4550,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         //  save the swc file even if current swc is empty
 
 //        if(nt.listNeuron.size()>0){
-            String filePath = dir + "/" + nt.name + ".swc";
-            System.out.println("filepath: "+filePath);
-            boolean ifExits = nt.writeSWC_file(filePath);
-            if (ifExits)
-                error = "This file already exits";
-            return error;
+        String filePath = dir + "/" + nt.name + ".swc";
+        System.out.println("filepath: "+filePath);
+        boolean ifExits = nt.writeSWC_file(filePath);
+        if (ifExits)
+            error = "This file already exits";
+        return error;
 //        }else {
 //            return error = "Current swc is empty!";
 //        }
@@ -5536,6 +5634,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public void clearCurSwcList(){
+        Log.d(TAG, "ClearCurSwcList");
         curSwcList.clear();
     }
 
@@ -5544,13 +5643,58 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public void appendCurSWC(int curSWC, V_NeuronSWC_unit unit){
-        curSwcList.seg.get(curSWC).append(unit);
+//        curSwcList.seg.get(curSWC).append(unit);
+        curSwcList.seg.get(0).append(unit);
     }
 
     public void moveAllSWC(float [] dir, float dis){
         for (int i = 0; i < curSwcList.seg.size(); i++){
             curSwcList.seg.get(i).move(dir, dis);
         }
+
+        Log.d("MoveAllSWC", Integer.toString(curSwcList.nsegs()));
+    }
+
+    public V_NeuronSWC_list getCurSwcList(){
+        Log.d("GetCurSWCList", Integer.toString(curSwcList.nsegs()));
+        return curSwcList;
+    }
+
+    public void setCurSwcList(V_NeuronSWC_list list){
+        curSwcList = list;
+        Log.d("SetCurSWCList", Integer.toString(curSwcList.nsegs()) + " " + Integer.toString(list.nsegs()));
+    }
+
+    public int firstSwcLength(){
+        if (curSwcList.nsegs() > 0){
+            return curSwcList.seg.get(0).nrows();
+        }
+        return -1;
+    }
+
+    public void setGameFlags(ArrayList<Float> flags) {
+        gameFlags = (ArrayList<Float>) flags.clone();
+    }
+
+    public void appendGameFlags(float [] pos){
+        gameFlags.add(pos[0]);
+        gameFlags.add(pos[1]);
+        gameFlags.add(pos[2]);
+    }
+
+    public void clearGameFlags(){
+        gameFlags.clear();
+    }
+
+    public void moveGameFlags(float [] dir, float dis){
+        Log.d(TAG, "Before moveGameFlags: " + Arrays.toString(gameFlags.toArray()));
+        for (int i = 0; i < gameFlags.size() / 3; i++){
+            gameFlags.set(i * 3, gameFlags.get(i * 3) + dir[0] * dis);
+            gameFlags.set(i * 3 + 1, gameFlags.get(i * 3 + 1) + dir[1] * dis);
+            gameFlags.set(i * 3 + 2, gameFlags.get(i * 3 + 2) + dir[2] * dis);
+        }
+        Log.d(TAG, "After moveGameFlags: " + Arrays.toString(gameFlags.toArray()));
+
     }
 
     private void convertToPerspective(float [] dis){

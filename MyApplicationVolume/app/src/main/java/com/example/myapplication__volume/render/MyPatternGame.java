@@ -1,9 +1,15 @@
 package com.example.myapplication__volume.render;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.opengl.GLUtils;
+import android.opengl.Matrix;
 import android.util.Log;
 
 import com.example.basic.ByteTranslate;
@@ -12,10 +18,12 @@ import com.example.basic.XYZ;
 import com.example.game.GameMapPoint;
 import com.example.myapplication__volume.GameActivity;
 
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -53,6 +61,10 @@ public class MyPatternGame {
     private static int mProgramGame;
     private static int mProgramMarker;
     private static int mProgramBackground;
+    private static int mProgramFlag;
+    private static int mProgramNumbers;
+
+    private FloatBuffer vertexBuffer_flag;
 
     private FloatBuffer vertexBuffer;
 
@@ -62,6 +74,7 @@ public class MyPatternGame {
     private float [] markerPoints_half;
     private float [] markerPoints_quarter;
     private float [] markerPoints_norm;
+    private float [] flagPoints;
 
     private float defaultRadius = 0.002f;
 
@@ -74,6 +87,8 @@ public class MyPatternGame {
     private static int vertexPoints_handle = 0;
     private static int normalizePoints_handle = 1;
     private static int colorPoints_handle = 2;
+
+    private static int coordPoints_handle = 1;
 
     public final static float[][] colormap = {
             {0f,0f,0f},
@@ -115,6 +130,13 @@ public class MyPatternGame {
 
     private float bgRadius = 1.0f;
 
+    private Bitmap [] numbersBitmap = new Bitmap[10];
+    private int [][] numbersTexture = new int[10][1];
+
+    private float [] coordNumbers = new float[6];
+
+    private FloatBuffer vertexBuffer_numbers;
+    private FloatBuffer coordBuffer_numbers;
 
     private static final String vertexShaderCode_game =
             // This matrix member variable provides a hook to manipulate
@@ -238,7 +260,7 @@ public class MyPatternGame {
                     "}";
 
     private static final String vertexShaderCode_points =
-                    "#version 300 es\n" +
+            "#version 300 es\n" +
                     "layout (location = 0) in vec4 vPosition;\n" +
 
                     "uniform mat4 uMVPMatrix;" +
@@ -250,7 +272,7 @@ public class MyPatternGame {
 
 
     private static final String fragmentShaderCode_points =
-                    "#version 300 es\n" +
+            "#version 300 es\n" +
                     "precision mediump float;\n" +
                     "out vec4 fragColor;\n" +
                     "void main() {\n" +
@@ -263,7 +285,7 @@ public class MyPatternGame {
     private static final String vertexShaderCode_marker =
             // This matrix member variable provides a hook to manipulate
             // the coordinates of the objects that use this vertex shader
-                    "#version 300 es\n" +
+            "#version 300 es\n" +
                     "layout (location = 0) in vec4 vPosition;" +
                     "layout (location = 1) in vec3 aVertexNormal;" +
                     "layout (location = 2) in vec4 vColor;"+
@@ -275,12 +297,13 @@ public class MyPatternGame {
                     "out vec4 vOutColor;" +
 
                     "void main() {" +
-                    "    gl_Position = uMVPMatrix * vPosition;" +
+                    "    gl_Position = vPosition;" +
 
                     "    vec3 uAmbientColor = vec3(0.2, 0.2, 0.2);\n" +
                     "    vec3 uDirectionalColor = vec3(0.8, 0.8, 0.8);\n" +
+
                     "    vec3 directionalVector = normalize(vec3(-1.0, 1.0, -1.0));\n" +
-                    "    vec3 transformedNormal = (uNormalMatrix * vec4(aVertexNormal, 1.0)).xyz;\n" +
+                    "    vec3 transformedNormal = (uNormalMatrix * vec4(normalize(aVertexNormal), 1.0)).xyz;\n" +
                     "    float directionalLightWeighting = max(dot(transformedNormal, directionalVector), 0.0);\n" +
                     "    vLighting = uAmbientColor + uDirectionalColor * directionalLightWeighting;" +
                     "    vOutColor = vColor;"+
@@ -289,7 +312,7 @@ public class MyPatternGame {
 
 
     private static final String fragmentShaderCode_marker =
-                    "#version 300 es\n" +
+            "#version 300 es\n" +
                     "precision mediump float;" +
 
                     "in vec4 vOutColor;" +
@@ -300,6 +323,7 @@ public class MyPatternGame {
 //                    "  vec4 markerColor = vec4(0.29, 0.13, 0.36, 1.0);" +
 //                    "  vec4 markerColor = vec4(1.0, 0.0, 0.0, 1.0);" +
                     "  vec4 markerColor = vOutColor;"+
+//                            "FragColor = vOutColor;"+
                     "  FragColor = vec4(markerColor.rgb * vLighting, 1.0);" +
                     "}";
 
@@ -328,12 +352,56 @@ public class MyPatternGame {
                     "   fragColor = texture(vTexture, aCoordinate);" +
                     "}";
 
+    private static final String vertexShaderCode_flag =
+            "#version 300 es\n" +
+                    "layout (location = 0) in vec4 vPosition;\n" +
+
+                    "void main() {\n" +
+                    "     gl_Position  = vPosition;\n" +
+                    "}\n";
+
+
+    private static final String fragmentShaderCode_flag =
+            "#version 300 es\n" +
+                    "precision mediump float;\n" +
+                    "out vec4 fragColor;\n" +
+                    "void main() {\n" +
+                    "     fragColor = vec4(1.0,1.0,1.0,1.0);\n" +
+                    "}\n";
+
+    private static final String vertexShaderCode_numbers =
+            "#version 300 es\n" +
+                    "layout (location = 0) in vec4 vPosition;" +
+                    "layout (location = 1) in vec2 vCoordinate;" +
+
+
+                    "out vec2 aCoordinate;" +
+
+                    "void main() {" +
+                    "  gl_Position = vPosition;" +
+                    "  aCoordinate = vCoordinate;" +
+                    "}";
+
+    private static final String fragmentShaderCode_numbers =
+            "#version 300 es\n" +
+                    "precision mediump float;" +
+
+                    "uniform sampler2D vTexture;" +
+                    "in vec2 aCoordinate;" +
+                    "out vec4 fragColor;" +
+
+                    "void main() {" +
+                    "   fragColor = texture(vTexture, aCoordinate);" +
+                    "}";
+
     public MyPatternGame(int width, int height, Image4DSimple img, float [] mz, int [] sz){
         image = img;
         dim = mz;
         this.sz = sz;
 
         initMap();
+
+        initFontBitmap();
 
         setPanoramicPosition();
 
@@ -478,6 +546,34 @@ public class MyPatternGame {
                 0, 0, -defaultRadius/4,
         };
 
+        flagPoints = new float[]{
+                -0.005f, 0,     0,
+                0.005f,  0,     0,
+                -0.005f, 0.05f, 0,
+
+                0.005f,  0,     0,
+                0.005f,  0.05f, 0,
+                -0.005f, 0.05f, 0,
+
+                -0.005f, 0.05f, 0,
+                -0.005f, 0.2f,  0,
+                0.15f,  0.05f, 0,
+
+                -0.005f, 0.2f,  0,
+                0.15f,  0.05f, 0,
+                0.15f,  0.2f,  0,
+        };
+
+        coordNumbers = new float[]{
+                0, 1,
+                0, 0,
+                1, 1,
+
+                0, 0,
+                1, 1,
+                1, 0,
+        };
+
         gamePos = new float[3];
 
 //        timer = new Timer();
@@ -509,6 +605,8 @@ public class MyPatternGame {
         mProgramGame = initProgram(vertexShaderCode_points, fragmentShaderCode_points);
         mProgramMarker = initProgram(vertexShaderCode_marker, fragmentShaderCode_marker);
         mProgramBackground = initProgram(vertexShaderCode_background, fragmentShaderCode_background);
+        mProgramFlag = initProgram(vertexShaderCode_flag, fragmentShaderCode_flag);
+        mProgramNumbers = initProgram(vertexShaderCode_numbers, fragmentShaderCode_numbers);
     }
 
     private static int initProgram(String vertShaderCode, String fragmShaderCode){
@@ -710,10 +808,10 @@ public class MyPatternGame {
             fp = (count2 == 0) ? 0 : (sum2 / count2); //前景像素点的平均灰度值
             T = newT;
             newT = (bp + fp) / 2;
-
         }
         threshold = newT; //最佳阈值
         Log.d("threshold",String.valueOf(threshold));
+
 
         if (threshold >= 35 & threshold <= 45)
             threshold += 2;
@@ -822,9 +920,7 @@ public class MyPatternGame {
         //启用顶点的句柄
         GLES30.glEnableVertexAttribArray(normalizePoints_handle);
 
-        //准备颜色数据
-        GLES30.glVertexAttribPointer(colorPoints_handle,3,GLES30.GL_FLOAT, false, 0,colorBuffer_marker);
-        GLES30.glEnableVertexAttribArray(colorPoints_handle);
+
 
         // get handle to vertex shader's uMVPMatrix member
         int vPMatrixHandle_marker = GLES30.glGetUniformLocation(mProgramMarker,"uMVPMatrix");
@@ -842,12 +938,16 @@ public class MyPatternGame {
 
         GLES30.glEnable(GLES30.GL_DEPTH_TEST);
         for (int i = 0; i < lightPoints.size(); i++){
-            bufferSet_Marker(lightPoints.get(i).x, lightPoints.get(i).y, lightPoints.get(i).z, lightPoints.get(i).radius);
+            bufferSet_Marker(lightPoints.get(i).x, lightPoints.get(i).y, lightPoints.get(i).z, lightPoints.get(i).radius, mvpMatrix, lightPoints.get(i).type, lightPoints.get(i).proportion);
 
             //准备坐标数据
             GLES30.glVertexAttribPointer(vertexPoints_handle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_marker);
             //启用顶点的句柄
             GLES30.glEnableVertexAttribArray(vertexPoints_handle);
+
+            //准备颜色数据
+            GLES30.glVertexAttribPointer(colorPoints_handle,3,GLES30.GL_FLOAT, false, 0,colorBuffer_marker);
+            GLES30.glEnableVertexAttribArray(colorPoints_handle);
 
             GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, markerPoints.length/3);
         }
@@ -855,12 +955,16 @@ public class MyPatternGame {
         Log.d("DrawMarker", "RemovedPoints: " + Integer.toString(removedPoints.size()));
 
         for (int i = 0; i < removedPoints.size(); i++){
-            bufferSet_Marker(removedPoints.get(i).x, removedPoints.get(i).y, removedPoints.get(i).z, removedPoints.get(i).radius);
+            bufferSet_Marker(removedPoints.get(i).x, removedPoints.get(i).y, removedPoints.get(i).z, removedPoints.get(i).radius, mvpMatrix, removedPoints.get(i).type, removedPoints.get(i).proportion);
 
             //准备坐标数据
             GLES30.glVertexAttribPointer(vertexPoints_handle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_marker);
             //启用顶点的句柄
             GLES30.glEnableVertexAttribArray(vertexPoints_handle);
+
+            //准备颜色数据
+            GLES30.glVertexAttribPointer(colorPoints_handle,3,GLES30.GL_FLOAT, false, 0,colorBuffer_marker);
+            GLES30.glEnableVertexAttribArray(colorPoints_handle);
 
             GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, markerPoints.length/3);
         }
@@ -881,30 +985,56 @@ public class MyPatternGame {
         GLES30.glDisableVertexAttribArray(colorPoints_handle);
     }
 
-    private void bufferSet_Marker(float x, float y, float z, float r){
+    public void drawFlag(float [] matrix, float [] pos, int num){
+        bufferSet_Flag(matrix, pos);
 
-//        if (r == defaultRadius) {
-//            markerVertexPoints = new float[markerPoints.length];
-//            for (int i = 0; i < markerPoints.length / 3; i++) {
-//                markerVertexPoints[i * 3] = x / (float) (sz[0]) * dim[0] + markerPoints[i * 3];
-//                markerVertexPoints[i * 3 + 1] = y / (float) (sz[1]) * dim[1] + markerPoints[i * 3 + 1];
-//                markerVertexPoints[i * 3 + 2] = z / (float) (sz[2]) * dim[2] + markerPoints[i * 3 + 2];
-//            }
-//        } else if (r == defaultRadius / 2){
-//            markerVertexPoints = new float[markerPoints_half.length];
-//            for (int i = 0; i < markerPoints_half.length / 3; i++) {
-//                markerVertexPoints[i * 3] = x / (float) (sz[0]) * dim[0] + markerPoints_half[i * 3];
-//                markerVertexPoints[i * 3 + 1] = y / (float) (sz[1]) * dim[1] + markerPoints_half[i * 3 + 1];
-//                markerVertexPoints[i * 3 + 2] = z / (float) (sz[2]) * dim[2] + markerPoints_half[i * 3 + 2];
-//            }
-//        } else if (r == defaultRadius / 4){
-//            markerVertexPoints = new float[markerPoints_quarter.length];
-//            for (int i = 0; i < markerPoints_quarter.length / 3; i++) {
-//                markerVertexPoints[i * 3] = x / (float) (sz[0]) * dim[0] + markerPoints_quarter[i * 3];
-//                markerVertexPoints[i * 3 + 1] = y / (float) (sz[1]) * dim[1] + markerPoints_quarter[i * 3 + 1];
-//                markerVertexPoints[i * 3 + 2] = z / (float) (sz[2]) * dim[2] + markerPoints_quarter[i * 3 + 2];
-//            }
-//        }
+        GLES30.glUseProgram(mProgramFlag);
+
+        //准备坐标数据
+        GLES30.glVertexAttribPointer(vertexPoints_handle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_flag);
+        //启用顶点的句柄
+        GLES30.glEnableVertexAttribArray(vertexPoints_handle);
+
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, flagPoints.length / 3);
+
+        GLES30.glDisableVertexAttribArray(vertexPoints_handle);
+
+        bufferSet_Numbers(matrix, pos);
+
+        GLES30.glUseProgram(mProgramNumbers);
+
+        GLES30.glActiveTexture(GLES30.GL_TEXTURE0); //设置使用的纹理编号
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, numbersTexture[num][0]); //绑定指定的纹理id
+
+        GLES30.glVertexAttribPointer(vertexPoints_handle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_numbers);
+
+        GLES30.glEnableVertexAttribArray(vertexPoints_handle);
+
+        GLES30.glVertexAttribPointer(coordPoints_handle, 2, GLES30.GL_FLOAT, false, 0, coordBuffer_numbers);
+
+        GLES30.glEnableVertexAttribArray(coordPoints_handle);
+
+        GLES30.glUniform1i(GLES30.glGetUniformLocation(mProgramNumbers, "vTexture"), 0);
+
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, coordNumbers.length / 2);
+
+        GLES30.glDisableVertexAttribArray(vertexPoints_handle);
+        GLES30.glDisableVertexAttribArray(coordPoints_handle);
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0);
+    }
+
+    private void bufferSet_Marker(float x, float y, float z, float r, float [] matrix, int type, float proportion){
+
+        colorPoints_marker = new float[markerPoints.length];//colormap[type];
+        for(int i=0; i<colorPoints_marker.length; i++){
+            colorPoints_marker[i] = colormap[type % 7][i % 3] * proportion;
+        }
+        colorBuffer_marker = ByteBuffer.allocateDirect(colorPoints_marker.length*4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        colorBuffer_marker.put(colorPoints_marker);
+        colorBuffer_marker.position(0);
+
 
         markerPoints = new float[]{
                 r, 0, 0,
@@ -940,11 +1070,27 @@ public class MyPatternGame {
                 0, 0, -r,
         };
 
+//        float [] pos = new float[]{x, y, z, 1.0f};
+        float [] pos = new float[]{x / (float) (sz[0]) * dim[0] , y / (float) (sz[1]) * dim[1], z / (float) (sz[2]) * dim[2], 1.0f};
+        float [] posAfter = new float[4];
+        Matrix.multiplyMV(posAfter, 0, matrix, 0, pos, 0);
+//        posAfter[0] = posAfter[0] / posAfter[3];
+//        posAfter[1] = posAfter[1] / posAfter[3];
+//        posAfter[2] = posAfter[2] / posAfter[3];
+        float [] posDivide = new float[]{posAfter[0] / posAfter[3], posAfter[1] / posAfter[3], posAfter[2] / posAfter[3]};
+//        Log.d(TAG, "posDivide: " + Arrays.toString(posDivide));
+
+
         markerVertexPoints = new float[markerPoints.length];
+//        for (int i = 0; i < markerPoints.length / 3; i++) {
+//            markerVertexPoints[i * 3] = x / (float) (sz[0]) * dim[0] + markerPoints[i * 3];
+//            markerVertexPoints[i * 3 + 1] = y / (float) (sz[1]) * dim[1] + markerPoints[i * 3 + 1];
+//            markerVertexPoints[i * 3 + 2] = z / (float) (sz[2]) * dim[2] + markerPoints[i * 3 + 2];
+//        }
         for (int i = 0; i < markerPoints.length / 3; i++) {
-            markerVertexPoints[i * 3] = x / (float) (sz[0]) * dim[0] + markerPoints[i * 3];
-            markerVertexPoints[i * 3 + 1] = y / (float) (sz[1]) * dim[1] + markerPoints[i * 3 + 1];
-            markerVertexPoints[i * 3 + 2] = z / (float) (sz[2]) * dim[2] + markerPoints[i * 3 + 2];
+            markerVertexPoints[i * 3] = posDivide[0] + markerPoints[i * 3] * 10;
+            markerVertexPoints[i * 3 + 1] = posDivide[1] + markerPoints[i * 3 + 1] * 10;
+            markerVertexPoints[i * 3 + 2] = posDivide[2] + markerPoints[i * 3 + 2] * 10;
         }
 
 //        markerVertexPoints =createPositions(x / (float)(sz[0]) * dim[0], y / (float)(sz[1]) * dim[1], z / (float)(sz[2]) * dim[2], 0.01f);
@@ -960,20 +1106,20 @@ public class MyPatternGame {
     }
 
     private void bufferSet_Type(int type){
-        colorPoints_marker = new float[markerPoints.length];//colormap[type];
-        for(int i=0; i<colorPoints_marker.length; i++){
-            colorPoints_marker[i] = colormap[type % 7][i % 3];
-        }
-        colorBuffer_marker = ByteBuffer.allocateDirect(colorPoints_marker.length*4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer();
-        colorBuffer_marker.put(colorPoints_marker);
-        colorBuffer_marker.position(0);
+//        colorPoints_marker = new float[markerPoints.length];//colormap[type];
+//        for(int i=0; i<colorPoints_marker.length; i++){
+//            colorPoints_marker[i] = colormap[type % 7][i % 3];
+//        }
+//        colorBuffer_marker = ByteBuffer.allocateDirect(colorPoints_marker.length*4)
+//                .order(ByteOrder.nativeOrder())
+//                .asFloatBuffer();
+//        colorBuffer_marker.put(colorPoints_marker);
+//        colorBuffer_marker.position(0);
 
 //        normalizePoints_marker_small = createNormlizes(6.0f);
         normalizePoints_marker_small = new float[markerPoints.length];
         for (int i = 0; i < normalizePoints_marker_small.length; i++){
-            normalizePoints_marker_small[i] = markerPoints[i] + 0.5f;
+            normalizePoints_marker_small[i] = markerPoints[i];
         }
         // for the marker
         //分配内存空间,每个浮点型占4字节空间
@@ -983,6 +1129,54 @@ public class MyPatternGame {
         //传入指定的坐标数据
         normalizeBuffer_marker_small.put(normalizePoints_marker_small);
         normalizeBuffer_marker_small.position(0);
+    }
+
+    private void bufferSet_Flag(float [] matrix, float [] flag){
+        float [] tempVertex = new float[4];
+        Matrix.multiplyMV(tempVertex, 0, matrix, 0, new float[]{flag[0], flag[1], flag[2], 1.0f}, 0);
+        float [] vertexDivide = new float[]{tempVertex[0] / tempVertex[3], tempVertex[1] / tempVertex[3], tempVertex[2] / tempVertex[3]};
+
+
+        float [] vertex = new float[flagPoints.length];
+        for (int i = 0; i < flagPoints.length / 3; i++){
+            vertex[i * 3] = vertexDivide[0] + flagPoints[i * 3];
+            vertex[i * 3 + 1] = vertexDivide[1] + flagPoints[i * 3 + 1];
+            vertex[i * 3 + 2] = vertexDivide[2] + flagPoints[i * 3 + 2];
+        }
+
+        vertexBuffer_flag = ByteBuffer.allocateDirect(flagPoints.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+
+        vertexBuffer_flag.put(vertex);
+        vertexBuffer_flag.position(0);
+    }
+
+    private void bufferSet_Numbers(float [] matrix, float [] flag){
+        float [] tempVertex = new float[4];
+        Matrix.multiplyMV(tempVertex, 0, matrix, 0, new float[]{flag[0], flag[1], flag[2], 1.0f}, 0);
+        float [] vertexDivide = new float[]{tempVertex[0] / tempVertex[3], tempVertex[1] / tempVertex[3], tempVertex[2] / tempVertex[3]};
+
+        float [] vertex = new float[coordNumbers.length / 2 * 3];
+        for (int i = 0; i < coordNumbers.length / 2; i++){
+            vertex[i * 3] = vertexDivide[0] + flagPoints[i * 3 + 18];
+            vertex[i * 3 + 1] = vertexDivide[1] + flagPoints[i * 3 + 19];
+            vertex[i * 3 + 2] = vertexDivide[2] + flagPoints[i * 3 + 20] - 0.01f;
+        }
+
+        vertexBuffer_numbers = ByteBuffer.allocateDirect(vertex.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+
+        vertexBuffer_numbers.put(vertex);
+        vertexBuffer_numbers.position(0);
+
+        coordBuffer_numbers = ByteBuffer.allocateDirect(coordNumbers.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+
+        coordBuffer_numbers.put(coordNumbers);
+        coordBuffer_numbers.position(0);
     }
 
     private void bufferSet(){
@@ -1025,8 +1219,10 @@ public class MyPatternGame {
 
             if (distance(temp, temp2) < 10){
                 Log.d("RemovePointsByCenter", "Removed!!!");
+                GameActivity.addScore(temp.score);
                 removedPoints.add(lightPoints.remove(i));
-                GameActivity.addScore(10);
+            } else if (distance(temp, temp2) < 20){
+                temp.updateScore();
             }
         }
 
@@ -1360,6 +1556,69 @@ public class MyPatternGame {
 //        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP,0,bgPosition.length / 3);
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES,0,bgPosition.length / 3);
 
+    }
+
+    public void initFontBitmap(){
+
+        for (int i = 0; i < 10; i++) {
+//            Rect rect = new Rect(100, 100, 500, 500);
+//            Paint rectPaint = new Paint();
+//            rectPaint.setColor(Color.WHITE);
+//            rectPaint.setStyle(Paint.Style.FILL);
+            String font = Integer.toString(i);
+            numbersBitmap[i] = Bitmap.createBitmap(256, 256, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(numbersBitmap[i]);
+            //背景颜色
+            canvas.drawColor(Color.WHITE);
+//            canvas.drawRect(rect, rectPaint);
+            Paint p = new Paint();
+            //字体设置
+            String fontType = "宋体";
+            Typeface typeface = Typeface.create(fontType, Typeface.BOLD);
+            //消除锯齿
+            p.setAntiAlias(true);
+            //字体为红色
+            p.setColor(Color.BLACK);
+            p.setTypeface(typeface);
+            p.setTextSize(100);
+//            Paint.FontMetrics fontMetrics = p.getFontMetrics();
+
+            float textWidth = p.measureText(font);
+            float baseLineY = Math.abs(p.ascent() + p.descent()) / 2;
+
+//            p.setTextAlign(Paint.Align.CENTER);
+//            int baseLineY = (int)(rect.centerY() - top / 2 - bottom / 2);
+            //绘制字体
+//            canvas.drawText(font, -textWidth / 2, baseLineY, p);
+            canvas.drawText(font, 100, 150, p);
+
+            GLES30.glEnable(GLES30.GL_TEXTURE_2D);
+
+            GLES30.glGenTextures(1, numbersTexture[i], 0);
+
+            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, numbersTexture[i][0]);
+
+            //设置缩小过滤为使用纹理中坐标最接近的一个像素的颜色作为需要绘制的像素颜色
+            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER,GLES30.GL_NEAREST);
+
+            //设置放大过滤为使用纹理中坐标最接近的若干个颜色，通过加权平均算法得到需要绘制的像素颜色
+            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,GLES30.GL_TEXTURE_MAG_FILTER,GLES30.GL_LINEAR);
+
+            //设置环绕方向S，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
+            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S,GLES30.GL_CLAMP_TO_EDGE);
+
+            //设置环绕方向T，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
+            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T,GLES30.GL_CLAMP_TO_EDGE);
+
+            //根据以上指定的参数，生成一个2D纹理
+            GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, numbersBitmap[i], 0);
+
+            GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D);
+
+            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,0);
+
+
+        }
     }
 
     public void free(){
