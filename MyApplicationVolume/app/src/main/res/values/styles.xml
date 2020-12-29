@@ -52,4 +52,12 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+
+
+    <!--Style for Splash Screen-->
+    <style name="SplashScreenTheme" parent="AppTheme.NoActionBar">
+        <item name="android:windowFullscreen">true</item>
+        <item name ="android:windowBackground"> @drawable/splash_screen_background</item>
+    </style>
+
 </resources>

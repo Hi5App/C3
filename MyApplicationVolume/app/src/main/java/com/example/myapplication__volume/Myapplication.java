@@ -170,7 +170,7 @@ public class Myapplication extends Application {
     private UIKitOptions buildUIKitOptions() {
         UIKitOptions options = new UIKitOptions();
         // 设置app图片/音频/日志等缓存目录
-        options.appCacheDir = this.getExternalCacheDir().toString() + "/chat";
+        options.appCacheDir = "/storage/emulated/0/C3/Chat/";
         return options;
     }
 

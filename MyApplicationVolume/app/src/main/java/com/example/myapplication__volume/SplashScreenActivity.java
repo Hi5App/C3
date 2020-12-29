@@ -5,6 +5,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.alibaba.fastjson.JSON;
 import com.example.datastore.PreferenceLogin;
@@ -13,11 +17,8 @@ import com.example.myapplication__volume.Nim.mixpush.DemoMixPushMessageHandler;
 import com.example.myapplication__volume.Nim.util.sys.SysInfoUtil;
 import com.example.myapplication__volume.ui.login.LoginActivity;
 import com.netease.nim.uikit.api.NimUIKit;
-import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.util.log.LogUtil;
-import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.NimIntent;
-import com.netease.nimlib.sdk.mixpush.MixPushService;
 import com.netease.nimlib.sdk.msg.MessageBuilder;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
@@ -25,40 +26,49 @@ import com.netease.nimlib.sdk.msg.model.IMMessage;
 import java.util.ArrayList;
 import java.util.Map;
 
-/**
- * 欢迎/导航页（app启动Activity）
- * <p/>
- * Created by huangjun on 2015/2/1.
- */
-public class WelcomeActivity extends UI {
+public class SplashScreenActivity extends AppCompatActivity {
 
-    private static final String TAG = "WelcomeActivity";
+    private static final String TAG = "SplashScreenActivity";
 
     private boolean customSplash = false;
 
     private static boolean firstEnter = true; // 是否首次进入
 
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_welcome);
+        setContentView(R.layout.activity_splash_screen);
+
+        Log.e(TAG, " Before DemoCache.setMainTaskLaunching(true) ");
 
         DemoCache.setMainTaskLaunching(true);
+
+        Log.e(TAG, " After DemoCache.setMainTaskLaunching(true) ");
 
         if (savedInstanceState != null) {
             setIntent(new Intent()); // 从堆栈恢复，不再重复解析之前的intent
         }
+
+        Log.e(TAG, " Before if (!firstEnter) { ");
 
         if (!firstEnter) {
             onIntent(); // APP进程还在，Activity被重新调度起来
         } else {
             showSplashView(); // APP进程重新起来
         }
+
+        Log.e(TAG, " After if (!firstEnter) { ");
+
     }
+
+
+
 
     private void showSplashView() {
         // 首次进入，打开欢迎界面
-        getWindow().setBackgroundDrawableResource(R.drawable.splash_bg);
+//        getWindow().setBackgroundDrawableResource(R.drawable.splash_bg);
+        getWindow().setBackgroundDrawableResource(R.drawable.splash_screen_background);
         customSplash = true;
     }
 
@@ -95,7 +105,7 @@ public class WelcomeActivity extends UI {
                     if (canAutoLogin()) {
                         onIntent();
                     } else {
-                        LoginActivity.start(WelcomeActivity.this);
+                        LoginActivity.start(SplashScreenActivity.this);
                         finish();
                     }
                 }
@@ -133,8 +143,7 @@ public class WelcomeActivity extends UI {
         if (TextUtils.isEmpty(DemoCache.getAccount())) {
             // 判断当前app是否正在运行
             if (!SysInfoUtil.stackResumed(this)) {
-                Intent intent = new Intent(WelcomeActivity.this, LoginActivity.class);
-                startActivity(intent);
+                LoginActivity.start(this);
             }
             finish();
         } else {
@@ -144,12 +153,9 @@ public class WelcomeActivity extends UI {
                 if (intent.hasExtra(NimIntent.EXTRA_NOTIFY_CONTENT)) {
                     parseNotifyIntent(intent);
                     return;
-                } else if (NIMClient.getService(MixPushService.class).isFCMIntent(intent)) {
-                    parseFCMNotifyIntent(NIMClient.getService(MixPushService.class).parseFCMPayload(intent));
+//                } else if (NIMClient.getService(MixPushService.class).isFCMIntent(intent)) {
+//                    parseFCMNotifyIntent(NIMClient.getService(MixPushService.class).parseFCMPayload(intent));
                 }
-//                } else if (intent.hasExtra(AVChatExtras.EXTRA_FROM_NOTIFICATION) || intent.hasExtra(AVChatActivity.INTENT_ACTION_AVCHAT)) {
-//                    parseNormalIntent(intent);
-//                }
             }
 
             if (!firstEnter && intent == null) {
@@ -202,15 +208,14 @@ public class WelcomeActivity extends UI {
         showMainActivity(null);
     }
 
-    private void showMainActivity(Intent extras) {
-        Intent intent = new Intent();
-        intent.setClass(WelcomeActivity.this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        if (extras != null) {
-            intent.putExtras(extras);
-        }
-        startActivity(intent);
+    private void showMainActivity(Intent intent) {
+        PreferenceLogin preferenceLogin = new PreferenceLogin(this);
+        String account = preferenceLogin.getUsername();
+        Toast.makeText(getApplicationContext(),"Welcome, " + account +" !",Toast.LENGTH_SHORT).show();
+
+        MainActivity.actionStart(this, account);
         finish();
+
     }
 
 }

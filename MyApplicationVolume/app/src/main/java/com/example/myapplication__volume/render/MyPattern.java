@@ -1085,9 +1085,9 @@ public class MyPattern{
 
     private int initFBO(int width, int height){
 
-//        Log.v("Width of screen:",Integer.toString(width));
+//        Log.v("Width of splash_background:",Integer.toString(width));
 
-//        Log.v("Height of screen:",Integer.toString(height));
+//        Log.v("Height of splash_background:",Integer.toString(height));
 
         GLES30.glGenFramebuffers(  //创建帧缓冲对象
                 1, //产生帧缓冲id的数量

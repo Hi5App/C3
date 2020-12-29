@@ -339,6 +339,7 @@ drawable ic_capture_delete
 drawable ic_capture_light_off
 drawable ic_capture_light_on
 drawable ic_capture_switch
+drawable ic_splash_logo
 drawable icon_full
 drawable icon_loading
 drawable icon_photo_normal

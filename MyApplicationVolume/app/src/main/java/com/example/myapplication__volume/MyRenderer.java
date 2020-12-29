@@ -5061,7 +5061,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     /*
-    judge if there are something wrong in init img, avoid Splash screen
+    judge if there are something wrong in init img, avoid Splash splash_background
      */
     public boolean judgeImg(){
 

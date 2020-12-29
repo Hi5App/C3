@@ -462,11 +462,11 @@ public class SystemBarTintManager {
         }
 
         /**
-         * Should a navigation bar appear at the bottom of the screen in the current
+         * Should a navigation bar appear at the bottom of the splash_background in the current
          * device configuration? A navigation bar may appear on the right side of
-         * the screen in certain configurations.
+         * the splash_background in certain configurations.
          *
-         * @return True if navigation should appear at the bottom of the screen, False otherwise.
+         * @return True if navigation should appear at the bottom of the splash_background, False otherwise.
          */
         public boolean isNavigationAtBottom() {
             return (mSmallestWidthDp >= 600 || mInPortrait);
@@ -510,7 +510,7 @@ public class SystemBarTintManager {
         }
 
         /**
-         * Get the width of the system navigation bar when it is placed vertically on the screen.
+         * Get the width of the system navigation bar when it is placed vertically on the splash_background.
          *
          * @return The width of the navigation bar (in pixels). If the device does not have
          * soft navigation keys, this will always return 0.
@@ -520,7 +520,7 @@ public class SystemBarTintManager {
         }
 
         /**
-         * Get the layout inset for any system UI that appears at the top of the screen.
+         * Get the layout inset for any system UI that appears at the top of the splash_background.
          *
          * @param withActionBar True to include the height of the action bar, False otherwise.
          * @return The layout inset (in pixels).
@@ -530,7 +530,7 @@ public class SystemBarTintManager {
         }
 
         /**
-         * Get the layout inset for any system UI that appears at the bottom of the screen.
+         * Get the layout inset for any system UI that appears at the bottom of the splash_background.
          *
          * @return The layout inset (in pixels).
          */
@@ -543,7 +543,7 @@ public class SystemBarTintManager {
         }
 
         /**
-         * Get the layout inset for any system UI that appears at the right of the screen.
+         * Get the layout inset for any system UI that appears at the right of the splash_background.
          *
          * @return The layout inset (in pixels).
          */

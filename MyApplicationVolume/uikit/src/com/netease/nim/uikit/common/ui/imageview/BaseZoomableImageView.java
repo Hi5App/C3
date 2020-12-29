@@ -248,7 +248,7 @@ public abstract class BaseZoomableImageView extends View {
         setImageMatrix(getImageViewMatrix());
         mMaxZoom = maxZoom();
 
-        // Set the image to fit the screen
+        // Set the image to fit the splash_background
         if (fitScreen) {
             zoomToScreen();
         }
@@ -441,7 +441,7 @@ public abstract class BaseZoomableImageView extends View {
     }
 
     // Sets the maximum zoom, which is a scale relative to the base matrix. It is calculated to show
-    // the image at 400% zoom regardless of screen or image orientation. If in the future we decode
+    // the image at 400% zoom regardless of splash_background or image orientation. If in the future we decode
     // the full 3 megapixel image, rather than the current 1024x768, this should be changed down to
     // 200%.
     protected float maxZoom() {

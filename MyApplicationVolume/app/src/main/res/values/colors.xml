@@ -46,6 +46,9 @@
     <color name="color_network_bar_bg_ee4b62">#ee4b62</color>
     <color name="color_yellow_fcf3cd">#fcf3cd</color>
 
+    <color name="color_blue_splash_screen">#3a9efb</color>
+
+
 
 
 </resources>

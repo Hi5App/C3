@@ -1879,6 +1879,7 @@ drawable design_password_eye
 drawable design_snackbar_background
 drawable down_icon
 drawable global_blue_round_box_4
+drawable ic_baseline_keyboard_arrow_left_24
 drawable ic_capture_bg
 drawable ic_capture_btn_1
 drawable ic_capture_delete
@@ -1889,6 +1890,7 @@ drawable ic_mtrl_checked_circle
 drawable ic_mtrl_chip_checked_black
 drawable ic_mtrl_chip_checked_circle
 drawable ic_mtrl_chip_close_circle
+drawable ic_splash_logo
 drawable icon_full
 drawable icon_loading
 drawable icon_photo_normal

@@ -87,11 +87,10 @@ import com.example.chat.MessageUtil;
 import com.example.chat.model.MessageBean;
 import com.example.datastore.PreferenceLogin;
 import com.example.datastore.SettingFileManager;
-import com.example.myapplication__volume.Nim.DemoCache;
-import com.example.myapplication__volume.Nim.main.helper.SystemMessageUnreadManager;
-import com.example.myapplication__volume.Nim.reminder.ReminderManager;
 import com.example.myapplication__volume.FileReader.AnoReader;
 import com.example.myapplication__volume.FileReader.ApoReader;
+import com.example.myapplication__volume.Nim.main.helper.SystemMessageUnreadManager;
+import com.example.myapplication__volume.Nim.reminder.ReminderManager;
 import com.example.myapplication__volume.ui.login.LoginActivity;
 import com.example.server_communicator.Remote_Socket;
 import com.feature_calc_func.MorphologyCalculate;
@@ -703,7 +702,8 @@ public class MainActivity extends BaseActivity {
         mChatManager = Myapplication.the().getChatManager();
         mRtmClient = mChatManager.getRtmClient();
 
-        doLoginChat();
+
+//        doLoginChat();
 
         mClientListener = new MyRtmClientListener();
         mChatManager.registerListener(mClientListener);
@@ -1906,6 +1906,32 @@ public class MainActivity extends BaseActivity {
             return false;
         }
         return true;
+    }
+
+
+    /**
+     * quick start for MainActivity
+     * @param context
+     */
+
+    public static void start(Context context) {
+        start(context, null);
+    }
+
+
+    /**
+     * quick start for MainActivity
+     * @param context
+     * @param extras
+     */
+    public static void start(Context context, Intent extras) {
+        Intent intent = new Intent();
+        intent.setClass(context, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (extras != null) {
+            intent.putExtras(extras);
+        }
+        context.startActivity(intent);
     }
 
 
@@ -5043,7 +5069,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20201228a 16:07 UTC+8 build",
+                                "Version: 20201229a 15:07 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -6152,7 +6178,8 @@ public class MainActivity extends BaseActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         // 清理缓存&注销监听&清除状态
                         NimUIKit.logout();
-                        DemoCache.clear();
+                        NIMClient.getService(AuthService.class).logout();
+//                        DemoCache.clear();
                         PreferenceLogin preferenceLogin = new PreferenceLogin(MainActivity.this);
                         preferenceLogin.setPref("","",false);
                         startActivity(new Intent(MainActivity.this, LoginActivity.class));
@@ -6167,9 +6194,7 @@ public class MainActivity extends BaseActivity {
                 })
                 .create();
         aDialog.show();
-        // 清理缓存&注销监听&清除状态
-        NimUIKit.logout();
-        DemoCache.clear();    }
+    }
 
 
     private void CrashInfoShare(){
@@ -6535,7 +6560,7 @@ public class MainActivity extends BaseActivity {
                 Toast.makeText(getContext(), "Run successfully.", Toast.LENGTH_SHORT).show();
                 myrenderer.resetImg(img);
                 myGLSurfaceView.requestRender();
-                Toast.makeText(getContext(), "Have been shown on the screen.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Have been shown on the splash_background.", Toast.LENGTH_SHORT).show();
             }
 
             progressBar.setVisibility(View.INVISIBLE);

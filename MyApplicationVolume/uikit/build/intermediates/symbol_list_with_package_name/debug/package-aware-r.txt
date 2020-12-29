@@ -1890,6 +1890,7 @@ drawable ic_mtrl_checked_circle
 drawable ic_mtrl_chip_checked_black
 drawable ic_mtrl_chip_checked_circle
 drawable ic_mtrl_chip_close_circle
+drawable ic_splash_logo
 drawable icon_full
 drawable icon_loading
 drawable icon_photo_normal

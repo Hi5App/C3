@@ -1878,6 +1878,7 @@ int drawable design_password_eye 0x0
 int drawable design_snackbar_background 0x0
 int drawable down_icon 0x0
 int drawable global_blue_round_box_4 0x0
+int drawable ic_baseline_keyboard_arrow_left_24 0x0
 int drawable ic_capture_bg 0x0
 int drawable ic_capture_btn_1 0x0
 int drawable ic_capture_delete 0x0
@@ -1888,6 +1889,7 @@ int drawable ic_mtrl_checked_circle 0x0
 int drawable ic_mtrl_chip_checked_black 0x0
 int drawable ic_mtrl_chip_checked_circle 0x0
 int drawable ic_mtrl_chip_close_circle 0x0
+int drawable ic_splash_logo 0x0
 int drawable icon_full 0x0
 int drawable icon_loading 0x0
 int drawable icon_photo_normal 0x0

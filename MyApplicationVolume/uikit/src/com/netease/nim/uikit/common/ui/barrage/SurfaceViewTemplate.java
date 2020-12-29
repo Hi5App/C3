@@ -86,7 +86,7 @@ public abstract class SurfaceViewTemplate extends SurfaceView implements Surface
             // get canvas
             canvas = mHolder.lockCanvas(); // 如果SurfaceView不在前台，这里会阻塞
             if (canvas != null) {
-                // clear screen
+                // clear splash_background
                 canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
                 // do draw task

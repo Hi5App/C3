@@ -46,7 +46,8 @@ public class NimSDKOptionConfig {
 //        options.statusBarNotificationConfig = config;
 
         // 配置 APP 保存图片/语音/文件/log等数据的目录
-        options.sdkStorageRootPath = context.getExternalFilesDir(null).toString() + "/nim"; // 可以不设置，那么将采用默认路径
+//        options.sdkStorageRootPath = context.getExternalFilesDir(null).toString() + "/nim"; // 可以不设置，那么将采用默认路径
+        options.sdkStorageRootPath = "/storage/emulated/0/C3/Chat/" + "/nim"; // 可以不设置，那么将采用默认路径
         // 配置是否需要预下载附件缩略图
         options.preloadAttach = true;
         // 配置附件缩略图的尺寸大小
