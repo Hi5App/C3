@@ -175,7 +175,6 @@ import static com.example.datastore.SettingFileManager.getUserAccount;
 import static com.example.datastore.SettingFileManager.getUserAccount_Check;
 import static com.example.datastore.SettingFileManager.getoffset_Remote;
 import static com.example.datastore.SettingFileManager.setFilename_Remote;
-import static com.example.datastore.SettingFileManager.setNeuronNumber_Remote;
 import static com.example.datastore.SettingFileManager.setSelectSource;
 import static com.example.datastore.SettingFileManager.setUserAccount;
 import static com.example.datastore.SettingFileManager.setUserAccount_Check;
