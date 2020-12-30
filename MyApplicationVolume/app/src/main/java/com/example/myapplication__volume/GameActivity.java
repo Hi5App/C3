@@ -290,6 +290,8 @@ public class GameActivity extends BaseActivity {
             lastPlace = new float[]{position[0], position[1], position[2]};
             lastIndex = 0;
 
+            clearScore();
+
 
             Log.d("swcWriter", "Write first point");
             try {
@@ -336,11 +338,11 @@ public class GameActivity extends BaseActivity {
                     V_NeuronSWC seg = new V_NeuronSWC();
                     for (int i = 0; i < nt.listNeuron.size(); i++) {
                         NeuronSWC unit = nt.listNeuron.get(i);
-                        if (unit.x > offset[0] + size / 2 || unit.x < offset[0] - size / 2
-                                || unit.y > offset[1] + size / 2 || unit.y < offset[1] - size / 2
-                                || unit.z > offset[2] + size / 2 || unit.z < offset[2] - size / 2) {
-
-                        } else {
+//                        if (unit.x > offset[0] + size / 2 || unit.x < offset[0] - size / 2
+//                                || unit.y > offset[1] + size / 2 || unit.y < offset[1] - size / 2
+//                                || unit.z > offset[2] + size / 2 || unit.z < offset[2] - size / 2) {
+//
+//                        } else {
                             V_NeuronSWC_unit newUnit = new V_NeuronSWC_unit();
                             newUnit.n = unit.n;
                             newUnit.x = unit.x - offset[0] + size / 2;
@@ -350,7 +352,7 @@ public class GameActivity extends BaseActivity {
                             newUnit.type = unit.type;
 
                             seg.append(newUnit);
-                        }
+//                        }
                     }
 
                     if (seg.nrows() > 0) {
@@ -362,38 +364,40 @@ public class GameActivity extends BaseActivity {
 //                    Log.d("LoadFlag", "CurSWCList first point: " + myrenderer.getCurSwcList().seg.get(0).row.get(0).x
 //                            + " " + myrenderer.getCurSwcList().seg.get(0).row.get(0).y + " " + myrenderer.getCurSwcList().seg.get(0).row.get(0).z);
 
-                    File flagFile = new File(externalFileDir + "/Game/Flags/" + filename_root + ".txt");
-                    BufferedReader flagReader = new BufferedReader(new InputStreamReader(new FileInputStream(flagFile)));
-                    ArrayList<String> arrayList = new ArrayList<>();
-                    try {
-                        String str;
-                        while ((str = flagReader.readLine()) != null){
-                            arrayList.add(str);
-                        }
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
 
-                    for (int i = 0; i < arrayList.size(); i++){
-                        String str = arrayList.get(i);
-                        String offset_str = str.split("#")[1];
-                        String pos_str = str.split("#")[2];
-                        float [] offsetFlag = new float[3];
-                        offsetFlag[0] = Float.parseFloat(offset_str.split("_")[0]);
-                        offsetFlag[1] = Float.parseFloat(offset_str.split("_")[1]);
-                        offsetFlag[2] = Float.parseFloat(offset_str.split("_")[2]);
-                        float size = Float.parseFloat(offset_str.split("_")[3]);
-                        float [] posFlag = new float[3];
-                        posFlag[0] = Float.parseFloat(pos_str.split(" ")[0]);
-                        posFlag[1] = Float.parseFloat(pos_str.split(" ")[1]);
-                        posFlag[2] = Float.parseFloat(pos_str.split(" ")[2]);
-                        float [] curFlag = new float[3];
-                        curFlag[0] = (posFlag[0] * size + offsetFlag[0] - offset[0]) / size;
-                        curFlag[1] = (posFlag[1] * size + offsetFlag[1] - offset[1]) / size;
-                        curFlag[2] = (posFlag[2] * size + offsetFlag[2] - offset[2]) / size;
-                        myrenderer.appendGameFlags(curFlag);
-                    }
 
+                }
+
+                File flagFile = new File(externalFileDir + "/Game/Flags/" + filename_root + ".txt");
+                BufferedReader flagReader = new BufferedReader(new InputStreamReader(new FileInputStream(flagFile)));
+                ArrayList<String> arrayList = new ArrayList<>();
+                try {
+                    String str;
+                    while ((str = flagReader.readLine()) != null){
+                        arrayList.add(str);
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+
+                for (int i = 0; i < arrayList.size(); i++){
+                    String str = arrayList.get(i);
+                    String offset_str = str.split("#")[1];
+                    String pos_str = str.split("#")[2];
+                    float [] offsetFlag = new float[3];
+                    offsetFlag[0] = Float.parseFloat(offset_str.split("_")[0]);
+                    offsetFlag[1] = Float.parseFloat(offset_str.split("_")[1]);
+                    offsetFlag[2] = Float.parseFloat(offset_str.split("_")[2]);
+                    float size = Float.parseFloat(offset_str.split("_")[3]);
+                    float [] posFlag = new float[3];
+                    posFlag[0] = Float.parseFloat(pos_str.split(" ")[0]);
+                    posFlag[1] = Float.parseFloat(pos_str.split(" ")[1]);
+                    posFlag[2] = Float.parseFloat(pos_str.split(" ")[2]);
+                    float [] curFlag = new float[3];
+                    curFlag[0] = (posFlag[0] * size + offsetFlag[0] - offset[0]) / size;
+                    curFlag[1] = (posFlag[1] * size + offsetFlag[1] - offset[1]) / size;
+                    curFlag[2] = (posFlag[2] * size + offsetFlag[2] - offset[2]) / size;
+                    myrenderer.appendGameFlags(curFlag);
                 }
             } catch (Exception e){
                 e.printStackTrace();
@@ -472,6 +476,7 @@ public class GameActivity extends BaseActivity {
                                 myrenderer.setCurSwcList(curSWCList);
                                 myrenderer.moveAllSWC(volumneNormalDir, 64);
                                 myrenderer.moveGameFlags(negativeDir, 0.5f);
+                                myrenderer.removeWhileLoad(offset, size);
 
 //                                myrenderer.clearCurSwcList();
 //                                myrenderer.addSwc(travelPath);
@@ -631,6 +636,12 @@ public class GameActivity extends BaseActivity {
 
     public static void addScore(int s){
         score += s;
+
+        updateScore();
+    }
+
+    public static void clearScore(){
+        score = 0;
 
         updateScore();
     }
@@ -970,11 +981,11 @@ public class GameActivity extends BaseActivity {
                         V_NeuronSWC seg = new V_NeuronSWC();
                         for (int i = 0; i < nt.listNeuron.size(); i++){
                             NeuronSWC unit = nt.listNeuron.get(i);
-                            if (unit.x > offset[0] + size / 2 || unit.x < offset[0] - size / 2
-                                    || unit.y > offset[1] + size / 2 || unit.y < offset[1] - size / 2
-                                    || unit.z > offset[2] + size / 2 || unit.z < offset[2] - size / 2){
-
-                            } else {
+//                            if (unit.x > offset[0] + size / 2 || unit.x < offset[0] - size / 2
+//                                    || unit.y > offset[1] + size / 2 || unit.y < offset[1] - size / 2
+//                                    || unit.z > offset[2] + size / 2 || unit.z < offset[2] - size / 2){
+//
+//                            } else {
                                 V_NeuronSWC_unit newUnit = new V_NeuronSWC_unit();
                                 newUnit.n = unit.n;
                                 newUnit.x = unit.x - offset[0] + size / 2;
@@ -984,7 +995,7 @@ public class GameActivity extends BaseActivity {
                                 newUnit.type = unit.type;
 
                                 seg.append(newUnit);
-                            }
+//                            }
                         }
 
                         if (seg.nrows() > 0){
@@ -1031,6 +1042,9 @@ public class GameActivity extends BaseActivity {
                     curFlag[2] = (posFlag[2] * size + offsetFlag[2] - offset[2]) / size;
                     myrenderer.appendGameFlags(curFlag);
                 }
+
+                clearScore();
+                myrenderer.removeWhileLoad(offset, size);
 
             }
         } catch (Exception e) {
@@ -1218,8 +1232,8 @@ public class GameActivity extends BaseActivity {
                             if (swcDir.exists()){
                                 File swcFile = new File(externalFileDir + "/Game/SWCs/" + filename_root + ".swc");
                                 if (swcFile.exists()){
-                                    Log.d("LoadFlag", "SwcFile exits");
-                                    Log.d("LoadFlag", externalFileDir + "/Game/SWCs/" + filename_root + ".swc");
+//                                    Log.d("LoadFlag", "SwcFile exits");
+//                                    Log.d("LoadFlag", externalFileDir + "/Game/SWCs/" + filename_root + ".swc");
                                     NeuronTree nt = NeuronTree.readSWC_file(externalFileDir + "/Game/SWCs/" + filename_root + ".swc");
 //                                    myrenderer.importNeuronTree(nt);
                                     try {
@@ -1227,11 +1241,11 @@ public class GameActivity extends BaseActivity {
                                         V_NeuronSWC seg = new V_NeuronSWC();
                                         for (int i = 0; i < nt.listNeuron.size(); i++){
                                             NeuronSWC unit = nt.listNeuron.get(i);
-                                            if (unit.x > offset[0] + size / 2 || unit.x < offset[0] - size / 2
-                                                    || unit.y > offset[1] + size / 2 || unit.y < offset[1] - size / 2
-                                                    || unit.z > offset[2] + size / 2 || unit.z < offset[2] - size / 2){
-
-                                            } else {
+//                                            if (unit.x > offset[0] + size / 2 || unit.x < offset[0] - size / 2
+//                                                    || unit.y > offset[1] + size / 2 || unit.y < offset[1] - size / 2
+//                                                    || unit.z > offset[2] + size / 2 || unit.z < offset[2] - size / 2){
+//
+//                                            } else {
                                                 V_NeuronSWC_unit newUnit = new V_NeuronSWC_unit();
                                                 newUnit.n = unit.n;
                                                 newUnit.x = unit.x - offset[0] + size / 2;
@@ -1241,17 +1255,17 @@ public class GameActivity extends BaseActivity {
                                                 newUnit.type = unit.type;
 
                                                 seg.append(newUnit);
-                                            }
+//                                            }
                                         }
 
                                         if (seg.nrows() > 0){
                                             myrenderer.addSwc(seg);
                                         }
 
-                                        Log.d("LoadFlag", "CurSWCList: " + myrenderer.getCurSwcList().nsegs());
-                                        Log.d("LoadFlag", "CurSWCList seg0 size: " + myrenderer.getCurSwcList().seg.get(0).nrows());
-                                        Log.d("LoadFlag", "CurSWCList first point: " + myrenderer.getCurSwcList().seg.get(0).row.get(0).x
-                                                + " " + myrenderer.getCurSwcList().seg.get(0).row.get(0).y + " " + myrenderer.getCurSwcList().seg.get(0).row.get(0).z);
+//                                        Log.d("LoadFlag", "CurSWCList: " + myrenderer.getCurSwcList().nsegs());
+//                                        Log.d("LoadFlag", "CurSWCList seg0 size: " + myrenderer.getCurSwcList().seg.get(0).nrows());
+//                                        Log.d("LoadFlag", "CurSWCList first point: " + myrenderer.getCurSwcList().seg.get(0).row.get(0).x
+//                                                + " " + myrenderer.getCurSwcList().seg.get(0).row.get(0).y + " " + myrenderer.getCurSwcList().seg.get(0).row.get(0).z);
                                     } catch (Exception e){
                                         e.printStackTrace();
                                     }
@@ -1278,6 +1292,7 @@ public class GameActivity extends BaseActivity {
                                 myrenderer.appendGameFlags(curFlag);
                             }
 
+                            myrenderer.removeWhileLoad(offset, size);
                         }
                         myGLSurfaceView.requestRender();
                     }

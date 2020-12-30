@@ -1231,6 +1231,26 @@ public class MyPatternGame {
 //        bufferSet();
     }
 
+    public void removePointsByCenterWhileLoad(float [] pos){
+        float [] centerPos = new float[]{
+                pos[0] * (float) (sz[0]) / dim[0],
+                pos[1] * (float) (sz[1]) / dim[1],
+                pos[2] * (float) (sz[2]) / dim[2],
+        };
+        GameMapPoint temp2 = new GameMapPoint(centerPos);
+
+        for (int i = 0; i < lightPoints.size(); i++){
+            GameMapPoint temp = lightPoints.get(i);
+
+            if (distance(temp, temp2) < 10) {
+                GameActivity.addScore(temp.score);
+                lightPoints.remove(i);
+            } else if (distance(temp, temp2) < 20){
+                temp.updateScore();
+            }
+        }
+    }
+
     private float[]  createPositions(float x, float y, float z, float r){
 
         int step = 2;

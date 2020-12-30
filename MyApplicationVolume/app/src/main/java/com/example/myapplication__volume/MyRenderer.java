@@ -29,6 +29,7 @@ import com.example.basic.ImageMarker;
 import com.example.basic.ImageUtil;
 import com.example.basic.MarkerList;
 import com.example.basic.MyAnimation;
+import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
 import com.example.basic.XYZ;
 import com.example.game.GameCharacter;
@@ -5735,6 +5736,22 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Log.d("RemoveWhileMove", "Here we are!!!");
 
         myPatternGame.removePointsByCenter(gameCharacter.getPosition());
+    }
+
+    public void removeWhileLoad(int [] offset, int size){
+        if (myPatternGame == null) {
+            return;
+        }
+
+        for (int i = 0; i < curSwcList.seg.get(0).nrows(); i++){
+            V_NeuronSWC_unit unit = curSwcList.seg.get(0).row.get(i);
+            if (unit.x > offset[0] + size / 2 + 20 || unit.x < offset[0] - size / 2 - 20
+                    || unit.y > offset[1] + size / 2 + 20 || unit.y < offset[1] - size / 2 - 20
+                    || unit.z > offset[2] + size / 2 + 20 || unit.z < offset[2] - size / 2 - 20) {
+                float [] tempPos = new float[]{(float) unit.x, (float) unit.y, (float) unit.z};
+                myPatternGame.removePointsByCenterWhileLoad(tempPos);
+            }
+        }
     }
     /**
      * toast info in the thread
