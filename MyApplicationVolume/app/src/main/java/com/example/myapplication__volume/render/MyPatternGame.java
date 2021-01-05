@@ -1,5 +1,6 @@
 package com.example.myapplication__volume.render;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -668,6 +669,7 @@ public class MyPatternGame {
     }
 
     private void initMap(){
+        Log.d(TAG, "initMap");
         vol_w = (int)image.getSz0();
         vol_h = (int)image.getSz1();
         vol_d = (int)image.getSz2();
@@ -1207,18 +1209,20 @@ public class MyPatternGame {
     }
 
     public void removePointsByCenter(float [] pos){
+
         float [] centerPos = new float[]{
                 pos[0] * (float) (sz[0]) / dim[0],
                 pos[1] * (float) (sz[1]) / dim[1],
                 pos[2] * (float) (sz[2]) / dim[2]
         };
+        Log.d(TAG, "removeWhileMove" + Arrays.toString(centerPos));
         GameMapPoint temp2 = new GameMapPoint(centerPos);
 
         for (int i = 0; i < lightPoints.size(); i++){
             GameMapPoint temp = lightPoints.get(i);
 
             if (distance(temp, temp2) < 10){
-                Log.d("RemovePointsByCenter", "Removed!!!");
+//                Log.d("RemovePointsByCenter", "Removed!!!");
                 GameActivity.addScore(temp.score);
                 removedPoints.add(lightPoints.remove(i));
             } else if (distance(temp, temp2) < 20){
@@ -1231,19 +1235,23 @@ public class MyPatternGame {
 //        bufferSet();
     }
 
+    @SuppressLint("LongLogTag")
     public void removePointsByCenterWhileLoad(float [] pos){
         float [] centerPos = new float[]{
                 pos[0] * (float) (sz[0]) / dim[0],
                 pos[1] * (float) (sz[1]) / dim[1],
                 pos[2] * (float) (sz[2]) / dim[2],
         };
+        Log.d(TAG, "removeWhileLoad" + Arrays.toString(centerPos));
+
         GameMapPoint temp2 = new GameMapPoint(centerPos);
 
         for (int i = 0; i < lightPoints.size(); i++){
             GameMapPoint temp = lightPoints.get(i);
 
             if (distance(temp, temp2) < 10) {
-                GameActivity.addScore(temp.score);
+                Log.d("RemovePointsByCenterWhileLoad", "Removed!!!");
+//                GameActivity.addScore(temp.score);
                 lightPoints.remove(i);
             } else if (distance(temp, temp2) < 20){
                 temp.updateScore();

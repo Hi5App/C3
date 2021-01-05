@@ -159,6 +159,7 @@ public class GameActivity extends BaseActivity {
         float [] head = extras.getFloatArray("Head");
         int lastIndexFromIntent = extras.getInt("LastIndex");
         Boolean ifNewGame = extras.getBoolean("IfNewGame");
+        score = extras.getInt("Score");
 
         progressBar = new XPopup.Builder(this).asLoading("Downloading...");
 
@@ -322,6 +323,8 @@ public class GameActivity extends BaseActivity {
                 e.printStackTrace();
             }
         } else {
+            updateScore();
+
             String externalFileDir = context.getExternalFilesDir(null).toString();
 
             try {
@@ -446,8 +449,8 @@ public class GameActivity extends BaseActivity {
 
                             if (gameCharacter.closeToBoundary()){
                                 remoteSocket.disConnectFromHost();
-                                remoteSocket.connectServer(ip_SEU);
-//                                remoteSocket.connectServer(ip_ALiYun);
+//                                remoteSocket.connectServer(ip_SEU);
+                                remoteSocket.connectServer(ip_ALiYun);
 
 //                                Thread.sleep(8000);
                                 float [] volumnePosition = myrenderer.modeltoVolume(gameCharacter.getPosition());
@@ -476,7 +479,7 @@ public class GameActivity extends BaseActivity {
                                 myrenderer.setCurSwcList(curSWCList);
                                 myrenderer.moveAllSWC(volumneNormalDir, 64);
                                 myrenderer.moveGameFlags(negativeDir, 0.5f);
-                                myrenderer.removeWhileLoad(offset, size);
+
 
 //                                myrenderer.clearCurSwcList();
 //                                myrenderer.addSwc(travelPath);
@@ -581,6 +584,7 @@ public class GameActivity extends BaseActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.back:
+                clearScore();
                 timer.cancel();
                 task.cancel();
                 MainActivity.setIfGame(false);
@@ -623,6 +627,7 @@ public class GameActivity extends BaseActivity {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void LoadBigFile_Remote(String filepath){
 
+//        clearScore();
         myrenderer.setGamePath(filepath);
 //        myGLSurfaceView.requestRender();
 //        myGLSurfaceView.requestRender();
@@ -630,6 +635,8 @@ public class GameActivity extends BaseActivity {
         Log.d("LoadBigFile_Remote", "Pos: " + Arrays.toString(gameCharacter.getPosition()));
         Log.d("LoadBigFile_Remote", "Dir: " + Arrays.toString(gameCharacter.getDir()));
 //        myGLSurfaceView.requestRender();
+//        clearScore();
+//        myrenderer.removeWhileLoad();
 
 
     }
@@ -777,11 +784,12 @@ public class GameActivity extends BaseActivity {
         String dir_str = Float.toString(x_dir) + ' ' + Float.toString(y_dir) + ' ' + Float.toString(z_dir);
         String head_str = Float.toString(x_head) + ' ' + Float.toString(y_head) + ' ' + Float.toString(z_head);
         String last_str = Integer.toString(lastIndex);
+        String score_str = Integer.toString(score);
 //        String curn_str = Integer.toString(curN);
 //        String curSWC_str = Integer.toString(curSWC);
 
         String externalFileDir = context.getExternalFilesDir(null).toString();
-        String str = filenameRES + '\n' + offset_str + '\n' + pos_str + '\n' + dir_str + '\n' + head_str + '\n' + last_str + '\n';
+        String str = filenameRES + '\n' + offset_str + '\n' + pos_str + '\n' + dir_str + '\n' + head_str + '\n' + last_str + '\n' + score_str + '\n';
 //        File file = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num + "/" + date_str + ".txt");
         File file = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num);
         if (!file.exists()){
@@ -915,8 +923,8 @@ public class GameActivity extends BaseActivity {
 
                 if (archiveImageName != null && archiveOffset != null){
                     remoteSocket.disConnectFromHost();
-                    remoteSocket.connectServer(ip_SEU);
-//                    remoteSocket.connectServer(ip_ALiYun);
+//                    remoteSocket.connectServer(ip_SEU);
+                    remoteSocket.connectServer(ip_ALiYun);
                     remoteSocket.pullImageBlockWhenLoadGame(archiveImageName, archiveOffset);
 
                     setFilename_Remote(archiveImageName, context);
@@ -955,6 +963,11 @@ public class GameActivity extends BaseActivity {
 
                 line = buffreader.readLine();
                 lastIndex = Integer.parseInt(line);
+
+                line = buffreader.readLine();
+                score = Integer.parseInt(line);
+
+                updateScore();
 
 //                line = buffreader.readLine();
 //                curN = Integer.parseInt(line);
@@ -1012,39 +1025,40 @@ public class GameActivity extends BaseActivity {
                 }
 
                 File flagFile = new File(externalFileDir + "/Game/Flags/" + filename_root + ".txt");
-                BufferedReader flagReader = new BufferedReader(new InputStreamReader(new FileInputStream(flagFile)));
-                ArrayList<String> arrayList = new ArrayList<>();
-                try {
-                    String str;
-                    while ((str = flagReader.readLine()) != null){
-                        arrayList.add(str);
+                if (flagFile.exists()) {
+                    BufferedReader flagReader = new BufferedReader(new InputStreamReader(new FileInputStream(flagFile)));
+                    ArrayList<String> arrayList = new ArrayList<>();
+                    try {
+                        String str;
+                        while ((str = flagReader.readLine()) != null) {
+                            arrayList.add(str);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception e){
-                    e.printStackTrace();
+
+                    for (int i = 0; i < arrayList.size(); i++) {
+                        String str = arrayList.get(i);
+                        String offset_str = str.split("#")[1];
+                        String pos_str = str.split("#")[2];
+                        float[] offsetFlag = new float[3];
+                        offsetFlag[0] = Float.parseFloat(offset_str.split("_")[0]);
+                        offsetFlag[1] = Float.parseFloat(offset_str.split("_")[1]);
+                        offsetFlag[2] = Float.parseFloat(offset_str.split("_")[2]);
+                        float size = Float.parseFloat(offset_str.split("_")[3]);
+                        float[] posFlag = new float[3];
+                        posFlag[0] = Float.parseFloat(pos_str.split(" ")[0]);
+                        posFlag[1] = Float.parseFloat(pos_str.split(" ")[1]);
+                        posFlag[2] = Float.parseFloat(pos_str.split(" ")[2]);
+                        float[] curFlag = new float[3];
+                        curFlag[0] = (posFlag[0] * size + offsetFlag[0] - offset[0]) / size;
+                        curFlag[1] = (posFlag[1] * size + offsetFlag[1] - offset[1]) / size;
+                        curFlag[2] = (posFlag[2] * size + offsetFlag[2] - offset[2]) / size;
+                        myrenderer.appendGameFlags(curFlag);
+                    }
                 }
 
-                for (int i = 0; i < arrayList.size(); i++){
-                    String str = arrayList.get(i);
-                    String offset_str = str.split("#")[1];
-                    String pos_str = str.split("#")[2];
-                    float [] offsetFlag = new float[3];
-                    offsetFlag[0] = Float.parseFloat(offset_str.split("_")[0]);
-                    offsetFlag[1] = Float.parseFloat(offset_str.split("_")[1]);
-                    offsetFlag[2] = Float.parseFloat(offset_str.split("_")[2]);
-                    float size = Float.parseFloat(offset_str.split("_")[3]);
-                    float [] posFlag = new float[3];
-                    posFlag[0] = Float.parseFloat(pos_str.split(" ")[0]);
-                    posFlag[1] = Float.parseFloat(pos_str.split(" ")[1]);
-                    posFlag[2] = Float.parseFloat(pos_str.split(" ")[2]);
-                    float [] curFlag = new float[3];
-                    curFlag[0] = (posFlag[0] * size + offsetFlag[0] - offset[0]) / size;
-                    curFlag[1] = (posFlag[1] * size + offsetFlag[1] - offset[1]) / size;
-                    curFlag[2] = (posFlag[2] * size + offsetFlag[2] - offset[2]) / size;
-                    myrenderer.appendGameFlags(curFlag);
-                }
-
-                clearScore();
-                myrenderer.removeWhileLoad(offset, size);
+                Log.d(TAG, "LoadGame: clearScore()");
 
             }
         } catch (Exception e) {
@@ -1211,8 +1225,8 @@ public class GameActivity extends BaseActivity {
 //                            curSWC = Integer.parseInt(curSWC_str);
 
                             remoteSocket.disConnectFromHost();
-                            remoteSocket.connectServer(ip_SEU);
-//                            remoteSocket.connectServer(ip_ALiYun);
+//                            remoteSocket.connectServer(ip_SEU);
+                            remoteSocket.connectServer(ip_ALiYun);
                             remoteSocket.pullImageBlockWhenLoadGame(filenameRES, offset_str);
 
                             setFilename_Remote(filenameRES, context);
@@ -1292,7 +1306,7 @@ public class GameActivity extends BaseActivity {
                                 myrenderer.appendGameFlags(curFlag);
                             }
 
-                            myrenderer.removeWhileLoad(offset, size);
+//                            myrenderer.removeWhileLoad(offset, size);
                         }
                         myGLSurfaceView.requestRender();
                     }
@@ -1482,6 +1496,17 @@ public class GameActivity extends BaseActivity {
         try {
             file.mkdir();
         } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        File flagFile = new File(externalFileDir + "/Game/Flags/" + filename_root + ".txt");
+        if (flagFile.exists()){
+            flagFile.delete();
+        }
+
+        try {
+            flagFile.createNewFile();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

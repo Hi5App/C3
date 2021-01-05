@@ -493,6 +493,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                             Log.v("MyRenderer","ifGame  ondrawframe");
 //                            myPattern = new MyPattern(screen_w, screen_h, img, mz, MyPattern.Mode.GAME);
                             myPatternGame = new MyPatternGame(screen_w, screen_h, img, mz, sz);
+                            removeWhileLoad();
                         } else {
                             myPattern = new MyPattern(screen_w, screen_h, img, mz, MyPattern.Mode.NORMAL);
 //                            myPatternGame = new MyPatternGame(screen_w, screen_h, img, mz, sz);
@@ -5738,18 +5739,29 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         myPatternGame.removePointsByCenter(gameCharacter.getPosition());
     }
 
-    public void removeWhileLoad(int [] offset, int size){
+    public void removeWhileLoad(){
+//        Log.d(TAG, "removewhileload: " + Arrays.toString(offset));
+//        Log.d(TAG, "removewhileload: " + Integer.toString(size));
         if (myPatternGame == null) {
             return;
         }
 
-        for (int i = 0; i < curSwcList.seg.get(0).nrows(); i++){
+        for (int i = 1; i < curSwcList.seg.get(0).nrows(); i++){
             V_NeuronSWC_unit unit = curSwcList.seg.get(0).row.get(i);
-            if (unit.x > offset[0] + size / 2 + 20 || unit.x < offset[0] - size / 2 - 20
-                    || unit.y > offset[1] + size / 2 + 20 || unit.y < offset[1] - size / 2 - 20
-                    || unit.z > offset[2] + size / 2 + 20 || unit.z < offset[2] - size / 2 - 20) {
+            Log.d(TAG, "removewhileload unit: " + Double.toString(unit.x) + Double.toString(unit.y) + Double.toString(unit.z));
+//            if (unit.x > offset[0] + size / 2 + 20 || unit.x < offset[0] - size / 2 - 20
+//                    || unit.y > offset[1] + size / 2 + 20 || unit.y < offset[1] - size / 2 - 20
+//                    || unit.z > offset[2] + size / 2 + 20 || unit.z < offset[2] - size / 2 - 20) {
+            if (unit.x > 128 + 20 || unit.x < - 20
+                    || unit.y > 128 + 20 || unit.y < - 20
+                    || unit.z > 128 + 20 || unit.z < - 20) {
+
+            } else {
+                Log.d(TAG, "removeWhileLoad: " + i);
+
                 float [] tempPos = new float[]{(float) unit.x, (float) unit.y, (float) unit.z};
-                myPatternGame.removePointsByCenterWhileLoad(tempPos);
+                float [] pos = volumetoModel(tempPos);
+                myPatternGame.removePointsByCenterWhileLoad(pos);
             }
         }
     }

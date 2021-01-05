@@ -432,6 +432,7 @@ public class MainActivity extends BaseActivity {
     private static float [] gameHeadForIntent = {1, 0, -1};
     private static int gameLastIndexForIntent = -1;
     private static boolean gameIfNewForIntent = true;
+    private static int gameScoreForIntent = 0;
 
     @SuppressLint("HandlerLeak")
     private Handler uiHandler = new Handler(){
@@ -5068,7 +5069,7 @@ public class MainActivity extends BaseActivity {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20201229a 15:07 UTC+8 build",
+                                "Version: 20210105a 22:12 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5155,10 +5156,10 @@ public class MainActivity extends BaseActivity {
                                 switch (text){
 
                                     case "New Game":
-                                        setSelectSource("Remote Server SEU", context);
-                                        BigFileRead_Remote(ip_SEU);
-//                                        setSelectSource("Remote Server Aliyun",context);
-//                                        BigFileRead_Remote(ip_ALiYun);
+//                                        setSelectSource("Remote Server SEU", context);
+//                                        BigFileRead_Remote(ip_SEU);
+                                        setSelectSource("Remote Server Aliyun",context);
+                                        BigFileRead_Remote(ip_ALiYun);
 
                                         break;
 
@@ -5312,6 +5313,9 @@ public class MainActivity extends BaseActivity {
                 line = buffreader.readLine();
                 gameLastIndexForIntent = Integer.parseInt(line);
 
+                line = buffreader.readLine();
+                gameScoreForIntent = Integer.parseInt(line);
+
                 inStream.close();//关闭输入流
 
                 gamePositionForIntent = pos;
@@ -5322,8 +5326,8 @@ public class MainActivity extends BaseActivity {
 
                 if (archiveImageName != null && archiveOffset != null){
                     remote_socket.disConnectFromHost();
-                    remote_socket.connectServer(ip_SEU);
-//                    remote_socket.connectServer(ip_ALiYun);
+//                    remote_socket.connectServer(ip_SEU);
+                    remote_socket.connectServer(ip_ALiYun);
                     remote_socket.pullImageBlockWhenLoadGame(archiveImageName, archiveOffset);
 
                     setFilename_Remote(archiveImageName, context);
@@ -8161,12 +8165,14 @@ public class MainActivity extends BaseActivity {
                 gameIntent.putExtra("Head", gameHeadForIntent);
                 gameIntent.putExtra("LastIndex", gameLastIndexForIntent);
                 gameIntent.putExtra("IfNewGame", gameIfNewForIntent);
+                gameIntent.putExtra("Score", gameScoreForIntent);
                 mainContext.startActivity(gameIntent);
                 gamePositionForIntent = new float[]{0.5f, 0.5f, 0.5f};
                 gameDirForIntent = new float[]{1, 1, 1};
                 gameHeadForIntent = new float[]{1, 0, -1};
                 gameLastIndexForIntent = -1;
                 gameIfNewForIntent = true;
+                gameScoreForIntent = 0;
             } catch (Exception e) {
                 e.printStackTrace();
             }
