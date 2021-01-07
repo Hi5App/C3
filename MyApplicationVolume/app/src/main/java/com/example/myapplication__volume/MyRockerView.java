@@ -28,6 +28,8 @@ public class MyRockerView extends View {
 
     private PointF mCenterPoint;
 
+    private Thread thread;
+
     public MyRockerView(Context context, AttributeSet attrs) {
 //        super(context)
         super(context, attrs);
@@ -61,25 +63,28 @@ public class MyRockerView extends View {
         });
 
 
-        new Thread(new Runnable() {
+        thread = new Thread(new Runnable() {
 
             @Override
             public void run() {
                 // TODO Auto-generated method stub
-                while(true){
+                while(!Thread.currentThread().isInterrupted()){
 
                     //ϵͳ����onDraw����ˢ�»���
-                    MyRockerView.this.postInvalidate();
+
 
                     try {
+                        MyRockerView.this.postInvalidate();
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
+                        Thread.currentThread().interrupt();
                     }
                 }
             }
-        }).start();
+        });
+        thread.start();
     }
 
     @Override
@@ -166,5 +171,11 @@ public class MyRockerView extends View {
     }
     public interface RockerChangeListener {
         public void report(float x, float y);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        thread.interrupt();
     }
 }
