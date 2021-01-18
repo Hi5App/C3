@@ -75,6 +75,8 @@ public class MeFragment extends Fragment {
             if (v == rightArrow) {
                 UserProfileSettingActivity.start(getContext(),account);
             } else if (v == settingsLayout) {
+
+                Log.e("MeFragment","v == settingsLayout");
                 startActivity(new Intent(getContext(), SettingsActivity.class));
 //                Toast.makeText(getContext(),"Settings is in development !", Toast.LENGTH_SHORT).show();
             }

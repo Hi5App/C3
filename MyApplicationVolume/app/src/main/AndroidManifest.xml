@@ -105,10 +105,10 @@
         <activity android:name="com.example.myapplication__volume.Nim.file.browser.FileBrowserActivity"/>
         <activity android:name="com.example.myapplication__volume.Nim.contact.activity.BlackListActivity"/>
         <activity android:name="com.example.myapplication__volume.Nim.main.activity.CustomNotificationActivity"/>
-        <activity android:name=".Nim.main.activity.RobotListActivity"/>
-        <activity android:name=".Nim.main.activity.TeamListActivity"/>
-        <activity android:name=".Nim.main.activity.SettingsActivity"/>
-        <activity android:name=".Nim.main.activity.NoDisturbActivity"/>
+        <activity android:name="com.example.myapplication__volume.Nim.main.activity.RobotListActivity"/>
+        <activity android:name="com.example.myapplication__volume.Nim.main.activity.TeamListActivity"/>
+        <activity android:name="com.example.myapplication__volume.Nim.main.activity.SettingsActivity"/>
+        <activity android:name="com.example.myapplication__volume.Nim.main.activity.NoDisturbActivity"/>
 
 
 

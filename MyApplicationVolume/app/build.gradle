@@ -108,6 +108,10 @@ dependencies {
 
     implementation 'com.huawei.hms:push:4.0.4.301'
 
+    implementation 'com.qianwen:update-app:3.5.2'
+
+    implementation 'com.github.xuexiangjys:XUpdate:2.0.6'
+
     //    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
     //    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.3'
     //// Optional, if you use support library fragments:

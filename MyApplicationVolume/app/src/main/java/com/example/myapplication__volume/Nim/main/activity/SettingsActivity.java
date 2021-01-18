@@ -3,6 +3,7 @@ package com.example.myapplication__volume.Nim.main.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ListView;
 
 import com.example.myapplication__volume.Nim.DemoCache;
@@ -113,6 +114,9 @@ public class SettingsActivity extends UI implements SettingsAdapter.SwitchChange
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.e("SettingsActivity","---  Start  ---");
+
         setContentView(R.layout.settings_activity);
         ToolBarOptions options = new NimToolBarOptions();
         options.titleId = R.string.settings;

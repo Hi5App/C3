@@ -1577,6 +1577,19 @@ public class MainActivity extends BaseActivity {
 
         initNim();
 
+
+//        new UpdateAppManager
+//                .Builder()
+//                //当前Activity
+//                .setActivity(this)
+//                //更新地址
+//                .setUpdateUrl(mUpdateUrl)
+//                //实现httpManager接口的对象
+//                .setHttpManager(new UpdateAppHttpUtil())
+//                .build()
+//                .update();
+
+
     }
 
 

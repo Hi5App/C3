@@ -84,6 +84,23 @@ public class Myapplication extends Application {
             // 云信sdk相关业务初始化
             NIMInitManager.getInstance().init(true);
 
+//
+//            XUpdate.get()
+//                    .debug(true) //开启debug模式，可用于问题的排查
+//                    .isWifiOnly(true)     //默认设置只在wifi下检查版本更新
+//                    .isGet(true)          //默认设置使用get请求检查版本
+//                    .isAutoMode(false)    //默认设置非自动模式，可根据具体使用配置
+//                    .param("VersionCode", UpdateUtils.getVersionCode(this)) //设置默认公共请求参数
+//                    .param("AppKey", getPackageName())
+//                    .setOnUpdateFailureListener(new OnUpdateFailureListener() { //设置版本更新出错的监听
+//                        @Override
+//                        public void onFailure(UpdateError error) {
+//                            Toast.makeText(getContext(), error.toString(), Toast.LENGTH_SHORT).show();
+//                        }
+//                    })
+//                    .setIUpdateHttpService(new OKHttpUpdateHttpService()) //这个必须设置！实现网络请求功能。
+//                    .init(this);   //这个必须初始化
+
         }
 
 
@@ -170,7 +187,7 @@ public class Myapplication extends Application {
     private UIKitOptions buildUIKitOptions() {
         UIKitOptions options = new UIKitOptions();
         // 设置app图片/音频/日志等缓存目录
-        options.appCacheDir = "/storage/emulated/0/C3/Chat/";
+        options.appCacheDir = NimSDKOptionConfig.getAppCacheDir(this) + "/nim";
         return options;
     }
 
