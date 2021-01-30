@@ -14,28 +14,32 @@ class TcpSocket : public QObject
         QFile *f=nullptr;
     };
 public:
-    explicit TcpSocket(QObject *parent = nullptr):QObject(parent)
+    explicit TcpSocket(QString ip,QString port,QObject *parent = nullptr)
+        :ip(ip),port(port),QObject(parent)
     {
         connect(&socket,&QTcpSocket::disconnected,this,&TcpSocket::disconnected);
+        connectHost(this->ip,this->port);
     }
     virtual ~TcpSocket()=default;
 
     virtual bool processMsg(const QString);
     virtual bool processFile(const QString)=0;
 
-    void sendMsg(QString str);
-    void sendFiles(QStringList filepath);
-
+    bool sendMsg(QString str);
+    bool sendFiles(QStringList filepath);
+    bool connectHost(QString ip,QString port);
 public slots:
     void onread();
 private:
     void resetDataType();
-    bool connectHost(QString ip,QString port);
+
     bool processHeader(const QString msg);
     void errorprocess(int,QString msg="");
 
     QTcpSocket socket;
     DataType datatype;
+    QString ip;
+    QString port;
 signals:
     //for extern
     void unconnected();
@@ -46,7 +50,8 @@ class ManageSocket:public TcpSocket
 {
     Q_OBJECT
 public:
-    explicit ManageSocket(QObject *parent=nullptr):TcpSocket(parent){}
+    explicit ManageSocket(QString ip,QString port,QObject *parent = nullptr)
+        :TcpSocket(ip,port,parent){}
     bool processMsg(const QString);
     bool processFile(const QString);
     ~ManageSocket()=default;
@@ -56,12 +61,15 @@ signals:
      void signalLoginACK(QString ackmsg);
      void signalRegisterACK(QString ackmsg);
      void signalForgetACK(QString ackmsg);
+     void signalUpdateFileWidgetData(QString);
+     void signalSetMpData(QStringList roomInfoList);
 };
 
 class MessageSocket:public TcpSocket
 {
     Q_OBJECT
-    explicit MessageSocket(QObject *parent=nullptr) :TcpSocket(parent){}
+    explicit MessageSocket(QString ip,QString port,QObject *parent = nullptr)
+        :TcpSocket(ip,port,parent){}
      bool processMsg(const QString);
      bool processFile(const QString);
     ~MessageSocket()=default;

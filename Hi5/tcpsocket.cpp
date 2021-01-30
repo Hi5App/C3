@@ -2,14 +2,13 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <iostream>
-extern QString ip;
-extern QString port;
 
-void TcpSocket::sendMsg(QString str)
+
+bool TcpSocket::sendMsg(QString str)
 {
     if(socket.state()!=QAbstractSocket::ConnectedState&&!connectHost(ip,port))
     {
-        unconnected();
+        unconnected(); return false;
     }
 
     const QString data=str+"\n";
@@ -18,6 +17,7 @@ void TcpSocket::sendMsg(QString str)
     this->socket.write(header.toStdString().c_str(),header.size());
     this->socket.write(data.toStdString().c_str(),data.size());
     this->socket.flush();
+    return true;
 }
 
 void TcpSocket::sendFiles(QStringList filepaths)

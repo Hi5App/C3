@@ -11,13 +11,17 @@ CONFIG += c++11
 SOURCES += \
     filelistwidget.cpp \
     hi5.cpp \
+    inlogWidget.cpp \
     main.cpp \
-    tcpsocket.cpp
+    tcpsocket.cpp \
+    unlogwidget.cpp
 
 HEADERS += \
     filelistwidget.h \
     hi5.h \
-    tcpsocket.h
+    inlogWidget.h \
+    tcpsocket.h \
+    unlogwidget.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
