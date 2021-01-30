@@ -50,7 +50,6 @@ InLogWidget::InLogWidget(QStringList userInfo,QWidget *parent) : QWidget(parent)
       connect(fileWidget,&FileListWidget::updateData,this,&InLogWidget::updateFileListWidgetData);
       connect(fileWidget,&FileListWidget::loadFiles,this,&InLogWidget::loadFiles);
     });
-    this->show();
 
 }
 

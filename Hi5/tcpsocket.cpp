@@ -20,11 +20,11 @@ bool TcpSocket::sendMsg(QString str)
     return true;
 }
 
-void TcpSocket::sendFiles(QStringList filepaths)
+bool TcpSocket::sendFiles(QStringList filepaths)
 {
     if(socket.state()!=QAbstractSocket::ConnectedState&&!connectHost(ip,port))
     {
-        unconnected();
+        unconnected();return false;
     }
 
     for(auto filepath:filepaths)
@@ -43,6 +43,7 @@ void TcpSocket::sendFiles(QStringList filepaths)
         this->socket.write(fileData,fileData.size());
         this->socket.flush();
     }
+    return true;
 }
 
 void TcpSocket::onread()

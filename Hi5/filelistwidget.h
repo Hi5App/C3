@@ -16,7 +16,7 @@ public:
         std::vector<char> filetypeList={},QWidget *parent = nullptr);
     ~FileListWidget()=default;
 public slots:
-    //for extern
+    //for extern for manage Process msg
     bool setData(std::vector<std::string> filenameList,std::vector<char> filetypeList);
     //for intern
     void slotTypeBtnPressed();

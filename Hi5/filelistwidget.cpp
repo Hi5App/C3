@@ -40,13 +40,6 @@ FileListWidget::FileListWidget(char type,std::vector<std::string> filenameList,
     connect(typeBtn,&QPushButton::pressed,this,&FileListWidget::slotTypeBtnPressed);
 }
 
-void FileListWidget::setCurrConPath(QString str)
-{
-    currConPath=str.toStdString();
-    currConPathLabel->setText(QString::fromStdString(currConPath));
-    emit updateData(currConPath);
-}
-
 bool FileListWidget::setData(std::vector<std::string> filenameList,std::vector<char> filetypeList)
 {
     if(filenameList.size()!=filetypeList.size()) return false;
@@ -106,6 +99,23 @@ void FileListWidget::slotTypeBtnPressed()
     }
 }
 
+void FileListWidget::slotDoubleClicked(QListWidgetItem * item)
+{
+    QString text=item->text();
+    int type=name_type.find(text.toStdString())->second;
+    if(type==0)
+    {
+        setCurrConPath(QString::fromStdString(currConPath+"/"+text.toStdString()));
+    }
+}
+
+void FileListWidget::setCurrConPath(QString str)
+{
+    currConPath=str.toStdString();
+    currConPathLabel->setText(QString::fromStdString(currConPath));
+    emit updateData(currConPath);
+}
+
 void FileListWidget::updateWidget()
 {
     listwidget->clear();
@@ -132,13 +142,5 @@ void FileListWidget::updateWidget()
 
 
 
-void FileListWidget::slotDoubleClicked(QListWidgetItem * item)
-{
-    QString text=item->text();
-    int type=name_type.find(text.toStdString())->second;
-    if(type==0)
-    {
-        setCurrConPath(QString::fromStdString(currConPath+"/"+text.toStdString()));
-    }
-}
+
 
