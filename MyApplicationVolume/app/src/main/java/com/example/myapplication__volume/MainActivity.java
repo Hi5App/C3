@@ -25,6 +25,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
@@ -107,6 +109,7 @@ import com.lxj.xpopup.interfaces.OnCancelListener;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.netease.nim.uikit.api.NimUIKit;
+import com.netease.nim.uikit.common.ui.imageview.CircleImageView;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.RequestCallback;
@@ -359,6 +362,7 @@ public class MainActivity extends BaseActivity {
     private static boolean isBigData_Local;
     private static ProgressBar progressBar;
 
+    private CircleImageView wave;
 
     private int eswc_length;
     //读写权限
@@ -433,6 +437,10 @@ public class MainActivity extends BaseActivity {
     private static int gameLastIndexForIntent = -1;
     private static boolean gameIfNewForIntent = true;
     private static int gameScoreForIntent = 0;
+
+    private SoundPool soundPool;
+    private final int SOUNDNUM = 3;
+    private int [] soundId;
 
     @SuppressLint("HandlerLeak")
     private Handler uiHandler = new Handler(){
@@ -684,7 +692,8 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         Log.v(TAG,"------------------ onCreate ------------------");
 
-
+        Intent bgmIntent = new Intent(MainActivity.this, MusicServer.class);
+        startService(bgmIntent);
 
         isBigData_Remote = false;
         isBigData_Local  = false;
@@ -694,6 +703,11 @@ public class MainActivity extends BaseActivity {
 
         myrenderer = new MyRenderer(this);
 
+        soundPool = new SoundPool(SOUNDNUM, AudioManager.STREAM_MUSIC, 5);
+        soundId = new int[SOUNDNUM];
+        soundId[0] = soundPool.load(this, R.raw.piano2, 1);
+        soundId[1] = soundPool.load(this, R.raw.piano1, 1);
+        soundId[2] = soundPool.load(this, R.raw.button01, 1);
 
         Intent intent = getIntent();
         String MSG = intent.getStringExtra(MyRenderer.OUT_OF_MEMORY);
@@ -702,6 +716,8 @@ public class MainActivity extends BaseActivity {
         mChatManager = Myapplication.the().getChatManager();
         mRtmClient = mChatManager.getRtmClient();
 
+        wave = new CircleImageView(getContext());
+        wave.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
 //        doLoginChat();
 
@@ -718,6 +734,7 @@ public class MainActivity extends BaseActivity {
         setSupportActionBar(toolbar);
 
         myGLSurfaceView = new MyGLSurfaceView(this);
+
         FrameLayout ll = (FrameLayout) findViewById(R.id.container);
         ll.addView(myGLSurfaceView);
 
@@ -813,6 +830,8 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
 //                Image4DSimple img = myrenderer.getImg();
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 if(!myrenderer.getIfFileLoaded()){
                     Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
                     return;
@@ -833,6 +852,8 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
 //                Image4DSimple img = myrenderer.getImg();
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 if(!myrenderer.getIfFileLoaded()){
                     Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
                     return;
@@ -853,6 +874,8 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
 //                Image4DSimple img = myrenderer.getImg();
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 if(!myrenderer.getIfFileLoaded()){
                     Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
                     return;
@@ -879,6 +902,8 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
 //                Image4DSimple img = myrenderer.getImg();
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 if(!myrenderer.getIfFileLoaded()){
                     Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
                     return;
@@ -935,6 +960,7 @@ public class MainActivity extends BaseActivity {
         Check_Yes.setOnLongClickListener(new Button.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
+
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -1024,6 +1050,8 @@ public class MainActivity extends BaseActivity {
         draw_i.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 if (!myrenderer.getIfFileLoaded()){
                     Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
                     return;
@@ -1043,6 +1071,8 @@ public class MainActivity extends BaseActivity {
         tracing_i.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 Tracing(v);
             }
         });
@@ -1066,6 +1096,8 @@ public class MainActivity extends BaseActivity {
         classify_i.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 PixelClassification(v);
             }
         });
@@ -1111,6 +1143,8 @@ public class MainActivity extends BaseActivity {
 
         Rotation_i.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 if (isBigData_Remote && !DrawMode){
                     myrenderer.resetRotation();
                     myGLSurfaceView.requestRender();
@@ -1137,6 +1171,8 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 if (!myrenderer.getIfFileLoaded()){
                     Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
                     return;
@@ -1167,6 +1203,8 @@ public class MainActivity extends BaseActivity {
 
         Undo_i.setOnClickListener(new Button.OnClickListener(){
             public void onClick(View v){
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 boolean undoSuccess = false;
                 try {
                     undoSuccess = myrenderer.undo2();
@@ -1190,6 +1228,8 @@ public class MainActivity extends BaseActivity {
 
         Redo_i.setOnClickListener(new Button.OnClickListener(){
             public void onClick(View v){
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 boolean redoSuccess = myrenderer.redo();
                 if (!redoSuccess){
                     Toast_in_Thread("nothing to redo");
@@ -1206,6 +1246,8 @@ public class MainActivity extends BaseActivity {
 
         Switch.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 Switch();
             }
         });
@@ -1218,6 +1260,8 @@ public class MainActivity extends BaseActivity {
 
         animation_i.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 Animation(v);
             }
         });
@@ -1247,6 +1291,8 @@ public class MainActivity extends BaseActivity {
 
         navigation_left.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 Block_navigate("Left");
             }
         });
@@ -1261,6 +1307,8 @@ public class MainActivity extends BaseActivity {
 
         navigation_right.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 Block_navigate("Right");
             }
         });
@@ -1278,6 +1326,8 @@ public class MainActivity extends BaseActivity {
 
         navigation_up.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 Block_navigate("Top");
             }
         });
@@ -1294,6 +1344,8 @@ public class MainActivity extends BaseActivity {
 
         navigation_down.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 Block_navigate("Bottom");
             }
         });
@@ -1307,6 +1359,8 @@ public class MainActivity extends BaseActivity {
         navigation_front.setText("F");
         navigation_front.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 Block_navigate("Front");
             }
         });
@@ -1320,6 +1374,8 @@ public class MainActivity extends BaseActivity {
         navigation_back.setText("B");
         navigation_back.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 Block_navigate("Back");
             }
         });
@@ -1334,6 +1390,8 @@ public class MainActivity extends BaseActivity {
         navigation_location.setBackgroundResource(R.drawable.circle_normal);
         navigation_location.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 Set_Nav_Mode();
             }
         });
@@ -1350,6 +1408,8 @@ public class MainActivity extends BaseActivity {
         blue_pen.setOnClickListener(new Button.OnClickListener(){
             @Override
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 myrenderer.pencolorchange(PenColor.valueOf("BLUE").ordinal());
                 blue_pen.setTextColor(Color.BLUE);
                 red_pen.setTextColor(Color.BLACK);
@@ -1369,6 +1429,8 @@ public class MainActivity extends BaseActivity {
         res_list.setOnClickListener(new Button.OnClickListener(){
             @Override
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 remote_socket.switchRES();
             }
         });
@@ -1385,6 +1447,8 @@ public class MainActivity extends BaseActivity {
         red_pen.setOnClickListener(new Button.OnClickListener(){
             @Override
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 myrenderer.pencolorchange(PenColor.valueOf("RED").ordinal());
                 red_pen.setTextColor(Color.RED);
                 blue_pen.setTextColor(Color.BLACK);
@@ -1401,6 +1465,8 @@ public class MainActivity extends BaseActivity {
         sync_push.setImageResource(R.drawable.ic_cloud_upload_black_24dp);
         sync_push.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 PushSWC_Block_Manual();
 
                 //  for apo sync
@@ -1416,6 +1482,8 @@ public class MainActivity extends BaseActivity {
         sync_pull.setImageResource(R.drawable.ic_cloud_download_black_24dp);
         sync_pull.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 if (DrawMode){
                     PullSwc_block_Manual(DrawMode);
 
@@ -1464,6 +1532,7 @@ public class MainActivity extends BaseActivity {
         neuron_list.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
 
                 if (DrawMode){
                     push_info_swc = SaveSWC_Block_Auto();
@@ -1491,6 +1560,7 @@ public class MainActivity extends BaseActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
 
                 fab.setVisibility(View.GONE);
                 leaveChannel();
@@ -1695,19 +1765,27 @@ public class MainActivity extends BaseActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.file:
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 File_icon();
                 return true;
             case R.id.share:
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 ShareScreenShot();
 //                Share_icon();
                 return true;
             case R.id.more:
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 More_icon();
                 return true;
 //            case R.id.experiment:
 //                Experiment_icon();
 //                return true;
             case R.id.view:
+                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                 if (ifButtonShowed){
                     hideButtons();
 
@@ -1800,6 +1878,8 @@ public class MainActivity extends BaseActivity {
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
+                                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                                 switch (text) {
                                     case "Analyze SWC":
                                         Analyse();
@@ -3177,6 +3257,8 @@ public class MainActivity extends BaseActivity {
                         new int[]{}, new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
+                                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                                 switch (text){
                                     case "For Marker":
                                         markerProcessList(v);
@@ -3220,6 +3302,8 @@ public class MainActivity extends BaseActivity {
                         "Change All MColor"}, new int[]{}, new OnSelectListener() {
                     @Override
                     public void onSelect(int position, String text) {
+                        soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                         switch (text){
                             case "PinPoint   ":
                                 if (!myrenderer.ifImageLoaded()){
@@ -3377,6 +3461,8 @@ public class MainActivity extends BaseActivity {
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
+                                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                                 switch (text){
                                     case "Draw Curve":
                                         if (!myrenderer.ifImageLoaded()){
@@ -3557,6 +3643,8 @@ public class MainActivity extends BaseActivity {
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
+                                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                                 switch (text) {
                                     case "GD":
                                         try {
@@ -3719,6 +3807,8 @@ public class MainActivity extends BaseActivity {
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
+                                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                                 switch (text) {
 //                                    case "For Developer...":
 //                                        //调用特征选择窗口
@@ -6501,8 +6591,19 @@ public class MainActivity extends BaseActivity {
 //        }
     }
 
+    @Override
+    protected void onStop() {
+        Intent bgmIntent = new Intent(MainActivity.this, MusicServer.class);
+        stopService(bgmIntent);
+        super.onStop();
+    }
 
-
+    @Override
+    protected void onRestart() {
+        Intent bgmIntent = new Intent(MainActivity.this, MusicServer.class);
+        startService(bgmIntent);
+        super.onRestart();
+    }
 
     private void Learning() {
 
@@ -7239,12 +7340,19 @@ public class MainActivity extends BaseActivity {
                             X = normalizedX;
                             Y = normalizedY;
                             if (ifPainting || ifDeletingLine || ifSpliting || ifChangeLineType || ifDeletingMultiMarker) {
+                                soundPool.play(soundId[0], 1.0f, 1.0f, 0, 0, 1.0f);
                                 lineDrawed.add(X);
                                 lineDrawed.add(Y);
                                 lineDrawed.add(-1.0f);
                                 myrenderer.setIfPainting(true);
                                 requestRender();
                                 Log.v("actionPointerDown", "Paintinggggggggggg");
+                            }
+                            if (ifPoint){
+                                soundPool.play(soundId[1], 1.0f, 1.0f, 0, 0, 1.0f);
+                            }
+                            if (ifPainting){
+                                soundPool.play(soundId[0], 1.0f, 1.0f, 0, 0, 1.0f);
                             }
 //                        if (ifPoint) {
 //                            Log.v("actionPointerDown", "Pointinggggggggggg");
@@ -7585,7 +7693,10 @@ public class MainActivity extends BaseActivity {
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
+                                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+
                                 switch (text) {
+
                                     case "Open LocalFile":
                                         loadLocalFile();
                                         break;
