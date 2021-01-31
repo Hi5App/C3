@@ -53,7 +53,7 @@ bool HI5::slotRegister(QString id,QString password)
 
 bool HI5::slotForget(QString id)
 {
-    QString msg=QString("FOEGETPASSWORD:%1").arg(id);
+    QString msg=QString("FORGETPASSWORD:%1").arg(id);
     return managesocket->sendMsg(msg);
 }
 

@@ -80,11 +80,12 @@ void TcpSocket::onread()
             datatype.datasize-=bytes.size();
             if(datatype.datasize==0)
             {
+                QString filename=datatype.f->fileName();
                 datatype.f->close();
                 delete datatype.f;
                 datatype.f=nullptr;
                 resetDataType();
-                processFile(datatype.f->fileName());
+                processFile(filename);
                 onread();
             }else if(datatype.datasize<0)
             {

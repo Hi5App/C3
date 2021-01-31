@@ -3,7 +3,6 @@
 
 InLogWidget::InLogWidget(QStringList userInfo,QWidget *parent) : QWidget(parent)
 {
-    this->show();
     fileBtn=new QPushButton(tr("文件列表"),this);
     createBtn=new QPushButton(tr("创建新协作"),this);
     userBtn=new QPushButton(userInfo.at(0),this);
@@ -53,11 +52,21 @@ InLogWidget::InLogWidget(QStringList userInfo,QWidget *parent) : QWidget(parent)
 
 }
 
-void InLogWidget::slotUpdateFileWidgetData(QString)//not connect
+void InLogWidget::slotUpdateFileWidgetData(QString str)//not connect
 {
+    QStringList list=str.split(";;");
+    std::vector<QString> filenames;
+    std::vector<char> filetypes;
+
+    for(auto it:list)
+    {
+        auto its=it.split(" ");
+        filenames.push_back(its[0]);
+        filetypes.push_back(its[1].toInt());
+    }
     if(fileWidget)
     {
-        fileWidget->setData({},{});
+        fileWidget->setData(filenames,filetypes);
     }
 }
 
