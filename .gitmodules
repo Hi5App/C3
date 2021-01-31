@@ -1,3 +1,6 @@
 [submodule "iOS"]
 	path = iOS
 	url = https://github.com/BabaBoogey/C3_iOS
+[submodule "mr_server"]
+	path = mr_server
+	url = https://github.com/BabaBoogey/mr_server
