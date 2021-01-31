@@ -3,6 +3,7 @@
 
 InLogWidget::InLogWidget(QStringList userInfo,QWidget *parent) : QWidget(parent)
 {
+    this->show();
     fileBtn=new QPushButton(tr("文件列表"),this);
     createBtn=new QPushButton(tr("创建新协作"),this);
     userBtn=new QPushButton(userInfo.at(0),this);
@@ -11,15 +12,15 @@ InLogWidget::InLogWidget(QStringList userInfo,QWidget *parent) : QWidget(parent)
 
     currCollListWidget=new QListWidget(this);
 
-    userlayout=new QHBoxLayout(this);
+    userlayout=new QHBoxLayout;
     userlayout->addWidget(userBtn);
     userlayout->addWidget(userLabel);
 
-    sessionlayout=new QHBoxLayout(this);
+    sessionlayout=new QHBoxLayout;
     sessionlayout->addWidget(createBtn);
     sessionlayout->addWidget(fileBtn);
 
-    mainLayout=new QVBoxLayout(this);
+    mainLayout=new QVBoxLayout;
     mainLayout->addLayout(userlayout);
     mainLayout->addLayout(sessionlayout);
     mainLayout->addWidget(currCollListWidget);
@@ -33,10 +34,9 @@ InLogWidget::InLogWidget(QStringList userInfo,QWidget *parent) : QWidget(parent)
           delete fileWidget;
           fileWidget=nullptr;
       }
-      fileWidget=new FileListWidget(0);
+      fileWidget=new FileListWidget(0,{"0","1"},{0,1});
       connect(fileWidget,&FileListWidget::updateData,this,&InLogWidget::updateFileListWidgetData);
       connect(fileWidget,&FileListWidget::downloadFiles,this,&InLogWidget::downLoadFiles);
-
     });
 
     connect(createBtn,&QPushButton::pressed,this,[=]{
@@ -46,7 +46,7 @@ InLogWidget::InLogWidget(QStringList userInfo,QWidget *parent) : QWidget(parent)
           delete fileWidget;
           fileWidget=nullptr;
       }
-      fileWidget=new FileListWidget(0);
+      fileWidget=new FileListWidget(1,{"0","1.ano"},{0,1});
       connect(fileWidget,&FileListWidget::updateData,this,&InLogWidget::updateFileListWidgetData);
       connect(fileWidget,&FileListWidget::loadFiles,this,&InLogWidget::loadFiles);
     });

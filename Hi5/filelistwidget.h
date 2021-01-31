@@ -12,12 +12,12 @@ class FileListWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit FileListWidget(char type,std::vector<std::string> filenameList={},
+    explicit FileListWidget(char type,std::vector<QString> filenameList={},
         std::vector<char> filetypeList={},QWidget *parent = nullptr);
     ~FileListWidget()=default;
 public slots:
     //for extern for manage Process msg
-    bool setData(std::vector<std::string> filenameList,std::vector<char> filetypeList);
+    bool setData(std::vector<QString> filenameList,std::vector<char> filetypeList);
     //for intern
     void slotTypeBtnPressed();
     void slotDoubleClicked(QListWidgetItem *);
@@ -32,8 +32,8 @@ private:
     QHBoxLayout *btnlayout=nullptr;
     QVBoxLayout *mainLayout=nullptr;
 
-    std::map<std::string,char> name_type;
-    std::string currConPath;
+    std::map<QString,char> name_type;
+    QString currConPath;
     char type=0;
 
     void setCurrConPath(QString);
@@ -41,7 +41,7 @@ private:
 
 signals:
     //for extern
-    void updateData(std::string str);
+    void updateData(QString str);
     void downloadFiles(QStringList);
     /**
      * @brief loadFiles

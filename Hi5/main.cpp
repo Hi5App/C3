@@ -1,7 +1,7 @@
 #include <filelistwidget.h>
 
 #include <QApplication>
-
+#include "hi5.h"
 QString ip;
 QString port;
 int main(int argc, char *argv[])
@@ -13,8 +13,12 @@ int main(int argc, char *argv[])
 
     QCoreApplication::setApplicationName("Hi5");
     a.setWindowIcon(QIcon(":/icon/Hi5.jpg"));
-    FileListWidget filewidget(0);
-    filewidget.setData({"1","2"},{0,1});
-    filewidget.updateWidget();
+//    HI5 hi5;
+    InLogWidget widget({"huanglei"},nullptr);
+    widget.show();
+
+//    FileListWidget filewidget(0);
+//    filewidget.setData({"1","2"},{0,1});
+//    filewidget.updateWidget();
     return a.exec();
 }
