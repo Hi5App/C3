@@ -47,7 +47,7 @@ bool HI5::slotLogin(QString id,QString password)
 
 bool HI5::slotRegister(QString id,QString password)
 {
-    QString msg=QString("REGISTER:%1 %2").arg(id).arg(password);
+    QString msg=QString("REGISTER:%1 %2 %3").arg(id).arg(password).arg("username");
     return managesocket->sendMsg(msg);
 }
 
@@ -122,8 +122,8 @@ void HI5::slotDownload(QStringList conPathLists)
 void HI5::slotLoadFiles(QStringList conPathLists,int type)
 {
     QString conPaths=conPathLists.join(";;");
-    (conPaths+=";;")+=QString::number(type);
-    conPaths="LoadFiles:"+conPaths;
+//    (conPaths+=";;")+=;
+    conPaths="LoadFiles:"+QString::number(type)+";;"+conPaths;
     managesocket->sendMsg(conPaths);
 }
 
