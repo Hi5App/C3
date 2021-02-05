@@ -59,7 +59,7 @@ public class Communicator {
     }
 
 
-    public void processMsg(){
+    public void processMsg(byte[] msg){
 
     }
 

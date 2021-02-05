@@ -1716,7 +1716,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     };
 
 
-
+    private void sendMsg(){
+        ServerConnector serverConnector = ServerConnector.getInstance();
+        serverConnector.sendMsg("hello world !");
+    }
 
 
     private void initNim(){
@@ -7755,7 +7758,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         loadLocalFile();
                                         break;
                                     case "Open BigData":
-                                        loadBigData();
+                                        sendMsg();
+//                                        loadBigData();
                                         break;
                                     case "Load SWCFile":
                                         LoadSWC();
