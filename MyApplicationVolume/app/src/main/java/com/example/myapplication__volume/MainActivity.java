@@ -6616,6 +6616,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public void onDestroy() {
         super.onDestroy();
 
+        Intent bgmIntent = new Intent(MainActivity.this, MusicServer.class);
+        stopService(bgmIntent);
+
         mainContext = null;
 
         if (timer != null){
