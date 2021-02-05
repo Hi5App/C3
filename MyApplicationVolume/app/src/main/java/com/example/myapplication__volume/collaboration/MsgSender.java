@@ -44,7 +44,7 @@ public class MsgSender {
                     /*
                     msg header = type + msglength
                      */
-                    String header = String.format("DataTypeWithSize:%d %s\n",0, datalength);
+                    String header = String.format("DataTypeWithSize:%d;;%s\n",0, datalength);
                     int headerlength = header.getBytes().length;
 
                     Log.d(TAG,"header: " + header);
