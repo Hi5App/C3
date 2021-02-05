@@ -7,7 +7,6 @@ import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.myapplication__volume.BuildConfig;
 import com.example.myapplication__volume.R;
 
 import java.io.File;
@@ -19,6 +18,8 @@ import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import cn.carbs.android.library.BuildConfig;
 
 public class CrashHandler implements Thread.UncaughtExceptionHandler {
 

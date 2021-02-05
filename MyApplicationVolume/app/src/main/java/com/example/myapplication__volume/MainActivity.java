@@ -8,12 +8,14 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -33,6 +35,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
@@ -93,6 +96,10 @@ import com.example.myapplication__volume.FileReader.AnoReader;
 import com.example.myapplication__volume.FileReader.ApoReader;
 import com.example.myapplication__volume.Nim.main.helper.SystemMessageUnreadManager;
 import com.example.myapplication__volume.Nim.reminder.ReminderManager;
+import com.example.myapplication__volume.collaboration.CollaborationService;
+import com.example.myapplication__volume.collaboration.Communicator;
+import com.example.myapplication__volume.collaboration.ServerConnector;
+import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
 import com.example.myapplication__volume.ui.login.LoginActivity;
 import com.example.server_communicator.Remote_Socket;
 import com.feature_calc_func.MorphologyCalculate;
@@ -189,7 +196,7 @@ import static java.lang.Math.sqrt;
 //import org.opencv.android.OpenCVLoader;
 
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     //    private int UNDO_LIMIT = 5;
 //    private enum Operate {DRAW, DELETE, SPLIT};
 //    private Operate [] process = new Operate[UNDO_LIMIT];
@@ -437,10 +444,19 @@ public class MainActivity extends BaseActivity {
     private static int gameLastIndexForIntent = -1;
     private static boolean gameIfNewForIntent = true;
     private static int gameScoreForIntent = 0;
-
     private SoundPool soundPool;
     private final int SOUNDNUM = 3;
     private int [] soundId;
+
+    private CollaborationService collaborationService;
+    private boolean mBound;
+
+
+    @Override
+    public void onRecMessage(byte[] msg) {
+
+    }
+
 
     @SuppressLint("HandlerLeak")
     private Handler uiHandler = new Handler(){
@@ -1659,8 +1675,46 @@ public class MainActivity extends BaseActivity {
 //                .build()
 //                .update();
 
+        initServerConnector();
 
     }
+
+    private void initService(){
+        // Bind to LocalService
+        Intent intent = new Intent(this, CollaborationService.class);
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+    }
+
+
+    private void initServerConnector(){
+
+        ServerConnector serverConnector = ServerConnector.getInstance();
+        serverConnector.setIp(ip_ALiYun);
+        serverConnector.setPort("26371");
+        serverConnector.initConnect();
+        serverConnector.sendMsg("hello world !");
+
+    }
+
+
+    /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection connection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            CollaborationService.LocalBinder binder = (CollaborationService.LocalBinder) service;
+            collaborationService = binder.getService();
+            binder.addReceiveMsgInterface((MainActivity) getActivityFromContext(mainContext));
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
+
 
 
 

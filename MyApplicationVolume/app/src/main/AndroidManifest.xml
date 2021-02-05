@@ -141,7 +141,17 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".VoiceChatViewActivity" />
-        </activity> <!-- 云信后台服务，请使用独立进程。 -->
+        </activity>
+
+
+
+        <!-- 协同工作通信服务 -->
+        <service
+            android:name="com.example.myapplication__volume.collaboration.CollaborationService"
+            android:process=":core"
+            android:exported="false"/>
+
+        <!-- 云信后台服务，请使用独立进程。 -->
         <service
             android:name="com.netease.nimlib.service.NimService"
             android:exported="false"

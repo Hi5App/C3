@@ -17,6 +17,7 @@ import com.example.myapplication__volume.Nim.mixpush.DemoPushContentProvider;
 import com.example.myapplication__volume.Nim.preference.UserPreferences;
 import com.example.myapplication__volume.Nim.session.NimDemoLocationProvider;
 import com.example.myapplication__volume.Nim.session.SessionHelper;
+import com.example.myapplication__volume.collaboration.ServerConnector;
 import com.huawei.hms.support.common.ActivityMgr;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.api.UIKitOptions;
@@ -52,6 +53,8 @@ public class Myapplication extends Application {
 
         mChatManager = new ChatManager(this);
         mChatManager.init();
+
+        ServerConnector.init(this);
 
         DemoCache.setContext(this);
 
