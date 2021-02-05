@@ -279,6 +279,12 @@ public class ServerConnector {
         msgSender.SendMsg(manageSocket, msg);
     }
 
+
+    public static void setContext(Context mContext) {
+        ServerConnector.mContext = mContext;
+    }
+
+
     /**
      * 获取ip地址
      * @return ip地址

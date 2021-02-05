@@ -66,7 +66,6 @@ public class Communicator {
 
 
 
-
     public List<String> V_NeuronSWCToMSG(V_NeuronSWC seg){
 
         ArrayList<String> result = new ArrayList<>();

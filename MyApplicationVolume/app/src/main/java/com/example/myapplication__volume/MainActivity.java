@@ -143,6 +143,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1676,6 +1677,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //                .update();
 
         initServerConnector();
+//        initService();
 
     }
 
@@ -1689,10 +1691,16 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void initServerConnector(){
 
         ServerConnector serverConnector = ServerConnector.getInstance();
+        ServerConnector.setContext(this);
+
         serverConnector.setIp(ip_ALiYun);
         serverConnector.setPort("26371");
         serverConnector.initConnect();
-        serverConnector.sendMsg("hello world !");
+//        serverConnector.sendMsg("hello world !");
+
+//        String data = "message" + "\n";
+//        int datalength = data.getBytes(StandardCharsets.UTF_8).length;
+//        Log.d(TAG, "data: " + data + "; ");
 
     }
 
