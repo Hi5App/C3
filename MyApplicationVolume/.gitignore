@@ -12,5 +12,5 @@
 /captures
 .externalNativeBuild
 .cxx
-./uikit/build
-./app/build
+/uikit/build
+/app/build

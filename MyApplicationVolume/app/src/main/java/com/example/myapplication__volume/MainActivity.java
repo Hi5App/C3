@@ -135,6 +135,7 @@ import com.warkiz.widget.IndicatorSeekBar;
 
 import org.apache.commons.io.FileUtils;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -453,8 +454,18 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private boolean mBound;
 
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
-    public void onRecMessage(byte[] msg) {
+    public void onRecMessage(String msg) {
+
+//        Log.e(TAG,"onRecMessage()");
+
+        if (msg.startsWith("File")){
+            Log.e(TAG,"onRecMessage()" + msg);
+//            LoadBigFile_Remote(msg.split(":")[1]);
+            myrenderer.setPath(msg.split(":")[1]);
+            myrenderer.zoom(2.2f);
+        }
 
     }
 
@@ -1677,8 +1688,17 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //                .update();
 
         initServerConnector();
-//        initService();
+        initService();
 
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+//        initServerConnector();
+//        initService();
     }
 
     private void initService(){
@@ -1712,7 +1732,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         public void onServiceConnected(ComponentName name, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             CollaborationService.LocalBinder binder = (CollaborationService.LocalBinder) service;
-            collaborationService = binder.getService();
+            collaborationService = (CollaborationService) binder.getService();
             binder.addReceiveMsgInterface((MainActivity) getActivityFromContext(mainContext));
             mBound = true;
         }
@@ -1725,8 +1745,45 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     private void sendMsg(){
+
         ServerConnector serverConnector = ServerConnector.getInstance();
-        serverConnector.sendMsg("hello world !");
+//        serverConnector.sendMsg("hello world !");
+        serverConnector.sendMsg("Hello1");
+
+//        try {
+//
+//            String filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Draw/Sync/BlockGet";
+//            File dir = new File(filepath);
+//            if (!dir.exists()){
+//                if(dir.mkdirs()){
+//                    Log.e("Get_File", "Create dirs Successfully !");
+//                }
+//            }
+//
+//            //打开文件，如果没有，则新建文件
+//            File file = new File(filepath + "/" + "file.txt");
+//            if(!file.exists()){
+//                if (file.createNewFile()){
+//                    Log.e("Get_File", "Create file Successfully !");
+//                }
+//            }
+//
+////            String fileContent = "file.txt" + "\n" + "111111";
+////            FileOutputStream out = new FileOutputStream(file);
+////            out.write(fileContent.getBytes());
+////            out.close();
+//
+//            BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
+//            BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(is));
+//
+//            Log.e(TAG, "available: "      + is.available());
+//            Log.e(TAG, "bufferedReader: " + bufferedReader.readLine());
+//            Log.e(TAG, "available: "      + is.available());
+//
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+
     }
 
 

@@ -69,9 +69,9 @@ public class ServerConnector {
         /*
         如果已经和服务器建立连接了，就return
          */
-        if (manageSocket != null && !manageSocket.isClosed() && manageSocket.isConnected()){
-            return;
-        }
+//        if (manageSocket != null && !manageSocket.isClosed() && manageSocket.isConnected()){
+//            return;
+//        }
 
         //新建一个线程，用于初始化socket和检测是否有接收到新的消息
         Thread thread = new Thread() {
@@ -175,6 +175,8 @@ public class ServerConnector {
                     dataType.isFile = true;
                     dataType.filename = paras.get(1);
                     dataType.dataSize = Long.parseLong(paras.get(2));
+
+
                 }else {
                     ret = 3;
                 }
@@ -251,8 +253,10 @@ public class ServerConnector {
 
     private void makeConnect(){
 
-        if (!checkConnection()){
-            Log.d(TAG,"Connect Again");
+        Log.e(TAG,"makeConnect()");
+
+        if (manageSocket == null || !checkConnection()){
+            Log.e(TAG,"Connect Again");
             initConnect();
         }
 
@@ -261,6 +265,12 @@ public class ServerConnector {
     private boolean checkConnection(){
 
         return manageSocket!= null && manageSocket.isConnected() && !manageSocket.isClosed();
+
+//        try{
+//            manageSocket.sendUrgentData(0xFF);
+//        }catch(Exception e){
+//            return false;
+//        }
 
     }
 
@@ -276,7 +286,12 @@ public class ServerConnector {
 
 
     public void sendMsg(String msg){
-        msgSender.SendMsg(manageSocket, msg);
+
+        makeConnect();
+
+        if (checkConnection()){
+            msgSender.SendMsg(manageSocket, msg);
+        }
     }
 
 
@@ -330,12 +345,12 @@ public class ServerConnector {
 
 //        Toast.makeText(mContext, message,Toast.LENGTH_SHORT).show();
 
-//        ((Activity) mContext).runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                Toast.makeText(mContext, message,Toast.LENGTH_SHORT).show();
-//            }
-//        });
+        ((Activity) mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(mContext, message,Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 
