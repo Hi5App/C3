@@ -97,7 +97,9 @@ import com.example.myapplication__volume.FileReader.ApoReader;
 import com.example.myapplication__volume.Nim.main.helper.SystemMessageUnreadManager;
 import com.example.myapplication__volume.Nim.reminder.ReminderManager;
 import com.example.myapplication__volume.collaboration.CollaborationService;
+import com.example.myapplication__volume.collaboration.ManageService;
 import com.example.myapplication__volume.collaboration.Communicator;
+import com.example.myapplication__volume.collaboration.MsgConnector;
 import com.example.myapplication__volume.collaboration.ServerConnector;
 import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
 import com.example.myapplication__volume.ui.login.LoginActivity;
@@ -448,6 +450,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private final int SOUNDNUM = 3;
     private int [] soundId;
 
+    private ManageService manageService;
     private CollaborationService collaborationService;
     private boolean mBound;
 
@@ -468,13 +471,17 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
 
         if (msg.contains(":Port")){
-            ServerConnector serverConnector = ServerConnector.getInstance();
-            Log.e(TAG,"port" + msg.split(":")[0]);
-            serverConnector.setPort(msg.split(":")[0]);
-            serverConnector.releaseConnection();
+//            ServerConnector serverConnector = ServerConnector.getInstance();
+//            Log.e(TAG,"port" + msg.split(":")[0]);
+//            serverConnector.setPort(msg.split(":")[0]);
+//            serverConnector.releaseConnection();
+//
+//            serverConnector.initConnection();
+//            ManageService.resetConnect();
 
-            serverConnector.initConnection();
-            CollaborationService.resetConnect();
+            initMsgConnector(msg.split(":")[0]);
+            initMsgService();
+
         }
 
 
@@ -1721,8 +1728,23 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private void initService(){
         // Bind to LocalService
-        Intent intent = new Intent(this, CollaborationService.class);
+        Intent intent = new Intent(this, ManageService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void initMsgService(){
+        // Bind to LocalService
+        Intent intent = new Intent(this, CollaborationService.class);
+        bindService(intent, connection_msg, Context.BIND_AUTO_CREATE);
+    }
+
+    private void initMsgConnector(String ip){
+        MsgConnector msgConnector = MsgConnector.getInstance();
+        msgConnector.setContext(this);
+
+        msgConnector.setIp(ip_ALiYun);
+        msgConnector.setPort(ip);
+        msgConnector.initConnection();
     }
 
 
@@ -1749,6 +1771,26 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
+            ManageService.LocalBinder binder = (ManageService.LocalBinder) service;
+            manageService = (ManageService) binder.getService();
+            binder.addReceiveMsgInterface((MainActivity) getActivityFromContext(mainContext));
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
+
+
+
+    /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection connection_msg = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
             CollaborationService.LocalBinder binder = (CollaborationService.LocalBinder) service;
             collaborationService = (CollaborationService) binder.getService();
             binder.addReceiveMsgInterface((MainActivity) getActivityFromContext(mainContext));
@@ -1762,9 +1804,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     };
 
 
+
     private void sendMsg(){
 
         ServerConnector serverConnector = ServerConnector.getInstance();
+        MsgConnector msgConnector = MsgConnector.getInstance();
 //        serverConnector.sendMsg("hello world !");
         count++;
         switch (count){
@@ -1772,13 +1816,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 serverConnector.sendMsg("LOADFILES:0 /test/test_01/test_01_x128.000_y128.000_z128.000.ano /test/test_01/test_01_fx_lh_test.ano");
                 break;
             case 2:
-                serverConnector.sendMsg("/login:1");
+                msgConnector.sendMsg("/login:1");
                 break;
             case 3:
-                serverConnector.sendMsg("/Imgblock:");
+                msgConnector.sendMsg("/Imgblock:");
                 break;
             case 4:
-                serverConnector.sendMsg("/GetBBSwc:");
+                msgConnector.sendMsg("/GetBBSwc:");
                 break;
         }
 

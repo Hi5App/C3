@@ -19,23 +19,22 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class CollaborationService extends Service {
-
+public class ManageService extends Service {
 
     private static final String TAG = "CollaborationService";
 
     private ReceiveMsgInterface receiveMsgInterface;
 
     // Binder given to clients
-    private final IBinder binder = new CollaborationService.LocalBinder();
+    private final IBinder binder = new LocalBinder();
 
-    private  static CollaborationService.ReadThread mReadThread;
+    private  static ReadThread mReadThread;
 
     boolean mAllowRebind; // indicates whether onRebind should be used
 
     private Socket msgSocket;
 
-    private CollaborationService.DataType dataType = new CollaborationService.DataType();
+    private DataType dataType = new DataType();
 
     private String file_path;
 
@@ -46,9 +45,9 @@ public class CollaborationService extends Service {
     public class LocalBinder extends Binder {
 
 
-        public CollaborationService getService() {
+        public ManageService getService() {
             // Return this instance of CollaborationService so clients can call public methods
-            return CollaborationService.this;
+            return ManageService.this;
         }
 
         public void addReceiveMsgInterface(ReceiveMsgInterface mreceiveMsgInterface){
@@ -61,9 +60,9 @@ public class CollaborationService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        MsgConnector msgConnector = MsgConnector.getInstance();
-        msgSocket = msgConnector.getManageSocket();
-        mReadThread = new CollaborationService.ReadThread(msgSocket);
+        ServerConnector serverConnector = ServerConnector.getInstance();
+        msgSocket = serverConnector.getManageSocket();
+        mReadThread = new ReadThread(msgSocket);
         mReadThread.start();
 
     }
@@ -96,7 +95,7 @@ public class CollaborationService extends Service {
         private WeakReference<Socket> mWeakSocket;
         private Socket mSocket;
         private boolean isStart = true;
-        //        private BufferedInputStream is;
+//        private BufferedInputStream is;
         private InputStream is;
         private BufferedReader bufferedReader;
 
@@ -149,10 +148,10 @@ public class CollaborationService extends Service {
 
                                 }
                             }
-                        }catch (Exception e){
-                            e.printStackTrace();
-                            System.out.println("网络异常！");
-                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        System.out.println("网络异常！");
+                    }
                     }
 
                 } catch (Exception e) {
@@ -348,7 +347,6 @@ public class CollaborationService extends Service {
             if (msg.endsWith("\n")){
                 msg.trim();
                 receiveMsgInterface.onRecMessage(msg);
-                resetDataType();
                 return true;
             }
             else{
@@ -411,10 +409,12 @@ public class CollaborationService extends Service {
 
             try {
 
-                MsgConnector msgConnector = MsgConnector.getInstance();
-                msgConnector.initConnection();
-                mWeakSocket = new WeakReference<Socket>(msgConnector.getManageSocket());
+                ServerConnector serverConnector = ServerConnector.getInstance();
+                serverConnector.initConnection();
+                mWeakSocket = new WeakReference<Socket>(serverConnector.getManageSocket());
                 mSocket = mWeakSocket.get();
+
+//                is = new DataInputStream((FileInputStream) (mSocket.getInputStream()));
 
                 is = mSocket.getInputStream();
                 bufferedReader = new BufferedReader(new InputStreamReader(is,"UTF-8"));
@@ -447,8 +447,8 @@ public class CollaborationService extends Service {
 
             try {
 
-                MsgConnector msgConnector = MsgConnector.getInstance();
-                mWeakSocket = new WeakReference<Socket>(msgConnector.getManageSocket());
+                ServerConnector serverConnector = ServerConnector.getInstance();
+                mWeakSocket = new WeakReference<Socket>(serverConnector.getManageSocket());
                 mSocket = mWeakSocket.get();
 
                 is = mSocket.getInputStream();

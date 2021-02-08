@@ -147,6 +147,11 @@
 
         <!-- 协同工作通信服务 -->
         <service
+            android:name="com.example.myapplication__volume.collaboration.ManageService"
+            android:exported="false"/>
+
+        <!-- 协同工作通信服务 -->
+        <service
             android:name="com.example.myapplication__volume.collaboration.CollaborationService"
             android:exported="false"/>
 
