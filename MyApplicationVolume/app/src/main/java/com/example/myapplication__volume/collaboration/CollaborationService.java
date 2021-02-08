@@ -31,7 +31,7 @@ public class CollaborationService extends Service {
     // Binder given to clients
     private final IBinder binder = new LocalBinder();
 
-    private ReadThread mReadThread;
+    private  static ReadThread mReadThread;
 
     boolean mAllowRebind; // indicates whether onRebind should be used
 
@@ -199,7 +199,7 @@ public class CollaborationService extends Service {
                         if (is.available() >= dataType.dataSize){
                             // read msg
                             Log.e(TAG,"read msg !");
-                            String msg = bufferedReader.readLine();
+                            String msg = MyReadLine(is) + "\n";
                             if (processMsg(msg)){
                                 onRead("after read msg !");
                             }
@@ -348,6 +348,7 @@ public class CollaborationService extends Service {
 
         private boolean processMsg(final String msg){
             if (msg.endsWith("\n")){
+                msg.trim();
                 receiveMsgInterface.onRecMessage(msg);
                 return true;
             }
@@ -444,7 +445,36 @@ public class CollaborationService extends Service {
             }
         }
 
+
+        public void reSetConnect(){
+
+            try {
+
+                ServerConnector serverConnector = ServerConnector.getInstance();
+                serverConnector.initConnect();
+                mWeakSocket = new WeakReference<Socket>(serverConnector.getManageSocket());
+                mSocket = mWeakSocket.get();
+
+//                is = new DataInputStream((FileInputStream) (mSocket.getInputStream()));
+
+                is = mSocket.getInputStream();
+                bufferedReader = new BufferedReader(new InputStreamReader(is,"UTF-8"));
+
+            }catch (Exception e){
+                e.printStackTrace();
+                Log.e(TAG,"reConnect");
+            }
+        }
+
+
+
     }
+
+
+    public static void resetConnect(){
+        mReadThread.reConnect();
+    }
+
 
 
     private String MyReadLine(InputStream is){

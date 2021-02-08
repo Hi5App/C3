@@ -453,24 +453,28 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private CollaborationService collaborationService;
     private boolean mBound;
 
+    private int count = 0;
+
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onRecMessage(String msg) {
 
-//        Log.e(TAG,"onRecMessage()");
+        Log.e(TAG,"onRecMessage()  " + msg);
 
-        if (msg.startsWith("File")){
-            Log.e(TAG,"onRecMessage()" + msg);
-//            LoadBigFile_Remote(msg.split(":")[1]);
-            myrenderer.setPath(msg.split(":")[1]);
-            myrenderer.zoom(2.2f);
-        }
+//        if (msg.startsWith("File")){
+//            Log.e(TAG,"onRecMessage()" + msg);
+////            LoadBigFile_Remote(msg.split(":")[1]);
+//            myrenderer.setPath(msg.split(":")[1]);
+//            myrenderer.zoom(2.2f);
+//        }
 
-        if (msg.endsWith(":port")){
+        if (msg.contains(":Port")){
             ServerConnector serverConnector = ServerConnector.getInstance();
+            Log.e(TAG,"port" + msg.split(":")[0]);
             serverConnector.setPort(msg.split(":")[0]);
             serverConnector.initConnect();
+            CollaborationService.resetConnect();
         }
 
     }
@@ -1754,7 +1758,21 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         ServerConnector serverConnector = ServerConnector.getInstance();
 //        serverConnector.sendMsg("hello world !");
-        serverConnector.sendMsg("LOADFILES:0 /test/test_01/test_01_x128.000_y128.000_z128.000.ano /test/test_01_fx_lh_test.ano");
+        count++;
+        switch (count){
+            case 1:
+                serverConnector.sendMsg("LOADFILES:0 /test/test_01/test_01_x128.000_y128.000_z128.000.ano /test/test_01_fx_lh_test.ano");
+                break;
+            case 2:
+                serverConnector.sendMsg("/login:1");
+                break;
+            case 3:
+                serverConnector.sendMsg("/Imgblock:");
+                break;
+            case 4:
+                serverConnector.sendMsg("/GetBBSwc:");
+                break;
+        }
 
 //        try {
 //

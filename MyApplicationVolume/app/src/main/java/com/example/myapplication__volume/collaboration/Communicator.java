@@ -69,19 +69,18 @@ public class Communicator {
 
 
 
-//    public V_NeuronSWC V_NeuronSWCToMSG(String seg){
-//
-//        ArrayList<String> result = new ArrayList<>();
-//        for (int i = 0; i < seg.row.size(); i++){
-//            V_NeuronSWC_unit curSWCunit = seg.row.get(i);
-//            XYZ GlobalCroods = ConvertLocalBlocktoGlobalCroods(curSWCunit.x,curSWCunit.y,curSWCunit.z);
-//            if (!result.add(String.format("%f %f %f %f %f",curSWCunit.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z))){
-//                Log.e(TAG, "Something wrong when convert V_NeuronSWC to MSG");
-//            }
-//        }
-//
-//        return result;
-//    }
+    public V_NeuronSWC MSGToV_NeuronSWC(String msg){
+
+        V_NeuronSWC seg = new V_NeuronSWC();
+
+        String[] swc = msg.split(";");
+        for (int i = 0; i < swc.length; i++){
+            V_NeuronSWC_unit swcUnit = new V_NeuronSWC_unit();
+
+        }
+
+        return seg;
+    }
 
 
 
@@ -93,7 +92,7 @@ public class Communicator {
         for (int i = 0; i < seg.row.size(); i++){
             V_NeuronSWC_unit curSWCunit = seg.row.get(i);
             XYZ GlobalCroods = ConvertLocalBlocktoGlobalCroods(curSWCunit.x,curSWCunit.y,curSWCunit.z);
-            if (!result.add(String.format("%f %f %f %f %f",curSWCunit.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z))){
+            if (!result.add(String.format("%f %f %f %f",curSWCunit.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z))){
                 Log.e(TAG, "Something wrong when convert V_NeuronSWC to MSG");
             }
         }

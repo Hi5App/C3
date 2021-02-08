@@ -36,6 +36,7 @@ import com.example.game.GameCharacter;
 
 import com.example.myapplication__volume.FileReader.AnoReader;
 import com.example.myapplication__volume.FileReader.ApoReader;
+import com.example.myapplication__volume.collaboration.Communicator;
 import com.example.myapplication__volume.render.MyAxis;
 import com.example.myapplication__volume.render.MyDraw;
 import com.example.myapplication__volume.render.MyMarker;
@@ -3505,6 +3506,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            v_neuronSWC_lists[0] = tempCurveList;
 
             curSwcList.append(seg);
+
+
+
+            Communicator communicator =Communicator.getInstance();
+            communicator.updateSWC(seg);
+
+
 
 
 //            saveUndo();
