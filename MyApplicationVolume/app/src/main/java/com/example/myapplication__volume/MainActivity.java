@@ -434,7 +434,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     public static String USERNAME = "username";
 
-    private String username;
+    public static String username;
 
     private RtmClientListener mClientListener;
 
@@ -468,6 +468,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //            LoadBigFile_Remote(msg.split(":")[1]);
             myrenderer.setPath(msg.split(":")[1]);
             myrenderer.zoom(2.2f);
+            myGLSurfaceView.requestRender();
         }
 
         if (msg.contains(":Port")){
@@ -491,6 +492,22 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             myrenderer.syncSWC(seg);
             myGLSurfaceView.requestRender();
         }
+
+        Log.e(TAG,"drawline_norm");
+        if (msg.startsWith("/drawline_norm:")){
+            Log.e(TAG,"drawline_norm");
+
+            String username = msg.split(":")[1].split(" ")[0];
+            String seg      = msg.split(":")[2];
+
+            if (!username.equals("1")){
+                Communicator communicator = Communicator.getInstance();
+                myrenderer.syncSWC(communicator.syncSWC(seg));
+                myGLSurfaceView.requestRender();
+            }
+
+        }
+
 
     }
 
@@ -1813,7 +1830,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         count++;
         switch (count){
             case 1:
-                serverConnector.sendMsg("LOADFILES:0 /test/test_01/test_01_x128.000_y128.000_z128.000.ano /test/test_01/test_01_fx_lh_test.ano");
+//                serverConnector.sendMsg("LOADFILES:0 /test/test_01/test_01_x128.000_y128.000_z128.000.ano /test/test_01/test_01_fx_lh_test.ano");
+                serverConnector.sendMsg("LOADFILES:2 /test/test_01/test_01_fx_lh_test.ano");
                 break;
             case 2:
                 msgConnector.sendMsg("/login:1");

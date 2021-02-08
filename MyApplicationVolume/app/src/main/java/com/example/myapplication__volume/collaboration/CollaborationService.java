@@ -228,8 +228,8 @@ public class CollaborationService extends Service {
                         }
 
                         //打开文件，如果没有，则新建文件
-//                        File file = new File(dataType.filepath + "/" + dataType.filename);
-                        File file = new File(dataType.filepath + "/" + "1.v3draw");
+                        File file = new File(dataType.filepath + "/" + dataType.filename);
+//                        File file = new File(dataType.filepath + "/" + "1.v3draw");
                         if(!file.exists()){
                             if (file.createNewFile()){
                                 Log.e("Get_File", "Create file Successfully !");

@@ -15,6 +15,8 @@ import com.tracingfunc.gd.V_NeuronSWC_unit;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.myapplication__volume.MainActivity.username;
+
 public class Communicator {
 
     /**
@@ -76,8 +78,13 @@ public class Communicator {
 
         String[] swc = msg.split(";");
         for (int i = 0; i < swc.length; i++){
-            V_NeuronSWC_unit swcUnit = new V_NeuronSWC_unit();
+            V_NeuronSWC_unit segUnit = new V_NeuronSWC_unit();
 
+            segUnit.type = Double.parseDouble(swc[i].split(" ")[0]);
+            segUnit.x = Double.parseDouble(swc[i].split(" ")[1]);
+            segUnit.y = Double.parseDouble(swc[i].split(" ")[2]);
+            segUnit.z = Double.parseDouble(swc[i].split(" ")[3]);
+            seg.row.add(segUnit);
         }
 
         return seg;
@@ -92,8 +99,9 @@ public class Communicator {
         ArrayList<String> result = new ArrayList<>();
         for (int i = 0; i < seg.row.size(); i++){
             V_NeuronSWC_unit curSWCunit = seg.row.get(i);
-            XYZ GlobalCroods = ConvertLocalBlocktoGlobalCroods(curSWCunit.x,curSWCunit.y,curSWCunit.z);
-            if (!result.add(String.format("%f %f %f %f",curSWCunit.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z))){
+//            XYZ GlobalCroods = ConvertLocalBlocktoGlobalCroods(curSWCunit.x,curSWCunit.y,curSWCunit.z);
+//            if (!result.add(String.format("%f %f %f %f",curSWCunit.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z))){
+            if (!result.add(String.format("%f %f %f %f",curSWCunit.type, curSWCunit.x, curSWCunit.y, curSWCunit.z))){
                 Log.e(TAG, "Something wrong when convert V_NeuronSWC to MSG");
             }
         }
@@ -106,10 +114,10 @@ public class Communicator {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void updateSWC(V_NeuronSWC seg){
         List<String> result = V_NeuronSWCToMSG(seg);
-        String msg = String.join(";", result);
+        String msg = "/drawline_norm:" + username + " hi5 128 128 128:" + String.join(";", result);
 
-        ServerConnector serverConnector = ServerConnector.getInstance();
-        serverConnector.sendMsg(msg);
+        MsgConnector msgConnector = MsgConnector.getInstance();
+        msgConnector.sendMsg(msg);
 
     }
 
