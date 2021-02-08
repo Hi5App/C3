@@ -3507,13 +3507,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             curSwcList.append(seg);
 
-
-
-            Communicator communicator =Communicator.getInstance();
-            communicator.updateSWC(seg);
-
-
-
+            updateSWC(seg);
 
 //            saveUndo();
 //            if (process.size() < UNDO_LIMIT){
@@ -5774,6 +5768,30 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
     }
+
+
+    /**
+     * for collaboration ------------------------------------------ !
+     */
+
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void updateSWC(V_NeuronSWC seg){
+
+        Communicator communicator = Communicator.getInstance();
+        communicator.updateSWC(seg);
+
+    }
+
+
+    public void syncSWC(V_NeuronSWC seg){
+        curSwcList.append(seg);
+    }
+
+
+
+
+
     /**
      * toast info in the thread
      * @param message the message you wanna toast

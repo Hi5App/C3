@@ -97,6 +97,7 @@ import com.example.myapplication__volume.FileReader.ApoReader;
 import com.example.myapplication__volume.Nim.main.helper.SystemMessageUnreadManager;
 import com.example.myapplication__volume.Nim.reminder.ReminderManager;
 import com.example.myapplication__volume.collaboration.CollaborationService;
+import com.example.myapplication__volume.collaboration.Communicator;
 import com.example.myapplication__volume.collaboration.ServerConnector;
 import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
 import com.example.myapplication__volume.ui.login.LoginActivity;
@@ -459,12 +460,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         Log.e(TAG,"onRecMessage()  " + msg);
 
-//        if (msg.startsWith("File")){
-//            Log.e(TAG,"onRecMessage()" + msg);
-////            LoadBigFile_Remote(msg.split(":")[1]);
-//            myrenderer.setPath(msg.split(":")[1]);
-//            myrenderer.zoom(2.2f);
-//        }
+        if (msg.startsWith("File:")){
+            Log.e(TAG,"onRecMessage()" + msg);
+//            LoadBigFile_Remote(msg.split(":")[1]);
+            myrenderer.setPath(msg.split(":")[1]);
+            myrenderer.zoom(2.2f);
+        }
 
         if (msg.contains(":Port")){
             ServerConnector serverConnector = ServerConnector.getInstance();
@@ -474,6 +475,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
             serverConnector.initConnection();
             CollaborationService.resetConnect();
+        }
+
+
+        if (msg.contains("sync")){
+            Communicator communicator = Communicator.getInstance();
+            V_NeuronSWC seg = communicator.syncSWC(msg);
+            myrenderer.syncSWC(seg);
+            myGLSurfaceView.requestRender();
         }
 
     }
@@ -1760,7 +1769,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         count++;
         switch (count){
             case 1:
-                serverConnector.sendMsg("LOADFILES:0 /test/test_01/test_01_x128.000_y128.000_z128.000.ano /test/test_01_fx_lh_test.ano");
+                serverConnector.sendMsg("LOADFILES:0 /test/test_01/test_01_x128.000_y128.000_z128.000.ano /test/test_01/test_01_fx_lh_test.ano");
                 break;
             case 2:
                 serverConnector.sendMsg("/login:1");

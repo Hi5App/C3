@@ -64,7 +64,7 @@ public class Communicator {
 
     public void processMsg(byte[] msg){
 
-        
+
     }
 
 
@@ -111,6 +111,11 @@ public class Communicator {
         ServerConnector serverConnector = ServerConnector.getInstance();
         serverConnector.sendMsg(msg);
 
+    }
+
+
+    public V_NeuronSWC syncSWC(String msg){
+        return MSGToV_NeuronSWC(msg);
     }
 
 

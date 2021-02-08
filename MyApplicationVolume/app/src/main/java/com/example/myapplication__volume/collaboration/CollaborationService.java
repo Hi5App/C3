@@ -410,6 +410,7 @@ public class CollaborationService extends Service {
             try {
 
                 ServerConnector serverConnector = ServerConnector.getInstance();
+                serverConnector.initConnection();
                 mWeakSocket = new WeakReference<Socket>(serverConnector.getManageSocket());
                 mSocket = mWeakSocket.get();
 
@@ -447,11 +448,8 @@ public class CollaborationService extends Service {
             try {
 
                 ServerConnector serverConnector = ServerConnector.getInstance();
-                serverConnector.initConnection();
                 mWeakSocket = new WeakReference<Socket>(serverConnector.getManageSocket());
                 mSocket = mWeakSocket.get();
-
-//                is = new DataInputStream((FileInputStream) (mSocket.getInputStream()));
 
                 is = mSocket.getInputStream();
                 bufferedReader = new BufferedReader(new InputStreamReader(is,"UTF-8"));
@@ -468,7 +466,7 @@ public class CollaborationService extends Service {
 
 
     public static void resetConnect(){
-        mReadThread.reConnect();
+        mReadThread.reSetConnect();
     }
 
 
