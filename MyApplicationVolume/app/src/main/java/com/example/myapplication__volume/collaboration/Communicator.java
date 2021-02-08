@@ -2,7 +2,10 @@ package com.example.myapplication__volume.collaboration;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import com.example.basic.XYZ;
 import com.example.chat.chatlist.LetterView;
@@ -61,9 +64,25 @@ public class Communicator {
 
     public void processMsg(byte[] msg){
 
-
-
     }
+
+
+
+
+//    public V_NeuronSWC V_NeuronSWCToMSG(String seg){
+//
+//        ArrayList<String> result = new ArrayList<>();
+//        for (int i = 0; i < seg.row.size(); i++){
+//            V_NeuronSWC_unit curSWCunit = seg.row.get(i);
+//            XYZ GlobalCroods = ConvertLocalBlocktoGlobalCroods(curSWCunit.x,curSWCunit.y,curSWCunit.z);
+//            if (!result.add(String.format("%f %f %f %f %f",curSWCunit.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z))){
+//                Log.e(TAG, "Something wrong when convert V_NeuronSWC to MSG");
+//            }
+//        }
+//
+//        return result;
+//    }
+
 
 
 
@@ -81,6 +100,19 @@ public class Communicator {
 
         return result;
     }
+
+
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void updateSWC(V_NeuronSWC seg){
+        List<String> result = V_NeuronSWCToMSG(seg);
+        String msg = String.join(";", result);
+
+        ServerConnector serverConnector = ServerConnector.getInstance();
+        serverConnector.sendMsg(msg);
+
+    }
+
 
 
     public XYZ ConvertGlobaltoLocalBlockCroods(double x,double y,double z)

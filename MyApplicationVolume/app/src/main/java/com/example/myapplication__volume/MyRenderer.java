@@ -3506,6 +3506,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             curSwcList.append(seg);
 
+
 //            saveUndo();
 //            if (process.size() < UNDO_LIMIT){
 //                process.add(Operate.DRAWCURVE);

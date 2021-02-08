@@ -467,6 +467,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             myrenderer.zoom(2.2f);
         }
 
+        if (msg.endsWith(":port")){
+            ServerConnector serverConnector = ServerConnector.getInstance();
+            serverConnector.setPort(msg.split(":")[0]);
+            serverConnector.initConnect();
+        }
+
     }
 
 
@@ -1748,7 +1754,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         ServerConnector serverConnector = ServerConnector.getInstance();
 //        serverConnector.sendMsg("hello world !");
-        serverConnector.sendMsg("Hello1");
+        serverConnector.sendMsg("LOADFILES:0 /test/test_01/test_01_x128.000_y128.000_z128.000.ano /test/test_01_fx_lh_test.ano");
 
 //        try {
 //

@@ -33,22 +33,34 @@ public class LoginDataSource {
     public Result<LoggedInUser> login(String username, String password) {
 
         try {
-            loginWithOkHttp(ipLogin, username, password);
-            while (!ifResponsed){
-                Log.d("LoginLoop", "AAAAAAAAAAAAAAAAA");
-            }
-            ifResponsed = false;
-            if (responseData.equals("true")){
-                Log.d("LoginDataSource", "login");
-                LoggedInUser fakeUser =
-                        new LoggedInUser(
-                                java.util.UUID.randomUUID().toString(),
-                                username);
-                return new Result.Success<>(fakeUser);
-            } else {
-                Log.d("LoginDataSource", "Result.Error");
-                return new Result.Error(new IOException(responseData));
-            }
+
+            /*
+            just for test
+             */
+            LoggedInUser fakeUser =
+                    new LoggedInUser(
+                            java.util.UUID.randomUUID().toString(),
+                            username);
+            return new Result.Success<>(fakeUser);
+
+
+
+//            loginWithOkHttp(ipLogin, username, password);
+//            while (!ifResponsed){
+//                Log.d("LoginLoop", "AAAAAAAAAAAAAAAAA");
+//            }
+//            ifResponsed = false;
+//            if (responseData.equals("true")){
+//                Log.d("LoginDataSource", "login");
+//                LoggedInUser fakeUser =
+//                        new LoggedInUser(
+//                                java.util.UUID.randomUUID().toString(),
+//                                username);
+//                return new Result.Success<>(fakeUser);
+//            } else {
+//                Log.d("LoginDataSource", "Result.Error");
+//                return new Result.Error(new IOException(responseData));
+//            }
         } catch (Exception e) {
             return new Result.Error(new IOException("Error logging in", e));
         }
