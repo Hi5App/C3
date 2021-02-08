@@ -6,15 +6,10 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.List;
 
 public class ServerConnector {
 
@@ -62,7 +57,7 @@ public class ServerConnector {
     /**
      * 初始化连接
      */
-    public void initConnect(){
+    public void initConnection(){
 
         Log.i(TAG,"Start to Connect Server !");
 
@@ -242,8 +237,19 @@ public class ServerConnector {
 
 
 
+    public void releaseConnection(){
 
-
+        if (manageSocket != null){
+            try {
+                if (!manageSocket.isClosed()) {
+                    manageSocket.close();
+                }
+                manageSocket = null;
+            }catch (Exception e){
+                System.out.println("NULL!!!");
+            }
+        }
+    }
 
 
 
@@ -257,7 +263,7 @@ public class ServerConnector {
 
         if (manageSocket == null || !checkConnection()){
             Log.e(TAG,"Connect Again");
-            initConnect();
+            initConnection();
         }
 
     }

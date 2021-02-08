@@ -97,7 +97,6 @@ import com.example.myapplication__volume.FileReader.ApoReader;
 import com.example.myapplication__volume.Nim.main.helper.SystemMessageUnreadManager;
 import com.example.myapplication__volume.Nim.reminder.ReminderManager;
 import com.example.myapplication__volume.collaboration.CollaborationService;
-import com.example.myapplication__volume.collaboration.Communicator;
 import com.example.myapplication__volume.collaboration.ServerConnector;
 import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
 import com.example.myapplication__volume.ui.login.LoginActivity;
@@ -135,7 +134,6 @@ import com.warkiz.widget.IndicatorSeekBar;
 
 import org.apache.commons.io.FileUtils;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -144,7 +142,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -473,7 +470,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             ServerConnector serverConnector = ServerConnector.getInstance();
             Log.e(TAG,"port" + msg.split(":")[0]);
             serverConnector.setPort(msg.split(":")[0]);
-            serverConnector.initConnect();
+            serverConnector.releaseConnection();
+
+            serverConnector.initConnection();
             CollaborationService.resetConnect();
         }
 
@@ -1725,7 +1724,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         serverConnector.setIp(ip_ALiYun);
         serverConnector.setPort("26371");
-        serverConnector.initConnect();
+        serverConnector.initConnection();
 //        serverConnector.sendMsg("hello world !");
 
 //        String data = "message" + "\n";
