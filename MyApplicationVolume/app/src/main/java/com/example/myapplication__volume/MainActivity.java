@@ -1834,7 +1834,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 serverConnector.sendMsg("LOADFILES:2 /test/test_01/test_01_fx_lh_test.ano");
                 break;
             case 2:
-                msgConnector.sendMsg("/login:1");
+                msgConnector.sendMsg("/login:3");
                 break;
             case 3:
                 msgConnector.sendMsg("/Imgblock:");
