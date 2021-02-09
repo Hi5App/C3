@@ -105,7 +105,7 @@
     <string name="client_ios">IOS</string>
     <string name="client_aos">ANDROID</string>
     <string name="on_line">ONLINE</string>
-    
+
     <string name="start_session_record">Start the whiteboard record</string>
     <string name="session_end_record">The whiteboard record is end</string>
 
@@ -126,7 +126,6 @@
     <string name="message_clear_record">Clear local msg (记录操作)</string>
     <string name="message_clear_not_record">Clear local msg (不记录操作)</string>
     <string name="cloud_message_clear">clear the cloud msg history</string>
-
 
 
     <!--  User Profile  -->
@@ -152,7 +151,6 @@
     <string name="head_update_failed">Fail to update head portrait, Try again please !</string>
 
 
-
     <string name="snapchat_longclick_to_view">LongClick to view the Picture !</string>
     <string name="unread">unread</string>
     <string name="message_info">Message Info</string>
@@ -160,7 +158,7 @@
 
     <!-- 群 -->
     <string name="create_normal_team">Create Normal team</string>
-<!--    <string name="msg_notice">Msg Notice</string>-->
+    <!--    <string name="msg_notice">Msg Notice</string>-->
     <string name="message_history_query">Message History</string>
 
 
@@ -172,9 +170,9 @@
 
 
     <!-- setting -->
-<!--    <string name="black_list">Black List</string>-->
-<!--    <string name="offline_push">Offline push</string>-->
-<!--    <string name="recent_sticky">Recent Sticky</string>-->
+    <!--    <string name="black_list">Black List</string>-->
+    <!--    <string name="offline_push">Offline push</string>-->
+    <!--    <string name="recent_sticky">Recent Sticky</string>-->
     <string name="settings">设置</string>
     <string name="enter_ysf_str">联系客服</string>
     <string name="no_disturb">免打扰</string>
@@ -228,11 +226,9 @@
     <string name="logout">注销</string>
 
 
-
     <!-- about -->
     <string name="about_clear_msg_history">清空所有聊天记录</string>
     <string name="clear_msg_history_success">聊天记录已清空</string>
-
 
 
     <!-- 自定义通知 -->
@@ -248,7 +244,6 @@
     <string name="down_time_enable_notification">免打扰期间显示通知</string>
 
 
-
     <!-- Contacts -->
     <string name="add_friend">Add Friend</string>
     <string name="remove_friend">Remove Friend</string>
@@ -258,8 +253,6 @@
     <string name="add_friend_self_tip">不能添加自己为好友</string>
     <string name="add_friend_verify_tip">好友验证请求</string>
     <string name="black_list_tip">你不会接收到列表中联系人的任何消息</string>
-
-
 
 
     <!-- Robot -->
@@ -284,10 +277,8 @@
     <string name="settings_me">Settings</string>
 
 
-
     <string name="no_team">No Chat Team yet</string>
     <string name="no_normal_team">No Chat Group yet</string>
-
 
 
     <!-- 云信SDK所需文案 -->

@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -51,6 +53,9 @@ public class LoginActivity extends AppCompatActivity {
     CheckBox remember_pwd;
     PreferenceLogin preferenceLogin;
 
+    private SoundPool soundPool;
+    private int soundId;
+
     final private int SIGN_IN_ON_CLICK = 1;
     final private String TAG = "LoginActivity";
 
@@ -86,7 +91,11 @@ public class LoginActivity extends AppCompatActivity {
         registerButton = findViewById(R.id.goto_register);
         remember_pwd = findViewById(R.id.remember_pwd);
 
+        soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 5);
+        soundId = soundPool.load(this, R.raw.button01, 1);
+
         if (preferenceLogin.getRem_or_not()){
+
             usernameEditText.setText(preferenceLogin.getUsername());
             passwordEditText.setText(preferenceLogin.getPassword());
             remember_pwd.setChecked(true);
@@ -183,6 +192,8 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                soundPool.play(soundId, 1.0f, 1.0f, 0, 0, 1.0f);
+
                 handler.sendEmptyMessage(SIGN_IN_ON_CLICK);
                 if (remember_pwd.isChecked()){
                     preferenceLogin.setPref(usernameEditText.getText().toString(),

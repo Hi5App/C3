@@ -50,6 +50,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+        <activity android:name=".MenuActivity"></activity>
+
         <service
             android:name=".MusicServer"
             android:enabled="true"
@@ -147,6 +149,7 @@
 
         <!-- 协同工作通信服务 -->
         <service
+
             android:name="com.example.myapplication__volume.collaboration.ManageService"
             android:exported="false"/>
 

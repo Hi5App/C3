@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -40,6 +42,9 @@ public class RegisterActivity extends AppCompatActivity {
     Button registerButton;
     ProgressBar loadingProgressBar;
 
+    private SoundPool soundPool;
+    private int soundId;
+
     @SuppressLint("HandlerLeak")
     private Handler handler=new Handler(){
         @SuppressLint("HandlerLeak")
@@ -71,6 +76,9 @@ public class RegisterActivity extends AppCompatActivity {
         emailEditText = findViewById(R.id.register_email);
         registerButton = findViewById(R.id.register);
         loadingProgressBar = findViewById(R.id.loading);
+
+        soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 5);
+        soundId = soundPool.load(this, R.raw.button01, 1);
 
         registerViewModel.getRegisterFormState().observe(this, new Observer<RegisterFormState>() {
             @Override
@@ -158,6 +166,8 @@ public class RegisterActivity extends AppCompatActivity {
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                soundPool.play(soundId, 1.0f, 1.0f, 0, 0, 1.0f);
+
                 handler.sendEmptyMessage(REGISTER_ON_CLICK);
 //                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
 //                startActivity(intent);
