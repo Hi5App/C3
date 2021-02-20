@@ -114,7 +114,7 @@ public class Communicator {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void updateSWC(V_NeuronSWC seg){
         List<String> result = V_NeuronSWCToMSG(seg);
-        String msg = "/drawline_norm:" + username + " hi5 128 128 128:" + String.join(";", result);
+        String msg = "/drawline_norm:" + username + " HI5 128 128 128:" + String.join(";", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
         msgConnector.sendMsg(msg);

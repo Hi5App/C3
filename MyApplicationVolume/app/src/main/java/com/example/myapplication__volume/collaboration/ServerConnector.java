@@ -5,6 +5,8 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.myapplication__volume.collaboration.basic.DataType;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,6 +16,9 @@ import java.util.ArrayList;
 public class ServerConnector {
 
     private static final String TAG = "ServerConnector";
+
+    private static final String EMPTY_MSG = "the msg is empty";
+
 
     private Socket manageSocket = null;
 
@@ -30,11 +35,14 @@ public class ServerConnector {
 
     private DataType dataType;
 
-    private MsgSender msgSender;
+    public static MsgSender msgSender;
+
+    public static MsgReceiver msgReceiver;
 
 
     private ServerConnector(){
         msgSender = new MsgSender(mContext);
+        msgReceiver = new MsgReceiver(mContext);
     }
 
     public static void init(Context ctx){
@@ -64,9 +72,9 @@ public class ServerConnector {
         /*
         如果已经和服务器建立连接了，就return
          */
-//        if (manageSocket != null && !manageSocket.isClosed() && manageSocket.isConnected()){
-//            return;
-//        }
+        if (manageSocket != null && !manageSocket.isClosed() && manageSocket.isConnected()){
+            return;
+        }
 
         //新建一个线程，用于初始化socket和检测是否有接收到新的消息
         Thread thread = new Thread() {
@@ -301,8 +309,24 @@ public class ServerConnector {
     }
 
 
+    public String ReceiveMsg(){
+
+        makeConnect();
+
+        String msg = msgReceiver.ReceiveMsg(manageSocket);
+
+        if (msg != null)
+            return msg;
+        else
+            return EMPTY_MSG;
+    }
+
+
+
     public static void setContext(Context mContext) {
         ServerConnector.mContext = mContext;
+        msgReceiver.setContext(mContext);
+        msgSender.setContext(mContext);
     }
 
 
@@ -358,22 +382,5 @@ public class ServerConnector {
             }
         });
     }
-
-
-
-
-    /*
-    class for data type
-     */
-
-    class DataType{
-        public boolean isFile = false;   //  false for msg;  true for file
-        public long    dataSize = 0;
-        public String  filename;
-//        public Qfile point;
-    }
-
-
-
 
 }

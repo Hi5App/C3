@@ -5,6 +5,8 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.myapplication__volume.collaboration.basic.DataType;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,7 +31,7 @@ public class MsgConnector {
 
     private String port;
 
-    private MsgConnector.DataType dataType;
+    private DataType dataType;
 
     private MsgSender msgSender;
 
@@ -360,18 +362,5 @@ public class MsgConnector {
         });
     }
 
-
-
-
-    /*
-    class for data type
-     */
-
-    class DataType{
-        public boolean isFile = false;   //  false for msg;  true for file
-        public long    dataSize = 0;
-        public String  filename;
-//        public Qfile point;
-    }
 
 }

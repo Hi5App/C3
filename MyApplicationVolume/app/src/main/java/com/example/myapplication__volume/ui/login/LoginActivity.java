@@ -32,11 +32,14 @@ import com.example.datastore.PreferenceLogin;
 import com.example.myapplication__volume.MainActivity;
 import com.example.myapplication__volume.Nim.DemoCache;
 import com.example.myapplication__volume.R;
+import com.example.myapplication__volume.collaboration.ServerConnector;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.common.ToastHelper;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.auth.LoginInfo;
+
+import static com.example.myapplication__volume.BaseActivity.ip_ALiYun;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -93,6 +96,10 @@ public class LoginActivity extends AppCompatActivity {
 
         soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 5);
         soundId = soundPool.load(this, R.raw.button01, 1);
+
+        Log.d(TAG, "init ServerConnector");
+        initServerConnector();
+
 
         if (preferenceLogin.getRem_or_not()){
 
@@ -207,6 +214,7 @@ public class LoginActivity extends AppCompatActivity {
         registerButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
+                Log.e(TAG,"Start to register !");
                 RegisterActivity.actionStart(LoginActivity.this);
             }
         });
@@ -284,6 +292,22 @@ public class LoginActivity extends AppCompatActivity {
         context.startActivity(intent);
     }
 
+
+    private void initServerConnector(){
+
+        ServerConnector serverConnector = ServerConnector.getInstance();
+        ServerConnector.setContext(this);
+
+        serverConnector.setIp(ip_ALiYun);
+        serverConnector.setPort("26371");
+        serverConnector.initConnection();
+//        serverConnector.sendMsg("hello world !");
+
+//        String data = "message" + "\n";
+//        int datalength = data.getBytes(StandardCharsets.UTF_8).length;
+//        Log.d(TAG, "data: " + data + "; ");
+
+    }
 
 
 }

@@ -31,6 +31,8 @@ import com.example.myapplication__volume.R;
 
 public class RegisterActivity extends AppCompatActivity {
 
+    private static final String TAG = "RegisterActivity";
+
     private RegisterViewModel registerViewModel;
 
     final private int REGISTER_ON_CLICK = 2;
@@ -66,6 +68,9 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.e(TAG,"Start to register: onCreate !");
+
         setContentView(R.layout.activity_register);
         registerViewModel = ViewModelProviders.of(this, new RegisterViewModelFactory())
                 .get(RegisterViewModel.class);
@@ -79,6 +84,12 @@ public class RegisterActivity extends AppCompatActivity {
 
         soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 5);
         soundId = soundPool.load(this, R.raw.button01, 1);
+
+        // for test
+//        usernameEditText.setText("xf");
+//        nicknameEditText.setText("xingfei");
+//        passwordEditText.setText("123456");
+//        emailEditText.setText("761496766@qq.com");
 
         registerViewModel.getRegisterFormState().observe(this, new Observer<RegisterFormState>() {
             @Override

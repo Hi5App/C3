@@ -2,6 +2,7 @@ package com.example.myapplication__volume.data;
 
 import android.util.Log;
 
+import com.example.myapplication__volume.collaboration.ServerConnector;
 import com.example.myapplication__volume.data.model.LoggedInUser;
 import com.example.server_communicator.HttpUtil;
 
@@ -18,7 +19,6 @@ public class LoginDataSource {
 
     private String responseData;
     private boolean ifResponsed = false;
-    private final String ip = "http:www.baidu.com";
 //    private final String ipLogin = "http:192.168.1.108:8080/Server_C3/LoginServlet";
 //    private final String ipRegister = "http:192.168.1.108:8080/Server_C3/RegisterServlet";
 //    private final String ipAddFriends = "http:192.168.1.108:8080/Server_C3/AddFriendsServlet";
@@ -29,36 +29,67 @@ public class LoginDataSource {
     private final String ipAddFriends = "http:39.100.35.131:8080/Server_C3/AddFriendsServlet";
     private final String ipQueryFriends = "http:39.100.35.131:8080/Server_C3/QueryFriendsServlet";
 
+    private final String ip = "39.35.100.131";
+    private final String port = "39.35.100.131";
+
+    private static final String EMPTY_MSG = "the msg is empty";
+    private static final String TAG = "LoginDataSource";
 
     public Result<LoggedInUser> login(String username, String password) {
 
         try {
 
-            /*
-            just for test
-             */
-            LoggedInUser fakeUser =
-                    new LoggedInUser(
-                            java.util.UUID.randomUUID().toString(),
-                            username);
-            return new Result.Success<>(fakeUser);
+            LoginWithSocket(username, password);
+
+            if (responseData.startsWith("LOGIN:0")){
+                Log.e(TAG,"login Successfully !");
+
+                LoggedInUser fakeUser =
+                        new LoggedInUser(
+                                java.util.UUID.randomUUID().toString(),
+                                username);
+                return new Result.Success<>(fakeUser);
+
+            }else if (responseData.startsWith("LOGIN:-1")){
+                Log.e(TAG, "Result.Error");
+                return new Result.Error(new IOException("Something wrong with database !"));
+            }else if (responseData.startsWith("LOGIN:-2")){
+                Log.e(TAG, "Result.Error");
+                return new Result.Error(new IOException("Can not find user !"));
+            }else if (responseData.startsWith("LOGIN:-3")){
+                Log.e(TAG, "Result.Error");
+                return new Result.Error(new IOException("username or password is wrong !"));
+            }else {
+                Log.e(TAG, "Result.Error");
+                return new Result.Error(new IOException("Something else wrong !"));
+            }
+
+//            /*
+//            just for test
+//             */
+//            LoggedInUser fakeUser =
+//                    new LoggedInUser(
+//                            java.util.UUID.randomUUID().toString(),
+//                            username);
+//            return new Result.Success<>(fakeUser);
+
 
 
 
 //            loginWithOkHttp(ipLogin, username, password);
 //            while (!ifResponsed){
-//                Log.d("LoginLoop", "AAAAAAAAAAAAAAAAA");
+//                Log.e("LoginLoop", "AAAAAAAAAAAAAAAAA");
 //            }
 //            ifResponsed = false;
 //            if (responseData.equals("true")){
-//                Log.d("LoginDataSource", "login");
+//                Log.e("LoginDataSource", "login");
 //                LoggedInUser fakeUser =
 //                        new LoggedInUser(
 //                                java.util.UUID.randomUUID().toString(),
 //                                username);
 //                return new Result.Success<>(fakeUser);
 //            } else {
-//                Log.d("LoginDataSource", "Result.Error");
+//                Log.e("LoginDataSource", "Result.Error");
 //                return new Result.Error(new IOException(responseData));
 //            }
         } catch (Exception e) {
@@ -68,22 +99,44 @@ public class LoginDataSource {
 
     public Result<LoggedInUser> register(String email, String username, String nickname, String password){
         try {
-            registerWithOkHttp(ipRegister, email, username, nickname, password);
-            while (!ifResponsed){
-                Log.d("RegisterLoop", "AAAAAAAAAAAAAAAAA");
-            }
-            ifResponsed = false;
-            if (responseData.equals("true")) {
-                Log.d("LoginDataSource", "register");
+
+            RegisterWithSocket(username, password, email, nickname);
+
+            if (responseData.equals("REGISTER:0")){
+                Log.e(TAG, "register successfully !");
                 LoggedInUser fakeUser =
                         new LoggedInUser(
                                 java.util.UUID.randomUUID().toString(),
                                 username);
                 return new Result.Success<>(fakeUser);
-            } else{
-                Log.d("RegisterDataSource", "register");
-                return new Result.Error(new IOException(responseData));
+            }else if (responseData.equals("REGISTER:-2")){
+                Log.e(TAG, "fail to register !");
+                return new Result.Error(new IOException("User already exist !"));
+            }else {
+                Log.e(TAG, "fail to register !");
+                return new Result.Error(new IOException("Something wrong with database !"));
             }
+
+
+
+//            registerWithOkHttp(ipRegister, email, username, nickname, password);
+//            while (!ifResponsed){
+//                Log.e("RegisterLoop", "AAAAAAAAAAAAAAAAA");
+//            }
+//            ifResponsed = false;
+//            if (responseData.equals("true")) {
+//                Log.e("LoginDataSource", "register");
+//                LoggedInUser fakeUser =
+//                        new LoggedInUser(
+//                                java.util.UUID.randomUUID().toString(),
+//                                username);
+//                return new Result.Success<>(fakeUser);
+//            } else{
+//                Log.e("RegisterDataSource", "register");
+//                return new Result.Error(new IOException(responseData));
+//            }
+
+
 
 
         } catch (Exception e) {
@@ -92,17 +145,49 @@ public class LoginDataSource {
     }
 
 
+    private void LoginWithSocket(String username, String password){
+
+        ServerConnector serverConnector = ServerConnector.getInstance();
+        serverConnector.sendMsg(String.format("LOGIN:%s %s", username, password));
+        String result = serverConnector.ReceiveMsg();
+        Log.e(TAG,"msg: " + result);
+
+        if (result == null){
+            responseData = "NULL";
+        }else {
+            responseData = result;
+        }
+    }
+
+
+    private void RegisterWithSocket(String username, String password, String email, String nickname){
+
+        ServerConnector serverConnector = ServerConnector.getInstance();
+        serverConnector.sendMsg(String.format("REGISTER:%s %s %s %s", username, email, nickname, password));
+        String result = serverConnector.ReceiveMsg();
+        Log.e(TAG,"msg: " + result);
+
+        if (result == null){
+            responseData = "NULL";
+        }else {
+            responseData = result;
+        }
+
+    }
+
+
+
     public String addFriends(String username, String peer){
         try {
             addFriendsWithOkHttp(ipAddFriends, username, peer);
 
             while (!ifResponsed){
-                Log.d("AddFriendsLoop", "AAAAAAAAAAAAAAAAA");
+                Log.e("AddFriendsLoop", "AAAAAAAAAAAAAAAAA");
             }
 
             ifResponsed = false;
             if (responseData.equals("true")) {
-                Log.d("LoginDataSource", "addFriends successfully !");
+                Log.e("LoginDataSource", "addFriends successfully !");
                 Log.e("LoginDataSource","username: " + username + " & peer: " + peer);
             } else{
                 Log.e("LoginDataSource","Something Wrong when add Friends: " + responseData);
@@ -121,12 +206,12 @@ public class LoginDataSource {
             queryFriendsWithOkHttp(ipQueryFriends, username);
 
             while (!ifResponsed){
-                Log.d("QueryLoop", "AAAAAAAAAAAAAAAAA");
+                Log.e("QueryLoop", "AAAAAAAAAAAAAAAAA");
             }
 
             ifResponsed = false;
             if (responseData.equals("true")) {
-                Log.d("LoginDataSource", "queryFriends successfully !");
+                Log.e("LoginDataSource", "queryFriends successfully !");
                 Log.e("LoginDataSource","username: " + username);
             } else{
                 Log.e("LoginDataSource","Something Wrong when query Friends: " + responseData);
@@ -147,14 +232,14 @@ public class LoginDataSource {
             public void onFailure(Call call, IOException e) {
                 responseData = "Connect Failed When Login";
                 ifResponsed = true;
-                Log.d("loginWithHttp", "onFailure: " + responseData);
+                Log.e("loginWithHttp", "onFailure: " + responseData);
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 responseData = response.body().string();
                 ifResponsed = true;
-                Log.d("loginWithHttp", "responseData: " + responseData);
+                Log.e("loginWithHttp", "responseData: " + responseData);
 //                runOnUiThread
             }
         });

@@ -6,6 +6,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.example.myapplication__volume.collaboration.basic.DataType;
 import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
 
 import java.io.BufferedReader;
@@ -21,7 +22,7 @@ import java.util.Arrays;
 
 public class ManageService extends Service {
 
-    private static final String TAG = "CollaborationService";
+    private static final String TAG = "ManageService";
 
     private ReceiveMsgInterface receiveMsgInterface;
 
@@ -127,25 +128,6 @@ public class ManageService extends Service {
 
                                     onRead("in the while loop");
 
-//                                    String header = ImgReader.readLine();
-
-//                                    if (header != null){
-//                                        Log.e(TAG, header);
-//                                        byte[] msg = new byte[length];
-//                                        System.arraycopy(buffer, 0, msg, 0, length);
-//                                    System.out.println("header: " + header);
-
-
-//                                    if (header != null){
-//                                        System.out.println("header: " + header);
-//                                        if (header.startsWith("error")){
-//
-//
-//
-//                                        }
-//                                        receiveMsgInterface.onRecMessage(header.getBytes());
-//                                    }
-
                                 }
                             }
                     }catch (Exception e){
@@ -164,11 +146,14 @@ public class ManageService extends Service {
 
         private void onRead(String tag){
 
-//            try {
-//                Log.e(TAG, "tag: " + tag + ";  available size : " + is.available());
-//            }catch (Exception e){
-//                e.printStackTrace();
-//            }
+            try {
+                if (is.available()>0 || dataType.dataSize >0){
+                    Log.e(TAG, "tag: " + tag + ";  available size : " + is.available());
+                    Log.e(TAG, "dataType.isFile: " + dataType.isFile + ";  dataType.dataSize : " + dataType.dataSize);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
 
             if(!dataType.isFile){
                 if (dataType.dataSize == 0){
@@ -346,7 +331,8 @@ public class ManageService extends Service {
         private boolean processMsg(final String msg){
             if (msg.endsWith("\n")){
                 msg.trim();
-                receiveMsgInterface.onRecMessage(msg);
+                receiveMsgInterface.onRecMessage(msg.replace("\n",""));
+                resetDataType();
                 return true;
             }
             else{
@@ -493,16 +479,5 @@ public class ManageService extends Service {
         return s;
     }
 
-
-    /*
-    class for data type
-     */
-
-    class DataType{
-        public boolean isFile = false;   //  false for msg;  true for file
-        public long    dataSize = 0;
-        public String  filename;
-        public String  filepath;
-    }
 
 }

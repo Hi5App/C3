@@ -6,6 +6,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.example.myapplication__volume.collaboration.basic.DataType;
 import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
 
 import java.io.BufferedReader;
@@ -35,7 +36,7 @@ public class CollaborationService extends Service {
 
     private Socket msgSocket;
 
-    private CollaborationService.DataType dataType = new CollaborationService.DataType();
+    private DataType dataType = new DataType();
 
     private String file_path;
 
@@ -347,7 +348,7 @@ public class CollaborationService extends Service {
         private boolean processMsg(final String msg){
             if (msg.endsWith("\n")){
                 msg.trim();
-                receiveMsgInterface.onRecMessage(msg);
+                receiveMsgInterface.onRecMessage(msg.replace("\n",""));
                 resetDataType();
                 return true;
             }
@@ -493,16 +494,5 @@ public class CollaborationService extends Service {
         return s;
     }
 
-
-    /*
-    class for data type
-     */
-
-    class DataType{
-        public boolean isFile = false;   //  false for msg;  true for file
-        public long    dataSize = 0;
-        public String  filename;
-        public String  filepath;
-    }
 
 }

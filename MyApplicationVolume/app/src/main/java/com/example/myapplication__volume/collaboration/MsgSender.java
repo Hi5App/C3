@@ -120,6 +120,9 @@ public class MsgSender {
     }
 
 
+    public void setContext(Context mContext){
+        this.mContext = mContext;
+    }
 
 
 

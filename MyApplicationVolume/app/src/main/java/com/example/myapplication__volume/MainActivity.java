@@ -116,6 +116,7 @@ import com.lxj.xpopup.enums.PopupAnimation;
 import com.lxj.xpopup.enums.PopupPosition;
 import com.lxj.xpopup.interfaces.OnCancelListener;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
+import com.lxj.xpopup.interfaces.OnInputConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.common.ui.imageview.CircleImageView;
@@ -456,6 +457,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private int count = 0;
 
+    private String conPath = "";
+
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -471,7 +474,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             myGLSurfaceView.requestRender();
         }
 
-        if (msg.contains(":Port")){
+        if (msg.startsWith("Port:")){
 //            ServerConnector serverConnector = ServerConnector.getInstance();
 //            Log.e(TAG,"port" + msg.split(":")[0]);
 //            serverConnector.setPort(msg.split(":")[0]);
@@ -480,8 +483,20 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //            serverConnector.initConnection();
 //            ManageService.resetConnect();
 
-            initMsgConnector(msg.split(":")[0]);
+            if (msg.split(":")[1].equals("-1")){
+                Toast_in_Thread("Something Wrong with Server");
+                return;
+            }
+
+            initMsgConnector(msg.split(":")[1]);
             initMsgService();
+
+            MsgConnector msgConnector = MsgConnector.getInstance();
+            msgConnector.sendMsg("/login:" + username);
+
+//                msgConnector.sendMsg("/Imgblock:");
+
+//                msgConnector.sendMsg("/GetBBSwc:");
 
         }
 
@@ -493,7 +508,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             myGLSurfaceView.requestRender();
         }
 
-        Log.e(TAG,"drawline_norm");
+
+        if (msg.startsWith("GETFILELIST:")){
+            LoadFiles(msg.split(":")[1]);
+        }
+
+
         if (msg.startsWith("/drawline_norm:")){
             Log.e(TAG,"drawline_norm");
 
@@ -1717,18 +1737,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         initNim();
 
-
-//        new UpdateAppManager
-//                .Builder()
-//                //当前Activity
-//                .setActivity(this)
-//                //更新地址
-//                .setUpdateUrl(mUpdateUrl)
-//                //实现httpManager接口的对象
-//                .setHttpManager(new UpdateAppHttpUtil())
-//                .build()
-//                .update();
-
         initServerConnector();
         initService();
 
@@ -1822,27 +1830,141 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
+
+    private void LoadFiles(String FileList){
+
+        Map<String, String> fileType = new HashMap<>();
+        String[] list = FileList.split(";;");
+
+        Log.e(TAG, "list.length: " + list.length);
+
+        for (int i = 0; i < list.length; i++){
+            fileType.put(list[i].split(" ")[0], list[i].split(" ")[1]);
+            list[i] = list[i].split(" ")[0];
+        }
+
+        new XPopup.Builder(this)
+                .asCenterList("BigData File",list,
+                        new OnSelectListener() {
+                            @RequiresApi(api = Build.VERSION_CODES.N)
+                            @Override
+                            public void onSelect(int position, String text) {
+                                ServerConnector serverConnector = ServerConnector.getInstance();
+                                Log.e(TAG, "test: " + text);
+                                Log.e(TAG, "test type: " + fileType.get(text));
+
+                                if (fileType.get(text).equals("0")){
+                                    conPath = conPath + "/" + text;
+                                    serverConnector.sendMsg("GETFILELIST:" + conPath);
+                                }else {
+                                    Log.e(TAG, "fileType.get(text).equals(\"1\")");
+                                    selectMode(conPath + "/" + text);
+
+//                                    serverConnector.sendMsg("LOADFILES:0 " + conPath + "/" + text + " " + conPath + "/test_01_fx_lh_test.ano");
+                                }
+                            }
+                        })
+                .show();
+    }
+
+
+    private void selectMode(String oldname){
+
+        new XPopup.Builder(this)
+                .asCenterList("BigData File",new String[]{"Load File", "New File", "Copy File"},
+                        new OnSelectListener() {
+                            @RequiresApi(api = Build.VERSION_CODES.N)
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text){
+                                    case "New File":
+                                        // 0
+                                        CreateFile(oldname,"0");
+                                        break;
+                                    case "Copy File":
+                                        // 1
+                                        CreateFile(oldname,"1");
+                                        break;
+                                    case "Load File":
+                                        // 2
+                                        ServerConnector serverConnector = ServerConnector.getInstance();
+                                        serverConnector.sendMsg("LOADFILES:2 " + oldname);
+                                        break;
+                                    default:
+                                        Log.e(TAG,"Something Wrong with SelectMode");
+                                }
+
+//                                ServerConnector serverConnector = ServerConnector.getInstance();
+//                                Log.e(TAG, "test: " + text);
+//                                Log.e(TAG, "test type: " + fileType.get(text));
+//
+//                                if (fileType.get(text).equals("0")){
+//                                    conPath = conPath + "/" + text;
+//                                    serverConnector.sendMsg("GETFILELIST:" + conPath);
+//                                }else {
+//                                    Log.e(TAG, "fileType.get(text).equals(\"1\")");
+//                                    serverConnector.sendMsg("LOADFILES:0 " + conPath + "/" + text + " " + conPath + "/test_01_fx_lh_test.ano");
+//                                }
+
+                            }
+                        })
+                .show();
+
+    }
+
+
+    /**
+     * create the new file & input the name of file
+     * @param oldname oldname of file
+     * @param mode work mode
+     */
+    private void CreateFile(String oldname, String mode){
+        new XPopup.Builder(this)
+                .asInputConfirm("CreateFile", "Input the name of new File",
+                new OnInputConfirmListener() {
+                    @Override
+                    public void onConfirm(String text) {
+                        ServerConnector serverConnector = ServerConnector.getInstance();
+                        switch (mode){
+                            case "0":
+                                serverConnector.sendMsg("LOADFILES:0 " + oldname + " " + conPath + "/" + text);
+                                break;
+                            case "1":
+                                serverConnector.sendMsg("LOADFILES:1 " + oldname + " " + conPath + "/" + text);
+                                break;
+                        }
+                    }
+                })
+                .show();
+    }
+
+
     private void sendMsg(){
 
         ServerConnector serverConnector = ServerConnector.getInstance();
         MsgConnector msgConnector = MsgConnector.getInstance();
 //        serverConnector.sendMsg("hello world !");
-        count++;
-        switch (count){
-            case 1:
-//                serverConnector.sendMsg("LOADFILES:0 /test/test_01/test_01_x128.000_y128.000_z128.000.ano /test/test_01/test_01_fx_lh_test.ano");
-                serverConnector.sendMsg("LOADFILES:2 /test/test_01/test_01_fx_lh_test.ano");
-                break;
-            case 2:
-                msgConnector.sendMsg("/login:3");
-                break;
-            case 3:
-                msgConnector.sendMsg("/Imgblock:");
-                break;
-            case 4:
-                msgConnector.sendMsg("/GetBBSwc:");
-                break;
-        }
+
+        serverConnector.sendMsg("GETFILELIST:" + "/");
+//        serverConnector.sendMsg("LOADFILES:0 /17301/17301_00019/17301_00019_x20874.000_y23540.000_z7388.000.ano /17301/17301_00019/test_01_fx_lh_test.ano");
+
+
+//        count++;
+//        switch (count){
+//            case 1:
+////                serverConnector.sendMsg("LOADFILES:0 /test/test_01/test_01_x128.000_y128.000_z128.000.ano /test/test_01/test_01_fx_lh_test.ano");
+//                serverConnector.sendMsg("LOADFILES:2 /test/test_01/test_01_fx_lh_test.ano");
+//                break;
+//            case 2:
+//                msgConnector.sendMsg("/login:5");
+//                break;
+//            case 3:
+//                msgConnector.sendMsg("/Imgblock:");
+//                break;
+//            case 4:
+//                msgConnector.sendMsg("/GetBBSwc:");
+//                break;
+//        }
 
 //        try {
 //
@@ -7920,6 +8042,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         loadLocalFile();
                                         break;
                                     case "Open BigData":
+                                        /**
+                                         * xf szt
+                                         */
+
+
+
                                         sendMsg();
 //                                        loadBigData();
                                         break;

@@ -29,6 +29,8 @@ import com.netease.nimlib.sdk.StatusBarNotificationConfig;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.util.NIMUtil;
 
+import static com.example.myapplication__volume.BaseActivity.ip_ALiYun;
+
 
 //用于在app全局获取context
 
@@ -56,6 +58,7 @@ public class Myapplication extends Application {
         mChatManager.init();
 
         ServerConnector.init(this);
+//        initServerConnector();
         MsgConnector.init(this);
 
         DemoCache.setContext(this);
