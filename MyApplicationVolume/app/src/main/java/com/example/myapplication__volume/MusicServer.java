@@ -10,7 +10,7 @@ import java.io.IOException;
 import static com.example.myapplication__volume.BaseActivity.context;
 
 public class MusicServer extends Service {
-    private MediaPlayer bgmPlayer;
+    private static MediaPlayer bgmPlayer;
 
     public MusicServer() {
     }
@@ -41,8 +41,13 @@ public class MusicServer extends Service {
 //                }
 //            });
 //            bgmPlayer.prepareAsync();
+            bgmPlayer.setLooping(true);
             bgmPlayer.start();
         }
+    }
+
+    public static void setBgmVolume(float f){
+        bgmPlayer.setVolume(f, f);
     }
 
     @Override

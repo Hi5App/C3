@@ -62,6 +62,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -459,6 +460,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private String conPath = "";
 
+    private float bgmVolume = 1.0f;
+    private float buttonVolume = 1.0f;
+    private float actionVolume = 1.0f;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -920,7 +924,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             @Override
             public void onClick(View v) {
 //                Image4DSimple img = myrenderer.getImg();
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 if(!myrenderer.getIfFileLoaded()){
                     Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
@@ -942,7 +946,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             @Override
             public void onClick(View v) {
 //                Image4DSimple img = myrenderer.getImg();
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 if(!myrenderer.getIfFileLoaded()){
                     Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
@@ -964,7 +968,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             @Override
             public void onClick(View v) {
 //                Image4DSimple img = myrenderer.getImg();
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 if(!myrenderer.getIfFileLoaded()){
                     Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
@@ -992,7 +996,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             @Override
             public void onClick(View v) {
 //                Image4DSimple img = myrenderer.getImg();
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 if(!myrenderer.getIfFileLoaded()){
                     Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
@@ -1140,7 +1144,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         draw_i.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 if (!myrenderer.getIfFileLoaded()){
                     Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
@@ -1161,7 +1165,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         tracing_i.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 Tracing(v);
             }
@@ -1186,7 +1190,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         classify_i.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 PixelClassification(v);
             }
@@ -1233,7 +1237,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         Rotation_i.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 if (isBigData_Remote && !DrawMode){
                     myrenderer.resetRotation();
@@ -1261,7 +1265,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
             @Override
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 if (!myrenderer.getIfFileLoaded()){
                     Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
@@ -1293,7 +1297,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         Undo_i.setOnClickListener(new Button.OnClickListener(){
             public void onClick(View v){
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 boolean undoSuccess = false;
                 try {
@@ -1318,7 +1322,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         Redo_i.setOnClickListener(new Button.OnClickListener(){
             public void onClick(View v){
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 boolean redoSuccess = myrenderer.redo();
                 if (!redoSuccess){
@@ -1336,7 +1340,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         Switch.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 Switch();
             }
@@ -1350,7 +1354,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         animation_i.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 Animation(v);
             }
@@ -1381,7 +1385,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         navigation_left.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 Block_navigate("Left");
             }
@@ -1397,7 +1401,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         navigation_right.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 Block_navigate("Right");
             }
@@ -1416,7 +1420,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         navigation_up.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 Block_navigate("Top");
             }
@@ -1434,7 +1438,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         navigation_down.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 Block_navigate("Bottom");
             }
@@ -1449,7 +1453,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         navigation_front.setText("F");
         navigation_front.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 Block_navigate("Front");
             }
@@ -1464,7 +1468,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         navigation_back.setText("B");
         navigation_back.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 Block_navigate("Back");
             }
@@ -1480,7 +1484,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         navigation_location.setBackgroundResource(R.drawable.circle_normal);
         navigation_location.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 Set_Nav_Mode();
             }
@@ -1498,7 +1502,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         blue_pen.setOnClickListener(new Button.OnClickListener(){
             @Override
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 myrenderer.pencolorchange(PenColor.valueOf("BLUE").ordinal());
                 blue_pen.setTextColor(Color.BLUE);
@@ -1519,7 +1523,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         res_list.setOnClickListener(new Button.OnClickListener(){
             @Override
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 remote_socket.switchRES();
             }
@@ -1537,7 +1541,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         red_pen.setOnClickListener(new Button.OnClickListener(){
             @Override
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 myrenderer.pencolorchange(PenColor.valueOf("RED").ordinal());
                 red_pen.setTextColor(Color.RED);
@@ -1555,7 +1559,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         sync_push.setImageResource(R.drawable.ic_cloud_upload_black_24dp);
         sync_push.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 PushSWC_Block_Manual();
 
@@ -1572,7 +1576,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         sync_pull.setImageResource(R.drawable.ic_cloud_download_black_24dp);
         sync_pull.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 if (DrawMode){
                     PullSwc_block_Manual(DrawMode);
@@ -1622,7 +1626,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         neuron_list.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 if (DrawMode){
                     push_info_swc = SaveSWC_Block_Auto();
@@ -1650,7 +1654,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 fab.setVisibility(View.GONE);
                 leaveChannel();
@@ -2103,18 +2107,18 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.file:
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 File_icon();
                 return true;
             case R.id.share:
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 ShareScreenShot();
 //                Share_icon();
                 return true;
             case R.id.more:
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 More_icon();
                 return true;
@@ -2122,7 +2126,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //                Experiment_icon();
 //                return true;
             case R.id.view:
-                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 if (ifButtonShowed){
                     hideButtons();
@@ -2216,7 +2220,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                                 switch (text) {
                                     case "Analyze SWC":
@@ -3595,7 +3599,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         new int[]{}, new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                                 switch (text){
                                     case "For Marker":
@@ -3640,7 +3644,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         "Change All MColor"}, new int[]{}, new OnSelectListener() {
                     @Override
                     public void onSelect(int position, String text) {
-                        soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                        soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                         switch (text){
                             case "PinPoint   ":
@@ -3799,7 +3803,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                                 switch (text){
                                     case "Draw Curve":
@@ -3981,7 +3985,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                                 switch (text) {
                                     case "GD":
@@ -4145,7 +4149,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                                 switch (text) {
 //                                    case "For Developer...":
@@ -6504,6 +6508,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         Switch check_on_off = contentView.findViewById(R.id.switch_check_mode);
                         IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
                         TextView clean_cache = contentView.findViewById(R.id.clean_cache);
+                        SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
+                        SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
+                        SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
 
                         boolean ifDownSample = preferenceSetting.getDownSampleMode();
                         int contrast = preferenceSetting.getContrast();
@@ -6511,6 +6518,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         downsample_on_off.setChecked(ifDownSample);
                         check_on_off.setChecked(!DrawMode);
                         seekbar.setProgress(contrast);
+                        bgmVolumeBar.setProgress((int)(bgmVolume * 100));
+                        buttonVolumeBar.setProgress((int)(buttonVolume * 100));
+                        actionVolumeBar.setProgress((int)(actionVolume * 100));
 
                         downsample[0] = downsample_on_off.isChecked();
                         check[0]      = check_on_off.isChecked();
@@ -6564,6 +6574,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         preferenceSetting.setPref(downsample[0], check[0], contrast);
                         myGLSurfaceView.requestRender();
 
+                        SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
+                        SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
+                        SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
+
+                        bgmVolume = (float)(bgmVolumeBar.getProgress()) / 100.0f;
+                        buttonVolume = (float)(buttonVolumeBar.getProgress()) / 100.0f;
+                        actionVolume = (float)(actionVolumeBar.getProgress()) / 100.0f;
+
+                        MusicServer.setBgmVolume(bgmVolume);
                     }
                 })
                 .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
@@ -7681,7 +7700,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             X = normalizedX;
                             Y = normalizedY;
                             if (ifPainting || ifDeletingLine || ifSpliting || ifChangeLineType || ifDeletingMultiMarker) {
-                                soundPool.play(soundId[0], 1.0f, 1.0f, 0, 0, 1.0f);
+                                soundPool.play(soundId[0], actionVolume, actionVolume, 0, 0, 1.0f);
                                 lineDrawed.add(X);
                                 lineDrawed.add(Y);
                                 lineDrawed.add(-1.0f);
@@ -7690,10 +7709,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 Log.v("actionPointerDown", "Paintinggggggggggg");
                             }
                             if (ifPoint){
-                                soundPool.play(soundId[1], 1.0f, 1.0f, 0, 0, 1.0f);
+                                soundPool.play(soundId[1], actionVolume, actionVolume, 0, 0, 1.0f);
                             }
                             if (ifPainting){
-                                soundPool.play(soundId[0], 1.0f, 1.0f, 0, 0, 1.0f);
+                                soundPool.play(soundId[0], actionVolume, actionVolume, 0, 0, 1.0f);
                             }
 //                        if (ifPoint) {
 //                            Log.v("actionPointerDown", "Pointinggggggggggg");
@@ -8034,7 +8053,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                soundPool.play(soundId[2], 1.0f, 1.0f, 0, 0, 1.0f);
+                                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                                 switch (text) {
 
