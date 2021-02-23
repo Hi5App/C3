@@ -65,7 +65,7 @@ public class ApoReader {
 //            float [][] result = new float[num][11];
             for (int i = 0; i < num; i++){
                 String current = arraylist.get(i);
-                if (current.substring(0, 1).equals("#")) continue;
+                if (current.startsWith("#")) continue;
 
                 String [] s = current.split(",");
                 ArrayList<Float> cur_line = new ArrayList<Float>();

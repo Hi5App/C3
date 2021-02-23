@@ -112,6 +112,8 @@ public class MsgReceiver {
                         // read msg
                         Log.e(TAG,"read msg !");
                         String msg = MyReadLine(is) + "\n";
+                        Log.e(TAG, "msg: " + msg);
+
                         if (processMsg(msg)){
 //                            onRead("after read msg !");
                         }
@@ -187,6 +189,8 @@ public class MsgReceiver {
         if (msg.endsWith("\n")){
             msg.trim();
             message = msg.replace("\n","");
+
+            Log.e(TAG,"message: " + message);
             finished = true;
             return true;
         }

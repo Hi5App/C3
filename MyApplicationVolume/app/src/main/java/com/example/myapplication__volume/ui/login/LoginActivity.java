@@ -97,7 +97,7 @@ public class LoginActivity extends AppCompatActivity {
         soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 5);
         soundId = soundPool.load(this, R.raw.button01, 1);
 
-        Log.d(TAG, "init ServerConnector");
+        Log.e(TAG, "init ServerConnector");
         initServerConnector();
 
 
@@ -107,6 +107,17 @@ public class LoginActivity extends AppCompatActivity {
             passwordEditText.setText(preferenceLogin.getPassword());
             remember_pwd.setChecked(true);
             loginButton.setEnabled(true);
+
+//            ServerConnector serverConnector = ServerConnector.getInstance();
+//            serverConnector.sendMsg(String.format("LOGIN:%s %s", preferenceLogin.getUsername(), preferenceLogin.getPassword()));
+//            String result = serverConnector.ReceiveMsg();
+//            Log.e(TAG,"msg: " + result);
+//
+//            if (result == null){
+//                responseData = "NULL";
+//            }else {
+//                responseData = result;
+//            }
 
 //            loginViewModel.login(usernameEditText.getText().toString(),
 //                    passwordEditText.getText().toString());
@@ -154,7 +165,12 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
 
-                    loginNim(loginResult.getSuccess().getDisplayName(), passwordEditText.getText().toString(), loginResult);
+//                    loginNim(loginResult.getSuccess().getDisplayName(), passwordEditText.getText().toString(), loginResult);
+
+                    // 进入主界面
+                    MainActivity.actionStart(LoginActivity.this, loginResult.getSuccess().getDisplayName());
+                    updateUiWithUser(loginResult.getSuccess());
+                    finish();
                 }
                 setResult(Activity.RESULT_OK);
 
@@ -238,8 +254,9 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private void loginNim(String account, String password, LoginResult loginResult){
-        LogUtil.i(TAG, "account: " + account);
-        LogUtil.i(TAG, "password: " + password);
+        Log.e(TAG, "account: " + account);
+        Log.e(TAG, "password: " + password);
+
 
         NimUIKit.login(new LoginInfo(account, password),
                 new RequestCallback<LoginInfo>() {

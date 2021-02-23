@@ -29,7 +29,6 @@ import com.example.basic.ImageMarker;
 import com.example.basic.ImageUtil;
 import com.example.basic.MarkerList;
 import com.example.basic.MyAnimation;
-import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
 import com.example.basic.XYZ;
 import com.example.game.GameCharacter;
@@ -1931,6 +1930,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     // add the marker drawed into markerlist
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void setMarkerDrawed(float x, float y) throws CloneNotSupportedException {
 
         if(solveMarkerCenter(x, y) != null) {
@@ -1967,6 +1967,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             markerList.add(imageMarker_drawed);
 
+            updateAddMarker(imageMarker_drawed);
+
             saveUndo();
 //            if (process.size() < UNDO_LIMIT){
 //                process.add(Operate.DRAWMARKER);
@@ -1997,6 +1999,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     // delete the marker drawed from the markerlist
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void deleteMarkerDrawed(float x, float y) throws CloneNotSupportedException {
         for (int i = 0; i < markerList.size(); i++){
             ImageMarker tobeDeleted = markerList.get(i);
@@ -2034,6 +2037,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                }
 
                 markerList.remove(i);
+
+                /*
+                update delete marker
+                 */
+                updateDelMarker(temp);
 //                if (process.size() < UNDO_LIMIT){
 //                    process.add(Operate.DELETEMARKER);
 //                    undoDeleteMarkerList.add(temp);
@@ -3507,7 +3515,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             curSwcList.append(seg);
 
-            updateSWC(seg);
+            updateAddSegSWC(seg);
 
 //            saveUndo();
 //            if (process.size() < UNDO_LIMIT){
@@ -3942,6 +3950,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public  void deleteLine1(ArrayList<Float> line) throws CloneNotSupportedException {
 //        curSwcList.deleteCurve(line, finalMatrix, sz, mz);
         System.out.println("deleteline1--------------------------");
@@ -4004,6 +4013,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         System.out.println("------------------this is delete---------------");
                         seg.to_be_deleted = true;
                         indexToBeDeleted.add(j);
+
+                        /*
+                        delete line
+                         */
+                        updateDelSegSWC(seg);
+
                         break;
                     }
                 }
@@ -4471,6 +4486,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public ArrayList<ImageMarker> importApo(ArrayList<ArrayList<Float>> apo){
 
+        // ##n,orderinfo,name,comment,z,x,y, pixmax,intensity,sdev,volsize,mass,,,, color_r,color_g,color_b
         ArrayList<ImageMarker> markerListLoaded = new ArrayList<>();
 
         try{
@@ -5770,22 +5786,102 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
+
+
+
     /**
      * for collaboration ------------------------------------------ !
      */
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void updateSWC(V_NeuronSWC seg){
+    public void updateAddSegSWC(V_NeuronSWC seg){
 
         Communicator communicator = Communicator.getInstance();
-        communicator.updateSWC(seg);
+        communicator.updateAddSegSWC(seg);
 
     }
 
 
-    public void syncSWC(V_NeuronSWC seg){
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void updateDelSegSWC(V_NeuronSWC seg){
+
+        Communicator communicator = Communicator.getInstance();
+        communicator.updateDelSegSWC(seg);
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void updateAddMarker(ImageMarker marker){
+
+        Communicator communicator = Communicator.getInstance();
+        communicator.updateAddMarkerMsg(marker);
+
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void updateDelMarker(ImageMarker marker){
+
+        Communicator communicator = Communicator.getInstance();
+        communicator.updateDelMarkerMsg(marker);
+
+    }
+
+    public void syncAddSegSWC(V_NeuronSWC seg){
         curSwcList.append(seg);
+    }
+
+    public void syncDelSegSWC(V_NeuronSWC seg){
+
+        for (int i = 0; i < curSwcList.nsegs(); i++){
+            V_NeuronSWC cur_seg = curSwcList.seg.get(i);
+            boolean delete = false;
+            if (cur_seg.row.size() == seg.row.size()){
+                delete = true;
+                for (int j = 0; j < seg.row.size(); j++){
+
+                    V_NeuronSWC_unit segUnit_del = seg.row.get(j);
+                    V_NeuronSWC_unit segUnit_cur = cur_seg.row.get(j);
+                    float[] point_del = new float[]{(float) segUnit_del.x, (float) segUnit_del.y, (float) segUnit_del.z};
+                    float[] point_cur = new float[]{(float) segUnit_cur.x, (float) segUnit_cur.y, (float) segUnit_cur.z};
+
+                    Log.e(TAG,"point num: " + seg.row.size() + "; current point: " + j);
+                    if (! (distance(point_del, point_cur)<0.5) ){
+                        delete = false;
+                        break;
+                    }
+                }
+
+            }
+
+            if (delete){
+                Vector<Integer> tobeDelete = new Vector<>();
+                tobeDelete.add(i);
+                curSwcList.deleteMutiSeg(tobeDelete);
+            }
+
+        }
+
+    }
+
+
+    public void syncAddMarker(ImageMarker imageMarker){
+        markerList.add(imageMarker);
+    }
+
+
+    public void syncDelMarker(ImageMarker imageMarker){
+        for (int i = 0 ; i < markerList.size(); i++){
+
+            ImageMarker marker = markerList.get(i);
+            float[] marker_del = new float[]{imageMarker.x, imageMarker.y, imageMarker.z};
+            float[] marker_cur = new float[]{marker.x, marker.y, marker.z};
+
+            if (distance(marker_cur, marker_del) < 0.5){
+                markerList.remove(i);
+            }
+        }
     }
 
 

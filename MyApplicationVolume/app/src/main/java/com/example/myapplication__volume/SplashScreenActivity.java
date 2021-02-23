@@ -15,6 +15,7 @@ import com.example.datastore.PreferenceLogin;
 import com.example.myapplication__volume.Nim.DemoCache;
 import com.example.myapplication__volume.Nim.mixpush.DemoMixPushMessageHandler;
 import com.example.myapplication__volume.Nim.util.sys.SysInfoUtil;
+import com.example.myapplication__volume.collaboration.ServerConnector;
 import com.example.myapplication__volume.ui.login.LoginActivity;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.common.util.log.LogUtil;
@@ -25,6 +26,8 @@ import com.netease.nimlib.sdk.msg.model.IMMessage;
 
 import java.util.ArrayList;
 import java.util.Map;
+
+import static com.example.myapplication__volume.BaseActivity.ip_ALiYun;
 
 public class SplashScreenActivity extends AppCompatActivity {
 
@@ -53,6 +56,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         Log.e(TAG, " Before if (!firstEnter) { ");
 
         if (!firstEnter) {
+            Log.e(TAG, " !firstEnter ");
             onIntent(); // APP进程还在，Activity被重新调度起来
         } else {
             showSplashView(); // APP进程重新起来
@@ -161,6 +165,7 @@ public class SplashScreenActivity extends AppCompatActivity {
             if (!firstEnter && intent == null) {
                 finish();
             } else {
+//                autoLogin();
                 showMainActivity();
             }
         }
@@ -205,16 +210,48 @@ public class SplashScreenActivity extends AppCompatActivity {
     }
 
     private void showMainActivity() {
+        Log.e(TAG,"showMainActivity null");
+
+        autoLogin();
+
         showMainActivity(null);
     }
 
     private void showMainActivity(Intent intent) {
+
+        Log.e(TAG,"showMainActivity");
+
         PreferenceLogin preferenceLogin = new PreferenceLogin(this);
         String account = preferenceLogin.getUsername();
         Toast.makeText(getApplicationContext(),"Welcome, " + account +" !",Toast.LENGTH_SHORT).show();
 
         MainActivity.actionStart(this, account);
         finish();
+
+    }
+
+
+    private void autoLogin(){
+        PreferenceLogin preferenceLogin = new PreferenceLogin(this);
+
+        initServerConnector();
+        ServerConnector serverConnector = ServerConnector.getInstance();
+        serverConnector.sendMsg(String.format("LOGIN:%s %s", preferenceLogin.getUsername(), preferenceLogin.getPassword()));
+        String result = serverConnector.ReceiveMsg();
+        Log.e(TAG,"msg: " + result);
+
+
+    }
+
+
+    private void initServerConnector(){
+
+        ServerConnector serverConnector = ServerConnector.getInstance();
+        ServerConnector.setContext(this);
+
+        serverConnector.setIp(ip_ALiYun);
+        serverConnector.setPort("26371");
+        serverConnector.initConnection();
 
     }
 

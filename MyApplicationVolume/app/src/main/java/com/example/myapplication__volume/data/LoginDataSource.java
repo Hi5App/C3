@@ -39,6 +39,8 @@ public class LoginDataSource {
 
         try {
 
+            Log.e(TAG,"login start !");
+
             LoginWithSocket(username, password);
 
             if (responseData.startsWith("LOGIN:0")){

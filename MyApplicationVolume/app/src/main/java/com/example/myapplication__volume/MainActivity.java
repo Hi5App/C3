@@ -463,6 +463,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private float bgmVolume = 1.0f;
     private float buttonVolume = 1.0f;
     private float actionVolume = 1.0f;
+    private boolean firstLogin = true;
+
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -470,12 +472,51 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         Log.e(TAG,"onRecMessage()  " + msg);
 
-        if (msg.startsWith("File:")){
+        if (msg.startsWith("Block:")){
             Log.e(TAG,"onRecMessage()" + msg);
 //            LoadBigFile_Remote(msg.split(":")[1]);
             myrenderer.setPath(msg.split(":")[1]);
             myrenderer.zoom(2.2f);
             myGLSurfaceView.requestRender();
+
+            MsgConnector msgConnector = MsgConnector.getInstance();
+            msgConnector.sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + Communicator.ImgRes + ";" + Communicator.getSoma(Communicator.ImgRes) + ";128;");
+
+            isBigData_Remote = true;
+            isBigData_Local = false;
+            SetButtons();
+
+        }
+
+        if (msg.startsWith("File:")){
+            if(msg.endsWith(".apo")){
+                try {
+                    Log.e(TAG, "File: .apo");
+                    ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
+                    ApoReader apoReader = new ApoReader();
+                    apo = apoReader.read(msg.split(":")[1]);
+                    if (apo == null){
+                        Toast_in_Thread("Make sure the .apo file is right");
+                    }
+
+                    myrenderer.importApo(apo);
+                    myrenderer.saveUndo();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
+            }else if (msg.endsWith(".swc") || msg.endsWith(".eswc")){
+                try {
+                    Log.e(TAG, "File: .eswc");
+                    NeuronTree nt = NeuronTree.readSWC_file(msg.split(":")[1]);
+
+                    myrenderer.importNeuronTree(nt);
+                    myrenderer.saveUndo();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
+            }
         }
 
         if (msg.startsWith("Port:")){
@@ -498,6 +539,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
             MsgConnector msgConnector = MsgConnector.getInstance();
             msgConnector.sendMsg("/login:" + username);
+//            msgConnector.sendMsg("/ImageRes:" + Communicator.BrainNum);
+
 
 //                msgConnector.sendMsg("/Imgblock:");
 
@@ -506,10 +549,37 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
 
 
+        if (msg.startsWith("/users:")){
+
+            if (firstLogin){
+                MsgConnector msgConnector = MsgConnector.getInstance();
+                msgConnector.sendMsg("/ImageRes:" + Communicator.BrainNum);
+                firstLogin = false;
+            }
+
+        }
+
+        if (msg.startsWith("ImgRes")){
+            Log.e(TAG,"msg: " + msg);
+            Communicator.ImgRes = msg.split(";")[1];
+
+            MsgConnector msgConnector = MsgConnector.getInstance();
+            msgConnector.sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + Communicator.ImgRes + ";" + Communicator.getSoma(Communicator.ImgRes) + ";128;");
+
+            float[] startPoint = Communicator.getSoma();
+            for (int i = 0; i < startPoint.length; i++){
+                startPoint[i] -= 64;
+            }
+
+            Communicator.setImageStartPoint(startPoint);
+
+        }
+
+
         if (msg.contains("sync")){
             Communicator communicator = Communicator.getInstance();
             V_NeuronSWC seg = communicator.syncSWC(msg);
-            myrenderer.syncSWC(seg);
+            myrenderer.syncAddSegSWC(seg);
             myGLSurfaceView.requestRender();
         }
 
@@ -522,12 +592,57 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         if (msg.startsWith("/drawline_norm:")){
             Log.e(TAG,"drawline_norm");
 
-            String username = msg.split(":")[1].split(" ")[0];
-            String seg      = msg.split(":")[2];
+            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
+            String seg      = msg.split(":")[1];
 
-            if (!username.equals("1")){
+            if (!userID.equals(username)){
                 Communicator communicator = Communicator.getInstance();
-                myrenderer.syncSWC(communicator.syncSWC(seg));
+                myrenderer.syncAddSegSWC(communicator.syncSWC(seg));
+                myGLSurfaceView.requestRender();
+            }
+
+        }
+
+
+        if (msg.startsWith("/delline_norm:")){
+            Log.e(TAG,"delline_norm");
+
+            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
+            String seg      = msg.split(":")[1];
+
+            if (!userID.equals(username)){
+                Communicator communicator = Communicator.getInstance();
+                myrenderer.syncDelSegSWC(communicator.syncSWC(seg));
+                myGLSurfaceView.requestRender();
+            }
+
+        }
+
+        if (msg.startsWith("/addmarker_norm:")){
+            Log.e(TAG,"addmarker_norm");
+
+            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
+            String marker      = msg.split(":")[1].split(";")[1];
+
+            if (!userID.equals(username)){
+                Communicator communicator = Communicator.getInstance();
+                myrenderer.syncAddMarker(communicator.syncMarker(marker));
+                myGLSurfaceView.requestRender();
+            }
+
+        }
+
+
+
+        if (msg.startsWith("/delmarker_norm:")){
+            Log.e(TAG,"delmarker_norm");
+
+            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
+            String marker      = msg.split(":")[1].split(";")[1];
+
+            if (!userID.equals(username)){
+                Communicator communicator = Communicator.getInstance();
+                myrenderer.syncDelMarker(communicator.syncMarker(marker));
                 myGLSurfaceView.requestRender();
             }
 
@@ -1835,22 +1950,38 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     };
 
 
-
-
+    /**
+     *
+     * @param FileList
+     */
     private void LoadFiles(String FileList){
+
 
         Map<String, String> fileType = new HashMap<>();
         String[] list = FileList.split(";;");
+        List<String> list_array = new ArrayList<>();
 
         Log.e(TAG, "list.length: " + list.length);
 
         for (int i = 0; i < list.length; i++){
+            if (list[i].split(" ")[0].endsWith(".apo") || list[i].split(" ")[0].endsWith(".eswc")
+                    || list[i].split(" ")[0].endsWith(".swc") || list[i].split(" ")[0].endsWith("log") )
+                continue;
             fileType.put(list[i].split(" ")[0], list[i].split(" ")[1]);
-            list[i] = list[i].split(" ")[0];
+            list_array.add(list[i].split(" ")[0]);
+
+            Communicator communicator = Communicator.getInstance();
+            communicator.setSoma(list[i].split(" ")[0]);
+
+        }
+
+        String[] list_show = new String[list_array.size()];
+        for (int i = 0; i < list_array.size(); i++){
+            list_show[i] = list_array.get(i);
         }
 
         new XPopup.Builder(this)
-                .asCenterList("BigData File",list,
+                .asCenterList("BigData File",list_show,
                         new OnSelectListener() {
                             @RequiresApi(api = Build.VERSION_CODES.N)
                             @Override
@@ -1864,7 +1995,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                     serverConnector.sendMsg("GETFILELIST:" + conPath);
                                 }else {
                                     Log.e(TAG, "fileType.get(text).equals(\"1\")");
-                                    selectMode(conPath + "/" + text);
+                                    selectMode(conPath + "/" + text, text);
+                                    Communicator.BrainNum = conPath.split("/")[1];
 
 //                                    serverConnector.sendMsg("LOADFILES:0 " + conPath + "/" + text + " " + conPath + "/test_01_fx_lh_test.ano");
                                 }
@@ -1874,10 +2006,20 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void selectMode(String oldname){
+    private void selectMode(String oldname, String text){
+
+        Communicator communicator = Communicator.getInstance();
+        boolean mode = communicator.setSoma(text);
+
+        String[] modeList;
+        if (mode){
+            modeList = new String[]{"New File"};
+        }else {
+            modeList = new String[]{"Load File", "Copy File"};
+        }
 
         new XPopup.Builder(this)
-                .asCenterList("BigData File",new String[]{"Load File", "New File", "Copy File"},
+                .asCenterList("BigData File",modeList,
                         new OnSelectListener() {
                             @RequiresApi(api = Build.VERSION_CODES.N)
                             @Override
@@ -1947,11 +2089,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private void sendMsg(){
 
+        conPath = "";
+        firstLogin = true;
+
         ServerConnector serverConnector = ServerConnector.getInstance();
         MsgConnector msgConnector = MsgConnector.getInstance();
 //        serverConnector.sendMsg("hello world !");
 
         serverConnector.sendMsg("GETFILELIST:" + "/");
+//        serverConnector.sendMsg("GETFILELIST:" + "/18454/18454_00067");
 //        serverConnector.sendMsg("LOADFILES:0 /17301/17301_00019/17301_00019_x20874.000_y23540.000_z7388.000.ano /17301/17301_00019/test_01_fx_lh_test.ano");
 
 
@@ -5516,7 +5662,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210107a 19:00 UTC+8 build",
+                                "Version: 20210222a 10:00 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -6912,6 +7058,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         Intent bgmIntent = new Intent(MainActivity.this, MusicServer.class);
         stopService(bgmIntent);
+
+        MsgConnector msgConnector = MsgConnector.getInstance();
+        ServerConnector serverConnector = ServerConnector.getInstance();
+
+        msgConnector.releaseConnection();
+        serverConnector.releaseConnection();
 
         mainContext = null;
 

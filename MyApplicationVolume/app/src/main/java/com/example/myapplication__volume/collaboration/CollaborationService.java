@@ -6,6 +6,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.example.myapplication__volume.MainActivity;
 import com.example.myapplication__volume.collaboration.basic.DataType;
 import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
 
@@ -217,6 +218,10 @@ public class CollaborationService extends Service {
                     // process file
                     if (is.available() > 0){
 
+                        if (dataType.filename.endsWith(".v3draw") || dataType.filename.endsWith("v3dpbd")){
+                            MainActivity.showProgressBar();
+                        }
+
                         int ret = 0;
 
                         Log.e(TAG,"Start to process file !");
@@ -280,10 +285,15 @@ public class CollaborationService extends Service {
                         out.close();
 
                         Log.e(TAG, "Start to read end content !");
-                        receiveMsgInterface.onRecMessage("File:" + dataType.filepath + "/" + dataType.filename);
-                        resetDataType();
-                        Log.e(TAG,"Finish process file !");
+                        if (dataType.filename.endsWith(".v3draw") || dataType.filename.endsWith("v3dpbd")){
+                            receiveMsgInterface.onRecMessage("Block:" + dataType.filepath + "/" + dataType.filename);
+                            MainActivity.hideProgressBar();
+                        }else{
+                            receiveMsgInterface.onRecMessage("File:" + dataType.filepath + "/" + dataType.filename);
+                        }
 
+                        Log.e(TAG,"Finish process file !");
+                        resetDataType();
 
                         if(ret!=0){
                             errorprocess(ret, dataType.filename);
