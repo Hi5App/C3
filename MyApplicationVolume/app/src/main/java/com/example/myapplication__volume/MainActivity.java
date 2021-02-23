@@ -449,7 +449,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static boolean gameIfNewForIntent = true;
     private static int gameScoreForIntent = 0;
     private SoundPool soundPool;
-    private final int SOUNDNUM = 3;
+    private final int SOUNDNUM = 4;
     private int [] soundId;
 
     private ManageService manageService;
@@ -489,6 +489,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
             if (msg.split(":")[1].equals("-1")){
                 Toast_in_Thread("Something Wrong with Server");
+                soundPool.play(soundId[3], actionVolume, actionVolume, 0, 0, 1.0f);
                 return;
             }
 
@@ -802,6 +803,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         soundId[0] = soundPool.load(this, R.raw.piano2, 1);
         soundId[1] = soundPool.load(this, R.raw.piano1, 1);
         soundId[2] = soundPool.load(this, R.raw.button01, 1);
+        soundId[3] = soundPool.load(this, R.raw.fail, 1);
 
         Intent intent = getIntent();
         String MSG = intent.getStringExtra(MyRenderer.OUT_OF_MEMORY);
