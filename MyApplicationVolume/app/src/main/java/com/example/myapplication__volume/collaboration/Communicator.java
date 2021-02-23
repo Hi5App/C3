@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 
 import com.example.basic.ImageMarker;
+import com.example.basic.NeuronTree;
 import com.example.basic.XYZ;
 import com.example.chat.chatlist.LetterView;
 import com.tracingfunc.gd.V_NeuronSWC;
@@ -321,6 +322,57 @@ public class Communicator {
         ImageStartPoint.y = point[1];
         ImageStartPoint.z = point[2];
 
+    }
+
+
+    public ArrayList<ArrayList<Float>> apoConvert(ArrayList<ArrayList<Float>> apo){
+
+        // ##n,orderinfo,name,comment,z,x,y, pixmax,intensity,sdev,volsize,mass,,,, color_r,color_g,color_b
+        ArrayList<ArrayList<Float>> apo_converted = new ArrayList<ArrayList<Float>>();
+
+        try{
+            for (int i = 0; i < apo.size(); i++){
+                ArrayList<Float> currentLine = apo.get(i);
+                XYZ GlobalCroods = ConvertGlobaltoLocalBlockCroods(currentLine.get(5),
+                        currentLine.get(6), currentLine.get(4));
+
+                currentLine.set(5, GlobalCroods.x);
+                currentLine.set(6, GlobalCroods.y);
+                currentLine.set(4, GlobalCroods.z);
+
+                apo_converted.add(currentLine);
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return apo_converted;
+
+    }
+
+    public NeuronTree ConvertNeuronTree(NeuronTree nt){
+
+        try {
+            NeuronTree nt_converted = (NeuronTree) nt.clone();
+
+            for (int i = 0; i < nt.listNeuron.size(); i++){
+
+                XYZ GlobalCroods = ConvertGlobaltoLocalBlockCroods(nt_converted.listNeuron.get(i).x,
+                        nt_converted.listNeuron.get(i).y, nt_converted.listNeuron.get(i).z);
+
+                nt_converted.listNeuron.get(i).x = GlobalCroods.x;
+                nt_converted.listNeuron.get(i).y = GlobalCroods.y;
+                nt_converted.listNeuron.get(i).z = GlobalCroods.z;
+
+            }
+
+            return nt_converted;
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }

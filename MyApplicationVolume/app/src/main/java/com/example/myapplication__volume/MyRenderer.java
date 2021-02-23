@@ -4465,9 +4465,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            ifLoadSWC = false;
 //        }
 
-        System.out.println("----------------importNeuronTree----------------");
+        Log.e(TAG,"----------------importNeuronTree----------------");
         try{
             System.out.println("nt size: "+nt.listNeuron.size());
+            for (int i = 0; i < nt.listNeuron.size(); i++){
+                Log.e(TAG, String.format("point: x %f, y %f, z %f", nt.listNeuron.get(i).x, nt.listNeuron.get(i).y, nt.listNeuron.get(i).z));
+            }
+
             Vector<V_NeuronSWC> segs = nt.devideByBranch();
             for (int i = 0; i < segs.size(); i++){
                 curSwcList.append(segs.get(i));

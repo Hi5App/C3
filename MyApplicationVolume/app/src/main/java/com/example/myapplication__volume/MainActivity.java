@@ -499,25 +499,34 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         Toast_in_Thread("Make sure the .apo file is right");
                     }
 
-                    myrenderer.importApo(apo);
+                    Communicator communicator = Communicator.getInstance();
+                    myrenderer.importApo(communicator.apoConvert(apo));
                     myrenderer.saveUndo();
+                    myGLSurfaceView.requestRender();
+
+
                 }catch (Exception e){
                     e.printStackTrace();
                 }
+
 
             }else if (msg.endsWith(".swc") || msg.endsWith(".eswc")){
                 try {
                     Log.e(TAG, "File: .eswc");
                     NeuronTree nt = NeuronTree.readSWC_file(msg.split(":")[1]);
 
-                    myrenderer.importNeuronTree(nt);
+                    Communicator communicator = Communicator.getInstance();
+                    myrenderer.importNeuronTree(communicator.ConvertNeuronTree(nt));
                     myrenderer.saveUndo();
+                    myGLSurfaceView.requestRender();
+
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-
             }
         }
+
+
 
         if (msg.startsWith("Port:")){
 //            ServerConnector serverConnector = ServerConnector.getInstance();
