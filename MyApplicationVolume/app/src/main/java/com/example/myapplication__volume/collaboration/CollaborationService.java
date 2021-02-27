@@ -218,9 +218,9 @@ public class CollaborationService extends Service {
                     // process file
                     if (is.available() > 0){
 
-                        if (dataType.filename.endsWith(".v3draw") || dataType.filename.endsWith("v3dpbd")){
-                            MainActivity.showProgressBar();
-                        }
+//                        if (dataType.filename.endsWith(".v3draw") || dataType.filename.endsWith("v3dpbd")){
+//                            MainActivity.showProgressBar();
+//                        }
 
                         int ret = 0;
 

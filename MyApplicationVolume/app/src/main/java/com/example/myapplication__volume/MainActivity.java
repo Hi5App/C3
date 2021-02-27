@@ -464,6 +464,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private float buttonVolume = 1.0f;
     private float actionVolume = 1.0f;
     private boolean firstLogin = true;
+    private boolean copyFile = false;
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -480,7 +481,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             myGLSurfaceView.requestRender();
 
             MsgConnector msgConnector = MsgConnector.getInstance();
-            msgConnector.sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + Communicator.ImgRes + ";" + Communicator.getSoma(Communicator.ImgRes) + ";128;");
+            msgConnector.sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + Communicator.CurRes + ";" + Communicator.getCurrentPos() + ";");
 
             isBigData_Remote = true;
             isBigData_Local = false;
@@ -500,7 +501,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     }
 
                     Communicator communicator = Communicator.getInstance();
-                    myrenderer.importApo(communicator.apoConvert(apo));
+                    myrenderer.importApo(communicator.convertApo(apo));
                     myrenderer.saveUndo();
                     myGLSurfaceView.requestRender();
 
@@ -516,7 +517,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     NeuronTree nt = NeuronTree.readSWC_file(msg.split(":")[1]);
 
                     Communicator communicator = Communicator.getInstance();
-                    myrenderer.importNeuronTree(communicator.ConvertNeuronTree(nt));
+                    myrenderer.importNeuronTree(communicator.convertNeuronTree(nt));
                     myrenderer.saveUndo();
                     myGLSurfaceView.requestRender();
 
@@ -560,20 +561,23 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         if (msg.startsWith("/users:")){
 
-            if (firstLogin){
+            if (firstLogin || copyFile){
                 MsgConnector msgConnector = MsgConnector.getInstance();
                 msgConnector.sendMsg("/ImageRes:" + Communicator.BrainNum);
                 firstLogin = false;
+                copyFile   = false;
             }
 
         }
 
         if (msg.startsWith("ImgRes")){
             Log.e(TAG,"msg: " + msg);
-            Communicator.ImgRes = msg.split(";")[1];
+            Communicator.ImgRes = Integer.parseInt(msg.split(";")[1]);
+            Communicator.CurRes = Integer.parseInt(msg.split(";")[1]);
+            Communicator.setResolution(msg.split(";"));
 
             MsgConnector msgConnector = MsgConnector.getInstance();
-            msgConnector.sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + Communicator.ImgRes + ";" + Communicator.getSoma(Communicator.ImgRes) + ";128;");
+            msgConnector.sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + Communicator.CurRes + ";" + Communicator.getSoma(Communicator.CurRes) + ";128;");
 
             float[] startPoint = Communicator.getSoma();
             for (int i = 0; i < startPoint.length; i++){
@@ -581,6 +585,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
 
             Communicator.setImageStartPoint(startPoint);
+            Communicator.ImgSize = 128;
 
         }
 
@@ -710,13 +715,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                         if (isBigData_Remote){
                             if (DrawMode){
-                                Check_Yes.setVisibility(View.GONE);
-                                Check_No.setVisibility(View.GONE);
-                                Check_Uncertain.setVisibility(View.GONE);
-                                res_list.setVisibility(View.GONE);
-                                sync_pull.setVisibility(View.VISIBLE);
-                                sync_push.setVisibility(View.VISIBLE);
-                                neuron_list.setVisibility(View.VISIBLE);
+
+
+//                                Check_Yes.setVisibility(View.GONE);
+//                                Check_No.setVisibility(View.GONE);
+//                                Check_Uncertain.setVisibility(View.GONE);
+//                                res_list.setVisibility(View.GONE);
+//                                sync_pull.setVisibility(View.VISIBLE);
+//                                sync_push.setVisibility(View.VISIBLE);
+//                                neuron_list.setVisibility(View.VISIBLE);
                                 blue_pen.setVisibility(View.VISIBLE);
                                 red_pen.setVisibility(View.VISIBLE);
                             }
@@ -724,9 +731,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 Check_Yes.setVisibility(View.VISIBLE);
                                 Check_No.setVisibility(View.VISIBLE);
                                 Check_Uncertain.setVisibility(View.VISIBLE);
-                                res_list.setVisibility(View.VISIBLE);
-                                sync_pull.setVisibility(View.VISIBLE);
-                                sync_push.setVisibility(View.GONE);
+
+
+//                                res_list.setVisibility(View.VISIBLE);
+//                                sync_pull.setVisibility(View.VISIBLE);
+//                                sync_push.setVisibility(View.GONE);
                                 neuron_list.setVisibility(View.VISIBLE);
                                 blue_pen.setVisibility(View.GONE);
                                 red_pen.setVisibility(View.GONE);
@@ -1106,7 +1115,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            remote_socket.Zoom_in();
+
+                            Communicator communicator = Communicator.getInstance();
+                            communicator.zoomIn();
+
+//                            remote_socket.Zoom_in();
                         }
                     }).start();
                 }else {
@@ -1134,7 +1147,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            remote_socket.Zoom_out();
+
+                            Communicator communicator = Communicator.getInstance();
+                            communicator.zoomOut();
+
+//                            remote_socket.Zoom_out();
                         }
                     }).start();
                 }else {
@@ -2088,6 +2105,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 break;
                             case "1":
                                 serverConnector.sendMsg("LOADFILES:1 " + oldname + " " + conPath + "/" + text);
+                                copyFile = true;
                                 break;
                         }
                     }
@@ -2096,7 +2114,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void sendMsg(){
+
+
+    /**
+     * load Big Data
+     */
+    private void loadBigData(){
 
         conPath = "";
         firstLogin = true;
@@ -2108,7 +2131,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         serverConnector.sendMsg("GETFILELIST:" + "/");
 //        serverConnector.sendMsg("GETFILELIST:" + "/18454/18454_00067");
 //        serverConnector.sendMsg("LOADFILES:0 /17301/17301_00019/17301_00019_x20874.000_y23540.000_z7388.000.ano /17301/17301_00019/test_01_fx_lh_test.ano");
-
 
 //        count++;
 //        switch (count){
@@ -2125,40 +2147,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //            case 4:
 //                msgConnector.sendMsg("/GetBBSwc:");
 //                break;
-//        }
-
-//        try {
-//
-//            String filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Draw/Sync/BlockGet";
-//            File dir = new File(filepath);
-//            if (!dir.exists()){
-//                if(dir.mkdirs()){
-//                    Log.e("Get_File", "Create dirs Successfully !");
-//                }
-//            }
-//
-//            //打开文件，如果没有，则新建文件
-//            File file = new File(filepath + "/" + "file.txt");
-//            if(!file.exists()){
-//                if (file.createNewFile()){
-//                    Log.e("Get_File", "Create file Successfully !");
-//                }
-//            }
-//
-////            String fileContent = "file.txt" + "\n" + "111111";
-////            FileOutputStream out = new FileOutputStream(file);
-////            out.write(fileContent.getBytes());
-////            out.close();
-//
-//            BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
-//            BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(is));
-//
-//            Log.e(TAG, "available: "      + is.available());
-//            Log.e(TAG, "bufferedReader: " + bufferedReader.readLine());
-//            Log.e(TAG, "available: "      + is.available());
-//
-//        }catch (Exception e){
-//            e.printStackTrace();
 //        }
 
     }
@@ -5671,7 +5659,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210222a 10:00 UTC+8 build",
+                                "Version: 20210227a 10:00 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -6056,19 +6044,25 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                     if (Arrays.asList(Direction).contains(text)){
 
-                        Log.v("Block_navigate", text);
-                        if (DrawMode){
-                            push_info_swc = SaveSWC_Block_Auto();
+                        Log.e("Block_navigate", text);
 
-                            //  for apo sync
-//                            push_info_apo = SaveAPO_Block_Auto();
-                            remote_socket.Selectblock_fast(context, false, text);
-//                            PushSWC_Block_Auto(push_info[0], push_info[1]);
+                        Communicator communicator = Communicator.getInstance();
+                        communicator.navigateBlock(text);
 
-                        }else {
-                            remote_socket.Selectblock_fast(context, false, text);
-//                            remote_socket.Selectblock_fast_Check(context, false, text);
-                        }
+//                        if (DrawMode){
+//                            push_info_swc = SaveSWC_Block_Auto();
+//
+//                            //  for apo sync
+////                            push_info_apo = SaveAPO_Block_Auto();
+//                            remote_socket.Selectblock_fast(context, false, text);
+////                            PushSWC_Block_Auto(push_info[0], push_info[1]);
+//
+//                        }else {
+//                            remote_socket.Selectblock_fast(context, false, text);
+////                            remote_socket.Selectblock_fast_Check(context, false, text);
+//                        }
+
+
                     }
 
                 }
@@ -7844,7 +7838,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
         //触摸屏幕的事件
-        @RequiresApi(api = Build.VERSION_CODES.N)
+        @RequiresApi(api = Build.VERSION_CODES.O)
         @SuppressLint("ClickableViewAccessibility")
         public boolean onTouchEvent(MotionEvent motionEvent) {
 
@@ -8007,7 +8001,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
                                             myrenderer.add2DMarker(normalizedX, normalizedY);
                                         else {
-                                            myrenderer.setMarkerDrawed(normalizedX, normalizedY);
+                                            myrenderer.setMarkerDrawed(normalizedX, normalizedY, isBigData_Remote);
                                         }
                                         Log.v("actionPointerDown", "(" + X + "," + Y + ")");
                                         requestRender();
@@ -8015,7 +8009,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                     }
                                     if (ifDeletingMarker) {
                                         Log.v("actionUp", "DeletingMarker");
-                                        myrenderer.deleteMarkerDrawed(normalizedX, normalizedY);
+                                        myrenderer.deleteMarkerDrawed(normalizedX, normalizedY, isBigData_Remote);
                                         requestRender();
                                     }
                                     if (ifDeletingMultiMarker) {
@@ -8073,7 +8067,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //                                                    System.out.println(v_neuronSWC_list.seg.size());
                                                         if (seg != null) {
 //                                                            V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
-                                                            myrenderer.addLineDrawed2(lineDrawed, seg);
+                                                            myrenderer.addLineDrawed2(lineDrawed, seg, isBigData_Remote);
                                                             myrenderer.deleteFromCur(seg, v_neuronSWC_list[0]);
                                                         }
 //                                                    else {
@@ -8139,7 +8133,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                                     if (ifDeletingLine) {
                                         myrenderer.setIfPainting(false);
-                                        myrenderer.deleteLine1(lineDrawed);
+                                        myrenderer.deleteLine1(lineDrawed, isBigData_Remote);
                                         lineDrawed.clear();
                                         myrenderer.setLineDrawed(lineDrawed);
                                         requestRender();
@@ -8228,9 +8222,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                          * xf szt
                                          */
 
-
-
-                                        sendMsg();
+                                        loadBigData();
 //                                        loadBigData();
                                         break;
                                     case "Load SWCFile":
@@ -8700,36 +8692,36 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    /**
-     * load big data
-     */
-    public void loadBigData(){
-
-        new XPopup.Builder(this)
-                .asCenterList("BigData File",new String[]{"Select File", "Open RecentBlock"},
-                        new OnSelectListener() {
-                            @RequiresApi(api = Build.VERSION_CODES.N)
-                            @Override
-                            public void onSelect(int position, String text) {
-                                switch (text) {
-                                    case "Select File":
-                                        Select_img();
-                                        break;
-
-                                    case "Open RecentBlock":
-                                        Select_Block();
-                                        break;
+//    /**
+//     * load big data
+//     */
+//    public void loadBigData(){
 //
-//                                    case "Download by http":
-//                                        downloadFile();
+//        new XPopup.Builder(this)
+//                .asCenterList("BigData File",new String[]{"Select File", "Open RecentBlock"},
+//                        new OnSelectListener() {
+//                            @RequiresApi(api = Build.VERSION_CODES.N)
+//                            @Override
+//                            public void onSelect(int position, String text) {
+//                                switch (text) {
+//                                    case "Select File":
+//                                        Select_img();
 //                                        break;
-                                }
-                            }
-                        })
-                .show();
-
-
-    }
+//
+//                                    case "Open RecentBlock":
+//                                        Select_Block();
+//                                        break;
+////
+////                                    case "Download by http":
+////                                        downloadFile();
+////                                        break;
+//                                }
+//                            }
+//                        })
+//                .show();
+//
+//
+//    }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void Select_Block(){

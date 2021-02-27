@@ -1931,7 +1931,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     // add the marker drawed into markerlist
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void setMarkerDrawed(float x, float y) throws CloneNotSupportedException {
+    public void setMarkerDrawed(float x, float y, boolean isBigData) throws CloneNotSupportedException {
 
         if(solveMarkerCenter(x, y) != null) {
 
@@ -1967,7 +1967,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             markerList.add(imageMarker_drawed);
 
-            updateAddMarker(imageMarker_drawed);
+            if (isBigData){
+                updateAddMarker(imageMarker_drawed);
+            }
 
             saveUndo();
 //            if (process.size() < UNDO_LIMIT){
@@ -2000,7 +2002,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     // delete the marker drawed from the markerlist
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void deleteMarkerDrawed(float x, float y) throws CloneNotSupportedException {
+    public void deleteMarkerDrawed(float x, float y, boolean isBigData) throws CloneNotSupportedException {
         for (int i = 0; i < markerList.size(); i++){
             ImageMarker tobeDeleted = markerList.get(i);
             float[] markerModel = volumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
@@ -2041,7 +2043,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 /*
                 update delete marker
                  */
-                updateDelMarker(temp);
+                if (isBigData){
+                    updateDelMarker(temp);
+                }
+
 //                if (process.size() < UNDO_LIMIT){
 //                    process.add(Operate.DELETEMARKER);
 //                    undoDeleteMarkerList.add(temp);
@@ -3396,8 +3401,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             Log.v("draw line:::::", "nulllllllllllllllllll");
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public void addLineDrawed2(ArrayList<Float> line, V_NeuronSWC background_seg) throws CloneNotSupportedException {
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void addLineDrawed2(ArrayList<Float> line, V_NeuronSWC background_seg, boolean isBigData) throws CloneNotSupportedException {
         if (img.getData() == null){
             return;
         }
@@ -3515,7 +3520,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             curSwcList.append(seg);
 
-            updateAddSegSWC(seg);
+            if (isBigData){
+                updateAddSegSWC(seg);
+            }
 
 //            saveUndo();
 //            if (process.size() < UNDO_LIMIT){
@@ -3951,7 +3958,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public  void deleteLine1(ArrayList<Float> line) throws CloneNotSupportedException {
+    public  void deleteLine1(ArrayList<Float> line, boolean isBigData) throws CloneNotSupportedException {
 //        curSwcList.deleteCurve(line, finalMatrix, sz, mz);
         System.out.println("deleteline1--------------------------");
         Vector<Integer> indexToBeDeleted = new Vector<>();
@@ -4017,7 +4024,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         /*
                         delete line
                          */
-                        updateDelSegSWC(seg);
+                        if (isBigData){
+                            updateDelSegSWC(seg);
+                        }
 
                         break;
                     }
@@ -4468,9 +4477,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Log.e(TAG,"----------------importNeuronTree----------------");
         try{
             System.out.println("nt size: "+nt.listNeuron.size());
-            for (int i = 0; i < nt.listNeuron.size(); i++){
-                Log.e(TAG, String.format("point: x %f, y %f, z %f", nt.listNeuron.get(i).x, nt.listNeuron.get(i).y, nt.listNeuron.get(i).z));
-            }
+//            for (int i = 0; i < nt.listNeuron.size(); i++){
+//                Log.e(TAG, String.format("point: x %f, y %f, z %f", nt.listNeuron.get(i).x, nt.listNeuron.get(i).y, nt.listNeuron.get(i).z));
+//            }
 
             Vector<V_NeuronSWC> segs = nt.devideByBranch();
             for (int i = 0; i < segs.size(); i++){

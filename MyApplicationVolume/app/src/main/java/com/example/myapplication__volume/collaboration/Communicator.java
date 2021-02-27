@@ -15,10 +15,12 @@ import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.example.myapplication__volume.MainActivity.Toast_in_Thread_static;
 import static com.example.myapplication__volume.MainActivity.username;
 
 public class Communicator {
@@ -28,14 +30,20 @@ public class Communicator {
      */
     public static final String TAG = "Communicator";
 
-    public static XYZ ImageMaxRes = new XYZ();       // Soma
-    public static XYZ ImageCurRes = new XYZ();       // Soma
+    public static XYZ ImageMaxRes = new XYZ();         // Soma
+    public static XYZ ImageCurRes = new XYZ();         // Soma
     public static XYZ ImageStartPoint = new XYZ();
+    public static XYZ ImageCurPoint = new XYZ();
 
 
     public static String BrainNum = null;
-    public static String ImgRes = null;   // 1 is highest; max num is lowest
     public static String Soma = null;
+
+    public static int ImgRes;           // 1 is highest; max num is lowest
+    public static int CurRes;
+    public static int ImgSize;
+
+    public static ArrayList<String> resolution;
 
     /**
      * current context
@@ -127,11 +135,10 @@ public class Communicator {
         ArrayList<String> result = new ArrayList<>();
         for (int i = 0; i < seg.row.size(); i++){
             V_NeuronSWC_unit curSWCunit = seg.row.get(i);
-            Log.e(TAG, "point " + String.format("%f %f %f %f %f %f", curSWCunit.type, curSWCunit.x, curSWCunit.y, curSWCunit.z, curSWCunit.n, curSWCunit.parent));
 
+//            Log.e(TAG, "point " + String.format("%d %f %f %f %f %f", (int) (curSWCunit.type), curSWCunit.x, curSWCunit.y, curSWCunit.z, curSWCunit.n, curSWCunit.parent));
             XYZ GlobalCroods = ConvertLocalBlocktoGlobalCroods(curSWCunit.x,curSWCunit.y,curSWCunit.z);
-//            if (!result.add(String.format("%f %f %f %f",curSWCunit.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z))){
-            if (!result.add(String.format("%f %f %f %f %f %f", curSWCunit.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z, curSWCunit.n, curSWCunit.parent))){
+            if (!result.add(String.format("%d %f %f %f %f %f", (int) (curSWCunit.type), GlobalCroods.x, GlobalCroods.y, GlobalCroods.z, curSWCunit.n, curSWCunit.parent))){
                 Log.e(TAG, "Something wrong when convert V_NeuronSWC to MSG");
             }
         }
@@ -210,7 +217,7 @@ public class Communicator {
         node.x -=(ImageStartPoint.x-1);
         node.y -=(ImageStartPoint.y-1);
         node.z -=(ImageStartPoint.z-1);
-        Log.d(TAG,"ConvertGlobaltoLocalBlockCroods x y z = " + x + " " + y + " " + z + " -> " + XYZ2String(node));
+//        Log.d(TAG,"ConvertGlobaltoLocalBlockCroods x y z = " + x + " " + y + " " + z + " -> " + XYZ2String(node));
         return node;
     }
 
@@ -220,7 +227,7 @@ public class Communicator {
         y +=(ImageStartPoint.y-1);
         z +=(ImageStartPoint.z-1);
         XYZ node = ConvertCurrRes2MaxResCoords(x,y,z);
-        Log.d(TAG,"ConvertLocalBlocktoGlobalCroods x y z = " + x + " " + y + " " + z + " -> " + XYZ2String(node));
+//        Log.d(TAG,"ConvertLocalBlocktoGlobalCroods x y z = " + x + " " + y + " " + z + " -> " + XYZ2String(node));
         return node;
     }
 
@@ -288,9 +295,9 @@ public class Communicator {
         return false;
     }
 
-    public static String getSoma(String imgRes){
+    public static String getSoma(int imgRes){
 
-        int ratio = (int) Math.pow(2, Integer.parseInt(imgRes) - 1);
+        int ratio = (int) Math.pow(2, (imgRes) - 1);
         int[] pos = new int[3];
         String[] pos_str = Soma.split(";");
         for (int i = 0; i < pos_str.length; i++){
@@ -303,6 +310,11 @@ public class Communicator {
         ImageCurRes.x = pos[0];
         ImageCurRes.y = pos[1];
         ImageCurRes.z = pos[2];
+
+        ImageCurPoint.x = pos[0];
+        ImageCurPoint.y = pos[1];
+        ImageCurPoint.z = pos[2];
+
 
         String res = pos[0] + ";" + pos[1] + ";" + pos[2];
         return res;
@@ -325,7 +337,192 @@ public class Communicator {
     }
 
 
-    public ArrayList<ArrayList<Float>> apoConvert(ArrayList<ArrayList<Float>> apo){
+    public static String getCurrentPos(){
+        return String.format("%d;%d;%d;%d", (int) ImageCurPoint.x, (int) ImageCurPoint.y, (int) ImageCurPoint.z, ImgSize);
+    }
+
+
+
+    public void navigateBlock(String direction){
+
+        String img_size = resolution.get(CurRes - 1).replace("RES(","").replace(")","");
+
+        int img_size_x_i = Integer.parseInt(img_size.split("x")[0]);
+        int img_size_y_i = Integer.parseInt(img_size.split("x")[1]);
+        int img_size_z_i = Integer.parseInt(img_size.split("x")[2]);
+
+        int offset_x_i = (int) ImageCurPoint.x;
+        int offset_y_i = (int) ImageCurPoint.y;
+        int offset_z_i = (int) ImageCurPoint.z;
+        int size_i     =       ImgSize;
+
+        Log.e(TAG, String.format("img: x %d, y %d, z %d",img_size_x_i, img_size_y_i, img_size_z_i));
+        Log.e(TAG, String.format("cur: x %d, y %d, z %d",offset_x_i, offset_y_i, offset_z_i));
+
+
+        String[] Direction = {"Left", "Right", "Top", "Bottom", "Front", "Back"};
+        if (Arrays.asList(Direction).contains(direction)){
+
+            switch (direction){
+                case "Left":
+                    if ( (offset_x_i - size_i/2 -1) == 0 ){
+                        System.out.println("----- You have already reached left boundary!!! -----");
+                        Toast_in_Thread_static("You have already reached left boundary!!!");
+                        return;
+                    }else {
+                        offset_x_i -= size_i/2 + 1;
+                        if (offset_x_i - size_i/2 <= 0)
+                            offset_x_i = size_i/2 + 1;
+                    }
+                    break;
+
+                case "Right":
+                    if ( (offset_x_i + size_i/2) == img_size_x_i - 1 ){
+                        Toast_in_Thread_static("You have already reached right boundary!!!");
+                        return;
+                    }else {
+                        offset_x_i += size_i/2;
+                        if (offset_x_i + size_i/2 > img_size_x_i - 1)
+                            offset_x_i = img_size_x_i - 1 - size_i/2;
+                    }
+                    break;
+
+                case "Top":
+                    if ( (offset_y_i - size_i/2 -1) == 0 ){
+                        Toast_in_Thread_static("You have already reached top boundary!!!");
+                        return;
+                    }else {
+                        offset_y_i -= size_i/2 + 1;
+                        if (offset_y_i - size_i/2 <= 0)
+                            offset_y_i = size_i/2 + 1;
+                    }
+                    break;
+
+                case "Bottom":
+                    if ( (offset_y_i + size_i/2) == img_size_y_i - 1 ){
+                        Toast_in_Thread_static("You have already reached bottom boundary!!!");
+                        return;
+                    }else {
+                        offset_y_i += size_i/2;
+                        if (offset_y_i + size_i/2 > img_size_y_i - 1)
+                            offset_y_i = img_size_y_i - 1 - size_i/2;
+                    }
+                    break;
+
+                case "Front":
+                    if ( (offset_z_i - size_i/2 -1) == 0 ){
+                        Toast_in_Thread_static("You have already reached front boundary!!!");
+                        return;
+                    }else {
+                        offset_z_i -= size_i/2 + 1;
+                        if (offset_z_i - size_i/2 <= 0)
+                            offset_z_i = size_i/2 + 1;
+                    }
+                    break;
+
+                case "Back":
+                    if ( (offset_z_i + size_i/2) == img_size_z_i - 1 ){
+                        Toast_in_Thread_static("You have already reached back boundary!!!");
+                        return;
+                    }else {
+                        offset_z_i += size_i/2;
+                        if (offset_z_i + size_i/2 > img_size_z_i - 1)
+                            offset_z_i = img_size_z_i - 1 - size_i/2;
+                    }
+                    break;
+            }
+        }
+
+
+        ImageCurPoint.x = offset_x_i;
+        ImageCurPoint.y = offset_y_i;
+        ImageCurPoint.z = offset_z_i;
+
+        ImageStartPoint.x = ImageCurPoint.x - ImgSize/2;
+        ImageStartPoint.y = ImageCurPoint.y - ImgSize/2;
+        ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
+
+        MsgConnector msgConnector = MsgConnector.getInstance();
+        msgConnector.sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + Communicator.CurRes + ";" + Communicator.getCurrentPos() + ";");
+
+
+    }
+
+
+
+    public void zoomIn(){
+
+        if (CurRes <= 1){
+            Toast_in_Thread_static("You have already reached the highest resolution !");
+            return;
+        }
+
+        CurRes -= 1;
+        ImageCurRes.x *= 2;
+        ImageCurRes.y *= 2;
+        ImageCurRes.z *= 2;
+
+        ImageCurPoint.x *= 2;
+        ImageCurPoint.y *= 2;
+        ImageCurPoint.z *= 2;
+
+        ImageStartPoint.x = ImageCurPoint.x - ImgSize/2;
+        ImageStartPoint.y = ImageCurPoint.y - ImgSize/2;
+        ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
+
+        MsgConnector msgConnector = MsgConnector.getInstance();
+        msgConnector.sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + Communicator.CurRes + ";" + Communicator.getCurrentPos() + ";");
+
+
+    }
+
+
+
+    public void zoomOut(){
+
+        if (CurRes >= ImgRes){
+            Toast_in_Thread_static("You have already reached the lowest resolution !");
+            return;
+        }
+
+        CurRes += 1;
+        ImageCurRes.x /= 2;
+        ImageCurRes.y /= 2;
+        ImageCurRes.z /= 2;
+
+        ImageCurPoint.x /= 2;
+        ImageCurPoint.y /= 2;
+        ImageCurPoint.z /= 2;
+
+        ImageStartPoint.x = ImageCurPoint.x - ImgSize/2;
+        ImageStartPoint.y = ImageCurPoint.y - ImgSize/2;
+        ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
+
+        MsgConnector msgConnector = MsgConnector.getInstance();
+        msgConnector.sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + Communicator.CurRes + ";" + Communicator.getCurrentPos() + ";");
+
+    }
+
+
+
+    // msg format:   ImgRes:18454;6;RES(26298x35000x11041);RES(13149x17500x5520);RES(6574x8750x2760);RES(3287x4375x1380);RES(1643x2187x690);RES(821x1093x345)
+    public static void setResolution(String[] resList){
+
+        resolution = new ArrayList<>();
+
+        for (int i = 0; i < ImgRes; i++){
+            resolution.add(resList[i + 2]);
+        }
+
+    }
+
+
+
+    /**
+     * for file loading, global coords to local coords
+     */
+
+    public ArrayList<ArrayList<Float>> convertApo(ArrayList<ArrayList<Float>> apo){
 
         // ##n,orderinfo,name,comment,z,x,y, pixmax,intensity,sdev,volsize,mass,,,, color_r,color_g,color_b
         ArrayList<ArrayList<Float>> apo_converted = new ArrayList<ArrayList<Float>>();
@@ -351,7 +548,7 @@ public class Communicator {
 
     }
 
-    public NeuronTree ConvertNeuronTree(NeuronTree nt){
+    public NeuronTree convertNeuronTree(NeuronTree nt){
 
         try {
             NeuronTree nt_converted = (NeuronTree) nt.clone();

@@ -5,6 +5,8 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.myapplication__volume.MainActivity;
+
 import org.apache.commons.io.IOUtils;
 
 import java.io.InputStream;
@@ -34,7 +36,15 @@ public class MsgSender {
             public void run() {
                 super.run();
 
+                /**
+                 * show the progressbar
+                 */
                 try {
+
+                    if (message.startsWith("/Imgblock:")){
+                            MainActivity.showProgressBar();
+                    }
+
                     Log.d(TAG, "Start to Send Message");
                     OutputStream out = socket.getOutputStream();
 
