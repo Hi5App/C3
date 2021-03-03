@@ -41,9 +41,6 @@ public class MsgSender {
                  */
                 try {
 
-                    if (message.startsWith("/Imgblock:")){
-                            MainActivity.showProgressBar();
-                    }
 
                     Log.d(TAG, "Start to Send Message");
                     OutputStream out = socket.getOutputStream();
@@ -63,6 +60,10 @@ public class MsgSender {
                     out.write(header.getBytes(StandardCharsets.UTF_8));
                     out.write(data.getBytes(StandardCharsets.UTF_8));
                     out.flush();
+
+                    if (message.startsWith("/Imgblock:")){
+                        MainActivity.showProgressBar();
+                    }
 
                 }catch (Exception e){
                     e.printStackTrace();

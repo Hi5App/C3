@@ -427,7 +427,7 @@ public class CollaborationService extends Service {
                 mWeakSocket = new WeakReference<Socket>(msgConnector.getManageSocket());
                 mSocket = mWeakSocket.get();
 
-                is = mSocket.getInputStream();
+                is = msgConnector.getManageSocket().getInputStream();
                 bufferedReader = new BufferedReader(new InputStreamReader(is,"UTF-8"));
 
             }catch (Exception e){
@@ -477,7 +477,7 @@ public class CollaborationService extends Service {
 
 
     public static void resetConnect(){
-        mReadThread.reSetConnect();
+        mReadThread.reConnect();
     }
 
 

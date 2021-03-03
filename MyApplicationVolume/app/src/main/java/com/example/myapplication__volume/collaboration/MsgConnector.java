@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MsgConnector {
 
@@ -34,6 +35,8 @@ public class MsgConnector {
     private DataType dataType;
 
     private MsgSender msgSender;
+
+    public static List<String> userList = new ArrayList<String>();
 
 
     private MsgConnector(){

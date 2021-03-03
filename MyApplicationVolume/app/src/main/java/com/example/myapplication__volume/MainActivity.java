@@ -320,6 +320,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static ImageButton sync_push;
     private static ImageButton sync_pull;
 
+    private static ImageButton user_list;
+    private static ImageButton room_id;
+
+
     private static FloatingActionButton Audio_call;
     private static DragFloatActionButton fab;
 //    private static DragFloatActionButton fab;
@@ -341,6 +345,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private FrameLayout.LayoutParams lp_animation_i;
     private static FrameLayout.LayoutParams lp_undo;
     private static FrameLayout.LayoutParams lp_redo;
+
+    private static FrameLayout.LayoutParams lp_room_id;
+    private static FrameLayout.LayoutParams lp_user_list;
 
     private Button PixelClassification;
     private boolean[][]select= {{true,true,true,false,false,false,false},
@@ -464,6 +471,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private float buttonVolume = 1.0f;
     private float actionVolume = 1.0f;
     private boolean firstLogin = true;
+    private boolean firstJoinRomm = true;
     private boolean copyFile = false;
 
 
@@ -530,13 +538,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
         if (msg.startsWith("Port:")){
-//            ServerConnector serverConnector = ServerConnector.getInstance();
-//            Log.e(TAG,"port" + msg.split(":")[0]);
-//            serverConnector.setPort(msg.split(":")[0]);
-//            serverConnector.releaseConnection();
-//
-//            serverConnector.initConnection();
-//            ManageService.resetConnect();
 
             if (msg.split(":")[1].equals("-1")){
                 Toast_in_Thread("Something Wrong with Server");
@@ -545,16 +546,16 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
 
             initMsgConnector(msg.split(":")[1]);
-            initMsgService();
+
+            if (firstJoinRomm){
+                initMsgService();
+                firstJoinRomm = false;
+            }else {
+                CollaborationService.resetConnect();
+            }
 
             MsgConnector msgConnector = MsgConnector.getInstance();
             msgConnector.sendMsg("/login:" + username);
-//            msgConnector.sendMsg("/ImageRes:" + Communicator.BrainNum);
-
-
-//                msgConnector.sendMsg("/Imgblock:");
-
-//                msgConnector.sendMsg("/GetBBSwc:");
 
         }
 
@@ -567,6 +568,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 firstLogin = false;
                 copyFile   = false;
             }
+
+            String[] users = msg.split(":")[1].split(";");
+            List<String> newUserList = Arrays.asList(users);
+            updateUserList(newUserList);
 
         }
 
@@ -663,6 +668,22 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
 
 
+
+        if (msg.startsWith("/retypeline_norm:")){
+            Log.e(TAG,"retypeline_norm");
+
+            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
+            String seg    = msg.split(":")[1];
+
+            if (!userID.equals(username)){
+                Communicator communicator = Communicator.getInstance();
+                myrenderer.syncRetypeSegSWC(communicator.syncSWC(seg));
+                myGLSurfaceView.requestRender();
+            }
+
+        }
+
+
     }
 
 
@@ -724,6 +745,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //                                sync_pull.setVisibility(View.VISIBLE);
 //                                sync_push.setVisibility(View.VISIBLE);
 //                                neuron_list.setVisibility(View.VISIBLE);
+                                user_list.setVisibility(View.VISIBLE);
+                                room_id.setVisibility(View.VISIBLE);
                                 blue_pen.setVisibility(View.VISIBLE);
                                 red_pen.setVisibility(View.VISIBLE);
                             }
@@ -1784,6 +1807,37 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         });
 
 
+
+        lp_room_id = new FrameLayout.LayoutParams(115, 115);
+        lp_room_id.gravity = Gravity.TOP | Gravity.RIGHT;
+        lp_room_id.setMargins(0, 440, 20, 0);
+
+        room_id = new ImageButton(this);
+        room_id.setImageResource(R.drawable.ic_baseline_place_24);
+        room_id.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showRoomID();
+            }
+        });
+
+
+
+
+        lp_user_list = new FrameLayout.LayoutParams(115, 115);
+        lp_user_list.gravity = Gravity.TOP | Gravity.RIGHT;
+        lp_user_list.setMargins(0, 580, 20, 0);
+
+        user_list = new ImageButton(this);
+        user_list.setImageResource(R.drawable.ic_baseline_account_box_24);
+        user_list.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showUserList();
+            }
+        });
+
+
 //        Audio_call = new FloatingActionButton(this);
 //        Audio_call.setImageResource(R.drawable.btn_end_call);
 //        Audio_call.setOnClickListener(new Button.OnClickListener() {
@@ -1826,6 +1880,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         this.addContentView(red_pen, lp_red_color);
         this.addContentView(blue_pen, lp_blue_color);
 
+        this.addContentView(room_id, lp_room_id);
+        this.addContentView(user_list, lp_user_list);
+
         navigation_left.setVisibility(View.GONE);
         navigation_right.setVisibility(View.GONE);
         navigation_up.setVisibility(View.GONE);
@@ -1840,6 +1897,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         res_list.setVisibility(View.GONE);
         red_pen.setVisibility(View.GONE);
         blue_pen.setVisibility(View.GONE);
+
+        room_id.setVisibility(View.GONE);
+        user_list.setVisibility(View.GONE);
 
 
         // set Check Mode  & DownSample Mode
@@ -2150,6 +2210,57 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //        }
 
     }
+
+
+    private void showRoomID(){
+
+        MsgConnector msgConnector = MsgConnector.getInstance();
+        new XPopup.Builder(this).asConfirm("Collaboration Room", "Room ID: " + msgConnector.getPort(),
+                new OnConfirmListener() {
+                    @Override
+                    public void onConfirm() {
+                    }
+                })
+                .show();
+    }
+
+
+    private void showUserList(){
+        new XPopup.Builder(this)
+                //.maxWidth(600)
+                .asCenterList("User List", (String[]) MsgConnector.userList.toArray(),
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                Toast_in_Thread("User " + text + " in Room !");
+                            }
+                        })
+                .show();
+    }
+
+    private void updateUserList(List<String> newUserList){
+
+        if (MsgConnector.userList.size() < newUserList.size()){
+            for (int i = 0; i < newUserList.size(); i++){
+                if (!MsgConnector.userList.contains(newUserList.get(i))){
+                    Toast_in_Thread("User " + newUserList.get(i) + " join !");
+                }
+            }
+        }
+
+        if (MsgConnector.userList.size() > newUserList.size()){
+            for (int i = 0; i < MsgConnector.userList.size(); i++){
+                if (!newUserList.contains(MsgConnector.userList.get(i))){
+                    Toast_in_Thread("User " + MsgConnector.userList.get(i) + " left !");
+                }
+            }
+        }
+
+        MsgConnector.userList = newUserList;
+
+    }
+
+
 
 
     private void initNim(){
@@ -5659,7 +5770,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210227a 10:00 UTC+8 build",
+                                "Version: 20210303a 10:00 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -8140,7 +8251,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                     }
                                     if (ifSpliting) {
                                         myrenderer.setIfPainting(false);
-                                        myrenderer.splitCurve(lineDrawed);
+                                        myrenderer.splitCurve(lineDrawed, isBigData_Remote);
                                         lineDrawed.clear();
                                         myrenderer.setLineDrawed(lineDrawed);
                                         requestRender();
@@ -8148,7 +8259,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                     if (ifChangeLineType) {
                                         myrenderer.setIfPainting(false);
                                         int type = myrenderer.getLastLineType();
-                                        myrenderer.changeLineType(lineDrawed, type);
+                                        myrenderer.changeLineType(lineDrawed, type, isBigData_Remote);
                                         lineDrawed.clear();
                                         myrenderer.setLineDrawed(lineDrawed);
                                         requestRender();

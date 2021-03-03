@@ -4073,7 +4073,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        }
     }
 
-    public void splitCurve(ArrayList<Float> line) throws CloneNotSupportedException {
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void splitCurve(ArrayList<Float> line, boolean isBigData) throws CloneNotSupportedException {
 //        curSwcList.splitCurve(line, finalMatrix, sz, mz);
         System.out.println("split1--------------------------");
         boolean found = false;
@@ -4171,10 +4172,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         int newSegid = curSwcList.nsegs();
                         V_NeuronSWC_unit first = seg.row.get(k);
                         try {
-                            V_NeuronSWC_unit firstClone = first.clone();
                             V_NeuronSWC_unit firstClone2 = first.clone();
-                            newSeg1.append(firstClone);
-                            firstClone.parent = -1;
+                            firstClone2.parent = -1;
                             newSeg2.append(firstClone2);
                         }catch (Exception e){
                             System.out.println(e.getMessage());
@@ -4182,7 +4181,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         for (int w = 0; w < seg.row.size(); w++){
                             try {
                                 V_NeuronSWC_unit temp = seg.row.get(w);
-                                if (!toSplit.contains(w)) {
+                                if (!toSplit.contains(w) && (w != k)) {
                                     newSeg2.append(temp);
                                 }else if(toSplit.contains(w) && (w != k)){
                                     temp.seg_id = newSegid;
@@ -4191,6 +4190,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                             }catch (Exception e){
                                 System.out.println(e.getMessage());
                             }
+                        }
+                        try {
+                            V_NeuronSWC_unit firstClone = first.clone();
+                            newSeg1.append(firstClone);
+                        }catch (Exception e){
+                            System.out.println(e.getMessage());
                         }
 
 //                        saveUndo();
@@ -4208,6 +4213,28 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                            undoMarkerList.add(tempMarkerList);
 //                            undoCurveList.add(tempCurveList);
 //                        }
+
+
+                        if (isBigData){
+                            updateDelSegSWC(curSwcList.seg.get(j));
+                            updateAddSegSWC(newSeg1);
+                            updateAddSegSWC(newSeg2);
+                        }
+
+                        Log.e(TAG, "n   type   x   y   z   parent");
+                        Log.e(TAG, "-------------------------- newSeg1 ------------------------");
+
+                        for (int i_1 = 0; i_1 < newSeg1.row.size(); i_1++){
+                            V_NeuronSWC_unit unit = newSeg1.row.get(i_1);
+                            Log.e(TAG, String.format("%f %d %f %f %f %f", unit.n, (int) (unit.type), unit.x, unit.y, unit.z, unit.parent));
+                        }
+
+                        Log.e(TAG, "-------------------------- newSeg2 ------------------------");
+
+                        for (int i_1 = 0; i_1 < newSeg2.row.size(); i_1++){
+                            V_NeuronSWC_unit unit = newSeg2.row.get(i_1);
+                            Log.e(TAG, String.format("%f %d %f %f %f %f", unit.n, (int) (unit.type), unit.x, unit.y, unit.z, unit.parent));
+                        }
 
                         curSwcList.deleteSeg(j);
                         curSwcList.append(newSeg1);
@@ -4275,7 +4302,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    public void changeLineType(ArrayList<Float> line, int type) throws CloneNotSupportedException {
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void changeLineType(ArrayList<Float> line, int type, boolean isBigData) throws CloneNotSupportedException {
         System.out.println("changeLineType--------------------------");
         Vector<Integer> indexToChangeLineType = new Vector<>();
         Vector<Integer> ChangeLineType = new Vector<>();
@@ -4366,6 +4394,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     seg.row.get(i).type = type;
                 }
                 seg.to_be_deleted = false;
+
+                if (isBigData){
+                    updateRetypeSegSWC(seg);
+                }
             }
         }
 
@@ -4518,25 +4550,25 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 int g = currentLine.get(16).intValue();
                 int b = currentLine.get(17).intValue();
 
-                if (r == 0 && g == 0 && b == 0){
+                if ((r == 0 && g == 0 && b == 0) || (r == 20 && g == 20 && b == 20)) {
                     imageMarker_drawed.type = 0;
 
                 }else if (r == 255 && g == 255 && b == 255){
                     imageMarker_drawed.type = 1;
 
-                }else if (r == 255 && g == 0 && b == 0){
+                }else if ((r == 255 && g == 0 && b == 0) || (r == 200 && g == 20 && b == 0)){
                     imageMarker_drawed.type = 2;
 
-                }else if (r == 0 && g == 0 && b == 255){
+                }else if ((r == 0 && g == 0 && b == 255) || (r == 0 && g == 20 && b == 200)){
                     imageMarker_drawed.type = 3;
 
-                }else if (r == 0 && g == 255 && b == 0){
+                }else if ((r == 0 && g == 255 && b == 0) || (r == 0 && g == 200 && b == 20)){
                     imageMarker_drawed.type = 4;
 
-                }else if (r == 255 && g == 0 && b == 255){
+                }else if ((r == 255 && g == 0 && b == 255) || (r == 200 && g == 0 && b == 200)){
                     imageMarker_drawed.type = 5;
 
-                }else if (r == 255 && g == 255 && b == 0){
+                }else if ((r == 255 && g == 255 && b == 0) || (r == 200 && g == 200 && b == 0)){
                     imageMarker_drawed.type = 6;
 
                 }
@@ -5841,6 +5873,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
+
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void updateRetypeSegSWC(V_NeuronSWC seg){
+
+        Communicator communicator = Communicator.getInstance();
+        communicator.updateRetypeSegSWC(seg, (int) seg.row.get(0).type);
+
+    }
+
+
     public void syncAddSegSWC(V_NeuronSWC seg){
         curSwcList.append(seg);
     }
@@ -5859,7 +5902,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     float[] point_del = new float[]{(float) segUnit_del.x, (float) segUnit_del.y, (float) segUnit_del.z};
                     float[] point_cur = new float[]{(float) segUnit_cur.x, (float) segUnit_cur.y, (float) segUnit_cur.z};
 
-                    Log.e(TAG,"point num: " + seg.row.size() + "; current point: " + j);
+//                    Log.e(TAG,"point num: " + seg.row.size() + "; current point: " + j);
                     if (! (distance(point_del, point_cur)<0.5) ){
                         delete = false;
                         break;
@@ -5872,6 +5915,42 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 Vector<Integer> tobeDelete = new Vector<>();
                 tobeDelete.add(i);
                 curSwcList.deleteMutiSeg(tobeDelete);
+            }
+
+        }
+
+    }
+
+
+    public void syncRetypeSegSWC(V_NeuronSWC seg){
+
+        for (int i = 0; i < curSwcList.nsegs(); i++){
+            V_NeuronSWC cur_seg = curSwcList.seg.get(i);
+            boolean retype = false;
+            if (cur_seg.row.size() == seg.row.size()){
+                retype = true;
+                for (int j = 0; j < seg.row.size(); j++){
+
+                    V_NeuronSWC_unit segUnit_del = seg.row.get(j);
+                    V_NeuronSWC_unit segUnit_cur = cur_seg.row.get(j);
+                    float[] point_del = new float[]{(float) segUnit_del.x, (float) segUnit_del.y, (float) segUnit_del.z};
+                    float[] point_cur = new float[]{(float) segUnit_cur.x, (float) segUnit_cur.y, (float) segUnit_cur.z};
+
+//                    Log.e(TAG,"point num: " + seg.row.size() + "; current point: " + j);
+                    if (! (distance(point_del, point_cur)<0.5) ){
+                        retype = false;
+                        break;
+                    }
+                }
+
+            }
+
+            double newType = seg.row.get(0).type;
+
+            if (retype){
+                for (int j = 0; j < cur_seg.row.size(); j++){
+                    cur_seg.row.get(j).type = newType;
+                }
             }
 
         }
@@ -5896,6 +5975,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
     }
+
+
+
 
 
 

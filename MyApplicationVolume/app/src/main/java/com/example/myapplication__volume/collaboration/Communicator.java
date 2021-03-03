@@ -39,7 +39,7 @@ public class Communicator {
     public static String BrainNum = null;
     public static String Soma = null;
 
-    public static int ImgRes;           // 1 is highest; max num is lowest
+    public static int ImgRes;                          // 1 is highest; max num is lowest
     public static int CurRes;
     public static int ImgSize;
 
@@ -118,8 +118,18 @@ public class Communicator {
             segUnit.x = GlobalCroods.x;
             segUnit.y = GlobalCroods.y;
             segUnit.z = GlobalCroods.z;
+
             segUnit.n = Double.parseDouble(swc[i].split(" ")[4]);
             segUnit.parent = Double.parseDouble(swc[i].split(" ")[5]);
+
+
+//            segUnit.n = i;
+//            if (i == 1){
+//                segUnit.parent = -1;
+//            }else {
+//                segUnit.parent = i-1;
+//            }
+
             seg.row.add(segUnit);
         }
 
@@ -152,7 +162,7 @@ public class Communicator {
     {
             List<String> result = new ArrayList<>();
             XYZ GlobalCroods = ConvertLocalBlocktoGlobalCroods(marker.x,marker.y,marker.z);
-            result.add(String.format("%d %f %f %f", marker.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z));
+            result.add(String.format("%d %f %f %f", (int) marker.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z));
 
             String msg = "/addmarker_norm:" + String.format("%s %s %s %s %s;", username, "HI5", "128", "128", "128");
             msg = msg + String.join(";", result);
@@ -168,7 +178,7 @@ public class Communicator {
     {
         List<String> result = new ArrayList<>();
         XYZ GlobalCroods = ConvertLocalBlocktoGlobalCroods(marker.x,marker.y,marker.z);
-        result.add(String.format("%d %f %f %f", marker.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z));
+        result.add(String.format("%d %f %f %f", (int) marker.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z));
 
         String msg = "/delmarker_norm:" + String.format("%s %s %s %s %s;", username, "HI5", "128", "128", "128");
         msg = msg + String.join(";", result);
@@ -201,6 +211,17 @@ public class Communicator {
 
 
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void updateRetypeSegSWC(V_NeuronSWC seg, int type){
+        List<String> result = V_NeuronSWCToMSG(seg);
+        String msg = "/retypeline_norm:" + username + " HI5 " + type + " 128 128 128;" + String.join(";", result);
+
+        MsgConnector msgConnector = MsgConnector.getInstance();
+        msgConnector.sendMsg(msg);
+
+    }
+
+
     public V_NeuronSWC syncSWC(String msg){
         return MSGToV_NeuronSWC(msg);
     }
@@ -214,18 +235,32 @@ public class Communicator {
     public XYZ ConvertGlobaltoLocalBlockCroods(double x,double y,double z)
     {
         XYZ node = ConvertMaxRes2CurrResCoords(x,y,z);
-        node.x -=(ImageStartPoint.x-1);
-        node.y -=(ImageStartPoint.y-1);
-        node.z -=(ImageStartPoint.z-1);
+//        node.x -=(ImageStartPoint.x-1);
+//        node.y -=(ImageStartPoint.y-1);
+//        node.z -=(ImageStartPoint.z-1);
+
+        /*
+        -1 之后会出现删线不同步的问题
+         */
+        node.x -=(ImageStartPoint.x);
+        node.y -=(ImageStartPoint.y);
+        node.z -=(ImageStartPoint.z);
 //        Log.d(TAG,"ConvertGlobaltoLocalBlockCroods x y z = " + x + " " + y + " " + z + " -> " + XYZ2String(node));
         return node;
     }
 
     public XYZ ConvertLocalBlocktoGlobalCroods(double x,double y,double z)
     {
-        x +=(ImageStartPoint.x-1);
-        y +=(ImageStartPoint.y-1);
-        z +=(ImageStartPoint.z-1);
+//        x +=(ImageStartPoint.x-1);
+//        y +=(ImageStartPoint.y-1);
+//        z +=(ImageStartPoint.z-1);
+
+        /*
+        -1 之后会出现删线不同步的问题
+         */
+        x +=(ImageStartPoint.x);
+        y +=(ImageStartPoint.y);
+        z +=(ImageStartPoint.z);
         XYZ node = ConvertCurrRes2MaxResCoords(x,y,z);
 //        Log.d(TAG,"ConvertLocalBlocktoGlobalCroods x y z = " + x + " " + y + " " + z + " -> " + XYZ2String(node));
         return node;
