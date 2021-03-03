@@ -99,10 +99,10 @@ public class LoginDataSource {
         }
     }
 
-    public Result<LoggedInUser> register(String email, String username, String nickname, String password){
+    public Result<LoggedInUser> register(String email, String username, String nickname, String password, String inviterCode){
         try {
 
-            RegisterWithSocket(username, password, email, nickname);
+            RegisterWithSocket(username, password, email, nickname, inviterCode);
 
             if (responseData.equals("REGISTER:0")){
                 Log.e(TAG, "register successfully !");
@@ -162,10 +162,13 @@ public class LoginDataSource {
     }
 
 
-    private void RegisterWithSocket(String username, String password, String email, String nickname){
+    private void RegisterWithSocket(String username, String password, String email, String nickname, String inviterCode){
+
+        if (inviterCode.equals(""))
+            inviterCode = "0";
 
         ServerConnector serverConnector = ServerConnector.getInstance();
-        serverConnector.sendMsg(String.format("REGISTER:%s %s %s %s", username, email, nickname, password));
+        serverConnector.sendMsg(String.format("REGISTER:%s %s %s %s %s", username, email, nickname, password, inviterCode));
         String result = serverConnector.ReceiveMsg();
         Log.e(TAG,"msg: " + result);
 

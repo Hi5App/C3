@@ -140,6 +140,7 @@ import com.warkiz.widget.IndicatorSeekBar;
 import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -147,6 +148,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -942,6 +944,33 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.v(TAG,"------------------ onCreate ------------------");
+
+        File volumeFile = new File(context.getExternalFilesDir(null).toString() + "/Settings/volume.txt");
+        if (volumeFile.exists()){
+            try {
+                BufferedReader volumeReader = new BufferedReader(new InputStreamReader(new FileInputStream(volumeFile)));
+                String volumeStr = volumeReader.readLine();
+                if (volumeStr != null) {
+                    String[] volumes = volumeStr.split(" ");
+                    Log.d(TAG, "VolumeStr: " + volumeStr);
+                    if (volumes.length == 3){
+                        bgmVolume = Float.parseFloat(volumes[0]);
+                        buttonVolume = Float.parseFloat(volumes[1]);
+                        actionVolume = Float.parseFloat(volumes[2]);
+
+                        Log.d(TAG, "Volumes: " + Arrays.toString(volumes));
+                        Log.d(TAG, "Volumes: " + bgmVolume + " " + buttonVolume + " " + actionVolume);
+
+                        MusicServer.setVolume(bgmVolume);
+                    }
+                }
+                volumeReader.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         Intent bgmIntent = new Intent(MainActivity.this, MusicServer.class);
         startService(bgmIntent);
@@ -6845,6 +6874,33 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         actionVolume = (float)(actionVolumeBar.getProgress()) / 100.0f;
 
                         MusicServer.setBgmVolume(bgmVolume);
+
+                        String settingsPath = context.getExternalFilesDir(null).toString() + "/Settings";
+                        File settingsFile = new File(settingsPath);
+                        if (!settingsFile.exists()){
+                            settingsFile.mkdir();
+                        }
+
+                        String volumePath = settingsPath + "/volume.txt";
+                        File volumeFile = new File(volumePath);
+                        if (!volumeFile.exists()){
+                            try {
+                                volumeFile.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        try {
+                            BufferedWriter volumeWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(volumeFile)));
+                            volumeWriter.write(Float.toString(bgmVolume) + " " + Float.toString(buttonVolume) + " " + Float.toString(actionVolume));
+                            volumeWriter.flush();
+                            volumeWriter.close();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 })
                 .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {

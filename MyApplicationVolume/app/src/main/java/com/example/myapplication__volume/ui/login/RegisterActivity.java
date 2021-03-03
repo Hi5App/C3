@@ -29,6 +29,13 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.example.myapplication__volume.R;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 public class RegisterActivity extends AppCompatActivity {
 
     private static final String TAG = "RegisterActivity";
@@ -41,11 +48,16 @@ public class RegisterActivity extends AppCompatActivity {
     EditText passwordEditText;
     EditText nicknameEditText;
     EditText emailEditText;
+    EditText inviterText;
     Button registerButton;
     ProgressBar loadingProgressBar;
 
     private SoundPool soundPool;
     private int soundId;
+
+    private float bgmVolume = 1.0f;
+    private float buttonVolume = 1.0f;
+    private float actionVolume = 1.0f;
 
     @SuppressLint("HandlerLeak")
     private Handler handler=new Handler(){
@@ -56,7 +68,7 @@ public class RegisterActivity extends AppCompatActivity {
                 case REGISTER_ON_CLICK:
                     loadingProgressBar.setVisibility(View.VISIBLE);
                     registerViewModel.register(emailEditText.getText().toString(), usernameEditText.getText().toString(),
-                            nicknameEditText.getText().toString(), passwordEditText.getText().toString());
+                            nicknameEditText.getText().toString(), passwordEditText.getText().toString(), inviterText.getText().toString());
                     Log.d("LoginButton:", "onClickkkkkkkk");
                     break;
                 default:
@@ -79,11 +91,34 @@ public class RegisterActivity extends AppCompatActivity {
         nicknameEditText = findViewById(R.id.register_nickname);
         passwordEditText = findViewById(R.id.register_password);
         emailEditText = findViewById(R.id.register_email);
+        inviterText = findViewById(R.id.register_inviter);
         registerButton = findViewById(R.id.register);
         loadingProgressBar = findViewById(R.id.loading);
 
         soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 5);
         soundId = soundPool.load(this, R.raw.button01, 1);
+
+        File volumeFile = new File(getBaseContext().getExternalFilesDir(null).toString() + "/Settings/volume.txt");
+        if (volumeFile.exists()){
+            try {
+                BufferedReader volumeReader = new BufferedReader(new InputStreamReader(new FileInputStream(volumeFile)));
+                String volumeStr = volumeReader.readLine();
+                if (volumeStr != null) {
+                    String[] volumes = volumeStr.split(" ");
+                    Log.d(TAG, "VolumeStr: " + volumeStr);
+                    if (volumes.length == 3){
+                        bgmVolume = Float.parseFloat(volumes[0]);
+                        buttonVolume = Float.parseFloat(volumes[1]);
+                        actionVolume = Float.parseFloat(volumes[2]);
+                    }
+                }
+                volumeReader.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         // for test
 //        usernameEditText.setText("xf");
@@ -168,7 +203,7 @@ public class RegisterActivity extends AppCompatActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     registerViewModel.register(emailEditText.getText().toString(), usernameEditText.getText().toString(),
-                            nicknameEditText.getText().toString(), passwordEditText.getText().toString());
+                            nicknameEditText.getText().toString(), passwordEditText.getText().toString(), inviterText.toString());
                 }
                 return false;
             }
@@ -177,9 +212,19 @@ public class RegisterActivity extends AppCompatActivity {
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                soundPool.play(soundId, 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId, buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+//                String inviterCode = inviterText.getText().toString();
+//                if (inviterCode == null)
+//                    Log.d(TAG, "InviterCode: NULL");
+//                else if (inviterCode.equals(""))
+//                    Log.d(TAG, "InviterCode: empty");
+//                else {
+//                    Log.d(TAG, "InviterCode: " + inviterCode);
+//                }
 
                 handler.sendEmptyMessage(REGISTER_ON_CLICK);
+
 //                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
 //                startActivity(intent);
 //                LoginActivity.actionStart(RegisterActivity.this);

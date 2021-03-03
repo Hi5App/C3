@@ -12,6 +12,8 @@ import static com.example.myapplication__volume.BaseActivity.context;
 public class MusicServer extends Service {
     private static MediaPlayer bgmPlayer;
 
+    private static float volume = 1;
+
     public MusicServer() {
     }
 
@@ -28,6 +30,7 @@ public class MusicServer extends Service {
         if (bgmPlayer == null){
 //            bgmPlayer = new MediaPlayer();
             bgmPlayer = MediaPlayer.create(this, R.raw.bgm03sponge);
+            bgmPlayer.setVolume(volume, volume);
 //            String externalFileDir = context.getExternalFilesDir(null).toString();
 //            try {
 //                bgmPlayer.setDataSource(externalFileDir + "/bgm01main.mp3");
@@ -44,6 +47,10 @@ public class MusicServer extends Service {
             bgmPlayer.setLooping(true);
             bgmPlayer.start();
         }
+    }
+
+    public static void setVolume(float f){
+        volume = f;
     }
 
     public static void setBgmVolume(float f){

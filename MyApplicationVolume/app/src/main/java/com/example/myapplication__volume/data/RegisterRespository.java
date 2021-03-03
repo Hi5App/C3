@@ -31,9 +31,9 @@ public class RegisterRespository {
         // @see https://developer.android.com/training/articles/keystore
     }
 
-    public Result<LoggedInUser> register(String email, String username, String nickname, String password) {
+    public Result<LoggedInUser> register(String email, String username, String nickname, String password, String inviterCode) {
         // handle login
-        Result<LoggedInUser> result = dataSource.register(email, username, nickname, password);
+        Result<LoggedInUser> result = dataSource.register(email, username, nickname, password, inviterCode);
         Log.d("RegisterRespository", "register");
         if (result instanceof Result.Success) {
             setLoggedInUser(((Result.Success<LoggedInUser>) result).getData());

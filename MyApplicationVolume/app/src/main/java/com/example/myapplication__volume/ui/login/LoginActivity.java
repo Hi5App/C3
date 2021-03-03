@@ -30,6 +30,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.example.datastore.PreferenceLogin;
 import com.example.myapplication__volume.MainActivity;
+import com.example.myapplication__volume.MusicServer;
 import com.example.myapplication__volume.Nim.DemoCache;
 import com.example.myapplication__volume.R;
 import com.example.myapplication__volume.collaboration.ServerConnector;
@@ -38,6 +39,14 @@ import com.netease.nim.uikit.common.ToastHelper;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.auth.LoginInfo;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
 
 import static com.example.myapplication__volume.BaseActivity.ip_ALiYun;
 
@@ -58,6 +67,10 @@ public class LoginActivity extends AppCompatActivity {
 
     private SoundPool soundPool;
     private int soundId;
+
+    private float bgmVolume = 1.0f;
+    private float buttonVolume = 1.0f;
+    private float actionVolume = 1.0f;
 
     final private int SIGN_IN_ON_CLICK = 1;
     final private String TAG = "LoginActivity";
@@ -96,6 +109,28 @@ public class LoginActivity extends AppCompatActivity {
 
         soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 5);
         soundId = soundPool.load(this, R.raw.button01, 1);
+
+        File volumeFile = new File(getBaseContext().getExternalFilesDir(null).toString() + "/Settings/volume.txt");
+        if (volumeFile.exists()){
+            try {
+                BufferedReader volumeReader = new BufferedReader(new InputStreamReader(new FileInputStream(volumeFile)));
+                String volumeStr = volumeReader.readLine();
+                if (volumeStr != null) {
+                    String[] volumes = volumeStr.split(" ");
+                    Log.d(TAG, "VolumeStr: " + volumeStr);
+                    if (volumes.length == 3){
+                        bgmVolume = Float.parseFloat(volumes[0]);
+                        buttonVolume = Float.parseFloat(volumes[1]);
+                        actionVolume = Float.parseFloat(volumes[2]);
+                    }
+                }
+                volumeReader.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         Log.e(TAG, "init ServerConnector");
         initServerConnector();
@@ -215,7 +250,7 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                soundPool.play(soundId, 1.0f, 1.0f, 0, 0, 1.0f);
+                soundPool.play(soundId, buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 handler.sendEmptyMessage(SIGN_IN_ON_CLICK);
                 if (remember_pwd.isChecked()){

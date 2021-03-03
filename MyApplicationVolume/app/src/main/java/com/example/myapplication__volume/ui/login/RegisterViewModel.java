@@ -29,9 +29,9 @@ public class RegisterViewModel extends ViewModel {
         return registerResult;
     }
 
-    public void register(String email, String username, String nickname, String password) {
+    public void register(String email, String username, String nickname, String password, String inviterCode) {
         // can be launched in a separate asynchronous job
-        Result<LoggedInUser> result = registerRespository.register(email, username, nickname, password);
+        Result<LoggedInUser> result = registerRespository.register(email, username, nickname, password, inviterCode);
 
         Log.d("RegisterViewModel", "register");
 
