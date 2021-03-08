@@ -250,7 +250,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         ServerConnector.setContext(this);
 
         serverConnector.setIp(ip_ALiYun);
-        serverConnector.setPort("26371");
+        serverConnector.setPort("23763");
         serverConnector.initConnection();
 
     }

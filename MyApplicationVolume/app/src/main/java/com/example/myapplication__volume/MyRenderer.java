@@ -2063,7 +2063,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    public void changeMarkerType(float x, float y) throws CloneNotSupportedException {
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void changeMarkerType(float x, float y, boolean isBigData) throws CloneNotSupportedException {
         for (int i = 0; i < markerList.size(); i++){
             ImageMarker tobeDeleted = markerList.get(i);
             float[] markerModel = volumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
@@ -2099,7 +2100,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                }
 
                 ImageMarker temp = markerList.get(i);
+                if (isBigData)
+                    updateDelMarker(temp);
+
                 temp.type = lastMarkerType;
+                if (isBigData)
+                    updateAddMarker(temp);
 
                 saveUndo();
 
@@ -4550,10 +4556,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 int g = currentLine.get(16).intValue();
                 int b = currentLine.get(17).intValue();
 
-                if ((r == 0 && g == 0 && b == 0) || (r == 20 && g == 20 && b == 20)) {
+                if (r == 255 && g == 255 && b == 255){
                     imageMarker_drawed.type = 0;
 
-                }else if (r == 255 && g == 255 && b == 255){
+                }else if ((r == 0 && g == 0 && b == 0) || (r == 20 && g == 20 && b == 20)){
                     imageMarker_drawed.type = 1;
 
                 }else if ((r == 255 && g == 0 && b == 0) || (r == 200 && g == 20 && b == 0)){
@@ -4562,14 +4568,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }else if ((r == 0 && g == 0 && b == 255) || (r == 0 && g == 20 && b == 200)){
                     imageMarker_drawed.type = 3;
 
-                }else if ((r == 0 && g == 255 && b == 0) || (r == 0 && g == 200 && b == 20)){
+                }else if ((r == 255 && g == 0 && b == 255) || (r == 200 && g == 0 && b == 200)){
                     imageMarker_drawed.type = 4;
 
-                }else if ((r == 255 && g == 0 && b == 255) || (r == 200 && g == 0 && b == 200)){
+                }else if ((r == 0 && g == 255 && b == 255) || (r == 0 && g == 200 && b == 200)){
                     imageMarker_drawed.type = 5;
 
-                }else if ((r == 255 && g == 255 && b == 0) || (r == 200 && g == 200 && b == 0)){
+                }else if ((r == 255 && g == 255 && b == 0) || (r == 220 && g == 200 && b == 0)){
                     imageMarker_drawed.type = 6;
+
+                }else if ((r == 0 && g == 255 && b == 0) || (r == 0 && g == 220 && b == 20)){
+                    imageMarker_drawed.type = 7;
 
                 }
 

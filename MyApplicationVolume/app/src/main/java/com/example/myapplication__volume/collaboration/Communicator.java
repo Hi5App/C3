@@ -39,8 +39,8 @@ public class Communicator {
     public static String BrainNum = null;
     public static String Soma = null;
 
-    public static int ImgRes;                          // 1 is highest; max num is lowest
-    public static int CurRes;
+    private int ImgRes;                          // 1 is highest; max num is lowest
+    private int CurRes;
     public static int ImgSize;
 
     public static ArrayList<String> resolution;
@@ -53,8 +53,8 @@ public class Communicator {
     public static  Communicator INSTANCE;
 
     private Communicator(){
-
     }
+
 
 
     /**
@@ -64,6 +64,7 @@ public class Communicator {
     public static void init(Context ctx){
         mContext = ctx;
     }
+
 
 
     /**
@@ -80,11 +81,6 @@ public class Communicator {
         return INSTANCE;
     }
 
-
-    public void processMsg(byte[] msg){
-
-
-    }
 
 
     public ImageMarker MSGToImageMarker(String msg){
@@ -138,8 +134,6 @@ public class Communicator {
 
 
 
-
-
     public List<String> V_NeuronSWCToMSG(V_NeuronSWC seg){
 
         ArrayList<String> result = new ArrayList<>();
@@ -168,7 +162,7 @@ public class Communicator {
             msg = msg + String.join(";", result);
 
             MsgConnector msgConnector = MsgConnector.getInstance();
-            msgConnector.sendMsg(msg);
+            msgConnector.sendMsg(msg, false);
 
     }
 
@@ -184,7 +178,7 @@ public class Communicator {
         msg = msg + String.join(";", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.sendMsg(msg);
+        msgConnector.sendMsg(msg, false);
 
     }
 
@@ -195,7 +189,7 @@ public class Communicator {
         String msg = "/drawline_norm:" + username + " HI5 128 128 128;" + String.join(";", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.sendMsg(msg);
+        msgConnector.sendMsg(msg, false);
 
     }
 
@@ -205,7 +199,7 @@ public class Communicator {
         String msg = "/delline_norm:" + username + " HI5 128 128 128;" + String.join(";", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.sendMsg(msg);
+        msgConnector.sendMsg(msg, false);
 
     }
 
@@ -217,7 +211,7 @@ public class Communicator {
         String msg = "/retypeline_norm:" + username + " HI5 " + type + " 128 128 128;" + String.join(";", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.sendMsg(msg);
+        msgConnector.sendMsg(msg, false);
 
     }
 
@@ -478,7 +472,7 @@ public class Communicator {
         ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + Communicator.CurRes + ";" + Communicator.getCurrentPos() + ";");
+        msgConnector.sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
 
 
     }
@@ -506,7 +500,7 @@ public class Communicator {
         ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + Communicator.CurRes + ";" + Communicator.getCurrentPos() + ";");
+        msgConnector.sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
 
 
     }
@@ -534,14 +528,14 @@ public class Communicator {
         ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + Communicator.CurRes + ";" + Communicator.getCurrentPos() + ";");
+        msgConnector.sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
 
     }
 
 
 
     // msg format:   ImgRes:18454;6;RES(26298x35000x11041);RES(13149x17500x5520);RES(6574x8750x2760);RES(3287x4375x1380);RES(1643x2187x690);RES(821x1093x345)
-    public static void setResolution(String[] resList){
+    public void setResolution(String[] resList){
 
         resolution = new ArrayList<>();
 
@@ -607,4 +601,19 @@ public class Communicator {
         }
     }
 
+    public int getCurRes() {
+        return CurRes;
+    }
+
+    public void setCurRes(int curRes) {
+        CurRes = curRes;
+    }
+
+    public int getImgRes() {
+        return ImgRes;
+    }
+
+    public void setImgRes(int imgRes) {
+        ImgRes = imgRes;
+    }
 }

@@ -39,6 +39,10 @@ public class ServerConnector {
 
     public static MsgReceiver msgReceiver;
 
+    private String roomName = "";
+
+    private int userScore = -1;
+
 
     private ServerConnector(){
         msgSender = new MsgSender(mContext);
@@ -261,10 +265,6 @@ public class ServerConnector {
 
 
 
-
-
-
-
     private void makeConnect(){
 
         Log.e(TAG,"makeConnect()");
@@ -301,10 +301,16 @@ public class ServerConnector {
 
     public void sendMsg(String msg){
 
+        SendMsg(msg, false);
+
+    }
+
+
+    private void SendMsg(String msg, boolean waited){
         makeConnect();
 
         if (checkConnection()){
-            msgSender.SendMsg(manageSocket, msg);
+            msgSender.SendMsg(manageSocket, msg, waited);
         }
     }
 
@@ -364,8 +370,22 @@ public class ServerConnector {
     }
 
 
+    public String getRoomName() {
+        return roomName;
+    }
+
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
+    }
 
 
+    public int getUserScore() {
+        return userScore;
+    }
+
+    public void setUserScore(int userScore) {
+        this.userScore = userScore;
+    }
 
     /**
      * toast info in the thread

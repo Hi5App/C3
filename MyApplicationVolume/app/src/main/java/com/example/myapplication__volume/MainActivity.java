@@ -424,7 +424,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static boolean DrawMode = true;
 
     private enum PenColor {
-        BLACK, WHITE, RED, BLUE, GREEN, PURPLE, YELLOW
+        WHITE, BLACK, RED, BLUE, PURPLE, CYAN, YELLOW, GREEN
     }
 
     private enum VoicePattern {
@@ -490,8 +490,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             myrenderer.zoom(2.2f);
             myGLSurfaceView.requestRender();
 
+            Communicator communicator = Communicator.getInstance();
+
             MsgConnector msgConnector = MsgConnector.getInstance();
-            msgConnector.sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + Communicator.CurRes + ";" + Communicator.getCurrentPos() + ";");
+            msgConnector.sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
 
             isBigData_Remote = true;
             isBigData_Local = false;
@@ -579,12 +581,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         if (msg.startsWith("ImgRes")){
             Log.e(TAG,"msg: " + msg);
-            Communicator.ImgRes = Integer.parseInt(msg.split(";")[1]);
-            Communicator.CurRes = Integer.parseInt(msg.split(";")[1]);
-            Communicator.setResolution(msg.split(";"));
+            Communicator communicator = Communicator.getInstance();
+            communicator.setImgRes(Integer.parseInt(msg.split(";")[1]));
+            communicator.setCurRes(Integer.parseInt(msg.split(";")[1]));
+            communicator.setResolution(msg.split(";"));
 
             MsgConnector msgConnector = MsgConnector.getInstance();
-            msgConnector.sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + Communicator.CurRes + ";" + Communicator.getSoma(Communicator.CurRes) + ";128;");
+            msgConnector.sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + communicator.getCurRes() + ";" + Communicator.getSoma(communicator.getCurRes()) + ";128;");
 
             float[] startPoint = Communicator.getSoma();
             for (int i = 0; i < startPoint.length; i++){
@@ -2015,7 +2018,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         ServerConnector.setContext(this);
 
         serverConnector.setIp(ip_ALiYun);
-        serverConnector.setPort("26371");
+        serverConnector.setPort("23763");
         serverConnector.initConnection();
 //        serverConnector.sendMsg("hello world !");
 
@@ -2096,6 +2099,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
 
         new XPopup.Builder(this)
+                .maxHeight(1350)
+                .maxWidth(800)
                 .asCenterList("BigData File",list_show,
                         new OnSelectListener() {
                             @RequiresApi(api = Build.VERSION_CODES.N)
@@ -2134,7 +2139,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
 
         new XPopup.Builder(this)
-                .asCenterList("BigData File",modeList,
+                .asCenterList("Select Mode",modeList,
                         new OnSelectListener() {
                             @RequiresApi(api = Build.VERSION_CODES.N)
                             @Override
@@ -2152,6 +2157,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         // 2
                                         ServerConnector serverConnector = ServerConnector.getInstance();
                                         serverConnector.sendMsg("LOADFILES:2 " + oldname);
+
+                                        String[] list = oldname.split("/");
+                                        serverConnector.setRoomName(list[list.length - 1]);
                                         break;
                                     default:
                                         Log.e(TAG,"Something Wrong with SelectMode");
@@ -2191,9 +2199,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         switch (mode){
                             case "0":
                                 serverConnector.sendMsg("LOADFILES:0 " + oldname + " " + conPath + "/" + text);
+                                serverConnector.setRoomName(text);
+                                copyFile = true;
                                 break;
                             case "1":
                                 serverConnector.sendMsg("LOADFILES:1 " + oldname + " " + conPath + "/" + text);
+                                serverConnector.setRoomName(text);
                                 copyFile = true;
                                 break;
                         }
@@ -2214,9 +2225,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         firstLogin = true;
 
         ServerConnector serverConnector = ServerConnector.getInstance();
-        MsgConnector msgConnector = MsgConnector.getInstance();
-//        serverConnector.sendMsg("hello world !");
-
         serverConnector.sendMsg("GETFILELIST:" + "/");
 //        serverConnector.sendMsg("GETFILELIST:" + "/18454/18454_00067");
 //        serverConnector.sendMsg("LOADFILES:0 /17301/17301_00019/17301_00019_x20874.000_y23540.000_z7388.000.ano /17301/17301_00019/test_01_fx_lh_test.ano");
@@ -2244,7 +2252,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void showRoomID(){
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        new XPopup.Builder(this).asConfirm("Collaboration Room", "Room ID: " + msgConnector.getPort(),
+        ServerConnector serverConnector = ServerConnector.getInstance();
+        new XPopup.Builder(this).asConfirm("Collaboration Room", "Room name: " + serverConnector.getRoomName() + "\n\n"
+                        + "Room ID: " + msgConnector.getPort(),
                 new OnConfirmListener() {
                     @Override
                     public void onConfirm() {
@@ -7860,7 +7870,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             //Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
                             Toast.makeText(getContext(), "pencolor set~", Toast.LENGTH_SHORT).show();
 
-
                         }else{
 
                             Toast.makeText(getContext(), "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
@@ -7879,6 +7888,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .create()
                 .show();
     }
+
 
     public void markerPenSet(){
 
@@ -8184,7 +8194,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         requestRender();
                                     }
                                     if (ifChangeMarkerType) {
-                                        myrenderer.changeMarkerType(normalizedX, normalizedY);
+                                        myrenderer.changeMarkerType(normalizedX, normalizedY, isBigData_Remote);
                                         requestRender();
                                     }
                                     if (ifPainting) {
@@ -8222,7 +8232,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                                 @Override
                                                 public String call() throws Exception {
                                                     int lineType = myrenderer.getLastLineType();
-                                                    if (lineType != 2) {
+
+//                                                    if (lineType != 2) {
 //                                            int segid = myrenderer.addLineDrawed(lineDrawed);
 //                                    segids.add(segid);
 //                            requestRender();
@@ -8241,11 +8252,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //                                                        Toast.makeText(getContext(), "Please make sure the curve is inside the bounding box", Toast.LENGTH_LONG);
 //                                                    }
 //                                            myrenderer.deleteFromNew(segid);
-                                                    } else {
-                                                        myrenderer.addBackgroundLineDrawed(lineDrawed);
-                                                    }
+
+
+//                                                    } else {
+//                                                        myrenderer.addBackgroundLineDrawed(lineDrawed);
+//                                                    }
                                                     requestRender();
                                                     return "succeed";
+
+
                                                 }
                                             };
                                             ExecutorService exeService = Executors.newSingleThreadExecutor();

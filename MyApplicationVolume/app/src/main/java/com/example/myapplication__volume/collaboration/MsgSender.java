@@ -24,7 +24,7 @@ public class MsgSender {
         this.mContext = context;
     }
 
-    public void SendMsg(Socket socket, String message){
+    public void SendMsg(Socket socket, String message, boolean waited){
 
         if (!socket.isConnected()){
             Toast_in_Thread("Fail to Send_Message, Try Again Please !");
@@ -76,7 +76,8 @@ public class MsgSender {
         thread.start();
 
         try {
-            thread.join();
+            if (waited)
+                thread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

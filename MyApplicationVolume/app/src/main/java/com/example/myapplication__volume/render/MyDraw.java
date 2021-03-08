@@ -13,14 +13,26 @@ import java.util.Arrays;
 
 public class MyDraw {
 
+//    public final static float[][] colormap = {
+//            {0f,0f,0f},
+//            {1f,1f,1f},
+//            {1f,0f,0f},
+//            {0f,0f,1f},
+//            {0f,1f,0f},
+//            {1f,0f,1f},
+//            {1f,1f,0f}
+//    } ;
+
+
     public final static float[][] colormap = {
-            {0f,0f,0f},
-            {1f,1f,1f},
-            {1f,0f,0f},
-            {0f,0f,1f},
-            {0f,1f,0f},
-            {1f,0f,1f},
-            {1f,1f,0f}
+            {1f,1f,1f},                        //white
+            {0.07843f,0.07843f,0.07843f},      //black
+            {0.7843f,0.07843f,0f},             //red
+            {0f,0.07843f,0.7843f},             //blue
+            {0.7843f,0f,0.7843f},              //purple
+            {0f,0.7843f,0.7843f},              //cyan
+            {0.8627f,0.7843f,0f},              //yellow
+            {0f,0.7843f,0.07843f}              //green
     } ;
 
     private final float [] modelVertex = {
@@ -345,7 +357,7 @@ public class MyDraw {
 
         colorPoints_model = new float[drawList_model.length * 3];//colormap[type];
         for(int i=0; i<colorPoints_model.length; i++){
-            colorPoints_model[i] = colormap[type%7][i%3];
+            colorPoints_model[i] = colormap[type%8][i%3];
         }
         colorBuffer_model = ByteBuffer.allocateDirect(colorPoints_model.length*4)
                 .order(ByteOrder.nativeOrder())
@@ -356,7 +368,7 @@ public class MyDraw {
 
         colorPoints_skeleton = new float[drawList_skeleton.length * 3];//colormap[type];
         for(int i=0; i<colorPoints_skeleton.length; i++){
-            colorPoints_skeleton[i] = colormap[1][i%3];
+            colorPoints_skeleton[i] = colormap[0][i%3];
         }
         colorBuffer_skeleton = ByteBuffer.allocateDirect(colorPoints_skeleton.length*4)
                 .order(ByteOrder.nativeOrder())
@@ -400,7 +412,7 @@ public class MyDraw {
 
         colorPoints_marker = new float[vertexPoints_marker.length];//colormap[type];
         for(int i=0; i<colorPoints_marker.length; i++){
-            colorPoints_marker[i] = colormap[type % 7][i % 3];
+            colorPoints_marker[i] = colormap[type % 8][i % 3];
         }
         colorBuffer_marker = ByteBuffer.allocateDirect(colorPoints_marker.length*4)
                 .order(ByteOrder.nativeOrder())
@@ -456,7 +468,7 @@ public class MyDraw {
 
         colorPoints_marker = new float[line.length];
         for(int i=0; i<colorPoints_marker.length; i++){
-            colorPoints_marker[i] = colormap[type%7][i%3];
+            colorPoints_marker[i] = colormap[type%8][i%3];
 //            System.out.println(colorPoints_marker[i]);
         }
         colorBuffer_line = ByteBuffer.allocateDirect(colorPoints_marker.length* 4)
@@ -464,7 +476,6 @@ public class MyDraw {
                 .asFloatBuffer();
         colorBuffer_line.put(colorPoints_marker);
         colorBuffer_line.position(0);
-
 
     }
 

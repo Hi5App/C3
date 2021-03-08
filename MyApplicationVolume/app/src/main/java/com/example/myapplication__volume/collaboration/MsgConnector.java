@@ -296,13 +296,19 @@ public class MsgConnector {
     }
 
 
-
     public void sendMsg(String msg){
+
+        sendMsg(msg, false);
+
+    }
+
+
+    public void sendMsg(String msg, boolean waited){
 
         makeConnect();
 
         if (checkConnection()){
-            msgSender.SendMsg(manageSocket, msg);
+            msgSender.SendMsg(manageSocket, msg, waited);
         }
     }
 
