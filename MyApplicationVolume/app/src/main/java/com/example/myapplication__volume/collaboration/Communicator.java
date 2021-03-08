@@ -1,6 +1,5 @@
 package com.example.myapplication__volume.collaboration;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
@@ -10,7 +9,6 @@ import androidx.annotation.RequiresApi;
 import com.example.basic.ImageMarker;
 import com.example.basic.NeuronTree;
 import com.example.basic.XYZ;
-import com.example.chat.chatlist.LetterView;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
 
@@ -179,6 +177,37 @@ public class Communicator {
 
         MsgConnector msgConnector = MsgConnector.getInstance();
         msgConnector.sendMsg(msg, false);
+
+    }
+
+
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void updateRetypeMarkerMsg(ImageMarker origin_marker, ImageMarker current_marker)
+    {
+        MsgConnector msgConnector = MsgConnector.getInstance();
+
+        /*
+        del marker
+         */
+        List<String> result_origin = new ArrayList<>();
+        XYZ GlobalCroods_origin = ConvertLocalBlocktoGlobalCroods(origin_marker.x,origin_marker.y,origin_marker.z);
+        result_origin.add(String.format("%d %f %f %f", (int) origin_marker.type, GlobalCroods_origin.x, GlobalCroods_origin.y, GlobalCroods_origin.z));
+
+        String msg_origin = "/delmarker_norm:" + String.format("%s %s %s %s %s;", username, "HI5", "128", "128", "128");
+        msg_origin = msg_origin + String.join(";", result_origin);
+        msgConnector.sendMsg(msg_origin, true);
+
+        /*
+        add marker
+         */
+        List<String> result_current = new ArrayList<>();
+        XYZ GlobalCroods_current = ConvertLocalBlocktoGlobalCroods(current_marker.x,current_marker.y,current_marker.z);
+        result_current.add(String.format("%d %f %f %f", (int) current_marker.type, GlobalCroods_current.x, GlobalCroods_current.y, GlobalCroods_current.z));
+
+        String msg_current = "/addmarker_norm:" + String.format("%s %s %s %s %s;", username, "HI5", "128", "128", "128");
+        msg_current = msg_current + String.join(";", result_current);
+        msgConnector.sendMsg(msg_current, true);
 
     }
 

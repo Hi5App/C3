@@ -71,7 +71,7 @@ public class ServerConnector {
      */
     public void initConnection(){
 
-        Log.i(TAG,"Start to Connect Server !");
+        Log.d(TAG,"Start to Connect Server !");
 
         /*
         如果已经和服务器建立连接了，就return

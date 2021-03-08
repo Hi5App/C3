@@ -121,10 +121,10 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         // for test
-//        usernameEditText.setText("xf");
-//        nicknameEditText.setText("xingfei");
-//        passwordEditText.setText("123456");
-//        emailEditText.setText("761496766@qq.com");
+        usernameEditText.setText("x");
+        nicknameEditText.setText("xingfei");
+        passwordEditText.setText("123456");
+        emailEditText.setText("761496766@qq.com");
 
         registerViewModel.getRegisterFormState().observe(this, new Observer<RegisterFormState>() {
             @Override

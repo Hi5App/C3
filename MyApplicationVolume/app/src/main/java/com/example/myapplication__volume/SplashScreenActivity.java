@@ -165,7 +165,7 @@ public class SplashScreenActivity extends AppCompatActivity {
             if (!firstEnter && intent == null) {
                 finish();
             } else {
-//                autoLogin();
+                autoLogin();
                 showMainActivity();
             }
         }
@@ -179,7 +179,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         String account = preferenceLogin.getUsername();
         String token = preferenceLogin.getPassword();
 
-        Log.i(TAG, "get local sdk token =" + token);
+//        Log.i(TAG, "get local sdk token =" + token);
         return !TextUtils.isEmpty(account) && !TextUtils.isEmpty(token);
     }
 

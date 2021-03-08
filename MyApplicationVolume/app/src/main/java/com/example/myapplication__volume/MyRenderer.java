@@ -2100,12 +2100,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                }
 
                 ImageMarker temp = markerList.get(i);
-                if (isBigData)
-                    updateDelMarker(temp);
-
+                ImageMarker temp_backup = (ImageMarker) markerList.get(i).clone();
                 temp.type = lastMarkerType;
+
                 if (isBigData)
-                    updateAddMarker(temp);
+                    updateRetypeMarker(temp_backup, temp);
 
                 saveUndo();
 
@@ -5879,6 +5878,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         Communicator communicator = Communicator.getInstance();
         communicator.updateDelMarkerMsg(marker);
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void updateRetypeMarker(ImageMarker origin_marker, ImageMarker current_marker){
+
+        Communicator communicator = Communicator.getInstance();
+        communicator.updateRetypeMarkerMsg(origin_marker, current_marker);
 
     }
 

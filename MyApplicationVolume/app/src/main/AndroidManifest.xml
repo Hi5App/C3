@@ -61,9 +61,17 @@
          APP key, 可以在这里设置，也可以在 SDKOptions 中提供。
            如果 SDKOptions 中提供了，则取 SDKOptions 中的值。
         -->
+<!--        <meta-data-->
+<!--            android:name="com.netease.nim.appKey"-->
+<!--            android:value="0fda06baee636802cb441b62e6f65549" /> &lt;!&ndash; <activity &ndash;&gt;-->
+
+
+<!--        Hi 5 Test-->
         <meta-data
             android:name="com.netease.nim.appKey"
-            android:value="0fda06baee636802cb441b62e6f65549" /> <!-- <activity -->
+            android:value="f7ded615794f989e8d8850c931b1d77a" /> <!-- <activity -->
+
+
         <!-- android:name="com.example.myapplication__volume.WelcomeActivity" -->
         <!-- android:label="@string/app_name"> -->
         <!-- <intent-filter> -->

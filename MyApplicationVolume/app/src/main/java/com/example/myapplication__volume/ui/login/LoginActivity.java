@@ -30,7 +30,6 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.example.datastore.PreferenceLogin;
 import com.example.myapplication__volume.MainActivity;
-import com.example.myapplication__volume.MusicServer;
 import com.example.myapplication__volume.Nim.DemoCache;
 import com.example.myapplication__volume.R;
 import com.example.myapplication__volume.collaboration.ServerConnector;
@@ -46,7 +45,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 
 import static com.example.myapplication__volume.BaseActivity.ip_ALiYun;
 
@@ -200,7 +198,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
 
-//                    loginNim(loginResult.getSuccess().getDisplayName(), passwordEditText.getText().toString(), loginResult);
+                    loginNim(loginResult.getSuccess().getDisplayName(), passwordEditText.getText().toString(), loginResult);
 
                     // 进入主界面
                     MainActivity.actionStart(LoginActivity.this, loginResult.getSuccess().getDisplayName());
@@ -351,7 +349,7 @@ public class LoginActivity extends AppCompatActivity {
         ServerConnector.setContext(this);
 
         serverConnector.setIp(ip_ALiYun);
-        serverConnector.setPort("26371");
+        serverConnector.setPort("23763");
         serverConnector.initConnection();
 //        serverConnector.sendMsg("hello world !");
 
