@@ -213,7 +213,7 @@ public class ManageService extends Service {
 
                         //打开文件，如果没有，则新建文件
 //                        File file = new File(dataType.filepath + "/" + dataType.filename);
-                        File file = new File(dataType.filepath + "/" + "1.v3draw");
+                        File file = new File(dataType.filepath + "/" + dataType.filename);
                         if(!file.exists()){
                             if (file.createNewFile()){
                                 Log.e("Get_File", "Create file Successfully !");
@@ -303,7 +303,10 @@ public class ManageService extends Service {
                         dataType.isFile = true;
                         dataType.filename = paras_list[1];
                         dataType.dataSize = Long.parseLong(paras_list[2]);
-                        dataType.filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Draw/Sync/BlockGet";
+                        if (dataType.filename.endsWith(".mp3") || dataType.filename.endsWith(".wmv"))
+                            dataType.filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Resources/Music";
+                        else
+                            dataType.filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Resources";
 
                         Log.e(TAG,"This is a file !");
                         /*

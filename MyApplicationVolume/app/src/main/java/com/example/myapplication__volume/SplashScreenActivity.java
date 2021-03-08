@@ -1,8 +1,12 @@
 package com.example.myapplication__volume;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -15,7 +19,9 @@ import com.example.datastore.PreferenceLogin;
 import com.example.myapplication__volume.Nim.DemoCache;
 import com.example.myapplication__volume.Nim.mixpush.DemoMixPushMessageHandler;
 import com.example.myapplication__volume.Nim.util.sys.SysInfoUtil;
+import com.example.myapplication__volume.collaboration.ManageService;
 import com.example.myapplication__volume.collaboration.ServerConnector;
+import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
 import com.example.myapplication__volume.ui.login.LoginActivity;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.common.util.log.LogUtil;
@@ -24,18 +30,47 @@ import com.netease.nimlib.sdk.msg.MessageBuilder;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
 
 import static com.example.myapplication__volume.BaseActivity.ip_ALiYun;
 
-public class SplashScreenActivity extends AppCompatActivity {
+public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private static final String TAG = "SplashScreenActivity";
 
     private boolean customSplash = false;
 
     private static boolean firstEnter = true; // 是否首次进入
+
+    private ManageService manageService;
+
+    private boolean mBound;
+
+    private static Context splashContext;
+
+    private int musicTotalNum = 0;
+    private int musicAlreadyNum = 0;
+
+    /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection connection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            ManageService.LocalBinder binder = (ManageService.LocalBinder) service;
+            manageService = (ManageService) binder.getService();
+            binder.addReceiveMsgInterface((SplashScreenActivity) getActivityFromContext(splashContext));
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
+
 
 
     @Override
@@ -46,6 +81,8 @@ public class SplashScreenActivity extends AppCompatActivity {
         Log.e(TAG, " Before DemoCache.setMainTaskLaunching(true) ");
 
         DemoCache.setMainTaskLaunching(true);
+
+        splashContext = this;
 
         Log.e(TAG, " After DemoCache.setMainTaskLaunching(true) ");
 
@@ -62,11 +99,20 @@ public class SplashScreenActivity extends AppCompatActivity {
             showSplashView(); // APP进程重新起来
         }
 
+        initServerConnector();
+
+        initService();
+
         Log.e(TAG, " After if (!firstEnter) { ");
 
     }
 
 
+    private void initService(){
+        // Bind to LocalService
+        Intent intent = new Intent(this, ManageService.class);
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+    }
 
 
     private void showSplashView() {
@@ -96,29 +142,40 @@ public class SplashScreenActivity extends AppCompatActivity {
 
         if (firstEnter) {
             firstEnter = false;
-            Runnable runnable = new Runnable() {
-                @Override
-                public void run() {
-                    if (!NimUIKit.isInitComplete()) {
-                        LogUtil.i(TAG, "wait for uikit cache!");
-                        new Handler().postDelayed(this, 100);
-                        return;
-                    }
-
-                    customSplash = false;
-                    if (canAutoLogin()) {
-                        onIntent();
-                    } else {
-                        LoginActivity.start(SplashScreenActivity.this);
-                        finish();
-                    }
-                }
-            };
-            if (customSplash) {
-                new Handler().postDelayed(runnable, 1000);
+            File musicDir = new File(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music");
+            if (!musicDir.exists() || musicDir.listFiles().length == 0){
+                ServerConnector serverConnector = ServerConnector.getInstance();
+                Log.d(TAG, "onResume");
+                Toast_in_Thread("");
+//                serverConnector.sendMsg("MUSICLIST");
+                serverConnector.sendMsg("GETMUSIC:CoyKoi.mp3");
             } else {
-                runnable.run();
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!NimUIKit.isInitComplete()) {
+                            LogUtil.i(TAG, "wait for uikit cache!");
+                            new Handler().postDelayed(this, 100);
+                            return;
+                        }
+
+                        customSplash = false;
+                        if (canAutoLogin()) {
+                            onIntent();
+                        } else {
+                            LoginActivity.start(SplashScreenActivity.this);
+                            finish();
+                        }
+                    }
+                };
+                if (customSplash) {
+                    new Handler().postDelayed(runnable, 1000);
+                } else {
+                    runnable.run();
+                }
             }
+
+
         }
     }
 
@@ -234,11 +291,13 @@ public class SplashScreenActivity extends AppCompatActivity {
     private void autoLogin(){
         PreferenceLogin preferenceLogin = new PreferenceLogin(this);
 
-        initServerConnector();
+//        initServerConnector();
         ServerConnector serverConnector = ServerConnector.getInstance();
         serverConnector.sendMsg(String.format("LOGIN:%s %s", preferenceLogin.getUsername(), preferenceLogin.getPassword()));
-        String result = serverConnector.ReceiveMsg();
-        Log.e(TAG,"msg: " + result);
+        Log.d(TAG, "auotoLogin: MUSICLIST");
+//        serverConnector.sendMsg("MUSICLIST");
+//        String result = serverConnector.ReceiveMsg();
+//        Log.e(TAG,"msg: " + result);
 
 
     }
@@ -255,4 +314,87 @@ public class SplashScreenActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onRecMessage(String msg) {
+        Log.d(TAG, "onRecMessage: " + msg);
+        Toast_in_Thread(msg);
+
+        if (msg.startsWith("MUSICLIST:")){
+            String [] list = msg.split(":")[1].split(";");
+            if (list.length > 0){
+//                musicTotalNum = list.length;
+                musicTotalNum = 1;
+                musicAlreadyNum = 0;
+                ServerConnector serverConnector = ServerConnector.getInstance();
+                ServerConnector.setContext(this);
+//                serverConnector.sendMsg("GETMUSIC:CoyKoi.mp3");
+//                for (int i = 2; i < list.length; i++){
+//                    if (list[i] != "." && list[i] != ".."){
+//                        serverConnector.sendMsg("GETMUSIC:" + list[i]);
+//                    }
+//                }
+            }
+
+        }
+
+        if (msg.startsWith("File:")){
+            musicAlreadyNum += 1;
+//            if (musicAlreadyNum >= musicTotalNum){
+                Log.e(TAG, "Download finished");
+                Toast_in_Thread("Download finished");
+
+//                LoginActivity.start(SplashScreenActivity.this);
+
+//                Runnable runnable = new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        LoginActivity.start(SplashScreenActivity.this);
+//                    }
+//                };
+//                runnable.run();
+
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast_in_Thread("runnable.run()1");
+                        if (!NimUIKit.isInitComplete()) {
+                            Toast_in_Thread("runnable.run()2");
+                            LogUtil.i(TAG, "wait for uikit cache!");
+                            new Handler().postDelayed(this, 100);
+                            return;
+                        }
+                        Toast_in_Thread("runnable.run()3");
+
+                        customSplash = false;
+                        if (canAutoLogin()) {
+                            Toast_in_Thread("runnable.run()4");
+
+                            onIntent();
+                        } else {
+                            Toast_in_Thread("runnable.run()5");
+
+                            LoginActivity.start(SplashScreenActivity.this);
+                            finish();
+                        }
+                    }
+                };
+                if (customSplash) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                runnable.run();
+//                if (customSplash) {
+//                    Toast_in_Thread("runnable.run()6");
+//
+//                    new Handler().postDelayed(runnable, 1000);
+//                } else {
+//                    runnable.run();
+//                }
+
+//            }
+        }
+    }
 }

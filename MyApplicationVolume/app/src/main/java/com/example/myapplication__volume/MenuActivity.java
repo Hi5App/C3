@@ -4,8 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.View;
 
-public class MenuActivity extends AppCompatActivity {
+import com.example.myapplication__volume.collaboration.MsgConnector;
+import com.example.myapplication__volume.collaboration.ServerConnector;
+import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
+
+public class MenuActivity extends BaseActivity implements ReceiveMsgInterface {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,4 +29,19 @@ public class MenuActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.basic_menu, menu);
         return true;
     }
+
+    @Override
+    public void onRecMessage(String msg) {
+
+    }
+
+    public void singlePlayer(View view) {
+        ServerConnector serverConnector = ServerConnector.getInstance();
+        MsgConnector msgConnector = MsgConnector.getInstance();
+//        serverConnector.sendMsg("hello world !");
+
+        serverConnector.sendMsg("GETFILELIST:" + "/");
+    }
+
+
 }
