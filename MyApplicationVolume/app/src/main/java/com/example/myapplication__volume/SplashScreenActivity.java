@@ -56,6 +56,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
     /** Defines callbacks for service binding, passed to bindService() */
     private ServiceConnection connection = new ServiceConnection() {
 
+
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
@@ -146,7 +147,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
             if (!musicDir.exists() || musicDir.listFiles().length == 0){
                 ServerConnector serverConnector = ServerConnector.getInstance();
                 Log.d(TAG, "onResume");
-                Toast_in_Thread("");
+//                Toast_in_Thread("");
 //                serverConnector.sendMsg("MUSICLIST");
                 serverConnector.sendMsg("GETMUSIC:CoyKoi.mp3");
             } else {
@@ -317,7 +318,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
     @Override
     public void onRecMessage(String msg) {
         Log.d(TAG, "onRecMessage: " + msg);
-        Toast_in_Thread(msg);
+//        Toast_in_Thread(msg);
 
         if (msg.startsWith("MUSICLIST:")){
             String [] list = msg.split(":")[1].split(";");
@@ -356,22 +357,22 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
                 Runnable runnable = new Runnable() {
                     @Override
                     public void run() {
-                        Toast_in_Thread("runnable.run()1");
+//                        Toast_in_Thread("runnable.run()1");
                         if (!NimUIKit.isInitComplete()) {
-                            Toast_in_Thread("runnable.run()2");
+//                            Toast_in_Thread("runnable.run()2");
                             LogUtil.i(TAG, "wait for uikit cache!");
                             new Handler().postDelayed(this, 100);
                             return;
                         }
-                        Toast_in_Thread("runnable.run()3");
+//                        Toast_in_Thread("runnable.run()3");
 
                         customSplash = false;
                         if (canAutoLogin()) {
-                            Toast_in_Thread("runnable.run()4");
+//                            Toast_in_Thread("runnable.run()4");
 
                             onIntent();
                         } else {
-                            Toast_in_Thread("runnable.run()5");
+//                            Toast_in_Thread("runnable.run()5");
 
                             LoginActivity.start(SplashScreenActivity.this);
                             finish();

@@ -86,6 +86,11 @@ public class ManageService extends Service {
     }
     @Override
     public void onDestroy() {
+        Log.d(TAG, "onDestroy");
+        super.onDestroy();
+        if (mReadThread != null)
+            mReadThread.interrupt();
+
         // The service is no longer used and is being destroyed
     }
 
@@ -120,7 +125,7 @@ public class ManageService extends Service {
                     bufferedReader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
                     String header = "";
 
-                    while(true) {
+                    while(!isInterrupted()) {
                         try {
                             synchronized (this) {
 
