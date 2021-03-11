@@ -116,8 +116,8 @@ public class ChatActivity extends AppCompatActivity {
                         } else if (mTargetName.equals(mChatManager.getUsername())) {
                             Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
                         } else {
-                            String result = mChatManager.addFriends(mTargetName);
-                            if (result.equals("true")){
+//                            String result = mChatManager.addFriends(mTargetName);
+//                            if (result.equals("true")){
 
                                 final VerifyType verifyType = VerifyType.VERIFY_REQUEST; // 发起好友验证请求
                                 String msg = "好友请求附言";
@@ -145,9 +145,9 @@ public class ChatActivity extends AppCompatActivity {
 ////                                contactsFragment.refresh();
 //                                Toast_in_Thread("Add Friends " + mTargetName + " Successfully !");
 
-                            }else {
-                                Toast_in_Thread(result);
-                            }
+//                            }else {
+//                                Toast_in_Thread(result);
+//                            }
                         }
                     }
                 })

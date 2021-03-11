@@ -30,7 +30,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.example.datastore.PreferenceLogin;
 import com.example.myapplication__volume.MainActivity;
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.R;
 import com.example.myapplication__volume.collaboration.ServerConnector;
 import com.netease.nim.uikit.api.NimUIKit;
@@ -297,7 +297,8 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(LoginInfo param) {
                         LogUtil.i(TAG, "login success");
-                        DemoCache.setAccount(account);
+                        InfoCache.setAccount(account);
+                        InfoCache.setToken(password);
                         NimUIKit.loginSuccess(account);
 
                         // 进入主界面

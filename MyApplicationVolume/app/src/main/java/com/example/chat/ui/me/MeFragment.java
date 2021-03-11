@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.contact.activity.UserProfileSettingActivity;
 import com.example.myapplication__volume.Nim.main.activity.SettingsActivity;
 import com.example.myapplication__volume.R;
@@ -47,7 +47,7 @@ public class MeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.me_fragment, container, false);
-        account = DemoCache.getAccount();
+        account = InfoCache.getAccount();
         findViews(rootView);
 
         return rootView;
@@ -121,7 +121,7 @@ public class MeFragment extends Fragment {
     private void updateUserInfoView() {
         accountText.setText("帐号：" + account);
         headImageView.loadBuddyAvatar(account);
-        if (TextUtils.equals(account, DemoCache.getAccount())) {
+        if (TextUtils.equals(account, InfoCache.getAccount())) {
             nickText.setText(UserInfoHelper.getUserName(account));
         }
         final NimUserInfo userInfo = (NimUserInfo) NimUIKit.getUserInfoProvider().getUserInfo(account);

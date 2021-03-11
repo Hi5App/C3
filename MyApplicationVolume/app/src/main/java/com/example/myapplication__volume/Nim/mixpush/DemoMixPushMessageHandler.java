@@ -6,7 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nimlib.sdk.NimIntent;
 import com.netease.nimlib.sdk.StatusBarNotificationConfig;
@@ -58,7 +58,7 @@ public class DemoMixPushMessageHandler implements MixPushMessageHandler {
 
     private ComponentName initLaunchComponent(Context context) {
         ComponentName launchComponent;
-        StatusBarNotificationConfig config = DemoCache.getNotificationConfig();
+        StatusBarNotificationConfig config = InfoCache.getNotificationConfig();
         Class<? extends Activity> entrance = config.notificationEntrance;
         if (entrance == null) {
             launchComponent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName()).getComponent();
@@ -71,7 +71,7 @@ public class DemoMixPushMessageHandler implements MixPushMessageHandler {
     // 将音视频通知 Notification 缓存，清除所有通知后再次弹出 Notification，避免清除之后找不到打开正在进行音视频通话界面的入口
     @Override
     public boolean cleanMixPushNotifications(int pushType) {
-        Context context = DemoCache.getContext();
+        Context context = InfoCache.getContext();
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (manager != null) {
             manager.cancelAll();

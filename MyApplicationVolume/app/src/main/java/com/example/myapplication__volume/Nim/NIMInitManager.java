@@ -63,9 +63,9 @@ public class NIMInitManager {
         if (register) {
             updateLocale();
             IntentFilter filter = new IntentFilter(Intent.ACTION_LOCALE_CHANGED);
-            DemoCache.getContext().registerReceiver(localeReceiver, filter);
+            InfoCache.getContext().registerReceiver(localeReceiver, filter);
         } else {
-            DemoCache.getContext().unregisterReceiver(localeReceiver);
+            InfoCache.getContext().unregisterReceiver(localeReceiver);
         }
     }
 
@@ -79,7 +79,7 @@ public class NIMInitManager {
     };
 
     private void updateLocale() {
-        Context context = DemoCache.getContext();
+        Context context = InfoCache.getContext();
         NimStrings strings = new NimStrings();
         strings.status_bar_multi_messages_incoming = context.getString(R.string.nim_status_bar_multi_messages_incoming);
         strings.status_bar_image_message = context.getString(R.string.nim_status_bar_image_message);
@@ -124,7 +124,7 @@ public class NIMInitManager {
      */
     private void registerBroadcastMessages(boolean register) {
         NIMClient.getService(MsgServiceObserve.class).observeBroadcastMessage(
-                (Observer<BroadcastMessage>) broadcastMessage -> ToastHelper.showToast(DemoCache.getContext(), "收到全员广播 ：" + broadcastMessage.getContent()), register);
+                (Observer<BroadcastMessage>) broadcastMessage -> ToastHelper.showToast(InfoCache.getContext(), "收到全员广播 ：" + broadcastMessage.getContent()), register);
     }
 
 }

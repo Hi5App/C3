@@ -1,7 +1,7 @@
 package com.example.myapplication__volume.Nim.contact.helper;
 
 
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.R;
 import com.netease.nim.uikit.common.ToastHelper;
 import com.netease.nim.uikit.common.util.log.LogUtil;
@@ -38,7 +38,7 @@ public class UserUpdateHelper {
                     LogUtil.i(TAG, "update userInfo success, update fields count=" + fields.size());
                 } else {
                     if (exception != null) {
-                        ToastHelper.showToast(DemoCache.getContext(), R.string.user_info_update_failed);
+                        ToastHelper.showToast(InfoCache.getContext(), R.string.user_info_update_failed);
                         LogUtil.i(TAG, "update userInfo failed, exception=" + exception.getMessage());
                     }
                 }

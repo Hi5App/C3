@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.main.model.SettingTemplate;
 import com.example.myapplication__volume.Nim.main.model.SettingType;
 import com.example.myapplication__volume.R;
@@ -179,11 +179,11 @@ public class SettingsAdapter extends BaseAdapter {
         }
         viewHolder.headImageView.setVisibility(View.VISIBLE);
         viewHolder.headTitleView.setVisibility(View.VISIBLE);
-        viewHolder.headTitleView.setText(UserInfoHelper.getUserDisplayName(DemoCache.getAccount()));
+        viewHolder.headTitleView.setText(UserInfoHelper.getUserDisplayName(InfoCache.getAccount()));
         viewHolder.headDetailView.setVisibility(View.VISIBLE);
-        viewHolder.headDetailView.setText(String.format("帐号:%s", DemoCache.getAccount()));
+        viewHolder.headDetailView.setText(String.format("帐号:%s", InfoCache.getAccount()));
         viewHolder.titleView.setVisibility(View.GONE);
-        viewHolder.headImageView.loadBuddyAvatar(DemoCache.getAccount());
+        viewHolder.headImageView.loadBuddyAvatar(InfoCache.getAccount());
         viewHolder.indicator.setImageResource(R.drawable.nim_arrow_right);
         viewHolder.indicator.setVisibility(View.VISIBLE);
     }

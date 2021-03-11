@@ -2,7 +2,7 @@ package com.example.myapplication__volume.Nim.event;
 
 import android.text.TextUtils;
 
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.netease.nim.uikit.api.model.main.OnlineStateContentProvider;
 
 /**
@@ -26,7 +26,7 @@ public class DemoOnlineStateContentProvider implements OnlineStateContentProvide
     }
 
     private String getDisplayContent(String account, boolean simple) {
-        if (account == null || account.equals(DemoCache.getAccount())) {
+        if (account == null || account.equals(InfoCache.getAccount())) {
             return "";
         }
 
@@ -39,6 +39,6 @@ public class DemoOnlineStateContentProvider implements OnlineStateContentProvide
         OnlineStateEventManager.checkSubscribe(account);
 
         OnlineState onlineState = OnlineStateEventCache.getOnlineState(account);
-        return OnlineStateEventManager.getOnlineClientContent(DemoCache.getContext(), onlineState, simple);
+        return OnlineStateEventManager.getOnlineClientContent(InfoCache.getContext(), onlineState, simple);
     }
 }

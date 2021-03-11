@@ -12,11 +12,10 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.alibaba.fastjson.JSON;
 import com.example.datastore.PreferenceLogin;
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.mixpush.DemoMixPushMessageHandler;
 import com.example.myapplication__volume.Nim.util.sys.SysInfoUtil;
 import com.example.myapplication__volume.collaboration.ManageService;
@@ -33,8 +32,6 @@ import com.netease.nimlib.sdk.msg.model.IMMessage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
-
-import static com.example.myapplication__volume.BaseActivity.ip_ALiYun;
 
 public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInterface {
 
@@ -81,7 +78,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 
         Log.e(TAG, " Before DemoCache.setMainTaskLaunching(true) ");
 
-        DemoCache.setMainTaskLaunching(true);
+        InfoCache.setMainTaskLaunching(true);
 
         splashContext = this;
 
@@ -189,7 +186,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        DemoCache.setMainTaskLaunching(false);
+        InfoCache.setMainTaskLaunching(false);
     }
 
     @Override
@@ -202,7 +199,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
     private void onIntent() {
         LogUtil.i(TAG, "onIntent...");
 
-        if (TextUtils.isEmpty(DemoCache.getAccount())) {
+        if (TextUtils.isEmpty(InfoCache.getAccount())) {
             // 判断当前app是否正在运行
             if (!SysInfoUtil.stackResumed(this)) {
                 LoginActivity.start(this);
@@ -223,7 +220,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
             if (!firstEnter && intent == null) {
                 finish();
             } else {
-                autoLogin();
+//                autoLogin();
                 showMainActivity();
             }
         }
@@ -294,7 +291,9 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 
 //        initServerConnector();
         ServerConnector serverConnector = ServerConnector.getInstance();
-        serverConnector.sendMsg(String.format("LOGIN:%s %s", preferenceLogin.getUsername(), preferenceLogin.getPassword()));
+        if (serverConnector.checkConnection()){
+            serverConnector.sendMsg(String.format("LOGIN:%s %s", preferenceLogin.getUsername(), preferenceLogin.getPassword()));
+        }
         Log.d(TAG, "auotoLogin: MUSICLIST");
 //        serverConnector.sendMsg("MUSICLIST");
 //        String result = serverConnector.ReceiveMsg();

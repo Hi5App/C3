@@ -53,7 +53,7 @@ public class NimSDKOptionConfig {
         // 配置附件缩略图的尺寸大小
         options.thumbnailSize = MsgViewHolderThumbBase.getImageMaxEdge();
         // 通知栏显示用户昵称和头像
-        options.userInfoProvider = new NimUserInfoProvider(DemoCache.getContext());
+        options.userInfoProvider = new NimUserInfoProvider(InfoCache.getContext());
         // 定制通知栏提醒文案（可选，如果不定制将采用SDK默认文案）
         options.messageNotifierCustomization = messageNotifierCustomization;
         // 在线多端同步未读数
@@ -115,7 +115,7 @@ public class NimSDKOptionConfig {
         }
         if (TextUtils.isEmpty(storageRootPath)) {
             // SD卡应用公共存储区(APP卸载后，该目录不会被清除，下载安装APP后，缓存数据依然可以被加载。SDK默认使用此目录)，该存储区域需要写权限!
-            storageRootPath = Environment.getExternalStorageDirectory() + "/" + DemoCache.getContext().getPackageName();
+            storageRootPath = Environment.getExternalStorageDirectory() + "/" + InfoCache.getContext().getPackageName();
         }
         return storageRootPath;
     }
@@ -159,7 +159,7 @@ public class NimSDKOptionConfig {
         // 点击通知需要跳转到的界面
         config.notificationEntrance = ChatActivity.class;
         config.notificationSmallIconId = R.mipmap.ic_launcher;
-        config.notificationColor = DemoCache.getContext().getResources().getColor(R.color.color_blue_3a9efb);
+        config.notificationColor = InfoCache.getContext().getResources().getColor(R.color.color_blue_3a9efb);
         // 通知铃声的uri字符串
         config.notificationSound = "android.resource://com.example.myapplication__volume/raw/msg";
         config.notificationFolded = true;
@@ -173,7 +173,7 @@ public class NimSDKOptionConfig {
         // 是否APP ICON显示未读数红点(Android O有效)
         config.showBadge = true;
         // save cache，留做切换账号备用
-        DemoCache.setNotificationConfig(config);
+        InfoCache.setNotificationConfig(config);
         return config;
     }
 

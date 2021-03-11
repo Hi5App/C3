@@ -1,7 +1,7 @@
 package com.example.myapplication__volume.Nim.session.extension;
 
 import com.alibaba.fastjson.JSONObject;
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.R;
 
 /**
@@ -37,7 +37,7 @@ public class RTSAttachment extends CustomAttachment {
     }
 
     public String getContent() {
-        return DemoCache.getContext().getString(getFlag() == 0 ? R.string.start_session_record : R.string
+        return InfoCache.getContext().getString(getFlag() == 0 ? R.string.start_session_record : R.string
                 .session_end_record);
     }
 }

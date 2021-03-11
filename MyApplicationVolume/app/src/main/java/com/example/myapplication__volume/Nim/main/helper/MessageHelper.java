@@ -2,7 +2,7 @@ package com.example.myapplication__volume.Nim.main.helper;
 
 import android.text.TextUtils;
 
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.session.extension.MultiRetweetAttachment;
 import com.example.myapplication__volume.R;
 import com.netease.nim.uikit.api.NimUIKit;
@@ -262,7 +262,7 @@ public class MessageHelper {
                         sessionId, sessionName, url, MD5.getMD5(encryptedFileBytes), false, isEncrypted,
                         new String(key), nick1, firstContent, nick2, getContent(secondMsg)
                 );
-                String pushContent = DemoCache.getContext().getString(R.string.msg_type_multi_retweet);
+                String pushContent = InfoCache.getContext().getString(R.string.msg_type_multi_retweet);
                 //创建MultiRetweet类型自定义信息
                 IMMessage packedMsg = MessageBuilder.createCustomMessage(firstMsg.getSessionId(), sessionType, pushContent, attachment);
                 packedMsg.setPushContent(pushContent);

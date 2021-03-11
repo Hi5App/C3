@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.alibaba.fastjson.JSONObject;
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.netease.nimlib.sdk.NotificationFoldStyle;
 import com.netease.nimlib.sdk.StatusBarNotificationConfig;
 
@@ -274,6 +274,6 @@ public class UserPreferences {
     }
 
     static SharedPreferences getSharedPreferences() {
-        return DemoCache.getContext().getSharedPreferences("Demo." + DemoCache.getAccount(), Context.MODE_PRIVATE);
+        return InfoCache.getContext().getSharedPreferences("Demo." + InfoCache.getAccount(), Context.MODE_PRIVATE);
     }
 }

@@ -13,7 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.main.helper.MessageHelper;
 import com.example.myapplication__volume.R;
 import com.netease.nim.uikit.business.session.activity.WatchMultiRetweetPictureActivity;
@@ -212,7 +212,7 @@ public class MultiRetweetAdapter extends RecyclerView.Adapter<MultiRetweetAdapte
             if (MsgTypeEnum.text.equals(msgType)) {
                 mDetailsTV.setVisibility(View.VISIBLE);
                 mDetailsIV.setVisibility(View.GONE);
-                MoonUtil.identifyFaceExpression(DemoCache.getContext(), mDetailsTV, MessageHelper.getContent(msg), ImageSpan.ALIGN_BOTTOM);
+                MoonUtil.identifyFaceExpression(InfoCache.getContext(), mDetailsTV, MessageHelper.getContent(msg), ImageSpan.ALIGN_BOTTOM);
             }
             //图片
             else if (MsgTypeEnum.image.equals(msgType)) {

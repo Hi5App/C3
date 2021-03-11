@@ -7,7 +7,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.contact.activity.RobotProfileActivity;
 import com.example.myapplication__volume.Nim.contact.activity.UserProfileActivity;
 import com.example.myapplication__volume.Nim.main.helper.MessageHelper;
@@ -136,7 +136,7 @@ public class SessionHelper {
     }
 
     public static void startP2PSession(Context context, String account, IMMessage anchor) {
-        if (!DemoCache.getAccount().equals(account)) {
+        if (!InfoCache.getAccount().equals(account)) {
             if (NimUIKit.getRobotInfoProvider().getRobotByAccount(account) != null) {
                 NimUIKit.startChatting(context, account, SessionTypeEnum.P2P, getRobotCustomization(), anchor);
                 Log.e("SessionHelper","NimUIKit.startChatting(context, account, SessionTypeEnum.P2P, getRobotCustomization(), anchor)");
@@ -712,7 +712,7 @@ public class SessionHelper {
 
                     // 视频通话消息和白板消息，红包消息 不允许撤回
                     return true;
-                } else if (DemoCache.getAccount().equals(message.getSessionId())) {
+                } else if (InfoCache.getAccount().equals(message.getSessionId())) {
                     // 发给我的电脑 不允许撤回
                     return true;
                 }
@@ -822,17 +822,17 @@ public class SessionHelper {
                                                         SessionTypeEnum sessionTypeEnum) {
         List<PopupMenuItem> moreMenuItems = new ArrayList<PopupMenuItem>();
         moreMenuItems.add(new PopupMenuItem(context, ACTION_HISTORY_QUERY_PERSIST_CLEAR, sessionId, sessionTypeEnum,
-                                            DemoCache.getContext().getString(R.string.message_history_query_ingore)));
+                                            InfoCache.getContext().getString(R.string.message_history_query_ingore)));
         moreMenuItems.add(new PopupMenuItem(context, ACTION_HISTORY_QUERY_NOT_PERSIST_CLEAR, sessionId, sessionTypeEnum,
-                                            DemoCache.getContext().getString(R.string.message_history_query_remember)));
+                                            InfoCache.getContext().getString(R.string.message_history_query_remember)));
         moreMenuItems.add(new PopupMenuItem(context, ACTION_SEARCH_MESSAGE, sessionId, sessionTypeEnum,
-                                            DemoCache.getContext().getString(R.string.message_search_title)));
+                                            InfoCache.getContext().getString(R.string.message_search_title)));
         moreMenuItems.add(new PopupMenuItem(context, ACTION_CLEAR_MESSAGE_RECORD, sessionId, sessionTypeEnum,
-                                            DemoCache.getContext().getString(R.string.message_clear_record)));
+                                            InfoCache.getContext().getString(R.string.message_clear_record)));
         moreMenuItems.add(new PopupMenuItem(context, ACTION_CLEAR_MESSAGE_NOT_RECORD, sessionId, sessionTypeEnum,
-                                            DemoCache.getContext().getString(R.string.message_clear_not_record)));
+                                            InfoCache.getContext().getString(R.string.message_clear_not_record)));
         moreMenuItems.add(new PopupMenuItem(context, ACTION_CLEAR_MESSAGE, sessionId, sessionTypeEnum,
-                                            DemoCache.getContext().getString(R.string.cloud_message_clear)));
+                                            InfoCache.getContext().getString(R.string.cloud_message_clear)));
         return moreMenuItems;
     }
 }

@@ -12,7 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.alibaba.fastjson.JSONObject;
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.main.helper.CustomNotificationCache;
 import com.example.myapplication__volume.Nim.main.viewholder.CustomNotificationViewHolder;
 import com.example.myapplication__volume.R;
@@ -202,7 +202,7 @@ public class CustomNotificationActivity extends UI implements TAdapterDelegate {
 
     private void selectCustomNotificationTarget(boolean team) {
         ContactSelectActivity.Option option = new ContactSelectActivity.Option();
-        option.title = DemoCache.getContext().getString(R.string.select_custom_notification_target);
+        option.title = InfoCache.getContext().getString(R.string.select_custom_notification_target);
         option.multi = false;
         option.showContactSelectArea = !team;
         option.type = team ? ContactSelectActivity.ContactSelectType.TEAM : ContactSelectActivity.ContactSelectType.BUDDY;
@@ -246,7 +246,7 @@ public class CustomNotificationActivity extends UI implements TAdapterDelegate {
         obj.put("content", content);
         String jsonContent = obj.toJSONString();
         CustomNotification notification = new CustomNotification();
-        notification.setFromAccount(DemoCache.getAccount());
+        notification.setFromAccount(InfoCache.getAccount());
         notification.setSessionId(account);
         notification.setSendToOnlineUserOnly(false);
         notification.setSessionType(sendTarget == 1 ? SessionTypeEnum.Team : SessionTypeEnum.P2P);

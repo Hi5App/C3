@@ -10,16 +10,15 @@ import com.example.myapplication__volume.MainActivity;
 import com.example.myapplication__volume.collaboration.basic.DataType;
 import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.ref.WeakReference;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class CollaborationService extends Service {
 
@@ -39,7 +38,9 @@ public class CollaborationService extends Service {
 
     private DataType dataType = new DataType();
 
-    private String file_path;
+    private static final long HEART_BEAT_RATE = 60 * 1000;
+
+    private Timer timer;
 
     /**
      * Class used for the client Binder.  Because we know this service always
@@ -64,9 +65,12 @@ public class CollaborationService extends Service {
         super.onCreate();
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgSocket = msgConnector.getManageSocket();
+        msgSocket = msgConnector.getMsgSocket();
         mReadThread = new CollaborationService.ReadThread(msgSocket);
         mReadThread.start();
+
+        timer = new Timer();
+        timer.schedule(task, 0, HEART_BEAT_RATE);
 
     }
 
@@ -89,66 +93,78 @@ public class CollaborationService extends Service {
     @Override
     public void onDestroy() {
         // The service is no longer used and is being destroyed
+        Log.d(TAG, "onDestroy");
+        super.onDestroy();
+        if (mReadThread != null)
+            mReadThread.interrupt();
+        timer.cancel();
     }
+
+
+
+    TimerTask task = new TimerTask() {
+        @Override
+        public void run() {
+            Log.e(TAG,"Send Heart Beat Msg");
+            sendMsg("HeartBeat:");
+        }
+    };
+
+
+    public void sendMsg(final String msg){
+        MsgConnector msgConnector = MsgConnector.getInstance();
+        Socket mSocket = msgConnector.getMsgSocket();
+        if (mSocket != null && !mSocket.isClosed() && mSocket.isConnected()){
+
+            try {
+                if (!msgConnector.sendMsg(msg,true)){
+                    reConnect();
+                }
+                Log.e(TAG,"Send Heart Beat Msg Successfully !");
+            }catch (Exception e){
+                Log.e(TAG,"Fail to send Heart Beat Msg !");
+                reConnect();
+            }
+
+        }else {
+            return;
+        }
+    }
+
+
 
     /**
      * thread for read and process msg
      */
     class ReadThread extends Thread {
-        private WeakReference<Socket> mWeakSocket;
         private Socket mSocket;
         private boolean isStart = true;
-        //        private BufferedInputStream is;
         private InputStream is;
-        private BufferedReader bufferedReader;
+        private boolean isReconnect = false;
 
         public ReadThread(Socket socket) {
-            mWeakSocket = new WeakReference<Socket>(socket);
+            mSocket = socket;
         }
 
         //同步方法读取返回得数据
         @Override
         public void run() {
             super.run();
-            mSocket = mWeakSocket.get();
             if (null != mSocket) {
                 try {
-//                    BufferedInputStream inputStream = new BufferedInputStream(mSocket.getInputStream());
                     is = mSocket.getInputStream();
-
-
-//                    is = new DataInputStream((FileInputStream) (mSocket.getInputStream()));
-//                    bufferedReader = new BufferedReader(new InputStreamReader(mSocket.getInputStream(), "UTF-8"));
-                    bufferedReader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-                    String header = "";
-
-                    while(true) {
+                    while(!isInterrupted()) {
                         try {
                             synchronized (this) {
 
                                 if (!(mSocket==null) && !mSocket.isClosed() && !mSocket.isInputShutdown() && isStart ) {
-
-                                    onRead("in the while loop");
-
-//                                    String header = ImgReader.readLine();
-
-//                                    if (header != null){
-//                                        Log.e(TAG, header);
-//                                        byte[] msg = new byte[length];
-//                                        System.arraycopy(buffer, 0, msg, 0, length);
-//                                    System.out.println("header: " + header);
-
-
-//                                    if (header != null){
-//                                        System.out.println("header: " + header);
-//                                        if (header.startsWith("error")){
-//
-//
-//
-//                                        }
-//                                        receiveMsgInterface.onRecMessage(header.getBytes());
-//                                    }
-
+                                    if (!isReconnect){
+                                        onRead("in the while loop");
+                                    }
+                                }else {
+                                    if (!isReconnect){
+                                        reConnect();
+                                    }
                                 }
                             }
                         }catch (Exception e){
@@ -405,6 +421,9 @@ public class CollaborationService extends Service {
         }
 
 
+        /*
+        reset datatype after process the msg
+        */
         private void resetDataType(){
 
             dataType.isFile=false;
@@ -418,37 +437,37 @@ public class CollaborationService extends Service {
 
         private void reConnect(){
 
+            Log.e(TAG,"Start to reConnect in mReadThread !");
+            isReconnect = true;
             releaseSocket();
 
             try {
 
                 MsgConnector msgConnector = MsgConnector.getInstance();
                 msgConnector.initConnection();
-                mWeakSocket = new WeakReference<Socket>(msgConnector.getManageSocket());
-                mSocket = mWeakSocket.get();
-
-                is = msgConnector.getManageSocket().getInputStream();
-                bufferedReader = new BufferedReader(new InputStreamReader(is,"UTF-8"));
+                mSocket = msgConnector.getMsgSocket();
+                is = msgConnector.getMsgSocket().getInputStream();
 
             }catch (Exception e){
                 e.printStackTrace();
                 Log.e(TAG,"reConnect");
+                isReconnect = false;
             }
+
+            isReconnect = false;
 
         }
 
 
         private void releaseSocket(){
-            if (mWeakSocket.get() != null){
-                Socket sk = mWeakSocket.get();
+            if (mSocket != null){
                 try {
-                    if (!sk.isClosed()) {
-                        sk.close();
+                    if (!mSocket.isClosed()){
+                        mSocket.close();
                     }
-                    sk = null;
-                    mWeakSocket = null;
+                    mSocket = null;
                 }catch (Exception e){
-                    System.out.println("NULL!!!");
+                    e.printStackTrace();
                 }
             }
         }
@@ -459,11 +478,8 @@ public class CollaborationService extends Service {
             try {
 
                 MsgConnector msgConnector = MsgConnector.getInstance();
-                mWeakSocket = new WeakReference<Socket>(msgConnector.getManageSocket());
-                mSocket = mWeakSocket.get();
-
+                mSocket = msgConnector.getMsgSocket();
                 is = mSocket.getInputStream();
-                bufferedReader = new BufferedReader(new InputStreamReader(is,"UTF-8"));
 
             }catch (Exception e){
                 e.printStackTrace();
@@ -476,12 +492,24 @@ public class CollaborationService extends Service {
     }
 
 
-    public static void resetConnect(){
+    public static void resetConnection(){
+        mReadThread.reSetConnect();
+    }
+
+
+    private void reConnect(){
+        Log.e(TAG,"Start to reConnect");
+        ServerConnector serverConnector = ServerConnector.getInstance();
+        serverConnector.releaseConnection();
         mReadThread.reConnect();
     }
 
 
-
+    /**
+     * my function for Readline from inputstream
+     * @param is inputstream
+     * @return
+     */
     private String MyReadLine(InputStream is){
 
         String s = "";

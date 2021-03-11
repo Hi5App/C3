@@ -8,7 +8,7 @@ import com.example.basic.CrashHandler;
 import com.example.chat.ChatActivity;
 import com.example.chat.ChatManager;
 import com.example.datastore.PreferenceLogin;
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.NIMInitManager;
 import com.example.myapplication__volume.Nim.NimSDKOptionConfig;
 import com.example.myapplication__volume.Nim.contact.ContactHelper;
@@ -61,7 +61,7 @@ public class Myapplication extends Application {
         MsgConnector.init(this);
         Communicator.init(this);
 
-        DemoCache.setContext(this);
+        InfoCache.setContext(this);
 
         // 4.6.0 开始，第三方推送配置入口改为 SDKOption#mixPushConfig，旧版配置方式依旧支持。
 //        SDKOptions sdkOptions = NimSDKOptionConfig.getSDKOptions(this);
@@ -106,7 +106,8 @@ public class Myapplication extends Application {
             Log.e(TAG,"account: " + account);
             Log.e(TAG,"token: "   + token);
 
-            DemoCache.setAccount(account.toLowerCase());
+            InfoCache.setAccount(account.toLowerCase());
+            InfoCache.setToken(token);
             return new LoginInfo(account, token);
         } else {
             return null;

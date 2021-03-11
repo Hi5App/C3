@@ -7,7 +7,7 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.R;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.api.model.contact.ContactChangedObserver;
@@ -175,7 +175,7 @@ public class OnlineStateEventManager {
     private static void registerNetTypeChangeObserver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        DemoCache.getContext().registerReceiver(receiver, filter);
+        InfoCache.getContext().registerReceiver(receiver, filter);
     }
 
     /**
@@ -282,7 +282,7 @@ public class OnlineStateEventManager {
         if (!enable) {
             return;
         }
-        int netState = getNetWorkTypeName(DemoCache.getContext());
+        int netState = getNetWorkTypeName(InfoCache.getContext());
         if (!force && netState == pubNetState) {
             return;
         }
@@ -443,7 +443,7 @@ public class OnlineStateEventManager {
      * 允许在线状态事件,开发者开通在线状态后修改此处直接返回true
      */
     private static boolean enableOnlineStateEvent() {
-        String packageName = DemoCache.getContext().getPackageName();
+        String packageName = InfoCache.getContext().getPackageName();
         return enable = (packageName != null && packageName.equals("com.netease.nim.demo"));
     }
 }

@@ -8,11 +8,13 @@ import com.netease.nimlib.sdk.StatusBarNotificationConfig;
 /**
  * Created by jezhee on 2/20/15.
  */
-public class DemoCache {
+public class InfoCache {
 
     private static Context context;
 
     private static String account;
+
+    private static String token;
 
     private static StatusBarNotificationConfig notificationConfig;
 
@@ -24,17 +26,25 @@ public class DemoCache {
         return account;
     }
 
+    public static String getToken() {
+        return token;
+    }
+
     private static boolean mainTaskLaunching;
 
     public static void setAccount(String account) {
-        DemoCache.account = account;
+        InfoCache.account = account;
         NimUIKit.setAccount(account);
 //        AVChatKit.setAccount(account);
 //        RTSKit.setAccount(account);
     }
 
+    public static void setToken(String token) {
+        InfoCache.token = token;
+    }
+
     public static void setNotificationConfig(StatusBarNotificationConfig notificationConfig) {
-        DemoCache.notificationConfig = notificationConfig;
+        InfoCache.notificationConfig = notificationConfig;
     }
 
     public static StatusBarNotificationConfig getNotificationConfig() {
@@ -46,14 +56,14 @@ public class DemoCache {
     }
 
     public static void setContext(Context context) {
-        DemoCache.context = context.getApplicationContext();
+        InfoCache.context = context.getApplicationContext();
 
 //        AVChatKit.setContext(context);
 //        RTSKit.setContext(context);
     }
 
     public static void setMainTaskLaunching(boolean mainTaskLaunching) {
-        DemoCache.mainTaskLaunching = mainTaskLaunching;
+        InfoCache.mainTaskLaunching = mainTaskLaunching;
 
 //        AVChatKit.setMainTaskLaunching(mainTaskLaunching);
     }

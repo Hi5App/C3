@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.contact.activity.UserProfileActivity;
 import com.example.myapplication__volume.Nim.team.TeamCreateHelper;
 import com.example.myapplication__volume.R;
@@ -174,7 +174,7 @@ public class MessageInfoActivity extends UI {
                         }
                     });
                 } else {
-                    ToastHelper.showToast(DemoCache.getContext(), "请选择至少一个联系人！");
+                    ToastHelper.showToast(InfoCache.getContext(), "请选择至少一个联系人！");
                 }
             }
         }

@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.myapplication__volume.MainActivity;
+import com.example.myapplication__volume.collaboration.basic.ReconnectionInterface;
 
 import org.apache.commons.io.IOUtils;
 
@@ -24,11 +25,12 @@ public class MsgSender {
         this.mContext = context;
     }
 
-    public void SendMsg(Socket socket, String message, boolean waited){
+    public boolean SendMsg(Socket socket, String message, boolean waited, ReconnectionInterface reconnectionInterface){
 
+        final boolean[] flag = {true};
         if (!socket.isConnected()){
             Toast_in_Thread("Fail to Send_Message, Try Again Please !");
-            return;
+            return false;
         }
 
         Thread thread = new Thread(){
@@ -68,6 +70,11 @@ public class MsgSender {
                 }catch (Exception e){
                     e.printStackTrace();
                     Log.d(TAG, "Fail to get OutputStream");
+                    flag[0] = false;
+
+                    if (!waited){
+                        reconnectionInterface.onReconnection(message);
+                    }
                 }
 
             }
@@ -80,8 +87,10 @@ public class MsgSender {
                 thread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
+            return false;
         }
 
+        return flag[0];
     }
 
 

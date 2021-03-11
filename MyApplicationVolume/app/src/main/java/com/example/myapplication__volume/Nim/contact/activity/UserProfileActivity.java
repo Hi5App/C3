@@ -12,7 +12,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.contact.constant.UserConstant;
 import com.example.myapplication__volume.Nim.preference.UserPreferences;
 import com.example.myapplication__volume.Nim.session.SessionHelper;
@@ -223,7 +223,7 @@ public class UserProfileActivity extends UI {
 
     private void initActionbar() {
         TextView toolbarView = findView(R.id.action_bar_right_clickable_textview);
-        if (!TextUtils.equals(account, DemoCache.getAccount())) {
+        if (!TextUtils.equals(account, InfoCache.getAccount())) {
             toolbarView.setVisibility(View.GONE);
             return;
         } else {
@@ -248,7 +248,7 @@ public class UserProfileActivity extends UI {
     private void updateUserInfoView() {
         accountText.setText("帐号：" + account);
         headImageView.loadBuddyAvatar(account);
-        if (TextUtils.equals(account, DemoCache.getAccount())) {
+        if (TextUtils.equals(account, InfoCache.getAccount())) {
             nameText.setText(UserInfoHelper.getUserName(account));
         }
         final NimUserInfo userInfo = (NimUserInfo) NimUIKit.getUserInfoProvider().getUserInfo(account);
@@ -306,7 +306,7 @@ public class UserProfileActivity extends UI {
     }
 
     private void updateToggleView() {
-        if (DemoCache.getAccount() != null && !DemoCache.getAccount().equals(account)) {
+        if (InfoCache.getAccount() != null && !InfoCache.getAccount().equals(account)) {
             boolean black = NIMClient.getService(FriendService.class).isInBlackList(account);
             boolean notice = NIMClient.getService(FriendService.class).isNeedMessageNotify(account);
             if (blackSwitch == null) {
@@ -546,7 +546,7 @@ public class UserProfileActivity extends UI {
             ToastHelper.showToast(UserProfileActivity.this, R.string.network_is_not_available);
             return;
         }
-        if (!TextUtils.isEmpty(account) && account.equals(DemoCache.getAccount())) {
+        if (!TextUtils.isEmpty(account) && account.equals(InfoCache.getAccount())) {
             ToastHelper.showToast(UserProfileActivity.this, "不能加自己为好友");
             return;
         }

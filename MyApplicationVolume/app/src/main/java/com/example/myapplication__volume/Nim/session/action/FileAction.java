@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.file.browser.FileBrowserActivity;
 import com.example.myapplication__volume.R;
 import com.netease.nim.uikit.business.session.actions.BaseAction;
@@ -108,7 +108,7 @@ public class FileAction extends BaseAction {
             getActivity().startActivityForResult(intent,RequestCode.GET_LOCAL_FILE);
         }catch (Exception e){
             e.printStackTrace();
-            Toast.makeText(DemoCache.getContext(), "Error when open file!" + e.getMessage(),Toast.LENGTH_SHORT).show();
+            Toast.makeText(InfoCache.getContext(), "Error when open file!" + e.getMessage(),Toast.LENGTH_SHORT).show();
         }
 
     }

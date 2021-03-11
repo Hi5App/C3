@@ -1,7 +1,7 @@
 package com.example.myapplication__volume.Nim.session.extension;
 
 import com.alibaba.fastjson.JSONObject;
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.netease.nim.uikit.business.team.helper.TeamHelper;
 import com.netease.nim.uikit.business.uinfo.UserInfoHelper;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
@@ -22,7 +22,7 @@ public class RedPacketOpenedAttachment extends CustomAttachment {
     }
 
     public String getSendNickName(SessionTypeEnum sessionTypeEnum, String targetId) {
-        if (DemoCache.getAccount().equals(sendAccount) && DemoCache.getAccount().equals(openAccount)) {
+        if (InfoCache.getAccount().equals(sendAccount) && InfoCache.getAccount().equals(openAccount)) {
             return "自己";
         }
         return getDisplayName(sessionTypeEnum, targetId, sendAccount);

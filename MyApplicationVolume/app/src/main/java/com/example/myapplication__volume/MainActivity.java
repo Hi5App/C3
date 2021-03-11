@@ -555,7 +555,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 initMsgService();
                 firstJoinRomm = false;
             }else {
-                CollaborationService.resetConnect();
+                CollaborationService.resetConnection();
             }
 
             MsgConnector msgConnector = MsgConnector.getInstance();
@@ -5809,7 +5809,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210303b 10:00 UTC+8 build",
+                                "Version: 202103011a 10:00 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

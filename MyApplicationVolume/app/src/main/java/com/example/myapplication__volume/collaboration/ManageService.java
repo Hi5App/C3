@@ -9,16 +9,15 @@ import android.util.Log;
 import com.example.myapplication__volume.collaboration.basic.DataType;
 import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.ref.WeakReference;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ManageService extends Service {
 
@@ -29,15 +28,17 @@ public class ManageService extends Service {
     // Binder given to clients
     private final IBinder binder = new LocalBinder();
 
-    private  static ReadThread mReadThread;
+    private static ReadThread mReadThread;
 
     boolean mAllowRebind; // indicates whether onRebind should be used
 
-    private Socket msgSocket;
+    private Socket heartBeatSocket;
 
     private DataType dataType = new DataType();
 
-    private String file_path;
+    private static final long HEART_BEAT_RATE = 20 * 1000;
+
+    private Timer timer;
 
     /**
      * Class used for the client Binder.  Because we know this service always
@@ -62,9 +63,12 @@ public class ManageService extends Service {
         super.onCreate();
 
         ServerConnector serverConnector = ServerConnector.getInstance();
-        msgSocket = serverConnector.getManageSocket();
-        mReadThread = new ReadThread(msgSocket);
+        heartBeatSocket = serverConnector.getManageSocket();
+        mReadThread = new ReadThread(heartBeatSocket);
         mReadThread.start();
+
+        timer = new Timer();
+        timer.schedule(task,0,HEART_BEAT_RATE);
 
     }
 
@@ -90,39 +94,64 @@ public class ManageService extends Service {
         super.onDestroy();
         if (mReadThread != null)
             mReadThread.interrupt();
-
+        timer.cancel();
         // The service is no longer used and is being destroyed
     }
+
+
+
+    TimerTask task = new TimerTask() {
+        @Override
+        public void run() {
+            Log.e(TAG,"Send Heart Beat Msg");
+            sendMsg("HeartBeat:");
+        }
+    };
+
+
+    public void sendMsg(final String msg){
+        ServerConnector serverConnector = ServerConnector.getInstance();
+        Socket mSocket = serverConnector.getManageSocket();
+        if (mSocket != null && !mSocket.isClosed() && mSocket.isConnected()){
+
+            try {
+                if (!serverConnector.sendMsg(msg,true)){
+                    reConnect();
+                }
+                Log.e(TAG,"Send Heart Beat Msg Successfully !");
+            }catch (Exception e){
+                Log.e(TAG,"Fail to send Heart Beat Msg !");
+                reConnect();
+            }
+
+        }else {
+            return;
+        }
+    }
+
+
+
 
     /**
      * thread for read and process msg
      */
     class ReadThread extends Thread {
-        private WeakReference<Socket> mWeakSocket;
         private Socket mSocket;
         private boolean isStart = true;
-//        private BufferedInputStream is;
         private InputStream is;
-        private BufferedReader bufferedReader;
+        private boolean isReconnect = false;
 
         public ReadThread(Socket socket) {
-            mWeakSocket = new WeakReference<Socket>(socket);
+            mSocket = socket;
         }
 
         //同步方法读取返回得数据
         @Override
         public void run() {
             super.run();
-            mSocket = mWeakSocket.get();
             if (null != mSocket) {
                 try {
-//                    BufferedInputStream inputStream = new BufferedInputStream(mSocket.getInputStream());
                     is = mSocket.getInputStream();
-
-
-//                    is = new DataInputStream((FileInputStream) (mSocket.getInputStream()));
-//                    bufferedReader = new BufferedReader(new InputStreamReader(mSocket.getInputStream(), "UTF-8"));
-                    bufferedReader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
                     String header = "";
 
                     while(!isInterrupted()) {
@@ -130,9 +159,13 @@ public class ManageService extends Service {
                             synchronized (this) {
 
                                 if (!(mSocket==null) && !mSocket.isClosed() && !mSocket.isInputShutdown() && isStart ) {
-
-                                    onRead("in the while loop");
-
+                                    if (!isReconnect) {
+                                        onRead("in the while loop");
+                                    }
+                                }else {
+                                    if (!isReconnect){
+                                        reConnect();
+                                    }
                                 }
                             }
                     }catch (Exception e){
@@ -286,7 +319,11 @@ public class ManageService extends Service {
         }
 
 
-
+        /**
+         * process the message head
+         * @param rmsg the msg string
+         * @return if something wrong with message head
+         */
         private boolean processHeader(final String rmsg){
 
             int ret = 0;
@@ -386,6 +423,9 @@ public class ManageService extends Service {
         }
 
 
+        /*
+        reset datatype after process the msg
+         */
         private void resetDataType(){
 
             dataType.isFile=false;
@@ -397,60 +437,57 @@ public class ManageService extends Service {
 
 
 
+        /**
+         * release the socket & reconnect the socket
+         */
         private void reConnect(){
 
+            Log.e(TAG,"Start to reConnect in mReadThread !");
+            isReconnect = true;
             releaseSocket();
 
             try {
 
                 ServerConnector serverConnector = ServerConnector.getInstance();
                 serverConnector.initConnection();
-                mWeakSocket = new WeakReference<Socket>(serverConnector.getManageSocket());
-                mSocket = mWeakSocket.get();
-
-//                is = new DataInputStream((FileInputStream) (mSocket.getInputStream()));
-
+                serverConnector.reLogin();
+                mSocket = serverConnector.getManageSocket();
                 is = mSocket.getInputStream();
-                bufferedReader = new BufferedReader(new InputStreamReader(is,"UTF-8"));
 
             }catch (Exception e){
                 e.printStackTrace();
                 Log.e(TAG,"reConnect");
             }
-
+            isReconnect = false;
         }
 
 
         private void releaseSocket(){
-            if (mWeakSocket.get() != null){
-                Socket sk = mWeakSocket.get();
+            if (mSocket != null){
                 try {
-                    if (!sk.isClosed()) {
-                        sk.close();
+                    if (!mSocket.isClosed()){
+                        mSocket.close();
                     }
-                    sk = null;
-                    mWeakSocket = null;
+                    mSocket = null;
                 }catch (Exception e){
-                    System.out.println("NULL!!!");
+                    e.printStackTrace();
                 }
             }
         }
+        
 
 
-        public void reSetConnect(){
+        public void reSetConnection(){
 
             try {
 
                 ServerConnector serverConnector = ServerConnector.getInstance();
-                mWeakSocket = new WeakReference<Socket>(serverConnector.getManageSocket());
-                mSocket = mWeakSocket.get();
-
+                mSocket = serverConnector.getManageSocket();
                 is = mSocket.getInputStream();
-                bufferedReader = new BufferedReader(new InputStreamReader(is,"UTF-8"));
 
             }catch (Exception e){
                 e.printStackTrace();
-                Log.e(TAG,"reConnect");
+                Log.e(TAG,"reSetConnect");
             }
         }
 
@@ -459,12 +496,23 @@ public class ManageService extends Service {
     }
 
 
-    public static void resetConnect(){
-        mReadThread.reSetConnect();
+    public static void resetConnection(){
+        mReadThread.reSetConnection();
+    }
+
+    private void reConnect(){
+        Log.e(TAG,"Start to reConnect");
+        ServerConnector serverConnector = ServerConnector.getInstance();
+        serverConnector.releaseConnection();
+        mReadThread.reConnect();
     }
 
 
-
+    /**
+     * my function for Readline from inputstream
+     * @param is inputstream
+     * @return
+     */
     private String MyReadLine(InputStream is){
 
         String s = "";

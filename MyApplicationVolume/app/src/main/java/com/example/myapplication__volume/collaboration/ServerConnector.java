@@ -5,15 +5,14 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.collaboration.basic.DataType;
+import com.example.myapplication__volume.collaboration.basic.ReconnectionInterface;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Socket;
-import java.util.ArrayList;
 
-public class ServerConnector {
+public class ServerConnector implements ReconnectionInterface {
 
     private static final String TAG = "ServerConnector";
 
@@ -122,131 +121,6 @@ public class ServerConnector {
     }
 
 
-    private void onRead(){
-        if(!dataType.isFile){
-            if (dataType.dataSize == 0){
-                try {
-                    if (manageSocket.getInputStream().available() >= 1024){
-                        // read header
-                        BufferedReader ImgReader = new BufferedReader(new InputStreamReader(manageSocket.getInputStream(), "UTF-8"));
-                        String header = ImgReader.readLine();
-                        if (processHeader(header)){
-                            onRead();
-                        }
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                    Log.d(TAG,"Fail to get Input Stream!");
-                }
-            }else {
-                try {
-                    if (manageSocket.getInputStream().available() >= dataType.dataSize){
-                        // read msg
-                        BufferedReader ImgReader = new BufferedReader(new InputStreamReader(manageSocket.getInputStream(), "UTF-8"));
-                        String msg = ImgReader.readLine();
-                        if (processMsg(msg)){
-                            onRead();
-                        }
-                    }
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                    Log.d(TAG,"Fail to get Input Stream!");
-                }
-            }
-        }else {
-            // process file
-
-        }
-    }
-
-
-    private boolean processHeader(final String rmsg){
-
-        int ret = 0;
-        if (rmsg.endsWith("\n")){
-            String msg = rmsg.trim();
-            if (msg.startsWith("DataTypeWithSize:")){
-                msg = msg.substring(msg.length() - "DataTypeWithSize:".length());
-
-                String[] paras_list = msg.split(";;");
-                ArrayList<String> paras = new ArrayList<>();
-                for (int i = 0; i < paras_list.length; i++){
-                    if (!paras_list[i].equals(""))
-                        paras.add(paras_list[i]);
-                }
-
-                if (paras.size()==2 && paras.get(0)=="0"){
-                    dataType.dataSize = Long.parseLong(paras.get(1));
-                }else if(paras.size()==3 && paras.get(0)=="1"){
-                    dataType.isFile = true;
-                    dataType.filename = paras.get(1);
-                    dataType.dataSize = Long.parseLong(paras.get(2));
-
-
-                }else {
-                    ret = 3;
-                }
-            }else {
-                ret = 2;
-            }
-        }else {
-            ret = 1;
-        }
-
-        if (ret==0) return true;
-        errorprocess(ret,rmsg.trim());  return false;
-
-    }
-
-
-
-    private boolean processMsg(final String msg){
-        if (msg.endsWith("\n"))
-            return true;
-        else{
-            errorprocess(1, msg);
-            return false;
-        }
-    }
-
-
-    private void errorprocess(int errcode, String msg){
-
-        //error code
-        //1:not end with '\n';
-        //2:not start wth "DataTypeWithSize"
-        //3:msg not 2/3 paras
-        //4:cannot open file
-        //5:read socket != write file
-        //6:next read size < 0
-
-        switch (errcode){
-            case 1:
-                Log.d(TAG, "ERROR: msg not end with '\n', ");
-                break;
-            case 2:
-                Log.d(TAG, String.format("ERROR:%s not start wth \"DataTypeWithSize\"", msg));
-                break;
-            case 3:
-                Log.d(TAG, String.format("ERROR:%s not 2/3 paras", msg));
-                break;
-            case 4:
-                Log.d(TAG, String.format("ERROR:%s cannot open file", msg));
-                break;
-            case 5:
-                Log.d(TAG, String.format("ERROR:%s read socket != write file", msg));
-                break;
-            case 6:
-                Log.d(TAG, String.format("ERROR:%s next read size < 0", msg));
-                break;
-        }
-
-        Toast_in_Thread("Something Error, the socket will be disconnected !");
-
-    }
-
-
 
 
     public void releaseConnection(){
@@ -272,21 +146,24 @@ public class ServerConnector {
         if (manageSocket == null || !checkConnection()){
             Log.e(TAG,"Connect Again");
             initConnection();
+            reLogin();
         }
 
     }
 
-    private boolean checkConnection(){
+    public boolean checkConnection(){
 
         return manageSocket!= null && manageSocket.isConnected() && !manageSocket.isClosed();
 
-//        try{
-//            manageSocket.sendUrgentData(0xFF);
-//        }catch(Exception e){
-//            return false;
-//        }
-
     }
+
+
+
+    public void reLogin(){
+        Log.e(TAG,"Start to reLogin !");
+        sendMsg(String.format("LOGIN:%s %s", InfoCache.getAccount(), InfoCache.getToken()), true);
+    }
+
 
 
     /**
@@ -299,19 +176,19 @@ public class ServerConnector {
 
 
 
-    public void sendMsg(String msg){
+    public boolean sendMsg(String msg){
 
-        SendMsg(msg, false);
+        return sendMsg(msg, false);
 
     }
 
 
-    private void SendMsg(String msg, boolean waited){
+    public boolean sendMsg(String msg, boolean waited){
         makeConnect();
-
         if (checkConnection()){
-            msgSender.SendMsg(manageSocket, msg, waited);
+            return msgSender.SendMsg(manageSocket, msg, waited, this);
         }
+        return false;
     }
 
 
@@ -401,6 +278,18 @@ public class ServerConnector {
                 Toast.makeText(mContext, message,Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+
+    @Override
+    public void onReconnection(String msg) {
+
+        /*
+        reconnect
+         */
+        initConnection();
+        ManageService.resetConnection();
+        sendMsg(msg);
     }
 
 }

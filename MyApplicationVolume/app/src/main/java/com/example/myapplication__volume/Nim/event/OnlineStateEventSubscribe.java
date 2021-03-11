@@ -2,7 +2,7 @@ package com.example.myapplication__volume.Nim.event;
 
 import android.os.Handler;
 
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.preference.UserPreferences;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.common.framework.infra.Handlers;
@@ -49,7 +49,7 @@ public class OnlineStateEventSubscribe {
             waitInitSubs = true;
             long delay = SUBS_FREQ - timeInterval + 1000;
             LogUtil.ui("time interval short than 30 and init subscribe delay " + delay);
-            Handler handler = Handlers.sharedHandler(DemoCache.getContext());
+            Handler handler = Handlers.sharedHandler(InfoCache.getContext());
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -202,7 +202,7 @@ public class OnlineStateEventSubscribe {
 
         public static void reset() {
             LogUtil.ui("time task reset");
-            Handler handler = Handlers.sharedHandler(DemoCache.getContext());
+            Handler handler = Handlers.sharedHandler(InfoCache.getContext());
             handler.removeCallbacks(runnable);
             firstSubs = true;
         }
@@ -218,7 +218,7 @@ public class OnlineStateEventSubscribe {
 
         private static void startTimeTask() {
             LogUtil.ui("time task start");
-            Handler handler = Handlers.sharedHandler(DemoCache.getContext());
+            Handler handler = Handlers.sharedHandler(InfoCache.getContext());
             handler.removeCallbacks(runnable);
             handler.postDelayed(runnable, SUBSCRIBE_EXPIRY * 1000);
         }

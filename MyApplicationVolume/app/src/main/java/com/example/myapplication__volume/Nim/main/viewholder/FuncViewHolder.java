@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.contact.activity.BlackListActivity;
 import com.example.myapplication__volume.Nim.main.activity.RobotListActivity;
 import com.example.myapplication__volume.Nim.main.activity.SystemMessageActivity;
@@ -154,7 +154,7 @@ public class FuncViewHolder extends AbsContactViewHolder<FuncViewHolder.FuncItem
                 Toast.makeText(context,"Advanced Team Function is in development !",Toast.LENGTH_SHORT).show();
 //                TeamListActivity.start(context, ItemTypes.TEAMS.ADVANCED_TEAM);
             } else if (item == MY_COMPUTER) {
-                SessionHelper.startP2PSession(context, DemoCache.getAccount());
+                SessionHelper.startP2PSession(context, InfoCache.getAccount());
             } else if (item == BLACK_LIST) {
                 BlackListActivity.start(context);
             }

@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListView;
 
-import com.example.myapplication__volume.Nim.DemoCache;
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.contact.activity.UserProfileSettingActivity;
 import com.example.myapplication__volume.Nim.main.adapter.SettingsAdapter;
 import com.example.myapplication__volume.Nim.main.model.SettingTemplate;
@@ -343,7 +343,7 @@ public class SettingsActivity extends UI implements SettingsAdapter.SwitchChange
         }
         switch (item.getId()) {
             case TAG_HEAD:
-                UserProfileSettingActivity.start(this, DemoCache.getAccount());
+                UserProfileSettingActivity.start(this, InfoCache.getAccount());
                 break;
             case TAG_NO_DISTURBE:
                 startNoDisturb();
@@ -550,7 +550,7 @@ public class SettingsActivity extends UI implements SettingsAdapter.SwitchChange
             case TAG_LED: {
                 UserPreferences.setLedToggle(checkState);
                 StatusBarNotificationConfig config = UserPreferences.getStatusConfig();
-                StatusBarNotificationConfig demoConfig = DemoCache.getNotificationConfig();
+                StatusBarNotificationConfig demoConfig = InfoCache.getNotificationConfig();
                 if (checkState && demoConfig != null) {
                     config.ledARGB = demoConfig.ledARGB;
                     config.ledOnMs = demoConfig.ledOnMs;
