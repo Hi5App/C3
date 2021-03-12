@@ -159,6 +159,9 @@ public class MsgConnector implements ReconnectionInterface {
     }
 
 
+    /**
+     * send msg without waiting
+     */
     public boolean sendMsg(String msg){
 
         return sendMsg(msg, false);

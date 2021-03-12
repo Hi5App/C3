@@ -375,8 +375,7 @@ public class ManageService extends Service {
 
         private boolean processMsg(final String msg){
             if (msg.endsWith("\n")){
-                msg.trim();
-                receiveMsgInterface.onRecMessage(msg.replace("\n",""));
+                receiveMsgInterface.onRecMessage(msg.trim());
                 resetDataType();
                 return true;
             }

@@ -473,7 +473,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private float buttonVolume = 1.0f;
     private float actionVolume = 1.0f;
     private boolean firstLogin = true;
-    private boolean firstJoinRomm = true;
+    private boolean firstJoinRoom = true;
     private boolean copyFile = false;
 
 
@@ -483,17 +483,92 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         Log.e(TAG,"onRecMessage()  " + msg);
 
+        /*
+        select file
+         */
+        if (msg.startsWith("GETFILELIST:")){
+            LoadFiles(msg.split(":")[1]);
+        }
+
+
+        /*
+        when the file is selected, room will be created, and collaborationService will be init, port is room number
+         */
+        if (msg.startsWith("Port:")){
+
+            if (msg.split(":")[1].equals("-1")){
+                Toast_in_Thread("Something Wrong with Server");
+                soundPool.play(soundId[3], actionVolume, actionVolume, 0, 0, 1.0f);
+                return;
+            }
+
+            initMsgConnector(msg.split(":")[1]);
+            if (firstJoinRoom){
+                initMsgService();
+                firstJoinRoom = false;
+            }else {
+
+                /*
+                reset the msg connect in collaboration service
+                 */
+                CollaborationService.resetConnection();
+            }
+
+            /*
+            when join the room, user should login first
+             */
+            MsgConnector.getInstance().sendMsg("/login:" + username);
+        }
+
+
+        /*
+        server will send user list when the users in current room are changed
+         */
+        if (msg.startsWith("/users:")){
+
+            if (firstLogin || copyFile){
+
+                /*
+                when first join the room, try to get the image
+                 */
+                MsgConnector.getInstance().sendMsg("/ImageRes:" + Communicator.BrainNum);
+                firstLogin = false;
+                copyFile   = false;
+            }
+
+            /*
+            update the user list
+             */
+            String[] users = msg.split(":")[1].split(";");
+            List<String> newUserList = Arrays.asList(users);
+            updateUserList(newUserList);
+
+        }
+
+
+        /*
+        process the img resolution info
+         */
+        if (msg.startsWith("ImgRes")){
+            Log.e(TAG,"msg: " + msg);
+            Communicator communicator = Communicator.getInstance();
+            communicator.initImgInfo(null, Integer.parseInt(msg.split(";")[1]), msg.split(";"));
+
+//            communicator.setResolution(msg.split(";"));
+//            communicator.setImgRes(Integer.parseInt(msg.split(";")[1]));
+//            communicator.setCurRes(Integer.parseInt(msg.split(";")[1]));
+
+            MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
+
+        }
+
         if (msg.startsWith("Block:")){
-            Log.e(TAG,"onRecMessage()" + msg);
 //            LoadBigFile_Remote(msg.split(":")[1]);
             myrenderer.setPath(msg.split(":")[1]);
             myrenderer.zoom(2.2f);
             myGLSurfaceView.requestRender();
 
-            Communicator communicator = Communicator.getInstance();
-
-            MsgConnector msgConnector = MsgConnector.getInstance();
-            msgConnector.sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
+            MsgConnector.getInstance().sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
 
             isBigData_Remote = true;
             isBigData_Local = false;
@@ -509,14 +584,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     ApoReader apoReader = new ApoReader();
                     apo = apoReader.read(msg.split(":")[1]);
                     if (apo == null){
-                        Toast_in_Thread("Make sure the .apo file is right");
+                        Toast_in_Thread("There is something wrong with apo file !");
                     }
 
-                    Communicator communicator = Communicator.getInstance();
-                    myrenderer.importApo(communicator.convertApo(apo));
+                    myrenderer.importApo(Communicator.getInstance().convertApo(apo));
                     myrenderer.saveUndo();
                     myGLSurfaceView.requestRender();
-
 
                 }catch (Exception e){
                     e.printStackTrace();
@@ -528,8 +601,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     Log.e(TAG, "File: .eswc");
                     NeuronTree nt = NeuronTree.readSWC_file(msg.split(":")[1]);
 
-                    Communicator communicator = Communicator.getInstance();
-                    myrenderer.importNeuronTree(communicator.convertNeuronTree(nt));
+                    myrenderer.importNeuronTree(Communicator.getInstance().convertNeuronTree(nt));
                     myrenderer.saveUndo();
                     myGLSurfaceView.requestRender();
 
@@ -541,77 +613,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
-        if (msg.startsWith("Port:")){
 
-            if (msg.split(":")[1].equals("-1")){
-                Toast_in_Thread("Something Wrong with Server");
-                soundPool.play(soundId[3], actionVolume, actionVolume, 0, 0, 1.0f);
-                return;
-            }
-
-            initMsgConnector(msg.split(":")[1]);
-
-            if (firstJoinRomm){
-                initMsgService();
-                firstJoinRomm = false;
-            }else {
-                CollaborationService.resetConnection();
-            }
-
-            MsgConnector msgConnector = MsgConnector.getInstance();
-            msgConnector.sendMsg("/login:" + username);
-
-        }
-
-
-        if (msg.startsWith("/users:")){
-
-            if (firstLogin || copyFile){
-                MsgConnector msgConnector = MsgConnector.getInstance();
-                msgConnector.sendMsg("/ImageRes:" + Communicator.BrainNum);
-                firstLogin = false;
-                copyFile   = false;
-            }
-
-            String[] users = msg.split(":")[1].split(";");
-            List<String> newUserList = Arrays.asList(users);
-            updateUserList(newUserList);
-
-        }
-
-        if (msg.startsWith("ImgRes")){
-            Log.e(TAG,"msg: " + msg);
-            Communicator communicator = Communicator.getInstance();
-            communicator.setImgRes(Integer.parseInt(msg.split(";")[1]));
-            communicator.setCurRes(Integer.parseInt(msg.split(";")[1]));
-            communicator.setResolution(msg.split(";"));
-
-            MsgConnector msgConnector = MsgConnector.getInstance();
-            msgConnector.sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + communicator.getCurRes() + ";" + Communicator.getSoma(communicator.getCurRes()) + ";128;");
-
-            float[] startPoint = Communicator.getSoma();
-            for (int i = 0; i < startPoint.length; i++){
-                startPoint[i] -= 64;
-            }
-
-            Communicator.setImageStartPoint(startPoint);
-            Communicator.ImgSize = 128;
-
-        }
-
-
-        if (msg.contains("sync")){
-            Communicator communicator = Communicator.getInstance();
-            V_NeuronSWC seg = communicator.syncSWC(msg);
-            myrenderer.syncAddSegSWC(seg);
-            myGLSurfaceView.requestRender();
-        }
-
-
-        if (msg.startsWith("GETFILELIST:")){
-            LoadFiles(msg.split(":")[1]);
-        }
-
+        /*
+        for collaboration -------------------------------------------------------------------
+         */
 
         if (msg.startsWith("/drawline_norm:")){
             Log.e(TAG,"drawline_norm");
@@ -688,6 +693,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         }
 
+        /*
+        for collaboration -------------------------------------------------------------------
+         */
 
     }
 
@@ -2002,12 +2010,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         bindService(intent, connection_msg, Context.BIND_AUTO_CREATE);
     }
 
-    private void initMsgConnector(String ip){
+    private void initMsgConnector(String port){
         MsgConnector msgConnector = MsgConnector.getInstance();
         msgConnector.setContext(this);
 
         msgConnector.setIp(ip_ALiYun);
-        msgConnector.setPort(ip);
+        msgConnector.setPort(port);
         msgConnector.initConnection();
     }
 
@@ -2089,7 +2097,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             list_array.add(list[i].split(" ")[0]);
 
             Communicator communicator = Communicator.getInstance();
-            communicator.setSoma(list[i].split(" ")[0]);
+            communicator.initSoma(list[i].split(" ")[0]);
 
         }
 
@@ -2129,7 +2137,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void selectMode(String oldname, String text){
 
         Communicator communicator = Communicator.getInstance();
-        boolean mode = communicator.setSoma(text);
+        boolean mode = communicator.initSoma(text);
 
         String[] modeList;
         if (mode){
@@ -2164,19 +2172,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                     default:
                                         Log.e(TAG,"Something Wrong with SelectMode");
                                 }
-
-//                                ServerConnector serverConnector = ServerConnector.getInstance();
-//                                Log.e(TAG, "test: " + text);
-//                                Log.e(TAG, "test type: " + fileType.get(text));
-//
-//                                if (fileType.get(text).equals("0")){
-//                                    conPath = conPath + "/" + text;
-//                                    serverConnector.sendMsg("GETFILELIST:" + conPath);
-//                                }else {
-//                                    Log.e(TAG, "fileType.get(text).equals(\"1\")");
-//                                    serverConnector.sendMsg("LOADFILES:0 " + conPath + "/" + text + " " + conPath + "/test_01_fx_lh_test.ano");
-//                                }
-
                             }
                         })
                 .show();
@@ -2223,9 +2218,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         conPath = "";
         firstLogin = true;
-
-        ServerConnector serverConnector = ServerConnector.getInstance();
-        serverConnector.sendMsg("GETFILELIST:" + "/");
+        ServerConnector.getInstance().sendMsg("GETFILELIST:" + "/");
 //        serverConnector.sendMsg("GETFILELIST:" + "/18454/18454_00067");
 //        serverConnector.sendMsg("LOADFILES:0 /17301/17301_00019/17301_00019_x20874.000_y23540.000_z7388.000.ano /17301/17301_00019/test_01_fx_lh_test.ano");
 
@@ -2281,7 +2274,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         if (MsgConnector.userList.size() < newUserList.size()){
             for (int i = 0; i < newUserList.size(); i++){
-                if (!MsgConnector.userList.contains(newUserList.get(i))){
+                if (!MsgConnector.userList.contains(newUserList.get(i)) && newUserList.get(i) != username){
                     Toast_in_Thread("User " + newUserList.get(i) + " join !");
                 }
             }
@@ -5809,7 +5802,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202103011a 10:00 UTC+8 build",
+                                "Version: 202103012a 10:00 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
