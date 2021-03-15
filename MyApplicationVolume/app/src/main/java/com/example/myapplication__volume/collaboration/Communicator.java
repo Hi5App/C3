@@ -14,7 +14,7 @@ import com.example.basic.XYZ;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
 
-import org.litepal.LitePal;
+//import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +46,7 @@ public class Communicator {
 
     public static String BrainNum = null;
     public static String Soma = null;
+    public static String Path = null;
 
     private String initSomaMsg = null;                         // for inviting user
     private String conPath = null;                             // for inviting user
@@ -369,17 +370,19 @@ public class Communicator {
 
     public void initImgInfo(String imgName, int imgRes, String[] resList){
 
-        // set resolution list
-        setResolution(resList);
 
         this.ImgRes = imgRes;
 
-        SQLiteDatabase db = LitePal.getDatabase();
+//        SQLiteDatabase db = LitePal.getDatabase();
 
         /*
         read curRes from local file
          */
         this.CurRes = imgRes;
+
+
+        // set resolution list
+        setResolution(resList);
 
 
         /*
@@ -658,8 +661,8 @@ public class Communicator {
     }
 
 
-    public void setConPath(String conPath) {
-        this.conPath = conPath;
+    public void setConPath(String p) {
+        conPath = p;
     }
 
 

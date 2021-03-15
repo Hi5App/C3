@@ -23,6 +23,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -97,6 +98,7 @@ import com.example.myapplication__volume.FileReader.AnoReader;
 import com.example.myapplication__volume.FileReader.ApoReader;
 import com.example.myapplication__volume.Nim.main.helper.SystemMessageUnreadManager;
 import com.example.myapplication__volume.Nim.reminder.ReminderManager;
+import com.example.myapplication__volume.Nim.session.extension.InviteAttachment;
 import com.example.myapplication__volume.collaboration.CollaborationService;
 import com.example.myapplication__volume.collaboration.ManageService;
 import com.example.myapplication__volume.collaboration.Communicator;
@@ -126,7 +128,16 @@ import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.auth.LoginInfo;
+import com.netease.nimlib.sdk.friend.FriendService;
+import com.netease.nimlib.sdk.msg.MessageBuilder;
+import com.netease.nimlib.sdk.msg.MsgService;
+import com.netease.nimlib.sdk.msg.MsgServiceObserve;
 import com.netease.nimlib.sdk.msg.SystemMessageObserver;
+import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
+import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.uinfo.UserService;
 import com.tracingfunc.app2.ParaAPP2;
 import com.tracingfunc.app2.V3dNeuronAPP2Tracing;
 import com.tracingfunc.gd.CurveTracePara;
@@ -138,6 +149,7 @@ import com.tracingfunc.gsdt.ParaGSDT;
 import com.warkiz.widget.IndicatorSeekBar;
 
 import org.apache.commons.io.FileUtils;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -476,6 +488,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private boolean firstJoinRoom = true;
     private boolean copyFile = false;
 
+    private int score = 0;
+    private String scoreString = "00000";
+
+    private TextView scoreText;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -1538,6 +1554,18 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
         });
 
+        scoreText = new TextView(this);
+        scoreText.setTextColor(Color.YELLOW);
+        scoreText.setText(scoreString);
+        scoreText.setTypeface(Typeface.DEFAULT_BOLD);
+        scoreText.setLetterSpacing(0.8f);
+        scoreText.setTextSize(15);
+
+        FrameLayout.LayoutParams lp_score = new FrameLayout.LayoutParams(350, 300);
+        lp_score.gravity = Gravity.TOP | Gravity.RIGHT;
+        lp_score.setMargins(0, 350, 20, 0);
+        this.addContentView(scoreText, lp_score);
+
         FrameLayout.LayoutParams lp_downsample = new FrameLayout.LayoutParams(120, 120);
 
 
@@ -2125,7 +2153,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                     Log.e(TAG, "fileType.get(text).equals(\"1\")");
                                     selectMode(conPath + "/" + text, text);
                                     Communicator.BrainNum = conPath.split("/")[1];
-
+                                    Communicator.Path = conPath + "/" + text;
 //                                    serverConnector.sendMsg("LOADFILES:0 " + conPath + "/" + text + " " + conPath + "/test_01_fx_lh_test.ano");
                                 }
                             }
@@ -2261,13 +2289,59 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     private void showUserList(){
+        String [] userList = (String[]) MsgConnector.userList.toArray();
+        String [] list = new String[userList.length + 1];
+        list[userList.length] = "invite friend to join...";
+        System.arraycopy(userList, 0, list, 0, userList.length);
         new XPopup.Builder(this)
                 //.maxWidth(600)
-                .asCenterList("User List", (String[]) MsgConnector.userList.toArray(),
+                .asCenterList("User List", list,
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                Toast_in_Thread("User " + text + " in Room !");
+                                if (position < userList.length)
+                                    Toast_in_Thread("User " + text + " in Room !");
+                                else {
+                                    showFriendsList();
+                                }
+                            }
+                        })
+                .show();
+    }
+
+    private void showFriendsList(){
+        List<String> friends = NIMClient.getService(FriendService.class).getFriendAccounts();
+        String [] friendList = new String[friends.size()];
+        for (int i = 0; i < friends.size(); i++){
+            friendList[i] = friends.get(i);
+        }
+        new XPopup.Builder(this)
+                .asCenterList("Friend List", friendList,
+                        new OnSelectListener(){
+                            @Override
+                            public void onSelect(int position, String text) {
+
+                                Communicator communicator = Communicator.getInstance();
+                                String nickname = NIMClient.getService(UserService.class).getUserInfo(username).getName();
+                                InviteAttachment attachment = new InviteAttachment(nickname, communicator.Path,  communicator.getInitSomaMsg());
+                                IMMessage message = MessageBuilder.createCustomMessage(text, SessionTypeEnum.P2P, attachment);
+//                                message.setSessionUpdate(false);
+                                NIMClient.getService(MsgService.class).sendMessage(message, true).setCallback(new RequestCallback<Void>() {
+                                    @Override
+                                    public void onSuccess(Void param) {
+                                        Toast_in_Thread_static("Sended to" + text);
+                                    }
+
+                                    @Override
+                                    public void onFailed(int code) {
+                                        Toast_in_Thread_static("Invite Send Failed");
+                                    }
+
+                                    @Override
+                                    public void onException(Throwable exception) {
+
+                                    }
+                                });
                             }
                         })
                 .show();
@@ -2321,6 +2395,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void registerSystemMessageObservers(boolean register) {
         NIMClient.getService(SystemMessageObserver.class).observeUnreadCountChange(
                 sysMsgUnreadCountChangedObserver, register);
+
+        NIMClient.getService(MsgServiceObserve.class).observeReceiveMessage(inviteMessageObserver, true);
     }
 
     private Observer<Integer> sysMsgUnreadCountChangedObserver = (Observer<Integer>) unreadCount -> {
@@ -2328,6 +2404,69 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         SystemMessageUnreadManager.getInstance().setSysMsgUnreadCount(unreadCount);
         ReminderManager.getInstance().updateContactUnreadNum(unreadCount);
     };
+
+
+
+    private Observer<List<IMMessage>> inviteMessageObserver = new Observer<List<IMMessage>>() {
+        @Override
+        public void onEvent(List<IMMessage> imMessages) {
+            Toast_in_Thread_static("Receive Msg");
+            for (int i = 0; i < imMessages.size(); i++) {
+                if (imMessages.get(i).getMsgType() == MsgTypeEnum.custom){
+                    MsgAttachment attachment = imMessages.get(i).getAttachment();
+                    if (attachment instanceof InviteAttachment){
+                        Toast_in_Thread_static("Receive Invite");
+                        String data = attachment.toJson(false);
+                        Toast_in_Thread_static(data);
+                        Log.d(TAG, "Invite data: " + data);
+
+                        data = data.replaceAll("\"", "");
+                        data = data.replaceAll("\\u007B", "");
+                        data = data.replaceAll("\\}", "");
+                        Log.d(TAG, "Invite data: " + data);
+
+                        String [] informs = data.split(",");
+                        String invitor = informs[0].split(":")[2];
+                        String path = informs[1].split(":")[1];
+                        String soma = informs[2].split(":")[1];
+
+                        invitePopup(mainContext, invitor, path, soma);
+                    }
+                }
+            }
+        }
+    };
+
+    private void invitePopup(Context context, String invitor, String path, String soma){
+        String[] list = path.split("/");
+        String roomName = list[list.length - 1];
+        new XPopup.Builder(context)
+                .dismissOnTouchOutside(false)
+                .dismissOnBackPressed(false)
+                .asConfirm("INVITE", invitor + " is inviting you to join game in room " + roomName, "Reject", "Join",
+                        new OnConfirmListener() {
+                            @Override
+                            public void onConfirm() {
+                                ServerConnector serverConnector = ServerConnector.getInstance();
+                                serverConnector.sendMsg("LOADFILES:2 " + path);
+
+//                                String[] list = path.split("/");
+                                serverConnector.setRoomName(roomName);
+
+                                Communicator communicator = Communicator.getInstance();
+                                communicator.initSoma(soma);
+                                communicator.setConPath(path);
+                                Communicator.BrainNum = path.split("/")[1];
+                                conPath = path;
+                            }
+                        }, new OnCancelListener() {
+                            @Override
+                            public void onCancel() {
+
+                            }
+                        }, false)
+        .show();
+    }
 
     public void doLogin() {
         LoginInfo info = new LoginInfo("xf","123456");
@@ -8170,6 +8309,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             if (!isZooming) {
                                 try {
                                     if (ifPoint) {
+                                        addScore(1);
                                         Log.v("actionUp", "Pointinggggggggggg");
                                         if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
                                             myrenderer.add2DMarker(normalizedX, normalizedY);
@@ -8197,7 +8337,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         Vector<Integer> segids = new Vector<>();
                                         myrenderer.setIfPainting(false);
 //                            myrenderer.addLineDrawed(lineDrawed);
-
+                                        addScore(2);
                                         if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
                                             myrenderer.add2DCurve(lineDrawed);
                                         else {
@@ -9411,6 +9551,28 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 LoginActivity.actionStart(context);
             }
         });
+    }
+
+    private void addScore(int s){
+        score += s;
+
+        updateScoreText();
+    }
+
+    private void updateScoreText(){
+        if (score < 10){
+            scoreString = "0000" + Integer.toString(score);
+        } else if (score >= 10 && score < 100){
+            scoreString = "000" + Integer.toString(score);
+        } else if (score >= 100 && score < 1000){
+            scoreString = "00" + Integer.toString(score);
+        } else if (score >= 1000 && score < 10000){
+            scoreString = "0" + Integer.toString(score);
+        } else {
+            scoreString = Integer.toString(score);
+        }
+        Log.d("UpdateScore", Integer.toString(score) + "   " + scoreString);
+        scoreText.setText(scoreString);
     }
 
     class MyRtmClientListener implements RtmClientListener {

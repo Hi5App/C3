@@ -20,6 +20,7 @@ import com.example.myapplication__volume.Nim.session.activity.MessageInfoActivit
 import com.example.myapplication__volume.Nim.session.extension.CustomAttachParser;
 import com.example.myapplication__volume.Nim.session.extension.CustomAttachment;
 import com.example.myapplication__volume.Nim.session.extension.GuessAttachment;
+import com.example.myapplication__volume.Nim.session.extension.InviteAttachment;
 import com.example.myapplication__volume.Nim.session.extension.MultiRetweetAttachment;
 import com.example.myapplication__volume.Nim.session.extension.RTSAttachment;
 import com.example.myapplication__volume.Nim.session.extension.RedPacketAttachment;
@@ -30,6 +31,7 @@ import com.example.myapplication__volume.Nim.session.search.SearchMessageActivit
 import com.example.myapplication__volume.Nim.session.viewholder.MsgViewHolderDefCustom;
 import com.example.myapplication__volume.Nim.session.viewholder.MsgViewHolderFile;
 import com.example.myapplication__volume.Nim.session.viewholder.MsgViewHolderGuess;
+import com.example.myapplication__volume.Nim.session.viewholder.MsgViewHolderInvite;
 import com.example.myapplication__volume.Nim.session.viewholder.MsgViewHolderMultiRetweet;
 import com.example.myapplication__volume.Nim.session.viewholder.MsgViewHolderSnapChat;
 import com.example.myapplication__volume.Nim.session.viewholder.MsgViewHolderSticker;
@@ -608,10 +610,12 @@ public class SessionHelper {
         NimUIKit.registerMsgItemViewHolder(CustomAttachment.class, MsgViewHolderDefCustom.class);
         NimUIKit.registerMsgItemViewHolder(StickerAttachment.class, MsgViewHolderSticker.class);
         NimUIKit.registerMsgItemViewHolder(SnapChatAttachment.class, MsgViewHolderSnapChat.class);
+        NimUIKit.registerMsgItemViewHolder(InviteAttachment.class, MsgViewHolderInvite.class);
 
 //        NimUIKit.registerMsgItemViewHolder(RTSAttachment.class, MsgViewHolderRTS.class);
         NimUIKit.registerMsgItemViewHolder(MultiRetweetAttachment.class, MsgViewHolderMultiRetweet.class);
         NimUIKit.registerTipMsgViewHolder(MsgViewHolderTip.class);
+
 
 
 //        registerRedPacketViewHolder();

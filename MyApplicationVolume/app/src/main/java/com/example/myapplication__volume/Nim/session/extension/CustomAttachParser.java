@@ -41,6 +41,9 @@ public class CustomAttachParser implements MsgAttachmentParser {
                 case CustomAttachmentType.MultiRetweet:
                     attachment = new MultiRetweetAttachment();
                     break;
+                case CustomAttachmentType.Invite:
+                    attachment = new InviteAttachment();
+                    break;
                 default:
                     attachment = new DefaultCustomAttachment();
                     break;
