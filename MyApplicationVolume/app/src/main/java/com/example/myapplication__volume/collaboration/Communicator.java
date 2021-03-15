@@ -2,6 +2,7 @@ package com.example.myapplication__volume.collaboration;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.util.Log;
 
@@ -12,6 +13,8 @@ import com.example.basic.NeuronTree;
 import com.example.basic.XYZ;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
+
+import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,12 +32,12 @@ public class Communicator {
      */
     public static final String TAG = "Communicator";
 
-    public static ArrayList<String> resolution;        // res list of current img
+    public static ArrayList<String> resolution;               // res list of current img
 
     private static int ImgRes;                                // 1 is highest; max num is lowest
     private static int CurRes;                                // current img res
-    public static XYZ ImageMaxRes = new XYZ();         // Soma position in highest resolution
-    public static XYZ ImageCurRes = new XYZ();         // Soma position in current resolution
+    public static XYZ ImageMaxRes = new XYZ();                // Soma position in highest resolution
+    public static XYZ ImageCurRes = new XYZ();                // Soma position in current resolution
 
     public static int ImgSize;
     public static XYZ ImageStartPoint = new XYZ();
@@ -43,6 +46,9 @@ public class Communicator {
 
     public static String BrainNum = null;
     public static String Soma = null;
+
+    private String initSomaMsg = null;                         // for inviting user
+    private String conPath = null;                             // for inviting user
 
 
     /**
@@ -352,6 +358,7 @@ public class Communicator {
                 return false;
             }
 
+            initSomaMsg = msg;
             Soma = x.split("/.")[0] + ";" + y.split("/.")[0] + ";" + z.split("/.")[0];
             return true;
         }
@@ -362,9 +369,12 @@ public class Communicator {
 
     public void initImgInfo(String imgName, int imgRes, String[] resList){
 
+        // set resolution list
         setResolution(resList);
 
         this.ImgRes = imgRes;
+
+        SQLiteDatabase db = LitePal.getDatabase();
 
         /*
         read curRes from local file
@@ -648,44 +658,27 @@ public class Communicator {
     }
 
 
-
-    public static String getSoma(int imgRes){
-
-        int ratio = (int) Math.pow(2, (imgRes) - 1);
-        int[] pos = new int[3];
-        String[] pos_str = Soma.split(";");
-        for (int i = 0; i < pos_str.length; i++){
-            pos[i] = (int) (Float.parseFloat(pos_str[i]) / ratio);
-            Log.e(TAG,"pos[" + i +"]: " + pos_str[i]);
-            Log.e(TAG,"pos[" + i +"]: " + Float.parseFloat(pos_str[i]) / ratio);
-            Log.e(TAG,"pos[" + i +"]: " + pos[i]);
-        }
-
-        ImageCurRes.x = pos[0];
-        ImageCurRes.y = pos[1];
-        ImageCurRes.z = pos[2];
-
-        ImageCurPoint.x = pos[0];
-        ImageCurPoint.y = pos[1];
-        ImageCurPoint.z = pos[2];
-
-        return pos[0] + ";" + pos[1] + ";" + pos[2];
-
+    public void setConPath(String conPath) {
+        this.conPath = conPath;
     }
+
 
     public static float[] getSoma(){
         return new float[]{ImageCurRes.x, ImageCurRes.y , ImageCurRes.z};
     }
 
 
+    /*
+    for inviting user
+     */
 
-    public static void setImageStartPoint(float[] point) {
+    public String getInitSomaMsg() {
+        return initSomaMsg;
+    }
 
-        ImageStartPoint = new XYZ();
-        ImageStartPoint.x = point[0] ;
-        ImageStartPoint.y = point[1];
-        ImageStartPoint.z = point[2];
 
+    public String getConPath() {
+        return conPath;
     }
 
 

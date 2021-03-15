@@ -2165,6 +2165,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         // 2
                                         ServerConnector serverConnector = ServerConnector.getInstance();
                                         serverConnector.sendMsg("LOADFILES:2 " + oldname);
+                                        Communicator.getInstance().setConPath(oldname);
 
                                         String[] list = oldname.split("/");
                                         serverConnector.setRoomName(list[list.length - 1]);
@@ -2194,11 +2195,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         switch (mode){
                             case "0":
                                 serverConnector.sendMsg("LOADFILES:0 " + oldname + " " + conPath + "/" + text);
+                                Communicator.getInstance().setConPath(conPath + "/" + text);
                                 serverConnector.setRoomName(text);
                                 copyFile = true;
                                 break;
                             case "1":
                                 serverConnector.sendMsg("LOADFILES:1 " + oldname + " " + conPath + "/" + text);
+                                Communicator.getInstance().setConPath(conPath + "/" + text);
                                 serverConnector.setRoomName(text);
                                 copyFile = true;
                                 break;

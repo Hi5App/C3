@@ -30,6 +30,8 @@ import com.netease.nimlib.sdk.StatusBarNotificationConfig;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.util.NIMUtil;
 
+import org.litepal.LitePal;
+
 
 //用于在app全局获取context
 
@@ -48,10 +50,14 @@ public class Myapplication extends Application {
     public void onCreate() {
         super.onCreate();
         sInstance = this;
-
         context = getApplicationContext();
+
+        //store crash info
         CrashHandler crashHandler = CrashHandler.getInstance();
         crashHandler.init(getApplicationContext());
+
+        // store user info
+        LitePal.initialize(this);
 
         mChatManager = new ChatManager(this);
         mChatManager.init();

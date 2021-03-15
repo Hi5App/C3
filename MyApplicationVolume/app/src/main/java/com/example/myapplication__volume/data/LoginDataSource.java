@@ -152,7 +152,7 @@ public class LoginDataSource {
     private void LoginWithSocket(String username, String password){
 
         ServerConnector serverConnector = ServerConnector.getInstance();
-        serverConnector.sendMsg(String.format("LOGIN:%s %s", username, password));
+        serverConnector.sendMsg(String.format("LOGIN:%s %s", username, password),true);
         String result = serverConnector.ReceiveMsg();
         Log.e(TAG,"msg: " + result);
 

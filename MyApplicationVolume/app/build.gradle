@@ -112,6 +112,9 @@ dependencies {
 
     implementation 'com.github.xuexiangjys:XUpdate:2.0.6'
 
+    //for litepal: local database
+    implementation 'org.litepal.guolindev:core:3.2.3'
+
     //    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
     //    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.3'
     //// Optional, if you use support library fragments:
