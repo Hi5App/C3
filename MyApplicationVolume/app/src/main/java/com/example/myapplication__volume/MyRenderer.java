@@ -5925,6 +5925,24 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     }
                 }
 
+                if (!delete){
+                    delete = true;
+                    int segSize = seg.row.size()-1;
+                    for (int j = 0; j < seg.row.size(); j++){
+
+                        V_NeuronSWC_unit segUnit_del = seg.row.get(j);
+                        V_NeuronSWC_unit segUnit_cur = cur_seg.row.get(segSize - j);
+                        float[] point_del = new float[]{(float) segUnit_del.x, (float) segUnit_del.y, (float) segUnit_del.z};
+                        float[] point_cur = new float[]{(float) segUnit_cur.x, (float) segUnit_cur.y, (float) segUnit_cur.z};
+
+//                    Log.e(TAG,"point num: " + seg.row.size() + "; current point: " + j);
+                        if (! (distance(point_del, point_cur)<0.5) ){
+                            delete = false;
+                            break;
+                        }
+                    }
+                }
+
             }
 
             if (delete){
@@ -5940,8 +5958,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public void syncRetypeSegSWC(V_NeuronSWC seg){
 
+        Log.e(TAG, "seg size(): " + seg.row.size());
+
         for (int i = 0; i < curSwcList.nsegs(); i++){
             V_NeuronSWC cur_seg = curSwcList.seg.get(i);
+
+            Log.e(TAG, "cur_seg size(): " + cur_seg.row.size());
             boolean retype = false;
             if (cur_seg.row.size() == seg.row.size()){
                 retype = true;
@@ -5958,12 +5980,31 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         break;
                     }
                 }
+                if (!retype){
+                    retype = true;
+                    int segSize = seg.row.size()-1;
+                    for (int j = 0; j < seg.row.size(); j++){
+
+                        V_NeuronSWC_unit segUnit_del = seg.row.get(j);
+                        V_NeuronSWC_unit segUnit_cur = cur_seg.row.get(segSize - j);
+                        float[] point_del = new float[]{(float) segUnit_del.x, (float) segUnit_del.y, (float) segUnit_del.z};
+                        float[] point_cur = new float[]{(float) segUnit_cur.x, (float) segUnit_cur.y, (float) segUnit_cur.z};
+
+//                    Log.e(TAG,"point num: " + seg.row.size() + "; current point: " + j);
+                        if (! (distance(point_del, point_cur)<0.5) ){
+                            retype = false;
+                            break;
+                        }
+                    }
+                }
 
             }
 
             double newType = seg.row.get(0).type;
 
             if (retype){
+                Log.e(TAG, "find curve successfully !");
+
                 for (int j = 0; j < cur_seg.row.size(); j++){
                     cur_seg.row.get(j).type = newType;
                 }

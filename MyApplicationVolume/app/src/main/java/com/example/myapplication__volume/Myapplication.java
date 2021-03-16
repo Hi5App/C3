@@ -21,6 +21,7 @@ import com.example.myapplication__volume.Nim.session.SessionHelper;
 import com.example.myapplication__volume.collaboration.Communicator;
 import com.example.myapplication__volume.collaboration.MsgConnector;
 import com.example.myapplication__volume.collaboration.ServerConnector;
+import com.example.myapplication__volume.collaboration.basic.ImageInfo;
 import com.example.myapplication__volume.game.Score;
 import com.huawei.hms.support.common.ActivityMgr;
 import com.netease.nim.uikit.api.NimUIKit;
@@ -61,6 +62,7 @@ public class Myapplication extends Application {
         // store user info
         LitePal.initialize(this);
         Score.init(this);
+        ImageInfo.init(this);
         SQLiteDatabase db = LitePal.getDatabase();
         Log.e(TAG, String.format("Database version: %d", db.getVersion()));
 

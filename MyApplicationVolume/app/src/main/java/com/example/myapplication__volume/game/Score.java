@@ -1,13 +1,14 @@
 package com.example.myapplication__volume.game;
 
 import android.content.Context;
-import android.widget.Toast;
 
 import com.example.datastore.database.User;
 
 import org.litepal.LitePal;
 
 import java.util.List;
+
+import static com.example.myapplication__volume.MainActivity.Toast_in_Thread_static;
 
 public class Score{
 
@@ -50,9 +51,9 @@ public class Score{
 
 
     public int queryScore(String userid){
-        List<User> users = LitePal.select("userid", userid).find(User.class);
+        List<User> users = LitePal.where("userid = ?", userid).find(User.class);
         if (users.size() != 1 ) {
-            Toast.makeText(mContext, "Something wrong with database !", Toast.LENGTH_SHORT).show();
+            Toast_in_Thread_static("Something wrong with database !");
             return -1;
         }else {
             return users.get(0).getScore();
@@ -67,18 +68,18 @@ public class Score{
 
 
     public boolean updateScore(String userid, int score){
-        List<User> users = LitePal.select("userid", userid).find(User.class);
+        List<User> users = LitePal.where("userid = ?", userid).find(User.class);
         if (users.size() == 0){
             User user = new User();
             user.setUserid(userid);
             user.setScore(score);
             user.save();
         }else if(users.size() == 1){
-            User user = users.get(0);
+            User user = new User();
             user.setScore(score);
-            user.save();
+            user.updateAll("userid = ?", userid);
         }else {
-            Toast.makeText(mContext, "Something wrong with database !", Toast.LENGTH_SHORT).show();
+            Toast_in_Thread_static("Something wrong with database !");
             return false;
         }
         return true;
@@ -92,18 +93,18 @@ public class Score{
 
 
     public boolean addScore(int score){
-        List<User> users = LitePal.select("userid", userid).find(User.class);
+        List<User> users = LitePal.where("userid = ?", userid).find(User.class);
         if (users.size() == 0){
             User user = new User();
             user.setUserid(userid);
             user.setScore(score);
             user.save();
         }else if(users.size() == 1){
-            User user = users.get(0);
+            User user = new User();
             user.setScore(user.getScore() + score);
-            user.save();
+            user.updateAll("userid = ?", userid);
         }else {
-            Toast.makeText(mContext, "Something wrong with database !", Toast.LENGTH_SHORT).show();
+            Toast_in_Thread_static("Something wrong with database !");
             return false;
         }
         return true;

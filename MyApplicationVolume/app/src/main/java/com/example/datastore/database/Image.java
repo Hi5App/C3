@@ -12,7 +12,7 @@ public class Image extends LitePalSupport {
     private int curRes;
 
     @Column(nullable = false, defaultValue = "unkown")
-    private String curPos;
+    private String curPos;                                 // x;y;z;size
 
 
 

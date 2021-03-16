@@ -10,6 +10,7 @@ import androidx.annotation.RequiresApi;
 import com.example.basic.ImageMarker;
 import com.example.basic.NeuronTree;
 import com.example.basic.XYZ;
+import com.example.myapplication__volume.collaboration.basic.ImageInfo;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
 
@@ -47,6 +48,8 @@ public class Communicator {
 
     private String initSomaMsg = null;                         // for inviting user
     private String conPath = null;                             // for inviting user
+
+    private String conPathQuery = null;                        // for querying database
 
 
     /**
@@ -112,6 +115,7 @@ public class Communicator {
         V_NeuronSWC seg = new V_NeuronSWC();
 
         String[] swc = msg.split(";");
+        String type = msg.split(";")[0].split(" ")[1];
         for (int i = 1; i < swc.length; i++){
             V_NeuronSWC_unit segUnit = new V_NeuronSWC_unit();
 
@@ -122,8 +126,22 @@ public class Communicator {
             segUnit.x = GlobalCroods.x;
             segUnit.y = GlobalCroods.y;
             segUnit.z = GlobalCroods.z;
-            segUnit.n = Double.parseDouble(swc[i].split(" ")[4]);
-            segUnit.parent = Double.parseDouble(swc[i].split(" ")[5]);
+
+            if (type.equals("HI5")){
+
+                segUnit.n = Double.parseDouble(swc[i].split(" ")[4]);
+                segUnit.parent = Double.parseDouble(swc[i].split(" ")[5]);
+
+            }else if (type.equals("TeraFly")){
+
+                segUnit.n = i;
+                if (i == 1){
+                    segUnit.parent = 0;
+                }else {
+                    segUnit.parent = i-1;
+                }
+            }
+
 
             seg.row.add(segUnit);
         }
@@ -369,27 +387,66 @@ public class Communicator {
     }
 
 
-    public void initImgInfo(String imgName, int imgRes, String[] resList){
+    public void initImgInfo(String imgName, int imgres, String[] resList){
 
 
-        this.ImgRes = imgRes;
-
-        /*
-        read curRes from local file
-         */
-        this.CurRes = imgRes;
-
+        ImgRes = imgres;
 
         // set resolution list
         setResolution(resList);
 
+        int[] curPos = new int[4];
+        boolean exist = ImageInfo.getInstance().queryCurPath(conPathQuery);
+        if (exist){
+            ImageInfo imageInfo = ImageInfo.getInstance();
+
+            /*
+            read curRes from local file
+            */
+            if (imageInfo.queryRes(conPathQuery) != -1){
+                CurRes = imageInfo.queryRes(conPathQuery);
+            }else {
+                Toast_in_Thread_static("Something Wrong with Res info");
+            }
+
+
+            /*
+            read curPos from local file
+            */
+            if (imageInfo.queryPos(conPathQuery) != null){
+                String[] curPosString = imageInfo.queryPos(conPathQuery).split(";");
+
+                for (int i=0; i<curPosString.length; i++){
+                    curPos[i] = Integer.parseInt(curPosString[i]);
+                }
+
+            }else {
+                Toast_in_Thread_static("Something Wrong with Pos info");
+            }
+
+
+        }else {
+
+            /*
+            read curRes from local file
+            */
+            CurRes = imgres;
+
+            int ratio = (int) Math.pow(2, (CurRes) - 1);
+            String[] pos_str = Soma.split(";");
+            for (int i = 0; i < pos_str.length; i++){
+                curPos[i] = (int) (Float.parseFloat(pos_str[i]) / ratio);
+            }
+            curPos[3] = 128;
+
+        }
+
 
         /*
-        read curPos from local file
+        init
          */
-
         int[] pos = new int[3];
-        int ratio = (int) Math.pow(2, (imgRes) - 1);
+        int ratio = (int) Math.pow(2, (CurRes) - 1);
         String[] pos_str = Soma.split(";");
         for (int i = 0; i < pos_str.length; i++){
             pos[i] = (int) (Float.parseFloat(pos_str[i]) / ratio);
@@ -399,14 +456,19 @@ public class Communicator {
         ImageCurRes.y = pos[1];
         ImageCurRes.z = pos[2];
 
-        ImageCurPoint.x = pos[0];
-        ImageCurPoint.y = pos[1];
-        ImageCurPoint.z = pos[2];
+        ImageCurPoint.x = curPos[0];
+        ImageCurPoint.y = curPos[1];
+        ImageCurPoint.z = curPos[2];
+        ImgSize         = curPos[3];
 
-        ImgSize = 128;
-        ImageStartPoint.x = ImageCurPoint.x - 64;
-        ImageStartPoint.y = ImageCurPoint.y - 64;
-        ImageStartPoint.z = ImageCurPoint.z - 64;
+        ImageStartPoint.x = ImageCurPoint.x - ImgSize/2;
+        ImageStartPoint.y = ImageCurPoint.y - ImgSize/2;
+        ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
+
+        if (!exist){
+            Log.e(TAG,"initImgInfo");
+            ImageInfo.getInstance().initImgInfo(conPathQuery, CurRes, String.format("%d;%d;%d;%d", (int) ImageCurPoint.x, (int) ImageCurPoint.y, (int) ImageCurPoint.z, ImgSize));
+        }
 
     }
 
@@ -547,6 +609,7 @@ public class Communicator {
         ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
 
         MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
+        ImageInfo.getInstance().updatePosRes(conPathQuery, CurRes, getCurrentPos());
 
     }
 
@@ -573,7 +636,7 @@ public class Communicator {
         ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
 
         MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
-
+        ImageInfo.getInstance().updatePosRes(conPathQuery, CurRes, getCurrentPos());
 
     }
 
@@ -600,6 +663,7 @@ public class Communicator {
         ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
 
         MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
+        ImageInfo.getInstance().updatePosRes(conPathQuery, CurRes, getCurrentPos());
 
     }
 
@@ -662,6 +726,7 @@ public class Communicator {
 
     public void setConPath(String p) {
         conPath = p;
+        conPathQuery = conPath.replace("/","");
     }
 
 

@@ -100,8 +100,8 @@ import com.example.myapplication__volume.Nim.main.helper.SystemMessageUnreadMana
 import com.example.myapplication__volume.Nim.reminder.ReminderManager;
 import com.example.myapplication__volume.Nim.session.extension.InviteAttachment;
 import com.example.myapplication__volume.collaboration.CollaborationService;
-import com.example.myapplication__volume.collaboration.ManageService;
 import com.example.myapplication__volume.collaboration.Communicator;
+import com.example.myapplication__volume.collaboration.ManageService;
 import com.example.myapplication__volume.collaboration.MsgConnector;
 import com.example.myapplication__volume.collaboration.ServerConnector;
 import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
@@ -149,7 +149,6 @@ import com.tracingfunc.gsdt.ParaGSDT;
 import com.warkiz.widget.IndicatorSeekBar;
 
 import org.apache.commons.io.FileUtils;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -5944,7 +5943,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202103016a 10:00 UTC+8 build",
+                                "Version: 202103017a 10:00 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
