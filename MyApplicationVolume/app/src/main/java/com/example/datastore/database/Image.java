@@ -14,6 +14,10 @@ public class Image extends LitePalSupport {
     @Column(nullable = false, defaultValue = "unkown")
     private String curPos;
 
+
+
+
+
     public String getCurPath() {
         return curPath;
     }

@@ -2,6 +2,7 @@ package com.example.myapplication__volume;
 
 import android.app.Application;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.example.basic.CrashHandler;
@@ -20,6 +21,7 @@ import com.example.myapplication__volume.Nim.session.SessionHelper;
 import com.example.myapplication__volume.collaboration.Communicator;
 import com.example.myapplication__volume.collaboration.MsgConnector;
 import com.example.myapplication__volume.collaboration.ServerConnector;
+import com.example.myapplication__volume.game.Score;
 import com.huawei.hms.support.common.ActivityMgr;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.api.UIKitOptions;
@@ -58,12 +60,16 @@ public class Myapplication extends Application {
 
         // store user info
         LitePal.initialize(this);
+        Score.init(this);
+        SQLiteDatabase db = LitePal.getDatabase();
+        Log.e(TAG, String.format("Database version: %d", db.getVersion()));
 
         mChatManager = new ChatManager(this);
         mChatManager.init();
 
+
+        // for collaboration
         ServerConnector.init(this);
-//        initServerConnector();
         MsgConnector.init(this);
         Communicator.init(this);
 

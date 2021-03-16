@@ -2,7 +2,6 @@ package com.example.myapplication__volume.collaboration;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.util.Log;
 
@@ -13,8 +12,6 @@ import com.example.basic.NeuronTree;
 import com.example.basic.XYZ;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
-
-//import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,7 +72,7 @@ public class Communicator {
 
 
     /**
-     * 获取CrashHandler实例 ,单例模式
+     * 获取Communicator实例 ,单例模式
      */
     public static Communicator getInstance(){
         if (INSTANCE == null){
@@ -330,6 +327,10 @@ public class Communicator {
 
 
 
+
+
+
+
     public boolean initSoma(final String msg){
 
         Log.e(TAG,"msg: " + msg);
@@ -373,8 +374,6 @@ public class Communicator {
 
         this.ImgRes = imgRes;
 
-//        SQLiteDatabase db = LitePal.getDatabase();
-
         /*
         read curRes from local file
          */
@@ -389,8 +388,8 @@ public class Communicator {
         read curPos from local file
          */
 
-        int ratio = (int) Math.pow(2, (imgRes) - 1);
         int[] pos = new int[3];
+        int ratio = (int) Math.pow(2, (imgRes) - 1);
         String[] pos_str = Soma.split(";");
         for (int i = 0; i < pos_str.length; i++){
             pos[i] = (int) (Float.parseFloat(pos_str[i]) / ratio);

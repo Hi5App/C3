@@ -46,8 +46,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import static com.example.myapplication__volume.BaseActivity.ip_ALiYun;
-
 public class LoginActivity extends AppCompatActivity {
 
     private static final String KICK_OUT = "KICK_OUT";
@@ -130,8 +128,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
 
-        Log.e(TAG, "init ServerConnector");
-        initServerConnector();
+        ServerConnector.getInstance().setContext(this);
 
 
         if (preferenceLogin.getRem_or_not()){
@@ -344,21 +341,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    private void initServerConnector(){
 
-        ServerConnector serverConnector = ServerConnector.getInstance();
-        ServerConnector.setContext(this);
-
-        serverConnector.setIp(ip_ALiYun);
-        serverConnector.setPort("23763");
-        serverConnector.initConnection();
-//        serverConnector.sendMsg("hello world !");
-
-//        String data = "message" + "\n";
-//        int datalength = data.getBytes(StandardCharsets.UTF_8).length;
-//        Log.d(TAG, "data: " + data + "; ");
-
-    }
 
 
 }

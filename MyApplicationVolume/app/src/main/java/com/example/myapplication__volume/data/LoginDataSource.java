@@ -12,6 +12,8 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+import static com.example.myapplication__volume.BaseActivity.ip_ALiYun;
+
 /**s
  * Class that handles authentication w/ login credentials and retrieves user information.
  */
@@ -151,15 +153,18 @@ public class LoginDataSource {
 
     private void LoginWithSocket(String username, String password){
 
+        initServerConnector();
         ServerConnector serverConnector = ServerConnector.getInstance();
-        serverConnector.sendMsg(String.format("LOGIN:%s %s", username, password),true);
-        String result = serverConnector.ReceiveMsg();
-        Log.e(TAG,"msg: " + result);
+        if (serverConnector.checkConnection()){
+            serverConnector.sendMsg(String.format("LOGIN:%s %s", username, password),true);
+            String result = serverConnector.ReceiveMsg();
+            Log.e(TAG,"msg: " + result);
 
-        if (result == null){
-            responseData = "NULL";
-        }else {
-            responseData = result;
+            if (result == null){
+                responseData = "NULL";
+            }else {
+                responseData = result;
+            }
         }
     }
 
@@ -169,15 +174,18 @@ public class LoginDataSource {
         if (inviterCode.equals(""))
             inviterCode = "0";
 
+        initServerConnector();
         ServerConnector serverConnector = ServerConnector.getInstance();
-        serverConnector.sendMsg(String.format("REGISTER:%s %s %s %s %s", username, email, nickname, password, inviterCode));
-        String result = serverConnector.ReceiveMsg();
-        Log.e(TAG,"msg: " + result);
+        if(serverConnector.checkConnection()){
+            serverConnector.sendMsg(String.format("REGISTER:%s %s %s %s %s", username, email, nickname, password, inviterCode));
+            String result = serverConnector.ReceiveMsg();
+            Log.e(TAG,"msg: " + result);
 
-        if (result == null){
-            responseData = "NULL";
-        }else {
-            responseData = result;
+            if (result == null){
+                responseData = "NULL";
+            }else {
+                responseData = result;
+            }
         }
 
     }
@@ -309,5 +317,17 @@ public class LoginDataSource {
 
     public void logout() {
         // TODO: revoke authentication
+    }
+
+
+    private void initServerConnector(){
+
+        ServerConnector serverConnector = ServerConnector.getInstance();
+
+        serverConnector.releaseConnection();
+        serverConnector.setIp(ip_ALiYun);
+        serverConnector.setPort("23763");
+        serverConnector.initConnection();
+
     }
 }
