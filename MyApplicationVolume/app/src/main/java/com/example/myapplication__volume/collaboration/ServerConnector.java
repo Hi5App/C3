@@ -68,7 +68,7 @@ public class ServerConnector implements ReconnectionInterface {
     /**
      * 初始化连接
      */
-    public void initConnection(){
+    public boolean initConnection(){
 
         Log.d(TAG,"Start to Connect Server !");
 
@@ -76,8 +76,9 @@ public class ServerConnector implements ReconnectionInterface {
         如果已经和服务器建立连接了，就return
          */
         if (manageSocket != null && !manageSocket.isClosed() && manageSocket.isConnected()){
-            return;
+            return false;
         }
+        boolean[] success = {false};
 
         //新建一个线程，用于初始化socket和检测是否有接收到新的消息
         Thread thread = new Thread() {
@@ -94,6 +95,7 @@ public class ServerConnector implements ReconnectionInterface {
                      */
                     if (manageSocket.isConnected()) {
                         Log.d(TAG, "Connect Server Successfully !");
+                        success[0] = true;
                     } else {
                         Toast_in_Thread("Can't Connect Server, Try Again Please!");
                     }
@@ -117,6 +119,7 @@ public class ServerConnector implements ReconnectionInterface {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        return success[0];
 
     }
 
@@ -140,13 +143,16 @@ public class ServerConnector implements ReconnectionInterface {
 
 
     private void makeConnect(){
-
         Log.e(TAG,"makeConnect()");
 
-        if (manageSocket == null || !checkConnection()){
-            Log.e(TAG,"Connect Again");
-            initConnection();
-            reLogin();
+        try{
+            if (manageSocket == null || !checkConnection()){
+                Log.e(TAG,"Connect Again");
+                if(initConnection())
+                    reLogin();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
     }

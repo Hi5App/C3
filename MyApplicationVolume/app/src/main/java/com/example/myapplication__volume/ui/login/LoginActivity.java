@@ -137,20 +137,6 @@ public class LoginActivity extends AppCompatActivity {
             passwordEditText.setText(preferenceLogin.getPassword());
             remember_pwd.setChecked(true);
             loginButton.setEnabled(true);
-
-//            ServerConnector serverConnector = ServerConnector.getInstance();
-//            serverConnector.sendMsg(String.format("LOGIN:%s %s", preferenceLogin.getUsername(), preferenceLogin.getPassword()));
-//            String result = serverConnector.ReceiveMsg();
-//            Log.e(TAG,"msg: " + result);
-//
-//            if (result == null){
-//                responseData = "NULL";
-//            }else {
-//                responseData = result;
-//            }
-
-//            loginViewModel.login(usernameEditText.getText().toString(),
-//                    passwordEditText.getText().toString());
         }
 
         loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
@@ -184,9 +170,6 @@ public class LoginActivity extends AppCompatActivity {
                 if (loginResult.getSuccess() != null) {
                     Log.d("LoginResultOnChanged", "getSuccess");
 
-//                    MainActivity.actionStart(LoginActivity.this, loginResult.getSuccess().getDisplayName());
-//                    updateUiWithUser(loginResult.getSuccess());
-//                    finish();
                     if (remember_pwd.isChecked()){
                         preferenceLogin.setPref(usernameEditText.getText().toString(),
                                 passwordEditText.getText().toString(),true);
@@ -204,8 +187,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 setResult(Activity.RESULT_OK);
 
-                //Complete and destroy login activity once successful
-//                finish();
             }
         });
 

@@ -2213,7 +2213,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         conPath = "";
         firstLogin = true;
-        ServerConnector.getInstance().sendMsg("GETFILELIST:" + "/");
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ServerConnector.getInstance().sendMsg("GETFILELIST:" + "/", true);
+            }
+        }).start();
 
     }
 
@@ -6013,14 +6019,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                          */
 
                                         loadBigData();
-//                                        loadBigData();
                                         break;
                                     case "Load SWCFile":
                                         LoadSWC();
                                         break;
-//                                    case"Camera":
-//                                        Camera();
-//                                        break;
+
                                     default:
                                         Toast.makeText(getContext(), "Default in file", Toast.LENGTH_SHORT).show();
 
