@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.datastore.database.Image;
-import com.example.myapplication__volume.game.Score;
 
 import org.litepal.LitePal;
 
@@ -30,7 +29,7 @@ public class ImageInfo {
      */
     public static ImageInfo getInstance(){
         if (INSTANCE == null){
-            synchronized (Score.class){
+            synchronized (ImageInfo.class){
                 if (INSTANCE == null){
                     INSTANCE = new ImageInfo();
                 }

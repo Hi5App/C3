@@ -97,6 +97,7 @@ import com.example.myapplication__volume.collaboration.ManageService;
 import com.example.myapplication__volume.collaboration.MsgConnector;
 import com.example.myapplication__volume.collaboration.ServerConnector;
 import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
+import com.example.myapplication__volume.game.QuestActivity;
 import com.example.myapplication__volume.ui.login.LoginActivity;
 import com.example.server_communicator.Remote_Socket;
 import com.feature_calc_func.MorphologyCalculate;
@@ -2247,12 +2248,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 if (position < userList.length)
                                     Toast_in_Thread("User " + text + " in Room !");
                                 else {
-                                    showFriendsList();
+                                    showFriendsList(userList);
                                 }
                             }
                         })
                 .show();
     }
+
 
 
     private void updateUserList(List<String> newUserList){
@@ -2277,7 +2279,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void showFriendsList(){
+
+    private void showFriendsList(String [] userList){
         List<String> friends = NIMClient.getService(FriendService.class).getFriendAccounts();
         String [] friendList = new String[friends.size()];
         for (int i = 0; i < friends.size(); i++){
@@ -2288,6 +2291,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         new OnSelectListener(){
                             @Override
                             public void onSelect(int position, String text) {
+
+                                for (int i = 0; i < userList.length; i++) {
+                                    if (userList[i].equals(text)){
+                                        Toast_in_Thread("Already in this room");
+                                        return;
+                                    }
+                                }
 
                                 Communicator communicator = Communicator.getInstance();
                                 String nickname = NIMClient.getService(UserService.class).getUserInfo(username).getName();
@@ -2508,7 +2518,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public void More_icon(){
         String[] item_list = null;
         if (DrawMode){
-            item_list = new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Game", "About", "Help"};
+
+//            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Game", "About", "Help"};
+            item_list = new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Game", "About", "Help", "Quests"};
         }else{
             item_list = new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Account Name", "Game", "About", "Help"};
         }
@@ -2587,6 +2599,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         } catch (Exception e){
                                             e.printStackTrace();
                                         }
+                                        break;
+
+                                    case "Quests":
+                                        startActivity(new Intent(MainActivity.this, QuestActivity.class));
                                         break;
 
                                     default:

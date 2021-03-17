@@ -50,6 +50,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+        <activity android:name=".game.QuestActivity"
+            android:theme="@style/dialog_style"></activity>
         <activity android:name=".SettingActivity" />
         <activity android:name=".MenuActivity" />
 
