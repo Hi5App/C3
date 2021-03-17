@@ -38,7 +38,7 @@ public class CollaborationService extends Service {
 
     private DataType dataType = new DataType();
 
-    private static final long HEART_BEAT_RATE = 60 * 1000;
+    private static final long HEART_BEAT_RATE = 120 * 1000;
 
     private Timer timer;
 

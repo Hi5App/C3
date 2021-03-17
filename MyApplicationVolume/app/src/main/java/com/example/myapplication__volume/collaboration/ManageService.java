@@ -36,7 +36,7 @@ public class ManageService extends Service {
 
     private DataType dataType = new DataType();
 
-    private static final long HEART_BEAT_RATE = 20 * 1000;
+    private static final long HEART_BEAT_RATE = 60 * 1000;
 
     private Timer timer;
 
