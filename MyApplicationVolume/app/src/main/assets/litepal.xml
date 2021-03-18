@@ -33,6 +33,7 @@
     -->
     <list>
         <mapping class="com.example.datastore.database.Image" />
+        <mapping class="com.example.datastore.database.User" />
     </list>
 
     <!--

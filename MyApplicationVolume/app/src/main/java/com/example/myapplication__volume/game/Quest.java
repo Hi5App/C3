@@ -32,6 +32,20 @@ public class Quest {
         this.reward = reward;
     }
 
+    public void updateAlreadyDone(int done){
+        if (status == Status.UnFinished) {
+            alreadyDone = done;
+            if (alreadyDone >= toBeDone) {
+                status = Status.Pending;
+            }
+        }
+    }
+
+    public void updateAlreadyDone(int done, Status status){
+        alreadyDone = done;
+        this.status = status;
+    }
+
     public void setContent(String content){
         this.content = content;
     }
