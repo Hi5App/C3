@@ -23,6 +23,7 @@ import com.example.myapplication__volume.collaboration.MsgConnector;
 import com.example.myapplication__volume.collaboration.ServerConnector;
 import com.example.myapplication__volume.collaboration.basic.ImageInfo;
 import com.example.myapplication__volume.game.Score;
+import com.example.myapplication__volume.game.ScoreLitePalConnector;
 import com.huawei.hms.support.common.ActivityMgr;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.api.UIKitOptions;
@@ -61,6 +62,7 @@ public class Myapplication extends Application {
 
         // store user info
         LitePal.initialize(this);
+        ScoreLitePalConnector.init(this);
         Score.init(this);
         ImageInfo.init(this);
         SQLiteDatabase db = LitePal.getDatabase();
