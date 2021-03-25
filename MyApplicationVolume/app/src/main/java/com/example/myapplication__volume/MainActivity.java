@@ -97,7 +97,14 @@ import com.example.myapplication__volume.collaboration.ManageService;
 import com.example.myapplication__volume.collaboration.MsgConnector;
 import com.example.myapplication__volume.collaboration.ServerConnector;
 import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
+import com.example.myapplication__volume.game.AchievementPopup;
+import com.example.myapplication__volume.game.DailyQuestLitePalConnector;
+import com.example.myapplication__volume.game.DailyQuestsContainer;
+import com.example.myapplication__volume.game.LeaderBoardActivity;
 import com.example.myapplication__volume.game.QuestActivity;
+import com.example.myapplication__volume.game.RewardActivity;
+import com.example.myapplication__volume.game.Score;
+import com.example.myapplication__volume.game.ScoreLitePalConnector;
 import com.example.myapplication__volume.ui.login.LoginActivity;
 import com.example.server_communicator.Remote_Socket;
 import com.feature_calc_func.MorphologyCalculate;
@@ -139,6 +146,7 @@ import com.tracingfunc.gsdt.ParaGSDT;
 import com.warkiz.widget.IndicatorSeekBar;
 
 import org.apache.commons.io.FileUtils;
+import org.litepal.tablemanager.Connector;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -2609,6 +2617,18 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                                     case "Quests":
                                         startActivity(new Intent(MainActivity.this, QuestActivity.class));
+                                        break;
+
+                                    case "Achievements":
+                                        showAchievementFinished();
+                                        break;
+
+                                    case "LeaderBoard":
+                                        startActivity(new Intent(MainActivity.this, LeaderBoardActivity.class));
+                                        break;
+
+                                    case "Reward":
+                                        startActivity(new Intent(MainActivity.this, RewardActivity.class));
                                         break;
 
                                     default:
@@ -5830,63 +5850,24 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                     if (ifPainting) {
                                         Vector<Integer> segids = new Vector<>();
                                         myrenderer.setIfPainting(false);
-//                            myrenderer.addLineDrawed(lineDrawed);
+
                                         addScore(2);
                                         if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
                                             myrenderer.add2DCurve(lineDrawed);
                                         else {
-//                                        int lineType = myrenderer.getLastLineType();
-//                                        if (lineType != 3) {
-////                                            int segid = myrenderer.addLineDrawed(lineDrawed);
-////                                    segids.add(segid);
-////                            requestRender();
-////                                                    int [] curUndo = new int[1];
-////                                                    curUndo[0] = -1;
-//
-//                                            V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed);
-//                                            System.out.println("feature");
-////                                                    System.out.println(v_neuronSWC_list.seg.size());
-//                                            if (seg != null) {
-//                                                V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
-//                                                myrenderer.addLineDrawed2(lineDrawed, v_neuronSWC_list);
-//                                                myrenderer.deleteFromCur(seg, v_neuronSWC_list[0]);
-//                                            }
-////                                                    else {
-////                                                        Toast.makeText(getContext(), "Please make sure the curve is inside the bounding box", Toast.LENGTH_LONG);
-////                                                    }
-////                                            myrenderer.deleteFromNew(segid);
-//                                        } else {
-//                                            myrenderer.addBackgroundLineDrawed(lineDrawed);
-//                                        }
+
                                             Callable<String> task = new Callable<String>() {
                                                 @Override
                                                 public String call() throws Exception {
                                                     int lineType = myrenderer.getLastLineType();
-
-//                                                    if (lineType != 2) {
-//                                            int segid = myrenderer.addLineDrawed(lineDrawed);
-//                                    segids.add(segid);
-//                            requestRender();
-//                                                    int [] curUndo = new int[1];
-//                                                    curUndo[0] = -1;
                                                         V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
                                                         V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed, v_neuronSWC_list);
                                                         System.out.println("feature");
-//                                                    System.out.println(v_neuronSWC_list.seg.size());
+
                                                         if (seg != null) {
-//                                                            V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
                                                             myrenderer.addLineDrawed2(lineDrawed, seg, isBigData_Remote);
                                                             myrenderer.deleteFromCur(seg, v_neuronSWC_list[0]);
                                                         }
-//                                                    else {
-//                                                        Toast.makeText(getContext(), "Please make sure the curve is inside the bounding box", Toast.LENGTH_LONG);
-//                                                    }
-//                                            myrenderer.deleteFromNew(segid);
-
-
-//                                                    } else {
-//                                                        myrenderer.addBackgroundLineDrawed(lineDrawed);
-//                                                    }
                                                     requestRender();
                                                     return "succeed";
 
@@ -5904,44 +5885,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //                                            exeService.shutdown();
 //                                            future.cancel(true);
                                             }
-//                                int lineType = myrenderer.getLastLineType();
-//                                if (lineType != 3) {
-//                                    int segid = myrenderer.addLineDrawed(lineDrawed);
-//                                    segids.add(segid);
-//                            requestRender();
-
-//                                    myrenderer.addLineDrawed2(lineDrawed);
-//                                    myrenderer.deleteFromNew(segid);
-//                                } else {
-//                                    myrenderer.addBackgroundLineDrawed(lineDrawed);
-//                                }
                                         }
-//                            requestRender();
-////
-//                            if (myrenderer.deleteFromNew(segid)) {
-//                                myrenderer.addLineDrawed2(lineDrawed);
-//                                requestRender();
-//                            }
-//
-//                            new Thread(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    int segid = myrenderer.addLineDrawed(lineDrawed);
-////                                    segids.add(segid);
-//                                    requestRender();
-//                                    if (myrenderer.deleteFromNew(segid)) {
-//                                        myrenderer.addLineDrawed2(lineDrawed);
-//                                        requestRender();
-//                                    }
-//                                }
-//                            }).start();
-////                            myrenderer.addLineDrawed2(lineDrawed);
+
                                         lineDrawed.clear();
                                         myrenderer.setLineDrawed(lineDrawed);
-//
+
                                         requestRender();
                                     }
-//                            requestRender();
 
                                     if (ifDeletingLine) {
                                         myrenderer.setIfPainting(false);
@@ -6913,7 +6863,21 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         scoreText.setText(scoreString);
     }
 
+    public void showAchievementFinished(){
+        new XPopup.Builder(mainContext)
+                .offsetY(1000)
+                .popupAnimation(PopupAnimation.TranslateAlphaFromBottom)
+                .asCustom(new AchievementPopup(mainContext))
+                .show();
+    }
 
+    public void initDataBase(){
+        DailyQuestsContainer.initId(username);
+        Score.initId(username);
+        ScoreLitePalConnector.initUser(username);
+
+
+    }
 
 
 

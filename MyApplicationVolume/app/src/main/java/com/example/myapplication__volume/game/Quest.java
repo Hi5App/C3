@@ -18,11 +18,20 @@ public class Quest {
 
     }
 
-    Quest(String content, Status status, int alreadyDone, int toBeDone){
+    Quest(String content, Status status, int alreadyDone, int toBeDone, int reward){
         this.content = content;
         this.status = status;
         this.alreadyDone = alreadyDone;
         this.toBeDone = toBeDone;
+        this.reward = reward;
+    }
+
+    Quest(String content, int statusId, int alreadyDone, int toBeDone, int reward){
+        this.content = content;
+        this.status = Status.values()[statusId];
+        this.alreadyDone = alreadyDone;
+        this.toBeDone = toBeDone;
+        this.reward = reward;
     }
 
     Quest(String content, int alreadyDone, int toBeDone, int reward){

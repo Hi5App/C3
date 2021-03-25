@@ -25,6 +25,9 @@ Marker 1
 
 import android.content.Context;
 
+import com.example.datastore.database.DailyQuest;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -33,7 +36,7 @@ public class Score {
     private static Score INSTANCE;
     private static Context mContext;
 
-    private String id;
+    private static String id;
     private int score;
     private int curveNum;
     private int markerNum;
@@ -47,12 +50,14 @@ public class Score {
     private int [] achievementsScore = { -1, 100, 100, 100, 100, 500, 300 };
     private int [] dailyQuestsScore = { -1, 20, 20, 20, 20 };
 
-    private Quest[] dailyQuests = {
-            new Quest("Login", 0, 1, 20),
-            new Quest("Open a image", 0, 1, 20),
-            new Quest("Draw a line", 0, 1, 20),
-            new Quest("Draw a marker", 0, 1, 20),
-    };
+//    private Quest[] dailyQuests = {
+//            new Quest("Login", 0, 1, 20),
+//            new Quest("Open a image", 0, 1, 20),
+//            new Quest("Draw a line", 0, 1, 20),
+//            new Quest("Draw a marker", 0, 1, 20),
+//    };
+
+    ArrayList<Quest> dailyQuests;
 
     public Score(){
 
@@ -73,34 +78,27 @@ public class Score {
         Score.mContext = context;
     }
 
-    public void initId(String id){
-        this.id = id;
+    public static void initId(String id){
+        Score.id = id;
     }
 
     public void initFromLitePal(){
         ScoreLitePalConnector scoreLitePalConnector = ScoreLitePalConnector.getInstance();
         scoreLitePalConnector.initScoreFromLitePal(id);
 
+        DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
+        setDailyQuests(dailyQuestsContainer.getDailyQuests());
+
+//        DailyQuestLitePalConnector dailyQuestLitePalConnector = DailyQuestLitePalConnector.getInstance();
+//        setDailyQuests(dailyQuestLitePalConnector.getDailyQuests(id));
+
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int date = calendar.get(Calendar.DAY_OF_YEAR);
         if (year > lastLoginYear || (year == lastLoginYear && date > lastLoginDay)){
-            dailyQuests[0].updateAlreadyDone(1);
-        } else {
-            dailyQuests[0].updateAlreadyDone(1, Quest.Status.Finished);
+            dailyQuestsContainer.updateNDailyQuest(0, 1);
+//            dailyQuests[0].updateAlreadyDone(1);
         }
-        if (editImageNum > 0){
-            dailyQuests[1].updateAlreadyDone(1);
-        }
-        if (curveNumToday > 0){
-            dailyQuests[2].updateAlreadyDone(1);
-        }
-        if (markerNumToday > 0){
-            dailyQuests[3].updateAlreadyDone(1);
-        }
-
-
-
     }
 
     public void updateLitePalDate(){
@@ -272,11 +270,11 @@ public class Score {
         this.dailyQuestsScore = dailyQuestsScore;
     }
 
-    public Quest[] getDailyQuests() {
+    public ArrayList<Quest> getDailyQuests() {
         return dailyQuests;
     }
 
-    public void setDailyQuests(Quest[] dailyQuests) {
+    public void setDailyQuests(ArrayList<Quest> dailyQuests) {
         this.dailyQuests = dailyQuests;
     }
 }

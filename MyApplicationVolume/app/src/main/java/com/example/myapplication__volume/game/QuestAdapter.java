@@ -1,6 +1,7 @@
 package com.example.myapplication__volume.game;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,6 +61,7 @@ public class QuestAdapter extends RecyclerView.Adapter<QuestAdapter.ViewHolder> 
         if (quest.getStatus() == Quest.Status.Pending) {
             holder.receiveButton.setEnabled(true);
             holder.receiveButton.setText(Integer.toString(quest.getReward()));
+
         }
         else if (quest.getStatus() == Quest.Status.Finished) {
             holder.receiveButton.setEnabled(false);

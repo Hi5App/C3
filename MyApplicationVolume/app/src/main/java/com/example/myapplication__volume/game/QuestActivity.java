@@ -21,7 +21,7 @@ import java.util.List;
 public class QuestActivity extends AppCompatActivity {
 
     private Quest[] quests = {
-            new Quest("Login", 0, 1, 20),
+            new Quest("Login", 1, 1, 1, 20),
             new Quest("Draw a line", 0, 1, 20),
             new Quest("Draw 100 lines", 0, 100, 100),
             new Quest("Draw a marker", 0, 1, 20),
@@ -89,8 +89,10 @@ public class QuestActivity extends AppCompatActivity {
 
     private void initQuests(){
         questList.clear();
-        for (int i = 0; i < quests.length; i++){
-            questList.add(quests[i]);
-        }
+        DailyQuestsContainer dailyQuestsContainer = new DailyQuestsContainer();
+        questList = dailyQuestsContainer.getDailyQuests();
+//        for (int i = 0; i < quests.length; i++){
+//            questList.add(quests[i]);
+//        }
     }
 }
