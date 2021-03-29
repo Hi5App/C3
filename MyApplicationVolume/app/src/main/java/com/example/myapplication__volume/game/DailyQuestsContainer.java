@@ -1,6 +1,7 @@
 package com.example.myapplication__volume.game;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.datastore.database.DailyQuest;
 import com.example.datastore.database.UserDailyQuest;
@@ -9,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DailyQuestsContainer {
+
+    private String TAG = "DailyQuestsContainer";
+
     private ArrayList<Quest> dailyQuests = new ArrayList<>();
 
     private static DailyQuestsContainer INSTANCE;
@@ -43,9 +47,10 @@ public class DailyQuestsContainer {
         this.dailyQuests = dailyQuests;
     }
 
-    public void initFromInstance(){
+    public void initFromLitePal(){
         DailyQuestLitePalConnector dailyQuestLitePalConnector = DailyQuestLitePalConnector.getInstance();
-        dailyQuests = (ArrayList<Quest>) dailyQuestLitePalConnector.getDailyQuests(userId);
+        dailyQuests = (ArrayList<Quest>) ((ArrayList<Quest>) dailyQuestLitePalConnector.getDailyQuests(userId)).clone();
+        Log.d(TAG, "dailyQuests.size(): " + dailyQuests.size());
     }
 
     public void updateNDailyQuest(int n, int alreadyDone){
@@ -54,5 +59,19 @@ public class DailyQuestsContainer {
         }
 
         dailyQuests.get(n).updateAlreadyDone(alreadyDone);
+    }
+
+    public void updateCurveNum(int n){
+        // draw a curve
+        dailyQuests.get(1).updateAlreadyDone(n);
+        // draw 100 curves
+        dailyQuests.get(2).updateAlreadyDone(n);
+    }
+
+    public void updateMarkerNum(int n){
+        // draw a marker
+        dailyQuests.get(3).updateAlreadyDone(n);
+        // draw 100 markers
+        dailyQuests.get(4).updateAlreadyDone(n);
     }
 }

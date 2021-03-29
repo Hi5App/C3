@@ -1,6 +1,7 @@
 package com.example.myapplication__volume.game;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.datastore.database.User;
 
@@ -11,6 +12,8 @@ import java.util.List;
 import static com.example.myapplication__volume.MainActivity.Toast_in_Thread_static;
 
 public class ScoreLitePalConnector {
+
+    private String TAG = "ScoreLitePalConnector";
 
     private static ScoreLitePalConnector INSTANCE;
 
@@ -62,12 +65,39 @@ public class ScoreLitePalConnector {
 
     public void initScoreFromLitePal(String userid){
         List<User> users = LitePal.where("userid = ?", userid).find(User.class);
-        if (users.size() != 1 ) {
+        if (users.size() > 1 ) {
             Toast_in_Thread_static("Something wrong with database !");
+        } else if (users.size() == 0){
+            Log.d(TAG, "Not found int database. Create a new one");
+            User user = new User();
+            user.setUserid(userid);
+            user.setCurveNum(0);
+            user.setMarkerNum(0);
+            user.setCurveNumToday(0);
+            user.setMarkerNumToday(0);
+            user.setEditImageNum(0);
+            user.setEditImageNumToday(0);
+            user.setLastLoginDay(0);
+            user.setLastLoginYear(0);
+            user.setScore(1);
+            user.save();
+
+            Score score = Score.getInstance();
+            score.setId(userid);
+            score.setScore(user.getScore());
+            score.setCurveNum(user.getCurveNum());
+            score.setMarkerNum(user.getMarkerNum());
+            score.setLastLoginDay(user.getLastLoginDay());
+            score.setLastLoginYear(user.getLastLoginYear());
+            score.setCurveNumToday(user.getCurveNumToday());
+            score.setMarkerNumToday(user.getMarkerNumToday());
+            score.setEditImageNum(user.getEditImageNum());
+            score.setEditImageNumToday(user.getEditImageNumToday());
         } else {
             User user = users.get(0);
             Score score = Score.getInstance();
             score.setId(userid);
+            score.setScore(user.getScore());
             score.setCurveNum(user.getCurveNum());
             score.setMarkerNum(user.getMarkerNum());
             score.setLastLoginDay(user.getLastLoginDay());

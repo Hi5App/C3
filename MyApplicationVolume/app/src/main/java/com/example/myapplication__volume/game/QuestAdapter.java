@@ -60,8 +60,16 @@ public class QuestAdapter extends RecyclerView.Adapter<QuestAdapter.ViewHolder> 
         }
         if (quest.getStatus() == Quest.Status.Pending) {
             holder.receiveButton.setEnabled(true);
+            holder.receiveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Score score = Score.getInstance();
+                    score.addScore(quest.getReward());
+                    holder.receiveButton.setEnabled(false);
+                    quest.setStatus(Quest.Status.Finished);
+                }
+            });
             holder.receiveButton.setText(Integer.toString(quest.getReward()));
-
         }
         else if (quest.getStatus() == Quest.Status.Finished) {
             holder.receiveButton.setEnabled(false);

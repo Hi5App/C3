@@ -37,6 +37,7 @@ import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.util.NIMUtil;
 
 import org.litepal.LitePal;
+import org.litepal.tablemanager.Connector;
 
 
 //用于在app全局获取context
@@ -58,18 +59,19 @@ public class Myapplication extends Application {
         sInstance = this;
         context = getApplicationContext();
 
-        //store crash info
+        //store crash infozyh
         CrashHandler crashHandler = CrashHandler.getInstance();
         crashHandler.init(getApplicationContext());
 
         // store user info
         LitePal.initialize(this);
+        SQLiteDatabase db = LitePal.getDatabase();
         DailyQuestsContainer.init(this);
         DailyQuestLitePalConnector.init(this);
         ScoreLitePalConnector.init(this);
         Score.init(this);
         ImageInfo.init(this);
-        SQLiteDatabase db = LitePal.getDatabase();
+
         Log.e(TAG, String.format("Database version: %d", db.getVersion()));
 
         mChatManager = new ChatManager(this);

@@ -1005,6 +1005,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         mChatManager = Myapplication.the().getChatManager();
         mRtmClient = mChatManager.getRtmClient();
 
+        initDataBase();
+
         wave = new CircleImageView(getContext());
         wave.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
@@ -1530,6 +1532,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         scoreText.setTypeface(Typeface.DEFAULT_BOLD);
         scoreText.setLetterSpacing(0.8f);
         scoreText.setTextSize(15);
+
+        Score scoreInstance = Score.getInstance();
+        score = scoreInstance.getScore();
+        updateScoreText();
 
         FrameLayout.LayoutParams lp_score = new FrameLayout.LayoutParams(350, 300);
         lp_score.gravity = Gravity.TOP | Gravity.RIGHT;
@@ -5823,7 +5829,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             if (!isZooming) {
                                 try {
                                     if (ifPoint) {
-                                        addScore(1);
+                                        Score scoreInstance = Score.getInstance();
+                                        scoreInstance.pinpoint();
+
                                         Log.v("actionUp", "Pointinggggggggggg");
                                         if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
                                             myrenderer.add2DMarker(normalizedX, normalizedY);
@@ -5851,7 +5859,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         Vector<Integer> segids = new Vector<>();
                                         myrenderer.setIfPainting(false);
 
-                                        addScore(2);
+                                        Score scoreInstance = Score.getInstance();
+                                        scoreInstance.drawACurve();
+
                                         if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
                                             myrenderer.add2DCurve(lineDrawed);
                                         else {
@@ -6876,7 +6886,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Score.initId(username);
         ScoreLitePalConnector.initUser(username);
 
-
+        Score score = Score.getInstance();
+        score.initFromLitePal();
     }
 
 

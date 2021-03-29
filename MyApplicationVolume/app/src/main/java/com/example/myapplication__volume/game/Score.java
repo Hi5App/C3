@@ -87,6 +87,7 @@ public class Score {
         scoreLitePalConnector.initScoreFromLitePal(id);
 
         DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
+        dailyQuestsContainer.initFromLitePal();
         setDailyQuests(dailyQuestsContainer.getDailyQuests());
 
 //        DailyQuestLitePalConnector dailyQuestLitePalConnector = DailyQuestLitePalConnector.getInstance();
@@ -110,39 +111,25 @@ public class Score {
     }
 
     public void drawACurve(){
-        if (curveNum == 0) {
-            achievementFinished(1);
-        }
 
-        if (curveNumToday == 0) {
-            dailyQuestFinished(3);
-        }
-
-        if (curveNum == 99) {
-            achievementFinished(5);
-        }
 
         curveNum += 1;
         curveNumToday += 1;
         score += 2;
+
+        DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
+        dailyQuestsContainer.updateCurveNum(curveNumToday);
     }
 
     public void pinpoint(){
-        if (markerNum == 0) {
-            achievementFinished(2);
-        }
 
-        if (markerNumToday == 0) {
-            dailyQuestFinished(4);
-        }
-
-        if (markerNum == 99) {
-            achievementFinished(6);
-        }
 
         markerNum += 1;
         markerNumToday += 1;
         score += 1;
+
+        DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
+        dailyQuestsContainer.updateMarkerNum(markerNumToday);
     }
 
     public void openImage(){
@@ -163,7 +150,12 @@ public class Score {
     }
 
     public void dailyQuestFinished(int i){
-        score += dailyQuestsScore[i];
+        DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
+        score += dailyQuestsContainer.getDailyQuests().get(i).getReward();
+    }
+
+    public void addScore(int s){
+        score += s;
     }
 
     public static Context getmContext() {

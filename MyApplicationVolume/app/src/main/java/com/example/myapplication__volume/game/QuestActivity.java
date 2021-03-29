@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,13 +21,15 @@ import java.util.List;
 
 public class QuestActivity extends AppCompatActivity {
 
-    private Quest[] quests = {
-            new Quest("Login", 1, 1, 1, 20),
-            new Quest("Draw a line", 0, 1, 20),
-            new Quest("Draw 100 lines", 0, 100, 100),
-            new Quest("Draw a marker", 0, 1, 20),
-            new Quest("Draw 100 markers", 0, 100, 100),
-    };
+    private String TAG = "QuestActivity";
+
+//    private Quest[] quests = {
+//            new Quest("Login", 1, 1, 1, 20),
+//            new Quest("Draw a line", 0, 1, 20),
+//            new Quest("Draw 100 lines", 0, 100, 100),
+//            new Quest("Draw a marker", 0, 1, 20),
+//            new Quest("Draw 100 markers", 0, 100, 100),
+//    };
 
     private List<Quest> questList = new ArrayList<>();
 
@@ -89,8 +92,9 @@ public class QuestActivity extends AppCompatActivity {
 
     private void initQuests(){
         questList.clear();
-        DailyQuestsContainer dailyQuestsContainer = new DailyQuestsContainer();
+        DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
         questList = dailyQuestsContainer.getDailyQuests();
+        Log.d(TAG, "questList.size(): " + questList.size());
 //        for (int i = 0; i < quests.length; i++){
 //            questList.add(quests[i]);
 //        }

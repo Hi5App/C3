@@ -5,7 +5,7 @@ import org.litepal.crud.LitePalSupport;
 
 public class DailyQuest extends LitePalSupport {
 
-    @Column(unique = true, defaultValue = "unknown")
+    @Column(defaultValue = "unknown")
     private String content;
 
     @Column(defaultValue = "0")
