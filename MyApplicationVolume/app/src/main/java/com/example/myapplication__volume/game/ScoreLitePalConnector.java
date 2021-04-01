@@ -79,7 +79,7 @@ public class ScoreLitePalConnector {
             user.setEditImageNumToday(0);
             user.setLastLoginDay(0);
             user.setLastLoginYear(0);
-            user.setScore(1);
+            user.setScore(0);
             user.save();
 
             Score score = Score.getInstance();

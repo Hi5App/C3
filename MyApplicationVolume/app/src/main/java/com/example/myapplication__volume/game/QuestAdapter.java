@@ -66,14 +66,19 @@ public class QuestAdapter extends RecyclerView.Adapter<QuestAdapter.ViewHolder> 
                     Score score = Score.getInstance();
                     score.addScore(quest.getReward());
                     holder.receiveButton.setEnabled(false);
+                    holder.receiveButton.setText("√");
                     quest.setStatus(Quest.Status.Finished);
+
+                    DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
+                    dailyQuestsContainer.updateNDailyQuest(position, Quest.Status.Finished);
+
                 }
             });
             holder.receiveButton.setText(Integer.toString(quest.getReward()));
         }
         else if (quest.getStatus() == Quest.Status.Finished) {
             holder.receiveButton.setEnabled(false);
-            holder.receiveButton.setText("Received");
+            holder.receiveButton.setText("√");
         }
     }
 

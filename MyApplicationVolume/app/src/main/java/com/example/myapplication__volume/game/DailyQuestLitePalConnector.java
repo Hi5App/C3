@@ -100,4 +100,22 @@ public class DailyQuestLitePalConnector {
 
         return newDailyQuestList;
     }
+
+    public void updateDailyQuests(String userId, int n, String content, int status, int alreadyDone){
+        List<UserDailyQuest> userDailyQuests = LitePal.where("userid = ?", userId).find(UserDailyQuest.class);
+        if (userDailyQuests.size() != 1){
+            Log.d(TAG, "Error in database");
+            return;
+        }
+        Long id = userDailyQuests.get(0).getId();
+        List<DailyQuest> dailyQuests = userDailyQuests.get(0).getDailyQuests();
+        dailyQuests.get(n).setStatus(status);
+        dailyQuests.get(n).setAlreadyDone(alreadyDone);
+        dailyQuests.get(n).save();
+        userDailyQuests.get(0).save();
+//        DailyQuest dailyQuest = new DailyQuest();
+//        dailyQuest.setStatus(status);
+//        dailyQuest.setAlreadyDone(alreadyDone);
+//        dailyQuest.updateAll("id = ? and content = ?", String.valueOf(id), content);
+    }
 }

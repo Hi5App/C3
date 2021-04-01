@@ -26,6 +26,8 @@ Marker 1
 import android.content.Context;
 
 import com.example.datastore.database.DailyQuest;
+import com.example.datastore.database.User;
+import com.example.myapplication__volume.MainActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -115,10 +117,16 @@ public class Score {
 
         curveNum += 1;
         curveNumToday += 1;
-        score += 2;
+        addScore(2);
 
         DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
         dailyQuestsContainer.updateCurveNum(curveNumToday);
+
+        User user = new User();
+        user.setScore(score);
+        user.setCurveNum(curveNum);
+        user.setCurveNumToday(curveNumToday);
+        user.updateAll("userid = ?", id);
     }
 
     public void pinpoint(){
@@ -126,10 +134,16 @@ public class Score {
 
         markerNum += 1;
         markerNumToday += 1;
-        score += 1;
+        addScore(1);
 
         DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
         dailyQuestsContainer.updateMarkerNum(markerNumToday);
+
+        User user = new User();
+        user.setScore(score);
+        user.setMarkerNum(markerNum);
+        user.setMarkerNumToday(markerNumToday);
+        user.updateAll("userid = ?", id);
     }
 
     public void openImage(){
@@ -146,16 +160,21 @@ public class Score {
     }
 
     public void achievementFinished(int i){
-        score += achievementsScore[i];
+        addScore(achievementsScore[i]);
     }
 
     public void dailyQuestFinished(int i){
         DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
-        score += dailyQuestsContainer.getDailyQuests().get(i).getReward();
+        addScore(dailyQuestsContainer.getDailyQuests().get(i).getReward());
     }
 
     public void addScore(int s){
         score += s;
+        MainActivity.updateScore();
+
+        User user = new User();
+        user.setScore(score);
+        user.updateAll("userid = ?", id);
     }
 
     public static Context getmContext() {

@@ -47,6 +47,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -86,6 +87,7 @@ import com.example.chat.MessageUtil;
 import com.example.chat.model.MessageBean;
 import com.example.datastore.PreferenceLogin;
 import com.example.datastore.SettingFileManager;
+import com.example.datastore.database.Reward;
 import com.example.myapplication__volume.FileReader.AnoReader;
 import com.example.myapplication__volume.FileReader.ApoReader;
 import com.example.myapplication__volume.Nim.main.helper.SystemMessageUnreadManager;
@@ -103,6 +105,7 @@ import com.example.myapplication__volume.game.DailyQuestsContainer;
 import com.example.myapplication__volume.game.LeaderBoardActivity;
 import com.example.myapplication__volume.game.QuestActivity;
 import com.example.myapplication__volume.game.RewardActivity;
+import com.example.myapplication__volume.game.RewardLitePalConnector;
 import com.example.myapplication__volume.game.Score;
 import com.example.myapplication__volume.game.ScoreLitePalConnector;
 import com.example.myapplication__volume.ui.login.LoginActivity;
@@ -452,7 +455,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private int score = 0;
     private String scoreString = "00000";
 
-    private TextView scoreText;
+
+    private static TextView scoreText;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -831,6 +835,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     progressBar.setVisibility(View.GONE);
                     break;
 
+                case 7:
+                    updateScoreText();
+                    break;
+
+                default:
+                    break;
             }
         }
     };
@@ -1528,13 +1538,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         scoreText = new TextView(this);
         scoreText.setTextColor(Color.YELLOW);
-        scoreText.setText(scoreString);
+        scoreText.setText("00000");
         scoreText.setTypeface(Typeface.DEFAULT_BOLD);
         scoreText.setLetterSpacing(0.8f);
         scoreText.setTextSize(15);
 
-        Score scoreInstance = Score.getInstance();
-        score = scoreInstance.getScore();
         updateScoreText();
 
         FrameLayout.LayoutParams lp_score = new FrameLayout.LayoutParams(350, 300);
@@ -2540,7 +2548,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         if (DrawMode){
 
 //            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Game", "About", "Help"};
-            item_list = new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Game", "About", "Help", "Quests"};
+            item_list = new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Game", "About", "Help", "Quests", "Reward"};
         }else{
             item_list = new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Account Name", "Game", "About", "Help"};
         }
@@ -4969,6 +4977,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
                         SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
                         SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
+                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
 
                         boolean ifDownSample = preferenceSetting.getDownSampleMode();
                         int contrast = preferenceSetting.getContrast();
@@ -4979,6 +4988,22 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         bgmVolumeBar.setProgress((int)(bgmVolume * 100));
                         buttonVolumeBar.setProgress((int)(buttonVolume * 100));
                         actionVolumeBar.setProgress((int)(actionVolume * 100));
+
+                        RewardLitePalConnector rewardLitePalConnector = RewardLitePalConnector.getInstance();
+                        List<Integer> rewards = rewardLitePalConnector.getRewards();
+                        List<String> list = new ArrayList<>();
+                        list.add("BGM0");
+                        for (int i = 0; i < rewards.size(); i++){
+                            if (rewards.get(i) == 1)
+                                list.add("BGM" + Integer.toString(i+1));
+                        }
+                        String [] spinnerItems = new String[list.size()];
+                        for (int i = 0; i < list.size(); i++){
+                            spinnerItems[i] = list.get(i);
+                        }
+
+                        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(mainContext, R.layout.support_simple_spinner_dropdown_item, spinnerItems);
+                        bgmSpinner.setAdapter(spinnerAdapter);
 
                         downsample[0] = downsample_on_off.isChecked();
                         check[0]      = check_on_off.isChecked();
@@ -6510,6 +6535,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         puiHandler.sendEmptyMessage(2);
     }
 
+    public static void updateScore(){
+        puiHandler.sendEmptyMessage(7);
+    }
+
 
     private void hideButtons(){
         if (!ifButtonShowed)
@@ -6857,7 +6886,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         updateScoreText();
     }
 
-    private void updateScoreText(){
+    private static void updateScoreText(){
+        Score scoreInstance = Score.getInstance();
+        int score = scoreInstance.getScore();
+        String scoreString;
         if (score < 10){
             scoreString = "0000" + Integer.toString(score);
         } else if (score >= 10 && score < 100){
@@ -6885,6 +6917,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         DailyQuestsContainer.initId(username);
         Score.initId(username);
         ScoreLitePalConnector.initUser(username);
+        RewardLitePalConnector.initUserId(username);
 
         Score score = Score.getInstance();
         score.initFromLitePal();

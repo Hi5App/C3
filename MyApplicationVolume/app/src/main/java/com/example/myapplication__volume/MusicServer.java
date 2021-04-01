@@ -31,9 +31,9 @@ public class MusicServer extends Service {
 //            bgmPlayer = new MediaPlayer();
             bgmPlayer = MediaPlayer.create(this, R.raw.bgm03sponge);
             bgmPlayer.setVolume(volume, volume);
-//            String externalFileDir = context.getExternalFilesDir(null).toString();
+//            String externalFileDir = getBaseContext().getExternalFilesDir(null).toString();
 //            try {
-//                bgmPlayer.setDataSource(externalFileDir + "/bgm01main.mp3");
+//                bgmPlayer.setDataSource(externalFileDir + "/Resources/Music/CoyKoi.mp3");
 //            } catch (IOException e) {
 //                e.printStackTrace();
 //            }
@@ -61,5 +61,14 @@ public class MusicServer extends Service {
     public void onDestroy() {
         super.onDestroy();
         bgmPlayer.stop();
+    }
+
+    public void setBgmSource(String path){
+        try {
+            bgmPlayer.setDataSource(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        bgmPlayer.prepareAsync();
     }
 }

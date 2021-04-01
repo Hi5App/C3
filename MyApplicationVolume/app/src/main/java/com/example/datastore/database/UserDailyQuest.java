@@ -43,4 +43,11 @@ public class UserDailyQuest extends LitePalSupport {
         this.dailyQuests = dailyQuests;
     }
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 }

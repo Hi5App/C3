@@ -24,6 +24,7 @@ import com.example.myapplication__volume.collaboration.ServerConnector;
 import com.example.myapplication__volume.collaboration.basic.ImageInfo;
 import com.example.myapplication__volume.game.DailyQuestLitePalConnector;
 import com.example.myapplication__volume.game.DailyQuestsContainer;
+import com.example.myapplication__volume.game.RewardLitePalConnector;
 import com.example.myapplication__volume.game.Score;
 import com.example.myapplication__volume.game.ScoreLitePalConnector;
 import com.huawei.hms.support.common.ActivityMgr;
@@ -70,7 +71,9 @@ public class Myapplication extends Application {
         DailyQuestLitePalConnector.init(this);
         ScoreLitePalConnector.init(this);
         Score.init(this);
+        RewardLitePalConnector.init(this);
         ImageInfo.init(this);
+
 
         Log.e(TAG, String.format("Database version: %d", db.getVersion()));
 

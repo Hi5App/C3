@@ -59,6 +59,20 @@ public class DailyQuestsContainer {
         }
 
         dailyQuests.get(n).updateAlreadyDone(alreadyDone);
+
+        DailyQuestLitePalConnector dailyQuestLitePalConnector = DailyQuestLitePalConnector.getInstance();
+        dailyQuestLitePalConnector.updateDailyQuests(userId, n, dailyQuests.get(n).getContent(), dailyQuests.get(n).getStatus().ordinal(), dailyQuests.get(n).getAlreadyDone());
+    }
+
+    public void updateNDailyQuest(int n, Quest.Status status){
+        if (dailyQuests.size() < n){
+            return;
+        }
+
+        dailyQuests.get(n).setStatus(status);
+
+        DailyQuestLitePalConnector dailyQuestLitePalConnector = DailyQuestLitePalConnector.getInstance();
+        dailyQuestLitePalConnector.updateDailyQuests(userId, n, dailyQuests.get(n).getContent(), dailyQuests.get(n).getStatus().ordinal(), dailyQuests.get(n).getAlreadyDone());
     }
 
     public void updateCurveNum(int n){
@@ -66,6 +80,10 @@ public class DailyQuestsContainer {
         dailyQuests.get(1).updateAlreadyDone(n);
         // draw 100 curves
         dailyQuests.get(2).updateAlreadyDone(n);
+
+        DailyQuestLitePalConnector dailyQuestLitePalConnector = DailyQuestLitePalConnector.getInstance();
+        dailyQuestLitePalConnector.updateDailyQuests(userId, 1, dailyQuests.get(1).getContent(), dailyQuests.get(1).getStatus().ordinal(), dailyQuests.get(1).getAlreadyDone());
+        dailyQuestLitePalConnector.updateDailyQuests(userId, 2, dailyQuests.get(2).getContent(), dailyQuests.get(2).getStatus().ordinal(), dailyQuests.get(2).getAlreadyDone());
     }
 
     public void updateMarkerNum(int n){
@@ -73,5 +91,9 @@ public class DailyQuestsContainer {
         dailyQuests.get(3).updateAlreadyDone(n);
         // draw 100 markers
         dailyQuests.get(4).updateAlreadyDone(n);
+
+        DailyQuestLitePalConnector dailyQuestLitePalConnector = DailyQuestLitePalConnector.getInstance();
+        dailyQuestLitePalConnector.updateDailyQuests(userId, 3, dailyQuests.get(3).getContent(), dailyQuests.get(3).getStatus().ordinal(), dailyQuests.get(3).getAlreadyDone());
+        dailyQuestLitePalConnector.updateDailyQuests(userId, 4, dailyQuests.get(4).getContent(), dailyQuests.get(4).getStatus().ordinal(), dailyQuests.get(4).getAlreadyDone());
     }
 }
