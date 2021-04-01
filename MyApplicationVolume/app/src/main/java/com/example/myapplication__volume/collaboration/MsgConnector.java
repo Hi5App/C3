@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.myapplication__volume.collaboration.basic.ReconnectionInterface;
+import com.example.myapplication__volume.collaboration.service.CollaborationService;
 
 import java.io.IOException;
 import java.net.Socket;

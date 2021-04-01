@@ -18,7 +18,7 @@ import com.example.datastore.PreferenceLogin;
 import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.mixpush.DemoMixPushMessageHandler;
 import com.example.myapplication__volume.Nim.util.sys.SysInfoUtil;
-import com.example.myapplication__volume.collaboration.ManageService;
+import com.example.myapplication__volume.collaboration.service.ManageService;
 import com.example.myapplication__volume.collaboration.ServerConnector;
 import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
 import com.example.myapplication__volume.ui.login.LoginActivity;

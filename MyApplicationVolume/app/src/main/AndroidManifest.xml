@@ -50,6 +50,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+
         <activity android:name=".game.RewardActivity"></activity>
         <activity android:name=".game.LeaderBoardActivity" />
         <activity
@@ -58,10 +59,7 @@
         <activity android:name=".SettingActivity" />
         <activity android:name=".MenuActivity" />
 
-        <service
-            android:name=".MusicServer"
-            android:enabled="true"
-            android:exported="true" />
+
         <!--
          APP key, 可以在这里设置，也可以在 SDKOptions 中提供。
            如果 SDKOptions 中提供了，则取 SDKOptions 中的值。
@@ -153,13 +151,38 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".VoiceChatViewActivity" />
-        </activity> <!-- 协同工作通信服务 -->
+        </activity>
+
+        <activity
+            android:name="com.example.myapplication__volume.agora.activity.PeerToPeerVideoActivity">
+        </activity>
+
+
+        <!-- 协同工作通信服务 -->
         <service
-            android:name=".collaboration.ManageService"
-            android:exported="false" /> <!-- 协同工作通信服务 -->
+            android:name=".agora.AgoraService"
+            android:exported="false" />
+
+
+        <!-- 背景音乐后台服务 -->
         <service
-            android:name=".collaboration.CollaborationService"
-            android:exported="false" /> <!-- 云信后台服务，请使用独立进程。 -->
+            android:name=".MusicServer"
+            android:enabled="true"
+            android:exported="true" />
+
+        <!-- 协同工作通信服务 -->
+        <service
+            android:name=".collaboration.service.ManageService"
+            android:exported="false" />
+
+
+        <!-- 协同工作通信服务 -->
+        <service
+            android:name=".collaboration.service.CollaborationService"
+            android:exported="false" />
+
+
+        <!-- 云信后台服务，请使用独立进程。 -->
         <service
             android:name="com.netease.nimlib.service.NimService"
             android:exported="false"

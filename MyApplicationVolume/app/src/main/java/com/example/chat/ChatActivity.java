@@ -15,7 +15,6 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.example.myapplication__volume.Myapplication;
 import com.example.myapplication__volume.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.netease.nimlib.sdk.NIMClient;
@@ -46,8 +45,8 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_activity_main);
 
-        mChatManager = Myapplication.the().getChatManager();
-        mRtmClient = mChatManager.getRtmClient();
+//        mChatManager = Myapplication.the().getChatManager();
+//        mRtmClient = mChatManager.getRtmClient();
 
 //        mClientListener = new MyRtmClientListener();
 //        mChatManager.registerListener(mClientListener);

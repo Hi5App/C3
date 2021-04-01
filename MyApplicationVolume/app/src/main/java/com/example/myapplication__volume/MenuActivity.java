@@ -1,7 +1,5 @@
 package com.example.myapplication__volume;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
@@ -10,7 +8,7 @@ import android.os.IBinder;
 import android.view.Menu;
 import android.view.View;
 
-import com.example.myapplication__volume.collaboration.CollaborationService;
+import com.example.myapplication__volume.collaboration.service.CollaborationService;
 import com.example.myapplication__volume.collaboration.MsgConnector;
 import com.example.myapplication__volume.collaboration.ServerConnector;
 import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;

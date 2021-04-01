@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.collaboration.basic.DataType;
 import com.example.myapplication__volume.collaboration.basic.ReconnectionInterface;
+import com.example.myapplication__volume.collaboration.service.ManageService;
 
 import java.io.IOException;
 import java.net.Socket;

@@ -11,10 +11,12 @@ import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.contact.activity.RobotProfileActivity;
 import com.example.myapplication__volume.Nim.contact.activity.UserProfileActivity;
 import com.example.myapplication__volume.Nim.main.helper.MessageHelper;
+import com.example.myapplication__volume.Nim.session.action.AudioAction;
 import com.example.myapplication__volume.Nim.session.action.FileAction;
 import com.example.myapplication__volume.Nim.session.action.GuessAction;
 import com.example.myapplication__volume.Nim.session.action.SnapChatAction;
 import com.example.myapplication__volume.Nim.session.action.TipAction;
+import com.example.myapplication__volume.Nim.session.action.VideoAction;
 import com.example.myapplication__volume.Nim.session.activity.MessageHistoryActivity;
 import com.example.myapplication__volume.Nim.session.activity.MessageInfoActivity;
 import com.example.myapplication__volume.Nim.session.extension.CustomAttachParser;
@@ -207,6 +209,8 @@ public class SessionHelper {
 
 //            actions.add(new RTSAction());
             actions.add(new SnapChatAction());
+            actions.add(new AudioAction());
+            actions.add(new VideoAction());
             actions.add(new GuessAction());
             actions.add(new FileAction());
             actions.add(new TipAction());

@@ -30,6 +30,8 @@
     <!-- Please leave it if not enable App Certificate -->
     <!-- You can generate a temporary token at https://dashboard.agora.io/projects -->
     <string name="agora_access_token">#YOUR ACCESS TOKEN#</string>
+
+
     <string name="title_activity_login">LoginActivity</string>
     <string name="prompt_email_username">Username</string>
     <string name="prompt_email">Email</string>
@@ -168,6 +170,8 @@
     <string name="input_panel_guess">Guess</string>
     <string name="input_panel_file">Send File</string>
     <string name="input_panel_snapchat">SnapChat</string>
+    <string name="input_panel_aduiochat">Audio Chat</string>
+    <string name="input_panel_Videochat">Video Chat</string>
 
 
     <!-- setting -->
@@ -294,5 +298,10 @@
     <string name="nim_status_bar_custom_message">%1$s: 自定义消息</string>
     <string name="nim_status_bar_unsupported_message">%1$s: 无法显示该内容</string>
     <string name="nim_status_bar_hidden_msg_content">你收到一条新消息</string>
+
+
+
+    <!-- Called View -->
+    <string name="called_activity_info">This user is calling you</string>
 
 </resources>

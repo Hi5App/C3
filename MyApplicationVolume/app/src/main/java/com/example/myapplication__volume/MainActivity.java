@@ -70,7 +70,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
 import com.example.ImageReader.BigImgReader;
-import com.example.basic.ChatHelpUtils;
 import com.example.basic.CrashHandler;
 import com.example.basic.DragFloatActionButton;
 import com.example.basic.FileManager;
@@ -84,7 +83,6 @@ import com.example.chat.ChatActivity;
 import com.example.chat.ChatManager;
 import com.example.chat.MessageActivity;
 import com.example.chat.MessageUtil;
-import com.example.chat.model.MessageBean;
 import com.example.datastore.PreferenceLogin;
 import com.example.datastore.SettingFileManager;
 import com.example.datastore.database.Reward;
@@ -93,9 +91,11 @@ import com.example.myapplication__volume.FileReader.ApoReader;
 import com.example.myapplication__volume.Nim.main.helper.SystemMessageUnreadManager;
 import com.example.myapplication__volume.Nim.reminder.ReminderManager;
 import com.example.myapplication__volume.Nim.session.extension.InviteAttachment;
-import com.example.myapplication__volume.collaboration.CollaborationService;
+import com.example.myapplication__volume.agora.AgoraService;
+import com.example.myapplication__volume.agora.message.AgoraMsgManager;
+import com.example.myapplication__volume.collaboration.service.CollaborationService;
 import com.example.myapplication__volume.collaboration.Communicator;
-import com.example.myapplication__volume.collaboration.ManageService;
+import com.example.myapplication__volume.collaboration.service.ManageService;
 import com.example.myapplication__volume.collaboration.MsgConnector;
 import com.example.myapplication__volume.collaboration.ServerConnector;
 import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
@@ -559,54 +559,30 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         process the img block & swc apo file
          */
         if (msg.startsWith("Block:")){
-//            LoadBigFile_Remote(msg.split(":")[1]);
-            myrenderer.setPath(msg.split(":")[1]);
-            myrenderer.zoom(2.2f);
-            myGLSurfaceView.requestRender();
 
+            loadBigDataImg(msg.split(":")[1]);
             MsgConnector.getInstance().sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
-
-            isBigData_Remote = true;
-            isBigData_Local = false;
-            SetButtons();
 
         }
 
         if (msg.startsWith("File:")){
             if(msg.endsWith(".apo")){
-                try {
-                    Log.e(TAG, "File: .apo");
-                    ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
-                    ApoReader apoReader = new ApoReader();
-                    apo = apoReader.read(msg.split(":")[1]);
-                    if (apo == null){
-                        Toast_in_Thread("There is something wrong with apo file !");
-                    }
 
-                    myrenderer.importApo(Communicator.getInstance().convertApo(apo));
-                    myrenderer.saveUndo();
-                    myGLSurfaceView.requestRender();
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-
+                Log.e(TAG, "File: .apo");
+                loadBigDataApo(msg.split(":")[1]);
 
             }else if (msg.endsWith(".swc") || msg.endsWith(".eswc")){
-                try {
-                    Log.e(TAG, "File: .eswc");
-                    NeuronTree nt = NeuronTree.readSWC_file(msg.split(":")[1]);
 
-                    myrenderer.importNeuronTree(Communicator.getInstance().convertNeuronTree(nt));
-                    myrenderer.saveUndo();
-                    myGLSurfaceView.requestRender();
+                Log.e(TAG, "File: .eswc");
+                loadBigDataSwc(msg.split(":")[1]);
 
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
             }
         }
 
+
+        if (msg.startsWith("Score:")){
+            Log.e(TAG,"get score: " + msg);
+        }
 
 
 
@@ -1012,19 +988,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         String MSG = intent.getStringExtra(MyRenderer.OUT_OF_MEMORY);
         username = intent.getStringExtra(USERNAME);
 
-        mChatManager = Myapplication.the().getChatManager();
-        mRtmClient = mChatManager.getRtmClient();
+//        mChatManager = Myapplication.the().getChatManager();
+//        mRtmClient = mChatManager.getRtmClient();
 
         initDataBase();
 
         wave = new CircleImageView(getContext());
         wave.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-//        doLoginChat();
 
-        mClientListener = new MyRtmClientListener();
-        mChatManager.registerListener(mClientListener);
-        mChatManager.setUsername(username);
 
         if (MSG != null)
             Toast.makeText(this, MSG, Toast.LENGTH_SHORT).show();
@@ -1999,6 +1971,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         initServerConnector();
         initService();
 
+        doLoginAgora();
+        initAgora();
+
+//        /*
+//        sync the score
+//         */
+//        getScore();
+
+
     }
 
 
@@ -2008,9 +1989,44 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
+
+    /*
+    get score
+     */
+    private void getScore(){
+        ServerConnector.getInstance().sendMsg("GETSCORE");
+    }
+
+    private void setScore(int score){
+        ServerConnector.getInstance().sendMsg("SETSOCRE:" + score);
+    }
+
+
+
     /*
     for service ------------------------------------------------------------------------------------
      */
+
+
+    private void doLoginAgora(){
+        AgoraMsgManager.getInstance().getRtmClient().login(null, username, new ResultCallback<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.e(TAG, "agora login success");
+            }
+
+            @Override
+            public void onFailure(ErrorInfo errorInfo) {
+                Log.e(TAG, "agora login failed: " + errorInfo.getErrorCode());
+                LoginActivity.actionStart(context);
+            }
+        });
+    }
+
+    private void initAgora(){
+        Intent intent = new Intent(this, AgoraService.class);
+        startService(intent);
+    }
 
     private void initService(){
         // Bind to LocalService
@@ -2546,8 +2562,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public void More_icon(){
         String[] item_list = null;
         if (DrawMode){
-
-//            item_list = new String[]{"Analyze SWC", "VoiceChat", "MessageChat", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Game", "About", "Help"};
             item_list = new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Game", "About", "Help", "Quests", "Reward"};
         }else{
             item_list = new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Account Name", "Game", "About", "Help"};
@@ -4022,7 +4036,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210318a 15:00 UTC+8 build",
+                                "Version: 20210402a 10:00 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5151,9 +5165,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         // 清理缓存&注销监听&清除状态
                         NimUIKit.logout();
                         NIMClient.getService(AuthService.class).logout();
-//                        DemoCache.clear();
+
+                        AgoraMsgManager.getInstance().getRtmClient().logout(null);
+
                         PreferenceLogin preferenceLogin = new PreferenceLogin(MainActivity.this);
                         preferenceLogin.setPref("","",false);
+                        // DemoCache.clear();
+
                         startActivity(new Intent(MainActivity.this, LoginActivity.class));
                         finish();
                     }
@@ -5395,14 +5413,23 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public void onDestroy() {
         super.onDestroy();
 
-        Intent bgmIntent = new Intent(MainActivity.this, MusicServer.class);
+        Intent bgmIntent = new Intent(this, MusicServer.class);
         stopService(bgmIntent);
 
-        MsgConnector msgConnector = MsgConnector.getInstance();
-        ServerConnector serverConnector = ServerConnector.getInstance();
+        Intent manageServiceIntent = new Intent(this, ManageService.class);
+        stopService(manageServiceIntent);
 
-        msgConnector.releaseConnection();
-        serverConnector.releaseConnection();
+        Intent collaborationServiceIntent = new Intent(this, CollaborationService.class);
+        stopService(collaborationServiceIntent);
+
+        Intent agoraServiceIntent = new Intent(this, AgoraService.class);
+        stopService(agoraServiceIntent);
+
+        /*
+        release socket
+         */
+        MsgConnector.getInstance().releaseConnection();
+        ServerConnector.getInstance().releaseConnection();
 
         mainContext = null;
 
@@ -6178,8 +6205,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         RtmMessage message = mRtmClient.createMessage();
         message.setText(callMessage);
 
-        MessageBean messageBean = new MessageBean(username, message, true, ChatHelpUtils.getCurrentMillisTime());
-
         mRtmClient.sendMessageToPeer(target, message, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -6424,6 +6449,60 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         file_path_temp = filepath;
         puiHandler.sendEmptyMessage(4);
     }
+
+
+
+    /*
+    load Img Block after downloading file
+     */
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void loadBigDataImg(String filepath){
+        isBigData_Remote = true;
+        isBigData_Local = false;
+
+        myrenderer.setPath(filepath);
+        myrenderer.zoom(2.2f);
+        myGLSurfaceView.requestRender();
+
+        SetButtons();
+    }
+
+
+    public void loadBigDataApo(String filepath){
+
+        try {
+            ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
+            ApoReader apoReader = new ApoReader();
+            apo = apoReader.read(filepath);
+            if (apo == null){
+                Toast_in_Thread("There is something wrong with apo file !");
+            }
+
+            myrenderer.importApo(Communicator.getInstance().convertApo(apo));
+            myrenderer.saveUndo();
+            myGLSurfaceView.requestRender();
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+    public void loadBigDataSwc(String filepath){
+        try {
+            NeuronTree nt = NeuronTree.readSWC_file(filepath);
+
+            myrenderer.importNeuronTree(Communicator.getInstance().convertNeuronTree(nt));
+            myrenderer.saveUndo();
+            myGLSurfaceView.requestRender();
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void LoadBigFile_Remote(String filepath){
@@ -6865,20 +6944,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         context.startActivity(intent);
     }
 
-    private void doLoginChat(){
-        mRtmClient.login(null, username, new ResultCallback<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.i(TAG, "login success");
-            }
 
-            @Override
-            public void onFailure(ErrorInfo errorInfo) {
-                Log.i(TAG, "login failed: " + errorInfo.getErrorCode());
-                LoginActivity.actionStart(context);
-            }
-        });
-    }
 
     private void addScore(int s){
         score += s;
