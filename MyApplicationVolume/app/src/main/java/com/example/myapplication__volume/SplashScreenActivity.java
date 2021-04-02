@@ -146,7 +146,21 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
                 Log.d(TAG, "onResume");
 //                Toast_in_Thread("");
 //                serverConnector.sendMsg("MUSICLIST");
-                serverConnector.sendMsg("GETMUSIC:CoyKoi.mp3");
+                File music = new File(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
+                if (!music.exists())
+                    serverConnector.sendMsg("GETMUSIC:CoyKoi.mp3");
+
+                music = new File(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/DelRioBravo.mp3");
+                if (!music.exists())
+                    serverConnector.sendMsg("GETMUSIC:DelRioBravo.mp3");
+
+//                music = new File(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/ForestFrolicLoop.mp3");
+//                if (!music.exists())
+//                    serverConnector.sendMsg("GETMUSIC:ForestFrolicLoop.mp3");
+
+
+
+
             } else {
                 Runnable runnable = new Runnable() {
                     @Override

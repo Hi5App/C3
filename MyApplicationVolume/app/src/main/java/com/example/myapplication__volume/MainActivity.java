@@ -455,6 +455,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private static TextView scoreText;
 
+    private int selectedBGM = 0;
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onRecMessage(String msg) {
@@ -5013,8 +5015,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             spinnerItems[i] = list.get(i);
                         }
 
+
+
                         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(mainContext, R.layout.support_simple_spinner_dropdown_item, spinnerItems);
                         bgmSpinner.setAdapter(spinnerAdapter);
+                        bgmSpinner.setSelection(selectedBGM);
 
                         downsample[0] = downsample_on_off.isChecked();
                         check[0]      = check_on_off.isChecked();
@@ -5076,6 +5081,19 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         buttonVolume = (float)(buttonVolumeBar.getProgress()) / 100.0f;
                         actionVolume = (float)(actionVolumeBar.getProgress()) / 100.0f;
 
+                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
+                        String selected = bgmSpinner.getSelectedItem().toString();
+                        if (selected.equals("BGM1"))
+                            MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
+
+                        else if (selected.equals("BGM2"))
+                            MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/DelRioBravo.mp3");
+
+                        else
+                            MusicServer.defaultBgmSource();
+
+                        selectedBGM = bgmSpinner.getSelectedItemPosition();
+
                         MusicServer.setBgmVolume(bgmVolume);
 
                         String settingsPath = context.getExternalFilesDir(null).toString() + "/Settings";
@@ -5104,6 +5122,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+
+
                     }
                 })
                 .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
