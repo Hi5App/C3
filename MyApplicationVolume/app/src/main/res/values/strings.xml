@@ -302,6 +302,7 @@
 
 
     <!-- Called View -->
-    <string name="called_activity_info">This user is calling you</string>
+    <string name="video_called_activity_info">This user is requesting a video call</string>
+    <string name="voice_called_activity_info">This user is calling you</string>
 
 </resources>

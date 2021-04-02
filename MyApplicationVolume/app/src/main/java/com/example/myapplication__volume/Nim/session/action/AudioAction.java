@@ -1,7 +1,10 @@
 package com.example.myapplication__volume.Nim.session.action;
 
+import android.util.Log;
+
 import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.R;
+import com.example.myapplication__volume.agora.activity.PeerToPeerVoiceActivity;
 import com.example.myapplication__volume.agora.message.AgoraMsgManager;
 import com.netease.nim.uikit.business.session.actions.BaseAction;
 import com.netease.nim.uikit.common.ToastHelper;
@@ -36,31 +39,32 @@ public class AudioAction extends BaseAction {
         AgoraMsgManager agoraMsgManager = AgoraMsgManager.getInstance();
         RtmClient mRtmClient = agoraMsgManager.getRtmClient();
 
-
-
-
         String channelName = getAccount() + "And" + InfoCache.getAccount();
         String callMessage = "##CallFrom" + InfoCache.getAccount() + "##In##" + channelName + "##";
         RtmMessage message = mRtmClient.createMessage();
         message.setText(callMessage);
 
+        Log.e("Video", "start VideoCall");
         mRtmClient.sendMessageToPeer(getAccount(), message, agoraMsgManager.getSendMessageOptions(), new ResultCallback<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                getActivity().runOnUiThread(() -> {
-//                    VoiceChat(channelName, InfoCache.getAccount());
 
+                /*
+                start PeerToPeerVideo
+                 */
+                Log.e("Video", "send VideoCall successfully !");
 
-                    /*
-                    start PeerToPeerAudio
-                     */
-                });
+                PeerToPeerVoiceActivity.actionStart(getActivity(), callMessage, getAccount(), PeerToPeerVoiceActivity.CALL_SIDE);
 
             }
 
             @Override
             public void onFailure(ErrorInfo errorInfo) {
                 final int errorCode = errorInfo.getErrorCode();
+
+                Log.e("Video", "Fail to send VideoCall !");
+
+
                 getActivity().runOnUiThread(() -> {
                     switch (errorCode){
                         case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_TIMEOUT:

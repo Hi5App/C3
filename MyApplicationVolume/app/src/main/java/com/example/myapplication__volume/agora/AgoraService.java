@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 
 import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.agora.activity.PeerToPeerVideoActivity;
+import com.example.myapplication__volume.agora.activity.PeerToPeerVoiceActivity;
 import com.example.myapplication__volume.agora.message.AgoraMsgManager;
 
 import java.util.Map;
@@ -83,10 +84,13 @@ public class AgoraService extends Service {
                 Log.e(TAG,"Pattern.matches videoMsgPattern");
 
                 String targetName = msg.substring(11, msg.indexOf("##In##"));
-                String channelName = msg.substring(msg.indexOf("##In##") + 6, msg.lastIndexOf("##"));
-
                 PeerToPeerVideoActivity.actionStart(mContext, message.getText(), targetName, PeerToPeerVideoActivity.CALLED_SIDE);
 
+            } else if (Pattern.matches(callMsgPattern, message.getText())){
+                Log.e(TAG,"Pattern.matches videoMsgPattern");
+
+                String targetName = msg.substring(10, msg.indexOf("##In##"));
+                PeerToPeerVoiceActivity.actionStart(mContext, message.getText(), targetName, PeerToPeerVoiceActivity.CALLED_SIDE);
             }
 
         }

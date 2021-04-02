@@ -85,7 +85,6 @@ import com.example.chat.MessageActivity;
 import com.example.chat.MessageUtil;
 import com.example.datastore.PreferenceLogin;
 import com.example.datastore.SettingFileManager;
-import com.example.datastore.database.Reward;
 import com.example.myapplication__volume.FileReader.AnoReader;
 import com.example.myapplication__volume.FileReader.ApoReader;
 import com.example.myapplication__volume.Nim.main.helper.SystemMessageUnreadManager;
@@ -93,14 +92,13 @@ import com.example.myapplication__volume.Nim.reminder.ReminderManager;
 import com.example.myapplication__volume.Nim.session.extension.InviteAttachment;
 import com.example.myapplication__volume.agora.AgoraService;
 import com.example.myapplication__volume.agora.message.AgoraMsgManager;
-import com.example.myapplication__volume.collaboration.service.CollaborationService;
 import com.example.myapplication__volume.collaboration.Communicator;
-import com.example.myapplication__volume.collaboration.service.ManageService;
 import com.example.myapplication__volume.collaboration.MsgConnector;
 import com.example.myapplication__volume.collaboration.ServerConnector;
 import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
+import com.example.myapplication__volume.collaboration.service.CollaborationService;
+import com.example.myapplication__volume.collaboration.service.ManageService;
 import com.example.myapplication__volume.game.AchievementPopup;
-import com.example.myapplication__volume.game.DailyQuestLitePalConnector;
 import com.example.myapplication__volume.game.DailyQuestsContainer;
 import com.example.myapplication__volume.game.LeaderBoardActivity;
 import com.example.myapplication__volume.game.QuestActivity;
@@ -149,7 +147,6 @@ import com.tracingfunc.gsdt.ParaGSDT;
 import com.warkiz.widget.IndicatorSeekBar;
 
 import org.apache.commons.io.FileUtils;
-import org.litepal.tablemanager.Connector;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -4036,7 +4033,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210402a 10:00 UTC+8 build",
+                                "Version: 20210402b 17:00 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

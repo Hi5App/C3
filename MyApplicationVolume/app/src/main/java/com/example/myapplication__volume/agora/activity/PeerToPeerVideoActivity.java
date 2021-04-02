@@ -56,6 +56,15 @@ import static com.example.myapplication__volume.MainActivity.Toast_in_Thread_sta
 
 public class PeerToPeerVideoActivity extends AppCompatActivity {
 
+
+
+    /**
+     *  Call-side: onCreate:  isCalling = false, vibrator = true,  ring = true
+     *             refused:   isCalling = false, vibrator = false, ring = false          ()
+     *             received:  isCalling = true,  vibrator = false, ring = false
+     *
+     */
+
     private static final String TAG = PeerToPeerVideoActivity.class.getSimpleName();
 
 
@@ -108,6 +117,10 @@ public class PeerToPeerVideoActivity extends AppCompatActivity {
     private ImageView mEndCallBtn;
 
 
+
+    /**
+     * for calling alert -----------------------------------------------------------------------------------------
+     */
     private Vibrator mVibrator;
     private boolean needCancel = true;
     private Timer timer = new Timer();
@@ -115,15 +128,12 @@ public class PeerToPeerVideoActivity extends AppCompatActivity {
 
 
 
-//    // Customized logger view
-//    private LoggerRecyclerView mLogView;
-
     /**
      * Event handler registered into RTC engine for RTC callbacks.
      * Note that UI operations needs to be in UI thread because RTC
      * engine deals with the events in a separate thread.
      */
-    private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() {
+    private IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() {
         /**
          * Occurs when the local user joins a specified channel.
          * The channel name assignment is based on channelName specified in the joinChannel method.
@@ -138,7 +148,7 @@ public class PeerToPeerVideoActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-//                    mLogView.logI("Join channel success, uid: " + (uid & 0xFFFFFFFFL));
+
                 }
             });
         }
@@ -164,9 +174,11 @@ public class PeerToPeerVideoActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-//                    mLogView.logI("First remote video decoded, uid: " + (uid & 0xFFFFFFFFL));
                     setupRemoteVideo(uid);
 
+                    /*
+                    when peer receive the invitation
+                     */
                     if (USERTYPE.equals(CALL_SIDE)){
                         switchView(mLocalVideo);
                         switchView(mRemoteVideo);
@@ -209,7 +221,6 @@ public class PeerToPeerVideoActivity extends AppCompatActivity {
                 public void run() {
 //                    mLogView.logI("User offline, uid: " + (uid & 0xFFFFFFFFL));
                     onRemoteUserLeft(uid);
-                    finish();
                 }
             });
         }
@@ -264,27 +275,24 @@ public class PeerToPeerVideoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 获得系统的Vibrator实例
-        mVibrator = (Vibrator) getSystemService(Service.VIBRATOR_SERVICE);
-
         rtmClientListener = new VideoRtmClientListener();
         AgoraMsgManager agoraMsgManager = AgoraMsgManager.getInstance();
         agoraMsgManager.registerListener(rtmClientListener);
 
+
         Log.e(TAG, USERTYPE);
         if(USERTYPE.equals(CALLED_SIDE)){
-
             Log.e(TAG,"USERTYPE.equals(CALLED_SIDE)");
             setContentView(R.layout.activity_video_chat_called_view);
             initUICALLED();
-
         }else {
-
             Log.e(TAG,"! USERTYPE.equals(CALLED_SIDE)");
             initCall();
-
         }
 
+
+        // 获得系统的Vibrator实例
+        mVibrator = (Vibrator) getSystemService(Service.VIBRATOR_SERVICE);
         mVibrator.vibrate(new long[]{500, 100, 500, 100, 500, 100}, 0);
         RingPlayer.playRing(this);
 
@@ -381,13 +389,8 @@ public class PeerToPeerVideoActivity extends AppCompatActivity {
         if (USERTYPE.equals(CALL_SIDE)){
             switchView(mLocalVideo);
             switchView(mRemoteVideo);
-
             mLocalContainer.setVisibility(View.INVISIBLE);
         }
-
-
-//        headImageView = findViewById(R.id.user_head_image_calling);
-//        headImageView.loadBuddyAvatar(PEERID);
     }
 
     private void initializeEngine() {
@@ -443,6 +446,7 @@ public class PeerToPeerVideoActivity extends AppCompatActivity {
         mRtcEngine.joinChannel(token, CHANNELNAME, "Extra Optional Data", 0);
     }
 
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -451,23 +455,22 @@ public class PeerToPeerVideoActivity extends AppCompatActivity {
         unregister the rtmClientListener
          */
         AgoraMsgManager.getInstance().unregisterListener(rtmClientListener);
+        timer.cancel();
 
         if (isCalling || USERTYPE.equals(CALL_SIDE)){
-            endCall();
-            if (!mCallEnd) {
-                leaveChannel();
-            }
             /*
               Destroys the RtcEngine instance and releases all resources used by the Agora SDK.
 
               This method is useful for apps that occasionally make voice or video calls,
               to free up resources for other operations when not making calls.
              */
+            endCall();
             RtcEngine.destroy();
+//            mRtcEngine = null;
+//            mRtcEventHandler = null;
         }
-
-        timer.cancel();
     }
+
 
     private void leaveChannel() {
         mRtcEngine.leaveChannel();
@@ -486,43 +489,20 @@ public class PeerToPeerVideoActivity extends AppCompatActivity {
         mRtcEngine.switchCamera();
     }
 
-    public void onCallClicked(View view) {
-        if (mCallEnd) {
-            startCall();
-            mCallEnd = false;
-            mCallBtn.setImageResource(R.drawable.btn_endcall);
-        } else {
-            endCall();
-            finish();
-            mCallEnd = true;
-            mCallBtn.setImageResource(R.drawable.btn_startcall);
-        }
-
-        showButtons(!mCallEnd);
-    }
 
 
     public void onEndCall(View view) {
 
-        AgoraMsgManager agoraMsgManager = AgoraMsgManager.getInstance();
-        RtmClient mRtmClient = agoraMsgManager.getRtmClient();
-
-        String endMessage = "##EndCalling##";
-        RtmMessage message = mRtmClient.createMessage();
-        message.setText(endMessage);
-        mRtmClient.sendMessageToPeer(PEERID, message, agoraMsgManager.getSendMessageOptions(), resultCallback);
-
-        endCall();
-        finishAlert();
+        if (isCalling){
+            sendMsg("##EndCalling##");
+            endCall();
+        }else {
+            sendMsg("##CancelCalling##");
+            finishAlert();
+        }
         finish();
-
     }
 
-
-    private void startCall() {
-        setupLocalVideo();
-        joinChannel();
-    }
 
     private void endCall() {
         removeFromParent(mLocalVideo);
@@ -530,12 +510,6 @@ public class PeerToPeerVideoActivity extends AppCompatActivity {
         removeFromParent(mRemoteVideo);
         mRemoteVideo = null;
         leaveChannel();
-    }
-
-    private void showButtons(boolean show) {
-        int visibility = show ? View.VISIBLE : View.GONE;
-        mMuteBtn.setVisibility(visibility);
-        mSwitchCameraBtn.setVisibility(visibility);
     }
 
     private ViewGroup removeFromParent(VideoCanvas canvas) {
@@ -572,31 +546,6 @@ public class PeerToPeerVideoActivity extends AppCompatActivity {
 
 
 
-    /**
-     * start activity
-     * @param context the context
-     * @param channel video channel
-     */
-    public static void actionStart(Context context, String channel, String peerId, String userType){
-
-        Log.e(TAG,"actionStart()");
-        Log.e(TAG,"channel: " + channel);
-        Log.e(TAG,"peerId: " + peerId);
-        Log.e(TAG,"userType: " + userType);
-
-        CHANNELNAME = channel;
-        PEERID      = peerId;
-        USERTYPE    = userType;
-
-        Intent intent = new Intent(context, PeerToPeerVideoActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
-
-    }
-
-
-
-
 
     /**
      * called-side ----------------------------------------------------------------------------------------------
@@ -611,38 +560,26 @@ public class PeerToPeerVideoActivity extends AppCompatActivity {
         headImageView.loadBuddyAvatar(PEERID);
 
         TextView hint = findViewById(R.id.called_hint_text);
-        hint.setText(UserInfoHelper.getUserName(PEERID) + " is calling you now");
+        hint.setText(UserInfoHelper.getUserName(PEERID) + " is requesting a video call");
 
     }
 
     public void refuseCall(View view) {
-        AgoraMsgManager agoraMsgManager = AgoraMsgManager.getInstance();
-        RtmClient mRtmClient = agoraMsgManager.getRtmClient();
 
-        String refuseMessage = "##RefuseToAnswer##";
-        RtmMessage message = mRtmClient.createMessage();
-        message.setText(refuseMessage);
-        mRtmClient.sendMessageToPeer(PEERID, message, agoraMsgManager.getSendMessageOptions(), resultCallback);
-
+        sendMsg("##RefuseToAnswer##");
+        needCancel = false;
         finishAlert();
         finish();
     }
 
 
     public void answerCall(View view) {
-        AgoraMsgManager agoraMsgManager = AgoraMsgManager.getInstance();
-        RtmClient mRtmClient = agoraMsgManager.getRtmClient();
 
+//        sendMsg("##SuccessToAnswer##");
         initCall();
-        isCalling = true;
-        String answerMessage = "##SuccessToAnswer##";
-        RtmMessage message = mRtmClient.createMessage();
-        message.setText(answerMessage);
-        mRtmClient.sendMessageToPeer(PEERID, message, agoraMsgManager.getSendMessageOptions(), resultCallback);
-
         finishAlert();
+        isCalling = true;
         needCancel = false;
-
     }
 
 
@@ -651,38 +588,69 @@ public class PeerToPeerVideoActivity extends AppCompatActivity {
 
 
 
+    /**
+     * start activity
+     * @param context the context
+     * @param channel video channel
+     */
+    public static void actionStart(Context context, String channel, String peerId, String userType){
+
+        Log.e(TAG,"actionStart()");
+        Log.e(TAG,"channel: " + channel);
+        Log.e(TAG,"peerId: " + peerId);
+        Log.e(TAG,"userType: " + userType);
+
+        isCalling = false;
+        CHANNELNAME = channel;
+        PEERID      = peerId;
+        USERTYPE    = userType;
+
+        Intent intent = new Intent(context, PeerToPeerVideoActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+
+    }
 
 
-    ResultCallback resultCallback = new ResultCallback() {
-        @Override
-        public void onSuccess(Object o) {
-            Log.e(TAG,"fail to send msg !");
-        }
-
-        @Override
-        public void onFailure(ErrorInfo errorInfo) {
-            final int errorCode = errorInfo.getErrorCode();
-
-            Log.e(TAG, "Fail to send VideoCall !");
-
-            runOnUiThread(() -> {
-                switch (errorCode){
-                    case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_TIMEOUT:
-                    case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_FAILURE:
-                        Toast_in_Thread_static(getString(R.string.call_failed));
-                        break;
-                    case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_PEER_UNREACHABLE:
-                        Toast_in_Thread_static(getString(R.string.peer_offline));
-                        break;
-                    case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_CACHED_BY_SERVER:
-                        Toast_in_Thread_static(getString(R.string.call_cached));
-                        break;
-                }
-            });
-        }
-    };
 
 
+    /**
+     * send msg between users
+     * @param msg message sent
+     */
+    private void sendMsg(String msg){
+        AgoraMsgManager agoraMsgManager = AgoraMsgManager.getInstance();
+        RtmClient mRtmClient = agoraMsgManager.getRtmClient();
+
+        RtmMessage message = mRtmClient.createMessage();
+        message.setText(msg);
+        mRtmClient.sendMessageToPeer(PEERID, message, agoraMsgManager.getSendMessageOptions(), new ResultCallback() {
+            @Override
+            public void onSuccess(Object o) {
+                Log.e(TAG,"send msg successfully!");
+            }
+
+            @Override
+            public void onFailure(ErrorInfo errorInfo) {
+                final int errorCode = errorInfo.getErrorCode();
+                Log.e(TAG, "Fail to send msg !");
+                runOnUiThread(() -> {
+                    switch (errorCode){
+                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_TIMEOUT:
+                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_FAILURE:
+                            Toast_in_Thread_static(getString(R.string.call_failed));
+                            break;
+                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_PEER_UNREACHABLE:
+                            Toast_in_Thread_static(getString(R.string.peer_offline));
+                            break;
+                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_CACHED_BY_SERVER:
+                            Toast_in_Thread_static(getString(R.string.call_cached));
+                            break;
+                    }
+                });
+            }
+        });
+    }
 
 
 
@@ -697,10 +665,10 @@ public class PeerToPeerVideoActivity extends AppCompatActivity {
         @SuppressLint("LongLogTag")
         @Override
         public void onMessageReceived(final RtmMessage message, final String peerId) {
-            Log.d("onMessageRecievedFromPeer", message.getText() + " from " + peerId);
+            Log.d("onMessageReceived", message.getText() + " from " + peerId);
 
             if (isTopActivity()) {
-                Log.d("onMessageRecievedFromPeer","isTopActivity: " + message.getText() + " from " + peerId);
+                Log.d("onMessageReceived","isTopActivity: " + message.getText() + " from " + peerId);
                 String msg = message.getText();
 
                 if (msg.equals("##RefuseToAnswer##")){
@@ -708,19 +676,26 @@ public class PeerToPeerVideoActivity extends AppCompatActivity {
                     peer refuse the call
                      */
                     if (peerId.equals(PEERID)){
+                        Toast_in_Thread_static("Video call is REFUSED");
                         finishAlert();
                         finish();
                     }
-                } else if (msg.equals("##SuccessToAnswer##")){
-
                 } else if (msg.equals("##EndCalling##")){
                     /*
                     peer refuse the call
                      */
                     if (peerId.equals(PEERID)){
+                        Toast_in_Thread_static("Video call is ENDED");
+                        finish();
+                    }
+                } else if (msg.equals("##CancelCalling##")){
+                    if (peerId.equals(PEERID)){
+                        Toast_in_Thread_static("Video call is CANCELED");
                         finishAlert();
                         finish();
                     }
+                } else if (msg.equals("##SuccessToAnswer##")){
+
                 }
             }
         }
@@ -728,36 +703,34 @@ public class PeerToPeerVideoActivity extends AppCompatActivity {
         @SuppressLint("LongLogTag")
         @Override
         public void onImageMessageReceivedFromPeer(final RtmImageMessage rtmImageMessage, final String peerId) {
-
         }
 
         @Override
         public void onFileMessageReceivedFromPeer(RtmFileMessage rtmFileMessage, String s) {
-
         }
 
         @Override
         public void onMediaUploadingProgress(RtmMediaOperationProgress rtmMediaOperationProgress, long l) {
-
         }
 
         @Override
         public void onMediaDownloadingProgress(RtmMediaOperationProgress rtmMediaOperationProgress, long l) {
-
         }
 
         @Override
         public void onTokenExpired() {
-
         }
 
         @Override
         public void onPeersOnlineStatusChanged(Map<String, Integer> map) {
-
         }
     }
 
 
+
+    /*
+    finish alert
+     */
     private void finishAlert(){
         mVibrator.cancel();
         RingPlayer.stopRing();

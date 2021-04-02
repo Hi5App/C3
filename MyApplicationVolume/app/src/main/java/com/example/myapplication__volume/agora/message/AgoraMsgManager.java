@@ -25,7 +25,7 @@ public class AgoraMsgManager {
     private static AgoraMsgManager agoraMsgManager = null;
 
     private Context mContext;
-    private RtmClient mRtmClient;
+    private static RtmClient mRtmClient;
     private SendMessageOptions mSendMsgOptions;
     private List<RtmClientListener> mListenerList = new ArrayList<>();
     private RtmMessagePool mMessagePool = new RtmMessagePool();

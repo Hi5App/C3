@@ -158,6 +158,10 @@
         </activity>
 
 
+        <activity
+            android:name="com.example.myapplication__volume.agora.activity.PeerToPeerVoiceActivity">
+        </activity>
+
         <!-- 协同工作通信服务 -->
         <service
             android:name=".agora.AgoraService"
