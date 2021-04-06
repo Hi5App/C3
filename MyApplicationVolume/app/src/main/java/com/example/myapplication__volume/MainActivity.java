@@ -2582,7 +2582,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         break;
 
                                     case "Animate":
-                                        if (myrenderer.getImg() != null){
+                                        if (myrenderer.ifImageLoaded()){
                                             ifPainting = false;
                                             ifPoint = false;
                                             ifDeletingMarker = false;
@@ -3971,7 +3971,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private void Rotation() {
 
-        if (myrenderer.myAnimation != null){
+        if (myrenderer.myAnimation != null && myrenderer.ifImageLoaded()){
             ifAnimation = !ifAnimation;
 
             if (ifAnimation) {
@@ -4034,8 +4034,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private void About() {
         new XPopup.Builder(this)
-                .asConfirm("Hi 5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210405a 22:10 UTC+8 build",
+
+                .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
+                                "Version: 20210406b 20:10 UTC+8 build",
+
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

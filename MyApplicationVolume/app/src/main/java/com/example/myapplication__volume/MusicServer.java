@@ -86,11 +86,13 @@ public class MusicServer extends Service {
                     bgmPlayer.start();
                 }
             });
+        bgmPlayer.setVolume(volume, volume);
         bgmPlayer.setLooping(true);
         bgmPlayer.prepareAsync();
     }
 
     public static void defaultBgmSource(){
+        bgmPlayer.stop();
         bgmPlayer = MediaPlayer.create(Myapplication.getContext(), R.raw.bgm03sponge);
         bgmPlayer.setVolume(volume, volume);
         bgmPlayer.setLooping(true);
