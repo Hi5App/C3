@@ -48,11 +48,11 @@ public class LoginDataSource {
             if (responseData.startsWith("LOGIN:0")){
                 Log.e(TAG,"login Successfully !");
 
-                LoggedInUser fakeUser =
+                LoggedInUser curUser =
                         new LoggedInUser(
                                 java.util.UUID.randomUUID().toString(),
                                 username);
-                return new Result.Success<>(fakeUser);
+                return new Result.Success<>(curUser);
 
             }else if (responseData.startsWith("LOGIN:-1")){
                 Log.e(TAG, "Result.Error");
@@ -321,13 +321,11 @@ public class LoginDataSource {
 
 
     private void initServerConnector(){
-
         ServerConnector serverConnector = ServerConnector.getInstance();
 
         serverConnector.releaseConnection();
         serverConnector.setIp(ip_ALiYun);
         serverConnector.setPort("23763");
         serverConnector.initConnection();
-
     }
 }

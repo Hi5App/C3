@@ -436,7 +436,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private ManageService manageService;
     private CollaborationService collaborationService;
-    private boolean mBound;
+    private boolean mBoundManagement = false;
+    private boolean mBoundCollaboration = false;
 
     private int count = 0;
 
@@ -2030,13 +2031,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void initService(){
         // Bind to LocalService
         Intent intent = new Intent(this, ManageService.class);
-        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        bindService(intent, connection_management, Context.BIND_AUTO_CREATE);
     }
 
     private void initMsgService(){
         // Bind to LocalService
         Intent intent = new Intent(this, CollaborationService.class);
-        bindService(intent, connection_msg, Context.BIND_AUTO_CREATE);
+        bindService(intent, connection_collaboration, Context.BIND_AUTO_CREATE);
     }
 
     private void initMsgConnector(String port){
@@ -2062,7 +2063,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     /** Defines callbacks for service binding, passed to bindService() */
-    private ServiceConnection connection = new ServiceConnection() {
+    private ServiceConnection connection_management = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -2070,19 +2071,19 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             ManageService.LocalBinder binder = (ManageService.LocalBinder) service;
             manageService = (ManageService) binder.getService();
             binder.addReceiveMsgInterface((MainActivity) getActivityFromContext(mainContext));
-            mBound = true;
+            mBoundManagement = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
+            mBoundManagement = false;
         }
     };
 
 
 
     /** Defines callbacks for service binding, passed to bindService() */
-    private ServiceConnection connection_msg = new ServiceConnection() {
+    private ServiceConnection connection_collaboration = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -2090,12 +2091,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             CollaborationService.LocalBinder binder = (CollaborationService.LocalBinder) service;
             collaborationService = (CollaborationService) binder.getService();
             binder.addReceiveMsgInterface((MainActivity) getActivityFromContext(mainContext));
-            mBound = true;
+            mBoundCollaboration = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
+            mBoundCollaboration = false;
         }
     };
 
@@ -4033,9 +4034,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private void About() {
         new XPopup.Builder(this)
-
-                .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210402d 22:10 UTC+8 build",
+                .asConfirm("Hi 5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
+                                "Version: 20210405a 22:10 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5433,14 +5433,23 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Intent bgmIntent = new Intent(this, MusicServer.class);
         stopService(bgmIntent);
 
-        Intent manageServiceIntent = new Intent(this, ManageService.class);
-        stopService(manageServiceIntent);
-
-        Intent collaborationServiceIntent = new Intent(this, CollaborationService.class);
-        stopService(collaborationServiceIntent);
-
         Intent agoraServiceIntent = new Intent(this, AgoraService.class);
         stopService(agoraServiceIntent);
+
+        if (mBoundManagement){
+            Log.e(TAG,"unbind management service !");
+            unbindService(connection_management);
+            Intent manageServiceIntent = new Intent(this, ManageService.class);
+            stopService(manageServiceIntent);
+        }
+        if (mBoundCollaboration){
+            Log.e(TAG,"unbind collaboration service !");
+            unbindService(connection_collaboration);
+            Intent collaborationServiceIntent = new Intent(this, CollaborationService.class);
+            stopService(collaborationServiceIntent);
+        }
+
+
 
         /*
         release socket

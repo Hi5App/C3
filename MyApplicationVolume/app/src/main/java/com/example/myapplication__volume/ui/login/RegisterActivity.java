@@ -46,6 +46,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     EditText usernameEditText;
     EditText passwordEditText;
+    EditText passwordCheckEditText;
     EditText nicknameEditText;
     EditText emailEditText;
     EditText inviterText;
@@ -90,6 +91,7 @@ public class RegisterActivity extends AppCompatActivity {
         usernameEditText = findViewById(R.id.register_username);
         nicknameEditText = findViewById(R.id.register_nickname);
         passwordEditText = findViewById(R.id.register_password);
+        passwordCheckEditText = findViewById(R.id.register_password_check);
         emailEditText = findViewById(R.id.register_email);
         inviterText = findViewById(R.id.register_inviter);
         registerButton = findViewById(R.id.register);
@@ -161,7 +163,6 @@ public class RegisterActivity extends AppCompatActivity {
                 if (registerResult.getSuccess() != null) {
                     Log.d("LoginResultOnChanged", "getSuccess");
                     LoginActivity.actionStart(RegisterActivity.this);
-
                     updateUiWithUser(registerResult.getSuccess());
                 }
                 setResult(Activity.RESULT_OK);
@@ -191,6 +192,7 @@ public class RegisterActivity extends AppCompatActivity {
         usernameEditText.addTextChangedListener(afterTextChangedListener);
         nicknameEditText.addTextChangedListener(afterTextChangedListener);
         passwordEditText.addTextChangedListener(afterTextChangedListener);
+        passwordCheckEditText.addTextChangedListener(afterTextChangedListener);
         emailEditText.addTextChangedListener(afterTextChangedListener);
         passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 
@@ -217,8 +219,12 @@ public class RegisterActivity extends AppCompatActivity {
 //                else {
 //                    Log.d(TAG, "InviterCode: " + inviterCode);
 //                }
+                if (passwordEditText.getText().toString().equals(passwordCheckEditText.getText().toString())){
+                    handler.sendEmptyMessage(REGISTER_ON_CLICK);
+                }else {
+                    Toast.makeText(getApplication(),"Confirm the password is consistent", Toast.LENGTH_SHORT).show();
+                }
 
-                handler.sendEmptyMessage(REGISTER_ON_CLICK);
 
 //                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
 //                startActivity(intent);
@@ -229,7 +235,8 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void updateUiWithUser(LoggedInUserView model) {
-        String welcome = getString(R.string.welcome) + model.getDisplayName();
+//        String welcome = getString(R.string.welcome) + model.getDisplayName();
+        String welcome = "Register user " + model.getDisplayName() + "successfully !";
         // TODO : initiate successful logged in experience
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
     }

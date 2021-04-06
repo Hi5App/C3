@@ -36,6 +36,7 @@
     <string name="prompt_email_username">Username</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
+    <string name="prompt_password_check">Check Password</string>
     <string name="prompt_inviter_code">InviterCode</string>
     <string name="prompt_username">Username (Not repeatable)</string>
     <string name="prompt_nickname">Nickname</string>

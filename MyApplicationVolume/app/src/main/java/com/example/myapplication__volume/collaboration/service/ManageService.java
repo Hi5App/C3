@@ -81,6 +81,7 @@ public class ManageService extends Service {
     @Override
     public boolean onUnbind(Intent intent) {
         // All clients have unbound with unbindService()
+        receiveMsgInterface = null;
         return mAllowRebind;
     }
 
@@ -94,7 +95,7 @@ public class ManageService extends Service {
         Log.d(TAG, "onDestroy");
         super.onDestroy();
         if (mReadThread != null)
-            mReadThread.interrupt();
+            mReadThread.flag = false;
         timer.cancel();
         // The service is no longer used and is being destroyed
     }
@@ -141,6 +142,7 @@ public class ManageService extends Service {
         private boolean isStart = true;
         private InputStream is;
         private boolean isReconnect = false;
+        private boolean flag = true;
 
         public ReadThread(Socket socket) {
             mSocket = socket;
@@ -155,7 +157,8 @@ public class ManageService extends Service {
                     is = mSocket.getInputStream();
                     String header = "";
 
-                    while(!isInterrupted()) {
+//                    while(!isInterrupted()) {
+                    while(flag) {
                         try {
                             synchronized (this) {
 

@@ -98,7 +98,6 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
         }
 
         initServerConnector();
-
         initService();
 
         Log.e(TAG, " After if (!firstEnter) { ");
@@ -200,7 +199,9 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unbindService(connection);
         InfoCache.setMainTaskLaunching(false);
+        splashContext = null;
     }
 
     @Override
@@ -234,7 +235,6 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
             if (!firstEnter && intent == null) {
                 finish();
             } else {
-//                autoLogin();
                 showMainActivity();
             }
         }
@@ -248,7 +248,6 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
         String account = preferenceLogin.getUsername();
         String token = preferenceLogin.getPassword();
 
-//        Log.i(TAG, "get local sdk token =" + token);
         return !TextUtils.isEmpty(account) && !TextUtils.isEmpty(token);
     }
 
@@ -282,7 +281,6 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
         Log.e(TAG,"showMainActivity null");
 
         autoLogin();
-
         showMainActivity(null);
     }
 
@@ -303,10 +301,13 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
     private void autoLogin(){
         PreferenceLogin preferenceLogin = new PreferenceLogin(this);
 
-//        initServerConnector();
         ServerConnector serverConnector = ServerConnector.getInstance();
         if (serverConnector.checkConnection()){
-            serverConnector.sendMsg(String.format("LOGIN:%s %s", preferenceLogin.getUsername(), preferenceLogin.getPassword()));
+            if (!preferenceLogin.getUsername().equals("") && !preferenceLogin.getPassword().equals("")){
+                serverConnector.sendMsg(String.format("LOGIN:%s %s", preferenceLogin.getUsername(), preferenceLogin.getPassword()));
+            }
+            Log.e(TAG,"user info is empty !");
+            Toast_in_Thread("user info is empty !");
         }
         Log.d(TAG, "auotoLogin: MUSICLIST");
 //        serverConnector.sendMsg("MUSICLIST");

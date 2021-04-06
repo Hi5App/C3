@@ -84,6 +84,7 @@ public class CollaborationService extends Service {
     @Override
     public boolean onUnbind(Intent intent) {
         // All clients have unbound with unbindService()
+        receiveMsgInterface = null;
         return mAllowRebind;
     }
 
@@ -98,7 +99,7 @@ public class CollaborationService extends Service {
         Log.d(TAG, "onDestroy");
         super.onDestroy();
         if (mReadThread != null)
-            mReadThread.interrupt();
+            mReadThread.flag = false;
         timer.cancel();
     }
 
@@ -143,6 +144,7 @@ public class CollaborationService extends Service {
         private boolean isStart = true;
         private InputStream is;
         private boolean isReconnect = false;
+        private boolean flag = true;
 
         public ReadThread(Socket socket) {
             mSocket = socket;
@@ -155,7 +157,8 @@ public class CollaborationService extends Service {
             if (null != mSocket) {
                 try {
                     is = mSocket.getInputStream();
-                    while(!isInterrupted()) {
+//                    while(!isInterrupted()) {
+                    while(flag) {
                         try {
                             synchronized (this) {
 

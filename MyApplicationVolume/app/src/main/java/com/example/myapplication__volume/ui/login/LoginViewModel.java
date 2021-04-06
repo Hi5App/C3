@@ -1,16 +1,16 @@
 package com.example.myapplication__volume.ui.login;
 
+import android.util.Log;
+import android.util.Patterns;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import android.util.Log;
-import android.util.Patterns;
-
+import com.example.myapplication__volume.R;
 import com.example.myapplication__volume.data.LoginRepository;
 import com.example.myapplication__volume.data.Result;
 import com.example.myapplication__volume.data.model.LoggedInUser;
-import com.example.myapplication__volume.R;
 
 public class LoginViewModel extends ViewModel {
 
@@ -39,7 +39,8 @@ public class LoginViewModel extends ViewModel {
             LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
             loginResult.setValue(new LoginResult(new LoggedInUserView(data.getDisplayName())));
         } else {
-            loginResult.setValue(new LoginResult(R.string.login_failed));
+            loginResult.setValue(new LoginResult(result.toString()));
+//            loginResult.setValue(new LoginResult(R.string.login_failed));
         }
     }
 
