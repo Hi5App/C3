@@ -2563,9 +2563,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public void More_icon(){
         String[] item_list = null;
         if (DrawMode){
-            item_list = new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Game", "About", "Help", "Quests", "Reward"};
+            item_list = new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "About", "Help", "Quests", "Reward"};
         }else{
-            item_list = new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Account Name", "Game", "About", "Help"};
+            item_list = new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Account Name", "About", "Help"};
         }
 
         new XPopup.Builder(this)
@@ -4037,7 +4037,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210407b 20:10 UTC+8 build",
+                                "Version: 20210407c 22:37 UTC+8 build",
 
                         new OnConfirmListener() {
                             @Override
@@ -5086,18 +5086,22 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                         Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
                         String selected = bgmSpinner.getSelectedItem().toString();
-                        if (selected.equals("BGM1"))
-                            MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
+                        if (selectedBGM != bgmSpinner.getSelectedItemPosition()) {
+                            if (selected.equals("BGM1"))
+                                MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
 
-                        else if (selected.equals("BGM2"))
-                            MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/DelRioBravo.mp3");
+                            else if (selected.equals("BGM2"))
+                                MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/DelRioBravo.mp3");
 
-                        else
-                            MusicServer.defaultBgmSource();
+                            else
+                                MusicServer.defaultBgmSource();
 
-                        selectedBGM = bgmSpinner.getSelectedItemPosition();
+                            selectedBGM = bgmSpinner.getSelectedItemPosition();
+
+                        }
 
                         MusicServer.setBgmVolume(bgmVolume);
+                        MusicServer.setVolume(bgmVolume);
 
                         String settingsPath = context.getExternalFilesDir(null).toString() + "/Settings";
                         File settingsFile = new File(settingsPath);
