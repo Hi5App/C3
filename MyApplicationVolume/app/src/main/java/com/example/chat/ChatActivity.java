@@ -15,6 +15,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.netease.nimlib.sdk.NIMClient;
@@ -112,7 +113,7 @@ public class ChatActivity extends AppCompatActivity {
                             Toast_in_Thread(getString(R.string.account_starts_with_space));
                         } else if (mTargetName.equals("null")) {
                             Toast_in_Thread(getString(R.string.account_literal_null));
-                        } else if (mTargetName.equals(mChatManager.getUsername())) {
+                        } else if (mTargetName.equals(InfoCache.getAccount())) {
                             Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
                         } else {
 //                            String result = mChatManager.addFriends(mTargetName);
@@ -137,16 +138,6 @@ public class ChatActivity extends AppCompatActivity {
                                                 Toast_in_Thread("Some Exception occur !");
                                             }
                                         });
-
-//                                if (FragmentId == R.id.navigation_home){
-//                                    ContactsFragment.refresh();
-//                                }
-////                                contactsFragment.refresh();
-//                                Toast_in_Thread("Add Friends " + mTargetName + " Successfully !");
-
-//                            }else {
-//                                Toast_in_Thread(result);
-//                            }
                         }
                     }
                 })

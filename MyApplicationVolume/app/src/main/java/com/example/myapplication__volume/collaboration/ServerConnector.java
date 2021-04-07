@@ -43,6 +43,8 @@ public class ServerConnector implements ReconnectionInterface {
 
     private int userScore = -1;
 
+    private int count = 0;
+
 
     private ServerConnector(){
         msgSender = new MsgSender(mContext);
@@ -134,11 +136,11 @@ public class ServerConnector implements ReconnectionInterface {
                 if (!manageSocket.isClosed()) {
                     manageSocket.close();
                 }
-                manageSocket = null;
             }catch (Exception e){
                 System.out.println("NULL!!!");
             }
         }
+        manageSocket = null;
     }
 
 
@@ -168,6 +170,7 @@ public class ServerConnector implements ReconnectionInterface {
 
     public void reLogin(){
         Log.e(TAG,"Start to reLogin !");
+        Toast_in_Thread("Relogin !");
         sendMsg(String.format("LOGIN:%s %s", InfoCache.getAccount(), InfoCache.getToken()), true);
     }
 
@@ -294,9 +297,18 @@ public class ServerConnector implements ReconnectionInterface {
         /*
         reconnect
          */
+
+        if (count >= 3){
+            count = 0;
+            return;
+        }
+
+        count++;
+        releaseConnection();
         initConnection();
         ManageService.resetConnection();
         sendMsg(msg);
+        count = 0;
     }
 
 }

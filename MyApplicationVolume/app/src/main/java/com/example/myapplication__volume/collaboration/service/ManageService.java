@@ -151,6 +151,7 @@ public class ManageService extends Service {
         private InputStream is;
         private boolean isReconnect = false;
         private boolean flag = true;
+        private int count = 0;
 
         public ReadThread(Socket socket) {
             mSocket = socket;
@@ -175,7 +176,7 @@ public class ManageService extends Service {
                                         onRead("in the while loop");
                                     }
                                 }else {
-                                    if (!isReconnect){
+                                    if (!isReconnect && (count<3)){
                                         Log.e(TAG,"reConnect in mReadThread !");
                                         reConnect();
                                     }
@@ -465,10 +466,12 @@ public class ManageService extends Service {
                 serverConnector.reLogin();
                 mSocket = serverConnector.getManageSocket();
                 is = mSocket.getInputStream();
+                count = 0;
 
             }catch (Exception e){
                 e.printStackTrace();
                 Log.e(TAG,"reConnect");
+                count++;
             }
             isReconnect = false;
         }
