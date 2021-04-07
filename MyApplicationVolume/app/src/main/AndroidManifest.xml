@@ -70,7 +70,7 @@
         <!-- Hi 5 Test -->
         <meta-data
             android:name="com.netease.nim.appKey"
-            android:value="f7ded615794f989e8d8850c931b1d77a" /> <!-- <activity -->
+            android:value="337591b817815b770bc6b7551bb90b28" /> <!-- <activity -->
         <!-- android:name="com.example.myapplication__volume.WelcomeActivity" -->
         <!-- android:label="@string/app_name"> -->
         <!-- <intent-filter> -->

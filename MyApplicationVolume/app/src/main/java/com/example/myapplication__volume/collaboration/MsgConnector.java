@@ -124,7 +124,7 @@ public class MsgConnector implements ReconnectionInterface {
                 }
                 msgSocket = null;
             }catch (Exception e){
-                System.out.println("NULL!!!");
+                System.out.println("Something wrong with releaseConnection !");
             }
         }
     }

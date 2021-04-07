@@ -8,7 +8,6 @@ import android.util.Log;
 
 import com.example.myapplication__volume.MainActivity;
 import com.example.myapplication__volume.collaboration.MsgConnector;
-import com.example.myapplication__volume.collaboration.ServerConnector;
 import com.example.myapplication__volume.collaboration.basic.DataType;
 import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
 
@@ -85,6 +84,9 @@ public class CollaborationService extends Service {
     public boolean onUnbind(Intent intent) {
         // All clients have unbound with unbindService()
         receiveMsgInterface = null;
+        if (mReadThread != null)
+            mReadThread.flag = false;
+        timer.cancel();
         return mAllowRebind;
     }
 
@@ -98,9 +100,13 @@ public class CollaborationService extends Service {
         // The service is no longer used and is being destroyed
         Log.d(TAG, "onDestroy");
         super.onDestroy();
-        if (mReadThread != null)
-            mReadThread.flag = false;
-        timer.cancel();
+//        if (mReadThread != null)
+//            mReadThread.flag = false;
+//        timer.cancel();
+    }
+
+    public static void setFlag(boolean flag){
+        mReadThread.flag = flag;
     }
 
 
@@ -503,8 +509,8 @@ public class CollaborationService extends Service {
 
     private void reConnect(){
         Log.e(TAG,"Start to reConnect");
-        ServerConnector serverConnector = ServerConnector.getInstance();
-        serverConnector.releaseConnection();
+        MsgConnector msgConnector = MsgConnector.getInstance();
+        msgConnector.releaseConnection();
         mReadThread.reConnect();
     }
 

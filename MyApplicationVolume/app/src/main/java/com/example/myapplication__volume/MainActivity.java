@@ -481,7 +481,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         if (msg.startsWith("Port:")){
 
             if (msg.split(":")[1].equals("-1")){
-                Toast_in_Thread("Something Wrong with Server");
+                Toast_in_Thread("Something wrong with this img, choose other img please !");
                 soundPool.play(soundId[3], actionVolume, actionVolume, 0, 0, 1.0f);
                 return;
             }
@@ -712,7 +712,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         navigation_down.setVisibility(View.VISIBLE);
                         navigation_front.setVisibility(View.VISIBLE);
                         navigation_back.setVisibility(View.VISIBLE);
-                        navigation_location.setVisibility(View.VISIBLE);
+//                        navigation_location.setVisibility(View.VISIBLE);
 
                         Zoom_in_Big.setVisibility(View.VISIBLE);
                         Zoom_out_Big.setVisibility(View.VISIBLE);
@@ -1676,7 +1676,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             public void onClick(View v) {
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
-                Set_Nav_Mode();
+//                Set_Nav_Mode();
             }
         });
 
@@ -2044,6 +2044,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         MsgConnector msgConnector = MsgConnector.getInstance();
         msgConnector.setContext(this);
 
+        msgConnector.releaseConnection();
         msgConnector.setIp(ip_ALiYun);
         msgConnector.setPort(port);
         msgConnector.initConnection();
@@ -4036,7 +4037,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         new XPopup.Builder(this)
 
                 .asConfirm("C3: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210406b 20:10 UTC+8 build",
+                                "Version: 20210407b 20:10 UTC+8 build",
 
                         new OnConfirmListener() {
                             @Override
@@ -5440,12 +5441,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         if (mBoundManagement){
             Log.e(TAG,"unbind management service !");
+            ManageService.setFlag(false);
             unbindService(connection_management);
             Intent manageServiceIntent = new Intent(this, ManageService.class);
             stopService(manageServiceIntent);
         }
         if (mBoundCollaboration){
             Log.e(TAG,"unbind collaboration service !");
+            CollaborationService.setFlag(false);
             unbindService(connection_collaboration);
             Intent collaborationServiceIntent = new Intent(this, CollaborationService.class);
             stopService(collaborationServiceIntent);

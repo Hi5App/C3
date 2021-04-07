@@ -82,6 +82,9 @@ public class ManageService extends Service {
     public boolean onUnbind(Intent intent) {
         // All clients have unbound with unbindService()
         receiveMsgInterface = null;
+        if (mReadThread != null)
+            mReadThread.flag = false;
+        timer.cancel();
         return mAllowRebind;
     }
 
@@ -94,10 +97,14 @@ public class ManageService extends Service {
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
         super.onDestroy();
-        if (mReadThread != null)
-            mReadThread.flag = false;
-        timer.cancel();
+//        if (mReadThread != null)
+//            mReadThread.flag = false;
+//        timer.cancel();
         // The service is no longer used and is being destroyed
+    }
+
+    public static void setFlag(boolean flag){
+        mReadThread.flag = flag;
     }
 
 
@@ -118,6 +125,7 @@ public class ManageService extends Service {
 
             try {
                 if (!serverConnector.sendMsg(msg,true)){
+                    Log.e(TAG,"reConnect in sendMsg !");
                     reConnect();
                 }
                 Log.e(TAG,"Send Heart Beat Msg Successfully !");
@@ -168,6 +176,7 @@ public class ManageService extends Service {
                                     }
                                 }else {
                                     if (!isReconnect){
+                                        Log.e(TAG,"reConnect in mReadThread !");
                                         reConnect();
                                     }
                                 }
