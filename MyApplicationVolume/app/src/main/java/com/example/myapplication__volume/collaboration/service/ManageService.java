@@ -182,10 +182,10 @@ public class ManageService extends Service {
                                     }
                                 }
                             }
-                    }catch (Exception e){
-                        e.printStackTrace();
-                        System.out.println("网络异常！");
-                    }
+                        }catch (Exception e){
+                            e.printStackTrace();
+                            System.out.println("网络异常！");
+                        }
                     }
 
                 } catch (Exception e) {

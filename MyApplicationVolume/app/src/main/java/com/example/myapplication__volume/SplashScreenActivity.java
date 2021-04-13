@@ -7,10 +7,12 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.alibaba.fastjson.JSON;
@@ -47,7 +49,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 
     private static Context splashContext;
 
-    private int musicTotalNum = 0;
+    private int musicTotalNum = 3;
     private int musicAlreadyNum = 0;
 
     /** Defines callbacks for service binding, passed to bindService() */
@@ -69,7 +71,42 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
         }
     };
 
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case 0:
+                    Toast_in_Thread("Failed to download");
+                    Runnable runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!NimUIKit.isInitComplete()) {
+                                LogUtil.i(TAG, "wait for uikit cache!");
+                                new Handler().postDelayed(this, 100);
+                                return;
+                            }
 
+                            customSplash = false;
+                            if (canAutoLogin()) {
+                                onIntent();
+                            } else {
+                                LoginActivity.start(SplashScreenActivity.this);
+                                finish();
+                            }
+                        }
+                    };
+                    if (customSplash) {
+                        new Handler().postDelayed(runnable, 1000);
+                    } else {
+                        runnable.run();
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -140,24 +177,65 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
         if (firstEnter) {
             firstEnter = false;
             File musicDir = new File(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music");
-            if (!musicDir.exists() || musicDir.listFiles().length == 0){
+            if (!musicDir.exists() || musicDir.listFiles().length < musicTotalNum){
                 ServerConnector serverConnector = ServerConnector.getInstance();
                 Log.d(TAG, "onResume");
+//                Log.d(TAG, "musicDir.listFiles().length: " + musicDir.listFiles().length);
 //                Toast_in_Thread("");
 //                serverConnector.sendMsg("MUSICLIST");
                 File music = new File(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
                 if (!music.exists())
                     serverConnector.sendMsg("GETMUSIC:CoyKoi.mp3");
+                else
+                    musicAlreadyNum += 1;
 
                 music = new File(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/DelRioBravo.mp3");
                 if (!music.exists())
                     serverConnector.sendMsg("GETMUSIC:DelRioBravo.mp3");
+                else
+                    musicAlreadyNum += 1;
 
-//                music = new File(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/ForestFrolicLoop.mp3");
-//                if (!music.exists())
-//                    serverConnector.sendMsg("GETMUSIC:ForestFrolicLoop.mp3");
+                music = new File(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/ForestFrolicLoop.mp3");
+                if (!music.exists())
+                    serverConnector.sendMsg("GETMUSIC:ForestFrolicLoop.mp3");
+                else
+                    musicAlreadyNum += 1;
+
+//                try {
+//                    Thread.sleep(20000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+
+//                Toast_in_Thread("Failed to download");
 
 
+
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast_in_Thread("Failed to download");
+                        if (!NimUIKit.isInitComplete()) {
+                            LogUtil.i(TAG, "wait for uikit cache!");
+                            new Handler().postDelayed(this, 100);
+                            return;
+                        }
+
+                        customSplash = false;
+                        if (canAutoLogin()) {
+                            onIntent();
+                        } else {
+                            LoginActivity.start(SplashScreenActivity.this);
+                            finish();
+                        }
+                    }
+                };
+                if (customSplash) {
+                    new Handler().postDelayed(runnable, 31000);
+                } else {
+                    new Handler().postDelayed(runnable, 30000);
+
+                }
 
 
             } else {
@@ -338,7 +416,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
             String [] list = msg.split(":")[1].split(";");
             if (list.length > 0){
 //                musicTotalNum = list.length;
-                musicTotalNum = 1;
+//                musicTotalNum = 1;
                 musicAlreadyNum = 0;
                 ServerConnector serverConnector = ServerConnector.getInstance();
                 ServerConnector.setContext(this);
@@ -367,40 +445,41 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 //                    }
 //                };
 //                runnable.run();
-
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
+                if (musicAlreadyNum >= musicTotalNum) {
+                    Runnable runnable = new Runnable() {
+                        @Override
+                        public void run() {
 //                        Toast_in_Thread("runnable.run()1");
-                        if (!NimUIKit.isInitComplete()) {
+                            if (!NimUIKit.isInitComplete()) {
 //                            Toast_in_Thread("runnable.run()2");
-                            LogUtil.i(TAG, "wait for uikit cache!");
-                            new Handler().postDelayed(this, 100);
-                            return;
-                        }
+                                LogUtil.i(TAG, "wait for uikit cache!");
+                                new Handler().postDelayed(this, 100);
+                                return;
+                            }
 //                        Toast_in_Thread("runnable.run()3");
 
-                        customSplash = false;
-                        if (canAutoLogin()) {
+                            customSplash = false;
+                            if (canAutoLogin()) {
 //                            Toast_in_Thread("runnable.run()4");
 
-                            onIntent();
-                        } else {
+                                onIntent();
+                            } else {
 //                            Toast_in_Thread("runnable.run()5");
 
-                            LoginActivity.start(SplashScreenActivity.this);
-                            finish();
+                                LoginActivity.start(SplashScreenActivity.this);
+                                finish();
+                            }
+                        }
+                    };
+                    if (customSplash) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
                     }
-                };
-                if (customSplash) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    runnable.run();
                 }
-                runnable.run();
 //                if (customSplash) {
 //                    Toast_in_Thread("runnable.run()6");
 //
