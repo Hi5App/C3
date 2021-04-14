@@ -35,8 +35,6 @@ public class InfoCache {
     public static void setAccount(String account) {
         InfoCache.account = account;
         NimUIKit.setAccount(account);
-//        AVChatKit.setAccount(account);
-//        RTSKit.setAccount(account);
     }
 
     public static void setToken(String token) {

@@ -1,4 +1,4 @@
-package com.example.myapplication__volume.agora.basic;
+package com.example.chat.agora.basic;
 
 import android.app.Activity;
 import android.media.AudioManager;

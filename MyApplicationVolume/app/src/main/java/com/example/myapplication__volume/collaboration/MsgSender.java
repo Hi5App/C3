@@ -25,11 +25,11 @@ public class MsgSender {
         this.mContext = context;
     }
 
-    public boolean SendMsg(Socket socket, String message, boolean waited, ReconnectionInterface reconnectionInterface){
+    public boolean SendMsg(Socket socket, String message, boolean waited, boolean resend, ReconnectionInterface reconnectionInterface){
 
         final boolean[] flag = {true};
         if (!socket.isConnected()){
-            Toast_in_Thread("Fail to Send_Message, Try Again Please !");
+            Toast_in_Thread("Fail to Send Message, Try Again Please !");
             return false;
         }
 
@@ -38,12 +38,7 @@ public class MsgSender {
             public void run() {
                 super.run();
 
-                /**
-                 * show the progressbar
-                 */
                 try {
-
-
                     Log.d(TAG, "Start to Send Message");
                     OutputStream out = socket.getOutputStream();
 
@@ -63,6 +58,10 @@ public class MsgSender {
                     out.write(data.getBytes(StandardCharsets.UTF_8));
                     out.flush();
 
+
+                    /*
+                     * show the progressbar
+                     */
                     if (message.startsWith("/Imgblock:")){
                         MainActivity.showProgressBar();
                     }
@@ -72,7 +71,7 @@ public class MsgSender {
                     Log.d(TAG, "Fail to get OutputStream");
                     flag[0] = false;
 
-                    if (!waited){
+                    if (resend){
                         reconnectionInterface.onReconnection(message);
                     }
                 }

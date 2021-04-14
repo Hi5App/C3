@@ -39,7 +39,7 @@ public class CollaborationService extends Service {
 
     private DataType dataType = new DataType();
 
-    private static final long HEART_BEAT_RATE = 120 * 1000;
+    private static final long HEART_BEAT_RATE = 5 * 60 * 1000;
 
     private Timer timer;
 
@@ -126,7 +126,7 @@ public class CollaborationService extends Service {
         if (mSocket != null && !mSocket.isClosed() && mSocket.isConnected()){
 
             try {
-                if (!msgConnector.sendMsg(msg,true)){
+                if (!msgConnector.sendMsg(msg, true, false)){
                     reConnect();
                 }
                 Log.e(TAG,"Send Heart Beat Msg Successfully !");
@@ -142,12 +142,24 @@ public class CollaborationService extends Service {
 
 
 
+
+    public static void resetConnection(){
+        mReadThread.reSetConnect();
+    }
+
+
+    private void reConnect(){
+        Log.e(TAG,"Start to reConnect");
+        MsgConnector.getInstance().releaseConnection();
+        mReadThread.reConnect();
+    }
+
+
     /**
      * thread for read and process msg
      */
     class ReadThread extends Thread {
         private Socket mSocket;
-        private boolean isStart = true;
         private InputStream is;
         private boolean isReconnect = false;
         private boolean flag = true;
@@ -156,6 +168,59 @@ public class CollaborationService extends Service {
             mSocket = socket;
         }
 
+
+        private void reConnect(){
+
+            Log.e(TAG,"Start to reConnect in mReadThread !");
+            isReconnect = true;
+            releaseSocket();
+
+            try {
+
+                MsgConnector msgConnector = MsgConnector.getInstance();
+                msgConnector.initConnection();
+                mSocket = msgConnector.getMsgSocket();
+                is = msgConnector.getMsgSocket().getInputStream();
+
+            }catch (Exception e){
+                e.printStackTrace();
+                Log.e(TAG,"reConnect");
+                isReconnect = false;
+            }
+
+            isReconnect = false;
+
+        }
+
+
+        private void releaseSocket(){
+            if (mSocket != null){
+                try {
+                    if (!mSocket.isClosed()){
+                        mSocket.close();
+                    }
+                    mSocket = null;
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+
+
+        public void reSetConnect(){
+
+            try {
+
+                mSocket = MsgConnector.getInstance().getMsgSocket();
+                is = mSocket.getInputStream();
+
+            }catch (Exception e){
+                e.printStackTrace();
+                Log.e(TAG,"reConnect");
+            }
+        }
+
+
         //同步方法读取返回得数据
         @Override
         public void run() {
@@ -163,12 +228,11 @@ public class CollaborationService extends Service {
             if (null != mSocket) {
                 try {
                     is = mSocket.getInputStream();
-//                    while(!isInterrupted()) {
                     while(flag) {
                         try {
                             synchronized (this) {
 
-                                if (!(mSocket==null) && !mSocket.isClosed() && !mSocket.isInputShutdown() && isStart ) {
+                                if (!(mSocket==null) && !mSocket.isClosed() && !mSocket.isInputShutdown()) {
                                     if (!isReconnect){
                                         onRead("in the while loop");
                                     }
@@ -193,12 +257,6 @@ public class CollaborationService extends Service {
 
 
         private void onRead(String tag){
-
-//            try {
-//                Log.e(TAG, "tag: " + tag + ";  available size : " + is.available());
-//            }catch (Exception e){
-//                e.printStackTrace();
-//            }
 
             if(!dataType.isFile){
                 if (dataType.dataSize == 0){
@@ -244,10 +302,6 @@ public class CollaborationService extends Service {
                 try {
                     // process file
                     if (is.available() > 0){
-
-//                        if (dataType.filename.endsWith(".v3draw") || dataType.filename.endsWith("v3dpbd")){
-//                            MainActivity.showProgressBar();
-//                        }
 
                         int ret = 0;
 
@@ -442,76 +496,6 @@ public class CollaborationService extends Service {
             dataType.filepath = null;
 
         }
-
-
-
-        private void reConnect(){
-
-            Log.e(TAG,"Start to reConnect in mReadThread !");
-            isReconnect = true;
-            releaseSocket();
-
-            try {
-
-                MsgConnector msgConnector = MsgConnector.getInstance();
-                msgConnector.initConnection();
-                mSocket = msgConnector.getMsgSocket();
-                is = msgConnector.getMsgSocket().getInputStream();
-
-            }catch (Exception e){
-                e.printStackTrace();
-                Log.e(TAG,"reConnect");
-                isReconnect = false;
-            }
-
-            isReconnect = false;
-
-        }
-
-
-        private void releaseSocket(){
-            if (mSocket != null){
-                try {
-                    if (!mSocket.isClosed()){
-                        mSocket.close();
-                    }
-                    mSocket = null;
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        }
-
-
-        public void reSetConnect(){
-
-            try {
-
-                MsgConnector msgConnector = MsgConnector.getInstance();
-                mSocket = msgConnector.getMsgSocket();
-                is = mSocket.getInputStream();
-
-            }catch (Exception e){
-                e.printStackTrace();
-                Log.e(TAG,"reConnect");
-            }
-        }
-
-
-
-    }
-
-
-    public static void resetConnection(){
-        mReadThread.reSetConnect();
-    }
-
-
-    private void reConnect(){
-        Log.e(TAG,"Start to reConnect");
-        MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.releaseConnection();
-        mReadThread.reConnect();
     }
 
 

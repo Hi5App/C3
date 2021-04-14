@@ -94,6 +94,13 @@ public class LoginActivity extends AppCompatActivity {
         loginViewModel = ViewModelProviders.of(this, new LoginViewModelFactory())
                 .get(LoginViewModel.class);
 
+
+        /*
+        set context for toast in ServerConnector
+         */
+        ServerConnector.setContext(this);
+
+
         preferenceLogin = new PreferenceLogin(this);
         usernameEditText = findViewById(R.id.username);
         passwordEditText = findViewById(R.id.password);
@@ -102,6 +109,10 @@ public class LoginActivity extends AppCompatActivity {
         registerButton = findViewById(R.id.goto_register);
         remember_pwd = findViewById(R.id.remember_pwd);
 
+
+        /*
+        music volume
+         */
         soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 5);
         soundId = soundPool.load(this, R.raw.button01, 1);
 
@@ -127,16 +138,16 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
 
-        ServerConnector.getInstance().setContext(this);
 
 
         if (preferenceLogin.getRem_or_not()){
-
             usernameEditText.setText(preferenceLogin.getUsername());
             passwordEditText.setText(preferenceLogin.getPassword());
             remember_pwd.setChecked(true);
             loginButton.setEnabled(true);
         }
+
+
 
         loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
             @Override
@@ -176,12 +187,10 @@ public class LoginActivity extends AppCompatActivity {
                         preferenceLogin.setPref("","",false);
                     }
 
-
+                    /*
+                    login IM module
+                     */
                     loginNim(loginResult.getSuccess().getDisplayName(), passwordEditText.getText().toString(), loginResult);
-
-                    // 进入主界面
-                    MainActivity.actionStart(LoginActivity.this, loginResult.getSuccess().getDisplayName());
-                    updateUiWithUser(loginResult.getSuccess());
                     finish();
                 }
                 setResult(Activity.RESULT_OK);
@@ -246,6 +255,13 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ServerConnector.setContext(null);
+    }
+
     private void updateUiWithUser(LoggedInUserView model) {
         String welcome = getString(R.string.welcome) + model.getDisplayName() + " !";
         // TODO : initiate successful logged in experience
@@ -270,7 +286,6 @@ public class LoginActivity extends AppCompatActivity {
     private void loginNim(String account, String password, LoginResult loginResult){
         Log.e(TAG, "account: " + account);
         Log.e(TAG, "password: " + password);
-
 
         NimUIKit.login(new LoginInfo(account, password),
                 new RequestCallback<LoginInfo>() {
@@ -309,6 +324,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 });
     }
+
 
 
 

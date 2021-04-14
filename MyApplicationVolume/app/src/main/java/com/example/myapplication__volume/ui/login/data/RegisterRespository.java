@@ -1,8 +1,8 @@
-package com.example.myapplication__volume.data;
+package com.example.myapplication__volume.ui.login.data;
 
 import android.util.Log;
 
-import com.example.myapplication__volume.data.model.LoggedInUser;
+import com.example.myapplication__volume.ui.login.data.model.LoggedInUser;
 
 public class RegisterRespository {
     private static volatile RegisterRespository instance;

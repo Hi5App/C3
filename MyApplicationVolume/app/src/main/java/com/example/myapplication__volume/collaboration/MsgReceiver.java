@@ -7,10 +7,7 @@ import android.widget.Toast;
 
 import com.example.myapplication__volume.collaboration.basic.DataType;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -49,19 +46,19 @@ public class MsgReceiver {
                 super.run();
 
                 try {
-                    resetDataType();
-
                     Log.e(TAG, "Start to receive msg !");
-                    is = socket.getInputStream();
 
+                    resetDataType();
+                    is = socket.getInputStream();
                     finished = false;
+
                     while (!finished){
                         onRead("ReceiveMsg");
                     }
 
                 }catch (Exception e){
                     e.printStackTrace();
-                    Log.d(TAG, "Fail to get InputStream");
+                    Log.e(TAG, "Fail to get InputStream");
                 }
 
             }
@@ -187,9 +184,7 @@ public class MsgReceiver {
 
     private boolean processMsg(final String msg){
         if (msg.endsWith("\n")){
-            msg.trim();
-            message = msg.replace("\n","");
-
+            message = msg.trim();
             Log.e(TAG,"message: " + message);
             finished = true;
             return true;

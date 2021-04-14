@@ -33,11 +33,9 @@ public class ManageService extends Service {
 
     boolean mAllowRebind; // indicates whether onRebind should be used
 
-    private Socket heartBeatSocket;
-
     private DataType dataType = new DataType();
 
-    private static final long HEART_BEAT_RATE = 60 * 1000;
+    private static final long HEART_BEAT_RATE = 5 * 60 * 1000;
 
     private Timer timer;
 
@@ -64,12 +62,11 @@ public class ManageService extends Service {
         super.onCreate();
 
         ServerConnector serverConnector = ServerConnector.getInstance();
-        heartBeatSocket = serverConnector.getManageSocket();
-        mReadThread = new ReadThread(heartBeatSocket);
+        mReadThread = new ReadThread(serverConnector.getManageSocket());
         mReadThread.start();
 
         timer = new Timer();
-        timer.schedule(task,0,HEART_BEAT_RATE);
+        timer.schedule(heartBeatTask,0,HEART_BEAT_RATE);
 
     }
 
@@ -109,7 +106,10 @@ public class ManageService extends Service {
 
 
 
-    TimerTask task = new TimerTask() {
+    /*
+    heart beat
+     */
+    TimerTask heartBeatTask = new TimerTask() {
         @Override
         public void run() {
             Log.e(TAG,"Send Heart Beat Msg");
@@ -124,8 +124,8 @@ public class ManageService extends Service {
         if (mSocket != null && !mSocket.isClosed() && mSocket.isConnected()){
 
             try {
-                if (!serverConnector.sendMsg(msg,true)){
-                    Log.e(TAG,"reConnect in sendMsg !");
+                if (!serverConnector.sendMsg(msg, true, false)){
+                    Log.e(TAG,"reConnect in send Heart Beat Msg !");
                     reConnect();
                 }
                 Log.e(TAG,"Send Heart Beat Msg Successfully !");
@@ -141,13 +141,23 @@ public class ManageService extends Service {
 
 
 
+    public static void resetConnection(){
+        mReadThread.reSetConnection();
+    }
+
+    private void reConnect(){
+        Log.e(TAG,"Start to reConnect");
+        ServerConnector.getInstance().releaseConnection();
+        mReadThread.reConnect();
+    }
+
+
 
     /**
      * thread for read and process msg
      */
     class ReadThread extends Thread {
         private Socket mSocket;
-        private boolean isStart = true;
         private InputStream is;
         private boolean isReconnect = false;
         private boolean flag = true;
@@ -157,6 +167,61 @@ public class ManageService extends Service {
             mSocket = socket;
         }
 
+
+        /**
+         * release the socket & reconnect the socket
+         */
+        private void reConnect(){
+
+            Log.e(TAG,"Start to reConnect in mReadThread !");
+            isReconnect = true;
+            releaseSocket();
+
+            try {
+
+                ServerConnector serverConnector = ServerConnector.getInstance();
+                serverConnector.initConnection();
+                serverConnector.reLogin();
+                mSocket = serverConnector.getManageSocket();
+                is = mSocket.getInputStream();
+                count = 0;
+
+            }catch (Exception e){
+                e.printStackTrace();
+                Log.e(TAG,"reConnect");
+                count++;
+            }
+            isReconnect = false;
+        }
+
+
+        private void releaseSocket(){
+            if (mSocket != null){
+                try {
+                    if (!mSocket.isClosed()){
+                        mSocket.close();
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+            mSocket = null;
+        }
+
+
+
+        public void reSetConnection(){
+
+            try {
+                mSocket = ServerConnector.getInstance().getManageSocket();
+                is = mSocket.getInputStream();
+            }catch (Exception e){
+                e.printStackTrace();
+                Log.e(TAG,"reSetConnection");
+            }
+        }
+
+
         //同步方法读取返回得数据
         @Override
         public void run() {
@@ -164,20 +229,17 @@ public class ManageService extends Service {
             if (null != mSocket) {
                 try {
                     is = mSocket.getInputStream();
-                    String header = "";
-
-//                    while(!isInterrupted()) {
                     while(flag) {
                         try {
                             synchronized (this) {
 
-                                if (!(mSocket==null) && !mSocket.isClosed() && !mSocket.isInputShutdown() && isStart ) {
+                                if (!(mSocket == null) && !mSocket.isClosed() && !mSocket.isInputShutdown()) {
                                     if (!isReconnect) {
                                         onRead("in the while loop");
                                     }
                                 }else {
                                     if (!isReconnect && (count<3)){
-                                        Log.e(TAG,"reConnect in mReadThread !");
+                                        Log.e(TAG,"reConnect in mReadThread : " + count + " !");
                                         reConnect();
                                     }
                                 }
@@ -447,80 +509,9 @@ public class ManageService extends Service {
             dataType.filepath = null;
 
         }
-
-
-
-        /**
-         * release the socket & reconnect the socket
-         */
-        private void reConnect(){
-
-            Log.e(TAG,"Start to reConnect in mReadThread !");
-            isReconnect = true;
-            releaseSocket();
-
-            try {
-
-                ServerConnector serverConnector = ServerConnector.getInstance();
-                serverConnector.initConnection();
-                serverConnector.reLogin();
-                mSocket = serverConnector.getManageSocket();
-                is = mSocket.getInputStream();
-                count = 0;
-
-            }catch (Exception e){
-                e.printStackTrace();
-                Log.e(TAG,"reConnect");
-                count++;
-            }
-            isReconnect = false;
-        }
-
-
-        private void releaseSocket(){
-            if (mSocket != null){
-                try {
-                    if (!mSocket.isClosed()){
-                        mSocket.close();
-                    }
-                    mSocket = null;
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        }
-        
-
-
-        public void reSetConnection(){
-
-            try {
-
-                ServerConnector serverConnector = ServerConnector.getInstance();
-                mSocket = serverConnector.getManageSocket();
-                is = mSocket.getInputStream();
-
-            }catch (Exception e){
-                e.printStackTrace();
-                Log.e(TAG,"reSetConnect");
-            }
-        }
-
-
-
     }
 
 
-    public static void resetConnection(){
-        mReadThread.reSetConnection();
-    }
-
-    private void reConnect(){
-        Log.e(TAG,"Start to reConnect");
-        ServerConnector serverConnector = ServerConnector.getInstance();
-        serverConnector.releaseConnection();
-        mReadThread.reConnect();
-    }
 
 
     /**

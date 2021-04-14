@@ -6,7 +6,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.myapplication__volume.Nim.InfoCache;
-import com.example.myapplication__volume.collaboration.basic.DataType;
 import com.example.myapplication__volume.collaboration.basic.ReconnectionInterface;
 import com.example.myapplication__volume.collaboration.service.ManageService;
 
@@ -20,7 +19,7 @@ public class ServerConnector implements ReconnectionInterface {
     private static final String EMPTY_MSG = "the msg is empty";
 
 
-    private Socket manageSocket = null;
+    private static Socket manageSocket = null;
 
     /**
      * ServerConnector 实例
@@ -32,8 +31,6 @@ public class ServerConnector implements ReconnectionInterface {
     private String ip;
 
     private String port;
-
-    private DataType dataType;
 
     public static MsgSender msgSender;
 
@@ -161,9 +158,7 @@ public class ServerConnector implements ReconnectionInterface {
     }
 
     public boolean checkConnection(){
-
         return manageSocket!= null && manageSocket.isConnected() && !manageSocket.isClosed();
-
     }
 
 
@@ -171,7 +166,7 @@ public class ServerConnector implements ReconnectionInterface {
     public void reLogin(){
         Log.e(TAG,"Start to reLogin !");
         Toast_in_Thread("Relogin !");
-        sendMsg(String.format("LOGIN:%s %s", InfoCache.getAccount(), InfoCache.getToken()), true);
+        sendMsg(String.format("LOGIN:%s %s", InfoCache.getAccount(), InfoCache.getToken()), true, false);
     }
 
 
@@ -187,16 +182,13 @@ public class ServerConnector implements ReconnectionInterface {
 
 
     public boolean sendMsg(String msg){
-
-        return sendMsg(msg, false);
-
+        return sendMsg(msg, false, true);
     }
 
 
-    public boolean sendMsg(String msg, boolean waited){
-        makeConnect();
+    public boolean sendMsg(String msg, boolean waited, boolean resend){
         if (checkConnection()){
-            return msgSender.SendMsg(manageSocket, msg, waited, this);
+            return msgSender.SendMsg(manageSocket, msg, waited, resend, this);
         }
         return false;
     }
@@ -205,7 +197,6 @@ public class ServerConnector implements ReconnectionInterface {
     public String ReceiveMsg(){
 
         makeConnect();
-
         String msg = msgReceiver.ReceiveMsg(manageSocket);
 
         if (msg != null)
@@ -256,7 +247,6 @@ public class ServerConnector implements ReconnectionInterface {
         this.port = port;
     }
 
-
     public String getRoomName() {
         return roomName;
     }
@@ -265,14 +255,6 @@ public class ServerConnector implements ReconnectionInterface {
         this.roomName = roomName;
     }
 
-
-    public int getUserScore() {
-        return userScore;
-    }
-
-    public void setUserScore(int userScore) {
-        this.userScore = userScore;
-    }
 
     /**
      * toast info in the thread
@@ -298,17 +280,10 @@ public class ServerConnector implements ReconnectionInterface {
         reconnect
          */
 
-        if (count >= 3){
-            count = 0;
-            return;
-        }
-
-        count++;
         releaseConnection();
         initConnection();
         ManageService.resetConnection();
-        sendMsg(msg);
-        count = 0;
+        sendMsg(msg,false, true);
     }
 
 }

@@ -1,20 +1,15 @@
-package com.example.chat;
+package com.example.chat.agora.message;
 
 import android.content.Context;
 import android.util.Log;
 
 import com.example.myapplication__volume.BuildConfig;
 import com.example.myapplication__volume.R;
-import com.example.myapplication__volume.data.FriendsManagerRepository;
-import com.example.myapplication__volume.data.LoginDataSource;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import io.agora.rtm.ErrorInfo;
-import io.agora.rtm.ResultCallback;
 import io.agora.rtm.RtmClient;
 import io.agora.rtm.RtmClientListener;
 import io.agora.rtm.RtmFileMessage;
@@ -23,25 +18,34 @@ import io.agora.rtm.RtmMediaOperationProgress;
 import io.agora.rtm.RtmMessage;
 import io.agora.rtm.SendMessageOptions;
 
-public class ChatManager {
-    private static final String TAG = ChatManager.class.getSimpleName();
+public class AgoraMsgManager {
+
+    private static final String TAG = AgoraMsgManager.class.getSimpleName();
+
+    private static AgoraMsgManager agoraMsgManager = null;
 
     private Context mContext;
-    private RtmClient mRtmClient;
+    private static RtmClient mRtmClient;
     private SendMessageOptions mSendMsgOptions;
     private List<RtmClientListener> mListenerList = new ArrayList<>();
     private RtmMessagePool mMessagePool = new RtmMessagePool();
-    private FriendsManagerRepository friendsManagerRepository;
-    private static String username;
 
-    public ChatManager(Context context) {
-        mContext = context;
+    public static AgoraMsgManager getInstance(){
+        if (agoraMsgManager == null){
+            synchronized (AgoraMsgManager.class){
+                if (agoraMsgManager == null){
+                    agoraMsgManager = new AgoraMsgManager();
+                }
+            }
+        }
+        return agoraMsgManager;
     }
 
-    public void init() {
-        String appID = mContext.getString(R.string.agora_app_id);
-        friendsManagerRepository = FriendsManagerRepository.getInstance(new LoginDataSource());
 
+    public void init(Context context) {
+        mContext = context;
+
+        String appID = mContext.getString(R.string.agora_app_id);
         try {
             mRtmClient = RtmClient.createInstance(mContext, appID, new RtmClientListener() {
                 @Override
@@ -81,7 +85,6 @@ public class ChatManager {
 
                 @Override
                 public void onFileMessageReceivedFromPeer(RtmFileMessage rtmFileMessage, String s) {
-
                 }
 
                 @Override
@@ -116,15 +119,17 @@ public class ChatManager {
         // Global option, mainly used to determine whether
         // to support offline messages now.
         mSendMsgOptions = new SendMessageOptions();
-        mSendMsgOptions.enableOfflineMessaging = true;
+        mSendMsgOptions.enableOfflineMessaging = false;
         mSendMsgOptions.enableHistoricalMessaging = true;
+
     }
+
 
     public RtmClient getRtmClient() {
         return mRtmClient;
     }
 
-    public void registerListener(RtmClientListener listener) {
+    public void  registerListener(RtmClientListener listener) {
         mListenerList.add(listener);
     }
 
@@ -152,44 +157,4 @@ public class ChatManager {
         mMessagePool.removeAllOfflineMessages(peerId);
     }
 
-    /**
-     * add friends
-     * @param peerId
-     */
-    public String addFriends(final String peerId){
-
-        mRtmClient.subscribePeersOnlineStatus(Collections.singleton(peerId), new ResultCallback<Void>(){
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.i("addFriends","add friends successfully !");
-            }
-
-            @Override
-            public void onFailure(ErrorInfo errorInfo) {
-
-            }
-        });
-
-        return friendsManagerRepository.addFriends(getUsername(), peerId);
-
-    }
-
-
-    /**
-     * query friends
-     */
-    public String queryFriends(){
-
-        return friendsManagerRepository.queryFriends(getUsername());
-
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
 }
-

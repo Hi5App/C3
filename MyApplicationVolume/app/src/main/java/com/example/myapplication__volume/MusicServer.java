@@ -1,6 +1,10 @@
 package com.example.myapplication__volume;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.IBinder;
@@ -9,14 +13,16 @@ import android.util.Log;
 import java.io.File;
 import java.io.IOException;
 
-import static com.example.myapplication__volume.BaseActivity.context;
-
 public class MusicServer extends Service {
-    private static String TAG = "MusicServer";
+    private static String TAG = MusicServer.class.getSimpleName();
 
     private static MediaPlayer bgmPlayer;
 
     private static float volume = 1;
+
+    public static final String CHANNEL_ID_STRING = "service_01";
+
+    private Notification notification;
 
     public MusicServer() {
     }
@@ -28,8 +34,28 @@ public class MusicServer extends Service {
     }
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+        //适配8.0 service
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationChannel mChannel = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            mChannel = new NotificationChannel(CHANNEL_ID_STRING, getString(R.string.app_name),
+                    NotificationManager.IMPORTANCE_LOW);
+            notificationManager.createNotificationChannel(mChannel);
+            notification = new Notification.Builder(getApplicationContext(), CHANNEL_ID_STRING).build();
+            startForeground(1, notification);
+        }
+    }
+
+
+    @Override
     public void onStart(Intent intent, int startId) {
         super.onStart(intent, startId);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            startForeground(1, notification);
+        }
 
         if (bgmPlayer == null){
 //            bgmPlayer = new MediaPlayer();

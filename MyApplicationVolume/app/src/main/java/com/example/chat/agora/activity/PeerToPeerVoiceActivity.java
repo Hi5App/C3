@@ -1,4 +1,4 @@
-package com.example.myapplication__volume.agora.activity;
+package com.example.chat.agora.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -22,8 +22,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.myapplication__volume.R;
-import com.example.myapplication__volume.agora.basic.RingPlayer;
-import com.example.myapplication__volume.agora.message.AgoraMsgManager;
+import com.example.chat.agora.basic.RingPlayer;
+import com.example.chat.agora.message.AgoraMsgManager;
 import com.netease.nim.uikit.business.uinfo.UserInfoHelper;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 
@@ -575,6 +575,6 @@ public class PeerToPeerVoiceActivity extends AppCompatActivity {
             return false;
         }
         Log.d(TAG, "isTopActivity" + cmpNameTemp);
-        return cmpNameTemp.equals("ComponentInfo{com.example.myapplication__volume/com.example.myapplication__volume.agora.activity.PeerToPeerVoiceActivity}");
+        return cmpNameTemp.equals("ComponentInfo{com.example.myapplication__volume/com.example.chat.agora.activity.PeerToPeerVoiceActivity}");
     }
 }

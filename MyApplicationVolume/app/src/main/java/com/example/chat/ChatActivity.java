@@ -25,8 +25,6 @@ import com.netease.nimlib.sdk.friend.constant.VerifyType;
 import com.netease.nimlib.sdk.friend.model.AddFriendData;
 
 import cn.carbs.android.library.MDDialog;
-import io.agora.rtm.RtmClient;
-import io.agora.rtm.RtmClientListener;
 
 
 /**
@@ -35,10 +33,10 @@ import io.agora.rtm.RtmClientListener;
 
 public class ChatActivity extends AppCompatActivity {
 
-    private RtmClientListener mClientListener;
+    public static final int MAX_INPUT_NAME_LENGTH = 64;
 
-    private RtmClient mRtmClient;
-    private ChatManager mChatManager;
+    private final String TAG = ChatActivity.class.getSimpleName();
+
     private int FragmentId;
 
     @Override
@@ -46,27 +44,17 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_activity_main);
 
-//        mChatManager = Myapplication.the().getChatManager();
-//        mRtmClient = mChatManager.getRtmClient();
-
-//        mClientListener = new MyRtmClientListener();
-//        mChatManager.registerListener(mClientListener);
-
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications)
+                R.id.navigation_recentContacts, R.id.navigation_contactList, R.id.navigation_Me)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         Toolbar toolbar = findViewById(R.id.toolbar_chat);
 
         FragmentId = navController.getCurrentDestination().getId();
-        if (FragmentId == R.id.navigation_home){
-            Log.e("ChatActivity","id = " + FragmentId);
-        }
 
-//        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
         NavigationUI.setupWithNavController(toolbar, navController, appBarConfiguration);
 
@@ -84,6 +72,8 @@ public class ChatActivity extends AppCompatActivity {
      * add friends
      */
     public void addFriends(){
+
+        Log.e(TAG, "addFriends");
         MDDialog mdDialog = new MDDialog.Builder(this)
                 .setContentView(R.layout.peer_chat)
                 .setNegativeButton("Cancel", new View.OnClickListener() {
@@ -99,7 +89,7 @@ public class ChatActivity extends AppCompatActivity {
                 .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
                     @Override
                     public void onClick(View clickedView, View contentView) {
-                        Log.d("PeerToPeer", "Start To Chat");
+                        Log.e("PeerToPeer", " PeerToPeer Add Friends");
                         EditText targetEdit = (EditText)contentView.findViewById(R.id.target_name_edit);
                         String mTargetName = targetEdit.getText().toString();
                         EditText verificationEdit = (EditText)contentView.findViewById(R.id.verification_msg);
@@ -107,7 +97,7 @@ public class ChatActivity extends AppCompatActivity {
 
                         if (mTargetName.equals("")) {
                             Toast_in_Thread(getString(R.string.account_empty));
-                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
+                        } else if (mTargetName.length() >= MAX_INPUT_NAME_LENGTH) {
                             Toast_in_Thread(getString(R.string.account_too_long));
                         } else if (mTargetName.startsWith(" ")) {
                             Toast_in_Thread(getString(R.string.account_starts_with_space));
@@ -116,12 +106,9 @@ public class ChatActivity extends AppCompatActivity {
                         } else if (mTargetName.equals(InfoCache.getAccount())) {
                             Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
                         } else {
-//                            String result = mChatManager.addFriends(mTargetName);
-//                            if (result.equals("true")){
 
                                 final VerifyType verifyType = VerifyType.VERIFY_REQUEST; // 发起好友验证请求
-                                String msg = "好友请求附言";
-                                NIMClient.getService(FriendService.class).addFriend(new AddFriendData(mTargetName, verifyType, msg))
+                                NIMClient.getService(FriendService.class).addFriend(new AddFriendData(mTargetName, verifyType, verificationMsg))
                                         .setCallback(new RequestCallback<Void>() {
                                             @Override
                                             public void onSuccess(Void param) {

@@ -1,4 +1,4 @@
-package com.example.chat;
+package com.example.chat.agora.message;
 
 import java.util.ArrayList;
 import java.util.HashMap;

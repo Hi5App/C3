@@ -3,10 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_dashboard">
+    app:startDestination="@+id/navigation_recentContacts">
 
     <fragment
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_recentContacts"
         android:name="com.netease.nim.uikit.business.recent.RecentContactsFragment"
         android:label="@string/title_chats"/>
 <!--        tools:layout="@layout/fragment_dashboard" />-->
@@ -15,13 +15,13 @@
     <!--        android:name="com.example.chat.ui.contacts.ContactsFragment"-->
     <!--        android:name="com.netease.nim.uikit.business.contact.ContactsFragment"-->
     <fragment
-        android:id="@+id/navigation_home"
+        android:id="@+id/navigation_contactList"
         android:name="com.example.myapplication__volume.Nim.customization.contact.ContactListFragment"
         android:label="@string/title_contacts"/>
 <!--        tools:layout="@layout/chat_view" />-->
 
     <fragment
-        android:id="@+id/navigation_notifications"
+        android:id="@+id/navigation_Me"
         android:name="com.example.chat.ui.me.MeFragment"
         android:label="@string/title_me"
         tools:layout="@layout/fragment_notifications" />

@@ -28,6 +28,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.example.myapplication__volume.R;
+import com.example.myapplication__volume.collaboration.ServerConnector;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -81,12 +82,12 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         Log.e(TAG,"Start to register: onCreate !");
-
         setContentView(R.layout.activity_register);
         registerViewModel = ViewModelProviders.of(this, new RegisterViewModelFactory())
                 .get(RegisterViewModel.class);
+
+        ServerConnector.setContext(this);
 
         usernameEditText = findViewById(R.id.register_username);
         nicknameEditText = findViewById(R.id.register_nickname);
@@ -97,6 +98,10 @@ public class RegisterActivity extends AppCompatActivity {
         registerButton = findViewById(R.id.register);
         loadingProgressBar = findViewById(R.id.loading);
 
+
+        /*
+        music module
+         */
         soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 5);
         soundId = soundPool.load(this, R.raw.button01, 1);
 
@@ -162,12 +167,12 @@ public class RegisterActivity extends AppCompatActivity {
                 }
                 if (registerResult.getSuccess() != null) {
                     Log.d("LoginResultOnChanged", "getSuccess");
-                    LoginActivity.actionStart(RegisterActivity.this);
                     updateUiWithUser(registerResult.getSuccess());
                 }
-                setResult(Activity.RESULT_OK);
 
                 //Complete and destroy login activity once successful
+                setResult(Activity.RESULT_OK);
+                LoginActivity.actionStart(RegisterActivity.this);
                 finish();
             }
         });
@@ -189,6 +194,8 @@ public class RegisterActivity extends AppCompatActivity {
                         nicknameEditText.getText().toString(), passwordEditText.getText().toString());
             }
         };
+
+
         usernameEditText.addTextChangedListener(afterTextChangedListener);
         nicknameEditText.addTextChangedListener(afterTextChangedListener);
         passwordEditText.addTextChangedListener(afterTextChangedListener);
@@ -211,27 +218,21 @@ public class RegisterActivity extends AppCompatActivity {
             public void onClick(View v) {
                 soundPool.play(soundId, buttonVolume, buttonVolume, 0, 0, 1.0f);
 
-//                String inviterCode = inviterText.getText().toString();
-//                if (inviterCode == null)
-//                    Log.d(TAG, "InviterCode: NULL");
-//                else if (inviterCode.equals(""))
-//                    Log.d(TAG, "InviterCode: empty");
-//                else {
-//                    Log.d(TAG, "InviterCode: " + inviterCode);
-//                }
                 if (passwordEditText.getText().toString().equals(passwordCheckEditText.getText().toString())){
                     handler.sendEmptyMessage(REGISTER_ON_CLICK);
                 }else {
                     Toast.makeText(getApplication(),"Confirm the password is consistent", Toast.LENGTH_SHORT).show();
                 }
-
-
-//                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-//                startActivity(intent);
-//                LoginActivity.actionStart(RegisterActivity.this);
             }
         });
 
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ServerConnector.setContext(null);
     }
 
     private void updateUiWithUser(LoggedInUserView model) {

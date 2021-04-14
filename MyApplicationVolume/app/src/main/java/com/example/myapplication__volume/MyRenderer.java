@@ -917,7 +917,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         Matrix.multiplyMM(modelMatrix, 0, rotationMatrix, 0, translateMatrix, 0);
 
-        Log.d(TAG, "modelMatrix: " + Arrays.toString(modelMatrix));
+//        Log.d(TAG, "modelMatrix: " + Arrays.toString(modelMatrix));
 
         //ZRTMatrix代表modelMatrix
         if (ifGame){
@@ -4576,7 +4576,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }else if ((r == 255 && g == 255 && b == 0) || (r == 220 && g == 200 && b == 0)){
                     imageMarker_drawed.type = 6;
 
-                }else if ((r == 0 && g == 255 && b == 0) || (r == 0 && g == 220 && b == 20)){
+                }else if ((r == 0 && g == 255 && b == 0) || (r == 0 && g == 200 && b == 20)){
                     imageMarker_drawed.type = 7;
 
                 }

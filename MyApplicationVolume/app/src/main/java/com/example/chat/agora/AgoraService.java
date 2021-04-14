@@ -1,4 +1,4 @@
-package com.example.myapplication__volume.agora;
+package com.example.chat.agora;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
@@ -10,9 +10,9 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.example.myapplication__volume.Nim.InfoCache;
-import com.example.myapplication__volume.agora.activity.PeerToPeerVideoActivity;
-import com.example.myapplication__volume.agora.activity.PeerToPeerVoiceActivity;
-import com.example.myapplication__volume.agora.message.AgoraMsgManager;
+import com.example.chat.agora.activity.PeerToPeerVideoActivity;
+import com.example.chat.agora.activity.PeerToPeerVoiceActivity;
+import com.example.chat.agora.message.AgoraMsgManager;
 
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -27,7 +27,7 @@ public class AgoraService extends Service {
 
     private static String TAG = "AgoraService";
 
-    private AgoraMsgManager agoraMsgManager;
+    private static AgoraMsgManager agoraMsgManager;
 
     private String username = null;
 
@@ -65,10 +65,8 @@ public class AgoraService extends Service {
         private final String callMsgPattern = "##CallFrom.*##In##.*##";
         private final String videoMsgPattern = "##VideoFrom.*##In##.*##";
 
-
         @Override
         public void onConnectionStateChanged(final int state, int reason) {
-
         }
 
         @SuppressLint("LongLogTag")
@@ -76,54 +74,55 @@ public class AgoraService extends Service {
         public void onMessageReceived(final RtmMessage message, final String peerId) {
 
             //  ##VideoFromzx##In##xfffffAndzx##
+            //  ##CallFromzx##In##xfffffAndzx##
 
             Log.e(TAG, message.getText() + " from " + peerId);
             String msg = message.getText();
-            if (Pattern.matches(videoMsgPattern, message.getText())) {
 
-                Log.e(TAG,"Pattern.matches videoMsgPattern");
+            if(AVConfig.status == AVConfig.Status.FREE){
+                if (Pattern.matches(videoMsgPattern, message.getText())) {
 
-                String targetName = msg.substring(11, msg.indexOf("##In##"));
-                PeerToPeerVideoActivity.actionStart(mContext, message.getText(), targetName, PeerToPeerVideoActivity.CALLED_SIDE);
+                    Log.e(TAG,"Pattern.matches videoMsgPattern");
 
-            } else if (Pattern.matches(callMsgPattern, message.getText())){
-                Log.e(TAG,"Pattern.matches videoMsgPattern");
+                    String targetName = msg.substring(11, msg.indexOf("##In##"));
+                    PeerToPeerVideoActivity.actionStart(mContext, message.getText(), targetName, PeerToPeerVideoActivity.CALLED_SIDE);
 
-                String targetName = msg.substring(10, msg.indexOf("##In##"));
-                PeerToPeerVoiceActivity.actionStart(mContext, message.getText(), targetName, PeerToPeerVoiceActivity.CALLED_SIDE);
+                } else if (Pattern.matches(callMsgPattern, message.getText())){
+                    Log.e(TAG,"Pattern.matches videoMsgPattern");
+
+                    String targetName = msg.substring(10, msg.indexOf("##In##"));
+                    PeerToPeerVoiceActivity.actionStart(mContext, message.getText(), targetName, PeerToPeerVoiceActivity.CALLED_SIDE);
+                }
+            }else if(AVConfig.status == AVConfig.Status.FREE){
+
             }
+
 
         }
 
         @SuppressLint("LongLogTag")
         @Override
         public void onImageMessageReceivedFromPeer(final RtmImageMessage rtmImageMessage, final String peerId) {
-
         }
 
         @Override
         public void onFileMessageReceivedFromPeer(RtmFileMessage rtmFileMessage, String s) {
-
         }
 
         @Override
         public void onMediaUploadingProgress(RtmMediaOperationProgress rtmMediaOperationProgress, long l) {
-
         }
 
         @Override
         public void onMediaDownloadingProgress(RtmMediaOperationProgress rtmMediaOperationProgress, long l) {
-
         }
 
         @Override
         public void onTokenExpired() {
-
         }
 
         @Override
         public void onPeersOnlineStatusChanged(Map<String, Integer> map) {
-
         }
     }
 

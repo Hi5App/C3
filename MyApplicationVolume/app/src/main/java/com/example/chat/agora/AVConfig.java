@@ -1,4 +1,4 @@
-package com.example.myapplication__volume.agora;
+package com.example.chat.agora;
 
 import com.netease.nimlib.sdk.auth.LoginInfo;
 

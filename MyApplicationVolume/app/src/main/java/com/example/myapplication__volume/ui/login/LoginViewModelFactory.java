@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.annotation.NonNull;
 
-import com.example.myapplication__volume.data.LoginDataSource;
-import com.example.myapplication__volume.data.LoginRepository;
+import com.example.myapplication__volume.ui.login.data.LoginDataSource;
+import com.example.myapplication__volume.ui.login.data.LoginRepository;
 
 /**
  * ViewModel provider factory to instantiate LoginViewModel.

@@ -4,9 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.myapplication__volume.data.LoginDataSource;
-import com.example.myapplication__volume.data.LoginRepository;
-import com.example.myapplication__volume.data.RegisterRespository;
+import com.example.myapplication__volume.ui.login.data.LoginDataSource;
+import com.example.myapplication__volume.ui.login.data.RegisterRespository;
 
 public class RegisterViewModelFactory implements ViewModelProvider.Factory  {
     @NonNull

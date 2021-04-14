@@ -236,8 +236,6 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
                     new Handler().postDelayed(runnable, 30000);
 
                 }
-
-
             } else {
                 Runnable runnable = new Runnable() {
                     @Override
@@ -279,6 +277,9 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
         super.onDestroy();
         unbindService(connection);
         InfoCache.setMainTaskLaunching(false);
+
+        // avoid memory leak
+        ServerConnector.setContext(null);
         splashContext = null;
     }
 
@@ -363,7 +364,6 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
     }
 
     private void showMainActivity(Intent intent) {
-
         Log.e(TAG,"showMainActivity");
 
         PreferenceLogin preferenceLogin = new PreferenceLogin(this);
@@ -378,21 +378,17 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 
     private void autoLogin(){
         PreferenceLogin preferenceLogin = new PreferenceLogin(this);
-
         ServerConnector serverConnector = ServerConnector.getInstance();
+
         if (serverConnector.checkConnection()){
             if (!preferenceLogin.getUsername().equals("") && !preferenceLogin.getPassword().equals("")){
                 serverConnector.sendMsg(String.format("LOGIN:%s %s", preferenceLogin.getUsername(), preferenceLogin.getPassword()));
+            }else {
+                Log.e(TAG,"user info is empty !");
+                Toast_in_Thread("user info is empty !");
             }
-            Log.e(TAG,"user info is empty !");
-            Toast_in_Thread("user info is empty !");
         }
         Log.d(TAG, "auotoLogin: MUSICLIST");
-//        serverConnector.sendMsg("MUSICLIST");
-//        String result = serverConnector.ReceiveMsg();
-//        Log.e(TAG,"msg: " + result);
-
-
     }
 
 

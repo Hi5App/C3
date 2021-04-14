@@ -7,7 +7,6 @@ import android.util.Log;
 
 import com.example.basic.CrashHandler;
 import com.example.chat.ChatActivity;
-import com.example.chat.ChatManager;
 import com.example.datastore.PreferenceLogin;
 import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.NIMInitManager;
@@ -18,7 +17,7 @@ import com.example.myapplication__volume.Nim.mixpush.DemoPushContentProvider;
 import com.example.myapplication__volume.Nim.preference.UserPreferences;
 import com.example.myapplication__volume.Nim.session.NimDemoLocationProvider;
 import com.example.myapplication__volume.Nim.session.SessionHelper;
-import com.example.myapplication__volume.agora.AgoraClient;
+import com.example.chat.agora.AgoraClient;
 import com.example.myapplication__volume.collaboration.Communicator;
 import com.example.myapplication__volume.collaboration.MsgConnector;
 import com.example.myapplication__volume.collaboration.ServerConnector;
@@ -39,15 +38,20 @@ import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.util.NIMUtil;
 
 import org.litepal.LitePal;
-import org.litepal.tablemanager.Connector;
 
 
 //用于在app全局获取context
 
 public class Myapplication extends Application {
+
+    /**
+     *    1. init user database: score info & image info
+     *    2. init IM module
+     *    3. init collaboration module
+     *    4. init AV module agora
+     */
     private static Myapplication sInstance;
     private static Context context;
-    private ChatManager mChatManager;
 
     public static Myapplication the() {
         return sInstance;
@@ -70,6 +74,7 @@ public class Myapplication extends Application {
         SQLiteDatabase db = LitePal.getDatabase();
         DailyQuestsContainer.init(this);
         DailyQuestLitePalConnector.init(this);
+
         ScoreLitePalConnector.init(this);
         Score.init(this);
         RewardLitePalConnector.init(this);
@@ -77,12 +82,7 @@ public class Myapplication extends Application {
 
 
         Log.e(TAG, String.format("Database version: %d", db.getVersion()));
-
-
         AgoraClient.init(this, getLoginInfo());
-
-//        mChatManager = new ChatManager(this);
-//        mChatManager.init();
 
 
         // for collaboration
@@ -90,13 +90,12 @@ public class Myapplication extends Application {
         MsgConnector.init(this);
         Communicator.init(this);
 
+        // user cache info
         InfoCache.setContext(this);
 
+        // IM 网易云信
         // 4.6.0 开始，第三方推送配置入口改为 SDKOption#mixPushConfig，旧版配置方式依旧支持。
-//        SDKOptions sdkOptions = NimSDKOptionConfig.getSDKOptions(this);
         NIMClient.init(this, getLoginInfo(), NimSDKOptionConfig.getSDKOptions(this));
-//        NIMClient.init(this, getLoginInfo(), options());
-
 
         // 使用 `NIMUtil` 类可以进行主进程判断。
         if (NIMUtil.isMainProcess(this)) {
@@ -115,17 +114,17 @@ public class Myapplication extends Application {
 
             // 初始化消息提醒
             NIMClient.toggleNotification(UserPreferences.getNotificationToggle());
-//            NIMClient.toggleNotification(true);
 
             // 包含一些通知栏提醒的设置
             // 云信sdk相关业务初始化
             NIMInitManager.getInstance().init(true);
-
         }
+
 
     }
 
 
+    // load user info
     private LoginInfo getLoginInfo() {
         PreferenceLogin preferenceLogin = new PreferenceLogin(this);
         String account = preferenceLogin.getUsername();
@@ -149,16 +148,11 @@ public class Myapplication extends Application {
 
     private SDKOptions options(){
 
-
 //        SDKOptions options = new SDKOptions();
 //        // 配置是否需要预下载附件缩略图，默认为 true
 //        options.preloadAttach = true;
 //        options.appKey = "0fda06baee636802cb441b62e6f65549";
-//
 //        return options;
-
-
-
 
         SDKOptions options = new SDKOptions();
 
@@ -175,7 +169,6 @@ public class Myapplication extends Application {
         // 配置文件存储路径
         String sdkPath = getExternalFilesDir(null).toString() + "/nim";
         options.sdkStorageRootPath = sdkPath;
-
         options.thumbnailSize = 480 / 2;
 
         return options;
@@ -218,7 +211,4 @@ public class Myapplication extends Application {
         return context;
     }
 
-    public ChatManager getChatManager() {
-        return mChatManager;
-    }
 }

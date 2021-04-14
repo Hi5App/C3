@@ -9,8 +9,6 @@ import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,9 +17,7 @@ import android.content.ServiceConnection;
 import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.database.Cursor;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -34,9 +30,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -71,18 +64,15 @@ import androidx.core.content.FileProvider;
 
 import com.example.ImageReader.BigImgReader;
 import com.example.basic.CrashHandler;
-import com.example.basic.DragFloatActionButton;
 import com.example.basic.FileManager;
 import com.example.basic.Image4DSimple;
 import com.example.basic.ImageMarker;
 import com.example.basic.LocationSimple;
-import com.example.basic.MsgPopup;
 import com.example.basic.NeuronSWC;
 import com.example.basic.NeuronTree;
 import com.example.chat.ChatActivity;
-import com.example.chat.ChatManager;
-import com.example.chat.MessageActivity;
-import com.example.chat.MessageUtil;
+import com.example.chat.agora.AgoraService;
+import com.example.chat.agora.message.AgoraMsgManager;
 import com.example.datastore.PreferenceLogin;
 import com.example.datastore.SettingFileManager;
 import com.example.myapplication__volume.FileReader.AnoReader;
@@ -90,8 +80,6 @@ import com.example.myapplication__volume.FileReader.ApoReader;
 import com.example.myapplication__volume.Nim.main.helper.SystemMessageUnreadManager;
 import com.example.myapplication__volume.Nim.reminder.ReminderManager;
 import com.example.myapplication__volume.Nim.session.extension.InviteAttachment;
-import com.example.myapplication__volume.agora.AgoraService;
-import com.example.myapplication__volume.agora.message.AgoraMsgManager;
 import com.example.myapplication__volume.collaboration.Communicator;
 import com.example.myapplication__volume.collaboration.MsgConnector;
 import com.example.myapplication__volume.collaboration.ServerConnector;
@@ -109,7 +97,6 @@ import com.example.myapplication__volume.game.ScoreLitePalConnector;
 import com.example.myapplication__volume.ui.login.LoginActivity;
 import com.example.server_communicator.Remote_Socket;
 import com.feature_calc_func.MorphologyCalculate;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.learning.pixelclassification.PixelClassification;
 import com.learning.randomforest.RandomForest;
 import com.lxj.xpopup.XPopup;
@@ -164,7 +151,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -174,33 +160,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 import cn.carbs.android.library.MDDialog;
-import io.agora.rtc.Constants;
-import io.agora.rtc.IRtcEngineEventHandler;
-import io.agora.rtc.RtcEngine;
-import io.agora.rtc.models.UserInfo;
 import io.agora.rtm.ErrorInfo;
 import io.agora.rtm.ResultCallback;
-import io.agora.rtm.RtmClient;
 import io.agora.rtm.RtmClientListener;
-import io.agora.rtm.RtmFileMessage;
-import io.agora.rtm.RtmImageMessage;
-import io.agora.rtm.RtmMediaOperationProgress;
-import io.agora.rtm.RtmMessage;
-import io.agora.rtm.RtmStatusCode;
 
 import static com.example.datastore.SettingFileManager.getArborNum;
 import static com.example.datastore.SettingFileManager.getFilename_Remote;
 import static com.example.datastore.SettingFileManager.getNeuronNumber_Remote;
 import static com.example.datastore.SettingFileManager.getSelectSource;
-import static com.example.datastore.SettingFileManager.getUserAccount;
 import static com.example.datastore.SettingFileManager.getUserAccount_Check;
 import static com.example.datastore.SettingFileManager.getoffset_Remote;
 import static com.example.datastore.SettingFileManager.setFilename_Remote;
 import static com.example.datastore.SettingFileManager.setSelectSource;
-import static com.example.datastore.SettingFileManager.setUserAccount;
 import static com.example.datastore.SettingFileManager.setUserAccount_Check;
 import static com.example.datastore.SettingFileManager.setoffset_Remote;
 import static java.lang.Math.pow;
@@ -246,9 +219,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private boolean select_img = false;
     private boolean ifLoadLocal = false;
     private boolean ifRemote = false;
-    private boolean ifDownloadByHttp = false;
     private boolean ifButtonShowed = true;
-//    private boolean ifTakePhoto = false;
 
     private boolean[] temp_mode = new boolean[8];
 
@@ -286,21 +257,20 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static ImageButton navigation_up;
     private static ImageButton navigation_down;
     private static ImageButton navigation_location;
-    private static ImageButton neuron_list;
     private static Button navigation_front;
     private static Button navigation_back;
     private static Button blue_pen;
     private static Button red_pen;
     private static Button res_list;
-    private static ImageButton sync_push;
-    private static ImageButton sync_pull;
 
     private static ImageButton user_list;
     private static ImageButton room_id;
 
+//    private static ImageButton neuron_list;
+//    private static ImageButton sync_push;
+//    private static ImageButton sync_pull;
 
-    private static FloatingActionButton Audio_call;
-    private static DragFloatActionButton fab;
+//    private static FloatingActionButton Audio_call;
 //    private static DragFloatActionButton fab;
 
     private FrameLayout.LayoutParams lp_undo_i;
@@ -311,9 +281,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private FrameLayout.LayoutParams lp_front_i;
     private FrameLayout.LayoutParams lp_back_i;
     private static FrameLayout.LayoutParams lp_nacloc_i;
-    private static FrameLayout.LayoutParams lp_sync_push;
-    private static FrameLayout.LayoutParams lp_sync_pull;
-    private static FrameLayout.LayoutParams lp_neuron_list;
+//    private static FrameLayout.LayoutParams lp_sync_push;
+//    private static FrameLayout.LayoutParams lp_sync_pull;
+//    private static FrameLayout.LayoutParams lp_neuron_list;
     private static FrameLayout.LayoutParams lp_blue_color;
     private static FrameLayout.LayoutParams lp_res_list;
     private static FrameLayout.LayoutParams lp_red_color;
@@ -368,8 +338,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static final int REQUEST_IMAGE_CAPTURE = 2;
     private static final int REQUEST_TAKE_PHOTO = 3;
 
-    private static final String LOG_TAG = VoiceChatViewActivity.class.getSimpleName();
-
     private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
     private static final int Toast_Info_static = 5;
 
@@ -408,7 +376,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private int chat_room_num = 0;
 
     private static String[] push_info_swc = {"New", "New"};
-    private static String[] push_info_apo = {"New", "New"};
 
     private BasePopupView drawPopupView;
 
@@ -434,8 +401,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private final int SOUNDNUM = 4;
     private int [] soundId;
 
-    private ManageService manageService;
-    private CollaborationService collaborationService;
+    private boolean mBoundAgora = false;
     private boolean mBoundManagement = false;
     private boolean mBoundCollaboration = false;
 
@@ -744,7 +710,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //                                res_list.setVisibility(View.VISIBLE);
 //                                sync_pull.setVisibility(View.VISIBLE);
 //                                sync_push.setVisibility(View.GONE);
-                                neuron_list.setVisibility(View.VISIBLE);
+//                                neuron_list.setVisibility(View.VISIBLE);
                                 blue_pen.setVisibility(View.GONE);
                                 red_pen.setVisibility(View.GONE);
                             }
@@ -822,109 +788,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     };
 
 
-    private RtcEngine mRtcEngine; // Tutorial Step 1
-    private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() { // Tutorial Step 1
-
-        /**
-         * Occurs when a remote user (Communication)/host (Live Broadcast) leaves the channel.
-         *
-         * There are two reasons for users to become offline:
-         *
-         *     Leave the channel: When the user/host leaves the channel, the user/host sends a goodbye message. When this message is received, the SDK determines that the user/host leaves the channel.
-         *     Drop offline: When no data packet of the user or host is received for a certain period of time (20 seconds for the communication profile, and more for the live broadcast profile), the SDK assumes that the user/host drops offline. A poor network connection may lead to false detections, so we recommend using the Agora RTM SDK for reliable offline detection.
-         *
-         * @param uid ID of the user or host who
-         * leaves
-         * the channel or goes offline.
-         * @param reason Reason why the user goes offline:
-         *
-         *     USER_OFFLINE_QUIT(0): The user left the current channel.
-         *     USER_OFFLINE_DROPPED(1): The SDK timed out and the user dropped offline because no data packet was received within a certain period of time. If a user quits the call and the message is not passed to the SDK (due to an unreliable channel), the SDK assumes the user dropped offline.
-         *     USER_OFFLINE_BECOME_AUDIENCE(2): (Live broadcast only.) The client role switched from the host to the audience.
-         */
-        @Override
-        public void onUserOffline(final int uid, final int reason) { // Tutorial Step 4
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.e("onUserOffline","Here we are !");
-                    String userAccount = User_Map.get(uid);
-                    onRemoteUserLeft(userAccount, reason);
-                    if (voicePattern == VoicePattern.PEER_TO_PEER){
-                        fab.setVisibility(View.GONE);
-                        leaveChannel();
-                        RtcEngine.destroy();
-                        mRtcEngine = null;
-                        Log.e("onUserOffline","voicePattern == VoicePattern.PEER_TO_PEER");
-                    }else if (voicePattern == VoicePattern.CHAT_ROOM){
-                        chat_room_num--;
-                        Log.e("onUserOffline","chat_room_num: " + chat_room_num);
-                        if (chat_room_num == 0){
-                            fab.setVisibility(View.GONE);
-                            leaveChannel();
-                            RtcEngine.destroy();
-                            mRtcEngine = null;
-                            Log.e("onUserOffline","voicePattern == VoicePattern.CHAT_ROOM");
-                        }
-                    }
-
-                }
-            });
-        }
-
-        /**
-         * Occurs when a remote user stops/resumes sending the audio stream.
-         * The SDK triggers this callback when the remote user stops or resumes sending the audio stream by calling the muteLocalAudioStream method.
-         *
-         * @param uid ID of the remote user.
-         * @param muted Whether the remote user's audio stream is muted/unmuted:
-         *
-         *     true: Muted.
-         *     false: Unmuted.
-         */
-        @Override
-        public void onUserMuteAudio(final int uid, final boolean muted) { // Tutorial Step 6
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    onRemoteUserVoiceMuted(uid, muted);
-                }
-            });
-        }
-
-//        //用户加入了房间
-//        @Override
-//        public void onUserJoined(final int uid, final int elapsed) {
-//            super.onUserJoined(uid, elapsed);
-//            runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    onIntoRoom(uid, elapsed);
-//                }
-//            });
-//        }
-
-        @Override
-        public void onUserInfoUpdated(int uid, UserInfo user) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (voicePattern == VoicePattern.CHAT_ROOM){
-                        chat_room_num++;
-                        Log.e("onUserInfoUpdated","chat_room_num: " + chat_room_num);
-                    }
-                    User_Map.put(user.uid, user.userAccount);
-                    onRemoteUserJoined(user.userAccount);
-                }
-            });
-        }
-    };
-
-    private RtmClient mRtmClient;
-    private ChatManager mChatManager;
-
-
-
 
 
 
@@ -937,8 +800,16 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.v(TAG,"------------------ onCreate ------------------");
+        Log.e(TAG,"------------------ onCreate ------------------");
 
+        // set layout
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        /*
+        music module  -------------------------------------------------------------------------------------------------
+         */
         File volumeFile = new File(context.getExternalFilesDir(null).toString() + "/Settings/volume.txt");
         if (volumeFile.exists()){
             try {
@@ -966,16 +837,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
         }
 
-        Intent bgmIntent = new Intent(MainActivity.this, MusicServer.class);
-        startService(bgmIntent);
-
-        isBigData_Remote = false;
-        isBigData_Local  = false;
-
-        popupView = new XPopup.Builder(this)
-                .asLoading("Downloading......");
-
-        myrenderer = new MyRenderer(this);
+        initMusicService();
 
         soundPool = new SoundPool(SOUNDNUM, AudioManager.STREAM_MUSIC, 5);
         soundId = new int[SOUNDNUM];
@@ -984,29 +846,46 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         soundId[2] = soundPool.load(this, R.raw.button01, 1);
         soundId[3] = soundPool.load(this, R.raw.fail, 1);
 
+
+
+
+
+        isBigData_Remote = false;
+        isBigData_Local  = false;
+
+        popupView = new XPopup.Builder(this)
+                .asLoading("Downloading......");
+
+
+
+
         Intent intent = getIntent();
         String MSG = intent.getStringExtra(MyRenderer.OUT_OF_MEMORY);
         username = intent.getStringExtra(USERNAME);
 
-//        mChatManager = Myapplication.the().getChatManager();
-//        mRtmClient = mChatManager.getRtmClient();
-
-        initDataBase();
+        if (MSG != null)
+            Toast.makeText(this, MSG, Toast.LENGTH_SHORT).show();
 
         wave = new CircleImageView(getContext());
         wave.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
 
+        /*
+        init database for score module
+         */
+        initDataBase();
 
-        if (MSG != null)
-            Toast.makeText(this, MSG, Toast.LENGTH_SHORT).show();
-
-
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
+        //
+        myrenderer = new MyRenderer(this);
         myGLSurfaceView = new MyGLSurfaceView(this);
+
+
+
+
+
+        /*
+        Button Layout ------------------------------------------------------------------------------------------------------------------------
+         */
 
         FrameLayout ll = (FrameLayout) findViewById(R.id.container);
         ll.addView(myGLSurfaceView);
@@ -1029,13 +908,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         filenametext = new TextView(this);
         filenametext.setText("");
-//        filenametext.setBackgroundColor(Color.BLACK);
         filenametext.setTextColor(Color.BLACK);
         ll_file.addView(filenametext);
         ll_file.setVisibility(View.GONE);
 
         ll_top = new LinearLayout(this);
-
         ll_bottom = new LinearLayout(this);
 
         HorizontalScrollView hs_top = new HorizontalScrollView(this);
@@ -1046,22 +923,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         ll_hs_back.addView(ll_space);
 
         ll_up.addView(ll_hs_back);
-
         ll.addView(ll_up);
 
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(1080, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.gravity = Gravity.BOTTOM;
-//        this.addContentView(hs_bottom, lp);
         this.addContentView(ll_bottom, lp);
         ll_bottom.setLayoutParams(lp);
 
-        System.out.println("width:" + ll_bottom.getWidth());
-
         hs_top.addView(ll_top);
-//        hs_bottom.addView(ll_bottom);
 
-
-//        hs_top.addView(filenametext, lp_filename);
 
         Zoom_in = new Button(this);
         Zoom_in.setText("+");
@@ -1086,8 +956,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Zoom_in_Big.setVisibility(View.GONE);
         Zoom_out_Big.setVisibility(View.GONE);
 
-
-
         FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
         lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
         this.addContentView(Zoom_in, lp_zoom_in_no);
@@ -1099,10 +967,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
+
+
+        /*
+        button onclick event  -----------------------------------------------------------------------------
+         */
         Zoom_in.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Image4DSimple img = myrenderer.getImg();
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 if(!myrenderer.getIfFileLoaded()){
@@ -1124,7 +996,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Zoom_out.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Image4DSimple img = myrenderer.getImg();
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 if(!myrenderer.getIfFileLoaded()){
@@ -1146,7 +1017,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Zoom_in_Big.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Image4DSimple img = myrenderer.getImg();
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 if(!myrenderer.getIfFileLoaded()){
@@ -1163,7 +1033,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             Communicator communicator = Communicator.getInstance();
                             communicator.zoomIn();
 
-//                            remote_socket.Zoom_in();
                         }
                     }).start();
                 }else {
@@ -1178,7 +1047,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Zoom_out_Big.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Image4DSimple img = myrenderer.getImg();
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 if(!myrenderer.getIfFileLoaded()){
@@ -1195,7 +1063,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             Communicator communicator = Communicator.getInstance();
                             communicator.zoomOut();
 
-//                            remote_socket.Zoom_out();
                         }
                     }).start();
                 }else {
@@ -1358,15 +1225,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
         });
 
-        /*Tracing = new Button(this);
-        Tracing.setText("Trace");
-        ll_top.addView(Tracing);
-
-        Tracing.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                Tracing(v);
-            }
-        });*/
 
         FrameLayout.LayoutParams lp_classify_i = new FrameLayout.LayoutParams(200, 160);
 
@@ -1383,21 +1241,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
         });
 
-//        detectLineButton = new Button(this);
-//        detectLineButton.setText("DetectLine");
-//        ll_top.addView(detectLineButton);
-//        detectLineButton.setOnClickListener(new Button.OnClickListener(){
-//            @RequiresApi(api = Build.VERSION_CODES.N)
-//            @Override
-//            public void onClick(View v) {
-//                LineDetect(v);
-//            }
-//        });
-
-
-//        Rotation = new Button(this);
-//        Rotation.setText("Rotate");
-//        Rotation.getSolidColor();
 
         FrameLayout.LayoutParams lp_rotation = new FrameLayout.LayoutParams(120, 120);
         lp_rotation.gravity = Gravity.BOTTOM | Gravity.RIGHT;
@@ -1741,94 +1584,95 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
-        lp_sync_push = new FrameLayout.LayoutParams(115, 115);
-        lp_sync_push.gravity = Gravity.TOP | Gravity.RIGHT;
-        lp_sync_push.setMargins(0, 350, 20, 0);
+//        lp_sync_push = new FrameLayout.LayoutParams(115, 115);
+//        lp_sync_push.gravity = Gravity.TOP | Gravity.RIGHT;
+//        lp_sync_push.setMargins(0, 350, 20, 0);
+//
+//        sync_push = new ImageButton(this);
+//        sync_push.setImageResource(R.drawable.ic_cloud_upload_black_24dp);
+//        sync_push.setOnClickListener(new Button.OnClickListener() {
+//            public void onClick(View v) {
+//                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+//
+//                PushSWC_Block_Manual();
+//
+//                //  for apo sync
+////                PushAPO_Block_Manual();
+//            }
+//        });
+//
+//        lp_sync_pull = new FrameLayout.LayoutParams(115, 115);
+//        lp_sync_pull.gravity = Gravity.TOP | Gravity.RIGHT;
+//        lp_sync_pull.setMargins(0, 440, 20, 0);
+//
+//        sync_pull = new ImageButton(this);
+//        sync_pull.setImageResource(R.drawable.ic_cloud_download_black_24dp);
+//        sync_pull.setOnClickListener(new Button.OnClickListener() {
+//            public void onClick(View v) {
+//                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+//
+//                if (DrawMode){
+//                    PullSwc_block_Manual(DrawMode);
+//
+//                    //  for apo sync
+////                    PullApo_block_Manual();
+//                }else {
+//                    remote_socket.pullCheckResult(false);
+//                }
+//            }
+//        });
+//
+//        sync_pull.setOnLongClickListener(new Button.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View view) {
+//
+//                if (!DrawMode){
+//                    remote_socket.pullCheckResult(true);
+//                }
+//                return true;
+//            }
+//        });
 
-        sync_push = new ImageButton(this);
-        sync_push.setImageResource(R.drawable.ic_cloud_upload_black_24dp);
-        sync_push.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
-                PushSWC_Block_Manual();
-
-                //  for apo sync
-//                PushAPO_Block_Manual();
-            }
-        });
-
-        lp_sync_pull = new FrameLayout.LayoutParams(115, 115);
-        lp_sync_pull.gravity = Gravity.TOP | Gravity.RIGHT;
-        lp_sync_pull.setMargins(0, 440, 20, 0);
-
-        sync_pull = new ImageButton(this);
-        sync_pull.setImageResource(R.drawable.ic_cloud_download_black_24dp);
-        sync_pull.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                if (DrawMode){
-                    PullSwc_block_Manual(DrawMode);
-
-                    //  for apo sync
-//                    PullApo_block_Manual();
-                }else {
-                    remote_socket.pullCheckResult(false);
-                }
-            }
-        });
-
-        sync_pull.setOnLongClickListener(new Button.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-
-                if (!DrawMode){
-                    remote_socket.pullCheckResult(true);
-                }
-                return true;
-            }
-        });
-
-
-        lp_neuron_list = new FrameLayout.LayoutParams(115, 115);
-        lp_neuron_list.gravity = Gravity.TOP | Gravity.RIGHT;
-        lp_neuron_list.setMargins(0, 580, 20, 0);
-
-        neuron_list = new ImageButton(this);
-        neuron_list.setImageResource(R.drawable.ic_assignment_black_24dp);
-        neuron_list.setOnLongClickListener(new Button.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-
-                if (DrawMode){
-                    push_info_swc = SaveSWC_Block_Auto();
-                    remote_socket.Select_Neuron_Fast();
-                }else {
-                    remote_socket.Select_Neuron_Fast();
+//        lp_neuron_list = new FrameLayout.LayoutParams(115, 115);
+//        lp_neuron_list.gravity = Gravity.TOP | Gravity.RIGHT;
+//        lp_neuron_list.setMargins(0, 580, 20, 0);
+//
+//        neuron_list = new ImageButton(this);
+//        neuron_list.setImageResource(R.drawable.ic_assignment_black_24dp);
+//        neuron_list.setOnLongClickListener(new Button.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View v) {
+//
+//                if (DrawMode){
+//                    push_info_swc = SaveSWC_Block_Auto();
+//                    remote_socket.Select_Neuron_Fast();
+//                }else {
+//                    remote_socket.Select_Neuron_Fast();
+////                    remote_socket.Select_Arbor_Fast();
+//                }
+//                return true;
+//            }
+//        });
+//
+//
+//        neuron_list.setOnClickListener(new Button.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+//
+//                if (DrawMode){
+//                    push_info_swc = SaveSWC_Block_Auto();
+//                    remote_socket.Next_Neuron();
+////                    remote_socket.Select_Neuron_Fast();
+//                }else {
+////                    remote_socket.Select_Neuron_Fast();
 //                    remote_socket.Select_Arbor_Fast();
-                }
-                return true;
-            }
-        });
+//                }
+//
+//            }
+//        });
 
-
-        neuron_list.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                if (DrawMode){
-                    push_info_swc = SaveSWC_Block_Auto();
-                    remote_socket.Next_Neuron();
-//                    remote_socket.Select_Neuron_Fast();
-                }else {
-//                    remote_socket.Select_Neuron_Fast();
-                    remote_socket.Select_Arbor_Fast();
-                }
-
-            }
-        });
 
 
 
@@ -1862,33 +1706,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         });
 
 
-//        Audio_call = new FloatingActionButton(this);
-//        Audio_call.setImageResource(R.drawable.btn_end_call);
-//        Audio_call.setOnClickListener(new Button.OnClickListener() {
-//            public void onClick(View v) {
-//                Set_Nav_Mode();
-//            }
-//        });
 
 
-        fab = findViewById(R.id.img_btn);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
-                fab.setVisibility(View.GONE);
-                leaveChannel();
-                RtcEngine.destroy();
-                mRtcEngine = null;
-
-                System.out.println("---- click the button ----");
-            }
-        });
-
-        fab.setVisibility(View.GONE);
-
-
+        /*
+        add button to the view  -------------------------------------------------------------------
+         */
         this.addContentView(navigation_left, lp_left_i);
         this.addContentView(navigation_right, lp_right_i);
         this.addContentView(navigation_up, lp_up_i);
@@ -1897,9 +1720,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         this.addContentView(navigation_back, lp_back_i);
         this.addContentView(navigation_location, lp_nacloc_i);
 
-        this.addContentView(sync_pull, lp_sync_pull);
-        this.addContentView(sync_push, lp_sync_push);
-        this.addContentView(neuron_list, lp_neuron_list);
+
         this.addContentView(res_list, lp_res_list);
         this.addContentView(red_pen, lp_red_color);
         this.addContentView(blue_pen, lp_blue_color);
@@ -1915,15 +1736,22 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         navigation_back.setVisibility(View.GONE);
         navigation_location.setVisibility(View.GONE);
 
-        sync_pull.setVisibility(View.GONE);
-        sync_push.setVisibility(View.GONE);
-        neuron_list.setVisibility(View.GONE);
+
         res_list.setVisibility(View.GONE);
         red_pen.setVisibility(View.GONE);
         blue_pen.setVisibility(View.GONE);
 
         room_id.setVisibility(View.GONE);
         user_list.setVisibility(View.GONE);
+
+
+//        this.addContentView(neuron_list, lp_neuron_list);
+//        neuron_list.setVisibility(View.GONE);
+//        this.addContentView(sync_pull, lp_sync_pull);
+//        this.addContentView(sync_push, lp_sync_push);
+//        sync_pull.setVisibility(View.GONE);
+//        sync_push.setVisibility(View.GONE);
+
 
 
         // set Check Mode  & DownSample Mode
@@ -1944,35 +1772,25 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         remote_socket = new Remote_Socket(this);
         bigImgReader = new BigImgReader();
 
-//        context = getApplicationContext();
-        mainContext = this;
+
 
         progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleSmall);
-
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(200, 200);
         params.gravity = Gravity.CENTER;
         this.addContentView(progressBar, params);
         progressBar.setVisibility(View.GONE);
 
-        String dir_str = "/storage/emulated/0/C3";
-        File dir = new File(dir_str);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
 
-        String dir_str_server = "/storage/emulated/0/C3/Server";
-        File dir_server = new File(dir_str_server);
-        if (!dir_server.exists()) {
-            dir_server.mkdirs();
-        }
+        mainContext = this;
 
+        initDir();
         initNim();
 
         initServerConnector();
         initService();
 
         doLoginAgora();
-        initAgora();
+        initAgoraService();
 
 //        /*
 //        sync the score
@@ -1986,6 +1804,143 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     @Override
     protected void onStart() {
         super.onStart();
+    }
+
+    //renderer 的生存周期和activity保持一致
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        Intent bgmIntent = new Intent(this, MusicServer.class);
+        stopService(bgmIntent);
+
+        if ((mBoundAgora)){
+            Log.e(TAG,"unbind agora service !");
+            unbindService(connection_agora);
+            Intent agoraServiceIntent = new Intent(this, AgoraService.class);
+            stopService(agoraServiceIntent);
+        }
+
+
+        if (mBoundManagement){
+            Log.e(TAG,"unbind management service !");
+            ManageService.setFlag(false);
+            unbindService(connection_management);
+            Intent manageServiceIntent = new Intent(this, ManageService.class);
+            stopService(manageServiceIntent);
+        }
+        if (mBoundCollaboration){
+            Log.e(TAG,"unbind collaboration service !");
+            CollaborationService.setFlag(false);
+            unbindService(connection_collaboration);
+            Intent collaborationServiceIntent = new Intent(this, CollaborationService.class);
+            stopService(collaborationServiceIntent);
+        }
+
+
+
+        /*
+        release socket
+         */
+        MsgConnector.getInstance().releaseConnection();
+        ServerConnector.getInstance().releaseConnection();
+
+        mainContext = null;
+
+        if (timer != null){
+            timer.cancel();
+            timer = null;
+        }
+
+        if (timerTask != null){
+            timerTask.cancel();
+            timerTask = null;
+        }
+
+
+    }
+
+    //renderer 的生存周期和activity保持一致
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.v(TAG, "onPause start");
+        myGLSurfaceView.onPause();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.v(TAG, "onResume start");
+        Log.v("Path", filepath);
+        myGLSurfaceView.onResume();
+
+    }
+
+    @Override
+    protected void onStop() {
+        Intent bgmIntent = new Intent(MainActivity.this, MusicServer.class);
+        stopService(bgmIntent);
+        super.onStop();
+    }
+
+    @Override
+    protected void onRestart() {
+        initMusicService();
+        super.onRestart();
+    }
+
+    /**
+     * quick start for MainActivity
+     * @param context
+     */
+
+    public static void start(Context context) {
+        start(context, null);
+    }
+
+
+    /**
+     * quick start for MainActivity
+     * @param context
+     * @param extras
+     */
+    public static void start(Context context, Intent extras) {
+        Intent intent = new Intent();
+        intent.setClass(context, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (extras != null) {
+            intent.putExtras(extras);
+        }
+        context.startActivity(intent);
+    }
+
+
+
+
+    /*
+    init dir
+     */
+    private void initDir(){
+
+        try{
+            String dir_str = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name);;
+            File dir = new File(dir_str);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+
+            String dir_str_server = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name) + "/Server";
+            File dir_server = new File(dir_str_server);
+            if (!dir_server.exists()) {
+                dir_server.mkdirs();
+            }
+
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -2008,6 +1963,17 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
      */
 
 
+    private void initMusicService(){
+        Log.e(TAG,"init MusicService");
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(new Intent(this, MusicServer.class));
+        } else {
+            startService(new Intent(this, MusicServer.class));
+        }
+    }
+
+
     private void doLoginAgora(){
         AgoraMsgManager.getInstance().getRtmClient().login(null, username, new ResultCallback<Void>() {
             @Override
@@ -2023,9 +1989,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         });
     }
 
-    private void initAgora(){
+    private void initAgoraService(){
         Intent intent = new Intent(this, AgoraService.class);
-        startService(intent);
+        bindService(intent, connection_agora, Context.BIND_AUTO_CREATE);
+//        startService(intent);
     }
 
     private void initService(){
@@ -2064,13 +2031,28 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection connection_agora = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mBoundAgora = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBoundAgora = false;
+        }
+    };
+
+
+    /** Defines callbacks for service binding, passed to bindService() */
     private ServiceConnection connection_management = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             ManageService.LocalBinder binder = (ManageService.LocalBinder) service;
-            manageService = (ManageService) binder.getService();
+            ManageService manageService = (ManageService) binder.getService();
             binder.addReceiveMsgInterface((MainActivity) getActivityFromContext(mainContext));
             mBoundManagement = true;
         }
@@ -2090,7 +2072,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         public void onServiceConnected(ComponentName name, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             CollaborationService.LocalBinder binder = (CollaborationService.LocalBinder) service;
-            collaborationService = (CollaborationService) binder.getService();
+            CollaborationService collaborationService = (CollaborationService) binder.getService();
             binder.addReceiveMsgInterface((MainActivity) getActivityFromContext(mainContext));
             mBoundCollaboration = true;
         }
@@ -2101,11 +2083,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
     };
 
-
-
     /*
     for service ------------------------------------------------------------------------------------
      */
+
+
+
 
 
 
@@ -2257,7 +2240,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                ServerConnector.getInstance().sendMsg("GETFILELIST:" + "/", true);
+                ServerConnector.getInstance().sendMsg("GETFILELIST:" + "/", true, true);
             }
         }).start();
 
@@ -2374,22 +2357,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
+
+    /*
+    for IM module ------------------------------------------------------------------------------------
+     */
+
     private void initNim(){
-//        registerMsgUnreadInfoObserver(true);
         registerSystemMessageObservers(true);
     }
 
-
-//    /**
-//     * 注册未读消息数量观察者
-//     */
-//    private void registerMsgUnreadInfoObserver(boolean register) {
-//        if (register) {
-//            ReminderManager.getInstance().registerUnreadNumChangedCallback(this);
-//        } else {
-//            ReminderManager.getInstance().unregisterUnreadNumChangedCallback(this);
-//        }
-//    }
 
     /**
      * 注册/注销系统消息未读数变化
@@ -2473,6 +2449,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
+
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -2496,172 +2474,44 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         return true;
     }
 
-    /**
-     * call the corresponding function when button in top bar clicked
-     * @param item
-     * @return
-     */
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.file:
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-                File_icon();
-                return true;
-
-            case R.id.share:
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-                ShareScreenShot();
-                return true;
-
-            case R.id.more:
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-                More_icon();
-                return true;
-
-            case R.id.view:
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-                if (ifButtonShowed){
-                    hideButtons();
-                    item.setIcon(R.drawable.ic_visibility_off_black_24dp);
-                } else {
-                    showButtons();
-                    item.setIcon(R.drawable.ic_visibility_black_24dp);
-                }
-                return true;
-            default:
-                return true;
-//                return super.onOptionsItemSelected(item);
-        }
-    }
 
 
-
-
-
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK
-                && event.getAction() == KeyEvent.ACTION_DOWN) {
-
-            if ((System.currentTimeMillis() - exitTime) > 2000) {
-                Toast.makeText(getApplicationContext(), "再按一次退出程序",
-                        Toast.LENGTH_SHORT).show();
-                exitTime = System.currentTimeMillis();
-            } else {
-                finish();
-                System.exit(0);
-            }
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
 
 
     /**
-     * pop up a menu when button more is clicked, include analyze swc file, sensor information, downsample mode, animate and version
+     * open file
      */
-    public void More_icon(){
-        String[] item_list = null;
-        if (DrawMode){
-            item_list = new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "About", "Help", "Quests", "Reward"};
-        }else{
-            item_list = new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Account Name", "About", "Help"};
-        }
+    public void File_icon(){
 
         new XPopup.Builder(this)
+//                .hasShadowBg(false)
 //        .maxWidth(400)
 //        .maxHeight(1350)
-                .asCenterList("More Functions...", item_list,
+//                .asCenterList("File Open & Save", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile","Camera"},
+                .asCenterList("File Open", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                                 switch (text) {
-                                    case "Analyze SWC":
-                                        Analyse();
-                                        break;
 
-                                    case "Animate":
-                                        if (myrenderer.ifImageLoaded()){
-                                            ifPainting = false;
-                                            ifPoint = false;
-                                            ifDeletingMarker = false;
-                                            ifDeletingLine = false;
-                                            ifSpliting = false;
-                                            ifChangeLineType = false;
-                                            setAnimation();
-                                        }else {
-                                            Toast.makeText(context,"Please Load a Img First !!!", Toast.LENGTH_SHORT).show();
-                                        }
+                                    case "Open LocalFile":
+                                        loadLocalFile();
                                         break;
+                                    case "Open BigData":
+                                        /**
+                                         * xf szt
+                                         */
 
-                                    case "VoiceChat":
-//                                        PopUp_Chat(MainActivity.this);
-                                        chooseVoiceChatMode();
+                                        loadBigData();
                                         break;
-
-                                    case "MessageChat":
-                                        chooseChatMode();
-                                        break;
-
-                                    case "Chat":
-                                        openChatActivity();
-                                        break;
-
-                                    case "Game":
-                                        System.out.println("Game Start!!!!!!!");
-
-                                        ifGame = true;
-                                        Select_map();
-                                        break;
-
-                                    case "Settings":
-                                        setSettings();
-                                        break;
-
-                                    case "Account Name":
-                                        PopUp_UserAccount(MainActivity.this);
-                                        break;
-
-                                    case "Logout":
-                                        logout();
-                                        break;
-                                    case "Crash Info":
-                                        CrashInfoShare();
-                                        break;
-
-                                    case "About":
-                                        About();;
-                                        break;
-
-                                    case "Help":
-                                        try{
-                                            Intent helpIntent = new Intent(MainActivity.this, HelpActivity.class);
-                                            startActivity(helpIntent);
-                                        } catch (Exception e){
-                                            e.printStackTrace();
-                                        }
-                                        break;
-
-                                    case "Quests":
-                                        startActivity(new Intent(MainActivity.this, QuestActivity.class));
-                                        break;
-
-                                    case "Achievements":
-                                        showAchievementFinished();
-                                        break;
-
-                                    case "LeaderBoard":
-                                        startActivity(new Intent(MainActivity.this, LeaderBoardActivity.class));
-                                        break;
-
-                                    case "Reward":
-                                        startActivity(new Intent(MainActivity.this, RewardActivity.class));
+                                    case "Load SWCFile":
+                                        LoadSWC();
                                         break;
 
                                     default:
-                                        Toast.makeText(getContext(), "Default in More Functions...", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "Default in file", Toast.LENGTH_SHORT).show();
 
                                 }
                             }
@@ -2670,575 +2520,39 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     }
 
-    /**
-     * called when request permission
-     * @param requestCode
-     * @param permissions
-     * @param grantResults
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    private void LoadSWC() {
 
-        switch (requestCode){
-            case REQUEST_PERMISSION_CODE: {
-                for (int i = 0; i < permissions.length; i++) {
-                    Log.i("MainActivity", "申请的权限为：" + permissions[i] + ",申请结果：" + grantResults[i]);
-                }
-                break;
-            }
-        }
-    }
-
-
-
-
-    /**
-     * quick start for MainActivity
-     * @param context
-     */
-
-    public static void start(Context context) {
-        start(context, null);
-    }
-
-
-    /**
-     * quick start for MainActivity
-     * @param context
-     * @param extras
-     */
-    public static void start(Context context, Intent extras) {
-        Intent intent = new Intent();
-        intent.setClass(context, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        if (extras != null) {
-            intent.putExtras(extras);
-        }
-        context.startActivity(intent);
-    }
-
-
-
-    /**
-     * add friends
-     */
-    public void addFriends(){
-        MDDialog mdDialog = new MDDialog.Builder(this)
-                .setContentView(R.layout.peer_chat)
-                .setNegativeButton("Cancel", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButton(R.string.btn_chat, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-                        Log.d("PeerToPeer", "Start To Chat");
-                        EditText targetEdit = (EditText)contentView.findViewById(R.id.target_name_edit);
-                        String mTargetName = targetEdit.getText().toString();
-                        if (mTargetName.equals("")) {
-                            Toast_in_Thread(getString(R.string.account_empty));
-                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
-                            Toast_in_Thread(getString(R.string.account_too_long));
-                        } else if (mTargetName.startsWith(" ")) {
-                            Toast_in_Thread(getString(R.string.account_starts_with_space));
-                        } else if (mTargetName.equals("null")) {
-                            Toast_in_Thread(getString(R.string.account_literal_null));
-                        } else if (mTargetName.equals(username)) {
-                            Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
-                        } else {
-                            mChatManager.addFriends(mTargetName);
-                        }
-                    }
-                })
-                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-
-                    }
-                })
-                .setTitle(R.string.title_add_friends)
-                .create();
-
-        mdDialog.show();
-    }
-
-
-
-    public void chooseChatMode(){
-        new XPopup.Builder(this)
-                .asCenterList("Choose Chat Mode", new String[]{"Peer Chat", "Selection Tab Channel"},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                switch (text){
-                                    case "Peer Chat":
-                                        peerToPeer();
-                                        break;
-                                    case "Selection Tab Channel":
-                                        chooseChannel();
-                                        break;
-                                }
-                            }
-                        }).show();
-
-    }
-
-    private void peerToPeer(){
-        MDDialog mdDialog = new MDDialog.Builder(this)
-                .setContentView(R.layout.peer_chat)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-
-                    }
-                })
-                .setNegativeButton("Cancel", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButton(R.string.btn_chat, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-                        Log.d("PeerToPeer", "Start To Chat");
-                        EditText targetEdit = (EditText)contentView.findViewById(R.id.target_name_edit);
-                        String mTargetName = targetEdit.getText().toString();
-                        if (mTargetName.equals("")) {
-                            Toast_in_Thread(getString(R.string.account_empty));
-                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
-                            Toast_in_Thread(getString(R.string.account_too_long));
-                        } else if (mTargetName.startsWith(" ")) {
-                            Toast_in_Thread(getString(R.string.account_starts_with_space));
-                        } else if (mTargetName.equals("null")) {
-                            Toast_in_Thread(getString(R.string.account_literal_null));
-                        } else if (mTargetName.equals(username)) {
-                            Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
-                        } else {
-                            openMessageActivity(true, mTargetName);
-//                            mChatButton.setEn
-//                            jumpToMessageActivity();
-                        }
-                    }
-                })
-                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-
-                    }
-                })
-                .setTitle(R.string.title_peer_msg)
-
-                .create();
-
-        mdDialog.show();
-    }
-
-    private void chooseChannel(){
-        MDDialog mdDialog = new MDDialog.Builder(this)
-                .setContentView(R.layout.channel_chat)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-
-                    }
-                })
-                .setNegativeButton("Cancel", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButton(R.string.btn_join, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-                        EditText targetEdit = (EditText)contentView.findViewById(R.id.channel_name_edit);
-                        String mTargetName = targetEdit.getText().toString();
-                        if (mTargetName.equals("")) {
-                            Toast_in_Thread(getString(R.string.channel_name_empty));
-                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
-                            Toast_in_Thread(getString(R.string.channel_name_too_long));
-                        } else if (mTargetName.startsWith(" ")) {
-                            Toast_in_Thread(getString(R.string.channel_name_starts_with_space));
-                        } else if (mTargetName.equals("null")) {
-                            Toast_in_Thread(getString(R.string.channel_name_literal_null));
-                        }  else {
-                            openMessageActivity(false, mTargetName);
-//                            mChatButton.setEn
-//                            jumpToMessageActivity();
-                        }
-                    }
-                })
-                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-
-                    }
-                })
-                .setTitle(R.string.title_channel_message)
-
-                .create();
-
-        mdDialog.show();
-    }
-
-    private void openMessageActivity(boolean isPeerToPeerMode, String targetName){
-        Intent intent = new Intent(MainActivity.this, MessageActivity.class);
-        intent.putExtra(MessageUtil.INTENT_EXTRA_IS_PEER_MODE, isPeerToPeerMode);
-        intent.putExtra(MessageUtil.INTENT_EXTRA_TARGET_NAME, targetName);
-        intent.putExtra(MessageUtil.INTENT_EXTRA_USER_ID, username);
-//        intent.putExtra(MessageUtil.INTENT_EXTRA_MESSAGE_LIST, messageMap.get(targetName));
-        startActivity(intent);
-    }
-
-    private void openChatActivity(){
-        Intent intent = new Intent(MainActivity.this, ChatActivity.class);
-        startActivity(intent);
-    }
-
-    /**
-     *
-     * @param requestCode
-     * @param resultCode
-     * @param data
-     */
-    @Override
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            myrenderer.setPath(showPic.getAbsolutePath());
-            myGLSurfaceView.requestRender();
-            return;
+        if (!ifImport) {
+            ifImport = true;
+            ifAnalyze = false;
+            ifUpload = false;
+            ifLoadLocal = false;
         }
 
-        if (resultCode == RESULT_OK) {
-            String folderPath = data.getDataString();
-            Uri uri = data.getData();
-
-            String filePath = uri.toString();
-            String filePath_getPath = uri.getPath();
-
-            Log.v("MainActivity", filePath);
-            Log.v("uri.getPath()", filePath_getPath);
-            Log.v("Uri_Scheme:", uri.getScheme());
-
-            try {
-                Log.v("MainActivity", "onActivityResult");
-                if (ifImport) {
-
-                    FileManager fileManager = new FileManager();
-                    String fileName = fileManager.getFileName(uri);
-                    String filetype = fileName.substring(fileName.lastIndexOf(".")).toUpperCase();
-                    System.out.println("FileType: " + filetype + ", FileName: " + fileName);
-
-                    if (myrenderer.getIfFileLoaded()) {
-                        System.out.println("------ load local file ------");
-                        switch (filetype) {
-                            case ".APO":
-                                Log.v("MainActivity", uri.toString());
-                                ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
-                                ApoReader apoReader = new ApoReader();
-                                apo = apoReader.read(uri);
-                                if (apo == null){
-                                    Toast.makeText(this,"Make sure the .apo file is right",Toast.LENGTH_SHORT).show();
-                                    break;
-                                }
-
-                                myrenderer.importApo(apo);
-                                myrenderer.saveUndo();
-                                break;
-                            case ".SWC":
-                            case ".ESWC":
-                                Log.v("onActivityResult", ".eswc");
-                                NeuronTree nt = NeuronTree.readSWC_file(uri);
-
-                                myrenderer.importNeuronTree(nt);
-                                myrenderer.saveUndo();
-                                break;
-
-                            case ".ANO":
-                                ArrayList<ArrayList<Float>> ano_apo = new ArrayList<ArrayList<Float>>();
-                                AnoReader anoReader = new AnoReader();
-                                ApoReader apoReader_1 = new ApoReader();
-                                anoReader.read(uri);
-
-                                String swc_path = anoReader.getSwc_Path();
-                                String apo_path = anoReader.getApo_Path();
-
-                                NeuronTree nt2 = NeuronTree.readSWC_file(swc_path);
-                                ano_apo = apoReader_1.read(apo_path);
-
-                                myrenderer.importNeuronTree(nt2);
-                                myrenderer.importApo(ano_apo);
-                                myrenderer.saveUndo();
-                                break;
-
-                            default:
-                                Toast.makeText(this, "do not support this file", Toast.LENGTH_SHORT).show();
-
-                        }
-                    }
-
-                    else {
-                        System.out.println("-------- open --------");
-                        myrenderer.setSWCPath(filePath);
-                        ifLoadLocal = false;
-                        if (isBigData_Remote || isBigData_Local){
-                            if (isBigData_Remote){
-                                if (DrawMode){
-                                    sync_push.setVisibility(View.GONE);
-                                    sync_pull.setVisibility(View.GONE);
-                                    neuron_list.setVisibility(View.GONE);
-                                    blue_pen.setVisibility(View.GONE);
-                                    red_pen.setVisibility(View.GONE);
-                                }
-                                else{
-                                    Check_Yes.setVisibility(View.GONE);
-                                    Check_No.setVisibility(View.GONE);
-                                    Check_Uncertain.setVisibility(View.GONE);
-                                    sync_pull.setVisibility(View.GONE);
-                                    neuron_list.setVisibility(View.GONE);
-                                    res_list.setVisibility(View.GONE);
-                                }
-                            }
-                            isBigData_Remote = false;
-                            isBigData_Local  = false;
-                            try {
-
-                                Zoom_in_Big.setVisibility(View.GONE);
-                                Zoom_out_Big.setVisibility(View.GONE);
-                                navigation_left.setVisibility(View.GONE);
-                                navigation_right.setVisibility(View.GONE);
-                                navigation_up.setVisibility(View.GONE);
-                                navigation_down.setVisibility(View.GONE);
-                                navigation_front.setVisibility(View.GONE);
-                                navigation_back.setVisibility(View.GONE);
-                                navigation_location.setVisibility(View.GONE);
-
-                                Zoom_in.setVisibility(View.VISIBLE);
-                                Zoom_out.setVisibility(View.VISIBLE);
-
-                            }catch (Exception e){
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-
-                    ifImport = false;
-                }
-
-
-                if (ifAnalyze) {
-                    MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
-                    List features = morphologyCalculate.calculate(uri, false);
-
-                    if (features != null) {
-                        fl = new ArrayList<double[]>(features);
-                        displayResult(features);
-                    }
-                }
-
-
-                if (ifLoadLocal) {
-                    System.out.println("load local");
-                    myrenderer.setPath(filePath);
-                    System.out.println(filePath);
-
-                    if (isBigData_Remote || isBigData_Local){
-                        if (isBigData_Remote){
-                            if (DrawMode){
-                                sync_push.setVisibility(View.GONE);
-                                sync_pull.setVisibility(View.GONE);
-                                neuron_list.setVisibility(View.GONE);
-                                blue_pen.setVisibility(View.GONE);
-                                red_pen.setVisibility(View.GONE);
-                            }
-                            else{
-                                Check_Yes.setVisibility(View.GONE);
-                                Check_No.setVisibility(View.GONE);
-                                Check_Uncertain.setVisibility(View.GONE);
-                                sync_pull.setVisibility(View.GONE);
-                                neuron_list.setVisibility(View.GONE);
-                                res_list.setVisibility(View.GONE);
-                            }
-                        }
-                        isBigData_Remote = false;
-                        isBigData_Local  = false;
-
-                        try {
-
-                            Zoom_in_Big.setVisibility(View.GONE);
-                            Zoom_out_Big.setVisibility(View.GONE);
-                            navigation_left.setVisibility(View.GONE);
-                            navigation_right.setVisibility(View.GONE);
-                            navigation_up.setVisibility(View.GONE);
-                            navigation_down.setVisibility(View.GONE);
-                            navigation_front.setVisibility(View.GONE);
-                            navigation_back.setVisibility(View.GONE);
-                            navigation_location.setVisibility(View.GONE);
-
-                            Zoom_in.setVisibility(View.VISIBLE);
-                            Zoom_out.setVisibility(View.VISIBLE);
-
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-                    }
-                    String [] temp = filePath.split("/");
-                    String [] temp2 = temp[temp.length - 1].split("%2F");
-                    String s = temp2[temp2.length - 1];
-                    String filename = FileManager.getFileName(uri);
-
-                    setFilename(filename);
-
-                }
-
-
-            } catch (OutOfMemoryError e) {
-                Toast.makeText(this, " Fail to load file  ", Toast.LENGTH_SHORT).show();
-                Log.v("MainActivity", "111222");
-                Log.v("Exception", e.toString());
-            } catch (CloneNotSupportedException e){
-                Log.v("Exception:", e.toString());
-            }
-        }
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, 1);
     }
 
-    private boolean isTopActivity(){
-        ActivityManager manager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
-        List<ActivityManager.RunningTaskInfo> runningTaskInfos = manager.getRunningTasks(1);
-        String cmpNameTemp = null;
-        if(runningTaskInfos != null){
-            cmpNameTemp = runningTaskInfos.get(0).topActivity.toString();
-        }
-        if(cmpNameTemp == null){
-            return false;
-        }
-        Log.d(TAG, "isTopActivity" + cmpNameTemp);
-        return cmpNameTemp.equals("ComponentInfo{com.example.myapplication__volume/com.example.myapplication__volume.MainActivity}");
-    }
+    private void loadLocalFile(){
+        ifLoadLocal = true;
+        ifImport = false;
+        ifAnalyze = false;
 
-
-
-    private void PullSwc_block_Manual(boolean isDrawMode){
-
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
-
-                if (SwcFilePath.equals("Error")){
-                    Toast_in_Thread("Something Wrong When Pull Swc File !");
-                }
-
-                try {
-                    NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
-                    myrenderer.setSwcLoaded();
-                    myrenderer.importNeuronTree(nt);
-                    myGLSurfaceView.requestRender();
-                    uiHandler.sendEmptyMessage(1);
-                }catch (Exception e){
-                    Toast_in_Thread("Some Wrong when open the Swc File, Try Again Please !");
-                }
-
-            }
-        });
-
-        thread.start();
-    }
-
-
-
-    @RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
-    private static void PullSwc_block_Auto(boolean isDrawMode){
-
-        String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
-
-        if (SwcFilePath.equals("Error")){
-            Toast_in_Thread_static("Something Wrong When Pull Swc File !");
-            return;
-        }
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
 
         try {
-            NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
-            myrenderer.setSwcLoaded();
-            myrenderer.importNeuronTree(nt);
-            myGLSurfaceView.requestRender();
+            startActivityForResult(intent,1);
+
         }catch (Exception e){
-            Toast_in_Thread_static("Something Wrong when open Swc File !");
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Error when open file!" + e.getMessage(),Toast.LENGTH_SHORT).show();
         }
-
-
     }
 
-
-
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "IMG" + timeStamp;
-        File storageDir = new File(Environment.getExternalStorageDirectory() + "/DCIM/Camera/");
-        File image = File.createTempFile(
-                imageFileName,     /* prefix */
-                ".jpg",     /* suffix */
-                storageDir         /* directory */
-        );
-
-        // Save a file: path for use with ACTION_VIEW intents
-        currentPhotoPath = image.getAbsolutePath();
-        return image;
-    }
-
-    private String getImageFilePath(){
-        String mCaptureDir = "/storage/emulated/0/C3/cameraPhoto";
-        File dir = new File(mCaptureDir);
-        if (!dir.exists()){
-            dir.mkdirs();
-        }
-
-        String mCapturePath = mCaptureDir + "/" + "Photo_" + System.currentTimeMillis() +".jpg";
-        return mCapturePath;
-    }
-
-
-    private void listener(final long Id) {
-
-        // 注册广播监听系统的下载完成事件。
-        IntentFilter intentFilter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                long ID = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-                if (ID == Id) {
-                    Toast.makeText(getApplicationContext(), "文件下载完成!", Toast.LENGTH_LONG).show();
-                    Log.v("MainActivity", "DownloadFile  successfully");
-
-                }
-            }
-        };
-
-        registerReceiver(broadcastReceiver, intentFilter);
-    }
 
 
     /**
@@ -3446,8 +2760,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 }).show();
     }
 
-
-
     private void curveProcessList(View v){
         new XPopup.Builder(this)
                 .atView(v)
@@ -3617,6 +2929,166 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         }).show();
     }
 
+    public void penSet(){
+
+        String [] pcolor = new String[1];
+
+        new MDDialog.Builder(this)
+                .setContentView(R.layout.pen_choose)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+//                        EditText et1 = (EditText) contentView.findViewById(R.id.pencolor);
+                        //pencolor= 2;
+                        /*String color  = et1.getText().toString();
+                        pencolor= Integer.parseInt(color);
+                        System.out.println("pen color is");
+                        System.out.println(pencolor);*/
+
+                        final Spinner chooseColor = contentView.findViewById(R.id.pencolor);
+                        chooseColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                pcolor[0] = chooseColor.getSelectedItem().toString();
+                                Log.v("onItemSelected", chooseColor.getSelectedItem().toString());
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> parent) {
+
+                            }
+                        });
+
+                    }
+                })
+                .setTitle("Pen Set")
+                .setNegativeButton("Cancel", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton("Confirm", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
+//                        EditText et1 = (EditText) contentView.findViewById(R.id.pencolor);
+                        String color  = pcolor[0];
+
+                        if( !color.isEmpty()){
+
+//                            myrenderer.pencolorchange(Integer.parseInt(color));;
+                            myrenderer.pencolorchange(PenColor.valueOf(color).ordinal());
+                            System.out.println("pen color is");
+                            System.out.println(color);
+                            //Log.v("Mainactivity", "GD-Tracing start~");
+                            //Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "pencolor set~", Toast.LENGTH_SHORT).show();
+
+                        }else{
+
+                            Toast.makeText(getContext(), "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+//                        EditText et = (EditText) contentView.findViewById(R.id.edit1);
+//                        Toast.makeText(getApplicationContext(), "edittext 1 : " + et.getText(), Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setWidthMaxDp(600)
+                .create()
+                .show();
+    }
+
+    public void markerPenSet(){
+
+        String [] pcolor = new String[1];
+
+        new MDDialog.Builder(this)
+                .setContentView(R.layout.marker_pen_choose)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+//                        EditText et1 = (EditText) contentView.findViewById(R.id.markercolor);
+                        //pencolor= 2;
+                        /*String color  = et1.getText().toString();
+                        pencolor= Integer.parseInt(color);
+                        System.out.println("pen color is");
+                        System.out.println(pencolor);*/
+
+                        final Spinner chooseColor = contentView.findViewById(R.id.markercolor);
+                        chooseColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                pcolor[0] = chooseColor.getSelectedItem().toString();
+                                Log.v("onItemSelected", chooseColor.getSelectedItem().toString());
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> parent) {
+
+                            }
+                        });
+
+                    }
+                })
+                .setTitle("Marker Color Set")
+                .setNegativeButton("Cancel", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton("Confirm", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
+//                        EditText et1 = (EditText) contentView.findViewById(R.id.markercolor);
+//                        String color  = et1.getText().toString();
+                        String color = pcolor[0];
+
+                        if( !color.isEmpty()){
+
+                            myrenderer.markercolorchange(PenColor.valueOf(color).ordinal());
+                            System.out.println("marker color is");
+                            System.out.println(color);
+                            //Log.v("Mainactivity", "GD-Tracing start~");
+                            //Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "markercolor set~", Toast.LENGTH_SHORT).show();
+
+
+                        }else{
+
+                            Toast.makeText(getContext(), "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                    }
+                })
+                .setWidthMaxDp(600)
+                .create()
+                .show();
+    }
+
+
 
 
     /**
@@ -3707,9 +3179,226 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .show();
     }
 
+    private void SaveSWC() {
+        MDDialog mdDialog = new MDDialog.Builder(this)
+                .setContentView(R.layout.save_swc)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+                    }
+                })
+                .setNegativeButton("Cancel", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton("Confirm", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                        System.out.println("start to save-------");
+
+                        EditText swcName = contentView.findViewById(R.id.swcname);
+                        String swcFileName = swcName.getText().toString();
+                        if (swcFileName == ""){
+                            Toast.makeText(getContext(), "The name should not be empty.", Toast.LENGTH_SHORT).show();
+                        }
+                        myrenderer.reNameCurrentSwc(swcFileName);
+
+                        String dir_str = "/storage/emulated/0/C3/SWCSaved";
+                        File dir = new File(dir_str);
+                        if (!dir.exists()) {
+                            dir.mkdirs();
+                        }
+
+                        String error = null;
+                        try {
+                            error = myrenderer.saveCurrentSwc(dir_str);
+                        } catch (Exception e) {
+                            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                        if (!error.equals("")) {
+                            if (error == "This file already exits"){
+                                AlertDialog aDialog = new AlertDialog.Builder(mainContext)
+                                        .setTitle("This file already exits")
+                                        .setMessage("Are you sure to overwrite it?")
+                                        .setIcon(R.mipmap.ic_launcher)
+                                        .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                String errorMessage = "";
+                                                try{
+                                                    errorMessage = myrenderer.oversaveCurrentSwc(dir_str);
+                                                    if (errorMessage.equals(""))
+                                                        Toast.makeText(getContext(),"Overwrite successfully!", Toast.LENGTH_SHORT).show();
+                                                    if (errorMessage == "Overwrite failed!")
+                                                        Toast.makeText(getContext(),"Overwrite failed!", Toast.LENGTH_SHORT).show();
+
+                                                }catch (Exception e){
+                                                    System.out.println(errorMessage);
+                                                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        })
+
+                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+
+                                            }
+                                        })
+                                        .create();
+                                aDialog.show();
+                            }
+                        } else{
+                            Toast.makeText(getContext(), "save SWC to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                    }
+                })
+                .setTitle("Save SWC File")
+                .create();
+        mdDialog.show();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void APP2() throws Exception {
+        Image4DSimple img = myrenderer.getImg();
+        if(img == null){
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
+            }
+
+            Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.INVISIBLE);
+            Looper.loop();
+            return;
+        }
+
+        ArrayList<ImageMarker> markers = myrenderer.getMarkerList().getMarkers();
+        try {
+            ParaAPP2 p = new ParaAPP2();
+            p.p4dImage = img;
+            p.xc0 = p.yc0 = p.zc0 = 0;
+            p.xc1 = (int) p.p4dImage.getSz0() - 1;
+            p.yc1 = (int) p.p4dImage.getSz1() - 1;
+            p.zc1 = (int) p.p4dImage.getSz2() - 1;
+            p.landmarks = new LocationSimple[markers.size()];
+            p.bkg_thresh = -1;
+            for (int i = 0; i < markers.size(); i++) {
+                p.landmarks[i] = new LocationSimple(markers.get(i).x, markers.get(i).y, markers.get(i).z);
+            }
+            System.out.println("---------------start---------------------");
+            V3dNeuronAPP2Tracing.proc_app2(p);
+            NeuronTree nt = p.resultNt;
+            for (int i = 0; i < nt.listNeuron.size(); i++) {
+                nt.listNeuron.get(i).type = 4;
+                if (nt.listNeuron.get(i).parent == -1) {
+                    NeuronSWC s = nt.listNeuron.get(i);
+                    ImageMarker m = new ImageMarker(s.x, s.y, s.z);
+                    m.type = 2;
+                    myrenderer.getMarkerList().add(m);
+                }
+            }
+            System.out.println("size: " + nt.listNeuron.size());
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
+            }
+            Toast.makeText(getContext(), "APP2-Tracing finish, size of result swc: " + Integer.toString(nt.listNeuron.size()), Toast.LENGTH_SHORT).show();
+            myrenderer.importNeuronTree(nt);
+            myrenderer.saveUndo();
+            myGLSurfaceView.requestRender();
+            progressBar.setVisibility(View.INVISIBLE);
+            Looper.loop();
+
+        } catch (Exception e) {
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
+            }
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            progressBar.setVisibility(View.INVISIBLE);
+            Looper.loop();
+        }
 
 
-    //像素分类界面
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void GDTracing() throws Exception {
+        Image4DSimple img = myrenderer.getImg();
+        if(img == null){
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
+            }
+
+            Toast.makeText(this, "Please load image first!", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.INVISIBLE);
+            Looper.loop();
+            return;
+        }
+
+        ArrayList<ImageMarker> markers = myrenderer.getMarkerList().getMarkers();
+        if (markers.size() <= 1) {
+            Log.v("GDTracing", "Please generate at least two markers!");
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
+            }
+            Toast.makeText(getContext(), "Please produce at least two markers!", Toast.LENGTH_LONG).show();
+            progressBar.setVisibility(View.INVISIBLE);
+            Looper.loop();
+            return;
+        }
+        LocationSimple p0 = new LocationSimple(markers.get(0).x, markers.get(0).y, markers.get(0).z);
+        Vector<LocationSimple> pp = new Vector<LocationSimple>();
+        for (int i = 1; i < markers.size(); i++) {
+            LocationSimple p = new LocationSimple(markers.get(i).x, markers.get(i).y, markers.get(i).z);
+            pp.add(p);
+        }
+
+        NeuronTree outswc = new NeuronTree();
+        CurveTracePara curveTracePara = new CurveTracePara();
+
+
+        try {
+            outswc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img, p0, pp, curveTracePara, 1.0);
+        } catch (Exception e) {
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
+            }
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            progressBar.setVisibility(View.INVISIBLE);
+            Looper.loop();
+        }
+        for (int i = 0; i < outswc.listNeuron.size(); i++) {
+//            outswc.listNeuron.get(i).type = 4;
+            outswc.listNeuron.get(i).type = 5;
+        }
+
+        if (Looper.myLooper() == null) {
+            Looper.prepare();
+        }
+
+        Toast.makeText(getContext(), "GD-Tracing finished, size of result swc: " + Integer.toString(outswc.listNeuron.size()), Toast.LENGTH_SHORT).show();
+        myrenderer.importNeuronTree(outswc);
+        myrenderer.saveUndo();
+        myGLSurfaceView.requestRender();
+        progressBar.setVisibility(View.INVISIBLE);
+        Looper.loop();
+
+    }
+
+
+
     private void PixelClassification(final View v) {
 
         Image4DSimple img = myrenderer.getImg();
@@ -3748,171 +3437,41 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .show();
     }
 
+    private void Learning() {
 
-    private void LoadSWC() {
+        Image4DSimple img = myrenderer.getImg();
+        if(img == null){
 
-//        if (!myrenderer.ifImageLoaded()){
-//            Toast.makeText(context, "Please open a image first", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-
-        if (!ifImport) {
-            ifImport = true;
-            ifAnalyze = false;
-            ifUpload = false;
-            ifLoadLocal = false;
-        }
-
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        startActivityForResult(intent, 1);
-    }
-
-
-    private void PushSWC_Block_Manual(){
-
-        String filepath = this.getExternalFilesDir(null).toString();
-        String swc_file_path = filepath + "/Sync/BlockSet";
-        File dir = new File(swc_file_path);
-
-        if (!dir.exists()){
-            if (!dir.mkdirs())
-                Toast.makeText(this,"Fail to create file: PushSWC_Block", Toast.LENGTH_SHORT).show();
-        }
-
-        String filename = getFilename_Remote(this);
-        String neuron_number = getNeuronNumber_Remote(this, filename);
-        String offset = getoffset_Remote(this, filename);
-        System.out.println(offset);
-        int[] index = BigImgReader.getIndex(offset);
-        System.out.println(filename);
-
-        String ratio = Integer.toString(remote_socket.getRatio_SWC());
-        String SwcFileName = "blockSet__" + neuron_number + "__" +
-                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
-
-        System.out.println(SwcFileName);
-
-        if (Save_curSwc_fast(SwcFileName, swc_file_path)){
-            File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
-            try {
-                System.out.println("Start to push swc file");
-                InputStream is = new FileInputStream(SwcFile);
-                long length = SwcFile.length();
-
-                if (length < 0 || length > Math.pow(2, 28)){
-                    Toast_in_Thread("Something Wrong When Upload SWC, Try Again Please !");
-                    return;
-                }
-
-                remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
-
-            } catch (Exception e){
-                System.out.println("----" + e.getMessage() + "----");
-            }
-        }
-    }
-
-
-    private String[] SaveSWC_Block_Auto(){
-
-        String filepath = this.getExternalFilesDir(null).toString();
-        String swc_file_path = filepath + "/Sync/BlockSet";
-        File dir = new File(swc_file_path);
-
-        if (!dir.exists()){
-            if (!dir.mkdirs())
-                Toast.makeText(this,"Fail to create file: PushSWC_Block", Toast.LENGTH_SHORT).show();
-        }
-
-        String filename = getFilename_Remote(this);
-        String neuron_number = getNeuronNumber_Remote(this, filename);
-        String offset = getoffset_Remote(this, filename);
-        System.out.println(offset);
-        int[] index = BigImgReader.getIndex(offset);
-        System.out.println(filename);
-
-        String ratio = Integer.toString(remote_socket.getRatio_SWC());
-        String SwcFileName = "blockSet__" + neuron_number + "__" +
-                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
-
-        System.out.println(SwcFileName);
-
-        if (Save_curSwc_fast(SwcFileName, swc_file_path)){
-            return new String[]{ swc_file_path, SwcFileName };
-        }
-
-        Log.v("SaveSWC_Block_Auto","Save Successfully !");
-        return new String[]{"Error", "Error"};
-    }
-
-
-
-    private static void PushSWC_Block_Auto(String swc_file_path, String SwcFileName){
-
-        if (swc_file_path.equals("Error"))
-            return;
-
-        File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
-        if (!SwcFile.exists()){
-            Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
+            Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_SHORT).show();
             return;
         }
-        try {
-            System.out.println("Start to push swc file");
-            InputStream is = new FileInputStream(SwcFile);
-            long length = SwcFile.length();
+        Image4DSimple outImg=new Image4DSimple();
 
-            if (length <= 0 || length > Math.pow(2, 28)){
-                Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
-                return;
-            }
-            remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
+        NeuronTree nt = myrenderer.getNeuronTree();
+        PixelClassification p = new PixelClassification();
 
-        } catch (Exception e){
-            System.out.println("----" + e.getMessage() + "----");
+        boolean[][] selections = select;
+        System.out.println("select is");
+        System.out.println(select);
+        p.setSelections(selections);
+
+        if (Looper.myLooper() == null) {
+            Looper.prepare();
         }
-    }
 
-    private boolean Save_curSwc_fast(String SwcFileName, String dir_str){
+        Toast.makeText(getContext(), "pixel  classification start~", Toast.LENGTH_SHORT).show();
 
-        System.out.println("start to save-------");
-        myrenderer.reNameCurrentSwc(SwcFileName);
+        try{
+            outImg = p.getPixelClassificationResult(img,nt);
+            System.out.println("outImg: "+outImg.getSz0()+" "+outImg.getSz1()+" "+outImg.getSz2()+" "+outImg.getSz3());
+            System.out.println(outImg.getData().length);
 
-        String error = "init";
-        try {
-            error = myrenderer.saveCurrentSwc(dir_str);
-            System.out.println("error:" + error);
-        } catch (Exception e) {
+            myrenderer.resetImg(outImg);
+            myGLSurfaceView.requestRender();
+        }catch (Exception e){
             Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-            return false;
         }
-        if (!error.equals("")) {
-            if (error.equals("This file already exits")){
-                String errorMessage = "";
-                try{
-                    errorMessage = myrenderer.oversaveCurrentSwc(dir_str);
-                    if (errorMessage == "Overwrite failed!"){
-                        Toast_in_Thread("Fail to save swc file: Save_curSwc_fast");
-                        return false;
-                    }
-                }catch (Exception e){
-                    System.out.println(errorMessage);
-                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                    return false;
-                }
-            }
-//            if (error.equals("Current swc is empty!")){
-//                Toast_in_Thread("Current swc file is empty!");
-//                return false;
-//            }
-        } else{
-            System.out.println("save SWC to " + dir_str + "/" + SwcFileName + ".swc");
-        }
-        return true;
     }
-
 
 
     private void ShareScreenShot() {
@@ -3925,6 +3484,182 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
+
+
+
+
+
+
+
+    /**
+     * call the corresponding function when button in top bar clicked
+     * @param item
+     * @return
+     */
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.file:
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+                File_icon();
+                return true;
+
+            case R.id.share:
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+                ShareScreenShot();
+                return true;
+
+            case R.id.more:
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+                More_icon();
+                return true;
+
+            case R.id.view:
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+                if (ifButtonShowed){
+                    hideButtons();
+                    item.setIcon(R.drawable.ic_visibility_off_black_24dp);
+                } else {
+                    showButtons();
+                    item.setIcon(R.drawable.ic_visibility_black_24dp);
+                }
+                return true;
+            default:
+                return true;
+        }
+    }
+
+
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK
+                && event.getAction() == KeyEvent.ACTION_DOWN) {
+
+            if ((System.currentTimeMillis() - exitTime) > 2000) {
+                Toast.makeText(getApplicationContext(), "再按一次退出程序",
+                        Toast.LENGTH_SHORT).show();
+                exitTime = System.currentTimeMillis();
+            } else {
+                finish();
+                System.exit(0);
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+
+
+
+
+    /**
+     * pop up a menu when button more is clicked, include analyze swc file, sensor information, downsample mode, animate and version
+     */
+    public void More_icon(){
+        String[] item_list = null;
+        if (DrawMode){
+            item_list = new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "About", "Help", "Quests", "Reward"};
+        }else{
+            item_list = new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Account Name", "About", "Help"};
+        }
+
+        new XPopup.Builder(this)
+//        .maxWidth(400)
+//        .maxHeight(1350)
+                .asCenterList("More Functions...", item_list,
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                                switch (text) {
+                                    case "Analyze SWC":
+                                        Analyse();
+                                        break;
+
+                                    case "Animate":
+                                        if (myrenderer.ifImageLoaded()){
+                                            ifPainting = false;
+                                            ifPoint = false;
+                                            ifDeletingMarker = false;
+                                            ifDeletingLine = false;
+                                            ifSpliting = false;
+                                            ifChangeLineType = false;
+                                            setAnimation();
+                                        }else {
+                                            Toast.makeText(context,"Please Load a Img First !!!", Toast.LENGTH_SHORT).show();
+                                        }
+                                        break;
+
+                                    case "Chat":
+                                        openChatActivity();
+                                        break;
+
+                                    case "Game":
+                                        System.out.println("Game Start!!!!!!!");
+
+                                        ifGame = true;
+                                        Select_map();
+                                        break;
+
+                                    case "Settings":
+                                        setSettings();
+                                        break;
+
+                                    case "Account Name":
+                                        PopUp_UserAccount(MainActivity.this);
+                                        break;
+
+                                    case "Logout":
+                                        logout();
+                                        break;
+                                    case "Crash Info":
+                                        CrashInfoShare();
+                                        break;
+
+                                    case "About":
+                                        About();;
+                                        break;
+
+                                    case "Help":
+                                        try{
+                                            Intent helpIntent = new Intent(MainActivity.this, HelpActivity.class);
+                                            startActivity(helpIntent);
+                                        } catch (Exception e){
+                                            e.printStackTrace();
+                                        }
+                                        break;
+
+                                    case "Quests":
+                                        startActivity(new Intent(MainActivity.this, QuestActivity.class));
+                                        break;
+
+                                    case "Achievements":
+                                        showAchievementFinished();
+                                        break;
+
+                                    case "LeaderBoard":
+                                        startActivity(new Intent(MainActivity.this, LeaderBoardActivity.class));
+                                        break;
+
+                                    case "Reward":
+                                        startActivity(new Intent(MainActivity.this, RewardActivity.class));
+                                        break;
+
+                                    default:
+                                        Toast.makeText(getContext(), "Default in More Functions...", Toast.LENGTH_SHORT).show();
+
+                                }
+                            }
+                        })
+                .show();
+
+    }
+
+
+    private void openChatActivity(){
+        Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+        startActivity(intent);
+    }
 
 
     private void Animation(final View v) {
@@ -4032,11 +3767,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210413a 17:33 UTC+8 build",
+                                "Version: 20210414a 22:33 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4048,23 +3782,886 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void loadLocalFile(){
-        ifLoadLocal = true;
-        ifImport = false;
-        ifAnalyze = false;
+    public void PopUp_UserAccount(Context context){
 
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        new MDDialog.Builder(context)
+//              .setContentView(customizedView)
+                .setContentView(R.layout.user_account_check)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+                        EditText et = (EditText) contentView.findViewById(R.id.userAccount_edit_check);
+                        String userAccount = getUserAccount_Check(context);
 
-        try {
-            startActivityForResult(intent,1);
+                        if (userAccount.equals("--11--")){
+                            userAccount = "";
+                        }
 
-        }catch (Exception e){
-            e.printStackTrace();
-            Toast.makeText(getContext(), "Error when open file!" + e.getMessage(),Toast.LENGTH_SHORT).show();
+                        et.setText(userAccount);
+                    }
+                })
+                .setTitle("UserName for Check")
+                .setNegativeButton("Cancel", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton("Confirm", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
+                        EditText et = (EditText) contentView.findViewById(R.id.userAccount_edit_check);
+
+                        String userAccount   = et.getText().toString();
+
+
+                        if( !userAccount.isEmpty() ){
+                            setUserAccount_Check(userAccount, context);
+
+                        }else{
+                            PopUp_UserAccount(context);
+                            Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                    }
+                })
+                .setWidthMaxDp(600)
+                .create()
+                .show();
+
+    }
+
+
+    private void Analyse() {
+        new XPopup.Builder(this)
+//        .maxWidth(400)
+//        .maxHeight(1350)
+                .asCenterList("morphology calculate", new String[]{"Analyze a SWC file", "Analyze current tracing"},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text) {
+                                    case "Analyze a SWC file":
+                                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                                        intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
+                                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                                        startActivityForResult(intent, 1);
+                                        ifAnalyze = true;
+                                        ifImport = false;
+                                        ifUpload = false;
+                                        break;
+
+                                    case "Analyze current tracing":
+                                        NeuronTree nt = myrenderer.getNeuronTree();
+                                        if (nt.listNeuron.isEmpty()) {
+                                            Toast.makeText(getContext(), "Empty tracing, do nothing", Toast.LENGTH_LONG).show();
+                                            break;
+                                        }
+                                        MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
+                                        List<double[]> features = morphologyCalculate.calculatefromNT(nt, false);
+                                        fl = new ArrayList<double[]>(features);
+                                        if (features.size() != 0) displayResult(features);
+                                        else Toast.makeText(getContext(), "the file is empty", Toast.LENGTH_SHORT).show();
+                                        break;
+
+                                    default:
+                                        Toast.makeText(getContext(), "Default in analysis", Toast.LENGTH_SHORT).show();
+
+                                }
+                            }
+                        })
+                .show();
+
+
+    }
+
+    MDDialog.Builder ar_mdDialog_bd = new MDDialog.Builder(this).setContentView(R.layout.analysis_result);
+    MDDialog ar_mdDialog = null;
+
+    /**
+     * display the result of morphology calculate
+     *
+     * @param featurelist the features of result
+     */
+
+    @SuppressLint("DefaultLocale")
+    private void displayResult(final List<double[]> featurelist) {
+        final String[] title;
+        final int[] id_title;
+        final int[] id_content;
+        final int[] id_rl;
+        if (measure_count > featurelist.size() - 1) {
+            measure_count = 0;
+        } else if (measure_count < 0) {
+            measure_count = featurelist.size() - 1;
+        }
+        double[] result = featurelist.get(measure_count);
+        String[] subtitle = new String[featurelist.size()];
+        for (int i = 0; i < featurelist.size(); i++) {
+            if (featurelist.size() > 1) {
+                subtitle[i] = String.format("Tree %d/%d", i + 1, featurelist.size());
+            } else {
+                subtitle[i] = "";
+            }
+        }
+
+        title = new String[]{
+                "number of nodes",
+                "soma surface",
+                "number of stems",
+                "number of bifurcations",
+                "number of branches",
+                "number of tips",
+                "overall width",
+                "overall height",
+                "overall depth",
+                "average diameter",
+                "total length",
+                "total surface",
+                "total volume",
+                "max euclidean distance",
+                "max path distance",
+                "max branch order",
+                "average contraction",
+                "average fragmentation",
+                "average parent-daughter ratio",
+                "average bifurcation angle local",
+                "average bifurcation angle remote",
+                "Hausdorff dimension"
+        };
+
+        id_title = new int[]{R.id.title0, R.id.title1, R.id.title2, R.id.title3, R.id.title4,
+                R.id.title5, R.id.title6, R.id.title7, R.id.title8, R.id.title9,
+                R.id.title10, R.id.title11, R.id.title12, R.id.title13, R.id.title14,
+                R.id.title15, R.id.title16, R.id.title17, R.id.title18, R.id.title19,
+                R.id.title20, R.id.title21};
+
+        id_content = new int[]{R.id.content0, R.id.content1, R.id.content2, R.id.content3, R.id.content4,
+                R.id.content5, R.id.content6, R.id.content7, R.id.content8, R.id.content9,
+                R.id.content10, R.id.content11, R.id.content12, R.id.content13, R.id.content14,
+                R.id.content15, R.id.content16, R.id.content17, R.id.content18, R.id.content19,
+                R.id.content20, R.id.content21};
+
+        id_rl = new int[]{R.id.RL0, R.id.RL1, R.id.RL2, R.id.RL3, R.id.RL4,
+                R.id.RL5, R.id.RL6, R.id.RL7, R.id.RL8, R.id.RL9,
+                R.id.RL10, R.id.RL11, R.id.RL12, R.id.RL13, R.id.RL14,
+                R.id.RL15, R.id.RL16, R.id.RL17, R.id.RL18, R.id.RL19,
+                R.id.RL20, R.id.RL21};
+        ar_mdDialog =
+                ar_mdDialog_bd
+                        .setContentView(R.layout.analysis_result)
+                        .setContentViewOperator(new MDDialog.ContentViewOperator() {
+
+                            @Override
+                            public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+                                //analysis_result next page
+                                Button ar_right = (Button) contentView.findViewById(R.id.ar_right);
+                                ar_right.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        if (featurelist.size() > 1) {
+                                            measure_count++;
+                                            ar_mdDialog.dismiss();
+                                            displayResult(fl);
+                                        }
+                                    }
+                                });
+                                Button ar_left = (Button) contentView.findViewById(R.id.ar_left);
+                                ar_left.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        if (featurelist.size() > 1) {
+                                            measure_count--;
+                                            ar_mdDialog.dismiss();
+                                            displayResult(fl);
+                                        }
+                                    }
+                                });
+                                if (title.length == 8) {
+                                    for (int i = 8; i < id_rl.length; i++) {
+                                        contentView.findViewById(id_rl[i]).setVisibility(View.GONE);
+                                    }
+                                } else if (title.length == 22) {
+                                    for (int i = 8; i < id_rl.length; i++) {
+                                        contentView.findViewById(id_rl[i]).setVisibility(View.VISIBLE);
+                                    }
+                                }
+
+
+                                String result_str;
+                                int num;
+                                for (int i = 0; i < title.length; i++) {
+                                    TextView tx = contentView.findViewById(id_title[i]);
+                                    tx.setText(title[i]);
+
+                                    TextView ct = contentView.findViewById(id_content[i]);
+                                    if (title[i].substring(0, 6).equals("number") || title[i].substring(0, 6).equals("max br")) {
+                                        result_str = ": " + String.format("%d", (int) result[i + 1]);
+                                    } else {
+                                        num = Value_Display_Length(result[i + 1]);
+                                        result_str = ": " + String.format("%." + String.format("%d", num) + "f", (float) result[i + 1]);
+                                    }
+                                    ct.setText(result_str);
+
+                                }
+                            }
+
+                        })
+                        .setTitle("Measured features " + subtitle[measure_count])
+                        .create();
+        ar_mdDialog.show();
+    }
+
+
+    /**
+     * format output of morphology feature's value
+     *
+     * @param value feature's value
+     * @return Number of digits
+     */
+    private int Value_Display_Length(double value) {
+        String s_value = (value + "").split("\\.")[0];
+        int len = s_value.length();
+        if (len >= 8) {
+            return 0;
+        } else if ((8 - len) > 4) {
+            return 4;
+        } else {
+            return 8 - len;
         }
     }
+
+
+    private void setSettings(){
+
+        boolean [] downsample = new boolean[1];
+        boolean [] check = new boolean[1];
+
+        MDDialog mdDialog = new MDDialog.Builder(this)
+                .setContentView(R.layout.settings)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {
+                        Switch downsample_on_off = contentView.findViewById(R.id.switch_rotation_mode);
+                        Switch check_on_off = contentView.findViewById(R.id.switch_check_mode);
+                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
+                        TextView clean_cache = contentView.findViewById(R.id.clean_cache);
+                        SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
+                        SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
+                        SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
+                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
+
+                        boolean ifDownSample = preferenceSetting.getDownSampleMode();
+                        int contrast = preferenceSetting.getContrast();
+
+                        downsample_on_off.setChecked(ifDownSample);
+                        check_on_off.setChecked(!DrawMode);
+                        seekbar.setProgress(contrast);
+                        bgmVolumeBar.setProgress((int)(bgmVolume * 100));
+                        buttonVolumeBar.setProgress((int)(buttonVolume * 100));
+                        actionVolumeBar.setProgress((int)(actionVolume * 100));
+
+                        RewardLitePalConnector rewardLitePalConnector = RewardLitePalConnector.getInstance();
+                        List<Integer> rewards = rewardLitePalConnector.getRewards();
+                        List<String> list = new ArrayList<>();
+                        list.add("BGM0");
+                        for (int i = 0; i < rewards.size(); i++){
+                            if (rewards.get(i) == 1)
+                                list.add("BGM" + Integer.toString(i+1));
+                        }
+                        String [] spinnerItems = new String[list.size()];
+                        for (int i = 0; i < list.size(); i++){
+                            spinnerItems[i] = list.get(i);
+                        }
+
+
+
+                        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(mainContext, R.layout.support_simple_spinner_dropdown_item, spinnerItems);
+                        bgmSpinner.setAdapter(spinnerAdapter);
+                        bgmSpinner.setSelection(selectedBGM);
+
+                        downsample[0] = downsample_on_off.isChecked();
+                        check[0]      = check_on_off.isChecked();
+
+                        downsample_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                downsample[0] = isChecked;
+                            }
+                        });
+
+                        check_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                check[0] = isChecked;
+                            }
+                        });
+
+                        clean_cache.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                cleanCache();
+                            }
+                        });
+
+                    }
+                })
+                .setNegativeButton("Cancel", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                })
+                .setPositiveButton("Confirm", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
+                        int contrast = seekbar.getProgress();
+
+                        myrenderer.setIfNeedDownSample(downsample[0]);
+                        myrenderer.resetContrast(contrast);
+                        DrawMode = !check[0];
+
+                        Log.v(TAG,"downsample: " + downsample[0] + ", check: " + check[0] + ",contrast: " + contrast);
+                        preferenceSetting.setPref(downsample[0], check[0], contrast);
+                        myGLSurfaceView.requestRender();
+
+                        SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
+                        SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
+                        SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
+
+                        bgmVolume = (float)(bgmVolumeBar.getProgress()) / 100.0f;
+                        buttonVolume = (float)(buttonVolumeBar.getProgress()) / 100.0f;
+                        actionVolume = (float)(actionVolumeBar.getProgress()) / 100.0f;
+
+                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
+                        String selected = bgmSpinner.getSelectedItem().toString();
+                        if (selectedBGM != bgmSpinner.getSelectedItemPosition()) {
+                            if (selected.equals("BGM1"))
+                                MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
+
+                            else if (selected.equals("BGM2"))
+                                MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/DelRioBravo.mp3");
+
+                            else
+                                MusicServer.defaultBgmSource();
+
+                            selectedBGM = bgmSpinner.getSelectedItemPosition();
+
+                        }
+
+                        MusicServer.setBgmVolume(bgmVolume);
+                        MusicServer.setVolume(bgmVolume);
+
+                        String settingsPath = context.getExternalFilesDir(null).toString() + "/Settings";
+                        File settingsFile = new File(settingsPath);
+                        if (!settingsFile.exists()){
+                            settingsFile.mkdir();
+                        }
+
+                        String volumePath = settingsPath + "/volume.txt";
+                        File volumeFile = new File(volumePath);
+                        if (!volumeFile.exists()){
+                            try {
+                                volumeFile.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        try {
+                            BufferedWriter volumeWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(volumeFile)));
+                            volumeWriter.write(Float.toString(bgmVolume) + " " + Float.toString(buttonVolume) + " " + Float.toString(actionVolume));
+                            volumeWriter.flush();
+                            volumeWriter.close();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                    }
+                })
+                .setTitle("Settings")
+                .create();
+        mdDialog.show();
+    }
+
+
+    public void cleanCache(){
+        AlertDialog aDialog = new AlertDialog.Builder(mainContext)
+                .setTitle("Clean All The Img Cache")
+                .setMessage("Are you sure to CLEAN ALL IMG CACHE?")
+                .setIcon(R.mipmap.ic_launcher)
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        deleteImg();
+                    }
+                })
+
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .create();
+        aDialog.show();
+    }
+
+
+    private void deleteImg(){
+        Log.v("BaseActivity","deleteImg()");
+        String img_path = context.getExternalFilesDir(null).toString() + "/Img";
+        Log.v("BaseActivity","img_path" + img_path);
+
+        File file = new File(img_path);
+        recursionDeleteFile(file);
+    }
+
+
+    private void logout(){
+
+        AlertDialog aDialog = new AlertDialog.Builder(mainContext)
+                .setTitle("Log out")
+                .setMessage("Are you sure to Log out?")
+                .setIcon(R.mipmap.ic_launcher)
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 清理缓存&注销监听&清除状态
+                        NimUIKit.logout();
+                        NIMClient.getService(AuthService.class).logout();
+
+                        AgoraMsgManager.getInstance().getRtmClient().logout(null);
+
+                        PreferenceLogin preferenceLogin = new PreferenceLogin(MainActivity.this);
+                        preferenceLogin.setPref("","",false);
+                        // DemoCache.clear();
+
+                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                        finish();
+                    }
+                })
+
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .create();
+        aDialog.show();
+    }
+
+
+    private void CrashInfoShare(){
+        String[] info_path = CrashHandler.getCrashReportFiles(getApplicationContext());
+        new XPopup.Builder(this)
+                .maxHeight(1350)
+                .asCenterList("Select a Crash Report", info_path,
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                String file_path = CrashHandler.getCrashFilePath(getApplicationContext()) + "/" + text + ".txt";
+                                File file = new File(file_path);
+                                if (file.exists()){
+                                    Intent intent = new Intent();
+
+                                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                                    intent.setAction(Intent.ACTION_SEND);
+                                    intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "com.example.myapplication__volume.provider", new File(file_path)));  //传输图片或者文件 采用流的方式
+                                    intent.setType("*/*");   //分享文件
+                                    startActivity(Intent.createChooser(intent, "Share From C3"));
+                                }else {
+                                    Toast_in_Thread("File does not exist");
+                                }
+
+                            }
+                        })
+                .show();
+    }
+
+
+    private void setAnimation() {
+
+        final String[] rotation_type = new String[1];
+        final boolean [] ifChecked = {false, false};
+
+        MDDialog mdDialog = new MDDialog.Builder(this)
+                .setContentView(R.layout.animation)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+
+                        Switch on_off = contentView.findViewById(R.id.switch_animation);
+                        on_off.setChecked(ifAnimation);
+                        EditText speed = contentView.findViewById(R.id.edit_speed);
+                        speed.setText(Integer.toString(rotation_speed));
+
+                        on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                ifChecked[1] = true;
+                                if (isChecked) {
+                                    ifChecked[0] = true;
+                                } else {
+                                    ifChecked[0] = false;
+                                }
+                            }
+                        });
+
+                        final Spinner type = contentView.findViewById(R.id.spinner_type);
+                        type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                rotation_type[0] = type.getSelectedItem().toString();
+                                Log.v("onItemSelected", type.getSelectedItem().toString());
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> parent) {
+
+                            }
+                        });
+
+
+                    }
+                })
+                .setNegativeButton("Cancel", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButton("Confirm", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+                        if (ifChecked[1]) {
+                            ifAnimation = ifChecked[0];
+                        }
+
+                        EditText speed = contentView.findViewById(R.id.edit_speed);
+                        String rotation_speed_string = speed.getText().toString();
+
+                        if (rotation_speed_string.isEmpty()){
+                            Toast.makeText(context,"Make sure the input is right !!!",Toast.LENGTH_SHORT).show();
+                            setAnimation();
+                            return;
+                        }
+                        rotation_speed = (int) Float.parseFloat(rotation_speed_string);
+
+                        myrenderer.myAnimation.Stop();
+                        myrenderer.setIfDownSampling(false);
+                        myGLSurfaceView.requestRender();
+
+                        if (ifAnimation) {
+                            myrenderer.myAnimation.setAnimation(true, Float.parseFloat(rotation_speed_string), rotation_type[0]);
+                            myrenderer.setIfDownSampling(true);
+
+                            Rotation_i.setVisibility(View.GONE);
+
+                            if (ll_top.findViewById(animation_id) == null){
+                                ll_top.addView(animation_i,lp_animation_i);
+                            }
+                            myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+
+                        } else {
+
+                            Rotation_i.setVisibility(View.VISIBLE);
+
+                            if (ll_top.findViewById(animation_id) != null){
+                                ll_top.removeView(animation_i);
+                            }
+
+                            myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+
+                        }
+
+                    }
+                })
+                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+                    @Override
+                    public void onClick(View clickedView, View contentView) {
+
+                    }
+                })
+                .setTitle("Animation")
+                .create();
+        mdDialog.show();
+    }
+
+
+
+
+
+
+
+    /**
+     * called when request permission
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode){
+            case REQUEST_PERMISSION_CODE: {
+                for (int i = 0; i < permissions.length; i++) {
+                    Log.i("MainActivity", "申请的权限为：" + permissions[i] + ",申请结果：" + grantResults[i]);
+                }
+                break;
+            }
+        }
+    }
+
+
+    /**
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    @Override
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            myrenderer.setPath(showPic.getAbsolutePath());
+            myGLSurfaceView.requestRender();
+            return;
+        }
+
+        if (resultCode == RESULT_OK) {
+            String folderPath = data.getDataString();
+            Uri uri = data.getData();
+
+            String filePath = uri.toString();
+            String filePath_getPath = uri.getPath();
+
+            Log.v("MainActivity", filePath);
+            Log.v("uri.getPath()", filePath_getPath);
+            Log.v("Uri_Scheme:", uri.getScheme());
+
+            try {
+                Log.v("MainActivity", "onActivityResult");
+                if (ifImport) {
+
+                    FileManager fileManager = new FileManager();
+                    String fileName = fileManager.getFileName(uri);
+                    String filetype = fileName.substring(fileName.lastIndexOf(".")).toUpperCase();
+                    System.out.println("FileType: " + filetype + ", FileName: " + fileName);
+
+                    if (myrenderer.getIfFileLoaded()) {
+                        System.out.println("------ load local file ------");
+                        switch (filetype) {
+                            case ".APO":
+                                Log.v("MainActivity", uri.toString());
+                                ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
+                                ApoReader apoReader = new ApoReader();
+                                apo = apoReader.read(uri);
+                                if (apo == null){
+                                    Toast.makeText(this,"Make sure the .apo file is right",Toast.LENGTH_SHORT).show();
+                                    break;
+                                }
+
+                                myrenderer.importApo(apo);
+                                myrenderer.saveUndo();
+                                break;
+                            case ".SWC":
+                            case ".ESWC":
+                                Log.v("onActivityResult", ".eswc");
+                                NeuronTree nt = NeuronTree.readSWC_file(uri);
+
+                                myrenderer.importNeuronTree(nt);
+                                myrenderer.saveUndo();
+                                break;
+
+                            case ".ANO":
+                                ArrayList<ArrayList<Float>> ano_apo = new ArrayList<ArrayList<Float>>();
+                                AnoReader anoReader = new AnoReader();
+                                ApoReader apoReader_1 = new ApoReader();
+                                anoReader.read(uri);
+
+                                String swc_path = anoReader.getSwc_Path();
+                                String apo_path = anoReader.getApo_Path();
+
+                                NeuronTree nt2 = NeuronTree.readSWC_file(swc_path);
+                                ano_apo = apoReader_1.read(apo_path);
+
+                                myrenderer.importNeuronTree(nt2);
+                                myrenderer.importApo(ano_apo);
+                                myrenderer.saveUndo();
+                                break;
+
+                            default:
+                                Toast.makeText(this, "do not support this file", Toast.LENGTH_SHORT).show();
+
+                        }
+                    }
+
+                    else {
+                        System.out.println("-------- open --------");
+                        myrenderer.setSWCPath(filePath);
+                        ifLoadLocal = false;
+                        if (isBigData_Remote || isBigData_Local){
+                            if (isBigData_Remote){
+                                if (DrawMode){
+
+//                                    sync_push.setVisibility(View.GONE);
+//                                    sync_pull.setVisibility(View.GONE);
+//                                    neuron_list.setVisibility(View.GONE);
+                                    blue_pen.setVisibility(View.GONE);
+                                    red_pen.setVisibility(View.GONE);
+                                }
+                                else{
+                                    Check_Yes.setVisibility(View.GONE);
+                                    Check_No.setVisibility(View.GONE);
+                                    Check_Uncertain.setVisibility(View.GONE);
+//                                    sync_pull.setVisibility(View.GONE);
+//                                    neuron_list.setVisibility(View.GONE);
+                                    res_list.setVisibility(View.GONE);
+                                }
+                            }
+                            isBigData_Remote = false;
+                            isBigData_Local  = false;
+                            try {
+
+                                Zoom_in_Big.setVisibility(View.GONE);
+                                Zoom_out_Big.setVisibility(View.GONE);
+                                navigation_left.setVisibility(View.GONE);
+                                navigation_right.setVisibility(View.GONE);
+                                navigation_up.setVisibility(View.GONE);
+                                navigation_down.setVisibility(View.GONE);
+                                navigation_front.setVisibility(View.GONE);
+                                navigation_back.setVisibility(View.GONE);
+                                navigation_location.setVisibility(View.GONE);
+
+                                Zoom_in.setVisibility(View.VISIBLE);
+                                Zoom_out.setVisibility(View.VISIBLE);
+
+                            }catch (Exception e){
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    ifImport = false;
+                }
+
+
+                if (ifAnalyze) {
+                    MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
+                    List features = morphologyCalculate.calculate(uri, false);
+
+                    if (features != null) {
+                        fl = new ArrayList<double[]>(features);
+                        displayResult(features);
+                    }
+                }
+
+
+                if (ifLoadLocal) {
+                    System.out.println("load local");
+                    myrenderer.setPath(filePath);
+                    System.out.println(filePath);
+
+                    if (isBigData_Remote || isBigData_Local){
+                        if (isBigData_Remote){
+                            if (DrawMode){
+//                                sync_push.setVisibility(View.GONE);
+//                                sync_pull.setVisibility(View.GONE);
+//                                neuron_list.setVisibility(View.GONE);
+                                blue_pen.setVisibility(View.GONE);
+                                red_pen.setVisibility(View.GONE);
+                            }
+                            else{
+                                Check_Yes.setVisibility(View.GONE);
+                                Check_No.setVisibility(View.GONE);
+                                Check_Uncertain.setVisibility(View.GONE);
+//                                sync_pull.setVisibility(View.GONE);
+//                                neuron_list.setVisibility(View.GONE);
+                                res_list.setVisibility(View.GONE);
+                            }
+                        }
+                        isBigData_Remote = false;
+                        isBigData_Local  = false;
+
+                        try {
+
+                            Zoom_in_Big.setVisibility(View.GONE);
+                            Zoom_out_Big.setVisibility(View.GONE);
+                            navigation_left.setVisibility(View.GONE);
+                            navigation_right.setVisibility(View.GONE);
+                            navigation_up.setVisibility(View.GONE);
+                            navigation_down.setVisibility(View.GONE);
+                            navigation_front.setVisibility(View.GONE);
+                            navigation_back.setVisibility(View.GONE);
+                            navigation_location.setVisibility(View.GONE);
+
+                            Zoom_in.setVisibility(View.VISIBLE);
+                            Zoom_out.setVisibility(View.VISIBLE);
+
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                    String [] temp = filePath.split("/");
+                    String [] temp2 = temp[temp.length - 1].split("%2F");
+                    String s = temp2[temp2.length - 1];
+                    String filename = FileManager.getFileName(uri);
+
+                    setFilename(filename);
+
+                }
+
+
+            } catch (OutOfMemoryError e) {
+                Toast.makeText(this, " Fail to load file  ", Toast.LENGTH_SHORT).show();
+                Log.v("MainActivity", "111222");
+                Log.v("Exception", e.toString());
+            } catch (CloneNotSupportedException e){
+                Log.v("Exception:", e.toString());
+            }
+        }
+    }
+
+
+
+
+
+
+
 
 
 
@@ -4261,31 +4858,18 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
+
+
+
     private void BigFileRead_local(){
         String[] filename_list = bigImgReader.ChooseFile(this);
         if (filename_list != null){
             String [] str = new String[1];
             bigImgReader.ShowListDialog(this, filename_list);
 
-//            filenametext.setText(filename);
-//            ll_file.setVisibility(View.VISIBLE);
-//
-//            lp_undo.setMargins(0, 240, 20, 0);
-//            Undo_i.setLayoutParams(lp_undo);
-//
-//            lp_up_i.setMargins(0, 360, 0, 0);
-//            navigation_up.setLayoutParams(lp_up_i);
-//
-//            lp_nacloc_i.setMargins(20, 400, 0, 0);
-//            navigation_location.setLayoutParams(lp_nacloc_i);
-//
-//            lp_sync_push.setMargins(0, 400, 20, 0);
-//            sync_push.setLayoutParams(lp_sync_push);
-//
-//            lp_sync_pull.setMargins(0, 490, 20, 0);
-//            sync_pull.setLayoutParams(lp_sync_pull);
         }
     }
+
 
     /**
      * Read Big File from Remote Server
@@ -4311,7 +4895,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     }
 
-
     private void BigFileRead_Remote_Check(String ip){
 
         Log.v("Remote_Check","Here We are !");
@@ -4327,17 +4910,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         thread.start();
 
     }
-
-
-    public static void Toast_in_Thread_static(String message){
-        Message msg = new Message();
-        msg.what = Toast_Info_static;
-        Bundle bundle = new Bundle();
-        bundle.putString("Toast_msg",message);
-        msg.setData(bundle);
-        puiHandler.sendMessage(msg);
-    }
-
 
 
     public void Block_navigate(String text){
@@ -4382,14 +4954,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     }
 
-
-
     private void Quit_Nav_Mode(){
         System.out.println("---------QuitNavigationLocation---------");
         myrenderer.quitNav_location_Mode();
         navigation_location.setImageResource(R.drawable.ic_gps_fixed_black_24dp);
     }
-
 
     private void Update_Nav_Mode(){
         String filename = SettingFileManager.getFilename_Local(this);
@@ -4483,1231 +5052,46 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
     }
 
-
-
-
-    private void SaveSWC() {
-        MDDialog mdDialog = new MDDialog.Builder(this)
-                .setContentView(R.layout.save_swc)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-                    }
-                })
-                .setNegativeButton("Cancel", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButton("Confirm", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-
-                        System.out.println("start to save-------");
-
-                        EditText swcName = contentView.findViewById(R.id.swcname);
-                        String swcFileName = swcName.getText().toString();
-                        if (swcFileName == ""){
-                            Toast.makeText(getContext(), "The name should not be empty.", Toast.LENGTH_SHORT).show();
-                        }
-                        myrenderer.reNameCurrentSwc(swcFileName);
-
-                        String dir_str = "/storage/emulated/0/C3/SWCSaved";
-                        File dir = new File(dir_str);
-                        if (!dir.exists()) {
-                            dir.mkdirs();
-                        }
-
-                        String error = null;
-                        try {
-                            error = myrenderer.saveCurrentSwc(dir_str);
-                        } catch (Exception e) {
-                            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                        if (!error.equals("")) {
-                            if (error == "This file already exits"){
-                                AlertDialog aDialog = new AlertDialog.Builder(mainContext)
-                                        .setTitle("This file already exits")
-                                        .setMessage("Are you sure to overwrite it?")
-                                        .setIcon(R.mipmap.ic_launcher)
-                                        .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                String errorMessage = "";
-                                                try{
-                                                    errorMessage = myrenderer.oversaveCurrentSwc(dir_str);
-                                                    if (errorMessage.equals(""))
-                                                        Toast.makeText(getContext(),"Overwrite successfully!", Toast.LENGTH_SHORT).show();
-                                                    if (errorMessage == "Overwrite failed!")
-                                                        Toast.makeText(getContext(),"Overwrite failed!", Toast.LENGTH_SHORT).show();
-
-                                                }catch (Exception e){
-                                                    System.out.println(errorMessage);
-                                                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                                                }
-                                            }
-                                        })
-
-                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-
-                                            }
-                                        })
-                                        .create();
-                                aDialog.show();
-                            }
-                        } else{
-                            Toast.makeText(getContext(), "save SWC to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                })
-                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-
-                    }
-                })
-                .setTitle("Save SWC File")
-                .create();
-        mdDialog.show();
-    }
-
-
     @RequiresApi(api = Build.VERSION_CODES.N)
-    private void APP2() throws Exception {
-        Image4DSimple img = myrenderer.getImg();
-        if(img == null){
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
-
-            Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_SHORT).show();
-            progressBar.setVisibility(View.INVISIBLE);
-            Looper.loop();
-            return;
-        }
-
-        ArrayList<ImageMarker> markers = myrenderer.getMarkerList().getMarkers();
-        try {
-            ParaAPP2 p = new ParaAPP2();
-            p.p4dImage = img;
-            p.xc0 = p.yc0 = p.zc0 = 0;
-            p.xc1 = (int) p.p4dImage.getSz0() - 1;
-            p.yc1 = (int) p.p4dImage.getSz1() - 1;
-            p.zc1 = (int) p.p4dImage.getSz2() - 1;
-            p.landmarks = new LocationSimple[markers.size()];
-            p.bkg_thresh = -1;
-            for (int i = 0; i < markers.size(); i++) {
-                p.landmarks[i] = new LocationSimple(markers.get(i).x, markers.get(i).y, markers.get(i).z);
-            }
-            System.out.println("---------------start---------------------");
-            V3dNeuronAPP2Tracing.proc_app2(p);
-            NeuronTree nt = p.resultNt;
-            for (int i = 0; i < nt.listNeuron.size(); i++) {
-                nt.listNeuron.get(i).type = 4;
-                if (nt.listNeuron.get(i).parent == -1) {
-                    NeuronSWC s = nt.listNeuron.get(i);
-                    ImageMarker m = new ImageMarker(s.x, s.y, s.z);
-                    m.type = 2;
-                    myrenderer.getMarkerList().add(m);
-                }
-            }
-            System.out.println("size: " + nt.listNeuron.size());
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
-            Toast.makeText(getContext(), "APP2-Tracing finish, size of result swc: " + Integer.toString(nt.listNeuron.size()), Toast.LENGTH_SHORT).show();
-            myrenderer.importNeuronTree(nt);
-            myrenderer.saveUndo();
-            myGLSurfaceView.requestRender();
-            progressBar.setVisibility(View.INVISIBLE);
-            Looper.loop();
-
-        } catch (Exception e) {
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
-            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-            progressBar.setVisibility(View.INVISIBLE);
-            Looper.loop();
-        }
-
-
-    }
-
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private void GDTracing() throws Exception {
-        Image4DSimple img = myrenderer.getImg();
-        if(img == null){
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
-
-            Toast.makeText(this, "Please load image first!", Toast.LENGTH_SHORT).show();
-            progressBar.setVisibility(View.INVISIBLE);
-            Looper.loop();
-            return;
-        }
-
-        ArrayList<ImageMarker> markers = myrenderer.getMarkerList().getMarkers();
-        if (markers.size() <= 1) {
-            Log.v("GDTracing", "Please generate at least two markers!");
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
-            Toast.makeText(getContext(), "Please produce at least two markers!", Toast.LENGTH_LONG).show();
-            progressBar.setVisibility(View.INVISIBLE);
-            Looper.loop();
-            return;
-        }
-        LocationSimple p0 = new LocationSimple(markers.get(0).x, markers.get(0).y, markers.get(0).z);
-        Vector<LocationSimple> pp = new Vector<LocationSimple>();
-        for (int i = 1; i < markers.size(); i++) {
-            LocationSimple p = new LocationSimple(markers.get(i).x, markers.get(i).y, markers.get(i).z);
-            pp.add(p);
-        }
-
-        NeuronTree outswc = new NeuronTree();
-        CurveTracePara curveTracePara = new CurveTracePara();
-
-
-        try {
-            outswc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img, p0, pp, curveTracePara, 1.0);
-        } catch (Exception e) {
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
-            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-            progressBar.setVisibility(View.INVISIBLE);
-            Looper.loop();
-        }
-        for (int i = 0; i < outswc.listNeuron.size(); i++) {
-//            outswc.listNeuron.get(i).type = 4;
-            outswc.listNeuron.get(i).type = 5;
-        }
-
-        if (Looper.myLooper() == null) {
-            Looper.prepare();
-        }
-
-        Toast.makeText(getContext(), "GD-Tracing finished, size of result swc: " + Integer.toString(outswc.listNeuron.size()), Toast.LENGTH_SHORT).show();
-        myrenderer.importNeuronTree(outswc);
-        myrenderer.saveUndo();
-        myGLSurfaceView.requestRender();
-        progressBar.setVisibility(View.INVISIBLE);
-        Looper.loop();
-
-    }
-
-
-
-
-    //GSDT_function
-    public void GSDT_Fun(){
-        //building...
-        Image4DSimple img = myrenderer.getImg();
-        //img.getDataCZYX();
-        if(img == null || !img.valid()){
-            Log.v("GSDT", "Please load img first!");
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
-            Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
-            Looper.loop();
-            return;
-        }
-
-        Log.v("GSDT", "Have got the image successfully!!");
-        try {
-
-            System.out.println("Start here.....");
-            ParaGSDT p = new ParaGSDT();
-            p.p4DImage = img;
-            GSDT.GSDT_Fun(p);
-            Log.v("GSDT", "GSDT function finished");
-
-            //preparations for show
-            myrenderer.resetImg(p.outImage);
-            myrenderer.getMarkerList().getMarkers().addAll(p.markers);//blue marker
-            myrenderer.getMarkerList().add(p.MaxMarker);//red marker
-            myGLSurfaceView.requestRender();
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
-
-            Toast.makeText(getContext(), "marker_loc:"+ p.max_loc[0] + "," + p.max_loc[1] + "," + p.max_loc[2], Toast.LENGTH_LONG).show();
-            progressBar.setVisibility(View.INVISIBLE);
-            Looper.loop();
-
-
-            /*
-            ImageMarker m = p.GSDT_Fun(img, para);
-            System.out.println("marker:"+ m.getXYZ().x + "," + m.getXYZ().y+","+m.getXYZ().z);
-            m.type = 2;
-            m.radius = 5;
-            Log.v("GSDT", "got here2");
-            markers.add(m);
-             */
-            //myGLSurfaceView.requestRender();
-
-        }catch (Exception e) {
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
-            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-            progressBar.setVisibility(View.INVISIBLE);
-            Looper.loop();
-        }
-
-    }
-
-
-
-
-    private void Analyse() {
-        new XPopup.Builder(this)
-//        .maxWidth(400)
-//        .maxHeight(1350)
-                .asCenterList("morphology calculate", new String[]{"Analyze a SWC file", "Analyze current tracing"},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                switch (text) {
-                                    case "Analyze a SWC file":
-                                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                                        intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
-                                        intent.addCategory(Intent.CATEGORY_OPENABLE);
-                                        startActivityForResult(intent, 1);
-                                        ifAnalyze = true;
-                                        ifImport = false;
-                                        ifUpload = false;
-                                        break;
-
-                                    case "Analyze current tracing":
-                                        NeuronTree nt = myrenderer.getNeuronTree();
-                                        if (nt.listNeuron.isEmpty()) {
-                                            Toast.makeText(getContext(), "Empty tracing, do nothing", Toast.LENGTH_LONG).show();
-                                            break;
-                                        }
-                                        MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
-                                        List<double[]> features = morphologyCalculate.calculatefromNT(nt, false);
-                                        fl = new ArrayList<double[]>(features);
-                                        if (features.size() != 0) displayResult(features);
-                                        else Toast.makeText(getContext(), "the file is empty", Toast.LENGTH_SHORT).show();
-                                        break;
-
-                                    default:
-                                        Toast.makeText(getContext(), "Default in analysis", Toast.LENGTH_SHORT).show();
-
-                                }
-                            }
-                        })
-                .show();
-
-
-    }
-
-
-
-    MDDialog.Builder ar_mdDialog_bd = new MDDialog.Builder(this).setContentView(R.layout.analysis_result);
-    MDDialog ar_mdDialog = null;
-
-    /**
-     * display the result of morphology calculate
-     *
-     * @param featurelist the features of result
-     */
-
-    @SuppressLint("DefaultLocale")
-    private void displayResult(final List<double[]> featurelist) {
-        final String[] title;
-        final int[] id_title;
-        final int[] id_content;
-        final int[] id_rl;
-        if (measure_count > featurelist.size() - 1) {
-            measure_count = 0;
-        } else if (measure_count < 0) {
-            measure_count = featurelist.size() - 1;
-        }
-        double[] result = featurelist.get(measure_count);
-        String[] subtitle = new String[featurelist.size()];
-        for (int i = 0; i < featurelist.size(); i++) {
-            if (featurelist.size() > 1) {
-                subtitle[i] = String.format("Tree %d/%d", i + 1, featurelist.size());
-            } else {
-                subtitle[i] = "";
-            }
-        }
-
-        title = new String[]{
-                "number of nodes",
-                "soma surface",
-                "number of stems",
-                "number of bifurcations",
-                "number of branches",
-                "number of tips",
-                "overall width",
-                "overall height",
-                "overall depth",
-                "average diameter",
-                "total length",
-                "total surface",
-                "total volume",
-                "max euclidean distance",
-                "max path distance",
-                "max branch order",
-                "average contraction",
-                "average fragmentation",
-                "average parent-daughter ratio",
-                "average bifurcation angle local",
-                "average bifurcation angle remote",
-                "Hausdorff dimension"
-        };
-
-        id_title = new int[]{R.id.title0, R.id.title1, R.id.title2, R.id.title3, R.id.title4,
-                R.id.title5, R.id.title6, R.id.title7, R.id.title8, R.id.title9,
-                R.id.title10, R.id.title11, R.id.title12, R.id.title13, R.id.title14,
-                R.id.title15, R.id.title16, R.id.title17, R.id.title18, R.id.title19,
-                R.id.title20, R.id.title21};
-
-        id_content = new int[]{R.id.content0, R.id.content1, R.id.content2, R.id.content3, R.id.content4,
-                R.id.content5, R.id.content6, R.id.content7, R.id.content8, R.id.content9,
-                R.id.content10, R.id.content11, R.id.content12, R.id.content13, R.id.content14,
-                R.id.content15, R.id.content16, R.id.content17, R.id.content18, R.id.content19,
-                R.id.content20, R.id.content21};
-
-        id_rl = new int[]{R.id.RL0, R.id.RL1, R.id.RL2, R.id.RL3, R.id.RL4,
-                R.id.RL5, R.id.RL6, R.id.RL7, R.id.RL8, R.id.RL9,
-                R.id.RL10, R.id.RL11, R.id.RL12, R.id.RL13, R.id.RL14,
-                R.id.RL15, R.id.RL16, R.id.RL17, R.id.RL18, R.id.RL19,
-                R.id.RL20, R.id.RL21};
-        ar_mdDialog =
-                ar_mdDialog_bd
-                        .setContentView(R.layout.analysis_result)
-                        .setContentViewOperator(new MDDialog.ContentViewOperator() {
-
-                            @Override
-                            public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-                                //analysis_result next page
-                                Button ar_right = (Button) contentView.findViewById(R.id.ar_right);
-                                ar_right.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        if (featurelist.size() > 1) {
-                                            measure_count++;
-                                            ar_mdDialog.dismiss();
-                                            displayResult(fl);
-                                        }
-                                    }
-                                });
-                                Button ar_left = (Button) contentView.findViewById(R.id.ar_left);
-                                ar_left.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        if (featurelist.size() > 1) {
-                                            measure_count--;
-                                            ar_mdDialog.dismiss();
-                                            displayResult(fl);
-                                        }
-                                    }
-                                });
-                                if (title.length == 8) {
-                                    for (int i = 8; i < id_rl.length; i++) {
-                                        contentView.findViewById(id_rl[i]).setVisibility(View.GONE);
-                                    }
-                                } else if (title.length == 22) {
-                                    for (int i = 8; i < id_rl.length; i++) {
-                                        contentView.findViewById(id_rl[i]).setVisibility(View.VISIBLE);
-                                    }
-                                }
-
-
-                                String result_str;
-                                int num;
-                                for (int i = 0; i < title.length; i++) {
-                                    TextView tx = contentView.findViewById(id_title[i]);
-                                    tx.setText(title[i]);
-
-                                    TextView ct = contentView.findViewById(id_content[i]);
-                                    if (title[i].substring(0, 6).equals("number") || title[i].substring(0, 6).equals("max br")) {
-                                        result_str = ": " + String.format("%d", (int) result[i + 1]);
-                                    } else {
-                                        num = Value_Display_Length(result[i + 1]);
-                                        result_str = ": " + String.format("%." + String.format("%d", num) + "f", (float) result[i + 1]);
-                                    }
-                                    ct.setText(result_str);
-
-                                }
-                            }
-
-                        })
-                        .setTitle("Measured features " + subtitle[measure_count])
-                        .create();
-        ar_mdDialog.show();
-    }
-
-    /**
-     * format output of morphology feature's value
-     *
-     * @param value feature's value
-     * @return Number of digits
-     */
-    private int Value_Display_Length(double value) {
-        String s_value = (value + "").split("\\.")[0];
-        int len = s_value.length();
-        if (len >= 8) {
-            return 0;
-        } else if ((8 - len) > 4) {
-            return 4;
-        } else {
-            return 8 - len;
-        }
-    }
-
-
-
-
-    private void setSettings(){
-
-        boolean [] downsample = new boolean[1];
-        boolean [] check = new boolean[1];
-
-        MDDialog mdDialog = new MDDialog.Builder(this)
-                .setContentView(R.layout.settings)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {
-                        Switch downsample_on_off = contentView.findViewById(R.id.switch_rotation_mode);
-                        Switch check_on_off = contentView.findViewById(R.id.switch_check_mode);
-                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
-                        TextView clean_cache = contentView.findViewById(R.id.clean_cache);
-                        SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
-                        SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
-                        SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
-                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
-
-                        boolean ifDownSample = preferenceSetting.getDownSampleMode();
-                        int contrast = preferenceSetting.getContrast();
-
-                        downsample_on_off.setChecked(ifDownSample);
-                        check_on_off.setChecked(!DrawMode);
-                        seekbar.setProgress(contrast);
-                        bgmVolumeBar.setProgress((int)(bgmVolume * 100));
-                        buttonVolumeBar.setProgress((int)(buttonVolume * 100));
-                        actionVolumeBar.setProgress((int)(actionVolume * 100));
-
-                        RewardLitePalConnector rewardLitePalConnector = RewardLitePalConnector.getInstance();
-                        List<Integer> rewards = rewardLitePalConnector.getRewards();
-                        List<String> list = new ArrayList<>();
-                        list.add("BGM0");
-                        for (int i = 0; i < rewards.size(); i++){
-                            if (rewards.get(i) == 1)
-                                list.add("BGM" + Integer.toString(i+1));
-                        }
-                        String [] spinnerItems = new String[list.size()];
-                        for (int i = 0; i < list.size(); i++){
-                            spinnerItems[i] = list.get(i);
-                        }
-
-
-
-                        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(mainContext, R.layout.support_simple_spinner_dropdown_item, spinnerItems);
-                        bgmSpinner.setAdapter(spinnerAdapter);
-                        bgmSpinner.setSelection(selectedBGM);
-
-                        downsample[0] = downsample_on_off.isChecked();
-                        check[0]      = check_on_off.isChecked();
-
-                        downsample_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                            @Override
-                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                downsample[0] = isChecked;
-                            }
-                        });
-
-                        check_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                            @Override
-                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                check[0] = isChecked;
-                            }
-                        });
-
-                        clean_cache.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                cleanCache();
-                            }
-                        });
-
-                    }
-                })
-                .setNegativeButton("Cancel", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                    }
-                })
-                .setPositiveButton("Confirm", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                    }
-                })
-                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
-                        int contrast = seekbar.getProgress();
-
-                        myrenderer.setIfNeedDownSample(downsample[0]);
-                        myrenderer.resetContrast(contrast);
-                        DrawMode = !check[0];
-
-                        Log.v(TAG,"downsample: " + downsample[0] + ", check: " + check[0] + ",contrast: " + contrast);
-                        preferenceSetting.setPref(downsample[0], check[0], contrast);
-                        myGLSurfaceView.requestRender();
-
-                        SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
-                        SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
-                        SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
-
-                        bgmVolume = (float)(bgmVolumeBar.getProgress()) / 100.0f;
-                        buttonVolume = (float)(buttonVolumeBar.getProgress()) / 100.0f;
-                        actionVolume = (float)(actionVolumeBar.getProgress()) / 100.0f;
-
-                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
-                        String selected = bgmSpinner.getSelectedItem().toString();
-                        if (selectedBGM != bgmSpinner.getSelectedItemPosition()) {
-                            if (selected.equals("BGM1"))
-                                MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
-
-                            else if (selected.equals("BGM2"))
-                                MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/DelRioBravo.mp3");
-
-                            else
-                                MusicServer.defaultBgmSource();
-
-                            selectedBGM = bgmSpinner.getSelectedItemPosition();
-
-                        }
-
-                        MusicServer.setBgmVolume(bgmVolume);
-                        MusicServer.setVolume(bgmVolume);
-
-                        String settingsPath = context.getExternalFilesDir(null).toString() + "/Settings";
-                        File settingsFile = new File(settingsPath);
-                        if (!settingsFile.exists()){
-                            settingsFile.mkdir();
-                        }
-
-                        String volumePath = settingsPath + "/volume.txt";
-                        File volumeFile = new File(volumePath);
-                        if (!volumeFile.exists()){
-                            try {
-                                volumeFile.createNewFile();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        try {
-                            BufferedWriter volumeWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(volumeFile)));
-                            volumeWriter.write(Float.toString(bgmVolume) + " " + Float.toString(buttonVolume) + " " + Float.toString(actionVolume));
-                            volumeWriter.flush();
-                            volumeWriter.close();
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-
-                    }
-                })
-                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-
-                    }
-                })
-                .setTitle("Settings")
-                .create();
-        mdDialog.show();
-    }
-
-
-
-    public void cleanCache(){
-        AlertDialog aDialog = new AlertDialog.Builder(mainContext)
-                .setTitle("Clean All The Img Cache")
-                .setMessage("Are you sure to CLEAN ALL IMG CACHE?")
-                .setIcon(R.mipmap.ic_launcher)
-                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        deleteImg();
-                    }
-                })
-
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .create();
-        aDialog.show();
-    }
-
-    private void deleteImg(){
-        Log.v("BaseActivity","deleteImg()");
-        String img_path = context.getExternalFilesDir(null).toString() + "/Img";
-        Log.v("BaseActivity","img_path" + img_path);
-
-        File file = new File(img_path);
-        recursionDeleteFile(file);
-    }
-
-
-    private void logout(){
-
-        AlertDialog aDialog = new AlertDialog.Builder(mainContext)
-                .setTitle("Log out")
-                .setMessage("Are you sure to Log out?")
-                .setIcon(R.mipmap.ic_launcher)
-                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // 清理缓存&注销监听&清除状态
-                        NimUIKit.logout();
-                        NIMClient.getService(AuthService.class).logout();
-
-                        AgoraMsgManager.getInstance().getRtmClient().logout(null);
-
-                        PreferenceLogin preferenceLogin = new PreferenceLogin(MainActivity.this);
-                        preferenceLogin.setPref("","",false);
-                        // DemoCache.clear();
-
-                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                        finish();
-                    }
-                })
-
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .create();
-        aDialog.show();
-    }
-
-
-    private void CrashInfoShare(){
-        String[] info_path = CrashHandler.getCrashReportFiles(getApplicationContext());
-        new XPopup.Builder(this)
-                .maxHeight(1350)
-                .asCenterList("Select a Crash Report", info_path,
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                String file_path = CrashHandler.getCrashFilePath(getApplicationContext()) + "/" + text + ".txt";
-                                File file = new File(file_path);
-                                if (file.exists()){
-                                    Intent intent = new Intent();
-
-                                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                                    intent.setAction(Intent.ACTION_SEND);
-                                    intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "com.example.myapplication__volume.provider", new File(file_path)));  //传输图片或者文件 采用流的方式
-                                    intent.setType("*/*");   //分享文件
-                                    startActivity(Intent.createChooser(intent, "Share From C3"));
-                                }else {
-                                    Toast_in_Thread("File does not exist");
-                                }
-
-                            }
-                        })
-                .show();
-    }
-
-
-
-    private void setAnimation() {
-
-        final String[] rotation_type = new String[1];
-        final boolean [] ifChecked = {false, false};
-
-        MDDialog mdDialog = new MDDialog.Builder(this)
-                .setContentView(R.layout.animation)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-
-                        Switch on_off = contentView.findViewById(R.id.switch_animation);
-                        on_off.setChecked(ifAnimation);
-                        EditText speed = contentView.findViewById(R.id.edit_speed);
-                        speed.setText(Integer.toString(rotation_speed));
-
-                        on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                            @Override
-                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                ifChecked[1] = true;
-                                if (isChecked) {
-                                    ifChecked[0] = true;
-                                } else {
-                                    ifChecked[0] = false;
-                                }
-                            }
-                        });
-
-                        final Spinner type = contentView.findViewById(R.id.spinner_type);
-                        type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                            @Override
-                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                                rotation_type[0] = type.getSelectedItem().toString();
-                                Log.v("onItemSelected", type.getSelectedItem().toString());
-                            }
-
-                            @Override
-                            public void onNothingSelected(AdapterView<?> parent) {
-
-                            }
-                        });
-
-
-                    }
-                })
-                .setNegativeButton("Cancel", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButton("Confirm", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-                        if (ifChecked[1]) {
-                            ifAnimation = ifChecked[0];
-                        }
-
-                        EditText speed = contentView.findViewById(R.id.edit_speed);
-                        String rotation_speed_string = speed.getText().toString();
-
-                        if (rotation_speed_string.isEmpty()){
-                            Toast.makeText(context,"Make sure the input is right !!!",Toast.LENGTH_SHORT).show();
-                            setAnimation();
+    private void Select_Block(){
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                String source = getSelectSource(context);
+                String ip = "";
+                switch (source){
+                    case "Remote Server Aliyun":
+                    case "Remote Server SEU":
+                        if (source.equals("Remote Server Aliyun")){
+                            ip = ip_ALiYun;
+                        }else if(source.equals("Remote Server SEU")){
+                            ip = ip_SEU;
+                        }else {
+                            Toast_in_Thread("Something Wrong when choose Remote Server !");
                             return;
                         }
-                        rotation_speed = (int) Float.parseFloat(rotation_speed_string);
 
-                        myrenderer.myAnimation.Stop();
-                        myrenderer.setIfDownSampling(false);
-                        myGLSurfaceView.requestRender();
-
-                        if (ifAnimation) {
-                            myrenderer.myAnimation.setAnimation(true, Float.parseFloat(rotation_speed_string), rotation_type[0]);
-                            myrenderer.setIfDownSampling(true);
-
-                            Rotation_i.setVisibility(View.GONE);
-
-                            if (ll_top.findViewById(animation_id) == null){
-                                ll_top.addView(animation_i,lp_animation_i);
-                            }
-                            myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
-
-                        } else {
-
-                            Rotation_i.setVisibility(View.VISIBLE);
-
-                            if (ll_top.findViewById(animation_id) != null){
-                                ll_top.removeView(animation_i);
-                            }
-
-                            myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-
-                        }
-
-                    }
-                })
-                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-
-                    }
-                })
-                .setTitle("Animation")
-                .create();
-        mdDialog.show();
-    }
-
-
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    public static String getpath(Context context, Uri uri) {
-        if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
-            if (DocumentsContract.isDocumentUri(context, uri)) {
-                if (isExternalStorageDocument(uri)) {
-                    // ExternalStorageProvider
-                    final String docId = DocumentsContract.getDocumentId(uri);
-                    final String[] split = docId.split(":");
-                    final String type = split[0];
-                    if ("primary".equalsIgnoreCase(type)) {
-                        String path = Environment.getExternalStorageDirectory() + "/" + split[1];
-                        return path;
-                    }
-                } else if (isDownloadsDocument(uri)) {
-                    // DownloadsProvider
-                    final String id = DocumentsContract.getDocumentId(uri);
-                    final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"),
-                            Long.valueOf(id));
-                    String path = getDataColumn(context, contentUri, null, null);
-                    return path;
-                } else if (isMediaDocument(uri)) {
-                    // MediaProvider
-                    final String docId = DocumentsContract.getDocumentId(uri);
-                    final String[] split = docId.split(":");
-                    final String type = split[0];
-                    Uri contentUri = null;
-                    if ("image".equals(type)) {
-                        contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                    } else if ("video".equals(type)) {
-                        contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                    } else if ("audio".equals(type)) {
-                        contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-                    }
-                    final String selection = "_id=?";
-                    final String[] selectionArgs = new String[]{split[1]};
-                    String path = getDataColumn(context, contentUri, selection, selectionArgs);
-                    return path;
+                        remote_socket.disConnectFromHost();
+                        remote_socket.connectServer(ip);
+                        remote_socket.loadNeuronTxt(DrawMode);
+                        remote_socket.selectBlock();
+                        break;
+                    case "Local Server":
+                        bigImgReader.PopUp(context);
+                        break;
+                    default:
+                        Toast_in_Thread("Load a File First !");
+                        break;
                 }
             }
-        }
-        return null;
-    }
-
-
-    private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
-        Cursor cursor = null;
-        final String column = "_data";
-        final String[] projection = {column};
-        try {
-            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
-            if (cursor != null && cursor.moveToFirst()) {
-                final int column_index = cursor.getColumnIndexOrThrow(column);
-                return cursor.getString(column_index);
-            }
-        } finally {
-            if (cursor != null)
-                cursor.close();
-        }
-        return null;
-    }
-
-    private static boolean isExternalStorageDocument(Uri uri) {
-        return "com.android.externalstorage.documents".equals(uri.getAuthority());
-    }
-
-    private static boolean isDownloadsDocument(Uri uri) {
-        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
-    }
-
-    private static boolean isMediaDocument(Uri uri) {
-        return "com.android.providers.media.documents".equals(uri.getAuthority());
-    }
-
-
-    public static Context getContext() {
-        return context;
-    }
-
-
-    //renderer 的生存周期和activity保持一致
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        Intent bgmIntent = new Intent(this, MusicServer.class);
-        stopService(bgmIntent);
-
-        Intent agoraServiceIntent = new Intent(this, AgoraService.class);
-        stopService(agoraServiceIntent);
-
-        if (mBoundManagement){
-            Log.e(TAG,"unbind management service !");
-            ManageService.setFlag(false);
-            unbindService(connection_management);
-            Intent manageServiceIntent = new Intent(this, ManageService.class);
-            stopService(manageServiceIntent);
-        }
-        if (mBoundCollaboration){
-            Log.e(TAG,"unbind collaboration service !");
-            CollaborationService.setFlag(false);
-            unbindService(connection_collaboration);
-            Intent collaborationServiceIntent = new Intent(this, CollaborationService.class);
-            stopService(collaborationServiceIntent);
-        }
-
-
-
-        /*
-        release socket
-         */
-        MsgConnector.getInstance().releaseConnection();
-        ServerConnector.getInstance().releaseConnection();
-
-        mainContext = null;
-
-        if (timer != null){
-            timer.cancel();
-            timer = null;
-        }
-
-        if (timerTask != null){
-            timerTask.cancel();
-            timerTask = null;
-        }
-
+        });
+        thread.start();
 
     }
 
-    //renderer 的生存周期和activity保持一致
-    @Override
-    protected void onPause() {
-        super.onPause();
-        myGLSurfaceView.onPause();
-        Log.v("onPause", "start-----");
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        myGLSurfaceView.onResume();
-        Log.v("Path", filepath);
-        Log.v("onResume", "start-----");
-    }
-
-    @Override
-    protected void onStop() {
-        Intent bgmIntent = new Intent(MainActivity.this, MusicServer.class);
-        stopService(bgmIntent);
-        super.onStop();
-    }
-
-    @Override
-    protected void onRestart() {
-        Intent bgmIntent = new Intent(MainActivity.this, MusicServer.class);
-        startService(bgmIntent);
-        super.onRestart();
-    }
-
-    private void Learning() {
-
-        Image4DSimple img = myrenderer.getImg();
-        if(img == null){
-
-            Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Image4DSimple outImg=new Image4DSimple();
-
-        NeuronTree nt = myrenderer.getNeuronTree();
-        PixelClassification p = new PixelClassification();
-
-        boolean[][] selections = select;
-        System.out.println("select is");
-        System.out.println(select);
-        p.setSelections(selections);
-
-        if (Looper.myLooper() == null) {
-            Looper.prepare();
-        }
-
-        Toast.makeText(getContext(), "pixel  classification start~", Toast.LENGTH_SHORT).show();
-
-        try{
-            outImg = p.getPixelClassificationResult(img,nt);
-            System.out.println("outImg: "+outImg.getSz0()+" "+outImg.getSz1()+" "+outImg.getSz2()+" "+outImg.getSz3());
-            System.out.println(outImg.getData().length);
-
-            myrenderer.resetImg(outImg);
-            myGLSurfaceView.requestRender();
-        }catch (Exception e){
-            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
-
-
-    //画笔颜色设置
-    public void penSet(){
-
-        String [] pcolor = new String[1];
-
-        new MDDialog.Builder(this)
-                .setContentView(R.layout.pen_choose)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-//                        EditText et1 = (EditText) contentView.findViewById(R.id.pencolor);
-                        //pencolor= 2;
-                        /*String color  = et1.getText().toString();
-                        pencolor= Integer.parseInt(color);
-                        System.out.println("pen color is");
-                        System.out.println(pencolor);*/
-
-                        final Spinner chooseColor = contentView.findViewById(R.id.pencolor);
-                        chooseColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                            @Override
-                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                                pcolor[0] = chooseColor.getSelectedItem().toString();
-                                Log.v("onItemSelected", chooseColor.getSelectedItem().toString());
-                            }
-
-                            @Override
-                            public void onNothingSelected(AdapterView<?> parent) {
-
-                            }
-                        });
-
-                    }
-                })
-                .setTitle("Pen Set")
-                .setNegativeButton("Cancel", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButton("Confirm", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                    }
-                })
-                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
-//                        EditText et1 = (EditText) contentView.findViewById(R.id.pencolor);
-                        String color  = pcolor[0];
-
-                        if( !color.isEmpty()){
-
-//                            myrenderer.pencolorchange(Integer.parseInt(color));;
-                            myrenderer.pencolorchange(PenColor.valueOf(color).ordinal());
-                            System.out.println("pen color is");
-                            System.out.println(color);
-                            //Log.v("Mainactivity", "GD-Tracing start~");
-                            //Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
-                            Toast.makeText(getContext(), "pencolor set~", Toast.LENGTH_SHORT).show();
-
-                        }else{
-
-                            Toast.makeText(getContext(), "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
-                        }
-
-                    }
-                })
-                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-//                        EditText et = (EditText) contentView.findViewById(R.id.edit1);
-//                        Toast.makeText(getApplicationContext(), "edittext 1 : " + et.getText(), Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setWidthMaxDp(600)
-                .create()
-                .show();
-    }
-
-
-    public void markerPenSet(){
-
-        String [] pcolor = new String[1];
-
-        new MDDialog.Builder(this)
-                .setContentView(R.layout.marker_pen_choose)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-//                        EditText et1 = (EditText) contentView.findViewById(R.id.markercolor);
-                        //pencolor= 2;
-                        /*String color  = et1.getText().toString();
-                        pencolor= Integer.parseInt(color);
-                        System.out.println("pen color is");
-                        System.out.println(pencolor);*/
-
-                        final Spinner chooseColor = contentView.findViewById(R.id.markercolor);
-                        chooseColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                            @Override
-                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                                pcolor[0] = chooseColor.getSelectedItem().toString();
-                                Log.v("onItemSelected", chooseColor.getSelectedItem().toString());
-                            }
-
-                            @Override
-                            public void onNothingSelected(AdapterView<?> parent) {
-
-                            }
-                        });
-
-                    }
-                })
-                .setTitle("Marker Color Set")
-                .setNegativeButton("Cancel", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButton("Confirm", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                    }
-                })
-                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
-//                        EditText et1 = (EditText) contentView.findViewById(R.id.markercolor);
-//                        String color  = et1.getText().toString();
-                        String color = pcolor[0];
-
-                        if( !color.isEmpty()){
-
-                            myrenderer.markercolorchange(PenColor.valueOf(color).ordinal());
-                            System.out.println("marker color is");
-                            System.out.println(color);
-                            //Log.v("Mainactivity", "GD-Tracing start~");
-                            //Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
-                            Toast.makeText(getContext(), "markercolor set~", Toast.LENGTH_SHORT).show();
-
-
-                        }else{
-
-                            Toast.makeText(getContext(), "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
-                        }
-
-                    }
-                })
-                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-                    }
-                })
-                .setWidthMaxDp(600)
-                .create()
-                .show();
-    }
 
 
 
@@ -6053,440 +5437,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    /**
-     * open file
-     */
-    public void File_icon(){
-
-        new XPopup.Builder(this)
-//                .hasShadowBg(false)
-//        .maxWidth(400)
-//        .maxHeight(1350)
-//                .asCenterList("File Open & Save", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile","Camera"},
-                .asCenterList("File Open", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile"},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                                switch (text) {
-
-                                    case "Open LocalFile":
-                                        loadLocalFile();
-                                        break;
-                                    case "Open BigData":
-                                        /**
-                                         * xf szt
-                                         */
-
-                                        loadBigData();
-                                        break;
-                                    case "Load SWCFile":
-                                        LoadSWC();
-                                        break;
-
-                                    default:
-                                        Toast.makeText(getContext(), "Default in file", Toast.LENGTH_SHORT).show();
-
-                                }
-                            }
-                        })
-                .show();
-
-    }
-
-
-
-
-    public void PopUp_UserAccount(Context context){
-
-        new MDDialog.Builder(context)
-//              .setContentView(customizedView)
-                .setContentView(R.layout.user_account_check)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-                        EditText et = (EditText) contentView.findViewById(R.id.userAccount_edit_check);
-                        String userAccount = getUserAccount_Check(context);
-
-                        if (userAccount.equals("--11--")){
-                            userAccount = "";
-                        }
-
-                        et.setText(userAccount);
-                    }
-                })
-                .setTitle("UserName for Check")
-                .setNegativeButton("Cancel", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButton("Confirm", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
-                        EditText et = (EditText) contentView.findViewById(R.id.userAccount_edit_check);
-
-                        String userAccount   = et.getText().toString();
-
-
-                        if( !userAccount.isEmpty() ){
-                            setUserAccount_Check(userAccount, context);
-
-                        }else{
-                            PopUp_UserAccount(context);
-                            Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
-                        }
-
-                    }
-                })
-                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-
-                    }
-                })
-                .setWidthMaxDp(600)
-                .create()
-                .show();
-
-    }
-
-    public void chooseVoiceChatMode(){
-        new XPopup.Builder(this)
-                .asCenterList("Choose Voice Chat Mode", new String[]{"Peer Chat", "Selection Tab Channel"},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                switch (text){
-                                    case "Peer Chat":
-                                        peerToPeerChat();
-                                        break;
-                                    case "Selection Tab Channel":
-                                        PopUp_Chat(mainContext);
-                                        break;
-                                }
-                            }
-                        }).show();
-
-    }
-
-    private void peerToPeerChat(){
-        MDDialog mdDialog = new MDDialog.Builder(this)
-                .setContentView(R.layout.peer_chat)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-
-                    }
-                })
-                .setNegativeButton("Cancel", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButton(R.string.btn_chat, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-                        Log.d("PeerToPeer", "Start To Chat");
-                        EditText targetEdit = (EditText)contentView.findViewById(R.id.target_name_edit);
-                        String mTargetName = targetEdit.getText().toString();
-                        if (mTargetName.equals("")) {
-                            Toast_in_Thread(getString(R.string.account_empty));
-                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
-                            Toast_in_Thread(getString(R.string.account_too_long));
-                        } else if (mTargetName.startsWith(" ")) {
-                            Toast_in_Thread(getString(R.string.account_starts_with_space));
-                        } else if (mTargetName.equals("null")) {
-                            Toast_in_Thread(getString(R.string.account_literal_null));
-                        } else if (mTargetName.equals(username)) {
-                            Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
-                        } else {
-                            callTarget(mTargetName);
-                            voicePattern = VoicePattern.PEER_TO_PEER;
-                            Log.e("peerToPeerChat","voicePattern = VoicePattern.PEER_TO_PEER");
-                        }
-                    }
-                })
-                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-
-                    }
-                })
-                .setTitle(R.string.title_peer_voice)
-
-                .create();
-
-        mdDialog.show();
-    }
-
-    private void callTarget(String target){
-        String channelName = target + "And" + username;
-        String callMessage = "##CallFrom" + username + "##In##" + channelName + "##";
-        RtmMessage message = mRtmClient.createMessage();
-        message.setText(callMessage);
-
-        mRtmClient.sendMessageToPeer(target, message, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                runOnUiThread(() -> {
-                    VoiceChat(channelName, username);
-                });
-
-            }
-
-            @Override
-            public void onFailure(ErrorInfo errorInfo) {
-                final int errorCode = errorInfo.getErrorCode();
-                runOnUiThread(() -> {
-                    switch (errorCode){
-                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_TIMEOUT:
-                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_FAILURE:
-                            Toast_in_Thread(getString(R.string.call_failed));
-                            break;
-                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_PEER_UNREACHABLE:
-                            Toast_in_Thread(getString(R.string.peer_offline));
-                            break;
-                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_CACHED_BY_SERVER:
-                            Toast_in_Thread(getString(R.string.call_cached));
-                            break;
-                    }
-                });
-            }
-        });
-    }
-
-    public void PopUp_Chat(Context context){
-
-        new MDDialog.Builder(context)
-//              .setContentView(customizedView)
-                .setContentView(R.layout.chat_connect)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-                        EditText et1 = (EditText) contentView.findViewById(R.id.channel_edit);
-                        EditText et2 = (EditText) contentView.findViewById(R.id.userAccount_edit);
-                        String userAccount = getUserAccount(context);
-
-                        if (userAccount.equals("--11--")){
-                            userAccount = "";
-                        }
-
-                        et1.setText("channel_1");
-                        et2.setText(userAccount);
-
-                    }
-                })
-                .setTitle("Voice Chat")
-                .setNegativeButton("Cancel", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButton("Confirm", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
-                        EditText et1 = (EditText) contentView.findViewById(R.id.channel_edit);
-                        EditText et2 = (EditText) contentView.findViewById(R.id.userAccount_edit);
-
-                        String Channel   = et1.getText().toString();
-                        String userAccount   = et2.getText().toString();
-
-
-                        if( !Channel.isEmpty() && !userAccount.isEmpty() ){
-                            VoiceChat(Channel, userAccount);
-                            setUserAccount(userAccount, context);
-                            voicePattern = VoicePattern.CHAT_ROOM;
-                            Log.e("PopUp_Chat","voicePattern = VoicePattern.CHAT_ROOM");
-
-                        }else{
-                            PopUp_Chat(context);
-                            Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
-                        }
-
-                    }
-                })
-                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-
-                    }
-                })
-                .setWidthMaxDp(600)
-                .create()
-                .show();
-
-    }
-
-
-    private void VoiceChat(String Channel, String userAccount){
-//        Intent intent = new Intent(this, VoiceChatViewActivity.class);
-//        this.startActivity(intent);
-
-        initAgoraEngineAndJoinChannel(Channel, userAccount);
-        fab.setVisibility(View.VISIBLE);
-        mRtcEngine.setEnableSpeakerphone(true);
-
-    }
-
-    private void GD_Tracing(){
-        Context context = this;
-
-//        Zoom_in.setVisibility(View.VISIBLE);
-//        Zoom_out.setVisibility(View.VISIBLE);
-        progressBar.setVisibility(View.VISIBLE);
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-//                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
-        boolean[] flag = {false};
-
-        Log.v("GD_Tracing","popupView.showed");
-
-        timer = new Timer();
-        timerTask = new TimerTask() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void run() {
-                try {
-
-                    Log.v("Mainactivity", "GSDT start.");
-                    GSDT_Fun();
-                    Log.v("Mainactivity", "GSDT end.");
-
-//                    Zoom_in.setVisibility(View.INVISIBLE);
-//                    Zoom_out.setVisibility(View.INVISIBLE);
-
-//                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-
-        timer.schedule(timerTask, 0);
-
-//        GSDT_Fun();
-//        Log.v("GD_Tracing","GSDT_Fun");
-//        while(!flag[0]) ;
-
-
-//        Zoom_in.setVisibility(View.INVISIBLE);
-//        Zoom_out.setVisibility(View.INVISIBLE);
-
-
-//        popupView.dismiss();
-        Log.v("GD_Tracing","popupView.dismissed");
-
-    }
-
-
-//    /**
-//     * load big data
-//     */
-//    public void loadBigData(){
-//
-//        new XPopup.Builder(this)
-//                .asCenterList("BigData File",new String[]{"Select File", "Open RecentBlock"},
-//                        new OnSelectListener() {
-//                            @RequiresApi(api = Build.VERSION_CODES.N)
-//                            @Override
-//                            public void onSelect(int position, String text) {
-//                                switch (text) {
-//                                    case "Select File":
-//                                        Select_img();
-//                                        break;
-//
-//                                    case "Open RecentBlock":
-//                                        Select_Block();
-//                                        break;
-////
-////                                    case "Download by http":
-////                                        downloadFile();
-////                                        break;
-//                                }
-//                            }
-//                        })
-//                .show();
-//
-//
-//    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private void Select_Block(){
-
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                String source = getSelectSource(context);
-                String ip = "";
-                switch (source){
-                    case "Remote Server Aliyun":
-                    case "Remote Server SEU":
-                        if (source.equals("Remote Server Aliyun")){
-                            ip = ip_ALiYun;
-                        }else if(source.equals("Remote Server SEU")){
-                            ip = ip_SEU;
-                        }else {
-                            Toast_in_Thread("Something Wrong when choose Remote Server !");
-                            return;
-                        }
-
-                        remote_socket.disConnectFromHost();
-                        remote_socket.connectServer(ip);
-                        remote_socket.loadNeuronTxt(DrawMode);
-                        remote_socket.selectBlock();
-                        break;
-                    case "Local Server":
-                        bigImgReader.PopUp(context);
-                        break;
-                    default:
-                        Toast_in_Thread("Load a File First !");
-                        break;
-                }
-            }
-        });
-        thread.start();
-
-    }
-
-
-    public static void showProgressBar(){
-        puiHandler.sendEmptyMessage(0);
-    }
-
-    public static void hideProgressBar(){
-        puiHandler.sendEmptyMessage(1);
-    }
-
-    public static void setFileName(String filepath){
-        file_path_temp = filepath;
-        puiHandler.sendEmptyMessage(4);
-    }
-
 
 
     /*
-    load Img Block after downloading file
+    load Img Block after downloading file  ---------------------------------------------------------------
      */
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void loadBigDataImg(String filepath){
@@ -6497,7 +5451,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         myrenderer.zoom(2.2f);
         myGLSurfaceView.requestRender();
 
-        SetButtons();
+        setButtons();
     }
 
 
@@ -6534,8 +5488,184 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
     }
 
+    /*
+    load Img Block after downloading file  ---------------------------------------------------------------
+     */
 
 
+
+
+    public static void showProgressBar(){
+        puiHandler.sendEmptyMessage(0);
+    }
+
+
+    public static void hideProgressBar(){
+        puiHandler.sendEmptyMessage(1);
+    }
+
+
+    public static void setFileName(String filepath){
+        file_path_temp = filepath;
+        puiHandler.sendEmptyMessage(4);
+    }
+
+
+    public static void setFilename(String s){
+        filename = s;
+
+        filenametext.setText(filename);
+        ll_file.setVisibility(View.VISIBLE);
+
+//        lp_undo.setMargins(0, 240, 20, 0);
+//        Undo_i.setLayoutParams(lp_undo);
+
+        lp_up_i.setMargins(0, 360, 0, 0);
+        navigation_up.setLayoutParams(lp_up_i);
+
+        lp_nacloc_i.setMargins(20, 400, 0, 0);
+        navigation_location.setLayoutParams(lp_nacloc_i);
+
+//        lp_sync_push.setMargins(0, 400, 20, 0);
+//        sync_push.setLayoutParams(lp_sync_push);
+//
+//        lp_sync_pull.setMargins(0, 490, 20, 0);
+//        sync_pull.setLayoutParams(lp_sync_pull);
+
+//        lp_neuron_list.setMargins(0, 630, 20, 0);
+//        neuron_list.setLayoutParams(lp_neuron_list);
+
+
+        lp_blue_color.setMargins(0, 540, 20, 0);
+        blue_pen.setLayoutParams(lp_blue_color);
+
+        lp_red_color.setMargins(0, 630, 20, 0);
+        red_pen.setLayoutParams(lp_red_color);
+
+        lp_res_list.setMargins(0, 540, 20, 0);
+        res_list.setLayoutParams(lp_res_list);
+    }
+
+
+    private static void setButtons(){
+        puiHandler.sendEmptyMessage(2);
+    }
+
+
+    private void hideButtons(){
+        if (!ifButtonShowed)
+            return;
+
+        ll_top.setVisibility(View.GONE);
+        ll_bottom.setVisibility(View.GONE);
+
+        animation_i.setVisibility(View.GONE);
+        Rotation_i.setVisibility(View.GONE);
+        Hide_i.setVisibility(View.GONE);
+        Undo_i.setVisibility(View.GONE);
+        Redo_i.setVisibility(View.GONE);
+
+        if (isBigData_Remote || isBigData_Local){
+            navigation_back.setVisibility(View.GONE);
+            navigation_down.setVisibility(View.GONE);
+            navigation_front.setVisibility(View.GONE);
+            navigation_left.setVisibility(View.GONE);
+            navigation_right.setVisibility(View.GONE);
+            navigation_up.setVisibility(View.GONE);
+            navigation_location.setVisibility(View.GONE);
+
+            Zoom_in_Big.setVisibility(View.GONE);
+            Zoom_out_Big.setVisibility(View.GONE);
+
+            if (isBigData_Remote) {
+                if (!DrawMode){
+
+                    Check_No.setVisibility(View.GONE);
+                    Check_Yes.setVisibility(View.GONE);
+                    Check_Uncertain.setVisibility(View.GONE);
+//                    neuron_list.setVisibility(View.GONE);
+                    res_list.setVisibility(View.GONE);
+                }else {
+//                    sync_push.setVisibility(View.GONE);
+//                    neuron_list.setVisibility(View.GONE);
+                    blue_pen.setVisibility(View.GONE);
+                    red_pen.setVisibility(View.GONE);
+                }
+//                sync_pull.setVisibility(View.GONE);
+            }
+        }else {
+            Zoom_in.setVisibility(View.GONE);
+            Zoom_out.setVisibility(View.GONE);
+        }
+
+
+        ifButtonShowed = false;
+
+    }
+
+
+    private void showButtons(){
+        if (ifButtonShowed)
+            return;
+
+        ll_top.setVisibility(View.VISIBLE);
+        ll_bottom.setVisibility(View.VISIBLE);
+
+        animation_i.setVisibility(View.VISIBLE);
+        Rotation_i.setVisibility(View.VISIBLE);
+        Hide_i.setVisibility(View.VISIBLE);
+        Undo_i.setVisibility(View.VISIBLE);
+        Redo_i.setVisibility(View.VISIBLE);
+
+        if (isBigData_Remote || isBigData_Local){
+            navigation_back.setVisibility(View.VISIBLE);
+            navigation_down.setVisibility(View.VISIBLE);
+            navigation_front.setVisibility(View.VISIBLE);
+            navigation_left.setVisibility(View.VISIBLE);
+            navigation_right.setVisibility(View.VISIBLE);
+            navigation_up.setVisibility(View.VISIBLE);
+            navigation_location.setVisibility(View.VISIBLE);
+
+            Zoom_in_Big.setVisibility(View.VISIBLE);
+            Zoom_out_Big.setVisibility(View.VISIBLE);
+
+            if (isBigData_Remote) {
+                if (!DrawMode){
+                    Check_No.setVisibility(View.VISIBLE);
+                    Check_Yes.setVisibility(View.VISIBLE);
+                    Check_Uncertain.setVisibility(View.VISIBLE);
+//                    neuron_list.setVisibility(View.VISIBLE);
+                    res_list.setVisibility(View.VISIBLE);
+                }else {
+//                    sync_push.setVisibility(View.VISIBLE);
+//                    neuron_list.setVisibility(View.VISIBLE);
+                    blue_pen.setVisibility(View.VISIBLE);
+                    red_pen.setVisibility(View.VISIBLE);
+                }
+//                sync_pull.setVisibility(View.VISIBLE);
+            }
+
+        }else {
+            Zoom_in.setVisibility(View.VISIBLE);
+            Zoom_out.setVisibility(View.VISIBLE);
+        }
+
+        ifButtonShowed = true;
+    }
+
+
+    public static void updateScore(){
+        puiHandler.sendEmptyMessage(7);
+    }
+
+
+
+
+
+
+    /*
+    functions for old version bigdata  ---------------------------------------------------------------------------------
+     */
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void LoadBigFile_Remote(String filepath){
@@ -6583,7 +5713,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             isBigData_Remote = true;
             isBigData_Local = false;
             myGLSurfaceView.requestRender();
-            SetButtons();
+            setButtons();
 
             PullSwc_block_Auto(true);
 
@@ -6592,7 +5722,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 if (!push_info_swc[0].equals("New")){
 //                    String filepath = this.getExternalFilesDir(null).toString();
 //                    String swc_file_path = filepath + "/Sync/BlockSet";
-                    PushSWC_Block_Auto(push_info_swc[0], push_info_swc[1]);
+//                    PushSWC_Block_Auto(push_info_swc[0], push_info_swc[1]);
                 }
             }
         }
@@ -6616,10 +5746,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         myGLSurfaceView.requestRender();
 
         setSelectSource("Local Server",context);
-        SetButtons();
+        setButtons();
 
     }
-
 
     private static void LoadMarker(){
 
@@ -6636,290 +5765,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     }
 
-
     public static void Time_Out(){
         hideProgressBar();
         puiHandler.sendEmptyMessage(3);
     }
 
-
-    private static void SetButtons(){
-        puiHandler.sendEmptyMessage(2);
-    }
-
-    public static void updateScore(){
-        puiHandler.sendEmptyMessage(7);
-    }
-
-
-    private void hideButtons(){
-        if (!ifButtonShowed)
-            return;
-
-        ll_top.setVisibility(View.GONE);
-        ll_bottom.setVisibility(View.GONE);
-
-        animation_i.setVisibility(View.GONE);
-        Rotation_i.setVisibility(View.GONE);
-        Hide_i.setVisibility(View.GONE);
-        Undo_i.setVisibility(View.GONE);
-        Redo_i.setVisibility(View.GONE);
-
-        if (isBigData_Remote || isBigData_Local){
-            navigation_back.setVisibility(View.GONE);
-            navigation_down.setVisibility(View.GONE);
-            navigation_front.setVisibility(View.GONE);
-            navigation_left.setVisibility(View.GONE);
-            navigation_right.setVisibility(View.GONE);
-            navigation_up.setVisibility(View.GONE);
-            navigation_location.setVisibility(View.GONE);
-
-            Zoom_in_Big.setVisibility(View.GONE);
-            Zoom_out_Big.setVisibility(View.GONE);
-
-            if (isBigData_Remote) {
-                if (!DrawMode){
-
-                    Check_No.setVisibility(View.GONE);
-                    Check_Yes.setVisibility(View.GONE);
-                    Check_Uncertain.setVisibility(View.GONE);
-                    neuron_list.setVisibility(View.GONE);
-                    res_list.setVisibility(View.GONE);
-                }else {
-                    sync_push.setVisibility(View.GONE);
-                    neuron_list.setVisibility(View.GONE);
-                    blue_pen.setVisibility(View.GONE);
-                    red_pen.setVisibility(View.GONE);
-                }
-                sync_pull.setVisibility(View.GONE);
-            }
-        }else {
-            Zoom_in.setVisibility(View.GONE);
-            Zoom_out.setVisibility(View.GONE);
-        }
-
-
-        ifButtonShowed = false;
-
-    }
-
-    private void showButtons(){
-        if (ifButtonShowed)
-            return;
-
-        ll_top.setVisibility(View.VISIBLE);
-        ll_bottom.setVisibility(View.VISIBLE);
-
-        animation_i.setVisibility(View.VISIBLE);
-        Rotation_i.setVisibility(View.VISIBLE);
-        Hide_i.setVisibility(View.VISIBLE);
-        Undo_i.setVisibility(View.VISIBLE);
-        Redo_i.setVisibility(View.VISIBLE);
-
-        if (isBigData_Remote || isBigData_Local){
-            navigation_back.setVisibility(View.VISIBLE);
-            navigation_down.setVisibility(View.VISIBLE);
-            navigation_front.setVisibility(View.VISIBLE);
-            navigation_left.setVisibility(View.VISIBLE);
-            navigation_right.setVisibility(View.VISIBLE);
-            navigation_up.setVisibility(View.VISIBLE);
-            navigation_location.setVisibility(View.VISIBLE);
-
-            Zoom_in_Big.setVisibility(View.VISIBLE);
-            Zoom_out_Big.setVisibility(View.VISIBLE);
-
-            if (isBigData_Remote) {
-                if (!DrawMode){
-                    Check_No.setVisibility(View.VISIBLE);
-                    Check_Yes.setVisibility(View.VISIBLE);
-                    Check_Uncertain.setVisibility(View.VISIBLE);
-                    neuron_list.setVisibility(View.VISIBLE);
-                    res_list.setVisibility(View.VISIBLE);
-                }else {
-                    sync_push.setVisibility(View.VISIBLE);
-                    neuron_list.setVisibility(View.VISIBLE);
-                    blue_pen.setVisibility(View.VISIBLE);
-                    red_pen.setVisibility(View.VISIBLE);
-                }
-                sync_pull.setVisibility(View.VISIBLE);
-            }
-
-        }else {
-            Zoom_in.setVisibility(View.VISIBLE);
-            Zoom_out.setVisibility(View.VISIBLE);
-        }
-
-        ifButtonShowed = true;
-    }
-
-
-
-    public static void setFilename(String s){
-        filename = s;
-
-        filenametext.setText(filename);
-        ll_file.setVisibility(View.VISIBLE);
-
-//        lp_undo.setMargins(0, 240, 20, 0);
-//        Undo_i.setLayoutParams(lp_undo);
-
-        lp_up_i.setMargins(0, 360, 0, 0);
-        navigation_up.setLayoutParams(lp_up_i);
-
-        lp_nacloc_i.setMargins(20, 400, 0, 0);
-        navigation_location.setLayoutParams(lp_nacloc_i);
-
-        lp_sync_push.setMargins(0, 400, 20, 0);
-        sync_push.setLayoutParams(lp_sync_push);
-
-        lp_sync_pull.setMargins(0, 490, 20, 0);
-        sync_pull.setLayoutParams(lp_sync_pull);
-
-        lp_neuron_list.setMargins(0, 630, 20, 0);
-        neuron_list.setLayoutParams(lp_neuron_list);
-
-
-        lp_blue_color.setMargins(0, 540, 20, 0);
-        blue_pen.setLayoutParams(lp_blue_color);
-
-        lp_red_color.setMargins(0, 630, 20, 0);
-        red_pen.setLayoutParams(lp_red_color);
-
-        lp_res_list.setMargins(0, 540, 20, 0);
-        res_list.setLayoutParams(lp_res_list);
-    }
-
-
-
-
-
-
-    /**
-     * init function for VoiceCall
+    /*
+    functions for old version bigdata  ---------------------------------------------------------------------------------
      */
-    private void initAgoraEngineAndJoinChannel(String Channel, String userAccount) {
-        initializeAgoraEngine(userAccount);     // Tutorial Step 1
-        joinChannel(userAccount, Channel);               // Tutorial Step 2
-    }
-
-    public final void showLongToast(final String msg) {
-        this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-
-    // Tutorial Step 7
-    public void onLocalAudioMuteClicked(View view) {
-        ImageView iv = (ImageView) view;
-        if (iv.isSelected()) {
-            iv.setSelected(false);
-            iv.clearColorFilter();
-        } else {
-            iv.setSelected(true);
-            iv.setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
-        }
-
-        // Stops/Resumes sending the local audio stream.
-        mRtcEngine.muteLocalAudioStream(iv.isSelected());
-    }
-
-    // Tutorial Step 5
-    public void onSwitchSpeakerphoneClicked(View view) {
-        ImageView iv = (ImageView) view;
-        if (iv.isSelected()) {
-            iv.setSelected(false);
-            iv.clearColorFilter();
-        } else {
-            iv.setSelected(true);
-            iv.setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
-        }
-
-        // Enables/Disables the audio playback route to the speakerphone.
-        //
-        // This method sets whether the audio is routed to the speakerphone or earpiece. After calling this method, the SDK returns the onAudioRouteChanged callback to indicate the changes.
-        mRtcEngine.setEnableSpeakerphone(view.isSelected());
-    }
-
-    // Tutorial Step 3
-    public void onEncCallClicked(View view) {
-        leaveChannel();
-        RtcEngine.destroy();
-        mRtcEngine = null;
-
-    }
-
-    // Tutorial Step 1
-    private void initializeAgoraEngine(String userAccount) {
-        try {
-            mRtcEngine = RtcEngine.create(getBaseContext(), getString(R.string.agora_app_id), mRtcEventHandler);
-            // Sets the channel profile of the Agora RtcEngine.
-            // CHANNEL_PROFILE_COMMUNICATION(0): (Default) The Communication profile. Use this profile in one-on-one calls or group calls, where all users can talk freely.
-            // CHANNEL_PROFILE_LIVE_BROADCASTING(1): The Live-Broadcast profile. Users in a live-broadcast channel have a role as either broadcaster or audience. A broadcaster can both send and receive streams; an audience can only receive streams.
-            mRtcEngine.setChannelProfile(Constants.CHANNEL_PROFILE_COMMUNICATION);
-
-            /**
-             * register a account
-             */
-            mRtcEngine.registerLocalUserAccount(getString(R.string.agora_app_id), userAccount);
-
-        } catch (Exception e) {
-            Log.e(LOG_TAG, Log.getStackTraceString(e));
-
-            throw new RuntimeException("NEED TO check rtc sdk init fatal error\n" + Log.getStackTraceString(e));
-        }
-    }
-
-    // Tutorial Step 2
-    private void joinChannel(String userAccount, String Channel) {
-        String accessToken = getString(R.string.agora_access_token);
-        if (TextUtils.equals(accessToken, "") || TextUtils.equals(accessToken, "#YOUR ACCESS TOKEN#")) {
-            accessToken = null; // default, no token
-        }
-
-        // 使用注册的用户 ID 加入频道
-        mRtcEngine.joinChannelWithUserAccount(accessToken, Channel, userAccount);
-
-        showLongToast("You joined Successfully !!!");
-
-
-//        // Allows a user to join a channel.
-//        mRtcEngine.joinChannel(accessToken, "1", "Extra Optional Data", 0); // if you do not specify the uid, we will generate the uid for you
-    }
-
-    // Tutorial Step 3
-    private void leaveChannel() {
-        mRtcEngine.leaveChannel();
-        voicePattern = VoicePattern.UNCERTAIN;
-        chat_room_num = 0;
-    }
-
-    // Tutorial Step 4
-    private void onRemoteUserLeft(String userAccount, int reason) {
-        if (voicePattern == VoicePattern.PEER_TO_PEER){
-            showLongToast("The CALL is End !");
-        }else {
-            if (chat_room_num > 1){
-                showLongToast("user " + userAccount + " left : " + reason);
-            }else {
-                showLongToast("The CALL is End !");
-            }
-        }
-    }
-
-    // Tutorial Step 4
-    private void onRemoteUserJoined(String userAccount) {
-        showLongToast("user " + userAccount + " joined !");
-    }
-
-    // Tutorial Step 6
-    private void onRemoteUserVoiceMuted(int uid, boolean muted) {
-//        mRtcEngine.getUserInfoByUid(uid);
-        showLongToast(String.format(Locale.US, "user %d muted or unmuted %b", (uid & 0xFFFFFFFFL), muted));
-    }
 
 
 
@@ -6978,7 +5831,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
     private void addScore(int s){
         score += s;
 
@@ -7026,254 +5878,1223 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
+    public static void Toast_in_Thread_static(String message){
+        Message msg = new Message();
+        msg.what = Toast_Info_static;
+        Bundle bundle = new Bundle();
+        bundle.putString("Toast_msg",message);
+        msg.setData(bundle);
+        puiHandler.sendMessage(msg);
+    }
+
+    public static Context getContext() {
+        return context;
+    }
 
 
 
 
+    private boolean isTopActivity(){
+        ActivityManager manager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> runningTaskInfos = manager.getRunningTasks(1);
+        String cmpNameTemp = null;
+        if(runningTaskInfos != null){
+            cmpNameTemp = runningTaskInfos.get(0).topActivity.toString();
+        }
+        if(cmpNameTemp == null){
+            return false;
+        }
+        Log.d(TAG, "isTopActivity" + cmpNameTemp);
+        return cmpNameTemp.equals("ComponentInfo{com.example.myapplication__volume/com.example.myapplication__volume.MainActivity}");
+    }
 
 
+    private void PullSwc_block_Manual(boolean isDrawMode){
 
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
 
-
-    class MyRtmClientListener implements RtmClientListener {
-
-        @Override
-        public void onConnectionStateChanged(final int state, int reason) {
-            runOnUiThread(() -> {
-                switch (state) {
-                    case RtmStatusCode.ConnectionState.CONNECTION_STATE_RECONNECTING:
-                        Toast_in_Thread(getString(R.string.reconnecting));
-                        break;
-                    case RtmStatusCode.ConnectionState.CONNECTION_STATE_ABORTED:
-                        Toast_in_Thread(getString(R.string.account_offline));
-                        setResult(MessageUtil.ACTIVITY_RESULT_CONN_ABORTED);
-                        finish();
-                        break;
+                if (SwcFilePath.equals("Error")){
+                    Toast_in_Thread("Something Wrong When Pull Swc File !");
                 }
-            });
+
+                try {
+                    NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
+                    myrenderer.setSwcLoaded();
+                    myrenderer.importNeuronTree(nt);
+                    myGLSurfaceView.requestRender();
+                    uiHandler.sendEmptyMessage(1);
+                }catch (Exception e){
+                    Toast_in_Thread("Some Wrong when open the Swc File, Try Again Please !");
+                }
+
+            }
+        });
+
+        thread.start();
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
+    private static void PullSwc_block_Auto(boolean isDrawMode){
+
+        String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
+
+        if (SwcFilePath.equals("Error")){
+            Toast_in_Thread_static("Something Wrong When Pull Swc File !");
+            return;
         }
 
-        @SuppressLint("LongLogTag")
-        @Override
-        public void onMessageReceived(final RtmMessage message, final String peerId) {
-            if (isTopActivity()) {
-                Log.d("onMessageRecievedFromPeer", message.getText() + " from " + peerId);
-                String msg = message.getText();
-                if (Pattern.matches(callMsgPattern, message.getText())) {
-
-                    String targetName = msg.substring(10, msg.indexOf("##In##"));
-                    String channelName = msg.substring(msg.indexOf("##In##") + 6, msg.lastIndexOf("##"));
-                    final boolean[] answered = {false};
-                    runOnUiThread(() -> {
-
-
-                        BasePopupView calledPopup = new XPopup.Builder(mainContext)
-                                .dismissOnTouchOutside(false)
-                                .dismissOnBackPressed(false)
-                                .asConfirm("Phone Call", "from " + targetName, "Reject", "Answer",
-                                        new OnConfirmListener() {
-                                            @Override
-                                            public void onConfirm() {
-                                                answered[0] = true;
-
-                                                VoiceChat(channelName, username);
-                                                String callMessage = "##SuccessToAnswer##";
-                                                RtmMessage answerMessage = mRtmClient.createMessage();
-                                                answerMessage.setText(callMessage);
-
-                                                mRtmClient.sendMessageToPeer(targetName, answerMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void aVoid) {
-
-                                                    }
-
-                                                    @Override
-                                                    public void onFailure(ErrorInfo errorInfo) {
-
-                                                    }
-                                                });
-                                            }
-                                        }, new OnCancelListener() {
-                                            @Override
-                                            public void onCancel() {
-                                                answered[0] = true;
-
-                                                String callMessage = "##RefuseToAnswer##";
-                                                RtmMessage refuseMessage = mRtmClient.createMessage();
-                                                refuseMessage.setText(callMessage);
-
-                                                mRtmClient.sendMessageToPeer(targetName, refuseMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void aVoid) {
-
-                                                    }
-
-                                                    @Override
-                                                    public void onFailure(ErrorInfo errorInfo) {
-
-                                                    }
-                                                });
-                                            }
-                                        }, false);
-                        calledPopup.show();
-                        calledPopup.delayDismiss(20000);
-                        calledPopup.dismissWith(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (answered[0] == false){
-                                    String callMessage = "##TimeOutToAnswer##";
-                                    RtmMessage timeOutMessage = mRtmClient.createMessage();
-                                    timeOutMessage.setText(callMessage);
-
-                                    mRtmClient.sendMessageToPeer(targetName, timeOutMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-
-                                        }
-
-                                        @Override
-                                        public void onFailure(ErrorInfo errorInfo) {
-
-                                        }
-                                    });
-                                }
-                            }
-                        });
-
-                    });
-                } else if (msg.equals("##RefuseToAnswer##")){
-                    runOnUiThread(() -> {
-                        Toast_in_Thread("Target Refused To Answer");
-                        fab.setVisibility(View.GONE);
-                        try {
-                            leaveChannel();
-                            RtcEngine.destroy();
-                        } catch (Exception e){
-                            Toast_in_Thread(e.getMessage());
-                        }
-                        mRtcEngine = null;
-                    });
-
-                } else if (msg.equals("##SuccessToAnswer##")){
-                    runOnUiThread(() -> {
-                        Toast_in_Thread("Connection Succeeded");
-                    });
-                } else if (msg.equals("##TimeOutToAnswer##")){
-                    runOnUiThread(() -> {
-                        Toast_in_Thread("Target Time Out To Answer");
-                        fab.setVisibility(View.GONE);
-                        try {
-                            leaveChannel();
-                            RtcEngine.destroy();
-                        } catch (Exception e){
-                            Toast_in_Thread(e.getMessage());
-                        }
-                        mRtcEngine = null;
-                    });
-                } else {
-                    runOnUiThread(() -> {
-
-                        MessageUtil.addMessageBean(peerId, message);
-
-                        MsgPopup msgPopup = new MsgPopup(mainContext, 3000);
-                        msgPopup.setText(peerId + ": " + message.getText());
-                        TextView msgText = msgPopup.findViewById(R.id.msg_text);
-                        msgText.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                Log.d("MsgText", "OnClick");
-                                openMessageActivity(true, peerId);
-                            }
-                        });
-
-                        BasePopupView xMsgPopup = new XPopup.Builder(mainContext)
-                                .hasShadowBg(false)
-                                .popupAnimation(PopupAnimation.ScaleAlphaFromCenter)
-                                .isCenterHorizontal(true)
-                                .offsetY(200)
-                                .asCustom(msgPopup);
-
-                        xMsgPopup.show();
-
-                        Log.d("onMessageReceived", "runOnUiThread");
-
-
-                    });
-                }
-            }
+        try {
+            NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
+            myrenderer.setSwcLoaded();
+            myrenderer.importNeuronTree(nt);
+            myGLSurfaceView.requestRender();
+        }catch (Exception e){
+            Toast_in_Thread_static("Something Wrong when open Swc File !");
         }
 
-        @SuppressLint("LongLogTag")
-        @Override
-        public void onImageMessageReceivedFromPeer(final RtmImageMessage rtmImageMessage, final String peerId) {
-            if (isTopActivity()) {
-                Log.d("onMessageRecievedFromPeer", rtmImageMessage.getText() + " from " + peerId);
-                runOnUiThread(() -> {
-                    MessageUtil.addMessageBean(peerId, rtmImageMessage);
-                    MsgPopup msgPopup = new MsgPopup(mainContext, 3000);
-                    msgPopup.setText(peerId + ": [Image]");
-                    TextView msgText = msgPopup.findViewById(R.id.msg_text);
-                    msgText.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Log.d("MsgText", "OnClick");
-                            openMessageActivity(true, peerId);
-                        }
-                    });
-                    new XPopup.Builder(mainContext)
-                            .hasShadowBg(false)
-                            .popupAnimation(PopupAnimation.ScaleAlphaFromCenter)
-                            .isCenterHorizontal(true)
-                            .offsetY(200)
-                            .asCustom(msgPopup)
-                            .show();
 
-                });
+    }
+
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "IMG" + timeStamp;
+        File storageDir = new File(Environment.getExternalStorageDirectory() + "/DCIM/Camera/");
+        File image = File.createTempFile(
+                imageFileName,     /* prefix */
+                ".jpg",     /* suffix */
+                storageDir         /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+
+    private String getImageFilePath(){
+        String mCaptureDir = "/storage/emulated/0/C3/cameraPhoto";
+        File dir = new File(mCaptureDir);
+        if (!dir.exists()){
+            dir.mkdirs();
+        }
+
+        String mCapturePath = mCaptureDir + "/" + "Photo_" + System.currentTimeMillis() +".jpg";
+        return mCapturePath;
+    }
+
+
+    private void listener(final long Id) {
+
+        // 注册广播监听系统的下载完成事件。
+        IntentFilter intentFilter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                long ID = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+                if (ID == Id) {
+                    Toast.makeText(getApplicationContext(), "文件下载完成!", Toast.LENGTH_LONG).show();
+                    Log.v("MainActivity", "DownloadFile  successfully");
+
+                }
+            }
+        };
+
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+
+    //GSDT_function
+    public void GSDT_Fun(){
+        //building...
+        Image4DSimple img = myrenderer.getImg();
+        //img.getDataCZYX();
+        if(img == null || !img.valid()){
+            Log.v("GSDT", "Please load img first!");
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
+            }
+            Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+            Looper.loop();
+            return;
+        }
+
+        Log.v("GSDT", "Have got the image successfully!!");
+        try {
+
+            System.out.println("Start here.....");
+            ParaGSDT p = new ParaGSDT();
+            p.p4DImage = img;
+            GSDT.GSDT_Fun(p);
+            Log.v("GSDT", "GSDT function finished");
+
+            //preparations for show
+            myrenderer.resetImg(p.outImage);
+            myrenderer.getMarkerList().getMarkers().addAll(p.markers);//blue marker
+            myrenderer.getMarkerList().add(p.MaxMarker);//red marker
+            myGLSurfaceView.requestRender();
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
             }
 
+            Toast.makeText(getContext(), "marker_loc:"+ p.max_loc[0] + "," + p.max_loc[1] + "," + p.max_loc[2], Toast.LENGTH_LONG).show();
+            progressBar.setVisibility(View.INVISIBLE);
+            Looper.loop();
 
+
+            /*
+            ImageMarker m = p.GSDT_Fun(img, para);
+            System.out.println("marker:"+ m.getXYZ().x + "," + m.getXYZ().y+","+m.getXYZ().z);
+            m.type = 2;
+            m.radius = 5;
+            Log.v("GSDT", "got here2");
+            markers.add(m);
+             */
+            //myGLSurfaceView.requestRender();
+
+        }catch (Exception e) {
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
+            }
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            progressBar.setVisibility(View.INVISIBLE);
+            Looper.loop();
+        }
+
+    }
+
+
+//    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+//    public static String getpath(Context context, Uri uri) {
+//        if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
+//            if (DocumentsContract.isDocumentUri(context, uri)) {
+//                if (isExternalStorageDocument(uri)) {
+//                    // ExternalStorageProvider
+//                    final String docId = DocumentsContract.getDocumentId(uri);
+//                    final String[] split = docId.split(":");
+//                    final String type = split[0];
+//                    if ("primary".equalsIgnoreCase(type)) {
+//                        String path = Environment.getExternalStorageDirectory() + "/" + split[1];
+//                        return path;
+//                    }
+//                } else if (isDownloadsDocument(uri)) {
+//                    // DownloadsProvider
+//                    final String id = DocumentsContract.getDocumentId(uri);
+//                    final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"),
+//                            Long.valueOf(id));
+//                    String path = getDataColumn(context, contentUri, null, null);
+//                    return path;
+//                } else if (isMediaDocument(uri)) {
+//                    // MediaProvider
+//                    final String docId = DocumentsContract.getDocumentId(uri);
+//                    final String[] split = docId.split(":");
+//                    final String type = split[0];
+//                    Uri contentUri = null;
+//                    if ("image".equals(type)) {
+//                        contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+//                    } else if ("video".equals(type)) {
+//                        contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+//                    } else if ("audio".equals(type)) {
+//                        contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+//                    }
+//                    final String selection = "_id=?";
+//                    final String[] selectionArgs = new String[]{split[1]};
+//                    String path = getDataColumn(context, contentUri, selection, selectionArgs);
+//                    return path;
+//                }
+//            }
+//        }
+//        return null;
+//    }
+//
+//    private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
+//        Cursor cursor = null;
+//        final String column = "_data";
+//        final String[] projection = {column};
+//        try {
+//            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
+//            if (cursor != null && cursor.moveToFirst()) {
+//                final int column_index = cursor.getColumnIndexOrThrow(column);
+//                return cursor.getString(column_index);
+//            }
+//        } finally {
+//            if (cursor != null)
+//                cursor.close();
+//        }
+//        return null;
+//    }
+//
+//    private static boolean isExternalStorageDocument(Uri uri) {
+//        return "com.android.externalstorage.documents".equals(uri.getAuthority());
+//    }
+//
+//    private static boolean isDownloadsDocument(Uri uri) {
+//        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+//    }
+//
+//    private static boolean isMediaDocument(Uri uri) {
+//        return "com.android.providers.media.documents".equals(uri.getAuthority());
+//    }
+
+
+//    public void chooseVoiceChatMode(){
+//        new XPopup.Builder(this)
+//                .asCenterList("Choose Voice Chat Mode", new String[]{"Peer Chat", "Selection Tab Channel"},
+//                        new OnSelectListener() {
+//                            @Override
+//                            public void onSelect(int position, String text) {
+//                                switch (text){
+//                                    case "Peer Chat":
+//                                        peerToPeerChat();
+//                                        break;
+//                                    case "Selection Tab Channel":
+//                                        PopUp_Chat(mainContext);
+//                                        break;
+//                                }
+//                            }
+//                        }).show();
+//
+//    }
+
+//    private void peerToPeerChat(){
+//        MDDialog mdDialog = new MDDialog.Builder(this)
+//                .setContentView(R.layout.peer_chat)
+//                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+//                    @Override
+//                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+//
+//                    }
+//                })
+//                .setNegativeButton("Cancel", new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                    }
+//                })
+//                .setPositiveButton(R.string.btn_chat, new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                    }
+//                })
+//                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+//                    @Override
+//                    public void onClick(View clickedView, View contentView) {
+//                        Log.d("PeerToPeer", "Start To Chat");
+//                        EditText targetEdit = (EditText)contentView.findViewById(R.id.target_name_edit);
+//                        String mTargetName = targetEdit.getText().toString();
+//                        if (mTargetName.equals("")) {
+//                            Toast_in_Thread(getString(R.string.account_empty));
+//                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
+//                            Toast_in_Thread(getString(R.string.account_too_long));
+//                        } else if (mTargetName.startsWith(" ")) {
+//                            Toast_in_Thread(getString(R.string.account_starts_with_space));
+//                        } else if (mTargetName.equals("null")) {
+//                            Toast_in_Thread(getString(R.string.account_literal_null));
+//                        } else if (mTargetName.equals(username)) {
+//                            Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
+//                        } else {
+//                            callTarget(mTargetName);
+//                            voicePattern = VoicePattern.PEER_TO_PEER;
+//                            Log.e("peerToPeerChat","voicePattern = VoicePattern.PEER_TO_PEER");
+//                        }
+//                    }
+//                })
+//                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+//                    @Override
+//                    public void onClick(View clickedView, View contentView) {
+//
+//                    }
+//                })
+//                .setTitle(R.string.title_peer_voice)
+//
+//                .create();
+//
+//        mdDialog.show();
+//    }
+//
+//    private void callTarget(String target){
+//        String channelName = target + "And" + username;
+//        String callMessage = "##CallFrom" + username + "##In##" + channelName + "##";
+//        RtmMessage message = mRtmClient.createMessage();
+//        message.setText(callMessage);
+//
+//        mRtmClient.sendMessageToPeer(target, message, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
+//            @Override
+//            public void onSuccess(Void aVoid) {
+//                runOnUiThread(() -> {
+//                    VoiceChat(channelName, username);
+//                });
+//
+//            }
+//
+//            @Override
+//            public void onFailure(ErrorInfo errorInfo) {
+//                final int errorCode = errorInfo.getErrorCode();
+//                runOnUiThread(() -> {
+//                    switch (errorCode){
+//                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_TIMEOUT:
+//                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_FAILURE:
+//                            Toast_in_Thread(getString(R.string.call_failed));
+//                            break;
+//                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_PEER_UNREACHABLE:
+//                            Toast_in_Thread(getString(R.string.peer_offline));
+//                            break;
+//                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_CACHED_BY_SERVER:
+//                            Toast_in_Thread(getString(R.string.call_cached));
+//                            break;
+//                    }
+//                });
+//            }
+//        });
+//    }
+
+
+//    public void PopUp_Chat(Context context){
+//
+//        new MDDialog.Builder(context)
+////              .setContentView(customizedView)
+//                .setContentView(R.layout.chat_connect)
+//                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+//                    @Override
+//                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+//                        EditText et1 = (EditText) contentView.findViewById(R.id.channel_edit);
+//                        EditText et2 = (EditText) contentView.findViewById(R.id.userAccount_edit);
+//                        String userAccount = getUserAccount(context);
+//
+//                        if (userAccount.equals("--11--")){
+//                            userAccount = "";
+//                        }
+//
+//                        et1.setText("channel_1");
+//                        et2.setText(userAccount);
+//
+//                    }
+//                })
+//                .setTitle("Voice Chat")
+//                .setNegativeButton("Cancel", new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                    }
+//                })
+//                .setPositiveButton("Confirm", new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                    }
+//                })
+//                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+//                    @Override
+//                    public void onClick(View clickedView, View contentView) {
+//                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
+//                        EditText et1 = (EditText) contentView.findViewById(R.id.channel_edit);
+//                        EditText et2 = (EditText) contentView.findViewById(R.id.userAccount_edit);
+//
+//                        String Channel   = et1.getText().toString();
+//                        String userAccount   = et2.getText().toString();
+//
+//
+//                        if( !Channel.isEmpty() && !userAccount.isEmpty() ){
+//                            VoiceChat(Channel, userAccount);
+//                            setUserAccount(userAccount, context);
+//                            voicePattern = VoicePattern.CHAT_ROOM;
+//                            Log.e("PopUp_Chat","voicePattern = VoicePattern.CHAT_ROOM");
+//
+//                        }else{
+//                            PopUp_Chat(context);
+//                            Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+//                        }
+//
+//                    }
+//                })
+//                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+//                    @Override
+//                    public void onClick(View clickedView, View contentView) {
+//
+//                    }
+//                })
+//                .setWidthMaxDp(600)
+//                .create()
+//                .show();
+//
+//    }
+
+
+//    private void VoiceChat(String Channel, String userAccount){
+////        Intent intent = new Intent(this, VoiceChatViewActivity.class);
+////        this.startActivity(intent);
+//
+//        initAgoraEngineAndJoinChannel(Channel, userAccount);
+//        fab.setVisibility(View.VISIBLE);
+//        mRtcEngine.setEnableSpeakerphone(true);
+//
+//    }
+
+
+
+
+
+
+
+//    /**
+//     * load big data
+//     */
+//    public void loadBigData(){
+//
+//        new XPopup.Builder(this)
+//                .asCenterList("BigData File",new String[]{"Select File", "Open RecentBlock"},
+//                        new OnSelectListener() {
+//                            @RequiresApi(api = Build.VERSION_CODES.N)
+//                            @Override
+//                            public void onSelect(int position, String text) {
+//                                switch (text) {
+//                                    case "Select File":
+//                                        Select_img();
+//                                        break;
+//
+//                                    case "Open RecentBlock":
+//                                        Select_Block();
+//                                        break;
+////
+////                                    case "Download by http":
+////                                        downloadFile();
+////                                        break;
+//                                }
+//                            }
+//                        })
+//                .show();
+//
+//
+//    }
+
+
+
+//
+//
+//    /**
+//     * init function for VoiceCall
+//     */
+//    private void initAgoraEngineAndJoinChannel(String Channel, String userAccount) {
+//        initializeAgoraEngine(userAccount);     // Tutorial Step 1
+//        joinChannel(userAccount, Channel);               // Tutorial Step 2
+//    }
+//
+//    public final void showLongToast(final String msg) {
+//        this.runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+//            }
+//        });
+//    }
+//
+//
+//    // Tutorial Step 7
+//    public void onLocalAudioMuteClicked(View view) {
+//        ImageView iv = (ImageView) view;
+//        if (iv.isSelected()) {
+//            iv.setSelected(false);
+//            iv.clearColorFilter();
+//        } else {
+//            iv.setSelected(true);
+//            iv.setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+//        }
+//
+//        // Stops/Resumes sending the local audio stream.
+//        mRtcEngine.muteLocalAudioStream(iv.isSelected());
+//    }
+//
+//    // Tutorial Step 5
+//    public void onSwitchSpeakerphoneClicked(View view) {
+//        ImageView iv = (ImageView) view;
+//        if (iv.isSelected()) {
+//            iv.setSelected(false);
+//            iv.clearColorFilter();
+//        } else {
+//            iv.setSelected(true);
+//            iv.setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+//        }
+//
+//        // Enables/Disables the audio playback route to the speakerphone.
+//        //
+//        // This method sets whether the audio is routed to the speakerphone or earpiece. After calling this method, the SDK returns the onAudioRouteChanged callback to indicate the changes.
+//        mRtcEngine.setEnableSpeakerphone(view.isSelected());
+//    }
+//
+//    // Tutorial Step 3
+//    public void onEncCallClicked(View view) {
+//        leaveChannel();
+//        RtcEngine.destroy();
+//        mRtcEngine = null;
+//
+//    }
+//
+//    // Tutorial Step 1
+//    private void initializeAgoraEngine(String userAccount) {
+//        try {
+//            mRtcEngine = RtcEngine.create(getBaseContext(), getString(R.string.agora_app_id), mRtcEventHandler);
+//            // Sets the channel profile of the Agora RtcEngine.
+//            // CHANNEL_PROFILE_COMMUNICATION(0): (Default) The Communication profile. Use this profile in one-on-one calls or group calls, where all users can talk freely.
+//            // CHANNEL_PROFILE_LIVE_BROADCASTING(1): The Live-Broadcast profile. Users in a live-broadcast channel have a role as either broadcaster or audience. A broadcaster can both send and receive streams; an audience can only receive streams.
+//            mRtcEngine.setChannelProfile(Constants.CHANNEL_PROFILE_COMMUNICATION);
+//
+//            /**
+//             * register a account
+//             */
+//            mRtcEngine.registerLocalUserAccount(getString(R.string.agora_app_id), userAccount);
+//
+//        } catch (Exception e) {
+//            Log.e(LOG_TAG, Log.getStackTraceString(e));
+//
+//            throw new RuntimeException("NEED TO check rtc sdk init fatal error\n" + Log.getStackTraceString(e));
+//        }
+//    }
+//
+//    // Tutorial Step 2
+//    private void joinChannel(String userAccount, String Channel) {
+//        String accessToken = getString(R.string.agora_access_token);
+//        if (TextUtils.equals(accessToken, "") || TextUtils.equals(accessToken, "#YOUR ACCESS TOKEN#")) {
+//            accessToken = null; // default, no token
+//        }
+//
+//        // 使用注册的用户 ID 加入频道
+//        mRtcEngine.joinChannelWithUserAccount(accessToken, Channel, userAccount);
+//
+//        showLongToast("You joined Successfully !!!");
+//
+//
+////        // Allows a user to join a channel.
+////        mRtcEngine.joinChannel(accessToken, "1", "Extra Optional Data", 0); // if you do not specify the uid, we will generate the uid for you
+//    }
+//
+//    // Tutorial Step 3
+//    private void leaveChannel() {
+//        mRtcEngine.leaveChannel();
+//        voicePattern = VoicePattern.UNCERTAIN;
+//        chat_room_num = 0;
+//    }
+//
+//    // Tutorial Step 4
+//    private void onRemoteUserLeft(String userAccount, int reason) {
+//        if (voicePattern == VoicePattern.PEER_TO_PEER){
+//            showLongToast("The CALL is End !");
+//        }else {
+//            if (chat_room_num > 1){
+//                showLongToast("user " + userAccount + " left : " + reason);
+//            }else {
+//                showLongToast("The CALL is End !");
+//            }
+//        }
+//    }
+//
+//    // Tutorial Step 4
+//    private void onRemoteUserJoined(String userAccount) {
+//        showLongToast("user " + userAccount + " joined !");
+//    }
+//
+//    // Tutorial Step 6
+//    private void onRemoteUserVoiceMuted(int uid, boolean muted) {
+////        mRtcEngine.getUserInfoByUid(uid);
+//        showLongToast(String.format(Locale.US, "user %d muted or unmuted %b", (uid & 0xFFFFFFFFL), muted));
+//    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    /**
+//     * add friends
+//     */
+//    public void addFriends(){
+//        MDDialog mdDialog = new MDDialog.Builder(this)
+//                .setContentView(R.layout.peer_chat)
+//                .setNegativeButton("Cancel", new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                    }
+//                })
+//                .setPositiveButton(R.string.btn_chat, new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                    }
+//                })
+//                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+//                    @Override
+//                    public void onClick(View clickedView, View contentView) {
+//                        Log.d("PeerToPeer", "Start To Chat");
+//                        EditText targetEdit = (EditText)contentView.findViewById(R.id.target_name_edit);
+//                        String mTargetName = targetEdit.getText().toString();
+//                        if (mTargetName.equals("")) {
+//                            Toast_in_Thread(getString(R.string.account_empty));
+//                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
+//                            Toast_in_Thread(getString(R.string.account_too_long));
+//                        } else if (mTargetName.startsWith(" ")) {
+//                            Toast_in_Thread(getString(R.string.account_starts_with_space));
+//                        } else if (mTargetName.equals("null")) {
+//                            Toast_in_Thread(getString(R.string.account_literal_null));
+//                        } else if (mTargetName.equals(username)) {
+//                            Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
+//                        } else {
+//                            mChatManager.addFriends(mTargetName);
+//                        }
+//                    }
+//                })
+//                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+//                    @Override
+//                    public void onClick(View clickedView, View contentView) {
+//
+//                    }
+//                })
+//                .setTitle(R.string.title_add_friends)
+//                .create();
+//
+//        mdDialog.show();
+//    }
+
+
+
+//    public void chooseChatMode(){
+//        new XPopup.Builder(this)
+//                .asCenterList("Choose Chat Mode", new String[]{"Peer Chat", "Selection Tab Channel"},
+//                        new OnSelectListener() {
+//                            @Override
+//                            public void onSelect(int position, String text) {
+//                                switch (text){
+//                                    case "Peer Chat":
+//                                        peerToPeer();
+//                                        break;
+//                                    case "Selection Tab Channel":
+//                                        chooseChannel();
+//                                        break;
+//                                }
+//                            }
+//                        }).show();
+//
+//    }
+
+//    private void peerToPeer(){
+//        MDDialog mdDialog = new MDDialog.Builder(this)
+//                .setContentView(R.layout.peer_chat)
+//                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+//                    @Override
+//                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+//
+//                    }
+//                })
+//                .setNegativeButton("Cancel", new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                    }
+//                })
+//                .setPositiveButton(R.string.btn_chat, new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                    }
+//                })
+//                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+//                    @Override
+//                    public void onClick(View clickedView, View contentView) {
+//                        Log.d("PeerToPeer", "Start To Chat");
+//                        EditText targetEdit = (EditText)contentView.findViewById(R.id.target_name_edit);
+//                        String mTargetName = targetEdit.getText().toString();
+//                        if (mTargetName.equals("")) {
+//                            Toast_in_Thread(getString(R.string.account_empty));
+//                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
+//                            Toast_in_Thread(getString(R.string.account_too_long));
+//                        } else if (mTargetName.startsWith(" ")) {
+//                            Toast_in_Thread(getString(R.string.account_starts_with_space));
+//                        } else if (mTargetName.equals("null")) {
+//                            Toast_in_Thread(getString(R.string.account_literal_null));
+//                        } else if (mTargetName.equals(username)) {
+//                            Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
+//                        } else {
+//                            openMessageActivity(true, mTargetName);
+////                            mChatButton.setEn
+////                            jumpToMessageActivity();
+//                        }
+//                    }
+//                })
+//                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+//                    @Override
+//                    public void onClick(View clickedView, View contentView) {
+//
+//                    }
+//                })
+//                .setTitle(R.string.title_peer_msg)
+//
+//                .create();
+//
+//        mdDialog.show();
+//    }
+//
+//    private void chooseChannel(){
+//        MDDialog mdDialog = new MDDialog.Builder(this)
+//                .setContentView(R.layout.channel_chat)
+//                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+//                    @Override
+//                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+//
+//                    }
+//                })
+//                .setNegativeButton("Cancel", new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                    }
+//                })
+//                .setPositiveButton(R.string.btn_join, new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                    }
+//                })
+//                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+//                    @Override
+//                    public void onClick(View clickedView, View contentView) {
+//                        EditText targetEdit = (EditText)contentView.findViewById(R.id.channel_name_edit);
+//                        String mTargetName = targetEdit.getText().toString();
+//                        if (mTargetName.equals("")) {
+//                            Toast_in_Thread(getString(R.string.channel_name_empty));
+//                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
+//                            Toast_in_Thread(getString(R.string.channel_name_too_long));
+//                        } else if (mTargetName.startsWith(" ")) {
+//                            Toast_in_Thread(getString(R.string.channel_name_starts_with_space));
+//                        } else if (mTargetName.equals("null")) {
+//                            Toast_in_Thread(getString(R.string.channel_name_literal_null));
+//                        }  else {
+//                            openMessageActivity(false, mTargetName);
+////                            mChatButton.setEn
+////                            jumpToMessageActivity();
+//                        }
+//                    }
+//                })
+//                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+//                    @Override
+//                    public void onClick(View clickedView, View contentView) {
+//
+//                    }
+//                })
+//                .setTitle(R.string.title_channel_message)
+//
+//                .create();
+//
+//        mdDialog.show();
+//    }
+
+//    private void openMessageActivity(boolean isPeerToPeerMode, String targetName){
+//        Intent intent = new Intent(MainActivity.this, MessageActivity.class);
+//        intent.putExtra(MessageUtil.INTENT_EXTRA_IS_PEER_MODE, isPeerToPeerMode);
+//        intent.putExtra(MessageUtil.INTENT_EXTRA_TARGET_NAME, targetName);
+//        intent.putExtra(MessageUtil.INTENT_EXTRA_USER_ID, username);
+//        startActivity(intent);
+//    }
+
+
+
+
+
+
+
+
+
+//    class MyRtmClientListener implements RtmClientListener {
+//
+//        @Override
+//        public void onConnectionStateChanged(final int state, int reason) {
 //            runOnUiThread(() -> {
-//                if (peerId.equals(mPeerId)) {
-//                    MessageBean messageBean = new MessageBean(peerId, rtmImageMessage, false);
-//                    messageBean.setBackground(getMessageColor(peerId));
-//                    mMessageBeanList.add(messageBean);
-//                    mMessageAdapter.notifyItemRangeChanged(mMessageBeanList.size(), 1);
-//                    mRecyclerView.scrollToPosition(mMessageBeanList.size() - 1);
-//                } else {
-//                    MessageUtil.addMessageBean(peerId, rtmImageMessage);
+//                switch (state) {
+//                    case RtmStatusCode.ConnectionState.CONNECTION_STATE_RECONNECTING:
+//                        Toast_in_Thread(getString(R.string.reconnecting));
+//                        break;
+//                    case RtmStatusCode.ConnectionState.CONNECTION_STATE_ABORTED:
+//                        Toast_in_Thread(getString(R.string.account_offline));
+//                        setResult(MessageUtil.ACTIVITY_RESULT_CONN_ABORTED);
+//                        finish();
+//                        break;
 //                }
 //            });
-        }
+//        }
+//
+//        @SuppressLint("LongLogTag")
+//        @Override
+//        public void onMessageReceived(final RtmMessage message, final String peerId) {
+//            if (isTopActivity()) {
+//                Log.d("onMessageRecievedFromPeer", message.getText() + " from " + peerId);
+//                String msg = message.getText();
+//                if (Pattern.matches(callMsgPattern, message.getText())) {
+//
+//                    String targetName = msg.substring(10, msg.indexOf("##In##"));
+//                    String channelName = msg.substring(msg.indexOf("##In##") + 6, msg.lastIndexOf("##"));
+//                    final boolean[] answered = {false};
+//                    runOnUiThread(() -> {
+//
+//
+//                        BasePopupView calledPopup = new XPopup.Builder(mainContext)
+//                                .dismissOnTouchOutside(false)
+//                                .dismissOnBackPressed(false)
+//                                .asConfirm("Phone Call", "from " + targetName, "Reject", "Answer",
+//                                        new OnConfirmListener() {
+//                                            @Override
+//                                            public void onConfirm() {
+//                                                answered[0] = true;
+//
+//                                                VoiceChat(channelName, username);
+//                                                String callMessage = "##SuccessToAnswer##";
+//                                                RtmMessage answerMessage = mRtmClient.createMessage();
+//                                                answerMessage.setText(callMessage);
+//
+//                                                mRtmClient.sendMessageToPeer(targetName, answerMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
+//                                                    @Override
+//                                                    public void onSuccess(Void aVoid) {
+//
+//                                                    }
+//
+//                                                    @Override
+//                                                    public void onFailure(ErrorInfo errorInfo) {
+//
+//                                                    }
+//                                                });
+//                                            }
+//                                        }, new OnCancelListener() {
+//                                            @Override
+//                                            public void onCancel() {
+//                                                answered[0] = true;
+//
+//                                                String callMessage = "##RefuseToAnswer##";
+//                                                RtmMessage refuseMessage = mRtmClient.createMessage();
+//                                                refuseMessage.setText(callMessage);
+//
+//                                                mRtmClient.sendMessageToPeer(targetName, refuseMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
+//                                                    @Override
+//                                                    public void onSuccess(Void aVoid) {
+//
+//                                                    }
+//
+//                                                    @Override
+//                                                    public void onFailure(ErrorInfo errorInfo) {
+//
+//                                                    }
+//                                                });
+//                                            }
+//                                        }, false);
+//                        calledPopup.show();
+//                        calledPopup.delayDismiss(20000);
+//                        calledPopup.dismissWith(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                if (answered[0] == false){
+//                                    String callMessage = "##TimeOutToAnswer##";
+//                                    RtmMessage timeOutMessage = mRtmClient.createMessage();
+//                                    timeOutMessage.setText(callMessage);
+//
+//                                    mRtmClient.sendMessageToPeer(targetName, timeOutMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
+//                                        @Override
+//                                        public void onSuccess(Void aVoid) {
+//
+//                                        }
+//
+//                                        @Override
+//                                        public void onFailure(ErrorInfo errorInfo) {
+//
+//                                        }
+//                                    });
+//                                }
+//                            }
+//                        });
+//
+//                    });
+//                } else if (msg.equals("##RefuseToAnswer##")){
+//                    runOnUiThread(() -> {
+//                        Toast_in_Thread("Target Refused To Answer");
+//                        fab.setVisibility(View.GONE);
+//                        try {
+//                            leaveChannel();
+//                            RtcEngine.destroy();
+//                        } catch (Exception e){
+//                            Toast_in_Thread(e.getMessage());
+//                        }
+//                        mRtcEngine = null;
+//                    });
+//
+//                } else if (msg.equals("##SuccessToAnswer##")){
+//                    runOnUiThread(() -> {
+//                        Toast_in_Thread("Connection Succeeded");
+//                    });
+//                } else if (msg.equals("##TimeOutToAnswer##")){
+//                    runOnUiThread(() -> {
+//                        Toast_in_Thread("Target Time Out To Answer");
+//                        fab.setVisibility(View.GONE);
+//                        try {
+//                            leaveChannel();
+//                            RtcEngine.destroy();
+//                        } catch (Exception e){
+//                            Toast_in_Thread(e.getMessage());
+//                        }
+//                        mRtcEngine = null;
+//                    });
+//                } else {
+//                    runOnUiThread(() -> {
+//
+//                        MessageUtil.addMessageBean(peerId, message);
+//
+//                        MsgPopup msgPopup = new MsgPopup(mainContext, 3000);
+//                        msgPopup.setText(peerId + ": " + message.getText());
+//                        TextView msgText = msgPopup.findViewById(R.id.msg_text);
+//                        msgText.setOnClickListener(new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View view) {
+//                                Log.d("MsgText", "OnClick");
+//                                openMessageActivity(true, peerId);
+//                            }
+//                        });
+//
+//                        BasePopupView xMsgPopup = new XPopup.Builder(mainContext)
+//                                .hasShadowBg(false)
+//                                .popupAnimation(PopupAnimation.ScaleAlphaFromCenter)
+//                                .isCenterHorizontal(true)
+//                                .offsetY(200)
+//                                .asCustom(msgPopup);
+//
+//                        xMsgPopup.show();
+//
+//                        Log.d("onMessageReceived", "runOnUiThread");
+//
+//
+//                    });
+//                }
+//            }
+//        }
+//
+//        @SuppressLint("LongLogTag")
+//        @Override
+//        public void onImageMessageReceivedFromPeer(final RtmImageMessage rtmImageMessage, final String peerId) {
+//            if (isTopActivity()) {
+//                Log.d("onMessageRecievedFromPeer", rtmImageMessage.getText() + " from " + peerId);
+//                runOnUiThread(() -> {
+//                    MessageUtil.addMessageBean(peerId, rtmImageMessage);
+//                    MsgPopup msgPopup = new MsgPopup(mainContext, 3000);
+//                    msgPopup.setText(peerId + ": [Image]");
+//                    TextView msgText = msgPopup.findViewById(R.id.msg_text);
+//                    msgText.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View view) {
+//                            Log.d("MsgText", "OnClick");
+//                            openMessageActivity(true, peerId);
+//                        }
+//                    });
+//                    new XPopup.Builder(mainContext)
+//                            .hasShadowBg(false)
+//                            .popupAnimation(PopupAnimation.ScaleAlphaFromCenter)
+//                            .isCenterHorizontal(true)
+//                            .offsetY(200)
+//                            .asCustom(msgPopup)
+//                            .show();
+//
+//                });
+//            }
+//
+//
+////            runOnUiThread(() -> {
+////                if (peerId.equals(mPeerId)) {
+////                    MessageBean messageBean = new MessageBean(peerId, rtmImageMessage, false);
+////                    messageBean.setBackground(getMessageColor(peerId));
+////                    mMessageBeanList.add(messageBean);
+////                    mMessageAdapter.notifyItemRangeChanged(mMessageBeanList.size(), 1);
+////                    mRecyclerView.scrollToPosition(mMessageBeanList.size() - 1);
+////                } else {
+////                    MessageUtil.addMessageBean(peerId, rtmImageMessage);
+////                }
+////            });
+//        }
+//
+//        @Override
+//        public void onFileMessageReceivedFromPeer(RtmFileMessage rtmFileMessage, String s) {
+//
+//        }
+//
+//        @Override
+//        public void onMediaUploadingProgress(RtmMediaOperationProgress rtmMediaOperationProgress, long l) {
+//
+//        }
+//
+//        @Override
+//        public void onMediaDownloadingProgress(RtmMediaOperationProgress rtmMediaOperationProgress, long l) {
+//
+//        }
+//
+//        @Override
+//        public void onTokenExpired() {
+//
+//        }
+//
+//        @Override
+//        public void onPeersOnlineStatusChanged(Map<String, Integer> map) {
+//            String[] peerName = (String[]) map.keySet().toArray();
+//            int status = map.get(peerName[0]);
+//            switch (status){
+////                case
+//            }
+//
+//        }
+//    }
 
-        @Override
-        public void onFileMessageReceivedFromPeer(RtmFileMessage rtmFileMessage, String s) {
 
-        }
 
-        @Override
-        public void onMediaUploadingProgress(RtmMediaOperationProgress rtmMediaOperationProgress, long l) {
 
-        }
+//    private void PushSWC_Block_Manual(){
+//
+//        String filepath = this.getExternalFilesDir(null).toString();
+//        String swc_file_path = filepath + "/Sync/BlockSet";
+//        File dir = new File(swc_file_path);
+//
+//        if (!dir.exists()){
+//            if (!dir.mkdirs())
+//                Toast.makeText(this,"Fail to create file: PushSWC_Block", Toast.LENGTH_SHORT).show();
+//        }
+//
+//        String filename = getFilename_Remote(this);
+//        String neuron_number = getNeuronNumber_Remote(this, filename);
+//        String offset = getoffset_Remote(this, filename);
+//        System.out.println(offset);
+//        int[] index = BigImgReader.getIndex(offset);
+//        System.out.println(filename);
+//
+//        String ratio = Integer.toString(remote_socket.getRatio_SWC());
+//        String SwcFileName = "blockSet__" + neuron_number + "__" +
+//                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
+//
+//        System.out.println(SwcFileName);
+//
+//        if (Save_curSwc_fast(SwcFileName, swc_file_path)){
+//            File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
+//            try {
+//                System.out.println("Start to push swc file");
+//                InputStream is = new FileInputStream(SwcFile);
+//                long length = SwcFile.length();
+//
+//                if (length < 0 || length > Math.pow(2, 28)){
+//                    Toast_in_Thread("Something Wrong When Upload SWC, Try Again Please !");
+//                    return;
+//                }
+//
+//                remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
+//
+//            } catch (Exception e){
+//                System.out.println("----" + e.getMessage() + "----");
+//            }
+//        }
+//    }
+//
+//
+//    private String[] SaveSWC_Block_Auto(){
+//
+//        String filepath = this.getExternalFilesDir(null).toString();
+//        String swc_file_path = filepath + "/Sync/BlockSet";
+//        File dir = new File(swc_file_path);
+//
+//        if (!dir.exists()){
+//            if (!dir.mkdirs())
+//                Toast.makeText(this,"Fail to create file: PushSWC_Block", Toast.LENGTH_SHORT).show();
+//        }
+//
+//        String filename = getFilename_Remote(this);
+//        String neuron_number = getNeuronNumber_Remote(this, filename);
+//        String offset = getoffset_Remote(this, filename);
+//        System.out.println(offset);
+//        int[] index = BigImgReader.getIndex(offset);
+//        System.out.println(filename);
+//
+//        String ratio = Integer.toString(remote_socket.getRatio_SWC());
+//        String SwcFileName = "blockSet__" + neuron_number + "__" +
+//                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
+//
+//        System.out.println(SwcFileName);
+//
+//        if (Save_curSwc_fast(SwcFileName, swc_file_path)){
+//            return new String[]{ swc_file_path, SwcFileName };
+//        }
+//
+//        Log.v("SaveSWC_Block_Auto","Save Successfully !");
+//        return new String[]{"Error", "Error"};
+//    }
+//
+//
+//
+//    private static void PushSWC_Block_Auto(String swc_file_path, String SwcFileName){
+//
+//        if (swc_file_path.equals("Error"))
+//            return;
+//
+//        File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
+//        if (!SwcFile.exists()){
+//            Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
+//            return;
+//        }
+//        try {
+//            System.out.println("Start to push swc file");
+//            InputStream is = new FileInputStream(SwcFile);
+//            long length = SwcFile.length();
+//
+//            if (length <= 0 || length > Math.pow(2, 28)){
+//                Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
+//                return;
+//            }
+//            remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
+//
+//        } catch (Exception e){
+//            System.out.println("----" + e.getMessage() + "----");
+//        }
+//    }
+//
+//    private boolean Save_curSwc_fast(String SwcFileName, String dir_str){
+//
+//        System.out.println("start to save-------");
+//        myrenderer.reNameCurrentSwc(SwcFileName);
+//
+//        String error = "init";
+//        try {
+//            error = myrenderer.saveCurrentSwc(dir_str);
+//            System.out.println("error:" + error);
+//        } catch (Exception e) {
+//            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+//            return false;
+//        }
+//        if (!error.equals("")) {
+//            if (error.equals("This file already exits")){
+//                String errorMessage = "";
+//                try{
+//                    errorMessage = myrenderer.oversaveCurrentSwc(dir_str);
+//                    if (errorMessage == "Overwrite failed!"){
+//                        Toast_in_Thread("Fail to save swc file: Save_curSwc_fast");
+//                        return false;
+//                    }
+//                }catch (Exception e){
+//                    System.out.println(errorMessage);
+//                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+//                    return false;
+//                }
+//            }
+////            if (error.equals("Current swc is empty!")){
+////                Toast_in_Thread("Current swc file is empty!");
+////                return false;
+////            }
+//        } else{
+//            System.out.println("save SWC to " + dir_str + "/" + SwcFileName + ".swc");
+//        }
+//        return true;
+//    }
 
-        @Override
-        public void onMediaDownloadingProgress(RtmMediaOperationProgress rtmMediaOperationProgress, long l) {
 
-        }
 
-        @Override
-        public void onTokenExpired() {
-
-        }
-
-        @Override
-        public void onPeersOnlineStatusChanged(Map<String, Integer> map) {
-            String[] peerName = (String[]) map.keySet().toArray();
-            int status = map.get(peerName[0]);
-            switch (status){
-//                case
-            }
-
-        }
-    }
 }

@@ -4,8 +4,8 @@ import android.util.Log;
 
 import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.R;
-import com.example.myapplication__volume.agora.activity.PeerToPeerVideoActivity;
-import com.example.myapplication__volume.agora.message.AgoraMsgManager;
+import com.example.chat.agora.activity.PeerToPeerVideoActivity;
+import com.example.chat.agora.message.AgoraMsgManager;
 import com.netease.nim.uikit.business.session.actions.BaseAction;
 import com.netease.nim.uikit.common.ToastHelper;
 import com.netease.nim.uikit.common.util.sys.NetworkUtil;

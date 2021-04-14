@@ -1,6 +1,6 @@
-package com.example.myapplication__volume.data;
+package com.example.myapplication__volume.ui.login.data;
 
-import com.example.myapplication__volume.data.model.LoggedInUser;
+import com.example.myapplication__volume.ui.login.data.model.LoggedInUser;
 
 /**
  * Class that requests authentication and user information from the remote data source and

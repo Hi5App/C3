@@ -145,9 +145,7 @@ public class MsgConnector implements ReconnectionInterface {
     }
 
     private boolean checkConnection(){
-
         return msgSocket != null && msgSocket.isConnected() && !msgSocket.isClosed();
-
     }
 
 
@@ -164,20 +162,14 @@ public class MsgConnector implements ReconnectionInterface {
      * send msg without waiting
      */
     public boolean sendMsg(String msg){
-
-        return sendMsg(msg, false);
-
+        return sendMsg(msg, false, true);
     }
 
 
-    public boolean sendMsg(String msg, boolean waited){
-
-        makeConnect();
-
+    public boolean sendMsg(String msg, boolean waited, boolean resend){
         if (checkConnection()){
-            return msgSender.SendMsg(msgSocket, msg, waited, this);
+            return msgSender.SendMsg(msgSocket, msg, waited, resend, this);
         }
-
         return false;
     }
 
@@ -249,9 +241,10 @@ public class MsgConnector implements ReconnectionInterface {
         /*
         reconnect
          */
+        releaseConnection();
         initConnection();
         CollaborationService.resetConnection();
-        sendMsg(msg);
+        sendMsg(msg, false, true);
     }
 
 

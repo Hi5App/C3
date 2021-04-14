@@ -1,4 +1,4 @@
-package com.example.myapplication__volume.data;
+package com.example.myapplication__volume.ui.login.data;
 
 /**
  * A generic class that holds a result success w/ data or an error exception.

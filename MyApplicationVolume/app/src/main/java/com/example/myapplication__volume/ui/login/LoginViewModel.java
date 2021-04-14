@@ -8,9 +8,9 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.myapplication__volume.R;
-import com.example.myapplication__volume.data.LoginRepository;
-import com.example.myapplication__volume.data.Result;
-import com.example.myapplication__volume.data.model.LoggedInUser;
+import com.example.myapplication__volume.ui.login.data.LoginRepository;
+import com.example.myapplication__volume.ui.login.data.Result;
+import com.example.myapplication__volume.ui.login.data.model.LoggedInUser;
 
 public class LoginViewModel extends ViewModel {
 
@@ -40,7 +40,6 @@ public class LoginViewModel extends ViewModel {
             loginResult.setValue(new LoginResult(new LoggedInUserView(data.getDisplayName())));
         } else {
             loginResult.setValue(new LoginResult(result.toString()));
-//            loginResult.setValue(new LoginResult(R.string.login_failed));
         }
     }
 

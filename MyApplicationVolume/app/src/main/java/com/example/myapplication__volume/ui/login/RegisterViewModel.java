@@ -8,9 +8,9 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.myapplication__volume.R;
-import com.example.myapplication__volume.data.RegisterRespository;
-import com.example.myapplication__volume.data.Result;
-import com.example.myapplication__volume.data.model.LoggedInUser;
+import com.example.myapplication__volume.ui.login.data.RegisterRespository;
+import com.example.myapplication__volume.ui.login.data.Result;
+import com.example.myapplication__volume.ui.login.data.model.LoggedInUser;
 
 public class RegisterViewModel extends ViewModel {
     private MutableLiveData<RegisterFormState> registerFormState = new MutableLiveData<>();

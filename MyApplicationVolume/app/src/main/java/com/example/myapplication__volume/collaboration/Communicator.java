@@ -179,7 +179,7 @@ public class Communicator {
             msg = msg + String.join(";", result);
 
             MsgConnector msgConnector = MsgConnector.getInstance();
-            msgConnector.sendMsg(msg, false);
+            msgConnector.sendMsg(msg);
 
     }
 
@@ -195,7 +195,7 @@ public class Communicator {
         msg = msg + String.join(";", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.sendMsg(msg, false);
+        msgConnector.sendMsg(msg);
 
     }
 
@@ -215,7 +215,7 @@ public class Communicator {
 
         String msg_origin = "/delmarker_norm:" + String.format("%s %s %s %s %s;", username, "HI5", "128", "128", "128");
         msg_origin = msg_origin + String.join(";", result_origin);
-        msgConnector.sendMsg(msg_origin, true);
+        msgConnector.sendMsg(msg_origin, true, false);
 
         /*
         add marker
@@ -226,7 +226,7 @@ public class Communicator {
 
         String msg_current = "/addmarker_norm:" + String.format("%s %s %s %s %s;", username, "HI5", "128", "128", "128");
         msg_current = msg_current + String.join(";", result_current);
-        msgConnector.sendMsg(msg_current, true);
+        msgConnector.sendMsg(msg_current, true, false);
 
     }
 
@@ -237,7 +237,7 @@ public class Communicator {
         String msg = "/drawline_norm:" + username + " HI5 128 128 128;" + String.join(";", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.sendMsg(msg, false);
+        msgConnector.sendMsg(msg);
 
     }
 
@@ -247,7 +247,7 @@ public class Communicator {
         String msg = "/delline_norm:" + username + " HI5 128 128 128;" + String.join(";", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.sendMsg(msg, false);
+        msgConnector.sendMsg(msg);
 
     }
 
@@ -259,7 +259,7 @@ public class Communicator {
         String msg = "/retypeline_norm:" + username + " HI5 " + type + " 128 128 128;" + String.join(";", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.sendMsg(msg, false);
+        msgConnector.sendMsg(msg);
 
     }
 
