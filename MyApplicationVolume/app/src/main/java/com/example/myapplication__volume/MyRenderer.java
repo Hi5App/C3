@@ -2345,7 +2345,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             NeuronTree nt2 = NeuronTree.readSWC_file(swc_path);
             ano_apo = apoReader_1.read(apo_path);
-            importNeuronTree(nt2);
+            importNeuronTree(nt2,false);
             markerListLoaded = importApo(ano_apo);
 
         }catch (Exception e){
@@ -4504,7 +4504,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             swcDrawed.add((currentLine.get(4)) / sz[2] * mz[2]);
         }
     }
-    public void importNeuronTree(NeuronTree nt){
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void importNeuronTree(NeuronTree nt, boolean needSync){
 //
 //        if (ifLoadSWC){
 //            deleteAllTracing();
@@ -4521,6 +4522,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             Vector<V_NeuronSWC> segs = nt.devideByBranch();
             for (int i = 0; i < segs.size(); i++){
                 curSwcList.append(segs.get(i));
+                if (needSync){
+                    updateAddSegSWC(segs.get(i));
+                }
             }
 
             System.out.println("curSwcList.nsegs() : ");curSwcList.nsegs();

@@ -3315,7 +3315,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 Looper.prepare();
             }
             Toast.makeText(getContext(), "APP2-Tracing finish, size of result swc: " + Integer.toString(nt.listNeuron.size()), Toast.LENGTH_SHORT).show();
-            myrenderer.importNeuronTree(nt);
+            myrenderer.importNeuronTree(nt, isBigData_Remote);
             myrenderer.saveUndo();
             myGLSurfaceView.requestRender();
             progressBar.setVisibility(View.INVISIBLE);
@@ -3389,7 +3389,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
 
         Toast.makeText(getContext(), "GD-Tracing finished, size of result swc: " + Integer.toString(outswc.listNeuron.size()), Toast.LENGTH_SHORT).show();
-        myrenderer.importNeuronTree(outswc);
+        myrenderer.importNeuronTree(outswc,isBigData_Remote);
         myrenderer.saveUndo();
         myGLSurfaceView.requestRender();
         progressBar.setVisibility(View.INVISIBLE);
@@ -3770,7 +3770,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210419a 17:33 UTC+8 build",
+                                "Version: 20210419b 22:33 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4503,7 +4503,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 Log.v("onActivityResult", ".eswc");
                                 NeuronTree nt = NeuronTree.readSWC_file(uri);
 
-                                myrenderer.importNeuronTree(nt);
+                                myrenderer.importNeuronTree(nt,false);
                                 myrenderer.saveUndo();
                                 break;
 
@@ -4519,7 +4519,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 NeuronTree nt2 = NeuronTree.readSWC_file(swc_path);
                                 ano_apo = apoReader_1.read(apo_path);
 
-                                myrenderer.importNeuronTree(nt2);
+                                myrenderer.importNeuronTree(nt2,false);
                                 myrenderer.importApo(ano_apo);
                                 myrenderer.saveUndo();
                                 break;
@@ -5479,7 +5479,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         try {
             NeuronTree nt = NeuronTree.readSWC_file(filepath);
 
-            myrenderer.importNeuronTree(Communicator.getInstance().convertNeuronTree(nt));
+            myrenderer.importNeuronTree(Communicator.getInstance().convertNeuronTree(nt),false);
             myrenderer.saveUndo();
             myGLSurfaceView.requestRender();
 
@@ -5926,7 +5926,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 try {
                     NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
                     myrenderer.setSwcLoaded();
-                    myrenderer.importNeuronTree(nt);
+                    myrenderer.importNeuronTree(nt,false);
                     myGLSurfaceView.requestRender();
                     uiHandler.sendEmptyMessage(1);
                 }catch (Exception e){
@@ -5953,7 +5953,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         try {
             NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
             myrenderer.setSwcLoaded();
-            myrenderer.importNeuronTree(nt);
+            myrenderer.importNeuronTree(nt,false);
             myGLSurfaceView.requestRender();
         }catch (Exception e){
             Toast_in_Thread_static("Something Wrong when open Swc File !");

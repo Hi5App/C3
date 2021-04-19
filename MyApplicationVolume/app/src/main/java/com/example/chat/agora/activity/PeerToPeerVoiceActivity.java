@@ -20,6 +20,7 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.chat.agora.AVConfig;
 import com.example.chat.agora.basic.RingPlayer;
 import com.example.chat.agora.message.AgoraMsgManager;
 import com.example.myapplication__volume.BaseActivity;
@@ -124,11 +125,16 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
         @Override
         public void onUserJoined(int uid, int elapsed) {
             super.onUserJoined(uid, elapsed);
+            if (USERTYPE.equals(CALL_SIDE)){
+                finishAlert();
+                needCancel = false;
+                isCalling = true;
 
-            finishAlert();
-            needCancel = false;
-            isCalling = true;
+                TextView callingHint = findViewById(R.id.calling_hint_text);
+                callingHint.setText(UserInfoHelper.getUserName(PEERID));
+                AVConfig.status = AVConfig.Status.PEERTOPEERVOICE;
 
+            }
         }
 
         /**
@@ -199,7 +205,6 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
 
 
     private void initCall(){
-
         setContentView(R.layout.activity_voice_chat_view);
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO)) {
             initAgoraEngineAndJoinChannel();
@@ -212,7 +217,14 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
 
         headImageView = findViewById(R.id.user_head_image_voice);
         headImageView.loadBuddyAvatar(PEERID);
-        TextView callinghint = findViewById(R.id.calling_hint_text);
+
+        if (USERTYPE.equals(CALL_SIDE)){
+            TextView callingHint = findViewById(R.id.calling_hint_text);
+            callingHint.setText("You are calling " + UserInfoHelper.getUserName(PEERID));
+        }else {
+            TextView callingHint = findViewById(R.id.calling_hint_text);
+            callingHint.setText(UserInfoHelper.getUserName(PEERID));
+        }
 
     }
 
@@ -267,6 +279,7 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
          */
         AgoraMsgManager.getInstance().unregisterListener(rtmClientListener);
         timer.cancel();
+        AVConfig.status = AVConfig.Status.FREE;
 
         if (isCalling || USERTYPE.equals(CALL_SIDE)){
             /*
@@ -405,6 +418,7 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
         finishAlert();
         isCalling = true;
         needCancel = false;
+        AVConfig.status = AVConfig.Status.PEERTOPEERVOICE;
     }
 
 
@@ -519,8 +533,12 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
                         finishAlert();
                         finish();
                     }
-                } else if (msg.equals("##SuccessToAnswer##")){
-
+                } else if (msg.equals("##UserBusy##")){
+                    if (peerId.equals(PEERID)){
+                        Toast_in_Thread_static("Voice call is CANCELED");
+                        finishAlert();
+                        finish();
+                    }
                 }
             }
         }

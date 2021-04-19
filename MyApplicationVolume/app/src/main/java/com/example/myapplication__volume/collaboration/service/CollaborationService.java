@@ -480,6 +480,7 @@ public class CollaborationService extends Service {
                     break;
             }
 
+            MainActivity.hideProgressBar();
             reConnect();
 
         }

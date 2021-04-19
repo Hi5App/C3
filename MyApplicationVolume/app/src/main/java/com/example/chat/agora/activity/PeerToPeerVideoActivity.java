@@ -24,6 +24,7 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.chat.agora.AVConfig;
 import com.example.chat.agora.basic.RingPlayer;
 import com.example.chat.agora.message.AgoraMsgManager;
 import com.example.myapplication__volume.BaseActivity;
@@ -187,6 +188,7 @@ public class PeerToPeerVideoActivity extends BaseActivity {
                         finishAlert();
                         needCancel = false;
                         isCalling = true;
+                        AVConfig.status = AVConfig.Status.PEERTOPEERVIEDO;
                     }
                 }
             });
@@ -456,6 +458,7 @@ public class PeerToPeerVideoActivity extends BaseActivity {
          */
         AgoraMsgManager.getInstance().unregisterListener(rtmClientListener);
         timer.cancel();
+        AVConfig.status = AVConfig.Status.FREE;
 
         if (isCalling || USERTYPE.equals(CALL_SIDE)){
             /*
@@ -578,6 +581,7 @@ public class PeerToPeerVideoActivity extends BaseActivity {
         finishAlert();
         isCalling = true;
         needCancel = false;
+        AVConfig.status = AVConfig.Status.PEERTOPEERVIEDO;
     }
 
 
@@ -692,8 +696,12 @@ public class PeerToPeerVideoActivity extends BaseActivity {
                         finishAlert();
                         finish();
                     }
-                } else if (msg.equals("##SuccessToAnswer##")){
-
+                } else if (msg.equals("##UserBusy##")){
+                    if (peerId.equals(PEERID)){
+                        Toast_in_Thread_static("Video call is CANCELED");
+                        finishAlert();
+                        finish();
+                    }
                 }
             }
         }
