@@ -27,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.example.chat.agora.AVConfig;
 import com.example.datastore.PreferenceLogin;
 import com.example.myapplication__volume.MainActivity;
 import com.example.myapplication__volume.Nim.InfoCache;
@@ -287,6 +288,7 @@ public class LoginActivity extends AppCompatActivity {
         Log.e(TAG, "account: " + account);
         Log.e(TAG, "password: " + password);
 
+        AVConfig.init(new LoginInfo(account, password));
         NimUIKit.login(new LoginInfo(account, password),
                 new RequestCallback<LoginInfo>() {
 

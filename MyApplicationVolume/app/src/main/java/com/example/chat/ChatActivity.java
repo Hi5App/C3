@@ -5,16 +5,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.myapplication__volume.BaseActivity;
 import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -31,7 +30,7 @@ import cn.carbs.android.library.MDDialog;
  * the main activity for chat MESSAGE & VIDEO
  */
 
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends BaseActivity {
 
     public static final int MAX_INPUT_NAME_LENGTH = 64;
 
@@ -138,16 +137,6 @@ public class ChatActivity extends AppCompatActivity {
                 .create();
 
         mdDialog.show();
-    }
-
-
-    public void Toast_in_Thread(String message){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(ChatActivity.this, message,Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
 

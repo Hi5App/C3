@@ -9,11 +9,7 @@
         android:id="@+id/navigation_recentContacts"
         android:name="com.netease.nim.uikit.business.recent.RecentContactsFragment"
         android:label="@string/title_chats"/>
-<!--        tools:layout="@layout/fragment_dashboard" />-->
 
-
-    <!--        android:name="com.example.chat.ui.contacts.ContactsFragment"-->
-    <!--        android:name="com.netease.nim.uikit.business.contact.ContactsFragment"-->
     <fragment
         android:id="@+id/navigation_contactList"
         android:name="com.example.myapplication__volume.Nim.customization.contact.ContactListFragment"

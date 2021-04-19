@@ -21,13 +21,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.example.myapplication__volume.R;
 import com.example.chat.agora.basic.RingPlayer;
 import com.example.chat.agora.message.AgoraMsgManager;
+import com.example.myapplication__volume.BaseActivity;
+import com.example.myapplication__volume.R;
 import com.netease.nim.uikit.business.uinfo.UserInfoHelper;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 
@@ -54,7 +54,7 @@ import io.agora.rtm.RtmStatusCode;
 import static com.example.myapplication__volume.MainActivity.Toast_in_Thread_static;
 
 
-public class PeerToPeerVideoActivity extends AppCompatActivity {
+public class PeerToPeerVideoActivity extends BaseActivity {
 
 
 

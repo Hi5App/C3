@@ -29,6 +29,173 @@ public class MKTest {
     }
 
 
+
+
+    /*
+   Test for pre-construction  for SamSung
+   */
+    @Test
+    public void MiTest() throws RemoteException, InterruptedException {
+
+        // start the app
+        mUidevice.click(940,280);
+        Thread.sleep(3000);
+
+        //open the file
+        mUidevice.findObject(By.res("com.example.myapplication__volume:id/file")).click();
+        Thread.sleep(500);
+
+
+        mUidevice.findObject(By.text("Open BigData")).click();
+        Thread.sleep(2000);
+
+        mUidevice.findObject(By.text("18454")).click();
+        Thread.sleep(2000);
+
+        mUidevice.findObject(By.text("18454_00067")).click();
+        Thread.sleep(2000);
+
+        mUidevice.findObject(By.text("xfff.ano")).click();
+        Thread.sleep(2000);
+
+        mUidevice.findObject(By.text("Load File")).click();
+        Thread.sleep(8000);
+
+
+        // click the draw button
+        mUidevice.click(110,300);
+        Thread.sleep(3000);
+        mUidevice.click(140,600);
+        Thread.sleep(2000);
+        mUidevice.click(740,470);
+        Thread.sleep(2000);
+
+        for (int i=0; i<10000; i++){
+
+            //change pen blue
+            mUidevice.click(75,630);
+            Thread.sleep(2000);
+
+            mUidevice.swipe(620,900,250,1200,10);
+            Thread.sleep(5000);
+
+//            //change pen red
+//            mUidevice.click(75,715);
+//            Thread.sleep(2000);
+//
+//            mUidevice.swipe(620,1100,250,1400,10);
+//            Thread.sleep(5000);
+
+            if(i%6 == 0){
+                mUidevice.findObject(By.text("+")).click();
+            }else if (i%6 == 1){
+                mUidevice.findObject(By.text("-")).click();
+            }else if (i%6 == 2){
+                mUidevice.click(540,435);
+            }else if (i%6 == 3){
+                mUidevice.click(1030,1140);
+            }else if (i%6 == 4){
+                mUidevice.click(540,2160);
+            }else if (i%6 == 5){
+                mUidevice.click(50,1140);
+            }
+
+            Thread.sleep(10000);
+        }
+
+        Thread.sleep(2000);
+
+    }
+
+
+
+
+
+
+
+
+
+    /*
+  Test for pre-construction  for SamSung
+  */
+    @Test
+    public void HuaweiTest() throws RemoteException, InterruptedException {
+
+        // start the app
+        mUidevice.click(200,1850);
+        Thread.sleep(3000);
+
+        //open the file
+        mUidevice.findObject(By.res("com.example.myapplication__volume:id/file")).click();
+        Thread.sleep(500);
+
+
+        mUidevice.findObject(By.text("Open BigData")).click();
+        Thread.sleep(2000);
+
+        mUidevice.findObject(By.text("18454")).click();
+        Thread.sleep(2000);
+
+        mUidevice.findObject(By.text("18454_00067")).click();
+        Thread.sleep(2000);
+
+        mUidevice.findObject(By.text("xf.ano")).click();
+        Thread.sleep(2000);
+
+        mUidevice.findObject(By.text("Load File")).click();
+        Thread.sleep(8000);
+
+
+        // click the draw button
+        mUidevice.click(100,300);
+        Thread.sleep(3000);
+        mUidevice.click(150,650);
+        Thread.sleep(2000);
+        mUidevice.click(750,480);
+        Thread.sleep(2000);
+
+        //change pen red
+        mUidevice.click(75,715);
+        Thread.sleep(2000);
+
+        for (int i=0; i<10000; i++){
+
+//            //change pen blue
+//            mUidevice.click(75,620);
+//            Thread.sleep(2000);
+//
+//            mUidevice.swipe(620,900,250,1200,10);
+//            Thread.sleep(5000);
+
+
+            mUidevice.swipe(750,1400,250,1700,10);
+            Thread.sleep(5000);
+            System.out.println("current i: " + i);
+
+            if(i%6 == 0){
+                mUidevice.click(1130, 1240);
+            }else if (i%6 == 1){
+                mUidevice.click(590,430);
+            }else if (i%6 == 2){
+                mUidevice.click(50,1240);
+            }else if (i%6 == 3) {
+                mUidevice.click(590, 2350);
+            }else if (i%6 == 4){
+                mUidevice.click(80, 2050);
+            }else if (i%6 == 5){
+                mUidevice.click(80, 2140);
+            }
+
+            Thread.sleep(10000);
+        }
+
+        Thread.sleep(2000);
+
+    }
+
+
+
+
     /*
     Test for pre-construction for MEIZU
      */

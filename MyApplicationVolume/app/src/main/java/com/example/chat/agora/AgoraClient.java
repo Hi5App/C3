@@ -22,7 +22,7 @@ public class AgoraClient {
         if (loginInfo == null){
             AVConfig.init();
         }else {
-            AVConfig.init();
+            AVConfig.init(loginInfo);
         }
 
     }

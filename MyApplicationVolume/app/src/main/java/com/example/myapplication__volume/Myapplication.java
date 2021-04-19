@@ -158,7 +158,7 @@ public class Myapplication extends Application {
 
         // 配置是否需要预下载附件缩略图，默认为 true
         options.preloadAttach = true;
-        options.appKey = "0fda06baee636802cb441b62e6f65549";
+        options.appKey = "614728a863de5e1ae3ed42137d0911f6";
 
         // 配置由sdk托管来接收新的消息通知
         StatusBarNotificationConfig config = new StatusBarNotificationConfig();

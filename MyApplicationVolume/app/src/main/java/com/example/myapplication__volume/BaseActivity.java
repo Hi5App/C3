@@ -23,7 +23,8 @@ public class BaseActivity extends AppCompatActivity {
     protected static Context context;
 
     public static final String ip_SEU = "223.3.33.234";
-    public static final String ip_ALiYun = "39.100.35.131";
+//    public static final String ip_ALiYun = "39.100.35.131";
+    public static final String ip_ALiYun = "139.155.28.154";
     public static final String ip_TencentCloud = "139.155.28.154";
 
 

@@ -5,6 +5,7 @@ import android.content.Context;
 import com.example.myapplication__volume.Nim.contact.activity.UserProfileActivity;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.api.model.contact.ContactEventListener;
+import com.netease.nim.uikit.common.ToastHelper;
 
 /**
  * UIKit联系人列表定制展示类
@@ -21,6 +22,7 @@ public class ContactHelper {
         NimUIKit.setContactEventListener(new ContactEventListener() {
             @Override
             public void onItemClick(Context context, String account) {
+                ToastHelper.showToast(context, "You click user: " + account + " !");
                 UserProfileActivity.start(context, account);
             }
 

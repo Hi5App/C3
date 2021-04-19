@@ -32,16 +32,16 @@
                 android:visibility="invisible"
                 android:src="@drawable/icon_agora_largest" />
 
-<!--            <TextView-->
-<!--                android:id="@+id/called_hint_text"-->
-<!--                android:text="@string/video_called_activity_info"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_centerHorizontal="true"-->
-<!--                android:layout_below="@id/img_pos_holder_voice"-->
-<!--                android:paddingTop="@dimen/dp_size_10"-->
-<!--                android:textSize="@dimen/dp_size_20"-->
-<!--                android:textColor="@color/white"/>-->
+            <TextView
+                android:id="@+id/calling_hint_text"
+                android:text="@string/video_called_activity_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/img_pos_holder_voice"
+                android:paddingTop="@dimen/dp_size_10"
+                android:textSize="@dimen/dp_size_20"
+                android:textColor="@color/white"/>
 
         </RelativeLayout>
 

@@ -283,7 +283,7 @@ public class ServerConnector implements ReconnectionInterface {
         releaseConnection();
         initConnection();
         ManageService.resetConnection();
-        sendMsg(msg,false, true);
+        sendMsg(msg,false, false);
     }
 
 }

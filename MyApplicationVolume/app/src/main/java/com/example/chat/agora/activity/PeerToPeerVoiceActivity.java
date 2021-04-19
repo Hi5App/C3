@@ -17,13 +17,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.example.myapplication__volume.R;
 import com.example.chat.agora.basic.RingPlayer;
 import com.example.chat.agora.message.AgoraMsgManager;
+import com.example.myapplication__volume.BaseActivity;
+import com.example.myapplication__volume.R;
 import com.netease.nim.uikit.business.uinfo.UserInfoHelper;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 
@@ -49,7 +49,7 @@ import io.agora.rtm.RtmStatusCode;
 
 import static com.example.myapplication__volume.MainActivity.Toast_in_Thread_static;
 
-public class PeerToPeerVoiceActivity extends AppCompatActivity {
+public class PeerToPeerVoiceActivity extends BaseActivity {
 
     private static final String TAG = PeerToPeerVoiceActivity.class.getSimpleName();
 
@@ -212,6 +212,8 @@ public class PeerToPeerVoiceActivity extends AppCompatActivity {
 
         headImageView = findViewById(R.id.user_head_image_voice);
         headImageView.loadBuddyAvatar(PEERID);
+        TextView callinghint = findViewById(R.id.calling_hint_text);
+
     }
 
     public boolean checkSelfPermission(String permission, int requestCode) {

@@ -24,5 +24,8 @@ public class AVConfig {
         userid = loginInfo.getAccount();
     }
 
+    public static void setStatus(Status mStatus){
+        status = mStatus;
+    }
 
 }

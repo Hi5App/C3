@@ -44,7 +44,7 @@ public class AudioAction extends BaseAction {
         RtmMessage message = mRtmClient.createMessage();
         message.setText(callMessage);
 
-        Log.e("Video", "start VideoCall");
+        Log.e("Audio", "start AudioCall");
         mRtmClient.sendMessageToPeer(getAccount(), message, agoraMsgManager.getSendMessageOptions(), new ResultCallback<Void>() {
             @Override
             public void onSuccess(Void aVoid) {

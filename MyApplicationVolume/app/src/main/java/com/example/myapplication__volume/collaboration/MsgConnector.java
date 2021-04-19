@@ -244,7 +244,7 @@ public class MsgConnector implements ReconnectionInterface {
         releaseConnection();
         initConnection();
         CollaborationService.resetConnection();
-        sendMsg(msg, false, true);
+        sendMsg(msg, false, false);
     }
 
 
