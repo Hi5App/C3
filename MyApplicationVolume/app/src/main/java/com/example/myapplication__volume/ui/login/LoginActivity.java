@@ -71,6 +71,8 @@ public class LoginActivity extends AppCompatActivity {
     final private int SIGN_IN_ON_CLICK = 1;
     final private String TAG = "LoginActivity";
 
+    private long exitTime = 0;
+
     @SuppressLint("HandlerLeak")
     private Handler handler=new Handler(){
         @Override
@@ -343,7 +345,22 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK
+                && event.getAction() == KeyEvent.ACTION_DOWN) {
 
+            if ((System.currentTimeMillis() - exitTime) > 2000) {
+                Toast.makeText(getApplicationContext(), "Press again to exit the program",
+                        Toast.LENGTH_SHORT).show();
+                exitTime = System.currentTimeMillis();
+            } else {
+                finish();
+                System.exit(0);
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 
 
 }

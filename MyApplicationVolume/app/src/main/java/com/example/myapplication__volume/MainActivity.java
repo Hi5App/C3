@@ -548,6 +548,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         if (msg.startsWith("Score:")){
             Log.e(TAG,"get score: " + msg);
+            initDataBase(Integer.parseInt(msg.split(":")[1].split(" ")[1]));
         }
 
 
@@ -873,7 +874,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         /*
         init database for score module
          */
-        initDataBase();
+//        initDataBase();
 
         //
         myrenderer = new MyRenderer(this);
@@ -1358,7 +1359,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         scoreText.setLetterSpacing(0.8f);
         scoreText.setTextSize(15);
 
-        updateScoreText();
+//        updateScoreText();
 
         FrameLayout.LayoutParams lp_score = new FrameLayout.LayoutParams(350, 300);
         lp_score.gravity = Gravity.TOP | Gravity.RIGHT;
@@ -1792,6 +1793,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         doLoginAgora();
         initAgoraService();
 
+        getScore();
+
+
 //        /*
 //        sync the score
 //         */
@@ -1811,8 +1815,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public void onDestroy() {
         super.onDestroy();
 
+        Log.d(TAG, "onDestroy()))))");
+
         Intent bgmIntent = new Intent(this, MusicServer.class);
         stopService(bgmIntent);
+
+        Score score = Score.getInstance();
+        setScore(score.getScore());
 
         if ((mBoundAgora)){
             Log.e(TAG,"unbind agora service !");
@@ -1948,11 +1957,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     /*
     get score
      */
-    private void getScore(){
+    public static void getScore(){
         ServerConnector.getInstance().sendMsg("GETSCORE");
     }
 
-    private void setScore(int score){
+    public static void setScore(int score){
         ServerConnector.getInstance().sendMsg("SETSOCRE:" + score);
     }
 
@@ -3535,7 +3544,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 && event.getAction() == KeyEvent.ACTION_DOWN) {
 
             if ((System.currentTimeMillis() - exitTime) > 2000) {
-                Toast.makeText(getApplicationContext(), "再按一次退出程序",
+                Toast.makeText(getApplicationContext(), "Press again to exit the program",
                         Toast.LENGTH_SHORT).show();
                 exitTime = System.currentTimeMillis();
             } else {
@@ -3770,7 +3779,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210419b 22:33 UTC+8 build",
+                                "Version: 20210422a 17:44 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5475,6 +5484,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void loadBigDataSwc(String filepath){
         try {
             NeuronTree nt = NeuronTree.readSWC_file(filepath);
@@ -5864,14 +5874,18 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .show();
     }
 
-    public void initDataBase(){
+    public void initDataBase(int serverScore){
         DailyQuestsContainer.initId(username);
         Score.initId(username);
         ScoreLitePalConnector.initUser(username);
         RewardLitePalConnector.initUserId(username);
 
         Score score = Score.getInstance();
-        score.initFromLitePal();
+        if (!score.initFromLitePal(serverScore)) {
+            setScore(score.getScore());
+        }
+
+        updateScoreText();
     }
 
 

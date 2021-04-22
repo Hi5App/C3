@@ -61,6 +61,8 @@ public class RegisterActivity extends AppCompatActivity {
     private float buttonVolume = 1.0f;
     private float actionVolume = 1.0f;
 
+    private long exitTime = 0;
+
     @SuppressLint("HandlerLeak")
     private Handler handler=new Handler(){
         @SuppressLint("HandlerLeak")
@@ -252,5 +254,22 @@ public class RegisterActivity extends AppCompatActivity {
     public static void actionStart(Context context){
         Intent intent = new Intent(context, RegisterActivity.class);
         context.startActivity(intent);
+    }
+
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK
+                && event.getAction() == KeyEvent.ACTION_DOWN) {
+
+            if ((System.currentTimeMillis() - exitTime) > 2000) {
+                Toast.makeText(getApplicationContext(), "Press again to exit the program",
+                        Toast.LENGTH_SHORT).show();
+                exitTime = System.currentTimeMillis();
+            } else {
+                finish();
+                System.exit(0);
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

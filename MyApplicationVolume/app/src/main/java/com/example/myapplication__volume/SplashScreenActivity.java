@@ -81,18 +81,20 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
                     Runnable runnable = new Runnable() {
                         @Override
                         public void run() {
-                            if (!NimUIKit.isInitComplete()) {
-                                LogUtil.i(TAG, "wait for uikit cache!");
-                                new Handler().postDelayed(this, 100);
-                                return;
-                            }
+                            if (musicAlreadyNum < musicTotalNum) {
+                                if (!NimUIKit.isInitComplete()) {
+                                    LogUtil.i(TAG, "wait for uikit cache!");
+                                    new Handler().postDelayed(this, 100);
+                                    return;
+                                }
 
-                            customSplash = false;
-                            if (canAutoLogin()) {
-                                onIntent();
-                            } else {
-                                LoginActivity.start(SplashScreenActivity.this);
-                                finish();
+                                customSplash = false;
+                                if (canAutoLogin()) {
+                                    onIntent();
+                                } else {
+                                    LoginActivity.start(SplashScreenActivity.this);
+                                    finish();
+                                }
                             }
                         }
                     };
@@ -214,19 +216,21 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
                 Runnable runnable = new Runnable() {
                     @Override
                     public void run() {
-                        Toast_in_Thread("Failed to download");
-                        if (!NimUIKit.isInitComplete()) {
-                            LogUtil.i(TAG, "wait for uikit cache!");
-                            new Handler().postDelayed(this, 100);
-                            return;
-                        }
+                        if (musicAlreadyNum < musicTotalNum) {
+                            Toast_in_Thread("Failed to download");
+                            if (!NimUIKit.isInitComplete()) {
+                                LogUtil.i(TAG, "wait for uikit cache!");
+                                new Handler().postDelayed(this, 100);
+                                return;
+                            }
 
-                        customSplash = false;
-                        if (canAutoLogin()) {
-                            onIntent();
-                        } else {
-                            LoginActivity.start(SplashScreenActivity.this);
-                            finish();
+                            customSplash = false;
+                            if (canAutoLogin()) {
+                                onIntent();
+                            } else {
+                                LoginActivity.start(SplashScreenActivity.this);
+                                finish();
+                            }
                         }
                     }
                 };

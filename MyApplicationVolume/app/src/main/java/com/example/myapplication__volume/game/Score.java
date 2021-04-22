@@ -24,6 +24,7 @@ Marker 1
 */
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.datastore.database.DailyQuest;
 import com.example.datastore.database.User;
@@ -34,6 +35,8 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class Score {
+
+    private String TAG = "SCORE";
 
     private static Score INSTANCE;
     private static Context mContext;
@@ -84,9 +87,18 @@ public class Score {
         Score.id = id;
     }
 
-    public void initFromLitePal(){
+    public boolean initFromLitePal(int serverScore){
+        boolean result = true;
         ScoreLitePalConnector scoreLitePalConnector = ScoreLitePalConnector.getInstance();
         scoreLitePalConnector.initScoreFromLitePal(id);
+
+        if (score < serverScore){
+
+            score = serverScore;
+            scoreLitePalConnector.updateScore(serverScore);
+        } else if (score > serverScore){
+            result = false;
+        }
 
         DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
         dailyQuestsContainer.initFromLitePal();
@@ -102,6 +114,8 @@ public class Score {
             dailyQuestsContainer.updateNDailyQuest(0, 1);
 //            dailyQuests[0].updateAlreadyDone(1);
         }
+
+        return result;
     }
 
     public void updateLitePalDate(){

@@ -3426,15 +3426,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             lineAdded.add((float)outswc.get(i).y);
             lineAdded.add((float)outswc.get(i).z);
 
-//            System.out.println("( " + (int) outswc.get(i).x + "," + (int) outswc.get(i).y + "," + (int) outswc.get(i).z + " )");
-
-//            float [] curswc = {(float)outswc.get(i).x, (float)outswc.get(i).y, (float)outswc.get(i).z};
-//            VolumetoModel(curswc);
-//
-//            lineAdded.add(curswc[0]);
-//            lineAdded.add(curswc[1]);
-//            lineAdded.add(curswc[2]);
-
         }
         if (lineAdded != null){
 //            lineDrawed.add(lineAdded);
