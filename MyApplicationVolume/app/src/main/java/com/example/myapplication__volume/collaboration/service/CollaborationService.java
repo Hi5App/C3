@@ -8,13 +8,14 @@ import com.example.myapplication__volume.collaboration.connector.MsgConnector;
 
 public class CollaborationService extends BasicService {
 
-    private static final String TAG = "CollaborationService";
+    protected static final String TAG = "CollaborationService";
 
     private static ReadThread mReadThread;
 
     @Override
     public void init() {
 
+        super.TAG = TAG;
         HEART_BEAT_RATE = 5 * 60 * 1000;
         mBasicConnector = MsgConnector.getInstance();
         mReadThread = new ReadThread(mBasicConnector.getSocket());

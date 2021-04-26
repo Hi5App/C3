@@ -15,6 +15,7 @@ public class ManageService extends BasicService {
     @Override
     public void init() {
 
+        super.TAG = TAG;
         HEART_BEAT_RATE = 5 * 60 * 1000;
         mBasicConnector = ServerConnector.getInstance();
         mReadThread = new ReadThread(mBasicConnector.getSocket());

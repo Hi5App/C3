@@ -262,6 +262,7 @@ public class PeerToPeerVideoActivity extends BaseActivity {
             // Destroys remote view
             mRemoteVideo = null;
         }
+        finish();
     }
 
 

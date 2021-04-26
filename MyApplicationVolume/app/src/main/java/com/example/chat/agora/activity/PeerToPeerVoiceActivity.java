@@ -35,6 +35,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Pattern;
 
 import io.agora.common.annotation.NonNull;
 import io.agora.rtc.Constants;
@@ -389,6 +390,7 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
 
     private void onRemoteUserLeft(int uid, int reason) {
         showLongToast(String.format(Locale.US, "user %d left %d", (uid & 0xFFFFFFFFL), reason));
+        finish();
     }
 
 
@@ -472,7 +474,7 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
      * send msg between users
      * @param msg message sent
      */
-    private void sendMsg(String msg){
+    private void sendMsg(String PEERID, String msg){
         AgoraMsgManager agoraMsgManager = AgoraMsgManager.getInstance();
         RtmClient mRtmClient = agoraMsgManager.getRtmClient();
 
@@ -506,10 +508,15 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
         });
     }
 
+    private void sendMsg(String msg){
+        sendMsg(PEERID, msg);
+    }
+
 
 
 
     class VideoRtmClientListener implements RtmClientListener {
+        private final String callMsgPattern = "##CallFrom.*##In##.*##";
 
         @Override
         public void onConnectionStateChanged(final int state, int reason) {
@@ -550,7 +557,7 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
                     }
                 } else if (msg.equals("##UserBusy##")){
                     if (peerId.equals(PEERID)){
-                        Toast_in_Thread_static("Voice call is CANCELED");
+                        Toast_in_Thread_static("User is Busy");
                         finishAlert();
                         finish();
                     }
@@ -561,6 +568,15 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
                         Log.e(TAG,"try to reset the name");
                         handler.sendEmptyMessage(1);
                     }
+                } else if (Pattern.matches(callMsgPattern, message.getText())){
+                    new Timer().schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            String targetName = msg.substring(10, msg.indexOf("##In##"));
+                            sendMsg(targetName,"##UserBusy##");
+                            Log.e(TAG,"Pattern.matches videoMsgPattern, targetName: " + targetName);
+                        }
+                    }, 2 * 1000);
                 }
             }
         }

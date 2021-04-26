@@ -23,7 +23,9 @@ import java.util.TimerTask;
 
 public abstract class BasicService extends Service {
 
-    private static String TAG = BasicService.class.getSimpleName();
+//    private static String TAG = BasicService.class.getSimpleName();
+    protected String TAG;
+
 
     private ReceiveMsgInterface receiveMsgInterface;
 
