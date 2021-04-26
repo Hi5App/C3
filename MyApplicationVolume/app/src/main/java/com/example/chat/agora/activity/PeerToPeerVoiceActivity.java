@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.Vibrator;
 import android.text.TextUtils;
 import android.util.Log;
@@ -79,6 +81,7 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
     private HeadImageView headImageView;
     private ImageView mStartCallBtn;
     private ImageView mEndCallBtn;
+    private TextView callingHint;
 
 
 
@@ -89,6 +92,20 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
     private boolean needCancel = true;
     private Timer timer = new Timer();
 
+
+    @SuppressLint("HandlerLeak")
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(@androidx.annotation.NonNull Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case 1:
+                    callingHint = findViewById(R.id.calling_hint_text);
+                    callingHint.setText(UserInfoHelper.getUserName(PEERID));
+                    break;
+            }
+        }
+    };
 
 
 
@@ -217,10 +234,10 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
         headImageView.loadBuddyAvatar(PEERID);
 
         if (USERTYPE.equals(CALL_SIDE)){
-            TextView callingHint = findViewById(R.id.calling_hint_text);
+            callingHint = findViewById(R.id.calling_hint_text);
             callingHint.setText("You are calling " + UserInfoHelper.getUserName(PEERID));
         }else {
-            TextView callingHint = findViewById(R.id.calling_hint_text);
+            callingHint = findViewById(R.id.calling_hint_text);
             callingHint.setText(UserInfoHelper.getUserName(PEERID));
         }
 
@@ -542,7 +559,7 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
 
                     if (peerId.equals(PEERID)){
                         Log.e(TAG,"try to reset the name");
-//                        callingHint.setText(UserInfoHelper.getUserName(PEERID));
+                        handler.sendEmptyMessage(1);
                     }
                 }
             }

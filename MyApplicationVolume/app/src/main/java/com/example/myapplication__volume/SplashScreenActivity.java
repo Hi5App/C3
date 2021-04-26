@@ -10,7 +10,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,10 +19,10 @@ import com.example.datastore.PreferenceLogin;
 import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.mixpush.DemoMixPushMessageHandler;
 import com.example.myapplication__volume.Nim.util.sys.SysInfoUtil;
+import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
+import com.example.myapplication__volume.collaboration.connector.ServerConnector;
 import com.example.myapplication__volume.collaboration.service.BasicService;
 import com.example.myapplication__volume.collaboration.service.ManageService;
-import com.example.myapplication__volume.collaboration.connector.ServerConnector;
-import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
 import com.example.myapplication__volume.ui.login.LoginActivity;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.common.util.log.LogUtil;
@@ -35,6 +34,8 @@ import com.netease.nimlib.sdk.msg.model.IMMessage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
+
+import static com.example.myapplication__volume.Myapplication.ToastEasy;
 
 public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInterface {
 
@@ -372,7 +373,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 
         PreferenceLogin preferenceLogin = new PreferenceLogin(this);
         String account = preferenceLogin.getUsername();
-        Toast.makeText(getApplicationContext(),"Welcome, " + account +" !",Toast.LENGTH_SHORT).show();
+        ToastEasy("Welcome, " + account +" !");
 
         MainActivity.actionStart(this, account);
         finish();

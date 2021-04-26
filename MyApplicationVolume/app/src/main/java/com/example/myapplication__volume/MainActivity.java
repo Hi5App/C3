@@ -647,9 +647,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         public void handleMessage(Message msg) {
             switch (msg.what){
                 case 1:
-                    Log.v("filesocket_send: ", "Connect with Server successfully");
                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                    System.out.println("------ Upload file successfully!!! -------");
                     break;
             }
         }

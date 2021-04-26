@@ -228,7 +228,7 @@ public abstract class BasicService extends Service {
                             }
                         }catch (Exception e){
                             e.printStackTrace();
-                            System.out.println("网络异常！");
+                            System.out.println("Network Error ！");
                         }
                     }
 
@@ -404,12 +404,13 @@ public abstract class BasicService extends Service {
                         dataType.isFile = true;
                         dataType.filename = paras_list[1];
                         dataType.dataSize = Long.parseLong(paras_list[2]);
-                        dataType.filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Draw/Sync/BlockGet";
+
+                        if (dataType.filename.endsWith(".mp3") || dataType.filename.endsWith(".wmv"))
+                            dataType.filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Resources/Music";
+                        else
+                            dataType.filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Resources";
 
                         Log.e(TAG,"This is a file !");
-                        /*
-                        data file path
-                         */
                     }else {
                         ret = 3;
                     }
