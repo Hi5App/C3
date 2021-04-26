@@ -22,7 +22,7 @@ public class AgoraMsgManager {
 
     private static final String TAG = AgoraMsgManager.class.getSimpleName();
 
-    private static AgoraMsgManager agoraMsgManager = null;
+    private static volatile AgoraMsgManager INSTANCE = null;
 
     private Context mContext;
     private static RtmClient mRtmClient;
@@ -31,14 +31,14 @@ public class AgoraMsgManager {
     private RtmMessagePool mMessagePool = new RtmMessagePool();
 
     public static AgoraMsgManager getInstance(){
-        if (agoraMsgManager == null){
+        if (INSTANCE == null){
             synchronized (AgoraMsgManager.class){
-                if (agoraMsgManager == null){
-                    agoraMsgManager = new AgoraMsgManager();
+                if (INSTANCE == null){
+                    INSTANCE = new AgoraMsgManager();
                 }
             }
         }
-        return agoraMsgManager;
+        return INSTANCE;
     }
 
 

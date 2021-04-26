@@ -1930,7 +1930,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     // add the marker drawed into markerlist
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void setMarkerDrawed(float x, float y, boolean isBigData) throws CloneNotSupportedException {
 
         if(solveMarkerCenter(x, y) != null) {
@@ -2001,7 +2000,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     // delete the marker drawed from the markerlist
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void deleteMarkerDrawed(float x, float y, boolean isBigData) throws CloneNotSupportedException {
         for (int i = 0; i < markerList.size(); i++){
             ImageMarker tobeDeleted = markerList.get(i);
@@ -2063,7 +2061,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void changeMarkerType(float x, float y, boolean isBigData) throws CloneNotSupportedException {
         for (int i = 0; i < markerList.size(); i++){
             ImageMarker tobeDeleted = markerList.get(i);
@@ -3406,7 +3403,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             Log.v("draw line:::::", "nulllllllllllllllllll");
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void addLineDrawed2(ArrayList<Float> line, V_NeuronSWC background_seg, boolean isBigData) throws CloneNotSupportedException {
         if (img.getData() == null){
             return;
@@ -3953,7 +3949,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public  void deleteLine1(ArrayList<Float> line, boolean isBigData) throws CloneNotSupportedException {
 //        curSwcList.deleteCurve(line, finalMatrix, sz, mz);
         System.out.println("deleteline1--------------------------");
@@ -4069,7 +4064,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void splitCurve(ArrayList<Float> line, boolean isBigData) throws CloneNotSupportedException {
 //        curSwcList.splitCurve(line, finalMatrix, sz, mz);
         System.out.println("split1--------------------------");
@@ -4298,7 +4292,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void changeLineType(ArrayList<Float> line, int type, boolean isBigData) throws CloneNotSupportedException {
         System.out.println("changeLineType--------------------------");
         Vector<Integer> indexToChangeLineType = new Vector<>();
@@ -4495,7 +4488,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             swcDrawed.add((currentLine.get(4)) / sz[2] * mz[2]);
         }
     }
-    @RequiresApi(api = Build.VERSION_CODES.O)
+
+
     public void importNeuronTree(NeuronTree nt, boolean needSync){
 //
 //        if (ifLoadSWC){
@@ -5842,7 +5836,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
      */
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void updateAddSegSWC(V_NeuronSWC seg){
 
         Communicator communicator = Communicator.getInstance();
@@ -5851,7 +5844,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void updateDelSegSWC(V_NeuronSWC seg){
 
         Communicator communicator = Communicator.getInstance();
@@ -5859,7 +5851,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void updateAddMarker(ImageMarker marker){
 
         Communicator communicator = Communicator.getInstance();
@@ -5868,7 +5859,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void updateDelMarker(ImageMarker marker){
 
         Communicator communicator = Communicator.getInstance();
@@ -5876,7 +5866,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void updateRetypeMarker(ImageMarker origin_marker, ImageMarker current_marker){
 
         Communicator communicator = Communicator.getInstance();
@@ -5886,7 +5875,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void updateRetypeSegSWC(V_NeuronSWC seg){
 
         Communicator communicator = Communicator.getInstance();

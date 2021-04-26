@@ -9,8 +9,8 @@ import android.view.Menu;
 import android.view.View;
 
 import com.example.myapplication__volume.collaboration.service.CollaborationService;
-import com.example.myapplication__volume.collaboration.MsgConnector;
-import com.example.myapplication__volume.collaboration.ServerConnector;
+import com.example.myapplication__volume.collaboration.connector.MsgConnector;
+import com.example.myapplication__volume.collaboration.connector.ServerConnector;
 import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
 
 public class MenuActivity extends BaseActivity implements ReceiveMsgInterface {
@@ -61,7 +61,6 @@ public class MenuActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private void initMsgConnector(String ip){
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.setContext(this);
 
         msgConnector.setIp(ip_ALiYun);
         msgConnector.setPort(ip);

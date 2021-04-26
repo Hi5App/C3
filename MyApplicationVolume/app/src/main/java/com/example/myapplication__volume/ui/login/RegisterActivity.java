@@ -28,7 +28,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.example.myapplication__volume.R;
-import com.example.myapplication__volume.collaboration.ServerConnector;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -88,8 +87,6 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
         registerViewModel = ViewModelProviders.of(this, new RegisterViewModelFactory())
                 .get(RegisterViewModel.class);
-
-        ServerConnector.setContext(this);
 
         usernameEditText = findViewById(R.id.register_username);
         nicknameEditText = findViewById(R.id.register_nickname);
@@ -234,7 +231,6 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        ServerConnector.setContext(null);
     }
 
     private void updateUiWithUser(LoggedInUserView model) {

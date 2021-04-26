@@ -81,9 +81,10 @@ import com.example.myapplication__volume.Nim.main.helper.SystemMessageUnreadMana
 import com.example.myapplication__volume.Nim.reminder.ReminderManager;
 import com.example.myapplication__volume.Nim.session.extension.InviteAttachment;
 import com.example.myapplication__volume.collaboration.Communicator;
-import com.example.myapplication__volume.collaboration.MsgConnector;
-import com.example.myapplication__volume.collaboration.ServerConnector;
+import com.example.myapplication__volume.collaboration.connector.MsgConnector;
+import com.example.myapplication__volume.collaboration.connector.ServerConnector;
 import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
+import com.example.myapplication__volume.collaboration.service.BasicService;
 import com.example.myapplication__volume.collaboration.service.CollaborationService;
 import com.example.myapplication__volume.collaboration.service.ManageService;
 import com.example.myapplication__volume.game.AchievementPopup;
@@ -424,7 +425,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private int selectedBGM = 0;
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onRecMessage(String msg) {
 
@@ -2018,7 +2019,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private void initMsgConnector(String port){
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.setContext(this);
 
         msgConnector.releaseConnection();
         msgConnector.setIp(ip_ALiYun);
@@ -2028,9 +2028,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     private void initServerConnector(){
-
         ServerConnector serverConnector = ServerConnector.getInstance();
-        ServerConnector.setContext(this);
 
         serverConnector.setIp(ip_ALiYun);
         serverConnector.setPort("23763");
@@ -2060,7 +2058,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
-            ManageService.LocalBinder binder = (ManageService.LocalBinder) service;
+            BasicService.LocalBinder binder = (BasicService.LocalBinder) service;
             ManageService manageService = (ManageService) binder.getService();
             binder.addReceiveMsgInterface((MainActivity) getActivityFromContext(mainContext));
             mBoundManagement = true;
@@ -2080,7 +2078,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
-            CollaborationService.LocalBinder binder = (CollaborationService.LocalBinder) service;
+            BasicService.LocalBinder binder = (BasicService.LocalBinder) service;
             CollaborationService collaborationService = (CollaborationService) binder.getService();
             binder.addReceiveMsgInterface((MainActivity) getActivityFromContext(mainContext));
             mBoundCollaboration = true;
@@ -3342,7 +3340,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     private void GDTracing() throws Exception {
         Image4DSimple img = myrenderer.getImg();
         if(img == null){
@@ -3779,7 +3776,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210422a 17:44 UTC+8 build",
+                                "Version: 20210426a 17:44 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5148,7 +5145,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
         //触摸屏幕的事件
-        @RequiresApi(api = Build.VERSION_CODES.O)
         @SuppressLint("ClickableViewAccessibility")
         public boolean onTouchEvent(MotionEvent motionEvent) {
 

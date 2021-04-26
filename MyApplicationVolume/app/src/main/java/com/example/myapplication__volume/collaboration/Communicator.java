@@ -3,6 +3,7 @@ package com.example.myapplication__volume.collaboration;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
@@ -11,6 +12,7 @@ import com.example.basic.ImageMarker;
 import com.example.basic.NeuronTree;
 import com.example.basic.XYZ;
 import com.example.myapplication__volume.collaboration.basic.ImageInfo;
+import com.example.myapplication__volume.collaboration.connector.MsgConnector;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_unit;
 
@@ -57,7 +59,7 @@ public class Communicator {
      */
     private static Context mContext;
 
-    public static  Communicator INSTANCE;
+    public static volatile Communicator INSTANCE;
 
     private Communicator(){
     }
@@ -231,20 +233,18 @@ public class Communicator {
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void updateAddSegSWC(V_NeuronSWC seg){
         List<String> result = V_NeuronSWCToMSG(seg);
-        String msg = "/drawline_norm:" + username + " HI5 128 128 128;" + String.join(";", result);
+        String msg = "/drawline_norm:" + username + " HI5 128 128 128;" + TextUtils.join(";", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
         msgConnector.sendMsg(msg);
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void updateDelSegSWC(V_NeuronSWC seg){
         List<String> result = V_NeuronSWCToMSG(seg);
-        String msg = "/delline_norm:" + username + " HI5 128 128 128;" + String.join(";", result);
+        String msg = "/delline_norm:" + username + " HI5 128 128 128;" + TextUtils.join(";", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
         msgConnector.sendMsg(msg);
@@ -253,10 +253,9 @@ public class Communicator {
 
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void updateRetypeSegSWC(V_NeuronSWC seg, int type){
         List<String> result = V_NeuronSWCToMSG(seg);
-        String msg = "/retypeline_norm:" + username + " HI5 " + type + " 128 128 128;" + String.join(";", result);
+        String msg = "/retypeline_norm:" + username + " HI5 " + type + " 128 128 128;" + TextUtils.join(";", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
         msgConnector.sendMsg(msg);

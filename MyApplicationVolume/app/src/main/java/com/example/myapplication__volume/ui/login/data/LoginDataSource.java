@@ -2,7 +2,7 @@ package com.example.myapplication__volume.ui.login.data;
 
 import android.util.Log;
 
-import com.example.myapplication__volume.collaboration.ServerConnector;
+import com.example.myapplication__volume.collaboration.connector.ServerConnector;
 import com.example.myapplication__volume.ui.login.data.model.LoggedInUser;
 
 import java.io.IOException;

@@ -4,7 +4,7 @@ import com.netease.nimlib.sdk.auth.LoginInfo;
 
 public class AVConfig {
 
-    public enum  Status{
+    public enum Status{
         FREE, PEERTOPEERVOICE, PEERTOPEERVIEDO, OPENVOICECALL, OPENVIDEOCALL
     }
 

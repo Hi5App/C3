@@ -130,8 +130,6 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
                 needCancel = false;
                 isCalling = true;
 
-                TextView callingHint = findViewById(R.id.calling_hint_text);
-                callingHint.setText(UserInfoHelper.getUserName(PEERID));
                 AVConfig.status = AVConfig.Status.PEERTOPEERVOICE;
 
             }
@@ -413,7 +411,7 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
 
     public void answerCall(View view) {
 
-//        sendMsg("##SuccessToAnswer##");
+        sendMsg("##SuccessToAnswer##");
         initCall();
         finishAlert();
         isCalling = true;
@@ -538,6 +536,13 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
                         Toast_in_Thread_static("Voice call is CANCELED");
                         finishAlert();
                         finish();
+                    }
+                } else if (msg.equals("##SuccessToAnswer##")){
+                    Log.e(TAG,"try to reset the name");
+
+                    if (peerId.equals(PEERID)){
+                        Log.e(TAG,"try to reset the name");
+//                        callingHint.setText(UserInfoHelper.getUserName(PEERID));
                     }
                 }
             }

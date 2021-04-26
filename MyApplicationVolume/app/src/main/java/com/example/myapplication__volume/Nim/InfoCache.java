@@ -10,6 +10,9 @@ import com.netease.nimlib.sdk.StatusBarNotificationConfig;
  */
 public class InfoCache {
 
+
+    private static volatile InfoCache INSTANCE = null;
+
     private static Context context;
 
     private static String account;
@@ -31,6 +34,22 @@ public class InfoCache {
     }
 
     private static boolean mainTaskLaunching;
+
+
+    /**
+     * 获取InfoCache实例 ,单例模式
+     */
+    public static InfoCache getInstance(){
+        if (INSTANCE == null){
+            synchronized (InfoCache.class){
+                if (INSTANCE == null){
+                    INSTANCE = new InfoCache();
+                }
+            }
+        }
+        return INSTANCE;
+    }
+
 
     public static void setAccount(String account) {
         InfoCache.account = account;

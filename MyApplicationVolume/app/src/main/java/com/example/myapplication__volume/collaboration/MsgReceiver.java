@@ -1,9 +1,7 @@
 package com.example.myapplication__volume.collaboration;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.myapplication__volume.collaboration.basic.DataType;
 
@@ -13,11 +11,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static com.example.myapplication__volume.Myapplication.ToastEasy;
+
 public class MsgReceiver {
 
     private final static String TAG = "MsgReceiver";
-
-    private Context mContext;
 
     private DataType dataType = new DataType();
 
@@ -29,14 +27,13 @@ public class MsgReceiver {
 
     private static final String SOCKET_CLOSED = "socket is closed or fail to connect";
 
-    public MsgReceiver(Context context){
-        this.mContext = context;
+    public MsgReceiver(){
     }
 
     public String ReceiveMsg(Socket socket){
 
         if (!socket.isConnected()){
-            Toast_in_Thread("Fail to Send_Message, Try Again Please !");
+            ToastEasy("Fail to Send_Message, Try Again Please !");
             return SOCKET_CLOSED;
         }
 
@@ -257,25 +254,6 @@ public class MsgReceiver {
             e.printStackTrace();
         }
         return s;
-    }
-
-
-    public void setContext(Context mContext){
-        this.mContext = mContext;
-    }
-
-
-    /**
-     * toast info in the thread
-     * @param message the message you wanna toast
-     */
-    public void Toast_in_Thread(String message){
-        ((Activity) mContext).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(mContext, message,Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
 }

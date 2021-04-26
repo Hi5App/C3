@@ -1,9 +1,6 @@
 package com.example.myapplication__volume.collaboration;
 
-import android.app.Activity;
-import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.myapplication__volume.MainActivity;
 import com.example.myapplication__volume.collaboration.basic.ReconnectionInterface;
@@ -16,20 +13,20 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
+import static com.example.myapplication__volume.Myapplication.ToastEasy;
+
 public class MsgSender {
 
     private final String TAG = "MsgSender";
-    private Context mContext;
 
-    public MsgSender(Context context){
-        this.mContext = context;
+    public MsgSender(){
     }
 
     public boolean SendMsg(Socket socket, String message, boolean waited, boolean resend, ReconnectionInterface reconnectionInterface){
 
         final boolean[] flag = {true};
         if (!socket.isConnected()){
-            Toast_in_Thread("Fail to Send Message, Try Again Please !");
+            ToastEasy("Fail to Send Message, Try Again Please !");
             return false;
         }
 
@@ -98,7 +95,7 @@ public class MsgSender {
     public void SendFile(Socket socket, String filename, InputStream is, long filelength){
 
         if (!socket.isConnected()){
-            Toast_in_Thread("Socket is not Connected, Try Again Please !");
+            ToastEasy("Socket is not Connected, Try Again Please !");
             return;
         }
 
@@ -122,7 +119,7 @@ public class MsgSender {
 
                 }catch (Exception e){
                     e.printStackTrace();
-                    Toast_in_Thread("Fail to get OutputStream");
+                    ToastEasy("Fail to get OutputStream");
                 }
             }
         };
@@ -135,29 +132,11 @@ public class MsgSender {
             e.printStackTrace();
         }
 
-        Toast_in_Thread("Send File Successfully !");
+        ToastEasy("Send File Successfully !");
 
     }
 
 
-    public void setContext(Context mContext){
-        this.mContext = mContext;
-    }
-
-
-
-    /**
-     * toast info in the uithread
-     * @param message the message you wanna toast
-     */
-    public void Toast_in_Thread(String message){
-        ((Activity) mContext).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(mContext, message,Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
 
     /**
      * Transform bytes[] to long

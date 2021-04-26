@@ -12,7 +12,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.basic.CrashHandler;
+import com.example.basic.ToastUtil;
 import com.example.chat.ChatActivity;
+import com.example.chat.agora.AgoraClient;
+import com.example.chat.agora.message.AgoraMsgManager;
 import com.example.datastore.PreferenceLogin;
 import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.NIMInitManager;
@@ -23,10 +26,9 @@ import com.example.myapplication__volume.Nim.mixpush.DemoPushContentProvider;
 import com.example.myapplication__volume.Nim.preference.UserPreferences;
 import com.example.myapplication__volume.Nim.session.NimDemoLocationProvider;
 import com.example.myapplication__volume.Nim.session.SessionHelper;
-import com.example.chat.agora.AgoraClient;
 import com.example.myapplication__volume.collaboration.Communicator;
-import com.example.myapplication__volume.collaboration.MsgConnector;
-import com.example.myapplication__volume.collaboration.ServerConnector;
+import com.example.myapplication__volume.collaboration.connector.MsgConnector;
+import com.example.myapplication__volume.collaboration.connector.ServerConnector;
 import com.example.myapplication__volume.collaboration.basic.ImageInfo;
 import com.example.myapplication__volume.game.DailyQuestLitePalConnector;
 import com.example.myapplication__volume.game.DailyQuestsContainer;
@@ -59,7 +61,12 @@ public class Myapplication extends Application {
      *    4. init AV module agora
      */
     private static Myapplication sInstance;
+
     private static Context context;
+
+    private static InfoCache infoCache;
+
+    private static AgoraMsgManager agoraMsgManager;
 
     public static Myapplication the() {
         return sInstance;
@@ -75,7 +82,7 @@ public class Myapplication extends Application {
         sInstance = this;
         context = getApplicationContext();
 
-        //store crash infozyh
+        //store crash info zyh
         CrashHandler crashHandler = CrashHandler.getInstance();
         crashHandler.init(getApplicationContext());
 
@@ -93,6 +100,7 @@ public class Myapplication extends Application {
 
         Log.e(TAG, String.format("Database version: %d", db.getVersion()));
         AgoraClient.init(this, getLoginInfo());
+        agoraMsgManager = AgoraMsgManager.getInstance();
 
 
         // for collaboration
@@ -102,6 +110,7 @@ public class Myapplication extends Application {
 
         // user cache info
         InfoCache.setContext(this);
+        infoCache = InfoCache.getInstance();
 
         // IM 网易云信
         // 4.6.0 开始，第三方推送配置入口改为 SDKOption#mixPushConfig，旧版配置方式依旧支持。
@@ -275,5 +284,17 @@ public class Myapplication extends Application {
         return context;
     }
 
+
+    /**
+     * toast info in the thread
+     * @param message the message you wanna toast
+     */
+    public static void ToastEasy(String message){
+
+        ToastUtil.getInstance()
+                .createBuilder(context)
+                .setMessage(message)
+                .show();
+    }
 
 }

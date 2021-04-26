@@ -20,8 +20,9 @@ import com.example.datastore.PreferenceLogin;
 import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.Nim.mixpush.DemoMixPushMessageHandler;
 import com.example.myapplication__volume.Nim.util.sys.SysInfoUtil;
+import com.example.myapplication__volume.collaboration.service.BasicService;
 import com.example.myapplication__volume.collaboration.service.ManageService;
-import com.example.myapplication__volume.collaboration.ServerConnector;
+import com.example.myapplication__volume.collaboration.connector.ServerConnector;
 import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
 import com.example.myapplication__volume.ui.login.LoginActivity;
 import com.netease.nim.uikit.api.NimUIKit;
@@ -59,7 +60,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
-            ManageService.LocalBinder binder = (ManageService.LocalBinder) service;
+            BasicService.LocalBinder binder = (BasicService.LocalBinder) service;
             manageService = (ManageService) binder.getService();
             binder.addReceiveMsgInterface((SplashScreenActivity) getActivityFromContext(splashContext));
             mBound = true;
@@ -283,7 +284,6 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
         InfoCache.setMainTaskLaunching(false);
 
         // avoid memory leak
-        ServerConnector.setContext(null);
         splashContext = null;
     }
 
@@ -399,7 +399,6 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
     private void initServerConnector(){
 
         ServerConnector serverConnector = ServerConnector.getInstance();
-        ServerConnector.setContext(this);
 
         serverConnector.setIp(ip_ALiYun);
         serverConnector.setPort("23763");
@@ -419,7 +418,6 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 //                musicTotalNum = 1;
                 musicAlreadyNum = 0;
                 ServerConnector serverConnector = ServerConnector.getInstance();
-                ServerConnector.setContext(this);
 //                serverConnector.sendMsg("GETMUSIC:CoyKoi.mp3");
 //                for (int i = 2; i < list.length; i++){
 //                    if (list[i] != "." && list[i] != ".."){

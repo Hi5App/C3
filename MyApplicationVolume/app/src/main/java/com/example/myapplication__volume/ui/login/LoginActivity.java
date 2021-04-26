@@ -32,7 +32,6 @@ import com.example.datastore.PreferenceLogin;
 import com.example.myapplication__volume.MainActivity;
 import com.example.myapplication__volume.Nim.InfoCache;
 import com.example.myapplication__volume.R;
-import com.example.myapplication__volume.collaboration.ServerConnector;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.common.ToastHelper;
 import com.netease.nim.uikit.common.util.log.LogUtil;
@@ -101,8 +100,6 @@ public class LoginActivity extends AppCompatActivity {
         /*
         set context for toast in ServerConnector
          */
-        ServerConnector.setContext(this);
-
 
         preferenceLogin = new PreferenceLogin(this);
         usernameEditText = findViewById(R.id.username);
@@ -194,7 +191,6 @@ public class LoginActivity extends AppCompatActivity {
                     login IM module
                      */
                     loginNim(loginResult.getSuccess().getDisplayName(), passwordEditText.getText().toString(), loginResult);
-                    finish();
                 }
                 setResult(Activity.RESULT_OK);
 
@@ -262,7 +258,6 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        ServerConnector.setContext(null);
     }
 
     private void updateUiWithUser(LoggedInUserView model) {
