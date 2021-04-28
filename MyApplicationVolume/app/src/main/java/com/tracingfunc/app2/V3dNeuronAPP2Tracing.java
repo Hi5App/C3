@@ -4,16 +4,14 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
-import com.example.basic.Image4DSimple;
-import com.example.basic.Image4DSimple.ImagePixelType;
-import com.example.basic.NeuronTree;
+import com.main.basic.Image4DSimple;
+import com.main.basic.Image4DSimple.ImagePixelType;
+import com.main.basic.NeuronTree;
 
-import java.lang.reflect.Array;
-import java.util.List;
 import java.util.Timer;
 import java.util.Vector;
 
-import static com.example.basic.Image4DSimple.ImagePixelType.V3D_UINT8;
+import static com.main.basic.Image4DSimple.ImagePixelType.V3D_UINT8;
 import static com.tracingfunc.app2.HierarchyPruning.happ;
 import static com.tracingfunc.app2.HierarchyPruning.hierarchy_prune;
 import static java.lang.System.*;

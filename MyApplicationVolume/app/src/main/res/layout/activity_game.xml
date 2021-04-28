@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.example.myapplication__volume.MyRockerView
+            <com.main.core.MyRockerView
                 android:id="@+id/rockerView1"
                 android:layout_width="120dp"
                 android:layout_height="120dp"
@@ -30,7 +30,7 @@
                 android:layout_marginLeft="20dp"
                 android:layout_marginBottom="20dp"/>
 
-            <com.example.myapplication__volume.MyRockerView
+            <com.main.core.MyRockerView
                 android:id="@+id/rockerView2"
                 android:layout_width="120dp"
                 android:layout_height="120dp"

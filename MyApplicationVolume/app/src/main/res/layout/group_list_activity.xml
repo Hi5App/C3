@@ -5,7 +5,7 @@
     android:id="@+id/group_list_root"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    tools:context=".Nim.main.activity.TeamListActivity">
+    tools:context="com.main.chat.nim.main.activity.TeamListActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"

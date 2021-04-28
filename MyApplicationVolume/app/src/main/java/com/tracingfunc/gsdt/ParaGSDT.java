@@ -1,7 +1,7 @@
 package com.tracingfunc.gsdt;
 
-import com.example.basic.Image4DSimple;
-import com.example.basic.ImageMarker;
+import com.main.basic.Image4DSimple;
+import com.main.basic.ImageMarker;
 
 import java.util.ArrayList;
 

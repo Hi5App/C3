@@ -32,12 +32,12 @@
     	</list>
     -->
     <list>
-        <mapping class="com.example.datastore.database.Image" />
-        <mapping class="com.example.datastore.database.User" />
-        <mapping class="com.example.datastore.database.DailyQuest" />
-        <mapping class="com.example.datastore.database.UserDailyQuest" />
-        <mapping class="com.example.datastore.database.Reward" />
-        <mapping class="com.example.datastore.database.UserReward" />
+        <mapping class="com.main.dataStore.database.Image" />
+        <mapping class="com.main.dataStore.database.User" />
+        <mapping class="com.main.dataStore.database.DailyQuest" />
+        <mapping class="com.main.dataStore.database.UserDailyQuest" />
+        <mapping class="com.main.dataStore.database.Reward" />
+        <mapping class="com.main.dataStore.database.UserReward" />
     </list>
 
     <!--

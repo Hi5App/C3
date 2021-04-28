@@ -2,7 +2,7 @@ package com.tracingfunc.cornerDetection;
 
 import android.graphics.Bitmap;
 
-import com.example.basic.HarrisMatrix;
+import com.main.basic.HarrisMatrix;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,8 +1,8 @@
 package com.tracingfunc.app2;
 
-import com.example.basic.Image4DSimple;
-import com.example.basic.LocationSimple;
-import com.example.basic.NeuronTree;
+import com.main.basic.Image4DSimple;
+import com.main.basic.LocationSimple;
+import com.main.basic.NeuronTree;
 
 public class ParaAPP2 {
     public Image4DSimple p4dImage;

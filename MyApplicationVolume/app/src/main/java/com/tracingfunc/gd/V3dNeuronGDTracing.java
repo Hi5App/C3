@@ -1,11 +1,9 @@
 package com.tracingfunc.gd;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Vector;
-import com.example.basic.*;
+import com.main.basic.*;
 
-import static com.example.basic.Image4DSimple.ImagePixelType.V3D_UINT8;
+import static com.main.basic.Image4DSimple.ImagePixelType.V3D_UINT8;
 import static com.tracingfunc.gd.V_NeuronSWC_list.convertNeuronTreeFormat;
 
 public class V3dNeuronGDTracing {

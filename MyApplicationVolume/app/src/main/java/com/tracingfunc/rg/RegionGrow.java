@@ -1,8 +1,7 @@
 package com.tracingfunc.rg;
 
-import com.example.basic.ByteTranslate;
-import com.example.basic.Image4DSimple;
-import com.example.basic.LocationSimple;
+import com.main.basic.ByteTranslate;
+import com.main.basic.Image4DSimple;
 
 import java.util.Vector;
 

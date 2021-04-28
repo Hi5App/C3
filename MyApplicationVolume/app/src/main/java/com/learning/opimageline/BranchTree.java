@@ -1,7 +1,7 @@
 package com.learning.opimageline;
 
-import com.example.basic.NeuronSWC;
-import com.example.basic.NeuronTree;
+import com.main.basic.NeuronSWC;
+import com.main.basic.NeuronTree;
 
 import java.util.HashMap;
 import java.util.Vector;

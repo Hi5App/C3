@@ -1,8 +1,8 @@
 package com.learning.pixelclassification;
 
-import com.example.basic.ByteTranslate;
-import com.example.basic.Image4DSimple;
-import com.example.basic.NeuronTree;
+import com.main.basic.ByteTranslate;
+import com.main.basic.Image4DSimple;
+import com.main.basic.NeuronTree;
 import com.learning.feature_select.DifferenceOfGaussian;
 import com.learning.feature_select.GaussianBlur;
 import com.learning.feature_select.LaplacianOfGaussian;

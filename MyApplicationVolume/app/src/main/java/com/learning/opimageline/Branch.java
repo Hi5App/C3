@@ -1,9 +1,9 @@
 package com.learning.opimageline;
 
-import com.example.basic.ByteTranslate;
-import com.example.basic.Image4DSimple;
-import com.example.basic.NeuronSWC;
-import com.example.basic.NeuronTree;
+import com.main.basic.ByteTranslate;
+import com.main.basic.Image4DSimple;
+import com.main.basic.NeuronSWC;
+import com.main.basic.NeuronTree;
 import com.tracingfunc.app2.MyMarker;
 
 import java.util.HashMap;

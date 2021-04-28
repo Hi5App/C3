@@ -41,7 +41,7 @@
 
 
 
-    <com.example.myapplication__volume.game.VerticalSeekBar
+    <com.main.core.game.VerticalSeekBar
         android:id="@+id/reward_seekbar"
         android:layout_width="wrap_content"
         android:layout_height="800dp"

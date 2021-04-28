@@ -5,15 +5,13 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.basic.NeuronSWC;
-import com.example.basic.NeuronTree;
-import com.example.basic.RGBA8;
+import com.main.basic.NeuronSWC;
+import com.main.basic.NeuronTree;
+import com.main.basic.RGBA8;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.Vector;
 
 public class V_NeuronSWC_list implements Cloneable{

@@ -5,10 +5,10 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.widget.Toast;
 
-import com.example.basic.FileManager;
-import com.example.basic.NeuronSWC;
-import com.example.basic.NeuronTree;
-import com.example.myapplication__volume.MainActivity;
+import com.main.basic.FileManager;
+import com.main.basic.NeuronSWC;
+import com.main.basic.NeuronTree;
+import com.main.core.MainActivity;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,7 +18,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static com.example.myapplication__volume.MainActivity.getContext;
+import static com.main.core.MainActivity.getContext;
 
 /*
     Just for debug...

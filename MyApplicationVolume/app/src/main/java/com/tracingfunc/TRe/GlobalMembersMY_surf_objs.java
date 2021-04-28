@@ -1,6 +1,6 @@
 package com.tracingfunc.TRe;
-import com.example.basic.NeuronSWC;
-import com.example.basic.NeuronTree;
+import com.main.basic.NeuronSWC;
+import com.main.basic.NeuronTree;
 import com.tracingfunc.app2.MyMarker;
 
 import java.io.BufferedReader;
