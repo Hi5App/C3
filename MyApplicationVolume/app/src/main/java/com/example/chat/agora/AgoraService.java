@@ -85,7 +85,9 @@ public class AgoraService extends Service {
             Log.e(TAG, message.getText() + " from " + peerId);
             String msg = message.getText();
 
-            if(AVConfig.status == AVConfig.Status.FREE){
+//            if(AVConfig.status == AVConfig.Status.FREE){
+
+
                 if (Pattern.matches(videoMsgPattern, message.getText())) {
 
                     Log.e(TAG,"Pattern.matches videoMsgPattern");
@@ -99,22 +101,24 @@ public class AgoraService extends Service {
                     String targetName = msg.substring(10, msg.indexOf("##In##"));
                     PeerToPeerVoiceActivity.actionStart(mContext, message.getText(), targetName, PeerToPeerVoiceActivity.CALLED_SIDE);
                 }
-            }else {
-                if (Pattern.matches(videoMsgPattern, message.getText())) {
 
-                    Log.e(TAG,"Pattern.matches videoMsgPattern");
 
-                    String targetName = msg.substring(11, msg.indexOf("##In##"));
-                    sendMsg(targetName,"##UserBusy##");
+//            }else {
+//                if (Pattern.matches(videoMsgPattern, message.getText())) {
+//
+//                    Log.e(TAG,"Pattern.matches videoMsgPattern");
+//
+//                    String targetName = msg.substring(11, msg.indexOf("##In##"));
+//                    sendMsg(targetName,"##UserBusy##");
+//
+//                } else if (Pattern.matches(callMsgPattern, message.getText())){
+//                    Log.e(TAG,"Pattern.matches videoMsgPattern");
+//
+//                    String targetName = msg.substring(10, msg.indexOf("##In##"));
+//                    sendMsg(targetName,"##UserBusy##");
+//                }
 
-                } else if (Pattern.matches(callMsgPattern, message.getText())){
-                    Log.e(TAG,"Pattern.matches videoMsgPattern");
-
-                    String targetName = msg.substring(10, msg.indexOf("##In##"));
-                    sendMsg(targetName,"##UserBusy##");
-                }
-
-            }
+//            }
 
 
         }

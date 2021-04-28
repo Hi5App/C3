@@ -62,7 +62,7 @@ public class MenuActivity extends BaseActivity implements ReceiveMsgInterface {
     private void initMsgConnector(String ip){
         MsgConnector msgConnector = MsgConnector.getInstance();
 
-        msgConnector.setIp(ip_ALiYun);
+        msgConnector.setIp(ip_TencentCloud);
         msgConnector.setPort(ip);
         msgConnector.initConnection();
     }

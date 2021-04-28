@@ -6,13 +6,11 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
@@ -28,7 +26,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
@@ -81,9 +78,9 @@ import com.example.myapplication__volume.Nim.main.helper.SystemMessageUnreadMana
 import com.example.myapplication__volume.Nim.reminder.ReminderManager;
 import com.example.myapplication__volume.Nim.session.extension.InviteAttachment;
 import com.example.myapplication__volume.collaboration.Communicator;
+import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
 import com.example.myapplication__volume.collaboration.connector.MsgConnector;
 import com.example.myapplication__volume.collaboration.connector.ServerConnector;
-import com.example.myapplication__volume.collaboration.basic.ReceiveMsgInterface;
 import com.example.myapplication__volume.collaboration.service.BasicService;
 import com.example.myapplication__volume.collaboration.service.CollaborationService;
 import com.example.myapplication__volume.collaboration.service.ManageService;
@@ -167,9 +164,7 @@ import io.agora.rtm.ErrorInfo;
 import io.agora.rtm.ResultCallback;
 import io.agora.rtm.RtmClientListener;
 
-import static com.example.datastore.SettingFileManager.getArborNum;
 import static com.example.datastore.SettingFileManager.getFilename_Remote;
-import static com.example.datastore.SettingFileManager.getNeuronNumber_Remote;
 import static com.example.datastore.SettingFileManager.getSelectSource;
 import static com.example.datastore.SettingFileManager.getUserAccount_Check;
 import static com.example.datastore.SettingFileManager.getoffset_Remote;
@@ -177,6 +172,7 @@ import static com.example.datastore.SettingFileManager.setFilename_Remote;
 import static com.example.datastore.SettingFileManager.setSelectSource;
 import static com.example.datastore.SettingFileManager.setUserAccount_Check;
 import static com.example.datastore.SettingFileManager.setoffset_Remote;
+import static com.example.myapplication__volume.Myapplication.ToastEasy;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
@@ -340,7 +336,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static final int REQUEST_TAKE_PHOTO = 3;
 
     private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
-    private static final int Toast_Info_static = 5;
+    private static final int TOAST_INFO_STATIC = 5;
 
     //    private int Paintmode = 0;
     private ArrayList<Float> lineDrawed = new ArrayList<Float>();
@@ -735,37 +731,37 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     break;
 
                 case 4:
-                    File file = new File(file_path_temp);
-                    String name = file.getName();
-                    Log.v("Handler",name);
+//                    File file = new File(file_path_temp);
+//                    String name = file.getName();
+//                    Log.v("Handler",name);
+//
+//                    String result = null;
+//                    if (DrawMode){
+//                        String source = getSelectSource(context);
+//                        if (source.equals("Remote Server Aliyun")){
+//                            String filename = getFilename_Remote(context);
+//                            String brain_number = getNeuronNumber_Remote(context,filename);
+//                            result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
+////                            result = name.split("_")[1].substring(0,name.split("_")[1].length()-3);
+//                        }else if(source.equals("Remote Server SEU")){
+//                            String filename = getFilename_Remote(context);
+//                            String brain_number = getNeuronNumber_Remote(context,filename);
+//                            Log.d(TAG, "brain_number: " + brain_number);
+//                            Log.d(TAG, "brain_number.split(\"_\")[0]: " + brain_number.split("_")[0]);
+//                            if (brain_number.split("_")[0].equals("pre")){
+//                                Log.d(TAG, "brain_number.split(\"_\")[0]: " + brain_number.split("_")[0]);
+//                                result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[2];
+//                            } else {
+//                                result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
+//                            }
+//                        }
+//                    }else {
+//                        String brain_num = getFilename_Remote(context);
+//                        String neuron_num = getNeuronNumber_Remote(context, brain_num);
+//                        result = brain_num.split("_")[0] + "_" + neuron_num.split("_")[1] + "_" + getArborNum(context,brain_num.split("/")[0] + "_" + neuron_num).split(":")[0];
+//                    }
 
-                    String result = null;
-                    if (DrawMode){
-                        String source = getSelectSource(context);
-                        if (source.equals("Remote Server Aliyun")){
-                            String filename = getFilename_Remote(context);
-                            String brain_number = getNeuronNumber_Remote(context,filename);
-                            result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
-//                            result = name.split("_")[1].substring(0,name.split("_")[1].length()-3);
-                        }else if(source.equals("Remote Server SEU")){
-                            String filename = getFilename_Remote(context);
-                            String brain_number = getNeuronNumber_Remote(context,filename);
-                            Log.d(TAG, "brain_number: " + brain_number);
-                            Log.d(TAG, "brain_number.split(\"_\")[0]: " + brain_number.split("_")[0]);
-                            if (brain_number.split("_")[0].equals("pre")){
-                                Log.d(TAG, "brain_number.split(\"_\")[0]: " + brain_number.split("_")[0]);
-                                result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[2];
-                            } else {
-                                result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
-                            }
-                        }
-                    }else {
-                        String brain_num = getFilename_Remote(context);
-                        String neuron_num = getNeuronNumber_Remote(context, brain_num);
-                        result = brain_num.split("_")[0] + "_" + neuron_num.split("_")[1] + "_" + getArborNum(context,brain_num.split("/")[0] + "_" + neuron_num).split(":")[0];
-                    }
-
-                    setFilename(result);
+                    setFilename(Communicator.BrainNum);
                     break;
 
                 case 5:
@@ -2017,7 +2013,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         MsgConnector msgConnector = MsgConnector.getInstance();
 
         msgConnector.releaseConnection();
-        msgConnector.setIp(ip_ALiYun);
+        msgConnector.setIp(ip_TencentCloud);
         msgConnector.setPort(port);
         msgConnector.initConnection();
     }
@@ -2026,7 +2022,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void initServerConnector(){
         ServerConnector serverConnector = ServerConnector.getInstance();
 
-        serverConnector.setIp(ip_ALiYun);
+        serverConnector.setIp(ip_TencentCloud);
         serverConnector.setPort("23763");
         serverConnector.initConnection();
 
@@ -2514,8 +2510,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         break;
 
                                     default:
-                                        Toast.makeText(getContext(), "Default in file", Toast.LENGTH_SHORT).show();
-
+                                        ToastEasy("Default in file");
                                 }
                             }
                         })
@@ -2552,7 +2547,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         }catch (Exception e){
             e.printStackTrace();
-            Toast.makeText(getContext(), "Error when open file!" + e.getMessage(),Toast.LENGTH_SHORT).show();
+            ToastEasy("Error when open file!" + e.getMessage());
         }
     }
 
@@ -2618,7 +2613,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         switch (text){
                             case "PinPoint   ":
                                 if (!myrenderer.ifImageLoaded()){
-                                    Toast.makeText(context, "Please load a image first", Toast.LENGTH_SHORT).show();
+                                    ToastEasy("Please load a image first");
                                     return;
                                 }
                                 ifPoint = !ifPoint;
@@ -2777,7 +2772,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 switch (text){
                                     case "Draw Curve":
                                         if (!myrenderer.ifImageLoaded()){
-                                            Toast.makeText(context, "Please load a image first", Toast.LENGTH_SHORT).show();
+                                            ToastEasy("Please load a image first");
                                             return;
                                         }
                                         ifPainting = !ifPainting;
@@ -2991,11 +2986,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             System.out.println(color);
                             //Log.v("Mainactivity", "GD-Tracing start~");
                             //Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
-                            Toast.makeText(getContext(), "pencolor set~", Toast.LENGTH_SHORT).show();
-
+                            ToastEasy("penColor set ~ ");
                         }else{
 
-                            Toast.makeText(getContext(), "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+                            ToastEasy("Please make sure all the information is right !!!");
                         }
 
                     }
@@ -3071,12 +3065,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             System.out.println(color);
                             //Log.v("Mainactivity", "GD-Tracing start~");
                             //Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
-                            Toast.makeText(getContext(), "markercolor set~", Toast.LENGTH_SHORT).show();
-
+                            ToastEasy("markerColor set ~");
 
                         }else{
-
-                            Toast.makeText(getContext(), "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+                            ToastEasy("Please make sure all the information is right !");
                         }
 
                     }
@@ -3103,7 +3095,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         Image4DSimple img = myrenderer.getImg();
         if(img == null || !img.valid()){
-            Toast.makeText(this, "Please load image first!", Toast.LENGTH_LONG).show();
+            ToastEasy("Please load image first !");
             return;
         }
 
@@ -3119,8 +3111,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 switch (text) {
                                     case "GD":
                                         try {
-                                            Log.v("Mainactivity", "GD-Tracing start~");
-                                            Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
+                                            Log.v("Mainactivity", "GD-Tracing start ~");
+                                            ToastEasy("GD-Tracing start !");
 //                                            Timer timer = new Timer();
                                             progressBar.setVisibility(View.VISIBLE);
                                             timer = new Timer();
@@ -3148,7 +3140,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                     case "APP2":
                                         try {
                                             Log.v("Mainactivity", "APP2-Tracing start~");
-                                            Toast.makeText(v.getContext(), "APP2-Tracing start~", Toast.LENGTH_SHORT).show();
+                                            ToastEasy("APP2-Tracing start !");
 //                                            Timer timer = new Timer();
                                             progressBar.setVisibility(View.VISIBLE);
                                             timer = new Timer();
@@ -3209,7 +3201,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         EditText swcName = contentView.findViewById(R.id.swcname);
                         String swcFileName = swcName.getText().toString();
                         if (swcFileName == ""){
-                            Toast.makeText(getContext(), "The name should not be empty.", Toast.LENGTH_SHORT).show();
+                            ToastEasy("The name should not be empty !");
                         }
                         myrenderer.reNameCurrentSwc(swcFileName);
 
@@ -3223,7 +3215,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         try {
                             error = myrenderer.saveCurrentSwc(dir_str);
                         } catch (Exception e) {
-                            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                            ToastEasy(e.getMessage());
                         }
                         if (!error.equals("")) {
                             if (error == "This file already exits"){
@@ -3238,13 +3230,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                                 try{
                                                     errorMessage = myrenderer.oversaveCurrentSwc(dir_str);
                                                     if (errorMessage.equals(""))
-                                                        Toast.makeText(getContext(),"Overwrite successfully!", Toast.LENGTH_SHORT).show();
+                                                        ToastEasy("Overwrite successfully !");
                                                     if (errorMessage == "Overwrite failed!")
-                                                        Toast.makeText(getContext(),"Overwrite failed!", Toast.LENGTH_SHORT).show();
+                                                        ToastEasy("Overwrite failed !");
 
                                                 }catch (Exception e){
                                                     System.out.println(errorMessage);
-                                                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                    ToastEasy(e.getMessage());
                                                 }
                                             }
                                         })
@@ -3259,7 +3251,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 aDialog.show();
                             }
                         } else{
-                            Toast.makeText(getContext(), "save SWC to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG).show();
+                            ToastEasy("save SWC to " + dir + "/" + swcFileName + ".swc");
                         }
                     }
                 })
@@ -3278,13 +3270,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void APP2() throws Exception {
         Image4DSimple img = myrenderer.getImg();
         if(img == null){
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
 
-            Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_SHORT).show();
+            ToastEasy("Please load image first !");
             progressBar.setVisibility(View.INVISIBLE);
-            Looper.loop();
             return;
         }
 
@@ -3314,23 +3302,16 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 }
             }
             System.out.println("size: " + nt.listNeuron.size());
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
-            Toast.makeText(getContext(), "APP2-Tracing finish, size of result swc: " + Integer.toString(nt.listNeuron.size()), Toast.LENGTH_SHORT).show();
+
+            ToastEasy("APP2-Tracing finish, size of result swc: " + Integer.toString(nt.listNeuron.size()));
             myrenderer.importNeuronTree(nt, isBigData_Remote);
             myrenderer.saveUndo();
             myGLSurfaceView.requestRender();
             progressBar.setVisibility(View.INVISIBLE);
-            Looper.loop();
 
         } catch (Exception e) {
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
-            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            ToastEasy(e.getMessage());
             progressBar.setVisibility(View.INVISIBLE);
-            Looper.loop();
         }
 
 
@@ -3339,25 +3320,17 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void GDTracing() throws Exception {
         Image4DSimple img = myrenderer.getImg();
         if(img == null){
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
 
-            Toast.makeText(this, "Please load image first!", Toast.LENGTH_SHORT).show();
+            ToastEasy("Please load image first !");
             progressBar.setVisibility(View.INVISIBLE);
-            Looper.loop();
             return;
         }
 
         ArrayList<ImageMarker> markers = myrenderer.getMarkerList().getMarkers();
         if (markers.size() <= 1) {
             Log.v("GDTracing", "Please generate at least two markers!");
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
-            Toast.makeText(getContext(), "Please produce at least two markers!", Toast.LENGTH_LONG).show();
+            ToastEasy("Please produce at least two markers !");
             progressBar.setVisibility(View.INVISIBLE);
-            Looper.loop();
             return;
         }
         LocationSimple p0 = new LocationSimple(markers.get(0).x, markers.get(0).y, markers.get(0).z);
@@ -3374,28 +3347,20 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         try {
             outswc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img, p0, pp, curveTracePara, 1.0);
         } catch (Exception e) {
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
-            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            ToastEasy(e.getMessage());
             progressBar.setVisibility(View.INVISIBLE);
-            Looper.loop();
         }
         for (int i = 0; i < outswc.listNeuron.size(); i++) {
 //            outswc.listNeuron.get(i).type = 4;
             outswc.listNeuron.get(i).type = 5;
         }
 
-        if (Looper.myLooper() == null) {
-            Looper.prepare();
-        }
 
-        Toast.makeText(getContext(), "GD-Tracing finished, size of result swc: " + Integer.toString(outswc.listNeuron.size()), Toast.LENGTH_SHORT).show();
+        ToastEasy("GD-Tracing finished, size of result swc: " + Integer.toString(outswc.listNeuron.size()));
         myrenderer.importNeuronTree(outswc,isBigData_Remote);
         myrenderer.saveUndo();
         myGLSurfaceView.requestRender();
         progressBar.setVisibility(View.INVISIBLE);
-        Looper.loop();
 
     }
 
@@ -3405,7 +3370,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         Image4DSimple img = myrenderer.getImg();
         if(img == null || !img.valid()){
-            Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+            ToastEasy("Please load image first !");
             return;
         }
 
@@ -3444,7 +3409,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Image4DSimple img = myrenderer.getImg();
         if(img == null){
 
-            Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_SHORT).show();
+            ToastEasy("Please load image first !");
             return;
         }
         Image4DSimple outImg=new Image4DSimple();
@@ -3457,11 +3422,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         System.out.println(select);
         p.setSelections(selections);
 
-        if (Looper.myLooper() == null) {
-            Looper.prepare();
-        }
-
-        Toast.makeText(getContext(), "pixel  classification start~", Toast.LENGTH_SHORT).show();
+        ToastEasy("pixel  classification start !");
 
         try{
             outImg = p.getPixelClassificationResult(img,nt);
@@ -3471,7 +3432,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             myrenderer.resetImg(outImg);
             myGLSurfaceView.requestRender();
         }catch (Exception e){
-            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            ToastEasy(e.getMessage());
         }
     }
 
@@ -3537,8 +3498,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 && event.getAction() == KeyEvent.ACTION_DOWN) {
 
             if ((System.currentTimeMillis() - exitTime) > 2000) {
-                Toast.makeText(getApplicationContext(), "Press again to exit the program",
-                        Toast.LENGTH_SHORT).show();
+                ToastEasy("Press again to exit the program");
                 exitTime = System.currentTimeMillis();
             } else {
                 finish();
@@ -3588,7 +3548,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                             ifChangeLineType = false;
                                             setAnimation();
                                         }else {
-                                            Toast.makeText(context,"Please Load a Img First !!!", Toast.LENGTH_SHORT).show();
+                                            ToastEasy("Please Load a Img First !");
                                         }
                                         break;
 
@@ -3648,7 +3608,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         break;
 
                                     default:
-                                        Toast.makeText(getContext(), "Default in More Functions...", Toast.LENGTH_SHORT).show();
+                                        ToastEasy("Default in More Functions...");
 
                                 }
                             }
@@ -3698,7 +3658,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         break;
 
                                     default:
-                                        Toast.makeText(getContext(), "there is something wrong in animation", Toast.LENGTH_SHORT).show();
+                                        ToastEasy("there is something wrong in animation");
                                 }
                             }
                         })
@@ -3726,7 +3686,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
 
         }else {
-            Toast.makeText(getContext(),"Pleas load a file first!",Toast.LENGTH_SHORT).show();
+            ToastEasy("Pleas load a file first !");
         }
     }
 
@@ -3772,7 +3732,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210426c 17:44 UTC+8 build",
+                                "Version: 20210427a 13:44 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -3827,7 +3787,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                         }else{
                             PopUp_UserAccount(context);
-                            Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
+                            ToastEasy("Please make sure all the information is right !");
                         }
 
                     }
@@ -3867,18 +3827,18 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                     case "Analyze current tracing":
                                         NeuronTree nt = myrenderer.getNeuronTree();
                                         if (nt.listNeuron.isEmpty()) {
-                                            Toast.makeText(getContext(), "Empty tracing, do nothing", Toast.LENGTH_LONG).show();
+                                            ToastEasy("Empty tracing, do nothing");
                                             break;
                                         }
                                         MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
                                         List<double[]> features = morphologyCalculate.calculatefromNT(nt, false);
                                         fl = new ArrayList<double[]>(features);
                                         if (features.size() != 0) displayResult(features);
-                                        else Toast.makeText(getContext(), "the file is empty", Toast.LENGTH_SHORT).show();
+                                        else ToastEasy("The file is empty");
                                         break;
 
                                     default:
-                                        Toast.makeText(getContext(), "Default in analysis", Toast.LENGTH_SHORT).show();
+                                        ToastEasy("Default in analysis");
 
                                 }
                             }
@@ -4374,7 +4334,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         String rotation_speed_string = speed.getText().toString();
 
                         if (rotation_speed_string.isEmpty()){
-                            Toast.makeText(context,"Make sure the input is right !!!",Toast.LENGTH_SHORT).show();
+                            ToastEasy("Make sure the input is right !");
                             setAnimation();
                             return;
                         }
@@ -4493,7 +4453,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 ApoReader apoReader = new ApoReader();
                                 apo = apoReader.read(uri);
                                 if (apo == null){
-                                    Toast.makeText(this,"Make sure the .apo file is right",Toast.LENGTH_SHORT).show();
+                                    ToastEasy("Make sure the .apo file is right");
                                     break;
                                 }
 
@@ -4527,7 +4487,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 break;
 
                             default:
-                                Toast.makeText(this, "do not support this file", Toast.LENGTH_SHORT).show();
+                                ToastEasy("Unsupported file type");
 
                         }
                     }
@@ -4649,7 +4609,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
             } catch (OutOfMemoryError e) {
-                Toast.makeText(this, " Fail to load file  ", Toast.LENGTH_SHORT).show();
+                ToastEasy("Fail to load file");
                 Log.v("MainActivity", "111222");
                 Log.v("Exception", e.toString());
             } catch (CloneNotSupportedException e){
@@ -4683,7 +4643,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //                                        setSelectSource("Remote Server SEU", context);
 //                                        BigFileRead_Remote(ip_SEU);
                                         setSelectSource("Remote Server Aliyun",context);
-                                        BigFileRead_Remote(ip_ALiYun);
+                                        BigFileRead_Remote(ip_TencentCloud);
 
                                         break;
 
@@ -4692,7 +4652,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         break;
 
                                     default:
-                                        Toast.makeText(getContext(), "Something Wrong Here", Toast.LENGTH_SHORT).show();
+                                        ToastEasy("Something Wrong Here");
                                 }
                             }
                         }).show();
@@ -4838,7 +4798,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 if (archiveImageName != null && archiveOffset != null){
                     remote_socket.disConnectFromHost();
 //                    remote_socket.connectServer(ip_SEU);
-                    remote_socket.connectServer(ip_ALiYun);
+                    remote_socket.connectServer(ip_TencentCloud);
                     remote_socket.pullImageBlockWhenLoadGame(archiveImageName, archiveOffset);
 
                     setFilename_Remote(archiveImageName, context);
@@ -5067,7 +5027,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     case "Remote Server Aliyun":
                     case "Remote Server SEU":
                         if (source.equals("Remote Server Aliyun")){
-                            ip = ip_ALiYun;
+                            ip = ip_TencentCloud;
                         }else if(source.equals("Remote Server SEU")){
                             ip = ip_SEU;
                         }else {
@@ -5484,6 +5444,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             myrenderer.importNeuronTree(Communicator.getInstance().convertNeuronTree(nt),false);
             myrenderer.saveUndo();
             myGLSurfaceView.requestRender();
+            setBigDataName();
 
         }catch (Exception e){
             e.printStackTrace();
@@ -5494,21 +5455,38 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     load Img Block after downloading file  ---------------------------------------------------------------
      */
 
-
+    static Timer timerDownload;
+    static TimerTask taskDownload = new TimerTask() {
+        @Override
+        public void run() {
+            timeOutHandler();
+        }
+    };
 
 
     public static void showProgressBar(){
         puiHandler.sendEmptyMessage(0);
+        timerDownload = new Timer();
+        timerDownload.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                timeOutHandler();
+            }
+        },20 * 1000);
     }
 
 
     public static void hideProgressBar(){
+        timerDownload.cancel();
         puiHandler.sendEmptyMessage(1);
     }
 
+    public static void timeOutHandler(){
+        hideProgressBar();
+        puiHandler.sendEmptyMessage(3);
+    }
 
-    public static void setFileName(String filepath){
-        file_path_temp = filepath;
+    public static void setBigDataName(){
         puiHandler.sendEmptyMessage(4);
     }
 
@@ -5701,7 +5679,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
             Log.v("MainActivity","LoadBigFile_Remote() ifGame");
             Log.v("MainActivity",remote_socket.getIp());
-            if (remote_socket.getIp().equals(ip_ALiYun)){
+            if (remote_socket.getIp().equals(ip_TencentCloud)){
                 setSelectSource("Remote Server Aliyun",context);
             } else if (remote_socket.getIp().equals(ip_SEU)){
                 setSelectSource("Remote Server SEU",context);
@@ -5709,7 +5687,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
             myrenderer.setPath(filepath);
             myrenderer.zoom(2.2f);
-            setFileName(filepath);
+            setBigDataName();
 
             System.out.println("------" + filepath + "------");
             isBigData_Remote = true;
@@ -5744,7 +5722,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         String offset_x = offset.split("_")[0];
         String offset_y = offset.split("_")[1];
         String offset_z = offset.split("_")[2];
-        Toast.makeText(getContext(),"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
+        ToastEasy("Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z);
         myGLSurfaceView.requestRender();
 
         setSelectSource("Local Server",context);
@@ -5767,10 +5745,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     }
 
-    public static void Time_Out(){
-        hideProgressBar();
-        puiHandler.sendEmptyMessage(3);
-    }
+
 
     /*
     functions for old version bigdata  ---------------------------------------------------------------------------------
@@ -5886,7 +5861,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     public static void Toast_in_Thread_static(String message){
         Message msg = new Message();
-        msg.what = Toast_Info_static;
+        msg.what = TOAST_INFO_STATIC;
         Bundle bundle = new Bundle();
         bundle.putString("Toast_msg",message);
         msg.setData(bundle);
@@ -5998,25 +5973,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void listener(final long Id) {
-
-        // 注册广播监听系统的下载完成事件。
-        IntentFilter intentFilter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                long ID = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-                if (ID == Id) {
-                    Toast.makeText(getApplicationContext(), "文件下载完成!", Toast.LENGTH_LONG).show();
-                    Log.v("MainActivity", "DownloadFile  successfully");
-
-                }
-            }
-        };
-
-        registerReceiver(broadcastReceiver, intentFilter);
-    }
-
 
     //GSDT_function
     public void GSDT_Fun(){
@@ -6025,11 +5981,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         //img.getDataCZYX();
         if(img == null || !img.valid()){
             Log.v("GSDT", "Please load img first!");
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
-            Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
-            Looper.loop();
+            ToastEasy("Please load image first !");
             return;
         }
 
@@ -6047,13 +5999,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             myrenderer.getMarkerList().getMarkers().addAll(p.markers);//blue marker
             myrenderer.getMarkerList().add(p.MaxMarker);//red marker
             myGLSurfaceView.requestRender();
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
 
-            Toast.makeText(getContext(), "marker_loc:"+ p.max_loc[0] + "," + p.max_loc[1] + "," + p.max_loc[2], Toast.LENGTH_LONG).show();
+            ToastEasy("marker_loc:"+ p.max_loc[0] + "," + p.max_loc[1] + "," + p.max_loc[2]);
             progressBar.setVisibility(View.INVISIBLE);
-            Looper.loop();
 
 
             /*
@@ -6067,12 +6015,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             //myGLSurfaceView.requestRender();
 
         }catch (Exception e) {
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
-            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            ToastEasy(e.getMessage());
             progressBar.setVisibility(View.INVISIBLE);
-            Looper.loop();
         }
 
     }

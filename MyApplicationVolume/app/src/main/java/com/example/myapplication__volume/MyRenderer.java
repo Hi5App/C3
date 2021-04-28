@@ -13,7 +13,6 @@ import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Build;
-import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -71,6 +70,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import static com.example.basic.BitmapRotation.getBitmapDegree;
 import static com.example.basic.BitmapRotation.rotateBitmapByDegree;
+import static com.example.myapplication__volume.Myapplication.ToastEasy;
 import static com.example.myapplication__volume.Myapplication.getContext;
 import static javax.microedition.khronos.opengles.GL10.GL_ALPHA_TEST;
 import static javax.microedition.khronos.opengles.GL10.GL_BLEND;
@@ -806,8 +806,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         mCapturePath = mCaptureDir + "/" + "Image_" + System.currentTimeMillis() +".jpg";
                         System.out.println(mCapturePath+"------------------------------");
                         try {
-                            if (Looper.myLooper() == null)
-                                Looper.prepare();
 
                             FileOutputStream fos = new FileOutputStream(mCapturePath);
                             output_mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
@@ -830,8 +828,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
                             }
                             else{
-                                Toast.makeText(getContext(), "Fail to screenshot", Toast.LENGTH_SHORT).show();
-                                Looper.loop();
+                                ToastEasy("Fail to screenshot");
                             }
 
                         } catch (Exception e){
@@ -843,7 +840,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
         }else {
-            Toast_in_Thread("Something Wrong When Render, reload File Please !");
+            ToastEasy("Something Wrong When Render, reload File Please !");
         }
 
 
@@ -1270,7 +1267,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         else {
-            Toast.makeText(getContext(), "Do not support this file", Toast.LENGTH_LONG).show();
+            ToastEasy("Do not support this file");
             return;
         }
 
@@ -1452,12 +1449,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             case "fail to read file":
                 fileType = FileType.NotSupport;
-                Toast.makeText(getContext(), "Fail to read file!",Toast.LENGTH_SHORT).show();
+                ToastEasy("Fail to read file!");
                 break;
 
             default:
                 fileType = FileType.NotSupport;
-                Toast.makeText(getContext(),"Don't support this file!",Toast.LENGTH_SHORT).show();
+                ToastEasy("Don't support this file!");
         }
 
     }
@@ -1672,7 +1669,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         float [] new_marker = solve2DMarker(x, y);
         if (new_marker == null){
             System.out.println("outtttt");
-            Toast.makeText(getContext(), "Please make sure the point is in the image", Toast.LENGTH_SHORT).show();
+            ToastEasy("Please make sure the point is in the image");
             return;
         }else {
             ImageMarker imageMarker_drawed = new ImageMarker(new_marker[0],
@@ -1778,7 +1775,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float [] cur_point = solve2DMarker(x, y);
             if (cur_point == null){
                 if (i == 0){
-                    Toast.makeText(getContext(), "Please make sure the point is in the image", Toast.LENGTH_SHORT).show();
+                    ToastEasy("Please make sure the point is in the image");
                     return;
                 }
                 break;
@@ -2346,7 +2343,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             markerListLoaded = importApo(ano_apo);
 
         }catch (Exception e){
-            Toast.makeText(getContext(),"Fail to open File !",Toast.LENGTH_SHORT).show();
+            ToastEasy("Fail to open File !");
         }
 
         sz[0] = 0;
@@ -2491,8 +2488,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             return Marker;
         }else {
             Log.v("solveMarkerCenter","please make sure the point inside the bounding box");
-//            Looper.prepare();
-            Toast.makeText(getContext(), "please make sure the point inside the bounding box", Toast.LENGTH_SHORT).show();
+            ToastEasy("please make sure the point inside the bounding box");
             return null;
         }
 
@@ -2619,7 +2615,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
         if(!isInBoundingBox){
-            Toast.makeText(getContext(), "please make sure the point inside the bounding box", Toast.LENGTH_SHORT).show();
+            ToastEasy("please make sure the point inside the bounding box");
             return null;
         }
 
@@ -3287,8 +3283,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Vector<MyMarker> outswc = solveCurveMarkerLists_fm(line);
 
         if (outswc == null){
-
-            Toast.makeText(getContext(), "Make sure the point is in boundingbox", Toast.LENGTH_SHORT).show();
+            ToastEasy("Make sure the point is in boundingbox");
             return;
         }
 
@@ -3410,8 +3405,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Vector<MyMarker> outswc = solveCurveMarkerLists_fm(line);
 
         if (outswc == null){
-
-            Toast.makeText(getContext(), "Make sure the point is in boundingbox", Toast.LENGTH_SHORT).show();
+            ToastEasy("Make sure the point is in boundingbox");
             return;
         }
 

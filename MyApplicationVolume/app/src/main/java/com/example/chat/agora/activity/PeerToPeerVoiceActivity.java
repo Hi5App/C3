@@ -22,7 +22,6 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.example.chat.agora.AVConfig;
 import com.example.chat.agora.basic.RingPlayer;
 import com.example.chat.agora.message.AgoraMsgManager;
 import com.example.myapplication__volume.BaseActivity;
@@ -35,7 +34,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.regex.Pattern;
 
 import io.agora.common.annotation.NonNull;
 import io.agora.rtc.Constants;
@@ -148,7 +146,7 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
                 needCancel = false;
                 isCalling = true;
 
-                AVConfig.status = AVConfig.Status.PEERTOPEERVOICE;
+//                AVConfig.status = AVConfig.Status.PEERTOPEERVOICE;
 
             }
         }
@@ -295,7 +293,8 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
          */
         AgoraMsgManager.getInstance().unregisterListener(rtmClientListener);
         timer.cancel();
-        AVConfig.status = AVConfig.Status.FREE;
+
+//        AVConfig.status = AVConfig.Status.FREE;
 
         if (isCalling || USERTYPE.equals(CALL_SIDE)){
             /*
@@ -435,7 +434,7 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
         finishAlert();
         isCalling = true;
         needCancel = false;
-        AVConfig.status = AVConfig.Status.PEERTOPEERVOICE;
+//        AVConfig.status = AVConfig.Status.PEERTOPEERVOICE;
     }
 
 
@@ -555,29 +554,31 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
                         finishAlert();
                         finish();
                     }
-                } else if (msg.equals("##UserBusy##")){
-                    if (peerId.equals(PEERID)){
-                        Toast_in_Thread_static("User is Busy");
-                        finishAlert();
-                        finish();
-                    }
-                } else if (msg.equals("##SuccessToAnswer##")){
-                    Log.e(TAG,"try to reset the name");
+                } else if (msg.equals("##SuccessToAnswer##")) {
+                    Log.e(TAG, "try to reset the name");
 
-                    if (peerId.equals(PEERID)){
-                        Log.e(TAG,"try to reset the name");
+                    if (peerId.equals(PEERID)) {
+                        Log.e(TAG, "try to reset the name");
                         handler.sendEmptyMessage(1);
                     }
-                } else if (Pattern.matches(callMsgPattern, message.getText())){
-                    new Timer().schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            String targetName = msg.substring(10, msg.indexOf("##In##"));
-                            sendMsg(targetName,"##UserBusy##");
-                            Log.e(TAG,"Pattern.matches videoMsgPattern, targetName: " + targetName);
-                        }
-                    }, 2 * 1000);
                 }
+
+//                } else if (msg.equals("##UserBusy##")){
+//                if (peerId.equals(PEERID)){
+//                    Toast_in_Thread_static("User is Busy");
+//                    finishAlert();
+//                    finish();
+//                }
+//                } else if (Pattern.matches(callMsgPattern, message.getText())){
+//                    new Timer().schedule(new TimerTask() {
+//                        @Override
+//                        public void run() {
+//                            String targetName = msg.substring(10, msg.indexOf("##In##"));
+//                            sendMsg(targetName,"##UserBusy##");
+//                            Log.e(TAG,"Pattern.matches videoMsgPattern, targetName: " + targetName);
+//                        }
+//                    }, 2 * 1000);
+//                }
             }
         }
 

@@ -68,6 +68,8 @@ public class Myapplication extends Application {
 
     private static AgoraMsgManager agoraMsgManager;
 
+    private static Communicator communicator;
+
     public static Myapplication the() {
         return sInstance;
     }
@@ -107,6 +109,7 @@ public class Myapplication extends Application {
         ServerConnector.init(this);
         MsgConnector.init(this);
         Communicator.init(this);
+        communicator = Communicator.getInstance();
 
         // user cache info
         InfoCache.setContext(this);
@@ -231,7 +234,7 @@ public class Myapplication extends Application {
 
         // 配置是否需要预下载附件缩略图，默认为 true
         options.preloadAttach = true;
-        options.appKey = "614728a863de5e1ae3ed42137d0911f6";
+        options.appKey = "1063145e7579a0935229ddb0d4f7a5b4";
 
         // 配置由sdk托管来接收新的消息通知
         StatusBarNotificationConfig config = new StatusBarNotificationConfig();

@@ -49,7 +49,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -57,7 +56,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Vector;
 
 import static com.example.datastore.SettingFileManager.getFilename_Remote;
 import static com.example.datastore.SettingFileManager.getNeuronNumber_Remote;
@@ -450,7 +448,7 @@ public class GameActivity extends BaseActivity {
                             if (gameCharacter.closeToBoundary()){
                                 remoteSocket.disConnectFromHost();
 //                                remoteSocket.connectServer(ip_SEU);
-                                remoteSocket.connectServer(ip_ALiYun);
+                                remoteSocket.connectServer(ip_TencentCloud);
 
 //                                Thread.sleep(8000);
                                 float [] volumnePosition = myrenderer.modeltoVolume(gameCharacter.getPosition());
@@ -924,7 +922,7 @@ public class GameActivity extends BaseActivity {
                 if (archiveImageName != null && archiveOffset != null){
                     remoteSocket.disConnectFromHost();
 //                    remoteSocket.connectServer(ip_SEU);
-                    remoteSocket.connectServer(ip_ALiYun);
+                    remoteSocket.connectServer(ip_TencentCloud);
                     remoteSocket.pullImageBlockWhenLoadGame(archiveImageName, archiveOffset);
 
                     setFilename_Remote(archiveImageName, context);
@@ -1226,7 +1224,7 @@ public class GameActivity extends BaseActivity {
 
                             remoteSocket.disConnectFromHost();
 //                            remoteSocket.connectServer(ip_SEU);
-                            remoteSocket.connectServer(ip_ALiYun);
+                            remoteSocket.connectServer(ip_TencentCloud);
                             remoteSocket.pullImageBlockWhenLoadGame(filenameRES, offset_str);
 
                             setFilename_Remote(filenameRES, context);

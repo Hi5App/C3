@@ -401,7 +401,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 
         ServerConnector serverConnector = ServerConnector.getInstance();
 
-        serverConnector.setIp(ip_ALiYun);
+        serverConnector.setIp(ip_TencentCloud);
         serverConnector.setPort("23763");
         serverConnector.initConnection();
 

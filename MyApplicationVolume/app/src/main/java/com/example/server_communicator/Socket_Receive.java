@@ -310,7 +310,7 @@ public class Socket_Receive {
                                     }
 
                                     isTimeOut[0] = true;
-                                    MainActivity.Time_Out();
+                                    MainActivity.timeOutHandler();
                                     in.close();
 
                                 } catch (IOException e) {

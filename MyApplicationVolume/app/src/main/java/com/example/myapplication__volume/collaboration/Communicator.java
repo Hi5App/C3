@@ -45,13 +45,13 @@ public class Communicator {
 
 
     public static String BrainNum = null;
-    public static String Soma = null;
-    public static String Path = null;
+    public static String Soma     = null;
+    public static String Path     = null;
 
-    private String initSomaMsg = null;                         // for inviting user
-    private String conPath = null;                             // for inviting user
+    private String initSomaMsg    = null;                         // for inviting user
+    private String conPath        = null;                         // for inviting user
 
-    private String conPathQuery = null;                        // for querying database
+    private String conPathQuery   = null;                         // for querying database
 
 
     /**
@@ -521,8 +521,8 @@ public class Communicator {
         int offset_z_i = (int) ImageCurPoint.z;
         int size_i     =       ImgSize;
 
-        Log.e(TAG, String.format("img: x %d, y %d, z %d",img_size_x_i, img_size_y_i, img_size_z_i));
-        Log.e(TAG, String.format("cur: x %d, y %d, z %d",offset_x_i, offset_y_i, offset_z_i));
+        Log.e(TAG, String.format("img: x %d, y %d, z %d", img_size_x_i, img_size_y_i, img_size_z_i));
+        Log.e(TAG, String.format("cur: x %d, y %d, z %d", offset_x_i,   offset_y_i,   offset_z_i));
 
 
         String[] Direction = {"Left", "Right", "Top", "Bottom", "Front", "Back"};
@@ -599,9 +599,9 @@ public class Communicator {
         }
 
 
-        ImageCurPoint.x = offset_x_i;
-        ImageCurPoint.y = offset_y_i;
-        ImageCurPoint.z = offset_z_i;
+        ImageCurPoint.x   = offset_x_i;
+        ImageCurPoint.y   = offset_y_i;
+        ImageCurPoint.z   = offset_z_i;
 
         ImageStartPoint.x = ImageCurPoint.x - ImgSize/2;
         ImageStartPoint.y = ImageCurPoint.y - ImgSize/2;

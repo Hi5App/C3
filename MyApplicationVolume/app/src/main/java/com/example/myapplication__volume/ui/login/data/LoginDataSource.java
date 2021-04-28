@@ -7,7 +7,7 @@ import com.example.myapplication__volume.ui.login.data.model.LoggedInUser;
 
 import java.io.IOException;
 
-import static com.example.myapplication__volume.BaseActivity.ip_ALiYun;
+import static com.example.myapplication__volume.BaseActivity.ip_TencentCloud;
 
 /**s
  * Class that handles authentication w/ login credentials and retrieves user information.
@@ -160,7 +160,7 @@ public class LoginDataSource {
     private void initServerConnector(){
         ServerConnector serverConnector = ServerConnector.getInstance();
         serverConnector.releaseConnection();
-        serverConnector.setIp(ip_ALiYun);
+        serverConnector.setIp(ip_TencentCloud);
         serverConnector.setPort("23763");
         serverConnector.initConnection();
     }
