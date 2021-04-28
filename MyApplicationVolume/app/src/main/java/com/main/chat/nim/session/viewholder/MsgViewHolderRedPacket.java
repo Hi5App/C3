@@ -2,15 +2,15 @@
  * no RedPacket moudle yet
  */
 
-//package com.example.myapplication__volume.Nim.session.viewholder;
+//package com.example.core.Nim.session.viewholder;
 //
 //import android.app.Activity;
 //import android.view.View;
 //import android.widget.RelativeLayout;
 //import android.widget.TextView;
 //
-//import com.example.myapplication__volume.Nim.session.extension.RedPacketAttachment;
-//import com.example.myapplication__volume.R;
+//import com.example.core.Nim.session.extension.RedPacketAttachment;
+//import com.example.core.R;
 //import com.netease.nim.uikit.business.chatroom.adapter.ChatRoomMsgAdapter;
 //import com.netease.nim.uikit.business.session.module.ModuleProxy;
 //import com.netease.nim.uikit.business.session.module.list.MsgAdapter;

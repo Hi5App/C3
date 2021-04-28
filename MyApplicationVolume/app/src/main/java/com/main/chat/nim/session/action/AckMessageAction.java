@@ -1,9 +1,9 @@
-//package com.example.myapplication__volume.Nim.session.action;
+//package com.example.core.Nim.session.action;
 //
 //import android.content.Intent;
 //
-//import com.example.myapplication__volume.Nim.session.activity.SendAckMsgActivity;
-//import com.example.myapplication__volume.R;
+//import com.example.core.Nim.session.activity.SendAckMsgActivity;
+//import com.example.core.R;
 //import com.netease.nim.uikit.business.session.actions.BaseAction;
 //import com.netease.nim.uikit.business.session.constant.RequestCode;
 //import com.netease.nim.uikit.common.ToastHelper;

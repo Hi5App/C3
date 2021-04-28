@@ -1,12 +1,12 @@
-//package com.example.myapplication__volume.Nim.session.fragment.tab;
+//package com.example.core.Nim.session.fragment.tab;
 //
 //import android.os.Bundle;
 //import android.view.LayoutInflater;
 //import android.view.View;
 //import android.view.ViewGroup;
 //
-//import com.example.myapplication__volume.Nim.session.model.AckMsgTab;
-//import com.example.myapplication__volume.R;
+//import com.example.core.Nim.session.model.AckMsgTab;
+//import com.example.core.R;
 //import com.netease.nim.uikit.common.fragment.TabFragment;
 //
 //

@@ -3,7 +3,7 @@
  * no RedPacket moudle yet
  */
 
-//package com.example.myapplication__volume.Nim.session.viewholder;
+//package com.example.core.Nim.session.viewholder;
 //
 //import android.app.Activity;
 //import android.text.SpannableString;
@@ -16,9 +16,9 @@
 //import android.widget.LinearLayout;
 //import android.widget.TextView;
 //
-//import com.example.myapplication__volume.Nim.DemoCache;
-//import com.example.myapplication__volume.Nim.session.extension.RedPacketOpenedAttachment;
-//import com.example.myapplication__volume.R;
+//import com.example.core.Nim.DemoCache;
+//import com.example.core.Nim.session.extension.RedPacketOpenedAttachment;
+//import com.example.core.R;
 //import com.netease.nim.uikit.api.NimUIKit;
 //import com.netease.nim.uikit.business.session.viewholder.MsgViewHolderBase;
 //import com.netease.nim.uikit.common.ui.recyclerview.adapter.BaseMultiItemFetchLoadAdapter;

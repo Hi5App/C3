@@ -1,4 +1,4 @@
-//package com.example.myapplication__volume.Nim.session.action;
+//package com.example.core.Nim.session.action;
 //
 //
 //import com.netease.nim.demo.R;

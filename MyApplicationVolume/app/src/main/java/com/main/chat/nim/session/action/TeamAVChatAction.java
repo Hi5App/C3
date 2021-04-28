@@ -1,4 +1,4 @@
-//package com.example.myapplication__volume.Nim.session.action;
+//package com.example.core.Nim.session.action;
 //
 //import android.content.Intent;
 //import android.text.TextUtils;

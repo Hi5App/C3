@@ -1,10 +1,10 @@
-//package com.example.myapplication__volume.Nim.session.model;
+//package com.example.core.Nim.session.model;
 //
 //
-//import com.example.myapplication__volume.Nim.session.fragment.tab.AckMsgTabFragment;
-//import com.example.myapplication__volume.Nim.session.fragment.tab.ReadAckMsgTabFragment;
-//import com.example.myapplication__volume.Nim.session.fragment.tab.UnreadAckMsgTabFragment;
-//import com.example.myapplication__volume.R;
+//import com.example.core.Nim.session.fragment.tab.AckMsgTabFragment;
+//import com.example.core.Nim.session.fragment.tab.ReadAckMsgTabFragment;
+//import com.example.core.Nim.session.fragment.tab.UnreadAckMsgTabFragment;
+//import com.example.core.R;
 //
 ///**
 // * Created by winnie on 2018/3/14.

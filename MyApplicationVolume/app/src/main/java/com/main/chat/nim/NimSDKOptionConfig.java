@@ -161,7 +161,7 @@ public class NimSDKOptionConfig {
         config.notificationSmallIconId = R.mipmap.ic_launcher;
         config.notificationColor = InfoCache.getContext().getResources().getColor(R.color.color_blue_3a9efb);
         // 通知铃声的uri字符串
-        config.notificationSound = "android.resource://com.example.myapplication__volume/raw/msg";
+        config.notificationSound = "android.resource://com.example.core/raw/msg";
         config.notificationFolded = true;
         //        config.notificationFolded = false;
         config.notificationFoldStyle = NotificationFoldStyle.ALL;

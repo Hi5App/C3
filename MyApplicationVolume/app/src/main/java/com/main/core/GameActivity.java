@@ -65,7 +65,7 @@ import static com.main.dataStore.SettingFileManager.setoffset_Remote;
 
 public class GameActivity extends BaseActivity {
 
-    public static final String NAME = "com.example.myapplication__volume.GameActivity";
+    public static final String NAME = "com.example.core.GameActivity";
 
     private static final int SHOW_PROGRESSBAR = 1;
     private static final int HIDE_PROGRESSBAR = 2;

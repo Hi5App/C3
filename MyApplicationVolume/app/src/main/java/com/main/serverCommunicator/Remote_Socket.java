@@ -1531,7 +1531,7 @@ public class Remote_Socket extends Socket {
                         Intent intent = new Intent();
                         intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                         intent.setAction(Intent.ACTION_SEND);
-                        intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(mContext, "com.example.myapplication__volume.provider", excel_file));  //传输图片或者文件 采用流的方式
+                        intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(mContext, "com.example.core.provider", excel_file));  //传输图片或者文件 采用流的方式
                         intent.setType("*/*");   //分享文件
                         mContext.startActivity(Intent.createChooser(intent, "Share From C3"));
                     }else {

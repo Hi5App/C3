@@ -299,7 +299,7 @@ public class PinYin {
         }
     }
 
-//    public static final void init(com.example.myapplication__volume.MyApplication ctx) {
+//    public static final void init(com.example.core.MyApplication ctx) {
     public static final void init(Context ctx) {
         context = ctx.getApplicationContext();
     }

@@ -1,4 +1,4 @@
-//package com.example.myapplication__volume.Nim.session.adapter;
+//package com.example.core.Nim.session.adapter;
 //
 //import android.content.Context;
 //

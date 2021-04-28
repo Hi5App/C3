@@ -42,7 +42,7 @@ public class MKTest {
         Thread.sleep(3000);
 
         //open the file
-        mUidevice.findObject(By.res("com.example.myapplication__volume:id/file")).click();
+        mUidevice.findObject(By.res("com.example.core:id/file")).click();
         Thread.sleep(500);
 
 
@@ -126,7 +126,7 @@ public class MKTest {
         Thread.sleep(3000);
 
         //open the file
-        mUidevice.findObject(By.res("com.example.myapplication__volume:id/file")).click();
+        mUidevice.findObject(By.res("com.example.core:id/file")).click();
         Thread.sleep(500);
 
 
@@ -207,7 +207,7 @@ public class MKTest {
         Thread.sleep(1000);
 
         //open the file
-        mUidevice.findObject(By.res("com.example.myapplication__volume:id/file")).click();
+        mUidevice.findObject(By.res("com.example.core:id/file")).click();
         Thread.sleep(500);
 
 
@@ -268,7 +268,7 @@ public class MKTest {
         Thread.sleep(1000);
 
         //open the file
-        mUidevice.findObject(By.res("com.example.myapplication__volume:id/file")).click();
+        mUidevice.findObject(By.res("com.example.core:id/file")).click();
         Thread.sleep(500);
 
 
@@ -329,7 +329,7 @@ public class MKTest {
         Thread.sleep(1000);
 
         //open the file
-        mUidevice.findObject(By.res("com.example.myapplication__volume:id/file")).click();
+        mUidevice.findObject(By.res("com.example.core:id/file")).click();
         Thread.sleep(500);
 
 

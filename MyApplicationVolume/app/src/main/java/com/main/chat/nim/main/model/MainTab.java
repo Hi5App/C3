@@ -1,9 +1,9 @@
-//package com.example.myapplication__volume.Nim.main.model;
+//package com.example.core.Nim.main.model;
 //
 //
-//import com.example.myapplication__volume.Nim.customization.contact.ContactListFragment;
-//import com.example.myapplication__volume.Nim.reminder.ReminderId;
-//import com.example.myapplication__volume.R;
+//import com.example.core.Nim.customization.contact.ContactListFragment;
+//import com.example.core.Nim.reminder.ReminderId;
+//import com.example.core.R;
 //
 //public enum MainTab {
 //    RECENT_CONTACTS(0, ReminderId.SESSION, SessionListFragment.class, R.string.main_tab_session, R.layout.session_list),

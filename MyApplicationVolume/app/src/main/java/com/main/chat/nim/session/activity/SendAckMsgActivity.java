@@ -1,4 +1,4 @@
-//package com.example.myapplication__volume.Nim.session.activity;
+//package com.example.core.Nim.session.activity;
 //
 //import android.app.Activity;
 //import android.content.Context;
@@ -9,7 +9,7 @@
 //import android.widget.Button;
 //import android.widget.EditText;
 //
-//import com.example.myapplication__volume.R;
+//import com.example.core.R;
 //import com.netease.nim.uikit.api.wrapper.NimToolBarOptions;
 //import com.netease.nim.uikit.common.activity.ToolBarOptions;
 //import com.netease.nim.uikit.common.activity.UI;

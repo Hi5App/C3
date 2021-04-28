@@ -1,4 +1,4 @@
-//package com.example.myapplication__volume.Nim.session.fragment.tab;
+//package com.example.core.Nim.session.fragment.tab;
 //
 //import android.os.Bundle;
 //

@@ -634,6 +634,6 @@ public class PeerToPeerVoiceActivity extends BaseActivity {
             return false;
         }
         Log.d(TAG, "isTopActivity" + cmpNameTemp);
-        return cmpNameTemp.equals("ComponentInfo{com.example.myapplication__volume/com.example.chat.agora.activity.PeerToPeerVoiceActivity}");
+        return cmpNameTemp.equals("ComponentInfo{com.example.core/com.example.chat.agora.activity.PeerToPeerVoiceActivity}");
     }
 }

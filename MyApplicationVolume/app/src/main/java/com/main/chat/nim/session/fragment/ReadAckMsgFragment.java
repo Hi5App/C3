@@ -1,4 +1,4 @@
-//package com.example.myapplication__volume.Nim.session.fragment;
+//package com.example.core.Nim.session.fragment;
 //
 //import android.os.Bundle;
 //import android.view.LayoutInflater;

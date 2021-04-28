@@ -38,7 +38,6 @@ public class SwcReader {
                 ArrayList<Float> cur_line = new ArrayList<Float>();
                 for (int j = 0; j < 7; j++){
                     cur_line.add(Float.parseFloat(s[j]));
-//                    result[i][j] = Float.parseFloat(s[j]);
                 }
                 result.add(cur_line);
             }

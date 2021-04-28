@@ -1,10 +1,10 @@
-//package com.example.myapplication__volume.Nim.session.viewholder;
+//package com.example.core.Nim.session.viewholder;
 //
 //import android.graphics.Color;
 //import android.widget.ImageView;
 //import android.widget.TextView;
 //
-//import com.example.myapplication__volume.R;
+//import com.example.core.R;
 //import com.netease.nim.uikit.business.session.viewholder.MsgViewHolderBase;
 //import com.netease.nim.uikit.common.ui.recyclerview.adapter.BaseMultiItemFetchLoadAdapter;
 //import com.netease.nim.uikit.common.util.sys.TimeUtil;

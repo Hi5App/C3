@@ -79,7 +79,7 @@ import com.netease.nimlib.sdk.team.model.Team;
 import java.util.ArrayList;
 import java.util.List;
 
-//import com.example.myapplication__volume.Nim.session.action.RTSAction;
+//import com.example.core.Nim.session.action.RTSAction;
 
 /**
  * UIKit自定义消息界面用法展示类

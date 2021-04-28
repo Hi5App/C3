@@ -183,7 +183,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     //    private int UNDO_LIMIT = 5;
 //    private enum Operate {DRAW, DELETE, SPLIT};
 //    private Operate [] process = new Operate[UNDO_LIMIT];
-    public static final String NAME = "com.example.myapplication__volume.MainActivity";
+    public static final String NAME = "com.example.core.MainActivity";
 
     public static final String File_path = "com.example.myfirstapp.MESSAGE";
     private static final String TAG = "MainActivity";
@@ -4255,7 +4255,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                                     intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                                     intent.setAction(Intent.ACTION_SEND);
-                                    intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "com.example.myapplication__volume.provider", new File(file_path)));  //传输图片或者文件 采用流的方式
+                                    intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "com.example.core.provider", new File(file_path)));  //传输图片或者文件 采用流的方式
                                     intent.setType("*/*");   //分享文件
                                     startActivity(Intent.createChooser(intent, "Share From C3"));
                                 }else {
@@ -5886,7 +5886,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             return false;
         }
         Log.d(TAG, "isTopActivity" + cmpNameTemp);
-        return cmpNameTemp.equals("ComponentInfo{com.example.myapplication__volume/com.example.myapplication__volume.MainActivity}");
+        return cmpNameTemp.equals("ComponentInfo{com.example.core/com.example.core.MainActivity}");
     }
 
 
