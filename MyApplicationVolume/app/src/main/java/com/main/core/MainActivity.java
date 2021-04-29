@@ -256,8 +256,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static ImageButton navigation_location;
     private static Button navigation_front;
     private static Button navigation_back;
-    private static Button blue_pen;
-    private static Button red_pen;
+//    private static Button blue_pen;
+//    private static Button red_pen;
     private static Button res_list;
 
     private static ImageButton user_list;
@@ -281,9 +281,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //    private static FrameLayout.LayoutParams lp_sync_push;
 //    private static FrameLayout.LayoutParams lp_sync_pull;
 //    private static FrameLayout.LayoutParams lp_neuron_list;
-    private static FrameLayout.LayoutParams lp_blue_color;
+//    private static FrameLayout.LayoutParams lp_blue_color;
+//    private static FrameLayout.LayoutParams lp_red_color;
     private static FrameLayout.LayoutParams lp_res_list;
-    private static FrameLayout.LayoutParams lp_red_color;
     private FrameLayout.LayoutParams lp_animation_i;
     private static FrameLayout.LayoutParams lp_undo;
     private static FrameLayout.LayoutParams lp_redo;
@@ -356,8 +356,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private long exitTime = 0;
 
     private static String filename = "";
-
-    private static String file_path_temp = "";
 
     private static boolean DrawMode = true;
 
@@ -637,19 +635,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     @SuppressLint("HandlerLeak")
-    private Handler uiHandler = new Handler(){
-        // 覆写这个方法，接收并处理消息。
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what){
-                case 1:
-                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                    break;
-            }
-        }
-    };
-
-    @SuppressLint("HandlerLeak")
     private static Handler puiHandler = new Handler(){
         // 覆写这个方法，接收并处理消息。
         @Override
@@ -667,53 +652,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     activity_2.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     break;
                 case 2:
-                    if (isBigData_Remote || isBigData_Local){
-                        navigation_left.setVisibility(View.VISIBLE);
-                        navigation_right.setVisibility(View.VISIBLE);
-                        navigation_up.setVisibility(View.VISIBLE);
-                        navigation_down.setVisibility(View.VISIBLE);
-                        navigation_front.setVisibility(View.VISIBLE);
-                        navigation_back.setVisibility(View.VISIBLE);
-//                        navigation_location.setVisibility(View.VISIBLE);
-
-                        Zoom_in_Big.setVisibility(View.VISIBLE);
-                        Zoom_out_Big.setVisibility(View.VISIBLE);
-                        Zoom_in.setVisibility(View.GONE);
-                        Zoom_out.setVisibility(View.GONE);
-
-                        if (isBigData_Remote){
-                            if (DrawMode){
-
-
-//                                Check_Yes.setVisibility(View.GONE);
-//                                Check_No.setVisibility(View.GONE);
-//                                Check_Uncertain.setVisibility(View.GONE);
-//                                res_list.setVisibility(View.GONE);
-//                                sync_pull.setVisibility(View.VISIBLE);
-//                                sync_push.setVisibility(View.VISIBLE);
-//                                neuron_list.setVisibility(View.VISIBLE);
-                                user_list.setVisibility(View.VISIBLE);
-                                room_id.setVisibility(View.VISIBLE);
-                                blue_pen.setVisibility(View.VISIBLE);
-                                red_pen.setVisibility(View.VISIBLE);
-                            }
-                            else {
-                                Check_Yes.setVisibility(View.VISIBLE);
-                                Check_No.setVisibility(View.VISIBLE);
-                                Check_Uncertain.setVisibility(View.VISIBLE);
-
-
-//                                res_list.setVisibility(View.VISIBLE);
-//                                sync_pull.setVisibility(View.VISIBLE);
-//                                sync_push.setVisibility(View.GONE);
-//                                neuron_list.setVisibility(View.VISIBLE);
-                                blue_pen.setVisibility(View.GONE);
-                                red_pen.setVisibility(View.GONE);
-                            }
-                        }
-
-                    }
-
+                    setButtonsBigData();
                     if (isBigData_Local){
                         String filename = SettingFileManager.getFilename_Local(context);
                         String offset = SettingFileManager.getoffset_Local(context, filename);
@@ -731,37 +670,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     break;
 
                 case 4:
-//                    File file = new File(file_path_temp);
-//                    String name = file.getName();
-//                    Log.v("Handler",name);
-//
-//                    String result = null;
-//                    if (DrawMode){
-//                        String source = getSelectSource(context);
-//                        if (source.equals("Remote Server Aliyun")){
-//                            String filename = getFilename_Remote(context);
-//                            String brain_number = getNeuronNumber_Remote(context,filename);
-//                            result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
-////                            result = name.split("_")[1].substring(0,name.split("_")[1].length()-3);
-//                        }else if(source.equals("Remote Server SEU")){
-//                            String filename = getFilename_Remote(context);
-//                            String brain_number = getNeuronNumber_Remote(context,filename);
-//                            Log.d(TAG, "brain_number: " + brain_number);
-//                            Log.d(TAG, "brain_number.split(\"_\")[0]: " + brain_number.split("_")[0]);
-//                            if (brain_number.split("_")[0].equals("pre")){
-//                                Log.d(TAG, "brain_number.split(\"_\")[0]: " + brain_number.split("_")[0]);
-//                                result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[2];
-//                            } else {
-//                                result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
-//                            }
-//                        }
-//                    }else {
-//                        String brain_num = getFilename_Remote(context);
-//                        String neuron_num = getNeuronNumber_Remote(context, brain_num);
-//                        result = brain_num.split("_")[0] + "_" + neuron_num.split("_")[1] + "_" + getArborNum(context,brain_num.split("/")[0] + "_" + neuron_num).split(":")[0];
-//                    }
-
-                    setFilename(Communicator.BrainNum);
+                    setFileName(Communicator.BrainNum);
                     break;
 
                 case 5:
@@ -1520,24 +1429,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         });
 
 
-        lp_blue_color = new FrameLayout.LayoutParams(120, 120);
-        lp_blue_color.gravity = Gravity.TOP | Gravity.LEFT;
-        lp_blue_color.setMargins(20, 490, 0, 0);
-
-
-        blue_pen = new Button(this);
-        blue_pen.setText("B");
-
-        blue_pen.setOnClickListener(new Button.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                myrenderer.pencolorchange(PenColor.valueOf("BLUE").ordinal());
-                blue_pen.setTextColor(Color.BLUE);
-                red_pen.setTextColor(Color.BLACK);
-            }
-        });
 
 
         lp_res_list = new FrameLayout.LayoutParams(120, 120);
@@ -1560,23 +1451,44 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
-        lp_red_color = new FrameLayout.LayoutParams(120, 120);
-        lp_red_color.gravity = Gravity.TOP | Gravity.LEFT;
-        lp_red_color.setMargins(20, 580, 0, 0);
+//        lp_blue_color = new FrameLayout.LayoutParams(120, 120);
+//        lp_blue_color.gravity = Gravity.TOP | Gravity.LEFT;
+//        lp_blue_color.setMargins(20, 490, 0, 0);
+//
+//
+//        blue_pen = new Button(this);
+//        blue_pen.setText("B");
+//
+//        blue_pen.setOnClickListener(new Button.OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+//
+//                myrenderer.pencolorchange(PenColor.valueOf("BLUE").ordinal());
+//                blue_pen.setTextColor(Color.BLUE);
+//                red_pen.setTextColor(Color.BLACK);
+//            }
+//        });
 
-        red_pen = new Button(this);
-        red_pen.setText("R");
 
-        red_pen.setOnClickListener(new Button.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
-                myrenderer.pencolorchange(PenColor.valueOf("RED").ordinal());
-                red_pen.setTextColor(Color.RED);
-                blue_pen.setTextColor(Color.BLACK);
-            }
-        });
+//        lp_red_color = new FrameLayout.LayoutParams(120, 120);
+//        lp_red_color.gravity = Gravity.TOP | Gravity.LEFT;
+//        lp_red_color.setMargins(20, 580, 0, 0);
+//
+//        red_pen = new Button(this);
+//        red_pen.setText("R");
+//
+//        red_pen.setOnClickListener(new Button.OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+//
+//                myrenderer.pencolorchange(PenColor.valueOf("RED").ordinal());
+//                red_pen.setTextColor(Color.RED);
+//                blue_pen.setTextColor(Color.BLACK);
+//            }
+//        });
 
 
 
@@ -1718,8 +1630,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
         this.addContentView(res_list, lp_res_list);
-        this.addContentView(red_pen, lp_red_color);
-        this.addContentView(blue_pen, lp_blue_color);
+//        this.addContentView(red_pen, lp_red_color);
+//        this.addContentView(blue_pen, lp_blue_color);
 
         this.addContentView(room_id, lp_room_id);
         this.addContentView(user_list, lp_user_list);
@@ -1734,8 +1646,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
         res_list.setVisibility(View.GONE);
-        red_pen.setVisibility(View.GONE);
-        blue_pen.setVisibility(View.GONE);
+//        red_pen.setVisibility(View.GONE);
+//        blue_pen.setVisibility(View.GONE);
 
         room_id.setVisibility(View.GONE);
         user_list.setVisibility(View.GONE);
@@ -3732,7 +3644,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210427a 13:44 UTC+8 build",
+                                "Version: 20210429a 13:44 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4416,6 +4328,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     @Override
     @RequiresApi(api = Build.VERSION_CODES.N)
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.v(TAG,"onActivityResult start");
 
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
@@ -4425,24 +4338,17 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
 
         if (resultCode == RESULT_OK) {
-            String folderPath = data.getDataString();
             Uri uri = data.getData();
-
             String filePath = uri.toString();
-            String filePath_getPath = uri.getPath();
-
-            Log.v("MainActivity", filePath);
-            Log.v("uri.getPath()", filePath_getPath);
-            Log.v("Uri_Scheme:", uri.getScheme());
+            Log.e(TAG, filePath);
 
             try {
-                Log.v("MainActivity", "onActivityResult");
                 if (ifImport) {
 
                     FileManager fileManager = new FileManager();
                     String fileName = fileManager.getFileName(uri);
                     String filetype = fileName.substring(fileName.lastIndexOf(".")).toUpperCase();
-                    System.out.println("FileType: " + filetype + ", FileName: " + fileName);
+                    Log.e(TAG,"FileType: " + filetype + ", FileName: " + fileName);
 
                     if (myrenderer.getIfFileLoaded()) {
                         System.out.println("------ load local file ------");
@@ -4488,7 +4394,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                             default:
                                 ToastEasy("Unsupported file type");
-
                         }
                     }
 
@@ -4496,48 +4401,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         System.out.println("-------- open --------");
                         myrenderer.setSWCPath(filePath);
                         ifLoadLocal = false;
-                        if (isBigData_Remote || isBigData_Local){
-                            if (isBigData_Remote){
-                                if (DrawMode){
-
-//                                    sync_push.setVisibility(View.GONE);
-//                                    sync_pull.setVisibility(View.GONE);
-//                                    neuron_list.setVisibility(View.GONE);
-                                    blue_pen.setVisibility(View.GONE);
-                                    red_pen.setVisibility(View.GONE);
-                                }
-                                else{
-                                    Check_Yes.setVisibility(View.GONE);
-                                    Check_No.setVisibility(View.GONE);
-                                    Check_Uncertain.setVisibility(View.GONE);
-//                                    sync_pull.setVisibility(View.GONE);
-//                                    neuron_list.setVisibility(View.GONE);
-                                    res_list.setVisibility(View.GONE);
-                                }
-                            }
-                            isBigData_Remote = false;
-                            isBigData_Local  = false;
-                            try {
-
-                                Zoom_in_Big.setVisibility(View.GONE);
-                                Zoom_out_Big.setVisibility(View.GONE);
-                                navigation_left.setVisibility(View.GONE);
-                                navigation_right.setVisibility(View.GONE);
-                                navigation_up.setVisibility(View.GONE);
-                                navigation_down.setVisibility(View.GONE);
-                                navigation_front.setVisibility(View.GONE);
-                                navigation_back.setVisibility(View.GONE);
-                                navigation_location.setVisibility(View.GONE);
-
-                                Zoom_in.setVisibility(View.VISIBLE);
-                                Zoom_out.setVisibility(View.VISIBLE);
-
-                            }catch (Exception e){
-                                e.printStackTrace();
-                            }
-                        }
+                        setButtonsImport();
                     }
-
                     ifImport = false;
                 }
 
@@ -4554,63 +4419,18 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
                 if (ifLoadLocal) {
-                    System.out.println("load local");
+                    Log.e(TAG,"Load Local File");
                     myrenderer.setPath(filePath);
-                    System.out.println(filePath);
 
-                    if (isBigData_Remote || isBigData_Local){
-                        if (isBigData_Remote){
-                            if (DrawMode){
-//                                sync_push.setVisibility(View.GONE);
-//                                sync_pull.setVisibility(View.GONE);
-//                                neuron_list.setVisibility(View.GONE);
-                                blue_pen.setVisibility(View.GONE);
-                                red_pen.setVisibility(View.GONE);
-                            }
-                            else{
-                                Check_Yes.setVisibility(View.GONE);
-                                Check_No.setVisibility(View.GONE);
-                                Check_Uncertain.setVisibility(View.GONE);
-//                                sync_pull.setVisibility(View.GONE);
-//                                neuron_list.setVisibility(View.GONE);
-                                res_list.setVisibility(View.GONE);
-                            }
-                        }
-                        isBigData_Remote = false;
-                        isBigData_Local  = false;
-
-                        try {
-
-                            Zoom_in_Big.setVisibility(View.GONE);
-                            Zoom_out_Big.setVisibility(View.GONE);
-                            navigation_left.setVisibility(View.GONE);
-                            navigation_right.setVisibility(View.GONE);
-                            navigation_up.setVisibility(View.GONE);
-                            navigation_down.setVisibility(View.GONE);
-                            navigation_front.setVisibility(View.GONE);
-                            navigation_back.setVisibility(View.GONE);
-                            navigation_location.setVisibility(View.GONE);
-
-                            Zoom_in.setVisibility(View.VISIBLE);
-                            Zoom_out.setVisibility(View.VISIBLE);
-
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-                    }
-                    String [] temp = filePath.split("/");
-                    String [] temp2 = temp[temp.length - 1].split("%2F");
-                    String s = temp2[temp2.length - 1];
+                    setButtonsLocal();
                     String filename = FileManager.getFileName(uri);
-
-                    setFilename(filename);
+                    setFileName(filename);
 
                 }
 
 
             } catch (OutOfMemoryError e) {
                 ToastEasy("Fail to load file");
-                Log.v("MainActivity", "111222");
                 Log.v("Exception", e.toString());
             } catch (CloneNotSupportedException e){
                 Log.v("Exception:", e.toString());
@@ -5456,13 +5276,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
      */
 
     static Timer timerDownload;
-    static TimerTask taskDownload = new TimerTask() {
-        @Override
-        public void run() {
-            timeOutHandler();
-        }
-    };
-
 
     public static void showProgressBar(){
         puiHandler.sendEmptyMessage(0);
@@ -5491,8 +5304,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    public static void setFilename(String s){
-        filename = s;
+    public static void setFileName(String name){
+        filename = name;
 
         filenametext.setText(filename);
         ll_file.setVisibility(View.VISIBLE);
@@ -5516,11 +5329,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //        neuron_list.setLayoutParams(lp_neuron_list);
 
 
-        lp_blue_color.setMargins(0, 540, 20, 0);
-        blue_pen.setLayoutParams(lp_blue_color);
-
-        lp_red_color.setMargins(0, 630, 20, 0);
-        red_pen.setLayoutParams(lp_red_color);
+//        lp_blue_color.setMargins(0, 540, 20, 0);
+//        blue_pen.setLayoutParams(lp_blue_color);
+//
+//        lp_red_color.setMargins(0, 630, 20, 0);
+//        red_pen.setLayoutParams(lp_red_color);
 
         lp_res_list.setMargins(0, 540, 20, 0);
         res_list.setLayoutParams(lp_res_list);
@@ -5529,6 +5342,90 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private static void setButtons(){
         puiHandler.sendEmptyMessage(2);
+    }
+
+    public static void setButtonsBigData(){
+        if (isBigData_Remote || isBigData_Local){
+            navigation_left.setVisibility(View.VISIBLE);
+            navigation_right.setVisibility(View.VISIBLE);
+            navigation_up.setVisibility(View.VISIBLE);
+            navigation_down.setVisibility(View.VISIBLE);
+            navigation_front.setVisibility(View.VISIBLE);
+            navigation_back.setVisibility(View.VISIBLE);
+
+            Zoom_in_Big.setVisibility(View.VISIBLE);
+            Zoom_out_Big.setVisibility(View.VISIBLE);
+            Zoom_in.setVisibility(View.GONE);
+            Zoom_out.setVisibility(View.GONE);
+
+            if (isBigData_Remote){
+                    res_list.setVisibility(View.VISIBLE);
+                    user_list.setVisibility(View.VISIBLE);
+                    room_id.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    public void setButtonsLocal(){
+        if (isBigData_Remote || isBigData_Local){
+            if (isBigData_Remote){
+                res_list.setVisibility(View.GONE);
+                user_list.setVisibility(View.GONE);
+                room_id.setVisibility(View.GONE);
+            }
+            isBigData_Remote = false;
+            isBigData_Local  = false;
+
+            try {
+
+                Zoom_in.setVisibility(View.VISIBLE);
+                Zoom_out.setVisibility(View.VISIBLE);
+
+                Zoom_in_Big.setVisibility(View.GONE);
+                Zoom_out_Big.setVisibility(View.GONE);
+                navigation_left.setVisibility(View.GONE);
+                navigation_right.setVisibility(View.GONE);
+                navigation_up.setVisibility(View.GONE);
+                navigation_down.setVisibility(View.GONE);
+                navigation_front.setVisibility(View.GONE);
+                navigation_back.setVisibility(View.GONE);
+                navigation_location.setVisibility(View.GONE);
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    public void setButtonsImport(){
+        if (isBigData_Remote || isBigData_Local){
+            if (isBigData_Remote){
+                res_list.setVisibility(View.GONE);
+                user_list.setVisibility(View.GONE);
+                room_id.setVisibility(View.GONE);
+            }
+            isBigData_Remote = false;
+            isBigData_Local  = false;
+            try {
+
+                Zoom_in_Big.setVisibility(View.GONE);
+                Zoom_out_Big.setVisibility(View.GONE);
+                navigation_left.setVisibility(View.GONE);
+                navigation_right.setVisibility(View.GONE);
+                navigation_up.setVisibility(View.GONE);
+                navigation_down.setVisibility(View.GONE);
+                navigation_front.setVisibility(View.GONE);
+                navigation_back.setVisibility(View.GONE);
+                navigation_location.setVisibility(View.GONE);
+
+                Zoom_in.setVisibility(View.VISIBLE);
+                Zoom_out.setVisibility(View.VISIBLE);
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
     }
 
 
@@ -5558,20 +5455,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             Zoom_out_Big.setVisibility(View.GONE);
 
             if (isBigData_Remote) {
-                if (!DrawMode){
-
-                    Check_No.setVisibility(View.GONE);
-                    Check_Yes.setVisibility(View.GONE);
-                    Check_Uncertain.setVisibility(View.GONE);
-//                    neuron_list.setVisibility(View.GONE);
-                    res_list.setVisibility(View.GONE);
-                }else {
-//                    sync_push.setVisibility(View.GONE);
-//                    neuron_list.setVisibility(View.GONE);
-                    blue_pen.setVisibility(View.GONE);
-                    red_pen.setVisibility(View.GONE);
-                }
-//                sync_pull.setVisibility(View.GONE);
+                res_list.setVisibility(View.GONE);
+                user_list.setVisibility(View.GONE);
+                room_id.setVisibility(View.GONE);
             }
         }else {
             Zoom_in.setVisibility(View.GONE);
@@ -5610,19 +5496,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             Zoom_out_Big.setVisibility(View.VISIBLE);
 
             if (isBigData_Remote) {
-                if (!DrawMode){
-                    Check_No.setVisibility(View.VISIBLE);
-                    Check_Yes.setVisibility(View.VISIBLE);
-                    Check_Uncertain.setVisibility(View.VISIBLE);
-//                    neuron_list.setVisibility(View.VISIBLE);
-                    res_list.setVisibility(View.VISIBLE);
-                }else {
-//                    sync_push.setVisibility(View.VISIBLE);
-//                    neuron_list.setVisibility(View.VISIBLE);
-                    blue_pen.setVisibility(View.VISIBLE);
-                    red_pen.setVisibility(View.VISIBLE);
-                }
-//                sync_pull.setVisibility(View.VISIBLE);
+                res_list.setVisibility(View.VISIBLE);
+                user_list.setVisibility(View.VISIBLE);
+                room_id.setVisibility(View.VISIBLE);
             }
 
         }else {
@@ -5909,7 +5785,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     myrenderer.setSwcLoaded();
                     myrenderer.importNeuronTree(nt,false);
                     myGLSurfaceView.requestRender();
-                    uiHandler.sendEmptyMessage(1);
+//                    uiHandler.sendEmptyMessage(1);
                 }catch (Exception e){
                     Toast_in_Thread("Some Wrong when open the Swc File, Try Again Please !");
                 }
@@ -7045,6 +6921,87 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //        return true;
 //    }
 
+
+//    backup setFileName
+//                    File file = new File(file_path_temp);
+//                    String name = file.getName();
+//                    Log.v("Handler",name);
+//
+//                    String result = null;
+//                    if (DrawMode){
+//                        String source = getSelectSource(context);
+//                        if (source.equals("Remote Server Aliyun")){
+//                            String filename = getFilename_Remote(context);
+//                            String brain_number = getNeuronNumber_Remote(context,filename);
+//                            result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
+////                            result = name.split("_")[1].substring(0,name.split("_")[1].length()-3);
+//                        }else if(source.equals("Remote Server SEU")){
+//                            String filename = getFilename_Remote(context);
+//                            String brain_number = getNeuronNumber_Remote(context,filename);
+//                            Log.d(TAG, "brain_number: " + brain_number);
+//                            Log.d(TAG, "brain_number.split(\"_\")[0]: " + brain_number.split("_")[0]);
+//                            if (brain_number.split("_")[0].equals("pre")){
+//                                Log.d(TAG, "brain_number.split(\"_\")[0]: " + brain_number.split("_")[0]);
+//                                result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[2];
+//                            } else {
+//                                result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
+//                            }
+//                        }
+//                    }else {
+//                        String brain_num = getFilename_Remote(context);
+//                        String neuron_num = getNeuronNumber_Remote(context, brain_num);
+//                        result = brain_num.split("_")[0] + "_" + neuron_num.split("_")[1] + "_" + getArborNum(context,brain_num.split("/")[0] + "_" + neuron_num).split(":")[0];
+//                    }
+
+
+
+
+
+//                    if (isBigData_Remote || isBigData_Local){
+//                        navigation_left.setVisibility(View.VISIBLE);
+//                        navigation_right.setVisibility(View.VISIBLE);
+//                        navigation_up.setVisibility(View.VISIBLE);
+//                        navigation_down.setVisibility(View.VISIBLE);
+//                        navigation_front.setVisibility(View.VISIBLE);
+//                        navigation_back.setVisibility(View.VISIBLE);
+////                        navigation_location.setVisibility(View.VISIBLE);
+//
+//                        Zoom_in_Big.setVisibility(View.VISIBLE);
+//                        Zoom_out_Big.setVisibility(View.VISIBLE);
+//                        Zoom_in.setVisibility(View.GONE);
+//                        Zoom_out.setVisibility(View.GONE);
+//
+//                        if (isBigData_Remote){
+//                            if (DrawMode){
+//
+//
+////                                Check_Yes.setVisibility(View.GONE);
+////                                Check_No.setVisibility(View.GONE);
+////                                Check_Uncertain.setVisibility(View.GONE);
+//                                res_list.setVisibility(View.GONE);
+////                                sync_pull.setVisibility(View.VISIBLE);
+////                                sync_push.setVisibility(View.VISIBLE);
+////                                neuron_list.setVisibility(View.VISIBLE);
+//                                user_list.setVisibility(View.VISIBLE);
+//                                room_id.setVisibility(View.VISIBLE);
+////                                blue_pen.setVisibility(View.VISIBLE);
+////                                red_pen.setVisibility(View.VISIBLE);
+//                            }
+//                            else {
+//                                Check_Yes.setVisibility(View.VISIBLE);
+//                                Check_No.setVisibility(View.VISIBLE);
+//                                Check_Uncertain.setVisibility(View.VISIBLE);
+//
+//
+////                                res_list.setVisibility(View.VISIBLE);
+////                                sync_pull.setVisibility(View.VISIBLE);
+////                                sync_push.setVisibility(View.GONE);
+////                                neuron_list.setVisibility(View.VISIBLE);
+////                                blue_pen.setVisibility(View.GONE);
+////                                red_pen.setVisibility(View.GONE);
+//                            }
+//                        }
+//                    }
 
 
 }

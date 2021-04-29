@@ -26,7 +26,7 @@ import static com.main.dataStore.SettingFileManager.getFilename_Local;
 import static com.main.dataStore.SettingFileManager.getoffset_Local;
 import static com.main.dataStore.SettingFileManager.setoffset_Local;
 import static com.main.core.MainActivity.Toast_in_Thread_static;
-import static com.main.core.MainActivity.setFilename;
+import static com.main.core.MainActivity.setFileName;
 
 public class BigImgReader {
 
@@ -266,7 +266,7 @@ public class BigImgReader {
                     @Override
                     public void onSelect(int position, String text) {
                         Toast_in_Thread_static("You choose " + text);
-                        setFilename(text);
+                        setFileName(text);
                         SettingFileManager.setFilename_Local(text, context);
                         PopUp(context);
                     }
