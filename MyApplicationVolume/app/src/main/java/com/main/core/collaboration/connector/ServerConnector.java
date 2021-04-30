@@ -71,10 +71,9 @@ public class ServerConnector extends BasicConnector implements ReconnectionInter
 
     @Override
     public boolean sendMsg(String msg, boolean waited, boolean resend){
-        if (checkConnection()){
+        if (!checkConnection())
+            initConnection();
             return msgSender.SendMsg(mSocket, msg, waited, resend, this);
-        }
-        return false;
     }
 
 
@@ -96,6 +95,10 @@ public class ServerConnector extends BasicConnector implements ReconnectionInter
         sendMsg(String.format("LOGIN:%s %s", InfoCache.getAccount(), InfoCache.getToken()), true, false);
     }
 
+    @Override
+    public void setRelease() {
+        ManageService.setRelease(true);
+    }
 
     public String getRoomName() {
         return roomName;

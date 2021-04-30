@@ -263,9 +263,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static ImageButton user_list;
     private static ImageButton room_id;
 
-    private static ImageButton neuron_list;
-    private static ImageButton sync_pull;
+//    private static ImageButton neuron_list;
 //    private static ImageButton sync_push;
+//    private static ImageButton sync_pull;
 
 //    private static FloatingActionButton Audio_call;
 //    private static DragFloatActionButton fab;
@@ -279,8 +279,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private FrameLayout.LayoutParams lp_back_i;
     private static FrameLayout.LayoutParams lp_nacloc_i;
 //    private static FrameLayout.LayoutParams lp_sync_push;
-    private static FrameLayout.LayoutParams lp_sync_pull;
-    private static FrameLayout.LayoutParams lp_neuron_list;
+//    private static FrameLayout.LayoutParams lp_sync_pull;
+//    private static FrameLayout.LayoutParams lp_neuron_list;
 //    private static FrameLayout.LayoutParams lp_blue_color;
 //    private static FrameLayout.LayoutParams lp_red_color;
     private static FrameLayout.LayoutParams lp_res_list;
@@ -402,12 +402,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private int count = 0;
 
-    private String conPath = "";
+    private static String conPath = "";
 
     private float bgmVolume = 1.0f;
     private float buttonVolume = 1.0f;
     private float actionVolume = 1.0f;
-    private boolean firstLogin = true;
+    private boolean firstLoad = true;
     private boolean firstJoinRoom = true;
     private boolean copyFile = false;
 
@@ -475,12 +475,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
          */
         if (msg.startsWith("/users:")){
 
-            if (firstLogin || copyFile){
+            if (firstLoad || copyFile){
                 /*
                 when first join the room, try to get the image
                  */
                 MsgConnector.getInstance().sendMsg("/ImageRes:" + Communicator.BrainNum);
-                firstLogin = false;
+                firstLoad = false;
                 copyFile   = false;
             }
             /*
@@ -502,7 +502,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         if (msg.startsWith("ImgRes")){
             Log.e(TAG,"msg: " + msg);
             Communicator communicator = Communicator.getInstance();
-            communicator.initImgInfo(null, Integer.parseInt(msg.split(";")[1]), msg.split(";"));
+            int resDefault = Math.min(2, Integer.parseInt(msg.split(";")[1]));
+            communicator.initImgInfo(null, resDefault, msg.split(";"));
 
 //            communicator.setResolution(msg.split(";"));
 //            communicator.setImgRes(Integer.parseInt(msg.split(";")[1]));
@@ -670,8 +671,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     break;
 
                 case 4:
-//                    setFileName(Communicator.BrainNum);
-                    setFileName("mouse_181454_00067_arbor 1");
+                    setFileName(Communicator.BrainNum);
                     break;
 
                 case 5:
@@ -684,7 +684,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     break;
 
                 case 7:
-                    updateScoreText();
+                    updateScoreTextHandler();
                     break;
 
                 default:
@@ -1510,59 +1510,59 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //            }
 //        });
 //
-        lp_sync_pull = new FrameLayout.LayoutParams(115, 115);
-        lp_sync_pull.gravity = Gravity.TOP | Gravity.RIGHT;
-        lp_sync_pull.setMargins(0, 440, 20, 0);
+//        lp_sync_pull = new FrameLayout.LayoutParams(115, 115);
+//        lp_sync_pull.gravity = Gravity.TOP | Gravity.RIGHT;
+//        lp_sync_pull.setMargins(0, 440, 20, 0);
+//
+//        sync_pull = new ImageButton(this);
+//        sync_pull.setImageResource(R.drawable.ic_cloud_download_black_24dp);
+//        sync_pull.setOnClickListener(new Button.OnClickListener() {
+//            public void onClick(View v) {
+//                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+//
+//                if (DrawMode){
+//                    PullSwc_block_Manual(DrawMode);
+//
+//                    //  for apo sync
+////                    PullApo_block_Manual();
+//                }else {
+//                    remote_socket.pullCheckResult(false);
+//                }
+//            }
+//        });
+//
+//        sync_pull.setOnLongClickListener(new Button.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View view) {
+//
+//                if (!DrawMode){
+//                    remote_socket.pullCheckResult(true);
+//                }
+//                return true;
+//            }
+//        });
 
-        sync_pull = new ImageButton(this);
-        sync_pull.setImageResource(R.drawable.ic_cloud_download_black_24dp);
-        sync_pull.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
-                if (DrawMode){
-                    PullSwc_block_Manual(DrawMode);
-
-                    //  for apo sync
-//                    PullApo_block_Manual();
-                }else {
-                    remote_socket.pullCheckResult(false);
-                }
-            }
-        });
-
-        sync_pull.setOnLongClickListener(new Button.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-
-                if (!DrawMode){
-                    remote_socket.pullCheckResult(true);
-                }
-                return true;
-            }
-        });
-
-
-        lp_neuron_list = new FrameLayout.LayoutParams(115, 115);
-        lp_neuron_list.gravity = Gravity.TOP | Gravity.RIGHT;
-        lp_neuron_list.setMargins(0, 580, 20, 0);
-
-        neuron_list = new ImageButton(this);
-        neuron_list.setImageResource(R.drawable.ic_assignment_black_24dp);
-        neuron_list.setOnLongClickListener(new Button.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-
-                if (DrawMode){
+//        lp_neuron_list = new FrameLayout.LayoutParams(115, 115);
+//        lp_neuron_list.gravity = Gravity.TOP | Gravity.RIGHT;
+//        lp_neuron_list.setMargins(0, 580, 20, 0);
+//
+//        neuron_list = new ImageButton(this);
+//        neuron_list.setImageResource(R.drawable.ic_assignment_black_24dp);
+//        neuron_list.setOnLongClickListener(new Button.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View v) {
+//
+//                if (DrawMode){
 //                    push_info_swc = SaveSWC_Block_Auto();
-                    remote_socket.Select_Neuron_Fast();
-                }else {
-                    remote_socket.Select_Neuron_Fast();
-//                    remote_socket.Select_Arbor_Fast();
-                }
-                return true;
-            }
-        });
+//                    remote_socket.Select_Neuron_Fast();
+//                }else {
+//                    remote_socket.Select_Neuron_Fast();
+////                    remote_socket.Select_Arbor_Fast();
+//                }
+//                return true;
+//            }
+//        });
 //
 //
 //        neuron_list.setOnClickListener(new Button.OnClickListener() {
@@ -1654,11 +1654,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         user_list.setVisibility(View.GONE);
 
 
-        this.addContentView(neuron_list, lp_neuron_list);
-        neuron_list.setVisibility(View.GONE);
-        this.addContentView(sync_pull, lp_sync_pull);
+//        this.addContentView(neuron_list, lp_neuron_list);
+//        neuron_list.setVisibility(View.GONE);
+//        this.addContentView(sync_pull, lp_sync_pull);
 //        this.addContentView(sync_push, lp_sync_push);
-        sync_pull.setVisibility(View.GONE);
+//        sync_pull.setVisibility(View.GONE);
 //        sync_push.setVisibility(View.GONE);
 
 
@@ -1925,7 +1925,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void initMsgConnector(String port){
         MsgConnector msgConnector = MsgConnector.getInstance();
 
-        msgConnector.releaseConnection();
+        if (!firstJoinRoom)
+            msgConnector.releaseConnection();
         msgConnector.setIp(ip_TencentCloud);
         msgConnector.setPort(port);
         msgConnector.initConnection();
@@ -2147,7 +2148,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void loadBigData(){
 
         conPath = "";
-        firstLogin = true;
+        firstLoad = true;
 
         new Thread(new Runnable() {
             @Override
@@ -3645,7 +3646,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210429a 13:44 UTC+8 build",
+                                "Version: 20210430a 13:44 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5323,11 +5324,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //        lp_sync_push.setMargins(0, 400, 20, 0);
 //        sync_push.setLayoutParams(lp_sync_push);
 //
-        lp_sync_pull.setMargins(0, 490, 20, 0);
-        sync_pull.setLayoutParams(lp_sync_pull);
+//        lp_sync_pull.setMargins(0, 490, 20, 0);
+//        sync_pull.setLayoutParams(lp_sync_pull);
 
-        lp_neuron_list.setMargins(0, 630, 20, 0);
-        neuron_list.setLayoutParams(lp_neuron_list);
+//        lp_neuron_list.setMargins(0, 630, 20, 0);
+//        neuron_list.setLayoutParams(lp_neuron_list);
 
 
 //        lp_blue_color.setMargins(0, 540, 20, 0);
@@ -5360,16 +5361,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             Zoom_out.setVisibility(View.GONE);
 
             if (isBigData_Remote){
-                    res_list.setVisibility(View.VISIBLE);
-                    navigation_location.setVisibility(View.VISIBLE);
-                    sync_pull.setVisibility(View.VISIBLE);
-                    neuron_list.setVisibility(View.VISIBLE);
-
-                    Check_Yes.setVisibility(View.VISIBLE);
-                    Check_No.setVisibility(View.VISIBLE);
-                    Check_Uncertain.setVisibility(View.VISIBLE);
-//                    user_list.setVisibility(View.VISIBLE);
-//                    room_id.setVisibility(View.VISIBLE);
+                    res_list.setVisibility(View.GONE);
+                    user_list.setVisibility(View.VISIBLE);
+                    room_id.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -5699,6 +5693,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
     private static void updateScoreText(){
+        puiHandler.sendEmptyMessage(7);
+    }
+
+    private static void updateScoreTextHandler(){
         Score scoreInstance = Score.getInstance();
         int score = scoreInstance.getScore();
         String scoreString;

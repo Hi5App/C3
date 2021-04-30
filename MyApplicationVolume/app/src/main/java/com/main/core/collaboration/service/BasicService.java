@@ -17,7 +17,6 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -74,7 +73,7 @@ public abstract class BasicService extends Service {
         super.onCreate();
 
         timer = new Timer();
-        timer.schedule(task, 0, HEART_BEAT_RATE);
+        timer.schedule(task, 5 * 1000, HEART_BEAT_RATE);
 
     }
 
@@ -143,7 +142,9 @@ public abstract class BasicService extends Service {
         private Socket mSocket;
         private InputStream is;
         private boolean isReconnect = false;
+        private boolean isReset = false;
         protected boolean flag = true;
+        protected boolean isRelease = false;
         private int count = 0;
 
 
@@ -153,10 +154,10 @@ public abstract class BasicService extends Service {
 
 
         protected void reConnect(){
-
             Log.e(TAG,"Start to reConnect in mReadThread !");
             isReconnect = true;
             releaseSocket();
+            resetDataType();
 
             try {
 
@@ -174,6 +175,7 @@ public abstract class BasicService extends Service {
             }
 
             isReconnect = false;
+            isRelease = false;
 
         }
 
@@ -193,6 +195,7 @@ public abstract class BasicService extends Service {
 
 
         public void reSetConnect(){
+            isReset = true;
 
             try {
 
@@ -201,10 +204,15 @@ public abstract class BasicService extends Service {
 
             }catch (Exception e){
                 e.printStackTrace();
-                Log.e(TAG,"reConnect");
+                Log.e(TAG,"Fail to reSetConnect");
             }
+
+            isReset = false;
         }
 
+        public void setRelease(boolean flag){
+            isRelease = flag;
+        }
 
         //同步方法读取返回得数据
         @Override
@@ -217,14 +225,16 @@ public abstract class BasicService extends Service {
                         try {
                             synchronized (this) {
 
-                                if (!(mSocket==null) && !mSocket.isClosed() && !mSocket.isInputShutdown()) {
-                                    if (!isReconnect){
-                                        onRead("in the while loop");
-                                    }
-                                }else {
-                                    if ((!isReconnect) && count<3){
-                                        Log.e(TAG,"reConnect in mReadThread : " + count + " !");
-                                        reConnect();
+                                if (!isRelease){
+                                    if (!(mSocket==null) && !mSocket.isClosed() && !mSocket.isInputShutdown()) {
+                                        if (!isReconnect && !isReset){
+                                            onRead("in the while loop");
+                                        }
+                                    }else {
+                                        if ((!isReconnect) && (!isReset) && count<3){
+                                            Log.e(TAG,"reConnect in mReadThread : " + count + " !");
+                                            reConnect();
+                                        }
                                     }
                                 }
                             }
@@ -244,14 +254,14 @@ public abstract class BasicService extends Service {
 
         private void onRead(String tag){
 
-            try {
-                if ((is.available()>0 || dataType.dataSize >0) && !dataType.isFile){
-                    Log.e(TAG, "tag: " + tag + ";  available size : " + is.available());
-                    Log.e(TAG, "dataType.isFile: " + dataType.isFile + ";  dataType.dataSize : " + dataType.dataSize);
-                }
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+//            try {
+//                if ((is.available()>0 || dataType.dataSize >0) && !dataType.isFile){
+//                    Log.e(TAG, "tag: " + tag + ";  available size : " + is.available());
+//                    Log.e(TAG, "dataType.isFile: " + dataType.isFile + ";  dataType.dataSize : " + dataType.dataSize);
+//                }
+//            }catch (Exception e){
+//                e.printStackTrace();
+//            }
 
             if(!dataType.isFile){
                 if (dataType.dataSize == 0){
@@ -300,7 +310,7 @@ public abstract class BasicService extends Service {
 
                         int ret = 0;
 
-                        Log.e(TAG,"Start to process file !");
+//                        Log.e(TAG,"Start to process file !");
 
                         File dir = new File(dataType.filepath);
                         if (!dir.exists()){
@@ -340,7 +350,7 @@ public abstract class BasicService extends Service {
                         }
 
 
-                        Log.e(TAG, "Start to read end content !");
+//                        Log.e(TAG, "Start to read end content !");
 
                         if (End > 0){
 
@@ -360,7 +370,6 @@ public abstract class BasicService extends Service {
                         }
                         out.close();
 
-                        Log.e(TAG, "Start to read end content !");
                         if (dataType.filename.endsWith(".v3draw") || dataType.filename.endsWith("v3dpbd")){
                             receiveMsgInterface.onRecMessage("Block:" + dataType.filepath + "/" + dataType.filename);
                             MainActivity.hideProgressBar();
@@ -378,6 +387,7 @@ public abstract class BasicService extends Service {
                     }
                 }catch (Exception e){
                     e.printStackTrace();
+                    resetDataType();
                 }
             }
 
@@ -393,12 +403,12 @@ public abstract class BasicService extends Service {
                 if (msg.startsWith("DataTypeWithSize:")){
                     Log.e(TAG,"msg: " + msg);
                     msg = msg.substring("DataTypeWithSize:".length());
-                    Log.e(TAG,"msg: " + msg);
+//                    Log.e(TAG,"msg: " + msg);
 
                     String[] paras_list = msg.split(" ");
                     ArrayList<String> paras = new ArrayList<>();
 
-                    Log.e(TAG,"paras_list: " + Arrays.toString(paras_list));
+//                    Log.e(TAG,"paras_list: " + Arrays.toString(paras_list));
 
                     if (paras_list.length==2 && paras_list[0].equals("0")){
                         dataType.dataSize = Long.parseLong(paras_list[1]);

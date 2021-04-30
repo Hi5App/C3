@@ -3,6 +3,7 @@ package com.main.core.collaboration.connector;
 import android.content.Context;
 import android.util.Log;
 
+import com.main.chat.nim.InfoCache;
 import com.main.core.collaboration.MsgSender;
 import com.main.core.collaboration.basic.ReconnectionInterface;
 import com.main.core.collaboration.service.CollaborationService;
@@ -55,17 +56,21 @@ public class MsgConnector extends BasicConnector implements ReconnectionInterfac
 
     @Override
     public boolean sendMsg(String msg, boolean waited, boolean resend){
-        if (checkConnection()){
-            return msgSender.SendMsg(mSocket, msg, waited, resend, this);
-        }
-        return false;
+        if (!checkConnection())
+            initConnection();
+        return msgSender.SendMsg(mSocket, msg, waited, resend, this);
     }
 
     @Override
     public void reLogin() {
-        Log.e(TAG,"empty login in msgConnector !");
+        Log.e(TAG,"Start to reLogin !");
+        MsgConnector.getInstance().sendMsg("/login:" + InfoCache.getAccount());
     }
 
+    @Override
+    public void setRelease() {
+        CollaborationService.setRelease(true);
+    }
 
     @Override
     public void onReconnection(String msg) {

@@ -52,12 +52,17 @@ public class CollaborationService extends BasicService {
     }
 
 
+    public static void setRelease(boolean flag){
+        mReadThread.setRelease(flag);
+    }
 
     public static void setFlag(boolean flag){
         mReadThread.flag = flag;
     }
 
     public static void resetConnection(){
+        Log.e(TAG,"Start to resetConnection");
+        mReadThread.setRelease(false);
         mReadThread.reSetConnect();
     }
 

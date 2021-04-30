@@ -51,13 +51,16 @@ public class ManageService extends BasicService {
         super.onDestroy();
     }
 
-
+    public static void setRelease(boolean flag){
+        mReadThread.setRelease(flag);
+    }
 
     public static void setFlag(boolean flag){
         mReadThread.flag = flag;
     }
 
     public static void resetConnection(){
+        mReadThread.setRelease(false);
         mReadThread.reSetConnect();
     }
 

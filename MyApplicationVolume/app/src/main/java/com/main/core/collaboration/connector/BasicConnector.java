@@ -23,6 +23,8 @@ public abstract class BasicConnector {
 
     public abstract void reLogin();
 
+    public abstract void setRelease();
+
 
     /**
      * 初始化连接
@@ -82,7 +84,8 @@ public abstract class BasicConnector {
 
 
     public void releaseConnection(){
-
+        Log.e(TAG,"release connect !");
+        setRelease();
         if (mSocket != null){
             try {
                 if (!mSocket.isClosed()) {

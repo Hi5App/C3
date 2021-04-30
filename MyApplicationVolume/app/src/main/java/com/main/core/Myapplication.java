@@ -66,6 +66,8 @@ public class Myapplication extends Application {
 
     private static InfoCache infoCache;
 
+    private static ImageInfo imageInfo;
+
     private static AgoraMsgManager agoraMsgManager;
 
     private static Communicator communicator;
@@ -98,6 +100,7 @@ public class Myapplication extends Application {
         Score.init(this);
         RewardLitePalConnector.init(this);
         ImageInfo.init(this);
+        imageInfo = ImageInfo.getInstance();
 
 
         Log.e(TAG, String.format("Database version: %d", db.getVersion()));
