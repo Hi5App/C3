@@ -544,7 +544,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         if (msg.startsWith("Score:")){
             Log.e(TAG,"get score: " + msg);
-            initDataBase(Integer.parseInt(msg.split(":")[1].split(" ")[1]));
+            int serverScore = Integer.parseInt(msg.split(":")[1].split(" ")[1]);
+            Score score = Score.getInstance();
+            if (score.serverUpdateScore(serverScore)){
+                updateScoreText();
+            }
+//            initDataBase(Integer.parseInt(msg.split(":")[1].split(" ")[1]));
         }
 
 
@@ -1701,6 +1706,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         doLoginAgora();
         initAgoraService();
 
+        initDataBase();
+
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
@@ -1868,6 +1875,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
     public static void setScore(int score){
+        if (score == 0)
+            return;
         ServerConnector.getInstance().sendMsg("SETSOCRE:" + score);
     }
 
@@ -3646,7 +3655,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210430a 13:44 UTC+8 build",
+                                "Version: 20210430b 18:51 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5730,7 +5739,21 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         RewardLitePalConnector.initUserId(username);
 
         Score score = Score.getInstance();
-        if (!score.initFromLitePal(serverScore)) {
+        if (!score.initFromLitePal()) {
+            setScore(score.getScore());
+        }
+
+        updateScoreText();
+    }
+
+    public void initDataBase(){
+        DailyQuestsContainer.initId(username);
+        Score.initId(username);
+        ScoreLitePalConnector.initUser(username);
+        RewardLitePalConnector.initUserId(username);
+
+        Score score = Score.getInstance();
+        if (score.initFromLitePal()) {
             setScore(score.getScore());
         }
 

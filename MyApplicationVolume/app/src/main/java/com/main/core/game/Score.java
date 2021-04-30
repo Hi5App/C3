@@ -84,18 +84,18 @@ public class Score {
         Score.id = id;
     }
 
-    public boolean initFromLitePal(int serverScore){
+    public boolean initFromLitePal(){
         boolean result = true;
         ScoreLitePalConnector scoreLitePalConnector = ScoreLitePalConnector.getInstance();
         scoreLitePalConnector.initScoreFromLitePal(id);
 
-        if (score < serverScore){
-
-            score = serverScore;
-            scoreLitePalConnector.updateScore(serverScore);
-        } else if (score > serverScore){
-            result = false;
-        }
+//        if (score < serverScore){
+//
+//            score = serverScore;
+//            scoreLitePalConnector.updateScore(serverScore);
+//        } else if (score > serverScore){
+//            result = false;
+//        }
 
         DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
         dailyQuestsContainer.initFromLitePal();
@@ -121,6 +121,19 @@ public class Score {
         int date = calendar.get(Calendar.DAY_OF_YEAR);
 
 
+    }
+
+    public boolean serverUpdateScore(int serverScore){
+        ScoreLitePalConnector scoreLitePalConnector = ScoreLitePalConnector.getInstance();
+        if (score < serverScore){
+
+            score = serverScore;
+            scoreLitePalConnector.updateScore(serverScore);
+            return true;
+        } else if (score >= serverScore){
+            return false;
+        }
+        return true;
     }
 
     public void drawACurve(){

@@ -254,7 +254,7 @@ public class BigImgReader {
     }
 
     /**
-     * choice the file you want down
+     * choose the file you want down
      * @param context the activity context
      * @param items the list of filename
      */

@@ -173,7 +173,7 @@ public class Myapplication extends Application {
                 activityCount--;
                 if (activityCount <= 0){
                     Log.d(TAG, "Now On Background");
-                    if (isActivityAlive("ComponentInfo{com.example.core/com.example.core.MainActivity}")){
+                    if (isActivityAlive("ComponentInfo{com.main.core/com.main.core.MainActivity}")){
                         Score score = Score.getInstance();
                         MainActivity.setScore(score.getScore());
                     }
