@@ -263,9 +263,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static ImageButton user_list;
     private static ImageButton room_id;
 
-//    private static ImageButton neuron_list;
+    private static ImageButton neuron_list;
+    private static ImageButton sync_pull;
 //    private static ImageButton sync_push;
-//    private static ImageButton sync_pull;
 
 //    private static FloatingActionButton Audio_call;
 //    private static DragFloatActionButton fab;
@@ -279,8 +279,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private FrameLayout.LayoutParams lp_back_i;
     private static FrameLayout.LayoutParams lp_nacloc_i;
 //    private static FrameLayout.LayoutParams lp_sync_push;
-//    private static FrameLayout.LayoutParams lp_sync_pull;
-//    private static FrameLayout.LayoutParams lp_neuron_list;
+    private static FrameLayout.LayoutParams lp_sync_pull;
+    private static FrameLayout.LayoutParams lp_neuron_list;
 //    private static FrameLayout.LayoutParams lp_blue_color;
 //    private static FrameLayout.LayoutParams lp_red_color;
     private static FrameLayout.LayoutParams lp_res_list;
@@ -670,7 +670,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     break;
 
                 case 4:
-                    setFileName(Communicator.BrainNum);
+//                    setFileName(Communicator.BrainNum);
+                    setFileName("mouse_181454_00067_arbor 1");
                     break;
 
                 case 5:
@@ -1509,59 +1510,59 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //            }
 //        });
 //
-//        lp_sync_pull = new FrameLayout.LayoutParams(115, 115);
-//        lp_sync_pull.gravity = Gravity.TOP | Gravity.RIGHT;
-//        lp_sync_pull.setMargins(0, 440, 20, 0);
-//
-//        sync_pull = new ImageButton(this);
-//        sync_pull.setImageResource(R.drawable.ic_cloud_download_black_24dp);
-//        sync_pull.setOnClickListener(new Button.OnClickListener() {
-//            public void onClick(View v) {
-//                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-//
-//                if (DrawMode){
-//                    PullSwc_block_Manual(DrawMode);
-//
-//                    //  for apo sync
-////                    PullApo_block_Manual();
-//                }else {
-//                    remote_socket.pullCheckResult(false);
-//                }
-//            }
-//        });
-//
-//        sync_pull.setOnLongClickListener(new Button.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View view) {
-//
-//                if (!DrawMode){
-//                    remote_socket.pullCheckResult(true);
-//                }
-//                return true;
-//            }
-//        });
+        lp_sync_pull = new FrameLayout.LayoutParams(115, 115);
+        lp_sync_pull.gravity = Gravity.TOP | Gravity.RIGHT;
+        lp_sync_pull.setMargins(0, 440, 20, 0);
+
+        sync_pull = new ImageButton(this);
+        sync_pull.setImageResource(R.drawable.ic_cloud_download_black_24dp);
+        sync_pull.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                if (DrawMode){
+                    PullSwc_block_Manual(DrawMode);
+
+                    //  for apo sync
+//                    PullApo_block_Manual();
+                }else {
+                    remote_socket.pullCheckResult(false);
+                }
+            }
+        });
+
+        sync_pull.setOnLongClickListener(new Button.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+
+                if (!DrawMode){
+                    remote_socket.pullCheckResult(true);
+                }
+                return true;
+            }
+        });
 
 
-//        lp_neuron_list = new FrameLayout.LayoutParams(115, 115);
-//        lp_neuron_list.gravity = Gravity.TOP | Gravity.RIGHT;
-//        lp_neuron_list.setMargins(0, 580, 20, 0);
-//
-//        neuron_list = new ImageButton(this);
-//        neuron_list.setImageResource(R.drawable.ic_assignment_black_24dp);
-//        neuron_list.setOnLongClickListener(new Button.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View v) {
-//
-//                if (DrawMode){
+        lp_neuron_list = new FrameLayout.LayoutParams(115, 115);
+        lp_neuron_list.gravity = Gravity.TOP | Gravity.RIGHT;
+        lp_neuron_list.setMargins(0, 580, 20, 0);
+
+        neuron_list = new ImageButton(this);
+        neuron_list.setImageResource(R.drawable.ic_assignment_black_24dp);
+        neuron_list.setOnLongClickListener(new Button.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                if (DrawMode){
 //                    push_info_swc = SaveSWC_Block_Auto();
-//                    remote_socket.Select_Neuron_Fast();
-//                }else {
-//                    remote_socket.Select_Neuron_Fast();
-////                    remote_socket.Select_Arbor_Fast();
-//                }
-//                return true;
-//            }
-//        });
+                    remote_socket.Select_Neuron_Fast();
+                }else {
+                    remote_socket.Select_Neuron_Fast();
+//                    remote_socket.Select_Arbor_Fast();
+                }
+                return true;
+            }
+        });
 //
 //
 //        neuron_list.setOnClickListener(new Button.OnClickListener() {
@@ -1653,11 +1654,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         user_list.setVisibility(View.GONE);
 
 
-//        this.addContentView(neuron_list, lp_neuron_list);
-//        neuron_list.setVisibility(View.GONE);
-//        this.addContentView(sync_pull, lp_sync_pull);
+        this.addContentView(neuron_list, lp_neuron_list);
+        neuron_list.setVisibility(View.GONE);
+        this.addContentView(sync_pull, lp_sync_pull);
 //        this.addContentView(sync_push, lp_sync_push);
-//        sync_pull.setVisibility(View.GONE);
+        sync_pull.setVisibility(View.GONE);
 //        sync_push.setVisibility(View.GONE);
 
 
@@ -4167,7 +4168,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                                     intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                                     intent.setAction(Intent.ACTION_SEND);
-                                    intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "com.example.core.provider", new File(file_path)));  //传输图片或者文件 采用流的方式
+                                    intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "com.main.core.provider", new File(file_path)));  //传输图片或者文件 采用流的方式
                                     intent.setType("*/*");   //分享文件
                                     startActivity(Intent.createChooser(intent, "Share From C3"));
                                 }else {
@@ -5322,11 +5323,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //        lp_sync_push.setMargins(0, 400, 20, 0);
 //        sync_push.setLayoutParams(lp_sync_push);
 //
-//        lp_sync_pull.setMargins(0, 490, 20, 0);
-//        sync_pull.setLayoutParams(lp_sync_pull);
+        lp_sync_pull.setMargins(0, 490, 20, 0);
+        sync_pull.setLayoutParams(lp_sync_pull);
 
-//        lp_neuron_list.setMargins(0, 630, 20, 0);
-//        neuron_list.setLayoutParams(lp_neuron_list);
+        lp_neuron_list.setMargins(0, 630, 20, 0);
+        neuron_list.setLayoutParams(lp_neuron_list);
 
 
 //        lp_blue_color.setMargins(0, 540, 20, 0);
@@ -5360,8 +5361,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
             if (isBigData_Remote){
                     res_list.setVisibility(View.VISIBLE);
-                    user_list.setVisibility(View.VISIBLE);
-                    room_id.setVisibility(View.VISIBLE);
+                    navigation_location.setVisibility(View.VISIBLE);
+                    sync_pull.setVisibility(View.VISIBLE);
+                    neuron_list.setVisibility(View.VISIBLE);
+
+                    Check_Yes.setVisibility(View.VISIBLE);
+                    Check_No.setVisibility(View.VISIBLE);
+                    Check_Uncertain.setVisibility(View.VISIBLE);
+//                    user_list.setVisibility(View.VISIBLE);
+//                    room_id.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -5496,7 +5504,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             Zoom_out_Big.setVisibility(View.VISIBLE);
 
             if (isBigData_Remote) {
-                res_list.setVisibility(View.VISIBLE);
+                res_list.setVisibility(View.GONE);
                 user_list.setVisibility(View.VISIBLE);
                 room_id.setVisibility(View.VISIBLE);
             }

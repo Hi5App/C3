@@ -245,7 +245,7 @@ public abstract class BasicService extends Service {
         private void onRead(String tag){
 
             try {
-                if (is.available()>0 || dataType.dataSize >0){
+                if ((is.available()>0 || dataType.dataSize >0) && !dataType.isFile){
                     Log.e(TAG, "tag: " + tag + ";  available size : " + is.available());
                     Log.e(TAG, "dataType.isFile: " + dataType.isFile + ";  dataType.dataSize : " + dataType.dataSize);
                 }
