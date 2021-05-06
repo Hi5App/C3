@@ -3398,6 +3398,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             Log.v("draw line:::::", "nulllllllllllllllllll");
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void addLineDrawed2(ArrayList<Float> line, V_NeuronSWC background_seg, boolean isBigData) throws CloneNotSupportedException {
         if (img.getData() == null){
             return;

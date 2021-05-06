@@ -501,15 +501,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
          */
         if (msg.startsWith("ImgRes")){
             Log.e(TAG,"msg: " + msg);
-            Communicator communicator = Communicator.getInstance();
             int resDefault = Math.min(2, Integer.parseInt(msg.split(";")[1]));
-            communicator.initImgInfo(null, resDefault, msg.split(";"));
+            Communicator.getInstance().initImgInfo(null, Integer.parseInt(msg.split(";")[1]), resDefault, msg.split(";"));
 
 //            communicator.setResolution(msg.split(";"));
 //            communicator.setImgRes(Integer.parseInt(msg.split(";")[1]));
 //            communicator.setCurRes(Integer.parseInt(msg.split(";")[1]));
 
-            MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
+            MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
 
         }
 
@@ -1451,7 +1450,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             public void onClick(View v) {
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
-                remote_socket.switchRES();
+                Communicator.getInstance().switchRes(MainActivity.this);
             }
         });
 
@@ -2481,10 +2480,16 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
      * @param v
      */
     private void Draw_list(View v){
+        String[] drawList;
+        if (isBigData_Remote){
+            drawList = new String[]{"For Marker", "For Curve", "Exit Drawing Mode"};
+        }else {
+            drawList = new String[]{"For Marker", "For Curve", "Clear Tracing", "Exit Drawing Mode"};
+        }
         drawPopupView = new XPopup.Builder(this)
                 .atView(v)
                 .autoDismiss(false)
-                .asAttachList(new String[]{"For Marker", "For Curve", "Clear Tracing", "Exit Drawing Mode"},
+                .asAttachList(drawList,
                         new int[]{}, new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -2522,13 +2527,18 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
     private void markerProcessList(View v){
+        String[] processList;
+        if (isBigData_Remote){
+            processList = new String[]{"PinPoint   ", "Delete Marker", "Delete MultiMarker", "Set MColor", "Change MColor"};
+        }else {
+            processList = new String[]{"PinPoint   ", "Delete Marker", "Delete MultiMarker", "Set MColor", "Change MColor", "Change All MColor"};
+        }
         new XPopup.Builder(this)
                 .atView(v)
                 .offsetX(580)
                 .isRequestFocus(false)
                 .popupPosition(PopupPosition.Right)
-                .asAttachList(new String[]{"PinPoint   ", "Delete Marker", "Delete MultiMarker", "Set MColor", "Change MColor",
-                        "Change All MColor"}, new int[]{}, new OnSelectListener() {
+                .asAttachList(processList, new int[]{}, new OnSelectListener() {
                     @Override
                     public void onSelect(int position, String text) {
                         soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
@@ -2682,11 +2692,18 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
     private void curveProcessList(View v){
+        String[] processList;
+        if (isBigData_Remote){
+            processList = new String[]{"Draw Curve", "Delete Curve", "Split       ",
+                    "Set PenColor", "Change PenColor"};
+        }else {
+            processList = new String[]{"Draw Curve", "Delete Curve", "Split       ",
+                    "Set PenColor", "Change PenColor", "Change All PenColor"};
+        }
         new XPopup.Builder(this)
                 .atView(v)
                 .offsetX(580)
-                .asAttachList(new String[]{"Draw Curve", "Delete Curve", "Split       ",
-                                "Set PenColor", "Change PenColor", "Change All PenColor"}, new int[]{},
+                .asAttachList(processList, new int[]{},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -3071,10 +3088,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                                 @RequiresApi(api = Build.VERSION_CODES.N)
                                                 @Override
                                                 public void run() {
-
                                                     try {
                                                         APP2();
-
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
@@ -3655,7 +3670,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210430b 18:51 UTC+8 build",
+                                "Version: 20210506a 18:51 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5128,6 +5143,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         else {
 
                                             Callable<String> task = new Callable<String>() {
+                                                @RequiresApi(api = Build.VERSION_CODES.N)
                                                 @Override
                                                 public String call() throws Exception {
                                                     int lineType = myrenderer.getLastLineType();
@@ -5280,6 +5296,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }catch (Exception e){
             e.printStackTrace();
         }
+        hideProgressBar();
     }
 
     /*
@@ -5296,7 +5313,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             public void run() {
                 timeOutHandler();
             }
-        },20 * 1000);
+        },30 * 1000);
     }
 
 
@@ -5370,7 +5387,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             Zoom_out.setVisibility(View.GONE);
 
             if (isBigData_Remote){
-                    res_list.setVisibility(View.GONE);
+                    res_list.setVisibility(View.VISIBLE);
                     user_list.setVisibility(View.VISIBLE);
                     room_id.setVisibility(View.VISIBLE);
             }

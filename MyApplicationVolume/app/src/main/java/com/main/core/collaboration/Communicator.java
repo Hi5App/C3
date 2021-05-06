@@ -8,6 +8,8 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
+import com.lxj.xpopup.XPopup;
+import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.main.basic.ImageMarker;
 import com.main.basic.NeuronTree;
 import com.main.basic.XYZ;
@@ -103,13 +105,13 @@ public class Communicator {
 
         ImageMarker imageMarker = new ImageMarker();
 
-        XYZ GlobalCroods = ConvertGlobaltoLocalBlockCroods(Float.parseFloat(msg.split(" ")[1]),
+        XYZ LocalCroods = ConvertGlobaltoLocalBlockCroods(Float.parseFloat(msg.split(" ")[1]),
                 Float.parseFloat(msg.split(" ")[2]), Float.parseFloat(msg.split(" ")[3]));
 
         imageMarker.type = Integer.parseInt(msg.split(" ")[0]);
-        imageMarker.x = GlobalCroods.x;
-        imageMarker.y = GlobalCroods.y;
-        imageMarker.z = GlobalCroods.z;
+        imageMarker.x = LocalCroods.x;
+        imageMarker.y = LocalCroods.y;
+        imageMarker.z = LocalCroods.z;
 
         return imageMarker;
     }
@@ -124,13 +126,13 @@ public class Communicator {
         for (int i = 1; i < swc.length; i++){
             V_NeuronSWC_unit segUnit = new V_NeuronSWC_unit();
 
-            XYZ GlobalCroods = ConvertGlobaltoLocalBlockCroods(Double.parseDouble(swc[i].split(" ")[1]),
+            XYZ LocalCroods = ConvertGlobaltoLocalBlockCroods(Double.parseDouble(swc[i].split(" ")[1]),
                     Double.parseDouble(swc[i].split(" ")[2]), Double.parseDouble(swc[i].split(" ")[3]));
 
             segUnit.type = Double.parseDouble(swc[i].split(" ")[0]);
-            segUnit.x = GlobalCroods.x;
-            segUnit.y = GlobalCroods.y;
-            segUnit.z = GlobalCroods.z;
+            segUnit.x = LocalCroods.x;
+            segUnit.y = LocalCroods.y;
+            segUnit.z = LocalCroods.z;
 
             if (type.equals("HI5")){
 
@@ -173,7 +175,6 @@ public class Communicator {
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void updateAddMarkerMsg(ImageMarker marker)
     {
             List<String> result = new ArrayList<>();
@@ -181,7 +182,7 @@ public class Communicator {
             result.add(String.format("%d %f %f %f", (int) marker.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z));
 
             String msg = "/addmarker_norm:" + String.format("%s %s %s %s %s;", username, "HI5", "128", "128", "128");
-            msg = msg + String.join(";", result);
+            msg = msg + TextUtils.join(";", result);
 
             MsgConnector msgConnector = MsgConnector.getInstance();
             msgConnector.sendMsg(msg);
@@ -189,7 +190,6 @@ public class Communicator {
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void updateDelMarkerMsg(ImageMarker marker)
     {
         List<String> result = new ArrayList<>();
@@ -197,7 +197,7 @@ public class Communicator {
         result.add(String.format("%d %.3f %.3f %.3f", (int) marker.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z));
 
         String msg = "/delmarker_norm:" + String.format("%s %s %s %s %s;", username, "HI5", "128", "128", "128");
-        msg = msg + String.join(";", result);
+        msg = msg + TextUtils.join(";", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
         msgConnector.sendMsg(msg);
@@ -206,7 +206,6 @@ public class Communicator {
 
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void updateRetypeMarkerMsg(ImageMarker origin_marker, ImageMarker current_marker)
     {
         MsgConnector msgConnector = MsgConnector.getInstance();
@@ -219,7 +218,7 @@ public class Communicator {
         result_origin.add(String.format("%d %.3f %.3f %.3f", (int) origin_marker.type, GlobalCroods_origin.x, GlobalCroods_origin.y, GlobalCroods_origin.z));
 
         String msg_origin = "/delmarker_norm:" + String.format("%s %s %s %s %s;", username, "HI5", "128", "128", "128");
-        msg_origin = msg_origin + String.join(";", result_origin);
+        msg_origin = msg_origin + TextUtils.join(";", result_origin);
         msgConnector.sendMsg(msg_origin, true, false);
 
         /*
@@ -230,7 +229,7 @@ public class Communicator {
         result_current.add(String.format("%d %.3f %.3f %.3f", (int) current_marker.type, GlobalCroods_current.x, GlobalCroods_current.y, GlobalCroods_current.z));
 
         String msg_current = "/addmarker_norm:" + String.format("%s %s %s %s %s;", username, "HI5", "128", "128", "128");
-        msg_current = msg_current + String.join(";", result_current);
+        msg_current = msg_current + TextUtils.join(";", result_current);
         msgConnector.sendMsg(msg_current, true, false);
 
     }
@@ -241,7 +240,7 @@ public class Communicator {
         String msg = "/drawline_norm:" + username + " HI5 128 128 128;" + TextUtils.join(";", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.sendMsg(msg);
+        msgConnector.sendMsg(msg, true, true);
 
     }
 
@@ -250,7 +249,7 @@ public class Communicator {
         String msg = "/delline_norm:" + username + " HI5 128 128 128;" + TextUtils.join(";", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.sendMsg(msg);
+        msgConnector.sendMsg(msg, true, true);
 
     }
 
@@ -261,7 +260,7 @@ public class Communicator {
         String msg = "/retypeline_norm:" + username + " HI5 " + type + " 128 128 128;" + TextUtils.join(";", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.sendMsg(msg);
+        msgConnector.sendMsg(msg, true, true);
 
     }
 
@@ -312,17 +311,25 @@ public class Communicator {
 
 
     private XYZ ConvertMaxRes2CurrResCoords(double x, double y, double z){
-        x/=(ImageMaxRes.x/ImageCurRes.x);
-        y/=(ImageMaxRes.y/ImageCurRes.y);
-        z/=(ImageMaxRes.z/ImageCurRes.z);
+//        x/=(ImageMaxRes.x/ImageCurRes.x);
+//        y/=(ImageMaxRes.y/ImageCurRes.y);
+//        z/=(ImageMaxRes.z/ImageCurRes.z);
+
+        x /= Math.pow(2, CurRes-1);
+        y /= Math.pow(2, CurRes-1);
+        z /= Math.pow(2, CurRes-1);
         return new XYZ((float) x, (float) y, (float) z);
     }
 
 
     private XYZ ConvertCurrRes2MaxResCoords(double x, double y, double z){
-        x*=(ImageMaxRes.x/ImageCurRes.x);
-        y*=(ImageMaxRes.y/ImageCurRes.y);
-        z*=(ImageMaxRes.z/ImageCurRes.z);
+//        x*=(ImageMaxRes.x/ImageCurRes.x);
+//        y*=(ImageMaxRes.y/ImageCurRes.y);
+//        z*=(ImageMaxRes.z/ImageCurRes.z);
+
+        x *= Math.pow(2, CurRes-1);
+        y *= Math.pow(2, CurRes-1);
+        z *= Math.pow(2, CurRes-1);
         return new XYZ((float) x, (float) y, (float) z);
     }
 
@@ -389,7 +396,7 @@ public class Communicator {
     }
 
 
-    public void initImgInfo(String imgName, int imgres, String[] resList){
+    public void initImgInfo(String imgName, int imgres, int curRes, String[] resList){
 
 
         ImgRes = imgres;
@@ -432,7 +439,7 @@ public class Communicator {
             /*
             read curRes from local file
             */
-            CurRes = imgres;
+            CurRes = curRes;
 
             int ratio = (int) Math.pow(2, (CurRes) - 1);
             String[] pos_str = Soma.split(";");
@@ -471,6 +478,8 @@ public class Communicator {
             Log.e(TAG,"initImgInfo");
             ImageInfo.getInstance().initImgInfo(conPathQuery, CurRes, String.format("%d;%d;%d;%d", (int) ImageCurPoint.x, (int) ImageCurPoint.y, (int) ImageCurPoint.z, ImgSize));
         }
+
+        Log.e(TAG,"max res: "+ ImgRes + ", cur res: " + CurRes);
 
     }
 
@@ -670,6 +679,50 @@ public class Communicator {
     }
 
 
+    public void switchRes(Context context){
+
+        ArrayList<String> res_temp = (ArrayList<String>) resolution.clone();
+        res_temp.set(CurRes-1, res_temp.get(CurRes-1) + "   √");
+
+        new XPopup.Builder(context)
+                .maxWidth(850)
+                .asCenterList("Select a RES", Transform(res_temp,0, res_temp.size()),
+                        new OnSelectListener() {
+                            @RequiresApi(api = Build.VERSION_CODES.N)
+                            @Override
+                            public void onSelect(int position, String text) {
+                                setRes(position + 1);
+                            }
+                        })
+                .show();
+
+    }
+
+
+    private void setRes(int newRes){
+        if (newRes == CurRes)
+            return;
+
+        double ratio = Math.pow(2, CurRes - newRes);
+
+        CurRes = newRes;
+        ImageCurRes.x *= ratio;
+        ImageCurRes.y *= ratio;
+        ImageCurRes.z *= ratio;
+
+        ImageCurPoint.x *= ratio;
+        ImageCurPoint.y *= ratio;
+        ImageCurPoint.z *= ratio;
+
+        ImageStartPoint.x = ImageCurPoint.x - ImgSize/2;
+        ImageStartPoint.y = ImageCurPoint.y - ImgSize/2;
+        ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
+
+        MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
+        ImageInfo.getInstance().updatePosRes(conPathQuery, CurRes, getCurrentPos());
+    }
+
+
 
     /**
      * for file loading, global coords to local coords
@@ -750,5 +803,15 @@ public class Communicator {
         return conPath;
     }
 
+
+    String[] Transform(ArrayList<String> strings, int start, int end){
+
+        String[] stringList = new String[end - start];
+        int j = 0;
+        for (int i = start; i < end; i++) {
+            stringList[j++] = strings.get(i);
+        }
+        return stringList;
+    }
 
 }

@@ -302,12 +302,10 @@ public abstract class BasicService extends Service {
                 }
             }else {
 
-                Log.e(TAG,"Else process file !");
-
                 try {
                     // process file
                     if (is.available() > 0){
-
+                        Log.e(TAG,"Else process file !");
                         int ret = 0;
 
 //                        Log.e(TAG,"Start to process file !");
@@ -372,7 +370,7 @@ public abstract class BasicService extends Service {
 
                         if (dataType.filename.endsWith(".v3draw") || dataType.filename.endsWith("v3dpbd")){
                             receiveMsgInterface.onRecMessage("Block:" + dataType.filepath + "/" + dataType.filename);
-                            MainActivity.hideProgressBar();
+//                            MainActivity.hideProgressBar();
                         }else{
                             receiveMsgInterface.onRecMessage("File:" + dataType.filepath + "/" + dataType.filename);
                         }

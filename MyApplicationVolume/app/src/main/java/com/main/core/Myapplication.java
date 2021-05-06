@@ -70,6 +70,8 @@ public class Myapplication extends Application {
 
     private static AgoraMsgManager agoraMsgManager;
 
+    private static ServerConnector serverConnector;
+    private static MsgConnector msgConnector;
     private static Communicator communicator;
 
     public static Myapplication the() {
@@ -112,6 +114,8 @@ public class Myapplication extends Application {
         ServerConnector.init(this);
         MsgConnector.init(this);
         Communicator.init(this);
+        serverConnector = ServerConnector.getInstance();
+        msgConnector = MsgConnector.getInstance();
         communicator = Communicator.getInstance();
 
         // user cache info
@@ -127,6 +131,7 @@ public class Myapplication extends Application {
             // 注意：以下操作必须在主进程中进行
             // 1、UI相关初始化操作
             // 2、相关Service调用
+            Log.e(TAG,"NIMUtil.isMainProcess(this)");
 
             ActivityMgr.INST.init(this);
 
@@ -134,7 +139,6 @@ public class Myapplication extends Application {
             PinYin.init(this);
             PinYin.validate();
 
-            Log.e(TAG,"NIMUtil.isMainProcess(this)");
             initUIKit();
 
             // 初始化消息提醒
