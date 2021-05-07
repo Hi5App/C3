@@ -313,7 +313,7 @@ public abstract class BasicService extends Service {
                         File dir = new File(dataType.filepath);
                         if (!dir.exists()){
                             if(dir.mkdirs()){
-                                Log.e("Get_File", "Create dirs Successfully !");
+                                Log.e(TAG, "Create dirs Successfully !");
                             }
                         }
 
@@ -322,7 +322,7 @@ public abstract class BasicService extends Service {
 //                        File file = new File(dataType.filepath + "/" + "1.v3draw");
                         if(!file.exists()){
                             if (file.createNewFile()){
-                                Log.e("Get_File", "Create file Successfully !");
+                                Log.e(TAG, "Create file Successfully !");
                             }
                         }
 

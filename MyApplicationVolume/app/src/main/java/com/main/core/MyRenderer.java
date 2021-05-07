@@ -796,8 +796,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         }
 
                         ImageUtil imageUtil = new ImageUtil();
-                        Bitmap output_mBitmap = imageUtil.drawTextToRightBottom(getContext(), mBitmap, "C3", 20, Color.RED, 40, 30);
-                        String mCaptureDir = "/storage/emulated/0/C3/screenCapture";
+                        Bitmap output_mBitmap = imageUtil.drawTextToRightBottom(getContext(), mBitmap, "Hi5", 20, Color.RED, 40, 30);
+                        String mCaptureDir = "/storage/emulated/0/Hi5/screenCapture";
                         File dir = new File(mCaptureDir);
                         if (!dir.exists()){
                             dir.mkdirs();
@@ -824,7 +824,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                 shareIntent.setAction(Intent.ACTION_SEND);
                                 shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imageUri));
                                 shareIntent.setType("image/jpeg");
-                                context_myrenderer.startActivity(Intent.createChooser(shareIntent, "Share from C3"));
+                                context_myrenderer.startActivity(Intent.createChooser(shareIntent, "Share from Hi5"));
 
                             }
                             else{
@@ -1707,7 +1707,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    public void deleteMultiMarkerByStroke(ArrayList<Float> line) throws CloneNotSupportedException {
+    public void deleteMultiMarkerByStroke(ArrayList<Float> line,  boolean isBigData) throws CloneNotSupportedException {
 //        ArrayList<Integer> toBeDeleted = new ArrayList<>();
         boolean already = false;
         for (int i = markerList.size() - 1; i >= 0; i--){
@@ -1744,6 +1744,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
 
                 markerList.remove(tobeDeleted);
+
+                if (isBigData){
+                    updateDelMarker(tobeDeleted);
+                }
             }
         }
         saveUndo();

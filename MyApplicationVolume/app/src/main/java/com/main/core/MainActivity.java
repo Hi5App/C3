@@ -59,41 +59,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
-import com.main.core.fileReader.imageReader.BigImgReader;
-import com.main.basic.CrashHandler;
-import com.main.basic.FileManager;
-import com.main.basic.Image4DSimple;
-import com.main.basic.ImageMarker;
-import com.main.basic.LocationSimple;
-import com.main.basic.NeuronSWC;
-import com.main.basic.NeuronTree;
-import com.main.chat.ChatActivity;
-import com.main.chat.agora.AgoraService;
-import com.main.chat.agora.message.AgoraMsgManager;
-import com.main.dataStore.PreferenceLogin;
-import com.main.dataStore.SettingFileManager;
-import com.main.core.fileReader.annotationReader.AnoReader;
-import com.main.core.fileReader.annotationReader.ApoReader;
-import com.main.chat.nim.main.helper.SystemMessageUnreadManager;
-import com.main.chat.nim.reminder.ReminderManager;
-import com.main.chat.nim.session.extension.InviteAttachment;
-import com.main.core.collaboration.Communicator;
-import com.main.core.collaboration.basic.ReceiveMsgInterface;
-import com.main.core.collaboration.connector.MsgConnector;
-import com.main.core.collaboration.connector.ServerConnector;
-import com.main.core.collaboration.service.BasicService;
-import com.main.core.collaboration.service.CollaborationService;
-import com.main.core.collaboration.service.ManageService;
-import com.main.core.game.AchievementPopup;
-import com.main.core.game.DailyQuestsContainer;
-import com.main.core.game.LeaderBoardActivity;
-import com.main.core.game.QuestActivity;
-import com.main.core.game.RewardActivity;
-import com.main.core.game.RewardLitePalConnector;
-import com.main.core.game.Score;
-import com.main.core.game.ScoreLitePalConnector;
-import com.main.core.ui.login.LoginActivity;
-import com.main.serverCommunicator.Remote_Socket;
 import com.feature_calc_func.MorphologyCalculate;
 import com.learning.pixelclassification.PixelClassification;
 import com.learning.randomforest.RandomForest;
@@ -105,6 +70,41 @@ import com.lxj.xpopup.interfaces.OnCancelListener;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnInputConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
+import com.main.basic.CrashHandler;
+import com.main.basic.FileManager;
+import com.main.basic.Image4DSimple;
+import com.main.basic.ImageMarker;
+import com.main.basic.LocationSimple;
+import com.main.basic.NeuronTree;
+import com.main.chat.ChatActivity;
+import com.main.chat.agora.AgoraService;
+import com.main.chat.agora.message.AgoraMsgManager;
+import com.main.chat.nim.InfoCache;
+import com.main.chat.nim.main.helper.SystemMessageUnreadManager;
+import com.main.chat.nim.reminder.ReminderManager;
+import com.main.chat.nim.session.extension.InviteAttachment;
+import com.main.core.collaboration.Communicator;
+import com.main.core.collaboration.basic.ReceiveMsgInterface;
+import com.main.core.collaboration.connector.MsgConnector;
+import com.main.core.collaboration.connector.ServerConnector;
+import com.main.core.collaboration.service.BasicService;
+import com.main.core.collaboration.service.CollaborationService;
+import com.main.core.collaboration.service.ManageService;
+import com.main.core.fileReader.annotationReader.AnoReader;
+import com.main.core.fileReader.annotationReader.ApoReader;
+import com.main.core.fileReader.imageReader.BigImgReader;
+import com.main.core.game.AchievementPopup;
+import com.main.core.game.DailyQuestsContainer;
+import com.main.core.game.LeaderBoardActivity;
+import com.main.core.game.QuestActivity;
+import com.main.core.game.RewardActivity;
+import com.main.core.game.RewardLitePalConnector;
+import com.main.core.game.Score;
+import com.main.core.game.ScoreLitePalConnector;
+import com.main.core.ui.login.LoginActivity;
+import com.main.dataStore.PreferenceLogin;
+import com.main.dataStore.SettingFileManager;
+import com.main.serverCommunicator.Remote_Socket;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.common.ui.imageview.CircleImageView;
 import com.netease.nimlib.sdk.NIMClient;
@@ -164,15 +164,14 @@ import io.agora.rtm.ErrorInfo;
 import io.agora.rtm.ResultCallback;
 import io.agora.rtm.RtmClientListener;
 
+import static com.main.core.Myapplication.ToastEasy;
 import static com.main.dataStore.SettingFileManager.getFilename_Remote;
 import static com.main.dataStore.SettingFileManager.getSelectSource;
 import static com.main.dataStore.SettingFileManager.getUserAccount_Check;
 import static com.main.dataStore.SettingFileManager.getoffset_Remote;
 import static com.main.dataStore.SettingFileManager.setFilename_Remote;
 import static com.main.dataStore.SettingFileManager.setSelectSource;
-import static com.main.dataStore.SettingFileManager.setUserAccount_Check;
 import static com.main.dataStore.SettingFileManager.setoffset_Remote;
-import static com.main.core.Myapplication.ToastEasy;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
@@ -651,11 +650,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     break;
+
                 case 1:
                     popupView.dismiss();
                     Activity activity_2 = getActivityFromContext(mainContext);
                     activity_2.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     break;
+
                 case 2:
                     setButtonsBigData();
                     if (isBigData_Local){
@@ -667,7 +668,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         String offset_z = offset.split("_")[2];
                         Toast.makeText(getContext(),"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
                     }
-
                     break;
 
                 case 3:
@@ -1781,7 +1781,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     }
 
-    //renderer 的生存周期和activity保持一致
     @Override
     protected void onPause() {
         super.onPause();
@@ -1834,6 +1833,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         if (extras != null) {
             intent.putExtras(extras);
         }
+        context.startActivity(intent);
+    }
+
+
+    public static void actionStart(Context context, String username){
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra(USERNAME, username);
         context.startActivity(intent);
     }
 
@@ -2019,7 +2025,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
      */
     private void LoadFiles(String FileList){
 
-
         Map<String, String> fileType = new HashMap<>();
         String[] list = FileList.split(";;");
         List<String> list_array = new ArrayList<>();
@@ -2051,8 +2056,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             @Override
                             public void onSelect(int position, String text) {
                                 ServerConnector serverConnector = ServerConnector.getInstance();
-                                Log.e(TAG, "test: " + text);
-                                Log.e(TAG, "test type: " + fileType.get(text));
+//                                Log.e(TAG, "test: " + text);
+//                                Log.e(TAG, "test type: " + fileType.get(text));
 
                                 if (fileType.get(text).equals("0")){
                                     conPath = conPath + "/" + text;
@@ -2075,15 +2080,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Communicator communicator = Communicator.getInstance();
         boolean mode = communicator.initSoma(text);
 
-        String[] modeList;
-        if (mode){
-            modeList = new String[]{"New File"};
-        }else {
-            modeList = new String[]{"Load File", "Copy File"};
-        }
-
+        String[] modeList = mode ? new String[]{"New File"} : new String[]{"Load File", "Copy File"};
         new XPopup.Builder(this)
-                .asCenterList("Select Mode",modeList,
+                .asCenterList("Select Mode", modeList,
                         new OnSelectListener() {
                             @RequiresApi(api = Build.VERSION_CODES.N)
                             @Override
@@ -2170,10 +2169,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private void showRoomID(){
 
-        MsgConnector msgConnector = MsgConnector.getInstance();
-        ServerConnector serverConnector = ServerConnector.getInstance();
-        new XPopup.Builder(this).asConfirm("Collaboration Room", "Room name: " + serverConnector.getRoomName() + "\n\n"
-                        + "Room ID: " + msgConnector.getPort(),
+        new XPopup.Builder(this).asConfirm("Collaboration Room", "Room name: " + ServerConnector.getInstance().getRoomName() + "\n\n"
+                        + "Room ID: " + MsgConnector.getInstance().getPort(),
                 new OnConfirmListener() {
                     @Override
                     public void onConfirm() {
@@ -2185,8 +2182,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private void showUserList(){
         String [] userList = (String[]) MsgConnector.userList.toArray();
-        String [] list = new String[userList.length + 1];
-        list[userList.length] = "invite friend to join...";
+        String [] list = new String[ userList.length + 1 ];
+        list[ userList.length ] = "invite friend to join...";
         System.arraycopy(userList, 0, list, 0, userList.length);
         new XPopup.Builder(this)
                 //.maxWidth(600)
@@ -2208,19 +2205,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private void updateUserList(List<String> newUserList){
 
-        if (MsgConnector.userList.size() < newUserList.size()){
-            for (int i = 0; i < newUserList.size(); i++){
-                if (!MsgConnector.userList.contains(newUserList.get(i)) && newUserList.get(i) != username){
-                    Toast_in_Thread("User " + newUserList.get(i) + " join !");
-                }
+        for (int i = 0; i < newUserList.size(); i++){
+            if (!MsgConnector.userList.contains(newUserList.get(i)) && newUserList.get(i) != username){
+                Toast_in_Thread("User " + newUserList.get(i) + " join !");
             }
         }
 
-        if (MsgConnector.userList.size() > newUserList.size()){
-            for (int i = 0; i < MsgConnector.userList.size(); i++){
-                if (!newUserList.contains(MsgConnector.userList.get(i))){
-                    Toast_in_Thread("User " + MsgConnector.userList.get(i) + " left !");
-                }
+        for (int i = 0; i < MsgConnector.userList.size(); i++){
+            if (!newUserList.contains(MsgConnector.userList.get(i))){
+                Toast_in_Thread("User " + MsgConnector.userList.get(i) + " left !");
             }
         }
 
@@ -2405,10 +2398,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public void File_icon(){
 
         new XPopup.Builder(this)
-//                .hasShadowBg(false)
-//        .maxWidth(400)
-//        .maxHeight(1350)
-//                .asCenterList("File Open & Save", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile","Camera"},
                 .asCenterList("File Open", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile"},
                         new OnSelectListener() {
                             @Override
@@ -2421,10 +2410,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         loadLocalFile();
                                         break;
                                     case "Open BigData":
-                                        /**
-                                         * xf szt
-                                         */
-
                                         loadBigData();
                                         break;
                                     case "Load SWCFile":
@@ -2455,6 +2440,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         startActivityForResult(intent, 1);
     }
 
+
     private void loadLocalFile(){
         ifLoadLocal = true;
         ifImport = false;
@@ -2466,7 +2452,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         try {
             startActivityForResult(intent,1);
-
         }catch (Exception e){
             e.printStackTrace();
             ToastEasy("Error when open file!" + e.getMessage());
@@ -2480,12 +2465,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
      * @param v
      */
     private void Draw_list(View v){
-        String[] drawList;
-        if (isBigData_Remote){
-            drawList = new String[]{"For Marker", "For Curve", "Exit Drawing Mode"};
-        }else {
-            drawList = new String[]{"For Marker", "For Curve", "Clear Tracing", "Exit Drawing Mode"};
-        }
+        String[] drawList = isBigData_Remote ? new String[]{"For Marker", "For Curve", "Exit Drawing Mode"} : new String[]{"For Marker", "For Curve", "Clear Tracing", "Exit Drawing Mode"};
         drawPopupView = new XPopup.Builder(this)
                 .atView(v)
                 .autoDismiss(false)
@@ -2527,12 +2507,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
     private void markerProcessList(View v){
-        String[] processList;
-        if (isBigData_Remote){
-            processList = new String[]{"PinPoint   ", "Delete Marker", "Delete MultiMarker", "Set MColor", "Change MColor"};
-        }else {
-            processList = new String[]{"PinPoint   ", "Delete Marker", "Delete MultiMarker", "Set MColor", "Change MColor", "Change All MColor"};
-        }
+        String[] processList = isBigData_Remote ? new String[]{"PinPoint   ", "Delete Marker", "Delete MultiMarker", "Set MColor", "Change MColor"}
+                                                : new String[]{"PinPoint   ", "Delete Marker", "Delete MultiMarker", "Set MColor", "Change MColor", "Change All MColor"};
         new XPopup.Builder(this)
                 .atView(v)
                 .offsetX(580)
@@ -2691,15 +2667,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 }).show();
     }
 
+
+
     private void curveProcessList(View v){
-        String[] processList;
-        if (isBigData_Remote){
-            processList = new String[]{"Draw Curve", "Delete Curve", "Split       ",
-                    "Set PenColor", "Change PenColor"};
-        }else {
-            processList = new String[]{"Draw Curve", "Delete Curve", "Split       ",
-                    "Set PenColor", "Change PenColor", "Change All PenColor"};
-        }
+        String[] processList = isBigData_Remote ? new String[]{"Draw Curve", "Delete Curve", "Split       ", "Set PenColor", "Change PenColor"}
+                                                : new String[]{"Draw Curve", "Delete Curve", "Split       ", "Set PenColor", "Change PenColor", "Change All PenColor"};
         new XPopup.Builder(this)
                 .atView(v)
                 .offsetX(580)
@@ -2808,9 +2780,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         break;
 
                                     case "Set PenColor":
-                                        //调用选择画笔窗口
+                                        // 调用选择画笔窗口
                                         penSet();
-
                                         break;
 
                                     case "Change PenColor":
@@ -2867,21 +2838,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         }).show();
     }
 
+
+
     public void penSet(){
-
         String [] pcolor = new String[1];
-
         new MDDialog.Builder(this)
                 .setContentView(R.layout.pen_choose)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
                     @Override
                     public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-//                        EditText et1 = (EditText) contentView.findViewById(R.id.pencolor);
-                        //pencolor= 2;
-                        /*String color  = et1.getText().toString();
-                        pencolor= Integer.parseInt(color);
-                        System.out.println("pen color is");
-                        System.out.println(pencolor);*/
 
                         final Spinner chooseColor = contentView.findViewById(R.id.pencolor);
                         chooseColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -2893,7 +2858,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                             @Override
                             public void onNothingSelected(AdapterView<?> parent) {
-
                             }
                         });
 
@@ -2924,11 +2888,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             myrenderer.pencolorchange(PenColor.valueOf(color).ordinal());
                             System.out.println("pen color is");
                             System.out.println(color);
-                            //Log.v("Mainactivity", "GD-Tracing start~");
-                            //Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
                             ToastEasy("penColor set ~ ");
                         }else{
-
                             ToastEasy("Please make sure all the information is right !!!");
                         }
 
@@ -2937,8 +2898,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
                     @Override
                     public void onClick(View clickedView, View contentView) {
-//                        EditText et = (EditText) contentView.findViewById(R.id.edit1);
-//                        Toast.makeText(getApplicationContext(), "edittext 1 : " + et.getText(), Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setWidthMaxDp(600)
@@ -2947,20 +2906,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
     public void markerPenSet(){
-
         String [] pcolor = new String[1];
-
         new MDDialog.Builder(this)
                 .setContentView(R.layout.marker_pen_choose)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
                     @Override
                     public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-//                        EditText et1 = (EditText) contentView.findViewById(R.id.markercolor);
-                        //pencolor= 2;
-                        /*String color  = et1.getText().toString();
-                        pencolor= Integer.parseInt(color);
-                        System.out.println("pen color is");
-                        System.out.println(pencolor);*/
 
                         final Spinner chooseColor = contentView.findViewById(R.id.markercolor);
                         chooseColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -3003,8 +2954,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             myrenderer.markercolorchange(PenColor.valueOf(color).ordinal());
                             System.out.println("marker color is");
                             System.out.println(color);
-                            //Log.v("Mainactivity", "GD-Tracing start~");
-                            //Toast.makeText(v.getContext(), "GD-Tracing start~", Toast.LENGTH_SHORT).show();
                             ToastEasy("markerColor set ~");
 
                         }else{
@@ -3028,7 +2977,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     /**
      * function for the Tracing button
-     *
      * @param v the button: tracing
      */
     private void Tracing(final View v) {
@@ -3051,23 +2999,19 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 switch (text) {
                                     case "GD":
                                         try {
-                                            Log.v("Mainactivity", "GD-Tracing start ~");
+                                            Log.v(TAG, "GD-Tracing start ~");
                                             ToastEasy("GD-Tracing start !");
-//                                            Timer timer = new Timer();
                                             progressBar.setVisibility(View.VISIBLE);
                                             timer = new Timer();
                                             timerTask = new TimerTask() {
                                                 @RequiresApi(api = Build.VERSION_CODES.N)
                                                 @Override
                                                 public void run() {
-
                                                     try {
                                                         GDTracing();
-
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
-
                                                 }
                                             };
                                             timer.schedule(timerTask, 1000);
@@ -3079,9 +3023,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                                     case "APP2":
                                         try {
-                                            Log.v("Mainactivity", "APP2-Tracing start~");
+                                            Log.v(TAG, "APP2-Tracing start~");
                                             ToastEasy("APP2-Tracing start !");
-//                                            Timer timer = new Timer();
                                             progressBar.setVisibility(View.VISIBLE);
                                             timer = new Timer();
                                             timerTask = new TimerTask() {
@@ -3093,7 +3036,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
-
                                                 }
                                             };
                                             timer.schedule(timerTask, 1000);
@@ -3134,8 +3076,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     @Override
                     public void onClick(View clickedView, View contentView) {
 
-                        System.out.println("start to save-------");
-
                         EditText swcName = contentView.findViewById(R.id.swcname);
                         String swcFileName = swcName.getText().toString();
                         if (swcFileName == ""){
@@ -3143,7 +3083,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         }
                         myrenderer.reNameCurrentSwc(swcFileName);
 
-                        String dir_str = "/storage/emulated/0/C3/SWCSaved";
+                        String dir_str = "/storage/emulated/0/Hi5/SwcSaved";
                         File dir = new File(dir_str);
                         if (!dir.exists()) {
                             dir.mkdirs();
@@ -3156,7 +3096,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             ToastEasy(e.getMessage());
                         }
                         if (!error.equals("")) {
-                            if (error == "This file already exits"){
+                            if (error.equals("This file already exits")){
                                 AlertDialog aDialog = new AlertDialog.Builder(mainContext)
                                         .setTitle("This file already exits")
                                         .setMessage("Are you sure to overwrite it?")
@@ -3207,8 +3147,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void APP2() throws Exception {
         Image4DSimple img = myrenderer.getImg();
-        if(img == null){
-
+        if(img == null || !img.valid()){
             ToastEasy("Please load image first !");
             progressBar.setVisibility(View.INVISIBLE);
             return;
@@ -3232,12 +3171,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             NeuronTree nt = p.resultNt;
             for (int i = 0; i < nt.listNeuron.size(); i++) {
                 nt.listNeuron.get(i).type = 4;
-                if (nt.listNeuron.get(i).parent == -1) {
-                    NeuronSWC s = nt.listNeuron.get(i);
-                    ImageMarker m = new ImageMarker(s.x, s.y, s.z);
-                    m.type = 2;
-                    myrenderer.getMarkerList().add(m);
-                }
+//                if (nt.listNeuron.get(i).parent == -1) {
+//                    NeuronSWC s = nt.listNeuron.get(i);
+//                    ImageMarker m = new ImageMarker(s.x, s.y, s.z);
+//                    m.type = 2;
+//                    myrenderer.getMarkerList().add(m);
+//                }
             }
             System.out.println("size: " + nt.listNeuron.size());
 
@@ -3257,8 +3196,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private void GDTracing() throws Exception {
         Image4DSimple img = myrenderer.getImg();
-        if(img == null){
-
+        if(img == null || !img.valid()){
             ToastEasy("Please load image first !");
             progressBar.setVisibility(View.INVISIBLE);
             return;
@@ -3281,7 +3219,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         NeuronTree outswc = new NeuronTree();
         CurveTracePara curveTracePara = new CurveTracePara();
 
-
         try {
             outswc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img, p0, pp, curveTracePara, 1.0);
         } catch (Exception e) {
@@ -3289,10 +3226,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             progressBar.setVisibility(View.INVISIBLE);
         }
         for (int i = 0; i < outswc.listNeuron.size(); i++) {
-//            outswc.listNeuron.get(i).type = 4;
             outswc.listNeuron.get(i).type = 5;
         }
-
 
         ToastEasy("GD-Tracing finished, size of result swc: " + Integer.toString(outswc.listNeuron.size()));
         myrenderer.importNeuronTree(outswc,isBigData_Remote);
@@ -3314,10 +3249,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-
-                .asAttachList(new String[]{"Filter by example"},
-
-                        new int[]{},
+                .asAttachList(new String[]{"Filter by example"}, new int[]{},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -3331,7 +3263,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                Learning();
+                                                pixelClassification();
                                                 puiHandler.sendEmptyMessage(6);
                                             }
                                         }).start();
@@ -3342,7 +3274,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .show();
     }
 
-    private void Learning() {
+    private void pixelClassification() {
 
         Image4DSimple img = myrenderer.getImg();
         if(img == null){
@@ -3350,7 +3282,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             ToastEasy("Please load image first !");
             return;
         }
-        Image4DSimple outImg=new Image4DSimple();
+        Image4DSimple outImg = new Image4DSimple();
 
         NeuronTree nt = myrenderer.getNeuronTree();
         PixelClassification p = new PixelClassification();
@@ -3379,9 +3311,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         myrenderer.setTakePic(true, this);
         myGLSurfaceView.requestRender();
-        final String[] imgPath = new String[1];
-
-        Log.v("Share","save screenshot to " + imgPath[0]);
     }
 
 
@@ -3432,9 +3361,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK
-                && event.getAction() == KeyEvent.ACTION_DOWN) {
-
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
             if ((System.currentTimeMillis() - exitTime) > 2000) {
                 ToastEasy("Press again to exit the program");
                 exitTime = System.currentTimeMillis();
@@ -3455,17 +3382,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
      * pop up a menu when button more is clicked, include analyze swc file, sensor information, downsample mode, animate and version
      */
     public void More_icon(){
-        String[] item_list = null;
-        if (DrawMode){
-            item_list = new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "About", "Help", "Quests", "Reward"};
-        }else{
-            item_list = new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Account Name", "About", "Help"};
-        }
 
         new XPopup.Builder(this)
-//        .maxWidth(400)
-//        .maxHeight(1350)
-                .asCenterList("More Functions...", item_list,
+                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "About", "Account Name", "Help", "Quests", "Reward"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -3596,7 +3515,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         break;
 
                                     default:
-                                        ToastEasy("there is something wrong in animation");
+                                        ToastEasy("There is something wrong in animation");
                                 }
                             }
                         })
@@ -3670,7 +3589,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210506a 18:51 UTC+8 build",
+                                "Version: 20210507a 18:51 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -3683,24 +3602,16 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     public void PopUp_UserAccount(Context context){
-
         new MDDialog.Builder(context)
-//              .setContentView(customizedView)
                 .setContentView(R.layout.user_account_check)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
                     @Override
                     public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
                         EditText et = (EditText) contentView.findViewById(R.id.userAccount_edit_check);
-                        String userAccount = getUserAccount_Check(context);
-
-                        if (userAccount.equals("--11--")){
-                            userAccount = "";
-                        }
-
-                        et.setText(userAccount);
+                        et.setText(InfoCache.getAccount());
                     }
                 })
-                .setTitle("UserName for Check")
+                .setTitle("Current UserName")
                 .setNegativeButton("Cancel", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -3714,20 +3625,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
                     @Override
                     public void onClick(View clickedView, View contentView) {
-                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
-                        EditText et = (EditText) contentView.findViewById(R.id.userAccount_edit_check);
-
-                        String userAccount   = et.getText().toString();
-
-
-                        if( !userAccount.isEmpty() ){
-                            setUserAccount_Check(userAccount, context);
-
-                        }else{
-                            PopUp_UserAccount(context);
-                            ToastEasy("Please make sure all the information is right !");
-                        }
-
                     }
                 })
                 .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
@@ -3745,8 +3642,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private void Analyse() {
         new XPopup.Builder(this)
-//        .maxWidth(400)
-//        .maxHeight(1350)
                 .asCenterList("morphology calculate", new String[]{"Analyze a SWC file", "Analyze current tracing"},
                         new OnSelectListener() {
                             @Override
@@ -3791,26 +3686,24 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     /**
      * display the result of morphology calculate
-     *
-     * @param featurelist the features of result
+     * @param featureList the features of result
      */
-
     @SuppressLint("DefaultLocale")
-    private void displayResult(final List<double[]> featurelist) {
+    private void displayResult(final List<double[]> featureList) {
         final String[] title;
         final int[] id_title;
         final int[] id_content;
         final int[] id_rl;
-        if (measure_count > featurelist.size() - 1) {
+        if (measure_count > featureList.size() - 1) {
             measure_count = 0;
         } else if (measure_count < 0) {
-            measure_count = featurelist.size() - 1;
+            measure_count = featureList.size() - 1;
         }
-        double[] result = featurelist.get(measure_count);
-        String[] subtitle = new String[featurelist.size()];
-        for (int i = 0; i < featurelist.size(); i++) {
-            if (featurelist.size() > 1) {
-                subtitle[i] = String.format("Tree %d/%d", i + 1, featurelist.size());
+        double[] result = featureList.get(measure_count);
+        String[] subtitle = new String[featureList.size()];
+        for (int i = 0; i < featureList.size(); i++) {
+            if (featureList.size() > 1) {
+                subtitle[i] = String.format("Tree %d/%d", i + 1, featureList.size());
             } else {
                 subtitle[i] = "";
             }
@@ -3858,11 +3751,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 R.id.RL10, R.id.RL11, R.id.RL12, R.id.RL13, R.id.RL14,
                 R.id.RL15, R.id.RL16, R.id.RL17, R.id.RL18, R.id.RL19,
                 R.id.RL20, R.id.RL21};
-        ar_mdDialog =
-                ar_mdDialog_bd
+        ar_mdDialog = ar_mdDialog_bd
                         .setContentView(R.layout.analysis_result)
                         .setContentViewOperator(new MDDialog.ContentViewOperator() {
-
                             @Override
                             public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
                                 //analysis_result next page
@@ -3870,7 +3761,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 ar_right.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        if (featurelist.size() > 1) {
+                                        if (featureList.size() > 1) {
                                             measure_count++;
                                             ar_mdDialog.dismiss();
                                             displayResult(fl);
@@ -3881,7 +3772,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 ar_left.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        if (featurelist.size() > 1) {
+                                        if (featureList.size() > 1) {
                                             measure_count--;
                                             ar_mdDialog.dismiss();
                                             displayResult(fl);
@@ -3926,7 +3817,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     /**
      * format output of morphology feature's value
-     *
      * @param value feature's value
      * @return Number of digits
      */
@@ -4123,7 +4013,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         deleteImg();
                     }
                 })
-
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -4167,7 +4056,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         finish();
                     }
                 })
-
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -4199,7 +4087,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 }else {
                                     Toast_in_Thread("File does not exist");
                                 }
-
                             }
                         })
                 .show();
@@ -4244,7 +4131,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                             @Override
                             public void onNothingSelected(AdapterView<?> parent) {
-
                             }
                         });
 
@@ -4310,7 +4196,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
                     @Override
                     public void onClick(View clickedView, View contentView) {
-
                     }
                 })
                 .setTitle("Animation")
@@ -4354,9 +4239,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     @Override
     @RequiresApi(api = Build.VERSION_CODES.N)
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.v(TAG,"onActivityResult start");
-
         super.onActivityResult(requestCode, resultCode, data);
+
+        Log.e(TAG,"onActivityResult start");
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             myrenderer.setPath(showPic.getAbsolutePath());
             myGLSurfaceView.requestRender();
@@ -4380,7 +4265,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         System.out.println("------ load local file ------");
                         switch (filetype) {
                             case ".APO":
-                                Log.v("MainActivity", uri.toString());
+                                Log.e("MainActivity", uri.toString());
                                 ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
                                 ApoReader apoReader = new ApoReader();
                                 apo = apoReader.read(uri);
@@ -4394,7 +4279,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 break;
                             case ".SWC":
                             case ".ESWC":
-                                Log.v("onActivityResult", ".eswc");
+                                Log.e(TAG, "onActivityResult: .eswc");
                                 NeuronTree nt = NeuronTree.readSWC_file(uri);
 
                                 myrenderer.importNeuronTree(nt,false);
@@ -4402,6 +4287,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 break;
 
                             case ".ANO":
+                                Log.e(TAG, "onActivityResult: .ano");
+
                                 ArrayList<ArrayList<Float>> ano_apo = new ArrayList<ArrayList<Float>>();
                                 AnoReader anoReader = new AnoReader();
                                 ApoReader apoReader_1 = new ApoReader();
@@ -4484,7 +4371,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text){
-
                                     case "New Game":
 //                                        setSelectSource("Remote Server SEU", context);
 //                                        BigFileRead_Remote(ip_SEU);
@@ -4674,7 +4560,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         if (filename_list != null){
             String [] str = new String[1];
             bigImgReader.ShowListDialog(this, filename_list);
-
         }
     }
 
@@ -4728,7 +4613,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             public void run() {
 
                 if (isBigData_Remote){
-
                     String[] Direction = {"Left", "Right", "Top", "Bottom", "Front", "Back"};
                     if (Arrays.asList(Direction).contains(text)){
                         Log.e("Block_navigate", text);
@@ -4762,11 +4646,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     }
 
+
     private void Quit_Nav_Mode(){
         System.out.println("---------QuitNavigationLocation---------");
         myrenderer.quitNav_location_Mode();
         navigation_location.setImageResource(R.drawable.ic_gps_fixed_black_24dp);
     }
+
 
     private void Update_Nav_Mode(){
         String filename = SettingFileManager.getFilename_Local(this);
@@ -4787,6 +4673,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         myrenderer.setNav_location(neuron, block, size);
     }
+
 
     public void Set_Nav_Mode(){
         String filename = null;
@@ -4926,15 +4813,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             ConfigurationInfo info = am.getDeviceConfigurationInfo();
             String v = info.getGlEsVersion(); //判断是否为3.0 ，一般4.4就开始支持3.0版本了。
 
-            Log.v("MainActivity", "GLES-version: " + v);
+            Log.e(TAG, "GLES-version: " + v);
 
             //设置一下opengl版本；
             setEGLContextClientVersion(3);
 
-//            myrenderer.setLineDrawed(lineDrawed);
-
             setRenderer(myrenderer);
-
 
             //调用 onPause 的时候保存EGLContext
             setPreserveEGLContextOnPause(true);
@@ -5124,7 +5008,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         requestRender();
                                     }
                                     if (ifDeletingMultiMarker) {
-                                        myrenderer.deleteMultiMarkerByStroke(lineDrawed);
+                                        myrenderer.deleteMultiMarkerByStroke(lineDrawed, isBigData_Remote);
                                         requestRender();
                                     }
                                     if (ifChangeMarkerType) {
@@ -5543,6 +5427,88 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
+    private void addScore(int s){
+        score += s;
+        updateScoreText();
+    }
+
+    private static void updateScoreText(){
+        puiHandler.sendEmptyMessage(7);
+    }
+
+    private static void updateScoreTextHandler(){
+        Score scoreInstance = Score.getInstance();
+        int score = scoreInstance.getScore();
+        String scoreString;
+        if (score < 10){
+            scoreString = "0000" + Integer.toString(score);
+        } else if (score >= 10 && score < 100){
+            scoreString = "000" + Integer.toString(score);
+        } else if (score >= 100 && score < 1000){
+            scoreString = "00" + Integer.toString(score);
+        } else if (score >= 1000 && score < 10000){
+            scoreString = "0" + Integer.toString(score);
+        } else {
+            scoreString = Integer.toString(score);
+        }
+        Log.d("UpdateScore", Integer.toString(score) + "   " + scoreString);
+        scoreText.setText(scoreString);
+    }
+
+    public void showAchievementFinished(){
+        new XPopup.Builder(mainContext)
+                .offsetY(1000)
+                .popupAnimation(PopupAnimation.TranslateAlphaFromBottom)
+                .asCustom(new AchievementPopup(mainContext))
+                .show();
+    }
+
+    public void initDataBase(int serverScore){
+        DailyQuestsContainer.initId(username);
+        Score.initId(username);
+        ScoreLitePalConnector.initUser(username);
+        RewardLitePalConnector.initUserId(username);
+
+        Score score = Score.getInstance();
+        if (!score.initFromLitePal()) {
+            setScore(score.getScore());
+        }
+
+        updateScoreText();
+    }
+
+    public void initDataBase(){
+        DailyQuestsContainer.initId(username);
+        Score.initId(username);
+        ScoreLitePalConnector.initUser(username);
+        RewardLitePalConnector.initUserId(username);
+
+        Score score = Score.getInstance();
+        if (score.initFromLitePal()) {
+            setScore(score.getScore());
+        }
+
+        updateScoreText();
+    }
+
+
+
+
+
+    public static void Toast_in_Thread_static(String message){
+        Message msg = new Message();
+        msg.what = TOAST_INFO_STATIC;
+        Bundle bundle = new Bundle();
+        bundle.putString("Toast_msg",message);
+        msg.setData(bundle);
+        puiHandler.sendMessage(msg);
+    }
+
+    public static Context getContext() {
+        return context;
+    }
+
+
 
 
 
@@ -5705,94 +5671,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         ifGame = b;
     }
 
-    public static void actionStart(Context context, String username){
-        Intent intent = new Intent(context, MainActivity.class);
-        intent.putExtra(USERNAME, username);
-        context.startActivity(intent);
-    }
-
-
-    private void addScore(int s){
-        score += s;
-
-        updateScoreText();
-    }
-
-    private static void updateScoreText(){
-        puiHandler.sendEmptyMessage(7);
-    }
-
-    private static void updateScoreTextHandler(){
-        Score scoreInstance = Score.getInstance();
-        int score = scoreInstance.getScore();
-        String scoreString;
-        if (score < 10){
-            scoreString = "0000" + Integer.toString(score);
-        } else if (score >= 10 && score < 100){
-            scoreString = "000" + Integer.toString(score);
-        } else if (score >= 100 && score < 1000){
-            scoreString = "00" + Integer.toString(score);
-        } else if (score >= 1000 && score < 10000){
-            scoreString = "0" + Integer.toString(score);
-        } else {
-            scoreString = Integer.toString(score);
-        }
-        Log.d("UpdateScore", Integer.toString(score) + "   " + scoreString);
-        scoreText.setText(scoreString);
-    }
-
-    public void showAchievementFinished(){
-        new XPopup.Builder(mainContext)
-                .offsetY(1000)
-                .popupAnimation(PopupAnimation.TranslateAlphaFromBottom)
-                .asCustom(new AchievementPopup(mainContext))
-                .show();
-    }
-
-    public void initDataBase(int serverScore){
-        DailyQuestsContainer.initId(username);
-        Score.initId(username);
-        ScoreLitePalConnector.initUser(username);
-        RewardLitePalConnector.initUserId(username);
-
-        Score score = Score.getInstance();
-        if (!score.initFromLitePal()) {
-            setScore(score.getScore());
-        }
-
-        updateScoreText();
-    }
-
-    public void initDataBase(){
-        DailyQuestsContainer.initId(username);
-        Score.initId(username);
-        ScoreLitePalConnector.initUser(username);
-        RewardLitePalConnector.initUserId(username);
-
-        Score score = Score.getInstance();
-        if (score.initFromLitePal()) {
-            setScore(score.getScore());
-        }
-
-        updateScoreText();
-    }
-
-
-
-
-
-    public static void Toast_in_Thread_static(String message){
-        Message msg = new Message();
-        msg.what = TOAST_INFO_STATIC;
-        Bundle bundle = new Bundle();
-        bundle.putString("Toast_msg",message);
-        msg.setData(bundle);
-        puiHandler.sendMessage(msg);
-    }
-
-    public static Context getContext() {
-        return context;
-    }
 
 
 

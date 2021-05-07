@@ -73,7 +73,7 @@ public class ServerConnector extends BasicConnector implements ReconnectionInter
     public boolean sendMsg(String msg, boolean waited, boolean resend){
         if (!checkConnection())
             initConnection();
-            return msgSender.SendMsg(mSocket, msg, waited, resend, this);
+        return msgSender.SendMsg(mSocket, msg, waited, resend, this);
     }
 
 

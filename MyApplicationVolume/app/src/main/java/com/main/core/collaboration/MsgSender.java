@@ -25,7 +25,7 @@ public class MsgSender {
     public boolean SendMsg(Socket socket, String message, boolean waited, boolean resend, ReconnectionInterface reconnectionInterface){
 
         final boolean[] flag = {true};
-        if (!socket.isConnected()){
+        if (socket == null || !socket.isConnected()){
             ToastEasy("Fail to Send Message, Try Again Please !");
             return false;
         }

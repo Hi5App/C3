@@ -75,9 +75,6 @@ public class MsgReceiver {
 
 
     private void onRead(String tag){
-
-        Log.e(TAG,"msg: " + tag);
-
         if(!dataType.isFile){
             if (dataType.dataSize == 0){
                 try {
@@ -118,13 +115,8 @@ public class MsgReceiver {
                 }
             }
         }else {
-
-            Log.e(TAG,"Else process file !");
-
             try {
-
                 Log.e(TAG,"Else process file !");
-
             }catch (Exception e){
                 e.printStackTrace();
             }
