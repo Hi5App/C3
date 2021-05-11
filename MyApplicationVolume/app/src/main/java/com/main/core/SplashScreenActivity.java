@@ -184,6 +184,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
             if (!musicDir.exists() || musicDir.listFiles().length < musicTotalNum){
                 ServerConnector serverConnector = ServerConnector.getInstance();
                 Log.d(TAG, "onResume");
+                Toast_in_Thread("It may take a while to download");
 //                Log.d(TAG, "musicDir.listFiles().length: " + musicDir.listFiles().length);
 //                Toast_in_Thread("");
 //                serverConnector.sendMsg("MUSICLIST");
@@ -433,7 +434,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
             musicAlreadyNum += 1;
 //            if (musicAlreadyNum >= musicTotalNum){
                 Log.e(TAG, "Download finished");
-                Toast_in_Thread("Download finished");
+
 
 //                LoginActivity.start(SplashScreenActivity.this);
 
@@ -445,6 +446,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 //                };
 //                runnable.run();
                 if (musicAlreadyNum >= musicTotalNum) {
+                    Toast_in_Thread("Download finished");
                     Runnable runnable = new Runnable() {
                         @Override
                         public void run() {
