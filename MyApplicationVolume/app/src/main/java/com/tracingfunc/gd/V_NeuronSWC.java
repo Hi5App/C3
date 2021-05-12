@@ -156,4 +156,66 @@ public class V_NeuronSWC implements Cloneable{
             row.get(i).move(dis, l);
         }
     }
+
+
+    public boolean smoothCurve() throws Exception{
+        return smoothCurve(7);
+    }
+
+
+    public boolean smoothCurve(int winsize) throws Exception
+    {
+        System.out.println("---------------------smooth curve----------------------");
+        if (winsize < 2) return true;
+
+        int N = row.size();
+        int halfwin = winsize / 2;
+        Vector<V_NeuronSWC_unit> mC= new Vector<V_NeuronSWC_unit>(); // a copy
+        for(int i=0; i<N; i++){
+            mC.add(row.get(i).clone());
+        }
+
+
+        for (int i = 1; i < N - 1; i++) // don't move start & end point
+        {
+            Vector<V_NeuronSWC_unit> winC = new Vector<V_NeuronSWC_unit>();
+            Vector<Double> winW = new Vector<Double>();
+            winC.clear();
+            winW.clear();
+
+            winC.add(mC.get(i));
+            winW.add(1.0 + halfwin);
+            for (int j = 1; j <= halfwin; j++)
+            {
+                int k1 = i + j;	if (k1<0) k1 = 0;	if (k1>N - 1) k1 = N - 1;
+                int k2 = i - j;	if (k2<0) k2 = 0;	if (k2>N - 1) k2 = N - 1;
+                winC.add(mC.get(k1));
+                winC.add(mC.get(k2));
+                winW.add(1.0 + halfwin - j);
+                winW.add(1.0 + halfwin - j);
+            }
+            //std::cout<<"winC.size = "<<winC.size()<<"\n";
+
+            double s, x, y, z;
+            s = x = y = z = 0;
+            for (int j = 0; j < winC.size(); j++)
+            {
+                x += winW.get(j) * winC.get(j).x;
+                y += winW.get(j) * winC.get(j).y;
+                z += winW.get(j) * winC.get(j).z;
+                s += winW.get(j);
+            }
+            if (s>0)
+            {
+                x /= s;
+                y /= s;
+                z /= s;
+            }
+
+            row.get(i).x = x; // output
+            row.get(i).y = y; // output
+            row.get(i).z = z; // output
+        }
+        return true;
+    }
 }

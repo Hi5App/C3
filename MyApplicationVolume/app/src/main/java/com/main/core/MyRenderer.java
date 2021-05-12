@@ -30,20 +30,17 @@ import com.main.basic.MarkerList;
 import com.main.basic.MyAnimation;
 import com.main.basic.NeuronTree;
 import com.main.basic.XYZ;
-import com.main.game.GameCharacter;
-
+import com.main.core.collaboration.Communicator;
 import com.main.core.fileReader.annotationReader.AnoReader;
 import com.main.core.fileReader.annotationReader.ApoReader;
-import com.main.core.collaboration.Communicator;
 import com.main.core.render.MyAxis;
 import com.main.core.render.MyDraw;
 import com.main.core.render.MyMarker;
 import com.main.core.render.MyNavLoc;
 import com.main.core.render.MyPattern;
 import com.main.core.render.MyPattern2D;
-
 import com.main.core.render.MyPatternGame;
-
+import com.main.game.GameCharacter;
 import com.tracingfunc.cornerDetection.HarrisCornerDetector;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_list;
@@ -3410,7 +3407,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Vector<MyMarker> outswc = solveCurveMarkerLists_fm(line);
 
         if (outswc == null){
-            ToastEasy("Make sure the point is in boundingbox");
+            ToastEasy("Make sure the point is in boundingBox");
             return;
         }
 
@@ -3444,6 +3441,16 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 seg.append(u);
 //                System.out.println("u n p x y z: "+ u.n +" "+u.parent+" "+u.x +" "+u.y+ " "+u.z);
             }
+
+
+            try {
+                seg.smoothCurve();
+            }catch (Exception e){
+                ToastEasy("Fail to smooth the curve !");
+                Log.e(TAG,"Exception: " + e.getMessage());
+            }
+
+
             if(seg.row.size()<3){
                 return;
             }
