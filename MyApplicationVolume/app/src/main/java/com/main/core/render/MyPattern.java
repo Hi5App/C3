@@ -18,6 +18,7 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 import static com.main.core.Myapplication.getContext;
+import static com.main.core.render.ShaderHelper.initShaderProgram;
 
 
 public class MyPattern{
@@ -352,7 +353,7 @@ public class MyPattern{
     private static final String vertexShaderCode_2 =
                     // This matrix member variable provides a hook to manipulate
                     // the coordinates of the objects that use this vertex shader
-                    "#version 300 es\n" +
+                    "#version 320 es\n" +
                     "precision highp float;" +
                     "uniform mat4 uMVPMatrix;" +
                     "layout (location = 0) in vec4 a_position;" +
@@ -370,16 +371,15 @@ public class MyPattern{
 
 
     private static final String fragmentShaderCode_2 =
-                    "#version 300 es\n" +
-//            "#extension GL_OES_texture_3D : enable\n" +
+                    "#version 320 es\n" +
                     "precision highp float;" +
 
                     "in vec4 frontColor;" +
                     "in vec4 pos;" +
 
-                    "uniform sampler2D uBackCoord;" +
-                    "uniform highp sampler3D uVolData;" +
-                    "uniform sampler2D uTransferFunction;" +
+                    "layout (binding = 0) uniform highp sampler3D uVolData;" +
+                    "layout (binding = 1) uniform sampler2D uBackCoord;" +
+
                     "uniform highp float dim[3];" +
                     "uniform highp float contrast;" +
                     "uniform highp float threshold;" +
@@ -613,20 +613,13 @@ public class MyPattern{
 
 
     public static void initProgram(){
-        //创建两个着色器程序
-        mProgram_simple = initProgram(vertexShaderCode_1, fragmentShaderCode_1);
-        Log.v("mProgram_simple", Integer.toString(mProgram_simple));
+        // 创建两个着色器程序
+        mProgram_simple = initShaderProgram(TAG, vertexShaderCode_1, fragmentShaderCode_1);
+        Log.v(TAG, "mProgram_simple: " + Integer.toString(mProgram_simple));
 
 
-        mProgram_raycasting = initProgram(vertexShaderCode_2, fragmentShaderCode_2);
-        Log.v("mProgram_raycasting", Integer.toString(mProgram_raycasting));
-
-//        mProgram_threshold = initProgram(vertexShaderCode_2, fragmentShaderCode_2);
-//        Log.v("mProgram_threshold", Integer.toString(mProgram_threshold));
-
-
-//        mProgram_curve = initProgram(vertexShaderCode_curve, fragmentShaderCode_curve);
-//        Log.v("mProgram_curve", Integer.toString(mProgram_curve));
+        mProgram_raycasting = initShaderProgram(TAG, vertexShaderCode_2, fragmentShaderCode_2);
+        Log.v(TAG, "mProgram_raycasting: " + Integer.toString(mProgram_raycasting));
     }
 
     public MyPattern(int width, int height, Image4DSimple img, float[] mz, Mode m) {
@@ -2363,7 +2356,7 @@ public class MyPattern{
      * clean the texture
      */
     public void free(){
-        Log.i(TAG,"free() is called");
+        Log.v(TAG,"free() is called");
 
         GLES30.glDeleteTextures( //删除纹理对象
                 1, //删除纹理id的数量
@@ -2427,75 +2420,6 @@ public class MyPattern{
 
     }
 
-
-
-
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    //创建着色器程序
-    private static int initProgram(String vertShaderCode, String fragmShaderCode){
-
-        //加载着色器
-        int vertexShader = loadShader(GLES30.GL_VERTEX_SHADER,
-                vertShaderCode);
-        int fragmentShader = loadShader(GLES30.GL_FRAGMENT_SHADER,
-                fragmShaderCode);
-
-        Log.v("vertexShader", Integer.toString(vertexShader));
-
-        Log.v("fragmentShader", Integer.toString(fragmentShader));
-
-
-        // create empty OpenGL ES Program
-        int mProgram = GLES30.glCreateProgram();
-
-        // add the vertex shader to program
-        GLES30.glAttachShader(mProgram, vertexShader);
-
-        // add the fragment shader to program
-        GLES30.glAttachShader(mProgram, fragmentShader);
-
-        // creates OpenGL ES program executables
-        GLES30.glLinkProgram(mProgram);
-
-
-        GLES30.glValidateProgram(mProgram); // 让OpenGL来验证一下我们的shader program，并获取验证的状态
-        int[] status = new int[1];
-        GLES30.glGetProgramiv(mProgram, GLES30.GL_VALIDATE_STATUS, status, 0);                                  // 获取验证的状态
-        Log.d("Program:", "validate shader----program: " + GLES30.glGetProgramInfoLog(mProgram));
-
-        return mProgram;
-
-    }
-
-
-
-
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    //加载着色器
-    private static int loadShader(int type, String shaderCode){
-
-        // create a vertex shader type (GLES30.GL_VERTEX_SHADER)
-        // or a fragment shader type (GLES30.GL_FRAGMENT_SHADER)
-        int shader = GLES30.glCreateShader(type);
-
-        // add the source code to the shader and compile it
-        GLES30.glShaderSource(shader, shaderCode);
-        GLES30.glCompileShader(shader);
-
-        int[] status = new int[1];
-        GLES30.glGetShaderiv(shader, GLES30.GL_COMPILE_STATUS, status, 0);// 获取验证的状态
-//        if (status[0] == 0) {
-//            String error = GLES30.glGetShaderInfoLog(shader);
-//            GLES30.glDeleteShader(shader);
-//            Log.v("Error:", "validate shader program: " + error);
-//        }
-        Log.v("Error:", "validate shader program: " + GLES30.glGetShaderInfoLog(shader));
-
-
-        return shader;
-    }
 
 
     private void createMarker(byte [] data_image, int vol_w, int vol_h, int vol_d, int cx, int cy, int cz){
@@ -2570,4 +2494,5 @@ public class MyPattern{
     public void setIfGame(boolean b){
         ifGame = b;
     }
+
 }

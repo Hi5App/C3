@@ -74,22 +74,18 @@ import static javax.microedition.khronos.opengles.GL10.GL_BLEND;
 import static javax.microedition.khronos.opengles.GL10.GL_ONE_MINUS_SRC_ALPHA;
 import static javax.microedition.khronos.opengles.GL10.GL_SRC_ALPHA;
 
-//import android.graphics.Matrix;
-//import org.apache.commons.io.IOUtils;
-//import org.opencv.android.Utils;
-//import org.opencv.core.CvType;
-//import org.opencv.core.Mat;
-//import org.opencv.core.MatOfPoint;
-//import org.opencv.core.Point;
-//import org.opencv.imgproc.Imgproc;
 
 
 //@android.support.annotation.RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
 public class MyRenderer implements GLSurfaceView.Renderer {
+
+    private enum Operate {DRAWCURVE, DELETECURVE, DRAWMARKER, DELETEMARKER, CHANGELINETYPE, SPLIT};
+
+
     private static final String TAG = "MyRenderer";
     private int UNDO_LIMIT = 20;
     private int curUndo = -1;
-    private enum Operate {DRAWCURVE, DELETECURVE, DRAWMARKER, DELETEMARKER, CHANGELINETYPE, SPLIT};
+
     private Vector<Operate> process = new Vector<>();
     private Vector<V_NeuronSWC> undoDrawList = new Vector<>();
     private Vector<Vector<V_NeuronSWC>> undoDeleteList = new Vector<>();
@@ -268,10 +264,16 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public MyRenderer(Context context){
         context_myrenderer = context;
     }
-    //初次渲染画面
+
+
+    /**
+     * 创建 GLSurfaceView 的时候调用
+     * @param unused
+     * @param config
+     */
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
-        Log.v("onSurfaceCreated:","successfully");
+        Log.d(TAG,"onSurfaceCreated successfully");
 
         //深蓝
         GLES30.glClearColor(0.098f, 0.098f, 0.439f, 1.0f);
@@ -281,10 +283,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
          */
         MyPattern.initProgram();
         MyPattern2D.initProgram();
-        MyPatternGame.initProgram();
         MyAxis.initProgram();
         MyDraw.initProgram();
         MyNavLoc.initProgram();
+        MyPatternGame.initProgram();
 
         V_NeuronSWC_list v_neuronSWC_list = new V_NeuronSWC_list();
         MarkerList markerList = new MarkerList();
@@ -301,6 +303,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Matrix.setIdentityM(zoomAfterMatrix, 0);
         Matrix.setIdentityM(rotationMatrix, 0);
         Matrix.setRotateM(rotationMatrix, 0, 0, -1.0f, -1.0f, 0.0f);
+
         // Set the camera position (View matrix)
         Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 

@@ -10,6 +10,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
+import static com.main.core.render.ShaderHelper.initShaderProgram;
+
 public class MyPattern2D {
 
     private static final String TAG = "MyPattern2D";
@@ -113,71 +115,14 @@ public class MyPattern2D {
     }
 
     public static void initProgram(){
-        mProgram = initProgram(vertexShaderCode, fragmentShaderCode);
+        mProgram = initShaderProgram(TAG, vertexShaderCode, fragmentShaderCode);
+        Log.v(TAG,"mProgram: " + mProgram);
     }
 
-
-    private static int initProgram(String vertShaderCode, String fragmShaderCode){
-
-        //加载着色器
-        int vertexShader = loadShader(GLES30.GL_VERTEX_SHADER,
-                vertShaderCode);
-        int fragmentShader = loadShader(GLES30.GL_FRAGMENT_SHADER,
-                fragmShaderCode);
-
-        Log.v("vertexShader", Integer.toString(vertexShader));
-
-        Log.v("fragmentShader", Integer.toString(fragmentShader));
-
-
-        // create empty OpenGL ES Program
-        int mProgram = GLES30.glCreateProgram();
-
-        // add the vertex shader to program
-        GLES30.glAttachShader(mProgram, vertexShader);
-
-        // add the fragment shader to program
-        GLES30.glAttachShader(mProgram, fragmentShader);
-
-        // creates OpenGL ES program executables
-        GLES30.glLinkProgram(mProgram);
-
-
-        GLES30.glValidateProgram(mProgram); // 让OpenGL来验证一下我们的shader program，并获取验证的状态
-        int[] status = new int[1];
-        GLES30.glGetProgramiv(mProgram, GLES30.GL_VALIDATE_STATUS, status, 0);                                  // 获取验证的状态
-        Log.d("Program:", "validate shader----program: " + GLES30.glGetProgramInfoLog(mProgram));
-
-        return mProgram;
-
-    }
-
-    private static int loadShader(int type, String shaderCode){
-
-        // create a vertex shader type (GLES30.GL_VERTEX_SHADER)
-        // or a fragment shader type (GLES30.GL_FRAGMENT_SHADER)
-        int shader = GLES30.glCreateShader(type);
-
-        // add the source code to the shader and compile it
-        GLES30.glShaderSource(shader, shaderCode);
-        GLES30.glCompileShader(shader);
-
-        int[] status = new int[1];
-        GLES30.glGetShaderiv(shader, GLES30.GL_COMPILE_STATUS, status, 0);// 获取验证的状态
-//        if (status[0] == 0) {
-//            String error = GLES30.glGetShaderInfoLog(shader);
-//            GLES30.glDeleteShader(shader);
-//            Log.v("Error:", "validate shader program: " + error);
-//        }
-        Log.v("Error:", "validate shader program: " + GLES30.glGetShaderInfoLog(shader));
-
-
-        return shader;
-    }
 
     private void createTexture(){
 
-        if(mBitmap!=null&&!mBitmap.isRecycled()){
+        if(mBitmap!=null && !mBitmap.isRecycled()){
 
             //生成纹理
             GLES30.glGenTextures(1,texture,0);

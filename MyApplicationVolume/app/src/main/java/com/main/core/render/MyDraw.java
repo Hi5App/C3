@@ -10,18 +10,10 @@ import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 
+import static com.main.core.render.ShaderHelper.initShaderProgram;
+
 public class MyDraw {
-
-//    public final static float[][] colormap = {
-//            {0f,0f,0f},
-//            {1f,1f,1f},
-//            {1f,0f,0f},
-//            {0f,0f,1f},
-//            {0f,1f,0f},
-//            {1f,0f,1f},
-//            {1f,1f,0f}
-//    } ;
-
+    private static final String TAG = "MyDraw";
 
     public final static float[][] colormap = {
             {1f,1f,1f},                        //white
@@ -155,9 +147,6 @@ public class MyDraw {
     private static int normalizePoints_handle = 1;
     private static int colorPoints_handle = 2;
 
-
-//    private float[] normalizePoints_marker = createNormlizes();
-
     private static final String vertexShaderCode_line =
             // This matrix member variable provides a hook to manipulate
             // the coordinates of the objects that use this vertex shader
@@ -257,8 +246,7 @@ public class MyDraw {
                     "  FragColor = vOutColor;"+
                     "}";
 
-    //draw points
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // draw points ------------------------------------------------------------------------------
     private static final String vertexShaderCode_points =
             "#version 300 es\n" +
                     "layout (location = 0) in vec4 vPosition;\n" +
@@ -282,19 +270,19 @@ public class MyDraw {
 
     public static void initProgram(){
         //for the marker
-        mProgram_marker = initProgram(vertexShaderCode_marker, fragmentShaderCode_maeker);
-        Log.v("MyDraw", "init the mProgram_marker");
+        mProgram_marker = initShaderProgram(TAG, vertexShaderCode_marker, fragmentShaderCode_maeker);
+        Log.v(TAG,"mProgram_marker: " + mProgram_marker);
 
         //for the line
-        mProgram_line = initProgram(vertexShaderCode_line, fragmentShaderCode_line);
-        Log.v("MyDraw", "init the mProgram_line");
+        mProgram_line = initShaderProgram(TAG, vertexShaderCode_line, fragmentShaderCode_line);
+        Log.v(TAG, "mProgram_line: " + mProgram_line);
 
         //for the points
-        mProgram_points = initProgram(vertexShaderCode_points, fragmentShaderCode_points);
-        Log.v("MyDraw", "init the mProgram_points");
+        mProgram_points = initShaderProgram(TAG, vertexShaderCode_points, fragmentShaderCode_points);
+        Log.v(TAG, "mProgram_points: " + mProgram_points);
 
-        mProgram_game = initProgram(vertexShaderCode_game, fragmentShaderCode_game);
-        Log.v("MyDraw", "init the mProgram_game");
+        mProgram_game = initShaderProgram(TAG, vertexShaderCode_game, fragmentShaderCode_game);
+        Log.v(TAG, "mProgram_game: " + mProgram_game);
 
     }
 
@@ -409,7 +397,7 @@ public class MyDraw {
         vertexBuffer_marker.put(vertexPoints_marker);
         vertexBuffer_marker.position(0);
 
-        colorPoints_marker = new float[vertexPoints_marker.length];//colormap[type];
+        colorPoints_marker = new float[vertexPoints_marker.length]; //colormap[type];
         for(int i=0; i<colorPoints_marker.length; i++){
             colorPoints_marker[i] = colormap[type % 8][i % 3];
         }
@@ -603,14 +591,10 @@ public class MyDraw {
     }
 
     public void drawMarker(float[] mvpMatrix, float[] modelMatrix, float x, float y, float z, int type, float radius){
-//        System.out.println("set marker");
 
         BufferSet_Marker(x, y, z, type, radius);
 
-//        System.out.println("set marker end");
-
         GLES30.glDisable(GLES30.GL_DEPTH_TEST);
-
         GLES30.glUseProgram(mProgram_marker);
 
 
@@ -632,7 +616,7 @@ public class MyDraw {
         GLES30.glEnableVertexAttribArray(normalizePoints_handle);
 
         //准备颜色数据
-        GLES30.glVertexAttribPointer(colorPoints_handle,3,GLES30.GL_FLOAT, false, 0,colorBuffer_marker);
+        GLES30.glVertexAttribPointer(colorPoints_handle,3,GLES30.GL_FLOAT, false, 0, colorBuffer_marker);
         GLES30.glEnableVertexAttribArray(colorPoints_handle);
 
 
@@ -880,74 +864,8 @@ public class MyDraw {
 //    }
 
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    //创建着色器程序
-    private static int initProgram(String vertShaderCode, String fragmShaderCode){
 
-        //加载着色器
-        int vertexShader = loadShader(GLES30.GL_VERTEX_SHADER,
-                vertShaderCode);
-        int fragmentShader = loadShader(GLES30.GL_FRAGMENT_SHADER,
-                fragmShaderCode);
-
-        Log.v("vertexShader", Integer.toString(vertexShader));
-
-        Log.v("fragmentShader", Integer.toString(fragmentShader));
-
-
-        // create empty OpenGL ES Program
-        int mProgram = GLES30.glCreateProgram();
-
-        // add the vertex shader to program
-        GLES30.glAttachShader(mProgram, vertexShader);
-
-        // add the fragment shader to program
-        GLES30.glAttachShader(mProgram, fragmentShader);
-
-        // creates OpenGL ES program executables
-        GLES30.glLinkProgram(mProgram);
-
-
-        GLES30.glValidateProgram(mProgram); // 让OpenGL来验证一下我们的shader program，并获取验证的状态
-        int[] status = new int[1];
-        GLES30.glGetProgramiv(mProgram, GLES30.GL_VALIDATE_STATUS, status, 0);                                  // 获取验证的状态
-        Log.d("Program:", "validate shader----program: " + GLES30.glGetProgramInfoLog(mProgram));
-
-        return mProgram;
-
-    }
-
-
-
-
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    //加载着色器
-    private static int loadShader(int type, String shaderCode){
-
-        // create a vertex shader type (GLES30.GL_VERTEX_SHADER)
-        // or a fragment shader type (GLES30.GL_FRAGMENT_SHADER)
-        int shader = GLES30.glCreateShader(type);
-
-        // add the source code to the shader and compile it
-        GLES30.glShaderSource(shader, shaderCode);
-        GLES30.glCompileShader(shader);
-
-        int[] status = new int[1];
-        GLES30.glGetShaderiv(shader, GLES30.GL_COMPILE_STATUS, status, 0);// 获取验证的状态
-//        if (status[0] == 0) {
-//            String error = GLES30.glGetShaderInfoLog(shader);
-//            GLES30.glDeleteShader(shader);
-//            Log.v("Error:", "validate shader program: " + error);
-//        }
-        Log.v("Error:", "validate shader program: " + GLES30.glGetShaderInfoLog(shader));
-
-
-        return shader;
-    }
-
-
-
+    // set the positions for markers
     private float[]  createPositions(float x, float y, float z, float r){
 
         int step = 2;

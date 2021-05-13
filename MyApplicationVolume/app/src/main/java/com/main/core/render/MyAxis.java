@@ -7,11 +7,11 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+import static com.main.core.render.ShaderHelper.initShaderProgram;
 
 public class MyAxis {
 
     private static final String TAG = "MyAxis";
-
     private static int mProgram_axis;
     private static int mProgram_border;
 
@@ -27,41 +27,7 @@ public class MyAxis {
     private boolean isNeedRelease = false;
 
 
-    //坐标系
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-//    private final float[] vertexAxis={
-//            // x axis
-//            0.0f, 0.0f, 0.0f,
-//            1.1f, 0.0f, 0.0f,
-//
-//            // y axis
-//            0.0f, 0.0f, 0.0f,
-//            0.0f, 1.1f, 0.0f,
-//
-//            // z axis
-//            0.0f, 0.0f, 0.0f,
-//            0.0f, 0.0f, 1.1f,
-//
-//    };
-
-
-
-//    private final float[] vertexAxis={
-//            // x axis
-//            1.0f - 0.0f, 1.0f - 0.0f, 0.0f,
-//            1.0f - 1.1f, 1.0f - 0.0f, 0.0f,
-//
-//            // y axis
-//            1.0f - 0.0f, 1.0f - 0.0f, 0.0f,
-//            1.0f - 0.0f, 1.0f - 1.1f, 0.0f,
-//
-//            // z axis
-//            1.0f - 0.0f, 1.0f - 0.0f, 0.0f,
-//            1.0f - 0.0f, 1.0f - 0.0f, 1.1f,
-//
-//    };
-
+    // Axis -----------------------------------------------------------------
 
     private final float[] colorAxis={
             // x axis
@@ -79,19 +45,6 @@ public class MyAxis {
     };
 
 
-//    private final float[] vertexBorder= {
-//            // x axis
-//            0f, 0f, 0f,  // num 0
-//            0f, 0f, 1f,  // num 1
-//            0f, 1f, 0f,  // num 2
-//            0f, 1f, 1f,  // num 3
-//            1f, 0f, 0f,  // num 4
-//            1f, 1f, 0f,  // num 5
-//            1f, 0f, 1f,  // num 6
-//            1f, 1f, 1f,  // num 7
-//    };
-
-
     private final short[] BorderList= {
             0, 1,   0, 2,   0, 4,
             6, 1,   6, 4,   6, 7,
@@ -101,8 +54,7 @@ public class MyAxis {
 
 
 
-    //draw the axis
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // draw the axis -----------------------------------------------------------------
     private static final String vertexShaderCode_axis =
             "#version 300 es\n" +
                     "layout (location = 0) in vec4 vPosition;\n" +
@@ -133,18 +85,15 @@ public class MyAxis {
 
 
 
-    //draw the border
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    // draw the border -----------------------------------------------------------------
     private static final String vertexShaderCode_border =
             "#version 300 es\n" +
                     "layout (location = 0) in vec4 vPosition;\n" +
-
                     "uniform mat4 uMVPMatrix;" +
 
                     "void main() {\n" +
                     "     gl_Position  = uMVPMatrix * vPosition;\n" +
-//                    "     gl_Position  = vec4((uMVPMatrix * vPosition).xy, -1.0, 1.0);\n" +
-
                     "     gl_PointSize = 10.0;\n" +
                     "}\n";
 
@@ -155,25 +104,23 @@ public class MyAxis {
 
                     "out vec4 fragColor;\n" +
                     "void main() {\n" +
-//                    "     fragColor = outColor;\n" +
                     "     fragColor = vec4(0.75, 0.75, 0.75,1.0);\n" +
                     "}\n";
 
 
     public static void initProgram(){
 
-        mProgram_axis = initProgram(vertexShaderCode_axis, fragmentShaderCode_axis);
-        Log.v("mProgram_line", Integer.toString(mProgram_axis));
+        mProgram_axis = initShaderProgram(TAG, vertexShaderCode_axis, fragmentShaderCode_axis);
+        Log.v(TAG, "mProgram_axis: " + Integer.toString(mProgram_axis));
 
-        mProgram_border = initProgram(vertexShaderCode_border, fragmentShaderCode_border);
-        Log.v("mProgram_border", Integer.toString(mProgram_border));
+        mProgram_border = initShaderProgram(TAG, vertexShaderCode_border, fragmentShaderCode_border);
+        Log.v(TAG, "mProgram_border: " + Integer.toString(mProgram_border));
     }
 
 
     public MyAxis(float[] dim){
 
         setPoints(dim);
-
         BufferSet();
 
     }
@@ -241,20 +188,11 @@ public class MyAxis {
         // Pass the projection and view transformation to the shader
         GLES30.glUniformMatrix4fv(vPMatrixHandle_axis, 1, false, mvpMatrix, 0);
 
-        //绘制三个点
-//        GLES30.glLineWidth(10);
+        // 绘制三个点
         GLES30.glLineWidth(5);
         GLES30.glDrawArrays(GLES30.GL_LINES, 0, 6);
 
-
-        //绘制直线
-//        GLES30.glDrawArrays(GLES30.GL_LINE_STRIP, 0, 2);
-//        GLES30.glLineWidth(10);
-
-//        //绘制三角形
-//        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 3);
-
-        //禁止顶点数组的句柄
+        // 禁止顶点数组的句柄
         GLES30.glDisableVertexAttribArray(0);
         GLES30.glDisableVertexAttribArray(1);
 
@@ -357,75 +295,6 @@ public class MyAxis {
         ListBuffer_border.clear();
         ListBuffer_border = null;
 
-    }
-
-
-
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    //创建着色器程序
-    private static int initProgram(String vertShaderCode, String fragmShaderCode){
-
-        //加载着色器
-        int vertexShader = loadShader(GLES30.GL_VERTEX_SHADER,
-                vertShaderCode);
-        int fragmentShader = loadShader(GLES30.GL_FRAGMENT_SHADER,
-                fragmShaderCode);
-
-        Log.v("vertexShader", Integer.toString(vertexShader));
-
-        Log.v("fragmentShader", Integer.toString(fragmentShader));
-
-
-        // create empty OpenGL ES Program
-        int mProgram = GLES30.glCreateProgram();
-
-        // add the vertex shader to program
-        GLES30.glAttachShader(mProgram, vertexShader);
-
-        // add the fragment shader to program
-        GLES30.glAttachShader(mProgram, fragmentShader);
-
-        // creates OpenGL ES program executables
-        GLES30.glLinkProgram(mProgram);
-
-
-        GLES30.glValidateProgram(mProgram); // 让OpenGL来验证一下我们的shader program，并获取验证的状态
-        int[] status = new int[1];
-        GLES30.glGetProgramiv(mProgram, GLES30.GL_VALIDATE_STATUS, status, 0);                                  // 获取验证的状态
-        Log.d("Program:", "validate shader----program: " + GLES30.glGetProgramInfoLog(mProgram));
-
-        return mProgram;
-
-    }
-
-
-
-
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    //加载着色器
-    private static int loadShader(int type, String shaderCode){
-
-        // create a vertex shader type (GLES30.GL_VERTEX_SHADER)
-        // or a fragment shader type (GLES30.GL_FRAGMENT_SHADER)
-        int shader = GLES30.glCreateShader(type);
-
-        // add the source code to the shader and compile it
-        GLES30.glShaderSource(shader, shaderCode);
-        GLES30.glCompileShader(shader);
-
-        int[] status = new int[1];
-        GLES30.glGetShaderiv(shader, GLES30.GL_COMPILE_STATUS, status, 0);// 获取验证的状态
-//        if (status[0] == 0) {
-//            String error = GLES30.glGetShaderInfoLog(shader);
-//            GLES30.glDeleteShader(shader);
-//            Log.v("Error:", "validate shader program: " + error);
-//        }
-        Log.v("Error:", "validate shader program: " + GLES30.glGetShaderInfoLog(shader));
-
-
-        return shader;
     }
 
 
