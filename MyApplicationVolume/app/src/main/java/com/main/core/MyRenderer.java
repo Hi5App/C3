@@ -490,7 +490,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         }
 
                         if (ifGame) {
-                            Log.v("MyRenderer","ifGame  ondrawframe");
+
 //                            myPattern = new MyPattern(screen_w, screen_h, img, mz, MyPattern.Mode.GAME);
                             myPatternGame = new MyPatternGame(screen_w, screen_h, img, mz, sz);
                             removeWhileLoad();
@@ -570,7 +570,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 if (ifShowSWC) {
 
                     if (curSwcList.nsegs() > 0) {
-                        Log.d("onDrawFrame", "curSwcList.nsegs(): " + curSwcList.nsegs());
+
 //                  System.out.println("------------draw curswclist------------------------");
                         ArrayList<Float> lines = new ArrayList<Float>();
                         for (int i = 0; i < curSwcList.seg.size(); i++) {
@@ -604,7 +604,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                 }
                                 V_NeuronSWC_unit parent = swcUnitMap.get(j);
                                 if (parent == null){
-                                    Log.d("ShowSWC: ", "Parent == null");
+
                                     continue;
                                 }
                                 lines.add((float) ((sz[0] - parent.x) / sz[0] * mz[0]));
@@ -708,20 +708,20 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
                 if (ifGame){
                     setGameModelMatrix();
-                    Log.v("onDrawFrame", "DrawGameModel");
+
                     float [] position = gameCharacter.getPosition();
                     float [] dir = gameCharacter.getPosition().clone();
                     float [] head = gameCharacter.getHead().clone();
                     normalize(dir);
                     normalize(head);
                     float [] positionModel = position;
-                    Log.v("onDrawFrame", Arrays.toString(positionModel));
+
 //                    myDraw.drawMarker(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
                     myDraw.drawGameModel(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, dir, head);
                     myDraw.drawMarkerDepth(finalSmallMapMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
 
                     for (int i = 0; i < gameFlags.size() / 3; i++){
-                        Log.d(TAG, "drawGameFlag");
+
                         myPatternGame.drawFlag(finalMatrix, new float[]{gameFlags.get(i * 3), gameFlags.get(i * 3 + 1), gameFlags.get(i * 3 + 2)}, i+1);
                     }
 
@@ -815,7 +815,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
                             if (imgPath[0] != null)
                             {
-                                Log.v("Share","save screenshot to " + imgPath[0]);
+
 
                                 Intent shareIntent = new Intent();
                                 String imageUri = insertImageToSystem(context_myrenderer, imgPath[0]);
