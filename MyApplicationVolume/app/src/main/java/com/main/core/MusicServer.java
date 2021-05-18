@@ -18,7 +18,7 @@ public class MusicServer extends Service {
 
     private static MediaPlayer bgmPlayer;
 
-    private static float volume = 1;
+    private static float volume = 0;
 
     public static final String CHANNEL_ID_STRING = "service_01";
 

@@ -403,7 +403,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private static String conPath = "";
 
-    private float bgmVolume = 1.0f;
+    private float bgmVolume = 0f;
     private float buttonVolume = 1.0f;
     private float actionVolume = 1.0f;
     private boolean firstLoad = true;
@@ -3589,7 +3589,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210517a 22:32 UTC+8 build",
+                                "Version: 20210518a 11:28 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
