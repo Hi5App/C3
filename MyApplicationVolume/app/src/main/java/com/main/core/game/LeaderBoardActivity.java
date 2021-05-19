@@ -64,9 +64,10 @@ public class LeaderBoardActivity extends AppCompatActivity {
     }
 
     private void initLeaderBoardItems(){
-        leaderBoardItemList.clear();
-        for (int i = 0; i < leaderBoardItems.length; i++){
-            leaderBoardItemList.add(leaderBoardItems[i]);
-        }
+        LeaderBoardContainer leaderBoardContainer = LeaderBoardContainer.getInstance();
+        leaderBoardItemList = leaderBoardContainer.getLeaderBoardItems();
+//        for (int i = 0; i < leaderBoardItems.length; i++){
+//            leaderBoardItemList.add(leaderBoardItems[i]);
+//        }
     }
 }

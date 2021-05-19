@@ -96,6 +96,8 @@ import com.main.core.fileReader.imageReader.BigImgReader;
 import com.main.core.game.AchievementPopup;
 import com.main.core.game.DailyQuestsContainer;
 import com.main.core.game.LeaderBoardActivity;
+import com.main.core.game.LeaderBoardContainer;
+import com.main.core.game.LeaderBoardItem;
 import com.main.core.game.QuestActivity;
 import com.main.core.game.RewardActivity;
 import com.main.core.game.RewardLitePalConnector;
@@ -121,6 +123,7 @@ import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.uinfo.UserService;
+import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
 import com.tracingfunc.app2.ParaAPP2;
 import com.tracingfunc.app2.V3dNeuronAPP2Tracing;
 import com.tracingfunc.gd.CurveTracePara;
@@ -635,6 +638,60 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         for collaboration -------------------------------------------------------------------
          */
 
+        if (msg.startsWith("GETFIRSTK:")){
+            Log.d(TAG, msg);
+            if (msg.split(":").length > 1) {
+                String body = msg.split(":")[1];
+                String [] accountsWithScore = body.split(";");
+                Log.d(TAG, "accountsWithScore: " + accountsWithScore.length);
+                Log.d(TAG, "accountsWithScore: " + accountsWithScore);
+
+                if (accountsWithScore.length % 2 == 0) {
+                    ArrayList<String> accounts = new ArrayList<>();
+                    for (int i = 0; i < accountsWithScore.length / 2; i++) {
+                        accounts.add(accountsWithScore[i * 2]);
+                    }
+                    ArrayList<LeaderBoardItem> leaderBoardItems = new ArrayList<>();
+
+                    NIMClient.getService(UserService.class).fetchUserInfo(accounts).setCallback(new RequestCallback<List<NimUserInfo>>() {
+                        @Override
+                        public void onSuccess(List<NimUserInfo> param) {
+                            if (param.size() == accounts.size()) {
+                                for (int i = 0; i < param.size(); i++) {
+                                    leaderBoardItems.add(new LeaderBoardItem(accountsWithScore[i * 2], param.get(i).getName(), Integer.parseInt(accountsWithScore[i * 2 + 1])));
+                                }
+                            } else {
+                                postMessage("LeaderBoard Account Error");
+                            }
+                        }
+
+                        @Override
+                        public void onFailed(int code) {
+                            postMessage("LeaderBoard Account Error");
+
+                        }
+
+                        @Override
+                        public void onException(Throwable exception) {
+                            postMessage("LeaderBoard Account Error");
+
+                        }
+                    });
+                    LeaderBoardContainer leaderBoardContainer = LeaderBoardContainer.getInstance();
+                    leaderBoardContainer.setLeaderBoardItems(leaderBoardItems);
+                } else {
+                    Toast_in_Thread_static("LeaderBoard Message Error");
+                }
+            } else {
+                Toast_in_Thread_static("LeaderBoard Message Error");
+            }
+        }
+    }
+
+    private void postMessage(String message) {
+        Message msg = Message.obtain();
+        msg.what = 8;
+        msg.obj = message;
     }
 
 
@@ -1707,6 +1764,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         initDataBase();
 
+        new Thread(){
+            @Override
+            public void run() {
+                getLeaderBoard();
+            }
+        }.start();
+
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
@@ -1883,6 +1947,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         if (score == 0)
             return;
         ServerConnector.getInstance().sendMsg("SETSOCRE:" + score);
+    }
+
+    public static void getLeaderBoard(){
+        ServerConnector.getInstance().sendMsg("GETFIRSTK:3");
     }
 
 
@@ -3384,7 +3452,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public void More_icon(){
 
         new XPopup.Builder(this)
-                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "About", "Account Name", "Help", "Quests", "Reward"},
+                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "About", "Account Name", "Help", "Quests", "Reward", "LeaderBoard"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -3589,7 +3657,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210518a 11:28 UTC+8 build",
+                                "Version: 20210519a 16:59 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
