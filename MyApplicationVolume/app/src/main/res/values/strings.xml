@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Hi 5</string>
+    <string name="app_name">Hi 5 stand-alone</string>
     <string name="Button">Local</string>
     <string name="Button_remote">Remote</string>
     <string name="text">filename</string>

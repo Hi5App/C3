@@ -2,7 +2,6 @@ package com.tracingfunc.gd;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -71,9 +70,9 @@ public class Graph {
             }
 
             count++;
-            if (count % 500 == 0){
-                System.out.println(count);
-            }
+//            if (count % 500 == 0){
+//                System.out.println(count);
+//            }
         }
     }
 

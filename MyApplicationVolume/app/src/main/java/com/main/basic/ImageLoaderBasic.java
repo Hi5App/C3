@@ -1,6 +1,5 @@
 package com.main.basic;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
 
 public class ImageLoaderBasic {
@@ -36,7 +35,9 @@ public class ImageLoaderBasic {
 
     public Image4DSimple loadRaw2StackPBD(InputStream is, long fileSize, boolean useThreading) {
 
-        FileInputStream fid = (FileInputStream)(is);
+//        FileInputStream fid = (FileInputStream)(is);
+
+        InputStream fid = is;
 
         Image4DSimple image = new Image4DSimple();
 

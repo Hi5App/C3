@@ -17,7 +17,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-import static com.main.core.Myapplication.getContext;
+import static com.main.core.MyApplication.getContext;
 import static com.main.core.render.ShaderHelper.initShaderProgram;
 
 

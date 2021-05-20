@@ -261,9 +261,9 @@ public class V3dNeuronAPP2Tracing {
                 for (int j=0;j<sz1;j++)
                     for (int i=0;i<sz0;i++)
                     {
-                        if(phi[k][j][i]>100){
-                            out.println(i +" "+ j + " "+ k+ " : "+phi[k][j][i]);
-                        }
+//                        if(phi[k][j][i]>100){
+//                            out.println(i +" "+ j + " "+ k+ " : "+phi[k][j][i]);
+//                        }
                         if(phi[k][j][i] > max_val){
                             max_val = phi[k][j][i];
                             max_loc[0] = i;

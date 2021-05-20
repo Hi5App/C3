@@ -26,19 +26,15 @@
         android:name="com.main.core.permission.RECEIVE_MSG"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.main.core.permission.RECEIVE_MSG" /> <!-- <uses-permission android:name="android.permission.INTERNET" /> -->
-    <!-- <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> -->
-    <!-- <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> -->
+    <uses-permission android:name="com.main.core.permission.RECEIVE_MSG" />
     <uses-permission
         android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"
-        tools:ignore="ProtectedPermissions" /> <!-- <uses-permission android:name="android.permission.CAMERA" /> -->
-    <!-- <uses-permission android:name="android.permission.RECORD_AUDIO" /> -->
-    <!-- <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> -->
+        tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
-        android:name="com.main.core.Myapplication"
+        android:name="com.main.core.MyApplication"
         android:allowBackup="true"
         android:exported="true"
         android:icon="@mipmap/ic_launcher"
@@ -51,50 +47,15 @@
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
-        <activity android:name="com.main.core.game.RewardActivity"></activity>
-        <activity android:name="com.main.core.game.LeaderBoardActivity" />
-        <activity
-            android:name="com.main.core.game.QuestActivity"
-            android:theme="@style/dialog_style" />
-        <activity android:name="com.main.core.MenuActivity" />
-
 
         <!--
          APP key, 可以在这里设置，也可以在 SDKOptions 中提供。
            如果 SDKOptions 中提供了，则取 SDKOptions 中的值。
         -->
-        <!-- <meta-data -->
-        <!-- android:name="com.netease.nim.appKey" -->
-        <!-- android:value="0fda06baee636802cb441b62e6f65549" /> &lt;!&ndash; <activity &ndash;&gt; -->
-        <!-- Hi 5 Test -->
         <meta-data
             android:name="com.netease.nim.appKey"
-            android:value="337591b817815b770bc6b7551bb90b28" /> <!-- <activity -->
-        <!-- android:name="com.example.myapplication__volume.WelcomeActivity" -->
-        <!-- android:label="@string/app_name"> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.intent.action.MAIN" /> -->
-        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-        <!-- </intent-filter> -->
-        <!-- </activity> -->
-        <activity android:name="com.main.chat.nim.main.activity.SystemMessageActivity" />
-        <activity android:name="com.main.chat.nim.contact.activity.RobotProfileActivity" />
-        <activity android:name="com.main.chat.nim.contact.activity.UserProfileActivity" />
-        <activity android:name="com.main.chat.nim.contact.activity.UserProfileEditItemActivity" />
-        <activity android:name="com.main.chat.nim.contact.activity.UserProfileSettingActivity" />
-        <activity android:name="com.main.chat.nim.session.activity.FileDownloadActivity" />
-        <activity android:name="com.main.chat.nim.session.activity.MessageHistoryActivity" />
-        <activity android:name="com.main.chat.nim.session.activity.MessageInfoActivity" />
-        <activity android:name="com.main.chat.nim.session.activity.WatchMultiRetweetActivity" />
-        <activity android:name="com.main.chat.nim.session.search.DisplayMessageActivity" />
-        <activity android:name="com.main.chat.nim.session.search.SearchMessageActivity" />
-        <activity android:name="com.main.chat.nim.file.browser.FileBrowserActivity" />
-        <activity android:name="com.main.chat.nim.contact.activity.BlackListActivity" />
-        <activity android:name="com.main.chat.nim.main.activity.CustomNotificationActivity" />
-        <activity android:name="com.main.chat.nim.main.activity.RobotListActivity" />
-        <activity android:name="com.main.chat.nim.main.activity.TeamListActivity" />
-        <activity android:name="com.main.chat.nim.main.activity.SettingsActivity" />
-        <activity android:name="com.main.chat.nim.main.activity.NoDisturbActivity" />
+            android:value="337591b817815b770bc6b7551bb90b28" />
+
         <activity
             android:name="com.main.core.SplashScreenActivity"
             android:configChanges="keyboardHidden|orientation"
@@ -109,17 +70,7 @@
                 <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.main.chat.ChatActivity"
-            android:label="@string/app_name" />
-        <activity
-            android:name="com.main.core.ui.login.RegisterActivity"/>
-        <activity
-            android:name="com.main.core.ui.login.LoginActivity">
-        </activity>
-        <activity
-            android:name="com.main.core.GameActivity"
-            android:screenOrientation="landscape" />
+
         <activity android:name="com.main.core.HelpActivity" />
         <activity
             android:name="com.main.core.MainActivity"
@@ -128,29 +79,8 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan">
-
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
         </activity>
 
-
-        <activity
-            android:name="com.main.chat.agora.activity.PeerToPeerVideoActivity">
-        </activity>
-
-
-        <activity
-            android:name="com.main.chat.agora.activity.PeerToPeerVoiceActivity">
-        </activity>
-
-        <!-- 协同工作通信服务 -->
-        <service
-            android:name="com.main.chat.agora.AgoraService"
-            android:exported="false" />
 
 
         <!-- 背景音乐后台服务 -->
@@ -159,54 +89,7 @@
             android:enabled="true"
             android:exported="true" />
 
-        <!-- 协同工作通信服务 -->
-        <service
-            android:name="com.main.core.collaboration.service.ManageService"
-            android:exported="false" />
 
-
-        <!-- 协同工作通信服务 -->
-        <service
-            android:name="com.main.core.collaboration.service.CollaborationService"
-            android:exported="false" />
-
-
-        <!-- 云信后台服务，请使用独立进程。 -->
-        <service
-            android:name="com.netease.nimlib.service.NimService"
-            android:exported="false"
-            android:process=":core" /> <!-- 云信后台辅助服务 -->
-        <service
-            android:name="com.netease.nimlib.service.NimService$Aux"
-            android:exported="false"
-            android:process=":core" /> <!-- 云信后台辅助服务 -->
-        <service
-            android:name="com.netease.nimlib.job.NIMJobService"
-            android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:process=":core" /> <!-- 云信监视系统启动和网络变化的广播接收器，保持和 NimService 同一进程 -->
-        <receiver
-            android:name="com.netease.nimlib.service.NimReceiver"
-            android:exported="false"
-            android:process=":core">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-            </intent-filter>
-        </receiver> <!-- 云信进程间通信 Receiver -->
-        <receiver android:name="com.netease.nimlib.service.ResponseReceiver" /> <!-- 云信进程间通信service -->
-        <service android:name="com.netease.nimlib.service.ResponseService" /> <!-- 云信进程间通信provider -->
-        <provider
-            android:name="com.netease.nimlib.ipc.NIMContentProvider"
-            android:authorities="com.main.core.ipc.provider"
-            android:exported="false"
-            android:process=":core" /> <!-- 云信内部使用的进程间通信provider -->
-        <!-- SDK启动时会强制检测该组件的声明是否配置正确，如果检测到该声明不正确，SDK会主动抛出异常引发崩溃 -->
-        <provider
-            android:name="com.netease.nimlib.ipc.cp.provider.PreferenceContentProvider"
-            android:authorities="com.main.core.ipc.provider.preference"
-            android:exported="false"
-            tools:replace="android:authorities" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.main.core.provider"

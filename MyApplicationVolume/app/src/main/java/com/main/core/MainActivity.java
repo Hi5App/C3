@@ -3,20 +3,15 @@ package com.main.core;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.net.Uri;
@@ -25,7 +20,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
@@ -35,16 +29,13 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
@@ -64,74 +55,27 @@ import com.learning.pixelclassification.PixelClassification;
 import com.learning.randomforest.RandomForest;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
-import com.lxj.xpopup.enums.PopupAnimation;
 import com.lxj.xpopup.enums.PopupPosition;
-import com.lxj.xpopup.interfaces.OnCancelListener;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
-import com.lxj.xpopup.interfaces.OnInputConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.main.basic.CrashHandler;
 import com.main.basic.FileManager;
 import com.main.basic.Image4DSimple;
 import com.main.basic.ImageMarker;
 import com.main.basic.LocationSimple;
+import com.main.basic.NeuronSWC;
 import com.main.basic.NeuronTree;
-import com.main.chat.ChatActivity;
-import com.main.chat.agora.AgoraService;
-import com.main.chat.agora.message.AgoraMsgManager;
-import com.main.chat.nim.InfoCache;
-import com.main.chat.nim.main.helper.SystemMessageUnreadManager;
-import com.main.chat.nim.reminder.ReminderManager;
-import com.main.chat.nim.session.extension.InviteAttachment;
-import com.main.core.collaboration.Communicator;
-import com.main.core.collaboration.basic.ReceiveMsgInterface;
-import com.main.core.collaboration.connector.MsgConnector;
-import com.main.core.collaboration.connector.ServerConnector;
-import com.main.core.collaboration.service.BasicService;
-import com.main.core.collaboration.service.CollaborationService;
-import com.main.core.collaboration.service.ManageService;
 import com.main.core.fileReader.annotationReader.AnoReader;
 import com.main.core.fileReader.annotationReader.ApoReader;
 import com.main.core.fileReader.imageReader.BigImgReader;
-import com.main.core.game.AchievementPopup;
-import com.main.core.game.DailyQuestsContainer;
-import com.main.core.game.LeaderBoardActivity;
-import com.main.core.game.QuestActivity;
-import com.main.core.game.RewardActivity;
-import com.main.core.game.RewardLitePalConnector;
-import com.main.core.game.Score;
-import com.main.core.game.ScoreLitePalConnector;
-import com.main.core.ui.login.LoginActivity;
-import com.main.dataStore.PreferenceLogin;
 import com.main.dataStore.SettingFileManager;
-import com.main.serverCommunicator.Remote_Socket;
-import com.netease.nim.uikit.api.NimUIKit;
-import com.netease.nim.uikit.common.ui.imageview.CircleImageView;
-import com.netease.nimlib.sdk.NIMClient;
-import com.netease.nimlib.sdk.Observer;
-import com.netease.nimlib.sdk.RequestCallback;
-import com.netease.nimlib.sdk.auth.AuthService;
-import com.netease.nimlib.sdk.friend.FriendService;
-import com.netease.nimlib.sdk.msg.MessageBuilder;
-import com.netease.nimlib.sdk.msg.MsgService;
-import com.netease.nimlib.sdk.msg.MsgServiceObserve;
-import com.netease.nimlib.sdk.msg.SystemMessageObserver;
-import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
-import com.netease.nimlib.sdk.uinfo.UserService;
 import com.tracingfunc.app2.ParaAPP2;
 import com.tracingfunc.app2.V3dNeuronAPP2Tracing;
 import com.tracingfunc.gd.CurveTracePara;
 import com.tracingfunc.gd.V3dNeuronGDTracing;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_list;
-import com.tracingfunc.gsdt.GSDT;
-import com.tracingfunc.gsdt.ParaGSDT;
 import com.warkiz.widget.IndicatorSeekBar;
-
-import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -140,16 +84,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -160,44 +101,25 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import cn.carbs.android.library.MDDialog;
-import io.agora.rtm.ErrorInfo;
-import io.agora.rtm.ResultCallback;
-import io.agora.rtm.RtmClientListener;
 
-import static com.main.core.Myapplication.ToastEasy;
-import static com.main.dataStore.SettingFileManager.getFilename_Remote;
-import static com.main.dataStore.SettingFileManager.getSelectSource;
-import static com.main.dataStore.SettingFileManager.getUserAccount_Check;
-import static com.main.dataStore.SettingFileManager.getoffset_Remote;
-import static com.main.dataStore.SettingFileManager.setFilename_Remote;
+import static com.main.core.MyApplication.ToastEasy;
 import static com.main.dataStore.SettingFileManager.setSelectSource;
-import static com.main.dataStore.SettingFileManager.setoffset_Remote;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
-//import org.opencv.android.OpenCVLoader;
 
-
-public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
-    //    private int UNDO_LIMIT = 5;
-//    private enum Operate {DRAW, DELETE, SPLIT};
-//    private Operate [] process = new Operate[UNDO_LIMIT];
+public class MainActivity extends BaseActivity {
     public static final String NAME = "com.example.core.MainActivity";
-
     public static final String File_path = "com.example.myfirstapp.MESSAGE";
     private static final String TAG = "MainActivity";
 
-    private Timer timer=null;
+    private Timer timer = null;
     private TimerTask timerTask;
 
 
     private static MyGLSurfaceView myGLSurfaceView;
     private static MyRenderer myrenderer;
-    private static final String DEBUG_TAG = "Gestures";
-    //    private static Context context;
     private static Context mainContext;
-    private long length;
-    private InputStream is;
     private String filepath = "";
     private boolean ifDeletingMultiMarker = false;
     private boolean ifChangeMarkerType = false;
@@ -206,7 +128,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private boolean ifImport = false;
     private boolean ifAnalyze = false;
     private boolean ifUpload = false;
-    //    private boolean ifSaveSwc = false;
+
     private boolean ifDeletingMarker = false;
     private boolean ifDeletingLine = false;
     private boolean ifSpliting = false;
@@ -220,34 +142,22 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private boolean[] temp_mode = new boolean[8];
 
     private boolean ifAnimation = false;
-    private Button buttonUndo;
-    private Button Draw;
-    private Button Tracing;
-    private Button Others;
     private static Button Zoom_in;
     private static Button Zoom_out;
-    private static Button Check_Yes;
-    private static Button Check_No;
-    private static Button Check_Uncertain;
+
     private static Button Zoom_in_Big;
     private static Button Zoom_out_Big;
-    private Button Rotation;
     private ImageButton Rotation_i;
     private ImageButton Hide_i;
     private static ImageButton Undo_i;
     private static ImageButton Redo_i;
-    private ImageButton Sync_i;
-    private Button Sync;
     private Button Switch;
-    private Button Remoteleft;
-    private Button Share;
     private ImageButton animation_i;
     private ImageButton draw_i;
     private ImageButton tracing_i;
     private ImageButton classify_i;
     private static TextView filenametext;
 
-    //    private ImageButton buttonUndo_i;
     private static ImageButton navigation_left;
     private static ImageButton navigation_right;
     private static ImageButton navigation_up;
@@ -255,19 +165,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static ImageButton navigation_location;
     private static Button navigation_front;
     private static Button navigation_back;
-//    private static Button blue_pen;
-//    private static Button red_pen;
-    private static Button res_list;
 
-    private static ImageButton user_list;
-    private static ImageButton room_id;
-
-//    private static ImageButton neuron_list;
-//    private static ImageButton sync_push;
-//    private static ImageButton sync_pull;
-
-//    private static FloatingActionButton Audio_call;
-//    private static DragFloatActionButton fab;
 
     private FrameLayout.LayoutParams lp_undo_i;
     private FrameLayout.LayoutParams lp_left_i;
@@ -277,20 +175,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private FrameLayout.LayoutParams lp_front_i;
     private FrameLayout.LayoutParams lp_back_i;
     private static FrameLayout.LayoutParams lp_nacloc_i;
-//    private static FrameLayout.LayoutParams lp_sync_push;
-//    private static FrameLayout.LayoutParams lp_sync_pull;
-//    private static FrameLayout.LayoutParams lp_neuron_list;
-//    private static FrameLayout.LayoutParams lp_blue_color;
-//    private static FrameLayout.LayoutParams lp_red_color;
+
     private static FrameLayout.LayoutParams lp_res_list;
-    private FrameLayout.LayoutParams lp_animation_i;
+    private static FrameLayout.LayoutParams lp_animation_i;
     private static FrameLayout.LayoutParams lp_undo;
     private static FrameLayout.LayoutParams lp_redo;
 
     private static FrameLayout.LayoutParams lp_room_id;
     private static FrameLayout.LayoutParams lp_user_list;
 
-    private Button PixelClassification;
     private boolean[][]select= {{true,true,true,false,false,false,false},
             {true,true,true,false,false,false,false},
             {false,false,false,false,false,false,false},
@@ -298,13 +191,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             {false,false,false,false,false,false,false},
             {true,true,true,false,false,false,false}};
 
-    private Button detectLineButton;
     private RandomForest rf = null;
 
 
-    //    private static RemoteImg remoteImg;
     @SuppressLint("StaticFieldLeak")
-    private static Remote_Socket remote_socket;
     private BigImgReader bigImgReader;
 
 
@@ -317,14 +207,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private int measure_count = 0;
     private List<double[]> fl;
 
-    private static boolean isBigData_Remote;
     private static boolean isBigData_Local;
     private static ProgressBar progressBar;
 
-    private CircleImageView wave;
-
-    private int eswc_length;
-    //读写权限
+    // permission code
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -337,17 +223,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
     private static final int TOAST_INFO_STATIC = 5;
 
-    //    private int Paintmode = 0;
     private ArrayList<Float> lineDrawed = new ArrayList<Float>();
 
-    private BroadcastReceiver broadcastReceiver;
-
-    private String currentPhotoPath; //指定一个不会跟其他文件产生冲突的文件名，用于后面相机拍照的图片的保存
+    private String currentPhotoPath; // 指定一个不会跟其他文件产生冲突的文件名，用于后面相机拍照的图片的保存
 
     private File showPic;
     private Uri picUri;
 
-    private static BasePopupView popupView;
 
     private static final int animation_id = 0;
     private int rotation_speed = 36;
@@ -356,305 +238,38 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private static String filename = "";
 
-    private static boolean DrawMode = true;
-
     private enum PenColor {
         WHITE, BLACK, RED, BLUE, PURPLE, CYAN, YELLOW, GREEN
     }
 
-    private enum VoicePattern {
-        PEER_TO_PEER, CHAT_ROOM, UNCERTAIN
-    }
-
-    private VoicePattern voicePattern = VoicePattern.UNCERTAIN;
-    private int chat_room_num = 0;
-
-    private static String[] push_info_swc = {"New", "New"};
-
     private BasePopupView drawPopupView;
-
-    private static boolean ifGame = false;
-
-    HashMap<Integer, String> User_Map = new HashMap<Integer, String>();
 
     public static String USERNAME = "username";
 
-    public static String username;
-
-    private RtmClientListener mClientListener;
-
-    private final String callMsgPattern = "##CallFrom.*##In##.*##";
-
-    private static float [] gamePositionForIntent = {0.5f, 0.5f, 0.5f};
-    private static float [] gameDirForIntent = {1, 1, 1};
-    private static float [] gameHeadForIntent = {1, 0, -1};
-    private static int gameLastIndexForIntent = -1;
-    private static boolean gameIfNewForIntent = true;
-    private static int gameScoreForIntent = 0;
     private SoundPool soundPool;
     private final int SOUNDNUM = 4;
     private int [] soundId;
 
-    private boolean mBoundAgora = false;
-    private boolean mBoundManagement = false;
-    private boolean mBoundCollaboration = false;
-
-    private int count = 0;
-
-    private static String conPath = "";
-
     private float bgmVolume = 0f;
     private float buttonVolume = 1.0f;
     private float actionVolume = 1.0f;
-    private boolean firstLoad = true;
-    private boolean firstJoinRoom = true;
-    private boolean copyFile = false;
-
-    private int score = 0;
-    private String scoreString = "00000";
-
-
-    private static TextView scoreText;
-
-    private int selectedBGM = 0;
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    @Override
-    public void onRecMessage(String msg) {
-
-        Log.e(TAG,"onRecMessage()  " + msg);
-
-        /*
-        select file
-         */
-        if (msg.startsWith("GETFILELIST:")){
-            LoadFiles(msg.split(":")[1]);
-        }
-
-
-
-        /*
-        After msg:  "LOADFILES:0 /17301/17301_00019/17301_00019_x20874.000_y23540.000_z7388.000.ano /17301/17301_00019/test_01_fx_lh_test.ano"
-
-        when the file is selected, room will be created, and collaborationService will be init, port is room number
-         */
-        if (msg.startsWith("Port:")){
-
-            if (msg.split(":")[1].equals("-1")){
-                Toast_in_Thread("Something wrong with this img, choose other img please !");
-                soundPool.play(soundId[3], actionVolume, actionVolume, 0, 0, 1.0f);
-                return;
-            }
-
-            initMsgConnector(msg.split(":")[1]);
-            if (firstJoinRoom){
-                initMsgService();
-                firstJoinRoom = false;
-            }else {
-
-                /*
-                reset the msg connect in collaboration service
-                 */
-                CollaborationService.resetConnection();
-            }
-
-            /*
-            when join the room, user should login first
-             */
-            MsgConnector.getInstance().sendMsg("/login:" + username);
-        }
-
-
-
-
-        /*
-        After msg:  "/login:xf"
-
-        server will send user list when the users in current room are changed
-         */
-        if (msg.startsWith("/users:")){
-
-            if (firstLoad || copyFile){
-                /*
-                when first join the room, try to get the image
-                 */
-                MsgConnector.getInstance().sendMsg("/ImageRes:" + Communicator.BrainNum);
-                firstLoad = false;
-                copyFile   = false;
-            }
-            /*
-            update the user list
-             */
-            String[] users = msg.split(":")[1].split(";");
-            List<String> newUserList = Arrays.asList(users);
-            updateUserList(newUserList);
-
-        }
-
-
-
-        /*
-        After msg:  "/ImageRes:18454"
-
-        process the img resolution info
-         */
-        if (msg.startsWith("ImgRes")){
-            Log.e(TAG,"msg: " + msg);
-            int resDefault = Math.min(2, Integer.parseInt(msg.split(";")[1]));
-            Communicator.getInstance().initImgInfo(null, Integer.parseInt(msg.split(";")[1]), resDefault, msg.split(";"));
-
-//            communicator.setResolution(msg.split(";"));
-//            communicator.setImgRes(Integer.parseInt(msg.split(";")[1]));
-//            communicator.setCurRes(Integer.parseInt(msg.split(";")[1]));
-
-            MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
-
-        }
-
-
-
-        /*
-        After msg:  "/Imgblock:"
-
-        process the img block & swc apo file
-         */
-        if (msg.startsWith("Block:")){
-
-            loadBigDataImg(msg.split(":")[1]);
-            MsgConnector.getInstance().sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
-
-        }
-
-        if (msg.startsWith("File:")){
-            if(msg.endsWith(".apo")){
-
-                Log.e(TAG, "File: .apo");
-                loadBigDataApo(msg.split(":")[1]);
-
-            }else if (msg.endsWith(".swc") || msg.endsWith(".eswc")){
-
-                Log.e(TAG, "File: .eswc");
-                loadBigDataSwc(msg.split(":")[1]);
-
-            }
-        }
-
-
-        if (msg.startsWith("Score:")){
-            Log.e(TAG,"get score: " + msg);
-            int serverScore = Integer.parseInt(msg.split(":")[1].split(" ")[1]);
-            Score score = Score.getInstance();
-            if (score.serverUpdateScore(serverScore)){
-                updateScoreText();
-            }
-//            initDataBase(Integer.parseInt(msg.split(":")[1].split(" ")[1]));
-        }
-
-
-
-        /*
-        for collaboration -------------------------------------------------------------------
-         */
-
-        if (msg.startsWith("/drawline_norm:")){
-            Log.e(TAG,"drawline_norm");
-
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String seg      = msg.split(":")[1];
-
-            if (!userID.equals(username)){
-                Communicator communicator = Communicator.getInstance();
-                myrenderer.syncAddSegSWC(communicator.syncSWC(seg));
-                myGLSurfaceView.requestRender();
-            }
-
-        }
-
-
-        if (msg.startsWith("/delline_norm:")){
-            Log.e(TAG,"delline_norm");
-
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String seg      = msg.split(":")[1];
-
-            if (!userID.equals(username)){
-                Communicator communicator = Communicator.getInstance();
-                myrenderer.syncDelSegSWC(communicator.syncSWC(seg));
-                myGLSurfaceView.requestRender();
-            }
-
-        }
-
-        if (msg.startsWith("/addmarker_norm:")){
-            Log.e(TAG,"addmarker_norm");
-
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String marker      = msg.split(":")[1].split(";")[1];
-
-            if (!userID.equals(username)){
-                Communicator communicator = Communicator.getInstance();
-                myrenderer.syncAddMarker(communicator.syncMarker(marker));
-                myGLSurfaceView.requestRender();
-            }
-
-        }
-
-
-
-        if (msg.startsWith("/delmarker_norm:")){
-            Log.e(TAG,"delmarker_norm");
-
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String marker      = msg.split(":")[1].split(";")[1];
-
-            if (!userID.equals(username)){
-                Communicator communicator = Communicator.getInstance();
-                myrenderer.syncDelMarker(communicator.syncMarker(marker));
-                myGLSurfaceView.requestRender();
-            }
-
-        }
-
-
-
-        if (msg.startsWith("/retypeline_norm:")){
-            Log.e(TAG,"retypeline_norm");
-
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String seg    = msg.split(":")[1];
-
-            if (!userID.equals(username)){
-                Communicator communicator = Communicator.getInstance();
-                myrenderer.syncRetypeSegSWC(communicator.syncSWC(seg));
-                myGLSurfaceView.requestRender();
-            }
-
-        }
-
-        /*
-        for collaboration -------------------------------------------------------------------
-         */
-
-    }
 
 
     @SuppressLint("HandlerLeak")
     private static Handler puiHandler = new Handler(){
-        // 覆写这个方法，接收并处理消息。
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what){
                 case 0:
+                    /*
                     popupView.show();
-                    Activity activity = getActivityFromContext(mainContext);
-                    activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                     */
                     break;
 
                 case 1:
+                    /*
                     popupView.dismiss();
-                    Activity activity_2 = getActivityFromContext(mainContext);
-                    activity_2.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                     */
                     break;
 
                 case 2:
@@ -674,10 +289,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     Toast.makeText(context,"Time out, please try again!",Toast.LENGTH_SHORT).show();
                     break;
 
-                case 4:
-                    setFileName(Communicator.BrainNum);
-                    break;
-
                 case 5:
                     String Toast_msg = msg.getData().getString("Toast_msg");
                     Toast.makeText(getContext(),Toast_msg, Toast.LENGTH_SHORT).show();
@@ -685,10 +296,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                 case 6:
                     progressBar.setVisibility(View.GONE);
-                    break;
-
-                case 7:
-                    updateScoreTextHandler();
                     break;
 
                 default:
@@ -712,7 +319,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         super.onCreate(savedInstanceState);
         Log.e(TAG,"------------------ onCreate ------------------");
 
-        // set layout
+        /*
+        set layout
+         */
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -756,42 +365,23 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         soundId[2] = soundPool.load(this, R.raw.button01, 1);
         soundId[3] = soundPool.load(this, R.raw.fail, 1);
 
-
-
-
-
-        isBigData_Remote = false;
-        isBigData_Local  = false;
-
-        popupView = new XPopup.Builder(this)
-                .asLoading("Downloading......");
+        /*
+        music module end  -------------------------------------------------------------------------------------------------
+         */
 
 
 
 
         Intent intent = getIntent();
-        String MSG = intent.getStringExtra(MyRenderer.OUT_OF_MEMORY);
-        username   = intent.getStringExtra(USERNAME);
+        String msgOOM = intent.getStringExtra(MyRenderer.OUT_OF_MEMORY);
 
-        if (MSG != null)
-            Toast.makeText(this, MSG, Toast.LENGTH_SHORT).show();
+        if (msgOOM != null)
+            Toast.makeText(this, msgOOM, Toast.LENGTH_SHORT).show();
 
-        wave = new CircleImageView(getContext());
-        wave.setScaleType(ImageView.ScaleType.CENTER_CROP);
-
-
-        /*
-        init database for score module
-         */
-//        initDataBase();
-
-        //
         myrenderer = new MyRenderer(this);
         myGLSurfaceView = new MyGLSurfaceView(this);
 
-
-
-
+        isBigData_Local  = false;
 
         /*
         Button Layout ------------------------------------------------------------------------------------------------------------------------
@@ -878,7 +468,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
-
         /*
         button onclick event  -----------------------------------------------------------------------------
          */
@@ -934,21 +523,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     return;
                 }
 
-//                if (isBigData_Remote && DrawMode){
-                if (isBigData_Remote){
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            Communicator communicator = Communicator.getInstance();
-                            communicator.zoomIn();
-
-                        }
-                    }).start();
-                }else {
-                    myrenderer.zoom_in();
-                    myGLSurfaceView.requestRender();
-                }
+                myrenderer.zoom_in();
+                myGLSurfaceView.requestRender();
 
             }
         });
@@ -964,138 +540,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     return;
                 }
 
-//                if (isBigData_Remote && DrawMode){
-                if (isBigData_Remote){
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            Communicator communicator = Communicator.getInstance();
-                            communicator.zoomOut();
-
-                        }
-                    }).start();
-                }else {
-                    myrenderer.zoom_out();
-                    myGLSurfaceView.requestRender();
-                }
+                myrenderer.zoom_out();
+                myGLSurfaceView.requestRender();
 
             }
         });
-
-
-
-        Check_Yes = new Button(this);
-        Check_Yes.setText("Y");
-
-        Check_No = new Button(this);
-        Check_No.setText("N");
-
-        Check_Uncertain = new Button(this);
-        Check_Uncertain.setText("?");
-
-
-        FrameLayout.LayoutParams lp_check_yes = new FrameLayout.LayoutParams(120, 120);
-        lp_check_yes.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_check_yes.setMargins(0, 0, 20, 590);
-        this.addContentView(Check_Yes, lp_check_yes);
-
-        FrameLayout.LayoutParams lp_check_no = new FrameLayout.LayoutParams(120, 120);
-        lp_check_no.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_check_no.setMargins(0, 0, 20, 500);
-        this.addContentView(Check_No, lp_check_no);
-
-        FrameLayout.LayoutParams lp_check_uncertain = new FrameLayout.LayoutParams(120, 120);
-        lp_check_uncertain.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_check_uncertain.setMargins(0, 0, 20, 410);
-        this.addContentView(Check_Uncertain, lp_check_uncertain);
-
-        Check_Yes.setVisibility(View.GONE);
-        Check_No.setVisibility(View.GONE);
-        Check_Uncertain.setVisibility(View.GONE);
-
-
-        Check_Yes.setOnLongClickListener(new Button.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (getUserAccount_Check(context).equals("--11--") || getUserAccount_Check(context).equals("")){
-//                            PopUp_UserAccount(MainActivity.this);
-                            Toast_in_Thread("Please Input your User name first in more functions !");
-                        }else {
-                            remote_socket.Check_Result("YES");
-                            Toast_in_Thread("Check YES Successfully");
-                        }
-
-                    }
-                }).start();
-                return true;
-            }
-        });
-
-
-
-        Check_No.setOnLongClickListener(new Button.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (getUserAccount_Check(context).equals("--11--") || getUserAccount_Check(context).equals("")){
-//                            PopUp_UserAccount(MainActivity.this);
-                            Toast_in_Thread("Please Input your User name first in more functions !");
-                        }else {
-                            remote_socket.Check_Result("NO");
-                            Toast_in_Thread("Check NO Successfully");
-                        }
-
-                    }
-                }).start();
-                return true;
-            }
-        });
-
-        Check_Uncertain.setOnLongClickListener(new Button.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (getUserAccount_Check(context).equals("--11--") || getUserAccount_Check(context).equals("")){
-//                            PopUp_UserAccount(MainActivity.this);
-                            Toast_in_Thread("Please Input your User name first in more functions !");
-                        }else {
-                            remote_socket.Check_Result("UNCERTAIN");
-                            Toast_in_Thread("Check UNCERTAIN Successfully");
-                        }
-
-                    }
-                }).start();
-                return true;
-            }
-        });
-
-
-//        Check_Uncertain.setOnClickListener(new Button.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        if (getUserAccount_Check(context).equals("--11--") || getUserAccount_Check(context).equals("")){
-////                            PopUp_UserAccount(MainActivity.this);
-//                            Toast_in_Thread("Please Input your User name first in more functions !");
-//                        }else {
-//                            remote_socket.Check_Result("UNCERTAIN");
-//                            Toast_in_Thread("Check Uncertain Successfully");
-//                        }
-//                    }
-//                }).start();
-//            }
-//        });
 
 
 
@@ -1162,18 +611,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         this.addContentView(Rotation_i, lp_rotation);
 
-        final boolean[] b_rotate = {true};
-
         Rotation_i.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                if (isBigData_Remote && !DrawMode){
-                    myrenderer.resetRotation();
-                    myGLSurfaceView.requestRender();
-                }else {
-                    Rotation();
-                }
+                Rotation();
             }
         });
 
@@ -1261,19 +702,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
         });
 
-        scoreText = new TextView(this);
-        scoreText.setTextColor(Color.YELLOW);
-        scoreText.setText("00000");
-        scoreText.setTypeface(Typeface.DEFAULT_BOLD);
-        scoreText.setLetterSpacing(0.8f);
-        scoreText.setTextSize(15);
-
-//        updateScoreText();
-
-        FrameLayout.LayoutParams lp_score = new FrameLayout.LayoutParams(350, 300);
-        lp_score.gravity = Gravity.TOP | Gravity.RIGHT;
-        lp_score.setMargins(0, 350, 20, 0);
-        this.addContentView(scoreText, lp_score);
 
         FrameLayout.LayoutParams lp_downsample = new FrameLayout.LayoutParams(120, 120);
 
@@ -1306,18 +734,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
         lp_undo_i = new FrameLayout.LayoutParams(230, 160);
-
-//        buttonUndo_i=new ImageButton(this);
-//        buttonUndo_i.setImageResource(R.drawable.ic_undo_black_24dp);
-//        buttonUndo_i.setOnClickListener(new Button.OnClickListener() {
-//            public void onClick(View v) {
-//                boolean undoSuccess = myrenderer.undo2();
-//                if (!undoSuccess) {
-//                    Toast.makeText(context, "nothing to undo", Toast.LENGTH_SHORT).show();
-//                }
-//                myGLSurfaceView.requestRender();
-//            }
-//        });
 
 
         lp_left_i = new FrameLayout.LayoutParams(100, 150);
@@ -1436,192 +852,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
-        lp_res_list = new FrameLayout.LayoutParams(120, 120);
-        lp_res_list.gravity = Gravity.TOP | Gravity.LEFT;
-        lp_res_list.setMargins(20, 490, 0, 0);
-
-
-        res_list = new Button(this);
-        res_list.setText("R");
-        res_list.setTextColor(Color.BLUE);
-
-        res_list.setOnClickListener(new Button.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                Communicator.getInstance().switchRes(MainActivity.this);
-            }
-        });
-
-
-
-//        lp_blue_color = new FrameLayout.LayoutParams(120, 120);
-//        lp_blue_color.gravity = Gravity.TOP | Gravity.LEFT;
-//        lp_blue_color.setMargins(20, 490, 0, 0);
-//
-//
-//        blue_pen = new Button(this);
-//        blue_pen.setText("B");
-//
-//        blue_pen.setOnClickListener(new Button.OnClickListener(){
-//            @Override
-//            public void onClick(View v) {
-//                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-//
-//                myrenderer.pencolorchange(PenColor.valueOf("BLUE").ordinal());
-//                blue_pen.setTextColor(Color.BLUE);
-//                red_pen.setTextColor(Color.BLACK);
-//            }
-//        });
-
-
-
-//        lp_red_color = new FrameLayout.LayoutParams(120, 120);
-//        lp_red_color.gravity = Gravity.TOP | Gravity.LEFT;
-//        lp_red_color.setMargins(20, 580, 0, 0);
-//
-//        red_pen = new Button(this);
-//        red_pen.setText("R");
-//
-//        red_pen.setOnClickListener(new Button.OnClickListener(){
-//            @Override
-//            public void onClick(View v) {
-//                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-//
-//                myrenderer.pencolorchange(PenColor.valueOf("RED").ordinal());
-//                red_pen.setTextColor(Color.RED);
-//                blue_pen.setTextColor(Color.BLACK);
-//            }
-//        });
-
-
-
-//        lp_sync_push = new FrameLayout.LayoutParams(115, 115);
-//        lp_sync_push.gravity = Gravity.TOP | Gravity.RIGHT;
-//        lp_sync_push.setMargins(0, 350, 20, 0);
-//
-//        sync_push = new ImageButton(this);
-//        sync_push.setImageResource(R.drawable.ic_cloud_upload_black_24dp);
-//        sync_push.setOnClickListener(new Button.OnClickListener() {
-//            public void onClick(View v) {
-//                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-//
-//                PushSWC_Block_Manual();
-//
-//                //  for apo sync
-////                PushAPO_Block_Manual();
-//            }
-//        });
-//
-//        lp_sync_pull = new FrameLayout.LayoutParams(115, 115);
-//        lp_sync_pull.gravity = Gravity.TOP | Gravity.RIGHT;
-//        lp_sync_pull.setMargins(0, 440, 20, 0);
-//
-//        sync_pull = new ImageButton(this);
-//        sync_pull.setImageResource(R.drawable.ic_cloud_download_black_24dp);
-//        sync_pull.setOnClickListener(new Button.OnClickListener() {
-//            public void onClick(View v) {
-//                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-//
-//                if (DrawMode){
-//                    PullSwc_block_Manual(DrawMode);
-//
-//                    //  for apo sync
-////                    PullApo_block_Manual();
-//                }else {
-//                    remote_socket.pullCheckResult(false);
-//                }
-//            }
-//        });
-//
-//        sync_pull.setOnLongClickListener(new Button.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View view) {
-//
-//                if (!DrawMode){
-//                    remote_socket.pullCheckResult(true);
-//                }
-//                return true;
-//            }
-//        });
-
-
-//        lp_neuron_list = new FrameLayout.LayoutParams(115, 115);
-//        lp_neuron_list.gravity = Gravity.TOP | Gravity.RIGHT;
-//        lp_neuron_list.setMargins(0, 580, 20, 0);
-//
-//        neuron_list = new ImageButton(this);
-//        neuron_list.setImageResource(R.drawable.ic_assignment_black_24dp);
-//        neuron_list.setOnLongClickListener(new Button.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View v) {
-//
-//                if (DrawMode){
-//                    push_info_swc = SaveSWC_Block_Auto();
-//                    remote_socket.Select_Neuron_Fast();
-//                }else {
-//                    remote_socket.Select_Neuron_Fast();
-////                    remote_socket.Select_Arbor_Fast();
-//                }
-//                return true;
-//            }
-//        });
-//
-//
-//        neuron_list.setOnClickListener(new Button.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-//
-//                if (DrawMode){
-//                    push_info_swc = SaveSWC_Block_Auto();
-//                    remote_socket.Next_Neuron();
-////                    remote_socket.Select_Neuron_Fast();
-//                }else {
-////                    remote_socket.Select_Neuron_Fast();
-//                    remote_socket.Select_Arbor_Fast();
-//                }
-//
-//            }
-//        });
-
-
-
-
-        lp_room_id = new FrameLayout.LayoutParams(115, 115);
-        lp_room_id.gravity = Gravity.TOP | Gravity.RIGHT;
-        lp_room_id.setMargins(0, 440, 20, 0);
-
-        room_id = new ImageButton(this);
-        room_id.setImageResource(R.drawable.ic_baseline_place_24);
-        room_id.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showRoomID();
-            }
-        });
-
-
-
-
-        lp_user_list = new FrameLayout.LayoutParams(115, 115);
-        lp_user_list.gravity = Gravity.TOP | Gravity.RIGHT;
-        lp_user_list.setMargins(0, 580, 20, 0);
-
-        user_list = new ImageButton(this);
-        user_list.setImageResource(R.drawable.ic_baseline_account_box_24);
-        user_list.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showUserList();
-            }
-        });
-
-
-
-
-
         /*
         add button to the view  -------------------------------------------------------------------
          */
@@ -1634,13 +864,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         this.addContentView(navigation_location, lp_nacloc_i);
 
 
-        this.addContentView(res_list, lp_res_list);
-//        this.addContentView(red_pen, lp_red_color);
-//        this.addContentView(blue_pen, lp_blue_color);
-
-        this.addContentView(room_id, lp_room_id);
-        this.addContentView(user_list, lp_user_list);
-
         navigation_left.setVisibility(View.GONE);
         navigation_right.setVisibility(View.GONE);
         navigation_up.setVisibility(View.GONE);
@@ -1650,27 +873,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         navigation_location.setVisibility(View.GONE);
 
 
-        res_list.setVisibility(View.GONE);
-//        red_pen.setVisibility(View.GONE);
-//        blue_pen.setVisibility(View.GONE);
-
-        room_id.setVisibility(View.GONE);
-        user_list.setVisibility(View.GONE);
-
-
-//        this.addContentView(neuron_list, lp_neuron_list);
-//        neuron_list.setVisibility(View.GONE);
-//        this.addContentView(sync_pull, lp_sync_pull);
-//        this.addContentView(sync_push, lp_sync_push);
-//        sync_pull.setVisibility(View.GONE);
-//        sync_push.setVisibility(View.GONE);
-
-
 
         // set Check Mode  & DownSample Mode
         myrenderer.setIfNeedDownSample(preferenceSetting.getDownSampleMode());
         myrenderer.resetContrast(preferenceSetting.getContrast());
-        DrawMode = !preferenceSetting.getCheckMode();
 
 
         // Set the permission for user
@@ -1682,7 +888,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
         myGLSurfaceView.requestRender();
-        remote_socket = new Remote_Socket(this);
         bigImgReader = new BigImgReader();
 
 
@@ -1693,26 +898,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         this.addContentView(progressBar, params);
         progressBar.setVisibility(View.GONE);
 
-
         mainContext = this;
 
         initDir();
-        initNim();
-
-        initServerConnector();
-        initService();
-
-        doLoginAgora();
-        initAgoraService();
-
-        initDataBase();
-
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                getScore();
-            }
-        }, 5 * 1000);
 
     }
 
@@ -1726,45 +914,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        Log.d(TAG, "onDestroy()))))");
+        Log.d(TAG, "onDestroy()");
 
         Intent bgmIntent = new Intent(this, MusicServer.class);
         stopService(bgmIntent);
-
-        Score score = Score.getInstance();
-        setScore(score.getScore());
-
-        if ((mBoundAgora)){
-            Log.e(TAG,"unbind agora service !");
-            unbindService(connection_agora);
-            Intent agoraServiceIntent = new Intent(this, AgoraService.class);
-            stopService(agoraServiceIntent);
-        }
-
-
-        if (mBoundManagement){
-            Log.e(TAG,"unbind management service !");
-            ManageService.setFlag(false);
-            unbindService(connection_management);
-            Intent manageServiceIntent = new Intent(this, ManageService.class);
-            stopService(manageServiceIntent);
-        }
-        if (mBoundCollaboration){
-            Log.e(TAG,"unbind collaboration service !");
-            CollaborationService.setFlag(false);
-            unbindService(connection_collaboration);
-            Intent collaborationServiceIntent = new Intent(this, CollaborationService.class);
-            stopService(collaborationServiceIntent);
-        }
-
-
-
-        /*
-        release socket
-         */
-        MsgConnector.getInstance().releaseConnection();
-        ServerConnector.getInstance().releaseConnection();
 
         mainContext = null;
 
@@ -1843,6 +996,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         context.startActivity(intent);
     }
 
+    public static void actionStart(Context context){
+        Intent intent = new Intent(context, MainActivity.class);
+        context.startActivity(intent);
+    }
 
 
 
@@ -1871,22 +1028,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
-    /*
-    get score
-     */
-    public static void getScore(){
-        ServerConnector.getInstance().sendMsg("GETSCORE");
-    }
-
-    public static void setScore(int score){
-        if (score == 0)
-            return;
-        ServerConnector.getInstance().sendMsg("SETSOCRE:" + score);
-    }
-
-
-
     /*
     for service ------------------------------------------------------------------------------------
      */
@@ -1902,463 +1043,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
     }
 
-
-    private void doLoginAgora(){
-        AgoraMsgManager.getInstance().getRtmClient().login(null, username, new ResultCallback<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.e(TAG, "agora login success");
-            }
-
-            @Override
-            public void onFailure(ErrorInfo errorInfo) {
-                Log.e(TAG, "agora login failed: " + errorInfo.getErrorCode());
-//                LoginActivity.actionStart(context);
-            }
-        });
-    }
-
-    private void initAgoraService(){
-        Intent intent = new Intent(this, AgoraService.class);
-        bindService(intent, connection_agora, Context.BIND_AUTO_CREATE);
-//        startService(intent);
-    }
-
-    private void initService(){
-        // Bind to LocalService
-        Intent intent = new Intent(this, ManageService.class);
-        bindService(intent, connection_management, Context.BIND_AUTO_CREATE);
-    }
-
-    private void initMsgService(){
-        // Bind to LocalService
-        Intent intent = new Intent(this, CollaborationService.class);
-        bindService(intent, connection_collaboration, Context.BIND_AUTO_CREATE);
-    }
-
-    private void initMsgConnector(String port){
-        MsgConnector msgConnector = MsgConnector.getInstance();
-
-        if (!firstJoinRoom)
-            msgConnector.releaseConnection();
-        msgConnector.setIp(ip_TencentCloud);
-        msgConnector.setPort(port);
-        msgConnector.initConnection();
-    }
-
-
-    private void initServerConnector(){
-        ServerConnector serverConnector = ServerConnector.getInstance();
-
-        serverConnector.setIp(ip_TencentCloud);
-        serverConnector.setPort("23763");
-        serverConnector.initConnection();
-
-    }
-
-
-    /** Defines callbacks for service binding, passed to bindService() */
-    private ServiceConnection connection_agora = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            mBoundAgora = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mBoundAgora = false;
-        }
-    };
-
-
-    /** Defines callbacks for service binding, passed to bindService() */
-    private ServiceConnection connection_management = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            BasicService.LocalBinder binder = (BasicService.LocalBinder) service;
-            ManageService manageService = (ManageService) binder.getService();
-            binder.addReceiveMsgInterface((MainActivity) getActivityFromContext(mainContext));
-            mBoundManagement = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mBoundManagement = false;
-        }
-    };
-
-
-
-    /** Defines callbacks for service binding, passed to bindService() */
-    private ServiceConnection connection_collaboration = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            BasicService.LocalBinder binder = (BasicService.LocalBinder) service;
-            CollaborationService collaborationService = (CollaborationService) binder.getService();
-            binder.addReceiveMsgInterface((MainActivity) getActivityFromContext(mainContext));
-            mBoundCollaboration = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mBoundCollaboration = false;
-        }
-    };
-
     /*
     for service ------------------------------------------------------------------------------------
      */
-
-
-
-
-
-
-    /**
-     *
-     * @param FileList
-     */
-    private void LoadFiles(String FileList){
-
-        Map<String, String> fileType = new HashMap<>();
-        String[] list = FileList.split(";;");
-        List<String> list_array = new ArrayList<>();
-
-        Log.e(TAG, "list.length: " + list.length);
-
-        for (int i = 0; i < list.length; i++){
-            if (list[i].split(" ")[0].endsWith(".apo") || list[i].split(" ")[0].endsWith(".eswc")
-                    || list[i].split(" ")[0].endsWith(".swc") || list[i].split(" ")[0].endsWith("log") )
-                continue;
-            fileType.put(list[i].split(" ")[0], list[i].split(" ")[1]);
-            list_array.add(list[i].split(" ")[0]);
-
-            Communicator.getInstance().initSoma(list[i].split(" ")[0]);
-
-        }
-
-        String[] list_show = new String[list_array.size()];
-        for (int i = 0; i < list_array.size(); i++){
-            list_show[i] = list_array.get(i);
-        }
-
-        new XPopup.Builder(this)
-                .maxHeight(1350)
-                .maxWidth(800)
-                .asCenterList("BigData File",list_show,
-                        new OnSelectListener() {
-                            @RequiresApi(api = Build.VERSION_CODES.N)
-                            @Override
-                            public void onSelect(int position, String text) {
-                                ServerConnector serverConnector = ServerConnector.getInstance();
-//                                Log.e(TAG, "test: " + text);
-//                                Log.e(TAG, "test type: " + fileType.get(text));
-
-                                if (fileType.get(text).equals("0")){
-                                    conPath = conPath + "/" + text;
-                                    serverConnector.sendMsg("GETFILELIST:" + conPath);
-                                }else {
-                                    Log.e(TAG, "fileType.get(text).equals(\"1\")");
-                                    selectMode(conPath + "/" + text, text);
-                                    Communicator.BrainNum = conPath.split("/")[1];
-                                    Communicator.Path = conPath + "/" + text;
-//                                    serverConnector.sendMsg("LOADFILES:0 " + conPath + "/" + text + " " + conPath + "/test_01_fx_lh_test.ano");
-                                }
-                            }
-                        })
-                .show();
-    }
-
-
-    private void selectMode(String oldname, String text){
-
-        Communicator communicator = Communicator.getInstance();
-        boolean mode = communicator.initSoma(text);
-
-        String[] modeList = mode ? new String[]{"New File"} : new String[]{"Load File", "Copy File"};
-        new XPopup.Builder(this)
-                .asCenterList("Select Mode", modeList,
-                        new OnSelectListener() {
-                            @RequiresApi(api = Build.VERSION_CODES.N)
-                            @Override
-                            public void onSelect(int position, String text) {
-                                switch (text){
-                                    case "New File":
-                                        // 0
-                                        CreateFile(oldname,"0");
-                                        break;
-                                    case "Copy File":
-                                        // 1
-                                        CreateFile(oldname,"1");
-                                        break;
-                                    case "Load File":
-                                        // 2
-                                        ServerConnector serverConnector = ServerConnector.getInstance();
-                                        serverConnector.sendMsg("LOADFILES:2 " + oldname);
-                                        Communicator.getInstance().setConPath(oldname);
-
-                                        String[] list = oldname.split("/");
-                                        serverConnector.setRoomName(list[list.length - 1]);
-                                        break;
-                                    default:
-                                        Log.e(TAG,"Something Wrong with SelectMode");
-                                }
-                            }
-                        })
-                .show();
-
-    }
-
-
-    /**
-     * create the new file & input the name of file
-     * @param oldname oldname of file
-     * @param mode work mode
-     */
-    private void CreateFile(String oldname, String mode){
-        new XPopup.Builder(this)
-                .asInputConfirm("CreateFile", "Input the name of new File",
-                new OnInputConfirmListener() {
-                    @Override
-                    public void onConfirm(String text) {
-                        ServerConnector serverConnector = ServerConnector.getInstance();
-                        switch (mode){
-                            case "0":
-                                serverConnector.sendMsg("LOADFILES:0 " + oldname + " " + conPath + "/" + text);
-                                Communicator.getInstance().setConPath(conPath + "/" + text);
-                                serverConnector.setRoomName(text);
-                                copyFile = true;
-                                break;
-                            case "1":
-                                serverConnector.sendMsg("LOADFILES:1 " + oldname + " " + conPath + "/" + text);
-                                Communicator.getInstance().setConPath(conPath + "/" + text);
-                                serverConnector.setRoomName(text);
-                                copyFile = true;
-                                break;
-                        }
-                    }
-                })
-                .show();
-    }
-
-
-
-
-    /**
-     * load Big Data
-     */
-    private void loadBigData(){
-
-        conPath = "";
-        firstLoad = true;
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ServerConnector.getInstance().sendMsg("GETFILELIST:" + "/", true, true);
-            }
-        }).start();
-
-    }
-
-
-    private void showRoomID(){
-
-        new XPopup.Builder(this).asConfirm("Collaboration Room", "Room name: " + ServerConnector.getInstance().getRoomName() + "\n\n"
-                        + "Room ID: " + MsgConnector.getInstance().getPort(),
-                new OnConfirmListener() {
-                    @Override
-                    public void onConfirm() {
-                    }
-                })
-                .show();
-    }
-
-
-    private void showUserList(){
-        String [] userList = (String[]) MsgConnector.userList.toArray();
-        String [] list = new String[ userList.length + 1 ];
-        list[ userList.length ] = "invite friend to join...";
-        System.arraycopy(userList, 0, list, 0, userList.length);
-        new XPopup.Builder(this)
-                //.maxWidth(600)
-                .asCenterList("User List", list,
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                if (position < userList.length)
-                                    Toast_in_Thread("User " + text + " in Room !");
-                                else {
-                                    showFriendsList(userList);
-                                }
-                            }
-                        })
-                .show();
-    }
-
-
-
-    private void updateUserList(List<String> newUserList){
-
-        for (int i = 0; i < newUserList.size(); i++){
-            if (!MsgConnector.userList.contains(newUserList.get(i)) && newUserList.get(i) != username){
-                Toast_in_Thread("User " + newUserList.get(i) + " join !");
-            }
-        }
-
-        for (int i = 0; i < MsgConnector.userList.size(); i++){
-            if (!newUserList.contains(MsgConnector.userList.get(i))){
-                Toast_in_Thread("User " + MsgConnector.userList.get(i) + " left !");
-            }
-        }
-
-        MsgConnector.userList = newUserList;
-    }
-
-
-
-    private void showFriendsList(String [] userList){
-        List<String> friends = NIMClient.getService(FriendService.class).getFriendAccounts();
-        String [] friendList = new String[friends.size()];
-        for (int i = 0; i < friends.size(); i++){
-            friendList[i] = friends.get(i);
-        }
-        new XPopup.Builder(this)
-                .asCenterList("Friend List", friendList,
-                        new OnSelectListener(){
-                            @Override
-                            public void onSelect(int position, String text) {
-
-                                for (int i = 0; i < userList.length; i++) {
-                                    if (userList[i].equals(text)){
-                                        Toast_in_Thread("Already in this room");
-                                        return;
-                                    }
-                                }
-
-                                Communicator communicator = Communicator.getInstance();
-                                String nickname = NIMClient.getService(UserService.class).getUserInfo(username).getName();
-                                InviteAttachment attachment = new InviteAttachment(nickname, communicator.Path,  communicator.getInitSomaMsg());
-                                IMMessage message = MessageBuilder.createCustomMessage(text, SessionTypeEnum.P2P, attachment);
-//                                message.setSessionUpdate(false);
-                                NIMClient.getService(MsgService.class).sendMessage(message, true).setCallback(new RequestCallback<Void>() {
-                                    @Override
-                                    public void onSuccess(Void param) {
-                                        Toast_in_Thread_static("Sended to" + text);
-                                    }
-
-                                    @Override
-                                    public void onFailed(int code) {
-                                        Toast_in_Thread_static("Invite Send Failed");
-                                    }
-
-                                    @Override
-                                    public void onException(Throwable exception) {
-
-                                    }
-                                });
-                            }
-                        })
-                .show();
-    }
-
-
-
-
-
-
-    /*
-    for IM module ------------------------------------------------------------------------------------
-     */
-
-    private void initNim(){
-        registerSystemMessageObservers(true);
-    }
-
-
-    /**
-     * 注册/注销系统消息未读数变化
-     */
-    private void registerSystemMessageObservers(boolean register) {
-        NIMClient.getService(SystemMessageObserver.class).observeUnreadCountChange(
-                sysMsgUnreadCountChangedObserver, register);
-
-        NIMClient.getService(MsgServiceObserve.class).observeReceiveMessage(inviteMessageObserver, true);
-    }
-
-    private Observer<Integer> sysMsgUnreadCountChangedObserver = (Observer<Integer>) unreadCount -> {
-        Log.e("Observer<Integer>","Observer unreadCount");
-        SystemMessageUnreadManager.getInstance().setSysMsgUnreadCount(unreadCount);
-        ReminderManager.getInstance().updateContactUnreadNum(unreadCount);
-    };
-
-
-
-    private Observer<List<IMMessage>> inviteMessageObserver = new Observer<List<IMMessage>>() {
-        @Override
-        public void onEvent(List<IMMessage> imMessages) {
-            Toast_in_Thread_static("Receive Msg");
-            for (int i = 0; i < imMessages.size(); i++) {
-                if (imMessages.get(i).getMsgType() == MsgTypeEnum.custom){
-                    MsgAttachment attachment = imMessages.get(i).getAttachment();
-                    if (attachment instanceof InviteAttachment){
-                        Toast_in_Thread_static("Receive Invite");
-                        String data = attachment.toJson(false);
-                        Toast_in_Thread_static(data);
-                        Log.d(TAG, "Invite data: " + data);
-
-                        data = data.replaceAll("\"", "");
-                        data = data.replaceAll("\\u007B", "");
-                        data = data.replaceAll("\\}", "");
-                        Log.d(TAG, "Invite data: " + data);
-
-                        String [] informs = data.split(",");
-                        String invitor = informs[0].split(":")[2];
-                        String path = informs[1].split(":")[1];
-                        String soma = informs[2].split(":")[1];
-
-                        invitePopup(mainContext, invitor, path, soma);
-                    }
-                }
-            }
-        }
-    };
-
-    private void invitePopup(Context context, String invitor, String path, String soma){
-        String[] list = path.split("/");
-        String roomName = list[list.length - 1];
-        new XPopup.Builder(context)
-                .dismissOnTouchOutside(false)
-                .dismissOnBackPressed(false)
-                .asConfirm("INVITE", invitor + " is inviting you to join game in room " + roomName, "Reject", "Join",
-                        new OnConfirmListener() {
-                            @Override
-                            public void onConfirm() {
-                                ServerConnector serverConnector = ServerConnector.getInstance();
-                                serverConnector.sendMsg("LOADFILES:2 " + path);
-
-//                                String[] list = path.split("/");
-                                serverConnector.setRoomName(roomName);
-
-                                Communicator communicator = Communicator.getInstance();
-                                communicator.initSoma(soma);
-                                communicator.setConPath(path);
-                                Communicator.BrainNum = path.split("/")[1];
-                                conPath = path;
-                            }
-                        }, new OnCancelListener() {
-                            @Override
-                            public void onCancel() {
-
-                            }
-                        }, false)
-        .show();
-    }
 
 
 
@@ -2375,6 +1062,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //            Toast.makeText(getContext(), "竖屏", Toast.LENGTH_LONG).show();
         }
     }
+
+
 
     /**
      * on top bar menu created, link res/menu/main.xml
@@ -2398,22 +1087,22 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public void File_icon(){
 
         new XPopup.Builder(this)
-                .asCenterList("File Open", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile"},
+                .asCenterList("File Open", new String[]{"Open LocalFile", "Load SwcFile", "Open DemoFile"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
                                 switch (text) {
-
                                     case "Open LocalFile":
-                                        loadLocalFile();
+                                        openLocalFile();
                                         break;
-                                    case "Open BigData":
-                                        loadBigData();
+
+                                    case "Load SwcFile":
+                                        loadSwcFile();
                                         break;
-                                    case "Load SWCFile":
-                                        LoadSWC();
+
+                                    case "Open DemoFile":
+                                        openDemoFile();
                                         break;
 
                                     default:
@@ -2425,8 +1114,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     }
 
-    private void LoadSWC() {
-
+    private void loadSwcFile() {
         if (!ifImport) {
             ifImport = true;
             ifAnalyze = false;
@@ -2441,7 +1129,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void loadLocalFile(){
+    private void openLocalFile(){
         ifLoadLocal = true;
         ifImport = false;
         ifAnalyze = false;
@@ -2459,13 +1147,30 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
+    private void openDemoFile(){
+        new XPopup.Builder(this)
+                .asCenterList("More Functions...", new String[]{"DemoData1", "DemoData2", "DemoData3", "DemoData4", "DemoData5"},
+                        new OnSelectListener() {
+                            @RequiresApi(api = Build.VERSION_CODES.N)
+                            @Override
+                            public void onSelect(int position, String text) {
+                                Log.e(TAG,"File name: " + text);
+                                myrenderer.loaDemoFile("Demo:" + text);
+                                myGLSurfaceView.requestRender();
+                                setFileName(text);
+                            }
+                        })
+                .show();
+    }
+
+
 
     /**
      * for draw button
      * @param v
      */
     private void Draw_list(View v){
-        String[] drawList = isBigData_Remote ? new String[]{"For Marker", "For Curve", "Exit Drawing Mode"} : new String[]{"For Marker", "For Curve", "Clear Tracing", "Exit Drawing Mode"};
+        String[] drawList = new String[]{"For Marker", "For Curve", "Clear Tracing", "Exit Drawing Mode"};
         drawPopupView = new XPopup.Builder(this)
                 .atView(v)
                 .autoDismiss(false)
@@ -2507,8 +1212,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
     private void markerProcessList(View v){
-        String[] processList = isBigData_Remote ? new String[]{"PinPoint   ", "Delete Marker", "Delete MultiMarker", "Set MColor", "Change MColor"}
-                                                : new String[]{"PinPoint   ", "Delete Marker", "Delete MultiMarker", "Set MColor", "Change MColor", "Change All MColor"};
+        String[] processList = new String[]{"PinPoint   ", "Delete Marker", "Delete MultiMarker", "Set MColor", "Change MColor", "Change All MColor"};
         new XPopup.Builder(this)
                 .atView(v)
                 .offsetX(580)
@@ -2670,8 +1374,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     private void curveProcessList(View v){
-        String[] processList = isBigData_Remote ? new String[]{"Draw Curve", "Delete Curve", "Split       ", "Set PenColor", "Change PenColor"}
-                                                : new String[]{"Draw Curve", "Delete Curve", "Split       ", "Set PenColor", "Change PenColor", "Change All PenColor"};
+        String[] processList = new String[]{"Draw Curve", "Delete Curve", "Split       ", "Set PenColor", "Change PenColor", "Change All PenColor"};
         new XPopup.Builder(this)
                 .atView(v)
                 .offsetX(580)
@@ -2872,7 +1575,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .setPositiveButton("Confirm", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
                     }
                 })
                 .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
@@ -2883,12 +1585,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         String color  = pcolor[0];
 
                         if( !color.isEmpty()){
-
-//                            myrenderer.pencolorchange(Integer.parseInt(color));;
                             myrenderer.pencolorchange(PenColor.valueOf(color).ordinal());
-                            System.out.println("pen color is");
-                            System.out.println(color);
-                            ToastEasy("penColor set ~ ");
+                            Log.v(TAG,"pen color is " + color);
+                            ToastEasy("penColor set !");
                         }else{
                             ToastEasy("Please make sure all the information is right !!!");
                         }
@@ -2945,16 +1644,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     @Override
                     public void onClick(View clickedView, View contentView) {
                         //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
-//                        EditText et1 = (EditText) contentView.findViewById(R.id.markercolor);
-//                        String color  = et1.getText().toString();
                         String color = pcolor[0];
 
                         if( !color.isEmpty()){
 
                             myrenderer.markercolorchange(PenColor.valueOf(color).ordinal());
-                            System.out.println("marker color is");
-                            System.out.println(color);
-                            ToastEasy("markerColor set ~");
+                            Log.v(TAG,"marker color is " + color);
+                            ToastEasy("markerColor set !");
 
                         }else{
                             ToastEasy("Please make sure all the information is right !");
@@ -2989,7 +1685,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"APP2", "GD", "Save SWCFile"},
+                .asAttachList(new String[]{"APP2", "GD", "Save SwcFile"},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -3023,7 +1719,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                                     case "APP2":
                                         try {
-                                            Log.v(TAG, "APP2-Tracing start~");
+                                            Log.v(TAG, "APP2-Tracing start !");
                                             ToastEasy("APP2-Tracing start !");
                                             progressBar.setVisibility(View.VISIBLE);
                                             timer = new Timer();
@@ -3044,8 +1740,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         }
                                         break;
 
-                                    case "Save SWCFile":
-                                        SaveSWC();
+                                    case "Save SwcFile":
+                                        SaveSwc();
                                         break;
 
                                 }
@@ -3054,7 +1750,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .show();
     }
 
-    private void SaveSWC() {
+    private void SaveSwc() {
         MDDialog mdDialog = new MDDialog.Builder(this)
                 .setContentView(R.layout.save_swc)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
@@ -3083,7 +1779,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         }
                         myrenderer.reNameCurrentSwc(swcFileName);
 
-                        String dir_str = "/storage/emulated/0/Hi5/SwcSaved";
+                        String dir_str = "/storage/emulated/0/" + context.getResources().getString(R.string.app_name) + "/SwcSaved";
                         File dir = new File(dir_str);
                         if (!dir.exists()) {
                             dir.mkdirs();
@@ -3129,7 +1825,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 aDialog.show();
                             }
                         } else{
-                            ToastEasy("save SWC to " + dir + "/" + swcFileName + ".swc");
+                            ToastEasy("save SWC to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG);
                         }
                     }
                 })
@@ -3171,17 +1867,17 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             NeuronTree nt = p.resultNt;
             for (int i = 0; i < nt.listNeuron.size(); i++) {
                 nt.listNeuron.get(i).type = 4;
-//                if (nt.listNeuron.get(i).parent == -1) {
-//                    NeuronSWC s = nt.listNeuron.get(i);
-//                    ImageMarker m = new ImageMarker(s.x, s.y, s.z);
-//                    m.type = 2;
-//                    myrenderer.getMarkerList().add(m);
-//                }
+                if (nt.listNeuron.get(i).parent == -1) {
+                    NeuronSWC s = nt.listNeuron.get(i);
+                    ImageMarker m = new ImageMarker(s.x, s.y, s.z);
+                    m.type = 2;
+                    myrenderer.getMarkerList().add(m);
+                }
             }
             System.out.println("size: " + nt.listNeuron.size());
 
             ToastEasy("APP2-Tracing finish, size of result swc: " + Integer.toString(nt.listNeuron.size()));
-            myrenderer.importNeuronTree(nt, isBigData_Remote);
+            myrenderer.importNeuronTree(nt);
             myrenderer.saveUndo();
             myGLSurfaceView.requestRender();
             progressBar.setVisibility(View.INVISIBLE);
@@ -3230,7 +1926,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
 
         ToastEasy("GD-Tracing finished, size of result swc: " + Integer.toString(outswc.listNeuron.size()));
-        myrenderer.importNeuronTree(outswc,isBigData_Remote);
+        myrenderer.importNeuronTree(outswc);
         myrenderer.saveUndo();
         myGLSurfaceView.requestRender();
         progressBar.setVisibility(View.INVISIBLE);
@@ -3384,15 +2080,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public void More_icon(){
 
         new XPopup.Builder(this)
-                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "About", "Account Name", "Help", "Quests", "Reward"},
+                .asCenterList("More Functions...", new String[]{"Analyze Swc", "Animate", "Settings", "Crash Info", "Help", "About"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                                 switch (text) {
-                                    case "Analyze SWC":
-                                        Analyse();
+                                    case "Analyze Swc":
+                                        AnalyzeSwc();
                                         break;
 
                                     case "Animate":
@@ -3409,28 +2105,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         }
                                         break;
 
-                                    case "Chat":
-                                        openChatActivity();
-                                        break;
-
-                                    case "Game":
-                                        System.out.println("Game Start!!!!!!!");
-
-                                        ifGame = true;
-                                        Select_map();
-                                        break;
-
                                     case "Settings":
                                         setSettings();
                                         break;
 
-                                    case "Account Name":
-                                        PopUp_UserAccount(MainActivity.this);
-                                        break;
-
-                                    case "Logout":
-                                        logout();
-                                        break;
                                     case "Crash Info":
                                         CrashInfoShare();
                                         break;
@@ -3448,22 +2126,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         }
                                         break;
 
-                                    case "Quests":
-                                        startActivity(new Intent(MainActivity.this, QuestActivity.class));
-                                        break;
-
-                                    case "Achievements":
-                                        showAchievementFinished();
-                                        break;
-
-                                    case "LeaderBoard":
-                                        startActivity(new Intent(MainActivity.this, LeaderBoardActivity.class));
-                                        break;
-
-                                    case "Reward":
-                                        startActivity(new Intent(MainActivity.this, RewardActivity.class));
-                                        break;
-
                                     default:
                                         ToastEasy("Default in More Functions...");
 
@@ -3475,14 +2137,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void openChatActivity(){
-        Intent intent = new Intent(MainActivity.this, ChatActivity.class);
-        startActivity(intent);
-    }
-
-
     private void Animation(final View v) {
-
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
                 .asAttachList(new String[]{"Start", "Pause", "Resume", "Stop"},
@@ -3589,7 +2244,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210519a 11:28 UTC+8 build",
+                                "Version: 20210520a 20:18 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -3601,55 +2256,16 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    public void PopUp_UserAccount(Context context){
-        new MDDialog.Builder(context)
-                .setContentView(R.layout.user_account_check)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-                        EditText et = (EditText) contentView.findViewById(R.id.userAccount_edit_check);
-                        et.setText(InfoCache.getAccount());
-                    }
-                })
-                .setTitle("Current UserName")
-                .setNegativeButton("Cancel", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButton("Confirm", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-                    }
-                })
-                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-                    @Override
-                    public void onClick(View clickedView, View contentView) {
-
-                    }
-                })
-                .setWidthMaxDp(600)
-                .create()
-                .show();
-
-    }
-
-
-    private void Analyse() {
+    private void AnalyzeSwc() {
         new XPopup.Builder(this)
-                .asCenterList("morphology calculate", new String[]{"Analyze a SWC file", "Analyze current tracing"},
+                .asCenterList("morphology calculate", new String[]{"Analyze a Swc file", "Analyze current tracing"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text) {
-                                    case "Analyze a SWC file":
+                                    case "Analyze a Swc file":
                                         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                                        intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
+                                        intent.setType("*/*");    // 设置类型，我这里是任意类型，任意后缀的可以这样写。
                                         intent.addCategory(Intent.CATEGORY_OPENABLE);
                                         startActivityForResult(intent, 1);
                                         ifAnalyze = true;
@@ -3844,45 +2460,22 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     @Override
                     public void operate(View contentView) {
                         Switch downsample_on_off = contentView.findViewById(R.id.switch_rotation_mode);
-                        Switch check_on_off = contentView.findViewById(R.id.switch_check_mode);
                         IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
                         TextView clean_cache = contentView.findViewById(R.id.clean_cache);
                         SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
                         SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
                         SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
-                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
 
                         boolean ifDownSample = preferenceSetting.getDownSampleMode();
                         int contrast = preferenceSetting.getContrast();
 
                         downsample_on_off.setChecked(ifDownSample);
-                        check_on_off.setChecked(!DrawMode);
                         seekbar.setProgress(contrast);
                         bgmVolumeBar.setProgress((int)(bgmVolume * 100));
                         buttonVolumeBar.setProgress((int)(buttonVolume * 100));
                         actionVolumeBar.setProgress((int)(actionVolume * 100));
 
-                        RewardLitePalConnector rewardLitePalConnector = RewardLitePalConnector.getInstance();
-                        List<Integer> rewards = rewardLitePalConnector.getRewards();
-                        List<String> list = new ArrayList<>();
-                        list.add("BGM0");
-                        for (int i = 0; i < rewards.size(); i++){
-                            if (rewards.get(i) == 1)
-                                list.add("BGM" + Integer.toString(i+1));
-                        }
-                        String [] spinnerItems = new String[list.size()];
-                        for (int i = 0; i < list.size(); i++){
-                            spinnerItems[i] = list.get(i);
-                        }
-
-
-
-                        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(mainContext, R.layout.support_simple_spinner_dropdown_item, spinnerItems);
-                        bgmSpinner.setAdapter(spinnerAdapter);
-                        bgmSpinner.setSelection(selectedBGM);
-
                         downsample[0] = downsample_on_off.isChecked();
-                        check[0]      = check_on_off.isChecked();
 
                         downsample_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                             @Override
@@ -3891,12 +2484,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             }
                         });
 
-                        check_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                            @Override
-                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                check[0] = isChecked;
-                            }
-                        });
 
                         clean_cache.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -3927,7 +2514,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                         myrenderer.setIfNeedDownSample(downsample[0]);
                         myrenderer.resetContrast(contrast);
-                        DrawMode = !check[0];
 
                         Log.v(TAG,"downsample: " + downsample[0] + ", check: " + check[0] + ",contrast: " + contrast);
                         preferenceSetting.setPref(downsample[0], check[0], contrast);
@@ -3941,21 +2527,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         buttonVolume = (float)(buttonVolumeBar.getProgress()) / 100.0f;
                         actionVolume = (float)(actionVolumeBar.getProgress()) / 100.0f;
 
-                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
-                        String selected = bgmSpinner.getSelectedItem().toString();
-                        if (selectedBGM != bgmSpinner.getSelectedItemPosition()) {
-                            if (selected.equals("BGM1"))
-                                MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
-
-                            else if (selected.equals("BGM2"))
-                                MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/DelRioBravo.mp3");
-
-                            else
-                                MusicServer.defaultBgmSource();
-
-                            selectedBGM = bgmSpinner.getSelectedItemPosition();
-
-                        }
 
                         MusicServer.setBgmVolume(bgmVolume);
                         MusicServer.setVolume(bgmVolume);
@@ -4033,39 +2604,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void logout(){
-
-        AlertDialog aDialog = new AlertDialog.Builder(mainContext)
-                .setTitle("Log out")
-                .setMessage("Are you sure to Log out?")
-                .setIcon(R.mipmap.ic_launcher)
-                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // 清理缓存&注销监听&清除状态
-                        NimUIKit.logout();
-                        NIMClient.getService(AuthService.class).logout();
-
-                        AgoraMsgManager.getInstance().getRtmClient().logout(null);
-
-                        PreferenceLogin preferenceLogin = new PreferenceLogin(MainActivity.this);
-                        preferenceLogin.setPref("","",false);
-                        // DemoCache.clear();
-
-                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                        finish();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .create();
-        aDialog.show();
-    }
-
-
     private void CrashInfoShare(){
         String[] info_path = CrashHandler.getCrashReportFiles(getApplicationContext());
         new XPopup.Builder(this)
@@ -4083,7 +2621,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                     intent.setAction(Intent.ACTION_SEND);
                                     intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "com.main.core.provider", new File(file_path)));  //传输图片或者文件 采用流的方式
                                     intent.setType("*/*");   //分享文件
-                                    startActivity(Intent.createChooser(intent, "Share From C3"));
+                                    startActivity(Intent.createChooser(intent, "Share From Hi5"));
                                 }else {
                                     Toast_in_Thread("File does not exist");
                                 }
@@ -4133,8 +2671,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             public void onNothingSelected(AdapterView<?> parent) {
                             }
                         });
-
-
                     }
                 })
                 .setNegativeButton("Cancel", new View.OnClickListener() {
@@ -4282,7 +2818,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 Log.e(TAG, "onActivityResult: .eswc");
                                 NeuronTree nt = NeuronTree.readSWC_file(uri);
 
-                                myrenderer.importNeuronTree(nt,false);
+                                myrenderer.importNeuronTree(nt);
                                 myrenderer.saveUndo();
                                 break;
 
@@ -4300,7 +2836,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 NeuronTree nt2 = NeuronTree.readSWC_file(swc_path);
                                 ano_apo = apoReader_1.read(apo_path);
 
-                                myrenderer.importNeuronTree(nt2,false);
+                                myrenderer.importNeuronTree(nt2);
                                 myrenderer.importApo(ano_apo);
                                 myrenderer.saveUndo();
                                 break;
@@ -4356,205 +2892,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
-
-
-
-
-
-    /**
-     * for game ------------------------------------------------------------------------------------
-     */
-    public void Select_map(){
-        new XPopup.Builder(this)
-                .asCenterList("Game Start", new String[]{"New Game", "Load Game"},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                switch (text){
-                                    case "New Game":
-//                                        setSelectSource("Remote Server SEU", context);
-//                                        BigFileRead_Remote(ip_SEU);
-                                        setSelectSource("Remote Server Aliyun",context);
-                                        BigFileRead_Remote(ip_TencentCloud);
-
-                                        break;
-
-                                    case "Load Game":
-                                        loadGameList();
-                                        break;
-
-                                    default:
-                                        ToastEasy("Something Wrong Here");
-                                }
-                            }
-                        }).show();
-    }
-
-    private void loadGameList(){
-        String externalFileDir = context.getExternalFilesDir(null).toString();
-        String [] fileList = {"[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]"};
-        File file = new File(externalFileDir + "/Game/Archives");
-        if (file.exists()){
-            try {
-                for (int i = 0; i < 10; i++) {
-                    File tempFile = new File(externalFileDir + "/Game/Archives/Archive_" + i);
-                    if (!tempFile.exists()) {
-                        tempFile.mkdir();
-                    } else {
-                        File [] archiveFiles = tempFile.listFiles();
-                        if (archiveFiles.length > 0){
-                            fileList[i] = archiveFiles[0].getName().split(".txt")[0];
-                        }
-                    }
-                }
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-        } else {
-            File parent = file.getParentFile();
-            if (!parent.exists()){
-                parent.mkdir();
-            }
-            file.mkdir();
-            for (int i = 0; i < 10; i++){
-                File tempFile = new File(externalFileDir + "/Game/Archives/Archive_" + i);
-                tempFile.mkdir();
-            }
-        }
-
-        new XPopup.Builder(this)
-                .autoDismiss(false)
-                .asCenterList("Archives", fileList,
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                if (text.equals("[Empty Archive]")){
-
-                                } else {
-                                    if (loadGame(position))
-                                        Toast_in_Thread("Loaded successfully");
-                                    else
-                                        Toast_in_Thread("Failed To Load!!!");
-                                }
-                            }
-                        }).show();
-    }
-
-    private boolean loadGame(int num){
-        String archiveImageName;
-        String archiveOffset;
-        float [] pos = new float[3];
-        float [] dir = new float[3];
-        float [] head = new float[3];
-        String externalFileDir = context.getExternalFilesDir(null).toString();
-        File file = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num);
-        if (!file.exists()){
-            file.mkdir();
-            return false;
-        }
-
-        File [] tempList = file.listFiles();
-        if(tempList.length == 0){
-            return false;
-        }
-
-        try{
-            FileInputStream inStream = new FileInputStream(tempList[0]);
-            if (inStream != null) {
-                InputStreamReader inputreader
-                        = new InputStreamReader(inStream, "UTF-8");
-                BufferedReader buffreader = new BufferedReader(inputreader);
-                String line = "";
-
-                line = buffreader.readLine();
-                archiveImageName = line;
-                String tempFilename = archiveImageName.split("/")[0];
-
-                File archiveSWCFile = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num + "/" + tempFilename + ".swc");
-                if (archiveSWCFile.exists()){
-                    File newSWCFile = new File(externalFileDir + "/Game/SWCs/" + tempFilename + ".swc");
-                    if (newSWCFile.exists()){
-                        newSWCFile.delete();
-                    }
-                    newSWCFile.createNewFile();
-
-                    FileUtils.copyFile(archiveSWCFile, newSWCFile);
-                } else {
-                    return false;
-                }
-
-                File archiveFlagFile = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num + "/" + tempFilename + ".txt");
-                if (archiveFlagFile.exists()){
-                    File newFlagFile = new File(externalFileDir + "/Game/Flags/" + tempFilename + ".txt");
-                    if (newFlagFile.exists()){
-                        newFlagFile.delete();
-                    }
-                    newFlagFile.createNewFile();
-
-                    FileUtils.copyFile(archiveFlagFile, newFlagFile);
-                }
-
-                line = buffreader.readLine();
-                archiveOffset = line;
-                Log.d(TAG, "LoadGame offset: " + archiveOffset);
-
-                line = buffreader.readLine();
-                pos[0] = Float.parseFloat(line.split(" ")[0]);
-                pos[1] = Float.parseFloat(line.split(" ")[1]);
-                pos[2] = Float.parseFloat(line.split(" ")[2]);
-
-                line = buffreader.readLine();
-                dir[0] = Float.parseFloat(line.split(" ")[0]);
-                dir[1] = Float.parseFloat(line.split(" ")[1]);
-                dir[2] = Float.parseFloat(line.split(" ")[2]);
-
-                line = buffreader.readLine();
-                head[0] = Float.parseFloat(line.split(" ")[0]);
-                head[1] = Float.parseFloat(line.split(" ")[1]);
-                head[2] = Float.parseFloat(line.split(" ")[2]);
-
-                line = buffreader.readLine();
-                gameLastIndexForIntent = Integer.parseInt(line);
-
-                line = buffreader.readLine();
-                gameScoreForIntent = Integer.parseInt(line);
-
-                inStream.close();//关闭输入流
-
-                gamePositionForIntent = pos;
-                gameDirForIntent = dir;
-                gameHeadForIntent = head;
-
-                gameIfNewForIntent = false;
-
-                if (archiveImageName != null && archiveOffset != null){
-                    remote_socket.disConnectFromHost();
-//                    remote_socket.connectServer(ip_SEU);
-                    remote_socket.connectServer(ip_TencentCloud);
-                    remote_socket.pullImageBlockWhenLoadGame(archiveImageName, archiveOffset);
-
-                    setFilename_Remote(archiveImageName, context);
-//                    setNeuronNumber_Remote(neuronNum_Backup,fileName_Backup,mContext);
-                    setoffset_Remote(archiveOffset, archiveImageName, context);
-                }
-            }
-        } catch (Exception e){
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * for game ------------------------------------------------------------------------------------
-     */
-
-
-
-
-
-
-
     private void BigFileRead_local(){
         String[] filename_list = bigImgReader.ChooseFile(this);
         if (filename_list != null){
@@ -4564,46 +2901,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    /**
-     * Read Big File from Remote Server
-     * @param ip server ip
-     */
-    private void BigFileRead_Remote(String ip){
-
-        Thread thread = new Thread(new Runnable() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void run() {
-                /*
-                1.先断开一下连接，以防之前连接过，出现同一个ip连接两次服务器
-                2.与服务器建立socket连接
-                3.获取文件列表
-                 */
-                remote_socket.disConnectFromHost();
-                remote_socket.connectServer(ip);
-                remote_socket.Select_Brain(true);
-            }
-        });
-        thread.start();
-
-    }
-
-    private void BigFileRead_Remote_Check(String ip){
-
-        Log.v("Remote_Check","Here We are !");
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                remote_socket.disConnectFromHost();
-                remote_socket.connectServer(ip);
-//                remote_socket.Select_Arbor();
-                remote_socket.Select_Brain(false);
-            }
-        });
-        thread.start();
-
-    }
-
 
     public void Block_navigate(String text){
 
@@ -4612,16 +2909,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             @RequiresApi(api = Build.VERSION_CODES.N)
             public void run() {
 
-                if (isBigData_Remote){
-                    String[] Direction = {"Left", "Right", "Top", "Bottom", "Front", "Back"};
-                    if (Arrays.asList(Direction).contains(text)){
-                        Log.e("Block_navigate", text);
-
-                        Communicator communicator = Communicator.getInstance();
-                        communicator.navigateBlock(text);
-                    }
-
-                }
                 if (isBigData_Local){
                     boolean ifNavigationLocation = myrenderer.getNav_location_Mode();
                     if (ifNavigationLocation){
@@ -4634,9 +2921,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         System.out.println("----- index is null -----");
                         return;
                     }
-                    String filepath = "/storage/emulated/0/C3/Server/" + filename + ".v3draw";
-                    myrenderer.SetPath_Bigdata(filepath, index);
-                    myGLSurfaceView.requestRender();
+                    try {
+                        String filepath = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name) + "/Server/" + filename + ".v3draw";
+                        myrenderer.SetPath_Bigdata(filepath, index);
+                        myGLSurfaceView.requestRender();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                 }
 
 
@@ -4679,10 +2971,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         String filename = null;
         String offset   = null;
         float[] neuron = null; float[] block = null; float[] size = null;
-        if (isBigData_Remote){
-            filename = getFilename_Remote(this);
-            offset   = getoffset_Remote(this, filename);
-        }
         if (isBigData_Local){
             filename = SettingFileManager.getFilename_Local(this);
             offset   = SettingFileManager.getoffset_Local(this, filename);
@@ -4691,45 +2979,26 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         if (filename == null || offset == null)
             return;
 
-        if (isBigData_Local || (isBigData_Remote && DrawMode)){
-
-            float size_x, size_y, size_z;
-
-            if (isBigData_Local){
-                size_x = Float.parseFloat(filename.split("RES")[1].split("x")[0]);
-                size_y = Float.parseFloat(filename.split("RES")[1].split("x")[1]);
-                size_z = Float.parseFloat(filename.split("RES")[1].split("x")[2]);
-
-            }else {
-                size_x = Float.parseFloat(filename.split("RES")[1].split("x")[1]);
-                size_y = Float.parseFloat(filename.split("RES")[1].split("x")[0].replace("(",""));
-                size_z = Float.parseFloat(filename.split("RES")[1].split("x")[2].replace(")",""));
-            }
-
-            float offset_x = Float.parseFloat(offset.split("_")[0]);
-            float offset_y = Float.parseFloat(offset.split("_")[1]);
-            float offset_z = Float.parseFloat(offset.split("_")[2]);
-            float size_block = Float.parseFloat(offset.split("_")[3]);
-
-            neuron = new float[]{size_x, size_y, size_z};
-            block  = new float[]{offset_x, offset_y, offset_z};
-            size   = new float[]{size_block, size_block, size_block};
+        float size_x, size_y, size_z;
+        if (isBigData_Local){
+            size_x = Float.parseFloat(filename.split("RES")[1].split("x")[0]);
+            size_y = Float.parseFloat(filename.split("RES")[1].split("x")[1]);
+            size_z = Float.parseFloat(filename.split("RES")[1].split("x")[2]);
         }else {
-
-            String[] offset_arr = offset.split("_");
-            int[] offset_arr_i = new int[4];
-            for (int i =0; i<offset_arr_i.length; i++){
-                offset_arr_i[i] = Integer.parseInt(offset_arr[i]);
-            }
-
-            block  = new float[]{offset_arr_i[0], offset_arr_i[1], offset_arr_i[2]};
-            size   = new float[]{offset_arr_i[3], offset_arr_i[3], offset_arr_i[3]};
-            neuron = remote_socket.getImg_size_f(block);
-
-            Log.i(TAG,Arrays.toString(block));
-            Log.i(TAG,Arrays.toString(neuron));
-
+            size_x = Float.parseFloat(filename.split("RES")[1].split("x")[1]);
+            size_y = Float.parseFloat(filename.split("RES")[1].split("x")[0].replace("(",""));
+            size_z = Float.parseFloat(filename.split("RES")[1].split("x")[2].replace(")",""));
         }
+
+        float offset_x = Float.parseFloat(offset.split("_")[0]);
+        float offset_y = Float.parseFloat(offset.split("_")[1]);
+        float offset_z = Float.parseFloat(offset.split("_")[2]);
+        float size_block = Float.parseFloat(offset.split("_")[3]);
+
+        neuron = new float[]{size_x, size_y, size_z};
+        block  = new float[]{offset_x, offset_y, offset_z};
+        size   = new float[]{size_block, size_block, size_block};
+
 
         boolean ifNavigationLocation = myrenderer.getNav_location_Mode();
 
@@ -4746,49 +3015,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             navigation_location.setImageResource(R.drawable.ic_gps_fixed_black_24dp);
         }
     }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private void Select_Block(){
-
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                String source = getSelectSource(context);
-                String ip = "";
-                switch (source){
-                    case "Remote Server Aliyun":
-                    case "Remote Server SEU":
-                        if (source.equals("Remote Server Aliyun")){
-                            ip = ip_TencentCloud;
-                        }else if(source.equals("Remote Server SEU")){
-                            ip = ip_SEU;
-                        }else {
-                            Toast_in_Thread("Something Wrong when choose Remote Server !");
-                            return;
-                        }
-
-                        remote_socket.disConnectFromHost();
-                        remote_socket.connectServer(ip);
-                        remote_socket.loadNeuronTxt(DrawMode);
-                        remote_socket.selectBlock();
-                        break;
-                    case "Local Server":
-                        bigImgReader.PopUp(context);
-                        break;
-                    default:
-                        Toast_in_Thread("Load a File First !");
-                        break;
-                }
-            }
-        });
-        thread.start();
-
-    }
-
-
-
-
 
 
 
@@ -4989,14 +3215,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             if (!isZooming) {
                                 try {
                                     if (ifPoint) {
-                                        Score scoreInstance = Score.getInstance();
-                                        scoreInstance.pinpoint();
 
                                         Log.v("actionUp", "Pointinggggggggggg");
                                         if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
                                             myrenderer.add2DMarker(normalizedX, normalizedY);
                                         else {
-                                            myrenderer.setMarkerDrawed(normalizedX, normalizedY, isBigData_Remote);
+                                            myrenderer.setMarkerDrawed(normalizedX, normalizedY);
                                         }
                                         Log.v("actionPointerDown", "(" + X + "," + Y + ")");
                                         requestRender();
@@ -5004,23 +3228,20 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                     }
                                     if (ifDeletingMarker) {
                                         Log.v("actionUp", "DeletingMarker");
-                                        myrenderer.deleteMarkerDrawed(normalizedX, normalizedY, isBigData_Remote);
+                                        myrenderer.deleteMarkerDrawed(normalizedX, normalizedY);
                                         requestRender();
                                     }
                                     if (ifDeletingMultiMarker) {
-                                        myrenderer.deleteMultiMarkerByStroke(lineDrawed, isBigData_Remote);
+                                        myrenderer.deleteMultiMarkerByStroke(lineDrawed);
                                         requestRender();
                                     }
                                     if (ifChangeMarkerType) {
-                                        myrenderer.changeMarkerType(normalizedX, normalizedY, isBigData_Remote);
+                                        myrenderer.changeMarkerType(normalizedX, normalizedY);
                                         requestRender();
                                     }
                                     if (ifPainting) {
                                         Vector<Integer> segids = new Vector<>();
                                         myrenderer.setIfPainting(false);
-
-                                        Score scoreInstance = Score.getInstance();
-                                        scoreInstance.drawACurve();
 
                                         if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
                                             myrenderer.add2DCurve(lineDrawed);
@@ -5036,7 +3257,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                                         System.out.println("feature");
 
                                                         if (seg != null) {
-                                                            myrenderer.addLineDrawed2(lineDrawed, seg, isBigData_Remote);
+                                                            myrenderer.addLineDrawed2(lineDrawed, seg);
                                                             myrenderer.deleteFromCur(seg, v_neuronSWC_list[0]);
                                                         }
                                                     requestRender();
@@ -5066,14 +3287,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                                     if (ifDeletingLine) {
                                         myrenderer.setIfPainting(false);
-                                        myrenderer.deleteLine1(lineDrawed, isBigData_Remote);
+                                        myrenderer.deleteLine1(lineDrawed);
                                         lineDrawed.clear();
                                         myrenderer.setLineDrawed(lineDrawed);
                                         requestRender();
                                     }
                                     if (ifSpliting) {
                                         myrenderer.setIfPainting(false);
-                                        myrenderer.splitCurve(lineDrawed, isBigData_Remote);
+                                        myrenderer.splitCurve(lineDrawed);
                                         lineDrawed.clear();
                                         myrenderer.setLineDrawed(lineDrawed);
                                         requestRender();
@@ -5081,7 +3302,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                     if (ifChangeLineType) {
                                         myrenderer.setIfPainting(false);
                                         int type = myrenderer.getLastLineType();
-                                        myrenderer.changeLineType(lineDrawed, type, isBigData_Remote);
+                                        myrenderer.changeLineType(lineDrawed, type);
                                         lineDrawed.clear();
                                         myrenderer.setLineDrawed(lineDrawed);
                                         requestRender();
@@ -5112,7 +3333,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
 
 
-        //坐标系变换
+        // 坐标系变换
         private float toOpenGLCoord(View view, float value, boolean isWidth) {
             if (isWidth) {
                 return (value / (float) view.getWidth()) * 2 - 1;
@@ -5122,98 +3343,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
 
 
-        //距离计算
+        // 距离计算
         private double computeDis(float x1, float x2, float y1, float y2) {
             return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
         }
     }
 
-
-
-
-    /*
-    load Img Block after downloading file  ---------------------------------------------------------------
-     */
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public void loadBigDataImg(String filepath){
-        isBigData_Remote = true;
-        isBigData_Local = false;
-
-        myrenderer.setPath(filepath);
-        myrenderer.zoom(2.2f);
-        myGLSurfaceView.requestRender();
-
-        setButtons();
-    }
-
-
-    public void loadBigDataApo(String filepath){
-
-        try {
-            ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
-            ApoReader apoReader = new ApoReader();
-            apo = apoReader.read(filepath);
-            if (apo == null){
-                Toast_in_Thread("There is something wrong with apo file !");
-            }
-
-            myrenderer.importApo(Communicator.getInstance().convertApo(apo));
-            myrenderer.saveUndo();
-            myGLSurfaceView.requestRender();
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public void loadBigDataSwc(String filepath){
-        try {
-            NeuronTree nt = NeuronTree.readSWC_file(filepath);
-
-            myrenderer.importNeuronTree(Communicator.getInstance().convertNeuronTree(nt),false);
-            myrenderer.saveUndo();
-            myGLSurfaceView.requestRender();
-            setBigDataName();
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        hideProgressBar();
-    }
-
-    /*
-    load Img Block after downloading file  ---------------------------------------------------------------
-     */
-
-    static Timer timerDownload;
-
-    public static void showProgressBar(){
-        puiHandler.sendEmptyMessage(0);
-        timerDownload = new Timer();
-        timerDownload.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                timeOutHandler();
-            }
-        },30 * 1000);
-    }
-
-
-    public static void hideProgressBar(){
-        timerDownload.cancel();
-        puiHandler.sendEmptyMessage(1);
-    }
-
-    public static void timeOutHandler(){
-        hideProgressBar();
-        puiHandler.sendEmptyMessage(3);
-    }
-
-    public static void setBigDataName(){
-        puiHandler.sendEmptyMessage(4);
-    }
 
 
     public static void setFileName(String name){
@@ -5222,42 +3357,20 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         filenametext.setText(filename);
         ll_file.setVisibility(View.VISIBLE);
 
-//        lp_undo.setMargins(0, 240, 20, 0);
-//        Undo_i.setLayoutParams(lp_undo);
-
         lp_up_i.setMargins(0, 360, 0, 0);
         navigation_up.setLayoutParams(lp_up_i);
 
         lp_nacloc_i.setMargins(20, 400, 0, 0);
         navigation_location.setLayoutParams(lp_nacloc_i);
 
-//        lp_sync_push.setMargins(0, 400, 20, 0);
-//        sync_push.setLayoutParams(lp_sync_push);
-//
-//        lp_sync_pull.setMargins(0, 490, 20, 0);
-//        sync_pull.setLayoutParams(lp_sync_pull);
-
-//        lp_neuron_list.setMargins(0, 630, 20, 0);
-//        neuron_list.setLayoutParams(lp_neuron_list);
-
-
-//        lp_blue_color.setMargins(0, 540, 20, 0);
-//        blue_pen.setLayoutParams(lp_blue_color);
-//
-//        lp_red_color.setMargins(0, 630, 20, 0);
-//        red_pen.setLayoutParams(lp_red_color);
-
-        lp_res_list.setMargins(0, 540, 20, 0);
-        res_list.setLayoutParams(lp_res_list);
     }
-
 
     private static void setButtons(){
         puiHandler.sendEmptyMessage(2);
     }
 
     public static void setButtonsBigData(){
-        if (isBigData_Remote || isBigData_Local){
+        if (isBigData_Local){
             navigation_left.setVisibility(View.VISIBLE);
             navigation_right.setVisibility(View.VISIBLE);
             navigation_up.setVisibility(View.VISIBLE);
@@ -5269,27 +3382,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             Zoom_out_Big.setVisibility(View.VISIBLE);
             Zoom_in.setVisibility(View.GONE);
             Zoom_out.setVisibility(View.GONE);
-
-            if (isBigData_Remote){
-                    res_list.setVisibility(View.VISIBLE);
-                    user_list.setVisibility(View.VISIBLE);
-                    room_id.setVisibility(View.VISIBLE);
-            }
         }
     }
 
     public void setButtonsLocal(){
-        if (isBigData_Remote || isBigData_Local){
-            if (isBigData_Remote){
-                res_list.setVisibility(View.GONE);
-                user_list.setVisibility(View.GONE);
-                room_id.setVisibility(View.GONE);
-            }
-            isBigData_Remote = false;
+        if (isBigData_Local){
             isBigData_Local  = false;
-
             try {
-
                 Zoom_in.setVisibility(View.VISIBLE);
                 Zoom_out.setVisibility(View.VISIBLE);
 
@@ -5311,13 +3410,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     public void setButtonsImport(){
-        if (isBigData_Remote || isBigData_Local){
-            if (isBigData_Remote){
-                res_list.setVisibility(View.GONE);
-                user_list.setVisibility(View.GONE);
-                room_id.setVisibility(View.GONE);
-            }
-            isBigData_Remote = false;
+        if (isBigData_Local){
             isBigData_Local  = false;
             try {
 
@@ -5354,7 +3447,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Undo_i.setVisibility(View.GONE);
         Redo_i.setVisibility(View.GONE);
 
-        if (isBigData_Remote || isBigData_Local){
+        if (isBigData_Local){
             navigation_back.setVisibility(View.GONE);
             navigation_down.setVisibility(View.GONE);
             navigation_front.setVisibility(View.GONE);
@@ -5365,12 +3458,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
             Zoom_in_Big.setVisibility(View.GONE);
             Zoom_out_Big.setVisibility(View.GONE);
-
-            if (isBigData_Remote) {
-                res_list.setVisibility(View.GONE);
-                user_list.setVisibility(View.GONE);
-                room_id.setVisibility(View.GONE);
-            }
         }else {
             Zoom_in.setVisibility(View.GONE);
             Zoom_out.setVisibility(View.GONE);
@@ -5395,7 +3482,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Undo_i.setVisibility(View.VISIBLE);
         Redo_i.setVisibility(View.VISIBLE);
 
-        if (isBigData_Remote || isBigData_Local){
+        if (isBigData_Local){
             navigation_back.setVisibility(View.VISIBLE);
             navigation_down.setVisibility(View.VISIBLE);
             navigation_front.setVisibility(View.VISIBLE);
@@ -5406,13 +3493,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
             Zoom_in_Big.setVisibility(View.VISIBLE);
             Zoom_out_Big.setVisibility(View.VISIBLE);
-
-            if (isBigData_Remote) {
-                res_list.setVisibility(View.GONE);
-                user_list.setVisibility(View.VISIBLE);
-                room_id.setVisibility(View.VISIBLE);
-            }
-
         }else {
             Zoom_in.setVisibility(View.VISIBLE);
             Zoom_out.setVisibility(View.VISIBLE);
@@ -5420,78 +3500,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         ifButtonShowed = true;
     }
-
-
-    public static void updateScore(){
-        puiHandler.sendEmptyMessage(7);
-    }
-
-
-    private void addScore(int s){
-        score += s;
-        updateScoreText();
-    }
-
-    private static void updateScoreText(){
-        puiHandler.sendEmptyMessage(7);
-    }
-
-    private static void updateScoreTextHandler(){
-        Score scoreInstance = Score.getInstance();
-        int score = scoreInstance.getScore();
-        String scoreString;
-        if (score < 10){
-            scoreString = "0000" + Integer.toString(score);
-        } else if (score >= 10 && score < 100){
-            scoreString = "000" + Integer.toString(score);
-        } else if (score >= 100 && score < 1000){
-            scoreString = "00" + Integer.toString(score);
-        } else if (score >= 1000 && score < 10000){
-            scoreString = "0" + Integer.toString(score);
-        } else {
-            scoreString = Integer.toString(score);
-        }
-        Log.d("UpdateScore", Integer.toString(score) + "   " + scoreString);
-        scoreText.setText(scoreString);
-    }
-
-    public void showAchievementFinished(){
-        new XPopup.Builder(mainContext)
-                .offsetY(1000)
-                .popupAnimation(PopupAnimation.TranslateAlphaFromBottom)
-                .asCustom(new AchievementPopup(mainContext))
-                .show();
-    }
-
-    public void initDataBase(int serverScore){
-        DailyQuestsContainer.initId(username);
-        Score.initId(username);
-        ScoreLitePalConnector.initUser(username);
-        RewardLitePalConnector.initUserId(username);
-
-        Score score = Score.getInstance();
-        if (!score.initFromLitePal()) {
-            setScore(score.getScore());
-        }
-
-        updateScoreText();
-    }
-
-    public void initDataBase(){
-        DailyQuestsContainer.initId(username);
-        Score.initId(username);
-        ScoreLitePalConnector.initUser(username);
-        RewardLitePalConnector.initUserId(username);
-
-        Score score = Score.getInstance();
-        if (score.initFromLitePal()) {
-            setScore(score.getScore());
-        }
-
-        updateScoreText();
-    }
-
-
 
 
 
@@ -5516,73 +3524,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     /*
     functions for old version bigdata  ---------------------------------------------------------------------------------
      */
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public static void LoadBigFile_Remote(String filepath){
-
-        Log.v("MainActivity","LoadBigFile_Remote()");
-
-        if (ifGame){
-
-            Log.v("MainActivity","LoadBigFile_Remote() ifGame");
-            try {
-                Log.v("GameIntent", "inNNNNNNNNNNNNNNNNNNNNN");
-                Intent gameIntent = new Intent(mainContext, GameActivity.class);
-                gameIntent.putExtra("FilePath", filepath);
-                gameIntent.putExtra("Position", gamePositionForIntent);
-                gameIntent.putExtra("Dir", gameDirForIntent);
-                gameIntent.putExtra("Head", gameHeadForIntent);
-                gameIntent.putExtra("LastIndex", gameLastIndexForIntent);
-                gameIntent.putExtra("IfNewGame", gameIfNewForIntent);
-                gameIntent.putExtra("Score", gameScoreForIntent);
-                mainContext.startActivity(gameIntent);
-                gamePositionForIntent = new float[]{0.5f, 0.5f, 0.5f};
-                gameDirForIntent = new float[]{1, 1, 1};
-                gameHeadForIntent = new float[]{1, 0, -1};
-                gameLastIndexForIntent = -1;
-                gameIfNewForIntent = true;
-                gameScoreForIntent = 0;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }else {
-
-            Log.v("MainActivity","LoadBigFile_Remote() ifGame");
-            Log.v("MainActivity",remote_socket.getIp());
-            if (remote_socket.getIp().equals(ip_TencentCloud)){
-                setSelectSource("Remote Server Aliyun",context);
-            } else if (remote_socket.getIp().equals(ip_SEU)){
-                setSelectSource("Remote Server SEU",context);
-            }
-
-            myrenderer.setPath(filepath);
-            myrenderer.zoom(2.2f);
-            setBigDataName();
-
-            System.out.println("------" + filepath + "------");
-            isBigData_Remote = true;
-            isBigData_Local = false;
-            myGLSurfaceView.requestRender();
-            setButtons();
-
-            PullSwc_block_Auto(true);
-
-            if (DrawMode){
-                LoadMarker();
-                if (!push_info_swc[0].equals("New")){
-//                    String filepath = this.getExternalFilesDir(null).toString();
-//                    String swc_file_path = filepath + "/Sync/BlockSet";
-//                    PushSWC_Block_Auto(push_info_swc[0], push_info_swc[1]);
-                }
-            }
-        }
-
-    }
-
     public static void LoadBigFile_Local(String filepath_local){
-        System.out.println("------" + filepath_local + "------");
+        Log.e(TAG,"------" + filepath_local + "------");
         isBigData_Local = true;
-        isBigData_Remote = false;
         String filename = SettingFileManager.getFilename_Local(context);
         String offset = SettingFileManager.getoffset_Local(context, filename);
 
@@ -5600,148 +3544,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     }
 
-    private static void LoadMarker(){
-
-        String filename = getFilename_Remote(context);
-        String offset = getoffset_Remote(context, filename);
-        int[] index = BigImgReader.getIndex(offset);
-        Log.v("LoadMarker",Arrays.toString(index));
-
-        ArrayList<ArrayList<Integer>> marker_list = new ArrayList<ArrayList<Integer>>();
-        marker_list = remote_socket.getMarker(index);
-
-        myrenderer.importMarker(marker_list);
-        myGLSurfaceView.requestRender();
-
-    }
 
 
 
     /*
     functions for old version bigdata  ---------------------------------------------------------------------------------
      */
-
-
-
-
-
-    private void gameStart(){
-        float [] startPoint = new float[]{
-                0.5f, 0.5f, 0.5f
-        };
-
-        float [] dir = new float[]{
-                1, 1, 1
-        };
-
-        ArrayList<Integer> sec_proj1 = new ArrayList<Integer>();
-        ArrayList<Integer> sec_proj2 = new ArrayList<Integer>();
-        ArrayList<Integer> sec_proj3 = new ArrayList<Integer>();
-        ArrayList<Integer> sec_proj4 = new ArrayList<Integer>();
-        ArrayList<Float> sec_anti = new ArrayList<Float>();
-
-
-        ArrayList<Float> tangent = myrenderer.tangentPlane(startPoint[0], startPoint[1], startPoint[2], dir[0], dir[1], dir[2], 1);
-
-        System.out.println("TangentPlane:::::");
-        System.out.println(tangent.size());
-
-
-
-        float [] vertexPoints = new float[sec_anti.size()];
-        for (int i = 0; i < sec_anti.size(); i++){
-
-            vertexPoints[i] = sec_anti.get(i);
-            System.out.print(vertexPoints[i]);
-            System.out.print(" ");
-            if (i % 3 == 2){
-                System.out.print("\n");
-            }
-        }
-
-//        boolean gameSucceed = myrenderer.driveMode(vertexPoints, dir);
-//        if (!gameSucceed){
-//            Toast.makeText(context, "wrong vertex to draw", Toast.LENGTH_SHORT);
-//        } else {
-//            myGLSurfaceView.requestRender();
-//        }
-    }
-
-    public static void setIfGame(boolean b){
-        ifGame = b;
-    }
-
-
-
-
-
-    private boolean isTopActivity(){
-        ActivityManager manager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
-        List<ActivityManager.RunningTaskInfo> runningTaskInfos = manager.getRunningTasks(1);
-        String cmpNameTemp = null;
-        if(runningTaskInfos != null){
-            cmpNameTemp = runningTaskInfos.get(0).topActivity.toString();
-        }
-        if(cmpNameTemp == null){
-            return false;
-        }
-        Log.d(TAG, "isTopActivity" + cmpNameTemp);
-        return cmpNameTemp.equals("ComponentInfo{com.example.core/com.example.core.MainActivity}");
-    }
-
-
-    private void PullSwc_block_Manual(boolean isDrawMode){
-
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
-
-                if (SwcFilePath.equals("Error")){
-                    Toast_in_Thread("Something Wrong When Pull Swc File !");
-                }
-
-                try {
-                    NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
-                    myrenderer.setSwcLoaded();
-                    myrenderer.importNeuronTree(nt,false);
-                    myGLSurfaceView.requestRender();
-//                    uiHandler.sendEmptyMessage(1);
-                }catch (Exception e){
-                    Toast_in_Thread("Some Wrong when open the Swc File, Try Again Please !");
-                }
-
-            }
-        });
-
-        thread.start();
-    }
-
-
-    @RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
-    private static void PullSwc_block_Auto(boolean isDrawMode){
-
-        String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
-
-        if (SwcFilePath.equals("Error")){
-            Toast_in_Thread_static("Something Wrong When Pull Swc File !");
-            return;
-        }
-
-        try {
-            NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
-            myrenderer.setSwcLoaded();
-            myrenderer.importNeuronTree(nt,false);
-            myGLSurfaceView.requestRender();
-        }catch (Exception e){
-            Toast_in_Thread_static("Something Wrong when open Swc File !");
-        }
-
-
-    }
 
 
     private File createImageFile() throws IOException {
@@ -5762,1170 +3570,21 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     private String getImageFilePath(){
-        String mCaptureDir = "/storage/emulated/0/C3/cameraPhoto";
-        File dir = new File(mCaptureDir);
-        if (!dir.exists()){
-            dir.mkdirs();
-        }
-
-        String mCapturePath = mCaptureDir + "/" + "Photo_" + System.currentTimeMillis() +".jpg";
-        return mCapturePath;
-    }
-
-
-
-    //GSDT_function
-    public void GSDT_Fun(){
-        //building...
-        Image4DSimple img = myrenderer.getImg();
-        //img.getDataCZYX();
-        if(img == null || !img.valid()){
-            Log.v("GSDT", "Please load img first!");
-            ToastEasy("Please load image first !");
-            return;
-        }
-
-        Log.v("GSDT", "Have got the image successfully!!");
         try {
+            String mCaptureDir = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name) + "/cameraPhoto";
+            File dir = new File(mCaptureDir);
+            if (!dir.exists()){
+                dir.mkdirs();
+            }
+            String mCapturePath = mCaptureDir + "/" + "Photo_" + System.currentTimeMillis() +".jpg";
+            return mCapturePath;
 
-            System.out.println("Start here.....");
-            ParaGSDT p = new ParaGSDT();
-            p.p4DImage = img;
-            GSDT.GSDT_Fun(p);
-            Log.v("GSDT", "GSDT function finished");
-
-            //preparations for show
-            myrenderer.resetImg(p.outImage);
-            myrenderer.getMarkerList().getMarkers().addAll(p.markers);//blue marker
-            myrenderer.getMarkerList().add(p.MaxMarker);//red marker
-            myGLSurfaceView.requestRender();
-
-            ToastEasy("marker_loc:"+ p.max_loc[0] + "," + p.max_loc[1] + "," + p.max_loc[2]);
-            progressBar.setVisibility(View.INVISIBLE);
-
-
-            /*
-            ImageMarker m = p.GSDT_Fun(img, para);
-            System.out.println("marker:"+ m.getXYZ().x + "," + m.getXYZ().y+","+m.getXYZ().z);
-            m.type = 2;
-            m.radius = 5;
-            Log.v("GSDT", "got here2");
-            markers.add(m);
-             */
-            //myGLSurfaceView.requestRender();
-
-        }catch (Exception e) {
-            ToastEasy(e.getMessage());
-            progressBar.setVisibility(View.INVISIBLE);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Wrong file path";
         }
 
     }
-
-
-//    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-//    public static String getpath(Context context, Uri uri) {
-//        if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
-//            if (DocumentsContract.isDocumentUri(context, uri)) {
-//                if (isExternalStorageDocument(uri)) {
-//                    // ExternalStorageProvider
-//                    final String docId = DocumentsContract.getDocumentId(uri);
-//                    final String[] split = docId.split(":");
-//                    final String type = split[0];
-//                    if ("primary".equalsIgnoreCase(type)) {
-//                        String path = Environment.getExternalStorageDirectory() + "/" + split[1];
-//                        return path;
-//                    }
-//                } else if (isDownloadsDocument(uri)) {
-//                    // DownloadsProvider
-//                    final String id = DocumentsContract.getDocumentId(uri);
-//                    final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"),
-//                            Long.valueOf(id));
-//                    String path = getDataColumn(context, contentUri, null, null);
-//                    return path;
-//                } else if (isMediaDocument(uri)) {
-//                    // MediaProvider
-//                    final String docId = DocumentsContract.getDocumentId(uri);
-//                    final String[] split = docId.split(":");
-//                    final String type = split[0];
-//                    Uri contentUri = null;
-//                    if ("image".equals(type)) {
-//                        contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-//                    } else if ("video".equals(type)) {
-//                        contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-//                    } else if ("audio".equals(type)) {
-//                        contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-//                    }
-//                    final String selection = "_id=?";
-//                    final String[] selectionArgs = new String[]{split[1]};
-//                    String path = getDataColumn(context, contentUri, selection, selectionArgs);
-//                    return path;
-//                }
-//            }
-//        }
-//        return null;
-//    }
-//
-//    private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
-//        Cursor cursor = null;
-//        final String column = "_data";
-//        final String[] projection = {column};
-//        try {
-//            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
-//            if (cursor != null && cursor.moveToFirst()) {
-//                final int column_index = cursor.getColumnIndexOrThrow(column);
-//                return cursor.getString(column_index);
-//            }
-//        } finally {
-//            if (cursor != null)
-//                cursor.close();
-//        }
-//        return null;
-//    }
-//
-//    private static boolean isExternalStorageDocument(Uri uri) {
-//        return "com.android.externalstorage.documents".equals(uri.getAuthority());
-//    }
-//
-//    private static boolean isDownloadsDocument(Uri uri) {
-//        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
-//    }
-//
-//    private static boolean isMediaDocument(Uri uri) {
-//        return "com.android.providers.media.documents".equals(uri.getAuthority());
-//    }
-
-
-//    public void chooseVoiceChatMode(){
-//        new XPopup.Builder(this)
-//                .asCenterList("Choose Voice Chat Mode", new String[]{"Peer Chat", "Selection Tab Channel"},
-//                        new OnSelectListener() {
-//                            @Override
-//                            public void onSelect(int position, String text) {
-//                                switch (text){
-//                                    case "Peer Chat":
-//                                        peerToPeerChat();
-//                                        break;
-//                                    case "Selection Tab Channel":
-//                                        PopUp_Chat(mainContext);
-//                                        break;
-//                                }
-//                            }
-//                        }).show();
-//
-//    }
-
-//    private void peerToPeerChat(){
-//        MDDialog mdDialog = new MDDialog.Builder(this)
-//                .setContentView(R.layout.peer_chat)
-//                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-//                    @Override
-//                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-//
-//                    }
-//                })
-//                .setNegativeButton("Cancel", new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButton(R.string.btn_chat, new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//                        Log.d("PeerToPeer", "Start To Chat");
-//                        EditText targetEdit = (EditText)contentView.findViewById(R.id.target_name_edit);
-//                        String mTargetName = targetEdit.getText().toString();
-//                        if (mTargetName.equals("")) {
-//                            Toast_in_Thread(getString(R.string.account_empty));
-//                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
-//                            Toast_in_Thread(getString(R.string.account_too_long));
-//                        } else if (mTargetName.startsWith(" ")) {
-//                            Toast_in_Thread(getString(R.string.account_starts_with_space));
-//                        } else if (mTargetName.equals("null")) {
-//                            Toast_in_Thread(getString(R.string.account_literal_null));
-//                        } else if (mTargetName.equals(username)) {
-//                            Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
-//                        } else {
-//                            callTarget(mTargetName);
-//                            voicePattern = VoicePattern.PEER_TO_PEER;
-//                            Log.e("peerToPeerChat","voicePattern = VoicePattern.PEER_TO_PEER");
-//                        }
-//                    }
-//                })
-//                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//
-//                    }
-//                })
-//                .setTitle(R.string.title_peer_voice)
-//
-//                .create();
-//
-//        mdDialog.show();
-//    }
-//
-//    private void callTarget(String target){
-//        String channelName = target + "And" + username;
-//        String callMessage = "##CallFrom" + username + "##In##" + channelName + "##";
-//        RtmMessage message = mRtmClient.createMessage();
-//        message.setText(callMessage);
-//
-//        mRtmClient.sendMessageToPeer(target, message, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
-//            @Override
-//            public void onSuccess(Void aVoid) {
-//                runOnUiThread(() -> {
-//                    VoiceChat(channelName, username);
-//                });
-//
-//            }
-//
-//            @Override
-//            public void onFailure(ErrorInfo errorInfo) {
-//                final int errorCode = errorInfo.getErrorCode();
-//                runOnUiThread(() -> {
-//                    switch (errorCode){
-//                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_TIMEOUT:
-//                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_FAILURE:
-//                            Toast_in_Thread(getString(R.string.call_failed));
-//                            break;
-//                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_PEER_UNREACHABLE:
-//                            Toast_in_Thread(getString(R.string.peer_offline));
-//                            break;
-//                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_CACHED_BY_SERVER:
-//                            Toast_in_Thread(getString(R.string.call_cached));
-//                            break;
-//                    }
-//                });
-//            }
-//        });
-//    }
-
-
-//    public void PopUp_Chat(Context context){
-//
-//        new MDDialog.Builder(context)
-////              .setContentView(customizedView)
-//                .setContentView(R.layout.chat_connect)
-//                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-//                    @Override
-//                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-//                        EditText et1 = (EditText) contentView.findViewById(R.id.channel_edit);
-//                        EditText et2 = (EditText) contentView.findViewById(R.id.userAccount_edit);
-//                        String userAccount = getUserAccount(context);
-//
-//                        if (userAccount.equals("--11--")){
-//                            userAccount = "";
-//                        }
-//
-//                        et1.setText("channel_1");
-//                        et2.setText(userAccount);
-//
-//                    }
-//                })
-//                .setTitle("Voice Chat")
-//                .setNegativeButton("Cancel", new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButton("Confirm", new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
-//                        EditText et1 = (EditText) contentView.findViewById(R.id.channel_edit);
-//                        EditText et2 = (EditText) contentView.findViewById(R.id.userAccount_edit);
-//
-//                        String Channel   = et1.getText().toString();
-//                        String userAccount   = et2.getText().toString();
-//
-//
-//                        if( !Channel.isEmpty() && !userAccount.isEmpty() ){
-//                            VoiceChat(Channel, userAccount);
-//                            setUserAccount(userAccount, context);
-//                            voicePattern = VoicePattern.CHAT_ROOM;
-//                            Log.e("PopUp_Chat","voicePattern = VoicePattern.CHAT_ROOM");
-//
-//                        }else{
-//                            PopUp_Chat(context);
-//                            Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
-//                        }
-//
-//                    }
-//                })
-//                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//
-//                    }
-//                })
-//                .setWidthMaxDp(600)
-//                .create()
-//                .show();
-//
-//    }
-
-
-//    private void VoiceChat(String Channel, String userAccount){
-////        Intent intent = new Intent(this, VoiceChatViewActivity.class);
-////        this.startActivity(intent);
-//
-//        initAgoraEngineAndJoinChannel(Channel, userAccount);
-//        fab.setVisibility(View.VISIBLE);
-//        mRtcEngine.setEnableSpeakerphone(true);
-//
-//    }
-
-
-
-
-
-
-
-//    /**
-//     * load big data
-//     */
-//    public void loadBigData(){
-//
-//        new XPopup.Builder(this)
-//                .asCenterList("BigData File",new String[]{"Select File", "Open RecentBlock"},
-//                        new OnSelectListener() {
-//                            @RequiresApi(api = Build.VERSION_CODES.N)
-//                            @Override
-//                            public void onSelect(int position, String text) {
-//                                switch (text) {
-//                                    case "Select File":
-//                                        Select_img();
-//                                        break;
-//
-//                                    case "Open RecentBlock":
-//                                        Select_Block();
-//                                        break;
-////
-////                                    case "Download by http":
-////                                        downloadFile();
-////                                        break;
-//                                }
-//                            }
-//                        })
-//                .show();
-//
-//
-//    }
-
-
-
-//
-//
-//    /**
-//     * init function for VoiceCall
-//     */
-//    private void initAgoraEngineAndJoinChannel(String Channel, String userAccount) {
-//        initializeAgoraEngine(userAccount);     // Tutorial Step 1
-//        joinChannel(userAccount, Channel);               // Tutorial Step 2
-//    }
-//
-//    public final void showLongToast(final String msg) {
-//        this.runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
-//            }
-//        });
-//    }
-//
-//
-//    // Tutorial Step 7
-//    public void onLocalAudioMuteClicked(View view) {
-//        ImageView iv = (ImageView) view;
-//        if (iv.isSelected()) {
-//            iv.setSelected(false);
-//            iv.clearColorFilter();
-//        } else {
-//            iv.setSelected(true);
-//            iv.setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
-//        }
-//
-//        // Stops/Resumes sending the local audio stream.
-//        mRtcEngine.muteLocalAudioStream(iv.isSelected());
-//    }
-//
-//    // Tutorial Step 5
-//    public void onSwitchSpeakerphoneClicked(View view) {
-//        ImageView iv = (ImageView) view;
-//        if (iv.isSelected()) {
-//            iv.setSelected(false);
-//            iv.clearColorFilter();
-//        } else {
-//            iv.setSelected(true);
-//            iv.setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
-//        }
-//
-//        // Enables/Disables the audio playback route to the speakerphone.
-//        //
-//        // This method sets whether the audio is routed to the speakerphone or earpiece. After calling this method, the SDK returns the onAudioRouteChanged callback to indicate the changes.
-//        mRtcEngine.setEnableSpeakerphone(view.isSelected());
-//    }
-//
-//    // Tutorial Step 3
-//    public void onEncCallClicked(View view) {
-//        leaveChannel();
-//        RtcEngine.destroy();
-//        mRtcEngine = null;
-//
-//    }
-//
-//    // Tutorial Step 1
-//    private void initializeAgoraEngine(String userAccount) {
-//        try {
-//            mRtcEngine = RtcEngine.create(getBaseContext(), getString(R.string.agora_app_id), mRtcEventHandler);
-//            // Sets the channel profile of the Agora RtcEngine.
-//            // CHANNEL_PROFILE_COMMUNICATION(0): (Default) The Communication profile. Use this profile in one-on-one calls or group calls, where all users can talk freely.
-//            // CHANNEL_PROFILE_LIVE_BROADCASTING(1): The Live-Broadcast profile. Users in a live-broadcast channel have a role as either broadcaster or audience. A broadcaster can both send and receive streams; an audience can only receive streams.
-//            mRtcEngine.setChannelProfile(Constants.CHANNEL_PROFILE_COMMUNICATION);
-//
-//            /**
-//             * register a account
-//             */
-//            mRtcEngine.registerLocalUserAccount(getString(R.string.agora_app_id), userAccount);
-//
-//        } catch (Exception e) {
-//            Log.e(LOG_TAG, Log.getStackTraceString(e));
-//
-//            throw new RuntimeException("NEED TO check rtc sdk init fatal error\n" + Log.getStackTraceString(e));
-//        }
-//    }
-//
-//    // Tutorial Step 2
-//    private void joinChannel(String userAccount, String Channel) {
-//        String accessToken = getString(R.string.agora_access_token);
-//        if (TextUtils.equals(accessToken, "") || TextUtils.equals(accessToken, "#YOUR ACCESS TOKEN#")) {
-//            accessToken = null; // default, no token
-//        }
-//
-//        // 使用注册的用户 ID 加入频道
-//        mRtcEngine.joinChannelWithUserAccount(accessToken, Channel, userAccount);
-//
-//        showLongToast("You joined Successfully !!!");
-//
-//
-////        // Allows a user to join a channel.
-////        mRtcEngine.joinChannel(accessToken, "1", "Extra Optional Data", 0); // if you do not specify the uid, we will generate the uid for you
-//    }
-//
-//    // Tutorial Step 3
-//    private void leaveChannel() {
-//        mRtcEngine.leaveChannel();
-//        voicePattern = VoicePattern.UNCERTAIN;
-//        chat_room_num = 0;
-//    }
-//
-//    // Tutorial Step 4
-//    private void onRemoteUserLeft(String userAccount, int reason) {
-//        if (voicePattern == VoicePattern.PEER_TO_PEER){
-//            showLongToast("The CALL is End !");
-//        }else {
-//            if (chat_room_num > 1){
-//                showLongToast("user " + userAccount + " left : " + reason);
-//            }else {
-//                showLongToast("The CALL is End !");
-//            }
-//        }
-//    }
-//
-//    // Tutorial Step 4
-//    private void onRemoteUserJoined(String userAccount) {
-//        showLongToast("user " + userAccount + " joined !");
-//    }
-//
-//    // Tutorial Step 6
-//    private void onRemoteUserVoiceMuted(int uid, boolean muted) {
-////        mRtcEngine.getUserInfoByUid(uid);
-//        showLongToast(String.format(Locale.US, "user %d muted or unmuted %b", (uid & 0xFFFFFFFFL), muted));
-//    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-//    /**
-//     * add friends
-//     */
-//    public void addFriends(){
-//        MDDialog mdDialog = new MDDialog.Builder(this)
-//                .setContentView(R.layout.peer_chat)
-//                .setNegativeButton("Cancel", new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButton(R.string.btn_chat, new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//                        Log.d("PeerToPeer", "Start To Chat");
-//                        EditText targetEdit = (EditText)contentView.findViewById(R.id.target_name_edit);
-//                        String mTargetName = targetEdit.getText().toString();
-//                        if (mTargetName.equals("")) {
-//                            Toast_in_Thread(getString(R.string.account_empty));
-//                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
-//                            Toast_in_Thread(getString(R.string.account_too_long));
-//                        } else if (mTargetName.startsWith(" ")) {
-//                            Toast_in_Thread(getString(R.string.account_starts_with_space));
-//                        } else if (mTargetName.equals("null")) {
-//                            Toast_in_Thread(getString(R.string.account_literal_null));
-//                        } else if (mTargetName.equals(username)) {
-//                            Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
-//                        } else {
-//                            mChatManager.addFriends(mTargetName);
-//                        }
-//                    }
-//                })
-//                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//
-//                    }
-//                })
-//                .setTitle(R.string.title_add_friends)
-//                .create();
-//
-//        mdDialog.show();
-//    }
-
-
-
-//    public void chooseChatMode(){
-//        new XPopup.Builder(this)
-//                .asCenterList("Choose Chat Mode", new String[]{"Peer Chat", "Selection Tab Channel"},
-//                        new OnSelectListener() {
-//                            @Override
-//                            public void onSelect(int position, String text) {
-//                                switch (text){
-//                                    case "Peer Chat":
-//                                        peerToPeer();
-//                                        break;
-//                                    case "Selection Tab Channel":
-//                                        chooseChannel();
-//                                        break;
-//                                }
-//                            }
-//                        }).show();
-//
-//    }
-
-//    private void peerToPeer(){
-//        MDDialog mdDialog = new MDDialog.Builder(this)
-//                .setContentView(R.layout.peer_chat)
-//                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-//                    @Override
-//                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-//
-//                    }
-//                })
-//                .setNegativeButton("Cancel", new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButton(R.string.btn_chat, new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//                        Log.d("PeerToPeer", "Start To Chat");
-//                        EditText targetEdit = (EditText)contentView.findViewById(R.id.target_name_edit);
-//                        String mTargetName = targetEdit.getText().toString();
-//                        if (mTargetName.equals("")) {
-//                            Toast_in_Thread(getString(R.string.account_empty));
-//                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
-//                            Toast_in_Thread(getString(R.string.account_too_long));
-//                        } else if (mTargetName.startsWith(" ")) {
-//                            Toast_in_Thread(getString(R.string.account_starts_with_space));
-//                        } else if (mTargetName.equals("null")) {
-//                            Toast_in_Thread(getString(R.string.account_literal_null));
-//                        } else if (mTargetName.equals(username)) {
-//                            Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
-//                        } else {
-//                            openMessageActivity(true, mTargetName);
-////                            mChatButton.setEn
-////                            jumpToMessageActivity();
-//                        }
-//                    }
-//                })
-//                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//
-//                    }
-//                })
-//                .setTitle(R.string.title_peer_msg)
-//
-//                .create();
-//
-//        mdDialog.show();
-//    }
-//
-//    private void chooseChannel(){
-//        MDDialog mdDialog = new MDDialog.Builder(this)
-//                .setContentView(R.layout.channel_chat)
-//                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-//                    @Override
-//                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-//
-//                    }
-//                })
-//                .setNegativeButton("Cancel", new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButton(R.string.btn_join, new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//                        EditText targetEdit = (EditText)contentView.findViewById(R.id.channel_name_edit);
-//                        String mTargetName = targetEdit.getText().toString();
-//                        if (mTargetName.equals("")) {
-//                            Toast_in_Thread(getString(R.string.channel_name_empty));
-//                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
-//                            Toast_in_Thread(getString(R.string.channel_name_too_long));
-//                        } else if (mTargetName.startsWith(" ")) {
-//                            Toast_in_Thread(getString(R.string.channel_name_starts_with_space));
-//                        } else if (mTargetName.equals("null")) {
-//                            Toast_in_Thread(getString(R.string.channel_name_literal_null));
-//                        }  else {
-//                            openMessageActivity(false, mTargetName);
-////                            mChatButton.setEn
-////                            jumpToMessageActivity();
-//                        }
-//                    }
-//                })
-//                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//
-//                    }
-//                })
-//                .setTitle(R.string.title_channel_message)
-//
-//                .create();
-//
-//        mdDialog.show();
-//    }
-
-//    private void openMessageActivity(boolean isPeerToPeerMode, String targetName){
-//        Intent intent = new Intent(MainActivity.this, MessageActivity.class);
-//        intent.putExtra(MessageUtil.INTENT_EXTRA_IS_PEER_MODE, isPeerToPeerMode);
-//        intent.putExtra(MessageUtil.INTENT_EXTRA_TARGET_NAME, targetName);
-//        intent.putExtra(MessageUtil.INTENT_EXTRA_USER_ID, username);
-//        startActivity(intent);
-//    }
-
-
-
-
-
-
-
-
-
-//    class MyRtmClientListener implements RtmClientListener {
-//
-//        @Override
-//        public void onConnectionStateChanged(final int state, int reason) {
-//            runOnUiThread(() -> {
-//                switch (state) {
-//                    case RtmStatusCode.ConnectionState.CONNECTION_STATE_RECONNECTING:
-//                        Toast_in_Thread(getString(R.string.reconnecting));
-//                        break;
-//                    case RtmStatusCode.ConnectionState.CONNECTION_STATE_ABORTED:
-//                        Toast_in_Thread(getString(R.string.account_offline));
-//                        setResult(MessageUtil.ACTIVITY_RESULT_CONN_ABORTED);
-//                        finish();
-//                        break;
-//                }
-//            });
-//        }
-//
-//        @SuppressLint("LongLogTag")
-//        @Override
-//        public void onMessageReceived(final RtmMessage message, final String peerId) {
-//            if (isTopActivity()) {
-//                Log.d("onMessageRecievedFromPeer", message.getText() + " from " + peerId);
-//                String msg = message.getText();
-//                if (Pattern.matches(callMsgPattern, message.getText())) {
-//
-//                    String targetName = msg.substring(10, msg.indexOf("##In##"));
-//                    String channelName = msg.substring(msg.indexOf("##In##") + 6, msg.lastIndexOf("##"));
-//                    final boolean[] answered = {false};
-//                    runOnUiThread(() -> {
-//
-//
-//                        BasePopupView calledPopup = new XPopup.Builder(mainContext)
-//                                .dismissOnTouchOutside(false)
-//                                .dismissOnBackPressed(false)
-//                                .asConfirm("Phone Call", "from " + targetName, "Reject", "Answer",
-//                                        new OnConfirmListener() {
-//                                            @Override
-//                                            public void onConfirm() {
-//                                                answered[0] = true;
-//
-//                                                VoiceChat(channelName, username);
-//                                                String callMessage = "##SuccessToAnswer##";
-//                                                RtmMessage answerMessage = mRtmClient.createMessage();
-//                                                answerMessage.setText(callMessage);
-//
-//                                                mRtmClient.sendMessageToPeer(targetName, answerMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
-//                                                    @Override
-//                                                    public void onSuccess(Void aVoid) {
-//
-//                                                    }
-//
-//                                                    @Override
-//                                                    public void onFailure(ErrorInfo errorInfo) {
-//
-//                                                    }
-//                                                });
-//                                            }
-//                                        }, new OnCancelListener() {
-//                                            @Override
-//                                            public void onCancel() {
-//                                                answered[0] = true;
-//
-//                                                String callMessage = "##RefuseToAnswer##";
-//                                                RtmMessage refuseMessage = mRtmClient.createMessage();
-//                                                refuseMessage.setText(callMessage);
-//
-//                                                mRtmClient.sendMessageToPeer(targetName, refuseMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
-//                                                    @Override
-//                                                    public void onSuccess(Void aVoid) {
-//
-//                                                    }
-//
-//                                                    @Override
-//                                                    public void onFailure(ErrorInfo errorInfo) {
-//
-//                                                    }
-//                                                });
-//                                            }
-//                                        }, false);
-//                        calledPopup.show();
-//                        calledPopup.delayDismiss(20000);
-//                        calledPopup.dismissWith(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                if (answered[0] == false){
-//                                    String callMessage = "##TimeOutToAnswer##";
-//                                    RtmMessage timeOutMessage = mRtmClient.createMessage();
-//                                    timeOutMessage.setText(callMessage);
-//
-//                                    mRtmClient.sendMessageToPeer(targetName, timeOutMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
-//                                        @Override
-//                                        public void onSuccess(Void aVoid) {
-//
-//                                        }
-//
-//                                        @Override
-//                                        public void onFailure(ErrorInfo errorInfo) {
-//
-//                                        }
-//                                    });
-//                                }
-//                            }
-//                        });
-//
-//                    });
-//                } else if (msg.equals("##RefuseToAnswer##")){
-//                    runOnUiThread(() -> {
-//                        Toast_in_Thread("Target Refused To Answer");
-//                        fab.setVisibility(View.GONE);
-//                        try {
-//                            leaveChannel();
-//                            RtcEngine.destroy();
-//                        } catch (Exception e){
-//                            Toast_in_Thread(e.getMessage());
-//                        }
-//                        mRtcEngine = null;
-//                    });
-//
-//                } else if (msg.equals("##SuccessToAnswer##")){
-//                    runOnUiThread(() -> {
-//                        Toast_in_Thread("Connection Succeeded");
-//                    });
-//                } else if (msg.equals("##TimeOutToAnswer##")){
-//                    runOnUiThread(() -> {
-//                        Toast_in_Thread("Target Time Out To Answer");
-//                        fab.setVisibility(View.GONE);
-//                        try {
-//                            leaveChannel();
-//                            RtcEngine.destroy();
-//                        } catch (Exception e){
-//                            Toast_in_Thread(e.getMessage());
-//                        }
-//                        mRtcEngine = null;
-//                    });
-//                } else {
-//                    runOnUiThread(() -> {
-//
-//                        MessageUtil.addMessageBean(peerId, message);
-//
-//                        MsgPopup msgPopup = new MsgPopup(mainContext, 3000);
-//                        msgPopup.setText(peerId + ": " + message.getText());
-//                        TextView msgText = msgPopup.findViewById(R.id.msg_text);
-//                        msgText.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                Log.d("MsgText", "OnClick");
-//                                openMessageActivity(true, peerId);
-//                            }
-//                        });
-//
-//                        BasePopupView xMsgPopup = new XPopup.Builder(mainContext)
-//                                .hasShadowBg(false)
-//                                .popupAnimation(PopupAnimation.ScaleAlphaFromCenter)
-//                                .isCenterHorizontal(true)
-//                                .offsetY(200)
-//                                .asCustom(msgPopup);
-//
-//                        xMsgPopup.show();
-//
-//                        Log.d("onMessageReceived", "runOnUiThread");
-//
-//
-//                    });
-//                }
-//            }
-//        }
-//
-//        @SuppressLint("LongLogTag")
-//        @Override
-//        public void onImageMessageReceivedFromPeer(final RtmImageMessage rtmImageMessage, final String peerId) {
-//            if (isTopActivity()) {
-//                Log.d("onMessageRecievedFromPeer", rtmImageMessage.getText() + " from " + peerId);
-//                runOnUiThread(() -> {
-//                    MessageUtil.addMessageBean(peerId, rtmImageMessage);
-//                    MsgPopup msgPopup = new MsgPopup(mainContext, 3000);
-//                    msgPopup.setText(peerId + ": [Image]");
-//                    TextView msgText = msgPopup.findViewById(R.id.msg_text);
-//                    msgText.setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View view) {
-//                            Log.d("MsgText", "OnClick");
-//                            openMessageActivity(true, peerId);
-//                        }
-//                    });
-//                    new XPopup.Builder(mainContext)
-//                            .hasShadowBg(false)
-//                            .popupAnimation(PopupAnimation.ScaleAlphaFromCenter)
-//                            .isCenterHorizontal(true)
-//                            .offsetY(200)
-//                            .asCustom(msgPopup)
-//                            .show();
-//
-//                });
-//            }
-//
-//
-////            runOnUiThread(() -> {
-////                if (peerId.equals(mPeerId)) {
-////                    MessageBean messageBean = new MessageBean(peerId, rtmImageMessage, false);
-////                    messageBean.setBackground(getMessageColor(peerId));
-////                    mMessageBeanList.add(messageBean);
-////                    mMessageAdapter.notifyItemRangeChanged(mMessageBeanList.size(), 1);
-////                    mRecyclerView.scrollToPosition(mMessageBeanList.size() - 1);
-////                } else {
-////                    MessageUtil.addMessageBean(peerId, rtmImageMessage);
-////                }
-////            });
-//        }
-//
-//        @Override
-//        public void onFileMessageReceivedFromPeer(RtmFileMessage rtmFileMessage, String s) {
-//
-//        }
-//
-//        @Override
-//        public void onMediaUploadingProgress(RtmMediaOperationProgress rtmMediaOperationProgress, long l) {
-//
-//        }
-//
-//        @Override
-//        public void onMediaDownloadingProgress(RtmMediaOperationProgress rtmMediaOperationProgress, long l) {
-//
-//        }
-//
-//        @Override
-//        public void onTokenExpired() {
-//
-//        }
-//
-//        @Override
-//        public void onPeersOnlineStatusChanged(Map<String, Integer> map) {
-//            String[] peerName = (String[]) map.keySet().toArray();
-//            int status = map.get(peerName[0]);
-//            switch (status){
-////                case
-//            }
-//
-//        }
-//    }
-
-
-
-
-//    private void PushSWC_Block_Manual(){
-//
-//        String filepath = this.getExternalFilesDir(null).toString();
-//        String swc_file_path = filepath + "/Sync/BlockSet";
-//        File dir = new File(swc_file_path);
-//
-//        if (!dir.exists()){
-//            if (!dir.mkdirs())
-//                Toast.makeText(this,"Fail to create file: PushSWC_Block", Toast.LENGTH_SHORT).show();
-//        }
-//
-//        String filename = getFilename_Remote(this);
-//        String neuron_number = getNeuronNumber_Remote(this, filename);
-//        String offset = getoffset_Remote(this, filename);
-//        System.out.println(offset);
-//        int[] index = BigImgReader.getIndex(offset);
-//        System.out.println(filename);
-//
-//        String ratio = Integer.toString(remote_socket.getRatio_SWC());
-//        String SwcFileName = "blockSet__" + neuron_number + "__" +
-//                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
-//
-//        System.out.println(SwcFileName);
-//
-//        if (Save_curSwc_fast(SwcFileName, swc_file_path)){
-//            File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
-//            try {
-//                System.out.println("Start to push swc file");
-//                InputStream is = new FileInputStream(SwcFile);
-//                long length = SwcFile.length();
-//
-//                if (length < 0 || length > Math.pow(2, 28)){
-//                    Toast_in_Thread("Something Wrong When Upload SWC, Try Again Please !");
-//                    return;
-//                }
-//
-//                remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
-//
-//            } catch (Exception e){
-//                System.out.println("----" + e.getMessage() + "----");
-//            }
-//        }
-//    }
-//
-//
-//    private String[] SaveSWC_Block_Auto(){
-//
-//        String filepath = this.getExternalFilesDir(null).toString();
-//        String swc_file_path = filepath + "/Sync/BlockSet";
-//        File dir = new File(swc_file_path);
-//
-//        if (!dir.exists()){
-//            if (!dir.mkdirs())
-//                Toast.makeText(this,"Fail to create file: PushSWC_Block", Toast.LENGTH_SHORT).show();
-//        }
-//
-//        String filename = getFilename_Remote(this);
-//        String neuron_number = getNeuronNumber_Remote(this, filename);
-//        String offset = getoffset_Remote(this, filename);
-//        System.out.println(offset);
-//        int[] index = BigImgReader.getIndex(offset);
-//        System.out.println(filename);
-//
-//        String ratio = Integer.toString(remote_socket.getRatio_SWC());
-//        String SwcFileName = "blockSet__" + neuron_number + "__" +
-//                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
-//
-//        System.out.println(SwcFileName);
-//
-//        if (Save_curSwc_fast(SwcFileName, swc_file_path)){
-//            return new String[]{ swc_file_path, SwcFileName };
-//        }
-//
-//        Log.v("SaveSWC_Block_Auto","Save Successfully !");
-//        return new String[]{"Error", "Error"};
-//    }
-//
-//
-//
-//    private static void PushSWC_Block_Auto(String swc_file_path, String SwcFileName){
-//
-//        if (swc_file_path.equals("Error"))
-//            return;
-//
-//        File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
-//        if (!SwcFile.exists()){
-//            Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
-//            return;
-//        }
-//        try {
-//            System.out.println("Start to push swc file");
-//            InputStream is = new FileInputStream(SwcFile);
-//            long length = SwcFile.length();
-//
-//            if (length <= 0 || length > Math.pow(2, 28)){
-//                Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
-//                return;
-//            }
-//            remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
-//
-//        } catch (Exception e){
-//            System.out.println("----" + e.getMessage() + "----");
-//        }
-//    }
-//
-//    private boolean Save_curSwc_fast(String SwcFileName, String dir_str){
-//
-//        System.out.println("start to save-------");
-//        myrenderer.reNameCurrentSwc(SwcFileName);
-//
-//        String error = "init";
-//        try {
-//            error = myrenderer.saveCurrentSwc(dir_str);
-//            System.out.println("error:" + error);
-//        } catch (Exception e) {
-//            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-//            return false;
-//        }
-//        if (!error.equals("")) {
-//            if (error.equals("This file already exits")){
-//                String errorMessage = "";
-//                try{
-//                    errorMessage = myrenderer.oversaveCurrentSwc(dir_str);
-//                    if (errorMessage == "Overwrite failed!"){
-//                        Toast_in_Thread("Fail to save swc file: Save_curSwc_fast");
-//                        return false;
-//                    }
-//                }catch (Exception e){
-//                    System.out.println(errorMessage);
-//                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-//                    return false;
-//                }
-//            }
-////            if (error.equals("Current swc is empty!")){
-////                Toast_in_Thread("Current swc file is empty!");
-////                return false;
-////            }
-//        } else{
-//            System.out.println("save SWC to " + dir_str + "/" + SwcFileName + ".swc");
-//        }
-//        return true;
-//    }
-
-
-//    backup setFileName
-//                    File file = new File(file_path_temp);
-//                    String name = file.getName();
-//                    Log.v("Handler",name);
-//
-//                    String result = null;
-//                    if (DrawMode){
-//                        String source = getSelectSource(context);
-//                        if (source.equals("Remote Server Aliyun")){
-//                            String filename = getFilename_Remote(context);
-//                            String brain_number = getNeuronNumber_Remote(context,filename);
-//                            result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
-////                            result = name.split("_")[1].substring(0,name.split("_")[1].length()-3);
-//                        }else if(source.equals("Remote Server SEU")){
-//                            String filename = getFilename_Remote(context);
-//                            String brain_number = getNeuronNumber_Remote(context,filename);
-//                            Log.d(TAG, "brain_number: " + brain_number);
-//                            Log.d(TAG, "brain_number.split(\"_\")[0]: " + brain_number.split("_")[0]);
-//                            if (brain_number.split("_")[0].equals("pre")){
-//                                Log.d(TAG, "brain_number.split(\"_\")[0]: " + brain_number.split("_")[0]);
-//                                result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[2];
-//                            } else {
-//                                result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
-//                            }
-//                        }
-//                    }else {
-//                        String brain_num = getFilename_Remote(context);
-//                        String neuron_num = getNeuronNumber_Remote(context, brain_num);
-//                        result = brain_num.split("_")[0] + "_" + neuron_num.split("_")[1] + "_" + getArborNum(context,brain_num.split("/")[0] + "_" + neuron_num).split(":")[0];
-//                    }
-
-
-
-
-
-//                    if (isBigData_Remote || isBigData_Local){
-//                        navigation_left.setVisibility(View.VISIBLE);
-//                        navigation_right.setVisibility(View.VISIBLE);
-//                        navigation_up.setVisibility(View.VISIBLE);
-//                        navigation_down.setVisibility(View.VISIBLE);
-//                        navigation_front.setVisibility(View.VISIBLE);
-//                        navigation_back.setVisibility(View.VISIBLE);
-////                        navigation_location.setVisibility(View.VISIBLE);
-//
-//                        Zoom_in_Big.setVisibility(View.VISIBLE);
-//                        Zoom_out_Big.setVisibility(View.VISIBLE);
-//                        Zoom_in.setVisibility(View.GONE);
-//                        Zoom_out.setVisibility(View.GONE);
-//
-//                        if (isBigData_Remote){
-//                            if (DrawMode){
-//
-//
-////                                Check_Yes.setVisibility(View.GONE);
-////                                Check_No.setVisibility(View.GONE);
-////                                Check_Uncertain.setVisibility(View.GONE);
-//                                res_list.setVisibility(View.GONE);
-////                                sync_pull.setVisibility(View.VISIBLE);
-////                                sync_push.setVisibility(View.VISIBLE);
-////                                neuron_list.setVisibility(View.VISIBLE);
-//                                user_list.setVisibility(View.VISIBLE);
-//                                room_id.setVisibility(View.VISIBLE);
-////                                blue_pen.setVisibility(View.VISIBLE);
-////                                red_pen.setVisibility(View.VISIBLE);
-//                            }
-//                            else {
-//                                Check_Yes.setVisibility(View.VISIBLE);
-//                                Check_No.setVisibility(View.VISIBLE);
-//                                Check_Uncertain.setVisibility(View.VISIBLE);
-//
-//
-////                                res_list.setVisibility(View.VISIBLE);
-////                                sync_pull.setVisibility(View.VISIBLE);
-////                                sync_push.setVisibility(View.GONE);
-////                                neuron_list.setVisibility(View.VISIBLE);
-////                                blue_pen.setVisibility(View.GONE);
-////                                red_pen.setVisibility(View.GONE);
-//                            }
-//                        }
-//                    }
 
 
 }

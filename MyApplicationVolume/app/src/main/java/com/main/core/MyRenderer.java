@@ -1,7 +1,6 @@
 package com.main.core;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -16,7 +15,6 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
@@ -30,7 +28,6 @@ import com.main.basic.MarkerList;
 import com.main.basic.MyAnimation;
 import com.main.basic.NeuronTree;
 import com.main.basic.XYZ;
-import com.main.core.collaboration.Communicator;
 import com.main.core.fileReader.annotationReader.AnoReader;
 import com.main.core.fileReader.annotationReader.ApoReader;
 import com.main.core.render.MyAxis;
@@ -39,8 +36,6 @@ import com.main.core.render.MyMarker;
 import com.main.core.render.MyNavLoc;
 import com.main.core.render.MyPattern;
 import com.main.core.render.MyPattern2D;
-import com.main.core.render.MyPatternGame;
-import com.main.game.GameCharacter;
 import com.tracingfunc.cornerDetection.HarrisCornerDetector;
 import com.tracingfunc.gd.V_NeuronSWC;
 import com.tracingfunc.gd.V_NeuronSWC_list;
@@ -67,8 +62,8 @@ import javax.microedition.khronos.opengles.GL10;
 
 import static com.main.basic.BitmapRotation.getBitmapDegree;
 import static com.main.basic.BitmapRotation.rotateBitmapByDegree;
-import static com.main.core.Myapplication.ToastEasy;
-import static com.main.core.Myapplication.getContext;
+import static com.main.core.MyApplication.ToastEasy;
+import static com.main.core.MyApplication.getContext;
 import static javax.microedition.khronos.opengles.GL10.GL_ALPHA_TEST;
 import static javax.microedition.khronos.opengles.GL10.GL_BLEND;
 import static javax.microedition.khronos.opengles.GL10.GL_ONE_MINUS_SRC_ALPHA;
@@ -105,7 +100,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private MyPattern myPattern;
     private MyPattern2D myPattern2D;
-    private MyPatternGame myPatternGame;
     private MyAxis myAxis;
     private MyDraw myDraw;
     public  MyAnimation myAnimation;
@@ -247,15 +241,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     private int degree = 0;
 
-//    private float [] gamePosition = new float[3];
-//    private float [] gameDir = new float[3];
-//    private float [] gameHead = new float[3];
-//    private float [] thirdPosition = new float[3];
-//    private float [] thirdDir = new float[3];
-//    private float [] thirdHead = new float[3];
-
-    private GameCharacter gameCharacter;
-
     private boolean ifGame = false;
     public static int threshold = 0;
 
@@ -286,7 +271,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         MyAxis.initProgram();
         MyDraw.initProgram();
         MyNavLoc.initProgram();
-        MyPatternGame.initProgram();
 
         V_NeuronSWC_list v_neuronSWC_list = new V_NeuronSWC_list();
         MarkerList markerList = new MarkerList();
@@ -330,19 +314,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     myPattern.free();
                     myPattern = null;
                 }
-
-                if (myPatternGame != null){
-                    myPatternGame.free();
-                    myPatternGame = null;
-                }
-
-                if (ifGame) {
-//                    myPattern = new MyPattern(width, height, img, mz, MyPattern.Mode.GAME);
-                    myPatternGame = new MyPatternGame(width, height, img, mz, sz);
-                } else {
-//                    myPatternGame = new MyPatternGame(width, height, img, mz, sz);
-                    myPattern = new MyPattern(width, height, img, mz, MyPattern.Mode.NORMAL);
-                }
+                myPattern = new MyPattern(width, height, img, mz, MyPattern.Mode.NORMAL);
             }
 
             if (fileType == FileType.PNG || fileType == FileType.JPG){
@@ -441,22 +413,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         /*
          the color of background
          */
-//        GLES30.glClearColor(0.5f, 0.4f, 0.3f, 1.0f);
-//        GLES30.glClearColor(1.0f, 0.5f, 0.0f, 1.0f);
-        //淡黄
-//        GLES30.glClearColor(1.0f, 0.89f, 0.51f, 1.0f);
-        //深蓝
-//        GLES30.glClearColor(0.098f, 0.098f, 0.439f, 1.0f);
-        //西红柿
-//        GLES30.glClearColor(1f, 1f, 1f, 1.0f);
-        //紫色
-//        GLES30.glClearColor(0.192f, 0.105f, 0.572f, 1.0f);
-        //浅蓝
-//        GLES30.glClearColor(0.623f, 0.658f, 0.854f, 1.0f);
         //中蓝
         GLES30.glClearColor(121f/255f, 134f/255f, 203f/255f, 1.0f);
-        //浅紫
-//        GLES30.glClearColor(0.929f, 0.906f, 0.965f, 1.0f);
 
 
         //把颜色缓冲区设置为我们预设的颜色
@@ -476,28 +434,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             /*
             init the {MyPattern, MyPattern2D, MyAxis, MyDraw, MyAnimation}
             */
-            if (myPattern == null || myPattern2D == null || myPatternGame == null || myPattern.getNeedRelease() || myPattern2D.getNeedRelease()){
+            if (myPattern == null || myPattern2D == null || myPattern.getNeedRelease() || myPattern2D.getNeedRelease()){
                 if (ifFileSupport){
                     if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD) {
                         if (myPattern != null){
                             myPattern.free();
                             myPattern = null;
                         }
-
-                        if (myPatternGame != null){
-                            myPatternGame.free();
-                            myPatternGame = null;
-                        }
-
-                        if (ifGame) {
-
-//                            myPattern = new MyPattern(screen_w, screen_h, img, mz, MyPattern.Mode.GAME);
-                            myPatternGame = new MyPatternGame(screen_w, screen_h, img, mz, sz);
-                            removeWhileLoad();
-                        } else {
-                            myPattern = new MyPattern(screen_w, screen_h, img, mz, MyPattern.Mode.NORMAL);
-//                            myPatternGame = new MyPatternGame(screen_w, screen_h, img, mz, sz);
-                        }
+                        myPattern = new MyPattern(screen_w, screen_h, img, mz, MyPattern.Mode.NORMAL);
                     }
                     if (fileType == FileType.PNG || fileType == FileType.JPG){
                         if(myPattern2D != null){
@@ -526,15 +470,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
             }
 
-            if (ifGame){
-                setVisual(gameCharacter);
-
-                setSmallMapMatrix();
-//            setVisual(gamePosition, gameDir);
-            }
-
             setMatrix();
-
 
             if (myAnimation != null){
                 if (myAnimation.status){
@@ -549,14 +485,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             if (!ifNavigationLococation){
                 if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD) {
                     //draw the volume img
-                    if (myPattern != null || myPatternGame != null)
-                        if (ifGame) {
-//                            myPatternGame.drawMap(finalMatrix);
-                            myPatternGame.drawMarker(finalMatrix, modelMatrix);
-                        } else {
-                            myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, ifDownSampling, contrast);
-//                            myPatternGame.drawMap(finalMatrix);
-                        }
+                    if (myPattern != null)
+                        myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, ifDownSampling, contrast);
                 }
                 if (fileType == FileType.JPG || fileType == FileType.PNG){
                     //draw the 2D img
@@ -705,35 +635,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     }
 
                 }
-
-                if (ifGame){
-                    setGameModelMatrix();
-
-                    float [] position = gameCharacter.getPosition();
-                    float [] dir = gameCharacter.getPosition().clone();
-                    float [] head = gameCharacter.getHead().clone();
-                    normalize(dir);
-                    normalize(head);
-                    float [] positionModel = position;
-
-//                    myDraw.drawMarker(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
-                    myDraw.drawGameModel(finalMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, dir, head);
-                    myDraw.drawMarkerDepth(finalSmallMapMatrix, modelMatrix, positionModel[0], positionModel[1], positionModel[2], lastMarkerType, 0.02f);
-
-                    for (int i = 0; i < gameFlags.size() / 3; i++){
-
-                        myPatternGame.drawFlag(finalMatrix, new float[]{gameFlags.get(i * 3), gameFlags.get(i * 3 + 1), gameFlags.get(i * 3 + 2)}, i+1);
-                    }
-
-//                    bitmap2D = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.star);
-//                    myPatternGame.setBackground(bitmap2D);
-//
-//                    setBackgroundMatrix();
-//                    myPatternGame.drawBackground(paraFinalMatrix);
-//                    myPattern2D = new MyPattern2D(bitmap2D, bitmap2D.getWidth(),bitmap2D.getHeight(), mz);
-//                    myPattern2D.draw(paraFinalMatrix);
-                }
-
 
                 /*
                 draw white trace of line that the user paint
@@ -1013,51 +914,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
-    private void setSmallMapMatrix(){
-        Matrix.multiplyMM(vPMatrix, 0, paraProjectionMatrix, 0, viewMatrix, 0);
-
-        Matrix.multiplyMM(mMVP2DMatrix, 0, vPMatrix, 0, zoomMatrix, 0);
-        // Set the Rotation matrix
-//        Matrix.setRotateM(rotationMatrix, 0, angle, 0.0f, 1.0f, 0.0f);
-//        Matrix.setRotateM(rotationXMatrix, 0, angleX, 1.0f, 0.0f, 0.0f);
-//        Matrix.setRotateM(rotationYMatrix, 0, angleY, 0.0f, 1.0f, 0.0f);
-
-//        Log.v("roatation",Arrays.toString(rotationMatrix));
-//        if (!ifGame) {
-        Matrix.setIdentityM(translateSmallMapMatrix, 0);//建立单位矩阵
-//
-//
-        if (!ifNavigationLococation) {
-            Matrix.translateM(translateSmallMapMatrix, 0, -0.5f * mz[0], -0.5f * mz[1], -0.5f * mz[2]);
-        } else {
-            Matrix.translateM(translateSmallMapMatrix, 0, -0.5f * mz_neuron[0], -0.5f * mz_neuron[1], -0.5f * mz_neuron[2]);
-        }
-
-//        Matrix.translateM(translateSmallMapMatrix, 0, 1f, -0.5f, -1.5f);
-//        }
-//        Matrix.multiplyMM(translateMatrix, 0, zoomMatrix, 0, translateMatrix, 0);
-        Matrix.setIdentityM(translateAfterMatrix, 0);
-
-        Matrix.translateM(translateAfterMatrix, 0, 2.1f, 0.5f, 0.5f);
-
-        Matrix.setIdentityM(zoomSmallMapMatrix, 0);
-        Matrix.scaleM(zoomSmallMapMatrix, 0, 0.5f, 0.5f, 0.5f);
-//        Matrix.translateM(translateAfterMatrix, 0, 0, 0, -cur_scale);
-
-        // Combine the rotation matrix with the projection and camera view
-        // Note that the vPMatrix factor *must be first* in order
-        // for the matrix multiplication product to be correct.
-//        Matrix.multiplyMM(rotationMatrix, 0, rotationYMatrix, 0, rotationXMatrix, 0);
-//        Matrix.multiplyMM(rotationMatrix, 0, zoomMatrix, 0, rotationMatrix, 0);
-        Matrix.multiplyMM(modelMatrix, 0, rotationMatrix, 0, translateSmallMapMatrix, 0);
-
-        Matrix.multiplyMM(RTMatrix, 0, zoomSmallMapMatrix, 0, modelMatrix, 0);
-
-        Matrix.multiplyMM(ZRTMatrix, 0, translateAfterMatrix, 0, RTMatrix, 0);
-
-        Matrix.multiplyMM(finalSmallMapMatrix, 0, vPMatrix, 0, ZRTMatrix, 0);      //ZRTMatrix代表modelMatrix
-    }
-
 
 
     //int转byte
@@ -1159,6 +1015,46 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 
     }
+
+
+    public void loaDemoFile(String message){
+
+
+        curSwcList.clear();
+        markerList.clear();
+        cur_scale = 1.0f;
+
+        undoCurveList.clear();
+        undoMarkerList.clear();
+
+        V_NeuronSWC_list v_neuronSWC_list = new V_NeuronSWC_list();
+        MarkerList markerList = new MarkerList();
+
+        undoCurveList.add(v_neuronSWC_list);
+        undoMarkerList.add(markerList);
+        curUndo = 0;
+
+        filepath = message.split(":")[1];
+        fileType = FileType.V3dPBD;
+
+        Log.v(TAG,"Before setImageDemo()");
+        setImageDemo();
+        ifFileLoaded = true;
+        ifFileSupport = true;
+
+        Log.v("SetPath", Arrays.toString(mz));
+
+        Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
+        Matrix.setIdentityM(zoomMatrix,0);//建立单位矩阵
+        Matrix.setIdentityM(zoomAfterMatrix, 0);
+        Matrix.setIdentityM(rotationMatrix, 0);
+        Matrix.setRotateM(rotationMatrix, 0, 0, -1.0f, -1.0f, 0.0f);
+//        Matrix.setIdentityM(translateAfterMatrix, 0);
+        // Set the camera position (View matrix)
+        Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+
+    }
+
     //设置文件路径
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void setGamePath(String message){
@@ -1465,6 +1361,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             curSwcList.deleteSeg(i);
         }
 
+        for (int i = markerList.size() - 1; i >= 0; i--){
+                markerList.remove(i);
+        }
+
         try {
             saveUndo();
         } catch (CloneNotSupportedException e) {
@@ -1707,7 +1607,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    public void deleteMultiMarkerByStroke(ArrayList<Float> line,  boolean isBigData) throws CloneNotSupportedException {
+    public void deleteMultiMarkerByStroke(ArrayList<Float> line) throws CloneNotSupportedException {
 //        ArrayList<Integer> toBeDeleted = new ArrayList<>();
         boolean already = false;
         for (int i = markerList.size() - 1; i >= 0; i--){
@@ -1726,28 +1626,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             if (pnpoly(line, positionVolumne[0], positionVolumne[1])){
 
                 if (!already){
-//                    saveUndo();
-//                    MarkerList tempMarkerList = markerList.clone();
-//                    V_NeuronSWC_list tempCurveList = curSwcList.clone();
-//
-//                    if (curUndo < UNDO_LIMIT){
-//                        curUndo += 1;
-//                        undoMarkerList.add(tempMarkerList);
-//                        undoCurveList.add(tempCurveList);
-//                    } else {
-//                        undoMarkerList.remove(0);
-//                        undoCurveList.remove(0);
-//                        undoMarkerList.add(tempMarkerList);
-//                        undoCurveList.add(tempCurveList);
-//                    }
                     already = true;
                 }
 
                 markerList.remove(tobeDeleted);
 
-                if (isBigData){
-                    updateDelMarker(tobeDeleted);
-                }
             }
         }
         saveUndo();
@@ -1931,7 +1814,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     // add the marker drawed into markerlist
-    public void setMarkerDrawed(float x, float y, boolean isBigData) throws CloneNotSupportedException {
+    public void setMarkerDrawed(float x, float y) throws CloneNotSupportedException {
 
         if(solveMarkerCenter(x, y) != null) {
 
@@ -1967,10 +1850,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             markerList.add(imageMarker_drawed);
 
-            if (isBigData){
-                updateAddMarker(imageMarker_drawed);
-            }
-
             saveUndo();
 //            if (process.size() < UNDO_LIMIT){
 //                process.add(Operate.DRAWMARKER);
@@ -2001,7 +1880,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     // delete the marker drawed from the markerlist
-    public void deleteMarkerDrawed(float x, float y, boolean isBigData) throws CloneNotSupportedException {
+    public void deleteMarkerDrawed(float x, float y) throws CloneNotSupportedException {
         for (int i = 0; i < markerList.size(); i++){
             ImageMarker tobeDeleted = markerList.get(i);
             float[] markerModel = volumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
@@ -2039,13 +1918,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
                 markerList.remove(i);
 
-                /*
-                update delete marker
-                 */
-                if (isBigData){
-                    updateDelMarker(temp);
-                }
-
 //                if (process.size() < UNDO_LIMIT){
 //                    process.add(Operate.DELETEMARKER);
 //                    undoDeleteMarkerList.add(temp);
@@ -2062,7 +1934,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    public void changeMarkerType(float x, float y, boolean isBigData) throws CloneNotSupportedException {
+    public void changeMarkerType(float x, float y) throws CloneNotSupportedException {
         for (int i = 0; i < markerList.size(); i++){
             ImageMarker tobeDeleted = markerList.get(i);
             float[] markerModel = volumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
@@ -2100,9 +1972,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 ImageMarker temp = markerList.get(i);
                 ImageMarker temp_backup = (ImageMarker) markerList.get(i).clone();
                 temp.type = lastMarkerType;
-
-                if (isBigData)
-                    updateRetypeMarker(temp_backup, temp);
 
                 saveUndo();
 
@@ -2181,6 +2050,40 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Log.v("MyRenderer", Arrays.toString(sz));
         Log.v("MyRenderer", Arrays.toString(mz));
 
+    }
+
+    private void setImageDemo(){
+
+        img = Image4DSimple.loadImage(filepath, ".DEMO");
+        if (img == null){
+            return;
+        }
+
+        Log.v(TAG,"Before myPattern.free()");
+
+        if (myPattern != null){
+            myPattern.setNeedRelease();
+        }
+
+        grayscale =  img.getData();
+
+        data_length = img.getDatatype().ordinal();
+        isBig = img.getIsBig();
+
+        sz[0] = (int)img.getSz0();
+        sz[1] = (int)img.getSz1();
+        sz[2] = (int)img.getSz2();
+
+        Integer[] num = {sz[0], sz[1], sz[2]};
+        float max_dim = (float) Collections.max(Arrays.asList(num));
+        Log.v("MyRenderer", Float.toString(max_dim));
+
+        mz[0] = (float) sz[0]/max_dim;
+        mz[1] = (float) sz[1]/max_dim;
+        mz[2] = (float) sz[2]/max_dim;
+
+        Log.v("MyRenderer", Arrays.toString(sz));
+        Log.v("MyRenderer", Arrays.toString(mz));
     }
 
     private void SetImage_Bigdata(int[] index){
@@ -2343,7 +2246,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             NeuronTree nt2 = NeuronTree.readSWC_file(swc_path);
             ano_apo = apoReader_1.read(apo_path);
-            importNeuronTree(nt2,false);
+            importNeuronTree(nt2);
             markerListLoaded = importApo(ano_apo);
 
         }catch (Exception e){
@@ -2550,7 +2453,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        float[] d = minus(loc1_index, loc2_index);
 //        normalize(d);
 
-        Log.v("getCenterOfLineProfile:", "step: " + Arrays.toString(d));
+//        Log.v("getCenterOfLineProfile:", "step: " + Arrays.toString(d));
 
         //判断是不是一个像素
         float length = distance(loc1_index, loc2_index);
@@ -2560,7 +2463,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         int nstep = (int)(length+0.5);
         float one_step = length/nstep;
 
-        Log.v("getCenterOfLineProfile", Float.toString(one_step));
+//        Log.v("getCenterOfLineProfile", Float.toString(one_step));
 
 //            float[][] dim = new float[3][2];
 //            for(int i=0; i<3; i++){
@@ -3403,7 +3306,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void addLineDrawed2(ArrayList<Float> line, V_NeuronSWC background_seg, boolean isBigData) throws CloneNotSupportedException {
+    public void addLineDrawed2(ArrayList<Float> line, V_NeuronSWC background_seg) throws CloneNotSupportedException {
         if (img.getData() == null){
             return;
         }
@@ -3520,10 +3423,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            v_neuronSWC_lists[0] = tempCurveList;
 
             curSwcList.append(seg);
-
-            if (isBigData){
-                updateAddSegSWC(seg);
-            }
 
 //            saveUndo();
 //            if (process.size() < UNDO_LIMIT){
@@ -3958,7 +3857,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 
-    public  void deleteLine1(ArrayList<Float> line, boolean isBigData) throws CloneNotSupportedException {
+    public  void deleteLine1(ArrayList<Float> line) throws CloneNotSupportedException {
 //        curSwcList.deleteCurve(line, finalMatrix, sz, mz);
         System.out.println("deleteline1--------------------------");
         Vector<Integer> indexToBeDeleted = new Vector<>();
@@ -3968,7 +3867,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float x2 = line.get(i * 3 + 3);
             float y2 = line.get(i * 3 + 4);
             for(int j=0; j<curSwcList.nsegs(); j++){
-                System.out.println("delete curswclist --"+j);
+//                System.out.println("delete curswclist --"+j);
                 V_NeuronSWC seg = curSwcList.seg.get(j);
                 if(seg.to_be_deleted)
                     continue;
@@ -3981,7 +3880,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
                 System.out.println("delete: end map");
                 for(int k=0; k<seg.row.size(); k++){
-                    System.out.println("j: "+j+" k: "+k);
+//                    System.out.println("j: "+j+" k: "+k);
                     V_NeuronSWC_unit child = seg.row.get(k);
                     int parentid = (int) child.parent;
                     if (parentid == -1 || seg.getIndexofParent(k) == -1){
@@ -4020,13 +3919,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         System.out.println("------------------this is delete---------------");
                         seg.to_be_deleted = true;
                         indexToBeDeleted.add(j);
-
-                        /*
-                        delete line
-                         */
-                        if (isBigData){
-                            updateDelSegSWC(seg);
-                        }
 
                         break;
                     }
@@ -4073,7 +3965,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        }
     }
 
-    public void splitCurve(ArrayList<Float> line, boolean isBigData) throws CloneNotSupportedException {
+    public void splitCurve(ArrayList<Float> line) throws CloneNotSupportedException {
 //        curSwcList.splitCurve(line, finalMatrix, sz, mz);
         System.out.println("split1--------------------------");
         boolean found = false;
@@ -4090,7 +3982,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 if (found == true){
                     break;
                 }
-                System.out.println("delete curswclist --"+j);
+//                System.out.println("delete curswclist --"+j);
                 V_NeuronSWC seg = curSwcList.seg.get(j);
                 if(seg.to_be_deleted)
                     continue;
@@ -4101,9 +3993,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         swcUnitMap.put(k,parent);
                     }
                 }
-                System.out.println("delete: end map");
+//                System.out.println("delete: end map");
                 for(int k=0; k<seg.row.size(); k++){
-                    System.out.println("j: "+j+" k: "+k);
+//                    System.out.println("j: "+j+" k: "+k);
                     V_NeuronSWC_unit child = seg.row.get(k);
                     int parentid = (int) child.parent;
                     if (parentid == -1 || seg.getIndexofParent(k) == -1){
@@ -4213,26 +4105,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                            undoCurveList.add(tempCurveList);
 //                        }
 
-
-                        if (isBigData){
-                            updateDelSegSWC(curSwcList.seg.get(j));
-                            updateAddSegSWC(newSeg1);
-                            updateAddSegSWC(newSeg2);
-                        }
-
                         Log.e(TAG, "n   type   x   y   z   parent");
                         Log.e(TAG, "-------------------------- newSeg1 ------------------------");
 
                         for (int i_1 = 0; i_1 < newSeg1.row.size(); i_1++){
                             V_NeuronSWC_unit unit = newSeg1.row.get(i_1);
-                            Log.e(TAG, String.format("%f %d %f %f %f %f", unit.n, (int) (unit.type), unit.x, unit.y, unit.z, unit.parent));
+//                            Log.e(TAG, String.format("%f %d %f %f %f %f", unit.n, (int) (unit.type), unit.x, unit.y, unit.z, unit.parent));
                         }
 
                         Log.e(TAG, "-------------------------- newSeg2 ------------------------");
 
                         for (int i_1 = 0; i_1 < newSeg2.row.size(); i_1++){
                             V_NeuronSWC_unit unit = newSeg2.row.get(i_1);
-                            Log.e(TAG, String.format("%f %d %f %f %f %f", unit.n, (int) (unit.type), unit.x, unit.y, unit.z, unit.parent));
+//                            Log.e(TAG, String.format("%f %d %f %f %f %f", unit.n, (int) (unit.type), unit.x, unit.y, unit.z, unit.parent));
                         }
 
                         curSwcList.deleteSeg(j);
@@ -4301,7 +4186,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    public void changeLineType(ArrayList<Float> line, int type, boolean isBigData) throws CloneNotSupportedException {
+    public void changeLineType(ArrayList<Float> line, int type) throws CloneNotSupportedException {
         System.out.println("changeLineType--------------------------");
         Vector<Integer> indexToChangeLineType = new Vector<>();
         Vector<Integer> ChangeLineType = new Vector<>();
@@ -4392,10 +4277,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     seg.row.get(i).type = type;
                 }
                 seg.to_be_deleted = false;
-
-                if (isBigData){
-                    updateRetypeSegSWC(seg);
-                }
             }
         }
 
@@ -4499,7 +4380,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
-    public void importNeuronTree(NeuronTree nt, boolean needSync){
+    public void importNeuronTree(NeuronTree nt){
 //
 //        if (ifLoadSWC){
 //            deleteAllTracing();
@@ -4516,9 +4397,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             Vector<V_NeuronSWC> segs = nt.devideByBranch();
             for (int i = 0; i < segs.size(); i++){
                 curSwcList.append(segs.get(i));
-                if (needSync){
-                    updateAddSegSWC(segs.get(i));
-                }
             }
 
             System.out.println("curSwcList.nsegs() : ");curSwcList.nsegs();
@@ -5265,17 +5143,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public byte[] binarization(byte[] data_image){
-
         int[] data_gray = new int[(data_image.length + 1)/4];
-//        float rate = 0.8f;
         int j = 0;
         for (int i = 0; i < data_image.length; i += 4){
             data_gray[j] = byteTranslate.byte1ToInt(data_image[i]);//(int)((float)data_image[i] * 0.3 + (float)data_image[i+1] * 0.59 + (float)data_image[i+2] * 0.11);
             j++;
         }
 
-// 下面是迭代法求二值化阈值
-//                 求出最大灰度值和最小灰度值
+        //  下面是迭代法求二值化阈值
+        //  求出最大灰度值和最小灰度值
         float Gmax=data_gray[0],Gmin=data_gray[0];
         for (int i=0;i<data_gray.length;i++){
             if (data_gray[i]>Gmax)
@@ -5285,9 +5161,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
         Log.d("GGGmax",String.valueOf(Gmax));
         Log.d("GGGmin",String.valueOf(Gmin));
-        //获取灰度直方图,其中histogram的下标表示灰度，下标对应的值表示有多少个像素对应的灰度这个灰度
-//        int ii,jj,t,count1 = 0, count2 = 0, sum1 = 0, sum2 = 0;
-//        int bp,fp;
+        //  获取灰度直方图,其中histogram的下标表示灰度，下标对应的值表示有多少个像素对应的灰度这个灰度
         int[] histogram = new int[256];
         for (int t = (int) Gmin; t<=Gmax; t++){
             for (int index=0;index<data_gray.length;index++)
@@ -5339,313 +5213,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             data_image[i+1] = (byte) data_gray[i/4];
             data_image[i+2] = (byte) data_gray[i/4];
         }
-
-
-//        for (int i = 0; i < 20; i++)
-//            Log.d("data_image_copy_gray",i + "-" +String.valueOf(data_image[i]) + "-" + String.valueOf(data_gray_copy[i]) + "-" + String.valueOf(data_gray[i]));
-
         return data_image;
-
-    }
-
-    public boolean driveMode(float [] direction, float [] head){
-//        int size = vertexPoints.length;
-
-        Log.d(TAG, "DriveMode");
-
-        if (myPatternGame == null) {
-            return false;
-        }
-
-        double angle = Math.acos(direction[2] / Math.sqrt(direction[0] * direction[0] + direction[1] * direction[1] + direction[2] * direction[2]));
-        float [] axis = new float[]{
-                direction[1], -direction[0], 0
-        };
-
-        if (axis[0] == 0 && axis[1] == 0){
-            Matrix.setIdentityM(rotationMatrix,0);
-        } else {
-            float a = (float)(angle * 180 / Math.PI);
-            Matrix.setRotateM(rotationMatrix, 0, a, axis[0], axis[1], axis[2]);
-        }
-
-        float [] headE = new float[]{head[0], head[1], head[2], 1};
-        float [] headAfter = new float[4];
-        Matrix.multiplyMV(headAfter, 0, rotationMatrix, 0, headE, 0);
-
-        float [] rotation2Matrix = new float[16];
-        if (headAfter[0] == 0){
-            Matrix.setIdentityM(rotation2Matrix, 0);
-        } else {
-            double angle2 = Math.acos(headAfter[1] / Math.sqrt(headAfter[0] * headAfter[0] + headAfter[1] * headAfter[1] + headAfter[2] * headAfter[2]));
-            float a2 = (float) (angle2 * 180 / Math.PI);
-
-//            Matrix.setRotateM(rotation2Matrix, 0, a2, 0, 0, -headAfter[0]);
-
-            Matrix.setRotateM(rotation2Matrix, 0, a2, -headAfter[2], 0, headAfter[0]);
-
-            Matrix.multiplyMM(rotationMatrix, 0, rotation2Matrix, 0, rotationMatrix, 0);
-        }
-
-        Matrix.setIdentityM(zoomMatrix,0);
-        Matrix.scaleM(zoomMatrix, 0, 100f, 100f, 100f);
-        cur_scale = 100f;
-
-        resetContrast(100);
-
-        Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
-
-        if (!ifNavigationLococation){
-            Matrix.translateM(translateMatrix,0,-0.5f * mz[0],-0.5f * mz[1],-0.5f * mz[2]);
-        }else {
-            Matrix.translateM(translateMatrix,0,-0.5f * mz_neuron[0],-0.5f * mz_neuron[1],-0.5f * mz_neuron[2]);
-        }
-
-        Matrix.setIdentityM(translateAfterMoveMatrix, 0);
-        float [] gamePosition = gameCharacter.getPosition();
-        float [] dis = new float[]{ gamePosition[0] - 0.5f, gamePosition[1] - 0.5f, gamePosition[2] - 0.5f };
-        convertToPerspective(dis);
-
-        float [] thirdPosition = gameCharacter.getThirdPosition();
-        float [] thirdDis = new float[]{thirdPosition[0] - 0.5f, thirdPosition[1] - 0.5f, thirdPosition[2] - 0.5f};
-
-
-        Log.d(TAG, "translateAfterMoveMatrix: " + Arrays.toString(translateAfterMoveMatrix));
-
-
-//        int size = vertexPoints.length;
-//        if (size == 9){
-//            System.out.println("Triangle");
-//            myPattern.setDrawListBuffer(drawlistTriangle);
-//            myPattern.setDrawlistLength(drawlistTriangle.length);
-//        } else if (size == 12){
-//            System.out.println("Square");
-//            myPattern.setDrawListBuffer(drawlistSquare);
-//            myPattern.setDrawlistLength(drawlistSquare.length);
-//        } else if (size == 15){
-//            System.out.println("Pentagon");
-//            myPattern.setDrawListBuffer(drawlistPentagon);
-//            myPattern.setDrawlistLength(drawlistPentagon.length);
-//        } else if (size == 18){
-//            System.out.println("Hexagon");
-//            myPattern.setDrawListBuffer(drawlistHexagon);
-//            myPattern.setDrawlistLength(drawlistHexagon.length);
-//        } else {
-//            System.out.println("wrong vertex to draw");
-//            return false;
-//        }
-//
-//        myPattern.setVertex(vertexPoints);
-
-        return true;
-
-    }
-
-    public float[] head(float m, float n, float p){
-        // (x0,y0,z0)是mark的坐标，（x,n,p）是mark前进方向的向量，Pix还是block的大小
-        // 1.首先求防止头脚颠倒的向量。 先求一个与方向向量垂直，且与XOZ 平行的向量（则与XOZ法向量垂直（0,1,0））,然后可以直接利用向量积来求。
-        // 然后防止头脚颠倒的向量是与前面两个向量(方向向量和与其垂直的向量)垂直的向量（也可以直接利用向量积就可以求出来）
-        // 向量积：(a1,b1,c1)与(a2,b2,c2) 向量积 (b1c2-b2c1,a2c1-a1c2,a1b2-a2b1)
-        // 方向向量(m,n,p)是 (a1,b1,c1)
-
-        // float[] XOZ = {0,1,0}; // (a2,b2,c2)
-//        float[] dir_ver = new float[3];
-
-        float[] des = new float[3];
-//        dir_ver[0] = p; //a2
-//        dir_ver[1] = 0; //b2
-//        dir_ver[2] = m; //c2
-
-        des[0] = n*m;
-        des[1] = p*p-m*m;
-        des[2] = -p*n;
-
-        return des;
-
-    }
-    public float[] thirdPersonAngle(float x0, float y0, float z0, float m, float n, float p, float h1, float h2, float h3){
-        // (x0,y0,z0)是mark的坐标，（m,n,p）是mark前进方向的向量,(h1,h2,h3)是防止头脚颠倒的向量
-        // 1.首先求防止头脚颠倒的向量。 先求一个与方向向量垂直，且与XOZ 平行的向量（则与XOZ法向量垂直（0,1,0））,然后可以直接利用向量积来求。
-        // 然后防止头脚颠倒的向量是与前面两个向量(方向向量和与其垂直的向量)垂直的向量（也可以直接利用向量积就可以求出来）
-        // 向量积：(a1,b1,c1)与(a2,b2,c2) 向量积 (b1c2-b2c1,a2c1-a1c2,a1b2-a2b1)
-        // 方向向量(m,n,p)是 (a1,b1,c1)
-        // 2.视角所在的点与前面的方向向量和求出来的防止颠倒的向量在同一平面，视角看进去的法向量应该也是在这个平面里的，可以先求法向量好求一点。
-        // 如何求这个平面呢：方向向量和求出来的防止颠倒的向量做向量积得到平面的法向量，然后利用平面的点法式。
-        // 到这里可以得到他和方向向量所在的平面方程：p(m^2-n^2-p^2)(X-x0)+m(p^2-m^2-n^2)(Z-z0)=0,没有Y，所以平面一定过Y轴
-        // 最后没有用到这个平面. 视角在mark的斜上后方，那视角的后肯定是针对方向向量来说的后，上应该就和防止头脚颠倒的这个方向。
-//        float[] XOZ = {0,1,0}; // (a2,b2,c2)
-//        float[] dir_ver = new float[3];
-
-
-        float[] head = {h1,h2,h3};
-        float[] des = new float[6]; //数组的前三位存视角坐标，后三位用来存看进去的法向量
-
-//        final float rad = (float) (45*(Math.PI/180)); //一般都要把角度转换成弧度。 前面的45就是我们常用的角度，是可以看情况定的
-        final float behind = 0.1f; //用它来控制视角相对于mark向后移了多少
-        final float up = 0.1f; //用它来控制视角相对于mark向后上抬了多少
-        final float front = -0.1f; //它来控制mark在方向向量的方向上，视角可以看到的赛道长度,然后就可以确定法向量
-//        dir_ver[0] = p; //a2
-//        dir_ver[1] = 0; //b2
-//        dir_ver[2] = m; //c2
-        float newM = (float) (m/Math.sqrt(m*m+n*n+p*p));
-        float newN = (float) (n/Math.sqrt(m*m+n*n+p*p));
-        float newP = (float) (p/Math.sqrt(m*m+n*n+p*p)); //都先归一化一下，防止方向向量会超过1 （其实也没必要好像，但是考虑到block大小是1）
-
-        float newH1 = (float) (head[0]/Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2]));
-        float newH2 = (float) (head[1]/Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2]));
-        float newH3 = (float) (head[2]/Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2]));
-
-        des[0] = x0-behind*newM+up*newH1;
-        des[1] = y0-behind*newN+up*newH2;
-        des[2] = z0-behind*newP+up*newH3;  // 求出来的这个视角的法向量，就用mark沿着方向向量前进一点的点，减去视角的坐标
-//        des[0] = x0-behind*newM;
-//        des[1] = y0-behind*newN;
-//        des[2] = z0-behind*newP;  // 求出来的这个视角的法向量，就用mark沿着方向向量前进一点的点，减去视角的坐标
-
-        float[] aid = {des[0]-x0,des[1]-y0,des[2]-z0}; // 只是一个辅助的中间变量
-        if ((head[0]*aid[0]+head[1]*aid[1]+head[2]*aid[2])/(Math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2])*Math.sqrt(aid[0]*aid[0]+aid[1]*aid[1]+aid[2]*aid[2])) < 0){
-            des[0] = x0-behind*newM-up*newH1;
-            des[1] = y0-behind*newN-up*newH2;
-            des[2] = z0-behind*newP-up*newH3;  // 为了使视角跟防止头脚颠倒的向量 保持一致： 同时在上或者同时在下
-        }
-
-        des[3] = (x0+front*newM)-des[0];
-        des[4] = (y0+front*newN)-des[1];
-        des[5] = (z0+front*newP)-des[2];
-
-        return des;
-    }
-
-    public ArrayList<Float> tangentPlane(float x0,float y0,float z0,float m,float n, float p,float Pix){
-// (x0,y0,z0)是视角的那个点，(m,n,p)是法向量，t是法线参数方程的参数t，Pix是block的像素
-        ArrayList<Float> sec = new ArrayList<Float>();
-        float x1 = x0; // + m*t;
-        float y1 = y0; // + n*t;
-        float z1 = z0; // + p*t;
-
-        if (m!=0  & ((n*y1+p*z1)/m+x1) <= Pix & ((n*y1+p*z1)/m+x1)>=0){
-            sec.add((n*y1+p*z1)/m+x1);
-            sec.add((float) 0.0);
-            sec.add((float) 0.0);
-        }
-        if (m!=0 & ((n*y1+p*(z1-Pix))/m+x1)<=Pix & ((n*y1+p*(z1-Pix))/m+x1)>=0){
-            sec.add((n*y1+p*(z1-Pix))/m+x1);
-            sec.add((float)0.0);
-            sec.add(Pix);
-        }
-        if (m!=0 & ((n*(y1-Pix)+p*(z1-Pix))/m+x1)<=Pix & ((n*(y1-Pix)+p*(z1-Pix))/m+x1)>=0){
-            sec.add((n*(y1-Pix)+p*(z1-Pix))/m+x1);
-            sec.add(Pix);
-            sec.add(Pix);
-        }
-        if (m!=0 & ((n*(y1-Pix)+p*z1)/m+x1)<=Pix & ((n*(y1-Pix)+p*z1)/m+x1)>=0){
-            sec.add((n*(y1-Pix)+p*z1)/m+x1);
-            sec.add(Pix);
-            sec.add((float)0.0);
-        }
-
-        if (n!=0 & ((m*x1+p*z1)/n+y1)<Pix & ((m*x1+p*z1)/n+y1)>0){
-            sec.add((float)0.0);
-            sec.add((m*x1+p*z1)/n+y1);
-            sec.add((float)0.0);
-        }
-        if (n!=0 & ((m*x1+p*(z1-Pix))/n+y1)<Pix & ((m*x1+p*(z1-Pix))/n+y1)>0){
-            sec.add((float)0.0);
-            sec.add((m*x1+p*(z1-Pix))/n+y1);
-            sec.add(Pix);
-        }
-        if (n!=0 & ((m*(x1-Pix)+p*z1)/n+y1)<Pix & ((m*(x1-Pix)+p*z1)/n+y1)>0){
-            sec.add(Pix);
-            sec.add((m*(x1-Pix)+p*z1)/n+y1);
-            sec.add((float)0.0);
-        }
-        if(n!=0 & ((m*(x1-Pix)+p*(z1-Pix))/n+y1)<Pix & ((m*(x1-Pix)+p*(z1-Pix))/n+y1)>0){
-            sec.add(Pix);
-            sec.add((m*(x1-Pix)+p*(z1-Pix))/n+y1);
-            sec.add(Pix);
-        }
-
-        if (p!=0 & ((m*x1+n*y1)/p+z1)<Pix & ((m*x1+n*y1)/p+z1)>0){
-            sec.add((float)0.0);
-            sec.add((float)0.0);
-            sec.add((m*x1+n*y1)/p+z1);
-        }
-        if (p!=0 & ((m*x1+n*(y1-Pix))/p+z1)<Pix & ((m*x1+n*(y1-Pix))/p+z1)>0){
-            sec.add((float)0.0);
-            sec.add(Pix);
-            sec.add((m*x1+n*(y1-Pix))/p+z1);
-        }
-        if (p!=0 & ((m*(x1-Pix)+n*y1)/p+z1)<Pix & ((m*(x1-Pix)+n*y1)/p+z1)>0){
-            sec.add(Pix);
-            sec.add((float)0.0);
-            sec.add((m*(x1-Pix)+n*y1)/p+z1);
-        }
-        if (p!=0 & ((m*(x1-Pix)+n*(y1-Pix))/p+z1)<Pix & ((m*(x1-Pix)+n*(y1-Pix))/p+z1)>0){
-            sec.add(Pix);
-            sec.add(Pix);
-            sec.add((m*(x1-Pix)+n*(y1-Pix))/p+z1);
-        }
-
-//        float cx = (sec.get(0) + sec.get(3) + sec.get(6)) / 3;
-//        float cy = (sec.get(1) + sec.get(4) + sec.get(7)) / 3;
-//        float cz = (sec.get(2) + sec.get(5) + sec.get(8)) / 3;
-//
-//        float dx0 = sec.get(0) - cx;
-//        float dy0 = sec.get(1) - cy;
-//        float dz0 = sec.get(2) - cz;
-//
-//        for (int i = 1; i < sec.size() / 3; i++){
-//            float x = sec.get(i * 3);
-//            float y = sec.get(i * 3 + 1);
-//            float z = sec.get(i * 3 + 2);
-//
-//            float dx = x - cx;
-//            float dy = y - cy;
-//            float dz = z - cz;
-//
-//
-//        }
-        return sec;
     }
 
     public String getFilePath(){
         return filepath;
-    }
-
-
-    public void updateVisual(){
-        setVisual(gameCharacter);
-    }
-
-    public void setVisual(GameCharacter gameCharacter){
-
-//
-
-        gameCharacter.setThirdPersonal();
-
-        float [] thirdHead = gameCharacter.getThirdHead();
-        float [] thirdDir = gameCharacter.getThirdDir();
-        float [] thirdPosition = gameCharacter.getThirdPosition();
-
-        System.out.println("AAAAAAAAAAA");
-
-        System.out.print(gameCharacter.getThirdHead()[0]);
-        System.out.print(' ');
-        System.out.print(gameCharacter.getThirdHead()[1]);
-        System.out.print(' ');
-        System.out.println(gameCharacter.getThirdHead()[2]);
-        System.out.print(gameCharacter.getThirdDir()[0]);
-        System.out.print(' ');
-        System.out.print(gameCharacter.getThirdDir()[1]);
-        System.out.print(' ');
-        System.out.println(gameCharacter.getThirdDir()[2]);
-        System.out.print(gameCharacter.getThirdPosition()[0]);
-        System.out.print(' ');
-        System.out.print(gameCharacter.getThirdPosition()[1]);
-        System.out.print(' ');
-        System.out.println(gameCharacter.getThirdPosition()[2]);
-
-        boolean gameSucceed = driveMode(thirdDir, thirdHead);
     }
 
 
@@ -5672,18 +5244,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
-
-//    public void setGamePosition(float [] position){
-//        gamePosition = position;
-//    }
-//
-//    public void setGameDir(float [] dir){
-//        gameDir = dir;
-//    }
-//
-//    public void setGameHead(float [] head) {
-//        gameHead = head;
-//    }
 
     public void setIfGame(boolean b){
         ifGame = b;
@@ -5744,522 +5304,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return -1;
     }
 
-    public void setGameFlags(ArrayList<Float> flags) {
-        gameFlags = (ArrayList<Float>) flags.clone();
-    }
 
-    public void appendGameFlags(float [] pos){
-        gameFlags.add(pos[0]);
-        gameFlags.add(pos[1]);
-        gameFlags.add(pos[2]);
-    }
-
-    public void clearGameFlags(){
-        gameFlags.clear();
-    }
-
-    public void moveGameFlags(float [] dir, float dis){
-        Log.d(TAG, "Before moveGameFlags: " + Arrays.toString(gameFlags.toArray()));
-        for (int i = 0; i < gameFlags.size() / 3; i++){
-            gameFlags.set(i * 3, gameFlags.get(i * 3) + dir[0] * dis);
-            gameFlags.set(i * 3 + 1, gameFlags.get(i * 3 + 1) + dir[1] * dis);
-            gameFlags.set(i * 3 + 2, gameFlags.get(i * 3 + 2) + dir[2] * dis);
-        }
-        Log.d(TAG, "After moveGameFlags: " + Arrays.toString(gameFlags.toArray()));
-
-    }
-
-    private void convertToPerspective(float [] dis){
-
-        float [] thirdDir = gameCharacter.getThirdDir();
-        float [] thirdHead = gameCharacter.getThirdHead();
-
-        float z = (thirdDir[0] * dis[0] + thirdDir[1] * dis[1] + thirdDir[2] * dis[2]) / (float)Math.sqrt(thirdDir[0] * thirdDir[0] + thirdDir[1] * thirdDir[1] + thirdDir[2] * thirdDir[2]);
-        float y = (thirdHead[0] * dis[0] + thirdHead[1] * dis[1] + thirdHead[2] * dis[2]) / (float)Math.sqrt(thirdHead[0] * thirdHead[0] + thirdHead[1] * thirdHead[1] + thirdHead[2] * thirdHead[2]);
-        float [] axis = new float[]{thirdDir[1] * thirdHead[2] - thirdHead[1] * thirdDir[2], thirdDir[2] * thirdHead[0] - thirdHead[2] * thirdDir[0], thirdDir[0] * thirdHead[1] - thirdHead[0] * thirdDir[1]};
-//        System.out.print(axis[0]);
-//        System.out.print(' ');
-//        System.out.print(axis[1]);
-//        System.out.print(' ');
-//        System.out.println(axis[2]);
-        float x = (axis[0] * dis[0] + axis[1] * dis[1] + axis[2] * dis[2]) / (float)Math.sqrt(axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]);
-        System.out.print(x);
-        System.out.print(' ');
-        System.out.print(y);
-        System.out.print(' ');
-        System.out.println(z);
-        Matrix.translateM(translateAfterMoveMatrix, 0, x, -y, -z);
-    }
-
-    public void setGameCharacter(GameCharacter g){
-        gameCharacter = g;
-    }
-
-    public GameCharacter getGameCharacter(){
-        return gameCharacter;
-    }
-
-    public void removeWhileMove(){
-        if (myPatternGame == null){
-            return;
-        }
-
-        Log.d("RemoveWhileMove", "Here we are!!!");
-
-        myPatternGame.removePointsByCenter(gameCharacter.getPosition());
-    }
-
-    public void removeWhileLoad(){
-//        Log.d(TAG, "removewhileload: " + Arrays.toString(offset));
-//        Log.d(TAG, "removewhileload: " + Integer.toString(size));
-        if (myPatternGame == null) {
-            return;
-        }
-
-        for (int i = 1; i < curSwcList.seg.get(0).nrows(); i++){
-            V_NeuronSWC_unit unit = curSwcList.seg.get(0).row.get(i);
-            Log.d(TAG, "removewhileload unit: " + Double.toString(unit.x) + Double.toString(unit.y) + Double.toString(unit.z));
-//            if (unit.x > offset[0] + size / 2 + 20 || unit.x < offset[0] - size / 2 - 20
-//                    || unit.y > offset[1] + size / 2 + 20 || unit.y < offset[1] - size / 2 - 20
-//                    || unit.z > offset[2] + size / 2 + 20 || unit.z < offset[2] - size / 2 - 20) {
-            if (unit.x > 128 + 20 || unit.x < - 20
-                    || unit.y > 128 + 20 || unit.y < - 20
-                    || unit.z > 128 + 20 || unit.z < - 20) {
-
-            } else {
-                Log.d(TAG, "removeWhileLoad: " + i);
-
-                float [] tempPos = new float[]{(float) unit.x, (float) unit.y, (float) unit.z};
-                float [] pos = volumetoModel(tempPos);
-                myPatternGame.removePointsByCenterWhileLoad(pos);
-            }
-        }
-    }
-
-
-
-
-
-    /**
-     * for collaboration ------------------------------------------ !
-     */
-
-
-    public void updateAddSegSWC(V_NeuronSWC seg){
-
-        Communicator communicator = Communicator.getInstance();
-        communicator.updateAddSegSWC(seg);
-
-    }
-
-
-    public void updateDelSegSWC(V_NeuronSWC seg){
-
-        Communicator communicator = Communicator.getInstance();
-        communicator.updateDelSegSWC(seg);
-
-    }
-
-    public void updateAddMarker(ImageMarker marker){
-
-        Communicator communicator = Communicator.getInstance();
-        communicator.updateAddMarkerMsg(marker);
-
-    }
-
-
-    public void updateDelMarker(ImageMarker marker){
-
-        Communicator communicator = Communicator.getInstance();
-        communicator.updateDelMarkerMsg(marker);
-
-    }
-
-    public void updateRetypeMarker(ImageMarker origin_marker, ImageMarker current_marker){
-
-        Communicator communicator = Communicator.getInstance();
-        communicator.updateRetypeMarkerMsg(origin_marker, current_marker);
-
-    }
-
-
-
-    public void updateRetypeSegSWC(V_NeuronSWC seg){
-
-        Communicator communicator = Communicator.getInstance();
-        communicator.updateRetypeSegSWC(seg, (int) seg.row.get(0).type);
-
-    }
-
-
-    public void syncAddSegSWC(V_NeuronSWC seg){
-        curSwcList.append(seg);
-    }
-
-    public void syncDelSegSWC(V_NeuronSWC seg){
-
-        for (int i = 0; i < curSwcList.nsegs(); i++){
-            V_NeuronSWC cur_seg = curSwcList.seg.get(i);
-            boolean delete = false;
-            if (cur_seg.row.size() == seg.row.size()){
-                delete = true;
-                for (int j = 0; j < seg.row.size(); j++){
-
-                    V_NeuronSWC_unit segUnit_del = seg.row.get(j);
-                    V_NeuronSWC_unit segUnit_cur = cur_seg.row.get(j);
-                    float[] point_del = new float[]{(float) segUnit_del.x, (float) segUnit_del.y, (float) segUnit_del.z};
-                    float[] point_cur = new float[]{(float) segUnit_cur.x, (float) segUnit_cur.y, (float) segUnit_cur.z};
-
-//                    Log.e(TAG,"point num: " + seg.row.size() + "; current point: " + j);
-                    if (! (distance(point_del, point_cur)<0.5) ){
-                        delete = false;
-                        break;
-                    }
-                }
-
-                if (!delete){
-                    delete = true;
-                    int segSize = seg.row.size()-1;
-                    for (int j = 0; j < seg.row.size(); j++){
-
-                        V_NeuronSWC_unit segUnit_del = seg.row.get(j);
-                        V_NeuronSWC_unit segUnit_cur = cur_seg.row.get(segSize - j);
-                        float[] point_del = new float[]{(float) segUnit_del.x, (float) segUnit_del.y, (float) segUnit_del.z};
-                        float[] point_cur = new float[]{(float) segUnit_cur.x, (float) segUnit_cur.y, (float) segUnit_cur.z};
-
-//                    Log.e(TAG,"point num: " + seg.row.size() + "; current point: " + j);
-                        if (! (distance(point_del, point_cur)<0.5) ){
-                            delete = false;
-                            break;
-                        }
-                    }
-                }
-
-            }
-
-            if (delete){
-                Vector<Integer> tobeDelete = new Vector<>();
-                tobeDelete.add(i);
-                curSwcList.deleteMutiSeg(tobeDelete);
-            }
-
-        }
-
-    }
-
-
-    public void syncRetypeSegSWC(V_NeuronSWC seg){
-
-        Log.e(TAG, "seg size(): " + seg.row.size());
-
-        for (int i = 0; i < curSwcList.nsegs(); i++){
-            V_NeuronSWC cur_seg = curSwcList.seg.get(i);
-
-            Log.e(TAG, "cur_seg size(): " + cur_seg.row.size());
-            boolean retype = false;
-            if (cur_seg.row.size() == seg.row.size()){
-                retype = true;
-                for (int j = 0; j < seg.row.size(); j++){
-
-                    V_NeuronSWC_unit segUnit_del = seg.row.get(j);
-                    V_NeuronSWC_unit segUnit_cur = cur_seg.row.get(j);
-                    float[] point_del = new float[]{(float) segUnit_del.x, (float) segUnit_del.y, (float) segUnit_del.z};
-                    float[] point_cur = new float[]{(float) segUnit_cur.x, (float) segUnit_cur.y, (float) segUnit_cur.z};
-
-//                    Log.e(TAG,"point num: " + seg.row.size() + "; current point: " + j);
-                    if (! (distance(point_del, point_cur)<0.5) ){
-                        retype = false;
-                        break;
-                    }
-                }
-                if (!retype){
-                    retype = true;
-                    int segSize = seg.row.size()-1;
-                    for (int j = 0; j < seg.row.size(); j++){
-
-                        V_NeuronSWC_unit segUnit_del = seg.row.get(j);
-                        V_NeuronSWC_unit segUnit_cur = cur_seg.row.get(segSize - j);
-                        float[] point_del = new float[]{(float) segUnit_del.x, (float) segUnit_del.y, (float) segUnit_del.z};
-                        float[] point_cur = new float[]{(float) segUnit_cur.x, (float) segUnit_cur.y, (float) segUnit_cur.z};
-
-//                    Log.e(TAG,"point num: " + seg.row.size() + "; current point: " + j);
-                        if (! (distance(point_del, point_cur)<0.5) ){
-                            retype = false;
-                            break;
-                        }
-                    }
-                }
-
-            }
-
-            double newType = seg.row.get(0).type;
-
-            if (retype){
-                Log.e(TAG, "find curve successfully !");
-
-                for (int j = 0; j < cur_seg.row.size(); j++){
-                    cur_seg.row.get(j).type = newType;
-                }
-            }
-
-        }
-
-    }
-
-
-    public void syncAddMarker(ImageMarker imageMarker){
-        markerList.add(imageMarker);
-    }
-
-
-    public void syncDelMarker(ImageMarker imageMarker){
-        for (int i = 0 ; i < markerList.size(); i++){
-
-            ImageMarker marker = markerList.get(i);
-            float[] marker_del = new float[]{imageMarker.x, imageMarker.y, imageMarker.z};
-            float[] marker_cur = new float[]{marker.x, marker.y, marker.z};
-
-            if (distance(marker_cur, marker_del) < 0.5){
-                markerList.remove(i);
-            }
-        }
-    }
-
-
-
-
-
-
-
-
-    /**
-     * toast info in the thread
-     * @param message the message you wanna toast
-     */
-    public void Toast_in_Thread(String message){
-        ((Activity) context_myrenderer).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getContext(), message,Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
 
 }
-
-
-
-
-
-
-
-//    public float [] rotateM(float theta, float x, float y, float z){
-//        double len = Math.sqrt(x * x + y * y + z * z);
-//        double nx = x / len;
-//        double ny = y / len;
-//        double nz = z / len;
-//        double cos = Math.cos(Math.PI * theta / 180.0f);
-//        double sin = Math.sin(Math.PI * theta / 180.0f);
-//        float [] rotateMatrix = new float[9];
-//        rotateMatrix[0] = (float)(nx * nx * (1 - cos) + cos);  rotateMatrix[1] = (float)(nx * ny * (1 - cos) - nz * sin);  rotateMatrix[2] = (float)(nx * nz * (1 - cos) + ny * sin);
-//        rotateMatrix[3] = (float)(nx * ny * (1 - cos) + nz * sin);  rotateMatrix[4] = (float)(ny * ny * (1 - cos) + cos);  rotateMatrix[5] = (float)(ny * nz * (1 - cos) - nx * sin);
-//        rotateMatrix[6] = (float)(nx * nz * (1 - cos) - ny * sin);  rotateMatrix[7] = (float)(ny * nz * (1 - cos) + nx * sin);  rotateMatrix[8] = (float)(nz * nz * (1 - cos) + cos);
-//        //默认旋转轴始终过原点
-//        return rotateMatrix;
-//    }
-
-
-
-
-
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-//
-//    private void initTexture(Context context){
-//
-//        GLES30.glGenTextures(  //创建纹理对象
-//                128, //产生纹理id的数量
-//                textures, //纹理id的数组
-//                0  //偏移量
-//        );
-//
-////        int textures[] = new int[1]; //生成纹理id
-////
-////        GLES30.glGenTextures(  //创建纹理对象
-////                1, //产生纹理id的数量
-////                textures, //纹理id的数组
-////                0  //偏移量
-////        );
-//
-//        byte [][] image_data = getIntensity();
-//
-//        for(int nID=0; nID < 128; nID++ ){
-//
-//            mTextureId = textures[nID];
-//
-//            //绑定纹理id，将对象绑定到环境的纹理单元
-//            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,mTextureId);
-//
-//            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-//                    GLES30.GL_TEXTURE_MIN_FILTER,GLES30.GL_NEAREST);//设置MIN 采样方式
-//            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-//                    GLES30.GL_TEXTURE_MAG_FILTER,GLES30.GL_LINEAR);//设置MAG采样方式
-//            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-//                    GLES30.GL_TEXTURE_WRAP_S,GLES30.GL_CLAMP_TO_EDGE);//设置S轴拉伸方式
-//            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-//                    GLES30.GL_TEXTURE_WRAP_T,GLES30.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
-//
-//
-//            CreateBuffer(image_data[nID]);
-//
-//            GLES30.glTexImage2D(
-//                    GLES30.GL_TEXTURE_2D, //纹理类型
-//                    0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
-//                    GLES30.GL_RGBA, //图片的格式
-//                    128,   //
-//                    128,   //
-//                    0, //纹理边框尺寸();
-//                    GLES30.GL_RGBA,
-//                    GLES30.GL_UNSIGNED_BYTE,
-//                    imageBuffer
-//            );
-//
-//            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,mTextureId);
-//        }
-//
-//
-//
-//
-//    }
-
-
-//
-//    //初始化纹理
-//    private void initTexture(Context context){
-//
-//        GLES30.glGenTextures(  //创建纹理对象
-//                224, //产生纹理id的数量
-//                textures, //纹理id的数组
-//                0  //偏移量
-//        );
-//
-//
-//        byte [][] image_data = getIntensity();
-//
-//        for(int nID=0; nID < 224; nID++ ){
-//
-//            mTextureId = textures[nID];
-//
-//            //绑定纹理id，将对象绑定到环境的纹理单元
-//            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,mTextureId);
-//
-//            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-//                    GLES30.GL_TEXTURE_MIN_FILTER,GLES30.GL_NEAREST);//设置MIN 采样方式
-//            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-//                    GLES30.GL_TEXTURE_MAG_FILTER,GLES30.GL_LINEAR);//设置MAG采样方式
-//            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-//                    GLES30.GL_TEXTURE_WRAP_S,GLES30.GL_CLAMP_TO_EDGE);//设置S轴拉伸方式
-//            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-//                    GLES30.GL_TEXTURE_WRAP_T,GLES30.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
-//
-//
-//            CreateBuffer(image_data[nID]);
-//
-//            GLES30.glTexImage2D(
-//                    GLES30.GL_TEXTURE_2D, //纹理类型
-//                    0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
-//                    GLES30.GL_RGBA, //图片的格式
-//                    224,   //
-//                    224,   //
-//                    0, //纹理边框尺寸();
-//                    GLES30.GL_RGBA,
-//                    GLES30.GL_UNSIGNED_BYTE,
-//                    imageBuffer
-//            );
-//
-//            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,mTextureId);
-//        }
-//
-//    }
-
-
-//    private byte[][] getIntensity(){
-//
-//        //最终的纹理信息
-//        for (int x = 0; x < 224; x++){
-//            for (int y = 0; y < 224; y++){
-//                for (int z = 0; z < 224; z++){
-//                    texPosition[x][y][z] = 0;
-//                }
-//            }
-//        }
-//
-//        float [] rotateM = rotateM(angle, rotateX, rotateY, rotateZ);
-////        int dx = (int)(112 - (rotateM[0] + rotateM[1] + rotateM[2]) * 64 + 0.5f);
-////        int dy = (int)(112 - (rotateM[3] + rotateM[4] + rotateM[5]) * 64 + 0.5f);
-////        int dz = (int)(112 - (rotateM[6] + rotateM[7] + rotateM[8]) * 64 + 0.5f);
-//        float dx = 112.0f - (finalRotateMatrix[0] + finalRotateMatrix[1] + finalRotateMatrix[2]) * 64.0f;
-//        float dy = 112.0f - (finalRotateMatrix[3] + finalRotateMatrix[4] + finalRotateMatrix[5]) * 64.0f;
-//        float dz = 112.0f - (finalRotateMatrix[6] + finalRotateMatrix[7] + finalRotateMatrix[8]) * 64.0f;
-//        float [] d = {dx, dy, dz};  //旋转后与中心的偏移量
-//        rawreader rr = new rawreader();
-//        String fileName = filepath;
-//        int[][][] grayscale =  rr.run(fileName);
-//        byte[][] data_image = new byte[224][224 * 224 * 4];
-//
-////        byte[] final_image = new byte[128 * 128 * 4];
-//        for (int x = 0; x < 128; x++){
-//            for (int y = 0; y < 128; y++){
-//                for (int z = 0; z < 128; z++){
-//                    int [] new_position = {0, 0, 0};
-//                    for (int i = 0; i < 3; i++){
-////                        float new_p = finalMatrix[i * 4] * x + finalMatrix[i * 4 + 1] * y
-////                                + finalMatrix[i * 4 + 2] * z + finalMatrix[i * 4 + 3];
-//                        float new_p = finalRotateMatrix[i * 3] * x + finalRotateMatrix[i * 3 + 1] * y
-//                                + finalRotateMatrix[i * 3 + 2] * z;
-////                        float new_p = rotationMatrix[i * 4] * x + rotationMatrix[i * 4 + 1] * y
-////                                + rotationMatrix[i * 4 + 2] * z + rotationMatrix[i * 4 + 3];
-////                        Log.v("new_p:", Float.toString(new_p));
-//                        new_position[i] = (int)(new_p + 0.5f + d[i]);
-////                        Log.v("new_position", Integer.toString(new_position[i]));
-//                    }
-//                    texPosition[new_position[0]][new_position[1]][new_position[2]] = grayscale[x][y][z];
-//                }
-//            }
-//        }
-//
-//
-//        for (int x = 0; x < 224; ++x){
-//            for (int y = 0; y < 224; ++y){
-//                for (int z = 0; z < 224; z++) {
-//                    data_image[z][(x * 224 + y) * 4] = intToByteArray(texPosition[x][y][z])[3];
-//                    data_image[z][(x * 224 + y) * 4 + 1] = intToByteArray(texPosition[x][y][z])[3];
-//                    data_image[z][(x * 224 + y) * 4 + 2] = intToByteArray(texPosition[x][y][z])[3];
-//                    if (texPosition[x][y][z] >= 20)
-//                        data_image[z][(x * 224 + y) * 4 + 3] = intToByteArray(255)[3];
-//                    else
-//                        data_image[z][(x * 224 + y) * 4 + 3] = intToByteArray(0)[3];
-//
-//                }
-//            }
-//        }
-//
-////        for (int x = 0; x < 128; ++x){
-////            for (int y = 0; y < 128; ++y){
-////                for (int z = 0; z < 128; z++) {
-////                    data_image[z][(x * 128 + y) * 4] = intToByteArray(grayscale[x][y][z])[3];
-////                    data_image[z][(x * 128 + y) * 4 + 1] = intToByteArray(grayscale[x][y][z])[3];
-////                    data_image[z][(x * 128 + y) * 4 + 2] = intToByteArray(grayscale[x][y][z])[3];
-////                    if (grayscale[x][y][z] >= 20)
-////                        data_image[z][(x * 128 + y) * 4 + 3] = intToByteArray(255)[3];
-////                    else
-////                        data_image[z][(x * 128 + y) * 4 + 3] = intToByteArray(0)[3];
-////
-////                }
-////            }
-////        }
-//
-//        return data_image;
-//    }

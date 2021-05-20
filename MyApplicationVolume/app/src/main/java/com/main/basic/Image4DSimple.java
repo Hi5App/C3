@@ -1,6 +1,7 @@
 package com.main.basic;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
@@ -15,6 +16,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -579,7 +581,6 @@ public class Image4DSimple {
                 try {
                     length = file.length();
                     is = new FileInputStream(file);
-//                grayscale =  rr.run(length, is);
                     image = rr.run(length, is);
 
                     Log.v("getIntensity_3d", filepath);
@@ -702,6 +703,27 @@ public class Image4DSimple {
                 }
 
                 image = il.loadRaw2StackPBD(is, length, false);
+            }
+        }
+
+        else if (filetype.equals(".DEMO")){
+            ImageLoaderBasic il = new ImageLoaderBasic();
+            AssetManager am = getContext().getAssets();
+
+            long length = 0;
+            InputStream is = null;
+
+            try {
+                is = am.open(filepath + ".v3dpbd");
+                length = is.available();
+                image = il.loadRaw2StackPBD(is, length, false);
+
+                Log.v("getIntensity_3d", filepath);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 

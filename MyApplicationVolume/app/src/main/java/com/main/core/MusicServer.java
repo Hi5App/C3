@@ -119,7 +119,7 @@ public class MusicServer extends Service {
 
     public static void defaultBgmSource(){
         bgmPlayer.stop();
-        bgmPlayer = MediaPlayer.create(Myapplication.getContext(), R.raw.bgm03sponge);
+        bgmPlayer = MediaPlayer.create(MyApplication.getContext(), R.raw.bgm03sponge);
         bgmPlayer.setVolume(volume, volume);
         bgmPlayer.setLooping(true);
         bgmPlayer.start();
