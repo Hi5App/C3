@@ -106,19 +106,9 @@ dependencies {
 
     implementation 'com.readystatesoftware.systembartint:systembartint:1.0.4'
 
-    implementation 'com.huawei.hms:push:4.0.4.301'
-
-    implementation 'com.qianwen:update-app:3.5.2'
-
-    implementation 'com.github.xuexiangjys:XUpdate:2.0.6'
-
     //for litepal: local database
     implementation 'org.litepal.guolindev:core:3.2.3'
 
-    // for agora video & audio
-    implementation 'io.agora.rtc:full-sdk:3.3.1'
 
-    // for agora im
-    implementation 'io.agora.rtm:rtm-sdk:1.4.1'
 
 }
