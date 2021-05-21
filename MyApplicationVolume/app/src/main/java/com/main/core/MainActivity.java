@@ -692,6 +692,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Message msg = Message.obtain();
         msg.what = 8;
         msg.obj = message;
+        puiHandler.sendMessage(msg);
     }
 
 
@@ -746,6 +747,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                 case 7:
                     updateScoreTextHandler();
+                    break;
+
+                case 8:
+                    Toast_in_Thread_static((String)msg.obj);
                     break;
 
                 default:
@@ -1907,6 +1912,17 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         context.startActivity(intent);
     }
 
+    public static void actionStart(Context context, String invitor, String path, String soma){
+        Intent intent = new Intent(context, MainActivity.class);
+        context.startActivity(intent);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        invitePopup(mainContext, invitor, path, soma);
+    }
+
 
 
 
@@ -2397,7 +2413,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
     };
 
-    private void invitePopup(Context context, String invitor, String path, String soma){
+    private static void invitePopup(Context context, String invitor, String path, String soma){
+        Log.d(TAG, "invitePopup: " + invitor + " " + path + " " + soma);
         String[] list = path.split("/");
         String roomName = list[list.length - 1];
         new XPopup.Builder(context)
@@ -3657,7 +3674,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210519a 16:59 UTC+8 build",
+                                "Version: 20210521a 21:16 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

@@ -47,4 +47,16 @@ public class InviteAttachment extends CustomAttachment {
         data.put(KEY_SOMA, soma);
         return data;
     }
+
+    public String getInvitor() {
+        return invitor;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public String getSoma() {
+        return soma;
+    }
 }

@@ -1,11 +1,15 @@
 package com.main.chat;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
@@ -15,6 +19,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.main.core.BaseActivity;
 import com.main.chat.nim.InfoCache;
+import com.main.core.MainActivity;
 import com.main.core.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.netease.nimlib.sdk.NIMClient;
@@ -34,14 +39,35 @@ public class ChatActivity extends BaseActivity {
 
     public static final int MAX_INPUT_NAME_LENGTH = 64;
 
-    private final String TAG = ChatActivity.class.getSimpleName();
+    private static final String TAG = ChatActivity.class.getSimpleName();
+
+    private static Context chatContext;
 
     private int FragmentId;
+
+    public static Handler chatHandler = new Handler(){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            switch (msg.what) {
+                case 0:
+                    Log.d(TAG, "handleMessage: 0" + (String)msg.obj);
+                    String [] inviteMessage = ((String) msg.obj).split(" ");
+                    MainActivity.actionStart(chatContext, inviteMessage[0], inviteMessage[1], inviteMessage[2]);
+
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_activity_main);
+
+        chatContext = this;
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each

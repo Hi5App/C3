@@ -445,7 +445,7 @@ public class MyDraw {
 
     private void BufferSet_Marker(float x, float y, float z, int type, float r){
 
-        vertexPoints_marker = createPositions(0f, 0f, 0f, r);
+        vertexPoints_marker = createPositions(x, y, z, r);
 
         // for the marker
         //分配内存空间,每个浮点型占4字节空间
