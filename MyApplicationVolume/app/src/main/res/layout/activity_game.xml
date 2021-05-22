@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".GameActivity">
+    tools:context=".core.GameActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.main.core.MyRockerView
+            <com.penglab.hi5.core.MyRockerView
                 android:id="@+id/rockerView1"
                 android:layout_width="120dp"
                 android:layout_height="120dp"
@@ -30,7 +30,7 @@
                 android:layout_marginLeft="20dp"
                 android:layout_marginBottom="20dp"/>
 
-            <com.main.core.MyRockerView
+            <com.penglab.hi5.core.MyRockerView
                 android:id="@+id/rockerView2"
                 android:layout_width="120dp"
                 android:layout_height="120dp"

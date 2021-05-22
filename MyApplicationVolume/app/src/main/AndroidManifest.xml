@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.main.core">
+    package="com.penglab.hi5">
 
     <uses-feature
         android:glEsVersion="0x00030000"
@@ -23,10 +23,10 @@
     <uses-permission android:name="android.permission.VIBRATE" /> <!-- 8.0+系统需要 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- 下面的 uses-permission 一起加入到你的 AndroidManifest 文件中。 -->
     <permission
-        android:name="com.main.core.permission.RECEIVE_MSG"
+        android:name="com.penglab.hi5.permission.RECEIVE_MSG"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.main.core.permission.RECEIVE_MSG" /> <!-- <uses-permission android:name="android.permission.INTERNET" /> -->
+    <uses-permission android:name="com.penglab.hi5.permission.RECEIVE_MSG" /> <!-- <uses-permission android:name="android.permission.INTERNET" /> -->
     <!-- <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> -->
     <!-- <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> -->
     <uses-permission
@@ -38,7 +38,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
-        android:name="com.main.core.Myapplication"
+        android:name="com.penglab.hi5.core.Myapplication"
         android:allowBackup="true"
         android:exported="true"
         android:icon="@mipmap/ic_launcher"
@@ -51,12 +51,12 @@
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
-        <activity android:name="com.main.core.game.RewardActivity"></activity>
-        <activity android:name="com.main.core.game.LeaderBoardActivity" />
+        <activity android:name=".core.game.RewardActivity"></activity>
+        <activity android:name=".core.game.LeaderBoardActivity" />
         <activity
-            android:name="com.main.core.game.QuestActivity"
+            android:name=".core.game.QuestActivity"
             android:theme="@style/dialog_style" />
-        <activity android:name="com.main.core.MenuActivity" />
+        <activity android:name="com.penglab.hi5.core.MenuActivity" />
 
 
         <!--
@@ -77,26 +77,26 @@
         <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
         <!-- </intent-filter> -->
         <!-- </activity> -->
-        <activity android:name="com.main.chat.nim.main.activity.SystemMessageActivity" />
-        <activity android:name="com.main.chat.nim.contact.activity.RobotProfileActivity" />
-        <activity android:name="com.main.chat.nim.contact.activity.UserProfileActivity" />
-        <activity android:name="com.main.chat.nim.contact.activity.UserProfileEditItemActivity" />
-        <activity android:name="com.main.chat.nim.contact.activity.UserProfileSettingActivity" />
-        <activity android:name="com.main.chat.nim.session.activity.FileDownloadActivity" />
-        <activity android:name="com.main.chat.nim.session.activity.MessageHistoryActivity" />
-        <activity android:name="com.main.chat.nim.session.activity.MessageInfoActivity" />
-        <activity android:name="com.main.chat.nim.session.activity.WatchMultiRetweetActivity" />
-        <activity android:name="com.main.chat.nim.session.search.DisplayMessageActivity" />
-        <activity android:name="com.main.chat.nim.session.search.SearchMessageActivity" />
-        <activity android:name="com.main.chat.nim.file.browser.FileBrowserActivity" />
-        <activity android:name="com.main.chat.nim.contact.activity.BlackListActivity" />
-        <activity android:name="com.main.chat.nim.main.activity.CustomNotificationActivity" />
-        <activity android:name="com.main.chat.nim.main.activity.RobotListActivity" />
-        <activity android:name="com.main.chat.nim.main.activity.TeamListActivity" />
-        <activity android:name="com.main.chat.nim.main.activity.SettingsActivity" />
-        <activity android:name="com.main.chat.nim.main.activity.NoDisturbActivity" />
+        <activity android:name=".chat.nim.main.activity.SystemMessageActivity" />
+        <activity android:name=".chat.nim.contact.activity.RobotProfileActivity" />
+        <activity android:name=".chat.nim.contact.activity.UserProfileActivity" />
+        <activity android:name=".chat.nim.contact.activity.UserProfileEditItemActivity" />
+        <activity android:name=".chat.nim.contact.activity.UserProfileSettingActivity" />
+        <activity android:name=".chat.nim.session.activity.FileDownloadActivity" />
+        <activity android:name=".chat.nim.session.activity.MessageHistoryActivity" />
+        <activity android:name=".chat.nim.session.activity.MessageInfoActivity" />
+        <activity android:name=".chat.nim.session.activity.WatchMultiRetweetActivity" />
+        <activity android:name=".chat.nim.session.search.DisplayMessageActivity" />
+        <activity android:name=".chat.nim.session.search.SearchMessageActivity" />
+        <activity android:name=".chat.nim.file.browser.FileBrowserActivity" />
+        <activity android:name=".chat.nim.contact.activity.BlackListActivity" />
+        <activity android:name=".chat.nim.main.activity.CustomNotificationActivity" />
+        <activity android:name=".chat.nim.main.activity.RobotListActivity" />
+        <activity android:name=".chat.nim.main.activity.TeamListActivity" />
+        <activity android:name=".chat.nim.main.activity.SettingsActivity" />
+        <activity android:name=".chat.nim.main.activity.NoDisturbActivity" />
         <activity
-            android:name="com.main.core.SplashScreenActivity"
+            android:name="com.penglab.hi5.core.SplashScreenActivity"
             android:configChanges="keyboardHidden|orientation"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
@@ -110,19 +110,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.main.chat.ChatActivity"
+            android:name=".chat.ChatActivity"
             android:label="@string/app_name" />
         <activity
-            android:name="com.main.core.ui.login.RegisterActivity"/>
+            android:name=".core.ui.login.RegisterActivity"/>
         <activity
-            android:name="com.main.core.ui.login.LoginActivity">
+            android:name=".core.ui.login.LoginActivity">
         </activity>
         <activity
-            android:name="com.main.core.GameActivity"
+            android:name="com.penglab.hi5.core.GameActivity"
             android:screenOrientation="landscape" />
-        <activity android:name="com.main.core.HelpActivity" />
+        <activity android:name="com.penglab.hi5.core.HelpActivity" />
         <activity
-            android:name="com.main.core.MainActivity"
+            android:name="com.penglab.hi5.core.MainActivity"
             android:configChanges="keyboardHidden|orientation|layoutDirection|screenSize"
             android:hardwareAccelerated="true"
             android:launchMode="singleTask"
@@ -139,35 +139,35 @@
 
 
         <activity
-            android:name="com.main.chat.agora.activity.PeerToPeerVideoActivity">
+            android:name=".chat.agora.activity.PeerToPeerVideoActivity">
         </activity>
 
 
         <activity
-            android:name="com.main.chat.agora.activity.PeerToPeerVoiceActivity">
+            android:name=".chat.agora.activity.PeerToPeerVoiceActivity">
         </activity>
 
         <!-- 协同工作通信服务 -->
         <service
-            android:name="com.main.chat.agora.AgoraService"
+            android:name=".chat.agora.AgoraService"
             android:exported="false" />
 
 
         <!-- 背景音乐后台服务 -->
         <service
-            android:name="com.main.core.MusicServer"
+            android:name="com.penglab.hi5.core.MusicServer"
             android:enabled="true"
             android:exported="true" />
 
         <!-- 协同工作通信服务 -->
         <service
-            android:name="com.main.core.collaboration.service.ManageService"
+            android:name=".core.collaboration.service.ManageService"
             android:exported="false" />
 
 
         <!-- 协同工作通信服务 -->
         <service
-            android:name="com.main.core.collaboration.service.CollaborationService"
+            android:name=".core.collaboration.service.CollaborationService"
             android:exported="false" />
 
 
@@ -198,18 +198,18 @@
         <service android:name="com.netease.nimlib.service.ResponseService" /> <!-- 云信进程间通信provider -->
         <provider
             android:name="com.netease.nimlib.ipc.NIMContentProvider"
-            android:authorities="com.main.core.ipc.provider"
+            android:authorities="com.penglab.hi5.ipc.provider"
             android:exported="false"
             android:process=":core" /> <!-- 云信内部使用的进程间通信provider -->
         <!-- SDK启动时会强制检测该组件的声明是否配置正确，如果检测到该声明不正确，SDK会主动抛出异常引发崩溃 -->
         <provider
             android:name="com.netease.nimlib.ipc.cp.provider.PreferenceContentProvider"
-            android:authorities="com.main.core.ipc.provider.preference"
+            android:authorities="com.penglab.hi5.ipc.provider.preference"
             android:exported="false"
             tools:replace="android:authorities" />
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.main.core.provider"
+            android:authorities="com.penglab.hi5.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

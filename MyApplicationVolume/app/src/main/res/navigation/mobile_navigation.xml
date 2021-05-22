@@ -12,13 +12,13 @@
 
     <fragment
         android:id="@+id/navigation_contactList"
-        android:name="com.main.chat.nim.customization.contact.ContactListFragment"
+        android:name="com.penglab.hi5.chat.nim.customization.contact.ContactListFragment"
         android:label="@string/title_contacts"/>
 <!--        tools:layout="@layout/chat_view" />-->
 
     <fragment
         android:id="@+id/navigation_Me"
-        android:name="com.main.chat.ui.me.MeFragment"
+        android:name="com.penglab.hi5.chat.ui.me.MeFragment"
         android:label="@string/title_me"
         tools:layout="@layout/fragment_notifications" />
 </navigation>

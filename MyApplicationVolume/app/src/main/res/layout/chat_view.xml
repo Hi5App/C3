@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.main.chat.ChatActivity">
+    tools:context=".chat.ChatActivity">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/contact_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <com.main.chat.chatlist.LetterView
+    <com.penglab.hi5.chat.chatlist.LetterView
         android:id="@+id/letter_view"
         android:layout_width="30dp"
         android:layout_height="match_parent"
