@@ -59,9 +59,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
-import com.penglab.hi5.basic.feature_calc_func.MorphologyCalculate;
-import com.penglab.hi5.basic.learning.pixelclassification.PixelClassification;
-import com.penglab.hi5.basic.learning.randomforest.RandomForest;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.enums.PopupAnimation;
@@ -70,12 +67,38 @@ import com.lxj.xpopup.interfaces.OnCancelListener;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnInputConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
+import com.netease.nim.uikit.api.NimUIKit;
+import com.netease.nim.uikit.common.ui.imageview.CircleImageView;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.Observer;
+import com.netease.nimlib.sdk.RequestCallback;
+import com.netease.nimlib.sdk.auth.AuthService;
+import com.netease.nimlib.sdk.friend.FriendService;
+import com.netease.nimlib.sdk.msg.MessageBuilder;
+import com.netease.nimlib.sdk.msg.MsgService;
+import com.netease.nimlib.sdk.msg.MsgServiceObserve;
+import com.netease.nimlib.sdk.msg.SystemMessageObserver;
+import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
+import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.uinfo.UserService;
+import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
+import com.penglab.hi5.R;
 import com.penglab.hi5.basic.CrashHandler;
 import com.penglab.hi5.basic.FileManager;
 import com.penglab.hi5.basic.Image4DSimple;
 import com.penglab.hi5.basic.ImageMarker;
 import com.penglab.hi5.basic.LocationSimple;
 import com.penglab.hi5.basic.NeuronTree;
+import com.penglab.hi5.basic.feature_calc_func.MorphologyCalculate;
+import com.penglab.hi5.basic.learning.pixelclassification.PixelClassification;
+import com.penglab.hi5.basic.tracingfunc.app2.ParaAPP2;
+import com.penglab.hi5.basic.tracingfunc.app2.V3dNeuronAPP2Tracing;
+import com.penglab.hi5.basic.tracingfunc.gd.CurveTracePara;
+import com.penglab.hi5.basic.tracingfunc.gd.V3dNeuronGDTracing;
+import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
+import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
 import com.penglab.hi5.chat.ChatActivity;
 import com.penglab.hi5.chat.agora.AgoraService;
 import com.penglab.hi5.chat.agora.message.AgoraMsgManager;
@@ -83,7 +106,6 @@ import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.chat.nim.main.helper.SystemMessageUnreadManager;
 import com.penglab.hi5.chat.nim.reminder.ReminderManager;
 import com.penglab.hi5.chat.nim.session.extension.InviteAttachment;
-import com.penglab.hi5.R;
 import com.penglab.hi5.core.collaboration.Communicator;
 import com.penglab.hi5.core.collaboration.basic.ReceiveMsgInterface;
 import com.penglab.hi5.core.collaboration.connector.MsgConnector;
@@ -107,35 +129,7 @@ import com.penglab.hi5.core.game.ScoreLitePalConnector;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.dataStore.PreferenceLogin;
 import com.penglab.hi5.dataStore.SettingFileManager;
-import com.penglab.hi5.serverCommunicator.Remote_Socket;
-import com.netease.nim.uikit.api.NimUIKit;
-import com.netease.nim.uikit.common.ui.imageview.CircleImageView;
-import com.netease.nimlib.sdk.NIMClient;
-import com.netease.nimlib.sdk.Observer;
-import com.netease.nimlib.sdk.RequestCallback;
-import com.netease.nimlib.sdk.auth.AuthService;
-import com.netease.nimlib.sdk.friend.FriendService;
-import com.netease.nimlib.sdk.msg.MessageBuilder;
-import com.netease.nimlib.sdk.msg.MsgService;
-import com.netease.nimlib.sdk.msg.MsgServiceObserve;
-import com.netease.nimlib.sdk.msg.SystemMessageObserver;
-import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
-import com.netease.nimlib.sdk.uinfo.UserService;
-import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
-import com.penglab.hi5.basic.tracingfunc.app2.ParaAPP2;
-import com.penglab.hi5.basic.tracingfunc.app2.V3dNeuronAPP2Tracing;
-import com.penglab.hi5.basic.tracingfunc.gd.CurveTracePara;
-import com.penglab.hi5.basic.tracingfunc.gd.V3dNeuronGDTracing;
-import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
-import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
-import com.penglab.hi5.basic.tracingfunc.gsdt.GSDT;
-import com.penglab.hi5.basic.tracingfunc.gsdt.ParaGSDT;
 import com.warkiz.widget.IndicatorSeekBar;
-
-import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -144,13 +138,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -166,16 +157,11 @@ import java.util.concurrent.TimeUnit;
 import cn.carbs.android.library.MDDialog;
 import io.agora.rtm.ErrorInfo;
 import io.agora.rtm.ResultCallback;
-import io.agora.rtm.RtmClientListener;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import static com.penglab.hi5.dataStore.SettingFileManager.getFilename_Remote;
-import static com.penglab.hi5.dataStore.SettingFileManager.getSelectSource;
-import static com.penglab.hi5.dataStore.SettingFileManager.getUserAccount_Check;
 import static com.penglab.hi5.dataStore.SettingFileManager.getoffset_Remote;
-import static com.penglab.hi5.dataStore.SettingFileManager.setFilename_Remote;
 import static com.penglab.hi5.dataStore.SettingFileManager.setSelectSource;
-import static com.penglab.hi5.dataStore.SettingFileManager.setoffset_Remote;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
@@ -185,7 +171,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //    private enum Operate {DRAW, DELETE, SPLIT};
 //    private Operate [] process = new Operate[UNDO_LIMIT];
     public static final String NAME = "com.example.core.MainActivity";
-
     public static final String File_path = "com.example.myfirstapp.MESSAGE";
     private static final String TAG = "MainActivity";
 
@@ -195,11 +180,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private static MyGLSurfaceView myGLSurfaceView;
     private static MyRenderer myrenderer;
-    private static final String DEBUG_TAG = "Gestures";
-    //    private static Context context;
     private static Context mainContext;
-    private long length;
-    private InputStream is;
+
     private String filepath = "";
     private boolean ifDeletingMultiMarker = false;
     private boolean ifChangeMarkerType = false;
@@ -228,9 +210,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private Button Others;
     private static Button Zoom_in;
     private static Button Zoom_out;
-    private static Button Check_Yes;
-    private static Button Check_No;
-    private static Button Check_Uncertain;
+
     private static Button Zoom_in_Big;
     private static Button Zoom_out_Big;
     private Button Rotation;
@@ -268,8 +248,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //    private static ImageButton sync_push;
 //    private static ImageButton sync_pull;
 
-//    private static FloatingActionButton Audio_call;
-//    private static DragFloatActionButton fab;
+
 
     private FrameLayout.LayoutParams lp_undo_i;
     private FrameLayout.LayoutParams lp_left_i;
@@ -300,13 +279,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             {false,false,false,false,false,false,false},
             {true,true,true,false,false,false,false}};
 
-    private Button detectLineButton;
-    private RandomForest rf = null;
-
 
     //    private static RemoteImg remoteImg;
     @SuppressLint("StaticFieldLeak")
-    private static Remote_Socket remote_socket;
     private BigImgReader bigImgReader;
 
 
@@ -326,7 +301,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private CircleImageView wave;
 
     private int eswc_length;
-    //读写权限
+    // 读写权限
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -344,7 +319,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private BroadcastReceiver broadcastReceiver;
 
-    private String currentPhotoPath; //指定一个不会跟其他文件产生冲突的文件名，用于后面相机拍照的图片的保存
+    private String currentPhotoPath; // 指定一个不会跟其他文件产生冲突的文件名，用于后面相机拍照的图片的保存
 
     private File showPic;
     private Uri picUri;
@@ -358,8 +333,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private static String filename = "";
 
-    private static boolean DrawMode = true;
-
     private enum PenColor {
         WHITE, BLACK, RED, BLUE, PURPLE, CYAN, YELLOW, GREEN
     }
@@ -368,10 +341,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         PEER_TO_PEER, CHAT_ROOM, UNCERTAIN
     }
 
-    private VoicePattern voicePattern = VoicePattern.UNCERTAIN;
-    private int chat_room_num = 0;
-
-    private static String[] push_info_swc = {"New", "New"};
 
     private BasePopupView drawPopupView;
 
@@ -382,10 +351,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public static String USERNAME = "username";
 
     public static String username;
-
-    private RtmClientListener mClientListener;
-
-    private final String callMsgPattern = "##CallFrom.*##In##.*##";
 
     private static float [] gamePositionForIntent = {0.5f, 0.5f, 0.5f};
     private static float [] gameDirForIntent = {1, 1, 1};
@@ -778,6 +743,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mainContext = this;
+
         /*
         music module  -------------------------------------------------------------------------------------------------
          */
@@ -820,7 +787,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
-
         isBigData_Remote = false;
         isBigData_Local  = false;
 
@@ -828,910 +794,27 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .asLoading("Downloading......");
 
 
-
-
         Intent intent = getIntent();
-        String MSG = intent.getStringExtra(MyRenderer.OUT_OF_MEMORY);
+        String OOM = intent.getStringExtra(MyRenderer.OUT_OF_MEMORY);
         username   = intent.getStringExtra(USERNAME);
 
-        if (MSG != null)
-            Toast.makeText(this, MSG, Toast.LENGTH_SHORT).show();
+        if (OOM != null)
+            Toast.makeText(this, OOM, Toast.LENGTH_SHORT).show();
 
         wave = new CircleImageView(getContext());
         wave.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
 
-        /*
-        init database for score module
-         */
-//        initDataBase();
-
-        //
         myrenderer = new MyRenderer(this);
         myGLSurfaceView = new MyGLSurfaceView(this);
 
 
+        initButtons();
 
 
-
-        /*
-        Button Layout ------------------------------------------------------------------------------------------------------------------------
-         */
-
-        FrameLayout ll = (FrameLayout) findViewById(R.id.container);
-        ll.addView(myGLSurfaceView);
-
-        LinearLayout ll_up = new LinearLayout(this);
-        ll_up.setOrientation(LinearLayout.VERTICAL);
-
-        LinearLayout ll_hs_back = new LinearLayout(this);
-        ll_hs_back.setOrientation(LinearLayout.HORIZONTAL);
-        ll_hs_back.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
-
-        LinearLayout ll_space = new LinearLayout(this);
-        ll_space.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT, 1.0f));
-
-
-        ll_file = new LinearLayout(this);
-        FrameLayout.LayoutParams lp_filename = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-        ll_file.setLayoutParams(lp_filename);
-        ll_file.setBackgroundColor(Color.YELLOW);
-
-        filenametext = new TextView(this);
-        filenametext.setText("");
-        filenametext.setTextColor(Color.BLACK);
-        ll_file.addView(filenametext);
-        ll_file.setVisibility(View.GONE);
-
-        ll_top = new LinearLayout(this);
-        ll_bottom = new LinearLayout(this);
-
-        HorizontalScrollView hs_top = new HorizontalScrollView(this);
-
-        ll_up.addView(ll_file);
-
-        ll_hs_back.addView(hs_top, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        ll_hs_back.addView(ll_space);
-
-        ll_up.addView(ll_hs_back);
-        ll.addView(ll_up);
-
-        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(1080, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.gravity = Gravity.BOTTOM;
-        this.addContentView(ll_bottom, lp);
-        ll_bottom.setLayoutParams(lp);
-
-        hs_top.addView(ll_top);
-
-
-        Zoom_in = new Button(this);
-        Zoom_in.setText("+");
-        Zoom_in_Big = new Button(this);
-        Zoom_in_Big.setText("+");
-
-        Zoom_out = new Button(this);
-        Zoom_out.setText("-");
-        Zoom_out_Big = new Button(this);
-        Zoom_out_Big.setText("-");
-
-        FrameLayout.LayoutParams lp_zoom_in = new FrameLayout.LayoutParams(120, 120);
-        lp_zoom_in.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_zoom_in.setMargins(0, 0, 20, 290);
-        this.addContentView(Zoom_in_Big, lp_zoom_in);
-
-        FrameLayout.LayoutParams lp_zoom_out = new FrameLayout.LayoutParams(120, 120);
-        lp_zoom_out.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_zoom_out.setMargins(0, 0, 20, 200);
-        this.addContentView(Zoom_out_Big, lp_zoom_out);
-
-        Zoom_in_Big.setVisibility(View.GONE);
-        Zoom_out_Big.setVisibility(View.GONE);
-
-        FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
-        lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
-        this.addContentView(Zoom_in, lp_zoom_in_no);
-
-        FrameLayout.LayoutParams lp_zoom_out_no = new FrameLayout.LayoutParams(100, 150);
-        lp_zoom_out_no.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
-        this.addContentView(Zoom_out, lp_zoom_out_no);
-
-
-
-
-
-
-        /*
-        button onclick event  -----------------------------------------------------------------------------
-         */
-        Zoom_in.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                if(!myrenderer.getIfFileLoaded()){
-                    Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        myrenderer.zoom_in();
-                        myGLSurfaceView.requestRender();
-                    }
-                }).start();
-
-            }
-        });
-
-
-        Zoom_out.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                if(!myrenderer.getIfFileLoaded()){
-                    Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
-                    return;
-                }
-
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        myrenderer.zoom_out();
-                        myGLSurfaceView.requestRender();
-                    }
-                }).start();
-
-            }
-        });
-
-        Zoom_in_Big.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                if(!myrenderer.getIfFileLoaded()){
-                    Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
-                    return;
-                }
-
-//                if (isBigData_Remote && DrawMode){
-                if (isBigData_Remote){
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            Communicator communicator = Communicator.getInstance();
-                            communicator.zoomIn();
-
-                        }
-                    }).start();
-                }else {
-                    myrenderer.zoom_in();
-                    myGLSurfaceView.requestRender();
-                }
-
-            }
-        });
-
-
-        Zoom_out_Big.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                if(!myrenderer.getIfFileLoaded()){
-                    Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
-                    return;
-                }
-
-//                if (isBigData_Remote && DrawMode){
-                if (isBigData_Remote){
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            Communicator communicator = Communicator.getInstance();
-                            communicator.zoomOut();
-
-                        }
-                    }).start();
-                }else {
-                    myrenderer.zoom_out();
-                    myGLSurfaceView.requestRender();
-                }
-
-            }
-        });
-
-
-
-        Check_Yes = new Button(this);
-        Check_Yes.setText("Y");
-
-        Check_No = new Button(this);
-        Check_No.setText("N");
-
-        Check_Uncertain = new Button(this);
-        Check_Uncertain.setText("?");
-
-
-        FrameLayout.LayoutParams lp_check_yes = new FrameLayout.LayoutParams(120, 120);
-        lp_check_yes.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_check_yes.setMargins(0, 0, 20, 590);
-        this.addContentView(Check_Yes, lp_check_yes);
-
-        FrameLayout.LayoutParams lp_check_no = new FrameLayout.LayoutParams(120, 120);
-        lp_check_no.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_check_no.setMargins(0, 0, 20, 500);
-        this.addContentView(Check_No, lp_check_no);
-
-        FrameLayout.LayoutParams lp_check_uncertain = new FrameLayout.LayoutParams(120, 120);
-        lp_check_uncertain.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_check_uncertain.setMargins(0, 0, 20, 410);
-        this.addContentView(Check_Uncertain, lp_check_uncertain);
-
-        Check_Yes.setVisibility(View.GONE);
-        Check_No.setVisibility(View.GONE);
-        Check_Uncertain.setVisibility(View.GONE);
-
-
-        Check_Yes.setOnLongClickListener(new Button.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (getUserAccount_Check(context).equals("--11--") || getUserAccount_Check(context).equals("")){
-//                            PopUp_UserAccount(MainActivity.this);
-                            Toast_in_Thread("Please Input your User name first in more functions !");
-                        }else {
-                            remote_socket.Check_Result("YES");
-                            Toast_in_Thread("Check YES Successfully");
-                        }
-
-                    }
-                }).start();
-                return true;
-            }
-        });
-
-
-
-        Check_No.setOnLongClickListener(new Button.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (getUserAccount_Check(context).equals("--11--") || getUserAccount_Check(context).equals("")){
-//                            PopUp_UserAccount(MainActivity.this);
-                            Toast_in_Thread("Please Input your User name first in more functions !");
-                        }else {
-                            remote_socket.Check_Result("NO");
-                            Toast_in_Thread("Check NO Successfully");
-                        }
-
-                    }
-                }).start();
-                return true;
-            }
-        });
-
-        Check_Uncertain.setOnLongClickListener(new Button.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (getUserAccount_Check(context).equals("--11--") || getUserAccount_Check(context).equals("")){
-//                            PopUp_UserAccount(MainActivity.this);
-                            Toast_in_Thread("Please Input your User name first in more functions !");
-                        }else {
-                            remote_socket.Check_Result("UNCERTAIN");
-                            Toast_in_Thread("Check UNCERTAIN Successfully");
-                        }
-
-                    }
-                }).start();
-                return true;
-            }
-        });
-
-
-//        Check_Uncertain.setOnClickListener(new Button.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        if (getUserAccount_Check(context).equals("--11--") || getUserAccount_Check(context).equals("")){
-////                            PopUp_UserAccount(MainActivity.this);
-//                            Toast_in_Thread("Please Input your User name first in more functions !");
-//                        }else {
-//                            remote_socket.Check_Result("UNCERTAIN");
-//                            Toast_in_Thread("Check Uncertain Successfully");
-//                        }
-//                    }
-//                }).start();
-//            }
-//        });
-
-
-
-        FrameLayout.LayoutParams lp_draw_i = new FrameLayout.LayoutParams(200, 160);
-
-        draw_i = new ImageButton(this);
-        draw_i.setImageResource(R.drawable.ic_draw_main);
-        ll_top.addView(draw_i,lp_draw_i);
-
-        draw_i.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                if (!myrenderer.getIfFileLoaded()){
-                    Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                Draw_list(v);
-            }
-        });
-
-
-        FrameLayout.LayoutParams lp_tracing_i = new FrameLayout.LayoutParams(200, 160);
-
-
-        tracing_i=new ImageButton(this);
-        tracing_i.setImageResource(R.drawable.ic_neuron);
-        ll_top.addView(tracing_i,lp_tracing_i);
-
-        tracing_i.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                Tracing(v);
-            }
-        });
-
-
-        FrameLayout.LayoutParams lp_classify_i = new FrameLayout.LayoutParams(200, 160);
-
-        classify_i=new ImageButton(this);
-        classify_i.setImageResource(R.drawable.ic_classify_mid);
-        ll_top.addView(classify_i,lp_classify_i);
-
-        classify_i.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                PixelClassification(v);
-            }
-        });
-
-
-        FrameLayout.LayoutParams lp_rotation = new FrameLayout.LayoutParams(120, 120);
-        lp_rotation.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_rotation.setMargins(0, 0, 160, 20);
-
-        Rotation_i = new ImageButton(this);
-        Rotation_i.setImageResource(R.drawable.ic_3d_rotation_red_24dp);
-        Rotation_i.setBackgroundResource(R.drawable.circle_normal);
-
-        this.addContentView(Rotation_i, lp_rotation);
-
-        final boolean[] b_rotate = {true};
-
-        Rotation_i.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                if (isBigData_Remote && !DrawMode){
-                    myrenderer.resetRotation();
-                    myGLSurfaceView.requestRender();
-                }else {
-                    Rotation();
-                }
-            }
-        });
-
-        FrameLayout.LayoutParams lp_hide = new FrameLayout.LayoutParams(120, 120);
-        lp_hide.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_hide.setMargins(0, 0, 20, 20);
-//        @SuppressLint("ResourceType") XmlPullParser parser = MainActivity.this.getResources().getXml(R.layout.activity_main);
-//        AttributeSet attributes = Xml.asAttributeSet(parser);
-//        MyRockerView rockerView = new MyRockerView(context, attributes);
-
-        Hide_i = new ImageButton(this);
-        Hide_i.setImageResource(R.drawable.ic_not_hide);
-        Hide_i.setBackgroundResource(R.drawable.circle_normal);
-
-        this.addContentView(Hide_i, lp_hide);
-
-        Hide_i.setOnClickListener(new Button.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                if (!myrenderer.getIfFileLoaded()){
-                    Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (myrenderer.getIfShowSWC()){
-                    myrenderer.setIfShowSWC(false);
-                    myGLSurfaceView.requestRender();
-                    Hide_i.setImageResource(R.drawable.ic_hide);
-                } else {
-                    myrenderer.setIfShowSWC(true);
-                    myGLSurfaceView.requestRender();
-                    Hide_i.setImageResource(R.drawable.ic_not_hide);
-                }
-            }
-        });
-
-        lp_undo = new FrameLayout.LayoutParams(120, 120);
-
-//        lp_undo.gravity = Gravity.RIGHT | Gravity.TOP;
-        lp_undo.setMargins(0, 20, 20, 0);
-
-        Undo_i = new ImageButton(this);
-        Undo_i.setImageResource(R.drawable.ic_undo);
-        Undo_i.setBackgroundResource(R.drawable.circle_normal);
-        ll_hs_back.addView(Undo_i, lp_undo);
-//        this.addContentView(Undo_i, lp_undo);
-
-        Undo_i.setOnClickListener(new Button.OnClickListener(){
-            public void onClick(View v){
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                boolean undoSuccess = false;
-                try {
-                    undoSuccess = myrenderer.undo2();
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
-                if (!undoSuccess) {
-                    Toast.makeText(context, "nothing to undo", Toast.LENGTH_SHORT).show();
-                }
-                myGLSurfaceView.requestRender();
-            }
-        });
-
-        lp_redo = new FrameLayout.LayoutParams(120, 120);
-        lp_redo.setMargins(0, 20, 20, 0);
-
-        Redo_i = new ImageButton(this);
-        Redo_i.setImageResource(R.drawable.ic_redo);
-        Redo_i.setBackgroundResource(R.drawable.circle_normal);
-        ll_hs_back.addView(Redo_i, lp_redo);
-
-        Redo_i.setOnClickListener(new Button.OnClickListener(){
-            public void onClick(View v){
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                boolean redoSuccess = myrenderer.redo();
-                if (!redoSuccess){
-                    Toast_in_Thread("nothing to redo");
-                }
-                myGLSurfaceView.requestRender();
-            }
-        });
-
-        scoreText = new TextView(this);
-        scoreText.setTextColor(Color.YELLOW);
-        scoreText.setText("00000");
-        scoreText.setTypeface(Typeface.DEFAULT_BOLD);
-        scoreText.setLetterSpacing(0.8f);
-        scoreText.setTextSize(15);
-
-//        updateScoreText();
-
-        FrameLayout.LayoutParams lp_score = new FrameLayout.LayoutParams(350, 300);
-        lp_score.gravity = Gravity.TOP | Gravity.RIGHT;
-        lp_score.setMargins(0, 350, 20, 0);
-        this.addContentView(scoreText, lp_score);
-
-        FrameLayout.LayoutParams lp_downsample = new FrameLayout.LayoutParams(120, 120);
-
-
-        Switch = new Button(this);
-        Switch.setText("Pause");
-
-        Switch.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                Switch();
-            }
-        });
-
-
-        lp_animation_i = new FrameLayout.LayoutParams(200, 160);
-        animation_i = new ImageButton(this);
-        animation_i.setImageResource(R.drawable.ic_animation);
-        animation_i.setId(animation_id);
-
-        animation_i.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                Animation(v);
-            }
-        });
-
-
-
-        lp_undo_i = new FrameLayout.LayoutParams(230, 160);
-
-//        buttonUndo_i=new ImageButton(this);
-//        buttonUndo_i.setImageResource(R.drawable.ic_undo_black_24dp);
-//        buttonUndo_i.setOnClickListener(new Button.OnClickListener() {
-//            public void onClick(View v) {
-//                boolean undoSuccess = myrenderer.undo2();
-//                if (!undoSuccess) {
-//                    Toast.makeText(context, "nothing to undo", Toast.LENGTH_SHORT).show();
-//                }
-//                myGLSurfaceView.requestRender();
-//            }
-//        });
-
-
-        lp_left_i = new FrameLayout.LayoutParams(100, 150);
-        lp_left_i.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
-
-        navigation_left = new ImageButton(this);
-        navigation_left.setImageResource(R.drawable.ic_chevron_left_black_24dp);
-
-        navigation_left.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                Block_navigate("Left");
-            }
-        });
-
-
-
-        lp_right_i = new FrameLayout.LayoutParams(100, 150);
-        lp_right_i.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
-
-        navigation_right = new ImageButton(this);
-        navigation_right.setImageResource(R.drawable.ic_chevron_right_black_24dp);
-
-        navigation_right.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                Block_navigate("Right");
-            }
-        });
-
-
-
-
-        lp_up_i = new FrameLayout.LayoutParams(150, 100);
-        lp_up_i.gravity = Gravity.CENTER_HORIZONTAL | Gravity.TOP;
-        lp_up_i.setMargins(0, 310, 0, 0);
-
-
-        navigation_up = new ImageButton(this);
-        navigation_up.setImageResource(R.drawable.ic_expand_less_black_24dp);
-
-        navigation_up.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                Block_navigate("Top");
-            }
-        });
-
-
-
-
-        lp_down_i = new FrameLayout.LayoutParams(150, 100);
-        lp_down_i.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
-        lp_down_i.setMargins(0, 0, 0, 0);
-
-        navigation_down = new ImageButton(this);
-        navigation_down.setImageResource(R.drawable.ic_expand_more_black_24dp);
-
-        navigation_down.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                Block_navigate("Bottom");
-            }
-        });
-
-
-        lp_front_i = new FrameLayout.LayoutParams(120, 120);
-        lp_front_i.gravity = Gravity.LEFT | Gravity.BOTTOM;
-        lp_front_i.setMargins(20, 0, 0, 290);
-
-        navigation_front = new Button(this);
-        navigation_front.setText("F");
-        navigation_front.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                Block_navigate("Front");
-            }
-        });
-
-
-        lp_back_i = new FrameLayout.LayoutParams(120, 120);
-        lp_back_i.gravity = Gravity.LEFT | Gravity.BOTTOM;
-        lp_back_i.setMargins(20, 0, 0, 200);
-
-        navigation_back = new Button(this);
-        navigation_back.setText("B");
-        navigation_back.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                Block_navigate("Back");
-            }
-        });
-
-
-        lp_nacloc_i = new FrameLayout.LayoutParams(90, 90);
-        lp_nacloc_i.gravity = Gravity.TOP | Gravity.LEFT;
-        lp_nacloc_i.setMargins(20, 350, 0, 0);
-
-        navigation_location = new ImageButton(this);
-        navigation_location.setImageResource(R.drawable.ic_gps_fixed_black_24dp);
-        navigation_location.setBackgroundResource(R.drawable.circle_normal);
-        navigation_location.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-//                Set_Nav_Mode();
-            }
-        });
-
-
-
-
-        lp_res_list = new FrameLayout.LayoutParams(120, 120);
-        lp_res_list.gravity = Gravity.TOP | Gravity.LEFT;
-        lp_res_list.setMargins(20, 490, 0, 0);
-
-
-        res_list = new Button(this);
-        res_list.setText("R");
-        res_list.setTextColor(Color.BLUE);
-
-        res_list.setOnClickListener(new Button.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                Communicator.getInstance().switchRes(MainActivity.this);
-            }
-        });
-
-
-
-//        lp_blue_color = new FrameLayout.LayoutParams(120, 120);
-//        lp_blue_color.gravity = Gravity.TOP | Gravity.LEFT;
-//        lp_blue_color.setMargins(20, 490, 0, 0);
-//
-//
-//        blue_pen = new Button(this);
-//        blue_pen.setText("B");
-//
-//        blue_pen.setOnClickListener(new Button.OnClickListener(){
-//            @Override
-//            public void onClick(View v) {
-//                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-//
-//                myrenderer.pencolorchange(PenColor.valueOf("BLUE").ordinal());
-//                blue_pen.setTextColor(Color.BLUE);
-//                red_pen.setTextColor(Color.BLACK);
-//            }
-//        });
-
-
-
-//        lp_red_color = new FrameLayout.LayoutParams(120, 120);
-//        lp_red_color.gravity = Gravity.TOP | Gravity.LEFT;
-//        lp_red_color.setMargins(20, 580, 0, 0);
-//
-//        red_pen = new Button(this);
-//        red_pen.setText("R");
-//
-//        red_pen.setOnClickListener(new Button.OnClickListener(){
-//            @Override
-//            public void onClick(View v) {
-//                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-//
-//                myrenderer.pencolorchange(PenColor.valueOf("RED").ordinal());
-//                red_pen.setTextColor(Color.RED);
-//                blue_pen.setTextColor(Color.BLACK);
-//            }
-//        });
-
-
-
-//        lp_sync_push = new FrameLayout.LayoutParams(115, 115);
-//        lp_sync_push.gravity = Gravity.TOP | Gravity.RIGHT;
-//        lp_sync_push.setMargins(0, 350, 20, 0);
-//
-//        sync_push = new ImageButton(this);
-//        sync_push.setImageResource(R.drawable.ic_cloud_upload_black_24dp);
-//        sync_push.setOnClickListener(new Button.OnClickListener() {
-//            public void onClick(View v) {
-//                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-//
-//                PushSWC_Block_Manual();
-//
-//                //  for apo sync
-////                PushAPO_Block_Manual();
-//            }
-//        });
-//
-//        lp_sync_pull = new FrameLayout.LayoutParams(115, 115);
-//        lp_sync_pull.gravity = Gravity.TOP | Gravity.RIGHT;
-//        lp_sync_pull.setMargins(0, 440, 20, 0);
-//
-//        sync_pull = new ImageButton(this);
-//        sync_pull.setImageResource(R.drawable.ic_cloud_download_black_24dp);
-//        sync_pull.setOnClickListener(new Button.OnClickListener() {
-//            public void onClick(View v) {
-//                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-//
-//                if (DrawMode){
-//                    PullSwc_block_Manual(DrawMode);
-//
-//                    //  for apo sync
-////                    PullApo_block_Manual();
-//                }else {
-//                    remote_socket.pullCheckResult(false);
-//                }
-//            }
-//        });
-//
-//        sync_pull.setOnLongClickListener(new Button.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View view) {
-//
-//                if (!DrawMode){
-//                    remote_socket.pullCheckResult(true);
-//                }
-//                return true;
-//            }
-//        });
-
-
-//        lp_neuron_list = new FrameLayout.LayoutParams(115, 115);
-//        lp_neuron_list.gravity = Gravity.TOP | Gravity.RIGHT;
-//        lp_neuron_list.setMargins(0, 580, 20, 0);
-//
-//        neuron_list = new ImageButton(this);
-//        neuron_list.setImageResource(R.drawable.ic_assignment_black_24dp);
-//        neuron_list.setOnLongClickListener(new Button.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View v) {
-//
-//                if (DrawMode){
-//                    push_info_swc = SaveSWC_Block_Auto();
-//                    remote_socket.Select_Neuron_Fast();
-//                }else {
-//                    remote_socket.Select_Neuron_Fast();
-////                    remote_socket.Select_Arbor_Fast();
-//                }
-//                return true;
-//            }
-//        });
-//
-//
-//        neuron_list.setOnClickListener(new Button.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-//
-//                if (DrawMode){
-//                    push_info_swc = SaveSWC_Block_Auto();
-//                    remote_socket.Next_Neuron();
-////                    remote_socket.Select_Neuron_Fast();
-//                }else {
-////                    remote_socket.Select_Neuron_Fast();
-//                    remote_socket.Select_Arbor_Fast();
-//                }
-//
-//            }
-//        });
-
-
-
-
-        lp_room_id = new FrameLayout.LayoutParams(115, 115);
-        lp_room_id.gravity = Gravity.TOP | Gravity.RIGHT;
-        lp_room_id.setMargins(0, 440, 20, 0);
-
-        room_id = new ImageButton(this);
-        room_id.setImageResource(R.drawable.ic_baseline_place_24);
-        room_id.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showRoomID();
-            }
-        });
-
-
-
-
-        lp_user_list = new FrameLayout.LayoutParams(115, 115);
-        lp_user_list.gravity = Gravity.TOP | Gravity.RIGHT;
-        lp_user_list.setMargins(0, 580, 20, 0);
-
-        user_list = new ImageButton(this);
-        user_list.setImageResource(R.drawable.ic_baseline_account_box_24);
-        user_list.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showUserList();
-            }
-        });
-
-
-
-
-
-        /*
-        add button to the view  -------------------------------------------------------------------
-         */
-        this.addContentView(navigation_left, lp_left_i);
-        this.addContentView(navigation_right, lp_right_i);
-        this.addContentView(navigation_up, lp_up_i);
-        this.addContentView(navigation_down, lp_down_i);
-        this.addContentView(navigation_front, lp_front_i);
-        this.addContentView(navigation_back, lp_back_i);
-        this.addContentView(navigation_location, lp_nacloc_i);
-
-
-        this.addContentView(res_list, lp_res_list);
-//        this.addContentView(red_pen, lp_red_color);
-//        this.addContentView(blue_pen, lp_blue_color);
-
-        this.addContentView(room_id, lp_room_id);
-        this.addContentView(user_list, lp_user_list);
-
-        navigation_left.setVisibility(View.GONE);
-        navigation_right.setVisibility(View.GONE);
-        navigation_up.setVisibility(View.GONE);
-        navigation_down.setVisibility(View.GONE);
-        navigation_front.setVisibility(View.GONE);
-        navigation_back.setVisibility(View.GONE);
-        navigation_location.setVisibility(View.GONE);
-
-
-        res_list.setVisibility(View.GONE);
-//        red_pen.setVisibility(View.GONE);
-//        blue_pen.setVisibility(View.GONE);
-
-        room_id.setVisibility(View.GONE);
-        user_list.setVisibility(View.GONE);
-
-
-//        this.addContentView(neuron_list, lp_neuron_list);
-//        neuron_list.setVisibility(View.GONE);
-//        this.addContentView(sync_pull, lp_sync_pull);
-//        this.addContentView(sync_push, lp_sync_push);
-//        sync_pull.setVisibility(View.GONE);
-//        sync_push.setVisibility(View.GONE);
-
-
-
-        // set Check Mode  & DownSample Mode
+        // set contrast  & DownSample Mode
         myrenderer.setIfNeedDownSample(preferenceSetting.getDownSampleMode());
         myrenderer.resetContrast(preferenceSetting.getContrast());
-        DrawMode = !preferenceSetting.getCheckMode();
 
 
         // Set the permission for user
@@ -1743,7 +826,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
         myGLSurfaceView.requestRender();
-        remote_socket = new Remote_Socket(this);
         bigImgReader = new BigImgReader();
 
 
@@ -1755,7 +837,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         progressBar.setVisibility(View.GONE);
 
 
-        mainContext = this;
 
         initDir();
         initNim();
@@ -1766,6 +847,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         doLoginAgora();
         initAgoraService();
 
+
+        /*
+        init database for score module
+         */
         initDataBase();
 
 //        new Thread(){
@@ -1781,7 +866,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 getLeaderBoard();
                 getScore();
             }
-        }, 5 * 1000);
+        }, 3 * 1000);
 
     }
 
@@ -1796,7 +881,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public void onDestroy() {
         super.onDestroy();
 
-        Log.d(TAG, "onDestroy()))))");
+        Log.d(TAG, "onDestroy()");
 
         Intent bgmIntent = new Intent(this, MusicServer.class);
         stopService(bgmIntent);
@@ -1924,6 +1009,617 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
+    /*
+     * init buttons
+     */
+    private void initButtons(){
+        /*
+        basic Layout ------------------------------------------------------------------------------------------------------------------------
+         */
+
+        FrameLayout ll = (FrameLayout) findViewById(R.id.container);
+        ll.addView(myGLSurfaceView);
+
+        LinearLayout ll_up = new LinearLayout(this);
+        ll_up.setOrientation(LinearLayout.VERTICAL);
+
+        LinearLayout ll_hs_back = new LinearLayout(this);
+        ll_hs_back.setOrientation(LinearLayout.HORIZONTAL);
+        ll_hs_back.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+
+        LinearLayout ll_space = new LinearLayout(this);
+        ll_space.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT, 1.0f));
+
+
+        ll_file = new LinearLayout(this);
+        FrameLayout.LayoutParams lp_filename = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        ll_file.setLayoutParams(lp_filename);
+        ll_file.setBackgroundColor(Color.YELLOW);
+
+        filenametext = new TextView(this);
+        filenametext.setText("");
+        filenametext.setTextColor(Color.BLACK);
+        ll_file.addView(filenametext);
+        ll_file.setVisibility(View.GONE);
+
+        ll_top = new LinearLayout(this);
+        ll_bottom = new LinearLayout(this);
+
+        HorizontalScrollView hs_top = new HorizontalScrollView(this);
+
+        ll_up.addView(ll_file);
+
+        ll_hs_back.addView(hs_top, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        ll_hs_back.addView(ll_space);
+
+        ll_up.addView(ll_hs_back);
+        ll.addView(ll_up);
+
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(1080, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.gravity = Gravity.BOTTOM;
+        this.addContentView(ll_bottom, lp);
+        ll_bottom.setLayoutParams(lp);
+
+        hs_top.addView(ll_top);
+
+
+        /*
+        init buttons ------------------------------------------------------------------------------------------------------------------------
+         */
+
+        Zoom_in = new Button(this);
+        Zoom_in.setText("+");
+        Zoom_in_Big = new Button(this);
+        Zoom_in_Big.setText("+");
+
+        Zoom_out = new Button(this);
+        Zoom_out.setText("-");
+        Zoom_out_Big = new Button(this);
+        Zoom_out_Big.setText("-");
+
+        draw_i = new ImageButton(this);
+        draw_i.setImageResource(R.drawable.ic_draw_main);
+
+        tracing_i=new ImageButton(this);
+        tracing_i.setImageResource(R.drawable.ic_neuron);
+
+        classify_i=new ImageButton(this);
+        classify_i.setImageResource(R.drawable.ic_classify_mid);
+
+        Rotation_i = new ImageButton(this);
+        Rotation_i.setImageResource(R.drawable.ic_3d_rotation_red_24dp);
+        Rotation_i.setBackgroundResource(R.drawable.circle_normal);
+
+        Hide_i = new ImageButton(this);
+        Hide_i.setImageResource(R.drawable.ic_not_hide);
+        Hide_i.setBackgroundResource(R.drawable.circle_normal);
+
+        Undo_i = new ImageButton(this);
+        Undo_i.setImageResource(R.drawable.ic_undo);
+        Undo_i.setBackgroundResource(R.drawable.circle_normal);
+
+        Redo_i = new ImageButton(this);
+        Redo_i.setImageResource(R.drawable.ic_redo);
+        Redo_i.setBackgroundResource(R.drawable.circle_normal);
+
+        animation_i = new ImageButton(this);
+        animation_i.setImageResource(R.drawable.ic_animation);
+        animation_i.setId(animation_id);
+
+        navigation_left = new ImageButton(this);
+        navigation_left.setImageResource(R.drawable.ic_chevron_left_black_24dp);
+
+        navigation_right = new ImageButton(this);
+        navigation_right.setImageResource(R.drawable.ic_chevron_right_black_24dp);
+
+        navigation_up = new ImageButton(this);
+        navigation_up.setImageResource(R.drawable.ic_expand_less_black_24dp);
+
+        navigation_down = new ImageButton(this);
+        navigation_down.setImageResource(R.drawable.ic_expand_more_black_24dp);
+
+        navigation_front = new Button(this);
+        navigation_front.setText("F");
+
+        navigation_back = new Button(this);
+        navigation_back.setText("B");
+
+        navigation_location = new ImageButton(this);
+        navigation_location.setImageResource(R.drawable.ic_gps_fixed_black_24dp);
+        navigation_location.setBackgroundResource(R.drawable.circle_normal);
+
+        res_list = new Button(this);
+        res_list.setText("R");
+        res_list.setTextColor(Color.BLUE);
+
+        room_id = new ImageButton(this);
+        room_id.setImageResource(R.drawable.ic_baseline_place_24);
+
+        user_list = new ImageButton(this);
+        user_list.setImageResource(R.drawable.ic_baseline_account_box_24);
+
+
+
+        /*
+        set button layout ------------------------------------------------------------------------------------
+         */
+
+        FrameLayout.LayoutParams lp_zoom_in = new FrameLayout.LayoutParams(120, 120);
+        lp_zoom_in.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        lp_zoom_in.setMargins(0, 0, 20, 290);
+
+        FrameLayout.LayoutParams lp_zoom_out = new FrameLayout.LayoutParams(120, 120);
+        lp_zoom_out.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        lp_zoom_out.setMargins(0, 0, 20, 200);
+
+        FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
+        lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
+
+
+        FrameLayout.LayoutParams lp_zoom_out_no = new FrameLayout.LayoutParams(100, 150);
+        lp_zoom_out_no.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
+
+        FrameLayout.LayoutParams lp_draw_i = new FrameLayout.LayoutParams(200, 160);
+        ll_top.addView(draw_i,lp_draw_i);
+
+        FrameLayout.LayoutParams lp_tracing_i = new FrameLayout.LayoutParams(200, 160);
+        ll_top.addView(tracing_i,lp_tracing_i);
+
+        FrameLayout.LayoutParams lp_classify_i = new FrameLayout.LayoutParams(200, 160);
+        ll_top.addView(classify_i,lp_classify_i);
+
+        FrameLayout.LayoutParams lp_rotation = new FrameLayout.LayoutParams(120, 120);
+        lp_rotation.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        lp_rotation.setMargins(0, 0, 160, 20);
+
+        FrameLayout.LayoutParams lp_hide = new FrameLayout.LayoutParams(120, 120);
+        lp_hide.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        lp_hide.setMargins(0, 0, 20, 20);
+
+        lp_undo = new FrameLayout.LayoutParams(120, 120);
+        lp_undo.setMargins(0, 20, 20, 0);
+        ll_hs_back.addView(Undo_i, lp_undo);
+
+        lp_redo = new FrameLayout.LayoutParams(120, 120);
+        lp_redo.setMargins(0, 20, 20, 0);
+        ll_hs_back.addView(Redo_i, lp_redo);
+
+        FrameLayout.LayoutParams lp_score = new FrameLayout.LayoutParams(350, 300);
+        lp_score.gravity = Gravity.TOP | Gravity.RIGHT;
+        lp_score.setMargins(0, 350, 20, 0);
+
+        lp_animation_i = new FrameLayout.LayoutParams(200, 160);
+
+        lp_left_i = new FrameLayout.LayoutParams(100, 150);
+        lp_left_i.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
+
+        lp_right_i = new FrameLayout.LayoutParams(100, 150);
+        lp_right_i.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
+
+        lp_up_i = new FrameLayout.LayoutParams(150, 100);
+        lp_up_i.gravity = Gravity.CENTER_HORIZONTAL | Gravity.TOP;
+        lp_up_i.setMargins(0, 310, 0, 0);
+
+        lp_down_i = new FrameLayout.LayoutParams(150, 100);
+        lp_down_i.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
+        lp_down_i.setMargins(0, 0, 0, 0);
+
+        lp_front_i = new FrameLayout.LayoutParams(120, 120);
+        lp_front_i.gravity = Gravity.LEFT | Gravity.BOTTOM;
+        lp_front_i.setMargins(20, 0, 0, 290);
+
+        lp_back_i = new FrameLayout.LayoutParams(120, 120);
+        lp_back_i.gravity = Gravity.LEFT | Gravity.BOTTOM;
+        lp_back_i.setMargins(20, 0, 0, 200);
+
+        lp_nacloc_i = new FrameLayout.LayoutParams(90, 90);
+        lp_nacloc_i.gravity = Gravity.TOP | Gravity.LEFT;
+        lp_nacloc_i.setMargins(20, 350, 0, 0);
+
+        lp_res_list = new FrameLayout.LayoutParams(120, 120);
+        lp_res_list.gravity = Gravity.TOP | Gravity.LEFT;
+        lp_res_list.setMargins(20, 490, 0, 0);
+
+        lp_room_id = new FrameLayout.LayoutParams(115, 115);
+        lp_room_id.gravity = Gravity.TOP | Gravity.RIGHT;
+        lp_room_id.setMargins(0, 440, 20, 0);
+
+        lp_user_list = new FrameLayout.LayoutParams(115, 115);
+        lp_user_list.gravity = Gravity.TOP | Gravity.RIGHT;
+        lp_user_list.setMargins(0, 580, 20, 0);
+
+
+
+
+        /*
+        button onclick event  -----------------------------------------------------------------------------
+         */
+
+        Zoom_in.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                if(!myrenderer.getIfFileLoaded()){
+                    Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        myrenderer.zoom_in();
+                        myGLSurfaceView.requestRender();
+                    }
+                }).start();
+
+            }
+        });
+
+
+        Zoom_out.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                if(!myrenderer.getIfFileLoaded()){
+                    Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        myrenderer.zoom_out();
+                        myGLSurfaceView.requestRender();
+                    }
+                }).start();
+
+            }
+        });
+
+        Zoom_in_Big.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                if(!myrenderer.getIfFileLoaded()){
+                    Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                if (isBigData_Remote){
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            Communicator communicator = Communicator.getInstance();
+                            communicator.zoomIn();
+
+                        }
+                    }).start();
+                }else {
+                    myrenderer.zoom_in();
+                    myGLSurfaceView.requestRender();
+                }
+
+            }
+        });
+
+
+        Zoom_out_Big.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                if(!myrenderer.getIfFileLoaded()){
+                    Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                if (isBigData_Remote){
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            Communicator communicator = Communicator.getInstance();
+                            communicator.zoomOut();
+
+                        }
+                    }).start();
+                }else {
+                    myrenderer.zoom_out();
+                    myGLSurfaceView.requestRender();
+                }
+
+            }
+        });
+
+
+
+        draw_i.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                if (!myrenderer.getIfFileLoaded()){
+                    Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Draw_list(v);
+            }
+        });
+
+
+
+        tracing_i.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                Tracing(v);
+            }
+        });
+
+
+
+        classify_i.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                PixelClassification(v);
+            }
+        });
+
+
+
+        Rotation_i.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                if (isBigData_Remote){
+                    myrenderer.resetRotation();
+                    myGLSurfaceView.requestRender();
+                }else {
+                    Rotation();
+                }
+            }
+        });
+
+
+        Hide_i.setOnClickListener(new Button.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                if (!myrenderer.getIfFileLoaded()){
+                    Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (myrenderer.getIfShowSWC()){
+                    myrenderer.setIfShowSWC(false);
+                    myGLSurfaceView.requestRender();
+                    Hide_i.setImageResource(R.drawable.ic_hide);
+                } else {
+                    myrenderer.setIfShowSWC(true);
+                    myGLSurfaceView.requestRender();
+                    Hide_i.setImageResource(R.drawable.ic_not_hide);
+                }
+            }
+        });
+
+
+        Undo_i.setOnClickListener(new Button.OnClickListener(){
+            public void onClick(View v){
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                boolean undoSuccess = false;
+                try {
+                    undoSuccess = myrenderer.undo2();
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+                if (!undoSuccess) {
+                    Toast.makeText(context, "nothing to undo", Toast.LENGTH_SHORT).show();
+                }
+                myGLSurfaceView.requestRender();
+            }
+        });
+
+
+
+        Redo_i.setOnClickListener(new Button.OnClickListener(){
+            public void onClick(View v){
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                boolean redoSuccess = myrenderer.redo();
+                if (!redoSuccess){
+                    Toast_in_Thread("nothing to redo");
+                }
+                myGLSurfaceView.requestRender();
+            }
+        });
+
+
+
+        Switch = new Button(this);
+        Switch.setText("Pause");
+
+        Switch.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                Switch();
+            }
+        });
+
+
+        animation_i.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                Animation(v);
+            }
+        });
+
+
+        navigation_left.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                Block_navigate("Left");
+            }
+        });
+
+
+        navigation_right.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                Block_navigate("Right");
+            }
+        });
+
+
+        navigation_up.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                Block_navigate("Top");
+            }
+        });
+
+
+        navigation_down.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                Block_navigate("Bottom");
+            }
+        });
+
+
+        navigation_front.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                Block_navigate("Front");
+            }
+        });
+
+
+        navigation_back.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                Block_navigate("Back");
+            }
+        });
+
+
+        navigation_location.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+//                Set_Nav_Mode();
+            }
+        });
+
+
+        res_list.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+                Communicator.getInstance().switchRes(MainActivity.this);
+            }
+        });
+
+
+        room_id.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showRoomID();
+            }
+        });
+
+
+        user_list.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showUserList();
+            }
+        });
+
+
+        scoreText = new TextView(this);
+        scoreText.setTextColor(Color.YELLOW);
+        scoreText.setText("00000");
+        scoreText.setTypeface(Typeface.DEFAULT_BOLD);
+        scoreText.setLetterSpacing(0.8f);
+        scoreText.setTextSize(15);
+
+
+
+        /*
+        add button to the view  -------------------------------------------------------------------
+         */
+
+        this.addContentView(Zoom_in_Big, lp_zoom_in);
+        this.addContentView(Zoom_out_Big, lp_zoom_out);
+        this.addContentView(Zoom_in, lp_zoom_in_no);
+        this.addContentView(Zoom_out, lp_zoom_out_no);
+
+
+        this.addContentView(Rotation_i, lp_rotation);
+        this.addContentView(Hide_i, lp_hide);
+        this.addContentView(scoreText, lp_score);
+
+        this.addContentView(navigation_left, lp_left_i);
+        this.addContentView(navigation_right, lp_right_i);
+        this.addContentView(navigation_up, lp_up_i);
+        this.addContentView(navigation_down, lp_down_i);
+        this.addContentView(navigation_front, lp_front_i);
+        this.addContentView(navigation_back, lp_back_i);
+        this.addContentView(navigation_location, lp_nacloc_i);
+
+
+        this.addContentView(res_list, lp_res_list);
+//        this.addContentView(red_pen, lp_red_color);
+//        this.addContentView(blue_pen, lp_blue_color);
+
+        this.addContentView(room_id, lp_room_id);
+        this.addContentView(user_list, lp_user_list);
+
+
+        Zoom_in_Big.setVisibility(View.GONE);
+        Zoom_out_Big.setVisibility(View.GONE);
+
+        navigation_left.setVisibility(View.GONE);
+        navigation_right.setVisibility(View.GONE);
+        navigation_up.setVisibility(View.GONE);
+        navigation_down.setVisibility(View.GONE);
+        navigation_front.setVisibility(View.GONE);
+        navigation_back.setVisibility(View.GONE);
+        navigation_location.setVisibility(View.GONE);
+
+
+        res_list.setVisibility(View.GONE);
+//        red_pen.setVisibility(View.GONE);
+//        blue_pen.setVisibility(View.GONE);
+
+        room_id.setVisibility(View.GONE);
+        user_list.setVisibility(View.GONE);
+
+
+//        this.addContentView(neuron_list, lp_neuron_list);
+//        neuron_list.setVisibility(View.GONE);
+//        this.addContentView(sync_pull, lp_sync_pull);
+//        this.addContentView(sync_push, lp_sync_push);
+//        sync_pull.setVisibility(View.GONE);
+//        sync_push.setVisibility(View.GONE);
+
+    }
 
 
     /*
@@ -1932,7 +1628,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void initDir(){
 
         try{
-            String dir_str = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name);;
+            String dir_str = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name);
             File dir = new File(dir_str);
             if (!dir.exists()) {
                 dir.mkdirs();
@@ -2108,22 +1804,27 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
      * @param FileList
      */
     private void LoadFiles(String FileList){
-
         Map<String, String> fileType = new HashMap<>();
-        String[] list = FileList.split(";;");
         List<String> list_array = new ArrayList<>();
+        String[] list = FileList.split(";;");
 
-        Log.e(TAG, "list.length: " + list.length);
+        boolean isFile = false;
+        String[] fileName = new String[1];
 
+//        Log.e(TAG, "list.length: " + list.length);
         for (int i = 0; i < list.length; i++){
             if (list[i].split(" ")[0].endsWith(".apo") || list[i].split(" ")[0].endsWith(".eswc")
                     || list[i].split(" ")[0].endsWith(".swc") || list[i].split(" ")[0].endsWith("log") )
                 continue;
             fileType.put(list[i].split(" ")[0], list[i].split(" ")[1]);
+
+            if(Communicator.getInstance().initSoma(list[i].split(" ")[0])){
+                fileName[0] = list[i].split(" ")[0];
+                isFile = true;
+                continue;
+            }
+
             list_array.add(list[i].split(" ")[0]);
-
-            Communicator.getInstance().initSoma(list[i].split(" ")[0]);
-
         }
 
         String[] list_show = new String[list_array.size()];
@@ -2131,32 +1832,87 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             list_show[i] = list_array.get(i);
         }
 
+
+        if (isFile){
+            /*
+            the last directory
+            */
+            new XPopup.Builder(this)
+                    .maxHeight(1350)
+                    .maxWidth(800)
+                    .asCenterList("BigData File", new String[]{"select a Room", "create a Room"},
+                            new OnSelectListener() {
+                                @RequiresApi(api = Build.VERSION_CODES.N)
+                                @Override
+                                public void onSelect(int position, String text) {
+                                    Communicator.BrainNum = conPath.split("/")[1];
+                                    switch (text){
+                                        case "select a Room":
+                                            loadFileMode(list_show);
+                                            break;
+
+                                        case "create a Room":
+                                            CreateFile(conPath + "/" + fileName[0],"0");
+                                            Communicator.BrainNum = conPath.split("/")[1] + "/" + fileName[0];
+                                            break;
+
+                                        default:
+                                            ToastEasy("Default in LoadFiles");
+                                    }
+                                }
+                            })
+                    .show();
+
+        }else {
+            new XPopup.Builder(this)
+                    .maxHeight(1350)
+                    .maxWidth(800)
+                    .asCenterList("BigData File", list_show,
+                            new OnSelectListener() {
+                                @RequiresApi(api = Build.VERSION_CODES.N)
+                                @Override
+                                public void onSelect(int position, String text) {
+                                    ServerConnector serverConnector = ServerConnector.getInstance();
+
+                                    if (fileType.get(text).equals("0")){
+                                        conPath = conPath + "/" + text;
+                                        serverConnector.sendMsg("GETFILELIST:" + conPath);
+                                    }else {
+                                        selectMode(conPath + "/" + text, text);
+                                        Communicator.BrainNum = conPath.split("/")[1];
+                                        Communicator.Path = conPath + "/" + text;
+//                                    serverConnector.sendMsg("LOADFILES:0 " + conPath + "/" + text + " " + conPath + "/test_01_fx_lh_test.ano");
+                                    }
+                                }
+                            })
+                    .show();
+        }
+    }
+
+
+
+    private void loadFileMode(String[] fileList){
         new XPopup.Builder(this)
-                .maxHeight(1350)
-                .maxWidth(800)
-                .asCenterList("BigData File",list_show,
+                .asCenterList("BigData File", fileList,
                         new OnSelectListener() {
                             @RequiresApi(api = Build.VERSION_CODES.N)
                             @Override
                             public void onSelect(int position, String text) {
-                                ServerConnector serverConnector = ServerConnector.getInstance();
-//                                Log.e(TAG, "test: " + text);
-//                                Log.e(TAG, "test type: " + fileType.get(text));
+                                String filepath = conPath + "/" + text;
+                                Communicator.Path = filepath;
 
-                                if (fileType.get(text).equals("0")){
-                                    conPath = conPath + "/" + text;
-                                    serverConnector.sendMsg("GETFILELIST:" + conPath);
-                                }else {
-                                    Log.e(TAG, "fileType.get(text).equals(\"1\")");
-                                    selectMode(conPath + "/" + text, text);
-                                    Communicator.BrainNum = conPath.split("/")[1];
-                                    Communicator.Path = conPath + "/" + text;
-//                                    serverConnector.sendMsg("LOADFILES:0 " + conPath + "/" + text + " " + conPath + "/test_01_fx_lh_test.ano");
-                                }
+                                ServerConnector serverConnector = ServerConnector.getInstance();
+                                serverConnector.sendMsg("LOADFILES:2 " + filepath);
+                                Communicator.getInstance().setConPath(filepath);
+
+                                String[] list = filepath.split("/");
+                                serverConnector.setRoomName(list[list.length - 1]);
+
                             }
                         })
                 .show();
     }
+
 
 
     private void selectMode(String oldname, String text){
@@ -2483,7 +2239,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public void File_icon(){
 
         new XPopup.Builder(this)
-                .asCenterList("File Open", new String[]{"Open BigData", "Open LocalFile", "Load SWCFile"},
+                .asCenterList("File Open", new String[]{"Open BigData", "Open LocalFile", "Load SwcFile"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -2497,8 +2253,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                     case "Open BigData":
                                         loadBigData();
                                         break;
-                                    case "Load SWCFile":
-                                        LoadSWC();
+                                    case "Load SwcFile":
+                                        LoadSwcFile();
                                         break;
 
                                     default:
@@ -2510,7 +2266,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     }
 
-    private void LoadSWC() {
+    private void LoadSwcFile() {
 
         if (!ifImport) {
             ifImport = true;
@@ -3074,7 +2830,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         new XPopup.Builder(this)
                 .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"APP2", "GD", "Save SWCFile"},
+                .asAttachList(new String[]{"APP2", "GD", "Save SwcFile"},
                         new int[]{},
                         new OnSelectListener() {
                             @Override
@@ -3129,7 +2885,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         }
                                         break;
 
-                                    case "Save SWCFile":
+                                    case "Save SwcFile":
                                         SaveSWC();
                                         break;
 
@@ -3214,14 +2970,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 aDialog.show();
                             }
                         } else{
-                            ToastEasy("save SWC to " + dir + "/" + swcFileName + ".swc");
+                            ToastEasy("save SWC to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG);
                         }
                     }
                 })
                 .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
                     @Override
                     public void onClick(View clickedView, View contentView) {
-
                     }
                 })
                 .setTitle("Save SWC File")
@@ -3469,15 +3224,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public void More_icon(){
 
         new XPopup.Builder(this)
-                .asCenterList("More Functions...", new String[]{"Analyze SWC", "Chat", "Animate", "Settings", "Logout", "Crash Info", "About", "Account Name", "Help", "Quests", "Reward", "LeaderBoard"},
+                .asCenterList("More Functions...", new String[]{"Analyze Swc", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Account Name", "Quests", "Reward", "LeaderBoard", "Help", "About"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                                 switch (text) {
-                                    case "Analyze SWC":
-                                        Analyse();
+                                    case "Analyze Swc":
+                                        AnalyzeSwc();
                                         break;
 
                                     case "Animate":
@@ -3499,10 +3254,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         break;
 
                                     case "Game":
-                                        System.out.println("Game Start!!!!!!!");
-
-                                        ifGame = true;
-                                        Select_map();
+//                                        System.out.println("Game Start!!!!!!!");
+//
+//                                        ifGame = true;
+//                                        Select_map();
                                         break;
 
                                     case "Settings":
@@ -3725,14 +3480,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void Analyse() {
+    private void AnalyzeSwc() {
         new XPopup.Builder(this)
-                .asCenterList("morphology calculate", new String[]{"Analyze a SWC file", "Analyze current tracing"},
+                .asCenterList("morphology calculate", new String[]{"Analyze a Swc file", "Analyze current tracing"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text) {
-                                    case "Analyze a SWC file":
+                                    case "Analyze a Swc file":
                                         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                                         intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
                                         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -3929,7 +3684,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     @Override
                     public void operate(View contentView) {
                         Switch downsample_on_off = contentView.findViewById(R.id.switch_rotation_mode);
-                        Switch check_on_off = contentView.findViewById(R.id.switch_check_mode);
                         IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
                         TextView clean_cache = contentView.findViewById(R.id.clean_cache);
                         SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
@@ -3941,7 +3695,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         int contrast = preferenceSetting.getContrast();
 
                         downsample_on_off.setChecked(ifDownSample);
-                        check_on_off.setChecked(!DrawMode);
                         seekbar.setProgress(contrast);
                         bgmVolumeBar.setProgress((int)(bgmVolume * 100));
                         buttonVolumeBar.setProgress((int)(buttonVolume * 100));
@@ -3967,7 +3720,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         bgmSpinner.setSelection(selectedBGM);
 
                         downsample[0] = downsample_on_off.isChecked();
-                        check[0]      = check_on_off.isChecked();
 
                         downsample_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                             @Override
@@ -3976,12 +3728,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             }
                         });
 
-                        check_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                            @Override
-                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                check[0] = isChecked;
-                            }
-                        });
 
                         clean_cache.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -4012,7 +3758,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                         myrenderer.setIfNeedDownSample(downsample[0]);
                         myrenderer.resetContrast(contrast);
-                        DrawMode = !check[0];
 
                         Log.v(TAG,"downsample: " + downsample[0] + ", check: " + check[0] + ",contrast: " + contrast);
                         preferenceSetting.setPref(downsample[0], check[0], contrast);
@@ -4397,7 +4142,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                     else {
                         System.out.println("-------- open --------");
-                        myrenderer.setSWCPath(filePath);
+                        myrenderer.setSwcPath(filePath);
                         ifLoadLocal = false;
                         setButtonsImport();
                     }
@@ -4449,186 +4194,186 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     /**
      * for game ------------------------------------------------------------------------------------
      */
-    public void Select_map(){
-        new XPopup.Builder(this)
-                .asCenterList("Game Start", new String[]{"New Game", "Load Game"},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                switch (text){
-                                    case "New Game":
-//                                        setSelectSource("Remote Server SEU", context);
-//                                        BigFileRead_Remote(ip_SEU);
-                                        setSelectSource("Remote Server Aliyun",context);
-                                        BigFileRead_Remote(ip_TencentCloud);
-
-                                        break;
-
-                                    case "Load Game":
-                                        loadGameList();
-                                        break;
-
-                                    default:
-                                        ToastEasy("Something Wrong Here");
-                                }
-                            }
-                        }).show();
-    }
-
-    private void loadGameList(){
-        String externalFileDir = context.getExternalFilesDir(null).toString();
-        String [] fileList = {"[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]"};
-        File file = new File(externalFileDir + "/Game/Archives");
-        if (file.exists()){
-            try {
-                for (int i = 0; i < 10; i++) {
-                    File tempFile = new File(externalFileDir + "/Game/Archives/Archive_" + i);
-                    if (!tempFile.exists()) {
-                        tempFile.mkdir();
-                    } else {
-                        File [] archiveFiles = tempFile.listFiles();
-                        if (archiveFiles.length > 0){
-                            fileList[i] = archiveFiles[0].getName().split(".txt")[0];
-                        }
-                    }
-                }
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-        } else {
-            File parent = file.getParentFile();
-            if (!parent.exists()){
-                parent.mkdir();
-            }
-            file.mkdir();
-            for (int i = 0; i < 10; i++){
-                File tempFile = new File(externalFileDir + "/Game/Archives/Archive_" + i);
-                tempFile.mkdir();
-            }
-        }
-
-        new XPopup.Builder(this)
-                .autoDismiss(false)
-                .asCenterList("Archives", fileList,
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                if (text.equals("[Empty Archive]")){
-
-                                } else {
-                                    if (loadGame(position))
-                                        Toast_in_Thread("Loaded successfully");
-                                    else
-                                        Toast_in_Thread("Failed To Load!!!");
-                                }
-                            }
-                        }).show();
-    }
-
-    private boolean loadGame(int num){
-        String archiveImageName;
-        String archiveOffset;
-        float [] pos = new float[3];
-        float [] dir = new float[3];
-        float [] head = new float[3];
-        String externalFileDir = context.getExternalFilesDir(null).toString();
-        File file = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num);
-        if (!file.exists()){
-            file.mkdir();
-            return false;
-        }
-
-        File [] tempList = file.listFiles();
-        if(tempList.length == 0){
-            return false;
-        }
-
-        try{
-            FileInputStream inStream = new FileInputStream(tempList[0]);
-            if (inStream != null) {
-                InputStreamReader inputreader
-                        = new InputStreamReader(inStream, "UTF-8");
-                BufferedReader buffreader = new BufferedReader(inputreader);
-                String line = "";
-
-                line = buffreader.readLine();
-                archiveImageName = line;
-                String tempFilename = archiveImageName.split("/")[0];
-
-                File archiveSWCFile = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num + "/" + tempFilename + ".swc");
-                if (archiveSWCFile.exists()){
-                    File newSWCFile = new File(externalFileDir + "/Game/SWCs/" + tempFilename + ".swc");
-                    if (newSWCFile.exists()){
-                        newSWCFile.delete();
-                    }
-                    newSWCFile.createNewFile();
-
-                    FileUtils.copyFile(archiveSWCFile, newSWCFile);
-                } else {
-                    return false;
-                }
-
-                File archiveFlagFile = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num + "/" + tempFilename + ".txt");
-                if (archiveFlagFile.exists()){
-                    File newFlagFile = new File(externalFileDir + "/Game/Flags/" + tempFilename + ".txt");
-                    if (newFlagFile.exists()){
-                        newFlagFile.delete();
-                    }
-                    newFlagFile.createNewFile();
-
-                    FileUtils.copyFile(archiveFlagFile, newFlagFile);
-                }
-
-                line = buffreader.readLine();
-                archiveOffset = line;
-                Log.d(TAG, "LoadGame offset: " + archiveOffset);
-
-                line = buffreader.readLine();
-                pos[0] = Float.parseFloat(line.split(" ")[0]);
-                pos[1] = Float.parseFloat(line.split(" ")[1]);
-                pos[2] = Float.parseFloat(line.split(" ")[2]);
-
-                line = buffreader.readLine();
-                dir[0] = Float.parseFloat(line.split(" ")[0]);
-                dir[1] = Float.parseFloat(line.split(" ")[1]);
-                dir[2] = Float.parseFloat(line.split(" ")[2]);
-
-                line = buffreader.readLine();
-                head[0] = Float.parseFloat(line.split(" ")[0]);
-                head[1] = Float.parseFloat(line.split(" ")[1]);
-                head[2] = Float.parseFloat(line.split(" ")[2]);
-
-                line = buffreader.readLine();
-                gameLastIndexForIntent = Integer.parseInt(line);
-
-                line = buffreader.readLine();
-                gameScoreForIntent = Integer.parseInt(line);
-
-                inStream.close();//关闭输入流
-
-                gamePositionForIntent = pos;
-                gameDirForIntent = dir;
-                gameHeadForIntent = head;
-
-                gameIfNewForIntent = false;
-
-                if (archiveImageName != null && archiveOffset != null){
-                    remote_socket.disConnectFromHost();
-//                    remote_socket.connectServer(ip_SEU);
-                    remote_socket.connectServer(ip_TencentCloud);
-                    remote_socket.pullImageBlockWhenLoadGame(archiveImageName, archiveOffset);
-
-                    setFilename_Remote(archiveImageName, context);
-//                    setNeuronNumber_Remote(neuronNum_Backup,fileName_Backup,mContext);
-                    setoffset_Remote(archiveOffset, archiveImageName, context);
-                }
-            }
-        } catch (Exception e){
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
+//    public void Select_map(){
+//        new XPopup.Builder(this)
+//                .asCenterList("Game Start", new String[]{"New Game", "Load Game"},
+//                        new OnSelectListener() {
+//                            @Override
+//                            public void onSelect(int position, String text) {
+//                                switch (text){
+//                                    case "New Game":
+////                                        setSelectSource("Remote Server SEU", context);
+////                                        BigFileRead_Remote(ip_SEU);
+//                                        setSelectSource("Remote Server Aliyun",context);
+//                                        BigFileRead_Remote(ip_TencentCloud);
+//
+//                                        break;
+//
+//                                    case "Load Game":
+//                                        loadGameList();
+//                                        break;
+//
+//                                    default:
+//                                        ToastEasy("Something Wrong Here");
+//                                }
+//                            }
+//                        }).show();
+//    }
+//
+//    private void loadGameList(){
+//        String externalFileDir = context.getExternalFilesDir(null).toString();
+//        String [] fileList = {"[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]"};
+//        File file = new File(externalFileDir + "/Game/Archives");
+//        if (file.exists()){
+//            try {
+//                for (int i = 0; i < 10; i++) {
+//                    File tempFile = new File(externalFileDir + "/Game/Archives/Archive_" + i);
+//                    if (!tempFile.exists()) {
+//                        tempFile.mkdir();
+//                    } else {
+//                        File [] archiveFiles = tempFile.listFiles();
+//                        if (archiveFiles.length > 0){
+//                            fileList[i] = archiveFiles[0].getName().split(".txt")[0];
+//                        }
+//                    }
+//                }
+//            } catch (Exception e){
+//                e.printStackTrace();
+//            }
+//        } else {
+//            File parent = file.getParentFile();
+//            if (!parent.exists()){
+//                parent.mkdir();
+//            }
+//            file.mkdir();
+//            for (int i = 0; i < 10; i++){
+//                File tempFile = new File(externalFileDir + "/Game/Archives/Archive_" + i);
+//                tempFile.mkdir();
+//            }
+//        }
+//
+//        new XPopup.Builder(this)
+//                .autoDismiss(false)
+//                .asCenterList("Archives", fileList,
+//                        new OnSelectListener() {
+//                            @Override
+//                            public void onSelect(int position, String text) {
+//                                if (text.equals("[Empty Archive]")){
+//
+//                                } else {
+//                                    if (loadGame(position))
+//                                        Toast_in_Thread("Loaded successfully");
+//                                    else
+//                                        Toast_in_Thread("Failed To Load!!!");
+//                                }
+//                            }
+//                        }).show();
+//    }
+//
+//    private boolean loadGame(int num){
+//        String archiveImageName;
+//        String archiveOffset;
+//        float [] pos = new float[3];
+//        float [] dir = new float[3];
+//        float [] head = new float[3];
+//        String externalFileDir = context.getExternalFilesDir(null).toString();
+//        File file = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num);
+//        if (!file.exists()){
+//            file.mkdir();
+//            return false;
+//        }
+//
+//        File [] tempList = file.listFiles();
+//        if(tempList.length == 0){
+//            return false;
+//        }
+//
+//        try{
+//            FileInputStream inStream = new FileInputStream(tempList[0]);
+//            if (inStream != null) {
+//                InputStreamReader inputreader
+//                        = new InputStreamReader(inStream, "UTF-8");
+//                BufferedReader buffreader = new BufferedReader(inputreader);
+//                String line = "";
+//
+//                line = buffreader.readLine();
+//                archiveImageName = line;
+//                String tempFilename = archiveImageName.split("/")[0];
+//
+//                File archiveSWCFile = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num + "/" + tempFilename + ".swc");
+//                if (archiveSWCFile.exists()){
+//                    File newSWCFile = new File(externalFileDir + "/Game/SWCs/" + tempFilename + ".swc");
+//                    if (newSWCFile.exists()){
+//                        newSWCFile.delete();
+//                    }
+//                    newSWCFile.createNewFile();
+//
+//                    FileUtils.copyFile(archiveSWCFile, newSWCFile);
+//                } else {
+//                    return false;
+//                }
+//
+//                File archiveFlagFile = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num + "/" + tempFilename + ".txt");
+//                if (archiveFlagFile.exists()){
+//                    File newFlagFile = new File(externalFileDir + "/Game/Flags/" + tempFilename + ".txt");
+//                    if (newFlagFile.exists()){
+//                        newFlagFile.delete();
+//                    }
+//                    newFlagFile.createNewFile();
+//
+//                    FileUtils.copyFile(archiveFlagFile, newFlagFile);
+//                }
+//
+//                line = buffreader.readLine();
+//                archiveOffset = line;
+//                Log.d(TAG, "LoadGame offset: " + archiveOffset);
+//
+//                line = buffreader.readLine();
+//                pos[0] = Float.parseFloat(line.split(" ")[0]);
+//                pos[1] = Float.parseFloat(line.split(" ")[1]);
+//                pos[2] = Float.parseFloat(line.split(" ")[2]);
+//
+//                line = buffreader.readLine();
+//                dir[0] = Float.parseFloat(line.split(" ")[0]);
+//                dir[1] = Float.parseFloat(line.split(" ")[1]);
+//                dir[2] = Float.parseFloat(line.split(" ")[2]);
+//
+//                line = buffreader.readLine();
+//                head[0] = Float.parseFloat(line.split(" ")[0]);
+//                head[1] = Float.parseFloat(line.split(" ")[1]);
+//                head[2] = Float.parseFloat(line.split(" ")[2]);
+//
+//                line = buffreader.readLine();
+//                gameLastIndexForIntent = Integer.parseInt(line);
+//
+//                line = buffreader.readLine();
+//                gameScoreForIntent = Integer.parseInt(line);
+//
+//                inStream.close();//关闭输入流
+//
+//                gamePositionForIntent = pos;
+//                gameDirForIntent = dir;
+//                gameHeadForIntent = head;
+//
+//                gameIfNewForIntent = false;
+//
+//                if (archiveImageName != null && archiveOffset != null){
+//                    remote_socket.disConnectFromHost();
+////                    remote_socket.connectServer(ip_SEU);
+//                    remote_socket.connectServer(ip_TencentCloud);
+//                    remote_socket.pullImageBlockWhenLoadGame(archiveImageName, archiveOffset);
+//
+//                    setFilename_Remote(archiveImageName, context);
+////                    setNeuronNumber_Remote(neuronNum_Backup,fileName_Backup,mContext);
+//                    setoffset_Remote(archiveOffset, archiveImageName, context);
+//                }
+//            }
+//        } catch (Exception e){
+//            e.printStackTrace();
+//            return false;
+//        }
+//        return true;
+//    }
 
     /**
      * for game ------------------------------------------------------------------------------------
@@ -4646,47 +4391,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             String [] str = new String[1];
             bigImgReader.ShowListDialog(this, filename_list);
         }
-    }
-
-
-    /**
-     * Read Big File from Remote Server
-     * @param ip server ip
-     */
-    private void BigFileRead_Remote(String ip){
-
-        Thread thread = new Thread(new Runnable() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void run() {
-                /*
-                1.先断开一下连接，以防之前连接过，出现同一个ip连接两次服务器
-                2.与服务器建立socket连接
-                3.获取文件列表
-                 */
-                remote_socket.disConnectFromHost();
-                remote_socket.connectServer(ip);
-                remote_socket.Select_Brain(true);
-            }
-        });
-        thread.start();
-
-    }
-
-    private void BigFileRead_Remote_Check(String ip){
-
-        Log.v("Remote_Check","Here We are !");
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                remote_socket.disConnectFromHost();
-                remote_socket.connectServer(ip);
-//                remote_socket.Select_Arbor();
-                remote_socket.Select_Brain(false);
-            }
-        });
-        thread.start();
-
     }
 
 
@@ -4719,7 +4423,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         System.out.println("----- index is null -----");
                         return;
                     }
-                    String filepath = "/storage/emulated/0/C3/Server/" + filename + ".v3draw";
+                    String filepath = "/storage/emulated/0/Hi5/Server/" + filename + ".v3draw";
                     myrenderer.SetPath_Bigdata(filepath, index);
                     myGLSurfaceView.requestRender();
                 }
@@ -4776,7 +4480,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         if (filename == null || offset == null)
             return;
 
-        if (isBigData_Local || (isBigData_Remote && DrawMode)){
+        if (isBigData_Local || isBigData_Remote){
 
             float size_x, size_y, size_z;
 
@@ -4809,7 +4513,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
             block  = new float[]{offset_arr_i[0], offset_arr_i[1], offset_arr_i[2]};
             size   = new float[]{offset_arr_i[3], offset_arr_i[3], offset_arr_i[3]};
-            neuron = remote_socket.getImg_size_f(block);
+//            neuron = remote_socket.getImg_size_f(block);
 
             Log.i(TAG,Arrays.toString(block));
             Log.i(TAG,Arrays.toString(neuron));
@@ -4830,45 +4534,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             myGLSurfaceView.requestRender();
             navigation_location.setImageResource(R.drawable.ic_gps_fixed_black_24dp);
         }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private void Select_Block(){
-
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                String source = getSelectSource(context);
-                String ip = "";
-                switch (source){
-                    case "Remote Server Aliyun":
-                    case "Remote Server SEU":
-                        if (source.equals("Remote Server Aliyun")){
-                            ip = ip_TencentCloud;
-                        }else if(source.equals("Remote Server SEU")){
-                            ip = ip_SEU;
-                        }else {
-                            Toast_in_Thread("Something Wrong when choose Remote Server !");
-                            return;
-                        }
-
-                        remote_socket.disConnectFromHost();
-                        remote_socket.connectServer(ip);
-                        remote_socket.loadNeuronTxt(DrawMode);
-                        remote_socket.selectBlock();
-                        break;
-                    case "Local Server":
-                        bigImgReader.PopUp(context);
-                        break;
-                    default:
-                        Toast_in_Thread("Load a File First !");
-                        break;
-                }
-            }
-        });
-        thread.start();
-
     }
 
 
@@ -5446,7 +5111,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             navigation_left.setVisibility(View.GONE);
             navigation_right.setVisibility(View.GONE);
             navigation_up.setVisibility(View.GONE);
-            navigation_location.setVisibility(View.GONE);
 
             Zoom_in_Big.setVisibility(View.GONE);
             Zoom_out_Big.setVisibility(View.GONE);
@@ -5487,13 +5151,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             navigation_left.setVisibility(View.VISIBLE);
             navigation_right.setVisibility(View.VISIBLE);
             navigation_up.setVisibility(View.VISIBLE);
-            navigation_location.setVisibility(View.VISIBLE);
 
             Zoom_in_Big.setVisibility(View.VISIBLE);
             Zoom_out_Big.setVisibility(View.VISIBLE);
 
             if (isBigData_Remote) {
-                res_list.setVisibility(View.GONE);
+                res_list.setVisibility(View.VISIBLE);
                 user_list.setVisibility(View.VISIBLE);
                 room_id.setVisibility(View.VISIBLE);
             }
@@ -5602,68 +5265,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     functions for old version bigdata  ---------------------------------------------------------------------------------
      */
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public static void LoadBigFile_Remote(String filepath){
-
-        Log.v("MainActivity","LoadBigFile_Remote()");
-
-        if (ifGame){
-
-            Log.v("MainActivity","LoadBigFile_Remote() ifGame");
-            try {
-                Log.v("GameIntent", "inNNNNNNNNNNNNNNNNNNNNN");
-                Intent gameIntent = new Intent(mainContext, GameActivity.class);
-                gameIntent.putExtra("FilePath", filepath);
-                gameIntent.putExtra("Position", gamePositionForIntent);
-                gameIntent.putExtra("Dir", gameDirForIntent);
-                gameIntent.putExtra("Head", gameHeadForIntent);
-                gameIntent.putExtra("LastIndex", gameLastIndexForIntent);
-                gameIntent.putExtra("IfNewGame", gameIfNewForIntent);
-                gameIntent.putExtra("Score", gameScoreForIntent);
-                mainContext.startActivity(gameIntent);
-                gamePositionForIntent = new float[]{0.5f, 0.5f, 0.5f};
-                gameDirForIntent = new float[]{1, 1, 1};
-                gameHeadForIntent = new float[]{1, 0, -1};
-                gameLastIndexForIntent = -1;
-                gameIfNewForIntent = true;
-                gameScoreForIntent = 0;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }else {
-
-            Log.v("MainActivity","LoadBigFile_Remote() ifGame");
-            Log.v("MainActivity",remote_socket.getIp());
-            if (remote_socket.getIp().equals(ip_TencentCloud)){
-                setSelectSource("Remote Server Aliyun",context);
-            } else if (remote_socket.getIp().equals(ip_SEU)){
-                setSelectSource("Remote Server SEU",context);
-            }
-
-            myrenderer.setPath(filepath);
-            myrenderer.zoom(2.2f);
-            setBigDataName();
-
-            System.out.println("------" + filepath + "------");
-            isBigData_Remote = true;
-            isBigData_Local = false;
-            myGLSurfaceView.requestRender();
-            setButtons();
-
-            PullSwc_block_Auto(true);
-
-            if (DrawMode){
-                LoadMarker();
-                if (!push_info_swc[0].equals("New")){
-//                    String filepath = this.getExternalFilesDir(null).toString();
-//                    String swc_file_path = filepath + "/Sync/BlockSet";
-//                    PushSWC_Block_Auto(push_info_swc[0], push_info_swc[1]);
-                }
-            }
-        }
-
-    }
-
     public static void LoadBigFile_Local(String filepath_local){
         System.out.println("------" + filepath_local + "------");
         isBigData_Local = true;
@@ -5685,20 +5286,85 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     }
 
-    private static void LoadMarker(){
 
-        String filename = getFilename_Remote(context);
-        String offset = getoffset_Remote(context, filename);
-        int[] index = BigImgReader.getIndex(offset);
-        Log.v("LoadMarker",Arrays.toString(index));
-
-        ArrayList<ArrayList<Integer>> marker_list = new ArrayList<ArrayList<Integer>>();
-        marker_list = remote_socket.getMarker(index);
-
-        myrenderer.importMarker(marker_list);
-        myGLSurfaceView.requestRender();
-
-    }
+//    @RequiresApi(api = Build.VERSION_CODES.N)
+//    public static void LoadBigFile_Remote(String filepath){
+//
+//        Log.v("MainActivity","LoadBigFile_Remote()");
+//
+//        if (ifGame){
+//
+//            Log.v("MainActivity","LoadBigFile_Remote() ifGame");
+//            try {
+//                Log.v("GameIntent", "inNNNNNNNNNNNNNNNNNNNNN");
+//                Intent gameIntent = new Intent(mainContext, GameActivity.class);
+//                gameIntent.putExtra("FilePath", filepath);
+//                gameIntent.putExtra("Position", gamePositionForIntent);
+//                gameIntent.putExtra("Dir", gameDirForIntent);
+//                gameIntent.putExtra("Head", gameHeadForIntent);
+//                gameIntent.putExtra("LastIndex", gameLastIndexForIntent);
+//                gameIntent.putExtra("IfNewGame", gameIfNewForIntent);
+//                gameIntent.putExtra("Score", gameScoreForIntent);
+//                mainContext.startActivity(gameIntent);
+//                gamePositionForIntent = new float[]{0.5f, 0.5f, 0.5f};
+//                gameDirForIntent = new float[]{1, 1, 1};
+//                gameHeadForIntent = new float[]{1, 0, -1};
+//                gameLastIndexForIntent = -1;
+//                gameIfNewForIntent = true;
+//                gameScoreForIntent = 0;
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }else {
+//
+//            Log.v("MainActivity","LoadBigFile_Remote() ifGame");
+//            Log.v("MainActivity",remote_socket.getIp());
+//            if (remote_socket.getIp().equals(ip_TencentCloud)){
+//                setSelectSource("Remote Server Aliyun",context);
+//            } else if (remote_socket.getIp().equals(ip_SEU)){
+//                setSelectSource("Remote Server SEU",context);
+//            }
+//
+//            myrenderer.setPath(filepath);
+//            myrenderer.zoom(2.2f);
+//            setBigDataName();
+//
+//            System.out.println("------" + filepath + "------");
+//            isBigData_Remote = true;
+//            isBigData_Local = false;
+//            myGLSurfaceView.requestRender();
+//            setButtons();
+//
+//            PullSwc_block_Auto(true);
+//
+//            if (DrawMode){
+//                LoadMarker();
+//                if (!push_info_swc[0].equals("New")){
+////                    String filepath = this.getExternalFilesDir(null).toString();
+////                    String swc_file_path = filepath + "/Sync/BlockSet";
+////                    PushSWC_Block_Auto(push_info_swc[0], push_info_swc[1]);
+//                }
+//            }
+//        }
+//
+//    }
+//
+//
+//
+//    private static void LoadMarker(){
+//
+//        String filename = getFilename_Remote(context);
+//        String offset = getoffset_Remote(context, filename);
+//        int[] index = BigImgReader.getIndex(offset);
+//        Log.v("LoadMarker",Arrays.toString(index));
+//
+//        ArrayList<ArrayList<Integer>> marker_list = new ArrayList<ArrayList<Integer>>();
+//        marker_list = remote_socket.getMarker(index);
+//
+//        myrenderer.importMarker(marker_list);
+//        myGLSurfaceView.requestRender();
+//
+//    }
 
 
 
@@ -5760,413 +5426,149 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
-    private boolean isTopActivity(){
-        ActivityManager manager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
-        List<ActivityManager.RunningTaskInfo> runningTaskInfos = manager.getRunningTasks(1);
-        String cmpNameTemp = null;
-        if(runningTaskInfos != null){
-            cmpNameTemp = runningTaskInfos.get(0).topActivity.toString();
-        }
-        if(cmpNameTemp == null){
-            return false;
-        }
-        Log.d(TAG, "isTopActivity" + cmpNameTemp);
-        return cmpNameTemp.equals("ComponentInfo{com.penglab.hi5/com.penglab.hi5.core.MainActivity}");
-    }
-
-
-    private void PullSwc_block_Manual(boolean isDrawMode){
-
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
-
-                if (SwcFilePath.equals("Error")){
-                    Toast_in_Thread("Something Wrong When Pull Swc File !");
-                }
-
-                try {
-                    NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
-                    myrenderer.setSwcLoaded();
-                    myrenderer.importNeuronTree(nt,false);
-                    myGLSurfaceView.requestRender();
-//                    uiHandler.sendEmptyMessage(1);
-                }catch (Exception e){
-                    Toast_in_Thread("Some Wrong when open the Swc File, Try Again Please !");
-                }
-
-            }
-        });
-
-        thread.start();
-    }
-
-
-    @RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
-    private static void PullSwc_block_Auto(boolean isDrawMode){
-
-        String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
-
-        if (SwcFilePath.equals("Error")){
-            Toast_in_Thread_static("Something Wrong When Pull Swc File !");
-            return;
-        }
-
-        try {
-            NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
-            myrenderer.setSwcLoaded();
-            myrenderer.importNeuronTree(nt,false);
-            myGLSurfaceView.requestRender();
-        }catch (Exception e){
-            Toast_in_Thread_static("Something Wrong when open Swc File !");
-        }
-
-
-    }
-
-
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "IMG" + timeStamp;
-        File storageDir = new File(Environment.getExternalStorageDirectory() + "/DCIM/Camera/");
-        File image = File.createTempFile(
-                imageFileName,     /* prefix */
-                ".jpg",     /* suffix */
-                storageDir         /* directory */
-        );
-
-        // Save a file: path for use with ACTION_VIEW intents
-        currentPhotoPath = image.getAbsolutePath();
-        return image;
-    }
-
-
-    private String getImageFilePath(){
-        String mCaptureDir = "/storage/emulated/0/C3/cameraPhoto";
-        File dir = new File(mCaptureDir);
-        if (!dir.exists()){
-            dir.mkdirs();
-        }
-
-        String mCapturePath = mCaptureDir + "/" + "Photo_" + System.currentTimeMillis() +".jpg";
-        return mCapturePath;
-    }
-
-
-
-    //GSDT_function
-    public void GSDT_Fun(){
-        //building...
-        Image4DSimple img = myrenderer.getImg();
-        //img.getDataCZYX();
-        if(img == null || !img.valid()){
-            Log.v("GSDT", "Please load img first!");
-            ToastEasy("Please load image first !");
-            return;
-        }
-
-        Log.v("GSDT", "Have got the image successfully!!");
-        try {
-
-            System.out.println("Start here.....");
-            ParaGSDT p = new ParaGSDT();
-            p.p4DImage = img;
-            GSDT.GSDT_Fun(p);
-            Log.v("GSDT", "GSDT function finished");
-
-            //preparations for show
-            myrenderer.resetImg(p.outImage);
-            myrenderer.getMarkerList().getMarkers().addAll(p.markers);//blue marker
-            myrenderer.getMarkerList().add(p.MaxMarker);//red marker
-            myGLSurfaceView.requestRender();
-
-            ToastEasy("marker_loc:"+ p.max_loc[0] + "," + p.max_loc[1] + "," + p.max_loc[2]);
-            progressBar.setVisibility(View.INVISIBLE);
-
-
-            /*
-            ImageMarker m = p.GSDT_Fun(img, para);
-            System.out.println("marker:"+ m.getXYZ().x + "," + m.getXYZ().y+","+m.getXYZ().z);
-            m.type = 2;
-            m.radius = 5;
-            Log.v("GSDT", "got here2");
-            markers.add(m);
-             */
-            //myGLSurfaceView.requestRender();
-
-        }catch (Exception e) {
-            ToastEasy(e.getMessage());
-            progressBar.setVisibility(View.INVISIBLE);
-        }
-
-    }
-
-
-//    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-//    public static String getpath(Context context, Uri uri) {
-//        if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
-//            if (DocumentsContract.isDocumentUri(context, uri)) {
-//                if (isExternalStorageDocument(uri)) {
-//                    // ExternalStorageProvider
-//                    final String docId = DocumentsContract.getDocumentId(uri);
-//                    final String[] split = docId.split(":");
-//                    final String type = split[0];
-//                    if ("primary".equalsIgnoreCase(type)) {
-//                        String path = Environment.getExternalStorageDirectory() + "/" + split[1];
-//                        return path;
-//                    }
-//                } else if (isDownloadsDocument(uri)) {
-//                    // DownloadsProvider
-//                    final String id = DocumentsContract.getDocumentId(uri);
-//                    final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"),
-//                            Long.valueOf(id));
-//                    String path = getDataColumn(context, contentUri, null, null);
-//                    return path;
-//                } else if (isMediaDocument(uri)) {
-//                    // MediaProvider
-//                    final String docId = DocumentsContract.getDocumentId(uri);
-//                    final String[] split = docId.split(":");
-//                    final String type = split[0];
-//                    Uri contentUri = null;
-//                    if ("image".equals(type)) {
-//                        contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-//                    } else if ("video".equals(type)) {
-//                        contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-//                    } else if ("audio".equals(type)) {
-//                        contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-//                    }
-//                    final String selection = "_id=?";
-//                    final String[] selectionArgs = new String[]{split[1]};
-//                    String path = getDataColumn(context, contentUri, selection, selectionArgs);
-//                    return path;
+//    private boolean isTopActivity(){
+//        ActivityManager manager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
+//        List<ActivityManager.RunningTaskInfo> runningTaskInfos = manager.getRunningTasks(1);
+//        String cmpNameTemp = null;
+//        if(runningTaskInfos != null){
+//            cmpNameTemp = runningTaskInfos.get(0).topActivity.toString();
+//        }
+//        if(cmpNameTemp == null){
+//            return false;
+//        }
+//        Log.d(TAG, "isTopActivity" + cmpNameTemp);
+//        return cmpNameTemp.equals("ComponentInfo{com.penglab.hi5/com.penglab.hi5.core.MainActivity}");
+//    }
+//
+//
+//    private void PullSwc_block_Manual(boolean isDrawMode){
+//
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+//                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+//
+//        Thread thread = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
+//
+//                if (SwcFilePath.equals("Error")){
+//                    Toast_in_Thread("Something Wrong When Pull Swc File !");
 //                }
-//            }
-//        }
-//        return null;
-//    }
 //
-//    private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
-//        Cursor cursor = null;
-//        final String column = "_data";
-//        final String[] projection = {column};
-//        try {
-//            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
-//            if (cursor != null && cursor.moveToFirst()) {
-//                final int column_index = cursor.getColumnIndexOrThrow(column);
-//                return cursor.getString(column_index);
-//            }
-//        } finally {
-//            if (cursor != null)
-//                cursor.close();
-//        }
-//        return null;
-//    }
+//                try {
+//                    NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
+//                    myrenderer.setSwcLoaded();
+//                    myrenderer.importNeuronTree(nt,false);
+//                    myGLSurfaceView.requestRender();
+////                    uiHandler.sendEmptyMessage(1);
+//                }catch (Exception e){
+//                    Toast_in_Thread("Some Wrong when open the Swc File, Try Again Please !");
+//                }
 //
-//    private static boolean isExternalStorageDocument(Uri uri) {
-//        return "com.android.externalstorage.documents".equals(uri.getAuthority());
-//    }
-//
-//    private static boolean isDownloadsDocument(Uri uri) {
-//        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
-//    }
-//
-//    private static boolean isMediaDocument(Uri uri) {
-//        return "com.android.providers.media.documents".equals(uri.getAuthority());
-//    }
-
-
-//    public void chooseVoiceChatMode(){
-//        new XPopup.Builder(this)
-//                .asCenterList("Choose Voice Chat Mode", new String[]{"Peer Chat", "Selection Tab Channel"},
-//                        new OnSelectListener() {
-//                            @Override
-//                            public void onSelect(int position, String text) {
-//                                switch (text){
-//                                    case "Peer Chat":
-//                                        peerToPeerChat();
-//                                        break;
-//                                    case "Selection Tab Channel":
-//                                        PopUp_Chat(mainContext);
-//                                        break;
-//                                }
-//                            }
-//                        }).show();
-//
-//    }
-
-//    private void peerToPeerChat(){
-//        MDDialog mdDialog = new MDDialog.Builder(this)
-//                .setContentView(R.layout.peer_chat)
-//                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-//                    @Override
-//                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-//
-//                    }
-//                })
-//                .setNegativeButton("Cancel", new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButton(R.string.btn_chat, new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//                        Log.d("PeerToPeer", "Start To Chat");
-//                        EditText targetEdit = (EditText)contentView.findViewById(R.id.target_name_edit);
-//                        String mTargetName = targetEdit.getText().toString();
-//                        if (mTargetName.equals("")) {
-//                            Toast_in_Thread(getString(R.string.account_empty));
-//                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
-//                            Toast_in_Thread(getString(R.string.account_too_long));
-//                        } else if (mTargetName.startsWith(" ")) {
-//                            Toast_in_Thread(getString(R.string.account_starts_with_space));
-//                        } else if (mTargetName.equals("null")) {
-//                            Toast_in_Thread(getString(R.string.account_literal_null));
-//                        } else if (mTargetName.equals(username)) {
-//                            Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
-//                        } else {
-//                            callTarget(mTargetName);
-//                            voicePattern = VoicePattern.PEER_TO_PEER;
-//                            Log.e("peerToPeerChat","voicePattern = VoicePattern.PEER_TO_PEER");
-//                        }
-//                    }
-//                })
-//                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//
-//                    }
-//                })
-//                .setTitle(R.string.title_peer_voice)
-//
-//                .create();
-//
-//        mdDialog.show();
-//    }
-//
-//    private void callTarget(String target){
-//        String channelName = target + "And" + username;
-//        String callMessage = "##CallFrom" + username + "##In##" + channelName + "##";
-//        RtmMessage message = mRtmClient.createMessage();
-//        message.setText(callMessage);
-//
-//        mRtmClient.sendMessageToPeer(target, message, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
-//            @Override
-//            public void onSuccess(Void aVoid) {
-//                runOnUiThread(() -> {
-//                    VoiceChat(channelName, username);
-//                });
-//
-//            }
-//
-//            @Override
-//            public void onFailure(ErrorInfo errorInfo) {
-//                final int errorCode = errorInfo.getErrorCode();
-//                runOnUiThread(() -> {
-//                    switch (errorCode){
-//                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_TIMEOUT:
-//                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_FAILURE:
-//                            Toast_in_Thread(getString(R.string.call_failed));
-//                            break;
-//                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_PEER_UNREACHABLE:
-//                            Toast_in_Thread(getString(R.string.peer_offline));
-//                            break;
-//                        case RtmStatusCode.PeerMessageError.PEER_MESSAGE_ERR_CACHED_BY_SERVER:
-//                            Toast_in_Thread(getString(R.string.call_cached));
-//                            break;
-//                    }
-//                });
 //            }
 //        });
+//
+//        thread.start();
 //    }
-
-
-//    public void PopUp_Chat(Context context){
-//
-//        new MDDialog.Builder(context)
-////              .setContentView(customizedView)
-//                .setContentView(R.layout.chat_connect)
-//                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-//                    @Override
-//                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-//                        EditText et1 = (EditText) contentView.findViewById(R.id.channel_edit);
-//                        EditText et2 = (EditText) contentView.findViewById(R.id.userAccount_edit);
-//                        String userAccount = getUserAccount(context);
-//
-//                        if (userAccount.equals("--11--")){
-//                            userAccount = "";
-//                        }
-//
-//                        et1.setText("channel_1");
-//                        et2.setText(userAccount);
-//
-//                    }
-//                })
-//                .setTitle("Voice Chat")
-//                .setNegativeButton("Cancel", new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButton("Confirm", new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
-//                        EditText et1 = (EditText) contentView.findViewById(R.id.channel_edit);
-//                        EditText et2 = (EditText) contentView.findViewById(R.id.userAccount_edit);
-//
-//                        String Channel   = et1.getText().toString();
-//                        String userAccount   = et2.getText().toString();
 //
 //
-//                        if( !Channel.isEmpty() && !userAccount.isEmpty() ){
-//                            VoiceChat(Channel, userAccount);
-//                            setUserAccount(userAccount, context);
-//                            voicePattern = VoicePattern.CHAT_ROOM;
-//                            Log.e("PopUp_Chat","voicePattern = VoicePattern.CHAT_ROOM");
+//    @RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
+//    private static void PullSwc_block_Auto(boolean isDrawMode){
 //
-//                        }else{
-//                            PopUp_Chat(context);
-//                            Toast.makeText(context, "Please make sure all the information is right!!!", Toast.LENGTH_SHORT).show();
-//                        }
+//        String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
 //
-//                    }
-//                })
-//                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
+//        if (SwcFilePath.equals("Error")){
+//            Toast_in_Thread_static("Something Wrong When Pull Swc File !");
+//            return;
+//        }
 //
-//                    }
-//                })
-//                .setWidthMaxDp(600)
-//                .create()
-//                .show();
+//        try {
+//            NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
+//            myrenderer.setSwcLoaded();
+//            myrenderer.importNeuronTree(nt,false);
+//            myGLSurfaceView.requestRender();
+//        }catch (Exception e){
+//            Toast_in_Thread_static("Something Wrong when open Swc File !");
+//        }
+//
 //
 //    }
-
-
-//    private void VoiceChat(String Channel, String userAccount){
-////        Intent intent = new Intent(this, VoiceChatViewActivity.class);
-////        this.startActivity(intent);
 //
-//        initAgoraEngineAndJoinChannel(Channel, userAccount);
-//        fab.setVisibility(View.VISIBLE);
-//        mRtcEngine.setEnableSpeakerphone(true);
+//
+//    private File createImageFile() throws IOException {
+//        // Create an image file name
+//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+//        String imageFileName = "IMG" + timeStamp;
+//        File storageDir = new File(Environment.getExternalStorageDirectory() + "/DCIM/Camera/");
+//        File image = File.createTempFile(
+//                imageFileName,     /* prefix */
+//                ".jpg",     /* suffix */
+//                storageDir         /* directory */
+//        );
+//
+//        // Save a file: path for use with ACTION_VIEW intents
+//        currentPhotoPath = image.getAbsolutePath();
+//        return image;
+//    }
+//
+//
+//    private String getImageFilePath(){
+//        String mCaptureDir = "/storage/emulated/0/C3/cameraPhoto";
+//        File dir = new File(mCaptureDir);
+//        if (!dir.exists()){
+//            dir.mkdirs();
+//        }
+//
+//        String mCapturePath = mCaptureDir + "/" + "Photo_" + System.currentTimeMillis() +".jpg";
+//        return mCapturePath;
+//    }
+//
+//
+//
+//    //GSDT_function
+//    public void GSDT_Fun(){
+//        //building...
+//        Image4DSimple img = myrenderer.getImg();
+//        //img.getDataCZYX();
+//        if(img == null || !img.valid()){
+//            Log.v("GSDT", "Please load img first!");
+//            ToastEasy("Please load image first !");
+//            return;
+//        }
+//
+//        Log.v("GSDT", "Have got the image successfully!!");
+//        try {
+//
+//            System.out.println("Start here.....");
+//            ParaGSDT p = new ParaGSDT();
+//            p.p4DImage = img;
+//            GSDT.GSDT_Fun(p);
+//            Log.v("GSDT", "GSDT function finished");
+//
+//            //preparations for show
+//            myrenderer.resetImg(p.outImage);
+//            myrenderer.getMarkerList().getMarkers().addAll(p.markers);//blue marker
+//            myrenderer.getMarkerList().add(p.MaxMarker);//red marker
+//            myGLSurfaceView.requestRender();
+//
+//            ToastEasy("marker_loc:"+ p.max_loc[0] + "," + p.max_loc[1] + "," + p.max_loc[2]);
+//            progressBar.setVisibility(View.INVISIBLE);
+//
+//
+//            /*
+//            ImageMarker m = p.GSDT_Fun(img, para);
+//            System.out.println("marker:"+ m.getXYZ().x + "," + m.getXYZ().y+","+m.getXYZ().z);
+//            m.type = 2;
+//            m.radius = 5;
+//            Log.v("GSDT", "got here2");
+//            markers.add(m);
+//             */
+//            //myGLSurfaceView.requestRender();
+//
+//        }catch (Exception e) {
+//            ToastEasy(e.getMessage());
+//            progressBar.setVisibility(View.INVISIBLE);
+//        }
 //
 //    }
 

@@ -15,7 +15,6 @@ import android.util.Log;
 import com.penglab.hi5.basic.ByteTranslate;
 import com.penglab.hi5.basic.Image4DSimple;
 import com.penglab.hi5.game.GameMapPoint;
-import com.penglab.hi5.core.GameActivity;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -1165,7 +1164,7 @@ public class MyPatternGame {
 
             if (distance(temp, temp2) < 10){
 //                Log.d("RemovePointsByCenter", "Removed!!!");
-                GameActivity.addScore(temp.score);
+//                GameActivity.addScore(temp.score);
                 removedPoints.add(lightPoints.remove(i));
             } else if (distance(temp, temp2) < 20){
                 temp.updateScore();

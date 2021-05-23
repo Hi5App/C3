@@ -36,7 +36,7 @@ public class MsgSender {
                 super.run();
 
                 try {
-                    Log.d(TAG, "Start to Send Message");
+//                    Log.d(TAG, "Start to Send Message");
                     OutputStream out = socket.getOutputStream();
 
                     String data = message + "\n";
@@ -48,8 +48,7 @@ public class MsgSender {
                     String header = String.format("DataTypeWithSize:%d;;%s\n",0, datalength);
                     int headerlength = header.getBytes().length;
 
-                    Log.d(TAG,"header: " + header);
-                    Log.d(TAG,"data: " + data);
+                    Log.d(TAG,"header: " + header + ",  data: " + data);
 
                     out.write(header.getBytes(StandardCharsets.UTF_8));
                     out.write(data.getBytes(StandardCharsets.UTF_8));

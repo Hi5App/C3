@@ -57,11 +57,9 @@ public class MyAnimation {
     }
 
     public float[] Rotation(){
-
         float[] rotationMatrix = new float[16];
         Matrix.setIdentityM(rotationMatrix,0);
 
-//        System.out.println("--------" + count +"-----------");
         switch (rotationType){
 
             case X:
@@ -322,27 +320,6 @@ public class MyAnimation {
             ResetAnimation();
         }
     }
-
-//    private void setX_axis(float[] current_rotation){
-//        System.out.println("-----------setX_axis------------");
-//        current_axis = new float[]{ -1, 0 ,0 ,1};
-//
-////        Matrix.multiplyMV(current_axis, 0, current_rotation, 0, new float[]{-1, 0, 0, 1}, 0);
-//    }
-//
-//    private void setY_axis(float[] current_rotation){
-//        System.out.println("-----------setY_axis------------");
-//        current_axis = new float[]{0, -1, 0, 1};
-//
-////        Matrix.multiplyMV(current_axis, 0, current_rotation, 0, new float[]{0, 1, 0, 1}, 0);
-//    }
-//
-//    private void setZ_axis(float[] current_rotation){
-//        System.out.println("-----------setZ_axis------------");
-//        current_axis = new float[]{0, 0, 1, 1};
-//
-////        Matrix.multiplyMV(current_axis, 0, current_rotation, 0, new float[]{0, 0, 1, 1}, 0);
-//    }
 
 
     private void setX_axis(){

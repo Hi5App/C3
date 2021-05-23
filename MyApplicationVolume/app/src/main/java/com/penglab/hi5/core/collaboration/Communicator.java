@@ -370,9 +370,7 @@ public class Communicator {
         Matcher m = r.matcher(msg);
         if (m.find()){
 
-            System.out.println("Found value: " + m.group(2) );
-            System.out.println("Found value: " + m.group(3) );
-            System.out.println("Found value: " + m.group(4) );
+            Log.d(TAG,String.format("Found value x %s, y %s, z %s", m.group(2), m.group(3), m.group(4)));
 
             String x = m.group(2);
             String y = m.group(3);

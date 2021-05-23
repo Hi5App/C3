@@ -268,11 +268,11 @@ public abstract class BasicService extends Service {
                     try {
                         String header = "";
                         if (is.available() > 0){
-                            Log.e(TAG,"available size: " + is.available());
+//                            Log.e(TAG,"available size: " + is.available());
 
                             header = MyReadLine(is);
 
-                            Log.e(TAG,"available size: " + is.available());
+//                            Log.e(TAG,"available size: " + is.available());
                             Log.e(TAG,"read header: " + header);
 
                             if (processHeader(header + "\n")){
@@ -288,7 +288,7 @@ public abstract class BasicService extends Service {
                     try {
                         if (is.available() >= dataType.dataSize){
                             // read msg
-                            Log.e(TAG,"read msg !");
+//                            Log.e(TAG,"read msg !");
                             String msg = MyReadLine(is) + "\n";
                             if (processMsg(msg)){
                                 onRead("after read msg !");
@@ -313,7 +313,7 @@ public abstract class BasicService extends Service {
                         File dir = new File(dataType.filepath);
                         if (!dir.exists()){
                             if(dir.mkdirs()){
-                                Log.e(TAG, "Create dirs Successfully !");
+                                Log.v(TAG, "Create dirs Successfully !");
                             }
                         }
 
@@ -322,7 +322,7 @@ public abstract class BasicService extends Service {
 //                        File file = new File(dataType.filepath + "/" + "1.v3draw");
                         if(!file.exists()){
                             if (file.createNewFile()){
-                                Log.e(TAG, "Create file Successfully !");
+                                Log.v(TAG, "Create file Successfully !");
                             }
                         }
 
@@ -332,7 +332,7 @@ public abstract class BasicService extends Service {
                         int Loop = File_Content_Int / 1024;
                         int End = File_Content_Int % 1024;
 
-                        Log.e(TAG, "Loop: " + Loop + "; End: " + End);
+//                        Log.e(TAG, "Loop: " + Loop + "; End: " + End);
 
                         byte [] File_Content = new byte[1024];
                         byte [] File_Content_End = new byte[End];
@@ -352,7 +352,7 @@ public abstract class BasicService extends Service {
 
                         if (End > 0){
 
-                            Log.e(TAG, "Wait for the data !");
+//                            Log.e(TAG, "Wait for the data !");
 
                             for (int i = 0; i < 1; i++){
                                 if (is.available() < End){
@@ -362,7 +362,7 @@ public abstract class BasicService extends Service {
                                 is.read(File_Content_End, 0, End);
                             }
 
-                            Log.e(TAG, "Finish read the data !");
+//                            Log.e(TAG, "Finish read the data !");
 
                             out.write(File_Content_End);
                         }
@@ -375,7 +375,7 @@ public abstract class BasicService extends Service {
                             receiveMsgInterface.onRecMessage("File:" + dataType.filepath + "/" + dataType.filename);
                         }
 
-                        Log.e(TAG,"Finish process file !");
+//                        Log.e(TAG,"Finish process file !");
                         resetDataType();
 
                         if(ret!=0){
@@ -418,7 +418,7 @@ public abstract class BasicService extends Service {
                         if (dataType.filename.endsWith(".mp3") || dataType.filename.endsWith(".wmv"))
                             dataType.filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Resources/Music";
                         else
-                            dataType.filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Resources";
+                            dataType.filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Img";
 
                         Log.e(TAG,"This is a file !");
                     }else {
@@ -431,7 +431,9 @@ public abstract class BasicService extends Service {
                 ret = 1;
             }
 
-            Log.e(TAG, "ret: " + ret);
+            if (ret != 0)
+                Log.e(TAG, "ret: " + ret);
+
             if (ret==0) return true;
             errorprocess(ret, rmsg.trim());  return false;
 

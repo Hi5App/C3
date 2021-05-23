@@ -1,7 +1,6 @@
 package com.penglab.hi5.core.collaboration.basic;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.penglab.hi5.dataStore.database.Image;
 
@@ -39,7 +38,7 @@ public class ImageInfo {
     }
 
     public boolean queryCurPath(String curPath){
-        Log.e(TAG, "queryCurPath start !");
+//        Log.e(TAG, "queryCurPath start !");
 
         List<Image> images = LitePal.where("curPath = ?", curPath).find(Image.class);
         if (images.size() == 1) return true;
@@ -50,7 +49,7 @@ public class ImageInfo {
 
 
     public int queryRes(String curPath){
-        Log.e(TAG, "queryRes start !");
+//        Log.e(TAG, "queryRes start !");
 
         if (curPath != null){
             List<Image> images = LitePal.where("curPath = ?", curPath).find(Image.class);
@@ -69,7 +68,7 @@ public class ImageInfo {
 
 
     public boolean updateRes(String curPath, int curRes){
-        Log.e(TAG, "updateRes start !");
+//        Log.e(TAG, "updateRes start !");
 
         if (curPath != null){
             List<Image> images = LitePal.where("curPath = ?", curPath).find(Image.class);
@@ -92,7 +91,7 @@ public class ImageInfo {
 
 
     public String queryPos(String curPath){
-        Log.e(TAG, "queryPos start !");
+//        Log.e(TAG, "queryPos start !");
 
         if (curPath != null){
             List<Image> images = LitePal.where("curPath = ?", curPath).find(Image.class);
@@ -111,7 +110,7 @@ public class ImageInfo {
 
 
     public boolean updatePos(String curPath, String curPos){
-        Log.e(TAG, "updatePos start : " + curPos);
+//        Log.e(TAG, "updatePos start : " + curPos);
 
         if (curPath != null){
             List<Image> images = LitePal.where("curPath = ?", curPath).find(Image.class);
@@ -134,13 +133,13 @@ public class ImageInfo {
 
 
     public boolean updatePosRes(String curPath, int curRes, String curPos){
-        Log.e(TAG, "updatePosRes start : " + curRes + ", " + curPos);
+//        Log.e(TAG, "updatePosRes start : " + curRes + ", " + curPos);
         return updatePos(curPath, curPos) && updateRes(curPath, curRes);
     }
 
 
     public boolean initImgInfo(String curPath, int curRes, String curPos){
-        Log.e(TAG, "initImgInfo start !");
+//        Log.e(TAG, "initImgInfo start !");
 
         List<Image> images = LitePal.where("curPath = ?", curPath).find(Image.class);
         if (images.size() != 0){

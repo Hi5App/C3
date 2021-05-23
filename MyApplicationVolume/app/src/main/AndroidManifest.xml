@@ -8,8 +8,9 @@
         android:required="true" />
     <uses-feature
         android:name="android.hardware.camera"
-        android:required="true" /> <!-- 权限声明 -->
-    <!-- 访问网络状态 -->
+        android:required="true" />
+
+    <!-- 权限声明 -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -21,19 +22,15 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!-- 控制呼吸灯，振动器等，用于新消息提醒 -->
     <uses-permission android:name="android.permission.FLASHLIGHT" />
     <uses-permission android:name="android.permission.VIBRATE" /> <!-- 8.0+系统需要 -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- 下面的 uses-permission 一起加入到你的 AndroidManifest 文件中。 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <permission
         android:name="com.penglab.hi5.permission.RECEIVE_MSG"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.penglab.hi5.permission.RECEIVE_MSG" /> <!-- <uses-permission android:name="android.permission.INTERNET" /> -->
-    <!-- <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> -->
-    <!-- <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> -->
+    <uses-permission android:name="com.penglab.hi5.permission.RECEIVE_MSG" />
     <uses-permission
         android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"
-        tools:ignore="ProtectedPermissions" /> <!-- <uses-permission android:name="android.permission.CAMERA" /> -->
-    <!-- <uses-permission android:name="android.permission.RECORD_AUDIO" /> -->
-    <!-- <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> -->
+        tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
@@ -56,7 +53,6 @@
         <activity
             android:name=".core.game.QuestActivity"
             android:theme="@style/dialog_style" />
-        <activity android:name="com.penglab.hi5.core.MenuActivity" />
 
 
         <!--
@@ -70,13 +66,7 @@
         <meta-data
             android:name="com.netease.nim.appKey"
             android:value="337591b817815b770bc6b7551bb90b28" /> <!-- <activity -->
-        <!-- android:name="com.example.myapplication__volume.WelcomeActivity" -->
-        <!-- android:label="@string/app_name"> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.intent.action.MAIN" /> -->
-        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-        <!-- </intent-filter> -->
-        <!-- </activity> -->
+
         <activity android:name=".chat.nim.main.activity.SystemMessageActivity" />
         <activity android:name=".chat.nim.contact.activity.RobotProfileActivity" />
         <activity android:name=".chat.nim.contact.activity.UserProfileActivity" />
@@ -117,9 +107,9 @@
         <activity
             android:name=".core.ui.login.LoginActivity">
         </activity>
-        <activity
-            android:name="com.penglab.hi5.core.GameActivity"
-            android:screenOrientation="landscape" />
+<!--        <activity-->
+<!--            android:name="com.penglab.hi5.core.GameActivity"-->
+<!--            android:screenOrientation="landscape" />-->
         <activity android:name="com.penglab.hi5.core.HelpActivity" />
         <activity
             android:name="com.penglab.hi5.core.MainActivity"
@@ -129,12 +119,6 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan">
 
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
         </activity>
 
 

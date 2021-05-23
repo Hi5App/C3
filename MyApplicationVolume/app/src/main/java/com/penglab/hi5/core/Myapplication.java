@@ -7,6 +7,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -306,6 +307,11 @@ public class Myapplication extends Application {
                 .createBuilder(context)
                 .setMessage(message)
                 .show();
+    }
+
+
+    public static void ToastEasy(String message, int length){
+        Toast.makeText(context, message, length).show();
     }
 
 }
