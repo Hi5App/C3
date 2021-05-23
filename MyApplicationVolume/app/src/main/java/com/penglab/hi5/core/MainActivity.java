@@ -144,7 +144,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -1804,7 +1803,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
      * @param FileList
      */
     private void LoadFiles(String FileList){
-        Map<String, String> fileType = new HashMap<>();
         List<String> list_array = new ArrayList<>();
         String[] list = FileList.split(";;");
 
@@ -1816,7 +1814,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             if (list[i].split(" ")[0].endsWith(".apo") || list[i].split(" ")[0].endsWith(".eswc")
                     || list[i].split(" ")[0].endsWith(".swc") || list[i].split(" ")[0].endsWith("log") )
                 continue;
-            fileType.put(list[i].split(" ")[0], list[i].split(" ")[1]);
 
             if(Communicator.getInstance().initSoma(list[i].split(" ")[0])){
                 fileName[0] = list[i].split(" ")[0];
@@ -1825,6 +1822,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
 
             list_array.add(list[i].split(" ")[0]);
+        }
+        if (isFile){
+            list_array.add("create a new Room");
         }
 
         String[] list_show = new String[list_array.size()];
@@ -1840,24 +1840,20 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             new XPopup.Builder(this)
                     .maxHeight(1350)
                     .maxWidth(800)
-                    .asCenterList("BigData File", new String[]{"select a Room", "create a Room"},
+                    .asCenterList("BigData File", list_show,
                             new OnSelectListener() {
                                 @RequiresApi(api = Build.VERSION_CODES.N)
                                 @Override
                                 public void onSelect(int position, String text) {
                                     Communicator.BrainNum = conPath.split("/")[1];
                                     switch (text){
-                                        case "select a Room":
-                                            loadFileMode(list_show);
-                                            break;
-
                                         case "create a Room":
                                             CreateFile(conPath + "/" + fileName[0],"0");
-                                            Communicator.BrainNum = conPath.split("/")[1] + "/" + fileName[0];
+                                            Communicator.Path = conPath.split("/")[1] + "/" + fileName[0];
                                             break;
 
                                         default:
-                                            ToastEasy("Default in LoadFiles");
+                                            loadFileMode(conPath + "/" + text);
                                     }
                                 }
                             })
@@ -1873,16 +1869,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 @Override
                                 public void onSelect(int position, String text) {
                                     ServerConnector serverConnector = ServerConnector.getInstance();
-
-                                    if (fileType.get(text).equals("0")){
-                                        conPath = conPath + "/" + text;
-                                        serverConnector.sendMsg("GETFILELIST:" + conPath);
-                                    }else {
-                                        selectMode(conPath + "/" + text, text);
-                                        Communicator.BrainNum = conPath.split("/")[1];
-                                        Communicator.Path = conPath + "/" + text;
-//                                    serverConnector.sendMsg("LOADFILES:0 " + conPath + "/" + text + " " + conPath + "/test_01_fx_lh_test.ano");
-                                    }
+                                    conPath = conPath + "/" + text;
+                                    serverConnector.sendMsg("GETFILELIST:" + conPath);
                                 }
                             })
                     .show();
@@ -1891,67 +1879,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
-    private void loadFileMode(String[] fileList){
-        new XPopup.Builder(this)
-                .asCenterList("BigData File", fileList,
-                        new OnSelectListener() {
-                            @RequiresApi(api = Build.VERSION_CODES.N)
-                            @Override
-                            public void onSelect(int position, String text) {
-                                String filepath = conPath + "/" + text;
-                                Communicator.Path = filepath;
+    private void loadFileMode(String filepath){
+        Communicator.Path = filepath;
 
-                                ServerConnector serverConnector = ServerConnector.getInstance();
-                                serverConnector.sendMsg("LOADFILES:2 " + filepath);
-                                Communicator.getInstance().setConPath(filepath);
+        ServerConnector serverConnector = ServerConnector.getInstance();
+        serverConnector.sendMsg("LOADFILES:2 " + filepath);
+        Communicator.getInstance().setConPath(filepath);
 
-                                String[] list = filepath.split("/");
-                                serverConnector.setRoomName(list[list.length - 1]);
-
-                            }
-                        })
-                .show();
-    }
-
-
-
-    private void selectMode(String oldname, String text){
-
-        Communicator communicator = Communicator.getInstance();
-        boolean mode = communicator.initSoma(text);
-
-        String[] modeList = mode ? new String[]{"New File"} : new String[]{"Load File", "Copy File"};
-        new XPopup.Builder(this)
-                .asCenterList("Select Mode", modeList,
-                        new OnSelectListener() {
-                            @RequiresApi(api = Build.VERSION_CODES.N)
-                            @Override
-                            public void onSelect(int position, String text) {
-                                switch (text){
-                                    case "New File":
-                                        // 0
-                                        CreateFile(oldname,"0");
-                                        break;
-                                    case "Copy File":
-                                        // 1
-                                        CreateFile(oldname,"1");
-                                        break;
-                                    case "Load File":
-                                        // 2
-                                        ServerConnector serverConnector = ServerConnector.getInstance();
-                                        serverConnector.sendMsg("LOADFILES:2 " + oldname);
-                                        Communicator.getInstance().setConPath(oldname);
-
-                                        String[] list = oldname.split("/");
-                                        serverConnector.setRoomName(list[list.length - 1]);
-                                        break;
-                                    default:
-                                        Log.e(TAG,"Something Wrong with SelectMode");
-                                }
-                            }
-                        })
-                .show();
-
+        String[] list = filepath.split("/");
+        serverConnector.setRoomName(list[list.length - 1]);
     }
 
 
@@ -3429,7 +3365,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210521a 21:16 UTC+8 build",
+                                "Version: 20210523b 21:56 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
