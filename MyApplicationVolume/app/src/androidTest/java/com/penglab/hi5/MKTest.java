@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +33,7 @@ public class MKTest {
 
 
     /*
-   Test for pre-construction  for Xiao Mi
+    Test collaboration for XiaoMi
    */
     @Test
     public void MiTest() throws RemoteException, InterruptedException {
@@ -55,7 +56,7 @@ public class MKTest {
         mUidevice.findObject(By.text("18454_00049")).click();
         Thread.sleep(2000);
 
-        mUidevice.findObject(By.text("1")).click();
+        mUidevice.findObject(By.text("1.ano")).click();
         Thread.sleep(8000);
 
 
@@ -67,13 +68,20 @@ public class MKTest {
         mUidevice.click(730,530);
         Thread.sleep(2000);
 
-        for (int i=0; i<10000; i++){
+        for (int i=0; i<3000; i++){
 
+            Random ran = new Random(3000-i);
 //            //change pen blue
 //            mUidevice.click(75,630);
 //            Thread.sleep(2000);
 //
-            mUidevice.swipe(380,1060,650,1300,10);
+            // x 200 -> 800,  y 800 -> 1400
+            int x1 = ran.nextInt(600) + 200;
+            int x2 = ran.nextInt(600) + 200;
+            int y1 = ran.nextInt(600) + 800;
+            int y2 = ran.nextInt(600) + 800;
+
+            mUidevice.swipe(x1,y1,x2,y2,10);
             Thread.sleep(5000);
 
 
@@ -93,20 +101,20 @@ public class MKTest {
             Thread.sleep(2000);
 
             if(i%6 == 0){
-                mUidevice.findObject(By.text("2")).click();
+                mUidevice.findObject(By.text("2.ano")).click();
             }else if (i%6 == 1){
-                mUidevice.findObject(By.text("3")).click();
+                mUidevice.findObject(By.text("3.ano")).click();
             }else if (i%6 == 2){
-                mUidevice.findObject(By.text("4")).click();
+                mUidevice.findObject(By.text("4.ano")).click();
             }else if (i%6 == 3){
-                mUidevice.findObject(By.text("5")).click();
+                mUidevice.findObject(By.text("5.ano")).click();
             }else if (i%6 == 4){
-                mUidevice.findObject(By.text("6")).click();
+                mUidevice.findObject(By.text("6.ano")).click();
             }else if (i%6 == 5){
-                mUidevice.findObject(By.text("1")).click();
+                mUidevice.findObject(By.text("1.ano")).click();
             }
 
-            Thread.sleep(10000);
+            Thread.sleep(15000);
         }
 
         Thread.sleep(2000);
@@ -116,10 +124,192 @@ public class MKTest {
 
 
 
+    /*
+    Test collaboration for Vivo
+    */
+    @Test
+    public void VivoTest() throws RemoteException, InterruptedException {
+
+        // start the app
+        mUidevice.click(910,780);
+        Thread.sleep(3000);
+
+        //open the file
+        mUidevice.findObject(By.res("com.penglab.hi5:id/file")).click();
+        Thread.sleep(1000);
+
+
+        mUidevice.findObject(By.text("Open BigData")).click();
+        Thread.sleep(2000);
+
+        mUidevice.findObject(By.text("18454")).click();
+        Thread.sleep(2000);
+
+        mUidevice.findObject(By.text("18454_00049")).click();
+        Thread.sleep(2000);
+
+        mUidevice.findObject(By.text("1.ano")).click();
+        Thread.sleep(8000);
+
+
+        // click the draw button
+        mUidevice.click(100,360);
+        Thread.sleep(3000);
+        mUidevice.click(140,670);
+        Thread.sleep(2000);
+        mUidevice.click(750,520);
+        Thread.sleep(2000);
+
+        for (int i=0; i<3000; i++){
+
+            Random ran = new Random(i);
+//            //change pen blue
+//            mUidevice.click(75,630);
+//            Thread.sleep(2000);
+//
+            // x 200 -> 800,  y 800 -> 1400
+            int x1 = ran.nextInt(600) + 200;
+            int x2 = ran.nextInt(600) + 200;
+            int y1 = ran.nextInt(600) + 800;
+            int y2 = ran.nextInt(600) + 800;
+
+            mUidevice.swipe(x1,y1,x2,y2,10);
+            Thread.sleep(5000);
+
+
+            // open the file
+            mUidevice.findObject(By.res("com.penglab.hi5:id/file")).click();
+            Thread.sleep(1000);
+
+            mUidevice.findObject(By.text("Open BigData")).click();
+            Thread.sleep(2000);
+
+            mUidevice.click(260,1100);
+//            mUidevice.findObject(By.text("18454")).click();
+            Thread.sleep(2000);
+
+            mUidevice.click(360,1160);
+//            mUidevice.findObject(By.text("18454_00049")).click();
+            Thread.sleep(2000);
+
+            if(i%6 == 0){
+                mUidevice.findObject(By.text("2.ano")).click();
+            }else if (i%6 == 1){
+                mUidevice.findObject(By.text("3.ano")).click();
+            }else if (i%6 == 2){
+                mUidevice.findObject(By.text("4.ano")).click();
+            }else if (i%6 == 3){
+                mUidevice.findObject(By.text("5.ano")).click();
+            }else if (i%6 == 4){
+                mUidevice.findObject(By.text("6.ano")).click();
+            }else if (i%6 == 5){
+                mUidevice.findObject(By.text("1.ano")).click();
+            }
+
+            Thread.sleep(15000);
+        }
+
+        Thread.sleep(2000);
+
+    }
+
+
 
 
     /*
-    Test for pre-construction  for Huawei
+    Test collaboration for MEIZU
+     */
+    @Test
+    public void MeiZuTest() throws RemoteException, InterruptedException {
+
+        // start the app
+        mUidevice.click(410,540);
+        Thread.sleep(3000);
+
+        //open the file
+        mUidevice.findObject(By.res("com.penglab.hi5:id/file")).click();
+        Thread.sleep(1000);
+
+
+        mUidevice.findObject(By.text("Open BigData")).click();
+        Thread.sleep(2000);
+
+        mUidevice.findObject(By.text("18455")).click();
+        Thread.sleep(2000);
+
+        mUidevice.findObject(By.text("18455_00004")).click();
+        Thread.sleep(2000);
+
+        mUidevice.findObject(By.text("1.ano")).click();
+        Thread.sleep(8000);
+
+
+        // click the draw button
+        mUidevice.click(100,360);
+        Thread.sleep(3000);
+        mUidevice.click(140,700);
+        Thread.sleep(2000);
+        mUidevice.click(750,560);
+        Thread.sleep(2000);
+
+        for (int i=0; i<3000; i++){
+
+            Random ran = new Random(i);
+//            //change pen blue
+//            mUidevice.click(75,630);
+//            Thread.sleep(2000);
+//
+            // x 250 -> 900,  y 900 -> 1400
+            int x1 = ran.nextInt(650) + 250;
+            int x2 = ran.nextInt(650) + 250;
+            int y1 = ran.nextInt(500) + 900;
+            int y2 = ran.nextInt(500) + 900;
+
+            mUidevice.swipe(x1,y1,x2,y2,10);
+            Thread.sleep(5000);
+
+
+            // open the file
+            mUidevice.findObject(By.res("com.penglab.hi5:id/file")).click();
+            Thread.sleep(1000);
+
+            mUidevice.findObject(By.text("Open BigData")).click();
+            Thread.sleep(2000);
+
+            mUidevice.click(270,1220);
+//            mUidevice.findObject(By.text("18454")).click();
+            Thread.sleep(2000);
+
+            mUidevice.click(350,1140);
+//            mUidevice.findObject(By.text("18454_00049")).click();
+            Thread.sleep(2000);
+
+            if(i%6 == 0){
+                mUidevice.findObject(By.text("2.ano")).click();
+            }else if (i%6 == 1){
+                mUidevice.findObject(By.text("3.ano")).click();
+            }else if (i%6 == 2){
+                mUidevice.findObject(By.text("4.ano")).click();
+            }else if (i%6 == 3){
+                mUidevice.findObject(By.text("5.ano")).click();
+            }else if (i%6 == 4){
+                mUidevice.findObject(By.text("6.ano")).click();
+            }else if (i%6 == 5){
+                mUidevice.findObject(By.text("1.ano")).click();
+            }
+
+            Thread.sleep(15000);
+        }
+
+        Thread.sleep(2000);
+
+    }
+
+
+
+
+    /*
+    Test collaboration for Huawei
     */
     @Test
     public void HuaweiTest() throws RemoteException, InterruptedException {
@@ -201,67 +391,6 @@ public class MKTest {
     }
 
 
-
-
-    /*
-    Test for pre-construction for MEIZU
-     */
-    @Test
-    public void DemoTest() throws RemoteException, InterruptedException {
-
-        // start the app
-        mUidevice.click(928,1077);
-        Thread.sleep(1000);
-
-        //open the file
-        mUidevice.findObject(By.res("com.example.core:id/file")).click();
-        Thread.sleep(500);
-
-
-        mUidevice.findObject(By.text("Open BigData")).click();
-        Thread.sleep(2000);
-
-        mUidevice.findObject(By.text("Select Block")).click();
-        Thread.sleep(8000);
-
-        // click the draw button
-        mUidevice.click(115,380);
-        Thread.sleep(3000);
-        mUidevice.click(140,720);
-        Thread.sleep(2000);
-        mUidevice.click(800,560);
-        Thread.sleep(2000);
-
-        for (int i=0; i<1000; i++){
-
-            //change pen blue
-            mUidevice.click(65,685);
-            Thread.sleep(2000);
-
-            mUidevice.swipe(700,980,340,1200,10);
-            Thread.sleep(4000);
-
-            //change pen red
-            mUidevice.click(65,780);
-            Thread.sleep(2000);
-
-            mUidevice.swipe(700,1180,340,1400,10);
-            Thread.sleep(4000);
-
-            mUidevice.click(1000,770);
-            Thread.sleep(8000);
-//            Test_Unit();
-        }
-//        Test_for_PreConstruction();
-
-//        Draw Curve
-
-
-//        mUidevice.findObject(By.text("+")).click();
-
-        Thread.sleep(2000);
-
-    }
 
 
     /*

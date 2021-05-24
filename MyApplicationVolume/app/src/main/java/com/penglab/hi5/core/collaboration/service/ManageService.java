@@ -6,6 +6,8 @@ import android.util.Log;
 
 import com.penglab.hi5.core.collaboration.connector.ServerConnector;
 
+import java.util.Timer;
+
 public class ManageService extends BasicService {
 
     private static final String TAG = "ManageService";
@@ -21,6 +23,8 @@ public class ManageService extends BasicService {
         mReadThread = new ReadThread(mBasicConnector.getSocket());
         mReadThread.start();
 
+        timer = new Timer();
+        timer.schedule(task, 5 * 1000, HEART_BEAT_RATE);
     }
 
 
@@ -41,6 +45,7 @@ public class ManageService extends BasicService {
         super.onUnbind(intent);
         if (mReadThread != null)
             mReadThread.flag = false;
+        timer.cancel();
         return mAllowRebind;
     }
 
@@ -60,8 +65,9 @@ public class ManageService extends BasicService {
     }
 
     public static void resetConnection(){
-        mReadThread.setRelease(false);
+        mReadThread.setRelease(true);
         mReadThread.reSetConnect();
+        mReadThread.setRelease(false);
     }
 
     @Override

@@ -50,8 +50,11 @@ public class MsgSender {
 
                     Log.d(TAG,"header: " + header.trim() + ",  data: " + data);
 
-                    out.write(header.getBytes(StandardCharsets.UTF_8));
-                    out.write(data.getBytes(StandardCharsets.UTF_8));
+//                    out.write(header.getBytes(StandardCharsets.UTF_8));
+//                    out.write(data.getBytes(StandardCharsets.UTF_8));
+
+                    String finalMsg = header + data;
+                    out.write(finalMsg.getBytes(StandardCharsets.UTF_8));
                     out.flush();
 
 

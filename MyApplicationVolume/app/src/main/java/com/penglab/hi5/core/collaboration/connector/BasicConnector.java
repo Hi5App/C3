@@ -31,7 +31,7 @@ public abstract class BasicConnector {
      */
     public void initConnection(){
 
-        Log.e(TAG,"Start to Connect Server !");
+        Log.d(TAG,"Start to Connect Server !");
 
         /*
         如果已经和服务器建立连接了，就return

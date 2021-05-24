@@ -360,7 +360,7 @@ public class Communicator {
 
     public boolean initSoma(final String msg){
 
-        Log.e(TAG,"msg: " + msg);
+//        Log.e(TAG,"msg: " + msg);
         String pattern = "(.*)_x(.*)_y(.*)_z(.*).ano";
 
         // 创建 Pattern 对象
@@ -370,7 +370,7 @@ public class Communicator {
         Matcher m = r.matcher(msg);
         if (m.find()){
 
-            Log.d(TAG,String.format("Found value x %s, y %s, z %s", m.group(2), m.group(3), m.group(4)));
+//            Log.d(TAG,String.format("Found value x %s, y %s, z %s", m.group(2), m.group(3), m.group(4)));
 
             String x = m.group(2);
             String y = m.group(3);

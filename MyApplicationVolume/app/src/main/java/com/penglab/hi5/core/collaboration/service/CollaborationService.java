@@ -62,8 +62,9 @@ public class CollaborationService extends BasicService {
 
     public static void resetConnection(){
         Log.e(TAG,"Start to resetConnection");
-        mReadThread.setRelease(false);
+        mReadThread.setRelease(true);
         mReadThread.reSetConnect();
+        mReadThread.setRelease(false);
     }
 
     @Override
