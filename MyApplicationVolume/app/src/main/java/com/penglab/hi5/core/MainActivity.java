@@ -1315,6 +1315,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         draw_i.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
+//                int a = 1 / 0;
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 if (!myrenderer.getIfFileLoaded()){
