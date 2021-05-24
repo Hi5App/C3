@@ -1,6 +1,6 @@
 package com.penglab.hi5.basic.tracingfunc.app2;
 
-import com.penglab.hi5.basic.Image4DSimple;
+import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.basic.LocationSimple;
 import com.penglab.hi5.basic.NeuronTree;
 

@@ -5,8 +5,8 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 
 import com.penglab.hi5.basic.ByteTranslate;
-import com.penglab.hi5.basic.Image4DSimple;
-import com.penglab.hi5.basic.ImageMarker;
+import com.penglab.hi5.basic.image.Image4DSimple;
+import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.LocationSimple;
 import com.penglab.hi5.basic.NeuronSWC;
 import com.penglab.hi5.basic.NeuronTree;

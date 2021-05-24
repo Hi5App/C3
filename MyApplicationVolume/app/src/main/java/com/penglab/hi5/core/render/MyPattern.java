@@ -7,7 +7,7 @@ import android.opengl.GLES30;
 import android.util.Log;
 
 import com.penglab.hi5.basic.ByteTranslate;
-import com.penglab.hi5.basic.Image4DSimple;
+import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.MyRenderer;
 

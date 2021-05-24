@@ -1,4 +1,4 @@
-package com.penglab.hi5.basic;
+package com.penglab.hi5.basic.image;
 
 public class BasicSurfObj implements Cloneable{
     public long n;				// index

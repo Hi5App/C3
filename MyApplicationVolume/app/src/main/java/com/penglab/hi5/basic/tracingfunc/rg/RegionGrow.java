@@ -1,7 +1,7 @@
 package com.penglab.hi5.basic.tracingfunc.rg;
 
 import com.penglab.hi5.basic.ByteTranslate;
-import com.penglab.hi5.basic.Image4DSimple;
+import com.penglab.hi5.basic.image.Image4DSimple;
 
 import java.util.Vector;
 

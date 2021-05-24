@@ -1,7 +1,7 @@
 package com.penglab.hi5.basic.learning.opimageline;
 
 import com.penglab.hi5.basic.ByteTranslate;
-import com.penglab.hi5.basic.Image4DSimple;
+import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.basic.NeuronSWC;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.tracingfunc.app2.MyMarker;

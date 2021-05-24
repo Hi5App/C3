@@ -13,7 +13,7 @@ import android.opengl.Matrix;
 import android.util.Log;
 
 import com.penglab.hi5.basic.ByteTranslate;
-import com.penglab.hi5.basic.Image4DSimple;
+import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.game.GameMapPoint;
 
 import java.nio.ByteBuffer;

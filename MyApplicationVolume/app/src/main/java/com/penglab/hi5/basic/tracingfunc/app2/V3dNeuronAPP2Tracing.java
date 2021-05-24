@@ -4,14 +4,14 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
-import com.penglab.hi5.basic.Image4DSimple;
-import com.penglab.hi5.basic.Image4DSimple.ImagePixelType;
+import com.penglab.hi5.basic.image.Image4DSimple;
+import com.penglab.hi5.basic.image.Image4DSimple.ImagePixelType;
 import com.penglab.hi5.basic.NeuronTree;
 
 import java.util.Timer;
 import java.util.Vector;
 
-import static com.penglab.hi5.basic.Image4DSimple.ImagePixelType.V3D_UINT8;
+import static com.penglab.hi5.basic.image.Image4DSimple.ImagePixelType.V3D_UINT8;
 import static com.penglab.hi5.basic.tracingfunc.app2.HierarchyPruning.happ;
 import static com.penglab.hi5.basic.tracingfunc.app2.HierarchyPruning.hierarchy_prune;
 import static java.lang.System.*;

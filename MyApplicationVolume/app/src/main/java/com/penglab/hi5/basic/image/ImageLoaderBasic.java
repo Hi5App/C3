@@ -1,4 +1,4 @@
-package com.penglab.hi5.basic;
+package com.penglab.hi5.basic.image;
 
 import java.io.FileInputStream;
 import java.io.InputStream;

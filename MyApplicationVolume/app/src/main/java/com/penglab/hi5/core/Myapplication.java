@@ -12,8 +12,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.penglab.hi5.basic.CrashHandler;
-import com.penglab.hi5.basic.ToastUtil;
+import com.penglab.hi5.basic.utils.CrashHandler;
+import com.penglab.hi5.basic.utils.ToastUtil;
 import com.penglab.hi5.chat.ChatActivity;
 import com.penglab.hi5.chat.agora.AgoraClient;
 import com.penglab.hi5.chat.agora.message.AgoraMsgManager;

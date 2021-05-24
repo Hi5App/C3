@@ -48,7 +48,7 @@ public class MsgSender {
                     String header = String.format("DataTypeWithSize:%d;;%s\n",0, datalength);
                     int headerlength = header.getBytes().length;
 
-                    Log.d(TAG,"header: " + header + ",  data: " + data);
+                    Log.d(TAG,"header: " + header.trim() + ",  data: " + data);
 
                     out.write(header.getBytes(StandardCharsets.UTF_8));
                     out.write(data.getBytes(StandardCharsets.UTF_8));

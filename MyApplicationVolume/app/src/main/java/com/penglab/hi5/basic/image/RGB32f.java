@@ -1,4 +1,4 @@
-package com.penglab.hi5.basic;
+package com.penglab.hi5.basic.image;
 
 public class RGB32f implements Cloneable{
     public float r;

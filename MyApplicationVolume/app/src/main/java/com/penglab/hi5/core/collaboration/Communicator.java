@@ -10,9 +10,9 @@ import androidx.annotation.RequiresApi;
 
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnSelectListener;
-import com.penglab.hi5.basic.ImageMarker;
+import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.NeuronTree;
-import com.penglab.hi5.basic.XYZ;
+import com.penglab.hi5.basic.image.XYZ;
 import com.penglab.hi5.core.collaboration.basic.ImageInfo;
 import com.penglab.hi5.core.collaboration.connector.MsgConnector;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;

@@ -21,10 +21,9 @@ public class PreferenceSetting {
         pref = mContext.getSharedPreferences("settings",Context.MODE_PRIVATE);
     }
 
-    public void setPref(boolean DownSampleMode, boolean CheckMode, int Contrast){
+    public void setPref(boolean DownSampleMode, int Contrast){
         editor = pref.edit();
         editor.putBoolean("DownSampleMode",DownSampleMode);
-        editor.putBoolean("CheckMode",CheckMode);
         editor.putInt("Contrast",Contrast);
         editor.apply();
 
@@ -32,10 +31,6 @@ public class PreferenceSetting {
 
     public boolean getDownSampleMode(){
         return pref.getBoolean("DownSampleMode",true);
-    }
-
-    public boolean getCheckMode(){
-        return pref.getBoolean("CheckMode",false);
     }
 
     public int getContrast(){

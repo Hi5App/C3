@@ -1,8 +1,11 @@
 package com.penglab.hi5.basic;
 
+import com.penglab.hi5.basic.image.RGBA8;
+import com.penglab.hi5.basic.image.XYZ;
+
 import java.util.Random;
 
-import static com.penglab.hi5.basic.RGBA8.random_rgba8;
+import static com.penglab.hi5.basic.image.RGBA8.random_rgba8;
 
 enum PxLocationUsefulness
 {

@@ -7,7 +7,7 @@ package com.penglab.hi5.core.fileReader.imageReader;
 //import ij.plugin.*;
 //import ij.plugin.frame.*;
 
-import com.penglab.hi5.basic.Image4DSimple;
+import com.penglab.hi5.basic.image.Image4DSimple;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

@@ -85,10 +85,10 @@ import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.uinfo.UserService;
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
 import com.penglab.hi5.R;
-import com.penglab.hi5.basic.CrashHandler;
-import com.penglab.hi5.basic.FileManager;
-import com.penglab.hi5.basic.Image4DSimple;
-import com.penglab.hi5.basic.ImageMarker;
+import com.penglab.hi5.basic.utils.CrashHandler;
+import com.penglab.hi5.basic.utils.FileManager;
+import com.penglab.hi5.basic.image.Image4DSimple;
+import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.LocationSimple;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.feature_calc_func.MorphologyCalculate;
@@ -166,14 +166,9 @@ import static java.lang.Math.sqrt;
 
 
 public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
-    //    private int UNDO_LIMIT = 5;
-//    private enum Operate {DRAW, DELETE, SPLIT};
-//    private Operate [] process = new Operate[UNDO_LIMIT];
-    public static final String NAME = "com.example.core.MainActivity";
-    public static final String File_path = "com.example.myfirstapp.MESSAGE";
     private static final String TAG = "MainActivity";
 
-    private Timer timer=null;
+    private Timer timer = null;
     private TimerTask timerTask;
 
 
@@ -189,30 +184,22 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private boolean ifImport = false;
     private boolean ifAnalyze = false;
     private boolean ifUpload = false;
-    //    private boolean ifSaveSwc = false;
     private boolean ifDeletingMarker = false;
     private boolean ifDeletingLine = false;
     private boolean ifSpliting = false;
     private boolean ifChangeLineType = false;
     private boolean ifSwitch = false;
-    private boolean select_img = false;
     private boolean ifLoadLocal = false;
-    private boolean ifRemote = false;
     private boolean ifButtonShowed = true;
+    private boolean ifAnimation = false;
 
     private boolean[] temp_mode = new boolean[8];
 
-    private boolean ifAnimation = false;
-    private Button buttonUndo;
-    private Button Draw;
-    private Button Tracing;
-    private Button Others;
     private static Button Zoom_in;
     private static Button Zoom_out;
 
     private static Button Zoom_in_Big;
     private static Button Zoom_out_Big;
-    private Button Rotation;
     private ImageButton Rotation_i;
     private ImageButton Hide_i;
     private static ImageButton Undo_i;
@@ -228,7 +215,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private ImageButton classify_i;
     private static TextView filenametext;
 
-    //    private ImageButton buttonUndo_i;
+
     private static ImageButton navigation_left;
     private static ImageButton navigation_right;
     private static ImageButton navigation_up;
@@ -238,8 +225,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static Button navigation_back;
 //    private static Button blue_pen;
 //    private static Button red_pen;
-    private static Button res_list;
 
+    private static Button res_list;
     private static ImageButton user_list;
     private static ImageButton room_id;
 
@@ -279,12 +266,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             {true,true,true,false,false,false,false}};
 
 
-    //    private static RemoteImg remoteImg;
-    @SuppressLint("StaticFieldLeak")
     private BigImgReader bigImgReader;
 
 
-    private static final int PICKFILE_REQUEST_CODE = 100;
 
     private LinearLayout ll_top;
     private LinearLayout ll_bottom;
@@ -1847,13 +1831,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 public void onSelect(int position, String text) {
                                     Communicator.BrainNum = conPath.split("/")[1];
                                     switch (text){
-                                        case "create a Room":
+                                        case "create a new Room":
                                             CreateFile(conPath + "/" + fileName[0],"0");
                                             Communicator.Path = conPath.split("/")[1] + "/" + fileName[0];
                                             break;
 
                                         default:
                                             loadFileMode(conPath + "/" + text);
+                                            break;
                                     }
                                 }
                             })
@@ -1898,7 +1883,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
      */
     private void CreateFile(String oldname, String mode){
         new XPopup.Builder(this)
-                .asInputConfirm("CreateFile", "Input the name of new File",
+                .asInputConfirm("CreateRoom", "Input the name of the new Room",
                 new OnInputConfirmListener() {
                     @Override
                     public void onConfirm(String text) {
@@ -3160,7 +3145,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public void More_icon(){
 
         new XPopup.Builder(this)
-                .asCenterList("More Functions...", new String[]{"Analyze Swc", "Chat", "Animate", "Settings", "Logout", "Crash Info", "Account Name", "Quests", "Reward", "LeaderBoard", "Help", "About"},
+                .asCenterList("More Functions...", new String[]{"Analyze Swc", "Chat", "Animate", "Settings", "Crash Info", "Quests", "Reward", "LeaderBoard", "Logout", "Help", "About"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -3201,7 +3186,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         break;
 
                                     case "Account Name":
-                                        PopUp_UserAccount(MainActivity.this);
+                                        popUpUserAccount(MainActivity.this);
                                         break;
 
                                     case "Logout":
@@ -3365,7 +3350,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210523b 21:56 UTC+8 build",
+                                "Version: 20210524b 12:56 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -3377,12 +3362,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    public void PopUp_UserAccount(Context context){
+    public void popUpUserAccount(Context context){
         new MDDialog.Builder(context)
                 .setContentView(R.layout.user_account_check)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
                     @Override
-                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+                    public void operate(View contentView) {
+                        // 这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
                         EditText et = (EditText) contentView.findViewById(R.id.userAccount_edit_check);
                         et.setText(InfoCache.getAccount());
                     }
@@ -3406,13 +3392,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
                     @Override
                     public void onClick(View clickedView, View contentView) {
-
                     }
                 })
                 .setWidthMaxDp(600)
                 .create()
                 .show();
-
     }
 
 
@@ -3610,9 +3594,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     private void setSettings(){
-
         boolean [] downsample = new boolean[1];
-        boolean [] check = new boolean[1];
 
         MDDialog mdDialog = new MDDialog.Builder(this)
                 .setContentView(R.layout.settings)
@@ -3695,8 +3677,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         myrenderer.setIfNeedDownSample(downsample[0]);
                         myrenderer.resetContrast(contrast);
 
-                        Log.v(TAG,"downsample: " + downsample[0] + ", check: " + check[0] + ",contrast: " + contrast);
-                        preferenceSetting.setPref(downsample[0], check[0], contrast);
+                        Log.v(TAG,"downsample: " + downsample[0] + ",contrast: " + contrast);
+                        preferenceSetting.setPref(downsample[0], contrast);
                         myGLSurfaceView.requestRender();
 
                         SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
@@ -4017,7 +3999,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         if (resultCode == RESULT_OK) {
             Uri uri = data.getData();
             String filePath = uri.toString();
-            Log.e(TAG, filePath);
+            Log.v(TAG, filePath);
 
             try {
                 if (ifImport) {
@@ -4025,13 +4007,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     FileManager fileManager = new FileManager();
                     String fileName = fileManager.getFileName(uri);
                     String filetype = fileName.substring(fileName.lastIndexOf(".")).toUpperCase();
-                    Log.e(TAG,"FileType: " + filetype + ", FileName: " + fileName);
+                    Log.v(TAG,"FileType: " + filetype + ", FileName: " + fileName);
 
                     if (myrenderer.getIfFileLoaded()) {
-                        System.out.println("------ load local file ------");
                         switch (filetype) {
                             case ".APO":
-                                Log.e("MainActivity", uri.toString());
                                 ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
                                 ApoReader apoReader = new ApoReader();
                                 apo = apoReader.read(uri);
@@ -4045,16 +4025,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 break;
                             case ".SWC":
                             case ".ESWC":
-                                Log.e(TAG, "onActivityResult: .eswc");
                                 NeuronTree nt = NeuronTree.readSWC_file(uri);
-
                                 myrenderer.importNeuronTree(nt,false);
                                 myrenderer.saveUndo();
                                 break;
 
                             case ".ANO":
-                                Log.e(TAG, "onActivityResult: .ano");
-
                                 ArrayList<ArrayList<Float>> ano_apo = new ArrayList<ArrayList<Float>>();
                                 AnoReader anoReader = new AnoReader();
                                 ApoReader apoReader_1 = new ApoReader();
@@ -4104,7 +4080,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     setButtonsLocal();
                     String filename = FileManager.getFileName(uri);
                     setFileName(filename);
-
                 }
 
 
@@ -4116,12 +4091,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
         }
     }
-
-
-
-
-
-
 
 
 

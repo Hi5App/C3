@@ -23,14 +23,14 @@ import androidx.annotation.RequiresApi;
 import com.penglab.hi5.R;
 import com.penglab.hi5.basic.ByteTranslate;
 import com.penglab.hi5.basic.FastMarching_Linker;
-import com.penglab.hi5.basic.FileManager;
-import com.penglab.hi5.basic.Image4DSimple;
-import com.penglab.hi5.basic.ImageMarker;
-import com.penglab.hi5.basic.ImageUtil;
-import com.penglab.hi5.basic.MarkerList;
+import com.penglab.hi5.basic.utils.FileManager;
+import com.penglab.hi5.basic.image.Image4DSimple;
+import com.penglab.hi5.basic.image.ImageMarker;
+import com.penglab.hi5.basic.image.ImageUtil;
+import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.MyAnimation;
 import com.penglab.hi5.basic.NeuronTree;
-import com.penglab.hi5.basic.XYZ;
+import com.penglab.hi5.basic.image.XYZ;
 import com.penglab.hi5.basic.tracingfunc.cornerDetection.HarrisCornerDetector;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
@@ -3801,7 +3801,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         Log.e(TAG,"----------------importNeuronTree----------------");
         try{
-            System.out.println("nt size: "+nt.listNeuron.size());
+            Log.e(TAG,"nt size: "+nt.listNeuron.size());
 
             Vector<V_NeuronSWC> segs = nt.devideByBranch();
             for (int i = 0; i < segs.size(); i++){
@@ -3811,7 +3811,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
             }
 
-            System.out.println("curSwcList.nsegs() : ");curSwcList.nsegs();
+            Log.e(TAG,"curSwcList.nsegs() : " + curSwcList.nsegs());
         }catch (Exception e){
             e.printStackTrace();
         }

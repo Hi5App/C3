@@ -1,5 +1,7 @@
 package com.penglab.hi5.basic;
 
+import com.penglab.hi5.basic.image.BasicSurfObj;
+
 import java.util.ArrayList;
 import java.util.Vector;
 

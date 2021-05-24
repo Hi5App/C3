@@ -5,7 +5,7 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.widget.Toast;
 
-import com.penglab.hi5.basic.FileManager;
+import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.basic.NeuronSWC;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.core.MainActivity;

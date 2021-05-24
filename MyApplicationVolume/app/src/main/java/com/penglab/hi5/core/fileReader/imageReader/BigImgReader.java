@@ -5,7 +5,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
-import com.penglab.hi5.basic.Image4DSimple;
+import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.dataStore.SettingFileManager;
 import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.R;

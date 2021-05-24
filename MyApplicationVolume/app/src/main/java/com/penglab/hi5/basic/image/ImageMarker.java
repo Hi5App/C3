@@ -1,4 +1,4 @@
-package com.penglab.hi5.basic;
+package com.penglab.hi5.basic.image;
 
 
 // .marker marker files

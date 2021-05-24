@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 
 import com.penglab.hi5.basic.NeuronSWC;
 import com.penglab.hi5.basic.NeuronTree;
-import com.penglab.hi5.basic.RGBA8;
+import com.penglab.hi5.basic.image.RGBA8;
 
 import java.util.ArrayList;
 import java.util.HashMap;

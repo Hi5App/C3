@@ -3,7 +3,7 @@ package com.penglab.hi5.core.fileReader.imageReader;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 
-import com.penglab.hi5.basic.Image4DSimple;
+import com.penglab.hi5.basic.image.Image4DSimple;
 
 import org.beyka.tiffbitmapfactory.TiffBitmapFactory;
 

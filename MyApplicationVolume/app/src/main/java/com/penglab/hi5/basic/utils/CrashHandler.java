@@ -1,4 +1,4 @@
-package com.penglab.hi5.basic;
+package com.penglab.hi5.basic.utils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

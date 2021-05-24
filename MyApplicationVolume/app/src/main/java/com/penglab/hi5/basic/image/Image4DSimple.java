@@ -1,10 +1,12 @@
-package com.penglab.hi5.basic;
+package com.penglab.hi5.basic.image;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
+import com.penglab.hi5.basic.ByteTranslate;
+import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.core.fileReader.imageReader.BigImgReader;
 import com.penglab.hi5.core.fileReader.imageReader.Rawreader;
 import com.penglab.hi5.core.fileReader.imageReader.Tiffreader;
@@ -18,11 +20,11 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import static com.penglab.hi5.basic.Image4DSimple.ImagePixelType.V3D_FLOAT32;
-import static com.penglab.hi5.basic.Image4DSimple.ImagePixelType.V3D_UINT16;
-import static com.penglab.hi5.basic.Image4DSimple.ImagePixelType.V3D_UINT8;
-import static com.penglab.hi5.basic.Image4DSimple.ImagePixelType.V3D_UNKNOWN;
-import static com.penglab.hi5.basic.Image4DSimple.TimePackType.TIME_PACK_NONE;
+import static com.penglab.hi5.basic.image.Image4DSimple.ImagePixelType.V3D_FLOAT32;
+import static com.penglab.hi5.basic.image.Image4DSimple.ImagePixelType.V3D_UINT16;
+import static com.penglab.hi5.basic.image.Image4DSimple.ImagePixelType.V3D_UINT8;
+import static com.penglab.hi5.basic.image.Image4DSimple.ImagePixelType.V3D_UNKNOWN;
+import static com.penglab.hi5.basic.image.Image4DSimple.TimePackType.TIME_PACK_NONE;
 import static com.penglab.hi5.core.MainActivity.getContext;
 import static java.lang.Math.floor;
 import static java.lang.Math.round;

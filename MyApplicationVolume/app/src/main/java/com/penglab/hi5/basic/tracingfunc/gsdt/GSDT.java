@@ -1,7 +1,7 @@
 package com.penglab.hi5.basic.tracingfunc.gsdt;
 
-import com.penglab.hi5.basic.Image4DSimple;
-import com.penglab.hi5.basic.ImageMarker;
+import com.penglab.hi5.basic.image.Image4DSimple;
+import com.penglab.hi5.basic.image.ImageMarker;
 
 import static java.lang.System.out;
 

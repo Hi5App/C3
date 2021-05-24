@@ -1,5 +1,5 @@
 package com.penglab.hi5.basic.tracingfunc.TRe;
-import com.penglab.hi5.basic.Image4DSimple;
+import com.penglab.hi5.basic.image.Image4DSimple;
 
 public class APP2_LS_PARA
 {

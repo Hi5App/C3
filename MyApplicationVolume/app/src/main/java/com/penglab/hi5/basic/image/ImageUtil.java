@@ -1,4 +1,4 @@
-package com.penglab.hi5.basic;
+package com.penglab.hi5.basic.image;
 
 import android.content.Context;
 import android.graphics.Bitmap;

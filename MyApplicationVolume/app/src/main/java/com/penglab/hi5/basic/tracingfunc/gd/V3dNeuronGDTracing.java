@@ -2,8 +2,9 @@ package com.penglab.hi5.basic.tracingfunc.gd;
 
 import java.util.Vector;
 import com.penglab.hi5.basic.*;
+import com.penglab.hi5.basic.image.Image4DSimple;
 
-import static com.penglab.hi5.basic.Image4DSimple.ImagePixelType.V3D_UINT8;
+import static com.penglab.hi5.basic.image.Image4DSimple.ImagePixelType.V3D_UINT8;
 import static com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list.convertNeuronTreeFormat;
 
 public class V3dNeuronGDTracing {

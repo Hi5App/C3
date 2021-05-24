@@ -1,4 +1,4 @@
-package com.penglab.hi5.basic;
+package com.penglab.hi5.basic.utils;
 
 import android.content.Context;
 import android.os.CountDownTimer;

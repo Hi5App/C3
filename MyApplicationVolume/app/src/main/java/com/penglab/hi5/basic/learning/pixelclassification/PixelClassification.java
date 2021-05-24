@@ -1,7 +1,7 @@
 package com.penglab.hi5.basic.learning.pixelclassification;
 
 import com.penglab.hi5.basic.ByteTranslate;
-import com.penglab.hi5.basic.Image4DSimple;
+import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.learning.feature_select.DifferenceOfGaussian;
 import com.penglab.hi5.basic.learning.feature_select.GaussianBlur;

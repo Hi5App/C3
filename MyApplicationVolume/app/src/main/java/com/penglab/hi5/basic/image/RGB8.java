@@ -1,8 +1,8 @@
-package com.penglab.hi5.basic;
+package com.penglab.hi5.basic.image;
 
 import java.util.Random;
 
-import static com.penglab.hi5.basic.XYZ.normalize;
+import static com.penglab.hi5.basic.image.XYZ.normalize;
 
 public class RGB8 implements Cloneable{
     public char r;
