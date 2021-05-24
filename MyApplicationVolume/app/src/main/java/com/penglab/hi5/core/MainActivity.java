@@ -85,13 +85,11 @@ import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.uinfo.UserService;
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
 import com.penglab.hi5.R;
-import com.penglab.hi5.basic.utils.CrashHandler;
-import com.penglab.hi5.basic.utils.FileManager;
-import com.penglab.hi5.basic.image.Image4DSimple;
-import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.LocationSimple;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.feature_calc_func.MorphologyCalculate;
+import com.penglab.hi5.basic.image.Image4DSimple;
+import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.learning.pixelclassification.PixelClassification;
 import com.penglab.hi5.basic.tracingfunc.app2.ParaAPP2;
 import com.penglab.hi5.basic.tracingfunc.app2.V3dNeuronAPP2Tracing;
@@ -99,9 +97,9 @@ import com.penglab.hi5.basic.tracingfunc.gd.CurveTracePara;
 import com.penglab.hi5.basic.tracingfunc.gd.V3dNeuronGDTracing;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
+import com.penglab.hi5.basic.utils.CrashHandler;
+import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.chat.ChatActivity;
-import com.penglab.hi5.chat.agora.AgoraService;
-import com.penglab.hi5.chat.agora.message.AgoraMsgManager;
 import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.chat.nim.main.helper.SystemMessageUnreadManager;
 import com.penglab.hi5.chat.nim.reminder.ReminderManager;
@@ -154,8 +152,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import cn.carbs.android.library.MDDialog;
-import io.agora.rtm.ErrorInfo;
-import io.agora.rtm.ResultCallback;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import static com.penglab.hi5.dataStore.SettingFileManager.getFilename_Remote;
@@ -163,6 +159,9 @@ import static com.penglab.hi5.dataStore.SettingFileManager.getoffset_Remote;
 import static com.penglab.hi5.dataStore.SettingFileManager.setSelectSource;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
+
+//import com.penglab.hi5.chat.agora.AgoraService;
+//import com.penglab.hi5.chat.agora.message.AgoraMsgManager;
 
 
 public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
@@ -345,7 +344,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private final int SOUNDNUM = 4;
     private int [] soundId;
 
-    private boolean mBoundAgora = false;
+//    private boolean mBoundAgora = false;
     private boolean mBoundManagement = false;
     private boolean mBoundCollaboration = false;
 
@@ -827,8 +826,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         initServerConnector();
         initService();
 
-        doLoginAgora();
-        initAgoraService();
+//        doLoginAgora();
+//        initAgoraService();
 
 
         /*
@@ -836,12 +835,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
          */
         initDataBase();
 
-//        new Thread(){
-//            @Override
-//            public void run() {
-//                getLeaderBoard();
-//            }
-//        }.start();
 
         new Timer().schedule(new TimerTask() {
             @Override
@@ -872,12 +865,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Score score = Score.getInstance();
         setScore(score.getScore());
 
-        if ((mBoundAgora)){
-            Log.e(TAG,"unbind agora service !");
-            unbindService(connection_agora);
-            Intent agoraServiceIntent = new Intent(this, AgoraService.class);
-            stopService(agoraServiceIntent);
-        }
+//        if ((mBoundAgora)){
+//            Log.e(TAG,"unbind agora service !");
+//            unbindService(connection_agora);
+//            Intent agoraServiceIntent = new Intent(this, AgoraService.class);
+//            stopService(agoraServiceIntent);
+//        }
 
 
         if (mBoundManagement){
@@ -1666,26 +1659,26 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void doLoginAgora(){
-        AgoraMsgManager.getInstance().getRtmClient().login(null, username, new ResultCallback<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.e(TAG, "agora login success");
-            }
+//    private void doLoginAgora(){
+//        AgoraMsgManager.getInstance().getRtmClient().login(null, username, new ResultCallback<Void>() {
+//            @Override
+//            public void onSuccess(Void aVoid) {
+//                Log.e(TAG, "agora login success");
+//            }
+//
+//            @Override
+//            public void onFailure(ErrorInfo errorInfo) {
+//                Log.e(TAG, "agora login failed: " + errorInfo.getErrorCode());
+//            }
+//        });
+//    }
 
-            @Override
-            public void onFailure(ErrorInfo errorInfo) {
-                Log.e(TAG, "agora login failed: " + errorInfo.getErrorCode());
-//                LoginActivity.actionStart(context);
-            }
-        });
-    }
 
-    private void initAgoraService(){
-        Intent intent = new Intent(this, AgoraService.class);
-        bindService(intent, connection_agora, Context.BIND_AUTO_CREATE);
-//        startService(intent);
-    }
+//    private void initAgoraService(){
+//        Intent intent = new Intent(this, AgoraService.class);
+//        bindService(intent, connection_agora, Context.BIND_AUTO_CREATE);
+////        startService(intent);
+//    }
 
     private void initService(){
         // Bind to LocalService
@@ -1720,19 +1713,19 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    /** Defines callbacks for service binding, passed to bindService() */
-    private ServiceConnection connection_agora = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            mBoundAgora = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mBoundAgora = false;
-        }
-    };
+//    /** Defines callbacks for service binding, passed to bindService() */
+//    private ServiceConnection connection_agora = new ServiceConnection() {
+//
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder service) {
+//            mBoundAgora = true;
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName arg0) {
+//            mBoundAgora = false;
+//        }
+//    };
 
 
     /** Defines callbacks for service binding, passed to bindService() */
@@ -1783,7 +1776,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     /**
-     *
      * @param FileList
      */
     private void LoadFiles(String FileList){
@@ -3794,7 +3786,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         NimUIKit.logout();
                         NIMClient.getService(AuthService.class).logout();
 
-                        AgoraMsgManager.getInstance().getRtmClient().logout(null);
+//                        AgoraMsgManager.getInstance().getRtmClient().logout(null);
 
                         PreferenceLogin preferenceLogin = new PreferenceLogin(MainActivity.this);
                         preferenceLogin.setPref("","",false);

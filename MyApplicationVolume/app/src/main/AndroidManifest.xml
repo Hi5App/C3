@@ -52,7 +52,7 @@
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
-        <activity android:name=".core.game.RewardActivity"></activity>
+        <activity android:name=".core.game.RewardActivity" />
         <activity android:name=".core.game.LeaderBoardActivity" />
         <activity
             android:name=".core.game.QuestActivity"
@@ -119,20 +119,20 @@
 
         </activity>
 
-        <activity
-            android:name=".chat.agora.activity.PeerToPeerVideoActivity">
-        </activity>
+<!--        <activity-->
+<!--            android:name=".chat.agora.activity.PeerToPeerVideoActivity">-->
+<!--        </activity>-->
 
-        <activity
-            android:name=".chat.agora.activity.PeerToPeerVoiceActivity">
-        </activity>
+<!--        <activity-->
+<!--            android:name=".chat.agora.activity.PeerToPeerVoiceActivity">-->
+<!--        </activity>-->
 
 
 
-        <!-- 声网通信服务 -->
-        <service
-            android:name=".chat.agora.AgoraService"
-            android:exported="false" />
+<!--        &lt;!&ndash; 声网通信服务 &ndash;&gt;-->
+<!--        <service-->
+<!--            android:name=".chat.agora.AgoraService"-->
+<!--            android:exported="false" />-->
 
         <!-- 背景音乐后台服务 -->
         <service

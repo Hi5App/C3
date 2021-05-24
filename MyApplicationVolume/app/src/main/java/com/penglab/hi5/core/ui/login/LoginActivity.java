@@ -27,7 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.penglab.hi5.chat.agora.AVConfig;
+//import com.penglab.hi5.chat.agora.AVConfig;
 import com.penglab.hi5.dataStore.PreferenceLogin;
 import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.chat.nim.InfoCache;
@@ -285,7 +285,7 @@ public class LoginActivity extends AppCompatActivity {
         Log.e(TAG, "account: " + account);
         Log.e(TAG, "password: " + password);
 
-        AVConfig.init(new LoginInfo(account, password));
+//        AVConfig.init(new LoginInfo(account, password));
         NimUIKit.login(new LoginInfo(account, password),
                 new RequestCallback<LoginInfo>() {
 

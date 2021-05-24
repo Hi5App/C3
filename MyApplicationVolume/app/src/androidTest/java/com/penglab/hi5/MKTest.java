@@ -32,18 +32,18 @@ public class MKTest {
 
 
     /*
-   Test for pre-construction  for SamSung
+   Test for pre-construction  for Xiao Mi
    */
     @Test
     public void MiTest() throws RemoteException, InterruptedException {
 
         // start the app
-        mUidevice.click(940,280);
+        mUidevice.click(930,250);
         Thread.sleep(3000);
 
         //open the file
         mUidevice.findObject(By.res("com.penglab.hi5:id/file")).click();
-        Thread.sleep(500);
+        Thread.sleep(1000);
 
 
         mUidevice.findObject(By.text("Open BigData")).click();
@@ -52,23 +52,20 @@ public class MKTest {
         mUidevice.findObject(By.text("18454")).click();
         Thread.sleep(2000);
 
-        mUidevice.findObject(By.text("18454_00067")).click();
+        mUidevice.findObject(By.text("18454_00049")).click();
         Thread.sleep(2000);
 
-        mUidevice.findObject(By.text("123")).click();
-        Thread.sleep(2000);
-
-        mUidevice.findObject(By.text("Load File")).click();
+        mUidevice.findObject(By.text("1")).click();
         Thread.sleep(8000);
 
 
-//        // click the draw button
-//        mUidevice.click(110,300);
-//        Thread.sleep(3000);
-//        mUidevice.click(140,600);
-//        Thread.sleep(2000);
-//        mUidevice.click(740,470);
-//        Thread.sleep(2000);
+        // click the draw button
+        mUidevice.click(110,300);
+        Thread.sleep(3000);
+        mUidevice.click(150,680);
+        Thread.sleep(2000);
+        mUidevice.click(730,530);
+        Thread.sleep(2000);
 
         for (int i=0; i<10000; i++){
 
@@ -76,65 +73,39 @@ public class MKTest {
 //            mUidevice.click(75,630);
 //            Thread.sleep(2000);
 //
-//            mUidevice.swipe(620,900,250,1200,10);
-//            Thread.sleep(5000);
+            mUidevice.swipe(380,1060,650,1300,10);
+            Thread.sleep(5000);
 
-//            //change pen red
-//            mUidevice.click(75,715);
-//            Thread.sleep(2000);
-//
-//            mUidevice.swipe(620,1100,250,1400,10);
-//            Thread.sleep(5000);
 
-//            if(i%6 == 0){
-//                mUidevice.findObject(By.text("+")).click();
-//            }else if (i%6 == 1){
-//                mUidevice.findObject(By.text("-")).click();
-//            }else if (i%6 == 2){
-//                mUidevice.click(540,435);
-//            }else if (i%6 == 3){
-//                mUidevice.click(1030,1140);
-//            }else if (i%6 == 4){
-//                mUidevice.click(540,2160);
-//            }else if (i%6 == 5){
-//                mUidevice.click(50,1140);
-//            }
-
-            //open the file
+            // open the file
             mUidevice.findObject(By.res("com.penglab.hi5:id/file")).click();
-            Thread.sleep(500);
+            Thread.sleep(1000);
 
             mUidevice.findObject(By.text("Open BigData")).click();
-            Thread.sleep(3000);
-
-//            mUidevice.findObject(By.text("18454")).click();
-            mUidevice.click(260,1175);
             Thread.sleep(2000);
 
-            mUidevice.findObject(By.text("18454_00067")).click();
+            mUidevice.click(260,1100);
+//            mUidevice.findObject(By.text("18454")).click();
+            Thread.sleep(2000);
+
+            mUidevice.click(360,1160);
+//            mUidevice.findObject(By.text("18454_00049")).click();
             Thread.sleep(2000);
 
             if(i%6 == 0){
-                mUidevice.findObject(By.text("1234")).click();
-                Thread.sleep(2000);
+                mUidevice.findObject(By.text("2")).click();
             }else if (i%6 == 1){
-                mUidevice.findObject(By.text("123456")).click();
-                Thread.sleep(2000);
+                mUidevice.findObject(By.text("3")).click();
             }else if (i%6 == 2){
-                mUidevice.findObject(By.text("18454_zll")).click();
-                Thread.sleep(2000);
+                mUidevice.findObject(By.text("4")).click();
             }else if (i%6 == 3){
-                mUidevice.findObject(By.text("25135")).click();
-                Thread.sleep(2000);
+                mUidevice.findObject(By.text("5")).click();
             }else if (i%6 == 4){
-                mUidevice.findObject(By.text("3655.ano")).click();
-                Thread.sleep(2000);
+                mUidevice.findObject(By.text("6")).click();
             }else if (i%6 == 5){
-                mUidevice.findObject(By.text("123")).click();
-                Thread.sleep(2000);
+                mUidevice.findObject(By.text("1")).click();
             }
 
-            mUidevice.findObject(By.text("Load File")).click();
             Thread.sleep(10000);
         }
 
@@ -147,22 +118,19 @@ public class MKTest {
 
 
 
-
-
-
     /*
-  Test for pre-construction  for SamSung
-  */
+    Test for pre-construction  for Huawei
+    */
     @Test
     public void HuaweiTest() throws RemoteException, InterruptedException {
 
         // start the app
-        mUidevice.click(200,1850);
+        mUidevice.click(930,250);
         Thread.sleep(3000);
 
         //open the file
-        mUidevice.click(750,150);
-        Thread.sleep(500);
+        mUidevice.findObject(By.res("com.penglab.hi5:id/file")).click();
+        Thread.sleep(1000);
 
 
         mUidevice.findObject(By.text("Open BigData")).click();
@@ -171,92 +139,60 @@ public class MKTest {
         mUidevice.findObject(By.text("18454")).click();
         Thread.sleep(2000);
 
-        mUidevice.findObject(By.text("18454_00067")).click();
+        mUidevice.findObject(By.text("18454_00049")).click();
         Thread.sleep(2000);
 
-        mUidevice.findObject(By.text("123")).click();
-        Thread.sleep(2000);
-
-        mUidevice.findObject(By.text("Load File")).click();
+        mUidevice.findObject(By.text("1")).click();
         Thread.sleep(8000);
 
 
-//        // click the draw button
-//        mUidevice.click(100,300);
-//        Thread.sleep(3000);
-//        mUidevice.click(150,650);
-//        Thread.sleep(2000);
-//        mUidevice.click(750,480);
-//        Thread.sleep(2000);
-//
-//        //change pen red
-//        mUidevice.click(75,715);
-//        Thread.sleep(2000);
+        // click the draw button
+        mUidevice.click(110,300);
+        Thread.sleep(3000);
+        mUidevice.click(150,680);
+        Thread.sleep(2000);
+        mUidevice.click(730,530);
+        Thread.sleep(2000);
 
         for (int i=0; i<10000; i++){
 
 //            //change pen blue
-//            mUidevice.click(75,620);
+//            mUidevice.click(75,630);
 //            Thread.sleep(2000);
 //
-//            mUidevice.swipe(620,900,250,1200,10);
-//            Thread.sleep(5000);
+            mUidevice.swipe(380,1060,650,1300,10);
+            Thread.sleep(5000);
 
 
-//            mUidevice.swipe(750,1400,250,1700,10);
-//            Thread.sleep(5000);
-//            System.out.println("current i: " + i);
-//
-//            if(i%6 == 0){
-//                mUidevice.click(1130, 1240);
-//            }else if (i%6 == 1){
-//                mUidevice.click(590,430);
-//            }else if (i%6 == 2){
-//                mUidevice.click(50,1240);
-//            }else if (i%6 == 3) {
-//                mUidevice.click(590, 2350);
-//            }else if (i%6 == 4){
-//                mUidevice.click(80, 2050);
-//            }else if (i%6 == 5){
-//                mUidevice.click(80, 2140);
-//            }
-
-
-            //open the file
-            mUidevice.click(750,150);
-            Thread.sleep(500);
+            // open the file
+            mUidevice.findObject(By.res("com.penglab.hi5:id/file")).click();
+            Thread.sleep(1000);
 
             mUidevice.findObject(By.text("Open BigData")).click();
-            Thread.sleep(3000);
-
-//            mUidevice.findObject(By.text("18454")).click();
-            mUidevice.click(360,1260);
             Thread.sleep(2000);
 
-            mUidevice.findObject(By.text("18454_00067")).click();
+            mUidevice.click(260,1100);
+//            mUidevice.findObject(By.text("18454")).click();
+            Thread.sleep(2000);
+
+            mUidevice.click(360,1160);
+//            mUidevice.findObject(By.text("18454_00049")).click();
             Thread.sleep(2000);
 
             if(i%6 == 0){
-                mUidevice.findObject(By.text("1234")).click();
-                Thread.sleep(2000);
+                mUidevice.findObject(By.text("2")).click();
             }else if (i%6 == 1){
-                mUidevice.findObject(By.text("123456")).click();
-                Thread.sleep(2000);
+                mUidevice.findObject(By.text("3")).click();
             }else if (i%6 == 2){
-                mUidevice.findObject(By.text("18454_zll")).click();
-                Thread.sleep(2000);
+                mUidevice.findObject(By.text("4")).click();
             }else if (i%6 == 3){
-                mUidevice.findObject(By.text("25135")).click();
-                Thread.sleep(2000);
+                mUidevice.findObject(By.text("5")).click();
             }else if (i%6 == 4){
-                mUidevice.findObject(By.text("3655.ano")).click();
-                Thread.sleep(2000);
+                mUidevice.findObject(By.text("6")).click();
             }else if (i%6 == 5){
-                mUidevice.findObject(By.text("123")).click();
-                Thread.sleep(2000);
+                mUidevice.findObject(By.text("1")).click();
             }
 
-            mUidevice.findObject(By.text("Load File")).click();
             Thread.sleep(10000);
         }
 

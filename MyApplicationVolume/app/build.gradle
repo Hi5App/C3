@@ -24,10 +24,8 @@ android {
     }
     buildTypes {
         debug {
-
         }
         sdk {
-
         }
 
         release {

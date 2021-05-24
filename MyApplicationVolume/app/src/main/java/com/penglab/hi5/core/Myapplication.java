@@ -12,31 +12,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.penglab.hi5.basic.utils.CrashHandler;
-import com.penglab.hi5.basic.utils.ToastUtil;
-import com.penglab.hi5.chat.ChatActivity;
-import com.penglab.hi5.chat.agora.AgoraClient;
-import com.penglab.hi5.chat.agora.message.AgoraMsgManager;
-import com.penglab.hi5.dataStore.PreferenceLogin;
-import com.penglab.hi5.chat.nim.InfoCache;
-import com.penglab.hi5.chat.nim.NIMInitManager;
-import com.penglab.hi5.chat.nim.NimSDKOptionConfig;
-import com.penglab.hi5.chat.nim.contact.ContactHelper;
-import com.penglab.hi5.chat.nim.event.DemoOnlineStateContentProvider;
-import com.penglab.hi5.chat.nim.mixpush.DemoPushContentProvider;
-import com.penglab.hi5.chat.nim.preference.UserPreferences;
-import com.penglab.hi5.chat.nim.session.NimDemoLocationProvider;
-import com.penglab.hi5.chat.nim.session.SessionHelper;
-import com.penglab.hi5.R;
-import com.penglab.hi5.core.collaboration.Communicator;
-import com.penglab.hi5.core.collaboration.connector.MsgConnector;
-import com.penglab.hi5.core.collaboration.connector.ServerConnector;
-import com.penglab.hi5.core.collaboration.basic.ImageInfo;
-import com.penglab.hi5.core.game.DailyQuestLitePalConnector;
-import com.penglab.hi5.core.game.DailyQuestsContainer;
-import com.penglab.hi5.core.game.RewardLitePalConnector;
-import com.penglab.hi5.core.game.Score;
-import com.penglab.hi5.core.game.ScoreLitePalConnector;
 import com.huawei.hms.support.common.ActivityMgr;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.api.UIKitOptions;
@@ -46,6 +21,29 @@ import com.netease.nimlib.sdk.SDKOptions;
 import com.netease.nimlib.sdk.StatusBarNotificationConfig;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.util.NIMUtil;
+import com.penglab.hi5.R;
+import com.penglab.hi5.basic.utils.CrashHandler;
+import com.penglab.hi5.basic.utils.ToastUtil;
+import com.penglab.hi5.chat.ChatActivity;
+import com.penglab.hi5.chat.nim.InfoCache;
+import com.penglab.hi5.chat.nim.NIMInitManager;
+import com.penglab.hi5.chat.nim.NimSDKOptionConfig;
+import com.penglab.hi5.chat.nim.contact.ContactHelper;
+import com.penglab.hi5.chat.nim.event.DemoOnlineStateContentProvider;
+import com.penglab.hi5.chat.nim.mixpush.DemoPushContentProvider;
+import com.penglab.hi5.chat.nim.preference.UserPreferences;
+import com.penglab.hi5.chat.nim.session.NimDemoLocationProvider;
+import com.penglab.hi5.chat.nim.session.SessionHelper;
+import com.penglab.hi5.core.collaboration.Communicator;
+import com.penglab.hi5.core.collaboration.basic.ImageInfo;
+import com.penglab.hi5.core.collaboration.connector.MsgConnector;
+import com.penglab.hi5.core.collaboration.connector.ServerConnector;
+import com.penglab.hi5.core.game.DailyQuestLitePalConnector;
+import com.penglab.hi5.core.game.DailyQuestsContainer;
+import com.penglab.hi5.core.game.RewardLitePalConnector;
+import com.penglab.hi5.core.game.Score;
+import com.penglab.hi5.core.game.ScoreLitePalConnector;
+import com.penglab.hi5.dataStore.PreferenceLogin;
 
 import org.litepal.LitePal;
 
@@ -70,7 +68,7 @@ public class Myapplication extends Application {
 
     private static ImageInfo imageInfo;
 
-    private static AgoraMsgManager agoraMsgManager;
+//    private static AgoraMsgManager agoraMsgManager;
 
     private static ServerConnector serverConnector;
     private static MsgConnector msgConnector;
@@ -108,8 +106,8 @@ public class Myapplication extends Application {
 
 
         Log.e(TAG, String.format("Database version: %d", db.getVersion()));
-        AgoraClient.init(this, getLoginInfo());
-        agoraMsgManager = AgoraMsgManager.getInstance();
+//        AgoraClient.init(this, getLoginInfo());
+//        agoraMsgManager = AgoraMsgManager.getInstance();
 
 
         // for collaboration
