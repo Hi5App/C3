@@ -1,6 +1,7 @@
 package com.penglab.hi5.basic.utils;
 
 import android.annotation.SuppressLint;
+import android.app.Application;
 import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
@@ -8,6 +9,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.penglab.hi5.R;
+import com.penglab.hi5.core.MusicServer;
+import com.penglab.hi5.core.MyActivityLifeCycleCallbacks;
+import com.penglab.hi5.core.Myapplication;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -42,6 +46,10 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
      */
     private static CrashHandler INSTANCE;
 
+    private Application mApplication;
+
+    private MyActivityLifeCycleCallbacks mMyActivityLifeCycleCallbacks = new MyActivityLifeCycleCallbacks();
+
     /**
      * 保证只有一个CrashHandler实例
      */
@@ -69,10 +77,15 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
      *
      * @param ctx
      */
-    public void init(Context ctx) {
+    public void init(Context ctx, Myapplication application) {
         mContext = ctx;
+        mApplication = application;
+        application.registerActivityLifecycleCallbacks(mMyActivityLifeCycleCallbacks);
+
         mDefaultHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(this);
+
+
     }
 
     /**
@@ -80,10 +93,24 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
      */
     @Override
     public void uncaughtException(Thread thread, Throwable ex) {
-        handleException(ex);
-        if (mDefaultHandler != null) {
+        boolean isHandel = handleException(ex);
+        if (isHandel || mDefaultHandler != null) {
+            Log.d(TAG, "try to uncaughtException");
+
             //收集完信息后，交给系统自己处理崩溃
             mDefaultHandler.uncaughtException(thread, ex);
+        } else {
+//            try {
+//                Thread.sleep(2800);
+//            } catch (InterruptedException e) {
+//                Log.e(TAG, "uncaughtException() InterruptedException:" + e);
+//            }
+            Log.d(TAG, "try to removeAllActivities");
+
+            mMyActivityLifeCycleCallbacks.removeAllActivities();
+            android.os.Process.killProcess(android.os.Process.myPid());
+            System.exit(1);
+            System.gc();
         }
     }
 
@@ -92,18 +119,19 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
      * 发送错误报告等操作均在此完成.
      * 开发者可以根据自己的情况来自定义异常处理逻辑
      */
-    private void handleException(Throwable ex) {
+    private boolean handleException(Throwable ex) {
         if (ex == null) {
             Log.w(TAG, "handleException--- ex==null");
-            return;
+            return false;
         }
         String msg = ex.getLocalizedMessage();
         if (msg == null) {
-            return;
+            return false;
         }
         //收集设备信息
         //保存错误报告文件
         saveCrashInfoToFile(ex);
+        return true;
     }
 
 

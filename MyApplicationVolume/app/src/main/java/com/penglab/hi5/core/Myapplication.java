@@ -90,7 +90,7 @@ public class Myapplication extends Application {
 
         //store crash info zyh
         CrashHandler crashHandler = CrashHandler.getInstance();
-        crashHandler.init(getApplicationContext());
+        crashHandler.init(getApplicationContext(), this);
 
         // store user info
         LitePal.initialize(this);
@@ -149,61 +149,63 @@ public class Myapplication extends Application {
             NIMInitManager.getInstance().init(true);
         }
 
-        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
-            @Override
-            public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
+//        registerActivityLifecycleCallbacks(new MyActivityLifeCycleCallbacks());
 
-            }
-
-            @Override
-            public void onActivityStarted(@NonNull Activity activity) {
-                Log.d(TAG, "onActivityStarted");
-                activityCount++;
-            }
-
-            @Override
-            public void onActivityResumed(@NonNull Activity activity) {
-
-            }
-
-            @Override
-            public void onActivityPaused(@NonNull Activity activity) {
-
-            }
-
-            @Override
-            public void onActivityStopped(@NonNull Activity activity) {
-                Log.d(TAG, "onActivityStopped");
-                activityCount--;
-                if (activityCount <= 0){
-                    Log.d(TAG, "Now On Background");
-                    if (isActivityAlive("ComponentInfo{com.penglab.hi5/com.penglab.hi5.core.MainActivity}")){
-                        Score score = Score.getInstance();
-                        MainActivity.setScore(score.getScore());
-                    }
-                }
-            }
-
-            @Override
-            public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle bundle) {
-
-            }
-
-            @Override
-            public void onActivityDestroyed(@NonNull Activity activity) {
-
-            }
-
-            private boolean isActivityAlive(String activityName){
-                ActivityManager am = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
-                List<ActivityManager.RunningTaskInfo> list = am.getRunningTasks(100);
-                for (ActivityManager.RunningTaskInfo info : list){
-                    if (info.topActivity.toString().equals(activityName) || info.baseActivity.toString().equals(activityName))
-                        return true;
-                }
-                return false;
-            }
-        });
+//        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+//            @Override
+//            public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
+//
+//            }
+//
+//            @Override
+//            public void onActivityStarted(@NonNull Activity activity) {
+//                Log.d(TAG, "onActivityStarted");
+//                activityCount++;
+//            }
+//
+//            @Override
+//            public void onActivityResumed(@NonNull Activity activity) {
+//
+//            }
+//
+//            @Override
+//            public void onActivityPaused(@NonNull Activity activity) {
+//
+//            }
+//
+//            @Override
+//            public void onActivityStopped(@NonNull Activity activity) {
+//                Log.d(TAG, "onActivityStopped");
+//                activityCount--;
+//                if (activityCount <= 0){
+//                    Log.d(TAG, "Now On Background");
+//                    if (isActivityAlive("ComponentInfo{com.penglab.hi5/com.penglab.hi5.core.MainActivity}")){
+//                        Score score = Score.getInstance();
+//                        MainActivity.setScore(score.getScore());
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle bundle) {
+//
+//            }
+//
+//            @Override
+//            public void onActivityDestroyed(@NonNull Activity activity) {
+//
+//            }
+//
+//            private boolean isActivityAlive(String activityName){
+//                ActivityManager am = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
+//                List<ActivityManager.RunningTaskInfo> list = am.getRunningTasks(100);
+//                for (ActivityManager.RunningTaskInfo info : list){
+//                    if (info.topActivity.toString().equals(activityName) || info.baseActivity.toString().equals(activityName))
+//                        return true;
+//                }
+//                return false;
+//            }
+//        });
     }
 
 
