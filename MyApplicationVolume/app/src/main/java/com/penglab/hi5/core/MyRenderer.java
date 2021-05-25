@@ -511,10 +511,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                 int parentid = (int) child.parent;
                                 if (parentid == -1 || seg.getIndexofParent(j) == -1) {
                                     if (!ifGame) {
-                                        float x = (int) child.x;
-                                        float y = (int) child.y;
-                                        float z = (int) child.z;
+                                        float x = (float) child.x;
+                                        float y = (float) child.y;
+                                        float z = (float) child.z;
                                         float[] position = volumetoModel(new float[]{x, y, z});
+                                        Log.d(TAG, "drawSplitPoints: " + x + " " + y + " " + z);
                                         myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int) child.type);
                                     }
                                     continue;
@@ -523,7 +524,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                 if (parent == null){
                                     continue;
                                 }
-
+                                Log.d(TAG, "lines.add: " + parent.x + " " + parent.y + " " + parent.z + " " + child.x + " " + child.y + " " + child.z);
                                 lines.add((float) ((sz[0] - parent.x) / sz[0] * mz[0]));
                                 lines.add((float) ((sz[1] - parent.y) / sz[1] * mz[1]));
                                 lines.add((float) ((parent.z) / sz[2] * mz[2]));
@@ -563,14 +564,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                 int parentid = (int) child.parent;
                                 if (parentid == -1 || seg.getIndexofParent(j) == -1) {
                                     // Log.v(TAG,"parent == -1;");
-                                    float x = (int) child.x;
-                                    float y = (int) child.y;
-                                    float z = (int) child.z;
+                                    float x = (float) child.x;
+                                    float y = (float) child.y;
+                                    float z = (float) child.z;
                                     float[] position = volumetoModel(new float[]{x, y, z});
+
                                     myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int) child.type);
                                     continue;
                                 }
+
                                 V_NeuronSWC_unit parent = swcUnitMap.get(j);
+
                                 lines.add((float) ((sz[0] - parent.x) / sz[0] * mz[0]));
                                 lines.add((float) ((sz[1] - parent.y) / sz[1] * mz[1]));
                                 lines.add((float) ((parent.z) / sz[2] * mz[2]));
@@ -3568,13 +3572,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         Log.e(TAG, "-------------------------- newSeg1 ------------------------");
                         for (int i_1 = 0; i_1 < newSeg1.row.size(); i_1++){
                             V_NeuronSWC_unit unit = newSeg1.row.get(i_1);
-//                            Log.e(TAG, String.format("%f %d %f %f %f %f", unit.n, (int) (unit.type), unit.x, unit.y, unit.z, unit.parent));
+                            Log.e(TAG, String.format("%f %d %f %f %f %f", unit.n, (int) (unit.type), unit.x, unit.y, unit.z, unit.parent));
                         }
 
                         Log.e(TAG, "-------------------------- newSeg2 ------------------------");
                         for (int i_1 = 0; i_1 < newSeg2.row.size(); i_1++){
                             V_NeuronSWC_unit unit = newSeg2.row.get(i_1);
-//                            Log.e(TAG, String.format("%f %d %f %f %f %f", unit.n, (int) (unit.type), unit.x, unit.y, unit.z, unit.parent));
+                            Log.e(TAG, String.format("%f %d %f %f %f %f", unit.n, (int) (unit.type), unit.x, unit.y, unit.z, unit.parent));
                         }
 
                         curSwcList.deleteSeg(j);
