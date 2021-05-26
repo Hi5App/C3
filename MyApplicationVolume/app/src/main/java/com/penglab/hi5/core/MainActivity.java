@@ -355,7 +355,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private float bgmVolume = 0f;
     private float buttonVolume = 1.0f;
     private float actionVolume = 1.0f;
-    private boolean firstLoad = true;
+    private static boolean firstLoad = true;
     private boolean firstJoinRoom = true;
     private boolean copyFile = false;
 
@@ -2053,14 +2053,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private Observer<List<IMMessage>> inviteMessageObserver = new Observer<List<IMMessage>>() {
         @Override
         public void onEvent(List<IMMessage> imMessages) {
-            Toast_in_Thread_static("Receive Msg");
+//            Toast_in_Thread_static("Receive Msg");
             for (int i = 0; i < imMessages.size(); i++) {
                 if (imMessages.get(i).getMsgType() == MsgTypeEnum.custom){
                     MsgAttachment attachment = imMessages.get(i).getAttachment();
                     if (attachment instanceof InviteAttachment){
-                        Toast_in_Thread_static("Receive Invite");
+//                        Toast_in_Thread_static("Receive Invite");
                         String data = attachment.toJson(false);
-                        Toast_in_Thread_static(data);
+//                        Toast_in_Thread_static(data);
                         Log.d(TAG, "Invite data: " + data);
 
                         data = data.replaceAll("\"", "");
@@ -2091,17 +2091,21 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
-                                ServerConnector serverConnector = ServerConnector.getInstance();
-                                serverConnector.sendMsg("LOADFILES:2 " + path);
-
-//                                String[] list = path.split("/");
-                                serverConnector.setRoomName(roomName);
+                                Communicator.Path = path;
 
                                 Communicator communicator = Communicator.getInstance();
                                 communicator.initSoma(soma);
                                 communicator.setConPath(path);
                                 Communicator.BrainNum = path.split("/")[1];
                                 conPath = path;
+
+                                firstLoad = true;
+
+                                ServerConnector serverConnector = ServerConnector.getInstance();
+                                serverConnector.sendMsg("LOADFILES:2 " + path);
+
+//                                String[] list = path.split("/");
+                                serverConnector.setRoomName(roomName);
                             }
                         }, new OnCancelListener() {
                             @Override
@@ -3340,7 +3344,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210526c 20:43 UTC+8 build",
+                                "Version: 20210526d 20:17 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

@@ -515,7 +515,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                         float y = (float) child.y;
                                         float z = (float) child.z;
                                         float[] position = volumetoModel(new float[]{x, y, z});
-                                        Log.d(TAG, "drawSplitPoints: " + x + " " + y + " " + z);
+//                                        Log.d(TAG, "drawSplitPoints: " + x + " " + y + " " + z);
                                         myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int) child.type);
                                     }
                                     continue;
@@ -524,7 +524,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                 if (parent == null){
                                     continue;
                                 }
-                                Log.d(TAG, "lines.add: " + parent.x + " " + parent.y + " " + parent.z + " " + child.x + " " + child.y + " " + child.z);
+//                                Log.d(TAG, "lines.add: " + parent.x + " " + parent.y + " " + parent.z + " " + child.x + " " + child.y + " " + child.z);
                                 lines.add((float) ((sz[0] - parent.x) / sz[0] * mz[0]));
                                 lines.add((float) ((sz[1] - parent.y) / sz[1] * mz[1]));
                                 lines.add((float) ((parent.z) / sz[2] * mz[2]));
@@ -3568,18 +3568,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                             updateAddSegSWC(newSeg2);
                         }
 
-                        Log.e(TAG, "n   type   x   y   z   parent");
-                        Log.e(TAG, "-------------------------- newSeg1 ------------------------");
-                        for (int i_1 = 0; i_1 < newSeg1.row.size(); i_1++){
-                            V_NeuronSWC_unit unit = newSeg1.row.get(i_1);
-                            Log.e(TAG, String.format("%f %d %f %f %f %f", unit.n, (int) (unit.type), unit.x, unit.y, unit.z, unit.parent));
-                        }
+//                        Log.e(TAG, "n   type   x   y   z   parent");
+//                        Log.e(TAG, "-------------------------- newSeg1 ------------------------");
+//                        for (int i_1 = 0; i_1 < newSeg1.row.size(); i_1++){
+//                            V_NeuronSWC_unit unit = newSeg1.row.get(i_1);
+//                            Log.e(TAG, String.format("%f %d %f %f %f %f", unit.n, (int) (unit.type), unit.x, unit.y, unit.z, unit.parent));
+//                        }
 
-                        Log.e(TAG, "-------------------------- newSeg2 ------------------------");
-                        for (int i_1 = 0; i_1 < newSeg2.row.size(); i_1++){
-                            V_NeuronSWC_unit unit = newSeg2.row.get(i_1);
-                            Log.e(TAG, String.format("%f %d %f %f %f %f", unit.n, (int) (unit.type), unit.x, unit.y, unit.z, unit.parent));
-                        }
+//                        Log.e(TAG, "-------------------------- newSeg2 ------------------------");
+//                        for (int i_1 = 0; i_1 < newSeg2.row.size(); i_1++){
+//                            V_NeuronSWC_unit unit = newSeg2.row.get(i_1);
+//                            Log.e(TAG, String.format("%f %d %f %f %f %f", unit.n, (int) (unit.type), unit.x, unit.y, unit.z, unit.parent));
+//                        }
 
                         curSwcList.deleteSeg(j);
                         curSwcList.append(newSeg1);
