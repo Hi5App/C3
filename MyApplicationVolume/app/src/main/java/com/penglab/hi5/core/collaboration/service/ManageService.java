@@ -10,8 +10,6 @@ public class ManageService extends BasicService {
 
     private static final String TAG = "ManageService";
 
-    private static ReadThread mReadThread;
-
     @Override
     public void init() {
 

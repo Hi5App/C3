@@ -10,8 +10,6 @@ public class CollaborationService extends BasicService {
 
     protected static final String TAG = "CollaborationService";
 
-//    private static ReadThread mReadThread;
-
     @Override
     public void init() {
 

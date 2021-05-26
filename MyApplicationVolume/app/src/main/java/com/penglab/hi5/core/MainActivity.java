@@ -874,21 +874,21 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         if (mBoundManagement){
             Log.e(TAG,"unbind management service !");
-            ServerConnector.getInstance().releaseConnection();
-
             ManageService.setStop(true);
             unbindService(connection_management);
             Intent manageServiceIntent = new Intent(this, ManageService.class);
             stopService(manageServiceIntent);
+
+            ServerConnector.getInstance().releaseConnection(false);
         }
         if (mBoundCollaboration){
             Log.e(TAG,"unbind collaboration service !");
-            MsgConnector.getInstance().releaseConnection();
-
             CollaborationService.setStop(true);
             unbindService(connection_collaboration);
             Intent collaborationServiceIntent = new Intent(this, CollaborationService.class);
             stopService(collaborationServiceIntent);
+
+            MsgConnector.getInstance().releaseConnection(false);
         }
 
 
