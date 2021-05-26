@@ -56,6 +56,9 @@ public class DataSource {
             }else if (responseData.startsWith("LOGIN:-3")){
                 Log.e(TAG, "Result.Error");
                 return new Result.Error(new IOException("username or password is wrong !"));
+            }else if (responseData.startsWith("LOGIN:-4")){
+                Log.e(TAG, "Result.Error");
+                return new Result.Error(new IOException("account already login in other device !"));
             }else if(responseData.equals("NULL")){
                 return new Result.Error(new IOException("Fail to Connect the server !"));
             }else {

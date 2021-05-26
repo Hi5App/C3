@@ -258,7 +258,7 @@ public class LoginActivity extends AppCompatActivity {
 //    }
 
     private void showLoginFailed(@Nullable String errorString) {
-        Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_LONG).show();
     }
 
     public static void actionStart(Context context){

@@ -71,19 +71,17 @@ public class MKTest {
         for (int i=0; i<3000; i++){
 
             Random ran = new Random(3000-i);
-//            //change pen blue
-//            mUidevice.click(75,630);
-//            Thread.sleep(2000);
-//
-            // x 200 -> 800,  y 800 -> 1400
-            int x1 = ran.nextInt(600) + 200;
-            int x2 = ran.nextInt(600) + 200;
-            int y1 = ran.nextInt(600) + 800;
-            int y2 = ran.nextInt(600) + 800;
 
-            mUidevice.swipe(x1,y1,x2,y2,10);
-            Thread.sleep(5000);
+            if (i % 20 == 0){
+                // x 200 -> 800,  y 800 -> 1400
+                int x1 = ran.nextInt(600) + 200;
+                int x2 = ran.nextInt(600) + 200;
+                int y1 = ran.nextInt(600) + 800;
+                int y2 = ran.nextInt(600) + 800;
 
+                mUidevice.swipe(x1,y1,x2,y2,10);
+                Thread.sleep(5000);
+            }
 
             // open the file
             mUidevice.findObject(By.res("com.penglab.hi5:id/file")).click();
@@ -114,7 +112,7 @@ public class MKTest {
                 mUidevice.findObject(By.text("1.ano")).click();
             }
 
-            Thread.sleep(15000);
+            Thread.sleep(20000);
         }
 
         Thread.sleep(2000);
@@ -163,18 +161,17 @@ public class MKTest {
         for (int i=0; i<3000; i++){
 
             Random ran = new Random(i);
-//            //change pen blue
-//            mUidevice.click(75,630);
-//            Thread.sleep(2000);
-//
-            // x 200 -> 800,  y 800 -> 1400
-            int x1 = ran.nextInt(600) + 200;
-            int x2 = ran.nextInt(600) + 200;
-            int y1 = ran.nextInt(600) + 800;
-            int y2 = ran.nextInt(600) + 800;
 
-            mUidevice.swipe(x1,y1,x2,y2,10);
-            Thread.sleep(5000);
+            if (i % 20 == 0){
+                // x 200 -> 800,  y 800 -> 1400
+                int x1 = ran.nextInt(600) + 200;
+                int x2 = ran.nextInt(600) + 200;
+                int y1 = ran.nextInt(600) + 800;
+                int y2 = ran.nextInt(600) + 800;
+
+                mUidevice.swipe(x1,y1,x2,y2,10);
+                Thread.sleep(5000);
+            }
 
 
             // open the file
@@ -255,18 +252,17 @@ public class MKTest {
         for (int i=0; i<3000; i++){
 
             Random ran = new Random(i);
-//            //change pen blue
-//            mUidevice.click(75,630);
-//            Thread.sleep(2000);
-//
-            // x 250 -> 900,  y 900 -> 1400
-            int x1 = ran.nextInt(650) + 250;
-            int x2 = ran.nextInt(650) + 250;
-            int y1 = ran.nextInt(500) + 900;
-            int y2 = ran.nextInt(500) + 900;
 
-            mUidevice.swipe(x1,y1,x2,y2,10);
-            Thread.sleep(5000);
+            if (i % 20 == 0) {
+                // x 250 -> 900,  y 900 -> 1400
+                int x1 = ran.nextInt(650) + 250;
+                int x2 = ran.nextInt(650) + 250;
+                int y1 = ran.nextInt(500) + 900;
+                int y2 = ran.nextInt(500) + 900;
+
+                mUidevice.swipe(x1, y1, x2, y2, 10);
+                Thread.sleep(5000);
+            }
 
 
             // open the file
