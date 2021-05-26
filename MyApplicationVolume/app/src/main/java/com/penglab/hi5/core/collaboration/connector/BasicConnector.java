@@ -31,7 +31,7 @@ public abstract class BasicConnector {
      */
     public void initConnection(){
 
-        Log.d(TAG,"Start to Connect Server !");
+        Log.d(TAG," initConnection !");
 
         /*
         如果已经和服务器建立连接了，就return
@@ -47,8 +47,9 @@ public abstract class BasicConnector {
 
                 try {
 
+                    // 服务器的ip和端口号
                     Log.d(TAG,String.format("ip: %s,  port: %s", ip, port));
-                    mSocket = new Socket(ip, Integer.parseInt(port));                // 服务器的ip和端口号
+                    mSocket = new Socket(ip, Integer.parseInt(port));
 
                     /*
                     判断是否成功建立连接
@@ -82,10 +83,15 @@ public abstract class BasicConnector {
     }
 
 
-
     public void releaseConnection(){
+        releaseConnection(true);
+    }
+
+
+    public void releaseConnection(boolean needSet){
         Log.e(TAG,"release connect !");
-        setRelease();
+        if (needSet)     // depend on whether the related service exists
+            setRelease();
         if (mSocket != null){
             try {
                 if (!mSocket.isClosed()) {

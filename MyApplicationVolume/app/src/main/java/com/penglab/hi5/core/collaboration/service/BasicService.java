@@ -25,7 +25,6 @@ public abstract class BasicService extends Service {
 //    private static String TAG = BasicService.class.getSimpleName();
     protected String TAG;
 
-
     private ReceiveMsgInterface receiveMsgInterface;
 
     // Binder given to clients
@@ -33,6 +32,8 @@ public abstract class BasicService extends Service {
 
     // indicates whether onRebind should be used
     boolean mAllowRebind;
+
+    protected static ReadThread mReadThread;
 
     protected BasicConnector mBasicConnector;
 
@@ -42,13 +43,14 @@ public abstract class BasicService extends Service {
 
     protected Timer timer;
 
+    private static volatile boolean isReleased = false;
+
     /*
     init function
      */
     public abstract void init();
 
-    protected abstract void reConnect();
-
+//    protected abstract void reConnect();
 
     /**
      * Class used for the client Binder.  Because we know this service always
@@ -72,8 +74,8 @@ public abstract class BasicService extends Service {
     public void onCreate() {
         super.onCreate();
 
-//        timer = new Timer();
-//        timer.schedule(task, 5 * 1000, HEART_BEAT_RATE);
+        timer = new Timer();
+        timer.schedule(task, 5 * 1000, HEART_BEAT_RATE);
 
     }
 
@@ -86,7 +88,7 @@ public abstract class BasicService extends Service {
     public boolean onUnbind(Intent intent) {
         // All clients have unbound with unbindService()
         receiveMsgInterface = null;
-//        timer.cancel();
+        timer.cancel();
         return mAllowRebind;
     }
 
@@ -95,38 +97,58 @@ public abstract class BasicService extends Service {
         // A client is binding to the service with bindService(),
         // after onUnbind() has already been called
     }
+
     @Override
     public void onDestroy() {
         // The service is no longer used and is being destroyed
-        Log.d(TAG, "onDestroy");
         super.onDestroy();
     }
 
 
+
+    public static void setRelease(boolean flag){
+        isReleased = flag;
+    }
+
+    /* Stop the run() in mReadThread */
+    public static void setStop(boolean flag){
+        mReadThread.needStop = flag;
+    }
+
+    public static void resetConnection(){
+        mReadThread.resetConnection();
+    }
+
+    public void reConnection(){
+        Log.e(TAG,"Start to reConnect");
+        mBasicConnector.releaseConnection();
+        mReadThread.reConnect();
+    }
 
 
 
     TimerTask task = new TimerTask() {
         @Override
         public void run() {
-            Log.e(TAG,"Send Heart Beat Msg");
-            sendMsg("HeartBeat:");
+            if (!isReleased)
+                sendMsg("HeartBeat:");
         }
     };
 
 
     public void sendMsg(final String msg){
+        Log.e(TAG,"Send Heart Beat Msg");
+
         Socket mSocket = mBasicConnector.getSocket();
         if (mSocket != null && !mSocket.isClosed() && mSocket.isConnected()){
-
             try {
                 if (!mBasicConnector.sendMsg(msg, true, false)){
-                    reConnect();
+                    reConnection();
                 }
                 Log.e(TAG,"Send Heart Beat Msg Successfully !");
             }catch (Exception e){
                 Log.e(TAG,"Fail to send Heart Beat Msg !");
-                reConnect();
+                reConnection();
             }
 
         }else {
@@ -141,12 +163,10 @@ public abstract class BasicService extends Service {
     class ReadThread extends Thread {
         private Socket mSocket;
         private InputStream is;
-        private boolean isReconnect = false;
-        private boolean isReset = false;
-        protected boolean flag = true;
-        protected boolean isRelease = false;
+        private boolean isReconnect = false;         /* when the something wrong with the connect, and need to reconnect in the service */
+        private boolean isReset = false;             /* when the connector release the connect, and need to reset connect in this thread */
+        protected boolean needStop = false;          /* depend on whether need to stop run() */
         private int count = 0;
-
 
         public ReadThread(Socket socket) {
             mSocket = socket;
@@ -155,6 +175,7 @@ public abstract class BasicService extends Service {
 
         protected void reConnect(){
             Log.e(TAG,"Start to reConnect in mReadThread !");
+
             isReconnect = true;
             releaseSocket();
             resetDataType();
@@ -175,10 +196,9 @@ public abstract class BasicService extends Service {
             }
 
             isReconnect = false;
-            isRelease = false;
+            isReleased = false;
 
         }
-
 
         private void releaseSocket(){
             if (mSocket != null){
@@ -193,8 +213,7 @@ public abstract class BasicService extends Service {
             }
         }
 
-
-        public void reSetConnect(){
+        public void resetConnection(){
             isReset = true;
 
             try {
@@ -208,11 +227,9 @@ public abstract class BasicService extends Service {
             }
 
             isReset = false;
+            isReleased = false;
         }
 
-        public void setRelease(boolean flag){
-            isRelease = flag;
-        }
 
         //同步方法读取返回得数据
         @Override
@@ -221,17 +238,14 @@ public abstract class BasicService extends Service {
             if (null != mSocket) {
                 try {
                     is = mSocket.getInputStream();
-                    while(flag) {
+                    while(!needStop) {
                         try {
                             synchronized (this) {
-
-                                if (!isRelease){
-                                    if (!(mSocket==null) && !mSocket.isClosed() && !mSocket.isInputShutdown()) {
-                                        if (!isReconnect && !isReset){
+                                if (!isReleased){
+                                    if (!isReset && (!isReconnect && count<3)){
+                                        if (!(mSocket==null) && !mSocket.isClosed() && !mSocket.isInputShutdown()) {
                                             onRead("in the while loop");
-                                        }
-                                    }else {
-                                        if ((!isReconnect) && (!isReset) && count<3){
+                                        }else {
                                             Log.e(TAG,"reConnect in mReadThread : " + count + " !");
                                             reConnect();
                                         }
@@ -269,12 +283,9 @@ public abstract class BasicService extends Service {
                         String header = "";
                         if (is.available() > 0){
 //                            Log.e(TAG,"available size: " + is.available());
-
                             header = MyReadLine(is);
 
-//                            Log.e(TAG,"available size: " + is.available());
                             Log.e(TAG,"read header: " + header);
-
                             if (processHeader(header + "\n")){
                                 onRead("after read header! ");
                             }
@@ -288,7 +299,6 @@ public abstract class BasicService extends Service {
                     try {
                         if (is.available() >= dataType.dataSize){
                             // read msg
-//                            Log.e(TAG,"read msg !");
                             String msg = MyReadLine(is) + "\n";
                             if (processMsg(msg)){
                                 onRead("after read msg !");
@@ -305,10 +315,7 @@ public abstract class BasicService extends Service {
                 try {
                     // process file
                     if (is.available() > 0){
-                        Log.e(TAG,"Else process file !");
                         int ret = 0;
-
-//                        Log.e(TAG,"Start to process file !");
 
                         File dir = new File(dataType.filepath);
                         if (!dir.exists()){
@@ -319,7 +326,6 @@ public abstract class BasicService extends Service {
 
                         //打开文件，如果没有，则新建文件
                         File file = new File(dataType.filepath + "/" + dataType.filename);
-//                        File file = new File(dataType.filepath + "/" + "1.v3draw");
                         if(!file.exists()){
                             if (file.createNewFile()){
                                 Log.v(TAG, "Create file Successfully !");
@@ -327,13 +333,11 @@ public abstract class BasicService extends Service {
                         }
 
                         FileOutputStream out = new FileOutputStream(file);
-
                         int File_Content_Int = (int) dataType.dataSize;
                         int Loop = File_Content_Int / 1024;
                         int End = File_Content_Int % 1024;
 
 //                        Log.e(TAG, "Loop: " + Loop + "; End: " + End);
-
                         byte [] File_Content = new byte[1024];
                         byte [] File_Content_End = new byte[End];
 
@@ -347,13 +351,10 @@ public abstract class BasicService extends Service {
                             out.write(File_Content);
                         }
 
-
 //                        Log.e(TAG, "Start to read end content !");
-
                         if (End > 0){
 
 //                            Log.e(TAG, "Wait for the data !");
-
                             for (int i = 0; i < 1; i++){
                                 if (is.available() < End){
                                     i--;
@@ -361,9 +362,7 @@ public abstract class BasicService extends Service {
                                 }
                                 is.read(File_Content_End, 0, End);
                             }
-
 //                            Log.e(TAG, "Finish read the data !");
-
                             out.write(File_Content_End);
                         }
                         out.close();
@@ -401,12 +400,9 @@ public abstract class BasicService extends Service {
                 if (msg.startsWith("DataTypeWithSize:")){
                     Log.e(TAG,"msg: " + msg);
                     msg = msg.substring("DataTypeWithSize:".length());
-//                    Log.e(TAG,"msg: " + msg);
 
                     String[] paras_list = msg.split(" ");
                     ArrayList<String> paras = new ArrayList<>();
-
-//                    Log.e(TAG,"paras_list: " + Arrays.toString(paras_list));
 
                     if (paras_list.length==2 && paras_list[0].equals("0")){
                         dataType.dataSize = Long.parseLong(paras_list[1]);
@@ -485,7 +481,7 @@ public abstract class BasicService extends Service {
                     break;
             }
             MainActivity.hideProgressBar();
-            reConnect();
+            reConnection();
         }
 
 

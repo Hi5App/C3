@@ -7,18 +7,18 @@ import com.penglab.hi5.core.ui.login.data.model.LoggedInUser;
 public class RegisterRespository {
     private static volatile RegisterRespository instance;
 
-    private LoginDataSource dataSource;
+    private DataSource dataSource;
 
     // If user credentials will be cached in local storage, it is recommended it be encrypted
     // @see https://developer.android.com/training/articles/keystore
     private LoggedInUser user = null;
 
     // private constructor : singleton access
-    private RegisterRespository(LoginDataSource dataSource) {
+    private RegisterRespository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    public static RegisterRespository getInstance(LoginDataSource dataSource) {
+    public static RegisterRespository getInstance(DataSource dataSource) {
         if (instance == null) {
             instance = new RegisterRespository(dataSource);
         }

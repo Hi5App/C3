@@ -10,7 +10,7 @@ public class CollaborationService extends BasicService {
 
     protected static final String TAG = "CollaborationService";
 
-    private static ReadThread mReadThread;
+//    private static ReadThread mReadThread;
 
     @Override
     public void init() {
@@ -40,7 +40,7 @@ public class CollaborationService extends BasicService {
         // All clients have unbound with unbindService()
         super.onUnbind(intent);
         if (mReadThread != null)
-            mReadThread.flag = false;
+            mReadThread.needStop = true;
         return mAllowRebind;
     }
 
@@ -52,26 +52,5 @@ public class CollaborationService extends BasicService {
     }
 
 
-    public static void setRelease(boolean flag){
-        mReadThread.setRelease(flag);
-    }
-
-    public static void setFlag(boolean flag){
-        mReadThread.flag = flag;
-    }
-
-    public static void resetConnection(){
-        Log.e(TAG,"Start to resetConnection");
-        mReadThread.setRelease(true);
-        mReadThread.reSetConnect();
-        mReadThread.setRelease(false);
-    }
-
-    @Override
-    public void reConnect(){
-        Log.e(TAG,"Start to reConnect");
-        mBasicConnector.releaseConnection();
-        mReadThread.reConnect();
-    }
 
 }

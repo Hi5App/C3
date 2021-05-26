@@ -9,6 +9,8 @@ import com.penglab.hi5.core.collaboration.MsgSender;
 import com.penglab.hi5.core.collaboration.basic.ReconnectionInterface;
 import com.penglab.hi5.core.collaboration.service.ManageService;
 
+import static com.penglab.hi5.core.Myapplication.ToastEasy;
+
 public class ServerConnector extends BasicConnector implements ReconnectionInterface {
 
     private static final String EMPTY_MSG = "the msg is empty";
@@ -91,8 +93,11 @@ public class ServerConnector extends BasicConnector implements ReconnectionInter
 
     @Override
     public void reLogin(){
-        Log.e(TAG,"Start to reLogin !");
-        sendMsg(String.format("LOGIN:%s %s", InfoCache.getAccount(), InfoCache.getToken()), true, false);
+        Log.e(TAG,"start to reLogin !");
+        if (InfoCache.getAccount() != null && InfoCache.getToken() != null)
+            sendMsg(String.format("LOGIN:%s %s", InfoCache.getAccount(), InfoCache.getToken()), true, false);
+        else
+            ToastEasy("user account is null !");
     }
 
     @Override

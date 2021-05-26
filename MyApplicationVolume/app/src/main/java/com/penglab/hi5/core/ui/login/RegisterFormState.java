@@ -11,6 +11,7 @@ public class RegisterFormState {
     private Integer passwordError;
     @Nullable
     private Integer nicknameError;
+
     private boolean isDataValid;
 
     RegisterFormState(@Nullable Integer emailError, @Nullable Integer usernameError, @Nullable Integer passwordError, @Nullable Integer nicknameError) {

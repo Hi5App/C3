@@ -39,9 +39,7 @@ import java.io.InputStreamReader;
 public class RegisterActivity extends AppCompatActivity {
 
     private static final String TAG = "RegisterActivity";
-
     private RegisterViewModel registerViewModel;
-
     final private int REGISTER_ON_CLICK = 2;
 
     EditText usernameEditText;
@@ -72,7 +70,7 @@ public class RegisterActivity extends AppCompatActivity {
                     loadingProgressBar.setVisibility(View.VISIBLE);
                     registerViewModel.register(emailEditText.getText().toString(), usernameEditText.getText().toString(),
                             nicknameEditText.getText().toString(), passwordEditText.getText().toString(), inviterText.getText().toString());
-                    Log.d("LoginButton:", "onClickkkkkkkk");
+                    Log.d(TAG, "RegisterButton");
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + msg.what);
@@ -83,7 +81,8 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e(TAG,"Start to register: onCreate !");
+        Log.e(TAG,"start to register: onCreate !");
+
         setContentView(R.layout.activity_register);
         registerViewModel = ViewModelProviders.of(this, new RegisterViewModelFactory())
                 .get(RegisterViewModel.class);
@@ -152,27 +151,24 @@ public class RegisterActivity extends AppCompatActivity {
         registerViewModel.getRegisterResult().observe(this, new Observer<RegisterResult>() {
             @Override
             public void onChanged(@Nullable RegisterResult registerResult) {
-                Log.d("LoginResultOnChanged", "innnnnn");
+                Log.d(TAG,"LoginResultOnChanged");
                 if (registerResult == null) {
                     return;
                 }
                 loadingProgressBar.setVisibility(View.GONE);
-                if (registerResult.getError() != null) {
-                    showRegisterFailed(registerResult.getError());
-
-                } else if (registerResult.getErrorString() != null){
+                if (registerResult.getErrorString() != null){
                     showRegisterFailed(registerResult.getErrorString());
                     Log.e("LoginResultOnChanged", registerResult.getErrorString());
                 }
                 if (registerResult.getSuccess() != null) {
                     Log.d("LoginResultOnChanged", "getSuccess");
                     updateUiWithUser(registerResult.getSuccess());
-                }
 
-                //Complete and destroy login activity once successful
-                setResult(Activity.RESULT_OK);
-                LoginActivity.actionStart(RegisterActivity.this);
-                finish();
+                    //Complete and destroy login activity once successful
+                    setResult(Activity.RESULT_OK);
+                    LoginActivity.actionStart(RegisterActivity.this);
+                    finish();
+                }
             }
         });
 
@@ -252,20 +248,4 @@ public class RegisterActivity extends AppCompatActivity {
         context.startActivity(intent);
     }
 
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK
-                && event.getAction() == KeyEvent.ACTION_DOWN) {
-
-            if ((System.currentTimeMillis() - exitTime) > 2000) {
-                Toast.makeText(getApplicationContext(), "Press again to exit the program",
-                        Toast.LENGTH_SHORT).show();
-                exitTime = System.currentTimeMillis();
-            } else {
-                finish();
-                System.exit(0);
-            }
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
 }

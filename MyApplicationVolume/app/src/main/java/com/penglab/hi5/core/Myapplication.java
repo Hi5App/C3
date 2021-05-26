@@ -1,16 +1,10 @@
 package com.penglab.hi5.core;
 
-import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.huawei.hms.support.common.ActivityMgr;
 import com.netease.nim.uikit.api.NimUIKit;
@@ -47,8 +41,6 @@ import com.penglab.hi5.dataStore.PreferenceLogin;
 
 import org.litepal.LitePal;
 
-import java.util.List;
-
 
 //用于在app全局获取context
 
@@ -80,8 +72,6 @@ public class Myapplication extends Application {
 
     private final String TAG = "MyApplication";
 
-    private int activityCount = 0;
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -106,6 +96,7 @@ public class Myapplication extends Application {
 
 
         Log.e(TAG, String.format("Database version: %d", db.getVersion()));
+
 //        AgoraClient.init(this, getLoginInfo());
 //        agoraMsgManager = AgoraMsgManager.getInstance();
 

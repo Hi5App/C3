@@ -47,6 +47,7 @@ import java.io.InputStreamReader;
 
 public class LoginActivity extends AppCompatActivity {
 
+    private static final String TAG = "LoginActivity";
     private static final String KICK_OUT = "KICK_OUT";
     private static final String KICK_OUT_DESC = "KICK_OUT_DESC";
 
@@ -67,9 +68,7 @@ public class LoginActivity extends AppCompatActivity {
     private float buttonVolume = 1.0f;
     private float actionVolume = 1.0f;
 
-    final private int SIGN_IN_ON_CLICK = 1;
-    final private String TAG = "LoginActivity";
-
+    final private int LOGIN_IN_ON_CLICK = 1;
     private long exitTime = 0;
 
     @SuppressLint("HandlerLeak")
@@ -77,11 +76,11 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what){
-                case SIGN_IN_ON_CLICK:
+                case LOGIN_IN_ON_CLICK:
+                    Log.d(TAG, "LoginButton");
                     loadingProgressBar.setVisibility(View.VISIBLE);
                     loginViewModel.login(usernameEditText.getText().toString(),
                             passwordEditText.getText().toString());
-                    Log.d("LoginButton:", "onClickkkkkkkk");
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + msg.what);
@@ -100,7 +99,6 @@ public class LoginActivity extends AppCompatActivity {
         /*
         set context for toast in ServerConnector
          */
-
         preferenceLogin = new PreferenceLogin(this);
         usernameEditText = findViewById(R.id.username);
         passwordEditText = findViewById(R.id.password);
@@ -169,7 +167,8 @@ public class LoginActivity extends AppCompatActivity {
         loginViewModel.getLoginResult().observe(this, new Observer<LoginResult>() {
             @Override
             public void onChanged(@Nullable LoginResult loginResult) {
-                Log.d("LoginResultOnChanged", "innnnnn");
+                Log.d(TAG, "LoginResultOnChanged");
+
                 if (loginResult == null) {
                     return;
                 }
@@ -178,8 +177,6 @@ public class LoginActivity extends AppCompatActivity {
                     showLoginFailed(loginResult.getError());
                 }
                 if (loginResult.getSuccess() != null) {
-                    Log.d("LoginResultOnChanged", "getSuccess");
-
                     if (remember_pwd.isChecked()){
                         preferenceLogin.setPref(usernameEditText.getText().toString(),
                                 passwordEditText.getText().toString(),true);
@@ -218,13 +215,10 @@ public class LoginActivity extends AppCompatActivity {
         usernameEditText.addTextChangedListener(afterTextChangedListener);
         passwordEditText.addTextChangedListener(afterTextChangedListener);
         passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-//                    loginViewModel.login(usernameEditText.getText().toString(),
-//                            passwordEditText.getText().toString());
-                    handler.sendEmptyMessage(SIGN_IN_ON_CLICK);
+                    handler.sendEmptyMessage(LOGIN_IN_ON_CLICK);
                 }
                 return false;
             }
@@ -234,21 +228,14 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 soundPool.play(soundId, buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                handler.sendEmptyMessage(SIGN_IN_ON_CLICK);
-                if (remember_pwd.isChecked()){
-                    preferenceLogin.setPref(usernameEditText.getText().toString(),
-                            passwordEditText.getText().toString(),true);
-                }else {
-                    preferenceLogin.setPref("","",false);
-                }
+                handler.sendEmptyMessage(LOGIN_IN_ON_CLICK);
             }
         });
 
         registerButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                Log.e(TAG,"Start to register !");
+                Log.e(TAG,"start to register !");
                 RegisterActivity.actionStart(LoginActivity.this);
             }
         });
@@ -282,13 +269,10 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private void loginNim(String account, String password, LoginResult loginResult){
-        Log.e(TAG, "account: " + account);
-        Log.e(TAG, "password: " + password);
+        Log.e(TAG, "account: " + account + ", password: " + password);
 
-//        AVConfig.init(new LoginInfo(account, password));
         NimUIKit.login(new LoginInfo(account, password),
                 new RequestCallback<LoginInfo>() {
-
                     @Override
                     public void onSuccess(LoginInfo param) {
                         LogUtil.i(TAG, "login success");

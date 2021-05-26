@@ -856,7 +856,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         Log.d(TAG, "onDestroy()");
 
         Intent bgmIntent = new Intent(this, MusicServer.class);
@@ -875,26 +874,23 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         if (mBoundManagement){
             Log.e(TAG,"unbind management service !");
-            ManageService.setFlag(false);
+            ServerConnector.getInstance().releaseConnection();
+
+            ManageService.setStop(true);
             unbindService(connection_management);
             Intent manageServiceIntent = new Intent(this, ManageService.class);
             stopService(manageServiceIntent);
         }
         if (mBoundCollaboration){
             Log.e(TAG,"unbind collaboration service !");
-            CollaborationService.setFlag(false);
+            MsgConnector.getInstance().releaseConnection();
+
+            CollaborationService.setStop(true);
             unbindService(connection_collaboration);
             Intent collaborationServiceIntent = new Intent(this, CollaborationService.class);
             stopService(collaborationServiceIntent);
         }
 
-
-
-        /*
-        release socket
-         */
-        MsgConnector.getInstance().releaseConnection();
-        ServerConnector.getInstance().releaseConnection();
 
         mainContext = null;
 
@@ -1827,10 +1823,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         case "create a new Room":
                                             CreateFile(conPath + "/" + fileName[0],"0");
                                             Communicator.Path = conPath.split("/")[1] + "/" + fileName[0];
+                                            firstLoad = true;
                                             break;
 
                                         default:
                                             loadFileMode(conPath + "/" + text);
+                                            firstLoad = true;
                                             break;
                                     }
                                 }
@@ -1909,7 +1907,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void loadBigData(){
 
         conPath = "";
-        firstLoad = true;
 
         new Thread(new Runnable() {
             @Override
@@ -3343,7 +3340,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210525a 20:43 UTC+8 build",
+                                "Version: 20210526a 20:43 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

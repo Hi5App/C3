@@ -12,7 +12,7 @@ import static com.penglab.hi5.core.BaseActivity.ip_TencentCloud;
 /**s
  * Class that handles authentication w/ login credentials and retrieves user information.
  */
-public class LoginDataSource {
+public class DataSource {
 
     private String responseData;
     private boolean ifResponsed = false;
@@ -35,9 +35,7 @@ public class LoginDataSource {
     public Result<LoggedInUser> login(String username, String password) {
 
         try {
-
             Log.e(TAG,"login start !");
-
             LoginWithSocket(username, password);
 
             if (responseData.startsWith("LOGIN:0")){
@@ -96,14 +94,15 @@ public class LoginDataSource {
             }else if (responseData.equals("REGISTER:-2")){
                 Log.e(TAG, "fail to register !");
                 return new Result.Error(new IOException("User Already Exist !"));
+            }else if (responseData.equals("REGISTER:-3")){
+                Log.e(TAG, "fail to register !");
+                return new Result.Error(new IOException("User Already Exist !"));
             }else if(responseData.equals("NULL")){
                 return new Result.Error(new IOException("Fail to Connect the server !"));
             }else {
                 Log.e(TAG, "fail to register !");
                 return new Result.Error(new IOException("Something Wrong with Database !"));
             }
-
-
 
         } catch (Exception e) {
             return new Result.Error(new IOException("Error registering", e));
@@ -116,7 +115,7 @@ public class LoginDataSource {
         initServerConnector();
         ServerConnector serverConnector = ServerConnector.getInstance();
         if (serverConnector.checkConnection()){
-            serverConnector.sendMsg(String.format("LOGIN:%s %s", username, password), true, true);
+            serverConnector.sendMsg(String.format("LOGIN:%s %s", username, password), true, false);
             String result = serverConnector.ReceiveMsg();
             Log.e(TAG,"msg: " + result);
 
@@ -137,7 +136,7 @@ public class LoginDataSource {
         initServerConnector();
         ServerConnector serverConnector = ServerConnector.getInstance();
         if(serverConnector.checkConnection()){
-            serverConnector.sendMsg(String.format("REGISTER:%s %s %s %s %s", username, email, nickname, password, inviterCode));
+            serverConnector.sendMsg(String.format("REGISTER:%s %s %s %s %s", username, email, nickname, password, inviterCode), true, false);
             String result = serverConnector.ReceiveMsg();
             Log.e(TAG,"msg: " + result);
 
@@ -159,9 +158,10 @@ public class LoginDataSource {
 
     private void initServerConnector(){
         ServerConnector serverConnector = ServerConnector.getInstance();
-        serverConnector.releaseConnection();
+        serverConnector.releaseConnection(false);
         serverConnector.setIp(ip_TencentCloud);
         serverConnector.setPort("23763");
         serverConnector.initConnection();
     }
+
 }

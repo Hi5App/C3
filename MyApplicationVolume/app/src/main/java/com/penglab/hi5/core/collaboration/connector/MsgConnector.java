@@ -64,7 +64,7 @@ public class MsgConnector extends BasicConnector implements ReconnectionInterfac
     @Override
     public void reLogin() {
         Log.e(TAG,"Start to reLogin !");
-        MsgConnector.getInstance().sendMsg("/login:" + InfoCache.getAccount());
+        MsgConnector.getInstance().sendMsg("/login:" + InfoCache.getAccount(), true, false);
     }
 
     @Override
@@ -81,6 +81,7 @@ public class MsgConnector extends BasicConnector implements ReconnectionInterfac
         releaseConnection();
         initConnection();
         CollaborationService.resetConnection();
+        reLogin();
         sendMsg(msg, false, false);
     }
 

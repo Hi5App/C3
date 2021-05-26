@@ -219,7 +219,7 @@ public class Communicator {
 
         String msg_origin = "/delmarker_norm:" + String.format("%s %s %s %s %s;", username, "HI5", "128", "128", "128");
         msg_origin = msg_origin + TextUtils.join(";", result_origin);
-        msgConnector.sendMsg(msg_origin, true, false);
+        msgConnector.sendMsg(msg_origin, true, true);
 
         /*
         add marker
@@ -230,7 +230,7 @@ public class Communicator {
 
         String msg_current = "/addmarker_norm:" + String.format("%s %s %s %s %s;", username, "HI5", "128", "128", "128");
         msg_current = msg_current + TextUtils.join(";", result_current);
-        msgConnector.sendMsg(msg_current, true, false);
+        msgConnector.sendMsg(msg_current, true, true);
 
     }
 
