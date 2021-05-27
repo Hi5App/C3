@@ -141,18 +141,10 @@ public abstract class BasicService extends Service {
 
         Socket mSocket = mBasicConnector.getSocket();
         if (mSocket != null && !mSocket.isClosed() && mSocket.isConnected()){
-            try {
-                if (!mBasicConnector.sendMsg(msg, true, false)){
-                    reConnection();
-                }
+            if (mBasicConnector.sendMsg(msg, true, true))
                 Log.e(TAG,"Send Heart Beat Msg Successfully !");
-            }catch (Exception e){
-                Log.e(TAG,"Fail to send Heart Beat Msg !");
-                reConnection();
-            }
-
         }else {
-            return;
+            reConnection();
         }
     }
 
@@ -183,15 +175,14 @@ public abstract class BasicService extends Service {
             try {
 
                 mBasicConnector.initConnection();
-                mBasicConnector.reLogin();
                 mSocket = mBasicConnector.getSocket();
                 is = mBasicConnector.getSocket().getInputStream();
+                mBasicConnector.reLogin();
                 count = 0;
 
             }catch (Exception e){
                 e.printStackTrace();
                 Log.e(TAG,"reConnect");
-                isReconnect = false;
                 count++;
             }
 
@@ -200,18 +191,7 @@ public abstract class BasicService extends Service {
 
         }
 
-        private void releaseSocket(){
-            if (mSocket != null){
-                try {
-                    if (!mSocket.isClosed()){
-                        mSocket.close();
-                    }
-                    mSocket = null;
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        }
+
 
         public void resetConnection(){
             isReset = true;
@@ -220,13 +200,14 @@ public abstract class BasicService extends Service {
 
                 mSocket = mBasicConnector.getSocket();
                 is = mSocket.getInputStream();
+                isReset = false;
+                count = 0;
 
             }catch (Exception e){
                 e.printStackTrace();
-                Log.e(TAG,"Fail to reSetConnect");
+                Log.e(TAG,"Fail to reSetConnection");
             }
 
-            isReset = false;
             isReleased = false;
         }
 
@@ -238,26 +219,27 @@ public abstract class BasicService extends Service {
             if (null != mSocket) {
                 try {
                     is = mSocket.getInputStream();
+                    int keepalive = 0;
                     while(!needStop) {
                         try {
                             synchronized (this) {
                                 if (!isReleased){
-                                    if (!isReset && (!isReconnect && count<3)){
+                                    if (!isReset && (!isReconnect && count<2)){
                                         if (!(mSocket==null) && !mSocket.isClosed() && !mSocket.isInputShutdown()) {
                                             onRead("in the while loop");
                                         }else {
                                             Log.e(TAG,"reConnect in mReadThread : " + count + " !");
-                                            reConnect();
+                                            reConnection();
                                         }
                                     }
                                 }
                             }
                         }catch (Exception e){
                             e.printStackTrace();
-                            System.out.println("Network Error ！");
+                            Log.e(TAG,"Network Error ！");
                         }
+                        keepalive++;
                     }
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -484,6 +466,19 @@ public abstract class BasicService extends Service {
             reConnection();
         }
 
+
+        private void releaseSocket(){
+            if (mSocket != null){
+                try {
+                    if (!mSocket.isClosed()){
+                        mSocket.close();
+                    }
+                    mSocket = null;
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
 
         /*
         reset datatype after process the msg

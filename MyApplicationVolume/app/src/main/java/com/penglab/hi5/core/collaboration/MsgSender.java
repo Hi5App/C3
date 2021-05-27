@@ -22,11 +22,11 @@ public class MsgSender {
     public MsgSender(){
     }
 
-    public boolean SendMsg(Socket socket, String message, boolean waited, boolean resend, ReconnectionInterface reconnectionInterface){
+    public boolean sendMsg(Socket socket, String message, boolean waited, boolean resend, ReconnectionInterface reconnectionInterface){
 
         final boolean[] flag = {true};
-        if (socket == null || !socket.isConnected()){
-            ToastEasy("Fail to Send Message, Try Again Please !");
+        if ((socket == null || !socket.isConnected()) && !resend){
+            ToastEasy("Fail to Send Message, check the network please !");
             return false;
         }
 
@@ -50,13 +50,9 @@ public class MsgSender {
 
                     Log.d(TAG,"header: " + header.trim() + ",  data: " + data);
 
-//                    out.write(header.getBytes(StandardCharsets.UTF_8));
-//                    out.write(data.getBytes(StandardCharsets.UTF_8));
-
                     String finalMsg = header + data;
                     out.write(finalMsg.getBytes(StandardCharsets.UTF_8));
                     out.flush();
-
 
                     /*
                      * show the progressbar
@@ -94,7 +90,7 @@ public class MsgSender {
 
 
 
-    public void SendFile(Socket socket, String filename, InputStream is, long filelength){
+    public void sendFile(Socket socket, String filename, InputStream is, long filelength){
 
         if (!socket.isConnected()){
             ToastEasy("Socket is not Connected, Try Again Please !");

@@ -3344,7 +3344,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210527a 15:27 UTC+8 build",
+                                "Version: 20210527b 16:27 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

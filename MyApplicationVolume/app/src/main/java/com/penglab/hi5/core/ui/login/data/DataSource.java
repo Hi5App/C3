@@ -66,19 +66,8 @@ public class DataSource {
                 return new Result.Error(new IOException("Something else Wrong !"));
             }
 
-
-
-//            /*
-//            just for test
-//             */
-//            LoggedInUser fakeUser =
-//                    new LoggedInUser(
-//                            java.util.UUID.randomUUID().toString(),
-//                            username);
-//            return new Result.Success<>(fakeUser);
-
         } catch (Exception e) {
-            return new Result.Error(new IOException("Error logging in", e));
+            return new Result.Error(new IOException("Check the network please !", e));
         }
     }
 
@@ -108,7 +97,7 @@ public class DataSource {
             }
 
         } catch (Exception e) {
-            return new Result.Error(new IOException("Error registering", e));
+            return new Result.Error(new IOException("Check the network please !", e));
         }
     }
 

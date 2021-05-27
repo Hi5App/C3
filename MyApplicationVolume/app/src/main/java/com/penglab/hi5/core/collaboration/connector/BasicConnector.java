@@ -62,7 +62,7 @@ public abstract class BasicConnector {
 
 
                 } catch (IOException e) {
-                    ToastEasy("Something Wrong When Connect Server");
+                    ToastEasy("Something Wrong when Connect Server");
                     e.printStackTrace();
                 }
 

@@ -11,6 +11,8 @@ import com.penglab.hi5.core.collaboration.service.CollaborationService;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.penglab.hi5.core.Myapplication.ToastEasy;
+
 public class MsgConnector extends BasicConnector implements ReconnectionInterface {
 
     //    private static final String TAG = "MsgConnector";
@@ -56,15 +58,18 @@ public class MsgConnector extends BasicConnector implements ReconnectionInterfac
 
     @Override
     public boolean sendMsg(String msg, boolean waited, boolean resend){
-        if (!checkConnection())
+        if (!checkConnection() && !resend)
             initConnection();
-        return msgSender.SendMsg(mSocket, msg, waited, resend, this);
+        return msgSender.sendMsg(mSocket, msg, waited, resend, this);
     }
 
     @Override
     public void reLogin() {
         Log.e(TAG,"Start to reLogin !");
-        MsgConnector.getInstance().sendMsg("/login:" + InfoCache.getAccount(), true, false);
+        if (InfoCache.getAccount() != null)
+            MsgConnector.getInstance().sendMsg("/login:" + InfoCache.getAccount(), true, false);
+        else
+            ToastEasy("user account is null, fail to relogin !");
     }
 
     @Override

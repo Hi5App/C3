@@ -175,32 +175,46 @@ public class MKTest {
 
 
             // open the file
-            mUidevice.findObject(By.res("com.penglab.hi5:id/file")).click();
+//            mUidevice.findObject(By.res("com.penglab.hi5:id/file")).click();
+            mUidevice.click(750,150);
             Thread.sleep(1000);
 
-            mUidevice.findObject(By.text("Open BigData")).click();
+//            mUidevice.findObject(By.text("Open BigData")).click();
+            mUidevice.click(360,980);
             Thread.sleep(2000);
 
-            mUidevice.click(260,1100);
 //            mUidevice.findObject(By.text("18454")).click();
+            mUidevice.click(260,1100);
             Thread.sleep(2000);
 
-            mUidevice.click(360,1160);
 //            mUidevice.findObject(By.text("18454_00049")).click();
+            mUidevice.click(360,1160);
             Thread.sleep(2000);
 
             if(i%6 == 0){
-                mUidevice.findObject(By.text("2.ano")).click();
+//                mUidevice.findObject(By.text("2.ano")).click();
+                mUidevice.click(270,830);
+
             }else if (i%6 == 1){
-                mUidevice.findObject(By.text("3.ano")).click();
+//                mUidevice.findObject(By.text("3.ano")).click();
+                mUidevice.click(270,990);
+
             }else if (i%6 == 2){
-                mUidevice.findObject(By.text("4.ano")).click();
+//                mUidevice.findObject(By.text("4.ano")).click();
+                mUidevice.click(270,1140);
+
             }else if (i%6 == 3){
-                mUidevice.findObject(By.text("5.ano")).click();
+//                mUidevice.findObject(By.text("5.ano")).click();
+                mUidevice.click(270,1290);
+
             }else if (i%6 == 4){
-                mUidevice.findObject(By.text("6.ano")).click();
+//                mUidevice.findObject(By.text("6.ano")).click();
+                mUidevice.click(270,1440);
+
             }else if (i%6 == 5){
-                mUidevice.findObject(By.text("1.ano")).click();
+//                mUidevice.findObject(By.text("1.ano")).click();
+                mUidevice.click(270,690);
+
             }
 
             Thread.sleep(15000);

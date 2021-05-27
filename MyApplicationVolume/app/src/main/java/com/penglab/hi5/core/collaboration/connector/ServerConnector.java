@@ -73,9 +73,9 @@ public class ServerConnector extends BasicConnector implements ReconnectionInter
 
     @Override
     public boolean sendMsg(String msg, boolean waited, boolean resend){
-        if (!checkConnection())
+        if (!checkConnection() && !resend)
             initConnection();
-        return msgSender.SendMsg(mSocket, msg, waited, resend, this);
+        return msgSender.sendMsg(mSocket, msg, waited, resend, this);
     }
 
 
@@ -97,7 +97,7 @@ public class ServerConnector extends BasicConnector implements ReconnectionInter
         if (InfoCache.getAccount() != null && InfoCache.getToken() != null)
             sendMsg(String.format("LOGIN:%s %s", InfoCache.getAccount(), InfoCache.getToken()), true, false);
         else
-            ToastEasy("user account is null !");
+            ToastEasy("user account is null, fail to relogin !");
     }
 
     @Override
