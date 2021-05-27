@@ -39,7 +39,7 @@ public class P2PMessageActivity extends BaseMessageActivity {
 
     private boolean isResume = false;
 
-    private static Context messageContext;
+
 
     public static void start(Context context, String contactId, SessionCustomization customization, IMMessage anchor) {
         Intent intent = new Intent();
@@ -58,7 +58,7 @@ public class P2PMessageActivity extends BaseMessageActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // 单聊特例话数据，包括个人信息，
-        messageContext = this;
+
 
         requestBuddyInfo();
         displayOnlineState();

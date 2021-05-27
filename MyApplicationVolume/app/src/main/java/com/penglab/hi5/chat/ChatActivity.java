@@ -165,5 +165,10 @@ public class ChatActivity extends BaseActivity {
         mdDialog.show();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
 
+        chatContext = null;
+    }
 }
