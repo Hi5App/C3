@@ -355,7 +355,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private float bgmVolume = 0f;
     private float buttonVolume = 1.0f;
     private float actionVolume = 1.0f;
-    private static boolean firstLoad = true;
+    public static boolean firstLoad = true;
     private boolean firstJoinRoom = true;
     private boolean copyFile = false;
 
@@ -372,6 +372,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public void onRecMessage(String msg) {
 
         Log.e(TAG,"onRecMessage()  " + msg);
+
+        if (msg.startsWith("TestSocketConnection")){
+            ServerConnector.getInstance().sendMsg("HeartBeat");
+        }
 
         /*
         select file
@@ -3344,7 +3348,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210527b 16:27 UTC+8 build",
+                                "Version: 20210528a 16:27 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

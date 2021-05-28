@@ -61,6 +61,8 @@ public class DataSource {
                 return new Result.Error(new IOException("account already login in other device !"));
             }else if(responseData.equals("NULL")){
                 return new Result.Error(new IOException("Fail to Connect the server !"));
+            }else if (responseData.equals("TimeOut")){
+                return new Result.Error(new IOException("Time out, check the network connection please !"));
             }else {
                 Log.e(TAG, "Result.Error");
                 return new Result.Error(new IOException("Something else Wrong !"));
@@ -91,6 +93,8 @@ public class DataSource {
                 return new Result.Error(new IOException("User Already Exist !"));
             }else if(responseData.equals("NULL")){
                 return new Result.Error(new IOException("Fail to Connect the server !"));
+            }else if (responseData.equals("TimeOut")){
+                return new Result.Error(new IOException("Time out, check the network connection please !"));
             }else {
                 Log.e(TAG, "fail to register !");
                 return new Result.Error(new IOException("Something Wrong with Database !"));
@@ -112,7 +116,7 @@ public class DataSource {
             Log.e(TAG,"msg: " + result);
 
             if (result == null){
-                responseData = "NULL";
+                responseData = "TimeOut";
             }else {
                 responseData = result;
             }
@@ -133,7 +137,7 @@ public class DataSource {
             Log.e(TAG,"msg: " + result);
 
             if (result == null){
-                responseData = "NULL";
+                responseData = "TimeOut";
             }else {
                 responseData = result;
             }

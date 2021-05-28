@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 
@@ -20,7 +22,7 @@ public class MsgReceiver {
 
     private InputStream is;
 
-    private String message = "";
+    private String message = null;
 
     private boolean finished = false;
 
@@ -32,7 +34,7 @@ public class MsgReceiver {
     public String ReceiveMsg(Socket socket){
 
         if (!socket.isConnected()){
-            ToastEasy("Fail to Send_Message, Try Again Please !");
+            ToastEasy("Fail to Receive msg, Try Again Please !");
             return SOCKET_CLOSED;
         }
 
@@ -48,7 +50,7 @@ public class MsgReceiver {
                     is = socket.getInputStream();
                     finished = false;
 
-                    while (!finished){
+                    while (!finished && !isInterrupted()){
                         onRead("ReceiveMsg");
                     }
 
@@ -59,8 +61,14 @@ public class MsgReceiver {
 
             }
         };
-
         thread.start();
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                thread.interrupt();
+            }
+        },10 * 1000);
 
         try {
             thread.join();
@@ -68,6 +76,7 @@ public class MsgReceiver {
             e.printStackTrace();
         }
 
+        /* return null when time out */
         return message;
 
     }

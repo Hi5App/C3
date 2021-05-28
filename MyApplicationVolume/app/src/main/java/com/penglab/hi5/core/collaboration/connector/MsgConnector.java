@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.penglab.hi5.chat.nim.InfoCache;
+import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.collaboration.MsgSender;
 import com.penglab.hi5.core.collaboration.basic.ReconnectionInterface;
 import com.penglab.hi5.core.collaboration.service.CollaborationService;
@@ -66,8 +67,10 @@ public class MsgConnector extends BasicConnector implements ReconnectionInterfac
     @Override
     public void reLogin() {
         Log.e(TAG,"Start to reLogin !");
-        if (InfoCache.getAccount() != null)
+        if (InfoCache.getAccount() != null){
+            MainActivity.firstLoad = true;
             MsgConnector.getInstance().sendMsg("/login:" + InfoCache.getAccount(), true, false);
+        }
         else
             ToastEasy("user account is null, fail to relogin !");
     }

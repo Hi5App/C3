@@ -48,7 +48,8 @@ public class MsgSender {
                     String header = String.format("DataTypeWithSize:%d;;%s\n",0, datalength);
                     int headerlength = header.getBytes().length;
 
-                    Log.d(TAG,"header: " + header.trim() + ",  data: " + data);
+                    if (!data.equals("HeartBeat"))
+                        Log.d(TAG,"header: " + header.trim() + ",  data: " + data);
 
                     String finalMsg = header + data;
                     out.write(finalMsg.getBytes(StandardCharsets.UTF_8));

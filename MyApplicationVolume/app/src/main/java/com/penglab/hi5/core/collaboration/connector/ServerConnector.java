@@ -79,15 +79,12 @@ public class ServerConnector extends BasicConnector implements ReconnectionInter
     }
 
 
-    public String ReceiveMsg(){
+    public String ReceiveMsg() {
 
-        makeConnect();
+//        makeConnect();
         String msg = msgReceiver.ReceiveMsg(mSocket);
+        return msg;
 
-        if (msg != null)
-            return msg;
-        else
-            return EMPTY_MSG;
     }
 
 

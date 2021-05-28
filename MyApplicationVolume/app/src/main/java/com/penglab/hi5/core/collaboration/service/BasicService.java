@@ -131,7 +131,7 @@ public abstract class BasicService extends Service {
         @Override
         public void run() {
             if (!isReleased)
-                sendMsg("HeartBeat:");
+                sendMsg("HeartBeat");
         }
     };
 
