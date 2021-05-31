@@ -220,6 +220,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static ImageButton navigation_up;
     private static ImageButton navigation_down;
     private static ImageButton navigation_location;
+    private static ImageButton manual_sync;
     private static Button navigation_front;
     private static Button navigation_back;
 //    private static Button blue_pen;
@@ -243,6 +244,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private FrameLayout.LayoutParams lp_front_i;
     private FrameLayout.LayoutParams lp_back_i;
     private static FrameLayout.LayoutParams lp_nacloc_i;
+    private static FrameLayout.LayoutParams lp_sync_i;
 //    private static FrameLayout.LayoutParams lp_sync_push;
 //    private static FrameLayout.LayoutParams lp_sync_pull;
 //    private static FrameLayout.LayoutParams lp_neuron_list;
@@ -307,6 +309,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private Uri picUri;
 
     private static BasePopupView popupView;
+    private static BasePopupView popupViewSync;
 
     private static final int animation_id = 0;
     private int rotation_speed = 36;
@@ -488,6 +491,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                 Log.e(TAG, "File: .eswc");
                 loadBigDataSwc(msg.split(":")[1]);
+                hideSyncBar();  // for sync button
 
             }
         }
@@ -703,6 +707,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     Toast_in_Thread_static((String)msg.obj);
                     break;
 
+                case 9:
+                    popupViewSync.show();
+                    break;
+
+                case 10:
+                    popupViewSync.dismiss();
+                    break;
+
                 default:
                     break;
             }
@@ -779,6 +791,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         popupView = new XPopup.Builder(this)
                 .asLoading("Downloading......");
 
+        popupViewSync = new XPopup.Builder(this)
+                .asLoading("Syncing......");
+
 
         Intent intent = getIntent();
         String OOM = intent.getStringExtra(MyRenderer.OUT_OF_MEMORY);
@@ -825,7 +840,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
         initDir();
-        initNim();
+//        initNim();
 
         initServerConnector();
         initService();
@@ -1108,6 +1123,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         res_list.setText("R");
         res_list.setTextColor(Color.BLUE);
 
+        manual_sync = new ImageButton(this);
+        manual_sync.setImageResource(R.drawable.ic_baseline_autorenew_24);
+
+
         room_id = new ImageButton(this);
         room_id.setImageResource(R.drawable.ic_baseline_place_24);
 
@@ -1195,6 +1214,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         lp_res_list = new FrameLayout.LayoutParams(120, 120);
         lp_res_list.gravity = Gravity.TOP | Gravity.LEFT;
         lp_res_list.setMargins(20, 490, 0, 0);
+
+        lp_sync_i = new FrameLayout.LayoutParams(120,120);
+        lp_sync_i.gravity = Gravity.TOP | Gravity.LEFT;
+        lp_sync_i.setMargins(0, 440, 0, 0);
 
         lp_room_id = new FrameLayout.LayoutParams(115, 115);
         lp_room_id.gravity = Gravity.TOP | Gravity.RIGHT;
@@ -1504,6 +1527,16 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         });
 
 
+        manual_sync.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showSyncBar();
+                myrenderer.deleteAllTracing();
+                MsgConnector.getInstance().sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
+            }
+        });
+
+
         res_list.setOnClickListener(new Button.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -1562,6 +1595,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
         this.addContentView(res_list, lp_res_list);
+        this.addContentView(manual_sync, lp_sync_i);
 //        this.addContentView(red_pen, lp_red_color);
 //        this.addContentView(blue_pen, lp_blue_color);
 
@@ -1582,6 +1616,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
         res_list.setVisibility(View.GONE);
+        manual_sync.setVisibility(View.GONE);
 //        red_pen.setVisibility(View.GONE);
 //        blue_pen.setVisibility(View.GONE);
 
@@ -3348,7 +3383,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210528a 16:27 UTC+8 build",
+                                "Version: 20210531a 22:27 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4864,6 +4899,25 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         puiHandler.sendEmptyMessage(3);
     }
 
+
+    public static void showSyncBar(){
+        puiHandler.sendEmptyMessage(9);
+        timerDownload = new Timer();
+        timerDownload.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                timeOutHandler();
+            }
+        },10 * 1000);
+    }
+
+
+    public static void hideSyncBar(){
+        timerDownload.cancel();
+        puiHandler.sendEmptyMessage(10);
+    }
+
+
     public static void setBigDataName(){
         puiHandler.sendEmptyMessage(4);
     }
@@ -4927,6 +4981,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     res_list.setVisibility(View.VISIBLE);
                     user_list.setVisibility(View.VISIBLE);
                     room_id.setVisibility(View.VISIBLE);
+                    manual_sync.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -4937,6 +4992,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 res_list.setVisibility(View.GONE);
                 user_list.setVisibility(View.GONE);
                 room_id.setVisibility(View.GONE);
+                manual_sync.setVisibility(View.GONE);
             }
             isBigData_Remote = false;
             isBigData_Local  = false;
@@ -4969,6 +5025,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 res_list.setVisibility(View.GONE);
                 user_list.setVisibility(View.GONE);
                 room_id.setVisibility(View.GONE);
+                manual_sync.setVisibility(View.GONE);
             }
             isBigData_Remote = false;
             isBigData_Local  = false;
@@ -5022,6 +5079,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 res_list.setVisibility(View.GONE);
                 user_list.setVisibility(View.GONE);
                 room_id.setVisibility(View.GONE);
+                manual_sync.setVisibility(View.GONE);
             }
         }else {
             Zoom_in.setVisibility(View.GONE);
@@ -5062,6 +5120,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 res_list.setVisibility(View.VISIBLE);
                 user_list.setVisibility(View.VISIBLE);
                 room_id.setVisibility(View.VISIBLE);
+                manual_sync.setVisibility(View.VISIBLE);
             }
 
         }else {

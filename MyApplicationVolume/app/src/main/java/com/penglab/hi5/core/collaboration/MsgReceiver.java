@@ -68,7 +68,7 @@ public class MsgReceiver {
             public void run() {
                 thread.interrupt();
             }
-        },10 * 1000);
+        },20 * 1000);
 
         try {
             thread.join();
