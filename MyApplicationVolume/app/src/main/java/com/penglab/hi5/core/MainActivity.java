@@ -59,6 +59,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
+import com.lazy.library.logging.Logcat;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.enums.PopupAnimation;
@@ -235,7 +236,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //    private static ImageButton sync_pull;
 
 
-
     private FrameLayout.LayoutParams lp_undo_i;
     private FrameLayout.LayoutParams lp_left_i;
     private FrameLayout.LayoutParams lp_right_i;
@@ -365,9 +365,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private int score = 0;
     private String scoreString = "00000";
 
-
     private static TextView scoreText;
-
     private int selectedBGM = 0;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -378,7 +376,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         if (msg.startsWith("TestSocketConnection")){
             ServerConnector.getInstance().sendMsg("HeartBeat");
+        }else {
+            Logcat.w(msg);
         }
+
 
         /*
         select file
@@ -3383,7 +3384,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210531a 22:27 UTC+8 build",
+                                "Version: 20210602a 22:27 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {

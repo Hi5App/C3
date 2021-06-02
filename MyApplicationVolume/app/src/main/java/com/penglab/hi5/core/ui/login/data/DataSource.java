@@ -8,6 +8,7 @@ import com.penglab.hi5.core.ui.login.data.model.LoggedInUser;
 import java.io.IOException;
 
 import static com.penglab.hi5.core.BaseActivity.ip_TencentCloud;
+import static com.penglab.hi5.core.BaseActivity.port_TencentCloud;
 
 /**s
  * Class that handles authentication w/ login credentials and retrieves user information.
@@ -117,9 +118,13 @@ public class DataSource {
 
             if (result == null){
                 responseData = "TimeOut";
+            }else if (result.equals("socket is closed or fail to connect")){
+                responseData = "TimeOut";
             }else {
                 responseData = result;
             }
+        }else {
+            responseData = "NULL";
         }
     }
 
@@ -138,13 +143,14 @@ public class DataSource {
 
             if (result == null){
                 responseData = "TimeOut";
+            }else if (result.equals("socket is closed or fail to connect")){
+                responseData = "TimeOut";
             }else {
                 responseData = result;
             }
         }else {
             responseData = "NULL";
         }
-
     }
 
     public void logout() {
@@ -156,7 +162,7 @@ public class DataSource {
         ServerConnector serverConnector = ServerConnector.getInstance();
         serverConnector.releaseConnection(false);
         serverConnector.setIp(ip_TencentCloud);
-        serverConnector.setPort("23763");
+        serverConnector.setPort(port_TencentCloud);
         serverConnector.initConnection();
     }
 

@@ -33,6 +33,9 @@ public class MsgReceiver {
 
     public String ReceiveMsg(Socket socket){
 
+        // init message
+        message = null;
+
         if (!socket.isConnected()){
             ToastEasy("Fail to Receive msg, Try Again Please !");
             return SOCKET_CLOSED;

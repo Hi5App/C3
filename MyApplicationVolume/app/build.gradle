@@ -107,4 +107,9 @@ dependencies {
     // for agora im
     implementation 'io.agora.rtm:rtm-sdk:1.4.1'
 
+    // for log info store
+    implementation 'com.github.iflove:Logcat:2.1.2'
+    // 子模块用
+    implementation 'com.github.iflove.Hunter:logExtlibrary:logExtlibrary-1.0'
+
 }

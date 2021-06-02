@@ -156,9 +156,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
                 ServerConnector serverConnector = ServerConnector.getInstance();
                 Log.d(TAG, "onResume");
                 ToastEasy("It may take a while to download", Toast.LENGTH_LONG);
-//                Log.d(TAG, "musicDir.listFiles().length: " + musicDir.listFiles().length);
-//                ToastEasy("");
-//                serverConnector.sendMsg("MUSICLIST");
+
                 File music = new File(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
                 if (!music.exists())
                     serverConnector.sendMsg("GETMUSIC:CoyKoi.mp3",false,false);
@@ -247,6 +245,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 
     private void initService(){
         // Bind to LocalService
+        Log.d(TAG, "initService");
         Intent intent = new Intent(this, ManageService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
@@ -395,9 +394,11 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 
     private void initServerConnector(){
 
+        Log.e(TAG, "initServerConnector");
         ServerConnector serverConnector = ServerConnector.getInstance();
         serverConnector.setIp(ip_TencentCloud);
-        serverConnector.setPort("23763");
+        serverConnector.setPort(port_TencentCloud);
+        Log.e(TAG, "serverConnector.initConnection()");
         serverConnector.initConnection();
 
     }

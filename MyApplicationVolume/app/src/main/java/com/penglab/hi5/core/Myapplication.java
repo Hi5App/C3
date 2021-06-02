@@ -3,10 +3,15 @@ package com.penglab.hi5.core;
 import android.app.Application;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.huawei.hms.support.common.ActivityMgr;
+import com.lazy.library.BuildConfig;
+import com.lazy.library.logging.Builder;
+import com.lazy.library.logging.Logcat;
+import com.lazy.library.logging.extend.JLog;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.api.UIKitOptions;
 import com.netease.nim.uikit.business.contact.core.query.PinYin;
@@ -40,6 +45,8 @@ import com.penglab.hi5.core.game.ScoreLitePalConnector;
 import com.penglab.hi5.dataStore.PreferenceLogin;
 
 import org.litepal.LitePal;
+
+import java.io.IOException;
 
 
 //用于在app全局获取context
@@ -112,6 +119,12 @@ public class Myapplication extends Application {
         // user cache info
         InfoCache.setContext(this);
         infoCache = InfoCache.getInstance();
+
+        // init log module
+        initLogcat();
+
+
+
 
         // IM 网易云信
         // 4.6.0 开始，第三方推送配置入口改为 SDKOption#mixPushConfig，旧版配置方式依旧支持。
@@ -219,6 +232,55 @@ public class Myapplication extends Application {
     }
 
 
+    private void initLogcat(){
+        Builder builder = Logcat.newBuilder();
+        //设置Log 保存的文件夹
+        try {
+            builder.logSavePath(Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name) + "/Logs/");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //设置输出日志等级
+        if (BuildConfig.DEBUG) {
+            builder.logCatLogLevel(Logcat.SHOW_ALL_LOG);
+            //设置输出文件日志等级
+            builder.fileLogLevel(Logcat.SHOW_ALL_LOG);
+        } else {
+//            builder.logCatLogLevel(Logcat.SHOW_INFO_LOG | Logcat.SHOW_WARN_LOG | Logcat.SHOW_ERROR_LOG);
+            builder.logCatLogLevel(Logcat.SHOW_ERROR_LOG);
+            //设置输出文件日志等级
+            builder.fileLogLevel(Logcat.SHOW_INFO_LOG | Logcat.SHOW_WARN_LOG | Logcat.SHOW_ERROR_LOG);
+        }
+        //不显示日志
+        //builder.fileLogLevel(Logcat.NOT_SHOW_LOG);
+
+//        builder.topLevelTag(TAG_TOP_1);
+        //删除过了几天无用日志条目
+        builder.deleteUnusedLogEntriesAfterDays(7);
+        //输出到Java控制台服务端
+        if (NIMUtil.isMainProcess(this)) {
+            builder.dispatchLog(new JLog("192.168.3.11", 5036));
+        }
+        //是否自动保存日志到文件中
+        builder.autoSaveLogToFile(true);
+        //是否显示打印日志调用堆栈信息
+        builder.showStackTraceInfo(true);
+        //是否显示文件日志的时间
+        builder.showFileTimeInfo(true);
+        //是否显示文件日志的进程以及Linux线程
+        builder.showFilePidInfo(true);
+        //是否显示文件日志级别
+        builder.showFileLogLevel(true);
+        //是否显示文件日志标签
+        builder.showFileLogTag(true);
+        //是否显示文件日志调用堆栈信息
+        builder.showFileStackTraceInfo(true);
+        //添加该标签,日志将被写入文件
+        builder.addTagToFile("onRecMessage");
+//        builder.addTagToFile(TAG_APP_EVENT);
+        Logcat.initialize(this, builder.build());
+
+    }
 
 
 

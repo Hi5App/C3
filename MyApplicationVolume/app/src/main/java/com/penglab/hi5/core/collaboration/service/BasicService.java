@@ -7,9 +7,11 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.penglab.hi5.core.MainActivity;
+import com.penglab.hi5.core.collaboration.Communicator;
 import com.penglab.hi5.core.collaboration.basic.DataType;
 import com.penglab.hi5.core.collaboration.basic.ReceiveMsgInterface;
 import com.penglab.hi5.core.collaboration.connector.BasicConnector;
+import com.penglab.hi5.core.collaboration.connector.MsgConnector;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -75,7 +77,7 @@ public abstract class BasicService extends Service {
         super.onCreate();
 
         timer = new Timer();
-        timer.schedule(task, 5 * 1000, HEART_BEAT_RATE);
+        timer.schedule(task, 30 * 1000, HEART_BEAT_RATE);
 
     }
 
@@ -141,8 +143,12 @@ public abstract class BasicService extends Service {
 
         Socket mSocket = mBasicConnector.getSocket();
         if (mSocket != null && !mSocket.isClosed() && mSocket.isConnected()){
-            if (mBasicConnector.sendMsg(msg, true, true))
+            if (mBasicConnector.sendMsg(msg, true, true)){
                 Log.e(TAG,"Send Heart Beat Msg Successfully !");
+                if (TAG.startsWith("CollaborationService")){
+                    MsgConnector.getInstance().sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
+                }
+            }
         }else {
             reConnection();
         }
@@ -158,7 +164,7 @@ public abstract class BasicService extends Service {
         private boolean isReconnect = false;         /* when the something wrong with the connect, and need to reconnect in the service */
         private boolean isReset = false;             /* when the connector release the connect, and need to reset connect in this thread */
         protected boolean needStop = false;          /* depend on whether need to stop run() */
-        private int count = 0;
+        private volatile int count = 0;
 
         public ReadThread(Socket socket) {
             mSocket = socket;
@@ -224,7 +230,7 @@ public abstract class BasicService extends Service {
                         try {
                             synchronized (this) {
                                 if (!isReleased){
-                                    if (!isReset && (!isReconnect && count<2)){
+                                    if (!isReset && (!isReconnect && count<1)){
                                         if (!(mSocket==null) && !mSocket.isClosed() && !mSocket.isInputShutdown()) {
                                             onRead("in the while loop");
                                         }else {
@@ -243,7 +249,6 @@ public abstract class BasicService extends Service {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
             }
         }
 

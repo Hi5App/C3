@@ -31,7 +31,7 @@ public abstract class BasicConnector {
      */
     public void initConnection(){
 
-        Log.d(TAG," initConnection !");
+        Log.e(TAG,"initConnection !");
 
         /*
         如果已经和服务器建立连接了，就return
@@ -48,14 +48,14 @@ public abstract class BasicConnector {
                 try {
 
                     // 服务器的ip和端口号
-                    Log.d(TAG,String.format("ip: %s,  port: %s", ip, port));
+                    Log.e(TAG,String.format("ip: %s,  port: %s", ip, port));
                     mSocket = new Socket(ip, Integer.parseInt(port));
 
                     /*
                     判断是否成功建立连接
                      */
                     if (mSocket.isConnected()) {
-                        Log.d(TAG, "Connect Server Successfully !");
+                        Log.e(TAG, "Connect Server Successfully !");
                     } else {
                         ToastEasy("Can't Connect Server, Try Again Please!");
                     }
