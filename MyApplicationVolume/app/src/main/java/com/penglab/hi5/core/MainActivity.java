@@ -254,6 +254,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private FrameLayout.LayoutParams lp_animation_i;
     private static FrameLayout.LayoutParams lp_undo;
     private static FrameLayout.LayoutParams lp_redo;
+    private static FrameLayout.LayoutParams lp_score;
 
     private static FrameLayout.LayoutParams lp_room_id;
     private static FrameLayout.LayoutParams lp_user_list;
@@ -841,7 +842,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
         initDir();
-//        initNim();
+        initNim();
 
         initServerConnector();
         initService();
@@ -1180,7 +1181,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         lp_redo.setMargins(0, 20, 20, 0);
         ll_hs_back.addView(Redo_i, lp_redo);
 
-        FrameLayout.LayoutParams lp_score = new FrameLayout.LayoutParams(350, 300);
+        lp_score = new FrameLayout.LayoutParams(350, 300);
         lp_score.gravity = Gravity.TOP | Gravity.RIGHT;
         lp_score.setMargins(0, 350, 20, 0);
 
@@ -1226,7 +1227,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         lp_user_list = new FrameLayout.LayoutParams(115, 115);
         lp_user_list.gravity = Gravity.TOP | Gravity.RIGHT;
-        lp_user_list.setMargins(0, 580, 20, 0);
+        lp_user_list.setMargins(0, 540, 20, 0);
 
 
 
@@ -3384,7 +3385,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210602a 22:27 UTC+8 build",
+                                "Version: 20210603a 22:27 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4938,6 +4939,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         lp_nacloc_i.setMargins(20, 400, 0, 0);
         navigation_location.setLayoutParams(lp_nacloc_i);
+
+        lp_score.setMargins(0, 380, 20, 0);
+        scoreText.setLayoutParams(lp_score);
 
 //        lp_sync_push.setMargins(0, 400, 20, 0);
 //        sync_push.setLayoutParams(lp_sync_push);

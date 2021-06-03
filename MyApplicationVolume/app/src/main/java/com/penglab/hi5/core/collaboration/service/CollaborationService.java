@@ -6,9 +6,15 @@ import android.util.Log;
 
 import com.penglab.hi5.core.collaboration.connector.MsgConnector;
 
+import static com.penglab.hi5.core.Myapplication.lockForMsgSocket;
+
 public class CollaborationService extends BasicService {
 
     protected static final String TAG = "CollaborationService";
+
+    protected static ReadThread mReadThread;
+
+    private static volatile boolean isReleased = false;
 
     @Override
     public void init() {
@@ -50,5 +56,37 @@ public class CollaborationService extends BasicService {
     }
 
 
+    public static void setRelease(boolean flag){
+        isReleased = flag;
+    }
+
+    @Override
+    protected boolean getRelease(){
+        return isReleased;
+    }
+
+    @Override
+    protected void setReleaseInner(boolean flag) {
+        isReleased = flag;
+    }
+
+    /* Stop the run() in mReadThread when unbind the service in destroy() in MainActivity */
+    public static void setStop(boolean flag){
+        mReadThread.needStop = flag;
+    }
+
+    public static void resetConnection(){
+        mReadThread.resetConnection();
+    }
+
+    public void reConnection(){
+        Log.e(TAG,"Start to reConnect");
+        synchronized (lockForMsgSocket){
+            if(!mBasicConnector.checkConnection()){
+                mBasicConnector.releaseConnection();
+                mReadThread.reConnect();
+            }
+        }
+    }
 
 }

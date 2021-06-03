@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
+import static com.penglab.hi5.core.Myapplication.lockForMsgSocket;
 
 public class MsgConnector extends BasicConnector implements ReconnectionInterface {
 
@@ -59,8 +60,6 @@ public class MsgConnector extends BasicConnector implements ReconnectionInterfac
 
     @Override
     public boolean sendMsg(String msg, boolean waited, boolean resend){
-        if (!checkConnection() && !resend)
-            initConnection();
         return msgSender.sendMsg(mSocket, msg, waited, resend, this);
     }
 
@@ -86,11 +85,15 @@ public class MsgConnector extends BasicConnector implements ReconnectionInterfac
         /*
         reconnect
          */
-        releaseConnection();
-        initConnection();
-        CollaborationService.resetConnection();
-        reLogin();
-        sendMsg(msg, false, false);
+        synchronized (lockForMsgSocket){
+            if (!checkConnection()){
+                releaseConnection();
+                initConnection();
+                CollaborationService.resetConnection();
+                reLogin();
+                sendMsg(msg, false, false);
+            }
+        }
     }
 
 

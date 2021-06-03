@@ -73,6 +73,10 @@ public class Myapplication extends Application {
     private static MsgConnector msgConnector;
     private static Communicator communicator;
 
+    public static final Object lockForMsgSocket = new Object();
+
+    public static final Object lockForManageSocket = new Object();
+
     public static Myapplication the() {
         return sInstance;
     }
@@ -229,6 +233,9 @@ public class Myapplication extends Application {
         } else {
             return null;
         }
+
+        /* for test */
+//        return null;
     }
 
 

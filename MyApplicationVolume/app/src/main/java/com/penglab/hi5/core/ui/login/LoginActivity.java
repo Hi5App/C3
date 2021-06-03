@@ -27,16 +27,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
-//import com.penglab.hi5.chat.agora.AVConfig;
-import com.penglab.hi5.dataStore.PreferenceLogin;
-import com.penglab.hi5.core.MainActivity;
-import com.penglab.hi5.chat.nim.InfoCache;
-import com.penglab.hi5.R;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.common.ToastHelper;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.auth.LoginInfo;
+import com.penglab.hi5.R;
+import com.penglab.hi5.chat.nim.InfoCache;
+import com.penglab.hi5.core.MainActivity;
+import com.penglab.hi5.dataStore.PreferenceLogin;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -44,6 +43,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+//import com.penglab.hi5.chat.agora.AVConfig;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -270,6 +271,15 @@ public class LoginActivity extends AppCompatActivity {
 
     private void loginNim(String account, String password, LoginResult loginResult){
         Log.e(TAG, "account: " + account + ", password: " + password);
+
+        /* for test */
+//        InfoCache.setAccount(account);
+//        InfoCache.setToken(password);
+
+//        // 进入主界面
+//        MainActivity.actionStart(LoginActivity.this, loginResult.getSuccess().getDisplayName());
+//        updateUiWithUser(loginResult.getSuccess());
+//        finish();
 
         NimUIKit.login(new LoginInfo(account, password),
                 new RequestCallback<LoginInfo>() {

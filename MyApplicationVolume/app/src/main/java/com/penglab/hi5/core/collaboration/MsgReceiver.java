@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -92,13 +91,11 @@ public class MsgReceiver {
                 try {
                     String header = "";
                     if (is.available() > 0){
-                        Log.e(TAG,"available size: " + is.available());
-
+//                        Log.e(TAG,"available size: " + is.available());
                         header = MyReadLine(is);
+//                        Log.e(TAG,"available size: " + is.available());
 
-                        Log.e(TAG,"available size: " + is.available());
                         Log.e(TAG,"read header: " + header);
-
                         if (processHeader(header + "\n")){
                             onRead("after read header! ");
                         }
@@ -112,9 +109,9 @@ public class MsgReceiver {
                 try {
                     if (is.available() >= dataType.dataSize){
                         // read msg
-                        Log.e(TAG,"read msg !");
+//                        Log.e(TAG,"read msg !");
                         String msg = MyReadLine(is) + "\n";
-                        Log.e(TAG, "msg: " + msg);
+//                        Log.e(TAG, "msg: " + msg);
 
                         if (processMsg(msg)){
 //                            onRead("after read msg !");
@@ -149,8 +146,6 @@ public class MsgReceiver {
 
                 String[] paras_list = msg.split(" ");
                 ArrayList<String> paras = new ArrayList<>();
-
-                Log.e(TAG,"paras_list: " + Arrays.toString(paras_list));
 
                 if (paras_list.length==2 && paras_list[0].equals("0")){
                     dataType.dataSize = Long.parseLong(paras_list[1]);

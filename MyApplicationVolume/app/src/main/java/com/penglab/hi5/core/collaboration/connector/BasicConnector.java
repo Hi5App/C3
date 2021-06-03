@@ -99,7 +99,7 @@ public abstract class BasicConnector {
                 }
                 mSocket = null;
             }catch (Exception e){
-                System.out.println("Something wrong with releaseConnection !");
+                Log.e(TAG,"Something wrong with releaseConnection !");
             }
         }
     }

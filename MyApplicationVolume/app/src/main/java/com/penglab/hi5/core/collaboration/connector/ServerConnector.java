@@ -10,6 +10,7 @@ import com.penglab.hi5.core.collaboration.basic.ReconnectionInterface;
 import com.penglab.hi5.core.collaboration.service.ManageService;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
+import static com.penglab.hi5.core.Myapplication.lockForManageSocket;
 
 public class ServerConnector extends BasicConnector implements ReconnectionInterface {
 
@@ -73,16 +74,12 @@ public class ServerConnector extends BasicConnector implements ReconnectionInter
 
     @Override
     public boolean sendMsg(String msg, boolean waited, boolean resend){
-        if (!checkConnection() && !resend)
-            initConnection();
         return msgSender.sendMsg(mSocket, msg, waited, resend, this);
     }
 
 
     public String ReceiveMsg() {
-
         return msgReceiver.ReceiveMsg(mSocket);
-
     }
 
 
@@ -115,12 +112,15 @@ public class ServerConnector extends BasicConnector implements ReconnectionInter
         /*
         reconnect
          */
-
-        releaseConnection();
-        initConnection();
-        ManageService.resetConnection();
-        reLogin();
-        sendMsg(msg,false, false);
+        synchronized (lockForManageSocket){
+            if(!checkConnection()){
+                releaseConnection();
+                initConnection();
+                ManageService.resetConnection();
+                reLogin();
+                sendMsg(msg,false, false);
+            }
+        }
     }
 
 }

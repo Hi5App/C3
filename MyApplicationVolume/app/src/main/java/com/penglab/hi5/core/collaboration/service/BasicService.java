@@ -35,8 +35,6 @@ public abstract class BasicService extends Service {
     // indicates whether onRebind should be used
     boolean mAllowRebind;
 
-    protected static ReadThread mReadThread;
-
     protected BasicConnector mBasicConnector;
 
     private DataType dataType = new DataType();
@@ -45,14 +43,16 @@ public abstract class BasicService extends Service {
 
     protected Timer timer;
 
-    private static volatile boolean isReleased = false;
-
     /*
     init function
      */
     public abstract void init();
 
-//    protected abstract void reConnect();
+    protected abstract void reConnection();
+
+    protected abstract boolean getRelease();
+
+    protected abstract void setReleaseInner(boolean flag);
 
     /**
      * Class used for the client Binder.  Because we know this service always
@@ -108,31 +108,12 @@ public abstract class BasicService extends Service {
 
 
 
-    public static void setRelease(boolean flag){
-        isReleased = flag;
-    }
-
-    /* Stop the run() in mReadThread */
-    public static void setStop(boolean flag){
-        mReadThread.needStop = flag;
-    }
-
-    public static void resetConnection(){
-        mReadThread.resetConnection();
-    }
-
-    public void reConnection(){
-        Log.e(TAG,"Start to reConnect");
-        mBasicConnector.releaseConnection();
-        mReadThread.reConnect();
-    }
-
 
 
     TimerTask task = new TimerTask() {
         @Override
         public void run() {
-            if (!isReleased)
+            if (!getRelease())
                 sendMsg("HeartBeat");
         }
     };
@@ -164,7 +145,6 @@ public abstract class BasicService extends Service {
         private boolean isReconnect = false;         /* when the something wrong with the connect, and need to reconnect in the service */
         private boolean isReset = false;             /* when the connector release the connect, and need to reset connect in this thread */
         protected boolean needStop = false;          /* depend on whether need to stop run() */
-        private volatile int count = 0;
 
         public ReadThread(Socket socket) {
             mSocket = socket;
@@ -184,17 +164,15 @@ public abstract class BasicService extends Service {
                 mSocket = mBasicConnector.getSocket();
                 is = mBasicConnector.getSocket().getInputStream();
                 mBasicConnector.reLogin();
-                count = 0;
+                isReconnect = false;
+                isReset = false;
 
             }catch (Exception e){
                 e.printStackTrace();
                 Log.e(TAG,"reConnect");
-                count++;
             }
 
-            isReconnect = false;
-            isReleased = false;
-
+            setReleaseInner(false);
         }
 
 
@@ -206,15 +184,15 @@ public abstract class BasicService extends Service {
 
                 mSocket = mBasicConnector.getSocket();
                 is = mSocket.getInputStream();
+                isReconnect = false;
                 isReset = false;
-                count = 0;
 
             }catch (Exception e){
                 e.printStackTrace();
                 Log.e(TAG,"Fail to reSetConnection");
             }
 
-            isReleased = false;
+            setReleaseInner(false);
         }
 
 
@@ -229,12 +207,11 @@ public abstract class BasicService extends Service {
                     while(!needStop) {
                         try {
                             synchronized (this) {
-                                if (!isReleased){
-                                    if (!isReset && (!isReconnect && count<1)){
+                                if (!getRelease()){
+                                    if (!isReset && !isReconnect){
                                         if (!(mSocket==null) && !mSocket.isClosed() && !mSocket.isInputShutdown()) {
                                             onRead("in the while loop");
                                         }else {
-                                            Log.e(TAG,"reConnect in mReadThread : " + count + " !");
                                             reConnection();
                                         }
                                     }

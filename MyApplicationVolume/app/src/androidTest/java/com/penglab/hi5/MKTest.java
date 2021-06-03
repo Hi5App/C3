@@ -146,7 +146,7 @@ public class MKTest {
         mUidevice.findObject(By.text("18454_00049")).click();
         Thread.sleep(2000);
 
-        mUidevice.findObject(By.text("1.ano")).click();
+        mUidevice.findObject(By.text("2.ano")).click();
         Thread.sleep(8000);
 
 
