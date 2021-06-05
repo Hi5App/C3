@@ -46,7 +46,6 @@ public class MsgViewHolderInvite extends MsgViewHolderBase {
         String roomName = list[list.length - 1];
 
         textView.setText(invitor + " is inviting you to join the game in " + roomName);
-
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -123,8 +123,6 @@ public class DataSource {
             }else {
                 responseData = result;
             }
-        }else {
-            responseData = "NULL";
         }
     }
 

@@ -1,5 +1,6 @@
 package com.penglab.hi5.chat;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -45,7 +46,9 @@ public class ChatActivity extends BaseActivity {
 
     private int FragmentId;
 
+    @SuppressLint("HandlerLeak")
     public static Handler chatHandler = new Handler(){
+        @SuppressLint("HandlerLeak")
         @Override
         public void handleMessage(@NonNull Message msg) {
             switch (msg.what) {

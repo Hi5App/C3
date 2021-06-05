@@ -162,7 +162,7 @@ public class MKTest {
 
             Random ran = new Random(i);
 
-            if (i % 20 == 0){
+            if (i % 3 == 0){
                 // x 200 -> 800,  y 800 -> 1400
                 int x1 = ran.nextInt(600) + 200;
                 int x2 = ran.nextInt(600) + 200;

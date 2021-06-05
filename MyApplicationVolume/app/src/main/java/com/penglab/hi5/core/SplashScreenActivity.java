@@ -74,6 +74,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
         }
     };
 
+    @SuppressLint("HandlerLeak")
     private Handler handler = new Handler(){
         @SuppressLint("HandlerLeak")
         @Override
@@ -107,6 +108,15 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
                     } else {
                         runnable.run();
                     }
+                    break;
+                case 1:
+                    showMainActivity(null);
+                    break;
+                case 2:
+                    String message = msg.getData().getString("toastMsg");
+                    ToastEasy(message, Toast.LENGTH_LONG);
+                    LoginActivity.start(SplashScreenActivity.this);
+                    finish();
                     break;
                 default:
                     break;
@@ -357,18 +367,18 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
         Log.e(TAG,"showMainActivity null");
 
         autoLogin();
-        showMainActivity(null);
+//        showMainActivity(null);
     }
 
     private void showMainActivity(Intent intent) {
         Log.e(TAG,"showMainActivity");
-        PreferenceLogin preferenceLogin = new PreferenceLogin(this);
+        PreferenceLogin preferenceLogin = new PreferenceLogin(SplashScreenActivity.this);
         String account = preferenceLogin.getUsername();
 
         InfoCache.setAccount(account);
         InfoCache.setToken(preferenceLogin.getPassword());
 
-        MainActivity.actionStart(this, account);
+        MainActivity.actionStart(SplashScreenActivity.this, account);
         ToastEasy("Welcome, " + account +" !");
         finish();
     }
@@ -486,5 +496,33 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 
 //            }
         }
+
+
+        if (msg.startsWith("LOGIN")){
+            /* for login */
+            Message message = new Message();
+            message.what = 2;
+            Bundle bundle = new Bundle();
+            message.setData(bundle);
+
+            if (msg.startsWith("LOGIN:0")){
+                Log.e(TAG,"autoLogin Successfully !");
+                handler.sendEmptyMessage(1);
+            }else if (msg.startsWith("LOGIN:-1")){
+                Log.e(TAG, "Result.Error");
+                bundle.putString("toastMsg","Something wrong with database !");
+            }else if (msg.startsWith("LOGIN:-2")){
+                bundle.putString("toastMsg","Can not find user !");
+            }else if (msg.startsWith("LOGIN:-3")){
+                bundle.putString("toastMsg","username or password is wrong !");
+            }else if (msg.startsWith("LOGIN:-4")){
+                bundle.putString("toastMsg","account already login in other device !");
+            }else {
+                bundle.putString("toastMsg","Something else Wrong !");
+            }
+            message.setData(bundle);
+            handler.sendMessage(message);
+        }
+
     }
 }

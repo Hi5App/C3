@@ -64,7 +64,7 @@
            如果 SDKOptions 中提供了，则取 SDKOptions 中的值。-->
         <meta-data
             android:name="com.netease.nim.appKey"
-            android:value="337591b817815b770bc6b7551bb90b28" />
+            android:value="86a7aa13ac797a95247a03c54ed483b4" />
 
         <activity android:name=".chat.nim.main.activity.SystemMessageActivity" />
         <activity android:name=".chat.nim.contact.activity.RobotProfileActivity" />
