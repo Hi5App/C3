@@ -113,7 +113,7 @@ public class ServerConnector extends BasicConnector implements ReconnectionInter
         reconnect
          */
         synchronized (lockForManageSocket){
-            if(!checkConnection()){
+            if (!msgSender.testConnection(mSocket)){
                 releaseConnection();
                 initConnection();
                 ManageService.resetConnection();

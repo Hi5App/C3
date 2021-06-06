@@ -86,7 +86,7 @@ public class MsgConnector extends BasicConnector implements ReconnectionInterfac
         reconnect
          */
         synchronized (lockForMsgSocket){
-            if (!checkConnection()){
+            if (!msgSender.testConnection(mSocket)){
                 releaseConnection();
                 initConnection();
                 CollaborationService.resetConnection();

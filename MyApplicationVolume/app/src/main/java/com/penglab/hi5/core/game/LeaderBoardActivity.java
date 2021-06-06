@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.penglab.hi5.R;
+import com.penglab.hi5.core.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         initLeaderBoardItems();
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.leaderboard_recyclerview);

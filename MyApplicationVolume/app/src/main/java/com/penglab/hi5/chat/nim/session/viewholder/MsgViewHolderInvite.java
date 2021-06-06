@@ -40,8 +40,12 @@ public class MsgViewHolderInvite extends MsgViewHolderBase {
         }
 
         inviteAttachment = (InviteAttachment) message.getAttachment();
-        String invitor = inviteAttachment.getInvitor();
+//
+        if (inviteAttachment == null)
+            return;
+
         String path = inviteAttachment.getPath();
+        String invitor = inviteAttachment.getInvitor();
         String []list = path.split("/");
         String roomName = list[list.length - 1];
 
@@ -54,7 +58,7 @@ public class MsgViewHolderInvite extends MsgViewHolderBase {
                 Message msg = Message.obtain();
                 msg.what = 0;
                 msg.obj = inviteAttachment.getInvitor() + " " + inviteAttachment.getPath() + " " + inviteAttachment.getSoma();
-                Log.d("MsgViewHolderInvite", "Send Empty Message");
+                Log.d("MsgViewHolderInvite", (String)msg.obj);
 //                ChatActivity.chatHandler.sendEmptyMessage(0);
                 ChatActivity.chatHandler.sendMessage(msg);
             }

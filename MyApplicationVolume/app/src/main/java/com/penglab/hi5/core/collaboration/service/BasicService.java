@@ -249,7 +249,7 @@ public abstract class BasicService extends Service {
 //                            Log.e(TAG,"available size: " + is.available());
                             header = MyReadLine(is);
 
-                            Log.e(TAG,"read header: " + header);
+//                            Log.e(TAG,"read header: " + header);
                             if (processHeader(header + "\n")){
                                 onRead("after read header! ");
                             }
@@ -362,7 +362,6 @@ public abstract class BasicService extends Service {
             if (rmsg.endsWith("\n")){
                 String msg = rmsg.trim();
                 if (msg.startsWith("DataTypeWithSize:")){
-                    Log.e(TAG,"msg: " + msg);
                     msg = msg.substring("DataTypeWithSize:".length());
 
                     String[] paras_list = msg.split(" ");

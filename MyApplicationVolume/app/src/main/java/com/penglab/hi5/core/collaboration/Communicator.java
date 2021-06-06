@@ -48,12 +48,12 @@ public class Communicator {
 
     public static String BrainNum = null;
     public static String Soma     = null;
-    public static String Path     = null;
+    public static String Path     = null;                              // /18454/18454_00029/1.ano
 
-    private String initSomaMsg    = null;                         // for inviting user
-    private String conPath        = null;                         // for inviting user
+    private static String initSomaMsg  = null;                         // for inviting user
+    private static String conPath      = null;                         // for inviting user
 
-    private String conPathQuery   = null;                         // for querying database
+    private static String conPathQuery = null;                         // for querying database
 
 
     /**

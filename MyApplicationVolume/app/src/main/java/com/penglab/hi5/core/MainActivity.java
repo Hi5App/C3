@@ -373,12 +373,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     @Override
     public void onRecMessage(String msg) {
 
-        Log.e(TAG,"onRecMessage()  " + msg);
 
         if (msg.startsWith("TestSocketConnection")){
             ServerConnector.getInstance().sendMsg("HeartBeat");
         }else {
-            Logcat.w(msg);
+            Log.e(TAG,"onRecMessage()  " + msg);
+            Logcat.w("onRecMessage", msg);
         }
 
 
@@ -860,10 +860,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                getLeaderBoard();
                 getScore();
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                getLeaderBoard();
             }
-        }, 3 * 1000);
+        }, 1 * 1000);
 
     }
 
@@ -993,12 +998,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public static void actionStart(Context context, String invitor, String path, String soma){
         Intent intent = new Intent(context, MainActivity.class);
         context.startActivity(intent);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        invitePopup(mainContext, invitor, path, soma);
+        username = InfoCache.getAccount();
+        acceptInvitation(path, soma);
     }
 
 
@@ -1869,6 +1870,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                                         default:
                                             loadFileMode(conPath + "/" + text);
+                                            Communicator.Path = conPath + "/" + text;
                                             firstLoad = true;
                                             break;
                                     }
@@ -1897,8 +1899,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     private void loadFileMode(String filepath){
-        Communicator.Path = filepath;
-
         ServerConnector serverConnector = ServerConnector.getInstance();
         serverConnector.sendMsg("LOADFILES:2 " + filepath);
         Communicator.getInstance().setConPath(filepath);
@@ -2034,10 +2034,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 }
 
                                 Communicator communicator = Communicator.getInstance();
+                                if (NIMClient.getService(UserService.class).getUserInfo(username) == null) {
+                                    Toast_in_Thread_static("Invite Send Failed");
+                                    return;
+                                }
+
                                 String nickname = NIMClient.getService(UserService.class).getUserInfo(username).getName();
                                 InviteAttachment attachment = new InviteAttachment(nickname, communicator.Path,  communicator.getInitSomaMsg());
                                 IMMessage message = MessageBuilder.createCustomMessage(text, SessionTypeEnum.P2P, attachment);
-//                                message.setSessionUpdate(false);
                                 NIMClient.getService(MsgService.class).sendMessage(message, true).setCallback(new RequestCallback<Void>() {
                                     @Override
                                     public void onSuccess(Void param) {
@@ -2121,6 +2125,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
     };
 
+
+
     private static void invitePopup(Context context, String invitor, String path, String soma){
         Log.d(TAG, "invitePopup: " + invitor + " " + path + " " + soma);
         String[] list = path.split("/");
@@ -2132,14 +2138,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
-                                Communicator.Path = path;
 
                                 Communicator communicator = Communicator.getInstance();
                                 communicator.initSoma(soma);
                                 communicator.setConPath(path);
+                                Communicator.Path = path;
                                 Communicator.BrainNum = path.split("/")[1];
                                 conPath = path;
-
                                 firstLoad = true;
 
                                 ServerConnector serverConnector = ServerConnector.getInstance();
@@ -2157,6 +2162,24 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         .show();
     }
 
+
+    private static void acceptInvitation(String path, String soma){
+
+        String[] list = path.split("/");
+        String roomName = list[list.length - 1];
+
+        Communicator communicator = Communicator.getInstance();
+        communicator.initSoma(soma);
+        communicator.setConPath(path);
+        Communicator.Path = path;
+        Communicator.BrainNum = path.split("/")[1];
+        conPath = path;
+        firstLoad = true;
+
+        ServerConnector serverConnector = ServerConnector.getInstance();
+        serverConnector.sendMsg("LOADFILES:2 " + path);
+        serverConnector.setRoomName(roomName);
+    }
 
 
 
@@ -3385,7 +3408,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210604a 22:27 UTC+8 build",
+                                "Version: 20210606a 22:27 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4895,6 +4918,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         timerDownload.cancel();
         puiHandler.sendEmptyMessage(1);
     }
+
 
     public static void timeOutHandler(){
         hideProgressBar();

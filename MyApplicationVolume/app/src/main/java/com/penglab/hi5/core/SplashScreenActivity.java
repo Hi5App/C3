@@ -500,28 +500,31 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 
         if (msg.startsWith("LOGIN")){
             /* for login */
-            Message message = new Message();
-            message.what = 2;
-            Bundle bundle = new Bundle();
-            message.setData(bundle);
 
             if (msg.startsWith("LOGIN:0")){
                 Log.e(TAG,"autoLogin Successfully !");
                 handler.sendEmptyMessage(1);
-            }else if (msg.startsWith("LOGIN:-1")){
-                Log.e(TAG, "Result.Error");
-                bundle.putString("toastMsg","Something wrong with database !");
-            }else if (msg.startsWith("LOGIN:-2")){
-                bundle.putString("toastMsg","Can not find user !");
-            }else if (msg.startsWith("LOGIN:-3")){
-                bundle.putString("toastMsg","username or password is wrong !");
-            }else if (msg.startsWith("LOGIN:-4")){
-                bundle.putString("toastMsg","account already login in other device !");
-            }else {
-                bundle.putString("toastMsg","Something else Wrong !");
+            }else{
+                Message message = new Message();
+                message.what = 2;
+                Bundle bundle = new Bundle();
+                message.setData(bundle);
+
+                if (msg.startsWith("LOGIN:-1")){
+                    Log.e(TAG, "Result.Error");
+                    bundle.putString("toastMsg","Something wrong with database !");
+                }else if (msg.startsWith("LOGIN:-2")){
+                    bundle.putString("toastMsg","Can not find user !");
+                }else if (msg.startsWith("LOGIN:-3")){
+                    bundle.putString("toastMsg","username or password is wrong !");
+                }else if (msg.startsWith("LOGIN:-4")){
+                    bundle.putString("toastMsg","account already login in other device !");
+                }else {
+                    bundle.putString("toastMsg","Something else Wrong !");
+                }
+                message.setData(bundle);
+                handler.sendMessage(message);
             }
-            message.setData(bundle);
-            handler.sendMessage(message);
         }
 
     }

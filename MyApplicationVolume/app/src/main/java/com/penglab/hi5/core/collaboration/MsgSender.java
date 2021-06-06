@@ -2,6 +2,7 @@ package com.penglab.hi5.core.collaboration;
 
 import android.util.Log;
 
+import com.lazy.library.logging.Logcat;
 import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.collaboration.basic.ReconnectionInterface;
 
@@ -48,8 +49,10 @@ public class MsgSender {
                     String header = String.format("DataTypeWithSize:%d;;%s\n",0, datalength);
                     int headerlength = header.getBytes().length;
 
-                    if (!data.equals("HeartBeat"))
+                    if (!data.startsWith("HeartBeat")){
                         Log.d(TAG,"header: " + header.trim() + ",  data: " + data);
+                        Logcat.w("sender", data);
+                    }
 
                     String finalMsg = header + data;
                     out.write(finalMsg.getBytes(StandardCharsets.UTF_8));
@@ -85,6 +88,50 @@ public class MsgSender {
             return false;
         }
 
+        return flag[0];
+    }
+
+
+
+    public boolean testConnection(Socket socket){
+        final boolean[] flag = {true};
+
+        Thread thread = new Thread(){
+            @Override
+            public void run() {
+                super.run();
+
+                try {
+
+                    OutputStream out = socket.getOutputStream();
+                    String data = "HeartBeat\n";
+                    int datalength = data.getBytes(StandardCharsets.UTF_8).length;
+
+                    /* msg header = type + msglength */
+                    String header = String.format("DataTypeWithSize:%d;;%s\n",0, datalength);
+                    int headerlength = header.getBytes().length;
+
+                    String finalMsg = header + data;
+                    out.write(finalMsg.getBytes(StandardCharsets.UTF_8));
+                    out.flush();
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                    Log.d(TAG, "Fail to send msg when test Connection");
+                    flag[0] = false;
+                }
+
+            }
+        };
+
+        thread.start();
+
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return false;
+        }
         return flag[0];
     }
 

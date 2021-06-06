@@ -284,6 +284,7 @@ public class Myapplication extends Application {
         builder.showFileStackTraceInfo(true);
         //添加该标签,日志将被写入文件
         builder.addTagToFile("onRecMessage");
+        builder.addTagToFile("sender");
 //        builder.addTagToFile(TAG_APP_EVENT);
         Logcat.initialize(this, builder.build());
 
