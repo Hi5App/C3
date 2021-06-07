@@ -36,6 +36,8 @@ import com.penglab.hi5.dataStore.PreferenceLogin;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 
@@ -55,6 +57,9 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 
     private int musicTotalNum = 3;
     private int musicAlreadyNum = 0;
+
+    private static Timer timerLogin;
+
 
     /** Defines callbacks for service binding, passed to bindService() */
     private ServiceConnection connection = new ServiceConnection() {
@@ -115,6 +120,11 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
                 case 2:
                     String message = msg.getData().getString("toastMsg");
                     ToastEasy(message, Toast.LENGTH_LONG);
+                    LoginActivity.start(SplashScreenActivity.this);
+                    finish();
+                    break;
+                case 3:
+                    ToastEasy("Time out, check the network please !", Toast.LENGTH_LONG);
                     LoginActivity.start(SplashScreenActivity.this);
                     finish();
                     break;
@@ -365,9 +375,14 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 
     private void showMainActivity() {
         Log.e(TAG,"showMainActivity null");
-
         autoLogin();
-//        showMainActivity(null);
+        timerLogin = new Timer();
+        timerLogin.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                timeOutHandler();
+            }
+        },5 * 1000);
     }
 
     private void showMainActivity(Intent intent) {
@@ -381,6 +396,10 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
         MainActivity.actionStart(SplashScreenActivity.this, account);
         ToastEasy("Welcome, " + account +" !");
         finish();
+    }
+
+    private void timeOutHandler(){
+        handler.sendEmptyMessage(3);
     }
 
 
@@ -398,7 +417,6 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
                 ToastEasy("user info is empty !");
             }
         }
-        Log.d(TAG, "auotoLogin: MUSICLIST");
     }
 
 
@@ -416,21 +434,13 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
     @Override
     public void onRecMessage(String msg) {
         Log.d(TAG, "onRecMessage: " + msg);
-//        ToastEasy(msg);
 
         if (msg.startsWith("MUSICLIST:")){
             String [] list = msg.split(":")[1].split(";");
             if (list.length > 0){
-//                musicTotalNum = list.length;
-//                musicTotalNum = 1;
+
                 musicAlreadyNum = 0;
                 ServerConnector serverConnector = ServerConnector.getInstance();
-//                serverConnector.sendMsg("GETMUSIC:CoyKoi.mp3");
-//                for (int i = 2; i < list.length; i++){
-//                    if (list[i] != "." && list[i] != ".."){
-//                        serverConnector.sendMsg("GETMUSIC:" + list[i]);
-//                    }
-//                }
             }
 
         }
@@ -500,6 +510,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 
         if (msg.startsWith("LOGIN")){
             /* for login */
+            timerLogin.cancel();
 
             if (msg.startsWith("LOGIN:0")){
                 Log.e(TAG,"autoLogin Successfully !");

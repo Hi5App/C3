@@ -1864,14 +1864,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                     switch (text){
                                         case "create a new Room":
                                             CreateFile(conPath + "/" + fileName[0],"0");
-                                            Communicator.Path = conPath.split("/")[1] + "/" + fileName[0];
-                                            firstLoad = true;
                                             break;
 
                                         default:
                                             loadFileMode(conPath + "/" + text);
                                             Communicator.Path = conPath + "/" + text;
-                                            firstLoad = true;
                                             break;
                                     }
                                 }
@@ -1905,6 +1902,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         String[] list = filepath.split("/");
         serverConnector.setRoomName(list[list.length - 1]);
+        firstLoad = true;
     }
 
 
@@ -1924,12 +1922,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             case "0":
                                 serverConnector.sendMsg("LOADFILES:0 " + oldname + " " + conPath + "/" + text);
                                 Communicator.getInstance().setConPath(conPath + "/" + text);
+                                Communicator.Path = conPath + "/" + text;
                                 serverConnector.setRoomName(text);
                                 copyFile = true;
                                 break;
                             case "1":
                                 serverConnector.sendMsg("LOADFILES:1 " + oldname + " " + conPath + "/" + text);
                                 Communicator.getInstance().setConPath(conPath + "/" + text);
+                                Communicator.Path = conPath + "/" + text;
                                 serverConnector.setRoomName(text);
                                 copyFile = true;
                                 break;
@@ -3408,7 +3408,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210606a 22:27 UTC+8 build",
+                                "Version: 20210607a 22:27 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
