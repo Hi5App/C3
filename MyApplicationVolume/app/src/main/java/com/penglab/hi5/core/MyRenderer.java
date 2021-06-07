@@ -1922,6 +1922,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public void changeMarkerType(float x, float y, boolean isBigData) throws CloneNotSupportedException {
+
         for (int i = 0; i < markerList.size(); i++){
             ImageMarker tobeDeleted = markerList.get(i);
             float[] markerModel = volumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
@@ -1951,6 +1952,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
                 break;
             }
+        }
+    }
+
+    public void printMarkerType(){
+        for (int i=0; i< markerList.size(); i++){
+            Log.e(TAG,"markerType " + i + ": " + markerList.get(i).type);
         }
     }
 

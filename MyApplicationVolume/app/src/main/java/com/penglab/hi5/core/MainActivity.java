@@ -378,7 +378,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             ServerConnector.getInstance().sendMsg("HeartBeat");
         }else {
             Log.e(TAG,"onRecMessage()  " + msg);
-            Logcat.w("onRecMessage", msg);
+//            Logcat.w("onRecMessage", msg);
         }
 
 
@@ -555,7 +555,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 myrenderer.syncAddMarker(communicator.syncMarker(marker));
                 myGLSurfaceView.requestRender();
             }
-
         }
 
 
@@ -571,7 +570,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 myrenderer.syncDelMarker(communicator.syncMarker(marker));
                 myGLSurfaceView.requestRender();
             }
-
         }
 
 
@@ -2033,24 +2031,27 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                     }
                                 }
 
+
                                 Communicator communicator = Communicator.getInstance();
-                                if (NIMClient.getService(UserService.class).getUserInfo(username) == null) {
+                                Log.e(TAG, "Send invite username: " + InfoCache.getAccount());
+                                if (NIMClient.getService(UserService.class).getUserInfo(username.toLowerCase()) == null) {
                                     Toast_in_Thread_static("Invite Send Failed");
                                     return;
                                 }
 
-                                String nickname = NIMClient.getService(UserService.class).getUserInfo(username).getName();
+                                String nickname = NIMClient.getService(UserService.class).getUserInfo(username.toLowerCase()).getName();
+
                                 InviteAttachment attachment = new InviteAttachment(nickname, communicator.Path,  communicator.getInitSomaMsg());
                                 IMMessage message = MessageBuilder.createCustomMessage(text, SessionTypeEnum.P2P, attachment);
                                 NIMClient.getService(MsgService.class).sendMessage(message, true).setCallback(new RequestCallback<Void>() {
                                     @Override
                                     public void onSuccess(Void param) {
-                                        Toast_in_Thread_static("Sended to" + text);
+                                        Toast_in_Thread_static("Sended to " + text);
                                     }
 
                                     @Override
                                     public void onFailed(int code) {
-                                        Toast_in_Thread_static("Invite Send Failed");
+                                        Toast_in_Thread_static("Invite Send Failed " + code);
                                     }
 
                                     @Override
@@ -2099,26 +2100,28 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         @Override
         public void onEvent(List<IMMessage> imMessages) {
 //            Toast_in_Thread_static("Receive Msg");
-            for (int i = 0; i < imMessages.size(); i++) {
-                if (imMessages.get(i).getMsgType() == MsgTypeEnum.custom){
-                    MsgAttachment attachment = imMessages.get(i).getAttachment();
-                    if (attachment instanceof InviteAttachment){
+            if (isTopActivity()) {
+                for (int i = 0; i < imMessages.size(); i++) {
+                    if (imMessages.get(i).getMsgType() == MsgTypeEnum.custom) {
+                        MsgAttachment attachment = imMessages.get(i).getAttachment();
+                        if (attachment instanceof InviteAttachment) {
 //                        Toast_in_Thread_static("Receive Invite");
-                        String data = attachment.toJson(false);
+                            String data = attachment.toJson(false);
 //                        Toast_in_Thread_static(data);
-                        Log.d(TAG, "Invite data: " + data);
+                            Log.d(TAG, "Invite data: " + data);
 
-                        data = data.replaceAll("\"", "");
-                        data = data.replaceAll("\\u007B", "");
-                        data = data.replaceAll("\\}", "");
-                        Log.d(TAG, "Invite data: " + data);
+                            data = data.replaceAll("\"", "");
+                            data = data.replaceAll("\\u007B", "");
+                            data = data.replaceAll("\\}", "");
+                            Log.d(TAG, "Invite data: " + data);
 
-                        String [] informs = data.split(",");
-                        String invitor = informs[0].split(":")[2];
-                        String path = informs[1].split(":")[1];
-                        String soma = informs[2].split(":")[1];
+                            String[] informs = data.split(",");
+                            String invitor = informs[0].split(":")[2];
+                            String path = informs[1].split(":")[1];
+                            String soma = informs[2].split(":")[1];
 
-                        invitePopup(mainContext, invitor, path, soma);
+                            invitePopup(getContext(), invitor, path, soma);
+                        }
                     }
                 }
             }
@@ -3408,7 +3411,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 20210607a 22:27 UTC+8 build",
+                                "Version: 20210607b 23:03 UTC+8 build",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -5417,19 +5420,19 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
-//    private boolean isTopActivity(){
-//        ActivityManager manager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
-//        List<ActivityManager.RunningTaskInfo> runningTaskInfos = manager.getRunningTasks(1);
-//        String cmpNameTemp = null;
-//        if(runningTaskInfos != null){
-//            cmpNameTemp = runningTaskInfos.get(0).topActivity.toString();
-//        }
-//        if(cmpNameTemp == null){
-//            return false;
-//        }
-//        Log.d(TAG, "isTopActivity" + cmpNameTemp);
-//        return cmpNameTemp.equals("ComponentInfo{com.penglab.hi5/com.penglab.hi5.core.MainActivity}");
-//    }
+    private boolean isTopActivity(){
+        ActivityManager manager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> runningTaskInfos = manager.getRunningTasks(1);
+        String cmpNameTemp = null;
+        if(runningTaskInfos != null){
+            cmpNameTemp = runningTaskInfos.get(0).topActivity.toString();
+        }
+        if(cmpNameTemp == null){
+            return false;
+        }
+        Log.d(TAG, "isTopActivity" + cmpNameTemp);
+        return cmpNameTemp.equals("ComponentInfo{com.penglab.hi5/com.penglab.hi5.core.MainActivity}");
+    }
 //
 //
 //    private void PullSwc_block_Manual(boolean isDrawMode){

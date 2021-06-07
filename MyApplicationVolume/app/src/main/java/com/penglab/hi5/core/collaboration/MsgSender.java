@@ -51,7 +51,7 @@ public class MsgSender {
 
                     if (!data.startsWith("HeartBeat")){
                         Log.d(TAG,"header: " + header.trim() + ",  data: " + data);
-                        Logcat.w("sender", data);
+//                        Logcat.w("sender", data);
                     }
 
                     String finalMsg = header + data;
