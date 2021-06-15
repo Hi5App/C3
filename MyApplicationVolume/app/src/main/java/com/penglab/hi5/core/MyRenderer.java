@@ -984,6 +984,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             loadImage2D();
             ifFileLoaded = true;
             ifFileSupport = true;
+            zoom(1.1f);
         }
 
         else if (fileType == FileType.APO){
