@@ -54,6 +54,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1616,7 +1617,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public void zoom_out(){
-        zoom(0.6f);
+        zoom(0.5f);
     }
 
 
@@ -1810,11 +1811,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             for (i = -1; i < 1; i += 0.005){
                 float [] invertfinalMatrix = new float[16];
                 Matrix.invertM(invertfinalMatrix, 0, finalMatrix, 0);
+                Log.d(TAG, "solve2DMarker: " + Arrays.toString(finalMatrix));
+                Log.d(TAG, "solve2DMarker: mz: " + mz[2]);
 
                 float [] temp = new float[4];
                 Matrix.multiplyMV(temp, 0, invertfinalMatrix, 0, new float[]{x, y, i, 1}, 0);
+                Log.d(TAG, "solve2DMarker: temp before: " + Arrays.toString(temp));
+
                 devideByw(temp);
                 float dis = Math.abs(temp[2] - mz[2] / 2);
+                Log.d(TAG, "solve2DMarker: invertfinalmatrix: " + Arrays.toString(invertfinalMatrix));
+                Log.d(TAG, "solve2DMarker: temp: " + Arrays.toString(temp));
+                Log.d(TAG, "solve2DMarker: dis: " + dis);
                 if (dis < 0.1) {
                     System.out.println(temp[0]);
                     System.out.println(temp[1]);
@@ -1831,6 +1839,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public void add2DMarker(float x, float y) throws CloneNotSupportedException {
+        Log.d(TAG, "add2Dmarker: " + x + " " + y);
         float [] new_marker = solve2DMarker(x, y);
         if (new_marker == null){
             ToastEasy("Please make sure the point is in the image");
@@ -1869,9 +1878,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     // add the marker drawed into markerlist
     public void setMarkerDrawed(float x, float y, boolean isBigData) throws CloneNotSupportedException {
-
+        Log.d(TAG, "setMarkerDrawed()");
         if(solveMarkerCenter(x, y) != null) {
             float[] new_marker = solveMarkerCenter(x, y);
+            Log.d(TAG, "imageMarker_drawed: " + Arrays.toString(new_marker));
             ImageMarker imageMarker_drawed = new ImageMarker(new_marker[0],
                     new_marker[1],
                     new_marker[2]);
@@ -1885,6 +1895,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             saveUndo();
         }
+    }
+
+    public void zoomInByPinpoint(float x, float y) {
+        float [] target = solveMarkerCenter(x, y);
     }
 
     // delete the marker drawed from the markerlist

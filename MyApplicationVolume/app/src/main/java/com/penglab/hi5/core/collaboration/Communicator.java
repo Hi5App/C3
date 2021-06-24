@@ -622,6 +622,87 @@ public class Communicator {
 
     }
 
+    public void navigateAndZoomInBlock(int offset_x, int offset_y, int offset_z) {
+        if (CurRes <= 1){
+            Toast_in_Thread_static("You have already reached the highest resolution !");
+            return;
+        }
+
+        String img_size = resolution.get(CurRes - 1).replace("RES(","").replace(")","");
+
+        int img_size_x_i = Integer.parseInt(img_size.split("x")[0]);
+        int img_size_y_i = Integer.parseInt(img_size.split("x")[1]);
+        int img_size_z_i = Integer.parseInt(img_size.split("x")[2]);
+
+        int offset_x_i = (int) ImageCurPoint.x;
+        int offset_y_i = (int) ImageCurPoint.y;
+        int offset_z_i = (int) ImageCurPoint.z;
+        int size_i     =       ImgSize;
+
+        Log.e(TAG, String.format("img: x %d, y %d, z %d", img_size_x_i, img_size_y_i, img_size_z_i));
+        Log.e(TAG, String.format("cur: x %d, y %d, z %d", offset_x_i,   offset_y_i,   offset_z_i));
+
+        if ( (offset_x_i + offset_x) <= 1 || (offset_x_i + offset_x) >= img_size_x_i - 1){
+//            System.out.println("----- You have already reached left boundary!!! -----");
+            Toast_in_Thread_static("You have already reached boundary!!!");
+
+        }else {
+            offset_x_i += offset_x;
+            if (offset_x_i - size_i / 2 <= 0)
+                offset_x_i = size_i / 2 + 1;
+            else if (offset_x_i + size_i / 2 >= img_size_x_i - 1)
+                offset_x_i = img_size_x_i - size_i / 2 - 1;
+        }
+
+        if ( (offset_y_i + offset_y) <= 1 || (offset_y_i + offset_y) >= img_size_y_i - 1){
+//            System.out.println("----- You have already reached left boundary!!! -----");
+            Toast_in_Thread_static("You have already reached boundary!!!");
+
+        }else {
+            offset_y_i += offset_y;
+            if (offset_y_i - size_i / 2 <= 0)
+                offset_y_i = size_i / 2 + 1;
+            else if (offset_y_i + size_i / 2 >= img_size_y_i - 1)
+                offset_y_i = img_size_y_i - size_i / 2 - 1;
+        }
+
+        if ( (offset_z_i + offset_z) <= 1 || (offset_z_i + offset_z) >= img_size_z_i - 1){
+//            System.out.println("----- You have already reached left boundary!!! -----");
+            Toast_in_Thread_static("You have already reached boundary!!!");
+
+        }else {
+            offset_z_i += offset_z;
+            if (offset_z_i - size_i / 2 <= 0)
+                offset_z_i = size_i / 2 + 1;
+            else if (offset_z_i + size_i / 2 >= img_size_z_i - 1)
+                offset_z_i = img_size_z_i - size_i / 2 - 1;
+        }
+
+        ImageCurPoint.x   = offset_x_i;
+        ImageCurPoint.y   = offset_y_i;
+        ImageCurPoint.z   = offset_z_i;
+
+        ImageStartPoint.x = ImageCurPoint.x - ImgSize/2;
+        ImageStartPoint.y = ImageCurPoint.y - ImgSize/2;
+        ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
+
+        CurRes -= 1;
+        ImageCurRes.x *= 2;
+        ImageCurRes.y *= 2;
+        ImageCurRes.z *= 2;
+
+        ImageCurPoint.x *= 2;
+        ImageCurPoint.y *= 2;
+        ImageCurPoint.z *= 2;
+
+        ImageStartPoint.x = ImageCurPoint.x - ImgSize/2;
+        ImageStartPoint.y = ImageCurPoint.y - ImgSize/2;
+        ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
+
+        MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
+        ImageInfo.getInstance().updatePosRes(conPathQuery, CurRes, getCurrentPos());
+    }
+
 
 
     public void zoomIn(){

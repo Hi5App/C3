@@ -177,6 +177,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static Context mainContext;
 
     private String filepath = "";
+    private boolean ifZooming = false;
     private boolean ifDeletingMultiMarker = false;
     private boolean ifChangeMarkerType = false;
     private boolean ifPainting = false;
@@ -1288,15 +1289,24 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 }
 
                 if (isBigData_Remote){
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            Communicator communicator = Communicator.getInstance();
-                            communicator.zoomIn();
-
-                        }
-                    }).start();
+                    ifZooming = !ifZooming;
+                    ifChangeLineType = false;
+                    ifDeletingLine = false;
+                    ifPainting = false;
+                    ifPoint = false;
+                    ifDeletingMarker = false;
+                    ifSpliting = false;
+                    ifChangeMarkerType = false;
+                    ifDeletingMultiMarker = false;
+//                    new Thread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//
+//                            Communicator communicator = Communicator.getInstance();
+//                            communicator.zoomIn();
+//
+//                        }
+//                    }).start();
                 }else {
                     myrenderer.zoom_in();
                     myGLSurfaceView.requestRender();
@@ -1378,12 +1388,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             public void onClick(View v) {
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
-                if (isBigData_Remote){
-                    myrenderer.resetRotation();
-                    myGLSurfaceView.requestRender();
-                }else {
-                    Rotation();
-                }
+//                if (isBigData_Remote){
+//                    myrenderer.resetRotation();
+//                    myGLSurfaceView.requestRender();
+//                }else {
+//                    Rotation();
+//                }
+                Rotation();
             }
         });
 
@@ -2356,6 +2367,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 ifChangeLineType = false;
                                 ifChangeMarkerType = false;
                                 ifDeletingMultiMarker = false;
+                                ifZooming = false;
                                 if (ifPoint && !ifSwitch) {
                                     draw_i.setImageResource(R.drawable.ic_add_marker);
 
@@ -2387,6 +2399,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 ifChangeLineType = false;
                                 ifChangeMarkerType = false;
                                 ifDeletingMultiMarker = false;
+                                ifZooming = false;
                                 if (ifDeletingMarker && !ifSwitch) {
                                     draw_i.setImageResource(R.drawable.ic_marker_delete);
 
@@ -2418,6 +2431,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 ifChangeLineType = false;
                                 ifChangeMarkerType = false;
                                 ifDeletingLine = false;
+                                ifZooming = false;
                                 if (ifDeletingMultiMarker && !ifSwitch) {
                                     draw_i.setImageResource(R.drawable.ic_draw_main);
 
@@ -2453,6 +2467,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 ifChangeLineType = false;
                                 ifSpliting = false;
                                 ifDeletingMultiMarker = false;
+                                ifZooming = false;
                                 if (ifChangeMarkerType && !ifSwitch) {
                                     draw_i.setImageResource(R.drawable.ic_draw_main);
 
@@ -2518,6 +2533,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         ifChangeLineType = false;
                                         ifChangeMarkerType = false;
                                         ifDeletingMultiMarker = false;
+                                        ifZooming = false;
                                         if (ifPainting && !ifSwitch) {
                                             draw_i.setImageResource(R.drawable.ic_draw);
 
@@ -2549,6 +2565,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         ifChangeLineType = false;
                                         ifChangeMarkerType = false;
                                         ifDeletingMultiMarker = false;
+                                        ifZooming = false;
                                         if (ifDeletingLine && !ifSwitch) {
                                             draw_i.setImageResource(R.drawable.ic_delete_curve);
 
@@ -2580,6 +2597,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         ifChangeLineType = false;
                                         ifChangeMarkerType = false;
                                         ifDeletingMultiMarker = false;
+                                        ifZooming = false;
                                         if (ifSpliting && !ifSwitch) {
                                             draw_i.setImageResource(R.drawable.ic_split);
 
@@ -2616,6 +2634,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         ifSpliting = false;
                                         ifChangeMarkerType = false;
                                         ifDeletingMultiMarker = false;
+                                        ifZooming = false;
                                         if(ifChangeLineType && !ifSwitch){
 //                                            Draw.setText("Change PenColor");
 //                                            Draw.setTextColor(Color.RED);
@@ -2806,7 +2825,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         Image4DSimple img = myrenderer.getImg();
         if(img == null || !img.valid()){
-            ToastEasy("Please load image first !");
+            ToastEasy("Please load a 3d image first !");
             return;
         }
 
@@ -2871,6 +2890,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         SaveSWC();
                                         break;
 
+                                    default:
+                                        break;
                                 }
                             }
                         })
@@ -3065,7 +3086,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         Image4DSimple img = myrenderer.getImg();
         if(img == null || !img.valid()){
-            ToastEasy("Please load image first !");
+            ToastEasy("Please load a 3d image first !");
             return;
         }
 
@@ -3225,6 +3246,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                             ifDeletingLine = false;
                                             ifSpliting = false;
                                             ifChangeLineType = false;
+                                            ifZooming = false;
                                             setAnimation();
                                         }else {
                                             ToastEasy("Please Load a Img First !");
@@ -3411,7 +3433,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
-                                "Version: 202106015a 22:03 UTC+8 build",
+
+                                "Version: 20210624a 21:45 UTC+8 build",
+
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
@@ -4704,6 +4728,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         case MotionEvent.ACTION_UP:
                             if (!isZooming) {
                                 try {
+                                    if (ifZooming) {
+                                        ifZooming = false;
+                                        float [] center = myrenderer.solveMarkerCenter(normalizedX, normalizedY);
+                                        if (center != null) {
+                                            Communicator communicator = Communicator.getInstance();
+                                            communicator.navigateAndZoomInBlock((int) center[0] - 64, (int) center[1] - 64, (int) center[2] - 64);
+                                            requestRender();
+                                        }
+                                    }
                                     if (ifPoint) {
                                         Score scoreInstance = Score.getInstance();
                                         scoreInstance.pinpoint();
@@ -4854,6 +4887,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public void loadBigDataImg(String filepath){
         isBigData_Remote = true;
         isBigData_Local = false;
+        ifZooming = false;
 
         myrenderer.setPath(filepath);
         myrenderer.zoom(2.2f);
