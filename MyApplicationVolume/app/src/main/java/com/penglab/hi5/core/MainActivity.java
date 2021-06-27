@@ -151,6 +151,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import cn.carbs.android.library.MDDialog;
 
@@ -203,6 +205,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static Button Zoom_out_Big;
     private ImageButton Rotation_i;
     private ImageButton Hide_i;
+    private static ImageButton AckNeuron;
+
     private static ImageButton Undo_i;
     private static ImageButton Redo_i;
     private ImageButton Sync_i;
@@ -511,6 +515,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
 
 
+        if (msg.startsWith("GetUnAckNeuron:")){
+            loadUnAckFiles(msg.split(":")[1]);
+        }
+
 
         /*
         for collaboration -------------------------------------------------------------------
@@ -520,7 +528,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             Log.e(TAG,"drawline_norm");
 
             String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String seg      = msg.split(":")[1];
+            String seg    = msg.split(":")[1];
 
             if (!userID.equals(username)){
                 Communicator communicator = Communicator.getInstance();
@@ -1060,6 +1068,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         init buttons ------------------------------------------------------------------------------------------------------------------------
          */
 
+        /* for dendriteReconstruction */
+        AckNeuron = new ImageButton(this);
+        AckNeuron.setImageResource(R.drawable.ic_baseline_check_24);
+
         Zoom_in = new Button(this);
         Zoom_in.setText("+");
         Zoom_in_Big = new Button(this);
@@ -1140,6 +1152,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         /*
         set button layout ------------------------------------------------------------------------------------
          */
+
+        /* for dendriteReconstruction */
+        FrameLayout.LayoutParams lp_neuron_ack = new FrameLayout.LayoutParams(120, 120);
+        lp_neuron_ack.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        lp_neuron_ack.setMargins(0, 0, 20, 380);
+
 
         FrameLayout.LayoutParams lp_zoom_in = new FrameLayout.LayoutParams(120, 120);
         lp_zoom_in.gravity = Gravity.BOTTOM | Gravity.RIGHT;
@@ -1236,6 +1254,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         button onclick event  -----------------------------------------------------------------------------
          */
 
+        /* for dendriteReconstruction */
+        AckNeuron.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ackNeuron();
+            }
+        });
+
+
         Zoom_in.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1252,7 +1279,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         myGLSurfaceView.requestRender();
                     }
                 }).start();
-
             }
         });
 
@@ -1587,6 +1613,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         add button to the view  -------------------------------------------------------------------
          */
 
+        /* for dendriteReconstruction */
+        this.addContentView(AckNeuron, lp_neuron_ack);
+
         this.addContentView(Zoom_in_Big, lp_zoom_in);
         this.addContentView(Zoom_out_Big, lp_zoom_out);
         this.addContentView(Zoom_in, lp_zoom_in_no);
@@ -1614,6 +1643,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         this.addContentView(room_id, lp_room_id);
         this.addContentView(user_list, lp_user_list);
 
+
+        /* for dendriteReconstruction */
+        AckNeuron.setVisibility(View.GONE);
 
         Zoom_in_Big.setVisibility(View.GONE);
         Zoom_out_Big.setVisibility(View.GONE);
@@ -1823,17 +1855,67 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
+    /* for dendriteReconstruction */
     /**
-     * @param FileList
+     * @param FileList filelist from server
      */
     private void LoadFiles(String FileList){
         List<String> list_array = new ArrayList<>();
         String[] list = FileList.split(";;");
+        boolean isNeuron = false;
+        String[] fileName = new String[1];
 
+        String pattern = "(.*)_(.*)";
+        // 创建 Pattern 对象
+        Pattern r = Pattern.compile(pattern);
+
+        for (int i = 0; i < list.length; i++){
+            // 现在创建 matcher 对象
+            Matcher m = r.matcher(list[i]);
+            if (m.find()){
+                isNeuron = true;
+                break;
+            }
+
+            list_array.add(list[i].split(" ")[0]);
+        }
+
+        String[] list_show = new String[list_array.size()];
+        for (int i = 0; i < list_array.size(); i++){
+            list_show[i] = list_array.get(i);
+        }
+
+        if (isNeuron){
+            /*
+            the last directory
+            */
+            ServerConnector.getInstance().sendMsg("GetUnAckNeuron:" + conPath.split("/")[1]);
+
+        }else {
+            new XPopup.Builder(this)
+                    .maxHeight(1350)
+                    .maxWidth(800)
+                    .asCenterList("BigData File", list_show,
+                            new OnSelectListener() {
+                                @RequiresApi(api = Build.VERSION_CODES.N)
+                                @Override
+                                public void onSelect(int position, String text) {
+                                    ServerConnector serverConnector = ServerConnector.getInstance();
+                                    conPath = conPath + "/" + text;
+                                    serverConnector.sendMsg("GETFILELIST:" + conPath);
+                                }
+                            })
+                    .show();
+        }
+    }
+
+
+    private void loadUnAckFiles(String FileList){
+        List<String> list_array = new ArrayList<>();
+        String[] list = FileList.split(";;");
         boolean isFile = false;
         String[] fileName = new String[1];
 
-//        Log.e(TAG, "list.length: " + list.length);
         for (int i = 0; i < list.length; i++){
             if (list[i].split(" ")[0].endsWith(".apo") || list[i].split(" ")[0].endsWith(".eswc")
                     || list[i].split(" ")[0].endsWith(".swc") || list[i].split(" ")[0].endsWith("log") )
@@ -1842,7 +1924,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             if(Communicator.getInstance().initSoma(list[i].split(" ")[0])){
                 fileName[0] = list[i].split(" ")[0];
                 isFile = true;
-                continue;
+                continue;  // for dendriteReconstruction
             }
 
             list_array.add(list[i].split(" ")[0]);
@@ -1902,6 +1984,82 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
     }
 
+//    private void LoadFiles(String FileList){
+//        List<String> list_array = new ArrayList<>();
+//        String[] list = FileList.split(";;");
+//        boolean isFile = false;
+//        String[] fileName = new String[1];
+//
+//        for (int i = 0; i < list.length; i++){
+//            if (list[i].split(" ")[0].endsWith(".apo") || list[i].split(" ")[0].endsWith(".eswc")
+//                    || list[i].split(" ")[0].endsWith(".swc") || list[i].split(" ")[0].endsWith("log") )
+//                continue;
+//
+//            if(Communicator.getInstance().initSoma(list[i].split(" ")[0])){
+//                fileName[0] = list[i].split(" ")[0];
+//                isFile = true;
+////                continue;
+//                break;  // for dendriteReconstruction
+//            }
+//
+//            list_array.add(list[i].split(" ")[0]);
+//        }
+//        if (isFile){
+//            list_array.add("create a new Room");
+//        }
+//
+//        String[] list_show = new String[list_array.size()];
+//        for (int i = 0; i < list_array.size(); i++){
+//            list_show[i] = list_array.get(i);
+//        }
+//
+//
+//        if (isFile){
+//            /*
+//            the last directory
+//            */
+//            new XPopup.Builder(this)
+//                    .maxHeight(1350)
+//                    .maxWidth(800)
+//                    .asCenterList("BigData File", list_show,
+//                            new OnSelectListener() {
+//                                @RequiresApi(api = Build.VERSION_CODES.N)
+//                                @Override
+//                                public void onSelect(int position, String text) {
+//                                    Communicator.BrainNum = conPath.split("/")[1];
+//                                    switch (text){
+//                                        case "create a new Room":
+//                                            CreateFile(conPath + "/" + fileName[0],"0");
+//                                            break;
+//
+//                                        default:
+//                                            loadFileMode(conPath + "/" + text);
+//                                            Communicator.Path = conPath + "/" + text;
+//                                            break;
+//                                    }
+//                                }
+//                            })
+//                    .show();
+//
+//        }else {
+//            new XPopup.Builder(this)
+//                    .maxHeight(1350)
+//                    .maxWidth(800)
+//                    .asCenterList("BigData File", list_show,
+//                            new OnSelectListener() {
+//                                @RequiresApi(api = Build.VERSION_CODES.N)
+//                                @Override
+//                                public void onSelect(int position, String text) {
+//                                    ServerConnector serverConnector = ServerConnector.getInstance();
+//                                    conPath = conPath + "/" + text;
+//                                    serverConnector.sendMsg("GETFILELIST:" + conPath);
+//                                }
+//                            })
+//                    .show();
+//        }
+//    }
+
+
 
 
     private void loadFileMode(String filepath){
@@ -1948,6 +2106,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .show();
     }
 
+
+
+    /* for dendriteReconstruction */
+    private void ackNeuron(){
+        if (MsgConnector.getInstance().sendMsg(
+                "AckNeuron:" + Communicator.Path.split("/")[2], true, true)){
+            ToastEasy("You have finished the reConstruction of this dendrite !");
+        }
+    }
 
 
 
@@ -3434,7 +3601,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
 
-                                "Version: 20210624a 21:45 UTC+8 build",
+                                "Version: 20210628a 21:45 UTC+8 build",
 
                         new OnConfirmListener() {
                             @Override
@@ -5038,6 +5205,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             navigation_front.setVisibility(View.VISIBLE);
             navigation_back.setVisibility(View.VISIBLE);
 
+            /* for dendriteReconstruction */
+            AckNeuron.setVisibility(View.VISIBLE);
+
             Zoom_in_Big.setVisibility(View.VISIBLE);
             Zoom_out_Big.setVisibility(View.VISIBLE);
             Zoom_in.setVisibility(View.GONE);
@@ -5068,6 +5238,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 Zoom_in.setVisibility(View.VISIBLE);
                 Zoom_out.setVisibility(View.VISIBLE);
 
+                /* for dendriteReconstruction */
+                AckNeuron.setVisibility(View.GONE);
+
                 Zoom_in_Big.setVisibility(View.GONE);
                 Zoom_out_Big.setVisibility(View.GONE);
                 navigation_left.setVisibility(View.GONE);
@@ -5096,6 +5269,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             isBigData_Remote = false;
             isBigData_Local  = false;
             try {
+
+                /* for dendriteReconstruction */
+                AckNeuron.setVisibility(View.GONE);
 
                 Zoom_in_Big.setVisibility(View.GONE);
                 Zoom_out_Big.setVisibility(View.GONE);
@@ -5138,6 +5314,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             navigation_right.setVisibility(View.GONE);
             navigation_up.setVisibility(View.GONE);
 
+            /* for dendriteReconstruction */
+            AckNeuron.setVisibility(View.GONE);
+
             Zoom_in_Big.setVisibility(View.GONE);
             Zoom_out_Big.setVisibility(View.GONE);
 
@@ -5151,7 +5330,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             Zoom_in.setVisibility(View.GONE);
             Zoom_out.setVisibility(View.GONE);
         }
-
 
         ifButtonShowed = false;
 
@@ -5178,6 +5356,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             navigation_left.setVisibility(View.VISIBLE);
             navigation_right.setVisibility(View.VISIBLE);
             navigation_up.setVisibility(View.VISIBLE);
+
+            /* for dendriteReconstruction */
+            AckNeuron.setVisibility(View.VISIBLE);
 
             Zoom_in_Big.setVisibility(View.VISIBLE);
             Zoom_out_Big.setVisibility(View.VISIBLE);

@@ -938,7 +938,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void setPath(String message){
 
-
         curSwcList.clear();
         markerList.clear();
         cur_scale = 1.0f;
