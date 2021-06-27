@@ -5,7 +5,7 @@ android {
     buildToolsVersion "30.0.2"
 
     defaultConfig {
-        applicationId "com.example.myapplication__volume"
+        applicationId "com.penglab.hi5"
         minSdkVersion 22
         targetSdkVersion 30
         versionCode 1
@@ -24,29 +24,16 @@ android {
     }
     buildTypes {
         debug {
-
         }
         sdk {
-
         }
 
         release {
-//            zipAlignEnabled true
             minifyEnabled false
             // 移除无用的resource文件
 //            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-
-//        release {
-//            shrinkResources true
-//            minifyEnabled true
-//            zipAlignEnabled true
-////            proguardFiles getDefaultProguardFile("proguard-android.txt"), 'proguard.cfg'
-////            signingConfig signingConfigs.release
-//            ext.enableCrashlytics = true
-//        }
-
     }
 
     sourceSets {
@@ -69,16 +56,18 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui:2.3.1'
     implementation files('libs\\pinyin4j-2.5.0.jar')
     api project(path: ':uikit')
+    implementation project(path: ':logger')
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'cn.carbs.android:MDDialog:1.0.0'
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'org.apache.commons.io:commonsIO:2.5.0'
-//    implementation 'com.lxj:xpopup:1.6.9'
+
     implementation 'org.jgrapht:jgrapht-core:1.4.0'
     implementation 'com.github.beyka:androidtiffbitmapfactory:0.9.8.7'
-    //     debugImplementation because LeakCanary should only run in debug builds.
+
+    // debugImplementation because LeakCanary should only run in debug builds.
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'
     implementation files('libs\\Jama-1.0.3.jar')
 
@@ -96,7 +85,6 @@ dependencies {
     implementation 'com.xw.repo:bubbleseekbar:3.20-lite'
     implementation 'com.github.warkiz.widget:indicatorseekbar:2.1.2'
     implementation 'com.squareup.okhttp3:okhttp:3.14.0'
-    implementation 'io.agora.rtm:rtm-sdk:1.4.0'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
@@ -110,20 +98,18 @@ dependencies {
 
     implementation 'com.huawei.hms:push:4.0.4.301'
 
-    implementation 'com.qianwen:update-app:3.5.2'
-
-    implementation 'com.github.xuexiangjys:XUpdate:2.0.6'
-
     //for litepal: local database
     implementation 'org.litepal.guolindev:core:3.2.3'
 
-    //    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
-    //    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.3'
-    //// Optional, if you use support library fragments:
-    //    debugImplementation 'com.squareup.leakcanary:leakcanary-support-fragment:1.6.3'
-    //    implementation 'org.jgrapht:jgrapht:1.0.0'
-    //    implementation 'org.jgrapht:jgrapht-dist:1.0.0'
-    //    implementation 'org.jgrapht:jgrapht-demo:1.0.0'
-    //    implementation 'org.jgrapht:jgrapht-ext:1.0.0'
-    //    implementation 'org.jgrapht:jgrapht-jdk1.5:0.7.3'
+    // for agora video & audio
+    implementation 'io.agora.rtc:full-sdk:3.3.1'
+
+    // for agora im
+    implementation 'io.agora.rtm:rtm-sdk:1.4.1'
+
+    // for log info store
+    implementation 'com.github.iflove:Logcat:2.1.2'
+    // 子模块用
+    implementation 'com.github.iflove.Hunter:logExtlibrary:logExtlibrary-1.0'
+
 }

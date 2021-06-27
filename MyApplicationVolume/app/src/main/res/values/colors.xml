@@ -49,6 +49,11 @@
     <color name="color_blue_splash_screen">#3a9efb</color>
 
 
+    <!-- Video Activity -->
+    <color name="localBackground">#827b92</color>
+    <color name="remoteBackground">#484258</color>
+
+
 
 
 </resources>

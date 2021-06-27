@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_video_chat_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".chat.agora.activity.PeerToPeerVideoActivity">
+
+    <RelativeLayout
+        android:id="@+id/local_video_view_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/remoteBackground">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/icon_padding">
+
+            <com.netease.nim.uikit.common.ui.imageview.HeadImageView
+                android:id="@+id/user_head_image_called"
+                android:layout_width="@dimen/remote_user_icon_size"
+                android:layout_height="@dimen/remote_user_icon_size"
+                android:layout_centerHorizontal="true"
+                android:layout_above="@id/img_pos_holder" />
+
+            <ImageView
+                android:id="@+id/img_pos_holder"
+                android:layout_width="@dimen/remote_back_icon_size"
+                android:layout_height="@dimen/remote_back_icon_size"
+                android:layout_centerInParent="true"
+                android:visibility="invisible"
+                android:src="@drawable/icon_agora_largest" />
+
+            <TextView
+                android:id="@+id/called_hint_text"
+                android:text="@string/video_called_activity_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/img_pos_holder"
+                android:paddingTop="@dimen/dp_size_10"
+                android:textSize="@dimen/dp_size_20"
+                android:textColor="@color/white"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/icon_padding"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/remote_back_icon_margin_bottom"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/control_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/called_control_bottom_margin">
+
+        <ImageView
+            android:id="@+id/btn_empty"
+            android:layout_width="@dimen/unvisible_button_size"
+            android:layout_height="@dimen/unvisible_button_size"
+            android:layout_centerInParent="true"
+            android:visibility="invisible"
+            android:scaleType="centerCrop"
+            android:src="@drawable/btn_endcall" />
+
+        <ImageView
+            android:id="@+id/btn_endCall"
+            android:layout_width="@dimen/calling_button_size"
+            android:layout_height="@dimen/calling_button_size"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/control_bottom_horizontal_margin"
+            android:layout_toEndOf="@id/btn_empty"
+            android:layout_toRightOf="@id/btn_empty"
+            android:onClick="refuseCall"
+            android:scaleType="centerCrop"
+            android:src="@drawable/btn_endcall" />
+
+        <ImageView
+            android:id="@+id/btn_startCall"
+            android:layout_width="@dimen/calling_button_size"
+            android:layout_height="@dimen/calling_button_size"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/control_bottom_horizontal_margin"
+            android:layout_toStartOf="@id/btn_empty"
+            android:layout_toLeftOf="@id/btn_empty"
+            android:onClick="answerCall"
+            android:scaleType="centerCrop"
+            android:src="@drawable/btn_startcall" />
+    </RelativeLayout>
+
+</RelativeLayout>

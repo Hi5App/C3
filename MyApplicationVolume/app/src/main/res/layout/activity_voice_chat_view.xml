@@ -1,147 +1,92 @@
-<!--<?xml version="1.0" encoding="UTF-8"?>-->
-<!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--    xmlns:tools="http://schemas.android.com/tools"-->
-<!--    android:id="@+id/activity_voice_chat_view"-->
-<!--    android:layout_width="match_parent"-->
-<!--    android:layout_height="match_parent"-->
-<!--    tools:context=".VoiceChatViewActivity">-->
-
-<!--    <include-->
-<!--        layout="@layout/app_bar_main"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content" />-->
-
-<!--    <LinearLayout-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_alignParentBottom="true"-->
-<!--        android:layout_marginBottom="@dimen/activity_vertical_margin"-->
-<!--        android:orientation="vertical">-->
-
-
-<!--        <TextView-->
-<!--            android:id="@+id/quick_tips_when_use_agora_sdk"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginBottom="40dp"-->
-<!--            android:layout_marginLeft="@dimen/activity_horizontal_margin"-->
-<!--            android:layout_marginStart="@dimen/activity_horizontal_margin"-->
-<!--            android:gravity="center_vertical|start"-->
-<!--            android:text="1. Default channel name is voiceDemoChannel1\n2. Waiting for remote users\n3. This demo only supports 1v1 voice calling" />-->
-
-<!--        <LinearLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="50dp"-->
-<!--            android:orientation="horizontal">-->
-
-<!--            <ImageView-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:layout_weight="20"-->
-<!--                android:onClick="onLocalAudioMuteClicked"-->
-<!--                android:scaleType="centerInside"-->
-<!--                android:src="@drawable/btn_mute" />-->
-
-<!--            <ImageView-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:layout_weight="20"-->
-<!--                android:onClick="onSwitchSpeakerphoneClicked"-->
-<!--                android:scaleType="centerInside"-->
-<!--                android:src="@drawable/btn_speaker" />-->
-
-<!--            <ImageView-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:layout_weight="20"-->
-<!--                android:onClick="onEncCallClicked"-->
-<!--                android:scaleType="centerInside"-->
-<!--                android:src="@drawable/btn_end_call" />-->
-
-<!--        </LinearLayout>-->
-
-<!--    </LinearLayout>-->
-
-<!--</RelativeLayout>-->
-
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawer_layout"
+    android:id="@+id/activity_video_chat_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-        tools:context=".VoiceChatViewActivity"
-    android:orientation="vertical"
-    android:fitsSystemWindows="true">
+    tools:context=".chat.agora.activity.PeerToPeerVoiceActivity">
 
-    <include
-        layout="@layout/app_bar_main"
+    <RelativeLayout
+        android:id="@+id/local_video_view_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent"
+        android:background="@color/remoteBackground">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:gravity="bottom"
-            android:orientation="vertical">
+            android:layout_above="@id/icon_padding">
 
+            <com.netease.nim.uikit.common.ui.imageview.HeadImageView
+                android:id="@+id/user_head_image_voice"
+                android:layout_width="@dimen/remote_user_icon_size"
+                android:layout_height="@dimen/remote_user_icon_size"
+                android:layout_centerHorizontal="true"
+                android:layout_above="@id/img_pos_holder_voice" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <ImageView
+                android:id="@+id/img_pos_holder_voice"
+                android:layout_width="@dimen/remote_back_icon_size"
+                android:layout_height="@dimen/remote_back_icon_size"
+                android:layout_centerInParent="true"
+                android:visibility="invisible"
+                android:src="@drawable/icon_agora_largest" />
+
+            <TextView
+                android:id="@+id/calling_hint_text"
+                android:text="@string/video_called_activity_info"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_gravity="bottom">
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/img_pos_holder_voice"
+                android:paddingTop="@dimen/dp_size_10"
+                android:textSize="@dimen/dp_size_20"
+                android:textColor="@color/white"/>
 
-                <TextView
-                    android:id="@+id/quick_tips_when_use_agora_sdk"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="40dp"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginStart="@dimen/activity_horizontal_margin"
-                    android:gravity="center_vertical|start"
-                    android:text="1. Default channel name is voiceDemoChannel1\n2. Waiting for remote users\n3. This demo only supports 1v1 voice calling" />
+        </RelativeLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="20"
-                        android:onClick="onLocalAudioMuteClicked"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/btn_mute" />
-
-                    <ImageView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="20"
-                        android:onClick="onSwitchSpeakerphoneClicked"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/btn_speaker" />
-
-                    <ImageView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="20"
-                        android:onClick="onEncCallClicked"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/btn_end_call" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-        </LinearLayout>
+        <RelativeLayout
+            android:id="@+id/icon_padding"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/remote_back_icon_margin_bottom"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
 
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/voice_called_control_bottom_margin"
+        android:orientation="horizontal">
 
-</LinearLayout>
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="20"
+            android:layout_marginLeft="@dimen/control_bottom_margin"
+            android:onClick="onLocalAudioMuteClicked"
+            android:scaleType="centerInside"
+            android:src="@drawable/btn_mute" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="20"
+            android:scaleType="centerInside"
+            android:onClick="onEncCallClicked"
+            android:src="@drawable/btn_end_call" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="20"
+            android:layout_marginRight="@dimen/control_bottom_margin"
+            android:scaleType="centerInside"
+            android:onClick="onSwitchSpeakerphoneClicked"
+            android:src="@drawable/btn_speaker" />
 
 
+    </LinearLayout>
+
+</RelativeLayout>

@@ -19,7 +19,7 @@
 			For example:
     	<version value="1" />
     -->
-    <version value="1" />
+    <version value="2" />
 
     <!--
     	Define your models in the list with mapping tag, LitePal will
@@ -32,8 +32,12 @@
     	</list>
     -->
     <list>
-        <mapping class="com.example.datastore.database.Image" />
-        <mapping class="com.example.datastore.database.User" />
+        <mapping class="com.penglab.hi5.dataStore.database.Image" />
+        <mapping class="com.penglab.hi5.dataStore.database.User" />
+        <mapping class="com.penglab.hi5.dataStore.database.DailyQuest" />
+        <mapping class="com.penglab.hi5.dataStore.database.UserDailyQuest" />
+        <mapping class="com.penglab.hi5.dataStore.database.Reward" />
+        <mapping class="com.penglab.hi5.dataStore.database.UserReward" />
     </list>
 
     <!--
