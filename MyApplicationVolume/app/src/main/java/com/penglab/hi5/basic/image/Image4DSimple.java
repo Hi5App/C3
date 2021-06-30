@@ -1,13 +1,17 @@
 package com.penglab.hi5.basic.image;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 import com.penglab.hi5.basic.ByteTranslate;
 import com.penglab.hi5.basic.utils.FileManager;
+import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.fileReader.imageReader.BigImgReader;
+import com.penglab.hi5.core.fileReader.imageReader.BitmapReader;
 import com.penglab.hi5.core.fileReader.imageReader.Rawreader;
 import com.penglab.hi5.core.fileReader.imageReader.Tiffreader;
 
@@ -19,7 +23,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Collections;
 
+import static com.penglab.hi5.basic.BitmapRotation.getBitmapDegree;
+import static com.penglab.hi5.basic.BitmapRotation.rotateBitmapByDegree;
 import static com.penglab.hi5.basic.image.Image4DSimple.ImagePixelType.V3D_FLOAT32;
 import static com.penglab.hi5.basic.image.Image4DSimple.ImagePixelType.V3D_UINT16;
 import static com.penglab.hi5.basic.image.Image4DSimple.ImagePixelType.V3D_UINT8;
@@ -751,6 +759,21 @@ public class Image4DSimple {
             }
 
             image = bfr.loadRawRegion(length, is, index[0], index[1], index[2], index[3], index[4], index[5]);
+        }
+
+        if (image != null) {
+            image.setImgSrcFile(filepath);
+        }
+        return image;
+    }
+
+
+    public static Image4DSimple loadImage2D(Bitmap bitmapOrigin, String filepath){
+        Image4DSimple image = new Image4DSimple();
+        BitmapReader bmr = new BitmapReader();
+
+        if (bitmapOrigin != null){
+            image = bmr.read(bitmapOrigin);
         }
 
         if (image != null) {

@@ -140,7 +140,7 @@ public class GD {
 //            System.out.println("**************** n_end_nodes is 0, and thus do not need to allocate memory. *********************");
 
 //        System.out.println("start_nodeind: "+start_nodeind);
-//        System.out.println("x0,y0,z0: "+x0+y0+z0);
+        System.out.println("x0,y0,z0:"+x0 + ", " + y0 + ", "+ z0);
 //        System.out.println("num_nodes: "+num_nodes);
 //        System.out.println("xm,ym,zm: "+xmin+ymin+zmin);
 //        System.out.println("nx,ny,nz: "+nx+ny+nz);

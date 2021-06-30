@@ -1223,6 +1223,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             mz[2] = Math.max(mz[0], mz[1]);
         }
 
+        img = Image4DSimple.loadImage2D(bitmap2D, filepath);
+        if (img == null){
+            Log.e(TAG, "img == null");
+            return;
+        }
+//
+//        fileType = FileType.V3draw;
+//        resetImg(img);
+
         if (myPattern2D != null){
             myPattern2D.setNeedRelease();
         }

@@ -2996,6 +2996,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             return;
         }
 
+        float imgZ=0;
+        boolean is2D = false;
+        if(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG){
+            imgZ = Math.max((int)img.getSz0(), (int)img.getSz1()) / 2;
+            is2D = true;
+        }
+
         ArrayList<ImageMarker> markers = myrenderer.getMarkerList().getMarkers();
         try {
             ParaAPP2 p = new ParaAPP2();
@@ -3007,14 +3014,16 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             p.landmarks = new LocationSimple[markers.size()];
             p.bkg_thresh = -1;
             for (int i = 0; i < markers.size(); i++) {
-                p.landmarks[i] = new LocationSimple(markers.get(i).x, markers.get(i).y, markers.get(i).z);
+                p.landmarks[i] = is2D ? new LocationSimple(markers.get(i).x, markers.get(i).y, 0):
+                                    new LocationSimple(markers.get(i).x, markers.get(i).y, markers.get(i).z);
             }
             System.out.println("---------------start---------------------");
             V3dNeuronAPP2Tracing.proc_app2(p);
             NeuronTree nt = p.resultNt;
             for (int i = 0; i < nt.listNeuron.size(); i++) {
                 nt.listNeuron.get(i).type = 4;
-//                if (nt.listNeuron.get(i).parent == -1) {
+                if (is2D) nt.listNeuron.get(i).z = imgZ;
+//                if (nt.listNeuron.get(i).parent == -1) {s
 //                    NeuronSWC s = nt.listNeuron.get(i);
 //                    ImageMarker m = new ImageMarker(s.x, s.y, s.z);
 //                    m.type = 2;
@@ -3052,10 +3061,22 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             progressBar.setVisibility(View.INVISIBLE);
             return;
         }
-        LocationSimple p0 = new LocationSimple(markers.get(0).x, markers.get(0).y, markers.get(0).z);
+
+        boolean is2D = false;
+        float imgZ = 0;
+        if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG){
+            is2D = true;
+            imgZ = markers.get(0).z;
+        }
+
+
+        LocationSimple p0;
+        p0 = is2D ? new LocationSimple(markers.get(0).x, markers.get(0).y, 0) :
+                new LocationSimple(markers.get(0).x, markers.get(0).y, markers.get(0).z);
         Vector<LocationSimple> pp = new Vector<LocationSimple>();
         for (int i = 1; i < markers.size(); i++) {
-            LocationSimple p = new LocationSimple(markers.get(i).x, markers.get(i).y, markers.get(i).z);
+            LocationSimple p = is2D ? new LocationSimple(markers.get(i).x, markers.get(i).y, 0) :
+                    new LocationSimple(markers.get(i).x, markers.get(i).y, markers.get(i).z);
             pp.add(p);
         }
 
@@ -3070,6 +3091,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
         for (int i = 0; i < outswc.listNeuron.size(); i++) {
             outswc.listNeuron.get(i).type = 5;
+            if (is2D) outswc.listNeuron.get(i).z = imgZ;
         }
 
         ToastEasy("GD-Tracing finished, size of result swc: " + Integer.toString(outswc.listNeuron.size()));
@@ -3434,7 +3456,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
 
-                                "Version: 20210624a 21:45 UTC+8 build",
+                                "Version: 20210630a 21:45 UTC+8 build",
 
                         new OnConfirmListener() {
                             @Override
