@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.MediaRouteButton;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -193,6 +194,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private boolean ifLoadLocal = false;
     private boolean ifButtonShowed = true;
     private boolean ifAnimation = false;
+    private boolean ifSettingROI =false;
 
     private boolean[] temp_mode = new boolean[8];
 
@@ -203,6 +205,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static Button Zoom_out_Big;
     private ImageButton Rotation_i;
     private ImageButton Hide_i;
+
     private static ImageButton Undo_i;
     private static ImageButton Redo_i;
     private ImageButton Sync_i;
@@ -223,6 +226,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static ImageButton navigation_down;
     private static ImageButton navigation_location;
     private static ImageButton manual_sync;
+    private static ImageButton ROI_i;
     private static Button navigation_front;
     private static Button navigation_back;
 //    private static Button blue_pen;
@@ -1087,6 +1091,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Hide_i.setImageResource(R.drawable.ic_not_hide);
         Hide_i.setBackgroundResource(R.drawable.circle_normal);
 
+        ROI_i = new ImageButton(this);
+        ROI_i.setImageResource(R.drawable.ic_roi);
+        ROI_i.setBackgroundResource(R.drawable.circle_normal);
+
+
         Undo_i = new ImageButton(this);
         Undo_i.setImageResource(R.drawable.ic_undo);
         Undo_i.setBackgroundResource(R.drawable.circle_normal);
@@ -1172,6 +1181,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         FrameLayout.LayoutParams lp_hide = new FrameLayout.LayoutParams(120, 120);
         lp_hide.gravity = Gravity.BOTTOM | Gravity.RIGHT;
         lp_hide.setMargins(0, 0, 20, 20);
+
+        FrameLayout.LayoutParams lp_ROI_i = new FrameLayout.LayoutParams(120, 120);
+        lp_ROI_i.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        lp_ROI_i.setMargins(0, 0, 300, 20);
 
         lp_undo = new FrameLayout.LayoutParams(120, 120);
         lp_undo.setMargins(0, 20, 20, 0);
@@ -1293,6 +1306,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     ifChangeLineType = false;
                     ifDeletingLine = false;
                     ifPainting = false;
+                    ifSettingROI=false;
                     ifPoint = false;
                     ifDeletingMarker = false;
                     ifSpliting = false;
@@ -1421,6 +1435,44 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 }
             }
         });
+
+
+        ROI_i.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                if(!myrenderer.getIfFileLoaded()){
+                    Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                if (isBigData_Remote){
+                    ifSettingROI=!ifSettingROI;
+                    ifZooming = false;
+                    ifChangeLineType = false;
+                    ifDeletingLine = false;
+                    ifPainting = false;
+                    ifPoint = false;
+                    ifDeletingMarker = false;
+                    ifSpliting = false;
+                    ifChangeMarkerType = false;
+                    ifDeletingMultiMarker = false;
+//                    new Thread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//
+//                            Communicator communicator = Communicator.getInstance();
+//                            communicator.zoomIn();
+//
+//                        }
+//                    }).start();
+                }
+
+            }
+        });
+
+
 
 
         Undo_i.setOnClickListener(new Button.OnClickListener(){
@@ -1595,6 +1647,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         this.addContentView(Rotation_i, lp_rotation);
         this.addContentView(Hide_i, lp_hide);
+        this.addContentView(ROI_i,lp_ROI_i);
         this.addContentView(scoreText, lp_score);
 
         this.addContentView(navigation_left, lp_left_i);
@@ -1629,6 +1682,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         res_list.setVisibility(View.GONE);
         manual_sync.setVisibility(View.GONE);
+        ROI_i.setVisibility(View.GONE);
 //        red_pen.setVisibility(View.GONE);
 //        blue_pen.setVisibility(View.GONE);
 
@@ -1824,7 +1878,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     /**
-     * @param FileList
+     * @param FileList filelist from server
      */
     private void LoadFiles(String FileList){
         List<String> list_array = new ArrayList<>();
@@ -4593,6 +4647,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
         //触摸屏幕的事件
+        @RequiresApi(api = Build.VERSION_CODES.N)
         @SuppressLint("ClickableViewAccessibility")
         public boolean onTouchEvent(MotionEvent motionEvent) {
 
@@ -4610,7 +4665,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         case MotionEvent.ACTION_DOWN:
                             X = normalizedX;
                             Y = normalizedY;
-                            if (ifPainting || ifDeletingLine || ifSpliting || ifChangeLineType || ifDeletingMultiMarker) {
+                            if (ifPainting || ifDeletingLine || ifSpliting || ifChangeLineType || ifDeletingMultiMarker || ifSettingROI) {
                                 soundPool.play(soundId[0], actionVolume, actionVolume, 0, 0, 1.0f);
                                 lineDrawed.add(X);
                                 lineDrawed.add(Y);
@@ -4706,7 +4761,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 x1_start = x2;
                                 y1_start = y2;
                             } else if (!isZooming){
-                                if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker && !ifChangeMarkerType && !ifDeletingMultiMarker) {
+                                if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker && !ifChangeMarkerType && !ifDeletingMultiMarker && !ifSettingROI) {
                                     if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
                                         if (myrenderer.getIfDownSampling() == false)
                                             myrenderer.setIfDownSampling(true);
@@ -4786,7 +4841,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         myrenderer.changeMarkerType(normalizedX, normalizedY, isBigData_Remote);
                                         requestRender();
                                     }
-                                    if (ifPainting) {
+                                    if (ifPainting ) {
                                         Vector<Integer> segids = new Vector<>();
                                         myrenderer.setIfPainting(false);
 
@@ -4805,15 +4860,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                                         V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
                                                         V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed, v_neuronSWC_list);
                                                         System.out.println("feature");
-
-                                                        if (seg != null) {
-                                                            myrenderer.addLineDrawed2(lineDrawed, seg, isBigData_Remote);
-                                                            myrenderer.deleteFromCur(seg, v_neuronSWC_list[0]);
+                                                        if (seg != null)
+                                                        { myrenderer.addLineDrawed2(lineDrawed, seg, isBigData_Remote);
+                                                        myrenderer.deleteFromCur(seg, v_neuronSWC_list[0]);
                                                         }
                                                     requestRender();
                                                     return "succeed";
-
-
                                                 }
                                             };
                                             ExecutorService exeService = Executors.newSingleThreadExecutor();
@@ -4834,6 +4886,17 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                                         requestRender();
                                     }
+
+                                    if(ifSettingROI){
+                                        ifSettingROI=false;
+                                        float [] center = myrenderer.GetROICenter(lineDrawed,isBigData_Remote);
+                                        if (center != null) {
+                                            Communicator communicator = Communicator.getInstance();
+                                            communicator.navigateAndZoomInBlock((int) center[0] - 64, (int) center[1] - 64, (int) center[2] - 64);
+                                            requestRender();
+                                        }
+                                    }
+
 
                                     if (ifDeletingLine) {
                                         myrenderer.setIfPainting(false);
@@ -5070,6 +5133,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     user_list.setVisibility(View.VISIBLE);
                     room_id.setVisibility(View.VISIBLE);
                     manual_sync.setVisibility(View.VISIBLE);
+                    ROI_i.setVisibility(View.VISIBLE);
+
             }
         }
     }
@@ -5081,6 +5146,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 user_list.setVisibility(View.GONE);
                 room_id.setVisibility(View.GONE);
                 manual_sync.setVisibility(View.GONE);
+                ROI_i.setVisibility(View.GONE);
             }
             isBigData_Remote = false;
             isBigData_Local  = false;
@@ -5114,6 +5180,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 user_list.setVisibility(View.GONE);
                 room_id.setVisibility(View.GONE);
                 manual_sync.setVisibility(View.GONE);
+                ROI_i.setVisibility(View.GONE);
             }
             isBigData_Remote = false;
             isBigData_Local  = false;
@@ -5152,6 +5219,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Undo_i.setVisibility(View.GONE);
         Redo_i.setVisibility(View.GONE);
 
+
         if (isBigData_Remote || isBigData_Local){
             navigation_back.setVisibility(View.GONE);
             navigation_down.setVisibility(View.GONE);
@@ -5168,6 +5236,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 user_list.setVisibility(View.GONE);
                 room_id.setVisibility(View.GONE);
                 manual_sync.setVisibility(View.GONE);
+                ROI_i.setVisibility(View.GONE);
             }
         }else {
             Zoom_in.setVisibility(View.GONE);
@@ -5209,6 +5278,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 user_list.setVisibility(View.VISIBLE);
                 room_id.setVisibility(View.VISIBLE);
                 manual_sync.setVisibility(View.VISIBLE);
+                ROI_i.setVisibility(View.VISIBLE);
             }
 
         }else {

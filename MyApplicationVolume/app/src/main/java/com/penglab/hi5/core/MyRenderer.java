@@ -1625,9 +1625,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         zoom(2f);
     }
 
+
     public void zoom_out(){
         zoom(0.5f);
     }
+
+
+
 
 
 
@@ -3091,6 +3095,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            }
 //            v_neuronSWC_lists[0] = tempCurveList;
 
+
+
+
             curSwcList.append(seg);
             if (isBigData){
                 updateAddSegSWC(seg);
@@ -3098,6 +3105,52 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
         else
             Log.v("draw line:::::", "nulllllllllllllllllll");
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public float [] GetROICenter(ArrayList<Float> line, boolean isBigData) throws CloneNotSupportedException {
+
+        if (img.getData() == null){
+            return null;
+        }
+        Vector<MyMarker> outswc = solveCurveMarkerLists_fm(line);
+
+        if (outswc == null){
+            ToastEasy("Make sure the point is in boundingBox");
+            return null;
+        }
+
+        int mx,Mx,my,My,mz,Mz;
+        float [] centerXYZ=new float [3];
+        mx=Mx= (int) outswc.get(0).x;
+        my=My=(int) outswc.get(0).y;
+        mz=Mz=(int) outswc.get(0).z;
+
+        for(int i=0;i<outswc.size() -1;i++){
+            MyMarker node_cur=outswc.get(i);
+            if (node_cur.x <mx) {
+                mx=(int) node_cur.x;
+            }
+            else if(node_cur.x >Mx){
+                Mx=(int) node_cur.x;
+            }
+            if (node_cur.y <my) {
+                my=(int) node_cur.y;
+            }
+            else if(node_cur.y >My){
+                My=(int) node_cur.y;
+            }
+            if (node_cur.z <mz) {
+                mz=(int) node_cur.z;
+            }
+            else if(node_cur.z >Mz){
+                Mz=(int) node_cur.z;
+            }
+        }
+        centerXYZ[0]=(mx+Mx)/2;
+        centerXYZ[1]=(my+My)/2;
+        centerXYZ[2]=(mz+Mz)/2;
+        return centerXYZ;
     }
 
 
@@ -4161,11 +4214,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         return true;
     }
-
-
-
-
-
 
 
 
