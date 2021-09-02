@@ -309,7 +309,6 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
     // 处理收到的Intent
     private void onIntent() {
         Log.v(TAG, "onIntent");
-
         if (TextUtils.isEmpty(InfoCache.getAccount())) {
             // 判断当前app是否正在运行
             if (!SysInfoUtil.stackResumed(this)) {

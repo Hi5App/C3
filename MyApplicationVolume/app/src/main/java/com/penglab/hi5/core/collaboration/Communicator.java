@@ -623,10 +623,7 @@ public class Communicator {
     }
 
     public void navigateAndZoomInBlock(int offset_x, int offset_y, int offset_z) {
-        if (CurRes <= 1){
-            Toast_in_Thread_static("You have already reached the highest resolution !");
-            return;
-        }
+
 
         String img_size = resolution.get(CurRes - 1).replace("RES(","").replace(")","");
 
@@ -686,21 +683,26 @@ public class Communicator {
         ImageStartPoint.y = ImageCurPoint.y - ImgSize/2;
         ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
 
-        CurRes -= 1;
-        ImageCurRes.x *= 2;
-        ImageCurRes.y *= 2;
-        ImageCurRes.z *= 2;
+        if (CurRes <= 1){
+            MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
+            ImageInfo.getInstance().updatePosRes(conPathQuery, CurRes, getCurrentPos());
+            return;
+        }else{
+            CurRes -= 1;
+            ImageCurRes.x *= 2;
+            ImageCurRes.y *= 2;
+            ImageCurRes.z *= 2;
 
-        ImageCurPoint.x *= 2;
-        ImageCurPoint.y *= 2;
-        ImageCurPoint.z *= 2;
+            ImageCurPoint.x *= 2;
+            ImageCurPoint.y *= 2;
+            ImageCurPoint.z *= 2;
 
-        ImageStartPoint.x = ImageCurPoint.x - ImgSize/2;
-        ImageStartPoint.y = ImageCurPoint.y - ImgSize/2;
-        ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
-
-        MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
-        ImageInfo.getInstance().updatePosRes(conPathQuery, CurRes, getCurrentPos());
+            ImageStartPoint.x = ImageCurPoint.x - ImgSize/2;
+            ImageStartPoint.y = ImageCurPoint.y - ImgSize/2;
+            ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
+            MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
+            ImageInfo.getInstance().updatePosRes(conPathQuery, CurRes, getCurrentPos());
+        }
     }
 
 

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="lay_login_container" type="id"/>
+    <item name="ly_retrieve_bar" type="id"/>
+</resources>

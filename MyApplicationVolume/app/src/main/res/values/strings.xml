@@ -1,309 +1,315 @@
-<resources>
-    <string name="app_name">Hi 5</string>
-    <string name="Button">Local</string>
-    <string name="Button_remote">Remote</string>
-    <string name="text">filename</string>
-    <string name="edit_message">Enter a http address</string>
-    <string name="Button_2">Download</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name" translatable="false">Hi 5</string>
+    <string name="Button" translatable="false">Local</string>
+    <string name="Button_remote" translatable="false">Remote</string>
+    <string name="text" translatable="false">filename</string>
+    <string name="edit_message" translatable="false">Enter a http address</string>
+    <string name="Button_2" translatable="false">Download</string>
 
-    <string name="Button0">Connect</string>
-    <string name="Button1">Login</string>
-    <string name="Button2">Logout</string>
-    <string name="Button3">Download</string>
-    <string name="Button4">ImageBlock</string>
+    <string name="Button0" translatable="false">Connect</string>
+    <string name="Button1" translatable="false">Login</string>
+    <string name="Button2" translatable="false">Logout</string>
+    <string name="Button3" translatable="false">Download</string>
+    <string name="Button4" translatable="false">ImageBlock</string>
 
-    <string name="favorite">favorite</string>
-    <string name="search">search</string>
-    <string name="more">more</string>
+    <string name="favorite" translatable="false">favorite</string>
+    <string name="search" translatable="false">search</string>
+    <string name="more" translatable="false">more</string>
 
 
-    <string name="content_description_favorite">content_description_favorite</string>
-    <string name="content_description_search">content_description_search</string>
-    <string name="content_description_more">content_description_more</string>
+    <string name="content_description_favorite" translatable="false">content_description_favorite</string>
+    <string name="content_description_search" translatable="false">content_description_search</string>
+    <string name="content_description_more" translatable="false">content_description_more</string>
 
     <!-- PLEASE KEEP THIS App ID IN SAFE PLACE -->
     <!-- Get your own App ID at https://dashboard.agora.io/ -->
     <!-- After you entered the App ID, remove <##> outside of Your App ID -->
     <!-- For formal released project, please use Security Keys/Token
         https://docs.agora.io/en/Agora%20Platform/token?platform=All%20Platforms -->
-    <string name="agora_app_id">6c7991e8e6d640e2a55eeaed79a184b1</string>
+    <string name="agora_app_id" translatable="false">6c7991e8e6d640e2a55eeaed79a184b1</string>
     <!-- Please leave it if not enable App Certificate -->
     <!-- You can generate a temporary token at https://dashboard.agora.io/projects -->
-    <string name="agora_access_token">#YOUR ACCESS TOKEN#</string>
+    <string name="agora_access_token" translatable="false">#YOUR ACCESS TOKEN#</string>
 
 
-    <string name="title_activity_login">LoginActivity</string>
-    <string name="prompt_email_username">Username</string>
-    <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password</string>
-    <string name="prompt_password_check">Check Password</string>
-    <string name="prompt_inviter_code">InviterCode</string>
-    <string name="prompt_username">Username (Not repeatable)</string>
-    <string name="prompt_nickname">Nickname</string>
-    <string name="remember_password">Remember password ?</string>
-    <string name="action_sign_in">Sign in</string>
-    <string name="action_register">Register</string>
-    <string name="action_register_now"><u>Register Now</u></string>
-    <string name="welcome">"Welcome, "</string>
-    <string name="invalid_username">Not a valid username</string>
-    <string name="invalid_nickname">Not a valid nickname</string>
-    <string name="invalid_email">Not a valid email</string>
-    <string name="invalid_password">Password must be >5 characters</string>
-    <string name="login_failed">"Login failed"</string>
-    <string name="register_failed">"Register failed"</string>
-    <string name="reconnecting">Network reconnecting ...</string>
-    <string name="account_offline">Connection lost</string>
+    <string name="title_activity_login" translatable="false">LoginActivity</string>
+    <string name="prompt_email_username" translatable="false">Username</string>
+    <string name="prompt_email" tools:ignore="MissingTranslation">Email</string>
+    <string name="prompt_password" translatable="false">Password</string>
+    <string name="prompt_password_check" translatable="false">Check Password</string>
+    <string name="prompt_inviter_code" translatable="false">InviterCode</string>
+    <string name="prompt_username" translatable="false">Username (Not repeatable)</string>
+    <string name="prompt_nickname" translatable="false">Nickname</string>
+    <string name="remember_password" translatable="false">Remember password ?</string>
+    <string name="action_sign_in" translatable="false">Sign in</string>
+    <string name="action_register" translatable="false">Register</string>
+    <string name="action_register_now" translatable="false"><u>Register Now</u></string>
+    <string name="welcome" translatable="false">"Welcome, "</string>
+    <string name="invalid_username" translatable="false">Not a valid username</string>
+    <string name="invalid_nickname" translatable="false">Not a valid nickname</string>
+    <string name="invalid_email" translatable="false">Not a valid email</string>
+    <string name="invalid_password" translatable="false">Password must be >5 characters</string>
+    <string name="login_failed" translatable="false">"Login failed"</string>
+    <string name="register_failed" translatable="false">"Register failed"</string>
+    <string name="reconnecting" translatable="false">Network reconnecting ...</string>
+    <string name="account_offline" translatable="false">Connection lost</string>
 
-    <string name="title_add_friends">Add Friends</string>
+    <string name="title_add_friends" translatable="false">Add Friends</string>
     \
-    <string name="title_peer_msg">Peer to peer message</string>
-    <string name="title_channel_message">Channel message</string>
-    <string name="title_peer_voice">Peer to peer chat</string>
-    <string name="hint_friend">Friends name</string>
-    <string name="hint_friend_msg">Enter some verification information</string>
-    <string name="hint_channel">Channel name</string>
-    <string name="hint_enable_offline_message">Enable offline message</string>
-    <string name="account_cannot_be_yourself">Account can not be yourself</string>
-    <string name="channel_name_empty">Channel name can not be empty</string>
-    <string name="channel_name_too_long">Channel name can not exceed 64 characters</string>
-    <string name="channel_name_starts_with_space">Channel name can not start with space</string>
-    <string name="channel_name_literal_null">Channel name can not be \"null\"</string>
-    <string name="btn_chat">Chat</string>
-    <string name="btn_join">Join</string>
-    <string name="btn_add">Add</string>
+    <string name="title_peer_msg" translatable="false">Peer to peer message</string>
+    <string name="title_channel_message" translatable="false">Channel message</string>
+    <string name="title_peer_voice" translatable="false">Peer to peer chat</string>
+    <string name="hint_friend" translatable="false">Friends name</string>
+    <string name="hint_friend_msg" translatable="false">Enter some verification information</string>
+    <string name="hint_channel" translatable="false">Channel name</string>
+    <string name="hint_enable_offline_message" translatable="false">Enable offline message</string>
+    <string name="account_cannot_be_yourself" translatable="false">Account can not be yourself</string>
+    <string name="channel_name_empty" translatable="false">Channel name can not be empty</string>
+    <string name="channel_name_too_long" translatable="false">Channel name can not exceed 64 characters</string>
+    <string name="channel_name_starts_with_space" translatable="false">Channel name can not start with space</string>
+    <string name="channel_name_literal_null" translatable="false">Channel name can not be \"null\"</string>
+    <string name="btn_chat" translatable="false">Chat</string>
+    <string name="btn_join" translatable="false">Join</string>
+    <string name="btn_add" translatable="false">Add</string>
 
-    <string name="account_empty">Account can not be empty</string>
-    <string name="account_too_long">Account can not exceed 64 characters</string>
-    <string name="account_starts_with_space">Account can not starts with space</string>
-    <string name="account_literal_null">Account can not be \"null\"</string>
+    <string name="account_empty" translatable="false">Account can not be empty</string>
+    <string name="account_too_long" translatable="false">Account can not exceed 64 characters</string>
+    <string name="account_starts_with_space" translatable="false">Account can not starts with space</string>
+    <string name="account_literal_null" translatable="false">Account can not be \"null\"</string>
 
     <string name="channel_title" translatable="false">%s(%d)</string>
-    <string name="join_channel_failed">Join channel failed</string>
-    <string name="single_input">Single line input</string>\
-    <string name="str_send">Send</string>
-    <string name="send_msg_failed">Failed to send message</string>
-    <string name="call_failed">Failed to call</string>
-    <string name="peer_offline">Peer is offline</string>
-    <string name="message_cached">Message cached by server</string>
-    <string name="call_cached">Call cached by server</string>
-    <string name="email_exist">Email Already Exists</string>
-    <string name="account_exit">Username Already Exists</string>
+    <string name="join_channel_failed" translatable="false">Join channel failed</string>
+    <string name="single_input" translatable="false">Single line input</string>\
+    <string name="str_send" translatable="false">Send</string>
+    <string name="send_msg_failed" translatable="false">Failed to send message</string>
+    <string name="call_failed" translatable="false">Failed to call</string>
+    <string name="peer_offline" translatable="false">Peer is offline</string>
+    <string name="message_cached" translatable="false">Message cached by server</string>
+    <string name="call_cached" translatable="false">Call cached by server</string>
+    <string name="email_exist" translatable="false">Email Already Exists</string>
+    <string name="account_exit" translatable="false">Username Already Exists</string>
 
 
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
-    <string name="title_contacts">Contacts</string>
-    <string name="title_chats">Chats</string>
-    <string name="title_me">Me</string>
+    <string name="title_home" translatable="false">Home</string>
+    <string name="title_dashboard" translatable="false">Dashboard</string>
+    <string name="title_notifications" translatable="false">Notifications</string>
+    <string name="title_contacts" translatable="false">Contacts</string>
+    <string name="title_chats" translatable="false">Chats</string>
+    <string name="title_me" translatable="false">Me</string>
 
-    <string name="NA">UnKnown Friend</string>
-    <string name="nullMsg">Null Msg</string>
+    <string name="NA" translatable="false">UnKnown Friend</string>
+    <string name="nullMsg" translatable="false">Null Msg</string>
 
-    <string name="off_line">OFFLINE</string>
-    <string name="on_line_busy">BUSY</string>
+    <string name="off_line" translatable="false">OFFLINE</string>
+    <string name="on_line_busy" translatable="false">BUSY</string>
 
-    <string name="on_line_pc">PC_ONLINE</string>
-    <string name="on_line_mac">MAC_ONLINE</string>
-    <string name="on_line_web">WEB_ONLINE</string>
-    <string name="client_ios">IOS</string>
-    <string name="client_aos">ANDROID</string>
-    <string name="on_line">ONLINE</string>
+    <string name="on_line_pc" translatable="false">PC_ONLINE</string>
+    <string name="on_line_mac" translatable="false">MAC_ONLINE</string>
+    <string name="on_line_web" translatable="false">WEB_ONLINE</string>
+    <string name="client_ios" translatable="false">IOS</string>
+    <string name="client_aos" translatable="false">ANDROID</string>
+    <string name="on_line" translatable="false">ONLINE</string>
 
-    <string name="start_session_record">Start the whiteboard record</string>
-    <string name="session_end_record">The whiteboard record is end</string>
+    <string name="start_session_record" translatable="false">Start the whiteboard record</string>
+    <string name="session_end_record" translatable="false">The whiteboard record is end</string>
 
-    <string name="verify_reminder">Verify Message</string>
-    <string name="clear_all_success">Clear all the Msg successfully</string>
-    <string name="delete_tip">Delete Tip</string>
-    <string name="delete_system_message">Delete this System Msg ?</string>
-    <string name="delete_success">Delete Successfully</string>
-    <string name="agree">Agree</string>
-    <string name="reject">Reject</string>
-    <string name="team_apply_sending">Sending…</string>
+    <string name="verify_reminder" translatable="false">Verify Message</string>
+    <string name="clear_all_success" translatable="false">Clear all the Msg successfully</string>
+    <string name="delete_tip" translatable="false">Delete Tip</string>
+    <string name="delete_system_message" translatable="false">Delete this System Msg ?</string>
+    <string name="delete_success" translatable="false">Delete Successfully</string>
+    <string name="agree" translatable="false">Agree</string>
+    <string name="reject" translatable="false">Reject</string>
+    <string name="team_apply_sending" translatable="false">Sending…</string>
 
 
-    <string name="cloud_message_clear_tips">Are you sure to clear the msg history based on the cloud ?</string>
-    <string name="sure_sync">Sure to sync ?</string>
-    <string name="message_history_query_ingore">The cloud msg (被清除消息入库)</string>
-    <string name="message_history_query_remember">The cloud msg (被清除消息不入库)</string>
-    <string name="message_clear_record">Clear local msg (记录操作)</string>
-    <string name="message_clear_not_record">Clear local msg (不记录操作)</string>
-    <string name="cloud_message_clear">clear the cloud msg history</string>
+    <string name="cloud_message_clear_tips" translatable="false">Are you sure to clear the msg history based on the cloud ?</string>
+    <string name="sure_sync" translatable="false">Sure to sync ?</string>
+    <string name="message_history_query_ingore" translatable="false">The cloud msg (被清除消息入库)</string>
+    <string name="message_history_query_remember" translatable="false">The cloud msg (被清除消息不入库)</string>
+    <string name="message_clear_record" translatable="false">Clear local msg (记录操作)</string>
+    <string name="message_clear_not_record" translatable="false">Clear local msg (不记录操作)</string>
+    <string name="cloud_message_clear" translatable="false">clear the cloud msg history</string>
 
 
     <!--  User Profile  -->
-    <string name="user_profile">User Profile</string>
-    <string name="birthday">Birthday</string>
-    <string name="phone">Telephone</string>
-    <string name="email">Email</string>
-    <string name="signature">Signature</string>
-    <string name="head">Head</string>
-    <string name="alias">Alias</string>
-    <string name="male">Male</string>
-    <string name="female">Female</string>
-    <string name="other">Other</string>
-    <string name="nickname">Nickname</string>
-    <string name="gender">Gender</string>
-    <string name="phone_number">Phone Number</string>
-    <string name="nickname_empty">Nickname can not be empty</string>
-    <string name="user_info_update_failed">Fail to set the user info, Try again please !</string>
-    <string name="user_info_update_success">Set the user info Successfully !</string>
-    <string name="user_information">User Information</string>
-    <string name="user_info_update_cancel">Cancel the update</string>
-    <string name="head_update_success">Update head portrait successfully !</string>
-    <string name="head_update_failed">Fail to update head portrait, Try again please !</string>
+    <string name="user_profile" translatable="false">User Profile</string>
+    <string name="birthday" translatable="false">Birthday</string>
+    <string name="phone" translatable="false">Telephone</string>
+    <string name="email" translatable="false">Email</string>
+    <string name="signature" translatable="false">Signature</string>
+    <string name="head" translatable="false">Head</string>
+    <string name="alias" translatable="false">Alias</string>
+    <string name="male" translatable="false">Male</string>
+    <string name="female" translatable="false">Female</string>
+    <string name="other" translatable="false">Other</string>
+    <string name="nickname" translatable="false">Nickname</string>
+    <string name="gender" translatable="false">Gender</string>
+    <string name="phone_number" translatable="false">Phone Number</string>
+    <string name="nickname_empty" translatable="false">Nickname can not be empty</string>
+    <string name="user_info_update_failed" translatable="false">Fail to set the user info, Try again please !</string>
+    <string name="user_info_update_success" translatable="false">Set the user info Successfully !</string>
+    <string name="user_information" translatable="false">User Information</string>
+    <string name="user_info_update_cancel" translatable="false">Cancel the update</string>
+    <string name="head_update_success" translatable="false">Update head portrait successfully !</string>
+    <string name="head_update_failed" translatable="false">Fail to update head portrait, Try again please !</string>
 
 
-    <string name="snapchat_longclick_to_view">LongClick to view the Picture !</string>
-    <string name="unread">unread</string>
-    <string name="message_info">Message Info</string>
+    <string name="snapchat_longclick_to_view" translatable="false">LongClick to view the Picture !</string>
+    <string name="unread" translatable="false">unread</string>
+    <string name="message_info" translatable="false">Message Info</string>
 
 
     <!-- 群 -->
-    <string name="create_normal_team">Create Normal team</string>
+    <string name="create_normal_team" translatable="false">Create Normal team</string>
     <!--    <string name="msg_notice">Msg Notice</string>-->
-    <string name="message_history_query">Message History</string>
+    <string name="message_history_query" translatable="false">Message History</string>
 
 
     <!-- Session -->
-    <string name="input_panel_tip">Tip</string>
-    <string name="input_panel_guess">Guess</string>
-    <string name="input_panel_file">Send File</string>
-    <string name="input_panel_snapchat">SnapChat</string>
-    <string name="input_panel_aduiochat">Audio Chat</string>
-    <string name="input_panel_Videochat">Video Chat</string>
+    <string name="input_panel_tip" translatable="false">Tip</string>
+    <string name="input_panel_guess" translatable="false">Guess</string>
+    <string name="input_panel_file" translatable="false">Send File</string>
+    <string name="input_panel_snapchat" translatable="false">SnapChat</string>
+    <string name="input_panel_aduiochat" translatable="false">Audio Chat</string>
+    <string name="input_panel_Videochat" translatable="false">Video Chat</string>
 
 
     <!-- setting -->
     <!--    <string name="black_list">Black List</string>-->
     <!--    <string name="offline_push">Offline push</string>-->
     <!--    <string name="recent_sticky">Recent Sticky</string>-->
-    <string name="settings">设置</string>
-    <string name="enter_ysf_str">联系客服</string>
-    <string name="no_disturb">免打扰</string>
-    <string name="multiport_push">PC/Web在线推送</string>
-    <string name="msg_notice">消息提醒</string>
-    <string name="offline_push">离线推送</string>
-    <string name="recent_sticky">消息置顶</string>
-    <string name="setting_about">关于</string>
-    <string name="setting_close">已关闭</string>
-    <string name="no_disturb_tips">在设定的时间段内云信消息提醒将不再响铃振动,如果开启了不显示通知，则通知不再显示</string>
-    <string name="time_from">从</string>
-    <string name="time_to">至</string>
-    <string name="time_from_default">22:00</string>
-    <string name="time_to_default">08:00</string>
-    <string name="black_list">黑名单</string>
-    <string name="msg_speaker">听筒模式</string>
-    <string name="ring">响铃模式</string>
-    <string name="vibrate">振动模式</string>
-    <string name="led">自定义呼吸灯</string>
-    <string name="notice_content">通知栏标题定制</string>
-    <string name="clear_index">清理全文检索缓存</string>
-    <string name="clear_sdk_cache">清理SDK文件缓存</string>
-    <string name="push_no_detail">推送不展示消息详情</string>
-    <string name="notification_fold_style">通知栏折叠方式</string>
-    <string name="notification_fold_style_all">全部</string>
-    <string name="notification_fold_style_contact">会话</string>
-    <string name="notification_fold_style_expand">展开</string>
-    <string name="operation_too_frequent">操作太频繁</string>
-    <string name="setting_private_config">私有化配置</string>
-    <string name="setting_public_config">公有化配置</string>
-    <string name="private_config_note"> \n 1.私有化配置的将在app重启后生效，请注销登陆并杀掉进程。
+    <string name="settings" translatable="false">设置</string>
+    <string name="enter_ysf_str" translatable="false">联系客服</string>
+    <string name="no_disturb" translatable="false">免打扰</string>
+    <string name="multiport_push" translatable="false">PC/Web在线推送</string>
+    <string name="msg_notice" translatable="false">消息提醒</string>
+    <string name="offline_push" translatable="false">离线推送</string>
+    <string name="recent_sticky" translatable="false">消息置顶</string>
+    <string name="setting_about" translatable="false">关于</string>
+    <string name="setting_close" translatable="false">已关闭</string>
+    <string name="no_disturb_tips" translatable="false">在设定的时间段内云信消息提醒将不再响铃振动,如果开启了不显示通知，则通知不再显示</string>
+    <string name="time_from" translatable="false">从</string>
+    <string name="time_to" translatable="false">至</string>
+    <string name="time_from_default" translatable="false">22:00</string>
+    <string name="time_to_default" translatable="false">08:00</string>
+    <string name="black_list" translatable="false">黑名单</string>
+    <string name="msg_speaker" translatable="false">听筒模式</string>
+    <string name="ring" translatable="false">响铃模式</string>
+    <string name="vibrate" translatable="false">振动模式</string>
+    <string name="led" translatable="false">自定义呼吸灯</string>
+    <string name="notice_content" translatable="false">通知栏标题定制</string>
+    <string name="clear_index" translatable="false">清理全文检索缓存</string>
+    <string name="clear_sdk_cache" translatable="false">清理SDK文件缓存</string>
+    <string name="push_no_detail" translatable="false">推送不展示消息详情</string>
+    <string name="notification_fold_style" translatable="false">通知栏折叠方式</string>
+    <string name="notification_fold_style_all" translatable="false">全部</string>
+    <string name="notification_fold_style_contact" translatable="false">会话</string>
+    <string name="notification_fold_style_expand" translatable="false">展开</string>
+    <string name="operation_too_frequent" translatable="false">操作太频繁</string>
+    <string name="setting_private_config" translatable="false">私有化配置</string>
+    <string name="setting_public_config" translatable="false">公有化配置</string>
+    <string name="private_config_note" translatable="false"> \n 1.私有化配置的将在app重启后生效，请注销登陆并杀掉进程。
         \n 2.如果要切换到环境，关闭或打开开关退出登陆杀掉进程即可。\n </string>
-    <string name="local_db_migration">本地消息迁移</string>
-    <string name="delete_friend_is_delete_alias">删除好友是否同步删除备注</string>
-    <string name="hand_shake_type">握手方式</string>
-    <string name="hand_shake_type_1">1–1</string>
-    <string name="hand_shake_type_5">1–5</string>
-    <string name="asymmetric">不对称</string>
-    <string name="asymmetric_rsa">RSA</string>
-    <string name="asymmetric_sm2">SM2</string>
-    <string name="asymmetric_rsa_oaep_1">RSA_OAEP_1</string>
-    <string name="asymmetric_rsa_oaep_256">RSA_OAEP_256</string>
-    <string name="symmetry">对称</string>
-    <string name="symmetry_rc4">RC4</string>
-    <string name="symmetry_aes">AES</string>
-    <string name="symmetry_sm4">SM4</string>
-    <string name="ip_version">IP版本</string>
-    <string name="ip_version_4">IPV4</string>
-    <string name="ip_version_6">IPV6</string>
-    <string name="ip_version_auto">自动</string>
-    <string name="logout">注销</string>
+    <string name="local_db_migration" translatable="false">本地消息迁移</string>
+    <string name="delete_friend_is_delete_alias" translatable="false">删除好友是否同步删除备注</string>
+    <string name="hand_shake_type" translatable="false">握手方式</string>
+    <string name="hand_shake_type_1" translatable="false">1–1</string>
+    <string name="hand_shake_type_5" translatable="false">1–5</string>
+    <string name="asymmetric" translatable="false">不对称</string>
+    <string name="asymmetric_rsa" translatable="false">RSA</string>
+    <string name="asymmetric_sm2" translatable="false">SM2</string>
+    <string name="asymmetric_rsa_oaep_1" translatable="false">RSA_OAEP_1</string>
+    <string name="asymmetric_rsa_oaep_256" translatable="false">RSA_OAEP_256</string>
+    <string name="symmetry" translatable="false">对称</string>
+    <string name="symmetry_rc4" translatable="false">RC4</string>
+    <string name="symmetry_aes" translatable="false">AES</string>
+    <string name="symmetry_sm4" translatable="false">SM4</string>
+    <string name="ip_version" translatable="false">IP版本</string>
+    <string name="ip_version_4" translatable="false">IPV4</string>
+    <string name="ip_version_6" translatable="false">IPV6</string>
+    <string name="ip_version_auto" translatable="false">自动</string>
+    <string name="logout" translatable="false">注销</string>
 
 
     <!-- about -->
-    <string name="about_clear_msg_history">清空所有聊天记录</string>
-    <string name="clear_msg_history_success">聊天记录已清空</string>
+    <string name="about_clear_msg_history" translatable="false">清空所有聊天记录</string>
+    <string name="clear_msg_history_success" translatable="false">聊天记录已清空</string>
 
 
     <!-- 自定义通知 -->
-    <string name="custom_notification">自定义通知</string>
-    <string name="select_custom_notification_target">选择发送对象</string>
-    <string name="send_custom_notification_tip">请输入要发送的内容</string>
-    <string name="send_custom_notification_success">自定义通知发送成功</string>
-    <string name="send_custom_notification_failed">自定义通知发送失败</string>
-    <string name="send_custom_notification_to_buddy">发送给好友</string>
-    <string name="send_custom_notification_to_team">发送给群组</string>
+    <string name="custom_notification" translatable="false">自定义通知</string>
+    <string name="select_custom_notification_target" translatable="false">选择发送对象</string>
+    <string name="send_custom_notification_tip" translatable="false">请输入要发送的内容</string>
+    <string name="send_custom_notification_success" translatable="false">自定义通知发送成功</string>
+    <string name="send_custom_notification_failed" translatable="false">自定义通知发送失败</string>
+    <string name="send_custom_notification_to_buddy" translatable="false">发送给好友</string>
+    <string name="send_custom_notification_to_team" translatable="false">发送给群组</string>
 
 
-    <string name="down_time_enable_notification">免打扰期间显示通知</string>
+    <string name="down_time_enable_notification" translatable="false">免打扰期间显示通知</string>
 
 
     <!-- Contacts -->
-    <string name="add_friend">Add Friend</string>
-    <string name="remove_friend">Remove Friend</string>
-    <string name="begin_chat">Chat</string>
-    <string name="remove_friend_tip">删除好友后，将同时解除双方的好友关系</string>
-    <string name="remove_friend_success">删除好友成功</string>
-    <string name="add_friend_self_tip">不能添加自己为好友</string>
-    <string name="add_friend_verify_tip">好友验证请求</string>
-    <string name="black_list_tip">你不会接收到列表中联系人的任何消息</string>
+    <string name="add_friend" translatable="false">Add Friend</string>
+    <string name="remove_friend" translatable="false">Remove Friend</string>
+    <string name="begin_chat" translatable="false">Chat</string>
+    <string name="remove_friend_tip" translatable="false">删除好友后，将同时解除双方的好友关系</string>
+    <string name="remove_friend_success" translatable="false">删除好友成功</string>
+    <string name="add_friend_self_tip" translatable="false">不能添加自己为好友</string>
+    <string name="add_friend_verify_tip" translatable="false">好友验证请求</string>
+    <string name="black_list_tip" translatable="false">你不会接收到列表中联系人的任何消息</string>
 
 
     <!-- Robot -->
-    <string name="nim_robot_title">Chat Robot</string>
-    <string name="robot_start_chat">Start Chat</string>
+    <string name="nim_robot_title" translatable="false">Chat Robot</string>
+    <string name="robot_start_chat" translatable="false">Start Chat</string>
 
 
     <!-- location -->
-    <string name="location_navigate">导航</string>
-    <string name="location_loading">正在定位</string>
-    <string name="location_map">地图定位</string>
-    <string name="my_location">我的位置</string>
-    <string name="location_address_unkown">该位置信息暂无</string>
-    <string name="format_mylocation">我的位置：%s</string>
-    <string name="location_address_fail">获取位置信息失败</string>
-    <string name="tools_selected">选择工具</string>
-    <string name="friends_map_navigation_web">在网页中打开</string>
-    <string name="location_open_map_error">打开地图出错</string>
+    <string name="location_navigate" translatable="false">导航</string>
+    <string name="location_loading" translatable="false">正在定位</string>
+    <string name="location_map" translatable="false">地图定位</string>
+    <string name="my_location" translatable="false">我的位置</string>
+    <string name="location_address_unkown" translatable="false">该位置信息暂无</string>
+    <string name="format_mylocation" translatable="false">我的位置：%s</string>
+    <string name="location_address_fail" translatable="false">获取位置信息失败</string>
+    <string name="tools_selected" translatable="false">选择工具</string>
+    <string name="friends_map_navigation_web" translatable="false">在网页中打开</string>
+    <string name="location_open_map_error" translatable="false">打开地图出错</string>
 
 
     <!-- Me Fragment -->
-    <string name="settings_me">Settings</string>
+    <string name="settings_me" translatable="false">Settings</string>
 
 
-    <string name="no_team">No Chat Team yet</string>
-    <string name="no_normal_team">No Chat Group yet</string>
+    <string name="no_team" translatable="false">No Chat Team yet</string>
+    <string name="no_normal_team" translatable="false">No Chat Group yet</string>
 
 
     <!-- 云信SDK所需文案 -->
-    <string name="nim_status_bar_multi_messages_incoming">%1$d位联系人有新消息</string>
-    <string name="nim_status_bar_ticker_text">%1$s有新消息</string>
-    <string name="nim_status_bar_image_message">%1$s发来一条图片消息</string>
-    <string name="nim_status_bar_audio_message">%1$s发来一条语音消息</string>
-    <string name="nim_status_bar_video_message">%1$s发来一条视频消息</string>
-    <string name="nim_status_bar_file_message">%1$s发来一条文件消息</string>
-    <string name="nim_status_bar_location_message">%1$s分享了一个地理位置</string>
-    <string name="nim_status_bar_notification_message">%1$s: 通知消息</string>
-    <string name="nim_status_bar_custom_message">%1$s: 自定义消息</string>
-    <string name="nim_status_bar_unsupported_message">%1$s: 无法显示该内容</string>
-    <string name="nim_status_bar_hidden_msg_content">你收到一条新消息</string>
+    <string name="nim_status_bar_multi_messages_incoming" translatable="false">%1$d位联系人有新消息</string>
+    <string name="nim_status_bar_ticker_text" translatable="false">%1$s有新消息</string>
+    <string name="nim_status_bar_image_message" translatable="false">%1$s发来一条图片消息</string>
+    <string name="nim_status_bar_audio_message" translatable="false">%1$s发来一条语音消息</string>
+    <string name="nim_status_bar_video_message" translatable="false">%1$s发来一条视频消息</string>
+    <string name="nim_status_bar_file_message" translatable="false">%1$s发来一条文件消息</string>
+    <string name="nim_status_bar_location_message" translatable="false">%1$s分享了一个地理位置</string>
+    <string name="nim_status_bar_notification_message" translatable="false">%1$s: 通知消息</string>
+    <string name="nim_status_bar_custom_message" translatable="false">%1$s: 自定义消息</string>
+    <string name="nim_status_bar_unsupported_message" translatable="false">%1$s: 无法显示该内容</string>
+    <string name="nim_status_bar_hidden_msg_content" translatable="false">你收到一条新消息</string>
 
 
 
     <!-- Called View -->
-    <string name="video_called_activity_info">This user is requesting a video call</string>
-    <string name="voice_called_activity_info">This user is calling you</string>
+    <string name="video_called_activity_info" translatable="false">This user is requesting a video call</string>
+    <string name="voice_called_activity_info" translatable="false">This user is calling you</string>
+    <string name="visitor_login" translatable="false">visitor_login</string>
+    <string name="login_register_hint" translatable="false">login_register_hint</string>
+    <string name="DirectlyAccess" translatable="false">DirectlyAccess</string>
+    <string name="login_other_hint" translatable="false" />
+    <string name="Directly_Access">Directly_Access</string>
+    <string name="Direct_Access">Direct_Access</string>
 
 </resources>

@@ -59,7 +59,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
-import com.lazy.library.logging.Logcat;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.enums.PopupAnimation;
@@ -193,6 +192,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private boolean ifLoadLocal = false;
     private boolean ifButtonShowed = true;
     private boolean ifAnimation = false;
+    private boolean ifSettingROI =false;
+    public static boolean ifGuestLogin = false;
 
     private boolean[] temp_mode = new boolean[8];
 
@@ -203,6 +204,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static Button Zoom_out_Big;
     private ImageButton Rotation_i;
     private ImageButton Hide_i;
+
     private static ImageButton Undo_i;
     private static ImageButton Redo_i;
     private ImageButton Sync_i;
@@ -223,6 +225,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static ImageButton navigation_down;
     private static ImageButton navigation_location;
     private static ImageButton manual_sync;
+    private static ImageButton ROI_i;
     private static Button navigation_front;
     private static Button navigation_back;
 //    private static Button blue_pen;
@@ -537,6 +540,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
             String seg      = msg.split(":")[1];
 
+
             if (!userID.equals(username)){
                 Communicator communicator = Communicator.getInstance();
                 myrenderer.syncDelSegSWC(communicator.syncSWC(seg));
@@ -798,6 +802,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         Intent intent = getIntent();
         String OOM = intent.getStringExtra(MyRenderer.OUT_OF_MEMORY);
+        intent.getBooleanExtra("isVisit",false);
         username   = intent.getStringExtra(USERNAME);
 
         if (OOM != null)
@@ -838,23 +843,17 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         this.addContentView(progressBar, params);
         progressBar.setVisibility(View.GONE);
 
-
-
         initDir();
-        initNim();
 
-        initServerConnector();
-        initService();
-
-//        doLoginAgora();
-//        initAgoraService();
-
-
-        /*
-        init database for score module
-         */
-        initDataBase();
-
+        if(ifGuestLogin == false) {
+            initNim();
+            initServerConnector();
+            initService();
+            initDataBase();
+        }else{
+            Toast.makeText(context,
+                    "You are logged in as a visitor",Toast.LENGTH_LONG).show();
+        }
 
         new Timer().schedule(new TimerTask() {
             @Override
@@ -988,6 +987,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
+
+
     public static void actionStart(Context context, String username){
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra(USERNAME, username);
@@ -1000,6 +1001,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         username = InfoCache.getAccount();
         acceptInvitation(path, soma);
     }
+
+
 
 
     /*
@@ -1087,6 +1090,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Hide_i.setImageResource(R.drawable.ic_not_hide);
         Hide_i.setBackgroundResource(R.drawable.circle_normal);
 
+        ROI_i = new ImageButton(this);
+        ROI_i.setImageResource(R.drawable.ic_roi);
+        ROI_i.setBackgroundResource(R.drawable.circle_normal);
+
+
         Undo_i = new ImageButton(this);
         Undo_i.setImageResource(R.drawable.ic_undo);
         Undo_i.setBackgroundResource(R.drawable.circle_normal);
@@ -1172,6 +1180,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         FrameLayout.LayoutParams lp_hide = new FrameLayout.LayoutParams(120, 120);
         lp_hide.gravity = Gravity.BOTTOM | Gravity.RIGHT;
         lp_hide.setMargins(0, 0, 20, 20);
+
+        FrameLayout.LayoutParams lp_ROI_i = new FrameLayout.LayoutParams(120, 120);
+        lp_ROI_i.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        lp_ROI_i.setMargins(0, 0, 300, 20);
 
         lp_undo = new FrameLayout.LayoutParams(120, 120);
         lp_undo.setMargins(0, 20, 20, 0);
@@ -1293,6 +1305,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     ifChangeLineType = false;
                     ifDeletingLine = false;
                     ifPainting = false;
+                    ifSettingROI=false;
                     ifPoint = false;
                     ifDeletingMarker = false;
                     ifSpliting = false;
@@ -1423,6 +1436,51 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         });
 
 
+        ROI_i.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                if(!myrenderer.getIfFileLoaded()){
+                    Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                if (isBigData_Remote){
+                    ifSettingROI = !ifSettingROI;
+                    if(ifSettingROI == true){
+                        ROI_i.setImageResource(R.drawable.ic_roi_stop);
+                    }else{
+                        ROI_i.setImageResource(R.drawable.ic_roi);
+                    }
+                    ifZooming = false;
+                    ifChangeLineType = false;
+                    ifDeletingLine = false;
+                    ifPainting = false;
+                    ifPoint = false;
+                    ifDeletingMarker = false;
+                    ifSpliting = false;
+                    ifChangeMarkerType = false;
+                    ifDeletingMultiMarker = false;
+//                    new Thread(new Runnable() {
+//                        @Override
+
+
+//                        public void run() {
+//
+//                            Communicator communicator = Communicator.getInstance();
+//                            communicator.zoomIn();
+//
+//                        }
+//                    }).start();
+                }
+
+            }
+        });
+
+
+
+
         Undo_i.setOnClickListener(new Button.OnClickListener(){
             public void onClick(View v){
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
@@ -1489,7 +1547,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         navigation_right.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
                 Block_navigate("Right");
             }
         });
@@ -1580,6 +1637,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         scoreText.setTypeface(Typeface.DEFAULT_BOLD);
         scoreText.setLetterSpacing(0.8f);
         scoreText.setTextSize(15);
+        if(ifGuestLogin){
+            scoreText.setVisibility(View.GONE);
+        }else
+            scoreText.setVisibility(View.VISIBLE);
 
 
 
@@ -1595,6 +1656,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         this.addContentView(Rotation_i, lp_rotation);
         this.addContentView(Hide_i, lp_hide);
+        this.addContentView(ROI_i,lp_ROI_i);
         this.addContentView(scoreText, lp_score);
 
         this.addContentView(navigation_left, lp_left_i);
@@ -1629,6 +1691,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         res_list.setVisibility(View.GONE);
         manual_sync.setVisibility(View.GONE);
+        ROI_i.setVisibility(View.GONE);
 //        red_pen.setVisibility(View.GONE);
 //        blue_pen.setVisibility(View.GONE);
 
@@ -1824,7 +1887,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     /**
-     * @param FileList
+     * @param FileList filelist from server
      */
     private void LoadFiles(String FileList){
         List<String> list_array = new ArrayList<>();
@@ -2244,11 +2307,21 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         loadLocalFile();
                                         break;
                                     case "Open BigData":
-                                        loadBigData();
+                                        if(ifGuestLogin){
+                                            Toast.makeText(MainActivity.this,"you are now logged in as a visitor and need to log in to use this function",Toast.LENGTH_SHORT).show();
+                                            break;
+                                        }else{
+                                            loadBigData();
+                                        }
                                         break;
+
                                     case "Load SwcFile":
                                         LoadSwcFile();
                                         break;
+
+//                                    case "Open DemoFile":
+//                                        openDemoFile();
+//                                        break;
 
                                     default:
                                         ToastEasy("Default in file");
@@ -2291,6 +2364,22 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             ToastEasy("Error when open file!" + e.getMessage());
         }
     }
+
+//    private void openDemoFile(){
+//        new XPopup.Builder(this)
+//                .asCenterList("More Functions...", new String[]{"DemoData1", "DemoData2", "DemoData3", "DemoData4", "DemoData5"},
+//                        new OnSelectListener() {
+//                            @RequiresApi(api = Build.VERSION_CODES.N)
+//                            @Override
+//                            public void onSelect(int position, String text) {
+//                                Log.e(TAG,"File name: " + text);
+//                                myrenderer.loaDemoFile("Demo:" + text);
+//                                myGLSurfaceView.requestRender();
+//                                setFileName(text);
+//                            }
+//                        })
+//                .show();
+//    }
 
 
 
@@ -3247,96 +3336,162 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
      * pop up a menu when button more is clicked, include analyze swc file, sensor information, downsample mode, animate and version
      */
     public void More_icon(){
+        if(ifGuestLogin)
+        {
+            new XPopup.Builder(this)
+                    .asCenterList("More Functions...", new String[]{"Login", "Analyze Swc", "Animate", "Crash Info", "Settings", "Help", "About"},
+                            new OnSelectListener() {
+                                @Override
 
-        new XPopup.Builder(this)
-                .asCenterList("More Functions...", new String[]{"Analyze Swc", "Chat", "Animate", "Settings", "Crash Info", "Quests", "Reward", "LeaderBoard", "Logout", "Help", "About"},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+                                public void onSelect(int position, String text) {
+                                    soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
-                                switch (text) {
-                                    case "Analyze Swc":
-                                        AnalyzeSwc();
-                                        break;
+                                    switch (text) {
+                                        case "Login":
+                                            login();
+                                            break;
 
-                                    case "Animate":
-                                        if (myrenderer.ifImageLoaded()){
-                                            ifPainting = false;
-                                            ifPoint = false;
-                                            ifDeletingMarker = false;
-                                            ifDeletingLine = false;
-                                            ifSpliting = false;
-                                            ifChangeLineType = false;
-                                            ifZooming = false;
-                                            setAnimation();
-                                        }else {
-                                            ToastEasy("Please Load a Img First !");
-                                        }
-                                        break;
+                                        case "Analyze Swc":
+                                            AnalyzeSwc();
+                                            break;
 
-                                    case "Chat":
-                                        openChatActivity();
-                                        break;
+                                        case "Animate":
+                                            if (myrenderer.ifImageLoaded()) {
+                                                ifPainting = false;
+                                                ifPoint = false;
+                                                ifDeletingMarker = false;
+                                                ifDeletingLine = false;
+                                                ifSpliting = false;
+                                                ifChangeLineType = false;
+                                                ifZooming = false;
+                                                setAnimation();
+                                            } else {
+                                                ToastEasy("Please Load a Img First !");
+                                            }
+                                            break;
 
-                                    case "Game":
-//                                        System.out.println("Game Start!!!!!!!");
-//
-//                                        ifGame = true;
-//                                        Select_map();
-                                        break;
+                                        case "Account Name":
+                                            popUpUserAccount(MainActivity.this);
+                                            break;
 
-                                    case "Settings":
-                                        setSettings();
-                                        break;
+                                        case "Crash Info":
+                                            CrashInfoShare();
+                                            break;
 
-                                    case "Account Name":
-                                        popUpUserAccount(MainActivity.this);
-                                        break;
+                                        case "Settings":
+                                            setSettings();
+                                            break;
 
-                                    case "Logout":
-                                        logout();
-                                        break;
-                                    case "Crash Info":
-                                        CrashInfoShare();
-                                        break;
+                                        case "About":
+                                            About();
+                                            break;
 
-                                    case "About":
-                                        About();;
-                                        break;
-
-                                    case "Help":
-                                        try{
-                                            Intent helpIntent = new Intent(MainActivity.this, HelpActivity.class);
-                                            startActivity(helpIntent);
-                                        } catch (Exception e){
-                                            e.printStackTrace();
-                                        }
-                                        break;
-
-                                    case "Quests":
-                                        startActivity(new Intent(MainActivity.this, QuestActivity.class));
-                                        break;
-
-                                    case "Achievements":
-                                        showAchievementFinished();
-                                        break;
-
-                                    case "LeaderBoard":
-                                        startActivity(new Intent(MainActivity.this, LeaderBoardActivity.class));
-                                        break;
-
-                                    case "Reward":
-                                        startActivity(new Intent(MainActivity.this, RewardActivity.class));
-                                        break;
-
-                                    default:
-                                        ToastEasy("Default in More Functions...");
-
+                                        case "Help":
+                                            try {
+                                                Intent helpIntent = new Intent(MainActivity.this, HelpActivity.class);
+                                                startActivity(helpIntent);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                            break;
+                                        default:
+                                            ToastEasy("Default in More Functions...");
+                                    }
                                 }
-                            }
-                        })
-                .show();
+                            })
+                    .show();
+        }else
+            new XPopup.Builder(this)
+                    .asCenterList("More Functions...", new String[] {"Analyze Swc", "Chat", "Animate", "Crash Info", "Quests", "Reward", "LeaderBoard", "Logout", "Settings", "Help", "About"},
+                            new OnSelectListener() {
+                                @Override
+
+                                public void onSelect(int position, String text) {
+                                    soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                                    switch (text) {
+                                        case "Analyze Swc":
+                                            AnalyzeSwc();
+                                            break;
+
+                                        case "Animate":
+                                            if (myrenderer.ifImageLoaded()){
+                                                ifPainting = false;
+                                                ifPoint = false;
+                                                ifDeletingMarker = false;
+                                                ifDeletingLine = false;
+                                                ifSpliting = false;
+                                                ifChangeLineType = false;
+                                                ifZooming = false;
+                                                setAnimation();
+                                            }else {
+                                                ToastEasy("Please Load a Img First !");
+                                            }
+                                            break;
+
+                                        case "Chat":
+                                            openChatActivity();
+                                            break;
+
+                                        case "Game":
+    //                                        System.out.println("Game Start!!!!!!!");
+    //
+    //                                        ifGame = true;
+    //                                        Select_map();
+                                            break;
+
+                                        case "Account Name":
+                                            popUpUserAccount(MainActivity.this);
+                                            break;
+
+                                        case "Logout":
+                                            logout();
+                                            break;
+
+                                        case "Crash Info":
+                                            CrashInfoShare();
+                                            break;
+
+                                        case "Quests":
+                                            startActivity(new Intent(MainActivity.this, QuestActivity.class));
+                                            break;
+
+                                        case "Achievements":
+                                            showAchievementFinished();
+                                            break;
+
+                                        case "LeaderBoard":
+                                            startActivity(new Intent(MainActivity.this, LeaderBoardActivity.class));
+                                            break;
+
+                                        case "Reward":
+                                            startActivity(new Intent(MainActivity.this, RewardActivity.class));
+                                            break;
+
+                                        case "Settings":
+                                            setSettings();
+                                            break;
+
+                                        case "About":
+                                            About();;
+                                            break;
+
+                                        case "Help":
+                                            try{
+                                                Intent helpIntent = new Intent(MainActivity.this, HelpActivity.class);
+                                                startActivity(helpIntent);
+                                            } catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+                                            break;
+
+                                        default:
+                                            ToastEasy("Default in More Functions...");
+
+                                    }
+                                }
+                            })
+                    .show();
 
     }
 
@@ -3456,7 +3611,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
 
-                                "Version: 20210630a 21:45 UTC+8 build",
+                                "Version: 20210803a 11:39 UTC+8 build",
 
                         new OnConfirmListener() {
                             @Override
@@ -3725,24 +3880,26 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         buttonVolumeBar.setProgress((int)(buttonVolume * 100));
                         actionVolumeBar.setProgress((int)(actionVolume * 100));
 
-                        RewardLitePalConnector rewardLitePalConnector = RewardLitePalConnector.getInstance();
-                        List<Integer> rewards = rewardLitePalConnector.getRewards();
-                        List<String> list = new ArrayList<>();
-                        list.add("BGM0");
-                        for (int i = 0; i < rewards.size(); i++){
-                            if (rewards.get(i) == 1)
-                                list.add("BGM" + Integer.toString(i+1));
+                        if(ifGuestLogin == false){
+                            RewardLitePalConnector rewardLitePalConnector = RewardLitePalConnector.getInstance();
+                            List<Integer> rewards = rewardLitePalConnector.getRewards();
+                            List<String> list = new ArrayList<>();
+                            list.add("BGM0");
+                            for (int i = 0; i < rewards.size(); i++){
+                                if (rewards.get(i) == 1)
+                                    list.add("BGM" + Integer.toString(i+1));
+                            }
+                            String [] spinnerItems = new String[list.size()];
+                            for (int i = 0; i < list.size(); i++){
+                                spinnerItems[i] = list.get(i);
+                            }
+
+                            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(mainContext, R.layout.support_simple_spinner_dropdown_item, spinnerItems);
+                            bgmSpinner.setAdapter(spinnerAdapter);
+                            bgmSpinner.setSelection(selectedBGM);
+
                         }
-                        String [] spinnerItems = new String[list.size()];
-                        for (int i = 0; i < list.size(); i++){
-                            spinnerItems[i] = list.get(i);
-                        }
 
-
-
-                        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(mainContext, R.layout.support_simple_spinner_dropdown_item, spinnerItems);
-                        bgmSpinner.setAdapter(spinnerAdapter);
-                        bgmSpinner.setSelection(selectedBGM);
 
                         downsample[0] = downsample_on_off.isChecked();
 
@@ -3796,21 +3953,25 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         buttonVolume = (float)(buttonVolumeBar.getProgress()) / 100.0f;
                         actionVolume = (float)(actionVolumeBar.getProgress()) / 100.0f;
 
-                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
-                        String selected = bgmSpinner.getSelectedItem().toString();
-                        if (selectedBGM != bgmSpinner.getSelectedItemPosition()) {
-                            if (selected.equals("BGM1"))
-                                MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
+                        if(!ifGuestLogin){
+                            Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
+                            String selected = bgmSpinner.getSelectedItem().toString();
+                            if (selectedBGM != bgmSpinner.getSelectedItemPosition()) {
+                                if (selected.equals("BGM1"))
+                                    MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
 
-                            else if (selected.equals("BGM2"))
-                                MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/DelRioBravo.mp3");
+                                else if (selected.equals("BGM2"))
+                                    MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/DelRioBravo.mp3");
 
-                            else
-                                MusicServer.defaultBgmSource();
+                                else
+                                    MusicServer.defaultBgmSource();
 
-                            selectedBGM = bgmSpinner.getSelectedItemPosition();
+                                selectedBGM = bgmSpinner.getSelectedItemPosition();
+
+                            }
 
                         }
+
 
                         MusicServer.setBgmVolume(bgmVolume);
                         MusicServer.setVolume(bgmVolume);
@@ -3919,6 +4080,40 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .create();
         aDialog.show();
     }
+
+    private void login(){
+
+        AlertDialog aDialog = new AlertDialog.Builder(mainContext)
+                .setTitle("Log in")
+                .setMessage("Are you sure to Log in?")
+                .setIcon(R.mipmap.ic_launcher)
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 清理缓存&注销监听&清除状态
+                        NimUIKit.logout();
+                        NIMClient.getService(AuthService.class).logout();
+
+//                        AgoraMsgManager.getInstance().getRtmClient().logout(null);
+
+                        PreferenceLogin preferenceLogin = new PreferenceLogin(MainActivity.this);
+                        preferenceLogin.setPref("","",false);
+                        // DemoCache.clear();
+
+                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                        finish();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .create();
+        aDialog.show();
+    }
+
+
 
 
     private void CrashInfoShare(){
@@ -4391,9 +4586,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
      * for game ------------------------------------------------------------------------------------
      */
 
-
-
-
+    private void setIfGuestLogin(){
+        isBigData_Remote = true;
+        isBigData_Local = false;
+        scoreText.setVisibility(View.GONE);
+        Toast.makeText(context, "you are now logged in as a visitor",Toast.LENGTH_SHORT).show();
+        return;
+    }
 
 
 
@@ -4593,6 +4792,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
         //触摸屏幕的事件
+        @RequiresApi(api = Build.VERSION_CODES.N)
         @SuppressLint("ClickableViewAccessibility")
         public boolean onTouchEvent(MotionEvent motionEvent) {
 
@@ -4610,7 +4810,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         case MotionEvent.ACTION_DOWN:
                             X = normalizedX;
                             Y = normalizedY;
-                            if (ifPainting || ifDeletingLine || ifSpliting || ifChangeLineType || ifDeletingMultiMarker) {
+                            if (ifPainting || ifDeletingLine || ifSpliting || ifChangeLineType || ifDeletingMultiMarker || ifSettingROI) {
                                 soundPool.play(soundId[0], actionVolume, actionVolume, 0, 0, 1.0f);
                                 lineDrawed.add(X);
                                 lineDrawed.add(Y);
@@ -4706,7 +4906,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 x1_start = x2;
                                 y1_start = y2;
                             } else if (!isZooming){
-                                if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker && !ifChangeMarkerType && !ifDeletingMultiMarker) {
+                                if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker && !ifChangeMarkerType && !ifDeletingMultiMarker && !ifSettingROI) {
                                     if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
                                         if (myrenderer.getIfDownSampling() == false)
                                             myrenderer.setIfDownSampling(true);
@@ -4760,9 +4960,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         }
                                     }
                                     if (ifPoint) {
-                                        Score scoreInstance = Score.getInstance();
-                                        scoreInstance.pinpoint();
-
+                                        if(ifGuestLogin == false)
+                                        {
+                                            Score scoreInstance = Score.getInstance();
+                                            scoreInstance.pinpoint();
+                                        }
                                         Log.v("actionUp", "Pointinggggggggggg");
                                         if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
                                             myrenderer.add2DMarker(normalizedX, normalizedY);
@@ -4786,12 +4988,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         myrenderer.changeMarkerType(normalizedX, normalizedY, isBigData_Remote);
                                         requestRender();
                                     }
-                                    if (ifPainting) {
+                                    if (ifPainting ) {
                                         Vector<Integer> segids = new Vector<>();
                                         myrenderer.setIfPainting(false);
+                                        if(ifGuestLogin == false)
+                                        {
+                                            Score scoreInstance = Score.getInstance();
+                                            scoreInstance.drawACurve();
 
-                                        Score scoreInstance = Score.getInstance();
-                                        scoreInstance.drawACurve();
+                                        }
 
                                         if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
                                             myrenderer.add2DCurve(lineDrawed);
@@ -4805,15 +5010,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                                         V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
                                                         V_NeuronSWC seg = myrenderer.addBackgroundLineDrawed(lineDrawed, v_neuronSWC_list);
                                                         System.out.println("feature");
-
-                                                        if (seg != null) {
-                                                            myrenderer.addLineDrawed2(lineDrawed, seg, isBigData_Remote);
-                                                            myrenderer.deleteFromCur(seg, v_neuronSWC_list[0]);
+                                                        if (seg != null)
+                                                        { myrenderer.addLineDrawed2(lineDrawed, seg, isBigData_Remote);
+                                                        myrenderer.deleteFromCur(seg, v_neuronSWC_list[0]);
                                                         }
                                                     requestRender();
                                                     return "succeed";
-
-
                                                 }
                                             };
                                             ExecutorService exeService = Executors.newSingleThreadExecutor();
@@ -4834,6 +5036,16 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                                         requestRender();
                                     }
+
+                                    if(ifSettingROI){
+                                        float [] center = myrenderer.GetROICenter(lineDrawed,isBigData_Remote);
+                                        if (center != null) {
+                                            Communicator communicator = Communicator.getInstance();
+                                            communicator.navigateAndZoomInBlock((int) center[0] - 64, (int) center[1] - 64, (int) center[2] - 64);
+                                            requestRender();
+                                        }
+                                    }
+
 
                                     if (ifDeletingLine) {
                                         myrenderer.setIfPainting(false);
@@ -5070,6 +5282,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     user_list.setVisibility(View.VISIBLE);
                     room_id.setVisibility(View.VISIBLE);
                     manual_sync.setVisibility(View.VISIBLE);
+                    ROI_i.setVisibility(View.VISIBLE);
+
             }
         }
     }
@@ -5081,6 +5295,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 user_list.setVisibility(View.GONE);
                 room_id.setVisibility(View.GONE);
                 manual_sync.setVisibility(View.GONE);
+                ROI_i.setVisibility(View.GONE);
             }
             isBigData_Remote = false;
             isBigData_Local  = false;
@@ -5114,6 +5329,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 user_list.setVisibility(View.GONE);
                 room_id.setVisibility(View.GONE);
                 manual_sync.setVisibility(View.GONE);
+                ROI_i.setVisibility(View.GONE);
             }
             isBigData_Remote = false;
             isBigData_Local  = false;
@@ -5152,6 +5368,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Undo_i.setVisibility(View.GONE);
         Redo_i.setVisibility(View.GONE);
 
+
         if (isBigData_Remote || isBigData_Local){
             navigation_back.setVisibility(View.GONE);
             navigation_down.setVisibility(View.GONE);
@@ -5168,6 +5385,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 user_list.setVisibility(View.GONE);
                 room_id.setVisibility(View.GONE);
                 manual_sync.setVisibility(View.GONE);
+                ROI_i.setVisibility(View.GONE);
             }
         }else {
             Zoom_in.setVisibility(View.GONE);
@@ -5193,6 +5411,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Undo_i.setVisibility(View.VISIBLE);
         Redo_i.setVisibility(View.VISIBLE);
 
+
         if (isBigData_Remote || isBigData_Local){
             navigation_back.setVisibility(View.VISIBLE);
             navigation_down.setVisibility(View.VISIBLE);
@@ -5209,6 +5428,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 user_list.setVisibility(View.VISIBLE);
                 room_id.setVisibility(View.VISIBLE);
                 manual_sync.setVisibility(View.VISIBLE);
+                ROI_i.setVisibility(View.VISIBLE);
             }
 
         }else {
@@ -5471,6 +5691,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public static void setIfGame(boolean b){
         ifGame = b;
     }
+
+
+
 
 
 

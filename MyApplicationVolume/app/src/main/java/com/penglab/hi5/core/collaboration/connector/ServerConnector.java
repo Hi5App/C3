@@ -9,7 +9,6 @@ import com.penglab.hi5.core.collaboration.MsgSender;
 import com.penglab.hi5.core.collaboration.basic.ReconnectionInterface;
 import com.penglab.hi5.core.collaboration.service.ManageService;
 
-import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import static com.penglab.hi5.core.Myapplication.lockForManageSocket;
 
 public class ServerConnector extends BasicConnector implements ReconnectionInterface {
@@ -88,8 +87,8 @@ public class ServerConnector extends BasicConnector implements ReconnectionInter
         Log.e(TAG,"start to reLogin !");
         if (InfoCache.getAccount() != null && InfoCache.getToken() != null)
             sendMsg(String.format("LOGIN:%s %s", InfoCache.getAccount(), InfoCache.getToken()), true, false);
-        else
-            ToastEasy("user account is null, fail to relogin !");
+//        else
+//            ToastEasy("user account is null, fail to relogin !");
     }
 
     @Override

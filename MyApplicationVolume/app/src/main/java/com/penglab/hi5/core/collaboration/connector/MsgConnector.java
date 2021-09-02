@@ -70,8 +70,8 @@ public class MsgConnector extends BasicConnector implements ReconnectionInterfac
             MainActivity.firstLoad = true;
             MsgConnector.getInstance().sendMsg("/login:" + InfoCache.getAccount(), true, false);
         }
-        else
-            ToastEasy("user account is null, fail to relogin !");
+//        else
+//            ToastEasy("user account is null, fail to relogin !");
     }
 
     @Override

@@ -47,11 +47,30 @@
     <color name="color_yellow_fcf3cd">#fcf3cd</color>
 
     <color name="color_blue_splash_screen">#3a9efb</color>
+    <color name="black_alpha_128">#80000000</color>
 
 
     <!-- Video Activity -->
     <color name="localBackground">#827b92</color>
     <color name="remoteBackground">#484258</color>
+
+    <!-- New login Activity -->
+    <color name="login_line_color">#dededf</color>
+    <color name="login_input_active">#31b968</color>
+    <color name="login_other_color">#cacaca</color>
+    <color name="account_input_bg_color">#33ffffff</color>
+    <color name="account_lock_bg">#ff43815c</color>
+    <color name="account_lock_font_color">#FF68997C</color>
+    <color name="account_input_color">#c9c9c9</color>
+    <color name="account_pressed_true">#14b94d</color>
+
+    <color name="lock_bg">#FFA07A</color>
+    <color name="lock_font_color">#ff999999</color>
+    <color name="pressed_true">#F6765C</color>
+
+
+    <color name="bg_press">#ebebeb</color>\
+    <color name="bg_press_material">#d4d4d4</color>
 
 
 

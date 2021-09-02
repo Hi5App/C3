@@ -23,18 +23,18 @@ import androidx.annotation.RequiresApi;
 import com.penglab.hi5.R;
 import com.penglab.hi5.basic.ByteTranslate;
 import com.penglab.hi5.basic.FastMarching_Linker;
-import com.penglab.hi5.basic.utils.FileManager;
+import com.penglab.hi5.basic.MyAnimation;
+import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.image.ImageUtil;
 import com.penglab.hi5.basic.image.MarkerList;
-import com.penglab.hi5.basic.MyAnimation;
-import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.XYZ;
 import com.penglab.hi5.basic.tracingfunc.cornerDetection.HarrisCornerDetector;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
+import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.core.collaboration.Communicator;
 import com.penglab.hi5.core.fileReader.annotationReader.AnoReader;
 import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
@@ -54,7 +54,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1024,6 +1023,44 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
+//    public void loaDemoFile(String message){
+//
+//
+//        curSwcList.clear();
+//        markerList.clear();
+//        cur_scale = 1.0f;
+//
+//        undoCurveList.clear();
+//        undoMarkerList.clear();
+//
+//        V_NeuronSWC_list v_neuronSWC_list = new V_NeuronSWC_list();
+//        MarkerList markerList = new MarkerList();
+//
+//        undoCurveList.add(v_neuronSWC_list);
+//        undoMarkerList.add(markerList);
+//        curUndo = 0;
+//
+//        filepath = message.split(":")[1];
+//        fileType = FileType.V3dPBD;
+//
+//        Log.v(TAG,"Before setImageDemo()");
+//        setImageDemo();
+//        ifFileLoaded = true;
+//        ifFileSupport = true;
+//
+//        Log.v("SetPath", Arrays.toString(mz));
+//
+//        Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
+//        Matrix.setIdentityM(zoomMatrix,0);//建立单位矩阵
+//        Matrix.setIdentityM(zoomAfterMatrix, 0);
+//        Matrix.setIdentityM(rotationMatrix, 0);
+//        Matrix.setRotateM(rotationMatrix, 0, 0, -1.0f, -1.0f, 0.0f);
+////        Matrix.setIdentityM(translateAfterMatrix, 0);
+//        // Set the camera position (View matrix)
+//        Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+//
+//    }
+
 
     // 游戏模式下 设置文件路径
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -1345,6 +1382,40 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Log.v("MyRenderer", "max_dim: " + Float.toString(max_dim) + "sz: " + Arrays.toString(sz) + "mz: " + Arrays.toString(mz));
     }
 
+//    private void setImageDemo(){
+//
+//        img = Image4DSimple.loadImage(filepath, ".DEMO");
+//        if (img == null){
+//            return;
+//        }
+//
+//        Log.v(TAG,"Before myPattern.free()");
+//
+//        if (myPattern != null){
+//            myPattern.setNeedRelease();
+//        }
+//
+//        grayscale =  img.getData();
+//
+//        data_length = img.getDatatype().ordinal();
+//        isBig = img.getIsBig();
+//
+//        sz[0] = (int)img.getSz0();
+//        sz[1] = (int)img.getSz1();
+//        sz[2] = (int)img.getSz2();
+//
+//        Integer[] num = {sz[0], sz[1], sz[2]};
+//        float max_dim = (float) Collections.max(Arrays.asList(num));
+//        Log.v("MyRenderer", Float.toString(max_dim));
+//
+//        mz[0] = (float) sz[0]/max_dim;
+//        mz[1] = (float) sz[1]/max_dim;
+//        mz[2] = (float) sz[2]/max_dim;
+//
+//        Log.v("MyRenderer", Arrays.toString(sz));
+//        Log.v("MyRenderer", Arrays.toString(mz));
+//    }
+
 
     private void setImage_Bigdata(int[] index){
         img = Image4DSimple.loadImage_Bigdata(filepath, index);
@@ -1625,9 +1696,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         zoom(2f);
     }
 
+
     public void zoom_out(){
         zoom(0.5f);
     }
+
+
+
 
 
 
@@ -3091,6 +3166,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //            }
 //            v_neuronSWC_lists[0] = tempCurveList;
 
+
+
+
             curSwcList.append(seg);
             if (isBigData){
                 updateAddSegSWC(seg);
@@ -3098,6 +3176,52 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
         else
             Log.v("draw line:::::", "nulllllllllllllllllll");
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public float [] GetROICenter(ArrayList<Float> line, boolean isBigData) throws CloneNotSupportedException {
+
+        if (img.getData() == null){
+            return null;
+        }
+        Vector<MyMarker> outswc = solveCurveMarkerLists_fm(line);
+
+        if (outswc == null){
+            ToastEasy("Make sure the point is in boundingBox");
+            return null;
+        }
+
+        int mx,Mx,my,My,mz,Mz;
+        float [] centerXYZ=new float [3];
+        mx=Mx= (int) outswc.get(0).x;
+        my=My=(int) outswc.get(0).y;
+        mz=Mz=(int) outswc.get(0).z;
+
+        for(int i=0;i<outswc.size() -1;i++){
+            MyMarker node_cur=outswc.get(i);
+            if (node_cur.x <mx) {
+                mx=(int) node_cur.x;
+            }
+            else if(node_cur.x >Mx){
+                Mx=(int) node_cur.x;
+            }
+            if (node_cur.y <my) {
+                my=(int) node_cur.y;
+            }
+            else if(node_cur.y >My){
+                My=(int) node_cur.y;
+            }
+            if (node_cur.z <mz) {
+                mz=(int) node_cur.z;
+            }
+            else if(node_cur.z >Mz){
+                Mz=(int) node_cur.z;
+            }
+        }
+        centerXYZ[0]=(mx+Mx)/2;
+        centerXYZ[1]=(my+My)/2;
+        centerXYZ[2]=(mz+Mz)/2;
+        return centerXYZ;
     }
 
 
@@ -4161,11 +4285,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         return true;
     }
-
-
-
-
-
 
 
 
