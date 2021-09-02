@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.MediaRouteButton;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -193,7 +194,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private boolean ifButtonShowed = true;
     private boolean ifAnimation = false;
     private boolean ifSettingROI =false;
+<<<<<<< HEAD
     public static boolean ifGuestLogin = false;
+=======
+>>>>>>> e51b59b135d0080fe842e1b5d7db26a545ac2463
 
     private boolean[] temp_mode = new boolean[8];
 
@@ -1447,12 +1451,16 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 }
 
                 if (isBigData_Remote){
+<<<<<<< HEAD
                     ifSettingROI = !ifSettingROI;
                     if(ifSettingROI == true){
                         ROI_i.setImageResource(R.drawable.ic_roi_stop);
                     }else{
                         ROI_i.setImageResource(R.drawable.ic_roi);
                     }
+=======
+                    ifSettingROI=!ifSettingROI;
+>>>>>>> e51b59b135d0080fe842e1b5d7db26a545ac2463
                     ifZooming = false;
                     ifChangeLineType = false;
                     ifDeletingLine = false;
@@ -1464,8 +1472,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     ifDeletingMultiMarker = false;
 //                    new Thread(new Runnable() {
 //                        @Override
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> e51b59b135d0080fe842e1b5d7db26a545ac2463
 //                        public void run() {
 //
 //                            Communicator communicator = Communicator.getInstance();
@@ -5038,6 +5049,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                     }
 
                                     if(ifSettingROI){
+<<<<<<< HEAD
+=======
+                                        ifSettingROI=false;
+>>>>>>> e51b59b135d0080fe842e1b5d7db26a545ac2463
                                         float [] center = myrenderer.GetROICenter(lineDrawed,isBigData_Remote);
                                         if (center != null) {
                                             Communicator communicator = Communicator.getInstance();
