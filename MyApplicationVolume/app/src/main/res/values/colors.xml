@@ -67,6 +67,7 @@
     <color name="lock_bg">#FFA07A</color>
     <color name="lock_font_color">#ff999999</color>
     <color name="pressed_true">#F6765C</color>
+    <color name="input_active">#f78a74</color>
 
 
     <color name="bg_press">#ebebeb</color>\

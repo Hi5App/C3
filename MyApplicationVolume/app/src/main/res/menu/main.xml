@@ -9,31 +9,38 @@
 <!--        android:icon="@drawable/ic_folder_black_24dp"/>-->
 
     <item
-        android:id="@+id/view"
-        android:orderInCategory="1"
-        android:title="view"
+        android:id ="@id/Undo"
+        android:orderInCategory ="1"
+        android:title="@string/undo"
         app:showAsAction="always"
-        android:icon="@drawable/ic_visibility_black_24dp" />
+        android:icon="@drawable/ic_undo_1"/>
+
+    <item
+        android:id="@id/Redo"
+        android:orderInCategory="2"
+        android:title="@string/redo"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_redo_1"/>
 
     <item
         android:id="@+id/file"
-        android:orderInCategory="2"
+        android:orderInCategory="3"
         android:title="_settings"
         app:showAsAction="always"
         android:icon="@drawable/ic_folder_black_24dp"/>
     <item
         android:id="@+id/share"
-        android:orderInCategory="3"
+        android:orderInCategory="4"
         android:title="_settings"
         app:showAsAction="always"
         android:icon="@drawable/ic_share_black_24dp"/>
 
-<!--    <item-->
-<!--        android:id="@+id/experiment"-->
-<!--        android:orderInCategory="4"-->
-<!--        android:title="experiment"-->
-<!--        app:showAsAction="always"-->
-<!--        android:icon="@drawable/ic_experiment"/>-->
+    <!--    <item-->
+    <!--        android:id="@+id/experiment"-->
+    <!--        android:orderInCategory="4"-->
+    <!--        android:title="experiment"-->
+    <!--        app:showAsAction="always"-->
+    <!--        android:icon="@drawable/ic_experiment"/>-->
 
     <item
         android:id="@+id/more"

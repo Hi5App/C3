@@ -311,5 +311,7 @@
     <string name="login_other_hint" translatable="false" />
     <string name="Directly_Access">Directly_Access</string>
     <string name="Direct_Access">Direct_Access</string>
+    <string name="undo">undo</string>
+    <string name="redo">redo</string>
 
 </resources>

@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-
+apply plugin: 'com.jakewharton.butterknife'
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
@@ -14,6 +14,11 @@ android {
         versionName "1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        javaCompileOptions {
+            annotationProcessorOptions {
+                includeCompileClasspath = true
+            }
+        }
 
         ndk {
             //设置支持的SO库架构
@@ -114,5 +119,10 @@ dependencies {
     implementation 'com.github.iflove:Logcat:2.1.2'
     // 子模块用
     implementation 'com.github.iflove.Hunter:logExtlibrary:logExtlibrary-1.0'
+    implementation 'com.github.michaldrabik:TapBarMenu:1.0.6'
+
+    implementation 'com.jakewharton:butterknife:10.0.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
+
 
 }
