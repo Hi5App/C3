@@ -1267,11 +1267,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         FrameLayout.LayoutParams lp_zoom_in = new FrameLayout.LayoutParams(120, 120);
         lp_zoom_in.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_zoom_in.setMargins(0, 0, 20, 290);
+        lp_zoom_in.setMargins(0, 0, 20, 350);
 
         FrameLayout.LayoutParams lp_zoom_out = new FrameLayout.LayoutParams(120, 120);
         lp_zoom_out.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp_zoom_out.setMargins(0, 0, 20, 200);
+        lp_zoom_out.setMargins(0, 0, 20, 260);
 
         FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
         lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
@@ -2844,7 +2844,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                                             try {
                                                 ifSwitch = false;
-                                                ll_bottom.addView(Switch);
+//                                                ll_bottom.addView(Switch);
 //                                                ll_top.addView(buttonUndo_i, lp_undo_i);
                                             }catch (Exception e){
                                                 e.printStackTrace();
@@ -2856,7 +2856,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                             Switch.setText("Pause");
                                             Switch.setTextColor(Color.BLACK);
                                             draw_i.setImageResource(R.drawable.ic_draw_main);
-                                            ll_bottom.removeView(Switch);
+//                                            ll_bottom.removeView(Switch);
 //                                            ll_top.removeView(buttonUndo_i);
                                         }
                                         break;
@@ -3472,6 +3472,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
                 ShareScreenShot();
                 return true;
+            case R.id.save_swc:
+                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+                SaveSWC();
+                return true;
 
             case R.id.more:
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
@@ -3519,7 +3523,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         if(ifGuestLogin)
         {
             new XPopup.Builder(this)
-                    .asCenterList("More Functions...", new String[]{"Login", "Analyze Swc", "Animate", "Crash Info", "Settings", "Help", "About"},
+                    .asCenterList("More Functions...", new String[]{"Login", "Analyze Swc", "GD","Filter by example","Split       ","Animate", "Crash Info", "Settings", "Help", "About"},
                             new OnSelectListener() {
                                 @Override
 
@@ -3534,6 +3538,68 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         case "Analyze Swc":
                                             AnalyzeSwc();
                                             break;
+
+                                        case "GD":
+                                            try {
+                                                Log.v(TAG, "GD-Tracing start ~");
+                                                ToastEasy("GD-Tracing start !");
+                                                progressBar.setVisibility(View.VISIBLE);
+                                                timer = new Timer();
+                                                timerTask = new TimerTask() {
+                                                    @RequiresApi(api = Build.VERSION_CODES.N)
+                                                    @Override
+                                                    public void run() {
+                                                        try {
+                                                            GDTracing();
+                                                        } catch (Exception e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+                                                };
+                                                timer.schedule(timerTask, 1000);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                            break;
+
+                                        case "Filter by example":
+                                            //调用像素分类接口，显示分类结果
+                                            progressBar.setVisibility(View.VISIBLE);
+
+                                            new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    pixelClassification();
+                                                    puiHandler.sendEmptyMessage(6);
+                                                }
+                                            }).start();
+                                            break;
+
+                                        case "Split       ":
+                                            ifSpliting = !ifSpliting;
+                                            ifPainting = false;
+                                            ifZooming = false;
+                                            if (ifSpliting && !ifSwitch) {
+//                                                draw_i.setImageResource(R.drawable.ic_split);
+                                                try {
+                                                    ifSwitch = false;
+//                                                ll_bottom.addView(Switch);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                                }catch (Exception e){
+                                                    e.printStackTrace();
+                                                }
+
+                                            } else {
+                                                ifSwitch = false;
+                                                ifSpliting = false;
+//                                                Switch.setText("Pause");
+//                                                Switch.setTextColor(Color.BLACK);
+//                                                draw_i.setImageResource(R.drawable.ic_draw_main);
+//                                            ll_bottom.removeView(Switch);
+//                                            ll_top.removeView(buttonUndo_i);
+                                            }
+                                            break;
+
 
                                         case "Animate":
                                             if (myrenderer.ifImageLoaded()) {
@@ -3582,7 +3648,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     .show();
         }else
             new XPopup.Builder(this)
-                    .asCenterList("More Functions...", new String[] {"Analyze Swc", "Chat", "Animate", "Crash Info", "Quests", "Reward", "LeaderBoard", "Logout", "Settings", "Help", "About"},
+                    .asCenterList("More Functions...", new String[] {"Analyze Swc", "Chat", "GD","Filter by example","Split       ","Animate", "Crash Info", "Quests", "Reward", "LeaderBoard", "Logout", "Settings", "Help", "About"},
                             new OnSelectListener() {
                                 @Override
 
@@ -3613,6 +3679,74 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                             openChatActivity();
                                             break;
 
+                                        case "GD":
+                                            try {
+                                                Log.v(TAG, "GD-Tracing start ~");
+                                                ToastEasy("GD-Tracing start !");
+                                                progressBar.setVisibility(View.VISIBLE);
+                                                timer = new Timer();
+                                                timerTask = new TimerTask() {
+                                                    @RequiresApi(api = Build.VERSION_CODES.N)
+                                                    @Override
+                                                    public void run() {
+                                                        try {
+                                                            GDTracing();
+                                                        } catch (Exception e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+                                                };
+                                                timer.schedule(timerTask, 1000);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                            break;
+
+                                        case "Filter by example":
+                                            //调用像素分类接口，显示分类结果
+                                            progressBar.setVisibility(View.VISIBLE);
+
+                                            new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    pixelClassification();
+                                                    puiHandler.sendEmptyMessage(6);
+                                                }
+                                            }).start();
+                                            break;
+
+                                        case "Split       ":
+                                            ifSpliting = !ifSpliting;
+                                            ifDeletingLine = false;
+                                            ifPainting = false;
+                                            ifPoint = false;
+                                            ifDeletingMarker = false;
+                                            ifChangeLineType = false;
+                                            ifChangeMarkerType = false;
+                                            ifDeletingMultiMarker = false;
+                                            ifZooming = false;
+                                            if (ifSpliting && !ifSwitch) {
+//                                                draw_i.setImageResource(R.drawable.ic_split);
+
+                                                try {
+                                                    ifSwitch = false;
+//                                                ll_bottom.addView(Switch);
+//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
+                                                }catch (Exception e){
+                                                    e.printStackTrace();
+                                                }
+
+                                            } else {
+                                                ifSwitch = false;
+                                                ifSpliting = false;
+//                                                Switch.setText("Pause");
+//                                                Switch.setTextColor(Color.BLACK);
+//                                                draw_i.setImageResource(R.drawable.ic_draw_main);
+//                                            ll_bottom.removeView(Switch);
+//                                            ll_top.removeView(buttonUndo_i);
+                                            }
+                                            break;
+
                                         case "Game":
     //                                        System.out.println("Game Start!!!!!!!");
     //
@@ -3631,6 +3765,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         case "Crash Info":
                                             CrashInfoShare();
                                             break;
+
+
 
                                         case "Quests":
                                             startActivity(new Intent(MainActivity.this, QuestActivity.class));

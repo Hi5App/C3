@@ -35,16 +35,16 @@
         app:showAsAction="always"
         android:icon="@drawable/ic_share_black_24dp"/>
 
-    <!--    <item-->
-    <!--        android:id="@+id/experiment"-->
-    <!--        android:orderInCategory="4"-->
-    <!--        android:title="experiment"-->
-    <!--        app:showAsAction="always"-->
-    <!--        android:icon="@drawable/ic_experiment"/>-->
+        <item
+            android:id="@+id/save_swc"
+            android:orderInCategory="5"
+            android:title="experiment"
+            app:showAsAction="always"
+            android:icon="@drawable/ic_save_file_1"/>
 
     <item
         android:id="@+id/more"
-        android:orderInCategory="5"
+        android:orderInCategory="6"
         android:title="more"
         android:icon="@drawable/ic_more_vert_black_24dp"
         app:showAsAction="always" />
