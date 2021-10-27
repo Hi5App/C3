@@ -2346,7 +2346,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             String path = informs[1].split(":")[1];
                             String soma = informs[2].split(":")[1];
 
-                            invitePopup(getContext(), invitor, path, soma);
+                            invitePopup(mainContext, invitor, path, soma);
                         }
                     }
                 }
