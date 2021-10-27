@@ -3452,7 +3452,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                 return true;
             case R.id.Redo:
-                ImageView redo_i = findViewById(R.id.Redo);
+//                ImageView redo_i = findViewById(R.id.Redo);
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
                 boolean redoSuccess = myrenderer.redo();
                 if (!redoSuccess){
