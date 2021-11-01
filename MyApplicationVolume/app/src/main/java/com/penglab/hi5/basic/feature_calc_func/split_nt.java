@@ -1,5 +1,7 @@
 package com.penglab.hi5.basic.feature_calc_func;
 
+import static com.penglab.hi5.core.Myapplication.ToastEasy;
+
 import android.widget.Toast;
 
 import com.penglab.hi5.basic.NeuronSWC;
@@ -61,7 +63,7 @@ public class split_nt {
                         break;
                     }
                     if (idx > list.size()) {
-                        Toast.makeText(MainActivity.getContext(), "reach max iteration, may have loop structure", Toast.LENGTH_LONG).show();
+                        ToastEasy("reach max iteration, may have loop structure");
                         tempnt = null;
                         break;
                     }

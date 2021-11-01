@@ -6,7 +6,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.MediaRouteButton;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -36,7 +35,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -44,7 +42,6 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -165,7 +162,6 @@ import static java.lang.Math.sqrt;
 //import com.penglab.hi5.chat.agora.AgoraService;
 //import com.penglab.hi5.chat.agora.message.AgoraMsgManager;
 import com.michaldrabik.tapbarmenulib.TapBarMenu;
-import butterknife.ButterKnife;
 
 public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static final String TAG = "MainActivity";
@@ -283,8 +279,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private LinearLayout ll_bottom;
     private static LinearLayout ll_file;
 
-    private int measure_count = 0;
-    private List<double[]> fl;
+    private static int measure_count = 0;
+    private static List<double[]> fl;
+    private static MDDialog ar_mdDialog = null;
+
 
     private static boolean isBigData_Remote;
     private static boolean isBigData_Local;
@@ -722,6 +720,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                 case 10:
                     popupViewSync.dismiss();
+                    break;
+
+                case 11:
+                    List<double[]> features = (List<double[]>) msg.obj;
+                    if (features.size() != 0) displayResult(features);
+                    else ToastEasy("The file is empty");
                     break;
 
                 default:
@@ -1313,7 +1317,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         lp_score.gravity = Gravity.TOP | Gravity.RIGHT;
         lp_score.setMargins(0, 230, 20, 0);
 
-        lp_animation_i = new FrameLayout.LayoutParams(200, 160);
+        lp_animation_i = new FrameLayout.LayoutParams(120, 120);
+        lp_animation_i.gravity = Gravity.TOP | Gravity.LEFT;
+        lp_animation_i.setMargins(0, 230, 0, 0);
 
         lp_left_i = new FrameLayout.LayoutParams(100, 150);
         lp_left_i.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
@@ -1827,6 +1833,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         this.addContentView(room_id, lp_room_id);
         this.addContentView(user_list, lp_user_list);
+        this.addContentView(animation_i,lp_animation_i);
 
 
         Zoom_in_Big.setVisibility(View.GONE);
@@ -1849,6 +1856,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         room_id.setVisibility(View.GONE);
         user_list.setVisibility(View.GONE);
+        animation_i.setVisibility(View.GONE);
 
 
 //        this.addContentView(neuron_list, lp_neuron_list);
@@ -3711,7 +3719,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         myrenderer.setIfDownSampling(false);
                                         myrenderer.myAnimation.Stop();
                                         ifAnimation = false;
-                                        ll_top.removeView(animation_i);
+                                        animation_i.setVisibility(View.GONE);
                                         Rotation_i.setVisibility(View.VISIBLE);
                                         break;
 
@@ -3865,16 +3873,21 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                             ToastEasy("Empty tracing, do nothing");
                                             break;
                                         }
-                                        MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
-                                        List<double[]> features = morphologyCalculate.calculatefromNT(nt, false);
-                                        fl = new ArrayList<double[]>(features);
-                                        if (features.size() != 0) displayResult(features);
-                                        else ToastEasy("The file is empty");
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
+                                                List<double[]> features = morphologyCalculate.calculatefromNT(nt, false);
+                                                fl = new ArrayList<double[]>(features);
+                                                measure_count = 0;
+                                                sendAnalyseResult(features);
+                                                Log.e(TAG,"calculate swc");
+                                            }
+                                        }).start();
                                         break;
 
                                     default:
                                         ToastEasy("Default in analysis");
-
                                 }
                             }
                         })
@@ -3883,29 +3896,29 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     }
 
-    MDDialog.Builder ar_mdDialog_bd = new MDDialog.Builder(this).setContentView(R.layout.analysis_result);
-    MDDialog ar_mdDialog = null;
+    private void sendAnalyseResult(List<double[]> features){
+        Message msg = new Message();
+        msg.what = 11;
+        msg.obj = features;
+        puiHandler.sendMessage(msg);
+    }
 
     /**
      * display the result of morphology calculate
      * @param featureList the features of result
      */
     @SuppressLint("DefaultLocale")
-    private void displayResult(final List<double[]> featureList) {
+    private static void displayResult(final List<double[]> featureList) {
         final String[] title;
         final int[] id_title;
         final int[] id_content;
         final int[] id_rl;
-        if (measure_count > featureList.size() - 1) {
-            measure_count = 0;
-        } else if (measure_count < 0) {
-            measure_count = featureList.size() - 1;
-        }
+
         double[] result = featureList.get(measure_count);
         String[] subtitle = new String[featureList.size()];
         for (int i = 0; i < featureList.size(); i++) {
             if (featureList.size() > 1) {
-                subtitle[i] = String.format("Tree %d/%d", i + 1, featureList.size());
+                subtitle[i] = String.format("Measured features Tree %d/%d", i + 1, featureList.size());
             } else {
                 subtitle[i] = "";
             }
@@ -3953,67 +3966,76 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 R.id.RL10, R.id.RL11, R.id.RL12, R.id.RL13, R.id.RL14,
                 R.id.RL15, R.id.RL16, R.id.RL17, R.id.RL18, R.id.RL19,
                 R.id.RL20, R.id.RL21};
-        ar_mdDialog = ar_mdDialog_bd
-                        .setContentView(R.layout.analysis_result)
-                        .setContentViewOperator(new MDDialog.ContentViewOperator() {
+
+        ar_mdDialog = new MDDialog.Builder(mainContext)
+                .setContentView(R.layout.analysis_result)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {
+                        //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+                        //analysis_result next page
+                        Button ar_right = (Button) contentView.findViewById(R.id.ar_right);
+                        ar_right.setOnClickListener(new View.OnClickListener() {
                             @Override
-                            public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-                                //analysis_result next page
-                                Button ar_right = (Button) contentView.findViewById(R.id.ar_right);
-                                ar_right.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        if (featureList.size() > 1) {
-                                            measure_count++;
-                                            ar_mdDialog.dismiss();
-                                            displayResult(fl);
-                                        }
-                                    }
-                                });
-                                Button ar_left = (Button) contentView.findViewById(R.id.ar_left);
-                                ar_left.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        if (featureList.size() > 1) {
-                                            measure_count--;
-                                            ar_mdDialog.dismiss();
-                                            displayResult(fl);
-                                        }
-                                    }
-                                });
-                                if (title.length == 8) {
-                                    for (int i = 8; i < id_rl.length; i++) {
-                                        contentView.findViewById(id_rl[i]).setVisibility(View.GONE);
-                                    }
-                                } else if (title.length == 22) {
-                                    for (int i = 8; i < id_rl.length; i++) {
-                                        contentView.findViewById(id_rl[i]).setVisibility(View.VISIBLE);
-                                    }
-                                }
-
-
-                                String result_str;
-                                int num;
-                                for (int i = 0; i < title.length; i++) {
-                                    TextView tx = contentView.findViewById(id_title[i]);
-                                    tx.setText(title[i]);
-
-                                    TextView ct = contentView.findViewById(id_content[i]);
-                                    if (title[i].substring(0, 6).equals("number") || title[i].substring(0, 6).equals("max br")) {
-                                        result_str = ": " + String.format("%d", (int) result[i + 1]);
-                                    } else {
-                                        num = Value_Display_Length(result[i + 1]);
-                                        result_str = ": " + String.format("%." + String.format("%d", num) + "f", (float) result[i + 1]);
-                                    }
-                                    ct.setText(result_str);
-
+                            public void onClick(View v) {
+                                if (featureList.size() > 1) {
+                                    measure_count = (measure_count + 1) % featureList.size();
+                                    double[] result = featureList.get(measure_count);
+                                    setResultContentView(contentView, title, id_title, id_content, id_rl, result, subtitle[measure_count]);
+                                    ar_mdDialog.show();
                                 }
                             }
-
-                        })
-                        .setTitle("Measured features " + subtitle[measure_count])
-                        .create();
+                        });
+                        Button ar_left = (Button) contentView.findViewById(R.id.ar_left);
+                        ar_left.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (featureList.size() > 1) {
+                                    measure_count = (measure_count - 1 + featureList.size()) % featureList.size();
+                                    double[] result = featureList.get(measure_count);
+                                    setResultContentView(contentView, title, id_title, id_content, id_rl, result, subtitle[measure_count]);
+                                    Log.e(TAG,"Measured features " + subtitle[measure_count]);
+                                    ar_mdDialog.show();
+                                }
+                            }
+                        });
+                        setResultContentView(contentView, title, id_title, id_content, id_rl, result, subtitle[measure_count]);
+                    }
+                })
+                .setShowTitle(false)
+                .create();
         ar_mdDialog.show();
+    }
+
+    private static void setResultContentView(View contentView, String[] title, int[] id_title, int[] id_content, int[] id_rl, double[] result, String titleString){
+        if (title.length == 8) {
+            for (int i = 8; i < id_rl.length; i++) {
+                contentView.findViewById(id_rl[i]).setVisibility(View.GONE);
+            }
+        } else if (title.length == 22) {
+            for (int i = 8; i < id_rl.length; i++) {
+                contentView.findViewById(id_rl[i]).setVisibility(View.VISIBLE);
+            }
+        }
+
+        TextView dialogTitle = contentView.findViewById(R.id.title);
+        dialogTitle.setText(titleString);
+
+        String result_str;
+        int num;
+        for (int i = 0; i < title.length; i++) {
+            TextView tx = contentView.findViewById(id_title[i]);
+            tx.setText(title[i]);
+
+            TextView ct = contentView.findViewById(id_content[i]);
+            if (title[i].substring(0, 6).equals("number") || title[i].substring(0, 6).equals("max br")) {
+                result_str = ": " + String.format("%d", (int) result[i + 1]);
+            } else {
+                num = Value_Display_Length(result[i + 1]);
+                result_str = ": " + String.format("%." + String.format("%d", num) + "f", (float) result[i + 1]);
+            }
+            ct.setText(result_str);
+        }
     }
 
 
@@ -4022,7 +4044,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
      * @param value feature's value
      * @return Number of digits
      */
-    private int Value_Display_Length(double value) {
+    private static int Value_Display_Length(double value) {
         String s_value = (value + "").split("\\.")[0];
         int len = s_value.length();
         if (len >= 8) {
@@ -4363,8 +4385,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             public void onNothingSelected(AdapterView<?> parent) {
                             }
                         });
-
-
                     }
                 })
                 .setNegativeButton("Cancel", new View.OnClickListener() {
@@ -4403,24 +4423,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             myrenderer.setIfDownSampling(true);
 
                             Rotation_i.setVisibility(View.GONE);
-
-                            if (ll_top.findViewById(animation_id) == null){
-                                ll_top.addView(animation_i,lp_animation_i);
-                            }
+                            animation_i.setVisibility(View.VISIBLE);
                             myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
-
                         } else {
-
                             Rotation_i.setVisibility(View.VISIBLE);
-
-                            if (ll_top.findViewById(animation_id) != null){
-                                ll_top.removeView(animation_i);
-                            }
-
+                            animation_i.setVisibility(View.GONE);
                             myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-
                         }
-
                     }
                 })
                 .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
@@ -5587,7 +5596,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         ll_top.setVisibility(View.VISIBLE);
         ll_bottom.setVisibility(View.VISIBLE);
 
-        animation_i.setVisibility(View.VISIBLE);
         Rotation_i.setVisibility(View.VISIBLE);
         Hide_i.setVisibility(View.VISIBLE);
         Undo_i.setVisibility(View.VISIBLE);
@@ -5628,9 +5636,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             scoreText.setVisibility(View.VISIBLE);
         }
         tapBarMenu.setVisibility(View.VISIBLE);
-        animation_i.setVisibility(View.VISIBLE);
         Rotation_i.setVisibility(View.VISIBLE);
         Hide_i.setVisibility(View.VISIBLE);
+//        animation_i.setVisibility(View.VISIBLE);
     }
 
 
