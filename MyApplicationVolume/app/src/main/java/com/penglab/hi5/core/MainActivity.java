@@ -28,6 +28,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -68,6 +69,7 @@ import com.lxj.xpopup.interfaces.OnInputConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.common.ui.imageview.CircleImageView;
+import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.RequestCallback;
@@ -1329,7 +1331,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         lp_up_i = new FrameLayout.LayoutParams(150, 100);
         lp_up_i.gravity = Gravity.CENTER_HORIZONTAL | Gravity.TOP;
-        lp_up_i.setMargins(0, 0, 0, 0);
+        lp_up_i.setMargins(0, 200, 0, 0);
 
         lp_down_i = new FrameLayout.LayoutParams(150, 100);
         lp_down_i.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
@@ -1760,6 +1762,19 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         LayoutInflater layoutInflater = getLayoutInflater();
         tapBarMenu = (TapBarMenu) layoutInflater.inflate(R.layout.tapbarmenu_view,null);
+        tapBarMenu.post(new Runnable() {
+            @Override
+            public void run() {
+                WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+                Display defaultDisplay = windowManager.getDefaultDisplay();
+                int newWidth = defaultDisplay.getWidth();
+                ViewGroup.LayoutParams params = tapBarMenu.getLayoutParams();
+                params.width = newWidth;
+                tapBarMenu.setLayoutParams(params);
+            }
+        });
+
+
         tapBarMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -5561,7 +5576,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //        lp_undo.setMargins(0, 240, 20, 0);
 //        Undo_i.setLayoutParams(lp_undo);
 
-        lp_up_i.setMargins(0, 150, 0, 0);
+        lp_up_i.setMargins(0, 200, 0, 0);
         navigation_up.setLayoutParams(lp_up_i);
 
         lp_nacloc_i.setMargins(20, 200, 0, 0);
