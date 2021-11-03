@@ -93,6 +93,7 @@ public class MusicServer extends Service {
     public void onDestroy() {
         super.onDestroy();
         bgmPlayer.stop();
+        bgmPlayer = null;
     }
 
     public static void setBgmSource(String path){
