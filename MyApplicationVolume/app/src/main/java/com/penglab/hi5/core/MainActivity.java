@@ -2346,7 +2346,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             String path = informs[1].split(":")[1];
                             String soma = informs[2].split(":")[1];
 
-                            invitePopup(getContext(), invitor, path, soma);
+                            invitePopup(mainContext, invitor, path, soma);
                         }
                     }
                 }
@@ -3452,9 +3452,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                 return true;
             case R.id.Redo:
-                ImageView redo_i = findViewById(R.id.Redo);
+//                ImageView redo_i = findViewById(R.id.Redo);
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-                boolean redoSuccess = myrenderer.redo();
+                boolean redoSuccess = false;
+                try {
+                    redoSuccess = myrenderer.redo();
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
                 if (!redoSuccess){
                     Toast_in_Thread("nothing to redo");
 
@@ -5460,7 +5465,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
 
             myrenderer.importApo(Communicator.getInstance().convertApo(apo));
-            myrenderer.saveUndo();
+//            myrenderer.saveUndo();
             myGLSurfaceView.requestRender();
 
         }catch (Exception e){
@@ -5475,7 +5480,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             NeuronTree nt = NeuronTree.readSWC_file(filepath);
 
             myrenderer.importNeuronTree(Communicator.getInstance().convertNeuronTree(nt),false);
-            myrenderer.saveUndo();
+//            myrenderer.saveUndo();
             myGLSurfaceView.requestRender();
             setBigDataName();
 

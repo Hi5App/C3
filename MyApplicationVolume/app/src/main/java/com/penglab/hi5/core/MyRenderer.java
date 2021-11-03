@@ -196,6 +196,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private V_NeuronSWC_list newSwcList = new V_NeuronSWC_list();
     private V_NeuronSWC_list curSwcList = new V_NeuronSWC_list();
 
+    private MarkerList syncMarkerList = new MarkerList();
+    private V_NeuronSWC_list syncSwcList = new V_NeuronSWC_list();
+
     private boolean isAddLine = false;
     private boolean isAddLine2 = false;
 
@@ -589,6 +592,59 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
                     }
 
+                    if (syncSwcList.nsegs() > 0) {
+                        ArrayList<Float> lines = new ArrayList<Float>();
+                        for (int i = 0; i < syncSwcList.seg.size(); i++) {
+                            V_NeuronSWC seg = syncSwcList.seg.get(i);
+                            Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
+                            lines.clear();
+                            for (int j = 0; j < seg.row.size(); j++) {
+                                if (seg.row.get(j).parent != -1 && seg.getIndexofParent(j) != -1) {
+                                    V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(j));
+                                    swcUnitMap.put(j, parent);
+                                }
+                            }
+
+                            for (int j = 0; j < seg.row.size(); j++) {
+                                V_NeuronSWC_unit child = seg.row.get(j);
+                                int parentid = (int) child.parent;
+                                if (parentid == -1 || seg.getIndexofParent(j) == -1) {
+                                    if (!ifGame) {
+                                        float x = (float) child.x;
+                                        float y = (float) child.y;
+                                        float z = (float) child.z;
+                                        float[] position = volumetoModel(new float[]{x, y, z});
+//                                        Log.d(TAG, "drawSplitPoints: " + x + " " + y + " " + z);
+                                        myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int) child.type);
+                                    }
+                                    continue;
+                                }
+                                V_NeuronSWC_unit parent = swcUnitMap.get(j);
+                                if (parent == null){
+                                    continue;
+                                }
+//                                Log.d(TAG, "lines.add: " + parent.x + " " + parent.y + " " + parent.z + " " + child.x + " " + child.y + " " + child.z);
+                                lines.add((float) ((sz[0] - parent.x) / sz[0] * mz[0]));
+                                lines.add((float) ((sz[1] - parent.y) / sz[1] * mz[1]));
+                                lines.add((float) ((parent.z) / sz[2] * mz[2]));
+                                lines.add((float) ((sz[0] - child.x) / sz[0] * mz[0]));
+                                lines.add((float) ((sz[1] - child.y) / sz[1] * mz[1]));
+                                lines.add((float) ((child.z) / sz[2] * mz[2]));
+
+                                myDraw.drawLine(finalMatrix, lines, (int) parent.type);
+                                if (ifGame) {
+                                    float x = lines.get(0) / mz[0] - 0.5f;
+                                    float y = lines.get(1) / mz[1] - 0.5f;
+                                    float z = lines.get(2) / mz[2] - 0.5f;
+                                    if (Math.sqrt((double)(x * x + y * y + z * z)) < 1) {
+                                        myDraw.drawLine(finalSmallMapMatrix, lines, (int) parent.type);
+                                    }
+                                }
+                                lines.clear();
+                            }
+                        }
+
+                    }
 
                     /*
                     draw the marker
@@ -3959,18 +4015,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public void importNeuronTree(NeuronTree nt, boolean needSync){
 
         Log.e(TAG,"----------------importNeuronTree----------------");
+        syncSwcList.clear();
         try{
             Log.e(TAG,"nt size: "+nt.listNeuron.size());
 
             Vector<V_NeuronSWC> segs = nt.devideByBranch();
             for (int i = 0; i < segs.size(); i++){
-                curSwcList.append(segs.get(i));
+                syncSwcList.append(segs.get(i));
                 if (needSync){
                     updateAddSegSWC(segs.get(i));
                 }
             }
 
-            Log.e(TAG,"curSwcList.nsegs() : " + curSwcList.nsegs());
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -3980,6 +4036,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
     public ArrayList<ImageMarker> importApo(ArrayList<ArrayList<Float>> apo){
+
+        syncMarkerList.clear();
 
         // ##n,orderinfo,name,comment,z,x,y, pixmax,intensity,sdev,volsize,mass,,,, color_r,color_g,color_b
         ArrayList<ImageMarker> markerListLoaded = new ArrayList<>();
@@ -4023,7 +4081,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
 
 //                System.out.println("ImageType: " + imageMarker_drawed.type);
-                markerList.add(imageMarker_drawed);
+                syncMarkerList.add(imageMarker_drawed);
                 markerListLoaded.add(imageMarker_drawed);
             }
 
@@ -4275,12 +4333,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return true;
     }
 
-    public boolean redo(){
+    public boolean redo() throws CloneNotSupportedException {
         if (curUndo >= undoMarkerList.size() - 1)
             return false;
 
-        markerList = undoMarkerList.get(curUndo + 1);
-        curSwcList = undoCurveList.get(curUndo + 1);
+        markerList = undoMarkerList.get(curUndo + 1).clone();
+        curSwcList = undoCurveList.get(curUndo + 1).clone();
         curUndo += 1;
 
         return true;
@@ -5196,14 +5254,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
     public void syncAddSegSWC(V_NeuronSWC seg){
-        curSwcList.append(seg);
+        syncSwcList.append(seg);
     }
 
-
-    public void syncDelSegSWC(V_NeuronSWC seg){
-
-        for (int i = 0; i < curSwcList.nsegs(); i++){
-            V_NeuronSWC cur_seg = curSwcList.seg.get(i);
+    private boolean deleteSameSegFromList(V_NeuronSWC seg, V_NeuronSWC_list swcList) {
+        for (int i = 0; i < swcList.nsegs(); i++){
+            V_NeuronSWC cur_seg = swcList.seg.get(i);
             boolean delete = false;
             if (cur_seg.row.size() == seg.row.size()){
                 delete = true;
@@ -5244,20 +5300,34 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             if (delete){
                 Vector<Integer> tobeDelete = new Vector<>();
                 tobeDelete.add(i);
-                curSwcList.deleteMutiSeg(tobeDelete);
+                swcList.deleteMutiSeg(tobeDelete);
+                return delete;
             }
 
         }
 
+        return false;
     }
 
 
-    public void syncRetypeSegSWC(V_NeuronSWC seg){
+    public void syncDelSegSWC(V_NeuronSWC seg){
 
-        Log.e(TAG, "seg size(): " + seg.row.size());
+        if (deleteSameSegFromList(seg, curSwcList)) {
+            for (int i = undoCurveList.size() - 1; i >= 0; i--) {
+                V_NeuronSWC_list undoList = undoCurveList.get(i);
+                if (!deleteSameSegFromList(seg, undoList)) {
+                    break;
+                }
+            }
+        }
 
-        for (int i = 0; i < curSwcList.nsegs(); i++){
-            V_NeuronSWC cur_seg = curSwcList.seg.get(i);
+        deleteSameSegFromList(seg, syncSwcList);
+
+    }
+
+    private void retypeSameSegFromList(V_NeuronSWC seg, V_NeuronSWC_list list) {
+        for (int i = 0; i < list.nsegs(); i++){
+            V_NeuronSWC cur_seg = list.seg.get(i);
 
             Log.e(TAG, "cur_seg size(): " + cur_seg.row.size());
             boolean retype = false;
@@ -5307,26 +5377,52 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
 
         }
+    }
 
+
+    public void syncRetypeSegSWC(V_NeuronSWC seg){
+
+        retypeSameSegFromList(seg, curSwcList);
+
+        for (int i = 0; i < undoCurveList.size(); i++) {
+            retypeSameSegFromList(seg, undoCurveList.get(i));
+        }
+
+        retypeSameSegFromList(seg, syncSwcList);
     }
 
 
     public void syncAddMarker(ImageMarker imageMarker){
-        markerList.add(imageMarker);
+        syncMarkerList.add(imageMarker);
     }
 
 
     public void syncDelMarker(ImageMarker imageMarker){
-        for (int i = 0 ; i < markerList.size(); i++){
+        if (deleteSameMarkerFromList(imageMarker, markerList)) {
+            for (int i = undoMarkerList.size() - 1; i >= 0; i--) {
+                MarkerList undoList = undoMarkerList.get(i);
+                if (!deleteSameMarkerFromList(imageMarker, undoList)) {
+                    break;
+                }
+            }
+        }
 
-            ImageMarker marker = markerList.get(i);
+        deleteSameMarkerFromList(imageMarker, syncMarkerList);
+    }
+
+    private boolean deleteSameMarkerFromList(ImageMarker imageMarker, MarkerList list) {
+        for (int i = 0 ; i < list.size(); i++){
+
+            ImageMarker marker = list.get(i);
             float[] marker_del = new float[]{imageMarker.x, imageMarker.y, imageMarker.z};
             float[] marker_cur = new float[]{marker.x, marker.y, marker.z};
 
             if (distance(marker_cur, marker_del) < 0.5){
-                markerList.remove(i);
+                list.remove(i);
+                return true;
             }
         }
+        return false;
     }
 
 
