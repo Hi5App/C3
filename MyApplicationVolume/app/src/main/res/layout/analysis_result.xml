@@ -26,10 +26,29 @@
         android:textAlignment="center"
         android:textSize="36sp"></Button>
 
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentLeft="true"
+        android:textColor="@color/color_green_00d3a9"
+        android:gravity="center"
+        android:text="ip:sssss"
+        android:textSize="20sp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_below="@id/title"
+        android:layout_alignLeft="@id/title"
+        android:layout_alignRight="@id/title"
+        android:background="#33333333" />
+
     <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/title"
         android:scrollbars="none">
 
         <LinearLayout
