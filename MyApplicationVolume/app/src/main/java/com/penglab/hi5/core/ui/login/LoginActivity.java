@@ -76,9 +76,9 @@ public class LoginActivity extends AppCompatActivity{
     CheckBox remember_pwd;
     PreferenceLogin preferenceLogin;
 
-    LinearLayout mLlLoginPull;
-    View mLlLoginLayer;
-    LinearLayout mLlLoginOptions;
+//    LinearLayout mLlLoginPull;
+//    View mLlLoginLayer;
+//    LinearLayout mLlLoginOptions;
     LinearLayout mLlLoginUsername;
     ImageView mIvLoginUsernameDel;
     LinearLayout mLlLoginPwd;
@@ -144,10 +144,10 @@ public class LoginActivity extends AppCompatActivity{
         remember_pwd = findViewById(R.id.remember_pwd);
 //
         //登录层、下拉层、其它登录方式层
-        mLlLoginLayer = findViewById(R.id.ll_login_layer);
-        mLlLoginPull = findViewById(R.id.ll_login_pull);
-        mLlLoginOptions = findViewById(R.id.ll_login_options);
-
+//        mLlLoginLayer = findViewById(R.id.ll_login_layer);
+//        mLlLoginPull = findViewById(R.id.ll_login_pull);
+//        mLlLoginOptions = findViewById(R.id.ll_login_options);
+//
         mLlLoginUsername = findViewById(R.id.ll_login_username);
         mIvLoginUsernameDel = findViewById(R.id.iv_login_username_del);
 
@@ -303,7 +303,7 @@ public class LoginActivity extends AppCompatActivity{
         VisitorLogin.setOnClickListener(new MyClick());
         registerButton.setOnClickListener(new MyClick());
 
-        mLlLoginPull.setOnClickListener(new MyClick());
+//        mLlLoginPull.setOnClickListener(new MyClick());
         mIvLoginUsernameDel.setOnClickListener(new MyClick());
         mIvLoginPwdDel.setOnClickListener(new MyClick());
         mLayBackBar.getViewTreeObserver().addOnGlobalLayoutListener(new MyViewTreeObserver());
@@ -349,23 +349,23 @@ public class LoginActivity extends AppCompatActivity{
                     break;
                 case R.id.iv_login_pwd_del:
                     passwordEditText.setText(null);
-                case R.id.ll_login_layer:
-                case R.id.ll_login_pull:
-                    mLlLoginPull.animate().cancel();
-                    mLlLoginLayer.animate().cancel();
-
-                    int height = mLlLoginOptions.getHeight();
-                    float progress = (mLlLoginLayer.getTag() != null && mLlLoginLayer.getTag() instanceof Float) ? (float) mLlLoginLayer.getTag() : 1;
-                    int time = (int) (360 * progress);
-
-                    if (mLlLoginPull.getTag() != null) {
-                        mLlLoginPull.setTag(null);
-                        glide(height, progress, time);
-                    } else {
-                        mLlLoginPull.setTag(true);
-                        upGlide(height, progress, time);
-                    }
-                    break;
+//                case R.id.ll_login_layer:
+//                case R.id.ll_login_pull:
+//                    mLlLoginPull.animate().cancel();
+//                    mLlLoginLayer.animate().cancel();
+//
+//                    int height = mLlLoginOptions.getHeight();
+//                    float progress = (mLlLoginLayer.getTag() != null && mLlLoginLayer.getTag() instanceof Float) ? (float) mLlLoginLayer.getTag() : 1;
+//                    int time = (int) (360 * progress);
+//
+//                    if (mLlLoginPull.getTag() != null) {
+//                        mLlLoginPull.setTag(null);
+//                        glide(height, progress, time);
+//                    } else {
+//                        mLlLoginPull.setTag(true);
+//                        upGlide(height, progress, time);
+//                    }
+//                    break;
                 default:
                     break;
 
@@ -398,36 +398,36 @@ public class LoginActivity extends AppCompatActivity{
      * @param progress progress
      * @param time     time
      */
-    private void glide(int height, float progress, int time) {
-        mLlLoginPull.animate()
-                .translationYBy(height - height * progress)
-                .translationY(height)
-                .setDuration(time)
-                .start();
-
-        mLlLoginLayer.animate()
-                .alphaBy(1 * progress)
-                .alpha(0)
-                .setDuration(time)
-                .setListener(new AnimatorListenerAdapter() {
-
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-                        if (animation instanceof ValueAnimator) {
-                            mLlLoginLayer.setTag(((ValueAnimator) animation).getAnimatedValue());
-                        }
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        if (animation instanceof ValueAnimator) {
-                            mLlLoginLayer.setTag(((ValueAnimator) animation).getAnimatedValue());
-                        }
-                        mLlLoginLayer.setVisibility(View.GONE);
-                    }
-                })
-                .start();
-    }
+//    private void glide(int height, float progress, int time) {
+//        mLlLoginPull.animate()
+//                .translationYBy(height - height * progress)
+//                .translationY(height)
+//                .setDuration(time)
+//                .start();
+//
+//        mLlLoginLayer.animate()
+//                .alphaBy(1 * progress)
+//                .alpha(0)
+//                .setDuration(time)
+//                .setListener(new AnimatorListenerAdapter() {
+//
+//                    @Override
+//                    public void onAnimationCancel(Animator animation) {
+//                        if (animation instanceof ValueAnimator) {
+//                            mLlLoginLayer.setTag(((ValueAnimator) animation).getAnimatedValue());
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onAnimationEnd(Animator animation) {
+//                        if (animation instanceof ValueAnimator) {
+//                            mLlLoginLayer.setTag(((ValueAnimator) animation).getAnimatedValue());
+//                        }
+//                        mLlLoginLayer.setVisibility(View.GONE);
+//                    }
+//                })
+//                .start();
+//    }
 
     /**
      * menu up glide
@@ -436,38 +436,38 @@ public class LoginActivity extends AppCompatActivity{
      * @param progress progress
      * @param time     time
      */
-    private void upGlide(int height, float progress, int time) {
-        mLlLoginPull.animate()
-                .translationYBy(height * progress)
-                .translationY(0)
-                .setDuration(time)
-                .start();
-        mLlLoginLayer.animate()
-                .alphaBy(1 - progress)
-                .alpha(1)
-                .setDuration(time)
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                        mLlLoginLayer.setVisibility(View.VISIBLE);
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-                        if (animation instanceof ValueAnimator) {
-                            mLlLoginLayer.setTag(((ValueAnimator) animation).getAnimatedValue());
-                        }
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        if (animation instanceof ValueAnimator) {
-                            mLlLoginLayer.setTag(((ValueAnimator) animation).getAnimatedValue());
-                        }
-                    }
-                })
-                .start();
-    }
+//    private void upGlide(int height, float progress, int time) {
+//        mLlLoginPull.animate()
+//                .translationYBy(height * progress)
+//                .translationY(0)
+//                .setDuration(time)
+//                .start();
+//        mLlLoginLayer.animate()
+//                .alphaBy(1 - progress)
+//                .alpha(1)
+//                .setDuration(time)
+//                .setListener(new AnimatorListenerAdapter() {
+//                    @Override
+//                    public void onAnimationStart(Animator animation) {
+//                        mLlLoginLayer.setVisibility(View.VISIBLE);
+//                    }
+//
+//                    @Override
+//                    public void onAnimationCancel(Animator animation) {
+//                        if (animation instanceof ValueAnimator) {
+//                            mLlLoginLayer.setTag(((ValueAnimator) animation).getAnimatedValue());
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onAnimationEnd(Animator animation) {
+//                        if (animation instanceof ValueAnimator) {
+//                            mLlLoginLayer.setTag(((ValueAnimator) animation).getAnimatedValue());
+//                        }
+//                    }
+//                })
+//                .start();
+//    }
 
     //显示或隐藏logo
     public class MyViewTreeObserver implements ViewTreeObserver.OnGlobalLayoutListener {

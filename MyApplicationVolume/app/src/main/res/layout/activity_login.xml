@@ -224,89 +224,89 @@
 
     </LinearLayout>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        <View
-            android:id="@+id/ll_login_layer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:alpha="0"
-            android:background="@color/black_alpha_128" />
+<!--    <FrameLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:orientation="vertical">-->
+<!--        <View-->
+<!--            android:id="@+id/ll_login_layer"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:alpha="0"-->
+<!--            android:background="@color/black_alpha_128" />-->
 
-        <LinearLayout
-            android:id="@+id/ll_login_pull"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:background="@drawable/bg_login_thirdpart"
-            android:orientation="vertical"
-            android:translationY="80dp">
+<!--        <LinearLayout-->
+<!--            android:id="@+id/ll_login_pull"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="bottom"-->
+<!--            android:background="@drawable/bg_login_thirdpart"-->
+<!--            android:orientation="vertical"-->
+<!--            android:translationY="80dp">-->
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:gravity="center"
-                android:text="@string/login_other_hint"
-                android:textColor="@color/login_other_color"
-                android:textSize="14sp" />
+<!--            <TextView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginBottom="12dp"-->
+<!--                android:gravity="center"-->
+<!--                android:text="@string/login_other_hint"-->
+<!--                android:textColor="@color/login_other_color"-->
+<!--                android:textSize="14sp" />-->
 
-            <LinearLayout
-                android:id="@+id/ll_login_options"
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:orientation="horizontal"
-                android:paddingBottom="10dp"
-                android:visibility="visible">
+<!--            <LinearLayout-->
+<!--                android:id="@+id/ll_login_options"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="80dp"-->
+<!--                android:orientation="horizontal"-->
+<!--                android:paddingBottom="10dp"-->
+<!--                android:visibility="visible">-->
 
 
-                <ImageView
-                    android:id="@+id/ib_login_weibo"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/ic_material"
-                    android:contentDescription="@null"
-                    android:padding="8dp"
-                    android:scaleType="centerInside"
-                    android:src="@mipmap/ic_login_3party_weibo" />
+<!--                <ImageView-->
+<!--                    android:id="@+id/ib_login_weibo"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:background="@drawable/ic_material"-->
+<!--                    android:contentDescription="@null"-->
+<!--                    android:padding="8dp"-->
+<!--                    android:scaleType="centerInside"-->
+<!--                    android:src="@mipmap/ic_login_3party_weibo" />-->
 
-                <ImageView
-                    android:id="@+id/ib_login_wx"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/ic_material"
-                    android:contentDescription="@null"
-                    android:padding="8dp"
-                    android:scaleType="centerInside"
-                    android:src="@mipmap/ic_login_3party_wechat" />
+<!--                <ImageView-->
+<!--                    android:id="@+id/ib_login_wx"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:background="@drawable/ic_material"-->
+<!--                    android:contentDescription="@null"-->
+<!--                    android:padding="8dp"-->
+<!--                    android:scaleType="centerInside"-->
+<!--                    android:src="@mipmap/ic_login_3party_wechat" />-->
 
-                <ImageView
-                    android:id="@+id/ib_login_qq"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/ic_material"
-                    android:contentDescription="@null"
-                    android:padding="8dp"
-                    android:scaleType="centerInside"
-                    android:src="@mipmap/ic_login_3party_qq" />
+<!--                <ImageView-->
+<!--                    android:id="@+id/ib_login_qq"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:background="@drawable/ic_material"-->
+<!--                    android:contentDescription="@null"-->
+<!--                    android:padding="8dp"-->
+<!--                    android:scaleType="centerInside"-->
+<!--                    android:src="@mipmap/ic_login_3party_qq" />-->
 
-                <ImageView
-                    android:id="@+id/ib_login_csdn"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/ic_material"
-                    android:contentDescription="@null"
-                    android:padding="8dp"
-                    android:scaleType="centerInside"
-                    android:src="@mipmap/ic_login_3party_csdn" />
+<!--                <ImageView-->
+<!--                    android:id="@+id/ib_login_csdn"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:background="@drawable/ic_material"-->
+<!--                    android:contentDescription="@null"-->
+<!--                    android:padding="8dp"-->
+<!--                    android:scaleType="centerInside"-->
+<!--                    android:src="@mipmap/ic_login_3party_csdn" />-->
 
-            </LinearLayout>
-        </LinearLayout>
-    </FrameLayout>
+<!--            </LinearLayout>-->
+<!--        </LinearLayout>-->
+<!--    </FrameLayout>-->
 </FrameLayout>
