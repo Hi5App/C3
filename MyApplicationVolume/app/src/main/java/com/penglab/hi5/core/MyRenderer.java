@@ -766,14 +766,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             public void run() {
                 mCaptureBuffer.rewind();
                 mBitmap.copyPixelsFromBuffer(mCaptureBuffer);
-                for(int i=0; i<screen_w; i++){
-                    for(int j=0; j<screen_h/2; j++){
-                        int jj = screen_h-1-j;
-                        int pixelTmp = mBitmap.getPixel(i,jj);
-                        mBitmap.setPixel(i,jj,mBitmap.getPixel(i,j));
-                        mBitmap.setPixel(i,j,pixelTmp);
-                    }
-                }
+                android.graphics.Matrix m = new android.graphics.Matrix();
+
+                m.postScale(1, -1);
+                mBitmap = Bitmap.createBitmap(mBitmap, 0, 0, screen_w, screen_h, m, true);
 
                 ImageUtil imageUtil = new ImageUtil();
                 Bitmap output_mBitmap = imageUtil.drawTextToRightBottom(getContext(), mBitmap, "Hi5", 20, Color.RED, 40, 30);
@@ -4209,8 +4205,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public  void pencolorchange(int color){
         lastLineType=color;
-
-
     }
 
     public void markercolorchange(int color){
