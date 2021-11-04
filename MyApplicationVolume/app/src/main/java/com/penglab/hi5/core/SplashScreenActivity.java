@@ -340,10 +340,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
      */
     private boolean canAutoLogin() {
         PreferenceLogin preferenceLogin = new PreferenceLogin(this);
-        String account = preferenceLogin.getUsername();
-        String token = preferenceLogin.getPassword();
-
-        return !TextUtils.isEmpty(account) && !TextUtils.isEmpty(token);
+        return preferenceLogin.getAutoLogin();
     }
 
     private void parseNotifyIntent(Intent intent) {

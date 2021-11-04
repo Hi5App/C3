@@ -3797,8 +3797,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                             CrashInfoShare();
                                             break;
 
-
-
                                         case "Quests":
                                             startActivity(new Intent(MainActivity.this, QuestActivity.class));
                                             break;
@@ -4426,7 +4424,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //                        AgoraMsgManager.getInstance().getRtmClient().logout(null);
 
                         PreferenceLogin preferenceLogin = new PreferenceLogin(MainActivity.this);
-                        preferenceLogin.setPref("","",false);
+                        preferenceLogin.setPref(preferenceLogin.getUsername(),preferenceLogin.getPassword(),false, true);
                         // DemoCache.clear();
 
                         startActivity(new Intent(MainActivity.this, LoginActivity.class));
@@ -4458,7 +4456,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //                        AgoraMsgManager.getInstance().getRtmClient().logout(null);
 
                         PreferenceLogin preferenceLogin = new PreferenceLogin(MainActivity.this);
-                        preferenceLogin.setPref("","",false);
+                        preferenceLogin.setPref(preferenceLogin.getUsername(),preferenceLogin.getPassword(),false, true);
                         // DemoCache.clear();
 
                         startActivity(new Intent(MainActivity.this, LoginActivity.class));
