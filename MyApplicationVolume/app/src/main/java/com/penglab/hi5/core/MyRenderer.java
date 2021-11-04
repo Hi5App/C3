@@ -4125,9 +4125,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         //  save the swc file even if current swc is empty
         String filePath = dir + "/" + nt.name + ".swc";
-        boolean ifExits = nt.writeSWC_file(filePath);
-        if (ifExits)
-            error = "This file already exits";
+        File parentFile = new File(dir);
+        if (!parentFile.exists() && !parentFile.isDirectory()) {
+            parentFile.mkdir();
+        }
+        error = nt.writeSWC_file(filePath);
         return error;
 
     }
@@ -4135,18 +4137,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public String oversaveCurrentSwc(String dir){
         String error = "";
         NeuronTree nt = this.getNeuronTree();
-        if(nt.listNeuron.size()>0){
+        if(nt.listNeuron.size()>0) {
 //            System.out.println("nt size: " + nt.listNeuron.size());
             String filePath = dir + "/" + nt.name + ".swc";
 //            System.out.println("filepath: "+filePath);
             boolean ifSucceed = nt.overwriteSWC_file(filePath);
             if (!ifSucceed)
                 error = "Overwrite failed!";
-            return error;
-        }else {
-            return error = "Current swc is empty!";
+        } else {
+            error = "Current swc is empty!";
         }
-
+        return error;
     }
 
     public String saveCurrentApo(String filepath){
@@ -4181,8 +4182,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public NeuronTree getNeuronTree(){
         try {
             V_NeuronSWC_list list = curSwcList.clone();
+            V_NeuronSWC_list syncList = syncSwcList.clone();
+            list.append(syncList.seg);
 
-            System.out.println(list);
             return list.mergeSameNode();
 
         } catch (Exception e) {
