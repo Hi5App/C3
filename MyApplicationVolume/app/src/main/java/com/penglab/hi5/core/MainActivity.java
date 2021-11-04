@@ -70,7 +70,6 @@ import com.lxj.xpopup.interfaces.OnInputConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.common.ui.imageview.CircleImageView;
-import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.RequestCallback;
@@ -100,6 +99,7 @@ import com.penglab.hi5.basic.tracingfunc.gd.V3dNeuronGDTracing;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
 import com.penglab.hi5.basic.utils.CrashHandler;
+import com.penglab.hi5.basic.utils.CrashReports;
 import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.chat.ChatActivity;
 import com.penglab.hi5.chat.nim.InfoCache;
@@ -1056,7 +1056,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     @Override
     protected void onPause() {
         super.onPause();
-        Log.v(TAG, "onPause start");
+        Log.e(TAG, "onPause start");
         myGLSurfaceView.onPause();
 
     }
@@ -1072,6 +1072,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     @Override
     protected void onStop() {
+        Log.v(TAG, "onStop start");
         Intent bgmIntent = new Intent(MainActivity.this, MusicServer.class);
         stopService(bgmIntent);
         super.onStop();
@@ -1079,6 +1080,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     @Override
     protected void onRestart() {
+        Log.v(TAG, "onRestart start");
         initMusicService();
         super.onRestart();
     }
@@ -4476,25 +4478,26 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     private void CrashInfoShare(){
-        String[] info_path = CrashHandler.getCrashReportFiles(getApplicationContext());
+        CrashReports crashReports = CrashHandler.getCrashReportFiles(getApplicationContext());
         new XPopup.Builder(this)
                 .maxHeight(1350)
-                .asCenterList("Select a Crash Report", info_path,
+                .asCenterList("Select a Crash Report", crashReports.reportNames,
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                String file_path = CrashHandler.getCrashFilePath(getApplicationContext()) + "/" + text + ".txt";
-                                File file = new File(file_path);
-                                if (file.exists()){
-                                    Intent intent = new Intent();
-
-                                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                                    intent.setAction(Intent.ACTION_SEND);
-                                    intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "com.penglab.hi5.provider", new File(file_path)));  //传输图片或者文件 采用流的方式
-                                    intent.setType("*/*");   //分享文件
-                                    startActivity(Intent.createChooser(intent, "Share From C3"));
-                                }else {
-                                    Toast_in_Thread("File does not exist");
+                                if (!crashReports.isEmpty){
+                                    String file_path = CrashHandler.getCrashFilePath(getApplicationContext()) + "/" + text + ".txt";
+                                    File file = new File(file_path);
+                                    if (file.exists()){
+                                        Intent intent = new Intent();
+                                        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                                        intent.setAction(Intent.ACTION_SEND);
+                                        intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "com.penglab.hi5.provider", new File(file_path)));  //传输图片或者文件 采用流的方式
+                                        intent.setType("*/*");   //分享文件
+                                        startActivity(Intent.createChooser(intent, "Share From Hi5"));
+                                    }else {
+                                        Toast_in_Thread("File does not exist");
+                                    }
                                 }
                             }
                         })

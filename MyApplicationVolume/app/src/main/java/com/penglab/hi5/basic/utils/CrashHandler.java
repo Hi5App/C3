@@ -9,7 +9,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.penglab.hi5.R;
-import com.penglab.hi5.core.MusicServer;
 import com.penglab.hi5.core.MyActivityLifeCycleCallbacks;
 import com.penglab.hi5.core.Myapplication;
 
@@ -141,18 +140,21 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
      * @param ctx
      * @return
      */
-    public static String[] getCrashReportFiles(Context ctx) {
+    public static CrashReports getCrashReportFiles(Context ctx) {
+        CrashReports crashReportList = new CrashReports();
         File filesDir = new File(getCrashFilePath(ctx));
         String[] fileNames = filesDir.list();
-        for (int i = 0; i < fileNames.length; i++){
-            fileNames[i] = fileNames[i].substring(0, fileNames[i].indexOf("."));
+        if(fileNames != null && fileNames.length != 0){
+            for (int i = 0; i < fileNames.length; i++){
+                fileNames[i] = fileNames[i].substring(0, fileNames[i].indexOf("."));
+            }
+            crashReportList.isEmpty = false;
+            crashReportList.reportNames = fileNames;
+        }else {
+            crashReportList.isEmpty = true;
+            crashReportList.reportNames = new String[]{"There is no crash report!"};
         }
-//        int length = fileNames.length;
-//        String[] filePaths = new String[length];
-//        for (int i = 0; i < length; i++) {
-//            filePaths[i] = getCrashFilePath(ctx) + fileNames[i];
-//        }
-        return fileNames;
+        return crashReportList;
     }
 
     /**
