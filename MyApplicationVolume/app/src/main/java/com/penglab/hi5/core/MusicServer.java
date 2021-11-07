@@ -39,6 +39,7 @@ public class MusicServer extends Service {
     public void onCreate() {
         super.onCreate();
         //适配8.0 service
+        Log.e(TAG,"onCreate");
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationChannel mChannel = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {

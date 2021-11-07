@@ -35,25 +35,22 @@ public class Communicator {
     public static final String TAG = "Communicator";
 
     public static ArrayList<String> resolution;               // res list of current img
-
-    private static int ImgRes;                                // 1 is highest; max num is lowest
+    private static int ImgRes;                                // max img res; 1 is highest; max num is lowest
     private static int CurRes;                                // current img res
-    public static XYZ ImageMaxRes = new XYZ();                // Soma position in highest resolution
-    public static XYZ ImageCurRes = new XYZ();                // Soma position in current resolution
 
     public static int ImgSize;
-    public static XYZ ImageStartPoint = new XYZ();
-    public static XYZ ImageCurPoint = new XYZ();
-
+    public static XYZ ImageStartPoint = new XYZ();            // start point of img; center - size/2
+    public static XYZ ImageCurPoint = new XYZ();              // center point of img; range of img is [center - size/2, center + size/2)
 
     public static String BrainNum = null;
     public static String Soma     = null;
-    public static String Path     = null;                              // /18454/18454_00029/1.ano
+    public static String Path     = null;                     // /18454/18454_00029/1.ano ; also for inviting user
 
-    private static String initSomaMsg  = null;                         // for inviting user
-    private static String conPath      = null;                         // for inviting user
+    private static String initSomaMsg  = null;                // for inviting user
+    private static String pathQuery = null;                   // for querying database
 
-    private static String conPathQuery = null;                         // for querying database
+    private String pattern;
+    private Pattern r;
 
 
     /**
@@ -64,6 +61,9 @@ public class Communicator {
     public static volatile Communicator INSTANCE;
 
     private Communicator(){
+        // 创建 Pattern 对象
+        pattern = "(.*)_x(.*)_y(.*)_z(.*).ano";
+        r = Pattern.compile(pattern);
     }
 
 
@@ -91,10 +91,6 @@ public class Communicator {
         }
         return INSTANCE;
     }
-
-
-
-
 
 
     /*
@@ -278,32 +274,32 @@ public class Communicator {
     public XYZ ConvertGlobaltoLocalBlockCroods(double x,double y,double z)
     {
         XYZ node = ConvertMaxRes2CurrResCoords(x,y,z);
-//        node.x -=(ImageStartPoint.x-1);
-//        node.y -=(ImageStartPoint.y-1);
-//        node.z -=(ImageStartPoint.z-1);
+        node.x -=(ImageStartPoint.x-0.5);
+        node.y -=(ImageStartPoint.y-0.5);
+        node.z -=(ImageStartPoint.z-0.5);
 
         /*
         -1 之后会出现删线不同步的问题
          */
-        node.x -=(ImageStartPoint.x);
-        node.y -=(ImageStartPoint.y);
-        node.z -=(ImageStartPoint.z);
+//        node.x -=(ImageStartPoint.x);
+//        node.y -=(ImageStartPoint.y);
+//        node.z -=(ImageStartPoint.z);
 //        Log.d(TAG,"ConvertGlobaltoLocalBlockCroods x y z = " + x + " " + y + " " + z + " -> " + XYZ2String(node));
         return node;
     }
 
     public XYZ ConvertLocalBlocktoGlobalCroods(double x,double y,double z)
     {
-//        x +=(ImageStartPoint.x-1);
-//        y +=(ImageStartPoint.y-1);
-//        z +=(ImageStartPoint.z-1);
+        x +=(ImageStartPoint.x-0.5);
+        y +=(ImageStartPoint.y-0.5);
+        z +=(ImageStartPoint.z-0.5);
 
         /*
         -1 之后会出现删线不同步的问题
          */
-        x +=(ImageStartPoint.x);
-        y +=(ImageStartPoint.y);
-        z +=(ImageStartPoint.z);
+//        x +=(ImageStartPoint.x);
+//        y +=(ImageStartPoint.y);
+//        z +=(ImageStartPoint.z);
         XYZ node = ConvertCurrRes2MaxResCoords(x,y,z);
 //        Log.d(TAG,"ConvertLocalBlocktoGlobalCroods x y z = " + x + " " + y + " " + z + " -> " + XYZ2String(node));
         return node;
@@ -315,6 +311,9 @@ public class Communicator {
 //        y/=(ImageMaxRes.y/ImageCurRes.y);
 //        z/=(ImageMaxRes.z/ImageCurRes.z);
 
+        /*
+        -1 之后会出现删线不同步的问题
+         */
         x /= Math.pow(2, CurRes-1);
         y /= Math.pow(2, CurRes-1);
         z /= Math.pow(2, CurRes-1);
@@ -359,28 +358,16 @@ public class Communicator {
 
 
     public boolean initSoma(final String msg){
-
-//        Log.e(TAG,"msg: " + msg);
-        String pattern = "(.*)_x(.*)_y(.*)_z(.*).ano";
-
-        // 创建 Pattern 对象
-        Pattern r = Pattern.compile(pattern);
-
         // 现在创建 matcher 对象
         Matcher m = r.matcher(msg);
+
         if (m.find()){
-
 //            Log.d(TAG,String.format("Found value x %s, y %s, z %s", m.group(2), m.group(3), m.group(4)));
-
             String x = m.group(2);
             String y = m.group(3);
             String z = m.group(4);
 
-            if (x != null && y != null && z != null){
-                ImageMaxRes.x = Float.parseFloat(x);
-                ImageMaxRes.y = Float.parseFloat(y);
-                ImageMaxRes.z = Float.parseFloat(z);
-            }else {
+            if (x == null || y == null || z == null){
                 Toast_in_Thread_static("something Wrong with soma position !");
                 return false;
             }
@@ -389,13 +376,11 @@ public class Communicator {
             Soma = x.split("/.")[0] + ";" + y.split("/.")[0] + ";" + z.split("/.")[0];
             return true;
         }
-
         return false;
     }
 
 
     public void initImgInfo(String imgName, int imgres, int curRes, String[] resList){
-
 
         ImgRes = imgres;
 
@@ -403,25 +388,24 @@ public class Communicator {
         setResolution(resList);
 
         int[] curPos = new int[4];
-        boolean exist = ImageInfo.getInstance().queryCurPath(conPathQuery);
+        boolean exist = ImageInfo.getInstance().queryCurPath(pathQuery);
         if (exist){
             ImageInfo imageInfo = ImageInfo.getInstance();
 
             /*
             read curRes from local file
             */
-            if (imageInfo.queryRes(conPathQuery) != -1){
-                CurRes = imageInfo.queryRes(conPathQuery);
+            if (imageInfo.queryRes(pathQuery) != -1){
+                CurRes = imageInfo.queryRes(pathQuery);
             }else {
                 Toast_in_Thread_static("Something Wrong with Res info");
             }
 
-
             /*
             read curPos from local file
             */
-            if (imageInfo.queryPos(conPathQuery) != null){
-                String[] curPosString = imageInfo.queryPos(conPathQuery).split(";");
+            if (imageInfo.queryPos(pathQuery) != null){
+                String[] curPosString = imageInfo.queryPos(pathQuery).split(";");
 
                 for (int i=0; i<curPosString.length; i++){
                     curPos[i] = Integer.parseInt(curPosString[i]);
@@ -430,8 +414,6 @@ public class Communicator {
             }else {
                 Toast_in_Thread_static("Something Wrong with Pos info");
             }
-
-
         }else {
 
             /*
@@ -452,16 +434,6 @@ public class Communicator {
         /*
         init
          */
-        int[] pos = new int[3];
-        int ratio = (int) Math.pow(2, (CurRes) - 1);
-        String[] pos_str = Soma.split(";");
-        for (int i = 0; i < pos_str.length; i++){
-            pos[i] = (int) (Float.parseFloat(pos_str[i]) / ratio);
-        }
-
-        ImageCurRes.x = pos[0];
-        ImageCurRes.y = pos[1];
-        ImageCurRes.z = pos[2];
 
         ImageCurPoint.x = curPos[0];
         ImageCurPoint.y = curPos[1];
@@ -474,7 +446,7 @@ public class Communicator {
 
         if (!exist){
             Log.e(TAG,"initImgInfo");
-            ImageInfo.getInstance().initImgInfo(conPathQuery, CurRes, String.format("%d;%d;%d;%d", (int) ImageCurPoint.x, (int) ImageCurPoint.y, (int) ImageCurPoint.z, ImgSize));
+            ImageInfo.getInstance().initImgInfo(pathQuery, CurRes, String.format("%d;%d;%d;%d", (int) ImageCurPoint.x, (int) ImageCurPoint.y, (int) ImageCurPoint.z, ImgSize));
         }
 
         Log.e(TAG,"max res: "+ ImgRes + ", cur res: " + CurRes);
@@ -618,12 +590,11 @@ public class Communicator {
         ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
 
         MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
-        ImageInfo.getInstance().updatePosRes(conPathQuery, CurRes, getCurrentPos());
+        ImageInfo.getInstance().updatePosRes(pathQuery, CurRes, getCurrentPos());
 
     }
 
     public void navigateAndZoomInBlock(int offset_x, int offset_y, int offset_z) {
-
 
         String img_size = resolution.get(CurRes - 1).replace("RES(","").replace(")","");
 
@@ -685,14 +656,10 @@ public class Communicator {
 
         if (CurRes <= 1){
             MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
-            ImageInfo.getInstance().updatePosRes(conPathQuery, CurRes, getCurrentPos());
+            ImageInfo.getInstance().updatePosRes(pathQuery, CurRes, getCurrentPos());
             return;
         }else{
             CurRes -= 1;
-            ImageCurRes.x *= 2;
-            ImageCurRes.y *= 2;
-            ImageCurRes.z *= 2;
-
             ImageCurPoint.x *= 2;
             ImageCurPoint.y *= 2;
             ImageCurPoint.z *= 2;
@@ -701,7 +668,7 @@ public class Communicator {
             ImageStartPoint.y = ImageCurPoint.y - ImgSize/2;
             ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
             MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
-            ImageInfo.getInstance().updatePosRes(conPathQuery, CurRes, getCurrentPos());
+            ImageInfo.getInstance().updatePosRes(pathQuery, CurRes, getCurrentPos());
         }
     }
 
@@ -715,10 +682,6 @@ public class Communicator {
         }
 
         CurRes -= 1;
-        ImageCurRes.x *= 2;
-        ImageCurRes.y *= 2;
-        ImageCurRes.z *= 2;
-
         ImageCurPoint.x *= 2;
         ImageCurPoint.y *= 2;
         ImageCurPoint.z *= 2;
@@ -728,7 +691,7 @@ public class Communicator {
         ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
 
         MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
-        ImageInfo.getInstance().updatePosRes(conPathQuery, CurRes, getCurrentPos());
+        ImageInfo.getInstance().updatePosRes(pathQuery, CurRes, getCurrentPos());
 
     }
 
@@ -742,10 +705,6 @@ public class Communicator {
         }
 
         CurRes += 1;
-        ImageCurRes.x /= 2;
-        ImageCurRes.y /= 2;
-        ImageCurRes.z /= 2;
-
         ImageCurPoint.x /= 2;
         ImageCurPoint.y /= 2;
         ImageCurPoint.z /= 2;
@@ -755,7 +714,7 @@ public class Communicator {
         ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
 
         MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
-        ImageInfo.getInstance().updatePosRes(conPathQuery, CurRes, getCurrentPos());
+        ImageInfo.getInstance().updatePosRes(pathQuery, CurRes, getCurrentPos());
 
     }
 
@@ -785,11 +744,7 @@ public class Communicator {
             return;
 
         double ratio = Math.pow(2, CurRes - newRes);
-
         CurRes = newRes;
-        ImageCurRes.x *= ratio;
-        ImageCurRes.y *= ratio;
-        ImageCurRes.z *= ratio;
 
         ImageCurPoint.x *= ratio;
         ImageCurPoint.y *= ratio;
@@ -800,7 +755,7 @@ public class Communicator {
         ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
 
         MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
-        ImageInfo.getInstance().updatePosRes(conPathQuery, CurRes, getCurrentPos());
+        ImageInfo.getInstance().updatePosRes(pathQuery, CurRes, getCurrentPos());
     }
 
 
@@ -860,30 +815,17 @@ public class Communicator {
     }
 
 
-    public void setConPath(String p) {
-        conPath = p;
-        conPathQuery = conPath.replace("/","");
+    public void setPath(String p) {
+        Path = p;
+        pathQuery = p.replace("/","");
     }
-
-
-    public static float[] getSoma(){
-        return new float[]{ImageCurRes.x, ImageCurRes.y , ImageCurRes.z};
-    }
-
 
     /*
     for inviting user
      */
-
     public String getInitSomaMsg() {
         return initSomaMsg;
     }
-
-
-    public String getConPath() {
-        return conPath;
-    }
-
 
     String[] Transform(ArrayList<String> strings, int start, int end){
 

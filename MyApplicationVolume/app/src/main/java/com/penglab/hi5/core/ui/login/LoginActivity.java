@@ -73,7 +73,6 @@ public class LoginActivity extends AppCompatActivity{
     Button VisitorLogin;
     ProgressBar loadingProgressBar;
     Button registerButton;
-    CheckBox remember_pwd;
     PreferenceLogin preferenceLogin;
 
     LinearLayout mLlLoginPull;
@@ -141,8 +140,8 @@ public class LoginActivity extends AppCompatActivity{
         VisitorLogin = findViewById(R.id.visitor_login);
         loadingProgressBar = findViewById(R.id.loading);
         registerButton = findViewById(R.id.goto_register);
-        remember_pwd = findViewById(R.id.remember_pwd);
-//
+//        remember_pwd = findViewById(R.id.remember_pwd);
+
         //登录层、下拉层、其它登录方式层
         mLlLoginLayer = findViewById(R.id.ll_login_layer);
         mLlLoginPull = findViewById(R.id.ll_login_pull);
@@ -193,8 +192,9 @@ public class LoginActivity extends AppCompatActivity{
         if (preferenceLogin.getRem_or_not()){
             usernameEditText.setText(preferenceLogin.getUsername());
             passwordEditText.setText(preferenceLogin.getPassword());
-            remember_pwd.setChecked(true);
-//            loginButton.setEnabled(true);
+            loginButton.setBackgroundResource(R.drawable.bg_login_submit);
+            loginButton.setTextColor(getResources().getColor(R.color.white));
+            loginButton.setEnabled(true);
         }
 
         loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
@@ -227,12 +227,8 @@ public class LoginActivity extends AppCompatActivity{
                     showLoginFailed(loginResult.getError());
                 }
                 if (loginResult.getSuccess() != null) {
-                    if (remember_pwd.isChecked()){
-                        preferenceLogin.setPref(usernameEditText.getText().toString(),
-                                passwordEditText.getText().toString(),true);
-                    }else {
-                        preferenceLogin.setPref("","",false);
-                    }
+                    preferenceLogin.setPref(usernameEditText.getText().toString(),
+                            passwordEditText.getText().toString(),true,true);
 
                     /*
                     login IM module
