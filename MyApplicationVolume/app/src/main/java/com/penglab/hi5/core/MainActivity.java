@@ -902,6 +902,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 ifZooming = false;
                 if (ifPainting && !ifSwitch) {
                     draw.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw));
+                    ImageView marker = findViewById(R.id.pinpoint);
+                    marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_main));
 //                    draw_i.setImageResource(R.drawable.ic_draw);
 
 
@@ -942,6 +944,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 ifZooming = false;
                 if (ifPoint && !ifSwitch) {
                     marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_marker));
+                    ImageView drawi = findViewById(R.id.draw_i);
+                    drawi.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw_main));
 
                     try {
                         ifSwitch = false;
