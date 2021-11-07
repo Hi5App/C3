@@ -417,7 +417,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 initMsgService();
                 firstJoinRoom = false;
             }else {
-
                 /*
                 reset the msg connect in collaboration service
                  */
@@ -462,27 +461,20 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         /*
         After msg:  "/ImageRes:18454"
 
-        process the img resolution info
+        process the img resolution info; msg format: "Imgblock:18454;2;mid_x;mid_y;mid_z;size;"
          */
         if (msg.startsWith("ImgRes")){
-            Log.e(TAG,"msg: " + msg);
+            Log.e(TAG,msg);
             int resDefault = Math.min(2, Integer.parseInt(msg.split(";")[1]));
             Communicator.getInstance().initImgInfo(null, Integer.parseInt(msg.split(";")[1]), resDefault, msg.split(";"));
-
-//            communicator.setResolution(msg.split(";"));
-//            communicator.setImgRes(Integer.parseInt(msg.split(";")[1]));
-//            communicator.setCurRes(Integer.parseInt(msg.split(";")[1]));
-
             MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
-
         }
-
 
 
         /*
         After msg:  "/Imgblock:"
 
-        process the img block & swc apo file
+        process the img block & swc apo file; msg format: "GetBBSwc:18454;2;mid_x;mid_y;mid_z;size;"
          */
         if (msg.startsWith("Block:")){
 
@@ -543,7 +535,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
             String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
             String seg      = msg.split(":")[1];
-
 
             if (!userID.equals(username)){
                 Communicator communicator = Communicator.getInstance();
@@ -2074,7 +2065,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         boolean isFile = false;
         String[] fileName = new String[1];
 
-//        Log.e(TAG, "list.length: " + list.length);
         for (int i = 0; i < list.length; i++){
             if (list[i].split(" ")[0].endsWith(".apo") || list[i].split(" ")[0].endsWith(".eswc")
                     || list[i].split(" ")[0].endsWith(".swc") || list[i].split(" ")[0].endsWith("log") )
@@ -2088,15 +2078,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
             list_array.add(list[i].split(" ")[0]);
         }
+
         if (isFile){
-            list_array.add("create a new Room");
+            list_array.add(0, "create a new Room");
         }
 
         String[] list_show = new String[list_array.size()];
         for (int i = 0; i < list_array.size(); i++){
             list_show[i] = list_array.get(i);
         }
-
 
         if (isFile){
             /*
@@ -2115,10 +2105,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         case "create a new Room":
                                             CreateFile(conPath + "/" + fileName[0],"0");
                                             break;
-
                                         default:
                                             loadFileMode(conPath + "/" + text);
-                                            Communicator.Path = conPath + "/" + text;
                                             break;
                                     }
                                 }
@@ -2134,9 +2122,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 @RequiresApi(api = Build.VERSION_CODES.N)
                                 @Override
                                 public void onSelect(int position, String text) {
-                                    ServerConnector serverConnector = ServerConnector.getInstance();
                                     conPath = conPath + "/" + text;
-                                    serverConnector.sendMsg("GETFILELIST:" + conPath);
+                                    ServerConnector.getInstance().sendMsg("GETFILELIST:" + conPath);
                                 }
                             })
                     .show();
@@ -2144,14 +2131,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
     private void loadFileMode(String filepath){
+        String[] list = filepath.split("/");
         ServerConnector serverConnector = ServerConnector.getInstance();
         serverConnector.sendMsg("LOADFILES:2 " + filepath);
-        Communicator.getInstance().setConPath(filepath);
-
-        String[] list = filepath.split("/");
         serverConnector.setRoomName(list[list.length - 1]);
+
+        Communicator.getInstance().setPath(filepath);
         firstLoad = true;
     }
 
@@ -2170,16 +2156,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         ServerConnector serverConnector = ServerConnector.getInstance();
                         switch (mode){
                             case "0":
+                                Communicator.getInstance().setPath(conPath + "/" + text);
                                 serverConnector.sendMsg("LOADFILES:0 " + oldname + " " + conPath + "/" + text);
-                                Communicator.getInstance().setConPath(conPath + "/" + text);
-                                Communicator.Path = conPath + "/" + text;
                                 serverConnector.setRoomName(text);
                                 copyFile = true;
                                 break;
                             case "1":
+                                Communicator.getInstance().setPath(conPath + "/" + text);
                                 serverConnector.sendMsg("LOADFILES:1 " + oldname + " " + conPath + "/" + text);
-                                Communicator.getInstance().setConPath(conPath + "/" + text);
-                                Communicator.Path = conPath + "/" + text;
                                 serverConnector.setRoomName(text);
                                 copyFile = true;
                                 break;
@@ -2196,16 +2180,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
      * load Big Data
      */
     private void loadBigData(){
-
         conPath = "";
-
         new Thread(new Runnable() {
             @Override
             public void run() {
                 ServerConnector.getInstance().sendMsg("GETFILELIST:" + "/", true, true);
             }
         }).start();
-
     }
 
 
@@ -2396,8 +2377,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                                 Communicator communicator = Communicator.getInstance();
                                 communicator.initSoma(soma);
-                                communicator.setConPath(path);
-                                Communicator.Path = path;
+                                communicator.setPath(path);
                                 Communicator.BrainNum = path.split("/")[1];
                                 conPath = path;
                                 firstLoad = true;
@@ -2425,8 +2405,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         Communicator communicator = Communicator.getInstance();
         communicator.initSoma(soma);
-        communicator.setConPath(path);
-        Communicator.Path = path;
+        communicator.setPath(path);
         Communicator.BrainNum = path.split("/")[1];
         conPath = path;
         firstLoad = true;
@@ -3554,6 +3533,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         if(ifGuestLogin)
         {
             new XPopup.Builder(this)
+                    .maxHeight(1500)
                     .asCenterList("More Functions...", new String[]{"Login", "Analyze Swc", "GD","Filter by example","Split       ","Animate", "Crash Info", "Settings", "Help", "About"},
                             new OnSelectListener() {
                                 @Override
@@ -3679,6 +3659,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     .show();
         }else
             new XPopup.Builder(this)
+                    .maxHeight(1500)
                     .asCenterList("More Functions...", new String[] {"Analyze Swc", "Chat", "GD","Filter by example","Split       ","Animate", "Crash Info", "Quests", "Reward", "LeaderBoard", "Logout", "Settings", "Help", "About"},
                             new OnSelectListener() {
                                 @Override
