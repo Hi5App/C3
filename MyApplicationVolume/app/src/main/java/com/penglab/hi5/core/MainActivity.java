@@ -893,6 +893,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 ifZooming = false;
                 if (ifPainting && !ifSwitch) {
                     draw.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw));
+                    ImageView marker = findViewById(R.id.pinpoint);
+                    marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_main));
 //                    draw_i.setImageResource(R.drawable.ic_draw);
 
 
@@ -933,6 +935,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 ifZooming = false;
                 if (ifPoint && !ifSwitch) {
                     marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_marker));
+                    ImageView drawi = findViewById(R.id.draw_i);
+                    drawi.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw_main));
 
                     try {
                         ifSwitch = false;
@@ -3186,9 +3190,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             ToastEasy(e.getMessage());
                         }
                         if (!error.equals("")) {
-                            if (error.equals("This file already exits")){
+                            if (error.equals("This file already exists")){
                                 AlertDialog aDialog = new AlertDialog.Builder(mainContext)
-                                        .setTitle("This file already exits")
+                                        .setTitle("This file already exists")
                                         .setMessage("Are you sure to overwrite it?")
                                         .setIcon(R.mipmap.ic_launcher)
                                         .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
@@ -3199,16 +3203,17 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                                     errorMessage = myrenderer.oversaveCurrentSwc(dir_str);
                                                     if (errorMessage.equals(""))
                                                         ToastEasy("Overwrite successfully !");
-                                                    if (errorMessage == "Overwrite failed!")
+                                                    else if (errorMessage.equals("Overwrite failed!"))
                                                         ToastEasy("Overwrite failed !");
-
+                                                    else if (errorMessage.equals("Current swc is empty!"))
+                                                        ToastEasy("Current swc is empty!");
+                                                    else
+                                                        ToastEasy("Unknown Error");
                                                 }catch (Exception e){
-                                                    System.out.println(errorMessage);
                                                     ToastEasy(e.getMessage());
                                                 }
                                             }
                                         })
-
                                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
@@ -3217,6 +3222,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         })
                                         .create();
                                 aDialog.show();
+                            } else {
+                                ToastEasy(error);
                             }
                         } else{
                             ToastEasy("save SWC to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG);

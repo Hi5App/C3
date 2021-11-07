@@ -766,14 +766,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             public void run() {
                 mCaptureBuffer.rewind();
                 mBitmap.copyPixelsFromBuffer(mCaptureBuffer);
-                for(int i=0; i<screen_w; i++){
-                    for(int j=0; j<screen_h/2; j++){
-                        int jj = screen_h-1-j;
-                        int pixelTmp = mBitmap.getPixel(i,jj);
-                        mBitmap.setPixel(i,jj,mBitmap.getPixel(i,j));
-                        mBitmap.setPixel(i,j,pixelTmp);
-                    }
-                }
+                android.graphics.Matrix m = new android.graphics.Matrix();
+
+                m.postScale(1, -1);
+                mBitmap = Bitmap.createBitmap(mBitmap, 0, 0, screen_w, screen_h, m, true);
 
                 ImageUtil imageUtil = new ImageUtil();
                 Bitmap output_mBitmap = imageUtil.drawTextToRightBottom(getContext(), mBitmap, "Hi5", 20, Color.RED, 40, 30);
@@ -995,7 +991,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
         curSwcList.clear();
+        syncSwcList.clear();
         markerList.clear();
+        syncMarkerList.clear();
         cur_scale = 1.0f;
 
         undoCurveList.clear();
@@ -1210,7 +1208,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         cur_scale = 1.0f;
 
         curSwcList.clear();
+        syncSwcList.clear();
         markerList.clear();
+        syncMarkerList.clear();
 
         if (fileType == FileType.SWC){
             bitmap2D = null;
@@ -1245,7 +1245,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         cur_scale = 1.0f;
 
         curSwcList.clear();
+        syncSwcList.clear();
         markerList.clear();
+        syncMarkerList.clear();
 
         setImage_Bigdata(index);
         ifFileLoaded = true;
@@ -2041,10 +2043,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         float [] target = solveMarkerCenter(x, y);
     }
 
-    // delete the marker drawed from the markerlist
     public void deleteMarkerDrawed(float x, float y, boolean isBigData) throws CloneNotSupportedException {
-        for (int i = 0; i < markerList.size(); i++){
-            ImageMarker tobeDeleted = markerList.get(i);
+        if (deleteMarkerDrawedInList(x, y, isBigData, markerList) || deleteMarkerDrawedInList(x, y, isBigData, syncMarkerList))
+            saveUndo();
+    }
+
+    // delete the marker drawed from the markerlist
+    public boolean deleteMarkerDrawedInList(float x, float y, boolean isBigData, MarkerList list) throws CloneNotSupportedException {
+        for (int i = 0; i < list.size(); i++){
+            ImageMarker tobeDeleted = list.get(i);
             float[] markerModel = volumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
             float [] position = new float[4];
             position[0] = markerModel[0];
@@ -2060,8 +2067,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float dy = Math.abs(positionVolumne[1] - y);
 
             if (dx < 0.08 && dy < 0.08){
-                ImageMarker temp = markerList.get(i);
-                markerList.remove(i);
+                ImageMarker temp = list.get(i);
+                list.remove(i);
 
                 /*
                 update delete marker
@@ -2070,16 +2077,21 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     updateDelMarker(temp);
                 }
 
-                saveUndo();
-                break;
+                return true;
             }
         }
+        return false;
     }
 
-    public void changeMarkerType(float x, float y, boolean isBigData) throws CloneNotSupportedException {
+    public void changeMarkerType(float x, float y, boolean isBigData) throws CloneNotSupportedException{
+        if (changeMarkerTypeInList(x, y, isBigData, markerList) || changeMarkerTypeInList(x, y, isBigData, syncMarkerList))
+            saveUndo();
+    }
 
-        for (int i = 0; i < markerList.size(); i++){
-            ImageMarker tobeDeleted = markerList.get(i);
+    public boolean changeMarkerTypeInList(float x, float y, boolean isBigData, MarkerList list) throws CloneNotSupportedException {
+
+        for (int i = 0; i < list.size(); i++){
+            ImageMarker tobeDeleted = list.get(i);
             float[] markerModel = volumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
             float [] position = new float[4];
             position[0] = markerModel[0];
@@ -2096,18 +2108,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             if (dx < 0.08 && dy < 0.08){
 
-                ImageMarker temp = markerList.get(i);
-                ImageMarker temp_backup = (ImageMarker) markerList.get(i).clone();
+                ImageMarker temp = list.get(i);
+                ImageMarker temp_backup = (ImageMarker) list.get(i).clone();
                 temp.type = lastMarkerType;
 
                 if (isBigData)
                     updateRetypeMarker(temp_backup, temp);
 
-                saveUndo();
-
-                break;
+                return true;
             }
         }
+        return false;
     }
 
     public void printMarkerType(){
@@ -2152,10 +2163,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    public void deleteMultiMarkerByStroke(ArrayList<Float> line,  boolean isBigData) throws CloneNotSupportedException {
+    public void deleteMultiMarkerByStroke(ArrayList<Float> line, boolean isBigData) throws CloneNotSupportedException {
+        if (deleteMultiMarkerByStrokeInList(line, isBigData, markerList) || deleteMultiMarkerByStrokeInList(line, isBigData, syncMarkerList))
+            saveUndo();
+    }
+
+    public boolean deleteMultiMarkerByStrokeInList(ArrayList<Float> line,  boolean isBigData, MarkerList list) throws CloneNotSupportedException {
         boolean already = false;
-        for (int i = markerList.size() - 1; i >= 0; i--){
-            ImageMarker tobeDeleted = markerList.get(i);
+        for (int i = list.size() - 1; i >= 0; i--){
+            ImageMarker tobeDeleted = list.get(i);
             float[] markerModel = volumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
             float [] position = new float[4];
             position[0] = markerModel[0];
@@ -2170,30 +2186,16 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             if (pnpoly(line, positionVolumne[0], positionVolumne[1])){
 
                 if (!already){
-//                    saveUndo();
-//                    MarkerList tempMarkerList = markerList.clone();
-//                    V_NeuronSWC_list tempCurveList = curSwcList.clone();
-//
-//                    if (curUndo < UNDO_LIMIT){
-//                        curUndo += 1;
-//                        undoMarkerList.add(tempMarkerList);
-//                        undoCurveList.add(tempCurveList);
-//                    } else {
-//                        undoMarkerList.remove(0);
-//                        undoCurveList.remove(0);
-//                        undoMarkerList.add(tempMarkerList);
-//                        undoCurveList.add(tempCurveList);
-//                    }
                     already = true;
                 }
-                markerList.remove(tobeDeleted);
+                list.remove(tobeDeleted);
 
                 if (isBigData){
                     updateDelMarker(tobeDeleted);
                 }
             }
         }
-        saveUndo();
+        return already;
     }
 
     public boolean pnpoly(ArrayList<Float> line, float x, float y){
@@ -3584,8 +3586,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         return b;
     }
 
+    public void deleteLine1(ArrayList<Float> line, boolean isBigData) throws CloneNotSupportedException {
+        if (deleteLineInSwcList(line, isBigData, curSwcList) || deleteLineInSwcList(line, isBigData, syncSwcList))
+            saveUndo();
+    }
 
-    public  void deleteLine1(ArrayList<Float> line, boolean isBigData) throws CloneNotSupportedException {
+
+    public boolean deleteLineInSwcList(ArrayList<Float> line, boolean isBigData, V_NeuronSWC_list swcList) throws CloneNotSupportedException {
 
         Vector<Integer> indexToBeDeleted = new Vector<>();
         for (int i = 0; i < line.size() / 3 - 1; i++){
@@ -3593,9 +3600,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float y1 = line.get(i * 3 + 1);
             float x2 = line.get(i * 3 + 3);
             float y2 = line.get(i * 3 + 4);
-            for(int j=0; j<curSwcList.nsegs(); j++){
+            for(int j=0; j<swcList.nsegs(); j++){
 
-                V_NeuronSWC seg = curSwcList.seg.get(j);
+                V_NeuronSWC seg = swcList.seg.get(j);
                 if(seg.to_be_deleted)
                     continue;
                 Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
@@ -3605,13 +3612,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         swcUnitMap.put(k,parent);
                     }
                 }
-//                System.out.println("delete: end map");
                 for(int k=0; k<seg.row.size(); k++){
-//                    System.out.println("j: "+j+" k: "+k);
                     V_NeuronSWC_unit child = seg.row.get(k);
                     int parentid = (int) child.parent;
                     if (parentid == -1 || seg.getIndexofParent(k) == -1){
-//                        System.out.println("parent -1");
                         continue;
                     }
                     V_NeuronSWC_unit parent = swcUnitMap.get(k);
@@ -3661,17 +3665,24 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         Vector<V_NeuronSWC> toBeDeleted = new Vector<>();
+        boolean ifSucceed = false;
         for (int i = 0; i < indexToBeDeleted.size(); i++){
+            ifSucceed = true;
             int index = indexToBeDeleted.get(i);
-            toBeDeleted.add(curSwcList.seg.get(index));
+            toBeDeleted.add(swcList.seg.get(index));
         }
 
-        curSwcList.deleteMutiSeg(indexToBeDeleted);
-        saveUndo();
+        swcList.deleteMutiSeg(indexToBeDeleted);
+        return ifSucceed;
+    }
+
+    public void splitCurve(ArrayList<Float> line, boolean isBigData) throws CloneNotSupportedException {
+        splitCurveInSwcList(line, isBigData, curSwcList);
+        splitCurveInSwcList(line, isBigData, syncSwcList);
     }
 
 
-    public void splitCurve(ArrayList<Float> line, boolean isBigData) throws CloneNotSupportedException {
+    public void splitCurveInSwcList(ArrayList<Float> line, boolean isBigData, V_NeuronSWC_list swcList) throws CloneNotSupportedException {
 
         boolean found = false;
         Vector<Integer> toSplit = new Vector<Integer>();
@@ -3683,11 +3694,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float y1 = line.get(i * 3 + 1);
             float x2 = line.get(i * 3 + 3);
             float y2 = line.get(i * 3 + 4);
-            for(int j=0; j<curSwcList.nsegs(); j++){
+            for(int j=0; j<swcList.nsegs(); j++){
                 if (found == true){
                     break;
                 }
-                V_NeuronSWC seg = curSwcList.seg.get(j);
+                V_NeuronSWC seg = swcList.seg.get(j);
                 if(seg.to_be_deleted)
                     continue;
                 Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
@@ -3744,7 +3755,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
                         V_NeuronSWC newSeg1 = new V_NeuronSWC();
                         V_NeuronSWC newSeg2 = new V_NeuronSWC();
-                        int newSegid = curSwcList.nsegs();
+                        int newSegid = swcList.nsegs();
                         V_NeuronSWC_unit first = seg.row.get(k);
                         try {
                             V_NeuronSWC_unit firstClone2 = first.clone();
@@ -3774,7 +3785,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         }
 
                         if (isBigData){
-                            updateDelSegSWC(curSwcList.seg.get(j));
+                            updateDelSegSWC(swcList.seg.get(j));
                             updateAddSegSWC(newSeg1);
                             updateAddSegSWC(newSeg2);
                         }
@@ -3792,9 +3803,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                            Log.e(TAG, String.format("%f %d %f %f %f %f", unit.n, (int) (unit.type), unit.x, unit.y, unit.z, unit.parent));
 //                        }
 
-                        curSwcList.deleteSeg(j);
-                        curSwcList.append(newSeg1);
-                        curSwcList.append(newSeg2);
+                        swcList.deleteSeg(j);
+                        swcList.append(newSeg1);
+                        swcList.append(newSeg2);
 
                         saveUndo();
                         break;
@@ -3802,7 +3813,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 }
             }
         }
-        curSwcList.deleteMutiSeg(new Vector<Integer>());
+        swcList.deleteMutiSeg(new Vector<Integer>());
     }
 
 
@@ -3847,8 +3858,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-
     public void changeLineType(ArrayList<Float> line, int type, boolean isBigData) throws CloneNotSupportedException {
+        if (changeLineTypeInSwcList(line, type, isBigData, curSwcList) || changeLineTypeInSwcList(line, type, isBigData, syncSwcList))
+            saveUndo();
+    }
+
+    public boolean changeLineTypeInSwcList(ArrayList<Float> line, int type, boolean isBigData, V_NeuronSWC_list list) throws CloneNotSupportedException {
 
         Vector<Integer> indexToChangeLineType = new Vector<>();
         Vector<Integer> ChangeLineType = new Vector<>();
@@ -3857,9 +3872,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             float y1 = line.get(i * 3 + 1);
             float x2 = line.get(i * 3 + 3);
             float y2 = line.get(i * 3 + 4);
-            for(int j=0; j<curSwcList.nsegs(); j++){
-//                System.out.println("delete curswclist --"+j);
-                V_NeuronSWC seg = curSwcList.seg.get(j);
+            for(int j=0; j<list.nsegs(); j++){
+                V_NeuronSWC seg = list.seg.get(j);
                 if(seg.to_be_deleted)
                     continue;
                 Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
@@ -3917,7 +3931,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        for(V_NeuronSWC seg : this.curSwcList.seg ){
+        boolean ifSucceed = false;
+        for(V_NeuronSWC seg : list.seg ){
             if (seg.to_be_deleted){
                 for(int i = 0; i<seg.row.size(); i++){
                     seg.row.get(i).type = type;
@@ -3927,33 +3942,28 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 if (isBigData){
                     updateRetypeSegSWC(seg);
                 }
+                ifSucceed = true;
             }
         }
-
-        saveUndo();
+        return ifSucceed;
     }
 
 
     public void changeAllType() throws CloneNotSupportedException {
 
-        MarkerList tempMarkerList = markerList.clone();
-        V_NeuronSWC_list tempCurveList = curSwcList.clone();
-
-        if (curUndo < UNDO_LIMIT){
-            curUndo += 1;
-            undoMarkerList.add(tempMarkerList);
-            undoCurveList.add(tempCurveList);
-        } else {
-            undoMarkerList.remove(0);
-            undoCurveList.remove(0);
-            undoMarkerList.add(tempMarkerList);
-            undoCurveList.add(tempCurveList);
-        }
-
         Vector<Integer> indexToChangeLineType = new Vector<>();
         Vector<Integer> ChangeLineType = new Vector<>();
         for(int i=0; i<curSwcList.seg.size(); i++){
             V_NeuronSWC seg = curSwcList.seg.get(i);
+            indexToChangeLineType.add(i);
+            ChangeLineType.add((int) seg.row.get(0).type);
+            for(V_NeuronSWC_unit u:seg.row){
+                u.type = lastLineType;
+            }
+        }
+
+        for(int i=0; i<syncSwcList.seg.size(); i++){
+            V_NeuronSWC seg = syncSwcList.seg.get(i);
             indexToChangeLineType.add(i);
             ChangeLineType.add((int) seg.row.get(0).type);
             for(V_NeuronSWC_unit u:seg.row){
@@ -4125,9 +4135,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         //  save the swc file even if current swc is empty
         String filePath = dir + "/" + nt.name + ".swc";
-        boolean ifExits = nt.writeSWC_file(filePath);
-        if (ifExits)
-            error = "This file already exits";
+        File parentFile = new File(dir);
+        if (!parentFile.exists() && !parentFile.isDirectory()) {
+            parentFile.mkdir();
+        }
+        error = nt.writeSWC_file(filePath);
         return error;
 
     }
@@ -4135,18 +4147,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public String oversaveCurrentSwc(String dir){
         String error = "";
         NeuronTree nt = this.getNeuronTree();
-        if(nt.listNeuron.size()>0){
+        if(nt.listNeuron.size()>0) {
 //            System.out.println("nt size: " + nt.listNeuron.size());
             String filePath = dir + "/" + nt.name + ".swc";
 //            System.out.println("filepath: "+filePath);
             boolean ifSucceed = nt.overwriteSWC_file(filePath);
             if (!ifSucceed)
                 error = "Overwrite failed!";
-            return error;
-        }else {
-            return error = "Current swc is empty!";
+        } else {
+            error = "Current swc is empty!";
         }
-
+        return error;
     }
 
     public String saveCurrentApo(String filepath){
@@ -4181,8 +4192,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public NeuronTree getNeuronTree(){
         try {
             V_NeuronSWC_list list = curSwcList.clone();
+            V_NeuronSWC_list syncList = syncSwcList.clone();
+            list.append(syncList.seg);
 
-            System.out.println(list);
             return list.mergeSameNode();
 
         } catch (Exception e) {
@@ -4207,8 +4219,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public  void pencolorchange(int color){
         lastLineType=color;
-
-
     }
 
     public void markercolorchange(int color){

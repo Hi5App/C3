@@ -167,15 +167,14 @@ public class NeuronTree extends BasicSurfObj {
     }
 
     @SuppressLint("DefaultLocale")
-    public boolean writeSWC_file(String swcfile){
-        System.out.println("point num = "+this.listNeuron.size()+", save swc file to "+swcfile);
+    public String writeSWC_file(String swcfile){
+
         try {
             File f = new File(swcfile);
             if (f.exists())
-                return true;
+                return "This file already exists";
             if (!f.createNewFile()){
-                Log.e("NeuronTree","Fail to create file !");
-                return true;
+                return "File create failed";
             }
             FileOutputStream fid = new FileOutputStream(f);
             OutputStreamWriter writer = new OutputStreamWriter(fid, "UTF-8");
@@ -193,11 +192,9 @@ public class NeuronTree extends BasicSurfObj {
             fid.close();
 
         } catch (IOException e) {
-            System.out.println("saveSWC Exception "+e.getMessage());
-            return true;
+            return "IOException occured";
         }
-        System.out.println("done with saving file: "+swcfile);
-        return false;
+        return "";
     }
 
     @SuppressLint("DefaultLocale")
