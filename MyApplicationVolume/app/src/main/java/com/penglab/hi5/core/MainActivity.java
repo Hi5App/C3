@@ -5322,19 +5322,17 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 float x2 = toOpenGLCoord(this, motionEvent.getX(1), true);
                                 float y2 = toOpenGLCoord(this, motionEvent.getY(1), false);
 
-//                            float x2=motionEvent.getX(1);
-//                            float y2=motionEvent.getY(1);
                                 double dis = computeDis(normalizedX, x2, normalizedY, y2);
                                 double scale = dis / dis_start;
-//                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker) {
+
                                 myrenderer.zoom((float) scale);
-//                            }
+
                                 float dis_x = x2 - normalizedX;
                                 float dis_y = y2 - normalizedY;
                                 float ave_x = (x2 - x1_start + normalizedX - x0_start) / 2;
                                 float ave_y = (y2 - y1_start + normalizedY - y0_start) / 2;
                                 if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
-                                    if (myrenderer.getIfDownSampling() == false)
+                                    if (!myrenderer.getIfDownSampling())
                                         myrenderer.setIfDownSampling(true);
                                 }
 //                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker){
@@ -5355,7 +5353,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             } else if (!isZooming){
                                 if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker && !ifChangeMarkerType && !ifDeletingMultiMarker && !ifSettingROI) {
                                     if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
-                                        if (myrenderer.getIfDownSampling() == false)
+                                        if (!myrenderer.getIfDownSampling())
                                             myrenderer.setIfDownSampling(true);
                                     }
                                     myrenderer.rotate(normalizedX - X, normalizedY - Y, (float) (computeDis(normalizedX, X, normalizedY, Y)));
