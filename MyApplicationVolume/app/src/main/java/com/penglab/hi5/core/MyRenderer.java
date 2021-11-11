@@ -771,8 +771,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 m.postScale(1, -1);
                 mBitmap = Bitmap.createBitmap(mBitmap, 0, 0, screen_w, screen_h, m, true);
 
-                ImageUtil imageUtil = new ImageUtil();
-                Bitmap output_mBitmap = imageUtil.drawTextToRightBottom(getContext(), mBitmap, "Hi5", 20, Color.RED, 40, 30);
+                Bitmap output_mBitmap = ImageUtil.drawTextToRightBottom(getContext(), mBitmap, "Hi5", 20, Color.RED, 40, 30);
                 String mCaptureDir = "/storage/emulated/0/" + getContext().getResources().getString(R.string.app_name) + "/screenCapture";
                 File dir = new File(mCaptureDir);
                 if (!dir.exists()){
@@ -786,6 +785,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
                     String[] imgPath = new String[1];
                     imgPath[0] = mCapturePath;
+                    fos.close();
                     if (imgPath[0] != null)
                     {
 
@@ -1342,11 +1342,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             filetype = filepath.substring(filepath.lastIndexOf(".")).toUpperCase();
         }else {
             Uri uri = Uri.parse(filepath);
-            FileManager fileManager = new FileManager();
-            filetype = fileManager.getFileType(uri);
+            filetype = FileManager.getFileType(uri);
         }
 
-        Log.v(TAG,"setFileType, filepath: " + filepath + ", filetype: " + filetype);
+        Log.v(TAG,"filepath: " + filepath + "| filetype: " + filetype);
 
         switch (filetype){
             case ".V3DRAW":

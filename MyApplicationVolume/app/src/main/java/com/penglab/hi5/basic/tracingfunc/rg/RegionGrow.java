@@ -1,5 +1,7 @@
 package com.penglab.hi5.basic.tracingfunc.rg;
 
+import android.util.Log;
+
 import com.penglab.hi5.basic.ByteTranslate;
 import com.penglab.hi5.basic.image.Image4DSimple;
 
@@ -7,6 +9,7 @@ import java.util.Vector;
 
 public class RegionGrow {
 
+    private static final String TAG = "RegionGrow";
     public static int phcDebugPosNum = 0;
     public static int phcDebugRgnNum = 0;
 
@@ -14,11 +17,11 @@ public class RegionGrow {
         Image4DSimple result = new Image4DSimple();
 
         if(!inimg.valid()){
-            System.out.println("Please load img!");
+            Log.d(TAG, "Please load img!");
         }
 
         if(inimg.getDatatype() != Image4DSimple.ImagePixelType.V3D_UINT8){
-            System.out.println("Currently this program only support 8-bit data.");
+            Log.d(TAG, "Currently this program only support 8-bit data.");
         }
 
         int chRGB = para.ch - 1;
@@ -53,7 +56,7 @@ public class RegionGrow {
         }
         stdv = Math.sqrt(stdv);
 
-        System.out.println("meanv: " + meanv + " stdv:" + stdv);
+        Log.d(TAG, "meanv: " + meanv + " stdv:" + stdv);
 
         byte[] bw = new byte[pageSZ];
 
@@ -311,12 +314,11 @@ public class RegionGrow {
         int length;
 
         int n_rgn = stclList.size(); // qMin(5, nrgncopied);
-
-        System.out.println("display "+n_rgn+" rgns from "+nrgncopied);
+//        Log.d(TAG, "display "+n_rgn+" rgns from "+nrgncopied);
 
         if(n_rgn>65534)
         {
-            System.out.println("do not support the case of n_rgn>65534 temporarily");
+            Log.d(TAG, "do not support the case of n_rgn>65534 temporarily");
             /*
             float[] pRGCL = new float[pageSZ];
             for(int i=0; i<pageSZ; i++)
@@ -378,7 +380,7 @@ public class RegionGrow {
         }
         else if(n_rgn>254)
         {
-            System.out.println("do not support the case of n_rgn>254 temporarily");
+            Log.d(TAG, "do not support the case of n_rgn>254 temporarily");
             /*
             unsigned short *pRGCL = NULL;
             try
@@ -459,7 +461,7 @@ public class RegionGrow {
             for(int ii=0; ii<n_rgn; ii++)
             {
                 length = stclList.get(ii).count; //a[ii];
-                System.out.println("region ..."+ii+length);
+//                Log.d(TAG, "region ..."+ii+length);
 
                 // find idx
                 int[] cutposlist = stclList.get(ii).desPosList;

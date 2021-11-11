@@ -493,7 +493,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                 Log.e(TAG, "File: .eswc");
                 loadBigDataSwc(msg.split(":")[1]);
-                hideSyncBar();  // for sync button
+
+                // for sync bar when click sync button
+                if(timerSync != null){
+                    hideSyncBar();
+                }
 
             }
         }
@@ -1032,6 +1036,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             MsgConnector.getInstance().releaseConnection(false);
         }
 
+        ServerConnector.getInstance().closeSender();
+        MsgConnector.getInstance().closeSender();
 
         mainContext = null;
 
@@ -1045,6 +1051,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             timerTask = null;
         }
 
+        if (timerDownload != null){
+            timerDownload.cancel();
+            timerDownload = null;
+        }
+
+        if (timerSync != null){
+            timerSync.cancel();
+            timerSync = null;
+        }
 
     }
 
@@ -1106,13 +1121,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
-
     public static void actionStart(Context context, String username){
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra(USERNAME, username);
         context.startActivity(intent);
     }
+
 
     public static void actionStart(Context context, String invitor, String path, String soma){
         Intent intent = new Intent(context, MainActivity.class);
@@ -1965,13 +1979,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //    }
 
     private void initService(){
-        // Bind to LocalService
+        // Bind to ManageService
         Intent intent = new Intent(this, ManageService.class);
         bindService(intent, connection_management, Context.BIND_AUTO_CREATE);
     }
 
     private void initMsgService(){
-        // Bind to LocalService
+        // Bind to CollaborationService
         Intent intent = new Intent(this, CollaborationService.class);
         bindService(intent, connection_collaboration, Context.BIND_AUTO_CREATE);
     }
@@ -2019,7 +2033,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         public void onServiceConnected(ComponentName name, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             BasicService.LocalBinder binder = (BasicService.LocalBinder) service;
-            ManageService manageService = (ManageService) binder.getService();
+//            ManageService manageService = (ManageService) binder.getService();
             binder.addReceiveMsgInterface((MainActivity) getActivityFromContext(mainContext));
             mBoundManagement = true;
         }
@@ -2039,7 +2053,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         public void onServiceConnected(ComponentName name, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             BasicService.LocalBinder binder = (BasicService.LocalBinder) service;
-            CollaborationService collaborationService = (CollaborationService) binder.getService();
+//            CollaborationService collaborationService = (CollaborationService) binder.getService();
             binder.addReceiveMsgInterface((MainActivity) getActivityFromContext(mainContext));
             mBoundCollaboration = true;
         }
@@ -4641,8 +4655,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             try {
                 if (ifImport) {
 
-                    FileManager fileManager = new FileManager();
-                    String fileName = fileManager.getFileName(uri);
+                    String fileName = FileManager.getFileName(uri);
                     String filetype = fileName.substring(fileName.lastIndexOf(".")).toUpperCase();
                     Log.v(TAG,"FileType: " + filetype + ", FileName: " + fileName);
 
@@ -5509,6 +5522,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
      */
 
     static Timer timerDownload;
+    static Timer timerSync;
 
     public static void showProgressBar(){
         puiHandler.sendEmptyMessage(0);
@@ -5516,7 +5530,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         timerDownload.schedule(new TimerTask() {
             @Override
             public void run() {
-                timeOutHandler();
+                downloadTimeOutHandler();
             }
         },30 * 1000);
     }
@@ -5528,7 +5542,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    public static void timeOutHandler(){
+    public static void downloadTimeOutHandler(){
         hideProgressBar();
         puiHandler.sendEmptyMessage(3);
     }
@@ -5536,19 +5550,25 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     public static void showSyncBar(){
         puiHandler.sendEmptyMessage(9);
-        timerDownload = new Timer();
-        timerDownload.schedule(new TimerTask() {
+        timerSync = new Timer();
+        timerSync.schedule(new TimerTask() {
             @Override
             public void run() {
-                timeOutHandler();
+                syncTimeOutHandler();
             }
         },10 * 1000);
     }
 
 
     public static void hideSyncBar(){
-        timerDownload.cancel();
+        timerSync.cancel();
         puiHandler.sendEmptyMessage(10);
+    }
+
+
+    public static void syncTimeOutHandler(){
+        hideSyncBar();
+        puiHandler.sendEmptyMessage(3);
     }
 
 

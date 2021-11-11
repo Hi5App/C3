@@ -93,7 +93,10 @@ public class MusicServer extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        bgmPlayer.stop();
+        if (bgmPlayer.isPlaying())
+            bgmPlayer.stop();
+        bgmPlayer.reset();
+        bgmPlayer.release();
         bgmPlayer = null;
     }
 
