@@ -1,4 +1,6 @@
 package com.penglab.hi5.basic.tracingfunc.TRe;
+import android.util.Log;
+
 import com.penglab.hi5.basic.NeuronSWC;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.tracingfunc.app2.MyMarker;
@@ -16,10 +18,9 @@ import java.util.Map;
 import java.util.Vector;
 
 
-public class GlobalMembersMY_surf_objs
-{
+public class GlobalMembersMY_surf_objs {
 
-
+    private static final String TAG = "GlobalMembersMY";
     ///#define MidMarker(m1, m2) MyMarker(((m1).x + (m2).x)/2.0,((m1).y + (m2).y)/2.0,((m1).z + (m2).z)/2.0)
 
 
@@ -47,7 +48,7 @@ public class GlobalMembersMY_surf_objs
 
     public static boolean saveMarker_file(String markerfile, Vector<MyMarker> outmarkers, Vector<String> infostring)
     {
-        System.out.println("marker num = "+outmarkers.size()+", save  file to "+markerfile);
+        Log.i(TAG,"marker num = "+outmarkers.size()+", save  file to "+markerfile);
         Map<MyMarker,Integer> ind = new HashMap<MyMarker,Integer>();
         try {
             File f = new File(markerfile);
@@ -59,9 +60,9 @@ public class GlobalMembersMY_surf_objs
             }
             for(int i=0; i<outmarkers.size(); i++){
                 MyMarker marker = outmarkers.elementAt(i);
-                if(marker.x>500){
-                    System.out.println("index i: "+i+" "+marker.x);
-                }
+//                if(marker.x>500){
+//                    System.out.println("index i: "+i+" "+marker.x);
+//                }
                 writer.append(Double.toString(marker.x)).append("1.0").append(Double.toString(marker.y))
                         .append("1.0 ").append(Double.toString(marker.z)).append("1.0 ").append(Double.toString(marker.radius))
                         .append("\n");
@@ -70,7 +71,7 @@ public class GlobalMembersMY_surf_objs
             fid.close();
 
         } catch (IOException e) {
-            System.out.println("saveSWC Exception "+e.getMessage());
+            Log.i(TAG,"saveSWC Exception "+e.getMessage());
             return false;
         }
         return true;
@@ -81,7 +82,6 @@ public class GlobalMembersMY_surf_objs
         ArrayList<String> arraylist = new ArrayList<String>();
         NeuronTree nt = new NeuronTree();
         nt.file = swcfile;
-        System.out.println("in read swc");
 
         try {
             File f = new File(swcfile);
@@ -95,7 +95,7 @@ public class GlobalMembersMY_surf_objs
             br.close();
             isr.close();
         } catch (Exception e) {
-            System.out.println("SwcReaderException" + e.getMessage());
+            Log.i(TAG,"SwcReaderException" + e.getMessage());
         }
         ArrayList<NeuronSWC> listNeuron = new ArrayList<>();
         HashMap<Integer, Integer> hashNeuron = new HashMap<>();
@@ -205,7 +205,7 @@ public class GlobalMembersMY_surf_objs
 
     //class NeuronSWC; //from vaa3d's basic_surf_objs.h // added by PHC, 2013-01-03
     public static boolean saveSWC_file(String swcfile, Vector<MyMarker> outmarkers, Vector<String> infostring){
-        System.out.println("marker num = "+outmarkers.size()+", save swc file to "+swcfile);
+        Log.i(TAG,"marker num = "+outmarkers.size()+", save swc file to "+swcfile);
         Map<MyMarker,Integer> ind = new HashMap<MyMarker,Integer>();
         try {
             File f = new File(swcfile);
@@ -219,9 +219,9 @@ public class GlobalMembersMY_surf_objs
             }
             for(int i=0; i<outmarkers.size(); i++){
                 MyMarker marker = outmarkers.elementAt(i);
-                if(marker.x>500){
-                    System.out.println("index i: "+i+" "+marker.x);
-                }
+//                if(marker.x>500){
+//                    System.out.println("index i: "+i+" "+marker.x);
+//                }
                 int parent_id;
                 if(marker.parent == null)
                     parent_id = -1;
@@ -236,7 +236,7 @@ public class GlobalMembersMY_surf_objs
             fid.close();
 
         } catch (IOException e) {
-            System.out.println("saveSWC Exception "+e.getMessage());
+            Log.i(TAG,"saveSWC Exception "+e.getMessage());
             return false;
         }
         return true;
@@ -284,7 +284,7 @@ public class GlobalMembersMY_surf_objs
     }*/
     public static boolean saveESWC_file(String swcfile, Vector<MyMarker> outmarkers, Vector<String> infostring)
     {
-        System.out.println("marker num = "+outmarkers.size()+", save swc file to "+swcfile);
+        Log.i(TAG,"marker num = "+outmarkers.size()+", save swc file to "+swcfile);
         Map<MyMarker,Integer> ind = new HashMap<MyMarker,Integer>();
         try {
             File f = new File(swcfile);
@@ -298,9 +298,9 @@ public class GlobalMembersMY_surf_objs
             }
             for(int i=0; i<outmarkers.size(); i++){
                 MyMarker marker = outmarkers.elementAt(i);
-                if(marker.x>500){
-                    System.out.println("index i: "+i+" "+marker.x);
-                }
+//                if(marker.x>500){
+//                    System.out.println("index i: "+i+" "+marker.x);
+//                }
                 int parent_id;
                 if(marker.parent == null)
                     parent_id = -1;
@@ -314,15 +314,14 @@ public class GlobalMembersMY_surf_objs
             fid.close();
 
         } catch (IOException e) {
-            System.out.println("saveSWC Exception "+e.getMessage());
+            Log.i(TAG,"saveSWC Exception "+e.getMessage());
             return false;
         }
         return true;
     }
     ///#endif
 
-    public static double dist(MyMarker a, MyMarker b)
-    {
+    public static double dist(MyMarker a, MyMarker b) {
         return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) + (a.z - b.z) * (a.z - b.z));
     }
 

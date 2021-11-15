@@ -601,8 +601,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             if (msg.split(":").length > 1) {
                 String body = msg.split(":")[1];
                 String [] accountsWithScore = body.split(";");
-                Log.d(TAG, "accountsWithScore: " + accountsWithScore.length);
-                Log.d(TAG, "accountsWithScore: " + accountsWithScore);
+//                Log.d(TAG, "accountsWithScore: " + Arrays.toString(accountsWithScore));
 
                 if (accountsWithScore.length % 2 == 0) {
                     ArrayList<String> accounts = new ArrayList<>();
@@ -786,7 +785,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         initMusicService();
 
-        soundPool = new SoundPool(SOUNDNUM, AudioManager.STREAM_MUSIC, 5);
+//        soundPool = new SoundPool(SOUNDNUM, AudioManager.STREAM_MUSIC, 5);
+        soundPool = new SoundPool.Builder().setMaxStreams(SOUNDNUM).build();
         soundId = new int[SOUNDNUM];
         soundId[0] = soundPool.load(this, R.raw.piano2, 1);
         soundId[1] = soundPool.load(this, R.raw.piano1, 1);

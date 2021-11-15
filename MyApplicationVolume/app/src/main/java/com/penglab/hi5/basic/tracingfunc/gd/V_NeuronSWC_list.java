@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Vector;
 
 public class V_NeuronSWC_list implements Cloneable{
+    private static final String TAG = "V_NeuronSWC_list";
     public Vector<V_NeuronSWC> seg; //since each seg could be a complete neuron or multiple paths, thus I call it "seg", but not "path"
     public int last_seg_num; //?? for what purpose? seems only used once in v3d_core.cpp. Questioned by Hanchuan, 20100210
     public String name;
@@ -70,7 +71,7 @@ public class V_NeuronSWC_list implements Cloneable{
     // boolean reverse();
     // boolean split(int seg_id, int nodeinseg_id);
     public boolean deleteSeg(int seg_id){
-        System.out.println("delete id "+seg_id);
+//        Log.d(TAG,"delete id " + seg_id);
         if(seg_id>=0 && seg_id<this.nsegs()){
             this.seg.remove(seg_id);
             return true;
@@ -128,10 +129,9 @@ public class V_NeuronSWC_list implements Cloneable{
 
             //first find the min index number, then all index will be automatically adjusted
             int min_ind = (int)row.elementAt(0).n;
-            for (j=1;j<row.size();j++)
-            {
+            for (j=1;j<row.size();j++) {
                 if (row.elementAt(j).n < min_ind)  min_ind = (int)row.elementAt(j).n;
-                if (min_ind<0) System.out.println("Found illegal neuron node index which is less than 0 in merge_V_NeuronSWC_list()!");
+                if (min_ind<0)  Log.d(TAG,"Found illegal neuron node index which is less than 0 in merge_V_NeuronSWC_list() !");
             }
             //qDebug()<<min_ind;
 
@@ -220,7 +220,6 @@ public class V_NeuronSWC_list implements Cloneable{
                     hashNeuron.put((int)S.n, listNeuron.size()-1);
                 }
             }
-            System.out.printf("---------------------read %d lines, %d remained lines\n", count, listNeuron.size());
 
             SS.n = -1;
             SS.color = new RGBA8((char)seg.color_uc[0],(char)seg.color_uc[1],(char)seg.color_uc[2],(char)seg.color_uc[3]);
@@ -236,17 +235,14 @@ public class V_NeuronSWC_list implements Cloneable{
     }
 
     public NeuronTree mergeSameNode() throws Exception{
+//        Log.d(TAG,"mergeSameNode");
+
         NeuronTree SS = new NeuronTree();
-
-        System.out.println("-----------------mergeSameNode------------------------");
-
-
         Vector<V_NeuronSWC_unit> roots = new Vector<>();
 
         for(int i=0; i<this.seg.size(); i++){
             Vector<Integer> mark = new Vector<>();
             V_NeuronSWC s = this.seg.get(i);
-            System.out.println(i+" size: "+s.row.size());
             for(int j=0; j<s.row.size(); j++){
                 if(s.getIndexofParent(j) == -1){
                     V_NeuronSWC_unit u = s.row.get(j);
@@ -345,7 +341,6 @@ public class V_NeuronSWC_list implements Cloneable{
 //                hashNeuron.put((int)S.n, listNeuron.size()-1);
 //            }
 //        }
-        System.out.printf("---------------------read %d lines, %d remained lines\n", count, listNeuron.size());
 
         SS.n = -1;
         SS.color = new RGBA8((char)this.color_uc[0],(char)this.color_uc[1],(char)this.color_uc[2],(char)this.color_uc[3]);
@@ -357,18 +352,17 @@ public class V_NeuronSWC_list implements Cloneable{
         SS.file = this.file;
 
         return SS;
-
     }
 
     public void deleteCurve(ArrayList<Float> line, float [] finalMatrix, int [] sz, float [] mz){
-        System.out.println("deleteline1--------------------------");
+//        Log.d(TAG,"deleteCurve");
         for (int i = 0; i < line.size() / 3 - 1; i++){
             float x1 = line.get(i * 3);
             float y1 = line.get(i * 3 + 1);
             float x2 = line.get(i * 3 + 3);
             float y2 = line.get(i * 3 + 4);
             for(int j=0; j<this.nsegs(); j++){
-                System.out.println("delete curswclist --"+j);
+//                Log.d(TAG,"delete curSwcList: " + j);
                 V_NeuronSWC seg = this.seg.get(j);
                 if(seg.to_be_deleted)
                     continue;
@@ -379,13 +373,13 @@ public class V_NeuronSWC_list implements Cloneable{
                         swcUnitMap.put(k,parent);
                     }
                 }
-                System.out.println("delete: end map");
+
                 for(int k=0; k<seg.row.size(); k++){
-                    System.out.println("j: "+j+" k: "+k);
+//                    Log.d(TAG,"j: " + j + " k: " + k);
                     V_NeuronSWC_unit child = seg.row.get(k);
                     int parentid = (int) child.parent;
                     if (parentid == -1 || seg.getIndexofParent(k) == -1){
-                        System.out.println("parent -1");
+//                        Log.d(TAG,"parent -1");
                         continue;
                     }
                     V_NeuronSWC_unit parent = swcUnitMap.get(k);
@@ -417,7 +411,6 @@ public class V_NeuronSWC_list implements Cloneable{
                             && (Math.max(y1, y2) >= Math.min(y3, y4))
                             && (Math.max(y3, y4) >= Math.min(y1, y2))
                             && ((m * n) <= 0) && (p * q <= 0)){
-                        System.out.println("------------------this is delete---------------");
                         seg.to_be_deleted = true;
                         break;
                     }
@@ -428,7 +421,7 @@ public class V_NeuronSWC_list implements Cloneable{
     }
 
     public void splitCurve(ArrayList<Float> line, float [] finalMatrix, int [] sz, float [] mz){
-        System.out.println("split1--------------------------");
+        Log.d(TAG,"splitCurve");
         boolean found = false;
         Vector<Integer> toSplit = new Vector<Integer>();
         for (int i = 0; i < line.size() / 3 - 1; i++){
@@ -440,7 +433,7 @@ public class V_NeuronSWC_list implements Cloneable{
             float x2 = line.get(i * 3 + 3);
             float y2 = line.get(i * 3 + 4);
             for(int j=0; j<this.nsegs(); j++){
-                System.out.println("delete curswclist --"+j);
+//                Log.d(TAG,"delete curSwcList: " + j);
                 V_NeuronSWC seg = this.seg.get(j);
                 if(seg.to_be_deleted)
                     continue;
@@ -451,13 +444,13 @@ public class V_NeuronSWC_list implements Cloneable{
                         swcUnitMap.put(k,parent);
                     }
                 }
-                System.out.println("delete: end map");
+
                 for(int k=0; k<seg.row.size(); k++){
-                    System.out.println("j: "+j+" k: "+k);
+//                    Log.d(TAG,"j: " + j + " k: " + k);
                     V_NeuronSWC_unit child = seg.row.get(k);
                     int parentid = (int) child.parent;
                     if (parentid == -1 || seg.getIndexofParent(k) == -1){
-                        System.out.println("parent -1");
+//                        Log.d(TAG, "parent -1");
                         continue;
                     }
                     V_NeuronSWC_unit parent = swcUnitMap.get(k);
@@ -489,66 +482,10 @@ public class V_NeuronSWC_list implements Cloneable{
                             && (Math.max(y1, y2) >= Math.min(y3, y4))
                             && (Math.max(y3, y4) >= Math.min(y1, y2))
                             && ((m * n) <= 0) && (p * q <= 0)){
-                        System.out.println("------------------this is split---------------");
 //                        seg.to_be_deleted = true;
 //                        break;
                         found = true;
-//                        V_NeuronSWC newSeg = new V_NeuronSWC();
-//                        V_NeuronSWC_unit first = seg.row.get(k);
-//                        try {
-//                            V_NeuronSWC_unit firstClone = first.clone();
-//                            newSeg.append(firstClone);
-//                        }catch (Exception e){
-//                            System.out.println(e.getMessage());
-//                        }
                         splitOnJK(j, k, seg, toSplit);
-//                        int cur = k;
-////                        toSplit.add(k);
-//                        while (seg.getIndexofParent(cur) != -1){
-//                            cur = seg.getIndexofParent(cur);
-//                            toSplit.add(cur);
-////                            V_NeuronSWC_unit nsu = swcUnitMap.get(cur);
-////                            try{
-////                                V_NeuronSWC_unit nsuClone = nsu.clone();
-////                                newSeg.append(nsuClone);
-////                            }catch (Exception e){
-////                                System.out.println(e.getMessage());
-////                            }
-////                            seg.row.remove(cur);
-//
-//                        }
-//                        V_NeuronSWC newSeg1 = new V_NeuronSWC();
-//                        V_NeuronSWC newSeg2 = new V_NeuronSWC();
-//                        int newSegid = this.nsegs();
-//                        V_NeuronSWC_unit first = seg.row.get(k);
-//                        try {
-//                            V_NeuronSWC_unit firstClone = first.clone();
-//                            V_NeuronSWC_unit firstClone2 = first.clone();
-//                            newSeg1.append(firstClone);
-//                            newSeg2.append(firstClone2);
-//                        }catch (Exception e){
-//                            System.out.println(e.getMessage());
-//                        }
-//                        for (int w = 0; w < seg.row.size(); w++){
-//                            try {
-//                                V_NeuronSWC_unit temp = seg.row.get(w);
-//                                if (!toSplit.contains(w)) {
-//                                    newSeg2.append(temp);
-//                                }else if(toSplit.contains(w) && (w != k)){
-//                                    temp.seg_id = newSegid;
-//                                    newSeg1.append(temp);
-//                                }
-//                            }catch (Exception e){
-//                                System.out.println(e.getMessage());
-//                            }
-//                        }
-//                        this.deleteSeg(j);
-//                        this.append(newSeg1);
-//                        this.append(newSeg2);
-//                        splitPoints.add(pchildm[0]);
-//                        splitPoints.add(pchildm[1]);
-//                        splitPoints.add(pchildm[2]);
-//                        splitType = (int)child.type;
                         break;
                     }
                 }
@@ -558,32 +495,25 @@ public class V_NeuronSWC_list implements Cloneable{
 
     private void splitOnJK(int j, int k, V_NeuronSWC seg, Vector<Integer> toSplit){
         int cur = k;
-//                        toSplit.add(k);
         while (seg.getIndexofParent(cur) != -1){
             cur = seg.getIndexofParent(cur);
             toSplit.add(cur);
-//                            V_NeuronSWC_unit nsu = swcUnitMap.get(cur);
-//                            try{
-//                                V_NeuronSWC_unit nsuClone = nsu.clone();
-//                                newSeg.append(nsuClone);
-//                            }catch (Exception e){
-//                                System.out.println(e.getMessage());
-//                            }
-//                            seg.row.remove(cur);
-
         }
+
         V_NeuronSWC newSeg1 = new V_NeuronSWC();
         V_NeuronSWC newSeg2 = new V_NeuronSWC();
         int newSegid = this.nsegs();
         V_NeuronSWC_unit first = seg.row.get(k);
+
         try {
             V_NeuronSWC_unit firstClone = first.clone();
             V_NeuronSWC_unit firstClone2 = first.clone();
             newSeg1.append(firstClone);
             newSeg2.append(firstClone2);
         }catch (Exception e){
-            System.out.println(e.getMessage());
+            Log.d(TAG,"e.getMessage()");
         }
+
         for (int w = 0; w < seg.row.size(); w++){
             try {
                 V_NeuronSWC_unit temp = seg.row.get(w);
@@ -594,7 +524,7 @@ public class V_NeuronSWC_list implements Cloneable{
                     newSeg1.append(temp);
                 }
             }catch (Exception e){
-                System.out.println(e.getMessage());
+                Log.d(TAG,"e.getMessage()");
             }
         }
         this.deleteSeg(j);
@@ -614,7 +544,7 @@ public class V_NeuronSWC_list implements Cloneable{
 
     private void devideByw(float[] x){
         if(Math.abs(x[3]) < 0.000001f){
-            Log.v("devideByw","can not be devided by 0");
+            Log.d(TAG,"devideByw: can not be devided by 0");
             return;
         }
 

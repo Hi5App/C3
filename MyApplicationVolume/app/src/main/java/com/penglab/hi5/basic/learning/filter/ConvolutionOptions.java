@@ -1,8 +1,11 @@
 package com.penglab.hi5.basic.learning.filter;
 
+import android.util.Log;
+
 import java.util.Vector;
 
 public class ConvolutionOptions {
+    private static final String TAG = "ConvolutionOptions";
     public int dim;
     public Vector<Float> sigmaEff = new Vector<>();
     public Vector<Float> sigmaD = new Vector<>();
@@ -10,7 +13,6 @@ public class ConvolutionOptions {
     public Vector<Integer> outerScale = new Vector<>();
 
     private int index;
-
     public double windowRatio;
 
     public ConvolutionOptions(int dim, float sigma){
@@ -38,13 +40,13 @@ public class ConvolutionOptions {
 
     public double sigmaScaled(){
         if(sigmaEff.get(index)<0 || sigmaD.get(index)<0){
-            System.out.println("Scale must be positive");
+            Log.e(TAG,"Scale must be positive");
         }
         double sigmaSquared = sigmaEff.get(index)*sigmaEff.get(index) - sigmaD.get(index)*sigmaD.get(index);
         if(sigmaSquared>0.0){
             return Math.sqrt(sigmaSquared)/stepSize.get(index);
         }else {
-            System.out.println("Scale would be imaginary");
+            Log.e(TAG,"Scale would be imaginary");
             return 0;
         }
     }

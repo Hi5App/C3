@@ -201,13 +201,13 @@ public class MyPattern2D {
     }
 
     public boolean getNeedRelease(){
-        Log.i(TAG,"getNeedRelease(): " + isNeedRelease);
+//        Log.i(TAG,"getNeedRelease(): " + isNeedRelease);
         return isNeedRelease;
     }
 
 
     public void setNeedRelease(){
-        Log.i(TAG,"setNeedRelease()");
+//        Log.i(TAG,"setNeedRelease()");
         isNeedRelease = true;
     }
 
