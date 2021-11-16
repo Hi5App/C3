@@ -7,6 +7,12 @@
 <!--        android:title="tools"-->
 <!--        app:showAsAction="always"-->
 <!--        android:icon="@drawable/ic_folder_black_24dp"/>-->
+<!--    <item-->
+<!--        android:id ="@id/home"-->
+<!--        android:orderInCategory ="1"-->
+<!--        android:title="@string/home"-->
+<!--        app:showAsAction="always"-->
+<!--        android:icon="@drawable/ic_menu"/>-->
 
     <item
         android:id ="@id/Undo"

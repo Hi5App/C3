@@ -313,5 +313,17 @@
     <string name="Direct_Access">Direct_Access</string>
     <string name="undo">undo</string>
     <string name="redo">redo</string>
+    <string name="drawer_open_content_description">drawer_open_content_description</string>
+    <string name="drawer_closed_content_description">drawer_closed_content_description</string>
+    <string name="nav_home">nav_home</string>
+    <string name="nav_account">nav_account</string>
+    <string name="nav_settings">nav_settings</string>
+    <string name="nav_chat">nav_chat</string>
+    <string name="home">home</string>
+    <string name="account">account</string>
+    <string name="chat">chatting</string>
+    <string name="setting">setting</string>
+    <string name="Settings">Settings</string>
+    <string name="About">About</string>
 
 </resources>

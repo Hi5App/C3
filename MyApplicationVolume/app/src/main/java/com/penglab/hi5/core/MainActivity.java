@@ -56,10 +56,19 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.legacy.app.ActionBarDrawerToggle;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.enums.PopupAnimation;
@@ -165,6 +174,8 @@ import static java.lang.Math.sqrt;
 //import com.penglab.hi5.chat.agora.AgoraService;
 //import com.penglab.hi5.chat.agora.message.AgoraMsgManager;
 import com.michaldrabik.tapbarmenulib.TapBarMenu;
+
+import org.jetbrains.annotations.NotNull;
 
 public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static final String TAG = "MainActivity";
@@ -376,6 +387,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private static TextView scoreText;
     private int selectedBGM = 0;
+
+    private int mSelectedItem = 0;
+    private DrawerLayout drawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -753,6 +768,77 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         mainContext = this;
 
+        drawerLayout = findViewById(R.id.drawer_layout);
+
+
+
+
+
+
+        mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout,R.drawable.ic_menu,R.string.drawer_open_content_description,R.string.drawer_closed_content_description);
+        drawerLayout.setDrawerListener(mDrawerToggle);
+        drawerLayout.setDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                super.onDrawerSlide(drawerView, slideOffset);
+                drawerLayout.bringChildToFront(drawerView);
+                drawerLayout.requestLayout();
+            }
+        });
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null){
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+        }
+
+//            public void onDrawerClosed(View view){
+//
+//                Fragment newFragment;
+//                switch (mSelectedItem){
+//                    case R.id.home:
+//                        newFragment = new Fragment();
+//                        getSupportActionBar().setTitle(R.string.home);
+//
+//                    default:
+//                        return;
+//                }
+////                FragmentManager fm = getSupportFragmentManager();
+////                fm.beginTransaction()
+////                        .replace(R.id.main_content,newFragment)
+////                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
+//                mSelectedItem = 0;
+//
+//            }
+//
+//        };
+
+        final NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem item) {
+                mSelectedItem = item.getItemId();
+                switch(item.getItemId()){
+                    case R.id.nav_account:
+                        logout();
+                        break;
+                    case R.id.nav_settings:
+                        setSettings();
+                        break;
+                    case R.id.nav_chat:
+                        openChatActivity();
+                        break;
+                    case R.id.nav_About:
+                        About();
+                        break;
+                }
+
+                item.setChecked(true);
+                drawerLayout.closeDrawer(navigationView);
+                return false;
+            }
+        });
+
+
         /*
         music module  -------------------------------------------------------------------------------------------------
          */
@@ -876,6 +962,22 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }, 1 * 1000);
 
     }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
+    }
+
+//    @Override
+//    public void onBackPressed(){
+//        if(drawerLayout.isDrawerOpen(GravityCompat.START)){
+//            drawerLayout.closeDrawer(GravityCompat.START);
+//        }else
+//            super.onBackPressed();
+//    };
+
 
     public void onMenuItemClick(View view) {
 //        tapBarMenu.close();
@@ -1147,7 +1249,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
          */
 
         FrameLayout ll = (FrameLayout) findViewById(R.id.container);
+//        ll.setVisibility(View.GONE);
         ll.addView(myGLSurfaceView);
+        FrameLayout.LayoutParams surfaceview_layout = new FrameLayout.LayoutParams(100, 100);
+        surfaceview_layout.width = FrameLayout.LayoutParams.MATCH_PARENT;
+        surfaceview_layout.height = FrameLayout.LayoutParams.MATCH_PARENT;
+        myGLSurfaceView.setLayoutParams(surfaceview_layout);
+
 
 //        LinearLayout ll_up = new LinearLayout(this);
 //        ll_up.setOrientation(LinearLayout.VERTICAL);
@@ -1826,6 +1934,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 onMenuItemClick(v);
             }
         });
+
+
+
 
 
 
@@ -3204,9 +3315,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             ToastEasy(e.getMessage());
                         }
                         if (!error.equals("")) {
-                            if (error.equals("This file already exists")){
+                            if (error.equals("This file already exist")){
                                 AlertDialog aDialog = new AlertDialog.Builder(mainContext)
-                                        .setTitle("This file already exists")
+                                        .setTitle("This file already exist")
                                         .setMessage("Are you sure to overwrite it?")
                                         .setIcon(R.mipmap.ic_launcher)
                                         .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
@@ -3240,7 +3351,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 ToastEasy(error);
                             }
                         } else{
-                            ToastEasy("save SWC to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG);
+                            ToastEasy("save Annotation to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG);
                         }
                     }
                 })
@@ -3249,7 +3360,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     public void onClick(View clickedView, View contentView) {
                     }
                 })
-                .setTitle("Save SWC File")
+                .setTitle("Save Annotation")
                 .create();
         mdDialog.show();
     }
@@ -3459,8 +3570,31 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
      * @return
      */
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;}
         // Handle item selection
         switch (item.getItemId()) {
+
+//            case R.id.home:
+//                if(!drawerLayout.isDrawerOpen(GravityCompat.START))
+//                {
+//                    drawerLayout.openDrawer(GravityCompat.START);
+//                }
+//                break;
+
+//            case R.id.home:
+//
+//                break;
+////                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+//                    drawerLayout.closeDrawer(GravityCompat.START);
+//                } else {
+//                    drawerLayout.post(new Runnable(){
+//                        @Override
+//                        public void run(){
+//                            drawerLayout.openDrawer(GravityCompat.START);
+//                        }
+//                    });
+//                }
             case R.id.Undo:
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
@@ -3476,7 +3610,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 }
                 myGLSurfaceView.requestRender();
 
-                return true;
+                break;
             case R.id.Redo:
 //                ImageView redo_i = findViewById(R.id.Redo);
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
@@ -3492,26 +3626,24 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 }
                 myGLSurfaceView.requestRender();
 
-                return true;
+                break;
 
             case R.id.file:
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
                 File_icon();
-                return true;
-
+                break;
             case R.id.share:
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
                 ShareScreenShot();
-                return true;
+                break;
             case R.id.save_swc:
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
                 SaveSWC();
-                return true;
-
+                break;
             case R.id.more:
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
                 More_icon();
-                return true;
+                break;
 
 //            case R.id.view:
 //                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
@@ -3524,27 +3656,30 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //                }
 //                return true;
             default:
-                return true;
+                break;
         }
+        return true;
     }
 
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-            if ((System.currentTimeMillis() - exitTime) > 2000) {
-                ToastEasy("Press again to exit the program");
-                exitTime = System.currentTimeMillis();
-            } else {
-                finish();
-                System.exit(0);
+            if(drawerLayout.isDrawerOpen(GravityCompat.START)){
+                drawerLayout.closeDrawers();
+                return false;
+            }else{
+                if ((System.currentTimeMillis() - exitTime) > 2000) {
+                    ToastEasy("Press again to exit the program");
+                    exitTime = System.currentTimeMillis();
+                } else {
+                    finish();
+                    System.exit(0);
+                }
             }
             return true;
         }
         return super.onKeyDown(keyCode, event);
     }
-
-
-
 
 
     /**
@@ -3708,13 +3843,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                             }
                                             break;
 
+
                                         case "S2":
                                             openS2Activity();
 
                                             break;
-                                        case "Chat":
-                                            openChatActivity();
-                                            break;
+//                                        case "Chat":
+//                                            openChatActivity();
+//                                            break;
 
                                         case "GD":
                                             try {
@@ -3819,13 +3955,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                             startActivity(new Intent(MainActivity.this, RewardActivity.class));
                                             break;
 
-                                        case "Settings":
-                                            setSettings();
-                                            break;
+//                                        case "Settings":
+//                                            setSettings();
+//                                            break;
 
-                                        case "About":
-                                            About();;
-                                            break;
+//                                        case "About":
+//                                            About();;
+//                                            break;
 
                                         case "Help":
                                             try{
@@ -4406,6 +4542,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .create();
         aDialog.show();
     }
+
+
+
 
 
     private void deleteImg(){
