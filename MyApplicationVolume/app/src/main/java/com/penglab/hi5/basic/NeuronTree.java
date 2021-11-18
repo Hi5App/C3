@@ -230,7 +230,6 @@ public class NeuronTree extends BasicSurfObj {
         ArrayList<String> arraylist = new ArrayList<String>();
         NeuronTree nt = new NeuronTree();
         nt.file = filename;
-        System.out.println("in read swc");
         // if (! qf.open(QIODevice::ReadOnly | QIODevice::Text))
         // {
         // #ifndef DISABLE_V3D_MSG
@@ -326,8 +325,7 @@ public class NeuronTree extends BasicSurfObj {
         ArrayList<String> arraylist = new ArrayList<String>();
         NeuronTree nt = new NeuronTree();
         nt.file = uri.toString();
-        FileManager fileManager = new FileManager();
-        String file_type = fileManager.getFileType(uri);
+        String file_type = FileManager.getFileType(uri);
         if (!(file_type.equals(".SWC") | file_type.equals(".ESWC"))) {
             Toast.makeText(MainActivity.getContext(), "failed, only support swc or eswc file", Toast.LENGTH_LONG).show();
             return null;

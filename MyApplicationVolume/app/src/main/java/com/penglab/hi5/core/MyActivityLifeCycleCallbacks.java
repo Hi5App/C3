@@ -17,7 +17,8 @@ import java.util.List;
 
 public class MyActivityLifeCycleCallbacks implements Application.ActivityLifecycleCallbacks {
 
-    private String TAG = "MyActivityLifeCycleCallbacks";
+    private final String TAG = "MyActivityLifeCycleCallbacks";
+    private final String MY_PKG_NAME = "com.penglab.hi5";
     private int activityCount = 0;
 
     private List<Activity> activities = new LinkedList<>();
@@ -52,6 +53,7 @@ public class MyActivityLifeCycleCallbacks implements Application.ActivityLifecyc
         if (activityCount <= 0){
             Log.d(TAG, "Now On Background");
             if (isActivityAlive("ComponentInfo{com.penglab.hi5/com.penglab.hi5.core.MainActivity}")){
+                // update score
                 Score score = Score.getInstance();
                 MainActivity.setScore(score.getScore());
             }
@@ -66,6 +68,16 @@ public class MyActivityLifeCycleCallbacks implements Application.ActivityLifecyc
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
         removeActivity(activity);
+    }
+
+    private boolean isAppRun() {
+        ActivityManager am = (ActivityManager)Myapplication.getContext().getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> list = am.getRunningTasks(100);
+        for (ActivityManager.RunningTaskInfo info : list){
+            if (info.topActivity.getPackageName().equals(MY_PKG_NAME) && info.baseActivity.getPackageName().equals(MY_PKG_NAME))
+                return true;
+        }
+        return false;
     }
 
     private boolean isActivityAlive(String activityName) {

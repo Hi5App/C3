@@ -566,7 +566,7 @@ public class MyPattern{
 
 
 
-    public void drawVolume_3d(float[] mvpMatrix, float [] translateAfterMatrix, boolean ifDownSampling, float contrast) {
+    public void drawVolume_3d(float[] mvpMatrix, boolean ifDownSampling, float contrast) {
 
         // Add program to OpenGL ES environment
         GLES30.glUseProgram(mProgram_simple);
@@ -1387,13 +1387,13 @@ public class MyPattern{
 
 
     public boolean getNeedRelease(){
-        Log.i(TAG,"getNeedRelease(): " + isNeedRelease);
+//        Log.i(TAG,"getNeedRelease(): " + isNeedRelease);
         return isNeedRelease;
     }
 
 
     public void setNeedRelease(){
-        Log.i(TAG,"setNeedRelease()");
+//        Log.i(TAG,"setNeedRelease()");
         isNeedRelease = true;
     }
 

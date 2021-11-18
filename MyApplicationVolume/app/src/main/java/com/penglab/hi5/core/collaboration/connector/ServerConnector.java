@@ -55,22 +55,6 @@ public class ServerConnector extends BasicConnector implements ReconnectionInter
     }
 
 
-    private void makeConnect(){
-        Log.e(TAG,"makeConnect()");
-
-        try{
-            if (mSocket == null || !checkConnection()){
-                Log.e(TAG,"Connect Again");
-                initConnection();
-                reLogin();
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-    }
-
-
     @Override
     public boolean sendMsg(String msg, boolean waited, boolean resend){
         return msgSender.sendMsg(mSocket, msg, waited, resend, this);
@@ -104,10 +88,8 @@ public class ServerConnector extends BasicConnector implements ReconnectionInter
         this.roomName = roomName;
     }
 
-
     @Override
     public void onReconnection(String msg) {
-
         /*
         reconnect
          */
@@ -120,6 +102,10 @@ public class ServerConnector extends BasicConnector implements ReconnectionInter
                 sendMsg(msg,false, false);
             }
         }
+    }
+
+    public void closeSender(){
+        msgSender.close();
     }
 
 }

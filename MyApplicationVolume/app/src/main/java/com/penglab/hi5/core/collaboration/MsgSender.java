@@ -13,6 +13,10 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 
@@ -20,34 +24,32 @@ public class MsgSender {
 
     private final String TAG = "MsgSender";
 
+    private final ExecutorService executorService;
+
     public MsgSender(){
+        executorService = Executors.newFixedThreadPool(4);
     }
 
     public boolean sendMsg(Socket socket, String message, boolean waited, boolean resend, ReconnectionInterface reconnectionInterface){
 
-        final boolean[] flag = {true};
         if ((socket == null || !socket.isConnected()) && !resend){
             ToastEasy("Fail to Send Message, check the network please !");
             return false;
         }
-
-        Thread thread = new Thread(){
+        
+        Future<Boolean> result = executorService.submit(new Callable<Boolean>() {
             @Override
-            public void run() {
-                super.run();
-
+            public Boolean call() throws Exception {
                 try {
-//                    Log.d(TAG, "Start to Send Message");
                     OutputStream out = socket.getOutputStream();
 
                     String data = message + "\n";
-                    int datalength = data.getBytes(StandardCharsets.UTF_8).length;
+                    int dataLength = data.getBytes(StandardCharsets.UTF_8).length;
 
                     /*
-                    msg header = type + msglength
+                    msg header = type + dataLength
                      */
-                    String header = String.format("DataTypeWithSize:%d;;%s\n",0, datalength);
-                    int headerlength = header.getBytes().length;
+                    String header = String.format("DataTypeWithSize:%d;;%s\n",0, dataLength);
 
                     if (!data.startsWith("HeartBeat")){
                         Log.d(TAG,"header: " + header.trim() + ",  data: " + data);
@@ -66,73 +68,63 @@ public class MsgSender {
                     }
 
                 }catch (Exception e){
+                    Log.d(TAG, "Something wrong when send message to server");
                     e.printStackTrace();
-                    Log.d(TAG, "Fail to get OutputStream");
-                    flag[0] = false;
-
                     if (resend){
                         reconnectionInterface.onReconnection(message);
                     }
+                    return false;
                 }
-
+                return true;
             }
-        };
-
-        thread.start();
+        });
 
         try {
-            if (waited)
-                thread.join();
-        } catch (InterruptedException e) {
+            if (waited){
+                return result.get();
+            }
+        } catch (Exception e){
             e.printStackTrace();
             return false;
         }
 
-        return flag[0];
+        return true;
     }
 
 
 
     public boolean testConnection(Socket socket){
-        final boolean[] flag = {true};
 
-        Thread thread = new Thread(){
+        Future<Boolean> result = executorService.submit(new Callable<Boolean>() {
             @Override
-            public void run() {
-                super.run();
-
+            public Boolean call() throws Exception {
                 try {
 
                     OutputStream out = socket.getOutputStream();
                     String data = "HeartBeat\n";
-                    int datalength = data.getBytes(StandardCharsets.UTF_8).length;
+                    int dataLength = data.getBytes(StandardCharsets.UTF_8).length;
 
-                    /* msg header = type + msglength */
-                    String header = String.format("DataTypeWithSize:%d;;%s\n",0, datalength);
-                    int headerlength = header.getBytes().length;
-
+                    /* msg header = type + dataLength */
+                    String header = String.format("DataTypeWithSize:%d;;%s\n",0, dataLength);
                     String finalMsg = header + data;
                     out.write(finalMsg.getBytes(StandardCharsets.UTF_8));
                     out.flush();
 
                 }catch (Exception e){
-                    e.printStackTrace();
                     Log.d(TAG, "Fail to send msg when test Connection");
-                    flag[0] = false;
+                    e.printStackTrace();
+                    return false;
                 }
-
+                return true;
             }
-        };
-
-        thread.start();
+        });
 
         try {
-            thread.join();
-        } catch (InterruptedException e) {
+            return result.get();
+        } catch (Exception e){
             e.printStackTrace();
             return false;
         }
-        return flag[0];
     }
 
 
@@ -206,5 +198,9 @@ public class MsgSender {
         ByteBuffer buffer = ByteBuffer.allocate(8);
         buffer.putLong(x);
         return buffer.array();
+    }
+
+    public void close(){
+        executorService.shutdown();
     }
 }

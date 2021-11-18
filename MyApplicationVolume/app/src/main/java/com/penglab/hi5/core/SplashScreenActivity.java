@@ -533,6 +533,5 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
                 handler.sendMessage(message);
             }
         }
-
     }
 }

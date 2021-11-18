@@ -74,11 +74,12 @@ public class ManageService extends BasicService {
         mReadThread.needStop = flag;
     }
 
+    /* when reConnect in connector, reset the socket in service */
     public static void resetConnection(){
         mReadThread.resetConnection();
     }
 
-    /* use synchronized to avoid the using conflict of socket*/
+    /* when fail to send msg in service, reConnect the socket; use synchronized to avoid the using conflict of socket */
     public void reConnection(){
         Log.e(TAG,"Start to reConnect");
         synchronized (lockForManageSocket){
@@ -88,5 +89,4 @@ public class ManageService extends BasicService {
             }
         }
     }
-
 }

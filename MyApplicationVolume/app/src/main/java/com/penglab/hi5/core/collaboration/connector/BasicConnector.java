@@ -110,16 +110,12 @@ public abstract class BasicConnector {
     }
 
 
-
-
     /**
      * send msg without waiting
      */
     public boolean sendMsg(String msg){
         return sendMsg(msg, false, true);
     }
-
-
 
 
     /**

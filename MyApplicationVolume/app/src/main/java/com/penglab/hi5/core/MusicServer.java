@@ -16,7 +16,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class MusicServer extends Service {
-    private static String TAG = MusicServer.class.getSimpleName();
+    private static final String TAG = MusicServer.class.getSimpleName();
 
     private static MediaPlayer bgmPlayer;
 
@@ -38,7 +38,7 @@ public class MusicServer extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        //适配8.0 service
+        // 适配8.0 service
         Log.e(TAG,"onCreate");
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationChannel mChannel = null;
@@ -51,35 +51,20 @@ public class MusicServer extends Service {
         }
     }
 
-
     @Override
-    public void onStart(Intent intent, int startId) {
-        super.onStart(intent, startId);
-
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.e(TAG,"onStartCommand");
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             startForeground(1, notification);
         }
 
         if (bgmPlayer == null){
-//            bgmPlayer = new MediaPlayer();
             bgmPlayer = MediaPlayer.create(this, R.raw.bgm03sponge);
             bgmPlayer.setVolume(volume, volume);
-//            String externalFileDir = getBaseContext().getExternalFilesDir(null).toString();
-//            try {
-//                bgmPlayer.setDataSource(externalFileDir + "/Resources/Music/CoyKoi.mp3");
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            bgmPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-//                @Override
-//                public void onPrepared(MediaPlayer mp) {
-//                    bgmPlayer.start();
-//                }
-//            });
-//            bgmPlayer.prepareAsync();
             bgmPlayer.setLooping(true);
             bgmPlayer.start();
         }
+        return super.onStartCommand(intent, flags, startId);
     }
 
     public static void setVolume(float f){
@@ -93,7 +78,10 @@ public class MusicServer extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        bgmPlayer.stop();
+        if (bgmPlayer.isPlaying())
+            bgmPlayer.stop();
+        bgmPlayer.reset();
+        bgmPlayer.release();
         bgmPlayer = null;
     }
 

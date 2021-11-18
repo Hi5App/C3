@@ -7,21 +7,23 @@ import com.penglab.hi5.basic.image.Image4DSimple;
 import static com.penglab.hi5.basic.image.Image4DSimple.ImagePixelType.V3D_UINT8;
 import static com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list.convertNeuronTreeFormat;
 
+import android.util.Log;
+
 public class V3dNeuronGDTracing {
 
+    private static final String TAG = "V3dNeuronGDTracing";
     public static String TRACED_NAME = "APP1_Tracing";
     public static String TRACED_FILE = "v3d_traced_neuron";
 
     public static NeuronTree v3dneuron_GD_tracing(Image4DSimple inimg, LocationSimple p0, Vector<LocationSimple> pp, CurveTracePara  trace_para, double trace_z_thickness)
-            throws Exception
-    {
-        System.out.println("---------------------------------------in gd------------------------------");
+            throws Exception {
+        Log.d(TAG,"v3dneuron_GD_tracing start");
         NeuronTree nt = new NeuronTree();
 
         int[] sz = new int[]{(int) inimg.getSz0(), (int) inimg.getSz1(), (int) inimg.getSz2(), (int) inimg.getSz3()};
         if (!inimg.valid() || trace_para.channo<0 || trace_para.channo>=sz[3])
         {
-            System.out.println("Invalid image or sz for v3dneuron_GD_tracing().");
+            Log.d(TAG,"Invalid image or sz for v3dneuron_GD_tracing().");
             return nt;
         }
 
@@ -32,12 +34,10 @@ public class V3dNeuronGDTracing {
         int[] in_sz = {(int) p4dImageNew.getSz0(), (int) p4dImageNew.getSz1(), (int) p4dImageNew.getSz2(), 1};
         if(datatype != V3D_UINT8 || in_sz[0]>128 || in_sz[1]>128 || in_sz[2]>128)// && datatype != V3D_UINT16)
         {
-            if (datatype!=V3D_UINT8)
-            {
+            if (datatype!=V3D_UINT8) {
                 if (!Image4DSimple.scale_img_and_converto8bit(p4dImageNew, 0, 255))
-                    System.out.println("scale error!");
+                    Log.d(TAG,"scale error!");
 
-//                indata1d = p4dImageNew->getRawDataAtChannel(0);
                 in_sz[0] = (int) p4dImageNew.getSz0();
                 in_sz[1] = (int) p4dImageNew.getSz1();
                 in_sz[2] = (int) p4dImageNew.getSz2();
@@ -45,11 +45,7 @@ public class V3dNeuronGDTracing {
 
             }
 
-            System.out.printf("x = %d  ", in_sz[0]);
-            System.out.printf("y = %d  ", in_sz[1]);
-            System.out.printf("z = %d  ", in_sz[2]);
-            System.out.printf("c = %d\n", in_sz[3]);
-
+//            Log.d(TAG,String.format("x = %d, y = %d, z = %d, c = %d", in_sz[0], in_sz[1], in_sz[2], in_sz[3]));
             if (trace_para.b_128cube)
             {
                 if (in_sz[0]<=128 && in_sz[1]<=128 && in_sz[2]<=128)
@@ -81,15 +77,11 @@ public class V3dNeuronGDTracing {
                     dfactor_xy = dfactor_z = MM / 128.0;
                 }
 
-                System.out.printf("dfactor_xy=%5.3f\n", dfactor_xy);
-                System.out.printf("dfactor_z=%5.3f\n", dfactor_z);
-
-                if (dfactor_z>1 || dfactor_xy>1)
-                {
-                    System.out.println("enter ds code");
+                Log.d(TAG,String.format("dfactor_xy = %5.3f, dfactor_z = %5.3f", dfactor_xy, dfactor_z));
+                if (dfactor_z>1 || dfactor_xy>1) {
                     Image4DSimple p4dImageTmp = new Image4DSimple();
-                    if (!Image4DSimple.downsampling_img_xyz(p4dImageTmp,p4dImageNew,dfactor_xy,dfactor_z))
-                        System.out.println("downsample error!");
+                    if (!Image4DSimple.downsampling_img_xyz(p4dImageTmp, p4dImageNew, dfactor_xy,dfactor_z))
+                        Log.d(TAG,"downSample error !");
                     p4dImageNew.setData(p4dImageTmp);
 
                     in_sz[0] = (int) p4dImageNew.getSz0();
@@ -114,8 +106,6 @@ public class V3dNeuronGDTracing {
 
         V_NeuronSWC_list tracedNeuron;
         Vector<Vector<V_NeuronSWC_unit>> mmUnit = new Vector<Vector<V_NeuronSWC_unit>>();
-//        trace_para.sp_downsample_step = 1;
-
         tracedNeuron = trace_one_pt_to_N_points_shortestdist(p4d, in_sz, p0, pp, trace_para, trace_z_thickness, mmUnit);
 
         if (pp.size()>0) //trace to some selected markers
@@ -142,8 +132,6 @@ public class V3dNeuronGDTracing {
 
             nt.listNeuron.get(i).radius *= dfactor_xy; //use xy for now
         }
-
-
         return nt;
     }
 
@@ -153,7 +141,7 @@ public class V3dNeuronGDTracing {
                                                                          Vector<Vector<V_NeuronSWC_unit> > mmUnit) throws Exception
     {
         V_NeuronSWC_list tracedNeuron = new V_NeuronSWC_list();
-        System.out.println("in trace_one_pt_to_N_points_shortestdist-----------");
+        Log.d(TAG,"trace_one_pt_to_N_points_shortestdist start");
         // CHECK_DATA_GD_TRACING(tracedNeuron); //check
 
         ParaShortestPath sp_para = new ParaShortestPath();
@@ -190,7 +178,7 @@ public class V3dNeuronGDTracing {
         }
 
         BoundingBox trace_bounding_box = new BoundingBox();
-        System.out.println("find_shortest_path_graphimg >>> ");
+        Log.d(TAG,"find_shortest_path_graphimg >>> ");
 
         trace_bounding_box.x0 = trace_bounding_box.y0 = trace_bounding_box.z0 = 0;
         trace_bounding_box.x1 = sz[0]-1;
@@ -220,18 +208,7 @@ public class V3dNeuronGDTracing {
 //        trace_bounding_box.y1 = trace_bounding_box.y1+20<=sz[1]-1?trace_bounding_box.y1+20:sz[1]-1;
 //        trace_bounding_box.z1 = trace_bounding_box.z1+20<=sz[2]-1?trace_bounding_box.z1+20:sz[2]-1;
 
-        System.out.println("set z1 "+ (int)(trace_bounding_box.z1));
-
-        System.out.println("z1="+(int)(trace_bounding_box.z1));
-
-//        float pxp = 0, pyp=0, pzp=0;
-//        if (n_end_nodes>0)
-//        {
-//            pxp = px[0];
-//            pyp = py[0];
-//            pzp = pz[0];
-//        }
-
+//        Log.d(TAG,"set z1 " + (int)(trace_bounding_box.z1) + ", z1=" + (int)(trace_bounding_box.z1));
         String s_error = null;
         GD gd = new GD();
 //        s_error = gd.find_shortest_path_graghing_FM(p4d[chano], sz[0], sz[1], sz[2],
@@ -243,9 +220,7 @@ public class V3dNeuronGDTracing {
 //                px, py, pz, //fix this bug 100624
 //                mmUnit,
 //                sp_para);
-        if (sz[3]==1)
-        {
-
+        if (sz[3]==1) {
             s_error = gd.find_shortest_path_graphimg(p4d[chano], sz[0], sz[1], sz[2],
                     (float) trace_z_thickness,
                     (int)trace_bounding_box.x0, (int)trace_bounding_box.y0, (int) trace_bounding_box.z0,
@@ -255,21 +230,17 @@ public class V3dNeuronGDTracing {
                         px, py, pz, //fix this bug 100624
                         mmUnit,
                         sp_para);
-
-
         }
+
         else //note that this has NOT been updated yet to include the favorite direction , by PHC 20170606
         {
-            System.out.println("please assure the image is one channel image");
+            Log.d(TAG,"please assure the image is one channel image");
         }
-        System.out.println("find_shortest_path_graphimg <<< ");
-        if (s_error!=null && s_error != "")
-        {
-            // System.out.println(s_error,0);
-            System.out.println(s_error);
+
+//        Log.d(TAG,"find_shortest_path_graphimg <<< ");
+        if (s_error != null && !s_error.equals("")) {
+            Log.d(TAG,"s_error: " + s_error);
             throw new Exception(s_error);
-            //  throw ( char*)s_error;
-//            return tracedNeuron;
         }
 
         int nSegsTrace = mergeback_mmunits_to_neuron_path(n_end_nodes, mmUnit, tracedNeuron);
@@ -379,7 +350,7 @@ public class V3dNeuronGDTracing {
     public static boolean proj_trace_smooth_downsample_last_traced_neuron(int[][][][] p4d, int[] sz, V_NeuronSWC_list  tracedNeuron,
                                                                           CurveTracePara  trace_para, int seg_begin, int seg_end)throws Exception
     {
-        System.out.println("proj_trace_smooth_downsample_last_traced_neuron(). ");
+        Log.d(TAG,"proj_trace_smooth_downsample_last_traced_neuron start");
         // CHECK_DATA_GD_TRACING(false);  //check
 
         int nexist = 0; // re-create index number
@@ -390,8 +361,7 @@ public class V3dNeuronGDTracing {
             if (iseg <seg_begin || iseg >seg_end) continue; //091023
 
             V_NeuronSWC  cur_seg = (tracedNeuron.seg.elementAt(iseg));
-            System.out.printf("#seg=%d(%d)\n", iseg, cur_seg.row.size());
-
+//            Log.d(TAG,String.format("#seg = %d (%d)", iseg, cur_seg.row.size()));
             Vector<V_NeuronSWC_unit>  mUnit = cur_seg.row; // do in place
             {
                 //------------------------------------------------------------
@@ -417,12 +387,10 @@ public class V3dNeuronGDTracing {
                 //-------------------------------------------------------------
 
             }
-            System.out.printf(">>%d(%d) \n", iseg, mUnit.size());
-
+//            Log.d(TAG,String.format(">> %d (%d) ", iseg, mUnit.size()));
             V_NeuronSWC_unit.reset_simple_path_index (nexist, mUnit);
             nexist += mUnit.size();
         }
-        System.out.println("");
 
         return true;
     }
@@ -431,7 +399,7 @@ public class V3dNeuronGDTracing {
                                                                           CurveTracePara  trace_para, int seg_begin, int seg_end,
                                                                           float myzthickness, boolean b_smooth)throws Exception
     {
-        System.out.println("proj_trace_compute_radius_of_last_traced_neuron(). ");
+        Log.d(TAG,"proj_trace_compute_radius_of_last_traced_neuron start");
         // CHECK_DATA_GD_TRACING(false); //check
 
         //int chano = trace_para.channo; //20110917. the multichannel and single channel tracing can be distinguished based sz[3].
@@ -442,12 +410,10 @@ public class V3dNeuronGDTracing {
             if (iseg <seg_begin || iseg >seg_end) continue;
 
             V_NeuronSWC cur_seg = tracedNeuron.seg.elementAt(iseg);
-            System.out.printf("#seg=%d(%d) ", iseg, cur_seg.row.size());
-
+//            Log.d(TAG,String.format("#seg = %d (%d)", iseg, cur_seg.row.size()));
             Vector<V_NeuronSWC_unit> mUnit = cur_seg.row; // do in place
             {
-                if (sz[3]==1)
-                {
+                if (sz[3]==1) {
                     GD.fit_radius_and_position(p4d[0], sz[0], sz[1], sz[2],
                             mUnit,
                             false,       // do not move points here
@@ -459,8 +425,6 @@ public class V3dNeuronGDTracing {
                     GD.smooth_radius(mUnit, smoothing_win_sz, false);
             }
         }
-        System.out.println("");
-
         return true;
     }
 

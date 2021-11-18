@@ -459,15 +459,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                setVisual(gamePosition, gameDir);
             }
 
-            setMatrix();
-
-
-            if (myAnimation != null){
-                if (myAnimation.status){
-                    animationRotation();
-                }
+            if (myAnimation != null && myAnimation.status){
+                animationRotation();
             }
 
+            setMatrix();
 
             /*
             if not loacation mode
@@ -479,7 +475,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         if (ifGame) {
                             myPatternGame.drawMarker(finalMatrix, modelMatrix);
                         } else {
-                            myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, ifDownSampling, contrast);
+                            myPattern.drawVolume_3d(finalMatrix, ifDownSampling, contrast);
                         }
                 }
                 if (fileType == FileType.JPG || fileType == FileType.PNG){
@@ -771,8 +767,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 m.postScale(1, -1);
                 mBitmap = Bitmap.createBitmap(mBitmap, 0, 0, screen_w, screen_h, m, true);
 
-                ImageUtil imageUtil = new ImageUtil();
-                Bitmap output_mBitmap = imageUtil.drawTextToRightBottom(getContext(), mBitmap, "Hi5", 20, Color.RED, 40, 30);
+                Bitmap output_mBitmap = ImageUtil.drawTextToRightBottom(getContext(), mBitmap, "Hi5", 20, Color.RED, 40, 30);
                 String mCaptureDir = "/storage/emulated/0/" + getContext().getResources().getString(R.string.app_name) + "/screenCapture";
                 File dir = new File(mCaptureDir);
                 if (!dir.exists()){
@@ -786,6 +781,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
                     String[] imgPath = new String[1];
                     imgPath[0] = mCapturePath;
+                    fos.close();
                     if (imgPath[0] != null)
                     {
 
@@ -1342,11 +1338,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             filetype = filepath.substring(filepath.lastIndexOf(".")).toUpperCase();
         }else {
             Uri uri = Uri.parse(filepath);
-            FileManager fileManager = new FileManager();
-            filetype = fileManager.getFileType(uri);
+            filetype = FileManager.getFileType(uri);
         }
 
-        Log.v(TAG,"setFileType, filepath: " + filepath + ", filetype: " + filetype);
+        Log.v(TAG,"filepath: " + filepath + "| filetype: " + filetype);
 
         switch (filetype){
             case ".V3DRAW":
@@ -1948,33 +1943,24 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public float[] solve2DMarker(float x, float y){
         if (ifIn2DImage(x, y)){
-            float i;
             float [] result = new float[3];
-            for (i = -1; i < 1; i += 0.005){
-                float [] invertfinalMatrix = new float[16];
-                Matrix.invertM(invertfinalMatrix, 0, finalMatrix, 0);
-                Log.d(TAG, "solve2DMarker: " + Arrays.toString(finalMatrix));
-                Log.d(TAG, "solve2DMarker: mz: " + mz[2]);
+            float [] invertfinalMatrix = new float[16];
+            Matrix.invertM(invertfinalMatrix, 0, finalMatrix, 0);
 
+            for (float i = -1; i < 1; i += 0.005){
+                // calculate the temp result
                 float [] temp = new float[4];
                 Matrix.multiplyMV(temp, 0, invertfinalMatrix, 0, new float[]{x, y, i, 1}, 0);
-                Log.d(TAG, "solve2DMarker: temp before: " + Arrays.toString(temp));
-
                 devideByw(temp);
                 float dis = Math.abs(temp[2] - mz[2] / 2);
-                Log.d(TAG, "solve2DMarker: invertfinalmatrix: " + Arrays.toString(invertfinalMatrix));
-                Log.d(TAG, "solve2DMarker: temp: " + Arrays.toString(temp));
-                Log.d(TAG, "solve2DMarker: dis: " + dis);
+
                 if (dis < 0.1) {
-                    System.out.println(temp[0]);
-                    System.out.println(temp[1]);
+//                    Log.d(TAG,"temp[0]: " + temp[0] + ", temp[1]: " + temp[1]);
                     result = new float[]{temp[0], temp[1], mz[2] / 2};
                     break;
                 }
             }
             result = modeltoVolume(result);
-            System.out.println(result[0]);
-            System.out.println(result[1]);
             return result;
         }
         return null;
@@ -3762,7 +3748,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                             firstClone2.parent = -1;
                             newSeg2.append(firstClone2);
                         }catch (Exception e){
-                            System.out.println(e.getMessage());
+                            Log.e(TAG,"splitCurveInSwcList: " + e.getMessage());
                         }
                         for (int w = 0; w < seg.row.size(); w++){
                             try {
@@ -3774,14 +3760,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                     newSeg1.append(temp);
                                 }
                             }catch (Exception e){
-                                System.out.println(e.getMessage());
+                                Log.e(TAG,"splitCurveInSwcList: " + e.getMessage());
                             }
                         }
                         try {
                             V_NeuronSWC_unit firstClone = first.clone();
                             newSeg1.append(firstClone);
                         }catch (Exception e){
-                            System.out.println(e.getMessage());
+                            Log.e(TAG,"splitCurveInSwcList: " + e.getMessage());
                         }
 
                         if (isBigData){
@@ -5141,17 +5127,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         float z = (thirdDir[0] * dis[0] + thirdDir[1] * dis[1] + thirdDir[2] * dis[2]) / (float)Math.sqrt(thirdDir[0] * thirdDir[0] + thirdDir[1] * thirdDir[1] + thirdDir[2] * thirdDir[2]);
         float y = (thirdHead[0] * dis[0] + thirdHead[1] * dis[1] + thirdHead[2] * dis[2]) / (float)Math.sqrt(thirdHead[0] * thirdHead[0] + thirdHead[1] * thirdHead[1] + thirdHead[2] * thirdHead[2]);
         float [] axis = new float[]{thirdDir[1] * thirdHead[2] - thirdHead[1] * thirdDir[2], thirdDir[2] * thirdHead[0] - thirdHead[2] * thirdDir[0], thirdDir[0] * thirdHead[1] - thirdHead[0] * thirdDir[1]};
-//        System.out.print(axis[0]);
-//        System.out.print(' ');
-//        System.out.print(axis[1]);
-//        System.out.print(' ');
-//        System.out.println(axis[2]);
         float x = (axis[0] * dis[0] + axis[1] * dis[1] + axis[2] * dis[2]) / (float)Math.sqrt(axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]);
-        System.out.print(x);
-        System.out.print(' ');
-        System.out.print(y);
-        System.out.print(' ');
-        System.out.println(z);
+
+//        Log.d(TAG,"x: " + x + ", y: " + y + ", z: " + z);
         Matrix.translateM(translateAfterMoveMatrix, 0, x, -y, -z);
     }
 
