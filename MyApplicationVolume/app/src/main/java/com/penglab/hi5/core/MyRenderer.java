@@ -216,6 +216,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private boolean ifDownSampling = false;
     private boolean ifNeedDownSample = true;
     private boolean ifNavigationLococation = false;
+    private boolean ifclear = false;
 
     private int screen_w = -1;
     private int screen_h = -1;
@@ -378,7 +379,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
-
+    public void clearView(boolean flag)
+    {
+        ifclear=flag;
+    }
 
     // 绘制画面
     @Override
@@ -900,6 +904,71 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Matrix.multiplyMM(bgTRZTMatrix, 0, bgTranslateAfterMoveMatrix, 0, bgRZTMatrix, 0);
         Matrix.multiplyMM(paraFinalMatrix, 0, paravPMatrix, 0, bgTRZTMatrix, 0);
     }
+
+    public float[] get2dLocation(float x, float y) throws CloneNotSupportedException {
+        Log.d(TAG, "get2dLocation: " + x + " " + y);
+        float [] new_marker = solve2DMarker(x, y);
+        if (new_marker == null){
+            ToastEasy("Please make sure the point is in the image");
+            return null;
+        }else {
+            ImageMarker imageMarker_drawed = new ImageMarker(new_marker[0],
+                    new_marker[1],
+                    new_marker[2]);
+            imageMarker_drawed.type = lastMarkerType;
+
+
+
+
+
+            markerList.add(imageMarker_drawed);
+            float [] result = new float[2];
+            result[0]=imageMarker_drawed.x;
+            result[1]=imageMarker_drawed.x;
+            Log.e(TAG, "get2dLocation: " + imageMarker_drawed.x + " " + imageMarker_drawed.y);
+            return result;
+        }
+    }
+
+
+    public void deleteRoiLocation(float x, float y, boolean ifGetRoiPoint) throws CloneNotSupportedException {
+        for (int i = 0; i < markerList.size(); i++){
+            ImageMarker tobeDeleted = markerList.get(i);
+            float[] markerModel = volumetoModel(new float[]{tobeDeleted.x,tobeDeleted.y,tobeDeleted.z});
+            float [] position = new float[4];
+            position[0] = markerModel[0];
+            position[1] = markerModel[1];
+            position[2] = markerModel[2];
+            position[3] = 1.0f;
+
+            float [] positionVolumne = new float[4];
+            Matrix.multiplyMV(positionVolumne, 0, finalMatrix, 0, position, 0);
+            devideByw(positionVolumne);
+
+            float dx = Math.abs(positionVolumne[0] - x);
+            float dy = Math.abs(positionVolumne[1] - y);
+            if(ifGetRoiPoint)
+            {
+                markerList.clear();
+                return;
+            }
+            if (dx < 0.08 && dy < 0.08){
+                ImageMarker temp = markerList.get(i);
+                markerList.remove(i);
+
+                /*
+                update delete marker
+                 */
+//                if (isBigData){
+//                    updateDelMarker(temp);
+//                }
+
+//                saveUndo();
+                break;
+            }
+        }
+    }
+
 
 
     private void setGameModelMatrix(){

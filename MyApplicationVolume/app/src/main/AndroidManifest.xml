@@ -84,6 +84,7 @@
         <activity android:name=".chat.nim.main.activity.TeamListActivity" />
         <activity android:name=".chat.nim.main.activity.SettingsActivity" />
         <activity android:name=".chat.nim.main.activity.NoDisturbActivity" />
+        <activity android:name=".core.S2Activity" />
         <activity
             android:name="com.penglab.hi5.core.SplashScreenActivity"
             android:configChanges="keyboardHidden|orientation"
