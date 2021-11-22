@@ -196,11 +196,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private boolean ifLoadLocal = false;
     private boolean ifButtonShowed = true;
     private boolean ifAnimation = false;
-    private boolean ifSettingROI =false;
-    private boolean ifZscanSeries =false;
+    private boolean ifSettingROI = false;
+    private boolean ifZscanSeries = false;
 
     private boolean[] temp_mode = new boolean[8];
-    private float [] locationFor2dImg = new float[2];
+    private float[] locationFor2dImg = new float[2];
 
     private static Button Zoom_in;
     private static Button Zoom_out;
@@ -277,16 +277,15 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static FrameLayout.LayoutParams lp_user_list;
 
     private Button PixelClassification;
-    private boolean[][]select= {{true,true,true,false,false,false,false},
-            {true,true,true,false,false,false,false},
-            {false,false,false,false,false,false,false},
-            {false,false,false,false,false,false,false},
-            {false,false,false,false,false,false,false},
-            {true,true,true,false,false,false,false}};
+    private boolean[][] select = {{true, true, true, false, false, false, false},
+            {true, true, true, false, false, false, false},
+            {false, false, false, false, false, false, false},
+            {false, false, false, false, false, false, false},
+            {false, false, false, false, false, false, false},
+            {true, true, true, false, false, false, false}};
 
 
     private BigImgReader bigImgS2Reader;
-
 
 
     private LinearLayout ll_top;
@@ -298,7 +297,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     private static boolean isBigData_Remote;
     private static boolean isBigData_Local;
-    private static boolean isS2Start=false;
+    private static boolean isS2Start = false;
     private static ProgressBar progressBar;
     private static ProgressDialog progressDialog_zscan;
 
@@ -359,9 +358,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     public static String username;
 
-    private static float [] gamePositionForIntent = {0.5f, 0.5f, 0.5f};
-    private static float [] gameDirForIntent = {1, 1, 1};
-    private static float [] gameHeadForIntent = {1, 0, -1};
+    private static float[] gamePositionForIntent = {0.5f, 0.5f, 0.5f};
+    private static float[] gameDirForIntent = {1, 1, 1};
+    private static float[] gameHeadForIntent = {1, 0, -1};
     private static int gameLastIndexForIntent = -1;
     private static boolean gameIfNewForIntent = true;
     private static int gameScoreForIntent = 0;
@@ -390,19 +389,19 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static TextView scoreText;
     private int selectedBGM = 0;
 
-    private  TextView x_pos_Text;
-    private  TextView y_pos_Text;
-    private  TextView z_pos_Text;
+    private TextView x_pos_Text;
+    private TextView y_pos_Text;
+    private TextView z_pos_Text;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onRecMessage(String msg) {
 
 
-        if (msg.startsWith("TestSocketConnection")){
+        if (msg.startsWith("TestSocketConnection")) {
             //ServerConnector.getInstance().sendMsg("HeartBeat");
-        }else {
-            Log.e(TAG,"onRecMessage()  " + msg);
+        } else {
+            Log.e(TAG, "onRecMessage()  " + msg);
 
         }
 
@@ -410,32 +409,29 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         /*
         select file
          */
-        if (msg.startsWith("GETFILELIST:")){
+        if (msg.startsWith("GETFILELIST:")) {
             LoadFiles(msg.split(":")[1]);
         }
 
-        if (msg.startsWith("s2start:")){
+        if (msg.startsWith("s2start:")) {
             // loadBigDataImg(msg.split(":")[1]);
-            Log.e(TAG,"s2start:()  " + msg);
+            Log.e(TAG, "s2start:()  " + msg);
             // Log.e(TAG,"s2start:()  " + msg.split(":")[1]);
 
         }
 
-        if (msg.startsWith("stagePos:")){
+        if (msg.startsWith("stagePos:")) {
             // loadBigDataImg(msg.split(":")[1]);
-            String msgs=msg.split(":")[1];
-            String msgss=msg.split(":")[2];
+            String msgs = msg.split(":")[1];
+            String msgss = msg.split(":")[2];
 
-            Log.e(TAG,"stagePos:  " + msgs);
-            Log.e(TAG,"stagePos:  " + msgss);
-            if(msgs.startsWith("x"))
-            {
+            Log.e(TAG, "stagePos:  " + msgs);
+            Log.e(TAG, "stagePos:  " + msgss);
+            if (msgs.startsWith("x")) {
                 x_pos_Text.setText(msgss);
-            }else  if(msgs.startsWith("y"))
-            {
+            } else if (msgs.startsWith("y")) {
                 y_pos_Text.setText(msgss);
-            }else  if(msgs.startsWith("z"))
-            {
+            } else if (msgs.startsWith("z")) {
                 z_pos_Text.setText(msgss);
             }
 
@@ -443,32 +439,32 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             // Log.e(TAG,"s2start:()  " + msg.split(":")[1]);
 
         }
-        if (msg.startsWith("File:")){
-            if (msg.endsWith(".jpg")){
+        if (msg.startsWith("File:")) {
+            if (msg.endsWith(".jpg")) {
 
                 Log.e(TAG, "File: .jpg");
                 loadBigDataImg(msg.split(":")[1]);
 
             }
-            if (msg.endsWith(".tif")){
+            if (msg.endsWith(".tif")) {
 
                 Log.e(TAG, "File: .tif");
                 loadBigDataImg(msg.split(":")[1]);
 
             }
-            if (msg.endsWith(".tiff")){
+            if (msg.endsWith(".tiff")) {
 
                 Log.e(TAG, "File: .tiff");
                 loadBigDataImg(msg.split(":")[1]);
 
             }
-            if (msg.endsWith(".jpeg")){
+            if (msg.endsWith(".jpeg")) {
 
                 Log.e(TAG, "File: .jpeg");
                 loadBigDataImg(msg.split(":")[1]);
 
             }
-            if (msg.endsWith(".png")){
+            if (msg.endsWith(".png")) {
 
                 Log.e(TAG, "File: .png");
                 loadBigDataImg(msg.split(":")[1]);
@@ -481,19 +477,19 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         when the file is selected, room will be created, and collaborationService will be init, port is room number
          */
-        if (msg.startsWith("Port:")){
+        if (msg.startsWith("Port:")) {
 
-            if (msg.split(":")[1].equals("-1")){
+            if (msg.split(":")[1].equals("-1")) {
                 Toast_in_Thread("Something wrong with this img, choose other img please !");
 
                 return;
             }
 
             initMsgConnector(msg.split(":")[1]);
-            if (firstJoinRoom){
+            if (firstJoinRoom) {
                 initMsgService();
                 firstJoinRoom = false;
-            }else {
+            } else {
 
                 /*
                 reset the msg connect in collaboration service
@@ -515,15 +511,15 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         server will send user list when the users in current room are changed
          */
-        if (msg.startsWith("/users:")){
+        if (msg.startsWith("/users:")) {
 
-            if (firstLoad || copyFile){
+            if (firstLoad || copyFile) {
                 /*
                 when first join the room, try to get the image
                  */
                 MsgConnector.getInstance().sendMsg("/ImageRes:" + Communicator.BrainNum);
                 firstLoad = false;
-                copyFile   = false;
+                copyFile = false;
             }
             /*
             update the user list
@@ -541,8 +537,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         process the img resolution info
          */
-        if (msg.startsWith("ImgRes")){
-            Log.e(TAG,"msg: " + msg);
+        if (msg.startsWith("ImgRes")) {
+            Log.e(TAG, "msg: " + msg);
             int resDefault = Math.min(2, Integer.parseInt(msg.split(";")[1]));
             Communicator.getInstance().initImgInfo(null, Integer.parseInt(msg.split(";")[1]), resDefault, msg.split(";"));
 
@@ -561,7 +557,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         process the img block & swc apo file
          */
-        if (msg.startsWith("Block:")){
+        if (msg.startsWith("Block:")) {
 
             loadBigDataImg(msg.split(":")[1]);
             MsgConnector.getInstance().sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
@@ -569,13 +565,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         }
 
 
-
-
-        if (msg.startsWith("Score:")){
-            Log.e(TAG,"get score: " + msg);
+        if (msg.startsWith("Score:")) {
+            Log.e(TAG, "get score: " + msg);
             int serverScore = Integer.parseInt(msg.split(":")[1].split(" ")[1]);
             Score score = Score.getInstance();
-            if (score.serverUpdateScore(serverScore)){
+            if (score.serverUpdateScore(serverScore)) {
                 updateScoreText();
             }
 //            initDataBase(Integer.parseInt(msg.split(":")[1].split(" ")[1]));
@@ -587,13 +581,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         for collaboration -------------------------------------------------------------------
          */
 
-        if (msg.startsWith("/drawline_norm:")){
-            Log.e(TAG,"drawline_norm");
+        if (msg.startsWith("/drawline_norm:")) {
+            Log.e(TAG, "drawline_norm");
 
             String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String seg      = msg.split(":")[1];
+            String seg = msg.split(":")[1];
 
-            if (!userID.equals(username)){
+            if (!userID.equals(username)) {
                 Communicator communicator = Communicator.getInstance();
                 myS2renderer.syncAddSegSWC(communicator.syncSWC(seg));
                 myS2GLSurfaceView.requestRender();
@@ -602,13 +596,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         }
 
 
-        if (msg.startsWith("/delline_norm:")){
-            Log.e(TAG,"delline_norm");
+        if (msg.startsWith("/delline_norm:")) {
+            Log.e(TAG, "delline_norm");
 
             String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String seg      = msg.split(":")[1];
+            String seg = msg.split(":")[1];
 
-            if (!userID.equals(username)){
+            if (!userID.equals(username)) {
                 Communicator communicator = Communicator.getInstance();
                 myS2renderer.syncDelSegSWC(communicator.syncSWC(seg));
                 myS2GLSurfaceView.requestRender();
@@ -616,13 +610,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         }
 
-        if (msg.startsWith("/addmarker_norm:")){
-            Log.e(TAG,"addmarker_norm");
+        if (msg.startsWith("/addmarker_norm:")) {
+            Log.e(TAG, "addmarker_norm");
 
             String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String marker      = msg.split(":")[1].split(";")[1];
+            String marker = msg.split(":")[1].split(";")[1];
 
-            if (!userID.equals(username)){
+            if (!userID.equals(username)) {
                 Communicator communicator = Communicator.getInstance();
                 myS2renderer.syncAddMarker(communicator.syncMarker(marker));
                 myS2GLSurfaceView.requestRender();
@@ -630,14 +624,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         }
 
 
-
-        if (msg.startsWith("/delmarker_norm:")){
-            Log.e(TAG,"delmarker_norm");
+        if (msg.startsWith("/delmarker_norm:")) {
+            Log.e(TAG, "delmarker_norm");
 
             String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String marker      = msg.split(":")[1].split(";")[1];
+            String marker = msg.split(":")[1].split(";")[1];
 
-            if (!userID.equals(username)){
+            if (!userID.equals(username)) {
                 Communicator communicator = Communicator.getInstance();
                 myS2renderer.syncDelMarker(communicator.syncMarker(marker));
                 myS2GLSurfaceView.requestRender();
@@ -645,14 +638,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         }
 
 
-
-        if (msg.startsWith("/retypeline_norm:")){
-            Log.e(TAG,"retypeline_norm");
+        if (msg.startsWith("/retypeline_norm:")) {
+            Log.e(TAG, "retypeline_norm");
 
             String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String seg    = msg.split(":")[1];
+            String seg = msg.split(":")[1];
 
-            if (!userID.equals(username)){
+            if (!userID.equals(username)) {
                 Communicator communicator = Communicator.getInstance();
                 myS2renderer.syncRetypeSegSWC(communicator.syncSWC(seg));
                 myS2GLSurfaceView.requestRender();
@@ -664,11 +656,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         for collaboration -------------------------------------------------------------------
          */
 
-        if (msg.startsWith("GETFIRSTK:")){
+        if (msg.startsWith("GETFIRSTK:")) {
             Log.d(TAG, msg);
             if (msg.split(":").length > 1) {
                 String body = msg.split(":")[1];
-                String [] accountsWithScore = body.split(";");
+                String[] accountsWithScore = body.split(";");
                 Log.d(TAG, "accountsWithScore: " + accountsWithScore.length);
                 Log.d(TAG, "accountsWithScore: " + accountsWithScore);
 
@@ -723,11 +715,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
     @SuppressLint("HandlerLeak")
-    private static Handler puiHandler = new Handler(){
+    private static Handler puiHandler = new Handler() {
         // 覆写这个方法，接收并处理消息。
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what){
+            switch (msg.what) {
                 case 0:
                     popupView.show();
                     Activity activity = getActivityFromContext(S2Context);
@@ -743,19 +735,19 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                 case 2:
                     setButtonsBigData();
-                    if (isBigData_Local){
+                    if (isBigData_Local) {
                         String filename = SettingFileManager.getFilename_Local(context);
                         String offset = SettingFileManager.getoffset_Local(context, filename);
 
                         String offset_x = offset.split("_")[0];
                         String offset_y = offset.split("_")[1];
                         String offset_z = offset.split("_")[2];
-                        Toast.makeText(getContext(),"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
                     }
                     break;
 
                 case 3:
-                    Toast.makeText(context,"Time out, please try again!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Time out, please try again!", Toast.LENGTH_SHORT).show();
                     break;
 
                 case 4:
@@ -764,7 +756,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                 case 5:
                     String Toast_msg = msg.getData().getString("Toast_msg");
-                    Toast.makeText(getContext(),Toast_msg, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), Toast_msg, Toast.LENGTH_SHORT).show();
                     break;
 
                 case 6:
@@ -776,7 +768,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     break;
 
                 case 8:
-                    Toast_in_Thread_static((String)msg.obj);
+                    Toast_in_Thread_static((String) msg.obj);
                     break;
 
                 case 9:
@@ -794,19 +786,16 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     };
 
 
-
-
-
-
     /**
      * The onCreate Function
+     *
      * @param savedInstanceState
      */
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e(TAG,"------------------ onCreate ------------------");
+        Log.e(TAG, "------------------ onCreate ------------------");
 
         // set layout
         setContentView(R.layout.activity_s2);
@@ -816,14 +805,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         S2Context = this;
 
 
-
-
-
-
-
-
         isBigData_Remote = false;
-        isBigData_Local  = false;
+        isBigData_Local = false;
 
         popupView = new XPopup.Builder(this)
                 .asLoading("Downloading......");
@@ -834,7 +817,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         Intent intent = getIntent();
         String OOM = intent.getStringExtra(MyRenderer.OUT_OF_MEMORY);
-        username   = intent.getStringExtra(USERNAME);
+        username = intent.getStringExtra(USERNAME);
 
         if (OOM != null)
             Toast.makeText(this, OOM, Toast.LENGTH_SHORT).show();
@@ -867,18 +850,16 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         bigImgS2Reader = new BigImgReader();
 
 
-
         progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleSmall);
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(200, 200);
         params.gravity = Gravity.CENTER;
         this.addContentView(progressBar, params);
         progressBar.setVisibility(View.GONE);
 
-        progressDialog_zscan =new ProgressDialog(S2Activity.this);
+        progressDialog_zscan = new ProgressDialog(S2Activity.this);
         progressDialog_zscan.setTitle("Loading Image Scan.....");
         progressDialog_zscan.setMessage("Waiting");
         progressDialog_zscan.setCancelable(false);
-
 
 
         initDir();
@@ -937,8 +918,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //        }
 
 
-        if (mBoundManagement){
-            Log.e(TAG,"unbind management service !");
+        if (mBoundManagement) {
+            Log.e(TAG, "unbind management service !");
             ManageService.setStop(true);
             unbindService(connection_management);
             Intent manageServiceIntent = new Intent(this, ManageService.class);
@@ -946,8 +927,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
             ServerConnector.getInstance().releaseConnection(false);
         }
-        if (mBoundCollaboration){
-            Log.e(TAG,"unbind collaboration service !");
+        if (mBoundCollaboration) {
+            Log.e(TAG, "unbind collaboration service !");
             CollaborationService.setStop(true);
             unbindService(connection_collaboration);
             Intent collaborationServiceIntent = new Intent(this, CollaborationService.class);
@@ -959,12 +940,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         S2Context = null;
 
-        if (timer != null){
+        if (timer != null) {
             timer.cancel();
             timer = null;
         }
 
-        if (timerTask != null){
+        if (timerTask != null) {
             timerTask.cancel();
             timerTask = null;
         }
@@ -1004,6 +985,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     /**
      * quick start for S2Activity
+     *
      * @param context
      */
 
@@ -1014,6 +996,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     /**
      * quick start for S2Activity
+     *
      * @param context
      * @param extras
      */
@@ -1028,13 +1011,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    public static void actionStart(Context context, String username){
+    public static void actionStart(Context context, String username) {
         Intent intent = new Intent(context, S2Activity.class);
         intent.putExtra(USERNAME, username);
         context.startActivity(intent);
     }
 
-    public static void actionStart(Context context, String invitor, String path, String soma){
+    public static void actionStart(Context context, String invitor, String path, String soma) {
         Intent intent = new Intent(context, S2Activity.class);
         context.startActivity(intent);
         username = InfoCache.getAccount();
@@ -1045,7 +1028,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     /*
      * init buttons
      */
-    private void initButtons(){
+    private void initButtons() {
         /*
         basic Layout ------------------------------------------------------------------------------------------------------------------------
          */
@@ -1321,7 +1304,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         lp_res_list.gravity = Gravity.TOP | Gravity.LEFT;
         lp_res_list.setMargins(20, 490, 0, 0);
 
-        lp_sync_i = new FrameLayout.LayoutParams(120,120);
+        lp_sync_i = new FrameLayout.LayoutParams(120, 120);
         lp_sync_i.gravity = Gravity.TOP | Gravity.LEFT;
         lp_sync_i.setMargins(0, 440, 0, 0);
 
@@ -1386,7 +1369,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             @Override
             public void onClick(View v) {
 
-                Log.e(TAG,"Zslice_up push ! ");
+                Log.e(TAG, "Zslice_up push ! ");
 //                if(!myS2renderer.getIfFileLoaded()){
 //                    Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
 //                    return;
@@ -1408,7 +1391,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             @Override
             public void onClick(View v) {
 
-                Log.e(TAG,"Zslice_down push ! ");
+                Log.e(TAG, "Zslice_down push ! ");
 //                if(!myS2renderer.getIfFileLoaded()){
 //                    Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
 //                    return;
@@ -1431,17 +1414,17 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             public void onClick(View v) {
 
 
-                if(!myS2renderer.getIfFileLoaded()){
+                if (!myS2renderer.getIfFileLoaded()) {
                     Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
                     return;
                 }
 
-                if (isBigData_Remote){
+                if (isBigData_Remote) {
                     ifZooming = !ifZooming;
                     ifChangeLineType = false;
                     ifDeletingLine = false;
                     ifPainting = false;
-                    ifSettingROI=false;
+                    ifSettingROI = false;
                     ifPoint = false;
                     ifDeletingMarker = false;
                     ifSpliting = false;
@@ -1463,7 +1446,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //
 //                        }
 //                    }).start();
-                }else {
+                } else {
                     myS2renderer.zoom_in();
                     myS2GLSurfaceView.requestRender();
                 }
@@ -1477,12 +1460,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             public void onClick(View v) {
 
 
-                if(!myS2renderer.getIfFileLoaded()){
+                if (!myS2renderer.getIfFileLoaded()) {
                     Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
                     return;
                 }
 
-                if (isBigData_Remote){
+                if (isBigData_Remote) {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -1490,14 +1473,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                             myS2GLSurfaceView.requestRender();
                         }
                     }).start();
-                }else {
+                } else {
                     myS2renderer.zoom_out();
                     myS2GLSurfaceView.requestRender();
                 }
 
             }
         });
-
 
 
 //        draw_i.setOnClickListener(new Button.OnClickListener() {
@@ -1512,7 +1494,6 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //                Draw_list(v);
 //            }
 //        });
-
 
 
 //        tracing_i.setOnClickListener(new Button.OnClickListener() {
@@ -1536,10 +1517,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //        });
 
 
-
         zseries_scan.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                Log.e(TAG,"zseries_scan push ! ");
+                Log.e(TAG, "zseries_scan push ! ");
                 //hideButtons();
                 myS2GLSurfaceView.requestRender();
                 new Thread(new Runnable() {
@@ -1548,21 +1528,18 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                         Zseries_navigate("ZScan");
 
 
-
                     }
                 }).start();
 
 
-                if(!ifZscanSeries)
-                {
-                    x_pos_Text.setLayoutParams(lp_x_pos);
-                    y_pos_Text.setLayoutParams(lp_y_pos);
-                    z_pos_Text.setLayoutParams(lp_z_pos);
+                if (!ifZscanSeries) {
+//                    x_pos_Text.setLayoutParams(lp_x_pos);
+//                    y_pos_Text.setLayoutParams(lp_y_pos);
+//                    z_pos_Text.setLayoutParams(lp_z_pos);
                     progressDialog_zscan.show();
-                    ifZscanSeries=true;
-                }else
-                {
-                    Log.e(TAG,"zseries_scan already push ! ");
+                    ifZscanSeries = true;
+                } else {
+                    Log.e(TAG, "zseries_scan already push ! ");
                 }
 
 //                if (isBigData_Remote){
@@ -1580,11 +1557,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
             @Override
             public void onClick(View v) {
-                Log.e(TAG,"s2send ");
+                Log.e(TAG, "s2send ");
                 isBigData_Remote = true;
                 isBigData_Local = false;
                 ifGetRoiPoint = true;
-                isS2Start=true;
+                isS2Start = true;
                 setButtons();
                 myS2renderer.clearView(isS2Start);
                 myS2GLSurfaceView.requestRender();
@@ -1592,8 +1569,6 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 shutFileName();
                 ServerConnector.getInstance().sendMsg("s2start:");
                 //ServerConnector.getInstance().sendMsg("s2start:");
-
-
 
 
             }
@@ -1636,8 +1611,6 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //        });
 
 
-
-
 //        Undo_i.setOnClickListener(new Button.OnClickListener(){
 //            public void onClick(View v){
 //
@@ -1667,7 +1640,6 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //                myS2GLSurfaceView.requestRender();
 //            }
 //        });
-
 
 
         Switch = new Button(this);
@@ -1763,7 +1735,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         });
 
 
-        res_list.setOnClickListener(new Button.OnClickListener(){
+        res_list.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -1813,9 +1785,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         //this.addContentView(ROI_i,lp_ROI_i);
         //this.addContentView(scoreText, lp_score);
 
-        this.addContentView(x_pos_Text,lp_x_pos);
-        this.addContentView(y_pos_Text,lp_y_pos);
-        this.addContentView(z_pos_Text,lp_z_pos);
+        this.addContentView(x_pos_Text, lp_x_pos);
+        this.addContentView(y_pos_Text, lp_y_pos);
+        this.addContentView(z_pos_Text, lp_z_pos);
 
         this.addContentView(navigation_left, lp_left_i);
         this.addContentView(navigation_right, lp_right_i);
@@ -1834,9 +1806,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         this.addContentView(room_id, lp_room_id);
         this.addContentView(user_list, lp_user_list);
 
-        x_pos_Text.setVisibility(View.VISIBLE);
-        y_pos_Text.setVisibility(View.VISIBLE);
-        z_pos_Text.setVisibility(View.VISIBLE);
+        x_pos_Text.setVisibility(View.GONE);
+        y_pos_Text.setVisibility(View.GONE);
+        z_pos_Text.setVisibility(View.GONE);
 
         Zslice_up.setVisibility(View.GONE);
         Zslice_down.setVisibility(View.GONE);
@@ -1876,9 +1848,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     /*
     init dir
      */
-    private void initDir(){
+    private void initDir() {
 
-        try{
+        try {
 
             String dir_str_server = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name) + "/S2";
             File dir_server = new File(dir_str_server);
@@ -1886,13 +1858,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 dir_server.mkdirs();
             }
 
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
     }
-
-
 
 
 //    private void doLoginAgora(){
@@ -1916,19 +1886,19 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 ////        startService(intent);
 //    }
 
-    private void initService(){
+    private void initService() {
         // Bind to LocalService
         Intent intent = new Intent(this, ManageService.class);
         bindService(intent, connection_management, Context.BIND_AUTO_CREATE);
     }
 
-    private void initMsgService(){
+    private void initMsgService() {
         // Bind to LocalService
         Intent intent = new Intent(this, CollaborationService.class);
         bindService(intent, connection_collaboration, Context.BIND_AUTO_CREATE);
     }
 
-    private void initMsgConnector(String port){
+    private void initMsgConnector(String port) {
         MsgConnector msgConnector = MsgConnector.getInstance();
 
         if (!firstJoinRoom)
@@ -1939,7 +1909,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void initServerConnector(){
+    private void initServerConnector() {
         ServerConnector serverConnector = ServerConnector.getInstance();
 
         serverConnector.setIp(ip_TencentCloud);
@@ -1964,7 +1934,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //    };
 
 
-    /** Defines callbacks for service binding, passed to bindService() */
+    /**
+     * Defines callbacks for service binding, passed to bindService()
+     */
     private ServiceConnection connection_management = new ServiceConnection() {
 
         @Override
@@ -1983,8 +1955,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     };
 
 
-
-    /** Defines callbacks for service binding, passed to bindService() */
+    /**
+     * Defines callbacks for service binding, passed to bindService()
+     */
     private ServiceConnection connection_collaboration = new ServiceConnection() {
 
         @Override
@@ -2007,14 +1980,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
      */
 
 
-
-
-
-
     /**
      * @param FileList filelist from server
      */
-    private void LoadFiles(String FileList){
+    private void LoadFiles(String FileList) {
         List<String> list_array = new ArrayList<>();
         String[] list = FileList.split(";;");
 
@@ -2022,12 +1991,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         String[] fileName = new String[1];
 
 //        Log.e(TAG, "list.length: " + list.length);
-        for (int i = 0; i < list.length; i++){
+        for (int i = 0; i < list.length; i++) {
             if (list[i].split(" ")[0].endsWith(".apo") || list[i].split(" ")[0].endsWith(".eswc")
-                    || list[i].split(" ")[0].endsWith(".swc") || list[i].split(" ")[0].endsWith("log") )
+                    || list[i].split(" ")[0].endsWith(".swc") || list[i].split(" ")[0].endsWith("log"))
                 continue;
 
-            if(Communicator.getInstance().initSoma(list[i].split(" ")[0])){
+            if (Communicator.getInstance().initSoma(list[i].split(" ")[0])) {
                 fileName[0] = list[i].split(" ")[0];
                 isFile = true;
                 continue;
@@ -2035,17 +2004,17 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
             list_array.add(list[i].split(" ")[0]);
         }
-        if (isFile){
+        if (isFile) {
             list_array.add("create a new Room");
         }
 
         String[] list_show = new String[list_array.size()];
-        for (int i = 0; i < list_array.size(); i++){
+        for (int i = 0; i < list_array.size(); i++) {
             list_show[i] = list_array.get(i);
         }
 
 
-        if (isFile){
+        if (isFile) {
             /*
             the last directory
             */
@@ -2058,9 +2027,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                 @Override
                                 public void onSelect(int position, String text) {
                                     Communicator.BrainNum = conPath.split("/")[1];
-                                    switch (text){
+                                    switch (text) {
                                         case "create a new Room":
-                                            CreateFile(conPath + "/" + fileName[0],"0");
+                                            CreateFile(conPath + "/" + fileName[0], "0");
                                             break;
 
                                         default:
@@ -2072,7 +2041,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                             })
                     .show();
 
-        }else {
+        } else {
             new XPopup.Builder(this)
                     .maxHeight(1350)
                     .maxWidth(800)
@@ -2091,8 +2060,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
-    private void loadFileMode(String filepath){
+    private void loadFileMode(String filepath) {
         String[] list = filepath.split("/");
         ServerConnector serverConnector = ServerConnector.getInstance();
         serverConnector.sendMsg("LOADFILES:2 " + filepath);
@@ -2105,17 +2073,18 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     /**
      * create the new file & input the name of file
+     *
      * @param oldname oldname of file
-     * @param mode work mode
+     * @param mode    work mode
      */
-    private void CreateFile(String oldname, String mode){
+    private void CreateFile(String oldname, String mode) {
         new XPopup.Builder(this)
                 .asInputConfirm("CreateRoom", "Input the name of the new Room",
                         new OnInputConfirmListener() {
                             @Override
                             public void onConfirm(String text) {
                                 ServerConnector serverConnector = ServerConnector.getInstance();
-                                switch (mode){
+                                switch (mode) {
                                     case "0":
                                         Communicator.getInstance().setPath(conPath + "/" + text);
                                         serverConnector.sendMsg("LOADFILES:0 " + oldname + " " + conPath + "/" + text);
@@ -2135,12 +2104,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
-
     /**
      * load Big Data
      */
-    private void loadBigData(){
+    private void loadBigData() {
 
         conPath = "";
 
@@ -2154,7 +2121,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void showRoomID(){
+    private void showRoomID() {
 
         new XPopup.Builder(this).asConfirm("Collaboration Room", "Room name: " + ServerConnector.getInstance().getRoomName() + "\n\n"
                         + "Room ID: " + MsgConnector.getInstance().getPort(),
@@ -2167,10 +2134,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void showUserList(){
-        String [] userList = (String[]) MsgConnector.userList.toArray();
-        String [] list = new String[ userList.length + 1 ];
-        list[ userList.length ] = "invite friend to join...";
+    private void showUserList() {
+        String[] userList = (String[]) MsgConnector.userList.toArray();
+        String[] list = new String[userList.length + 1];
+        list[userList.length] = "invite friend to join...";
         System.arraycopy(userList, 0, list, 0, userList.length);
         new XPopup.Builder(this)
                 //.maxWidth(600)
@@ -2189,17 +2156,16 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
+    private void updateUserList(List<String> newUserList) {
 
-    private void updateUserList(List<String> newUserList){
-
-        for (int i = 0; i < newUserList.size(); i++){
-            if (!MsgConnector.userList.contains(newUserList.get(i)) && newUserList.get(i) != username){
+        for (int i = 0; i < newUserList.size(); i++) {
+            if (!MsgConnector.userList.contains(newUserList.get(i)) && newUserList.get(i) != username) {
                 Toast_in_Thread("User " + newUserList.get(i) + " join !");
             }
         }
 
-        for (int i = 0; i < MsgConnector.userList.size(); i++){
-            if (!newUserList.contains(MsgConnector.userList.get(i))){
+        for (int i = 0; i < MsgConnector.userList.size(); i++) {
+            if (!newUserList.contains(MsgConnector.userList.get(i))) {
                 Toast_in_Thread("User " + MsgConnector.userList.get(i) + " left !");
             }
         }
@@ -2208,21 +2174,20 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
-    private void showFriendsList(String [] userList){
+    private void showFriendsList(String[] userList) {
         List<String> friends = NIMClient.getService(FriendService.class).getFriendAccounts();
-        String [] friendList = new String[friends.size()];
-        for (int i = 0; i < friends.size(); i++){
+        String[] friendList = new String[friends.size()];
+        for (int i = 0; i < friends.size(); i++) {
             friendList[i] = friends.get(i);
         }
         new XPopup.Builder(this)
                 .asCenterList("Friend List", friendList,
-                        new OnSelectListener(){
+                        new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
 
                                 for (int i = 0; i < userList.length; i++) {
-                                    if (userList[i].equals(text)){
+                                    if (userList[i].equals(text)) {
                                         Toast_in_Thread("Already in this room");
                                         return;
                                     }
@@ -2238,7 +2203,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                                 String nickname = NIMClient.getService(UserService.class).getUserInfo(username.toLowerCase()).getName();
 
-                                InviteAttachment attachment = new InviteAttachment(nickname, communicator.Path,  communicator.getInitSomaMsg());
+                                InviteAttachment attachment = new InviteAttachment(nickname, communicator.Path, communicator.getInitSomaMsg());
                                 IMMessage message = MessageBuilder.createCustomMessage(text, SessionTypeEnum.P2P, attachment);
                                 NIMClient.getService(MsgService.class).sendMessage(message, true).setCallback(new RequestCallback<Void>() {
                                     @Override
@@ -2270,7 +2235,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     for IM module ------------------------------------------------------------------------------------
      */
 
-    private void initNim(){
+    private void initNim() {
         registerSystemMessageObservers(true);
     }
 
@@ -2286,11 +2251,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
     private Observer<Integer> sysMsgUnreadCountChangedObserver = (Observer<Integer>) unreadCount -> {
-        Log.e("Observer<Integer>","Observer unreadCount");
+        Log.e("Observer<Integer>", "Observer unreadCount");
         SystemMessageUnreadManager.getInstance().setSysMsgUnreadCount(unreadCount);
         ReminderManager.getInstance().updateContactUnreadNum(unreadCount);
     };
-
 
 
     private Observer<List<IMMessage>> inviteMessageObserver = new Observer<List<IMMessage>>() {
@@ -2326,8 +2290,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     };
 
 
-
-    private static void invitePopup(Context context, String invitor, String path, String soma){
+    private static void invitePopup(Context context, String invitor, String path, String soma) {
         Log.d(TAG, "invitePopup: " + invitor + " " + path + " " + soma);
         String[] list = path.split("/");
         String roomName = list[list.length - 1];
@@ -2341,7 +2304,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                                 Communicator communicator = Communicator.getInstance();
                                 communicator.initSoma(soma);
-                            //    communicator.setConPath(path);
+                                //    communicator.setConPath(path);
                                 Communicator.Path = path;
                                 Communicator.BrainNum = path.split("/")[1];
                                 conPath = path;
@@ -2363,7 +2326,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private static void acceptInvitation(String path, String soma){
+    private static void acceptInvitation(String path, String soma) {
 
         String[] list = path.split("/");
         String roomName = list[list.length - 1];
@@ -2382,22 +2345,20 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
-
-
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE){
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
 //            Toast.makeText(getContext(), "横屏", Toast.LENGTH_LONG).show();
-        }else{
+        } else {
 //            Toast.makeText(getContext(), "竖屏", Toast.LENGTH_LONG).show();
         }
     }
 
     /**
      * on top bar menu created, link res/menu/main.xml
+     *
      * @param menu
      * @return
      */
@@ -2409,13 +2370,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
-
-
     /**
      * open file
      */
-    public void File_icon(){
+    public void File_icon() {
 
         new XPopup.Builder(this)
                 .asCenterList("File Open", new String[]{"Open BigData", "Open LocalFile", "Load SwcFile"},
@@ -2428,7 +2386,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                                     case "Open LocalFile":
                                         loadLocalFile();
-                                        Log.e("Open LocalFile","Open LocalFile");
+                                        Log.e("Open LocalFile", "Open LocalFile");
                                         break;
                                     case "Open BigData":
                                         loadBigData();
@@ -2462,7 +2420,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void loadLocalFile(){
+    private void loadLocalFile() {
         ifLoadLocal = true;
         ifImport = false;
         ifAnalyze = false;
@@ -2472,20 +2430,20 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
 
         try {
-            startActivityForResult(intent,1);
-        }catch (Exception e){
+            startActivityForResult(intent, 1);
+        } catch (Exception e) {
             e.printStackTrace();
             ToastEasy("Error when open file!" + e.getMessage());
         }
     }
 
 
-
     /**
      * for draw button
+     *
      * @param v
      */
-    private void Draw_list(View v){
+    private void Draw_list(View v) {
         String[] drawList = isBigData_Remote ? new String[]{"For Marker", "For Curve", "Exit Drawing Mode"} : new String[]{"For Marker", "For Curve", "Clear Tracing", "Exit Drawing Mode"};
         drawPopupView = new XPopup.Builder(this)
                 .atView(v)
@@ -2496,7 +2454,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                             public void onSelect(int position, String text) {
 
 
-                                switch (text){
+                                switch (text) {
                                     case "For Marker":
                                         markerProcessList(v);
                                         break;
@@ -2527,7 +2485,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                         }).show();
     }
 
-    private void markerProcessList(View v){
+    private void markerProcessList(View v) {
         String[] processList = isBigData_Remote ? new String[]{"PinPoint   ", "Delete Marker", "Delete MultiMarker", "Set MColor", "Change MColor"}
                 : new String[]{"PinPoint   ", "Delete Marker", "Delete MultiMarker", "Set MColor", "Change MColor", "Change All MColor"};
         new XPopup.Builder(this)
@@ -2540,9 +2498,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     public void onSelect(int position, String text) {
 
 
-                        switch (text){
+                        switch (text) {
                             case "PinPoint   ":
-                                if (!myS2renderer.ifImageLoaded()){
+                                if (!myS2renderer.ifImageLoaded()) {
                                     ToastEasy("Please load a image first");
                                     return;
                                 }
@@ -2562,7 +2520,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         ifSwitch = false;
                                         ll_bottom.addView(Switch);
 //                                      ll_top.addView(buttonUndo_i, lp_undo_i);
-                                    }catch (Exception e){
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
 
@@ -2594,7 +2552,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         ifSwitch = false;
                                         ll_bottom.addView(Switch);
 //                                      ll_top.addView(buttonUndo_i, lp_undo_i);
-                                    }catch (Exception e){
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
 
@@ -2626,7 +2584,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         ifSwitch = false;
                                         ll_bottom.addView(Switch);
 //                                      ll_top.addView(buttonUndo_i, lp_undo_i);
-                                    }catch (Exception e){
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
 
@@ -2662,7 +2620,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         ifSwitch = false;
                                         ll_bottom.addView(Switch);
 //                                      ll_top.addView(buttonUndo_i, lp_undo_i);
-                                    }catch (Exception e){
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
 
@@ -2693,8 +2651,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
-    private void curveProcessList(View v){
+    private void curveProcessList(View v) {
         String[] processList = isBigData_Remote ? new String[]{"Draw Curve", "Delete Curve", "Split       ", "Set PenColor", "Change PenColor"}
                 : new String[]{"Draw Curve", "Delete Curve", "Split       ", "Set PenColor", "Change PenColor", "Change All PenColor"};
         new XPopup.Builder(this)
@@ -2706,9 +2663,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                             public void onSelect(int position, String text) {
 
 
-                                switch (text){
+                                switch (text) {
                                     case "Draw Curve":
-                                        if (!myS2renderer.ifImageLoaded()){
+                                        if (!myS2renderer.ifImageLoaded()) {
                                             ToastEasy("Please load a image first");
                                             return;
                                         }
@@ -2728,7 +2685,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
 //                                                ll_top.addView(buttonUndo_i, lp_undo_i);
-                                            }catch (Exception e){
+                                            } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
 
@@ -2760,7 +2717,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
 //                                                ll_top.addView(buttonUndo_i, lp_undo_i);
-                                            }catch (Exception e){
+                                            } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
 
@@ -2792,7 +2749,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                                 ifSwitch = false;
                                                 ll_bottom.addView(Switch);
 //                                                ll_top.addView(buttonUndo_i, lp_undo_i);
-                                            }catch (Exception e){
+                                            } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
 
@@ -2822,7 +2779,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         ifChangeMarkerType = false;
                                         ifDeletingMultiMarker = false;
                                         ifZooming = false;
-                                        if(ifChangeLineType && !ifSwitch){
+                                        if (ifChangeLineType && !ifSwitch) {
 //                                            Draw.setText("Change PenColor");
 //                                            Draw.setTextColor(Color.RED);
                                             draw_i.setImageResource(R.drawable.ic_draw_main);
@@ -2835,7 +2792,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //                                                ifSwitch = false;
                                                 ll_bottom.addView(Switch);
 //                                                ll_top.addView(buttonUndo_i, lp_undo_i);
-                                            }catch (Exception e){
+                                            } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
 
@@ -2868,9 +2825,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
-    public void penSet(){
-        String [] pcolor = new String[1];
+    public void penSet() {
+        String[] pcolor = new String[1];
         new MDDialog.Builder(this)
                 .setContentView(R.layout.pen_choose)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
@@ -2909,16 +2865,16 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     public void onClick(View clickedView, View contentView) {
                         //这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view，目的是方便在确定/取消按键中对contentView进行操作，如获取数据等。
 //                        EditText et1 = (EditText) contentView.findViewById(R.id.pencolor);
-                        String color  = pcolor[0];
+                        String color = pcolor[0];
 
-                        if( !color.isEmpty()){
+                        if (!color.isEmpty()) {
 
 //                            myS2renderer.pencolorchange(Integer.parseInt(color));;
                             myS2renderer.pencolorchange(PenColor.valueOf(color).ordinal());
                             System.out.println("pen color is");
                             System.out.println(color);
                             ToastEasy("penColor set ~ ");
-                        }else{
+                        } else {
                             ToastEasy("Please make sure all the information is right !!!");
                         }
 
@@ -2934,8 +2890,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 .show();
     }
 
-    public void markerPenSet(){
-        String [] pcolor = new String[1];
+    public void markerPenSet() {
+        String[] pcolor = new String[1];
         new MDDialog.Builder(this)
                 .setContentView(R.layout.marker_pen_choose)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
@@ -2978,14 +2934,14 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //                        String color  = et1.getText().toString();
                         String color = pcolor[0];
 
-                        if( !color.isEmpty()){
+                        if (!color.isEmpty()) {
 
                             myS2renderer.markercolorchange(PenColor.valueOf(color).ordinal());
                             System.out.println("marker color is");
                             System.out.println(color);
                             ToastEasy("markerColor set ~");
 
-                        }else{
+                        } else {
                             ToastEasy("Please make sure all the information is right !");
                         }
 
@@ -3002,16 +2958,15 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
-
     /**
      * function for the Tracing button
+     *
      * @param v the button: tracing
      */
     private void Tracing(final View v) {
 
         Image4DSimple img = myS2renderer.getImg();
-        if(img == null || !img.valid()){
+        if (img == null || !img.valid()) {
             ToastEasy("Please load a 3d image first !");
             return;
         }
@@ -3109,7 +3064,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                         EditText swcName = contentView.findViewById(R.id.swcname);
                         String swcFileName = swcName.getText().toString();
-                        if (swcFileName == ""){
+                        if (swcFileName == "") {
                             ToastEasy("The name should not be empty !");
                         }
                         myS2renderer.reNameCurrentSwc(swcFileName);
@@ -3127,7 +3082,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                             ToastEasy(e.getMessage());
                         }
                         if (!error.equals("")) {
-                            if (error.equals("This file already exits")){
+                            if (error.equals("This file already exits")) {
                                 AlertDialog aDialog = new AlertDialog.Builder(S2Context)
                                         .setTitle("This file already exits")
                                         .setMessage("Are you sure to overwrite it?")
@@ -3136,14 +3091,14 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
                                                 String errorMessage = "";
-                                                try{
+                                                try {
                                                     errorMessage = myS2renderer.oversaveCurrentSwc(dir_str);
                                                     if (errorMessage.equals(""))
                                                         ToastEasy("Overwrite successfully !");
                                                     if (errorMessage == "Overwrite failed!")
                                                         ToastEasy("Overwrite failed !");
 
-                                                }catch (Exception e){
+                                                } catch (Exception e) {
                                                     System.out.println(errorMessage);
                                                     ToastEasy(e.getMessage());
                                                 }
@@ -3159,7 +3114,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         .create();
                                 aDialog.show();
                             }
-                        } else{
+                        } else {
                             ToastEasy("save SWC to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG);
                         }
                     }
@@ -3177,16 +3132,16 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void APP2() throws Exception {
         Image4DSimple img = myS2renderer.getImg();
-        if(img == null || !img.valid()){
+        if (img == null || !img.valid()) {
             ToastEasy("Please load image first !");
             progressBar.setVisibility(View.INVISIBLE);
             return;
         }
 
-        float imgZ=0;
+        float imgZ = 0;
         boolean is2D = false;
-        if(myS2renderer.getFileType() == MyRenderer.FileType.JPG || myS2renderer.getFileType() == MyRenderer.FileType.PNG){
-            imgZ = Math.max((int)img.getSz0(), (int)img.getSz1()) / 2;
+        if (myS2renderer.getFileType() == MyRenderer.FileType.JPG || myS2renderer.getFileType() == MyRenderer.FileType.PNG) {
+            imgZ = Math.max((int) img.getSz0(), (int) img.getSz1()) / 2;
             is2D = true;
         }
 
@@ -3201,7 +3156,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             p.landmarks = new LocationSimple[markers.size()];
             p.bkg_thresh = -1;
             for (int i = 0; i < markers.size(); i++) {
-                p.landmarks[i] = is2D ? new LocationSimple(markers.get(i).x, markers.get(i).y, 0):
+                p.landmarks[i] = is2D ? new LocationSimple(markers.get(i).x, markers.get(i).y, 0) :
                         new LocationSimple(markers.get(i).x, markers.get(i).y, markers.get(i).z);
             }
             System.out.println("---------------start---------------------");
@@ -3235,7 +3190,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     private void GDTracing() throws Exception {
         Image4DSimple img = myS2renderer.getImg();
-        if(img == null || !img.valid()){
+        if (img == null || !img.valid()) {
             ToastEasy("Please load image first !");
             progressBar.setVisibility(View.INVISIBLE);
             return;
@@ -3251,7 +3206,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         boolean is2D = false;
         float imgZ = 0;
-        if (myS2renderer.getFileType() == MyRenderer.FileType.JPG || myS2renderer.getFileType() == MyRenderer.FileType.PNG){
+        if (myS2renderer.getFileType() == MyRenderer.FileType.JPG || myS2renderer.getFileType() == MyRenderer.FileType.PNG) {
             is2D = true;
             imgZ = markers.get(0).z;
         }
@@ -3282,7 +3237,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         }
 
         ToastEasy("GD-Tracing finished, size of result swc: " + Integer.toString(outswc.listNeuron.size()));
-        myS2renderer.importNeuronTree(outswc,isBigData_Remote);
+        myS2renderer.importNeuronTree(outswc, isBigData_Remote);
         myS2renderer.saveUndo();
         myS2GLSurfaceView.requestRender();
         progressBar.setVisibility(View.INVISIBLE);
@@ -3290,11 +3245,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
     private void PixelClassification(final View v) {
 
         Image4DSimple img = myS2renderer.getImg();
-        if(img == null || !img.valid()){
+        if (img == null || !img.valid()) {
             ToastEasy("Please load a 3d image first !");
             return;
         }
@@ -3329,7 +3283,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private void pixelClassification() {
 
         Image4DSimple img = myS2renderer.getImg();
-        if(img == null){
+        if (img == null) {
 
             ToastEasy("Please load image first !");
             return;
@@ -3346,14 +3300,14 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         ToastEasy("pixel  classification start !");
 
-        try{
-            outImg = p.getPixelClassificationResult(img,nt);
-            System.out.println("outImg: "+outImg.getSz0()+" "+outImg.getSz1()+" "+outImg.getSz2()+" "+outImg.getSz3());
+        try {
+            outImg = p.getPixelClassificationResult(img, nt);
+            System.out.println("outImg: " + outImg.getSz0() + " " + outImg.getSz1() + " " + outImg.getSz2() + " " + outImg.getSz3());
             System.out.println(outImg.getData().length);
 
             myS2renderer.resetImg(outImg);
             myS2GLSurfaceView.requestRender();
-        }catch (Exception e){
+        } catch (Exception e) {
             ToastEasy(e.getMessage());
         }
     }
@@ -3366,15 +3320,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
-
-
-
-
-
-
     /**
      * call the corresponding function when button in top bar clicked
+     *
      * @param item
      * @return
      */
@@ -3427,13 +3375,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
-
-
     /**
      * pop up a menu when button more is clicked, include analyze swc file, sensor information, downsample mode, animate and version
      */
-    public void More_icon(){
+    public void More_icon() {
 
         new XPopup.Builder(this)
                 .asCenterList("More Functions...", new String[]{"Analyze Swc", "Chat", "Animate", "Settings", "Crash Info", "Quests", "Reward", "LeaderBoard", "Logout", "Help", "About"},
@@ -3447,7 +3392,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         break;
 
                                     case "Animate":
-                                        if (myS2renderer.ifImageLoaded()){
+                                        if (myS2renderer.ifImageLoaded()) {
                                             ifPainting = false;
                                             ifPoint = false;
                                             ifDeletingMarker = false;
@@ -3456,7 +3401,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                             ifChangeLineType = false;
                                             ifZooming = false;
                                             setAnimation();
-                                        }else {
+                                        } else {
                                             ToastEasy("Please Load a Img First !");
                                         }
                                         break;
@@ -3488,14 +3433,15 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         break;
 
                                     case "About":
-                                        About();;
+                                        About();
+                                        ;
                                         break;
 
                                     case "Help":
-                                        try{
+                                        try {
                                             Intent helpIntent = new Intent(S2Activity.this, HelpActivity.class);
                                             startActivity(helpIntent);
-                                        } catch (Exception e){
+                                        } catch (Exception e) {
                                             e.printStackTrace();
                                         }
                                         break;
@@ -3527,7 +3473,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void openChatActivity(){
+    private void openChatActivity() {
         Intent intent = new Intent(S2Activity.this, ChatActivity.class);
         startActivity(intent);
     }
@@ -3578,7 +3524,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     private void Rotation() {
 
-        if (myS2renderer.myAnimation != null && myS2renderer.ifImageLoaded()){
+        if (myS2renderer.myAnimation != null && myS2renderer.ifImageLoaded()) {
             ifAnimation = !ifAnimation;
 
             if (ifAnimation) {
@@ -3594,7 +3540,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 myS2GLSurfaceView.requestRender();
             }
 
-        }else {
+        } else {
             ToastEasy("Pleas load a file first !");
         }
     }
@@ -3626,13 +3572,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         } else {
             Switch.setText("Pause");
             Switch.setTextColor(Color.BLACK);
-            ifPainting            = temp_mode[0];
-            ifPoint               = temp_mode[1];
-            ifDeletingLine        = temp_mode[2];
-            ifDeletingMarker      = temp_mode[3];
-            ifSpliting            = temp_mode[4];
-            ifChangeLineType      = temp_mode[5];
-            ifChangeMarkerType    = temp_mode[6];
+            ifPainting = temp_mode[0];
+            ifPoint = temp_mode[1];
+            ifDeletingLine = temp_mode[2];
+            ifDeletingMarker = temp_mode[3];
+            ifSpliting = temp_mode[4];
+            ifChangeLineType = temp_mode[5];
+            ifChangeMarkerType = temp_mode[6];
             ifDeletingMultiMarker = temp_mode[7];
         }
     }
@@ -3655,7 +3601,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    public void popUpUserAccount(Context context){
+    public void popUpUserAccount(Context context) {
         new MDDialog.Builder(context)
                 .setContentView(R.layout.user_account_check)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
@@ -3739,6 +3685,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     /**
      * display the result of morphology calculate
+     *
      * @param featureList the features of result
      */
     @SuppressLint("DefaultLocale")
@@ -3870,6 +3817,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     /**
      * format output of morphology feature's value
+     *
      * @param value feature's value
      * @return Number of digits
      */
@@ -3886,8 +3834,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void setSettings(){
-        boolean [] downsample = new boolean[1];
+    private void setSettings() {
+        boolean[] downsample = new boolean[1];
 
         MDDialog mdDialog = new MDDialog.Builder(this)
                 .setContentView(R.layout.settings)
@@ -3907,23 +3855,22 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                         downsample_on_off.setChecked(ifDownSample);
                         seekbar.setProgress(contrast);
-                        bgmVolumeBar.setProgress((int)(bgmVolume * 100));
-                        buttonVolumeBar.setProgress((int)(buttonVolume * 100));
-                        actionVolumeBar.setProgress((int)(actionVolume * 100));
+                        bgmVolumeBar.setProgress((int) (bgmVolume * 100));
+                        buttonVolumeBar.setProgress((int) (buttonVolume * 100));
+                        actionVolumeBar.setProgress((int) (actionVolume * 100));
 
                         RewardLitePalConnector rewardLitePalConnector = RewardLitePalConnector.getInstance();
                         List<Integer> rewards = rewardLitePalConnector.getRewards();
                         List<String> list = new ArrayList<>();
                         list.add("BGM0");
-                        for (int i = 0; i < rewards.size(); i++){
+                        for (int i = 0; i < rewards.size(); i++) {
                             if (rewards.get(i) == 1)
-                                list.add("BGM" + Integer.toString(i+1));
+                                list.add("BGM" + Integer.toString(i + 1));
                         }
-                        String [] spinnerItems = new String[list.size()];
-                        for (int i = 0; i < list.size(); i++){
+                        String[] spinnerItems = new String[list.size()];
+                        for (int i = 0; i < list.size(); i++) {
                             spinnerItems[i] = list.get(i);
                         }
-
 
 
                         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(S2Context, R.layout.support_simple_spinner_dropdown_item, spinnerItems);
@@ -3970,7 +3917,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                         myS2renderer.setIfNeedDownSample(downsample[0]);
                         myS2renderer.resetContrast(contrast);
 
-                        Log.v(TAG,"downsample: " + downsample[0] + ",contrast: " + contrast);
+                        Log.v(TAG, "downsample: " + downsample[0] + ",contrast: " + contrast);
                         preferenceSetting.setPref(downsample[0], contrast);
                         myS2GLSurfaceView.requestRender();
 
@@ -3978,9 +3925,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                         SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
                         SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
 
-                        bgmVolume = (float)(bgmVolumeBar.getProgress()) / 100.0f;
-                        buttonVolume = (float)(buttonVolumeBar.getProgress()) / 100.0f;
-                        actionVolume = (float)(actionVolumeBar.getProgress()) / 100.0f;
+                        bgmVolume = (float) (bgmVolumeBar.getProgress()) / 100.0f;
+                        buttonVolume = (float) (buttonVolumeBar.getProgress()) / 100.0f;
+                        actionVolume = (float) (actionVolumeBar.getProgress()) / 100.0f;
 
                         Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
                         String selected = bgmSpinner.getSelectedItem().toString();
@@ -4003,13 +3950,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                         String settingsPath = context.getExternalFilesDir(null).toString() + "/Settings";
                         File settingsFile = new File(settingsPath);
-                        if (!settingsFile.exists()){
+                        if (!settingsFile.exists()) {
                             settingsFile.mkdir();
                         }
 
                         String volumePath = settingsPath + "/volume.txt";
                         File volumeFile = new File(volumePath);
-                        if (!volumeFile.exists()){
+                        if (!volumeFile.exists()) {
                             try {
                                 volumeFile.createNewFile();
                             } catch (IOException e) {
@@ -4043,7 +3990,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    public void cleanCache(){
+    public void cleanCache() {
         AlertDialog aDialog = new AlertDialog.Builder(S2Context)
                 .setTitle("Clean All The Img Cache")
                 .setMessage("Are you sure to CLEAN ALL IMG CACHE?")
@@ -4064,17 +4011,17 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void deleteImg(){
-        Log.v("BaseActivity","deleteImg()");
+    private void deleteImg() {
+        Log.v("BaseActivity", "deleteImg()");
         String img_path = context.getExternalFilesDir(null).toString() + "/Img";
-        Log.v("BaseActivity","img_path" + img_path);
+        Log.v("BaseActivity", "img_path" + img_path);
 
         File file = new File(img_path);
         recursionDeleteFile(file);
     }
 
 
-    private void logout(){
+    private void logout() {
 
         AlertDialog aDialog = new AlertDialog.Builder(S2Context)
                 .setTitle("Log out")
@@ -4090,7 +4037,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //                        AgoraMsgManager.getInstance().getRtmClient().logout(null);
 
                         PreferenceLogin preferenceLogin = new PreferenceLogin(S2Activity.this);
-               //         preferenceLogin.setPref("","",false);
+                        //         preferenceLogin.setPref("","",false);
                         // DemoCache.clear();
 
                         startActivity(new Intent(S2Activity.this, LoginActivity.class));
@@ -4107,7 +4054,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void CrashInfoShare(){
+    private void CrashInfoShare() {
 
     }
 
@@ -4115,7 +4062,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private void setAnimation() {
 
         final String[] rotation_type = new String[1];
-        final boolean [] ifChecked = {false, false};
+        final boolean[] ifChecked = {false, false};
 
         MDDialog mdDialog = new MDDialog.Builder(this)
                 .setContentView(R.layout.animation)
@@ -4176,7 +4123,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                         EditText speed = contentView.findViewById(R.id.edit_speed);
                         String rotation_speed_string = speed.getText().toString();
 
-                        if (rotation_speed_string.isEmpty()){
+                        if (rotation_speed_string.isEmpty()) {
                             ToastEasy("Make sure the input is right !");
                             setAnimation();
                             return;
@@ -4193,8 +4140,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                             zseries_scan.setVisibility(View.GONE);
 
-                            if (ll_top.findViewById(animation_id) == null){
-                                ll_top.addView(animation_i,lp_animation_i);
+                            if (ll_top.findViewById(animation_id) == null) {
+                                ll_top.addView(animation_i, lp_animation_i);
                             }
                             myS2GLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
@@ -4202,7 +4149,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                             zseries_scan.setVisibility(View.VISIBLE);
 
-                            if (ll_top.findViewById(animation_id) != null){
+                            if (ll_top.findViewById(animation_id) != null) {
                                 ll_top.removeView(animation_i);
                             }
 
@@ -4223,13 +4170,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
-
-
-
-
     /**
      * called when request permission
+     *
      * @param requestCode
      * @param permissions
      * @param grantResults
@@ -4238,7 +4181,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        switch (requestCode){
+        switch (requestCode) {
             case REQUEST_PERMISSION_CODE: {
                 for (int i = 0; i < permissions.length; i++) {
                     Log.i("S2Activity", "申请的权限为：" + permissions[i] + ",申请结果：" + grantResults[i]);
@@ -4250,7 +4193,6 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
     /**
-     *
      * @param requestCode
      * @param resultCode
      * @param data
@@ -4260,7 +4202,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Log.e(TAG,"onActivityResult start");
+        Log.e(TAG, "onActivityResult start");
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             myS2renderer.setPath(showPic.getAbsolutePath());
             myS2GLSurfaceView.requestRender();
@@ -4278,7 +4220,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     FileManager fileManager = new FileManager();
                     String fileName = fileManager.getFileName(uri);
                     String filetype = fileName.substring(fileName.lastIndexOf(".")).toUpperCase();
-                    Log.v(TAG,"FileType: " + filetype + ", FileName: " + fileName);
+                    Log.v(TAG, "FileType: " + filetype + ", FileName: " + fileName);
 
                     if (myS2renderer.getIfFileLoaded()) {
                         switch (filetype) {
@@ -4286,7 +4228,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                 ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
                                 ApoReader apoReader = new ApoReader();
                                 apo = apoReader.read(uri);
-                                if (apo == null){
+                                if (apo == null) {
                                     ToastEasy("Make sure the .apo file is right");
                                     break;
                                 }
@@ -4297,7 +4239,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                             case ".SWC":
                             case ".ESWC":
                                 NeuronTree nt = NeuronTree.readSWC_file(uri);
-                                myS2renderer.importNeuronTree(nt,false);
+                                myS2renderer.importNeuronTree(nt, false);
                                 myS2renderer.saveUndo();
                                 break;
 
@@ -4313,7 +4255,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                 NeuronTree nt2 = NeuronTree.readSWC_file(swc_path);
                                 ano_apo = apoReader_1.read(apo_path);
 
-                                myS2renderer.importNeuronTree(nt2,false);
+                                myS2renderer.importNeuronTree(nt2, false);
                                 myS2renderer.importApo(ano_apo);
                                 myS2renderer.saveUndo();
                                 break;
@@ -4321,9 +4263,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                             default:
                                 ToastEasy("Unsupported file type");
                         }
-                    }
-
-                    else {
+                    } else {
                         System.out.println("-------- open --------");
                         myS2renderer.setSwcPath(filePath);
                         ifLoadLocal = false;
@@ -4345,7 +4285,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
                 if (ifLoadLocal) {
-                    Log.e(TAG,"Load Local File");
+                    Log.e(TAG, "Load Local File");
                     myS2renderer.setPath(filePath);
 
                     setButtonsLocal();
@@ -4357,7 +4297,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             } catch (OutOfMemoryError e) {
                 ToastEasy("Fail to load file");
                 Log.v("Exception", e.toString());
-            } catch (CloneNotSupportedException e){
+            } catch (CloneNotSupportedException e) {
                 Log.v("Exception:", e.toString());
             }
         }
@@ -4366,227 +4306,31 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
-
-    /**
-     * for game ------------------------------------------------------------------------------------
-     */
-//    public void Select_map(){
-//        new XPopup.Builder(this)
-//                .asCenterList("Game Start", new String[]{"New Game", "Load Game"},
-//                        new OnSelectListener() {
-//                            @Override
-//                            public void onSelect(int position, String text) {
-//                                switch (text){
-//                                    case "New Game":
-////                                        setSelectSource("Remote Server SEU", context);
-////                                        BigFileRead_Remote(ip_SEU);
-//                                        setSelectSource("Remote Server Aliyun",context);
-//                                        BigFileRead_Remote(ip_TencentCloud);
-//
-//                                        break;
-//
-//                                    case "Load Game":
-//                                        loadGameList();
-//                                        break;
-//
-//                                    default:
-//                                        ToastEasy("Something Wrong Here");
-//                                }
-//                            }
-//                        }).show();
-//    }
-//
-//    private void loadGameList(){
-//        String externalFileDir = context.getExternalFilesDir(null).toString();
-//        String [] fileList = {"[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]", "[Empty Archive]"};
-//        File file = new File(externalFileDir + "/Game/Archives");
-//        if (file.exists()){
-//            try {
-//                for (int i = 0; i < 10; i++) {
-//                    File tempFile = new File(externalFileDir + "/Game/Archives/Archive_" + i);
-//                    if (!tempFile.exists()) {
-//                        tempFile.mkdir();
-//                    } else {
-//                        File [] archiveFiles = tempFile.listFiles();
-//                        if (archiveFiles.length > 0){
-//                            fileList[i] = archiveFiles[0].getName().split(".txt")[0];
-//                        }
-//                    }
-//                }
-//            } catch (Exception e){
-//                e.printStackTrace();
-//            }
-//        } else {
-//            File parent = file.getParentFile();
-//            if (!parent.exists()){
-//                parent.mkdir();
-//            }
-//            file.mkdir();
-//            for (int i = 0; i < 10; i++){
-//                File tempFile = new File(externalFileDir + "/Game/Archives/Archive_" + i);
-//                tempFile.mkdir();
-//            }
-//        }
-//
-//        new XPopup.Builder(this)
-//                .autoDismiss(false)
-//                .asCenterList("Archives", fileList,
-//                        new OnSelectListener() {
-//                            @Override
-//                            public void onSelect(int position, String text) {
-//                                if (text.equals("[Empty Archive]")){
-//
-//                                } else {
-//                                    if (loadGame(position))
-//                                        Toast_in_Thread("Loaded successfully");
-//                                    else
-//                                        Toast_in_Thread("Failed To Load!!!");
-//                                }
-//                            }
-//                        }).show();
-//    }
-//
-//    private boolean loadGame(int num){
-//        String archiveImageName;
-//        String archiveOffset;
-//        float [] pos = new float[3];
-//        float [] dir = new float[3];
-//        float [] head = new float[3];
-//        String externalFileDir = context.getExternalFilesDir(null).toString();
-//        File file = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num);
-//        if (!file.exists()){
-//            file.mkdir();
-//            return false;
-//        }
-//
-//        File [] tempList = file.listFiles();
-//        if(tempList.length == 0){
-//            return false;
-//        }
-//
-//        try{
-//            FileInputStream inStream = new FileInputStream(tempList[0]);
-//            if (inStream != null) {
-//                InputStreamReader inputreader
-//                        = new InputStreamReader(inStream, "UTF-8");
-//                BufferedReader buffreader = new BufferedReader(inputreader);
-//                String line = "";
-//
-//                line = buffreader.readLine();
-//                archiveImageName = line;
-//                String tempFilename = archiveImageName.split("/")[0];
-//
-//                File archiveSWCFile = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num + "/" + tempFilename + ".swc");
-//                if (archiveSWCFile.exists()){
-//                    File newSWCFile = new File(externalFileDir + "/Game/SWCs/" + tempFilename + ".swc");
-//                    if (newSWCFile.exists()){
-//                        newSWCFile.delete();
-//                    }
-//                    newSWCFile.createNewFile();
-//
-//                    FileUtils.copyFile(archiveSWCFile, newSWCFile);
-//                } else {
-//                    return false;
-//                }
-//
-//                File archiveFlagFile = new File(externalFileDir + "/Game/Archives/" + "Archive_" + num + "/" + tempFilename + ".txt");
-//                if (archiveFlagFile.exists()){
-//                    File newFlagFile = new File(externalFileDir + "/Game/Flags/" + tempFilename + ".txt");
-//                    if (newFlagFile.exists()){
-//                        newFlagFile.delete();
-//                    }
-//                    newFlagFile.createNewFile();
-//
-//                    FileUtils.copyFile(archiveFlagFile, newFlagFile);
-//                }
-//
-//                line = buffreader.readLine();
-//                archiveOffset = line;
-//                Log.d(TAG, "LoadGame offset: " + archiveOffset);
-//
-//                line = buffreader.readLine();
-//                pos[0] = Float.parseFloat(line.split(" ")[0]);
-//                pos[1] = Float.parseFloat(line.split(" ")[1]);
-//                pos[2] = Float.parseFloat(line.split(" ")[2]);
-//
-//                line = buffreader.readLine();
-//                dir[0] = Float.parseFloat(line.split(" ")[0]);
-//                dir[1] = Float.parseFloat(line.split(" ")[1]);
-//                dir[2] = Float.parseFloat(line.split(" ")[2]);
-//
-//                line = buffreader.readLine();
-//                head[0] = Float.parseFloat(line.split(" ")[0]);
-//                head[1] = Float.parseFloat(line.split(" ")[1]);
-//                head[2] = Float.parseFloat(line.split(" ")[2]);
-//
-//                line = buffreader.readLine();
-//                gameLastIndexForIntent = Integer.parseInt(line);
-//
-//                line = buffreader.readLine();
-//                gameScoreForIntent = Integer.parseInt(line);
-//
-//                inStream.close();//关闭输入流
-//
-//                gamePositionForIntent = pos;
-//                gameDirForIntent = dir;
-//                gameHeadForIntent = head;
-//
-//                gameIfNewForIntent = false;
-//
-//                if (archiveImageName != null && archiveOffset != null){
-//                    remote_socket.disConnectFromHost();
-////                    remote_socket.connectServer(ip_SEU);
-//                    remote_socket.connectServer(ip_TencentCloud);
-//                    remote_socket.pullImageBlockWhenLoadGame(archiveImageName, archiveOffset);
-//
-//                    setFilename_Remote(archiveImageName, context);
-////                    setNeuronNumber_Remote(neuronNum_Backup,fileName_Backup,mContext);
-//                    setoffset_Remote(archiveOffset, archiveImageName, context);
-//                }
-//            }
-//        } catch (Exception e){
-//            e.printStackTrace();
-//            return false;
-//        }
-//        return true;
-//    }
-
-    /**
-     * for game ------------------------------------------------------------------------------------
-     */
-
-
-
-
-
-
-
-    private void BigFileRead_local(){
+    private void BigFileRead_local() {
         String[] filename_list = bigImgS2Reader.ChooseFile(this);
-        if (filename_list != null){
-            String [] str = new String[1];
+        if (filename_list != null) {
+            String[] str = new String[1];
             bigImgS2Reader.ShowListDialog(this, filename_list);
         }
     }
 
 
-    public void Block_navigate(String text){
+    public void Block_navigate(String text) {
 
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             public void run() {
 
-                if (isBigData_Remote){
+                if (isBigData_Remote) {
                     String[] Direction = {"Left", "Right", "Top", "Bottom", "Front", "Back"};
-                    if (Arrays.asList(Direction).contains(text)){
+                    if (Arrays.asList(Direction).contains(text)) {
                         Log.e("S2_Block_navigate", text);
-                        ServerConnector.getInstance().sendMsg("s2_move:"+text);
+                        ServerConnector.getInstance().sendMsg("s2_move:" + text);
 
                     }
 
                 }
-
 
 
             }
@@ -4594,23 +4338,23 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
     }
-    public void Zseries_navigate(String text){
+
+    public void Zseries_navigate(String text) {
 
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             public void run() {
 
-                if (isBigData_Remote){
+                if (isBigData_Remote) {
                     String[] Direction = {"ZStart", "ZStop", "Zslicesize1", "ZScan"};
-                    if (Arrays.asList(Direction).contains(text)){
+                    if (Arrays.asList(Direction).contains(text)) {
                         Log.e("S2_Zscan", text);
-                        ServerConnector.getInstance().sendMsg("Zscan:"+text);
+                        ServerConnector.getInstance().sendMsg("Zscan:" + text);
 
                     }
 
                 }
-
 
 
             }
@@ -4619,16 +4363,16 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     }
 
-    private void Quit_Nav_Mode(){
+    private void Quit_Nav_Mode() {
         System.out.println("---------QuitNavigationLocation---------");
         myS2renderer.quitNav_location_Mode();
         navigation_location.setImageResource(R.drawable.ic_gps_fixed_black_24dp);
     }
 
 
-    private void Update_Nav_Mode(){
+    private void Update_Nav_Mode() {
         String filename = SettingFileManager.getFilename_Local(this);
-        String offset   = SettingFileManager.getoffset_Local(this, filename);
+        String offset = SettingFileManager.getoffset_Local(this, filename);
 
         float size_x = Float.parseFloat(filename.split("RES")[1].split("x")[0]);
         float size_y = Float.parseFloat(filename.split("RES")[1].split("x")[1]);
@@ -4647,35 +4391,37 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    public void Set_Nav_Mode(){
+    public void Set_Nav_Mode() {
         String filename = null;
-        String offset   = null;
-        float[] neuron = null; float[] block = null; float[] size = null;
-        if (isBigData_Remote){
+        String offset = null;
+        float[] neuron = null;
+        float[] block = null;
+        float[] size = null;
+        if (isBigData_Remote) {
             filename = getFilename_Remote(this);
-            offset   = getoffset_Remote(this, filename);
+            offset = getoffset_Remote(this, filename);
         }
-        if (isBigData_Local){
+        if (isBigData_Local) {
             filename = SettingFileManager.getFilename_Local(this);
-            offset   = SettingFileManager.getoffset_Local(this, filename);
+            offset = SettingFileManager.getoffset_Local(this, filename);
         }
 
         if (filename == null || offset == null)
             return;
 
-        if (isBigData_Local || isBigData_Remote){
+        if (isBigData_Local || isBigData_Remote) {
 
             float size_x, size_y, size_z;
 
-            if (isBigData_Local){
+            if (isBigData_Local) {
                 size_x = Float.parseFloat(filename.split("RES")[1].split("x")[0]);
                 size_y = Float.parseFloat(filename.split("RES")[1].split("x")[1]);
                 size_z = Float.parseFloat(filename.split("RES")[1].split("x")[2]);
 
-            }else {
+            } else {
                 size_x = Float.parseFloat(filename.split("RES")[1].split("x")[1]);
-                size_y = Float.parseFloat(filename.split("RES")[1].split("x")[0].replace("(",""));
-                size_z = Float.parseFloat(filename.split("RES")[1].split("x")[2].replace(")",""));
+                size_y = Float.parseFloat(filename.split("RES")[1].split("x")[0].replace("(", ""));
+                size_z = Float.parseFloat(filename.split("RES")[1].split("x")[2].replace(")", ""));
             }
 
             float offset_x = Float.parseFloat(offset.split("_")[0]);
@@ -4684,45 +4430,40 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             float size_block = Float.parseFloat(offset.split("_")[3]);
 
             neuron = new float[]{size_x, size_y, size_z};
-            block  = new float[]{offset_x, offset_y, offset_z};
-            size   = new float[]{size_block, size_block, size_block};
-        }else {
+            block = new float[]{offset_x, offset_y, offset_z};
+            size = new float[]{size_block, size_block, size_block};
+        } else {
 
             String[] offset_arr = offset.split("_");
             int[] offset_arr_i = new int[4];
-            for (int i =0; i<offset_arr_i.length; i++){
+            for (int i = 0; i < offset_arr_i.length; i++) {
                 offset_arr_i[i] = Integer.parseInt(offset_arr[i]);
             }
 
-            block  = new float[]{offset_arr_i[0], offset_arr_i[1], offset_arr_i[2]};
-            size   = new float[]{offset_arr_i[3], offset_arr_i[3], offset_arr_i[3]};
+            block = new float[]{offset_arr_i[0], offset_arr_i[1], offset_arr_i[2]};
+            size = new float[]{offset_arr_i[3], offset_arr_i[3], offset_arr_i[3]};
 //            neuron = remote_socket.getImg_size_f(block);
 
-            Log.i(TAG,Arrays.toString(block));
-            Log.i(TAG,Arrays.toString(neuron));
+            Log.i(TAG, Arrays.toString(block));
+            Log.i(TAG, Arrays.toString(neuron));
 
         }
 
         boolean ifNavigationLocation = myS2renderer.getNav_location_Mode();
 
-        if (!ifNavigationLocation){
+        if (!ifNavigationLocation) {
             System.out.println("--------!ifNavigationLocation---------");
             myS2renderer.setNav_location_Mode();
             myS2renderer.setNav_location(neuron, block, size);
             myS2GLSurfaceView.requestRender();
             navigation_location.setImageResource(R.drawable.ic_gps_off_black_24dp);
-        }else {
+        } else {
             System.out.println("---------ifNavigationLocation---------");
             myS2renderer.setNav_location_Mode();
             myS2GLSurfaceView.requestRender();
             navigation_location.setImageResource(R.drawable.ic_gps_fixed_black_24dp);
         }
     }
-
-
-
-
-
 
 
     // OpenGL 中的显示区域
@@ -4780,7 +4521,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                     switch (motionEvent.getActionMasked()) {
                         case MotionEvent.ACTION_DOWN:
-                            Log.e("MotionEvent.ACTION_DOWN", "locationX"+normalizedX+"locationY"+normalizedY);
+                            Log.e("MotionEvent.ACTION_DOWN", "locationX" + normalizedX + "locationY" + normalizedY);
                             X = normalizedX;
                             Y = normalizedY;
                             if (ifPainting || ifDeletingLine || ifSpliting || ifChangeLineType || ifDeletingMultiMarker || ifSettingROI) {
@@ -4792,17 +4533,16 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                 requestRender();
                                 Log.v("actionPointerDown", "Paintinggggggggggg");
                             }
-                            if (ifPoint){
+                            if (ifPoint) {
 
                             }
-                            if (ifPainting){
+                            if (ifPainting) {
 
                             }
-                            if(ifGetRoiPoint)
-                            {
+                            if (ifGetRoiPoint) {
                                 if (myS2renderer.getFileType() == MyRenderer.FileType.JPG || myS2renderer.getFileType() == MyRenderer.FileType.PNG) {
 
-                                    locationFor2dImg=myS2renderer.get2dLocation(normalizedX, normalizedY);
+                                    locationFor2dImg = myS2renderer.get2dLocation(normalizedX, normalizedY);
 
 
                                 } else {
@@ -4855,7 +4595,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //                                myS2renderer.rotate2f(dis_x_start, dis_x, dis_y_start, dis_y);
 //                            }else {
 //                                myS2renderer.rotate(dis_x - dis_x_start, dis_y - dis_y_start, (float) (computeDis(dis_x, dis_x_start, dis_y, dis_y_start)));
-                                if(!isS2Start) {
+                                if (!isS2Start) {
                                     myS2renderer.rotate(ave_x, ave_y, (float) (computeDis((x2 + normalizedX) / 2, (x1_start + x0_start) / 2, (y2 + normalizedY) / 2, (y1_start + y0_start) / 2)));
                                 }
 //                            }
@@ -4868,13 +4608,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                 y0_start = normalizedY;
                                 x1_start = x2;
                                 y1_start = y2;
-                            } else if (!isZooming){
+                            } else if (!isZooming) {
                                 if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker && !ifChangeMarkerType && !ifDeletingMultiMarker && !ifSettingROI) {
                                     if (!(myS2renderer.getFileType() == MyRenderer.FileType.JPG || myS2renderer.getFileType() == MyRenderer.FileType.PNG)) {
                                         if (myS2renderer.getIfDownSampling() == false)
                                             myS2renderer.setIfDownSampling(true);
                                     }
-                                    if(!isS2Start) {
+                                    if (!isS2Start) {
                                         myS2renderer.rotate(normalizedX - X, normalizedY - Y, (float) (computeDis(normalizedX, X, normalizedY, Y)));
                                     }
                                     //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
@@ -4916,7 +4656,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                 try {
                                     if (ifZooming) {
                                         ifZooming = false;
-                                        float [] center = myS2renderer.solveMarkerCenter(normalizedX, normalizedY);
+                                        float[] center = myS2renderer.solveMarkerCenter(normalizedX, normalizedY);
                                         if (center != null) {
                                             Communicator communicator = Communicator.getInstance();
                                             communicator.navigateAndZoomInBlock((int) center[0] - 64, (int) center[1] - 64, (int) center[2] - 64);
@@ -4937,8 +4677,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         requestRender();
 
                                     }
-                                    if(ifGetRoiPoint)
-                                    {
+                                    if (ifGetRoiPoint) {
                                         Log.v("ifGetRoiPoint", "DeletingRoiPoint");
                                         myS2renderer.deleteRoiLocation(locationFor2dImg[0], locationFor2dImg[1], ifGetRoiPoint);
                                         requestRender();
@@ -4956,7 +4695,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         myS2renderer.changeMarkerType(normalizedX, normalizedY, isBigData_Remote);
                                         requestRender();
                                     }
-                                    if (ifPainting ) {
+                                    if (ifPainting) {
                                         Vector<Integer> segids = new Vector<>();
                                         myS2renderer.setIfPainting(false);
 
@@ -4972,11 +4711,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                                 @Override
                                                 public String call() throws Exception {
                                                     int lineType = myS2renderer.getLastLineType();
-                                                    V_NeuronSWC_list [] v_neuronSWC_list = new V_NeuronSWC_list[1];
+                                                    V_NeuronSWC_list[] v_neuronSWC_list = new V_NeuronSWC_list[1];
                                                     V_NeuronSWC seg = myS2renderer.addBackgroundLineDrawed(lineDrawed, v_neuronSWC_list);
                                                     System.out.println("feature");
-                                                    if (seg != null)
-                                                    { myS2renderer.addLineDrawed2(lineDrawed, seg, isBigData_Remote);
+                                                    if (seg != null) {
+                                                        myS2renderer.addLineDrawed2(lineDrawed, seg, isBigData_Remote);
                                                         myS2renderer.deleteFromCur(seg, v_neuronSWC_list[0]);
                                                     }
                                                     requestRender();
@@ -5002,9 +4741,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         requestRender();
                                     }
 
-                                    if(ifSettingROI){
-                                        ifSettingROI=false;
-                                        float [] center = myS2renderer.GetROICenter(lineDrawed,isBigData_Remote);
+                                    if (ifSettingROI) {
+                                        ifSettingROI = false;
+                                        float[] center = myS2renderer.GetROICenter(lineDrawed, isBigData_Remote);
                                         if (center != null) {
                                             Communicator communicator = Communicator.getInstance();
                                             communicator.navigateAndZoomInBlock((int) center[0] - 64, (int) center[1] - 64, (int) center[2] - 64);
@@ -5035,7 +4774,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         myS2renderer.setLineDrawed(lineDrawed);
                                         requestRender();
                                     }
-                                } catch (Exception e){
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                                 lineDrawed.clear();
@@ -5053,7 +4792,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     return true;
                 }
 
-            }catch (IllegalArgumentException | CloneNotSupportedException e){
+            } catch (IllegalArgumentException | CloneNotSupportedException e) {
                 e.printStackTrace();
             }
 
@@ -5078,13 +4817,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
-
     /*
     load Img Block after downloading file  ---------------------------------------------------------------
      */
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void loadBigDataImg(String filepath){
+    public void loadBigDataImg(String filepath) {
         isBigData_Remote = true;
         isBigData_Local = false;
         ifZooming = false;
@@ -5092,8 +4829,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         myS2renderer.setPath(filepath);
         myS2renderer.zoom(2f);
         myS2GLSurfaceView.requestRender();
-        if(ifZscanSeries)
-        {
+        if (ifZscanSeries) {
             progressDialog_zscan.dismiss();
         }
 
@@ -5101,13 +4837,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    public void loadBigDataApo(String filepath){
+    public void loadBigDataApo(String filepath) {
 
         try {
             ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
             ApoReader apoReader = new ApoReader();
             apo = apoReader.read(filepath);
-            if (apo == null){
+            if (apo == null) {
                 Toast_in_Thread("There is something wrong with apo file !");
             }
 
@@ -5115,23 +4851,23 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             myS2renderer.saveUndo();
             myS2GLSurfaceView.requestRender();
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void loadBigDataSwc(String filepath){
+    public void loadBigDataSwc(String filepath) {
         try {
             NeuronTree nt = NeuronTree.readSWC_file(filepath);
 
-            myS2renderer.importNeuronTree(Communicator.getInstance().convertNeuronTree(nt),false);
+            myS2renderer.importNeuronTree(Communicator.getInstance().convertNeuronTree(nt), false);
             myS2renderer.saveUndo();
             myS2GLSurfaceView.requestRender();
             setBigDataName();
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         hideProgressBar();
@@ -5143,7 +4879,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     static Timer timerDownload;
 
-    public static void showProgressBar(){
+    public static void showProgressBar() {
         puiHandler.sendEmptyMessage(0);
         timerDownload = new Timer();
         timerDownload.schedule(new TimerTask() {
@@ -5151,23 +4887,23 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             public void run() {
                 timeOutHandler();
             }
-        },30 * 1000);
+        }, 30 * 1000);
     }
 
 
-    public static void hideProgressBar(){
+    public static void hideProgressBar() {
         timerDownload.cancel();
         puiHandler.sendEmptyMessage(1);
     }
 
 
-    public static void timeOutHandler(){
+    public static void timeOutHandler() {
         hideProgressBar();
         puiHandler.sendEmptyMessage(3);
     }
 
 
-    public static void showSyncBar(){
+    public static void showSyncBar() {
         puiHandler.sendEmptyMessage(9);
         timerDownload = new Timer();
         timerDownload.schedule(new TimerTask() {
@@ -5175,22 +4911,22 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             public void run() {
                 timeOutHandler();
             }
-        },10 * 1000);
+        }, 10 * 1000);
     }
 
 
-    public static void hideSyncBar(){
+    public static void hideSyncBar() {
         timerDownload.cancel();
         puiHandler.sendEmptyMessage(10);
     }
 
 
-    public static void setBigDataName(){
+    public static void setBigDataName() {
         puiHandler.sendEmptyMessage(4);
     }
 
 
-    public static void setFileName(String name){
+    public static void setFileName(String name) {
         filename = name;
 
         filenametext.setText(filename);
@@ -5204,12 +4940,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         navigation_location.setLayoutParams(lp_nacloc_i);
 
 
-
         lp_res_list.setMargins(0, 540, 20, 0);
         res_list.setLayoutParams(lp_res_list);
     }
 
-    public static void shutFileName(){
+    public static void shutFileName() {
 
 
         //filenametext.setText(filename);
@@ -5223,18 +4958,17 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         navigation_location.setLayoutParams(lp_nacloc_i);
 
 
-
         lp_res_list.setMargins(20, 490, 0, 0);
         res_list.setLayoutParams(lp_res_list);
     }
 
 
-    private static void setButtons(){
+    private static void setButtons() {
         puiHandler.sendEmptyMessage(2);
     }
 
-    public static void setButtonsBigData(){
-        if (isBigData_Remote || isBigData_Local){
+    public static void setButtonsBigData() {
+        if (isBigData_Remote || isBigData_Local) {
             navigation_left.setVisibility(View.VISIBLE);
             navigation_right.setVisibility(View.VISIBLE);
             navigation_up.setVisibility(View.VISIBLE);
@@ -5247,7 +4981,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             Zoom_in_Big.setVisibility(View.VISIBLE);
             Zoom_out_Big.setVisibility(View.VISIBLE);
 
-            if (isBigData_Remote){
+            if (isBigData_Remote) {
                 //  res_list.setVisibility(View.VISIBLE);
                 //  user_list.setVisibility(View.VISIBLE);
                 // room_id.setVisibility(View.VISIBLE);
@@ -5258,9 +4992,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         }
     }
 
-    public void setButtonsLocal(){
-        if (isBigData_Remote || isBigData_Local){
-            if (isBigData_Remote){
+    public void setButtonsLocal() {
+        if (isBigData_Remote || isBigData_Local) {
+            if (isBigData_Remote) {
                 res_list.setVisibility(View.GONE);
                 user_list.setVisibility(View.GONE);
                 room_id.setVisibility(View.GONE);
@@ -5268,7 +5002,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 ROI_i.setVisibility(View.GONE);
             }
             isBigData_Remote = false;
-            isBigData_Local  = false;
+            isBigData_Local = false;
 
             try {
 
@@ -5285,16 +5019,16 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 navigation_back.setVisibility(View.GONE);
                 navigation_location.setVisibility(View.GONE);
 
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
 
-    public void setButtonsImport(){
-        if (isBigData_Remote || isBigData_Local){
-            if (isBigData_Remote){
+    public void setButtonsImport() {
+        if (isBigData_Remote || isBigData_Local) {
+            if (isBigData_Remote) {
                 res_list.setVisibility(View.GONE);
                 user_list.setVisibility(View.GONE);
                 room_id.setVisibility(View.GONE);
@@ -5302,7 +5036,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 ROI_i.setVisibility(View.GONE);
             }
             isBigData_Remote = false;
-            isBigData_Local  = false;
+            isBigData_Local = false;
             try {
 
                 Zslice_up.setVisibility(View.GONE);
@@ -5318,14 +5052,14 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 Zoom_in_Big.setVisibility(View.GONE);
                 Zoom_out_Big.setVisibility(View.GONE);
 
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
 
-    private void hideButtons(){
+    private void hideButtons() {
         if (!ifButtonShowed)
             return;
 
@@ -5339,7 +5073,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //        Redo_i.setVisibility(View.GONE);
 
 
-        if (isBigData_Remote || isBigData_Local){
+        if (isBigData_Remote || isBigData_Local) {
             navigation_back.setVisibility(View.GONE);
             navigation_down.setVisibility(View.GONE);
             navigation_front.setVisibility(View.GONE);
@@ -5360,7 +5094,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 manual_sync.setVisibility(View.GONE);
                 ROI_i.setVisibility(View.GONE);
             }
-        }else {
+        } else {
 
         }
 
@@ -5370,7 +5104,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void showButtons(){
+    private void showButtons() {
         if (ifButtonShowed)
             return;
 
@@ -5383,7 +5117,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         // Undo_i.setVisibility(View.VISIBLE);
         //Redo_i.setVisibility(View.VISIBLE);
 
-        if (isBigData_Remote || isBigData_Local){
+        if (isBigData_Remote || isBigData_Local) {
             navigation_back.setVisibility(View.VISIBLE);
             navigation_down.setVisibility(View.VISIBLE);
             navigation_front.setVisibility(View.VISIBLE);
@@ -5405,7 +5139,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 ROI_i.setVisibility(View.VISIBLE);
             }
 
-        }else {
+        } else {
 //            Zoom_in_Big.setVisibility(View.VISIBLE);
 //            Zoom_out_Big.setVisibility(View.VISIBLE);
         }
@@ -5414,31 +5148,31 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    public static void updateScore(){
+    public static void updateScore() {
         puiHandler.sendEmptyMessage(7);
     }
 
 
-    private void addScore(int s){
+    private void addScore(int s) {
         score += s;
         updateScoreText();
     }
 
-    private static void updateScoreText(){
+    private static void updateScoreText() {
         puiHandler.sendEmptyMessage(7);
     }
 
-    private static void updateScoreTextHandler(){
+    private static void updateScoreTextHandler() {
         Score scoreInstance = Score.getInstance();
         int score = scoreInstance.getScore();
         String scoreString;
-        if (score < 10){
+        if (score < 10) {
             scoreString = "0000" + Integer.toString(score);
-        } else if (score >= 10 && score < 100){
+        } else if (score >= 10 && score < 100) {
             scoreString = "000" + Integer.toString(score);
-        } else if (score >= 100 && score < 1000){
+        } else if (score >= 100 && score < 1000) {
             scoreString = "00" + Integer.toString(score);
-        } else if (score >= 1000 && score < 10000){
+        } else if (score >= 1000 && score < 10000) {
             scoreString = "0" + Integer.toString(score);
         } else {
             scoreString = Integer.toString(score);
@@ -5447,7 +5181,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         scoreText.setText(scoreString);
     }
 
-    public void showAchievementFinished(){
+    public void showAchievementFinished() {
         new XPopup.Builder(S2Context)
                 .offsetY(1000)
                 .popupAnimation(PopupAnimation.TranslateAlphaFromBottom)
@@ -5456,17 +5190,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
-
-
-
-
-
-    public static void Toast_in_Thread_static(String message){
+    public static void Toast_in_Thread_static(String message) {
         Message msg = new Message();
         msg.what = TOAST_INFO_STATIC;
         Bundle bundle = new Bundle();
-        bundle.putString("Toast_msg",message);
+        bundle.putString("Toast_msg", message);
         msg.setData(bundle);
         puiHandler.sendMessage(msg);
     }
@@ -5484,7 +5212,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     functions for old version bigdata  ---------------------------------------------------------------------------------
      */
 
-    public static void LoadBigFile_Local(String filepath_local){
+    public static void LoadBigFile_Local(String filepath_local) {
         System.out.println("------" + filepath_local + "------");
         isBigData_Local = true;
         isBigData_Remote = false;
@@ -5500,7 +5228,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         ToastEasy("Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z);
         myS2GLSurfaceView.requestRender();
 
-        setSelectSource("Local Server",context);
+        setSelectSource("Local Server", context);
         setButtons();
 
     }
@@ -5592,15 +5320,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
      */
 
 
-
-
-
-    private void gameStart(){
-        float [] startPoint = new float[]{
+    private void gameStart() {
+        float[] startPoint = new float[]{
                 0.5f, 0.5f, 0.5f
         };
 
-        float [] dir = new float[]{
+        float[] dir = new float[]{
                 1, 1, 1
         };
 
@@ -5617,14 +5342,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         System.out.println(tangent.size());
 
 
-
-        float [] vertexPoints = new float[sec_anti.size()];
-        for (int i = 0; i < sec_anti.size(); i++){
+        float[] vertexPoints = new float[sec_anti.size()];
+        for (int i = 0; i < sec_anti.size(); i++) {
 
             vertexPoints[i] = sec_anti.get(i);
             System.out.print(vertexPoints[i]);
             System.out.print(" ");
-            if (i % 3 == 2){
+            if (i % 3 == 2) {
                 System.out.print("\n");
             }
         }
@@ -5637,1001 +5361,33 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //        }
     }
 
-    public static void setIfGame(boolean b){
+    public static void setIfGame(boolean b) {
         ifGame = b;
     }
 
 
-
-
-
-    private boolean isTopActivity(){
+    private boolean isTopActivity() {
         ActivityManager manager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
         List<ActivityManager.RunningTaskInfo> runningTaskInfos = manager.getRunningTasks(1);
         String cmpNameTemp = null;
-        if(runningTaskInfos != null){
+        if (runningTaskInfos != null) {
             cmpNameTemp = runningTaskInfos.get(0).topActivity.toString();
         }
-        if(cmpNameTemp == null){
+        if (cmpNameTemp == null) {
             return false;
         }
         Log.d(TAG, "isTopActivity" + cmpNameTemp);
         return cmpNameTemp.equals("ComponentInfo{com.penglab.hi5/com.penglab.hi5.core.S2Activity}");
     }
-//
-//
-//    private void PullSwc_block_Manual(boolean isDrawMode){
-//
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-//                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-//
-//        Thread thread = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
-//
-//                if (SwcFilePath.equals("Error")){
-//                    Toast_in_Thread("Something Wrong When Pull Swc File !");
-//                }
-//
-//                try {
-//                    NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
-//                    myS2renderer.setSwcLoaded();
-//                    myS2renderer.importNeuronTree(nt,false);
-//                    myS2GLSurfaceView.requestRender();
-////                    uiHandler.sendEmptyMessage(1);
-//                }catch (Exception e){
-//                    Toast_in_Thread("Some Wrong when open the Swc File, Try Again Please !");
-//                }
-//
-//            }
-//        });
-//
-//        thread.start();
-//    }
-//
-//
-//    @RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
-//    private static void PullSwc_block_Auto(boolean isDrawMode){
-//
-//        String SwcFilePath = remote_socket.PullSwc_block(isDrawMode);
-//
-//        if (SwcFilePath.equals("Error")){
-//            Toast_in_Thread_static("Something Wrong When Pull Swc File !");
-//            return;
-//        }
-//
-//        try {
-//            NeuronTree nt = NeuronTree.readSWC_file(SwcFilePath);
-//            myS2renderer.setSwcLoaded();
-//            myS2renderer.importNeuronTree(nt,false);
-//            myS2GLSurfaceView.requestRender();
-//        }catch (Exception e){
-//            Toast_in_Thread_static("Something Wrong when open Swc File !");
-//        }
-//
-//
-//    }
-//
-//
-//    private File createImageFile() throws IOException {
-//        // Create an image file name
-//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-//        String imageFileName = "IMG" + timeStamp;
-//        File storageDir = new File(Environment.getExternalStorageDirectory() + "/DCIM/Camera/");
-//        File image = File.createTempFile(
-//                imageFileName,     /* prefix */
-//                ".jpg",     /* suffix */
-//                storageDir         /* directory */
-//        );
-//
-//        // Save a file: path for use with ACTION_VIEW intents
-//        currentPhotoPath = image.getAbsolutePath();
-//        return image;
-//    }
-//
-//
-//    private String getImageFilePath(){
-//        String mCaptureDir = "/storage/emulated/0/C3/cameraPhoto";
-//        File dir = new File(mCaptureDir);
-//        if (!dir.exists()){
-//            dir.mkdirs();
-//        }
-//
-//        String mCapturePath = mCaptureDir + "/" + "Photo_" + System.currentTimeMillis() +".jpg";
-//        return mCapturePath;
-//    }
-//
-//
-//
-//    //GSDT_function
-//    public void GSDT_Fun(){
-//        //building...
-//        Image4DSimple img = myS2renderer.getImg();
-//        //img.getDataCZYX();
-//        if(img == null || !img.valid()){
-//            Log.v("GSDT", "Please load img first!");
-//            ToastEasy("Please load image first !");
-//            return;
-//        }
-//
-//        Log.v("GSDT", "Have got the image successfully!!");
-//        try {
-//
-//            System.out.println("Start here.....");
-//            ParaGSDT p = new ParaGSDT();
-//            p.p4DImage = img;
-//            GSDT.GSDT_Fun(p);
-//            Log.v("GSDT", "GSDT function finished");
-//
-//            //preparations for show
-//            myS2renderer.resetImg(p.outImage);
-//            myS2renderer.getMarkerList().getMarkers().addAll(p.markers);//blue marker
-//            myS2renderer.getMarkerList().add(p.MaxMarker);//red marker
-//            myS2GLSurfaceView.requestRender();
-//
-//            ToastEasy("marker_loc:"+ p.max_loc[0] + "," + p.max_loc[1] + "," + p.max_loc[2]);
-//            progressBar.setVisibility(View.INVISIBLE);
-//
-//
-//            /*
-//            ImageMarker m = p.GSDT_Fun(img, para);
-//            System.out.println("marker:"+ m.getXYZ().x + "," + m.getXYZ().y+","+m.getXYZ().z);
-//            m.type = 2;
-//            m.radius = 5;
-//            Log.v("GSDT", "got here2");
-//            markers.add(m);
-//             */
-//            //myS2GLSurfaceView.requestRender();
-//
-//        }catch (Exception e) {
-//            ToastEasy(e.getMessage());
-//            progressBar.setVisibility(View.INVISIBLE);
-//        }
-//
-//    }
-
-
-
-
-
-
-
-//    /**
-//     * load big data
-//     */
-//    public void loadBigData(){
-//
-//        new XPopup.Builder(this)
-//                .asCenterList("BigData File",new String[]{"Select File", "Open RecentBlock"},
-//                        new OnSelectListener() {
-//                            @RequiresApi(api = Build.VERSION_CODES.N)
-//                            @Override
-//                            public void onSelect(int position, String text) {
-//                                switch (text) {
-//                                    case "Select File":
-//                                        Select_img();
-//                                        break;
-//
-//                                    case "Open RecentBlock":
-//                                        Select_Block();
-//                                        break;
-////
-////                                    case "Download by http":
-////                                        downloadFile();
-////                                        break;
-//                                }
-//                            }
-//                        })
-//                .show();
-//
-//
-//    }
-
-
-
-//
-//
-//    /**
-//     * init function for VoiceCall
-//     */
-//    private void initAgoraEngineAndJoinChannel(String Channel, String userAccount) {
-//        initializeAgoraEngine(userAccount);     // Tutorial Step 1
-//        joinChannel(userAccount, Channel);               // Tutorial Step 2
-//    }
-//
-//    public final void showLongToast(final String msg) {
-//        this.runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
-//            }
-//        });
-//    }
-//
-//
-//    // Tutorial Step 7
-//    public void onLocalAudioMuteClicked(View view) {
-//        ImageView iv = (ImageView) view;
-//        if (iv.isSelected()) {
-//            iv.setSelected(false);
-//            iv.clearColorFilter();
-//        } else {
-//            iv.setSelected(true);
-//            iv.setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
-//        }
-//
-//        // Stops/Resumes sending the local audio stream.
-//        mRtcEngine.muteLocalAudioStream(iv.isSelected());
-//    }
-//
-//    // Tutorial Step 5
-//    public void onSwitchSpeakerphoneClicked(View view) {
-//        ImageView iv = (ImageView) view;
-//        if (iv.isSelected()) {
-//            iv.setSelected(false);
-//            iv.clearColorFilter();
-//        } else {
-//            iv.setSelected(true);
-//            iv.setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
-//        }
-//
-//        // Enables/Disables the audio playback route to the speakerphone.
-//        //
-//        // This method sets whether the audio is routed to the speakerphone or earpiece. After calling this method, the SDK returns the onAudioRouteChanged callback to indicate the changes.
-//        mRtcEngine.setEnableSpeakerphone(view.isSelected());
-//    }
-//
-//    // Tutorial Step 3
-//    public void onEncCallClicked(View view) {
-//        leaveChannel();
-//        RtcEngine.destroy();
-//        mRtcEngine = null;
-//
-//    }
-//
-//    // Tutorial Step 1
-//    private void initializeAgoraEngine(String userAccount) {
-//        try {
-//            mRtcEngine = RtcEngine.create(getBaseContext(), getString(R.string.agora_app_id), mRtcEventHandler);
-//            // Sets the channel profile of the Agora RtcEngine.
-//            // CHANNEL_PROFILE_COMMUNICATION(0): (Default) The Communication profile. Use this profile in one-on-one calls or group calls, where all users can talk freely.
-//            // CHANNEL_PROFILE_LIVE_BROADCASTING(1): The Live-Broadcast profile. Users in a live-broadcast channel have a role as either broadcaster or audience. A broadcaster can both send and receive streams; an audience can only receive streams.
-//            mRtcEngine.setChannelProfile(Constants.CHANNEL_PROFILE_COMMUNICATION);
-//
-//            /**
-//             * register a account
-//             */
-//            mRtcEngine.registerLocalUserAccount(getString(R.string.agora_app_id), userAccount);
-//
-//        } catch (Exception e) {
-//            Log.e(LOG_TAG, Log.getStackTraceString(e));
-//
-//            throw new RuntimeException("NEED TO check rtc sdk init fatal error\n" + Log.getStackTraceString(e));
-//        }
-//    }
-//
-//    // Tutorial Step 2
-//    private void joinChannel(String userAccount, String Channel) {
-//        String accessToken = getString(R.string.agora_access_token);
-//        if (TextUtils.equals(accessToken, "") || TextUtils.equals(accessToken, "#YOUR ACCESS TOKEN#")) {
-//            accessToken = null; // default, no token
-//        }
-//
-//        // 使用注册的用户 ID 加入频道
-//        mRtcEngine.joinChannelWithUserAccount(accessToken, Channel, userAccount);
-//
-//        showLongToast("You joined Successfully !!!");
-//
-//
-////        // Allows a user to join a channel.
-////        mRtcEngine.joinChannel(accessToken, "1", "Extra Optional Data", 0); // if you do not specify the uid, we will generate the uid for you
-//    }
-//
-//    // Tutorial Step 3
-//    private void leaveChannel() {
-//        mRtcEngine.leaveChannel();
-//        voicePattern = VoicePattern.UNCERTAIN;
-//        chat_room_num = 0;
-//    }
-//
-//    // Tutorial Step 4
-//    private void onRemoteUserLeft(String userAccount, int reason) {
-//        if (voicePattern == VoicePattern.PEER_TO_PEER){
-//            showLongToast("The CALL is End !");
-//        }else {
-//            if (chat_room_num > 1){
-//                showLongToast("user " + userAccount + " left : " + reason);
-//            }else {
-//                showLongToast("The CALL is End !");
-//            }
-//        }
-//    }
-//
-//    // Tutorial Step 4
-//    private void onRemoteUserJoined(String userAccount) {
-//        showLongToast("user " + userAccount + " joined !");
-//    }
-//
-//    // Tutorial Step 6
-//    private void onRemoteUserVoiceMuted(int uid, boolean muted) {
-////        mRtcEngine.getUserInfoByUid(uid);
-//        showLongToast(String.format(Locale.US, "user %d muted or unmuted %b", (uid & 0xFFFFFFFFL), muted));
-//    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-//    /**
-//     * add friends
-//     */
-//    public void addFriends(){
-//        MDDialog mdDialog = new MDDialog.Builder(this)
-//                .setContentView(R.layout.peer_chat)
-//                .setNegativeButton("Cancel", new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButton(R.string.btn_chat, new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//                        Log.d("PeerToPeer", "Start To Chat");
-//                        EditText targetEdit = (EditText)contentView.findViewById(R.id.target_name_edit);
-//                        String mTargetName = targetEdit.getText().toString();
-//                        if (mTargetName.equals("")) {
-//                            Toast_in_Thread(getString(R.string.account_empty));
-//                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
-//                            Toast_in_Thread(getString(R.string.account_too_long));
-//                        } else if (mTargetName.startsWith(" ")) {
-//                            Toast_in_Thread(getString(R.string.account_starts_with_space));
-//                        } else if (mTargetName.equals("null")) {
-//                            Toast_in_Thread(getString(R.string.account_literal_null));
-//                        } else if (mTargetName.equals(username)) {
-//                            Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
-//                        } else {
-//                            mChatManager.addFriends(mTargetName);
-//                        }
-//                    }
-//                })
-//                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//
-//                    }
-//                })
-//                .setTitle(R.string.title_add_friends)
-//                .create();
-//
-//        mdDialog.show();
-//    }
-
-
-
-//    public void chooseChatMode(){
-//        new XPopup.Builder(this)
-//                .asCenterList("Choose Chat Mode", new String[]{"Peer Chat", "Selection Tab Channel"},
-//                        new OnSelectListener() {
-//                            @Override
-//                            public void onSelect(int position, String text) {
-//                                switch (text){
-//                                    case "Peer Chat":
-//                                        peerToPeer();
-//                                        break;
-//                                    case "Selection Tab Channel":
-//                                        chooseChannel();
-//                                        break;
-//                                }
-//                            }
-//                        }).show();
-//
-//    }
-
-//    private void peerToPeer(){
-//        MDDialog mdDialog = new MDDialog.Builder(this)
-//                .setContentView(R.layout.peer_chat)
-//                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-//                    @Override
-//                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-//
-//                    }
-//                })
-//                .setNegativeButton("Cancel", new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButton(R.string.btn_chat, new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//                        Log.d("PeerToPeer", "Start To Chat");
-//                        EditText targetEdit = (EditText)contentView.findViewById(R.id.target_name_edit);
-//                        String mTargetName = targetEdit.getText().toString();
-//                        if (mTargetName.equals("")) {
-//                            Toast_in_Thread(getString(R.string.account_empty));
-//                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
-//                            Toast_in_Thread(getString(R.string.account_too_long));
-//                        } else if (mTargetName.startsWith(" ")) {
-//                            Toast_in_Thread(getString(R.string.account_starts_with_space));
-//                        } else if (mTargetName.equals("null")) {
-//                            Toast_in_Thread(getString(R.string.account_literal_null));
-//                        } else if (mTargetName.equals(username)) {
-//                            Toast_in_Thread(getString(R.string.account_cannot_be_yourself));
-//                        } else {
-//                            openMessageActivity(true, mTargetName);
-////                            mChatButton.setEn
-////                            jumpToMessageActivity();
-//                        }
-//                    }
-//                })
-//                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//
-//                    }
-//                })
-//                .setTitle(R.string.title_peer_msg)
-//
-//                .create();
-//
-//        mdDialog.show();
-//    }
-//
-//    private void chooseChannel(){
-//        MDDialog mdDialog = new MDDialog.Builder(this)
-//                .setContentView(R.layout.channel_chat)
-//                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-//                    @Override
-//                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-//
-//                    }
-//                })
-//                .setNegativeButton("Cancel", new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButton(R.string.btn_join, new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                    }
-//                })
-//                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//                        EditText targetEdit = (EditText)contentView.findViewById(R.id.channel_name_edit);
-//                        String mTargetName = targetEdit.getText().toString();
-//                        if (mTargetName.equals("")) {
-//                            Toast_in_Thread(getString(R.string.channel_name_empty));
-//                        } else if (mTargetName.length() >= MessageUtil.MAX_INPUT_NAME_LENGTH) {
-//                            Toast_in_Thread(getString(R.string.channel_name_too_long));
-//                        } else if (mTargetName.startsWith(" ")) {
-//                            Toast_in_Thread(getString(R.string.channel_name_starts_with_space));
-//                        } else if (mTargetName.equals("null")) {
-//                            Toast_in_Thread(getString(R.string.channel_name_literal_null));
-//                        }  else {
-//                            openMessageActivity(false, mTargetName);
-////                            mChatButton.setEn
-////                            jumpToMessageActivity();
-//                        }
-//                    }
-//                })
-//                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-//                    @Override
-//                    public void onClick(View clickedView, View contentView) {
-//
-//                    }
-//                })
-//                .setTitle(R.string.title_channel_message)
-//
-//                .create();
-//
-//        mdDialog.show();
-//    }
-
-//    private void openMessageActivity(boolean isPeerToPeerMode, String targetName){
-//        Intent intent = new Intent(S2Activity.this, MessageActivity.class);
-//        intent.putExtra(MessageUtil.INTENT_EXTRA_IS_PEER_MODE, isPeerToPeerMode);
-//        intent.putExtra(MessageUtil.INTENT_EXTRA_TARGET_NAME, targetName);
-//        intent.putExtra(MessageUtil.INTENT_EXTRA_USER_ID, username);
-//        startActivity(intent);
-//    }
-
-
-
-
-
-
-
-
-
-//    class MyRtmClientListener implements RtmClientListener {
-//
-//        @Override
-//        public void onConnectionStateChanged(final int state, int reason) {
-//            runOnUiThread(() -> {
-//                switch (state) {
-//                    case RtmStatusCode.ConnectionState.CONNECTION_STATE_RECONNECTING:
-//                        Toast_in_Thread(getString(R.string.reconnecting));
-//                        break;
-//                    case RtmStatusCode.ConnectionState.CONNECTION_STATE_ABORTED:
-//                        Toast_in_Thread(getString(R.string.account_offline));
-//                        setResult(MessageUtil.ACTIVITY_RESULT_CONN_ABORTED);
-//                        finish();
-//                        break;
-//                }
-//            });
-//        }
-//
-//        @SuppressLint("LongLogTag")
-//        @Override
-//        public void onMessageReceived(final RtmMessage message, final String peerId) {
-//            if (isTopActivity()) {
-//                Log.d("onMessageRecievedFromPeer", message.getText() + " from " + peerId);
-//                String msg = message.getText();
-//                if (Pattern.matches(callMsgPattern, message.getText())) {
-//
-//                    String targetName = msg.substring(10, msg.indexOf("##In##"));
-//                    String channelName = msg.substring(msg.indexOf("##In##") + 6, msg.lastIndexOf("##"));
-//                    final boolean[] answered = {false};
-//                    runOnUiThread(() -> {
-//
-//
-//                        BasePopupView calledPopup = new XPopup.Builder(S2Context)
-//                                .dismissOnTouchOutside(false)
-//                                .dismissOnBackPressed(false)
-//                                .asConfirm("Phone Call", "from " + targetName, "Reject", "Answer",
-//                                        new OnConfirmListener() {
-//                                            @Override
-//                                            public void onConfirm() {
-//                                                answered[0] = true;
-//
-//                                                VoiceChat(channelName, username);
-//                                                String callMessage = "##SuccessToAnswer##";
-//                                                RtmMessage answerMessage = mRtmClient.createMessage();
-//                                                answerMessage.setText(callMessage);
-//
-//                                                mRtmClient.sendMessageToPeer(targetName, answerMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
-//                                                    @Override
-//                                                    public void onSuccess(Void aVoid) {
-//
-//                                                    }
-//
-//                                                    @Override
-//                                                    public void onFailure(ErrorInfo errorInfo) {
-//
-//                                                    }
-//                                                });
-//                                            }
-//                                        }, new OnCancelListener() {
-//                                            @Override
-//                                            public void onCancel() {
-//                                                answered[0] = true;
-//
-//                                                String callMessage = "##RefuseToAnswer##";
-//                                                RtmMessage refuseMessage = mRtmClient.createMessage();
-//                                                refuseMessage.setText(callMessage);
-//
-//                                                mRtmClient.sendMessageToPeer(targetName, refuseMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
-//                                                    @Override
-//                                                    public void onSuccess(Void aVoid) {
-//
-//                                                    }
-//
-//                                                    @Override
-//                                                    public void onFailure(ErrorInfo errorInfo) {
-//
-//                                                    }
-//                                                });
-//                                            }
-//                                        }, false);
-//                        calledPopup.show();
-//                        calledPopup.delayDismiss(20000);
-//                        calledPopup.dismissWith(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                if (answered[0] == false){
-//                                    String callMessage = "##TimeOutToAnswer##";
-//                                    RtmMessage timeOutMessage = mRtmClient.createMessage();
-//                                    timeOutMessage.setText(callMessage);
-//
-//                                    mRtmClient.sendMessageToPeer(targetName, timeOutMessage, mChatManager.getSendMessageOptions(), new ResultCallback<Void>() {
-//                                        @Override
-//                                        public void onSuccess(Void aVoid) {
-//
-//                                        }
-//
-//                                        @Override
-//                                        public void onFailure(ErrorInfo errorInfo) {
-//
-//                                        }
-//                                    });
-//                                }
-//                            }
-//                        });
-//
-//                    });
-//                } else if (msg.equals("##RefuseToAnswer##")){
-//                    runOnUiThread(() -> {
-//                        Toast_in_Thread("Target Refused To Answer");
-//                        fab.setVisibility(View.GONE);
-//                        try {
-//                            leaveChannel();
-//                            RtcEngine.destroy();
-//                        } catch (Exception e){
-//                            Toast_in_Thread(e.getMessage());
-//                        }
-//                        mRtcEngine = null;
-//                    });
-//
-//                } else if (msg.equals("##SuccessToAnswer##")){
-//                    runOnUiThread(() -> {
-//                        Toast_in_Thread("Connection Succeeded");
-//                    });
-//                } else if (msg.equals("##TimeOutToAnswer##")){
-//                    runOnUiThread(() -> {
-//                        Toast_in_Thread("Target Time Out To Answer");
-//                        fab.setVisibility(View.GONE);
-//                        try {
-//                            leaveChannel();
-//                            RtcEngine.destroy();
-//                        } catch (Exception e){
-//                            Toast_in_Thread(e.getMessage());
-//                        }
-//                        mRtcEngine = null;
-//                    });
-//                } else {
-//                    runOnUiThread(() -> {
-//
-//                        MessageUtil.addMessageBean(peerId, message);
-//
-//                        MsgPopup msgPopup = new MsgPopup(S2Context, 3000);
-//                        msgPopup.setText(peerId + ": " + message.getText());
-//                        TextView msgText = msgPopup.findViewById(R.id.msg_text);
-//                        msgText.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                Log.d("MsgText", "OnClick");
-//                                openMessageActivity(true, peerId);
-//                            }
-//                        });
-//
-//                        BasePopupView xMsgPopup = new XPopup.Builder(S2Context)
-//                                .hasShadowBg(false)
-//                                .popupAnimation(PopupAnimation.ScaleAlphaFromCenter)
-//                                .isCenterHorizontal(true)
-//                                .offsetY(200)
-//                                .asCustom(msgPopup);
-//
-//                        xMsgPopup.show();
-//
-//                        Log.d("onMessageReceived", "runOnUiThread");
-//
-//
-//                    });
-//                }
-//            }
-//        }
-//
-//        @SuppressLint("LongLogTag")
-//        @Override
-//        public void onImageMessageReceivedFromPeer(final RtmImageMessage rtmImageMessage, final String peerId) {
-//            if (isTopActivity()) {
-//                Log.d("onMessageRecievedFromPeer", rtmImageMessage.getText() + " from " + peerId);
-//                runOnUiThread(() -> {
-//                    MessageUtil.addMessageBean(peerId, rtmImageMessage);
-//                    MsgPopup msgPopup = new MsgPopup(S2Context, 3000);
-//                    msgPopup.setText(peerId + ": [Image]");
-//                    TextView msgText = msgPopup.findViewById(R.id.msg_text);
-//                    msgText.setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View view) {
-//                            Log.d("MsgText", "OnClick");
-//                            openMessageActivity(true, peerId);
-//                        }
-//                    });
-//                    new XPopup.Builder(S2Context)
-//                            .hasShadowBg(false)
-//                            .popupAnimation(PopupAnimation.ScaleAlphaFromCenter)
-//                            .isCenterHorizontal(true)
-//                            .offsetY(200)
-//                            .asCustom(msgPopup)
-//                            .show();
-//
-//                });
-//            }
-//
-//
-////            runOnUiThread(() -> {
-////                if (peerId.equals(mPeerId)) {
-////                    MessageBean messageBean = new MessageBean(peerId, rtmImageMessage, false);
-////                    messageBean.setBackground(getMessageColor(peerId));
-////                    mMessageBeanList.add(messageBean);
-////                    mMessageAdapter.notifyItemRangeChanged(mMessageBeanList.size(), 1);
-////                    mRecyclerView.scrollToPosition(mMessageBeanList.size() - 1);
-////                } else {
-////                    MessageUtil.addMessageBean(peerId, rtmImageMessage);
-////                }
-////            });
-//        }
-//
-//        @Override
-//        public void onFileMessageReceivedFromPeer(RtmFileMessage rtmFileMessage, String s) {
-//
-//        }
-//
-//        @Override
-//        public void onMediaUploadingProgress(RtmMediaOperationProgress rtmMediaOperationProgress, long l) {
-//
-//        }
-//
-//        @Override
-//        public void onMediaDownloadingProgress(RtmMediaOperationProgress rtmMediaOperationProgress, long l) {
-//
-//        }
-//
-//        @Override
-//        public void onTokenExpired() {
-//
-//        }
-//
-//        @Override
-//        public void onPeersOnlineStatusChanged(Map<String, Integer> map) {
-//            String[] peerName = (String[]) map.keySet().toArray();
-//            int status = map.get(peerName[0]);
-//            switch (status){
-////                case
-//            }
-//
-//        }
-//    }
-
-
-
-
-//    private void PushSWC_Block_Manual(){
-//
-//        String filepath = this.getExternalFilesDir(null).toString();
-//        String swc_file_path = filepath + "/Sync/BlockSet";
-//        File dir = new File(swc_file_path);
-//
-//        if (!dir.exists()){
-//            if (!dir.mkdirs())
-//                Toast.makeText(this,"Fail to create file: PushSWC_Block", Toast.LENGTH_SHORT).show();
-//        }
-//
-//        String filename = getFilename_Remote(this);
-//        String neuron_number = getNeuronNumber_Remote(this, filename);
-//        String offset = getoffset_Remote(this, filename);
-//        System.out.println(offset);
-//        int[] index = BigImgReader.getIndex(offset);
-//        System.out.println(filename);
-//
-//        String ratio = Integer.toString(remote_socket.getRatio_SWC());
-//        String SwcFileName = "blockSet__" + neuron_number + "__" +
-//                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
-//
-//        System.out.println(SwcFileName);
-//
-//        if (Save_curSwc_fast(SwcFileName, swc_file_path)){
-//            File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
-//            try {
-//                System.out.println("Start to push swc file");
-//                InputStream is = new FileInputStream(SwcFile);
-//                long length = SwcFile.length();
-//
-//                if (length < 0 || length > Math.pow(2, 28)){
-//                    Toast_in_Thread("Something Wrong When Upload SWC, Try Again Please !");
-//                    return;
-//                }
-//
-//                remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
-//
-//            } catch (Exception e){
-//                System.out.println("----" + e.getMessage() + "----");
-//            }
-//        }
-//    }
-//
-//
-//    private String[] SaveSWC_Block_Auto(){
-//
-//        String filepath = this.getExternalFilesDir(null).toString();
-//        String swc_file_path = filepath + "/Sync/BlockSet";
-//        File dir = new File(swc_file_path);
-//
-//        if (!dir.exists()){
-//            if (!dir.mkdirs())
-//                Toast.makeText(this,"Fail to create file: PushSWC_Block", Toast.LENGTH_SHORT).show();
-//        }
-//
-//        String filename = getFilename_Remote(this);
-//        String neuron_number = getNeuronNumber_Remote(this, filename);
-//        String offset = getoffset_Remote(this, filename);
-//        System.out.println(offset);
-//        int[] index = BigImgReader.getIndex(offset);
-//        System.out.println(filename);
-//
-//        String ratio = Integer.toString(remote_socket.getRatio_SWC());
-//        String SwcFileName = "blockSet__" + neuron_number + "__" +
-//                index[0] + "__" +index[3] + "__" + index[1] + "__" + index[4] + "__" + index[2] + "__" + index[5] + "__" + ratio;
-//
-//        System.out.println(SwcFileName);
-//
-//        if (Save_curSwc_fast(SwcFileName, swc_file_path)){
-//            return new String[]{ swc_file_path, SwcFileName };
-//        }
-//
-//        Log.v("SaveSWC_Block_Auto","Save Successfully !");
-//        return new String[]{"Error", "Error"};
-//    }
-//
-//
-//
-//    private static void PushSWC_Block_Auto(String swc_file_path, String SwcFileName){
-//
-//        if (swc_file_path.equals("Error"))
-//            return;
-//
-//        File SwcFile = new File(swc_file_path + "/" + SwcFileName + ".swc");
-//        if (!SwcFile.exists()){
-//            Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
-//            return;
-//        }
-//        try {
-//            System.out.println("Start to push swc file");
-//            InputStream is = new FileInputStream(SwcFile);
-//            long length = SwcFile.length();
-//
-//            if (length <= 0 || length > Math.pow(2, 28)){
-//                Toast_in_Thread_static("Something Wrong When Upload SWC, Try Again Please !");
-//                return;
-//            }
-//            remote_socket.PushSwc_block(SwcFileName + ".swc", is, length);
-//
-//        } catch (Exception e){
-//            System.out.println("----" + e.getMessage() + "----");
-//        }
-//    }
-//
-//    private boolean Save_curSwc_fast(String SwcFileName, String dir_str){
-//
-//        System.out.println("start to save-------");
-//        myS2renderer.reNameCurrentSwc(SwcFileName);
-//
-//        String error = "init";
-//        try {
-//            error = myS2renderer.saveCurrentSwc(dir_str);
-//            System.out.println("error:" + error);
-//        } catch (Exception e) {
-//            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-//            return false;
-//        }
-//        if (!error.equals("")) {
-//            if (error.equals("This file already exits")){
-//                String errorMessage = "";
-//                try{
-//                    errorMessage = myS2renderer.oversaveCurrentSwc(dir_str);
-//                    if (errorMessage == "Overwrite failed!"){
-//                        Toast_in_Thread("Fail to save swc file: Save_curSwc_fast");
-//                        return false;
-//                    }
-//                }catch (Exception e){
-//                    System.out.println(errorMessage);
-//                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-//                    return false;
-//                }
-//            }
-////            if (error.equals("Current swc is empty!")){
-////                Toast_in_Thread("Current swc file is empty!");
-////                return false;
-////            }
-//        } else{
-//            System.out.println("save SWC to " + dir_str + "/" + SwcFileName + ".swc");
-//        }
-//        return true;
-//    }
-
-
-//    backup setFileName
-//                    File file = new File(file_path_temp);
-//                    String name = file.getName();
-//                    Log.v("Handler",name);
-//
-//                    String result = null;
-//                    if (DrawMode){
-//                        String source = getSelectSource(context);
-//                        if (source.equals("Remote Server Aliyun")){
-//                            String filename = getFilename_Remote(context);
-//                            String brain_number = getNeuronNumber_Remote(context,filename);
-//                            result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
-////                            result = name.split("_")[1].substring(0,name.split("_")[1].length()-3);
-//                        }else if(source.equals("Remote Server SEU")){
-//                            String filename = getFilename_Remote(context);
-//                            String brain_number = getNeuronNumber_Remote(context,filename);
-//                            Log.d(TAG, "brain_number: " + brain_number);
-//                            Log.d(TAG, "brain_number.split(\"_\")[0]: " + brain_number.split("_")[0]);
-//                            if (brain_number.split("_")[0].equals("pre")){
-//                                Log.d(TAG, "brain_number.split(\"_\")[0]: " + brain_number.split("_")[0]);
-//                                result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[2];
-//                            } else {
-//                                result = name.split("RES")[0].split("_")[1] + "_" + brain_number.split("_")[1];
-//                            }
-//                        }
-//                    }else {
-//                        String brain_num = getFilename_Remote(context);
-//                        String neuron_num = getNeuronNumber_Remote(context, brain_num);
-//                        result = brain_num.split("_")[0] + "_" + neuron_num.split("_")[1] + "_" + getArborNum(context,brain_num.split("/")[0] + "_" + neuron_num).split(":")[0];
-//                    }
-
-
-
-
-
-//                    if (isBigData_Remote || isBigData_Local){
-//                        navigation_left.setVisibility(View.VISIBLE);
-//                        navigation_right.setVisibility(View.VISIBLE);
-//                        navigation_up.setVisibility(View.VISIBLE);
-//                        navigation_down.setVisibility(View.VISIBLE);
-//                        navigation_front.setVisibility(View.VISIBLE);
-//                        navigation_back.setVisibility(View.VISIBLE);
-////                        navigation_location.setVisibility(View.VISIBLE);
-//
-//                        Zoom_in_Big.setVisibility(View.VISIBLE);
-//                        Zoom_out_Big.setVisibility(View.VISIBLE);
-//                        Zoom_in.setVisibility(View.GONE);
-//                        Zoom_out.setVisibility(View.GONE);
-//
-//                        if (isBigData_Remote){
-//                            if (DrawMode){
-//
-//
-////                                Check_Yes.setVisibility(View.GONE);
-////                                Check_No.setVisibility(View.GONE);
-////                                Check_Uncertain.setVisibility(View.GONE);
-//                                res_list.setVisibility(View.GONE);
-////                                sync_pull.setVisibility(View.VISIBLE);
-////                                sync_push.setVisibility(View.VISIBLE);
-////                                neuron_list.setVisibility(View.VISIBLE);
-//                                user_list.setVisibility(View.VISIBLE);
-//                                room_id.setVisibility(View.VISIBLE);
-////                                blue_pen.setVisibility(View.VISIBLE);
-////                                red_pen.setVisibility(View.VISIBLE);
-//                            }
-//                            else {
-//                                Check_Yes.setVisibility(View.VISIBLE);
-//                                Check_No.setVisibility(View.VISIBLE);
-//                                Check_Uncertain.setVisibility(View.VISIBLE);
-//
-//
-////                                res_list.setVisibility(View.VISIBLE);
-////                                sync_pull.setVisibility(View.VISIBLE);
-////                                sync_push.setVisibility(View.GONE);
-////                                neuron_list.setVisibility(View.VISIBLE);
-////                                blue_pen.setVisibility(View.GONE);
-////                                red_pen.setVisibility(View.GONE);
-//                            }
-//                        }
-//                    }
-
-
 }
+
+
+
+
+
+
+
+
+
+
+
