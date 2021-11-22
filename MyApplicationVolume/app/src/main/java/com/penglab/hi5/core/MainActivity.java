@@ -768,13 +768,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         mainContext = this;
 
-        drawerLayout = findViewById(R.id.drawer_layout);
-
-
-
-
-
-
+        drawerLayout  = findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout,R.drawable.ic_menu,R.string.drawer_open_content_description,R.string.drawer_closed_content_description);
         drawerLayout.setDrawerListener(mDrawerToggle);
         drawerLayout.setDrawerListener(new DrawerLayout.SimpleDrawerListener() {
@@ -790,27 +784,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
         }
-
-//            public void onDrawerClosed(View view){
-//
-//                Fragment newFragment;
-//                switch (mSelectedItem){
-//                    case R.id.home:
-//                        newFragment = new Fragment();
-//                        getSupportActionBar().setTitle(R.string.home);
-//
-//                    default:
-//                        return;
-//                }
-////                FragmentManager fm = getSupportFragmentManager();
-////                fm.beginTransaction()
-////                        .replace(R.id.main_content,newFragment)
-////                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
-//                mSelectedItem = 0;
-//
-//            }
-//
-//        };
 
         final NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
