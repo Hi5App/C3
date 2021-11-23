@@ -31,6 +31,7 @@ import com.penglab.hi5.core.collaboration.connector.ServerConnector;
 import com.penglab.hi5.core.collaboration.service.BasicService;
 import com.penglab.hi5.core.collaboration.service.ManageService;
 import com.penglab.hi5.core.ui.login.LoginActivity;
+import com.penglab.hi5.core.ui.main.screens.HomeActivity;
 import com.penglab.hi5.dataStore.PreferenceLogin;
 
 import java.io.File;
@@ -389,7 +390,8 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
         InfoCache.setAccount(account);
         InfoCache.setToken(preferenceLogin.getPassword());
 
-        MainActivity.actionStart(SplashScreenActivity.this, account);
+//        MainActivity.actionStart(SplashScreenActivity.this, account);
+        HomeActivity.start(SplashScreenActivity.this, account);
         ToastEasy("Welcome, " + account +" !");
         finish();
     }

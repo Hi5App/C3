@@ -46,6 +46,8 @@ import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.penglab.hi5.R;
 import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.MainActivity;
+import com.penglab.hi5.core.SplashScreenActivity;
+import com.penglab.hi5.core.ui.main.screens.HomeActivity;
 import com.penglab.hi5.dataStore.PreferenceLogin;
 
 import java.io.BufferedReader;
@@ -387,13 +389,13 @@ public class LoginActivity extends AppCompatActivity{
         }
     }
 
-    /**
-     * menu glide
-     *
-     * @param height   height
-     * @param progress progress
-     * @param time     time
-     */
+//    /**
+//     * menu glide
+//     *
+//     * @param height   height
+//     * @param progress progress
+//     * @param time     time
+//     */
 //    private void glide(int height, float progress, int time) {
 //        mLlLoginPull.animate()
 //                .translationYBy(height - height * progress)
@@ -425,13 +427,13 @@ public class LoginActivity extends AppCompatActivity{
 //                .start();
 //    }
 
-    /**
-     * menu up glide
-     *
-     * @param height   height
-     * @param progress progress
-     * @param time     time
-     */
+//    /**
+//     * menu up glide
+//     *
+//     * @param height   height
+//     * @param progress progress
+//     * @param time     time
+//     */
 //    private void upGlide(int height, float progress, int time) {
 //        mLlLoginPull.animate()
 //                .translationYBy(height * progress)
@@ -584,10 +586,12 @@ public class LoginActivity extends AppCompatActivity{
 
                         // 进入主界面
                         if(ifGuestLogin){
-                            MainActivity.start(LoginActivity.this);
+//                            MainActivity.start(LoginActivity.this);
+                            HomeActivity.start(LoginActivity.this);
                         }
                         else{
-                            MainActivity.actionStart(LoginActivity.this, loginResult.getSuccess().getDisplayName());
+//                            MainActivity.actionStart(LoginActivity.this, loginResult.getSuccess().getDisplayName());
+                            HomeActivity.start(LoginActivity.this, loginResult.getSuccess().getDisplayName());
                             updateUiWithUser(loginResult.getSuccess());finish();
                         }
 
