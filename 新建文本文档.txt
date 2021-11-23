@@ -1,6 +1,0 @@
-拉取最新版本
-git remote set-url origin git@github.com:2manifold/C3.git
-git remote -v
-git pull origin master
-git status
-git stash apply 0

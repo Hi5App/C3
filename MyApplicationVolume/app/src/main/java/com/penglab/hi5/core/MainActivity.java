@@ -55,6 +55,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
@@ -388,9 +389,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static TextView scoreText;
     private int selectedBGM = 0;
 
-    private int mSelectedItem = 0;
-    private DrawerLayout drawerLayout;
-    private ActionBarDrawerToggle mDrawerToggle;
+//    private int mSelectedItem = 0;
+//    private DrawerLayout drawerLayout;
+//    private ActionBarDrawerToggle mDrawerToggle;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -768,48 +769,52 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         mainContext = this;
 
-        drawerLayout  = findViewById(R.id.drawer_layout);
-        mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout,R.drawable.ic_menu,R.string.drawer_open_content_description,R.string.drawer_closed_content_description);
-        drawerLayout.setDrawerListener(mDrawerToggle);
-        drawerLayout.setDrawerListener(new DrawerLayout.SimpleDrawerListener() {
-            @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {
-                super.onDrawerSlide(drawerView, slideOffset);
-                drawerLayout.bringChildToFront(drawerView);
-                drawerLayout.requestLayout();
-            }
-        });
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null){
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
-        }
-
-        final NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem item) {
-                mSelectedItem = item.getItemId();
-                switch(item.getItemId()){
-                    case R.id.nav_account:
-                        logout();
-                        break;
-                    case R.id.nav_settings:
-                        setSettings();
-                        break;
-                    case R.id.nav_chat:
-                        openChatActivity();
-                        break;
-                    case R.id.nav_About:
-                        About();
-                        break;
-                }
-
-                item.setChecked(true);
-                drawerLayout.closeDrawer(navigationView);
-                return false;
-            }
-        });
+//        drawerLayout  = findViewById(R.id.drawer_layout);
+//        mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout,R.drawable.ic_menu,R.string.drawer_open_content_description,R.string.drawer_closed_content_description);
+//        drawerLayout.setDrawerListener(mDrawerToggle);
+//        drawerLayout.setDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+//            @Override
+//            public void onDrawerSlide(View drawerView, float slideOffset) {
+//                super.onDrawerSlide(drawerView, slideOffset);
+//                drawerLayout.bringChildToFront(drawerView);
+//                drawerLayout.requestLayout();
+//            }
+//        });
+//        ActionBar actionBar = getSupportActionBar();
+//        if (actionBar != null){
+//            actionBar.setDisplayHomeAsUpEnabled(true);
+//            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+//        }
+//
+//        final NavigationView navigationView = findViewById(R.id.nav_view);
+//        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+//            @Override
+//            public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem item) {
+//                mSelectedItem = item.getItemId();
+//                switch(item.getItemId()){
+//                    case R.id.nav_account:
+//                        if(ifGuestLogin){
+//                            navigationView.getMenu().findItem(R.id.account).setTitle(R.string.Login);
+//                            login();
+//                        }else
+//                        logout();
+//                        break;
+//                    case R.id.nav_settings:
+//                        setSettings();
+//                        break;
+//                    case R.id.nav_chat:
+//                        openChatActivity();
+//                        break;
+//                    case R.id.nav_About:
+//                        About();
+//                        break;
+//                }
+//
+//                item.setChecked(true);
+//                drawerLayout.closeDrawer(navigationView);
+//                return false;
+//            }
+//        });
 
 
         /*
@@ -936,12 +941,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     }
 
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occurred.
-        mDrawerToggle.syncState();
-    }
+//    @Override
+//    protected void onPostCreate(Bundle savedInstanceState) {
+//        super.onPostCreate(savedInstanceState);
+//        // Sync the toggle state after onRestoreInstanceState has occurred.
+//        mDrawerToggle.syncState();
+//    }
 
 //    @Override
 //    public void onBackPressed(){
@@ -3543,31 +3548,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
      * @return
      */
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;}
+//        if (mDrawerToggle.onOptionsItemSelected(item)) {
+//            return true;}
         // Handle item selection
         switch (item.getItemId()) {
 
-//            case R.id.home:
-//                if(!drawerLayout.isDrawerOpen(GravityCompat.START))
-//                {
-//                    drawerLayout.openDrawer(GravityCompat.START);
-//                }
-//                break;
-
-//            case R.id.home:
-//
-//                break;
-////                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-//                    drawerLayout.closeDrawer(GravityCompat.START);
-//                } else {
-//                    drawerLayout.post(new Runnable(){
-//                        @Override
-//                        public void run(){
-//                            drawerLayout.openDrawer(GravityCompat.START);
-//                        }
-//                    });
-//                }
             case R.id.Undo:
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
@@ -3663,7 +3648,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         {
             new XPopup.Builder(this)
                     .maxHeight(1500)
-                    .asCenterList("More Functions...", new String[]{"Login", "Analyze Swc" , "GD","Filter by example","Split       ","Animate", "Crash Info", "Settings", "Help", "About"},
+                    .asCenterList("More Functions...", new String[]{"Login", "Analyze Swc" , "GD","Filter by example","Split       ","Animate", "Crash Info", "Settings"},
                             new OnSelectListener() {
                                 @Override
 
@@ -3768,18 +3753,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                             setSettings();
                                             break;
 
-                                        case "About":
-                                            About();
-                                            break;
-
-                                        case "Help":
-                                            try {
-                                                Intent helpIntent = new Intent(MainActivity.this, HelpActivity.class);
-                                                startActivity(helpIntent);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-                                            break;
+//                                        case "Help":
+//                                            try {
+//                                                Intent helpIntent = new Intent(MainActivity.this, HelpActivity.class);
+//                                                startActivity(helpIntent);
+//                                            } catch (Exception e) {
+//                                                e.printStackTrace();
+//                                            }
+//                                            break;
                                         default:
                                             ToastEasy("Default in More Functions...");
                                     }
@@ -3789,7 +3770,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }else
             new XPopup.Builder(this)
                     .maxHeight(1500)
-                    .asCenterList("More Functions...", new String[] {"Analyze Swc", "Chat","S2", "GD","Filter by example","Split       ","Animate", "Crash Info", "Quests", "Reward", "LeaderBoard", "Logout", "Settings", "Help", "About"},
+                    .asCenterList("More Functions...", new String[] {"Logout","Analyze Swc", "Chat", "GD","Filter by example","Split       ","Animate", "Crash Info", "Quests", "Reward", "LeaderBoard",  "Settings"},
                             new OnSelectListener() {
                                 @Override
 
@@ -3817,13 +3798,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                             break;
 
 
-                                        case "S2":
-                                            openS2Activity();
-
-                                            break;
-//                                        case "Chat":
-//                                            openChatActivity();
+//                                        case "S2":
+//                                            openS2Activity();
+//
 //                                            break;
+                                        case "Chat":
+                                            openChatActivity();
+                                            break;
 
                                         case "GD":
                                             try {
@@ -3928,22 +3909,22 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                             startActivity(new Intent(MainActivity.this, RewardActivity.class));
                                             break;
 
-//                                        case "Settings":
-//                                            setSettings();
-//                                            break;
+                                        case "Settings":
+                                            setSettings();
+                                            break;
 
 //                                        case "About":
 //                                            About();;
 //                                            break;
 
-                                        case "Help":
-                                            try{
-                                                Intent helpIntent = new Intent(MainActivity.this, HelpActivity.class);
-                                                startActivity(helpIntent);
-                                            } catch (Exception e){
-                                                e.printStackTrace();
-                                            }
-                                            break;
+//                                        case "Help":
+//                                            try{
+//                                                Intent helpIntent = new Intent(MainActivity.this, HelpActivity.class);
+//                                                startActivity(helpIntent);
+//                                            } catch (Exception e){
+//                                                e.printStackTrace();
+//                                            }
+//                                            break;
 
                                         default:
                                             ToastEasy("Default in More Functions...");

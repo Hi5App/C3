@@ -321,9 +321,7 @@ public class LoginActivity extends AppCompatActivity{
                 case R.id.visitor_login:
                     soundPool.play(soundId, buttonVolume, buttonVolume, 0, 0, 1.0f);
                     ifGuestLogin = true;
-                    Intent intent = new Intent (LoginActivity.this,MainActivity.class);
-                    intent.putExtra("isVisit",true);
-                    startActivity(intent);
+                    HomeActivity.start(LoginActivity.this);
                     Toast.makeText(LoginActivity.this,"you are now logged in as a visitor",Toast.LENGTH_SHORT).show();
                     finish();
                     break;
