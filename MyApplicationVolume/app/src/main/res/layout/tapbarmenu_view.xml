@@ -31,13 +31,24 @@
         android:paddingBottom="10dp"
         android:src="@drawable/ic_marker_main" />
 
+
+
+    <ImageView
+        android:id="@+id/auto_reconstruction"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:src="@drawable/ic_neuron" />
+
     <Space
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1" />
 
     <ImageView
-        android:id="@+id/auto_reconstruction"
+        android:id="@+id/remove_single"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -53,5 +64,14 @@
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
         android:src="@drawable/ic_clear" />
+
+    <ImageView
+        android:id="@+id/expanded_menu"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:src="@drawable/ic_expand_less_black_24dp" />
 
 </com.michaldrabik.tapbarmenulib.TapBarMenu>

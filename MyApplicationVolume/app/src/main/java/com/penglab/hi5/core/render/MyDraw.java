@@ -465,7 +465,6 @@ public class MyDraw {
                 .asFloatBuffer();
         colorBuffer_marker.put(colorPoints_marker);
         colorBuffer_marker.position(0);
-
     }
 
     private void BufferSet_Marker_Vertex(float r){

@@ -3325,7 +3325,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 ToastEasy(error);
                             }
                         } else{
-                            ToastEasy("save Annotation to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG);
+
+                            ToastEasy("save annotation information to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG);
                         }
                     }
                 })
@@ -3334,7 +3335,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     public void onClick(View clickedView, View contentView) {
                     }
                 })
-                .setTitle("Save Annotation")
+
+                .setTitle("Save Annotation File")
                 .create();
         mdDialog.show();
     }

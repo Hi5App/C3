@@ -1,26 +1,26 @@
 <resources>
 
     <!-- Base application theme. -->
-<!--    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">-->
-<!--    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">-->
+    <!--    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">-->
+    <!--    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">-->
 
-<!--    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">-->
-<!--        &lt;!&ndash; Customize your theme here. &ndash;&gt;-->
-<!--        <item name="colorPrimary">@color/colorMid_yellow</item>-->
-<!--        <item name="colorPrimaryDark">@color/colorDark_yellow</item>-->
-<!--        <item name="colorAccent">@color/colorAccent</item>-->
-<!--    </style>-->
+    <!--    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">-->
+    <!--        &lt;!&ndash; Customize your theme here. &ndash;&gt;-->
+    <!--        <item name="colorPrimary">@color/colorMid_yellow</item>-->
+    <!--        <item name="colorPrimaryDark">@color/colorDark_yellow</item>-->
+    <!--        <item name="colorAccent">@color/colorAccent</item>-->
+    <!--    </style>-->
 
-<!--    &lt;!&ndash;Toolbar主题的设置,Application使用的是这个主题&ndash;&gt;-->
-<!--    <style name="BaseTheme" parent="Theme.AppCompat.Light.NoActionBar">-->
-<!--    <item name="windowActionBar">false</item>-->
-<!--    <item name="windowNoTitle">true</item>-->
-<!--    </style>-->
+    <!--    &lt;!&ndash;Toolbar主题的设置,Application使用的是这个主题&ndash;&gt;-->
+    <!--    <style name="BaseTheme" parent="Theme.AppCompat.Light.NoActionBar">-->
+    <!--    <item name="windowActionBar">false</item>-->
+    <!--    <item name="windowNoTitle">true</item>-->
+    <!--    </style>-->
 
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-<!--    <style name="AppTheme" parent="QMUI.Compat.NoActionBar">-->
+        <!--    <style name="AppTheme" parent="QMUI.Compat.NoActionBar">-->
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorMid_yellow</item>
         <item name="colorPrimaryDark">@color/colorDark_yellow</item>
@@ -53,11 +53,10 @@
     </style>
 
 
-
     <!--Style for Splash Screen-->
     <style name="SplashScreenTheme" parent="AppTheme.NoActionBar">
         <item name="android:windowFullscreen">true</item>
-        <item name ="android:windowBackground"> @drawable/splash_screen_background</item>
+        <item name="android:windowBackground">@drawable/splash_screen_background</item>
     </style>
 
     <style name="dialog_style" parent="@style/AppTheme">
@@ -68,11 +67,14 @@
         <item name="android:background">@null</item>
         <!--设置没有窗口标题、dialog标题等各种标题-->
         <item name="windowNoTitle">true</item>
-<!--        <item name="android:title">@null</item>-->
+        <!--        <item name="android:title">@null</item>-->
         <item name="android:dialogTitle">@null</item>
     </style>
 
-
+    <style name="Widget.AppTheme.NoActionBar.MyView" parent="">
+        <item name="android:background">@color/gray_400</item>
+        <item name="exampleColor">@color/light_blue_400</item>
+    </style>
 
 
 </resources>
