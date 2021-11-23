@@ -327,5 +327,6 @@
     <string name="About">About</string>
     <string name="Login">Login</string>
     <string name="Logout">Logout</string>
+    <string name="Help">Help</string>
 
 </resources>
