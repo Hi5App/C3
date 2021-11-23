@@ -127,7 +127,7 @@ dependencies {
     implementation "androidx.drawerlayout:drawerlayout:1.1.1"
     implementation 'de.hdodenhof:circleimageview:3.0.1'
 
-    // for MainActivity
+    // for HomeActivity
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.github.devlight.navigationtabstrip:navigationtabstrip:1.0.4'

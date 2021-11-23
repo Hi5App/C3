@@ -1116,9 +1116,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             MsgConnector.getInstance().releaseConnection(false);
         }
 
-        ServerConnector.getInstance().closeSender();
-        MsgConnector.getInstance().closeSender();
-
         mainContext = null;
 
         if (timer != null){
