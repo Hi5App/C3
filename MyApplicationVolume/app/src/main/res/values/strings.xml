@@ -325,5 +325,7 @@
     <string name="setting">setting</string>
     <string name="Settings">Settings</string>
     <string name="About">About</string>
+    <string name="Login">Login</string>
+    <string name="Logout">Logout</string>
 
 </resources>

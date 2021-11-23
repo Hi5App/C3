@@ -55,6 +55,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
@@ -792,6 +793,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 mSelectedItem = item.getItemId();
                 switch(item.getItemId()){
                     case R.id.nav_account:
+                        if(ifGuestLogin){
+                            navigationView.getMenu().findItem(R.id.account).setTitle(R.string.Login);
+                            login();
+                        }else
                         logout();
                         break;
                     case R.id.nav_settings:
