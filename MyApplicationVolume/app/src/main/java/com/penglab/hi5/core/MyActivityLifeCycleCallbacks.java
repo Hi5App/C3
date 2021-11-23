@@ -10,6 +10,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.penglab.hi5.core.collaboration.connector.MsgConnector;
+import com.penglab.hi5.core.collaboration.connector.ServerConnector;
 import com.penglab.hi5.core.game.Score;
 
 import java.util.LinkedList;
@@ -17,7 +19,7 @@ import java.util.List;
 
 public class MyActivityLifeCycleCallbacks implements Application.ActivityLifecycleCallbacks {
 
-    private final String TAG = "MyActivityLifeCycleCallbacks";
+    private final String TAG = "MyActivityLifeCycle";
     private final String MY_PKG_NAME = "com.penglab.hi5";
     private int activityCount = 0;
 
@@ -57,6 +59,8 @@ public class MyActivityLifeCycleCallbacks implements Application.ActivityLifecyc
                 Score score = Score.getInstance();
                 MainActivity.setScore(score.getScore());
             }
+            ServerConnector.getInstance().closeSender();
+            MsgConnector.getInstance().closeSender();
         }
     }
 
