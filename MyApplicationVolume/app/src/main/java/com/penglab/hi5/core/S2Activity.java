@@ -565,15 +565,15 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         }
 
 
-        if (msg.startsWith("Score:")) {
-            Log.e(TAG, "get score: " + msg);
-            int serverScore = Integer.parseInt(msg.split(":")[1].split(" ")[1]);
-            Score score = Score.getInstance();
-            if (score.serverUpdateScore(serverScore)) {
-                updateScoreText();
-            }
-//            initDataBase(Integer.parseInt(msg.split(":")[1].split(" ")[1]));
-        }
+//        if (msg.startsWith("Score:")) {
+//            Log.e(TAG, "get score: " + msg);
+//            int serverScore = Integer.parseInt(msg.split(":")[1].split(" ")[1]);
+//            Score score = Score.getInstance();
+//            if (score.serverUpdateScore(serverScore)) {
+//                updateScoreText();
+//            }
+////            initDataBase(Integer.parseInt(msg.split(":")[1].split(" ")[1]));
+//        }
 
 
 
@@ -764,7 +764,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     break;
 
                 case 7:
-                    updateScoreTextHandler();
+                    //updateScoreTextHandler();
                     break;
 
                 case 8:
@@ -907,7 +907,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //        Intent bgmIntent = new Intent(this, MusicServer.class);
 //        stopService(bgmIntent);
 
-        Score score = Score.getInstance();
+       // Score score = Score.getInstance();
         //setScore(score.getScore());
 
 //        if ((mBoundAgora)){
@@ -1563,7 +1563,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 ifGetRoiPoint = true;
                 isS2Start = true;
                 setButtons();
-                myS2renderer.clearView(isS2Start);
+                myS2renderer.clearView(isS2Start);  //clean view before showing new image
                 myS2GLSurfaceView.requestRender();
 
                 shutFileName();
@@ -1760,12 +1760,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         });
 
 
-        scoreText = new TextView(this);
-        scoreText.setTextColor(Color.YELLOW);
-        scoreText.setText("00000");
-        scoreText.setTypeface(Typeface.DEFAULT_BOLD);
-        scoreText.setLetterSpacing(0.8f);
-        scoreText.setTextSize(15);
+//        scoreText = new TextView(this);
+//        scoreText.setTextColor(Color.YELLOW);
+//        scoreText.setText("00000");
+//        scoreText.setTypeface(Typeface.DEFAULT_BOLD);
+//        scoreText.setLetterSpacing(0.8f);
+//        scoreText.setTextSize(15);
 
 
 
@@ -4699,8 +4699,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         Vector<Integer> segids = new Vector<>();
                                         myS2renderer.setIfPainting(false);
 
-                                        Score scoreInstance = Score.getInstance();
-                                        scoreInstance.drawACurve();
+//                                        Score scoreInstance = Score.getInstance();
+//                                        scoreInstance.drawACurve();
 
                                         if (myS2renderer.getFileType() == MyRenderer.FileType.JPG || myS2renderer.getFileType() == MyRenderer.FileType.PNG)
                                             myS2renderer.add2DCurve(lineDrawed);
@@ -5148,38 +5148,38 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    public static void updateScore() {
-        puiHandler.sendEmptyMessage(7);
-    }
+//    public static void updateScore() {
+//        puiHandler.sendEmptyMessage(7);
+//    }
+//
+//
+//    private void addScore(int s) {
+//        score += s;
+//        updateScoreText();
+//    }
 
-
-    private void addScore(int s) {
-        score += s;
-        updateScoreText();
-    }
-
-    private static void updateScoreText() {
-        puiHandler.sendEmptyMessage(7);
-    }
-
-    private static void updateScoreTextHandler() {
-        Score scoreInstance = Score.getInstance();
-        int score = scoreInstance.getScore();
-        String scoreString;
-        if (score < 10) {
-            scoreString = "0000" + Integer.toString(score);
-        } else if (score >= 10 && score < 100) {
-            scoreString = "000" + Integer.toString(score);
-        } else if (score >= 100 && score < 1000) {
-            scoreString = "00" + Integer.toString(score);
-        } else if (score >= 1000 && score < 10000) {
-            scoreString = "0" + Integer.toString(score);
-        } else {
-            scoreString = Integer.toString(score);
-        }
-        Log.d("UpdateScore", Integer.toString(score) + "   " + scoreString);
-        scoreText.setText(scoreString);
-    }
+//    private static void updateScoreText() {
+//        puiHandler.sendEmptyMessage(7);
+//    }
+//
+//    private static void updateScoreTextHandler() {
+//        Score scoreInstance = Score.getInstance();
+//        int score = scoreInstance.getScore();
+//        String scoreString;
+//        if (score < 10) {
+//            scoreString = "0000" + Integer.toString(score);
+//        } else if (score >= 10 && score < 100) {
+//            scoreString = "000" + Integer.toString(score);
+//        } else if (score >= 100 && score < 1000) {
+//            scoreString = "00" + Integer.toString(score);
+//        } else if (score >= 1000 && score < 10000) {
+//            scoreString = "0" + Integer.toString(score);
+//        } else {
+//            scoreString = Integer.toString(score);
+//        }
+//        Log.d("UpdateScore", Integer.toString(score) + "   " + scoreString);
+//        scoreText.setText(scoreString);
+//    }
 
     public void showAchievementFinished() {
         new XPopup.Builder(S2Context)
