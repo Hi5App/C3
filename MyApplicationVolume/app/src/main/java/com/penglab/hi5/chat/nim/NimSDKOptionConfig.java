@@ -33,7 +33,7 @@ public class NimSDKOptionConfig {
     public static SDKOptions getSDKOptions(Context context) {
 
         SDKOptions options = new SDKOptions();
-        options.appKey = "86a7aa13ac797a95247a03c54ed483b4";
+        options.appKey = "41f5e68ee7c226595dae175eb979061f";
 
 
         // 如果将新消息通知提醒托管给SDK完成，需要添加以下配置。

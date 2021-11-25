@@ -1,7 +1,5 @@
 package com.penglab.hi5.core.ui.login;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -26,7 +24,6 @@ import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -45,9 +42,7 @@ import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.penglab.hi5.R;
 import com.penglab.hi5.chat.nim.InfoCache;
-import com.penglab.hi5.core.MainActivity;
-import com.penglab.hi5.core.SplashScreenActivity;
-import com.penglab.hi5.core.ui.main.screens.HomeActivity;
+import com.penglab.hi5.core.ui.home.screens.HomeActivity;
 import com.penglab.hi5.dataStore.PreferenceLogin;
 
 import java.io.BufferedReader;

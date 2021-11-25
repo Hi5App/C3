@@ -176,7 +176,6 @@ import static java.lang.Math.sqrt;
 //import com.penglab.hi5.chat.agora.message.AgoraMsgManager;
 import com.michaldrabik.tapbarmenulib.TapBarMenu;
 
-import org.jetbrains.annotations.NotNull;
 
 public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static final String TAG = "MainActivity";

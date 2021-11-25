@@ -31,7 +31,7 @@ import com.penglab.hi5.core.collaboration.connector.ServerConnector;
 import com.penglab.hi5.core.collaboration.service.BasicService;
 import com.penglab.hi5.core.collaboration.service.ManageService;
 import com.penglab.hi5.core.ui.login.LoginActivity;
-import com.penglab.hi5.core.ui.main.screens.HomeActivity;
+import com.penglab.hi5.core.ui.home.screens.HomeActivity;
 import com.penglab.hi5.dataStore.PreferenceLogin;
 
 import java.io.File;

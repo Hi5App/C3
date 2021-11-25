@@ -1,21 +1,17 @@
-package com.penglab.hi5.core.ui.main.screens;
+package com.penglab.hi5.core.ui.home.screens;
 
 import static com.penglab.hi5.core.MainActivity.ifGuestLogin;
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 
 import android.app.AlertDialog;
-import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -33,12 +29,9 @@ import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.penglab.hi5.R;
 import com.penglab.hi5.core.HelpActivity;
-import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.ui.login.LoginActivity;
-import com.penglab.hi5.core.ui.main.adapters.MainPagerAdapter;
+import com.penglab.hi5.core.ui.home.adapters.MainPagerAdapter;
 import com.penglab.hi5.dataStore.PreferenceLogin;
-
-import org.jetbrains.annotations.NotNull;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -51,7 +44,7 @@ public class HomeActivity extends AppCompatActivity {
     private int mSelectedItem = 0;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
-    private static Context homeContext;
+    private Context homeContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +81,7 @@ public class HomeActivity extends AppCompatActivity {
         }
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem item) {
+            public boolean onNavigationItemSelected(MenuItem item) {
                 mSelectedItem = item.getItemId();
                 switch(item.getItemId()){
                     case R.id.nav_account:
@@ -263,10 +256,6 @@ public class HomeActivity extends AppCompatActivity {
                 .setCancelText("Cancel")
                 .setConfirmText("Confirm")
                 .show();
-    }
-
-    private void Settings(){
-
     }
 
 

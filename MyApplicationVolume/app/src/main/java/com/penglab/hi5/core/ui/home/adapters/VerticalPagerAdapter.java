@@ -1,4 +1,4 @@
-package com.penglab.hi5.core.ui.main.adapters;
+package com.penglab.hi5.core.ui.home.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,9 +7,9 @@ import android.view.ViewGroup;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.penglab.hi5.R;
-import com.penglab.hi5.core.ui.main.utils.Utils;
+import com.penglab.hi5.core.ui.home.utils.Utils;
 
-import static com.penglab.hi5.core.ui.main.utils.Utils.setupItem;
+import static com.penglab.hi5.core.ui.home.utils.Utils.setupItem;
 
 /**
  * Created by GIGAMOLE on 7/27/16.
