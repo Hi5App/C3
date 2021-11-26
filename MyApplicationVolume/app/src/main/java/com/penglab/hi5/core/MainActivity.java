@@ -4319,6 +4319,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
                     @Override
                     public void operate(View contentView) {
+
                         Switch downsample_on_off = contentView.findViewById(R.id.switch_rotation_mode);
                         IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
                         TextView clean_cache = contentView.findViewById(R.id.clean_cache);
