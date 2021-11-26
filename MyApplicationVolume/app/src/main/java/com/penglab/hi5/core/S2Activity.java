@@ -382,6 +382,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     public static boolean firstLoad = true;
     private boolean firstJoinRoom = true;
     private boolean copyFile = false;
+    private boolean  ifgetTest = false;
 
     private int score = 0;
     private String scoreString = "00000";
@@ -434,6 +435,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
             Toast_in_Thread("Connect to scope successfully!");
             Log.e(TAG, "s2start:()  " + msg);
+            ifgetTest=true;
         }
 
 
@@ -3915,7 +3917,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
     private void s2initialization() {
-      //  boolean[] downsample = new boolean[1];
+        boolean[] isif_flag = new boolean[3];
+
 
         MDDialog.Builder builder = new MDDialog.Builder(this);
         builder.setContentView(R.layout.s2initialization);
@@ -3936,6 +3939,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 boolean ifConnect_Scope = s2paraSetting.getConnect_ScopeMode();
                 boolean ifSmart_Control = s2paraSetting.getSmart_ControlMode();
 
+
+
                 int ParaXY = s2paraSetting.getParaXY();
                 int ParaZ = s2paraSetting.getParaZ();
 
@@ -3954,6 +3959,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                           boolean ifConnect_Server=ServerConnector.getInstance().sendMsg("test!");
                           Log.e(TAG, "ifConnect_Server: " +ifConnect_Server);
                           Connect_Server.setChecked(ifConnect_Server);
+                          isif_flag[0]=ifConnect_Server;
+
                     }
                 });
 
@@ -3962,14 +3969,21 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         boolean ifConnect_Scope=ServerConnector.getInstance().sendMsg("test:");
                         Log.e(TAG, "ifConnect_Scope: " +ifConnect_Scope);
-                        Connect_Scope.setChecked(!ifConnect_Scope);
+
+                        Connect_Scope.setChecked(ifgetTest);
+                        isif_flag[1]=ifConnect_Scope;
+
                     }
                 });
 
                 Start_smart_control.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        Log.e(TAG, "Start_smart_control: ");
 
+                        Start_smart_control.setChecked(ifSmart_Control);
+
+                        isif_flag[2]=ifSmart_Control;
                     }
                 });
 //
@@ -4000,69 +4014,22 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             public void onClick(View clickedView, View contentView) {
 
 
-//                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
-//                        int contrast = seekbar.getProgress();
-//
-//                        myS2renderer.setIfNeedDownSample(downsample[0]);
-//                        myS2renderer.resetContrast(contrast);
-//
-//                        Log.v(TAG, "downsample: " + downsample[0] + ",contrast: " + contrast);
-//                        preferenceSetting.setPref(downsample[0], contrast);
-//                        myS2GLSurfaceView.requestRender();
 
-//                        SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
-//                        SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
-//                        SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
-//
-//                        bgmVolume = (float) (bgmVolumeBar.getProgress()) / 100.0f;
-//                        buttonVolume = (float) (buttonVolumeBar.getProgress()) / 100.0f;
-//                        actionVolume = (float) (actionVolumeBar.getProgress()) / 100.0f;
 
-//                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
-//                        String selected = bgmSpinner.getSelectedItem().toString();
-//                        if (selectedBGM != bgmSpinner.getSelectedItemPosition()) {
-////                            if (selected.equals("BGM1"))
-////                              //  MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
-////
-////                            else if (selected.equals("BGM2"))
-////                              //  MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/DelRioBravo.mp3");
-////
-////                            else
-////                              //  MusicServer.defaultBgmSource();
-//
-//                            selectedBGM = bgmSpinner.getSelectedItemPosition();
-//
-//                        }
 
-//                        MusicServer.setBgmVolume(bgmVolume);
-//                        MusicServer.setVolume(bgmVolume);
 
-//                        String settingsPath = context.getExternalFilesDir(null).toString() + "/Settings";
-//                        File settingsFile = new File(settingsPath);
-//                        if (!settingsFile.exists()) {
-//                            settingsFile.mkdir();
-//                        }
-//
-//                        String volumePath = settingsPath + "/volume.txt";
-//                        File volumeFile = new File(volumePath);
-//                        if (!volumeFile.exists()) {
-//                            try {
-//                                volumeFile.createNewFile();
-//                            } catch (IOException e) {
-//                                e.printStackTrace();
-//                            }
-//                        }
-//
-//                        try {
-//                            BufferedWriter volumeWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(volumeFile)));
-//                            volumeWriter.write(Float.toString(bgmVolume) + " " + Float.toString(buttonVolume) + " " + Float.toString(actionVolume));
-//                            volumeWriter.flush();
-//                            volumeWriter.close();
-//                        } catch (FileNotFoundException e) {
-//                            e.printStackTrace();
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
+                          IndicatorSeekBar indicator_XY = contentView.findViewById(R.id.indicator_XY_seekbar);
+                          int XY_Per_Step = indicator_XY.getProgress();
+
+                          IndicatorSeekBar indicator_Z = contentView.findViewById(R.id.indicator_Z_seekbar);
+                          int Z_Per_Step = indicator_Z.getProgress();
+
+                          s2paraSetting.setPara(isif_flag[0],isif_flag[1],isif_flag[2],XY_Per_Step,Z_Per_Step);
+
+
+                          Log.v(TAG, "indicator_XY: " + XY_Per_Step + ",indicator_Z: " + Z_Per_Step);
+
+
 
                 Toast_in_Thread("Confirm down!");
             }
