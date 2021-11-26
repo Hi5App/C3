@@ -3919,6 +3919,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private void s2initialization() {
         boolean[] isif_flag = new boolean[3];
 
+        isif_flag[0]=false;
+        isif_flag[1]=false;
+        isif_flag[2]=false;
 
         MDDialog.Builder builder = new MDDialog.Builder(this);
         builder.setContentView(R.layout.s2initialization);
@@ -3981,7 +3984,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         Log.e(TAG, "Start_smart_control: ");
 
-                        Start_smart_control.setChecked(ifSmart_Control);
+                        //Start_smart_control.setChecked(ifSmart_Control);
 
                         isif_flag[2]=ifSmart_Control;
                     }
