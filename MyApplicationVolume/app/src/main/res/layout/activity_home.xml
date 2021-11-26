@@ -6,7 +6,7 @@
     android:id="@+id/drawer_layout"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    tools:context=".core.ui.main.screens.HomeActivity"
+    tools:context=".core.ui.home.screens.HomeActivity"
     tools:openDrawer="start">
 
     <com.google.android.material.navigation.NavigationView
@@ -58,7 +58,7 @@
                     android:layout_height="match_parent"
                     android:background="@drawable/bg_main">
 
-                    <com.penglab.hi5.core.ui.main.utils.NonScrollableViewPager
+                    <com.penglab.hi5.core.ui.home.utils.NonScrollableViewPager
                         android:id="@+id/vp_main"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"/>

@@ -1,6 +1,6 @@
-package com.penglab.hi5.core.ui.main.utils;
+package com.penglab.hi5.core.ui.home.utils;
 
-import static com.penglab.hi5.core.ui.main.screens.HomeActivity.username;
+import static com.penglab.hi5.core.ui.home.screens.HomeActivity.username;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.penglab.hi5.R;
 import com.penglab.hi5.core.HelpActivity;

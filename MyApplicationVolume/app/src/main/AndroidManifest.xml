@@ -119,7 +119,7 @@
             android:windowSoftInputMode="adjustPan">
 
         </activity>
-        <activity android:name="com.penglab.hi5.core.ui.main.screens.HomeActivity">
+        <activity android:name="com.penglab.hi5.core.ui.home.screens.HomeActivity">
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.MAIN" />-->
 <!--                <category android:name="android.intent.category.LAUNCHER" />-->

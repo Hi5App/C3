@@ -1,4 +1,4 @@
-package com.penglab.hi5.core.ui.main.utils;
+package com.penglab.hi5.core.ui.home.utils;
 
 import android.content.Context;
 import android.util.AttributeSet;

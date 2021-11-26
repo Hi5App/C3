@@ -1,4 +1,4 @@
-package com.penglab.hi5.core.ui.main.screens;
+package com.penglab.hi5.core.ui.home.screens;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment;
 
 import com.gigamole.infinitecycleviewpager.VerticalInfiniteCycleViewPager;
 import com.penglab.hi5.R;
-import com.penglab.hi5.core.ui.main.adapters.VerticalPagerAdapter;
+import com.penglab.hi5.core.ui.home.adapters.VerticalPagerAdapter;
 
 /**
  * Created by GIGAMOLE on 8/18/16.

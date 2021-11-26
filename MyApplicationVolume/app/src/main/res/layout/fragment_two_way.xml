@@ -5,7 +5,7 @@
              android:layout_height="match_parent"
              android:clipChildren="false">
 
-    <com.penglab.hi5.core.ui.main.utils.SquareFrameLayout
+    <com.penglab.hi5.core.ui.home.utils.SquareFrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -23,6 +23,6 @@
             app:icvp_min_page_scale="0.7"
             app:icvp_min_page_scale_offset="0dp"/>
 
-    </com.penglab.hi5.core.ui.main.utils.SquareFrameLayout>
+    </com.penglab.hi5.core.ui.home.utils.SquareFrameLayout>
 
 </FrameLayout>

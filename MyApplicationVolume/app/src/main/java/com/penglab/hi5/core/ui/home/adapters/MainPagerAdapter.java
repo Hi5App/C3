@@ -1,11 +1,11 @@
-package com.penglab.hi5.core.ui.main.adapters;
+package com.penglab.hi5.core.ui.home.adapters;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
-import com.penglab.hi5.core.ui.main.screens.HorizontalPagerFragment;
-import com.penglab.hi5.core.ui.main.screens.TwoWayPagerFragment;
+import com.penglab.hi5.core.ui.home.screens.HorizontalPagerFragment;
+import com.penglab.hi5.core.ui.home.screens.TwoWayPagerFragment;
 
 /**
  * Created by GIGAMOLE on 8/18/16.
