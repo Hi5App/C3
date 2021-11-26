@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.penglab.hi5.dataStore.DataManager;
 import com.penglab.hi5.dataStore.PreferenceSetting;
+import com.penglab.hi5.dataStore.S2paraSetting;
 
 import java.io.File;
 
@@ -20,6 +21,7 @@ public class BaseActivity extends AppCompatActivity {
 
     protected DataManager dataManager;
     protected PreferenceSetting preferenceSetting;
+    protected S2paraSetting s2paraSetting;
     protected static Context context;
 
     public static final String ip_SEU = "223.3.33.234";
@@ -35,6 +37,7 @@ public class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         dataManager = new DataManager(this);
         preferenceSetting = new PreferenceSetting(this);
+        s2paraSetting = new S2paraSetting(this);
         context = getApplicationContext();
         Log.v("BaseActivity","onCreate()");
         ActivityCollector.addActivity(this);

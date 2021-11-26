@@ -414,12 +414,69 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         }
 
         if (msg.startsWith("s2start:")) {
-            // loadBigDataImg(msg.split(":")[1]);
+
+            if(msg.endsWith("scan on"))
+            {
+                Toast_in_Thread("scope scan on!");
+                Log.e(TAG, "scope scan on!!" );
+            }else if (msg.endsWith("scan off"))
+            {
+                Toast_in_Thread("scope scan off!");
+                Log.e(TAG, "scope scan off!!" );
+            }
+
             Log.e(TAG, "s2start:()  " + msg);
-            // Log.e(TAG,"s2start:()  " + msg.split(":")[1]);
+
 
         }
 
+        if (msg.startsWith("test:")) {
+
+            Toast_in_Thread("Connect to scope successfully!");
+            Log.e(TAG, "s2start:()  " + msg);
+        }
+
+
+
+
+
+        if (msg.startsWith("s2_move:")) {
+            // loadBigDataImg(msg.split(":")[1]);
+
+
+            Log.e(TAG, "s2_move:" );
+            if (msg.endsWith("X")) {
+                Toast_in_Thread("Stage X is out of max range!");
+                Log.e(TAG, "s2_move:Stage X is out of max range!" );
+            } else if (msg.endsWith("Y")) {
+                Toast_in_Thread("Stage Y is out of max range!");
+                Log.e(TAG, "s2_move:Stage Y is out of max range!" );
+            } else if (msg.endsWith("Z")) {
+                Toast_in_Thread("Stage Z is out of max range!");
+                Log.e(TAG, "s2_move:Stage Z is out of max range!" );
+            }
+        }
+
+
+        if(msg.startsWith("ZScan:"))
+        {
+            if (msg.endsWith("ZStart")) {
+                Toast_in_Thread("ZScan first img has been set up!");
+                Log.e(TAG, "ZScan first img has been set up!" );
+            } else if (msg.endsWith("ZStop")) {
+                Toast_in_Thread("ZScan last img has been set up!");
+                Log.e(TAG, "ZScan last img has been set up!" );
+            } else if (msg.endsWith("Zslicesize1")) {
+                Toast_in_Thread("ZScan Zslicesize1 has been set up!");
+                Log.e(TAG, "ZScan Zslicesize1 has been set up!" );
+            }else if (msg.endsWith("start")) {
+                Toast_in_Thread("ZScan on!");
+                Log.e(TAG, "ZScan on!" );
+            }
+        }
+
+
+//unused!
         if (msg.startsWith("stagePos:")) {
             // loadBigDataImg(msg.split(":")[1]);
             String msgs = msg.split(":")[1];
@@ -439,6 +496,29 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             // Log.e(TAG,"s2start:()  " + msg.split(":")[1]);
 
         }
+
+        if (msg.startsWith("GetPos:")) {
+            // loadBigDataImg(msg.split(":")[1]);
+            String msgs = msg.split(":")[1];
+            String msgx = msgs.split(" ")[0];
+            String msgy = msgs.split(" ")[1];
+            String msgz = msgs.split(" ")[2];
+
+            Log.e(TAG, "XstagePos:" + msgx);
+            Log.e(TAG, "YstagePos:" + msgy);
+            Log.e(TAG, "ZstagePos:" + msgz);
+
+            x_pos_Text.setText(msgx);
+            y_pos_Text.setText(msgy);
+            z_pos_Text.setText(msgz);
+
+
+
+            // Log.e(TAG,"s2start:()  " + msg.split(":")[1]);
+
+        }
+
+
         if (msg.startsWith("File:")) {
             if (msg.endsWith(".jpg")) {
 
@@ -868,7 +948,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         initServerConnector();
         initService();
 
-
+        s2initialization();
 
 
         /*
@@ -1570,7 +1650,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 ServerConnector.getInstance().sendMsg("s2start:");
                 //ServerConnector.getInstance().sendMsg("s2start:");
 
-
+                //Toast_in_Thread("scope scan off!");
             }
         });
 
@@ -3834,63 +3914,229 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
+    private void s2initialization() {
+      //  boolean[] downsample = new boolean[1];
+
+        MDDialog.Builder builder = new MDDialog.Builder(this);
+        builder.setContentView(R.layout.s2initialization);
+        builder.setContentViewOperator(new MDDialog.ContentViewOperator() {
+            @Override
+            public void operate(View contentView) {
+
+
+                Switch Connect_Server = contentView.findViewById(R.id.Connect_Server_mode);
+                Switch Connect_Scope = contentView.findViewById(R.id.Connect_Scope_mode);
+                TextView clean_S2_cache = contentView.findViewById(R.id.clean_S2_cache);
+                IndicatorSeekBar indicator_XY = contentView.findViewById(R.id.indicator_XY_seekbar);
+                IndicatorSeekBar indicator_Z = contentView.findViewById(R.id.indicator_Z_seekbar);
+                Switch Start_smart_control = contentView.findViewById(R.id.Start_smart_control_mode);
+
+
+                boolean ifConnect_Server = s2paraSetting.getConnect_ServerMode();
+                boolean ifConnect_Scope = s2paraSetting.getConnect_ScopeMode();
+                boolean ifSmart_Control = s2paraSetting.getSmart_ControlMode();
+
+                int ParaXY = s2paraSetting.getParaXY();
+                int ParaZ = s2paraSetting.getParaZ();
+
+                Connect_Server.setChecked(ifConnect_Server);
+                Connect_Scope.setChecked(ifConnect_Scope);
+                Start_smart_control.setChecked(ifSmart_Control);
+
+
+                indicator_XY.setProgress(ParaXY);
+                indicator_Z.setProgress(ParaZ);
+
+
+                Connect_Server.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                          boolean ifConnect_Server=ServerConnector.getInstance().sendMsg("test!");
+                          Log.e(TAG, "ifConnect_Server: " +ifConnect_Server);
+                          Connect_Server.setChecked(ifConnect_Server);
+                    }
+                });
+
+                Connect_Scope.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        boolean ifConnect_Scope=ServerConnector.getInstance().sendMsg("test:");
+                        Log.e(TAG, "ifConnect_Scope: " +ifConnect_Scope);
+                        Connect_Scope.setChecked(!ifConnect_Scope);
+                    }
+                });
+
+                Start_smart_control.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                    }
+                });
+//
+//
+                clean_S2_cache.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast_in_Thread("clean_cache setting!");
+                    }
+                });
+
+            }
+        });
+        builder.setNegativeButton("Cancel", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast_in_Thread("Cancel setting!");
+            }
+        });
+        builder.setPositiveButton("Confirm", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast_in_Thread("Confirm setting!");
+            }
+        });
+        builder.setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+            @Override
+            public void onClick(View clickedView, View contentView) {
+
+
+//                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
+//                        int contrast = seekbar.getProgress();
+//
+//                        myS2renderer.setIfNeedDownSample(downsample[0]);
+//                        myS2renderer.resetContrast(contrast);
+//
+//                        Log.v(TAG, "downsample: " + downsample[0] + ",contrast: " + contrast);
+//                        preferenceSetting.setPref(downsample[0], contrast);
+//                        myS2GLSurfaceView.requestRender();
+
+//                        SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
+//                        SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
+//                        SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
+//
+//                        bgmVolume = (float) (bgmVolumeBar.getProgress()) / 100.0f;
+//                        buttonVolume = (float) (buttonVolumeBar.getProgress()) / 100.0f;
+//                        actionVolume = (float) (actionVolumeBar.getProgress()) / 100.0f;
+
+//                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
+//                        String selected = bgmSpinner.getSelectedItem().toString();
+//                        if (selectedBGM != bgmSpinner.getSelectedItemPosition()) {
+////                            if (selected.equals("BGM1"))
+////                              //  MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
+////
+////                            else if (selected.equals("BGM2"))
+////                              //  MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/DelRioBravo.mp3");
+////
+////                            else
+////                              //  MusicServer.defaultBgmSource();
+//
+//                            selectedBGM = bgmSpinner.getSelectedItemPosition();
+//
+//                        }
+
+//                        MusicServer.setBgmVolume(bgmVolume);
+//                        MusicServer.setVolume(bgmVolume);
+
+//                        String settingsPath = context.getExternalFilesDir(null).toString() + "/Settings";
+//                        File settingsFile = new File(settingsPath);
+//                        if (!settingsFile.exists()) {
+//                            settingsFile.mkdir();
+//                        }
+//
+//                        String volumePath = settingsPath + "/volume.txt";
+//                        File volumeFile = new File(volumePath);
+//                        if (!volumeFile.exists()) {
+//                            try {
+//                                volumeFile.createNewFile();
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+//
+//                        try {
+//                            BufferedWriter volumeWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(volumeFile)));
+//                            volumeWriter.write(Float.toString(bgmVolume) + " " + Float.toString(buttonVolume) + " " + Float.toString(actionVolume));
+//                            volumeWriter.flush();
+//                            volumeWriter.close();
+//                        } catch (FileNotFoundException e) {
+//                            e.printStackTrace();
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+
+                Toast_in_Thread("Confirm down!");
+            }
+        });
+        builder.setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+            @Override
+            public void onClick(View clickedView, View contentView) {
+                Toast_in_Thread("Cancel down!");
+            }
+        });
+        builder.setTitle("S2 Initialization");
+        MDDialog mdDialog = builder
+                .create();
+        mdDialog.show();
+    }
+
+
     private void setSettings() {
-        boolean[] downsample = new boolean[1];
+        //  boolean[] downsample = new boolean[1];
 
         MDDialog mdDialog = new MDDialog.Builder(this)
-                .setContentView(R.layout.settings)
+                .setContentView(R.layout.s2settings)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
                     @Override
                     public void operate(View contentView) {
-                        Switch downsample_on_off = contentView.findViewById(R.id.switch_rotation_mode);
-                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
-                        TextView clean_cache = contentView.findViewById(R.id.clean_cache);
-                        SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
-                        SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
-                        SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
-                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
-
-                        boolean ifDownSample = preferenceSetting.getDownSampleMode();
-                        int contrast = preferenceSetting.getContrast();
-
-                        downsample_on_off.setChecked(ifDownSample);
-                        seekbar.setProgress(contrast);
-                        bgmVolumeBar.setProgress((int) (bgmVolume * 100));
-                        buttonVolumeBar.setProgress((int) (buttonVolume * 100));
-                        actionVolumeBar.setProgress((int) (actionVolume * 100));
-
-                        RewardLitePalConnector rewardLitePalConnector = RewardLitePalConnector.getInstance();
-                        List<Integer> rewards = rewardLitePalConnector.getRewards();
-                        List<String> list = new ArrayList<>();
-                        list.add("BGM0");
-                        for (int i = 0; i < rewards.size(); i++) {
-                            if (rewards.get(i) == 1)
-                                list.add("BGM" + Integer.toString(i + 1));
-                        }
-                        String[] spinnerItems = new String[list.size()];
-                        for (int i = 0; i < list.size(); i++) {
-                            spinnerItems[i] = list.get(i);
-                        }
-
-
-                        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(S2Context, R.layout.support_simple_spinner_dropdown_item, spinnerItems);
-                        bgmSpinner.setAdapter(spinnerAdapter);
-                        bgmSpinner.setSelection(selectedBGM);
-
-                        downsample[0] = downsample_on_off.isChecked();
-
-                        downsample_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                            @Override
-                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                downsample[0] = isChecked;
-                            }
-                        });
-
-
-                        clean_cache.setOnClickListener(new View.OnClickListener() {
+//                        //Switch downsample_on_off = contentView.findViewById(R.id.switch_rotation_mode);
+//                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
+                        TextView clean_S2_cache = contentView.findViewById(R.id.clean_S2_1cache);
+//                        SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
+//                        SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
+//                        SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
+//                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
+//
+//                        boolean ifDownSample = preferenceSetting.getDownSampleMode();
+//                        int contrast = preferenceSetting.getContrast();
+//
+//                        //downsample_on_off.setChecked(ifDownSample);
+//                        seekbar.setProgress(contrast);
+//                        bgmVolumeBar.setProgress((int) (bgmVolume * 100));
+//                        buttonVolumeBar.setProgress((int) (buttonVolume * 100));
+//                        actionVolumeBar.setProgress((int) (actionVolume * 100));
+//
+//                        RewardLitePalConnector rewardLitePalConnector = RewardLitePalConnector.getInstance();
+//                        List<Integer> rewards = rewardLitePalConnector.getRewards();
+//                        List<String> list = new ArrayList<>();
+//                        list.add("BGM0");
+//                        for (int i = 0; i < rewards.size(); i++) {
+//                            if (rewards.get(i) == 1)
+//                                list.add("BGM" + Integer.toString(i + 1));
+//                        }
+//                        String[] spinnerItems = new String[list.size()];
+//                        for (int i = 0; i < list.size(); i++) {
+//                            spinnerItems[i] = list.get(i);
+//                        }
+//
+//
+//                        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(S2Context, R.layout.support_simple_spinner_dropdown_item, spinnerItems);
+//                        bgmSpinner.setAdapter(spinnerAdapter);
+//                        bgmSpinner.setSelection(selectedBGM);
+//
+//                       // downsample[0] = downsample_on_off.isChecked();
+//
+////                        downsample_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+////                            @Override
+////                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+////                                downsample[0] = isChecked;
+////                            }
+////                        });
+//
+//
+                        clean_S2_cache.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                cleanCache();
+                                Toast_in_Thread("clean_cache setting!");
                             }
                         });
 
@@ -3899,95 +4145,96 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 .setNegativeButton("Cancel", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        //Toast_in_Thread("Cancel setting!");
                     }
                 })
                 .setPositiveButton("Confirm", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        //Toast_in_Thread("Confirm setting!");
                     }
                 })
                 .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
                     @Override
                     public void onClick(View clickedView, View contentView) {
-                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
-                        int contrast = seekbar.getProgress();
-
-                        myS2renderer.setIfNeedDownSample(downsample[0]);
-                        myS2renderer.resetContrast(contrast);
-
-                        Log.v(TAG, "downsample: " + downsample[0] + ",contrast: " + contrast);
-                        preferenceSetting.setPref(downsample[0], contrast);
-                        myS2GLSurfaceView.requestRender();
-
-                        SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
-                        SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
-                        SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
-
-                        bgmVolume = (float) (bgmVolumeBar.getProgress()) / 100.0f;
-                        buttonVolume = (float) (buttonVolumeBar.getProgress()) / 100.0f;
-                        actionVolume = (float) (actionVolumeBar.getProgress()) / 100.0f;
-
-                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
-                        String selected = bgmSpinner.getSelectedItem().toString();
-                        if (selectedBGM != bgmSpinner.getSelectedItemPosition()) {
-//                            if (selected.equals("BGM1"))
-//                              //  MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
+//                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
+//                        int contrast = seekbar.getProgress();
 //
-//                            else if (selected.equals("BGM2"))
-//                              //  MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/DelRioBravo.mp3");
+//                        myS2renderer.setIfNeedDownSample(downsample[0]);
+//                        myS2renderer.resetContrast(contrast);
 //
-//                            else
-//                              //  MusicServer.defaultBgmSource();
+//                        Log.v(TAG, "downsample: " + downsample[0] + ",contrast: " + contrast);
+//                        preferenceSetting.setPref(downsample[0], contrast);
+//                        myS2GLSurfaceView.requestRender();
 
-                            selectedBGM = bgmSpinner.getSelectedItemPosition();
+//                        SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
+//                        SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
+//                        SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
+//
+//                        bgmVolume = (float) (bgmVolumeBar.getProgress()) / 100.0f;
+//                        buttonVolume = (float) (buttonVolumeBar.getProgress()) / 100.0f;
+//                        actionVolume = (float) (actionVolumeBar.getProgress()) / 100.0f;
 
-                        }
+//                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
+//                        String selected = bgmSpinner.getSelectedItem().toString();
+//                        if (selectedBGM != bgmSpinner.getSelectedItemPosition()) {
+////                            if (selected.equals("BGM1"))
+////                              //  MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
+////
+////                            else if (selected.equals("BGM2"))
+////                              //  MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/DelRioBravo.mp3");
+////
+////                            else
+////                              //  MusicServer.defaultBgmSource();
+//
+//                            selectedBGM = bgmSpinner.getSelectedItemPosition();
+//
+//                        }
 
 //                        MusicServer.setBgmVolume(bgmVolume);
 //                        MusicServer.setVolume(bgmVolume);
 
-                        String settingsPath = context.getExternalFilesDir(null).toString() + "/Settings";
-                        File settingsFile = new File(settingsPath);
-                        if (!settingsFile.exists()) {
-                            settingsFile.mkdir();
-                        }
+//                        String settingsPath = context.getExternalFilesDir(null).toString() + "/Settings";
+//                        File settingsFile = new File(settingsPath);
+//                        if (!settingsFile.exists()) {
+//                            settingsFile.mkdir();
+//                        }
+//
+//                        String volumePath = settingsPath + "/volume.txt";
+//                        File volumeFile = new File(volumePath);
+//                        if (!volumeFile.exists()) {
+//                            try {
+//                                volumeFile.createNewFile();
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+//
+//                        try {
+//                            BufferedWriter volumeWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(volumeFile)));
+//                            volumeWriter.write(Float.toString(bgmVolume) + " " + Float.toString(buttonVolume) + " " + Float.toString(actionVolume));
+//                            volumeWriter.flush();
+//                            volumeWriter.close();
+//                        } catch (FileNotFoundException e) {
+//                            e.printStackTrace();
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
 
-                        String volumePath = settingsPath + "/volume.txt";
-                        File volumeFile = new File(volumePath);
-                        if (!volumeFile.exists()) {
-                            try {
-                                volumeFile.createNewFile();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        try {
-                            BufferedWriter volumeWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(volumeFile)));
-                            volumeWriter.write(Float.toString(bgmVolume) + " " + Float.toString(buttonVolume) + " " + Float.toString(actionVolume));
-                            volumeWriter.flush();
-                            volumeWriter.close();
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-
+                        Toast_in_Thread("Confirm down!");
                     }
                 })
                 .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
                     @Override
                     public void onClick(View clickedView, View contentView) {
-
+                        Toast_in_Thread("Cancel down!");
                     }
                 })
-                .setTitle("Settings")
+                .setTitle("s2settings")
                 .create();
         mdDialog.show();
     }
+
 
 
     public void cleanCache() {
