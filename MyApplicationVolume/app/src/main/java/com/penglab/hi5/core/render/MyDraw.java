@@ -465,7 +465,6 @@ public class MyDraw {
                 .asFloatBuffer();
         colorBuffer_marker.put(colorPoints_marker);
         colorBuffer_marker.position(0);
-
     }
 
     private void BufferSet_Marker_Vertex(float r){
@@ -776,7 +775,7 @@ public class MyDraw {
 
         GLES30.glLineWidth(3);
 
-        GLES30.glDrawArrays(GLES30.GL_LINE_STRIP, 0, line.length/3);
+        GLES30.glDrawArrays(GLES30.GL_LINES, 0, line.length/3);
 
         //禁止顶点数组的句柄
         GLES30.glDisableVertexAttribArray(0);

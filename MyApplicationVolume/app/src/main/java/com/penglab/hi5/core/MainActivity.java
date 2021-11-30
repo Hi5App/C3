@@ -95,6 +95,12 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.uinfo.UserService;
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
+import com.nightonke.boommenu.BoomButtons.ButtonPlaceEnum;
+import com.nightonke.boommenu.BoomButtons.SimpleCircleButton;
+import com.nightonke.boommenu.BoomMenuButton;
+import com.nightonke.boommenu.ButtonEnum;
+import com.nightonke.boommenu.Piece.PiecePlaceEnum;
+import com.nightonke.boommenu.Util;
 import com.penglab.hi5.R;
 import com.penglab.hi5.basic.LocationSimple;
 import com.penglab.hi5.basic.NeuronTree;
@@ -1909,7 +1915,17 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
         });
 
+        BoomMenuButton bmb = (BoomMenuButton) findViewById(R.id.expanded_menu);
+        bmb.setButtonEnum(ButtonEnum.SimpleCircle);
+        bmb.setPiecePlaceEnum(PiecePlaceEnum.DOT_3_1);
+        bmb.setButtonPlaceEnum(ButtonPlaceEnum.SC_3_3);
+        bmb.setButtonRadius(Util.dp2px(15));
+        bmb.setBackgroundEffect(false);
+        bmb.setShadowEffect(false);
 
+        for (int i = 0; i < bmb.getButtonPlaceEnum().buttonNumber(); i++) {
+            bmb.addBuilder(new SimpleCircleButton.Builder().normalImageRes(R.drawable.ic_clear));
+        }
 
 
 
@@ -3325,7 +3341,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 ToastEasy(error);
                             }
                         } else{
-                            ToastEasy("save Annotation to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG);
+
+                            ToastEasy("save annotation information to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG);
                         }
                     }
                 })
@@ -3334,7 +3351,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     public void onClick(View clickedView, View contentView) {
                     }
                 })
-                .setTitle("Save Annotation")
+
+                .setTitle("Save Annotation File")
                 .create();
         mdDialog.show();
     }
@@ -5322,19 +5340,17 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 float x2 = toOpenGLCoord(this, motionEvent.getX(1), true);
                                 float y2 = toOpenGLCoord(this, motionEvent.getY(1), false);
 
-//                            float x2=motionEvent.getX(1);
-//                            float y2=motionEvent.getY(1);
                                 double dis = computeDis(normalizedX, x2, normalizedY, y2);
                                 double scale = dis / dis_start;
-//                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker) {
+
                                 myrenderer.zoom((float) scale);
-//                            }
+
                                 float dis_x = x2 - normalizedX;
                                 float dis_y = y2 - normalizedY;
                                 float ave_x = (x2 - x1_start + normalizedX - x0_start) / 2;
                                 float ave_y = (y2 - y1_start + normalizedY - y0_start) / 2;
                                 if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
-                                    if (myrenderer.getIfDownSampling() == false)
+                                    if (!myrenderer.getIfDownSampling())
                                         myrenderer.setIfDownSampling(true);
                                 }
 //                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker){
@@ -5355,7 +5371,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             } else if (!isZooming){
                                 if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker && !ifChangeMarkerType && !ifDeletingMultiMarker && !ifSettingROI) {
                                     if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
-                                        if (myrenderer.getIfDownSampling() == false)
+                                        if (!myrenderer.getIfDownSampling())
                                             myrenderer.setIfDownSampling(true);
                                     }
                                     myrenderer.rotate(normalizedX - X, normalizedY - Y, (float) (computeDis(normalizedX, X, normalizedY, Y)));

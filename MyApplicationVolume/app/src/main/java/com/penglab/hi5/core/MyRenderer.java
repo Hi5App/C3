@@ -498,6 +498,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                      */
                     if (curSwcList.nsegs() > 0) {
                         ArrayList<Float> lines = new ArrayList<Float>();
+                        int type = 0;
                         for (int i = 0; i < curSwcList.seg.size(); i++) {
                             V_NeuronSWC seg = curSwcList.seg.get(i);
                             Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
@@ -518,7 +519,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                         float y = (float) child.y;
                                         float z = (float) child.z;
                                         float[] position = volumetoModel(new float[]{x, y, z});
-//                                        Log.d(TAG, "drawSplitPoints: " + x + " " + y + " " + z);
                                         myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int) child.type);
                                     }
                                     continue;
@@ -527,31 +527,30 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                 if (parent == null){
                                     continue;
                                 }
-//                                Log.d(TAG, "lines.add: " + parent.x + " " + parent.y + " " + parent.z + " " + child.x + " " + child.y + " " + child.z);
                                 lines.add((float) ((sz[0] - parent.x) / sz[0] * mz[0]));
                                 lines.add((float) ((sz[1] - parent.y) / sz[1] * mz[1]));
                                 lines.add((float) ((parent.z) / sz[2] * mz[2]));
                                 lines.add((float) ((sz[0] - child.x) / sz[0] * mz[0]));
                                 lines.add((float) ((sz[1] - child.y) / sz[1] * mz[1]));
                                 lines.add((float) ((child.z) / sz[2] * mz[2]));
-
-                                myDraw.drawLine(finalMatrix, lines, (int) parent.type);
-                                if (ifGame) {
-                                    float x = lines.get(0) / mz[0] - 0.5f;
-                                    float y = lines.get(1) / mz[1] - 0.5f;
-                                    float z = lines.get(2) / mz[2] - 0.5f;
-                                    if (Math.sqrt((double)(x * x + y * y + z * z)) < 1) {
-                                        myDraw.drawLine(finalSmallMapMatrix, lines, (int) parent.type);
-                                    }
-                                }
-                                lines.clear();
+                                type = (int) parent.type;
                             }
+                            myDraw.drawLine(finalMatrix, lines, type);
+//                            if (ifGame) {
+//                                float x = lines.get(0) / mz[0] - 0.5f;
+//                                float y = lines.get(1) / mz[1] - 0.5f;
+//                                float z = lines.get(2) / mz[2] - 0.5f;
+//                                if (Math.sqrt((double)(x * x + y * y + z * z)) < 1) {
+//                                    myDraw.drawLine(finalSmallMapMatrix, lines, (int) parent.type);
+//                                }
+//                            }
+                            lines.clear();
                         }
-
                     }
 
                     if (newSwcList.nsegs() > 0) {
                         ArrayList<Float> lines = new ArrayList<Float>();
+                        int type = 0;
                         for (int i = 0; i < newSwcList.seg.size(); i++) {
                             V_NeuronSWC seg = newSwcList.seg.get(i);
                             Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
@@ -584,16 +583,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                 lines.add((float) ((sz[0] - child.x) / sz[0] * mz[0]));
                                 lines.add((float) ((sz[1] - child.y) / sz[1] * mz[1]));
                                 lines.add((float) ((child.z) / sz[2] * mz[2]));
-
-                                myDraw.drawLine(finalMatrix, lines, (int) parent.type);
-                                lines.clear();
+                                type = (int) parent.type;
                             }
+
+                            myDraw.drawLine(finalMatrix, lines, type);
+                            lines.clear();
                         }
 
                     }
 
                     if (syncSwcList.nsegs() > 0) {
                         ArrayList<Float> lines = new ArrayList<Float>();
+                        int type = 0;
                         for (int i = 0; i < syncSwcList.seg.size(); i++) {
                             V_NeuronSWC seg = syncSwcList.seg.get(i);
                             Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
@@ -630,18 +631,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                 lines.add((float) ((sz[0] - child.x) / sz[0] * mz[0]));
                                 lines.add((float) ((sz[1] - child.y) / sz[1] * mz[1]));
                                 lines.add((float) ((child.z) / sz[2] * mz[2]));
+                                type = (int) parent.type;
 
-                                myDraw.drawLine(finalMatrix, lines, (int) parent.type);
-                                if (ifGame) {
-                                    float x = lines.get(0) / mz[0] - 0.5f;
-                                    float y = lines.get(1) / mz[1] - 0.5f;
-                                    float z = lines.get(2) / mz[2] - 0.5f;
-                                    if (Math.sqrt((double)(x * x + y * y + z * z)) < 1) {
-                                        myDraw.drawLine(finalSmallMapMatrix, lines, (int) parent.type);
-                                    }
-                                }
-                                lines.clear();
                             }
+                            myDraw.drawLine(finalMatrix, lines, type);
+//                            if (ifGame) {
+//                                float x = lines.get(0) / mz[0] - 0.5f;
+//                                float y = lines.get(1) / mz[1] - 0.5f;
+//                                float z = lines.get(2) / mz[2] - 0.5f;
+//                                if (Math.sqrt((double)(x * x + y * y + z * z)) < 1) {
+//                                    myDraw.drawLine(finalSmallMapMatrix, lines, (int) parent.type);
+//                                }
+//                            }
+                            lines.clear();
                         }
 
                     }
