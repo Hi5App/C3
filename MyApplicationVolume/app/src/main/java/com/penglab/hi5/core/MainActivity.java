@@ -95,6 +95,12 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.uinfo.UserService;
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
+import com.nightonke.boommenu.BoomButtons.ButtonPlaceEnum;
+import com.nightonke.boommenu.BoomButtons.SimpleCircleButton;
+import com.nightonke.boommenu.BoomMenuButton;
+import com.nightonke.boommenu.ButtonEnum;
+import com.nightonke.boommenu.Piece.PiecePlaceEnum;
+import com.nightonke.boommenu.Util;
 import com.penglab.hi5.R;
 import com.penglab.hi5.basic.LocationSimple;
 import com.penglab.hi5.basic.NeuronTree;
@@ -1909,7 +1915,17 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
         });
 
+        BoomMenuButton bmb = (BoomMenuButton) findViewById(R.id.expanded_menu);
+        bmb.setButtonEnum(ButtonEnum.SimpleCircle);
+        bmb.setPiecePlaceEnum(PiecePlaceEnum.DOT_3_1);
+        bmb.setButtonPlaceEnum(ButtonPlaceEnum.SC_3_3);
+        bmb.setButtonRadius(Util.dp2px(15));
+        bmb.setBackgroundEffect(false);
+        bmb.setShadowEffect(false);
 
+        for (int i = 0; i < bmb.getButtonPlaceEnum().buttonNumber(); i++) {
+            bmb.addBuilder(new SimpleCircleButton.Builder().normalImageRes(R.drawable.ic_clear));
+        }
 
 
 
