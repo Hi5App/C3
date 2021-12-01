@@ -3,6 +3,7 @@ package com.penglab.hi5.core;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,23 +35,17 @@ public class HelpActivity extends AppCompatActivity {
 
     /**
      * call the corresponding function when button in top bar clicked
-     * @param item
+     * @param item item clicked
      * @return
      */
+    @SuppressLint("NonConstantResourceId")
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.back:
-//                try {
-//                    Intent intent = new Intent(HelpActivity.this, MainActivity.class);
-//                    startActivity(intent);
-//                }catch (Exception e){
-//                    e.printStackTrace();
-//                }
                 finish();
             default:
                 return true;
-//                return super.onOptionsItemSelected(item);
         }
     }
 }
