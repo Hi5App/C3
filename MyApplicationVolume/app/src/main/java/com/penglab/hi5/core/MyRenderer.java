@@ -1834,7 +1834,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 
+    public  int getImgHeight(){
 
+        return bitmap2D.getHeight();
+
+    }
+
+    public  int getImgWidth(){
+
+        return bitmap2D.getWidth();
+
+    }
 
     /**
      * delete all tracing
