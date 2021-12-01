@@ -177,6 +177,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static MyGLSurfaceView myS2GLSurfaceView;
     private static MyRenderer myS2renderer;
     private static Context S2Context;
+    //ServerConnector ServerConnectorForScope;
 
     private String filepath = "";
     private boolean ifZooming = false;
@@ -383,6 +384,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private boolean firstJoinRoom = true;
     private boolean copyFile = false;
     private boolean  ifgetTest = false;
+    private boolean ifSmartControl = false;
 
     private int score = 0;
     private String scoreString = "00000";
@@ -400,7 +402,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
         if (msg.startsWith("TestSocketConnection")) {
-            //ServerConnector.getInstance().sendMsg("HeartBeat");
+            //serverConnectorForScope.getInstance().sendMsg("HeartBeat");
         } else {
             Log.e(TAG, "onRecMessage()  " + msg);
 
@@ -949,6 +951,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         initServerConnector();
         initService();
+
+
 
         s2initialization();
 
@@ -1645,10 +1649,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 ifGetRoiPoint = true;
                 isS2Start = true;
                 setButtons();
+
                 myS2renderer.clearView(isS2Start);  //clean view before showing new image
                 myS2GLSurfaceView.requestRender();
 
                 shutFileName();
+                //ServerConnectorForScope.sendMsg("s2start:");
                 ServerConnector.getInstance().sendMsg("s2start:");
                 //ServerConnector.getInstance().sendMsg("s2start:");
 
@@ -1992,6 +1998,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
     private void initServerConnector() {
+//        ServerConnector serverConnectorForScope = ServerConnector.getInstance();
+//
+//        serverConnectorForScope.setIp(ip_TencentCloud);
+//        serverConnectorForScope.setPort("8511");
+//        serverConnectorForScope.initConnection();
+
+
         ServerConnector serverConnector = ServerConnector.getInstance();
 
         serverConnector.setIp(ip_TencentCloud);
@@ -3942,8 +3955,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 boolean ifConnect_Scope = s2paraSetting.getConnect_ScopeMode();
                 boolean ifSmart_Control = s2paraSetting.getSmart_ControlMode();
 
-
-
+                isif_flag[2]=ifSmart_Control;
                 int ParaXY = s2paraSetting.getParaXY();
                 int ParaZ = s2paraSetting.getParaZ();
 
@@ -3959,10 +3971,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 Connect_Server.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                          boolean ifConnect_Server=ServerConnector.getInstance().sendMsg("test!");
-                          Log.e(TAG, "ifConnect_Server: " +ifConnect_Server);
-                          Connect_Server.setChecked(ifConnect_Server);
-                          isif_flag[0]=ifConnect_Server;
+                        //boolean ifconnect_Server=ServerConnector.getInstance().sendMsg("test!");
+                        boolean ifconnect_Server = ServerConnector.getInstance().checkConnection();
+                        Log.e(TAG, "ifconnect_Server: " + ifconnect_Server);
+                        Connect_Server.setChecked(ifconnect_Server);
+                        isif_flag[0] = ifconnect_Server;
 
                     }
                 });
@@ -3970,11 +3983,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 Connect_Scope.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        boolean ifConnect_Scope=ServerConnector.getInstance().sendMsg("test:");
-                        Log.e(TAG, "ifConnect_Scope: " +ifConnect_Scope);
+                        boolean ifConnect_Scope = ServerConnector.getInstance().sendMsg("test:");
+                        Log.e(TAG, "ifConnect_Scope: " + ifConnect_Scope);
 
                         Connect_Scope.setChecked(ifgetTest);
-                        isif_flag[1]=ifConnect_Scope;
+                        isif_flag[1] = ifConnect_Scope;
 
                     }
                 });
@@ -3982,11 +3995,21 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 Start_smart_control.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        Log.e(TAG, "Start_smart_control: ");
 
-                        //Start_smart_control.setChecked(ifSmart_Control);
+                        boolean ifSmart_Control= isif_flag[2];
 
-                        isif_flag[2]=ifSmart_Control;
+                        if (ifSmart_Control) {
+                            ifSmart_Control = false;
+                            ifSmartControl = true;
+                        } else {
+                            ifSmart_Control=true;
+                            ifSmartControl = false;
+                        }
+
+                        isif_flag[2] = ifSmart_Control;
+
+
+                        Log.e(TAG, "ifSmartControl: " + ifSmart_Control);
                     }
                 });
 //
@@ -3999,8 +4022,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 });
 
             }
-        });
-        builder.setNegativeButton("Cancel", new View.OnClickListener() {
+        }).setNegativeButton("Cancel", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //Toast_in_Thread("Cancel setting!");
@@ -4021,17 +4043,24 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
-                          IndicatorSeekBar indicator_XY = contentView.findViewById(R.id.indicator_XY_seekbar);
-                          int XY_Per_Step = indicator_XY.getProgress();
+               IndicatorSeekBar indicator_XY = contentView.findViewById(R.id.indicator_XY_seekbar);
+               int XY_Per_Step = indicator_XY.getProgress();
 
-                          IndicatorSeekBar indicator_Z = contentView.findViewById(R.id.indicator_Z_seekbar);
-                          int Z_Per_Step = indicator_Z.getProgress();
+               IndicatorSeekBar indicator_Z = contentView.findViewById(R.id.indicator_Z_seekbar);
+               int Z_Per_Step = indicator_Z.getProgress();
 
-                          s2paraSetting.setPara(isif_flag[0],isif_flag[1],isif_flag[2],XY_Per_Step,Z_Per_Step);
+                s2paraSetting.setPara(isif_flag[0],isif_flag[1],isif_flag[2],XY_Per_Step,Z_Per_Step);
 
 
-                          Log.v(TAG, "indicator_XY: " + XY_Per_Step + ",indicator_Z: " + Z_Per_Step);
+                Log.v(TAG, "indicator_XY: " + XY_Per_Step + ",indicator_Z: " + Z_Per_Step);
 
+
+
+                ifSmartControl=s2paraSetting.getSmart_ControlMode();
+                Log.v(TAG, "openSmartControl: " + ifSmartControl );
+                if (ifSmartControl) {
+                    startSmartControl();
+                }
 
 
                 Toast_in_Thread("Confirm down!");
@@ -4049,6 +4078,24 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         mdDialog.show();
     }
 
+    private void startSmartControl() {
+
+
+
+        ifGetRoiPoint = true;
+        Log.v(TAG, "ifSmartControl: " + ifSmartControl );
+    }
+
+    private void SmartControl() {
+        String scLocation=null;
+
+
+        Log.v(TAG, "scLocation: " + locationFor2dImg[0]+locationFor2dImg[1] );
+        scLocation="sclocation:"+Float.toString(locationFor2dImg[0])+":"+Float.toString(locationFor2dImg[1]);
+        Log.v(TAG, "scLocation: " + scLocation );
+
+        ServerConnector.getInstance().sendMsg(scLocation);
+    }
 
     private void setSettings() {
         //  boolean[] downsample = new boolean[1];
@@ -4491,13 +4538,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
                 if (ifAnalyze) {
-                    MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
-                    List features = morphologyCalculate.calculate(uri, false);
+ //                   MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
+//                    List features = morphologyCalculate.calculate(uri, false);
 
-                    if (features != null) {
-                        fl = new ArrayList<double[]>(features);
-                        displayResult(features);
-                    }
+//                    if (features != null) {
+//                        fl = new ArrayList<double[]>(features);
+//                        displayResult(features);
+//                    }
                 }
 
 
@@ -4756,14 +4803,16 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                             if (ifPainting) {
 
                             }
+                            Log.v("ifGetRoiPoint", "ifGetRoiPoint"+ifGetRoiPoint);
                             if (ifGetRoiPoint) {
-                                if (myS2renderer.getFileType() == MyRenderer.FileType.JPG || myS2renderer.getFileType() == MyRenderer.FileType.PNG) {
+                                if (myS2renderer.getFileType() == MyRenderer.FileType.JPG || myS2renderer.getFileType() == MyRenderer.FileType.PNG  || myS2renderer.getFileType() == MyRenderer.FileType.TIF) {
 
                                     locationFor2dImg = myS2renderer.get2dLocation(normalizedX, normalizedY);
-
+                                    Log.v("ifGetRoiPoint", "locationFor2dImg"+locationFor2dImg[0]+locationFor2dImg[1]);
+                                    SmartControl();
 
                                 } else {
-                                    // myS2renderer.setMarkerDrawed(normalizedX, normalizedY, isBigData_Remote);
+                                     myS2renderer.setMarkerDrawed(normalizedX, normalizedY, isBigData_Remote);
                                 }
                             }
                             break;
@@ -4896,6 +4945,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                     }
                                     if (ifGetRoiPoint) {
                                         Log.v("ifGetRoiPoint", "DeletingRoiPoint");
+                                        Log.v("ifGetRoiPoint", "locationFor2dImg"+locationFor2dImg[0]+locationFor2dImg[1]);
                                         myS2renderer.deleteRoiLocation(locationFor2dImg[0], locationFor2dImg[1], ifGetRoiPoint);
                                         requestRender();
                                     }

@@ -924,7 +924,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             markerList.add(imageMarker_drawed);
             float [] result = new float[2];
             result[0]=imageMarker_drawed.x;
-            result[1]=imageMarker_drawed.x;
+            result[1]=imageMarker_drawed.y;
             Log.e(TAG, "get2dLocation: " + imageMarker_drawed.x + " " + imageMarker_drawed.y);
             return result;
         }
