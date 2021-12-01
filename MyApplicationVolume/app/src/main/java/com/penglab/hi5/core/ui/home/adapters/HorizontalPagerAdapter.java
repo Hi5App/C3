@@ -27,9 +27,13 @@ public class HorizontalPagerAdapter extends PagerAdapter {
                     "S2"
             ),
             new Utils.LibraryObject(
-                    R.drawable.ic_development,
-                    "About"
+                    R.drawable.ic_chat_icon,
+                    "Chat"
             ),
+            new Utils.LibraryObject(
+                    R.drawable.ic_development,
+                    "Help"
+            )
 //            new Utils.LibraryObject(
 //                    R.drawable.ic_qa,
 //                    "Quality Assurance"

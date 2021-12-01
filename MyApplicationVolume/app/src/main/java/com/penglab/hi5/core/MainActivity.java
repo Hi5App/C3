@@ -767,10 +767,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         super.onCreate(savedInstanceState);
         Log.e(TAG,"------------------ onCreate ------------------");
 
-        // set layout
+        // set layout & toolbar
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
 
         mainContext = this;
 
@@ -1086,11 +1089,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestroy()");
+        Log.e(TAG, "onDestroy()");
 
         Intent bgmIntent = new Intent(this, MusicServer.class);
         stopService(bgmIntent);
 
+        // update score
         Score score = Score.getInstance();
         setScore(score.getScore());
 
@@ -2033,7 +2037,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public static void setScore(int score){
         if (score == 0)
             return;
-        ServerConnector.getInstance().sendMsg("SETSOCRE:" + score);
+        ServerConnector.getInstance().sendMsg("SETSOCRE:" + score, true, true);
     }
 
     public static void getLeaderBoard(){
@@ -3562,11 +3566,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
      * @return
      */
     public boolean onOptionsItemSelected(MenuItem item) {
-//        if (mDrawerToggle.onOptionsItemSelected(item)) {
-//            return true;}
         // Handle item selection
         switch (item.getItemId()) {
-
+            case android.R.id.home:  // support back button
+                finish();
+                break;
             case R.id.Undo:
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
@@ -3581,7 +3585,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                 }
                 myGLSurfaceView.requestRender();
-
                 break;
             case R.id.Redo:
 //                ImageView redo_i = findViewById(R.id.Redo);
@@ -3597,9 +3600,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                 }
                 myGLSurfaceView.requestRender();
-
                 break;
-
             case R.id.file:
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
                 File_icon();

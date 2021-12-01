@@ -166,7 +166,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                     //Complete and destroy login activity once successful
                     setResult(Activity.RESULT_OK);
-                    LoginActivity.actionStart(RegisterActivity.this);
+                    LoginActivity.start(RegisterActivity.this);
                     finish();
                 }
             }

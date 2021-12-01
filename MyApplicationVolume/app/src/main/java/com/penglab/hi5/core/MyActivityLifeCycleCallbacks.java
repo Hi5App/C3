@@ -22,9 +22,7 @@ public class MyActivityLifeCycleCallbacks implements Application.ActivityLifecyc
     private final String TAG = "MyActivityLifeCycle";
     private final String MY_PKG_NAME = "com.penglab.hi5";
     private int activityCount = 0;
-
     private List<Activity> activities = new LinkedList<>();
-
     public static int sAnimationId = 0;
 
     @Override
@@ -50,18 +48,7 @@ public class MyActivityLifeCycleCallbacks implements Application.ActivityLifecyc
 
     @Override
     public void onActivityStopped(@NonNull Activity activity) {
-        Log.d(TAG, "onActivityStopped");
         activityCount--;
-        if (activityCount <= 0){
-            Log.d(TAG, "Now On Background");
-            if (isActivityAlive("ComponentInfo{com.penglab.hi5/com.penglab.hi5.core.MainActivity}")){
-                // update score
-                Score score = Score.getInstance();
-                MainActivity.setScore(score.getScore());
-            }
-            ServerConnector.getInstance().closeSender();
-            MsgConnector.getInstance().closeSender();
-        }
     }
 
     @Override
@@ -111,6 +98,8 @@ public class MyActivityLifeCycleCallbacks implements Application.ActivityLifecyc
 
         if (activities.size() == 0) {
             activities = null;
+            ServerConnector.getInstance().closeSender();
+            MsgConnector.getInstance().closeSender();
         }
     }
 
