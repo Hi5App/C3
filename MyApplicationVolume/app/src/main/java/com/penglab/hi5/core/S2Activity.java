@@ -4089,12 +4089,20 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private void SmartControl() {
         String scLocation=null;
 
+        int x=myS2renderer.getImgWidth();
+        int y=myS2renderer.getImgHeight();
+        Log.v(TAG, "myS2renderer:scLocation " + x+y );
 
         Log.v(TAG, "scLocation: " + locationFor2dImg[0]+locationFor2dImg[1] );
-        scLocation="sclocation:"+Float.toString(locationFor2dImg[0])+":"+Float.toString(locationFor2dImg[1]);
+
+        int xx = (int) (locationFor2dImg[0]-x/2.0);
+        int yy = (int) (locationFor2dImg[1]-y/2.0);
+
+        scLocation="sclocation:"+String.valueOf(xx)+":"+String.valueOf(yy);
         Log.v(TAG, "scLocation: " + scLocation );
 
         ServerConnector.getInstance().sendMsg(scLocation);
+
     }
 
     private void setSettings() {
