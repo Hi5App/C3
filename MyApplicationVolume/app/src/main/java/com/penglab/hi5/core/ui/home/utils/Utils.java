@@ -2,6 +2,7 @@ package com.penglab.hi5.core.ui.home.utils;
 
 import static com.penglab.hi5.core.ui.home.screens.HomeActivity.username;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -10,13 +11,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.penglab.hi5.R;
+import com.penglab.hi5.chat.ChatActivity;
 import com.penglab.hi5.core.HelpActivity;
 import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.S2Activity;
 
 
 /**
- * Modified by JACKIEXING on 11/22/21.
+ * Modified by Jackiexing on 11/22/21.
  */
 public class Utils {
 
@@ -32,21 +34,20 @@ public class Utils {
                 Context context = v.getContext();
                 switch (libraryObject.getTitle()){
                     case "Hi5":
-                        MainActivity.actionStart(context,username);
+                        MainActivity.actionStart(context, username);
                         break;
                     case "S2":
-                        S2Activity.actionStart(context,username);
+                        S2Activity.actionStart(context, username);
                         break;
-                    case "About":
-                        Intent intent3 = new Intent(context, HelpActivity.class);
-                        context.startActivity(intent3);
+                    case "Chat":
+                        ChatActivity.start(context);
+                        break;
+                    case "Help":
+                        HelpActivity.start(context);
                         break;
                     default:
                         Log.e("Utils","Something error");
                 }
-//                Toast.makeText(view.getContext(),"Click the item !",Toast.LENGTH_SHORT).show();
-//                Intent intent = new Intent (view.getContext(), AboutActivity.class);
-//                view.getContext().startActivity(intent);
             }
         });
     }

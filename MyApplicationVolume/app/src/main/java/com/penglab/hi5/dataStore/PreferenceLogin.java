@@ -7,12 +7,11 @@ public class PreferenceLogin {
 
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
-
     private Context mContext;
 
     public PreferenceLogin(Context context){
         mContext = context;
-        pref = mContext.getSharedPreferences("Login",Context.MODE_PRIVATE);
+        pref = mContext.getSharedPreferences("Login", Context.MODE_PRIVATE);
     }
 
     public void setPref(String username, String password, boolean autoLogin, boolean rem_or_not){

@@ -549,13 +549,6 @@ public class LoginActivity extends AppCompatActivity{
         Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_LONG).show();
     }
 
-    public static void actionStart(Context context){
-        Intent intent = new Intent(context, LoginActivity.class);
-        context.startActivity(intent);
-    }
-
-
-
     private void loginNim(String account, String password, LoginResult loginResult){
         Log.e(TAG, "account: " + account + ", password: " + password);
 

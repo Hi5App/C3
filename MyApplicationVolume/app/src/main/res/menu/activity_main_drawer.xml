@@ -8,17 +8,17 @@
             android:id="@+id/nav_account"
             android:icon="@drawable/ic_person"
             android:title="@string/Logout" />
-        <item
-            android:id="@+id/nav_help"
-            android:icon="@drawable/ic_help"
-            android:title="@string/Help" />
 <!--        <item-->
-<!--            android:id="@+id/nav_settings"-->
-<!--            android:icon="@drawable/ic_settings"-->
-<!--            android:title="@string/Settings" />-->
+<!--            android:id="@+id/nav_help"-->
+<!--            android:icon="@drawable/ic_help"-->
+<!--            android:title="@string/Help" />-->
         <item
-            android:id="@+id/nav_About"
-            android:icon="@drawable/ic_notifications"
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/Settings" />
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_help"
             android:title="@string/About" />
     </group>
 </menu>
