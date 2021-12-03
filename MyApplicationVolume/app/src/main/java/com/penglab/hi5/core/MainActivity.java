@@ -96,6 +96,7 @@ import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.uinfo.UserService;
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
 import com.nightonke.boommenu.BoomButtons.ButtonPlaceEnum;
+import com.nightonke.boommenu.BoomButtons.OnBMClickListener;
 import com.nightonke.boommenu.BoomButtons.SimpleCircleButton;
 import com.nightonke.boommenu.BoomMenuButton;
 import com.nightonke.boommenu.ButtonEnum;
@@ -186,6 +187,18 @@ import com.michaldrabik.tapbarmenulib.TapBarMenu;
 public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static final String TAG = "MainActivity";
 
+    private enum EditMode {
+        NONE, ZOOM, PINPOINT, PAINTCURVE, DELETEMARKER, DELETECURVE, SPLIT, CHANGEMARKERTYPE, CHANGECURVETYPE, DELETEMULTIMARKER, ZOOMINROI
+    }
+
+    private enum PenColor {
+        WHITE, BLACK, RED, BLUE, PURPLE, CYAN, YELLOW, GREEN
+    }
+
+    private enum VoicePattern {
+        PEER_TO_PEER, CHAT_ROOM, UNCERTAIN
+    }                                                                       // 疑似弃用 原聊天用？
+
     private Timer timer = null;
     private TimerTask timerTask;
 
@@ -194,7 +207,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static MyRenderer myrenderer;
     private static Context mainContext;
 
-    private String filepath = "";
+    private EditMode editMode;
+
+    private String filepath = "";                   // 弃用
     private boolean ifZooming = false;
     private boolean ifDeletingMultiMarker = false;
     private boolean ifChangeMarkerType = false;
@@ -202,14 +217,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private boolean ifPoint = false;
     private boolean ifImport = false;
     private boolean ifAnalyze = false;
-    private boolean ifUpload = false;
     private boolean ifDeletingMarker = false;
     private boolean ifDeletingLine = false;
     private boolean ifSpliting = false;
     private boolean ifChangeLineType = false;
-    private boolean ifSwitch = false;
+    private boolean ifSwitch = false;           // 功能已弃用
     private boolean ifLoadLocal = false;
-    private boolean ifButtonShowed = true;
+    private boolean ifButtonShowed = true;      // 功能已弃用
     private boolean ifAnimation = false;
     private boolean ifSettingROI =false;
     public static boolean ifGuestLogin = false;
@@ -224,25 +238,25 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static ImageButton Rotation_i;
     private static ImageButton Hide_i;
 
-    private static ImageButton Undo_i;
-    private static ImageButton Redo_i;
-    private ImageButton Sync_i;
-    private Button Sync;
-    private Button Switch;
-    private Button Remoteleft;
-    private Button Share;
+    private static ImageButton Undo_i;      // 已弃用 待删除
+    private static ImageButton Redo_i;      // 已弃用 待删除
+    private ImageButton Sync_i;             // 已弃用
+    private Button Sync;                    // 已弃用
+    private Button Switch;                  // 已弃用 待删除
+    private Button Remoteleft;              // 已弃用
+    private Button Share;                   // 已弃用
     private static ImageButton animation_i;
-    private ImageButton draw_i;
-    private ImageButton tracing_i;
-    private ImageButton classify_i;
-    private static TextView filenametext;
+    private ImageButton draw_i;             // 已弃用 待删除
+    private ImageButton tracing_i;          // 已弃用
+    private ImageButton classify_i;         // 已弃用
+    private static TextView filenametext;   // 已弃用
 
 
     private static ImageButton navigation_left;
     private static ImageButton navigation_right;
     private static ImageButton navigation_up;
     private static ImageButton navigation_down;
-    private static ImageButton navigation_location;
+    private static ImageButton navigation_location; // 已弃用 待删除 功能代码暂时保留
     private static ImageButton manual_sync;
     private static ImageButton ROI_i;
     private static Button navigation_front;
@@ -259,14 +273,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //    private static ImageButton sync_pull;
 
 
-    private FrameLayout.LayoutParams lp_undo_i;
+    private FrameLayout.LayoutParams lp_undo_i;             //已弃用
     private FrameLayout.LayoutParams lp_left_i;
     private FrameLayout.LayoutParams lp_right_i;
     private static FrameLayout.LayoutParams lp_up_i;
     private FrameLayout.LayoutParams lp_down_i;
     private FrameLayout.LayoutParams lp_front_i;
     private FrameLayout.LayoutParams lp_back_i;
-    private static FrameLayout.LayoutParams lp_nacloc_i;
+    private static FrameLayout.LayoutParams lp_nacloc_i;   // 已弃用 待删除 同navigation_location按钮
     private static FrameLayout.LayoutParams lp_sync_i;
 //    private static FrameLayout.LayoutParams lp_sync_push;
 //    private static FrameLayout.LayoutParams lp_sync_pull;
@@ -275,111 +289,102 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //    private static FrameLayout.LayoutParams lp_red_color;
     private static FrameLayout.LayoutParams lp_res_list;
     private FrameLayout.LayoutParams lp_animation_i;
-    private static FrameLayout.LayoutParams lp_undo;
-    private static FrameLayout.LayoutParams lp_redo;
+    private static FrameLayout.LayoutParams lp_undo;        // 已弃用
+    private static FrameLayout.LayoutParams lp_redo;        // 已弃用
     private static FrameLayout.LayoutParams lp_score;
 
     private static FrameLayout.LayoutParams lp_room_id;
     private static FrameLayout.LayoutParams lp_user_list;
 
-    private Button PixelClassification;
+    private Button PixelClassification;                     // 已弃用
     private boolean[][]select= {{true,true,true,false,false,false,false},
             {true,true,true,false,false,false,false},
             {false,false,false,false,false,false,false},
             {false,false,false,false,false,false,false},
             {false,false,false,false,false,false,false},
-            {true,true,true,false,false,false,false}};
+            {true,true,true,false,false,false,false}};      // 用于图像分割 待研究
 
 
-    private BigImgReader bigImgReader;
+    private BigImgReader bigImgReader;                      // 用于local bigdata模式 目前该模式弃用
     private static TapBarMenu tapBarMenu;
 
 
-    private LinearLayout ll_top;
-    private LinearLayout ll_bottom;
-    private static LinearLayout ll_file;
+    private LinearLayout ll_top;                            // 已弃用
+    private LinearLayout ll_bottom;                         // 仅用于switch按钮 目前已弃用
+    private static LinearLayout ll_file;                    // 已弃用
 
-    private static int measure_count = 0;
-    private static List<double[]> fl;
+    private static int measure_count = 0;                   // 仅用于analyze功能 考虑换位置
+    private static List<double[]> fl;                       // 同上
     private static MDDialog ar_mdDialog = null;
 
 
     private static boolean isBigData_Remote;
-    private static boolean isBigData_Local;
+    private static boolean isBigData_Local;                 // 用于local bigdata模式 目前该模式弃用
     private static ProgressBar progressBar;
 
-    private CircleImageView wave;
+    private CircleImageView wave;                           // 波纹效果？疑似弃用
 
-    private int eswc_length;
+    private int eswc_length;                                // 已弃用
     // 读写权限
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.CAMERA,
-            Manifest.permission.RECORD_AUDIO};
+            Manifest.permission.RECORD_AUDIO};              // 权限 考虑前移至应用打开时 HomeActivity?
     private static final int REQUEST_PERMISSION_CODE = 1;
-    private static final int REQUEST_IMAGE_CAPTURE = 2;
-    private static final int REQUEST_TAKE_PHOTO = 3;
+    private static final int REQUEST_IMAGE_CAPTURE = 2;     // 疑似弃用 未找到发送点
+    private static final int REQUEST_TAKE_PHOTO = 3;        // 弃用
 
-    private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
-    private static final int TOAST_INFO_STATIC = 5;
+    private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;   // 弃用
+    private static final int TOAST_INFO_STATIC = 5;         // 疑似弃用 未找到处理该消息位置
 
     //    private int Paintmode = 0;
-    private ArrayList<Float> lineDrawed = new ArrayList<Float>();
+    private ArrayList<Float> lineDrawed = new ArrayList<Float>();           // 考虑移到GLSurfaceView下
 
-    private BroadcastReceiver broadcastReceiver;
+    private BroadcastReceiver broadcastReceiver;                            // 弃用
 
     private String currentPhotoPath; // 指定一个不会跟其他文件产生冲突的文件名，用于后面相机拍照的图片的保存
-
+                                     // 弃用
     private File showPic;
-    private Uri picUri;
+    private Uri picUri;              // 疑似弃用
 
     private static BasePopupView popupView;
     private static BasePopupView popupViewSync;
 
-    private static final int animation_id = 0;
-    private int rotation_speed = 36;
+    private static final int animation_id = 0;                              // animation_i按钮的id 未找到用法
+    private int rotation_speed = 36;                                        // 疑似无效 本为旋转速度设置
 
-    private long exitTime = 0;
+    private long exitTime = 0;                                              // 已弃用
 
-    private static String filename = "";
+    private static String filename = "";                                    // 已弃用
 
-    private enum PenColor {
-        WHITE, BLACK, RED, BLUE, PURPLE, CYAN, YELLOW, GREEN
-    }
+    private BasePopupView drawPopupView;                                    // 已弃用 原画线菜单
 
-    private enum VoicePattern {
-        PEER_TO_PEER, CHAT_ROOM, UNCERTAIN
-    }
+    private static boolean ifGame = false;                                  // 原游戏模式 弃用
 
-
-    private BasePopupView drawPopupView;
-
-    private static boolean ifGame = false;
-
-    HashMap<Integer, String> User_Map = new HashMap<Integer, String>();
+    HashMap<Integer, String> User_Map = new HashMap<Integer, String>();     // 弃用
 
     public static String USERNAME = "username";
 
-    public static String username;
+    public static String username;                                          // 用户信息 可放入state类管理
 
     private static float [] gamePositionForIntent = {0.5f, 0.5f, 0.5f};
     private static float [] gameDirForIntent = {1, 1, 1};
     private static float [] gameHeadForIntent = {1, 0, -1};
     private static int gameLastIndexForIntent = -1;
     private static boolean gameIfNewForIntent = true;
-    private static int gameScoreForIntent = 0;
+    private static int gameScoreForIntent = 0;                              // 以上皆为原游戏模式 弃用
     private SoundPool soundPool;
     private final int SOUNDNUM = 4;
-    private int [] soundId;
+    private int [] soundId;                                                 // 可用枚举代替？
 
 //    private boolean mBoundAgora = false;
     private boolean mBoundManagement = false;
     private boolean mBoundCollaboration = false;
 
-    private int count = 0;
+    private int count = 0;                                                  // 已弃用
 
-    private static String conPath = "";
+    private static String conPath = "";                                     // 可移到记录图像信息的state里
 
     private float bgmVolume = 0f;
     private float buttonVolume = 1.0f;
@@ -974,39 +979,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     ToastEasy("Please load a image first");
                     return;
                 }
-                ifPainting = !ifPainting;
-                ifPoint = false;
-                ifDeletingMarker = false;
-                ifDeletingLine = false;
-                ifSpliting = false;
-                ifChangeLineType = false;
-                ifChangeMarkerType = false;
-                ifDeletingMultiMarker = false;
-                ifZooming = false;
-                if (ifPainting && !ifSwitch) {
+                if (editMode != EditMode.PAINTCURVE) {
+                    editMode = EditMode.PAINTCURVE;
                     draw.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw));
                     ImageView marker = findViewById(R.id.pinpoint);
                     marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_main));
-//                    draw_i.setImageResource(R.drawable.ic_draw);
-
-
-                    try {
-                        ifSwitch = false;
-//                        ll_bottom.addView(Switch);
-//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-
                 } else {
-                    ifSwitch = false;
-                    ifPainting = false;
-                    Switch.setText("Pause");
-                    Switch.setTextColor(Color.BLACK);
+                    editMode = EditMode.NONE;
                     draw.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw_main));
-//                    draw_i.setImageResource(R.drawable.ic_draw_main);
-//                    ll_bottom.removeView(Switch);
-//                                            ll_top.removeView(buttonUndo_i);
                 }
 
                 break;
@@ -1016,36 +996,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     ToastEasy("Please load a image first");
                     return;
                 }
-                ifPoint = !ifPoint;
-                ifPainting = false;
-                ifDeletingMarker = false;
-                ifDeletingLine = false;
-                ifSpliting = false;
-                ifChangeLineType = false;
-                ifChangeMarkerType = false;
-                ifDeletingMultiMarker = false;
-                ifZooming = false;
-                if (ifPoint && !ifSwitch) {
+                if (editMode != EditMode.PINPOINT) {
+                    editMode = EditMode.PINPOINT;
                     marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_marker));
                     ImageView drawi = findViewById(R.id.draw_i);
                     drawi.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw_main));
-
-                    try {
-                        ifSwitch = false;
-//                        ll_bottom.addView(Switch);
-//                                      ll_top.addView(buttonUndo_i, lp_undo_i);
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-
                 } else {
-                    ifSwitch = false;
-                    ifPoint = false;
-                    Switch.setText("Pause");
-                    Switch.setTextColor(Color.BLACK);
+                    editMode = EditMode.NONE;
                     marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_main));
-//                    ll_bottom.removeView(Switch);
-//                                  ll_top.removeView(buttonUndo_i);
                 }
                 break;
             case R.id.auto_reconstruction:
@@ -1529,6 +1487,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 }
 
                 if (isBigData_Remote){
+                    editMode = EditMode.ZOOM;
                     ifZooming = !ifZooming;
                     ifChangeLineType = false;
                     ifDeletingLine = false;
@@ -1675,10 +1634,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 }
 
                 if (isBigData_Remote){
-                    ifSettingROI = !ifSettingROI;
-                    if(ifSettingROI == true){
+                    if(editMode == EditMode.ZOOMINROI){
+                        editMode = EditMode.NONE;
                         ROI_i.setImageResource(R.drawable.ic_roi_stop);
                     }else{
+                        editMode = EditMode.ZOOMINROI
                         ROI_i.setImageResource(R.drawable.ic_roi);
                     }
 
@@ -1921,15 +1881,66 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         BoomMenuButton bmb = (BoomMenuButton) findViewById(R.id.expanded_menu);
         bmb.setButtonEnum(ButtonEnum.SimpleCircle);
-        bmb.setPiecePlaceEnum(PiecePlaceEnum.DOT_3_1);
-        bmb.setButtonPlaceEnum(ButtonPlaceEnum.SC_3_3);
+        bmb.setPiecePlaceEnum(PiecePlaceEnum.DOT_5_1);
+        bmb.setButtonPlaceEnum(ButtonPlaceEnum.SC_5_1);
         bmb.setButtonRadius(Util.dp2px(15));
         bmb.setBackgroundEffect(false);
         bmb.setShadowEffect(false);
 
-        for (int i = 0; i < bmb.getButtonPlaceEnum().buttonNumber(); i++) {
-            bmb.addBuilder(new SimpleCircleButton.Builder().normalImageRes(R.drawable.ic_clear));
-        }
+        bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+                if (editMode != EditMode.CHANGECURVETYPE) {
+                    editMode = EditMode.CHANGECURVETYPE;
+                } else {
+                    editMode = EditMode.NONE;
+                }
+            }
+        }).normalImageRes(R.drawable.ic_clear));
+
+        bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+                if (editMode != EditMode.CHANGEMARKERTYPE) {
+                    editMode = EditMode.CHANGECURVETYPE;
+                } else {
+                    editMode = EditMode.NONE;
+                }
+            }
+        }));
+
+        bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+                if (editMode != EditMode.SPLIT) {
+                    editMode = EditMode.SPLIT;
+                } else {
+                    editMode = EditMode.NONE;
+                }
+            }
+        }));
+
+        bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+                if (editMode != EditMode.DELETECURVE) {
+                    editMode = EditMode.DELETECURVE;
+                } else {
+                    editMode = EditMode.NONE;
+                }
+            }
+        }));
+
+        bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+                if (editMode != EditMode.DELETEMARKER) {
+                    editMode = EditMode.DELETEMARKER;
+                } else {
+                    editMode = EditMode.NONE;
+                }
+            }
+        }));
 
 
 
@@ -2617,7 +2628,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         if (!ifImport) {
             ifImport = true;
             ifAnalyze = false;
-            ifUpload = false;
             ifLoadLocal = false;
         }
 
@@ -4136,7 +4146,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         startActivityForResult(intent, 1);
                                         ifAnalyze = true;
                                         ifImport = false;
-                                        ifUpload = false;
                                         break;
 
                                     case "Analyze current tracing":
@@ -5276,7 +5285,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         case MotionEvent.ACTION_DOWN:
                             X = normalizedX;
                             Y = normalizedY;
-                            if (ifPainting || ifDeletingLine || ifSpliting || ifChangeLineType || ifDeletingMultiMarker || ifSettingROI) {
+                            if (editMode = EditMode.PAINTCURVE || editMode == EditMode.DELETECURVE
+                                    || editMode == EditMode.SPLIT || editMode == EditMode.DELETEMULTIMARKER
+                                    || editMode == EditMode.CHANGECURVETYPE || editMode == EditMode.ZOOMINROI) {
                                 soundPool.play(soundId[0], actionVolume, actionVolume, 0, 0, 1.0f);
                                 lineDrawed.add(X);
                                 lineDrawed.add(Y);
@@ -5285,35 +5296,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 requestRender();
                                 Log.v("actionPointerDown", "Paintinggggggggggg");
                             }
-                            if (ifPoint){
+                            if (editMode == EditMode.PINPOINT){
                                 soundPool.play(soundId[1], actionVolume, actionVolume, 0, 0, 1.0f);
                             }
-                            if (ifPainting){
+                            if (editMode == EditMode.PAINTCURVE){
                                 soundPool.play(soundId[0], actionVolume, actionVolume, 0, 0, 1.0f);
                             }
-//                        if (ifPoint) {
-//                            Log.v("actionPointerDown", "Pointinggggggggggg");
-//                            if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
-//                                myrenderer.add2DMarker(X, Y);
-//                            else {
-//                                myrenderer.setMarkerDrawed(X, Y);
-//                            }
-//                            Log.v("actionPointerDown", "(" + X + "," + Y + ")");
-//                            requestRender();
-//
-//                        }
-//                        if (ifDeletingMarker) {
-//                            Log.v("actionPointerDown", "DeletingMarker");
-//                            myrenderer.deleteMarkerDrawed(X, Y);
-//                            requestRender();
-//                        }
-//                        if (ifDeletingLine){
-//                            lineDrawed.add(X);
-//                            lineDrawed.add(Y);
-//                            lineDrawed.add(-1.0f);
-//                            myrenderer.setIfPainting(true);
-//                            requestRender();
-//                        }
                             break;
                         case MotionEvent.ACTION_POINTER_DOWN:
                             lineDrawed.clear();
@@ -5370,7 +5358,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 x1_start = x2;
                                 y1_start = y2;
                             } else if (!isZooming){
-                                if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker && !ifChangeMarkerType && !ifDeletingMultiMarker && !ifSettingROI) {
+                                if (editMode == EditMode.NONE) {
                                     if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
                                         if (!myrenderer.getIfDownSampling())
                                             myrenderer.setIfDownSampling(true);
@@ -5401,21 +5389,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             Y = normalizedY;
                             lineDrawed.clear();
                             myrenderer.setIfPainting(false);
-//                        if (ifPainting){
-//                            lineDrawed.clear();
-//                            myrenderer.setLineDrawed(lineDrawed);
-//                            requestRender();
-//
-//                            myrenderer.setIfPaiFting(false);
-//                            requestRender();
-//
-//                        }
                             break;
                         case MotionEvent.ACTION_UP:
                             if (!isZooming) {
                                 try {
-                                    if (ifZooming) {
-                                        ifZooming = false;
+                                    if (editMode == EditMode.ZOOM) {
+                                        editMode = EditMode.NONE;
                                         float [] center = myrenderer.solveMarkerCenter(normalizedX, normalizedY);
                                         if (center != null) {
                                             Communicator communicator = Communicator.getInstance();
@@ -5423,49 +5402,43 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                             requestRender();
                                         }
                                     }
-                                    if (ifPoint) {
+                                    if (editMode == EditMode.PINPOINT) {
                                         if(ifGuestLogin == false)
                                         {
                                             Score scoreInstance = Score.getInstance();
                                             scoreInstance.pinpoint();
                                         }
-                                        Log.v("actionUp", "Pointinggggggggggg");
                                         if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
                                             myrenderer.add2DMarker(normalizedX, normalizedY);
                                         else {
                                             myrenderer.setMarkerDrawed(normalizedX, normalizedY, isBigData_Remote);
                                         }
-                                        Log.v("actionPointerDown", "(" + X + "," + Y + ")");
                                         requestRender();
-
                                     }
-                                    if (ifDeletingMarker) {
-                                        Log.v("actionUp", "DeletingMarker");
+                                    if (editMode == EditMode.DELETEMARKER) {
                                         myrenderer.deleteMarkerDrawed(normalizedX, normalizedY, isBigData_Remote);
                                         requestRender();
                                     }
-                                    if (ifDeletingMultiMarker) {
+                                    if (editMode == EditMode.DELETEMULTIMARKER) {
                                         myrenderer.deleteMultiMarkerByStroke(lineDrawed, isBigData_Remote);
                                         requestRender();
                                     }
-                                    if (ifChangeMarkerType) {
+                                    if (editMode == EditMode.CHANGEMARKERTYPE) {
                                         myrenderer.changeMarkerType(normalizedX, normalizedY, isBigData_Remote);
                                         requestRender();
                                     }
-                                    if (ifPainting ) {
+                                    if (editMode == EditMode.PAINTCURVE) {
                                         Vector<Integer> segids = new Vector<>();
                                         myrenderer.setIfPainting(false);
                                         if(ifGuestLogin == false)
                                         {
                                             Score scoreInstance = Score.getInstance();
                                             scoreInstance.drawACurve();
-
                                         }
 
                                         if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
                                             myrenderer.add2DCurve(lineDrawed);
                                         else {
-
                                             Callable<String> task = new Callable<String>() {
                                                 @RequiresApi(api = Build.VERSION_CODES.N)
                                                 @Override
@@ -5490,8 +5463,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                                 System.out.println("unfinished in 1.5 seconds");
-//                                            exeService.shutdown();
-//                                            future.cancel(true);
                                             }
                                         }
 
@@ -5501,7 +5472,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         requestRender();
                                     }
 
-                                    if(ifSettingROI){
+                                    if(editMode == EditMode.ZOOMINROI){
                                         ifSettingROI=false;
                                         float [] center = myrenderer.GetROICenter(lineDrawed,isBigData_Remote);
                                         if (center != null) {
@@ -5511,22 +5482,23 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         }
                                     }
 
-
-                                    if (ifDeletingLine) {
+                                    if (editMode == EditMode.DELETECURVE) {
                                         myrenderer.setIfPainting(false);
                                         myrenderer.deleteLine1(lineDrawed, isBigData_Remote);
                                         lineDrawed.clear();
                                         myrenderer.setLineDrawed(lineDrawed);
                                         requestRender();
                                     }
-                                    if (ifSpliting) {
+
+                                    if (editMode == EditMode.SPLIT) {
                                         myrenderer.setIfPainting(false);
                                         myrenderer.splitCurve(lineDrawed, isBigData_Remote);
                                         lineDrawed.clear();
                                         myrenderer.setLineDrawed(lineDrawed);
                                         requestRender();
                                     }
-                                    if (ifChangeLineType) {
+
+                                    if (editMode == EditMode.CHANGECURVETYPE) {
                                         myrenderer.setIfPainting(false);
                                         int type = myrenderer.getLastLineType();
                                         myrenderer.changeLineType(lineDrawed, type, isBigData_Remote);
