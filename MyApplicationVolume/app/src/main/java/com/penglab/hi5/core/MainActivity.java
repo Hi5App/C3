@@ -1638,7 +1638,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         editMode = EditMode.NONE;
                         ROI_i.setImageResource(R.drawable.ic_roi_stop);
                     }else{
-                        editMode = EditMode.ZOOMINROI
+                        editMode = EditMode.ZOOMINROI;
                         ROI_i.setImageResource(R.drawable.ic_roi);
                     }
 
@@ -5285,7 +5285,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         case MotionEvent.ACTION_DOWN:
                             X = normalizedX;
                             Y = normalizedY;
-                            if (editMode = EditMode.PAINTCURVE || editMode == EditMode.DELETECURVE
+                            if (editMode == EditMode.PAINTCURVE || editMode == EditMode.DELETECURVE
                                     || editMode == EditMode.SPLIT || editMode == EditMode.DELETEMULTIMARKER
                                     || editMode == EditMode.CHANGECURVETYPE || editMode == EditMode.ZOOMINROI) {
                                 soundPool.play(soundId[0], actionVolume, actionVolume, 0, 0, 1.0f);
