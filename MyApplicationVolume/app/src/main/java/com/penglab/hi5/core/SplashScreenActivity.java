@@ -339,8 +339,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
      * 已经登陆过，自动登陆
      */
     private boolean canAutoLogin() {
-        PreferenceLogin preferenceLogin = new PreferenceLogin(this);
-        return preferenceLogin.getAutoLogin();
+        return PreferenceLogin.getInstance().getAutoLogin();
     }
 
     private void parseNotifyIntent(Intent intent) {
@@ -383,7 +382,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 
     private void showMainActivity(Intent intent) {
         Log.e(TAG,"showMainActivity");
-        PreferenceLogin preferenceLogin = new PreferenceLogin(SplashScreenActivity.this);
+        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
         String account = preferenceLogin.getUsername();
 
         InfoCache.setAccount(account);
@@ -400,7 +399,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
     }
 
     private void autoLogin(){
-        PreferenceLogin preferenceLogin = new PreferenceLogin(this);
+        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
         ServerConnector serverConnector = ServerConnector.getInstance();
 
         if (serverConnector.checkConnection()){

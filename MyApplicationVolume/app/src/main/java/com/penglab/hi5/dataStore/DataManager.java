@@ -11,7 +11,6 @@ public class DataManager {
     }
 
     public void preferenceSetting(){
-
         SharedPreferences.Editor editor = mContext.getSharedPreferences("settings",Context.MODE_PRIVATE).edit();
     }
 

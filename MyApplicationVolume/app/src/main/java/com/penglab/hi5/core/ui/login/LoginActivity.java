@@ -130,7 +130,7 @@ public class LoginActivity extends AppCompatActivity{
         /*
         set context for toast in ServerConnector
          */
-        preferenceLogin = new PreferenceLogin(this);
+        preferenceLogin = PreferenceLogin.getInstance();
         usernameEditText = findViewById(R.id.username);
         passwordEditText = findViewById(R.id.password);
         loginButton = findViewById(R.id.login);

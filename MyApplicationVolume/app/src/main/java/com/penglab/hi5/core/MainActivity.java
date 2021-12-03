@@ -17,7 +17,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.media.AudioManager;
 import android.media.SoundPool;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
@@ -30,7 +29,6 @@ import android.os.Message;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -55,21 +53,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.legacy.app.ActionBarDrawerToggle;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationView;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.enums.PopupAnimation;
@@ -4551,7 +4539,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 //                        AgoraMsgManager.getInstance().getRtmClient().logout(null);
 
-                        PreferenceLogin preferenceLogin = new PreferenceLogin(MainActivity.this);
+                        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
                         preferenceLogin.setPref(preferenceLogin.getUsername(),preferenceLogin.getPassword(),false, true);
                         // DemoCache.clear();
 
@@ -4583,7 +4571,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 //                        AgoraMsgManager.getInstance().getRtmClient().logout(null);
 
-                        PreferenceLogin preferenceLogin = new PreferenceLogin(MainActivity.this);
+                        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
                         preferenceLogin.setPref(preferenceLogin.getUsername(),preferenceLogin.getPassword(),false, true);
                         // DemoCache.clear();
 
@@ -4637,7 +4625,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         final boolean [] ifChecked = {false, false};
 
         MDDialog mdDialog = new MDDialog.Builder(this)
-                .setContentView(R.layout.animation)
+                .setContentView(R.layout.dialog_animation)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
                     @Override
                     public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view

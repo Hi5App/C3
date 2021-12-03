@@ -13,7 +13,6 @@ public class PreferenceSetting {
 
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
-
     private Context mContext;
 
     public PreferenceSetting(Context context){
@@ -36,6 +35,5 @@ public class PreferenceSetting {
     public int getContrast(){
         return pref.getInt("Contrast",0);
     }
-
 
 }

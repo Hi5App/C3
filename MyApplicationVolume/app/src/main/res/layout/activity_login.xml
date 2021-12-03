@@ -168,7 +168,7 @@
             android:layout_marginLeft="24dp"
             android:layout_marginTop="16dp"
             android:layout_marginRight="24dp"
-            android:background="@drawable/bg_register"
+            android:background="@drawable/bg_register_button"
             android:elevation="0dp"
             android:outlineProvider="none"
             android:text="@string/action_register"
