@@ -86,6 +86,7 @@ import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
 import com.nightonke.boommenu.BoomButtons.ButtonPlaceEnum;
 import com.nightonke.boommenu.BoomButtons.OnBMClickListener;
 import com.nightonke.boommenu.BoomButtons.SimpleCircleButton;
+import com.nightonke.boommenu.BoomButtons.TextOutsideCircleButton;
 import com.nightonke.boommenu.BoomMenuButton;
 import com.nightonke.boommenu.ButtonEnum;
 import com.nightonke.boommenu.Piece.PiecePlaceEnum;
@@ -195,7 +196,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static MyRenderer myrenderer;
     private static Context mainContext;
 
-    private EditMode editMode;
+    private EditMode editMode = EditMode.NONE;
 
     private String filepath = "";                   // 弃用
     private boolean ifZooming = false;
@@ -1923,7 +1924,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         bmb.setBackgroundEffect(false);
         bmb.setShadowEffect(false);
 
-        bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
+        bmb.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
             @Override
             public void onBoomButtonClick(int index) {
                 if (editMode != EditMode.CHANGECURVETYPE) {
@@ -1934,18 +1935,18 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
         }).normalImageRes(R.drawable.ic_change_curve_type));
 
-        bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
+        bmb.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
             @Override
             public void onBoomButtonClick(int index) {
                 if (editMode != EditMode.CHANGEMARKERTYPE) {
-                    editMode = EditMode.CHANGECURVETYPE;
+                    editMode = EditMode.CHANGEMARKERTYPE;
                 } else {
                     editMode = EditMode.NONE;
                 }
             }
         }).normalImageRes(R.drawable.ic_change_marker_type));
 
-        bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
+        bmb.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
             @Override
             public void onBoomButtonClick(int index) {
                 if (editMode != EditMode.SPLIT) {
@@ -1956,8 +1957,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
         }).normalImageRes(R.drawable.ic_split));
 
-
-        bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
+        bmb.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
             @Override
             public void onBoomButtonClick(int index) {
                 if (editMode != EditMode.DELETEMULTIMARKER) {
@@ -1968,7 +1968,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
         }).normalImageRes(R.drawable.ic_clear));
 
-        bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
+        bmb.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
             @Override
             public void onBoomButtonClick(int index) {
                 try {
@@ -5354,7 +5354,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 lineDrawed.add(-1.0f);
                                 myrenderer.setIfPainting(true);
                                 requestRender();
-                                Log.v("actionPointerDown", "Paintinggggggggggg");
                             }
                             if (editMode == EditMode.PINPOINT){
                                 soundPool.play(soundId[1], actionVolume, actionVolume, 0, 0, 1.0f);
