@@ -958,11 +958,16 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //    };
 
 
+
     public void onMenuItemClick(View view) {
+        ImageView draw = findViewById(R.id.draw_i);
+        ImageView marker = findViewById(R.id.pinpoint);
+        ImageView DeleteCurve = findViewById(R.id.delete_curve);
+        ImageView DeleteMarker = findViewById(R.id.delete_marker);
 //        tapBarMenu.close();
         switch (view.getId()) {
             case R.id.draw_i:
-                ImageView draw = findViewById(R.id.draw_i);
+
                 if (!myrenderer.ifImageLoaded()){
                     ToastEasy("Please load a image first");
                     return;
@@ -970,8 +975,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 if (editMode != EditMode.PAINTCURVE) {
                     editMode = EditMode.PAINTCURVE;
                     draw.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw));
-                    ImageView marker = findViewById(R.id.pinpoint);
                     marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_main));
+                    DeleteCurve.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_curve_normal));
+                    DeleteMarker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_delete_normal));
                 } else {
                     editMode = EditMode.NONE;
                     draw.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw_main));
@@ -979,7 +985,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                 break;
             case R.id.pinpoint:
-                ImageView marker = findViewById(R.id.pinpoint);
                 if (!myrenderer.ifImageLoaded()){
                     ToastEasy("Please load a image first");
                     return;
@@ -987,8 +992,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 if (editMode != EditMode.PINPOINT) {
                     editMode = EditMode.PINPOINT;
                     marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_marker));
-                    ImageView drawi = findViewById(R.id.draw_i);
-                    drawi.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw_main));
+                    draw.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw_main));
+                    DeleteCurve.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_curve_normal));
+                    DeleteMarker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_delete_normal));
+
+
                 } else {
                     editMode = EditMode.NONE;
                     marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_main));
@@ -1016,11 +1024,40 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     e.printStackTrace();
                 }
                 break;
-            case R.id.clear:
-                myrenderer.deleteAllTracing();
-                myGLSurfaceView.requestRender();
-//                drawPopupView.dismiss();
+            case R.id.delete_curve:
+
+                if (!myrenderer.ifImageLoaded()){
+                    ToastEasy("Please load a image first");
+                    return;
+                }
+                if (editMode != EditMode.DELETECURVE) {
+                    editMode = EditMode.DELETECURVE;
+                    DeleteCurve.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_curve));
+                    draw.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw_main));
+                    marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_main));
+                    DeleteMarker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_delete_normal));
+                } else {
+                    editMode = EditMode.NONE;
+                    DeleteCurve.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_curve_normal));
+                }
                 break;
+            case R.id.delete_marker:
+
+                if (!myrenderer.ifImageLoaded()){
+                    ToastEasy("Please load a image first");
+                    return;
+                }
+                    if (editMode != EditMode.DELETEMARKER) {
+                        editMode = EditMode.DELETEMARKER;
+                        DeleteMarker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_delete));
+                        draw.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw_main));
+                        marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_main));
+                        DeleteCurve.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_curve_normal));
+                    } else {
+                        editMode = EditMode.NONE;
+                        DeleteMarker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_delete_normal));
+                    }
+                    break;
         }
     }
     
@@ -1859,18 +1896,29 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
         });
 
-        ImageView clear = tapBarMenu.findViewById(R.id.clear);
-        clear.setOnClickListener(new View.OnClickListener() {
+        ImageView delete_curve = tapBarMenu.findViewById(R.id.delete_curve);
+        delete_curve.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onMenuItemClick(v);
             }
         });
 
+        ImageView delete_marker = tapBarMenu.findViewById(R.id.delete_marker);
+        delete_marker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onMenuItemClick(v);
+            }
+        });
+
+
+
+
         BoomMenuButton bmb = (BoomMenuButton) findViewById(R.id.expanded_menu);
         bmb.setButtonEnum(ButtonEnum.SimpleCircle);
-        bmb.setPiecePlaceEnum(PiecePlaceEnum.DOT_5_1);
-        bmb.setButtonPlaceEnum(ButtonPlaceEnum.SC_5_1);
+        bmb.setPiecePlaceEnum(PiecePlaceEnum.DOT_6_1);
+        bmb.setButtonPlaceEnum(ButtonPlaceEnum.SC_6_1);
         bmb.setButtonRadius(Util.dp2px(15));
         bmb.setBackgroundEffect(false);
         bmb.setShadowEffect(false);
@@ -1884,7 +1932,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     editMode = EditMode.NONE;
                 }
             }
-        }).normalImageRes(R.drawable.ic_clear));
+        }).normalImageRes(R.drawable.ic_change_curve_type));
 
         bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
             @Override
@@ -1895,7 +1943,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     editMode = EditMode.NONE;
                 }
             }
-        }));
+        }).normalImageRes(R.drawable.ic_change_marker_type));
 
         bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
             @Override
@@ -1906,29 +1954,53 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     editMode = EditMode.NONE;
                 }
             }
-        }));
+        }).normalImageRes(R.drawable.ic_split));
+
 
         bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
             @Override
             public void onBoomButtonClick(int index) {
-                if (editMode != EditMode.DELETECURVE) {
-                    editMode = EditMode.DELETECURVE;
+                if (editMode != EditMode.DELETEMULTIMARKER) {
+                    editMode = EditMode.DELETEMULTIMARKER;
                 } else {
                     editMode = EditMode.NONE;
                 }
             }
-        }));
+        }).normalImageRes(R.drawable.ic_clear));
 
         bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
             @Override
             public void onBoomButtonClick(int index) {
-                if (editMode != EditMode.DELETEMARKER) {
-                    editMode = EditMode.DELETEMARKER;
-                } else {
-                    editMode = EditMode.NONE;
+                try {
+                    Log.v(TAG, "GD-Tracing start ~");
+                    ToastEasy("GD-Tracing start !");
+                    progressBar.setVisibility(View.VISIBLE);
+                    timer = new Timer();
+                    timerTask = new TimerTask() {
+                        @RequiresApi(api = Build.VERSION_CODES.N)
+                        @Override
+                        public void run() {
+                            try {
+                                GDTracing();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    };
+                    timer.schedule(timerTask, 1000);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-        }));
+        }).normalImageRes(R.drawable.ic_gd_tracing));
+
+        bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+                myrenderer.deleteAllTracing();
+                myGLSurfaceView.requestRender();
+            }
+        }).normalImageRes(R.drawable.ic_clear));
 
 
 
