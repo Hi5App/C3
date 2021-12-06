@@ -32,7 +32,7 @@ import com.penglab.hi5.core.collaboration.service.BasicService;
 import com.penglab.hi5.core.collaboration.service.ManageService;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.core.ui.home.screens.HomeActivity;
-import com.penglab.hi5.dataStore.PreferenceLogin;
+import com.penglab.hi5.data.dataStore.PreferenceLogin;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -339,8 +339,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
      * 已经登陆过，自动登陆
      */
     private boolean canAutoLogin() {
-        PreferenceLogin preferenceLogin = new PreferenceLogin(this);
-        return preferenceLogin.getAutoLogin();
+        return PreferenceLogin.getInstance().getAutoLogin();
     }
 
     private void parseNotifyIntent(Intent intent) {
@@ -383,7 +382,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 
     private void showMainActivity(Intent intent) {
         Log.e(TAG,"showMainActivity");
-        PreferenceLogin preferenceLogin = new PreferenceLogin(SplashScreenActivity.this);
+        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
         String account = preferenceLogin.getUsername();
 
         InfoCache.setAccount(account);
@@ -400,7 +399,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
     }
 
     private void autoLogin(){
-        PreferenceLogin preferenceLogin = new PreferenceLogin(this);
+        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
         ServerConnector serverConnector = ServerConnector.getInstance();
 
         if (serverConnector.checkConnection()){

@@ -3,7 +3,7 @@ package com.penglab.hi5.core.game;
 import android.content.Context;
 import android.util.Log;
 
-import com.penglab.hi5.dataStore.database.User;
+import com.penglab.hi5.data.dataStore.database.User;
 
 import org.litepal.LitePal;
 

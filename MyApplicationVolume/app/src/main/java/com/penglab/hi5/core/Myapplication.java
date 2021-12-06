@@ -42,7 +42,7 @@ import com.penglab.hi5.core.game.DailyQuestsContainer;
 import com.penglab.hi5.core.game.RewardLitePalConnector;
 import com.penglab.hi5.core.game.Score;
 import com.penglab.hi5.core.game.ScoreLitePalConnector;
-import com.penglab.hi5.dataStore.PreferenceLogin;
+import com.penglab.hi5.data.dataStore.PreferenceLogin;
 
 import org.litepal.LitePal;
 import java.io.IOException;
@@ -83,6 +83,7 @@ public class Myapplication extends Application {
         CrashHandler.getInstance().init(getApplicationContext(), this);
 
         // store user info
+        PreferenceLogin.init(getApplicationContext());
         LitePal.initialize(this);
         SQLiteDatabase db = LitePal.getDatabase();
         DailyQuestsContainer.init(this);
@@ -144,15 +145,15 @@ public class Myapplication extends Application {
 
     // load user info
     private LoginInfo getLoginInfo() {
-        PreferenceLogin preferenceLogin = new PreferenceLogin(this);
+        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
         String account = preferenceLogin.getUsername();
-        String token = preferenceLogin.getPassword();
+        String password = preferenceLogin.getPassword();
 
-        if (preferenceLogin.getRem_or_not() && !account.equals("") && !token.equals("")) {
-            Log.e(TAG,"account: " + account + ";  token: " + token);
+        if (preferenceLogin.getRem_or_not() && !account.equals("") && !password.equals("")) {
+            Log.e(TAG,"account: " + account + ";  password: " + password);
             InfoCache.setAccount(account.toLowerCase());
-            InfoCache.setToken(token);
-            return new LoginInfo(account, token);
+            InfoCache.setToken(password);
+            return new LoginInfo(account, password);
         } else {
             return null;
         }

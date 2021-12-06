@@ -31,4 +31,6 @@
     <dimen name="lay_12">12.0dip</dimen>
     <dimen name="lay_16">16.0dip</dimen>
 
+    <dimen name="nav_header_vertical_spacing">8dp</dimen>
+
 </resources>

@@ -6,7 +6,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.MediaRouteButton;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -19,7 +18,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.media.AudioManager;
 import android.media.SoundPool;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
@@ -31,7 +29,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -39,7 +36,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -49,7 +45,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -59,9 +54,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.FileProvider;
 
-import com.lazy.library.logging.Logcat;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.enums.PopupAnimation;
@@ -100,7 +93,6 @@ import com.penglab.hi5.basic.tracingfunc.gd.CurveTracePara;
 import com.penglab.hi5.basic.tracingfunc.gd.V3dNeuronGDTracing;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
-import com.penglab.hi5.basic.utils.CrashHandler;
 import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.chat.ChatActivity;
 import com.penglab.hi5.chat.nim.InfoCache;
@@ -118,29 +110,18 @@ import com.penglab.hi5.core.fileReader.annotationReader.AnoReader;
 import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
 import com.penglab.hi5.core.fileReader.imageReader.BigImgReader;
 import com.penglab.hi5.core.game.AchievementPopup;
-import com.penglab.hi5.core.game.DailyQuestsContainer;
 import com.penglab.hi5.core.game.LeaderBoardActivity;
 import com.penglab.hi5.core.game.LeaderBoardContainer;
 import com.penglab.hi5.core.game.LeaderBoardItem;
 import com.penglab.hi5.core.game.QuestActivity;
 import com.penglab.hi5.core.game.RewardActivity;
-import com.penglab.hi5.core.game.RewardLitePalConnector;
-import com.penglab.hi5.core.game.Score;
-import com.penglab.hi5.core.game.ScoreLitePalConnector;
 import com.penglab.hi5.core.ui.login.LoginActivity;
-import com.penglab.hi5.dataStore.PreferenceLogin;
-import com.penglab.hi5.dataStore.SettingFileManager;
+import com.penglab.hi5.data.dataStore.PreferenceLogin;
+import com.penglab.hi5.data.dataStore.SettingFileManager;
 import com.warkiz.widget.IndicatorSeekBar;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -157,9 +138,9 @@ import java.util.concurrent.TimeUnit;
 import cn.carbs.android.library.MDDialog;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
-import static com.penglab.hi5.dataStore.SettingFileManager.getFilename_Remote;
-import static com.penglab.hi5.dataStore.SettingFileManager.getoffset_Remote;
-import static com.penglab.hi5.dataStore.SettingFileManager.setSelectSource;
+import static com.penglab.hi5.data.dataStore.SettingFileManager.getFilename_Remote;
+import static com.penglab.hi5.data.dataStore.SettingFileManager.getoffset_Remote;
+import static com.penglab.hi5.data.dataStore.SettingFileManager.setSelectSource;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
@@ -4308,8 +4289,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 //                        AgoraMsgManager.getInstance().getRtmClient().logout(null);
 
-                        PreferenceLogin preferenceLogin = new PreferenceLogin(S2Activity.this);
-                        //         preferenceLogin.setPref("","",false);
+//                        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
+//                        preferenceLogin.setPref("","",false);
                         // DemoCache.clear();
 
                         startActivity(new Intent(S2Activity.this, LoginActivity.class));
@@ -4337,7 +4318,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         final boolean[] ifChecked = {false, false};
 
         MDDialog mdDialog = new MDDialog.Builder(this)
-                .setContentView(R.layout.animation)
+                .setContentView(R.layout.dialog_animation)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
                     @Override
                     public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view

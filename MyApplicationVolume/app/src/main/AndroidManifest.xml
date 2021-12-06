@@ -85,7 +85,7 @@
         <activity android:name=".chat.nim.main.activity.SettingsActivity" />
         <activity android:name=".chat.nim.main.activity.NoDisturbActivity" />
         <activity android:name=".core.S2Activity" />
-        <activity android:name=".core.ui.login.RegisterActivity"/>
+        <activity android:name=".core.ui.register.RegisterActivity"/>
         <activity android:name=".core.ui.login.LoginActivity"/>
         <activity
             android:name=".core.SplashScreenActivity"

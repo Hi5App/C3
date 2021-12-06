@@ -3,8 +3,8 @@ package com.penglab.hi5.core.game;
 import android.content.Context;
 import android.util.Log;
 
-import com.penglab.hi5.dataStore.database.DailyQuest;
-import com.penglab.hi5.dataStore.database.UserDailyQuest;
+import com.penglab.hi5.data.dataStore.database.DailyQuest;
+import com.penglab.hi5.data.dataStore.database.UserDailyQuest;
 
 import org.litepal.LitePal;
 

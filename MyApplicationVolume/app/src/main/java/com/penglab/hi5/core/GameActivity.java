@@ -28,7 +28,7 @@
 //import com.penglab.hi5.core.fileReader.imageReader.BigImgReader;
 //import com.penglab.hi5.basic.NeuronSWC;
 //import com.penglab.hi5.basic.NeuronTree;
-//import com.penglab.hi5.dataStore.SettingFileManager;
+//import com.penglab.hi5.data.dataStore.SettingFileManager;
 //import com.penglab.hi5.serverCommunicator.Remote_Socket;
 //import com.penglab.hi5.game.GameCharacter;
 //import com.lxj.xpopup.XPopup;
@@ -58,11 +58,11 @@
 //import java.util.Timer;
 //import java.util.TimerTask;
 //
-//import static com.penglab.hi5.dataStore.SettingFileManager.getFilename_Remote;
-//import static com.penglab.hi5.dataStore.SettingFileManager.getNeuronNumber_Remote;
-//import static com.penglab.hi5.dataStore.SettingFileManager.getoffset_Remote;
-//import static com.penglab.hi5.dataStore.SettingFileManager.setFilename_Remote;
-//import static com.penglab.hi5.dataStore.SettingFileManager.setoffset_Remote;
+//import static com.penglab.hi5.data.dataStore.SettingFileManager.getFilename_Remote;
+//import static com.penglab.hi5.data.dataStore.SettingFileManager.getNeuronNumber_Remote;
+//import static com.penglab.hi5.data.dataStore.SettingFileManager.getoffset_Remote;
+//import static com.penglab.hi5.data.dataStore.SettingFileManager.setFilename_Remote;
+//import static com.penglab.hi5.data.dataStore.SettingFileManager.setoffset_Remote;
 //
 //public class GameActivity extends BaseActivity {
 //

@@ -1,6 +1,5 @@
 package com.penglab.hi5.core.ui.login;
 
-import android.util.Log;
 import android.util.Patterns;
 
 import androidx.lifecycle.LiveData;
@@ -8,18 +7,18 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.penglab.hi5.R;
-import com.penglab.hi5.core.ui.login.data.LoginRepository;
-import com.penglab.hi5.core.ui.login.data.Result;
-import com.penglab.hi5.core.ui.login.data.model.LoggedInUser;
+import com.penglab.hi5.data.Result;
+import com.penglab.hi5.data.UserInfoRepository;
+import com.penglab.hi5.data.model.user.LoggedInUser;
 
 public class LoginViewModel extends ViewModel {
 
-    private MutableLiveData<LoginFormState> loginFormState = new MutableLiveData<>();
-    private MutableLiveData<LoginResult> loginResult = new MutableLiveData<>();
-    private LoginRepository loginRepository;
+    private final MutableLiveData<LoginFormState> loginFormState = new MutableLiveData<>();
+    private final MutableLiveData<LoginResult> loginResult = new MutableLiveData<>();
+    private final UserInfoRepository userInfoRepository;
 
-    LoginViewModel(LoginRepository loginRepository) {
-        this.loginRepository = loginRepository;
+    public LoginViewModel(UserInfoRepository userInfoRepository) {
+        this.userInfoRepository = userInfoRepository;
     }
 
     LiveData<LoginFormState> getLoginFormState() {
@@ -32,11 +31,11 @@ public class LoginViewModel extends ViewModel {
 
     public void login(String username, String password) {
         // can be launched in a separate asynchronous job
-        Result<LoggedInUser> result = loginRepository.login(username, password);
+        Result<LoggedInUser> result = userInfoRepository.login(username, password);
 
         if (result instanceof Result.Success) {
             LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
-            loginResult.setValue(new LoginResult(new LoggedInUserView(data.getDisplayName())));
+            loginResult.setValue(new LoginResult(new LoggedInUserView(data.getUserId(), data.getNickName())));
         } else {
             loginResult.setValue(new LoginResult(result.toString()));
         }

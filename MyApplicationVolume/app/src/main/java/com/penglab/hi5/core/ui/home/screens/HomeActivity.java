@@ -37,7 +37,7 @@ import com.penglab.hi5.basic.utils.CrashReports;
 import com.penglab.hi5.core.BaseActivity;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.core.ui.home.adapters.MainPagerAdapter;
-import com.penglab.hi5.dataStore.PreferenceLogin;
+import com.penglab.hi5.data.dataStore.PreferenceLogin;
 
 import java.io.File;
 
@@ -209,7 +209,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
 
 //                        AgoraMsgManager.getInstance().getRtmClient().logout(null);
 
-                        PreferenceLogin preferenceLogin = new PreferenceLogin(HomeActivity.this);
+                        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
                         preferenceLogin.setPref(preferenceLogin.getUsername(), preferenceLogin.getPassword(), false, true);
                         // DemoCache.clear();
 
@@ -234,7 +234,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        PreferenceLogin preferenceLogin = new PreferenceLogin(HomeActivity.this);
+                        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
                         preferenceLogin.setPref(preferenceLogin.getUsername(), preferenceLogin.getPassword(), false, true);
                         // DemoCache.clear();
 
