@@ -58,6 +58,17 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.legacy.app.ActionBarDrawerToggle;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.enums.PopupAnimation;
@@ -86,6 +97,7 @@ import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
 import com.nightonke.boommenu.BoomButtons.ButtonPlaceEnum;
 import com.nightonke.boommenu.BoomButtons.OnBMClickListener;
 import com.nightonke.boommenu.BoomButtons.SimpleCircleButton;
+import com.nightonke.boommenu.BoomButtons.TextOutsideCircleButton;
 import com.nightonke.boommenu.BoomMenuButton;
 import com.nightonke.boommenu.ButtonEnum;
 import com.nightonke.boommenu.Piece.PiecePlaceEnum;
@@ -195,7 +207,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static MyRenderer myrenderer;
     private static Context mainContext;
 
-    private EditMode editMode;
+    private MutableLiveData<EditMode> editMode = new MutableLiveData<>(EditMode.NONE);
 
     private String filepath = "";                   // 弃用
     private boolean ifZooming = false;
@@ -256,6 +268,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static ImageButton user_list;
     private static ImageButton room_id;
 
+    private static ImageButton edit_mode_imagebutton;
+
 //    private static ImageButton neuron_list;
 //    private static ImageButton sync_push;
 //    private static ImageButton sync_pull;
@@ -283,6 +297,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private static FrameLayout.LayoutParams lp_room_id;
     private static FrameLayout.LayoutParams lp_user_list;
+
+    private static FrameLayout.LayoutParams lp_edit_mode;
 
     private Button PixelClassification;                     // 已弃用
     private boolean[][]select= {{true,true,true,false,false,false,false},
@@ -972,14 +988,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     ToastEasy("Please load a image first");
                     return;
                 }
-                if (editMode != EditMode.PAINTCURVE) {
-                    editMode = EditMode.PAINTCURVE;
+                if (editMode.getValue() != EditMode.PAINTCURVE) {
+                    editMode.setValue(EditMode.PAINTCURVE);
                     draw.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw));
                     marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_main));
                     DeleteCurve.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_curve_normal));
                     DeleteMarker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_delete_normal));
                 } else {
-                    editMode = EditMode.NONE;
+                    editMode.setValue(EditMode.NONE);
                     draw.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw_main));
                 }
 
@@ -989,8 +1005,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     ToastEasy("Please load a image first");
                     return;
                 }
-                if (editMode != EditMode.PINPOINT) {
-                    editMode = EditMode.PINPOINT;
+                if (editMode.getValue() != EditMode.PINPOINT) {
+                    editMode.setValue(EditMode.PINPOINT);
                     marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_marker));
                     draw.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw_main));
                     DeleteCurve.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_curve_normal));
@@ -998,7 +1014,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
                 } else {
-                    editMode = EditMode.NONE;
+                    editMode.setValue(EditMode.NONE);
                     marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_main));
                 }
                 break;
@@ -1030,14 +1046,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     ToastEasy("Please load a image first");
                     return;
                 }
-                if (editMode != EditMode.DELETECURVE) {
-                    editMode = EditMode.DELETECURVE;
+                if (editMode.getValue() != EditMode.DELETECURVE) {
+                    editMode.setValue(EditMode.DELETECURVE);
                     DeleteCurve.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_curve));
                     draw.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw_main));
                     marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_main));
                     DeleteMarker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_delete_normal));
                 } else {
-                    editMode = EditMode.NONE;
+                    editMode.setValue(EditMode.NONE);
                     DeleteCurve.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_curve_normal));
                 }
                 break;
@@ -1047,14 +1063,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     ToastEasy("Please load a image first");
                     return;
                 }
-                    if (editMode != EditMode.DELETEMARKER) {
-                        editMode = EditMode.DELETEMARKER;
+                    if (editMode.getValue() != EditMode.DELETEMARKER) {
+                        editMode.setValue(EditMode.DELETEMARKER);
                         DeleteMarker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_delete));
                         draw.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw_main));
                         marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_main));
                         DeleteCurve.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_curve_normal));
                     } else {
-                        editMode = EditMode.NONE;
+                        editMode.setValue(EditMode.NONE);
                         DeleteMarker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_delete_normal));
                     }
                     break;
@@ -1345,14 +1361,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         manual_sync = new ImageButton(this);
         manual_sync.setImageResource(R.drawable.ic_baseline_autorenew_24);
 
-
         room_id = new ImageButton(this);
         room_id.setImageResource(R.drawable.ic_baseline_place_24);
 
         user_list = new ImageButton(this);
         user_list.setImageResource(R.drawable.ic_baseline_account_box_24);
 
-
+        edit_mode_imagebutton = new ImageButton(this);
+        edit_mode_imagebutton.setImageResource(0);
+        edit_mode_imagebutton.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         /*
         set button layout ------------------------------------------------------------------------------------
@@ -1368,7 +1385,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
         lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
-
 
         FrameLayout.LayoutParams lp_zoom_out_no = new FrameLayout.LayoutParams(100, 150);
         lp_zoom_out_no.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
@@ -1452,8 +1468,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         lp_user_list.gravity = Gravity.TOP | Gravity.RIGHT;
         lp_user_list.setMargins(0, 440, 20, 0);
 
-
-
+        lp_edit_mode = new FrameLayout.LayoutParams(115, 115);
+        lp_edit_mode.gravity = Gravity.TOP | Gravity.RIGHT;
+        lp_edit_mode.setMargins(0, 340, 120, 0);
 
         /*
         button onclick event  -----------------------------------------------------------------------------
@@ -1512,7 +1529,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 }
 
                 if (isBigData_Remote){
-                    editMode = EditMode.ZOOM;
+                    editMode.setValue(EditMode.ZOOM);
                     ifZooming = !ifZooming;
                     ifChangeLineType = false;
                     ifDeletingLine = false;
@@ -1659,11 +1676,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 }
 
                 if (isBigData_Remote){
-                    if(editMode == EditMode.ZOOMINROI){
-                        editMode = EditMode.NONE;
+                    if(editMode.getValue() == EditMode.ZOOMINROI){
+                        editMode.setValue(EditMode.NONE);
                         ROI_i.setImageResource(R.drawable.ic_roi_stop);
                     }else{
-                        editMode = EditMode.ZOOMINROI;
+                        editMode.setValue(EditMode.ZOOMINROI);
                         ROI_i.setImageResource(R.drawable.ic_roi);
                     }
 
@@ -1916,59 +1933,58 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
         BoomMenuButton bmb = (BoomMenuButton) findViewById(R.id.expanded_menu);
-        bmb.setButtonEnum(ButtonEnum.SimpleCircle);
+        bmb.setButtonEnum(ButtonEnum.TextOutsideCircle);
         bmb.setPiecePlaceEnum(PiecePlaceEnum.DOT_6_1);
         bmb.setButtonPlaceEnum(ButtonPlaceEnum.SC_6_1);
         bmb.setButtonRadius(Util.dp2px(15));
         bmb.setBackgroundEffect(false);
         bmb.setShadowEffect(false);
 
-        bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
+        bmb.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
             @Override
             public void onBoomButtonClick(int index) {
-                if (editMode != EditMode.CHANGECURVETYPE) {
-                    editMode = EditMode.CHANGECURVETYPE;
+                if (editMode.getValue() != EditMode.CHANGECURVETYPE) {
+                    editMode.setValue(EditMode.CHANGECURVETYPE);
                 } else {
-                    editMode = EditMode.NONE;
+                    editMode.setValue(EditMode.NONE);
                 }
             }
-        }).normalImageRes(R.drawable.ic_change_curve_type));
+        }).normalImageRes(R.drawable.ic_change_curve_type).normalText("Change Curve Color"));
 
-        bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
+        bmb.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
             @Override
             public void onBoomButtonClick(int index) {
-                if (editMode != EditMode.CHANGEMARKERTYPE) {
-                    editMode = EditMode.CHANGECURVETYPE;
+                if (editMode.getValue() != EditMode.CHANGEMARKERTYPE) {
+                    editMode.setValue(EditMode.CHANGEMARKERTYPE);
                 } else {
-                    editMode = EditMode.NONE;
+                    editMode.setValue(EditMode.NONE);
                 }
             }
-        }).normalImageRes(R.drawable.ic_change_marker_type));
+        }).normalImageRes(R.drawable.ic_change_marker_type).normalText("Change Marker Color"));
 
-        bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
+        bmb.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
             @Override
             public void onBoomButtonClick(int index) {
-                if (editMode != EditMode.SPLIT) {
-                    editMode = EditMode.SPLIT;
+                if (editMode.getValue() != EditMode.SPLIT) {
+                    editMode.setValue(EditMode.SPLIT);
                 } else {
-                    editMode = EditMode.NONE;
+                    editMode.setValue(EditMode.NONE);
                 }
             }
-        }).normalImageRes(R.drawable.ic_split));
+        }).normalImageRes(R.drawable.ic_split).normalText("Split"));
 
-
-        bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
+        bmb.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
             @Override
             public void onBoomButtonClick(int index) {
-                if (editMode != EditMode.DELETEMULTIMARKER) {
-                    editMode = EditMode.DELETEMULTIMARKER;
+                if (editMode.getValue() != EditMode.DELETEMULTIMARKER) {
+                    editMode.setValue(EditMode.DELETEMULTIMARKER);
                 } else {
-                    editMode = EditMode.NONE;
+                    editMode.setValue(EditMode.NONE);
                 }
             }
-        }).normalImageRes(R.drawable.ic_clear));
+        }).normalImageRes(R.drawable.ic_delete_multimarker).normalText("Delete Multi Markers"));
 
-        bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
+        bmb.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
             @Override
             public void onBoomButtonClick(int index) {
                 try {
@@ -1992,16 +2008,58 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     e.printStackTrace();
                 }
             }
-        }).normalImageRes(R.drawable.ic_gd_tracing));
+        }).normalImageRes(R.drawable.ic_gd_tracing).normalText("GD-Tracing"));
 
-        bmb.addBuilder(new SimpleCircleButton.Builder().listener(new OnBMClickListener() {
+        bmb.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
             @Override
             public void onBoomButtonClick(int index) {
                 myrenderer.deleteAllTracing();
                 myGLSurfaceView.requestRender();
             }
-        }).normalImageRes(R.drawable.ic_clear));
+        }).normalImageRes(R.drawable.ic_clear).normalText("Clear Tracing"));
 
+        editMode.observe(this, new androidx.lifecycle.Observer<EditMode>() {
+            @Override
+            public void onChanged(EditMode editMode) {
+                switch (editMode) {
+                    case NONE:
+                        edit_mode_imagebutton.setImageResource(0);
+                        break;
+                    case CHANGECURVETYPE:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_change_curve_type);
+                        break;
+                    case PAINTCURVE:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_draw_main);
+                        break;
+                    case PINPOINT:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_add_marker);
+                        break;
+                    case DELETECURVE:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_delete_curve);
+                        break;
+                    case DELETEMARKER:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_marker_delete);
+                        break;
+                    case CHANGEMARKERTYPE:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_change_marker_type);
+                        break;
+                    case DELETEMULTIMARKER:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_delete_multimarker);
+                        break;
+                    case SPLIT:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_split);
+                        break;
+                    case ZOOM:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_zoom_in);
+                        break;
+                    case ZOOMINROI:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_roi);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
 
 
 
@@ -2037,6 +2095,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         this.addContentView(room_id, lp_room_id);
         this.addContentView(user_list, lp_user_list);
         this.addContentView(animation_i,lp_animation_i);
+        this.addContentView(edit_mode_imagebutton, lp_edit_mode);
 
 
         Zoom_in_Big.setVisibility(View.GONE);
@@ -2060,6 +2119,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         room_id.setVisibility(View.GONE);
         user_list.setVisibility(View.GONE);
         animation_i.setVisibility(View.GONE);
+        edit_mode_imagebutton.setVisibility(View.GONE);
 
 
 //        this.addContentView(neuron_list, lp_neuron_list);
@@ -5345,21 +5405,20 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         case MotionEvent.ACTION_DOWN:
                             X = normalizedX;
                             Y = normalizedY;
-                            if (editMode == EditMode.PAINTCURVE || editMode == EditMode.DELETECURVE
-                                    || editMode == EditMode.SPLIT || editMode == EditMode.DELETEMULTIMARKER
-                                    || editMode == EditMode.CHANGECURVETYPE || editMode == EditMode.ZOOMINROI) {
+                            if (editMode.getValue() == EditMode.PAINTCURVE || editMode.getValue() == EditMode.DELETECURVE
+                                    || editMode.getValue() == EditMode.SPLIT || editMode.getValue() == EditMode.DELETEMULTIMARKER
+                                    || editMode.getValue() == EditMode.CHANGECURVETYPE || editMode.getValue() == EditMode.ZOOMINROI) {
                                 soundPool.play(soundId[0], actionVolume, actionVolume, 0, 0, 1.0f);
                                 lineDrawed.add(X);
                                 lineDrawed.add(Y);
                                 lineDrawed.add(-1.0f);
                                 myrenderer.setIfPainting(true);
                                 requestRender();
-                                Log.v("actionPointerDown", "Paintinggggggggggg");
                             }
-                            if (editMode == EditMode.PINPOINT){
+                            if (editMode.getValue() == EditMode.PINPOINT){
                                 soundPool.play(soundId[1], actionVolume, actionVolume, 0, 0, 1.0f);
                             }
-                            if (editMode == EditMode.PAINTCURVE){
+                            if (editMode.getValue() == EditMode.PAINTCURVE){
                                 soundPool.play(soundId[0], actionVolume, actionVolume, 0, 0, 1.0f);
                             }
                             break;
@@ -5418,7 +5477,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 x1_start = x2;
                                 y1_start = y2;
                             } else if (!isZooming){
-                                if (editMode == EditMode.NONE) {
+                                if (editMode.getValue() == EditMode.NONE) {
                                     if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
                                         if (!myrenderer.getIfDownSampling())
                                             myrenderer.setIfDownSampling(true);
@@ -5453,8 +5512,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         case MotionEvent.ACTION_UP:
                             if (!isZooming) {
                                 try {
-                                    if (editMode == EditMode.ZOOM) {
-                                        editMode = EditMode.NONE;
+                                    if (editMode.getValue() == EditMode.ZOOM) {
+                                        editMode.setValue(EditMode.NONE);
                                         float [] center = myrenderer.solveMarkerCenter(normalizedX, normalizedY);
                                         if (center != null) {
                                             Communicator communicator = Communicator.getInstance();
@@ -5462,7 +5521,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                             requestRender();
                                         }
                                     }
-                                    if (editMode == EditMode.PINPOINT) {
+                                    if (editMode.getValue() == EditMode.PINPOINT) {
                                         if(ifGuestLogin == false)
                                         {
                                             Score scoreInstance = Score.getInstance();
@@ -5475,19 +5534,19 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         }
                                         requestRender();
                                     }
-                                    if (editMode == EditMode.DELETEMARKER) {
+                                    if (editMode.getValue() == EditMode.DELETEMARKER) {
                                         myrenderer.deleteMarkerDrawed(normalizedX, normalizedY, isBigData_Remote);
                                         requestRender();
                                     }
-                                    if (editMode == EditMode.DELETEMULTIMARKER) {
+                                    if (editMode.getValue() == EditMode.DELETEMULTIMARKER) {
                                         myrenderer.deleteMultiMarkerByStroke(lineDrawed, isBigData_Remote);
                                         requestRender();
                                     }
-                                    if (editMode == EditMode.CHANGEMARKERTYPE) {
+                                    if (editMode.getValue() == EditMode.CHANGEMARKERTYPE) {
                                         myrenderer.changeMarkerType(normalizedX, normalizedY, isBigData_Remote);
                                         requestRender();
                                     }
-                                    if (editMode == EditMode.PAINTCURVE) {
+                                    if (editMode.getValue() == EditMode.PAINTCURVE) {
                                         Vector<Integer> segids = new Vector<>();
                                         myrenderer.setIfPainting(false);
                                         if(ifGuestLogin == false)
@@ -5532,7 +5591,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         requestRender();
                                     }
 
-                                    if(editMode == EditMode.ZOOMINROI){
+                                    if(editMode.getValue() == EditMode.ZOOMINROI){
                                         ifSettingROI=false;
                                         float [] center = myrenderer.GetROICenter(lineDrawed,isBigData_Remote);
                                         if (center != null) {
@@ -5542,7 +5601,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         }
                                     }
 
-                                    if (editMode == EditMode.DELETECURVE) {
+                                    if (editMode.getValue() == EditMode.DELETECURVE) {
                                         myrenderer.setIfPainting(false);
                                         myrenderer.deleteLine1(lineDrawed, isBigData_Remote);
                                         lineDrawed.clear();
@@ -5550,7 +5609,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         requestRender();
                                     }
 
-                                    if (editMode == EditMode.SPLIT) {
+                                    if (editMode.getValue() == EditMode.SPLIT) {
                                         myrenderer.setIfPainting(false);
                                         myrenderer.splitCurve(lineDrawed, isBigData_Remote);
                                         lineDrawed.clear();
@@ -5558,7 +5617,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         requestRender();
                                     }
 
-                                    if (editMode == EditMode.CHANGECURVETYPE) {
+                                    if (editMode.getValue() == EditMode.CHANGECURVETYPE) {
                                         myrenderer.setIfPainting(false);
                                         int type = myrenderer.getLastLineType();
                                         myrenderer.changeLineType(lineDrawed, type, isBigData_Remote);
@@ -5787,7 +5846,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     room_id.setVisibility(View.VISIBLE);
                     manual_sync.setVisibility(View.VISIBLE);
                     ROI_i.setVisibility(View.VISIBLE);
-
+                    edit_mode_imagebutton.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -5800,6 +5859,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 room_id.setVisibility(View.GONE);
                 manual_sync.setVisibility(View.GONE);
                 ROI_i.setVisibility(View.GONE);
+                edit_mode_imagebutton.setVisibility(View.GONE);
             }
             isBigData_Remote = false;
             isBigData_Local  = false;
@@ -5834,6 +5894,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 room_id.setVisibility(View.GONE);
                 manual_sync.setVisibility(View.GONE);
                 ROI_i.setVisibility(View.GONE);
+                edit_mode_imagebutton.setVisibility(View.GONE);
             }
             isBigData_Remote = false;
             isBigData_Local  = false;
@@ -5890,6 +5951,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 room_id.setVisibility(View.GONE);
                 manual_sync.setVisibility(View.GONE);
                 ROI_i.setVisibility(View.GONE);
+                edit_mode_imagebutton.setVisibility(View.GONE);
             }
         }else {
             Zoom_in.setVisibility(View.GONE);
@@ -5932,6 +5994,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 room_id.setVisibility(View.VISIBLE);
                 manual_sync.setVisibility(View.VISIBLE);
                 ROI_i.setVisibility(View.VISIBLE);
+                edit_mode_imagebutton.setVisibility(View.VISIBLE);
             }
 
         }else {
@@ -6219,8 +6282,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public static void setIfGame(boolean b){
         ifGame = b;
     }
-
-
 
 
 
