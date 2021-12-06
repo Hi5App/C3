@@ -1,10 +1,10 @@
-package com.penglab.hi5.core.ui.login;
+package com.penglab.hi5.core.ui.register;
 
 import androidx.annotation.Nullable;
 
 public class RegisterResult {
-    @Nullable
-    private LoggedInUserView success;
+   @Nullable
+    private RegisterView success;
     @Nullable
     private Integer error;
     @Nullable
@@ -14,16 +14,16 @@ public class RegisterResult {
         this.error = error;
     }
 
-    RegisterResult(@Nullable String error){
-        this.errorString = error;
+    RegisterResult(@Nullable String errorString){
+        this.errorString = errorString;
     }
 
-    RegisterResult(@Nullable LoggedInUserView success) {
+    RegisterResult(@Nullable RegisterView success) {
         this.success = success;
     }
 
     @Nullable
-    LoggedInUserView getSuccess() {
+    RegisterView getSuccess() {
         return success;
     }
 

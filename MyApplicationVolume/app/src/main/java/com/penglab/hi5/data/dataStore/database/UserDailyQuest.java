@@ -1,4 +1,4 @@
-package com.penglab.hi5.dataStore.database;
+package com.penglab.hi5.data.dataStore.database;
 
 import com.netease.nim.uikit.common.util.collection.CollectionUtil;
 

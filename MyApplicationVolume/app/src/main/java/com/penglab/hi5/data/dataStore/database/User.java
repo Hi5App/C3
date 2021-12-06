@@ -1,4 +1,4 @@
-package com.penglab.hi5.dataStore.database;
+package com.penglab.hi5.data.dataStore.database;
 
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;

@@ -37,7 +37,7 @@ import com.penglab.hi5.basic.utils.CrashReports;
 import com.penglab.hi5.core.BaseActivity;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.core.ui.home.adapters.MainPagerAdapter;
-import com.penglab.hi5.dataStore.PreferenceLogin;
+import com.penglab.hi5.data.dataStore.PreferenceLogin;
 
 import java.io.File;
 

@@ -3,8 +3,8 @@ package com.penglab.hi5.core.game;
 import android.content.Context;
 import android.util.Log;
 
-import com.penglab.hi5.dataStore.database.Reward;
-import com.penglab.hi5.dataStore.database.UserReward;
+import com.penglab.hi5.data.dataStore.database.Reward;
+import com.penglab.hi5.data.dataStore.database.UserReward;
 
 import org.litepal.LitePal;
 

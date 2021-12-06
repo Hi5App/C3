@@ -32,12 +32,12 @@
     	</list>
     -->
     <list>
-        <mapping class="com.penglab.hi5.dataStore.database.Image" />
-        <mapping class="com.penglab.hi5.dataStore.database.User" />
-        <mapping class="com.penglab.hi5.dataStore.database.DailyQuest" />
-        <mapping class="com.penglab.hi5.dataStore.database.UserDailyQuest" />
-        <mapping class="com.penglab.hi5.dataStore.database.Reward" />
-        <mapping class="com.penglab.hi5.dataStore.database.UserReward" />
+        <mapping class="com.penglab.hi5.data.dataStore.database.Image" />
+        <mapping class="com.penglab.hi5.data.dataStore.database.User" />
+        <mapping class="com.penglab.hi5.data.dataStore.database.DailyQuest" />
+        <mapping class="com.penglab.hi5.data.dataStore.database.UserDailyQuest" />
+        <mapping class="com.penglab.hi5.data.dataStore.database.Reward" />
+        <mapping class="com.penglab.hi5.data.dataStore.database.UserReward" />
     </list>
 
     <!--

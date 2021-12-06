@@ -1,18 +1,18 @@
-package com.penglab.hi5.core.ui.login;
+package com.penglab.hi5.core.ui.register;
 
 import androidx.annotation.Nullable;
 
 public class RegisterFormState {
     @Nullable
-    private Integer emailError;
+    private final Integer emailError;
     @Nullable
-    private Integer usernameError;
+    private final Integer usernameError;
     @Nullable
-    private Integer passwordError;
+    private final Integer passwordError;
     @Nullable
-    private Integer nicknameError;
+    private final Integer nicknameError;
 
-    private boolean isDataValid;
+    private final boolean isDataValid;
 
     RegisterFormState(@Nullable Integer emailError, @Nullable Integer usernameError, @Nullable Integer passwordError, @Nullable Integer nicknameError) {
         this.emailError = emailError;

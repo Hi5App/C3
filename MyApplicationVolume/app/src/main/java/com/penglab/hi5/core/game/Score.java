@@ -25,7 +25,7 @@ Marker 1
 
 import android.content.Context;
 
-import com.penglab.hi5.dataStore.database.User;
+import com.penglab.hi5.data.dataStore.database.User;
 import com.penglab.hi5.core.MainActivity;
 
 import java.util.ArrayList;

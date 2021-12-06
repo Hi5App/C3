@@ -1,6 +1,5 @@
-package com.penglab.hi5.core.ui.login;
+package com.penglab.hi5.core.ui.register;
 
-import android.util.Log;
 import android.util.Patterns;
 
 import androidx.lifecycle.LiveData;
@@ -8,17 +7,17 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.penglab.hi5.R;
-import com.penglab.hi5.core.ui.login.data.RegisterRespository;
-import com.penglab.hi5.core.ui.login.data.Result;
-import com.penglab.hi5.core.ui.login.data.model.LoggedInUser;
+import com.penglab.hi5.data.Result;
+import com.penglab.hi5.data.RegisterDataSource;
+import com.penglab.hi5.data.model.user.RegisterUser;
 
 public class RegisterViewModel extends ViewModel {
-    private MutableLiveData<RegisterFormState> registerFormState = new MutableLiveData<>();
-    private MutableLiveData<RegisterResult> registerResult = new MutableLiveData<>();
-    private RegisterRespository registerRespository;
+    private final MutableLiveData<RegisterFormState> registerFormState = new MutableLiveData<>();
+    private final MutableLiveData<RegisterResult> registerResult = new MutableLiveData<>();
+    private final RegisterDataSource registerDataSource;
 
-    RegisterViewModel(RegisterRespository registerRespository) {
-        this.registerRespository = registerRespository;
+    public RegisterViewModel(RegisterDataSource registerDataSource) {
+        this.registerDataSource = registerDataSource;
     }
 
     LiveData<RegisterFormState> getRegisterFormState() {
@@ -30,17 +29,12 @@ public class RegisterViewModel extends ViewModel {
     }
 
     public void register(String email, String username, String nickname, String password, String inviterCode) {
-        // can be launched in a separate asynchronous job
-        Result<LoggedInUser> result = registerRespository.register(email, username, nickname, password, inviterCode);
-
-        Log.d("RegisterViewModel", "register");
+        Result<RegisterUser> result = registerDataSource.register(email, username, nickname, password, inviterCode);
 
         if (result instanceof Result.Success) {
-            LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
-            registerResult.setValue(new RegisterResult(new LoggedInUserView(data.getDisplayName())));
-
+            RegisterUser data = ((Result.Success<RegisterUser>) result).getData();
+            registerResult.setValue(new RegisterResult(new RegisterView(data.getNickName())));
         } else {
-//            registerResult.setValue(new RegisterResult(R.string.register_failed));
             registerResult.setValue(new RegisterResult(((Result.Error) result).getError().getMessage()));
         }
     }
@@ -61,29 +55,17 @@ public class RegisterViewModel extends ViewModel {
 
     // A placeholder username validation check
     private boolean isUserNameValid(String username) {
-        if (username == null) {
-            return false;
-        }
-
-        return !username.trim().isEmpty();
-
+        return username != null && !username.trim().isEmpty();
     }
 
     // A placeholder username validation check
     private boolean isNickNameValid(String nickname) {
-        if (nickname == null) {
-            return false;
-        }
-
-        return !nickname.trim().isEmpty();
-
+        return nickname != null && !nickname.trim().isEmpty();
     }
 
+    // A placeholder email validation check
     private boolean isEmailValid(String email){
-        if (email == null){
-            return false;
-        }
-        return Patterns.EMAIL_ADDRESS.matcher(email).matches();
+        return email != null && Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
     // A placeholder password validation check

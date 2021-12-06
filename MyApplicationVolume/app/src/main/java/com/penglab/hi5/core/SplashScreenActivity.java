@@ -32,7 +32,7 @@ import com.penglab.hi5.core.collaboration.service.BasicService;
 import com.penglab.hi5.core.collaboration.service.ManageService;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.core.ui.home.screens.HomeActivity;
-import com.penglab.hi5.dataStore.PreferenceLogin;
+import com.penglab.hi5.data.dataStore.PreferenceLogin;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -6,7 +6,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.penglab.hi5.basic.image.Image4DSimple;
-import com.penglab.hi5.dataStore.SettingFileManager;
+import com.penglab.hi5.data.dataStore.SettingFileManager;
 import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.R;
 import com.lxj.xpopup.XPopup;
@@ -22,9 +22,9 @@ import java.util.List;
 
 import cn.carbs.android.library.MDDialog;
 
-import static com.penglab.hi5.dataStore.SettingFileManager.getFilename_Local;
-import static com.penglab.hi5.dataStore.SettingFileManager.getoffset_Local;
-import static com.penglab.hi5.dataStore.SettingFileManager.setoffset_Local;
+import static com.penglab.hi5.data.dataStore.SettingFileManager.getFilename_Local;
+import static com.penglab.hi5.data.dataStore.SettingFileManager.getoffset_Local;
+import static com.penglab.hi5.data.dataStore.SettingFileManager.setoffset_Local;
 import static com.penglab.hi5.core.MainActivity.Toast_in_Thread_static;
 import static com.penglab.hi5.core.MainActivity.setFileName;
 

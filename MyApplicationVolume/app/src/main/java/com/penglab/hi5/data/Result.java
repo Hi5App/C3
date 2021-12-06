@@ -1,4 +1,5 @@
-package com.penglab.hi5.core.ui.login.data;
+package com.penglab.hi5.data;
+
 
 /**
  * A generic class that holds a result success w/ data or an error exception.
@@ -15,8 +16,7 @@ public class Result<T> {
             return "Success[data=" + success.getData().toString() + "]";
         } else if (this instanceof Result.Error) {
             Result.Error error = (Result.Error) this;
-            return "Error:  " + error.getError().getMessage();
-//            return "Error[exception=" + error.getError().toString() + "]";
+            return "Error: " + error.getError().getMessage();
         }
         return "";
     }

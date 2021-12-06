@@ -11,9 +11,9 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.penglab.hi5.dataStore.DataManager;
-import com.penglab.hi5.dataStore.PreferenceSetting;
-import com.penglab.hi5.dataStore.S2paraSetting;
+import com.penglab.hi5.data.dataStore.DataManager;
+import com.penglab.hi5.data.dataStore.PreferenceSetting;
+import com.penglab.hi5.data.dataStore.S2paraSetting;
 
 import java.io.File;
 

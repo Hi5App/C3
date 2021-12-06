@@ -1,4 +1,4 @@
-package com.penglab.hi5.dataStore;
+package com.penglab.hi5.data.dataStore;
 
 import java.io.File;
 import java.util.ArrayList;

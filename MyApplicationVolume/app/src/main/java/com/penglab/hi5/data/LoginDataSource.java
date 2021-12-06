@@ -1,20 +1,19 @@
-package com.penglab.hi5.core.ui.login.data;
-
-import android.util.Log;
-
-import com.penglab.hi5.core.collaboration.connector.ServerConnector;
-import com.penglab.hi5.core.ui.login.data.model.LoggedInUser;
-
-import java.io.IOException;
+package com.penglab.hi5.data;
 
 import static com.penglab.hi5.core.BaseActivity.ip_TencentCloud;
 import static com.penglab.hi5.core.BaseActivity.port_TencentCloud;
 
-/**s
+import android.util.Log;
+
+import com.penglab.hi5.core.collaboration.connector.ServerConnector;
+import com.penglab.hi5.data.model.user.LoggedInUser;
+
+import java.io.IOException;
+
+/**
  * Class that handles authentication w/ login credentials and retrieves user information.
  */
-public class DataSource {
-
+public class LoginDataSource {
     private String responseData;
     private boolean ifResponsed = false;
 //    private final String ipLogin = "http:192.168.1.108:8080/Server_C3/LoginServlet";
@@ -44,8 +43,10 @@ public class DataSource {
 
                 LoggedInUser curUser =
                         new LoggedInUser(
-                                java.util.UUID.randomUUID().toString(),
-                                username);
+                                true,
+                                username,
+                                username,
+                                "email");
                 return new Result.Success<>(curUser);
 
             }else if (responseData.startsWith("LOGIN:-1")){
@@ -74,37 +75,37 @@ public class DataSource {
         }
     }
 
-    public Result<LoggedInUser> register(String email, String username, String nickname, String password, String inviterCode){
-        try {
-
-            RegisterWithSocket(username, password, email, nickname, inviterCode);
-
-            if (responseData.equals("REGISTER:0")){
-                Log.e(TAG, "register successfully !");
-                LoggedInUser fakeUser =
-                        new LoggedInUser(
-                                java.util.UUID.randomUUID().toString(),
-                                username);
-                return new Result.Success<>(fakeUser);
-            }else if (responseData.equals("REGISTER:-2")){
-                Log.e(TAG, "fail to register !");
-                return new Result.Error(new IOException("User Already Exist !"));
-            }else if (responseData.equals("REGISTER:-3")){
-                Log.e(TAG, "fail to register !");
-                return new Result.Error(new IOException("User Already Exist !"));
-            }else if(responseData.equals("NULL")){
-                return new Result.Error(new IOException("Fail to Connect the server !"));
-            }else if (responseData.equals("TimeOut")){
-                return new Result.Error(new IOException("Time out, check the network connection please !"));
-            }else {
-                Log.e(TAG, "fail to register !");
-                return new Result.Error(new IOException("Something Wrong with Database !"));
-            }
-
-        } catch (Exception e) {
-            return new Result.Error(new IOException("Check the network please !", e));
-        }
-    }
+//    public Result<LoggedInUser> register(String email, String username, String nickname, String password, String inviterCode){
+//        try {
+//
+//            RegisterWithSocket(username, password, email, nickname, inviterCode);
+//
+//            if (responseData.equals("REGISTER:0")){
+//                Log.e(TAG, "register successfully !");
+//                LoggedInUser fakeUser =
+//                        new LoggedInUser(
+//                                java.util.UUID.randomUUID().toString(),
+//                                username);
+//                return new Result.Success<>(fakeUser);
+//            }else if (responseData.equals("REGISTER:-2")){
+//                Log.e(TAG, "fail to register !");
+//                return new Result.Error(new IOException("User Already Exist !"));
+//            }else if (responseData.equals("REGISTER:-3")){
+//                Log.e(TAG, "fail to register !");
+//                return new Result.Error(new IOException("User Already Exist !"));
+//            }else if(responseData.equals("NULL")){
+//                return new Result.Error(new IOException("Fail to Connect the server !"));
+//            }else if (responseData.equals("TimeOut")){
+//                return new Result.Error(new IOException("Time out, check the network connection please !"));
+//            }else {
+//                Log.e(TAG, "fail to register !");
+//                return new Result.Error(new IOException("Something Wrong with Database !"));
+//            }
+//
+//        } catch (Exception e) {
+//            return new Result.Error(new IOException("Check the network please !", e));
+//        }
+//    }
 
 
     private void LoginWithSocket(String username, String password){
@@ -163,5 +164,4 @@ public class DataSource {
         serverConnector.setPort(port_TencentCloud);
         serverConnector.initConnection();
     }
-
 }

@@ -1,10 +1,8 @@
-package com.penglab.hi5.core.ui.login;
+package com.penglab.hi5.core.ui.register;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,22 +15,21 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.penglab.hi5.R;
+import com.penglab.hi5.core.ui.login.LoginActivity;
+import com.penglab.hi5.core.ui.ViewModelFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -49,7 +46,6 @@ public class RegisterActivity extends AppCompatActivity {
     EditText emailEditText;
     EditText inviterText;
     Button registerButton;
-    ProgressBar loadingProgressBar;
 
     private SoundPool soundPool;
     private int soundId;
@@ -67,7 +63,6 @@ public class RegisterActivity extends AppCompatActivity {
         public void handleMessage(Message msg) {
             switch (msg.what){
                 case REGISTER_ON_CLICK:
-                    loadingProgressBar.setVisibility(View.VISIBLE);
                     registerViewModel.register(emailEditText.getText().toString(), usernameEditText.getText().toString(),
                             nicknameEditText.getText().toString(), passwordEditText.getText().toString(), inviterText.getText().toString());
                     Log.d(TAG, "RegisterButton");
@@ -84,7 +79,7 @@ public class RegisterActivity extends AppCompatActivity {
         Log.e(TAG,"start to register: onCreate !");
 
         setContentView(R.layout.activity_register);
-        registerViewModel = ViewModelProviders.of(this, new RegisterViewModelFactory())
+        registerViewModel = new ViewModelProvider(this, new ViewModelFactory())
                 .get(RegisterViewModel.class);
 
         usernameEditText = findViewById(R.id.register_username);
@@ -94,37 +89,10 @@ public class RegisterActivity extends AppCompatActivity {
         emailEditText = findViewById(R.id.register_email);
         inviterText = findViewById(R.id.register_inviter);
         registerButton = findViewById(R.id.register);
-        loadingProgressBar = findViewById(R.id.loading);
 
 
-        /*
-        music module
-         */
-        soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 5);
-        soundId = soundPool.load(this, R.raw.button01, 1);
-
-        File volumeFile = new File(getBaseContext().getExternalFilesDir(null).toString() + "/Settings/volume.txt");
-        if (volumeFile.exists()){
-            try {
-                BufferedReader volumeReader = new BufferedReader(new InputStreamReader(new FileInputStream(volumeFile)));
-                String volumeStr = volumeReader.readLine();
-                if (volumeStr != null) {
-                    String[] volumes = volumeStr.split(" ");
-                    Log.d(TAG, "VolumeStr: " + volumeStr);
-                    if (volumes.length == 3){
-                        bgmVolume = Float.parseFloat(volumes[0]);
-                        buttonVolume = Float.parseFloat(volumes[1]);
-                        actionVolume = Float.parseFloat(volumes[2]);
-                    }
-                }
-                volumeReader.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
+        /* music module */
+        loadMusicModule();
 
         registerViewModel.getRegisterFormState().observe(this, new Observer<RegisterFormState>() {
             @Override
@@ -151,23 +119,15 @@ public class RegisterActivity extends AppCompatActivity {
         registerViewModel.getRegisterResult().observe(this, new Observer<RegisterResult>() {
             @Override
             public void onChanged(@Nullable RegisterResult registerResult) {
-                Log.d(TAG,"LoginResultOnChanged");
                 if (registerResult == null) {
                     return;
                 }
-                loadingProgressBar.setVisibility(View.GONE);
+
                 if (registerResult.getErrorString() != null){
                     showRegisterFailed(registerResult.getErrorString());
-                    Log.e("LoginResultOnChanged", registerResult.getErrorString());
                 }
                 if (registerResult.getSuccess() != null) {
-                    Log.d("LoginResultOnChanged", "getSuccess");
-                    updateUiWithUser(registerResult.getSuccess());
-
-                    //Complete and destroy login activity once successful
-                    setResult(Activity.RESULT_OK);
-                    LoginActivity.start(RegisterActivity.this);
-                    finish();
+                    showRegisterSuccessfully(registerResult.getSuccess());
                 }
             }
         });
@@ -175,12 +135,10 @@ public class RegisterActivity extends AppCompatActivity {
         TextWatcher afterTextChangedListener = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // ignore
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // ignore
             }
 
             @Override
@@ -220,30 +178,51 @@ public class RegisterActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 
+    private void loadMusicModule(){
+        soundPool = new SoundPool.Builder().setMaxStreams(1).build();
+        soundId = soundPool.load(this, R.raw.button01, 1);
+
+        File volumeFile = new File(getBaseContext().getExternalFilesDir(null).toString() + "/Settings/volume.txt");
+        if (volumeFile.exists()){
+            try {
+                BufferedReader volumeReader = new BufferedReader(new InputStreamReader(new FileInputStream(volumeFile)));
+                String volumeStr = volumeReader.readLine();
+                if (volumeStr != null) {
+                    String[] volumes = volumeStr.split(" ");
+                    Log.d(TAG, "VolumeStr: " + volumeStr);
+                    if (volumes.length == 3){
+                        bgmVolume = Float.parseFloat(volumes[0]);
+                        buttonVolume = Float.parseFloat(volumes[1]);
+                        actionVolume = Float.parseFloat(volumes[2]);
+                    }
+                }
+                volumeReader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
     }
 
-    private void updateUiWithUser(LoggedInUserView model) {
-//        String welcome = getString(R.string.welcome) + model.getDisplayName();
-        String welcome = "Register user  " + model.getDisplayName() + "  successfully !";
-        // TODO : initiate successful logged in experience
+    private void showRegisterSuccessfully(RegisterView model) {
+        String welcome = "Register user:  " + model.getDisplayName() + "  successfully !";
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
+
+        LoginActivity.start(RegisterActivity.this);
+        finish();
     }
 
-    private void showRegisterFailed(@StringRes Integer errorString) {
-        Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_LONG).show();
-    }
     private void showRegisterFailed(String errorString) {
         Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_LONG).show();
     }
 
-    public static void actionStart(Context context){
+    public static void start(Context context){
         Intent intent = new Intent(context, RegisterActivity.class);
         context.startActivity(intent);
     }

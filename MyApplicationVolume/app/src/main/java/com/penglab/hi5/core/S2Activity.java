@@ -116,8 +116,8 @@ import com.penglab.hi5.core.game.LeaderBoardItem;
 import com.penglab.hi5.core.game.QuestActivity;
 import com.penglab.hi5.core.game.RewardActivity;
 import com.penglab.hi5.core.ui.login.LoginActivity;
-import com.penglab.hi5.dataStore.PreferenceLogin;
-import com.penglab.hi5.dataStore.SettingFileManager;
+import com.penglab.hi5.data.dataStore.PreferenceLogin;
+import com.penglab.hi5.data.dataStore.SettingFileManager;
 import com.warkiz.widget.IndicatorSeekBar;
 
 import java.io.File;
@@ -138,9 +138,9 @@ import java.util.concurrent.TimeUnit;
 import cn.carbs.android.library.MDDialog;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
-import static com.penglab.hi5.dataStore.SettingFileManager.getFilename_Remote;
-import static com.penglab.hi5.dataStore.SettingFileManager.getoffset_Remote;
-import static com.penglab.hi5.dataStore.SettingFileManager.setSelectSource;
+import static com.penglab.hi5.data.dataStore.SettingFileManager.getFilename_Remote;
+import static com.penglab.hi5.data.dataStore.SettingFileManager.getoffset_Remote;
+import static com.penglab.hi5.data.dataStore.SettingFileManager.setSelectSource;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 

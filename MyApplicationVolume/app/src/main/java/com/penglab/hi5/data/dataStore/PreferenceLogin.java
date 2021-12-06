@@ -1,4 +1,4 @@
-package com.penglab.hi5.dataStore;
+package com.penglab.hi5.data.dataStore;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

@@ -329,4 +329,8 @@
     <string name="Logout">Logout</string>
     <string name="Help">Help</string>
 
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="nav_header_title">Hi 5</string>
+    <string name="nav_header_subtitle">hi5@penglab.com</string>
+
 </resources>
