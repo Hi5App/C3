@@ -2,7 +2,6 @@ package com.penglab.hi5.core.collaboration;
 
 import android.util.Log;
 
-import com.lazy.library.logging.Logcat;
 import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.collaboration.basic.ReconnectionInterface;
 
@@ -64,7 +63,7 @@ public class MsgSender {
                      * show the progressbar
                      */
                     if (message.startsWith("/Imgblock:")){
-                        MainActivity.showProgressBar();
+                        MainActivity.showDownloadingPopupView();
                     }
 
                 }catch (Exception e){

@@ -7,11 +7,9 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.penglab.hi5.core.MainActivity;
-import com.penglab.hi5.core.collaboration.Communicator;
 import com.penglab.hi5.core.collaboration.basic.DataType;
 import com.penglab.hi5.core.collaboration.basic.ReceiveMsgInterface;
 import com.penglab.hi5.core.collaboration.connector.BasicConnector;
-import com.penglab.hi5.core.collaboration.connector.MsgConnector;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -440,7 +438,9 @@ public abstract class BasicService extends Service {
                     Log.d(TAG, String.format("ERROR:%s next read size < 0", msg));
                     break;
             }
-           // MainActivity.hideProgressBar();
+
+            MainActivity.hideDownloadingPopupView();
+
             reConnection();
         }
 
