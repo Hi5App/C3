@@ -249,7 +249,7 @@ public abstract class BasicService extends Service {
 //                            Log.e(TAG,"available size: " + is.available());
                             header = MyReadLine(is);
 
-//                            Log.e(TAG,"read header: " + header);
+                            Log.e(TAG,"read header: " + header);
                             if (processHeader(header + "\n")){
                                 onRead("after read header! ");
                             }
@@ -361,9 +361,11 @@ public abstract class BasicService extends Service {
             int ret = 0;
             if (rmsg.endsWith("\n")){
                 String msg = rmsg.trim();
+//                msg.replaceAll("deviceError","");
+//                msg.replaceAll("img","");
                 if (msg.startsWith("DataTypeWithSize:")){
                     msg = msg.substring("DataTypeWithSize:".length());
-
+                    Log.e(TAG, "msgggggggggggggg: " + msg);
                     String[] paras_list = msg.split(" ");
                     ArrayList<String> paras = new ArrayList<>();
 
@@ -384,6 +386,7 @@ public abstract class BasicService extends Service {
                         ret = 3;
                     }
                 }else {
+                    Log.e(TAG, "msgggggggggggggg: " + msg);
                     ret = 2;
                 }
             }else {
@@ -443,7 +446,7 @@ public abstract class BasicService extends Service {
                     Log.d(TAG, String.format("ERROR:%s next read size < 0", msg));
                     break;
             }
-            MainActivity.hideProgressBar();
+           // MainActivity.hideProgressBar();
             reConnection();
         }
 
