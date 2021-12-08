@@ -439,6 +439,8 @@ public abstract class BasicService extends Service {
                     break;
             }
 
+            MainActivity.hideDownloadingPopupView();
+
             reConnection();
         }
 

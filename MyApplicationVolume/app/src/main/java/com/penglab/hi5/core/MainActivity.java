@@ -5022,6 +5022,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     public static void hideDownloadingPopupView(){
+        if (timerDownload == null)
+            return;
         timerDownload.cancel();
         puiHandler.sendEmptyMessage(HANDLER_HIDE_DOWNLOADING_POPUPVIEW);
     }
