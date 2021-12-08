@@ -414,14 +414,21 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         }
 
+
+
+        if (msg.startsWith("zcan:done")) {
+
+            Toast_in_Thread("img stack is done!");
+            Log.e(TAG, "img stack is done:()  " + msg);
+            ServerConnector.getInstance().sendMsg("getzstack:");
+        }
+
         if (msg.startsWith("test:")) {
 
             Toast_in_Thread("Connect to scope successfully!");
             Log.e(TAG, "s2start:()  " + msg);
             ifgetTest=true;
         }
-
-
 
 
 
@@ -924,7 +931,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         progressDialog_zscan = new ProgressDialog(S2Activity.this);
         progressDialog_zscan.setTitle("Loading Image Scan.....");
         progressDialog_zscan.setMessage("Waiting");
-        progressDialog_zscan.setCancelable(false);
+        progressDialog_zscan.setCancelable(true);
 
 
         initDir();
@@ -1604,6 +1611,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //                    y_pos_Text.setLayoutParams(lp_y_pos);
 //                    z_pos_Text.setLayoutParams(lp_z_pos);
                     progressDialog_zscan.show();
+                    isS2Start=false;
                     ifZscanSeries = true;
                 } else {
                     Log.e(TAG, "zseries_scan already push ! ");
@@ -1627,7 +1635,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 Log.e(TAG, "s2send ");
                 isBigData_Remote = true;
                 isBigData_Local = false;
-                ifGetRoiPoint = true;
+               // ifGetRoiPoint = true;
                 isS2Start = true;
                 setButtons();
 
@@ -5081,13 +5089,17 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         isBigData_Remote = true;
         isBigData_Local = false;
         ifZooming = false;
-
+        Log.e(TAG, "loadBigDataImg: "+filepath);
+        if (ifZscanSeries) {
+            //progressDialog_zscan.dismiss();
+            ifZscanSeries=false;
+            Log.e(TAG, "loadBigDataImg:ifZscanSeries "+ifZscanSeries);
+        }
+        //progressDialog_zscan.dismiss();
         myS2renderer.setPath(filepath);
         myS2renderer.zoom(2f);
         myS2GLSurfaceView.requestRender();
-        if (ifZscanSeries) {
-            progressDialog_zscan.dismiss();
-        }
+
 
         setButtons();
     }
