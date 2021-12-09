@@ -12,7 +12,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class HttpUtilUser {
+public class HttpUtilsUser {
 
     private static final String URL_REGISTER = "http://192.168.3.158:8000/user/register";
     private static final String URL_LOGIN = "http://192.168.3.158:8000/user/login";

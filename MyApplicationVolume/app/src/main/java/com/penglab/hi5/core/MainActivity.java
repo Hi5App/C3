@@ -2608,7 +2608,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         break;
                                     case "Open BigData":
                                         if(ifGuestLogin){
-                                            Toast.makeText(MainActivity.this,"you are now logged in as a visitor and need to log in to use this function",Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(MainActivity.this,"you are now logged in as a visitor and need to log in to use this function", Toast.LENGTH_SHORT).show();
                                             break;
                                         }else{
                                             loadBigData();

@@ -5,7 +5,7 @@ import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
 /**
- * Created by GIGAMOLE on 8/18/16.
+ * Modified by Jackiexing on 12/09/21.
  */
 public class SquareFrameLayout extends FrameLayout {
 

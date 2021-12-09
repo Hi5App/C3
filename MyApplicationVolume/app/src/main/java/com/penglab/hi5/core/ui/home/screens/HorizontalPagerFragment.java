@@ -13,7 +13,7 @@ import com.penglab.hi5.R;
 import com.penglab.hi5.core.ui.home.adapters.HorizontalPagerAdapter;
 
 /**
- * Created by GIGAMOLE on 8/18/16.
+ * Modified by Jackiexing on 12/09/21.
  */
 public class HorizontalPagerFragment extends Fragment {
 
@@ -29,7 +29,7 @@ public class HorizontalPagerFragment extends Fragment {
 
         final HorizontalInfiniteCycleViewPager horizontalInfiniteCycleViewPager =
                 (HorizontalInfiniteCycleViewPager) view.findViewById(R.id.hicvp);
-        horizontalInfiniteCycleViewPager.setAdapter(new HorizontalPagerAdapter(getContext(), false));
+        horizontalInfiniteCycleViewPager.setAdapter(new HorizontalPagerAdapter(getContext()));
 
 //        horizontalInfiniteCycleViewPager.setScrollDuration(400);
 //        horizontalInfiniteCycleViewPager.setPageDuration(1000);

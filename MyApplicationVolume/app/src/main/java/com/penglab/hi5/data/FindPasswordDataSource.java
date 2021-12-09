@@ -1,6 +1,6 @@
 package com.penglab.hi5.data;
 
-import com.penglab.hi5.core.net.HttpUtilUser;
+import com.penglab.hi5.core.net.HttpUtilsUser;
 import com.penglab.hi5.data.model.user.FindPasswordUser;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class FindPasswordDataSource {
 
     private void findPasswordWithOkHttp(String username, String email) throws IOException {
 
-        Response response = HttpUtilUser.findPasswordWithOkHttp(username, email);
+        Response response = HttpUtilsUser.findPasswordWithOkHttp(username, email);
         if (response != null) {
             responseData = response.body().string();
         } else {
