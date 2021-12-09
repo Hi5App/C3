@@ -1,5 +1,9 @@
 package com.penglab.hi5.data.model.user;
 
+/**
+ * Data class that captures user information when register
+ * Created by Jackiexing on 12/7/21
+ */
 public class RegisterUser {
 
     private final String userId;

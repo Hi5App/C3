@@ -36,7 +36,7 @@ public class MyAnimation {
     public MyAnimation(){
 
         status = false;
-        speed = 36/60f;                            //36度每秒钟
+        speed = 36/60f;                            // 36度每秒钟
         rotationType = RotationType.XYZ;
         angleX = 0f;
         angleY = 0f;

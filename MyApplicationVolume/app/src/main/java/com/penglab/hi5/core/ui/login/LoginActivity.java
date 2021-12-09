@@ -42,6 +42,7 @@ import com.penglab.hi5.R;
 import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.home.screens.HomeActivity;
+import com.penglab.hi5.core.ui.password.FindPasswordActivity;
 import com.penglab.hi5.core.ui.register.RegisterActivity;
 import com.penglab.hi5.data.dataStore.PreferenceLogin;
 
@@ -73,6 +74,7 @@ public class LoginActivity extends AppCompatActivity{
     Button loginButton;
     Button VisitorLogin;
     Button registerButton;
+    Button findPasswordButton;
     PreferenceLogin preferenceLogin;
 
     LinearLayout mLlLoginUsername;
@@ -98,6 +100,7 @@ public class LoginActivity extends AppCompatActivity{
         loginButton = findViewById(R.id.login);
         VisitorLogin = findViewById(R.id.visitor_login);
         registerButton = findViewById(R.id.goto_register);
+        findPasswordButton = findViewById(R.id.forget_password);
 
         mLlLoginUsername = findViewById(R.id.ll_login_username);
         mIvLoginUsernameDel = findViewById(R.id.iv_login_username_del);
@@ -124,7 +127,6 @@ public class LoginActivity extends AppCompatActivity{
                 if (loginFormState == null) {
                     return;
                 }
-
                 if (loginFormState.getUsernameError() != null) {
                     usernameEditText.setError(getString(loginFormState.getUsernameError()));
                 }
@@ -141,7 +143,6 @@ public class LoginActivity extends AppCompatActivity{
                 if (loginResult == null) {
                     return;
                 }
-
                 if (loginResult.getError() != null) {
                     showLoginFailed(loginResult.getError());
                 }
@@ -210,6 +211,7 @@ public class LoginActivity extends AppCompatActivity{
         loginButton.setOnClickListener(new MyClick());
         VisitorLogin.setOnClickListener(new MyClick());
         registerButton.setOnClickListener(new MyClick());
+        findPasswordButton.setOnClickListener(new MyClick());
 
         mIvLoginUsernameDel.setOnClickListener(new MyClick());
         mIvLoginPwdDel.setOnClickListener(new MyClick());
@@ -260,6 +262,9 @@ public class LoginActivity extends AppCompatActivity{
                     break;
                 case R.id.goto_register:
                     RegisterActivity.start(LoginActivity.this);
+                    break;
+                case R.id.forget_password:
+                    FindPasswordActivity.start(LoginActivity.this);
                     break;
                 case R.id.username:
                     usernameEditText.clearFocus();

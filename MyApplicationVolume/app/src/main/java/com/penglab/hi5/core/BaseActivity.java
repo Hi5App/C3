@@ -89,8 +89,6 @@ public class BaseActivity extends AppCompatActivity {
     }
 
 
-
-
     public static void recursionDeleteFile(File file) {
         if (file.isFile()) {
             file.delete();

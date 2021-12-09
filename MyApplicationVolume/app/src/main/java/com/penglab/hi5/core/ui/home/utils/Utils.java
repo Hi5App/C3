@@ -33,10 +33,10 @@ public class Utils {
             public void onClick(View v) {
                 Context context = v.getContext();
                 switch (libraryObject.getTitle()){
-                    case "Hi5":
+                    case "Big Image":
                         MainActivity.actionStart(context, username);
                         break;
-                    case "S2":
+                    case "Smart Imaging":
                         S2Activity.actionStart(context, username);
                         break;
                     case "Chat":
