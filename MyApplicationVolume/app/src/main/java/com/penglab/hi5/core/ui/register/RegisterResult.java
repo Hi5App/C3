@@ -3,7 +3,7 @@ package com.penglab.hi5.core.ui.register;
 import androidx.annotation.Nullable;
 
 public class RegisterResult {
-   @Nullable
+    @Nullable
     private RegisterView success;
     @Nullable
     private Integer error;

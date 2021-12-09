@@ -68,7 +68,6 @@ public class Myapplication extends Application {
     private static Communicator communicator;
 
     public static final Object lockForMsgSocket = new Object();
-
     public static final Object lockForManageSocket = new Object();
 
     private final String TAG = "MyApplication";

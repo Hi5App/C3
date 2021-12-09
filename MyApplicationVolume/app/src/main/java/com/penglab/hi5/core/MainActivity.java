@@ -4646,19 +4646,19 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
             ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
             ConfigurationInfo info = am.getDeviceConfigurationInfo();
-            String v = info.getGlEsVersion(); //判断是否为3.0 ，一般4.4就开始支持3.0版本了。
 
-            Log.e(TAG, "GLES-version: " + v);
+            // 判断是否为3.0 ，一般4.4就开始支持3.0版本了
+            Log.e(TAG, "GLES-version: " + info.getGlEsVersion());
 
-            //设置一下opengl版本；
+            // 设置一下opengl版本；
             setEGLContextClientVersion(3);
 
             setRenderer(myrenderer);
 
-            //调用 onPause 的时候保存EGLContext
+            // 调用 onPause 的时候保存EGLContext
             setPreserveEGLContextOnPause(true);
 
-            //当发生交互时重新执行渲染， 需要配合requestRender();
+            // 当发生交互时重新执行渲染， 需要配合requestRender();
             setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 //            setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
@@ -4925,12 +4925,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }catch (IllegalArgumentException e){
                 e.printStackTrace();
             }
-
             return false;
         }
 
 
-        //坐标系变换
+        // 坐标系变换
         private float toOpenGLCoord(View view, float value, boolean isWidth) {
             if (isWidth) {
                 return (value / (float) view.getWidth()) * 2 - 1;
@@ -4940,7 +4939,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
 
 
-        //距离计算
+        // 距离计算
         private double computeDis(float x1, float x2, float y1, float y2) {
             return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
         }

@@ -139,7 +139,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private final float[] paraProjectionMatrix = new float[16];
     private final float[] persProjectionMatrix = new float[16];
     private final float[] viewMatrix = new float[16];
-    private final float[] rotationMatrix =new float[16];
+    private final float[] rotationMatrix = new float[16];
     private final float[] rotationXMatrix = new float[16];
     private final float[] rotationYMatrix = new float[16];
     private final float[] rotationZMatrix = new float[16];

@@ -1,12 +1,9 @@
 package com.penglab.hi5.core.ui.register;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.media.SoundPool;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -37,15 +34,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     private static final String TAG = "RegisterActivity";
     private RegisterViewModel registerViewModel;
-    final private int REGISTER_ON_CLICK = 2;
-
-    EditText usernameEditText;
-    EditText passwordEditText;
-    EditText passwordCheckEditText;
-    EditText nicknameEditText;
-    EditText emailEditText;
-    EditText inviterText;
-    Button registerButton;
 
     private SoundPool soundPool;
     private int soundId;
@@ -53,25 +41,6 @@ public class RegisterActivity extends AppCompatActivity {
     private float bgmVolume = 1.0f;
     private float buttonVolume = 1.0f;
     private float actionVolume = 1.0f;
-
-    private long exitTime = 0;
-
-    @SuppressLint("HandlerLeak")
-    private Handler handler=new Handler(){
-        @SuppressLint("HandlerLeak")
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what){
-                case REGISTER_ON_CLICK:
-                    registerViewModel.register(emailEditText.getText().toString(), usernameEditText.getText().toString(),
-                            nicknameEditText.getText().toString(), passwordEditText.getText().toString(), inviterText.getText().toString());
-                    Log.d(TAG, "RegisterButton");
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected value: " + msg.what);
-            }
-        }
-    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -82,13 +51,13 @@ public class RegisterActivity extends AppCompatActivity {
         registerViewModel = new ViewModelProvider(this, new ViewModelFactory())
                 .get(RegisterViewModel.class);
 
-        usernameEditText = findViewById(R.id.register_username);
-        nicknameEditText = findViewById(R.id.register_nickname);
-        passwordEditText = findViewById(R.id.register_password);
-        passwordCheckEditText = findViewById(R.id.register_password_check);
-        emailEditText = findViewById(R.id.register_email);
-        inviterText = findViewById(R.id.register_inviter);
-        registerButton = findViewById(R.id.register);
+        EditText usernameEditText = findViewById(R.id.register_username);
+        EditText nicknameEditText = findViewById(R.id.register_nickname);
+        EditText passwordEditText = findViewById(R.id.register_password);
+        EditText passwordCheckEditText = findViewById(R.id.register_password_check);
+        EditText emailEditText = findViewById(R.id.register_email);
+        EditText inviterText = findViewById(R.id.register_inviter);
+        Button   registerButton = findViewById(R.id.register);
 
 
         /* music module */
@@ -122,7 +91,6 @@ public class RegisterActivity extends AppCompatActivity {
                 if (registerResult == null) {
                     return;
                 }
-
                 if (registerResult.getErrorString() != null){
                     showRegisterFailed(registerResult.getErrorString());
                 }
@@ -172,7 +140,8 @@ public class RegisterActivity extends AppCompatActivity {
                 soundPool.play(soundId, buttonVolume, buttonVolume, 0, 0, 1.0f);
 
                 if (passwordEditText.getText().toString().equals(passwordCheckEditText.getText().toString())){
-                    handler.sendEmptyMessage(REGISTER_ON_CLICK);
+                    registerViewModel.register(emailEditText.getText().toString(), usernameEditText.getText().toString(),
+                            nicknameEditText.getText().toString(), passwordEditText.getText().toString(), inviterText.getText().toString());
                 }else {
                     Toast.makeText(getApplication(),"Confirm the password is consistent", Toast.LENGTH_SHORT).show();
                 }
@@ -213,7 +182,6 @@ public class RegisterActivity extends AppCompatActivity {
     private void showRegisterSuccessfully(RegisterView model) {
         String welcome = "Register user:  " + model.getDisplayName() + "  successfully !";
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
-
         LoginActivity.start(RegisterActivity.this);
         finish();
     }

@@ -39,6 +39,7 @@
     <string name="prompt_password_check" translatable="false">Check Password</string>
     <string name="prompt_inviter_code" translatable="false">InviterCode</string>
     <string name="prompt_username" translatable="false">Username (Not repeatable)</string>
+    <string name="prompt_userId" translatable="false">Username</string>
     <string name="prompt_nickname" translatable="false">Nickname</string>
     <string name="remember_password" translatable="false">Remember password ?</string>
     <string name="action_sign_in" translatable="false">Sign in</string>
@@ -53,9 +54,12 @@
     <string name="register_failed" translatable="false">"Register failed"</string>
     <string name="reconnecting" translatable="false">Network reconnecting ...</string>
     <string name="account_offline" translatable="false">Connection lost</string>
+    <string name="find_password" translatable="false">confirm</string>
+    <string name="find_password_hint1" translatable="false">Input some essential info about your account</string>
+    <string name="find_password_hint2" translatable="false">Fields with a red star must be filled in</string>
+
 
     <string name="title_add_friends" translatable="false">Add Friends</string>
-    \
     <string name="title_peer_msg" translatable="false">Peer to peer message</string>
     <string name="title_channel_message" translatable="false">Channel message</string>
     <string name="title_peer_voice" translatable="false">Peer to peer chat</string>
@@ -310,7 +314,8 @@
     <string name="DirectlyAccess" translatable="false">DirectlyAccess</string>
     <string name="login_other_hint" translatable="false" />
     <string name="Directly_Access">Directly_Access</string>
-    <string name="Direct_Access">Direct_Access</string>
+    <string name="Direct_Access">direct access</string>
+    <string name="forget_password">forget password ?</string>
     <string name="undo">undo</string>
     <string name="redo">redo</string>
     <string name="drawer_open_content_description">drawer_open_content_description</string>
