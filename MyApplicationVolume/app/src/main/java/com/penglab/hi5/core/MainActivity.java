@@ -4956,7 +4956,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public void loadBigDataImg(String filepath){
         isBigData_Remote = true;
         isBigData_Local = false;
-        editMode.setValue(EditMode.NONE);
 
         myrenderer.setPath(filepath);
         myrenderer.zoom(2.2f);
