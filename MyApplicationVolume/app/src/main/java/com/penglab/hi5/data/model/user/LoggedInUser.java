@@ -4,7 +4,7 @@ package com.penglab.hi5.data.model.user;
  * Data class that captures user information for logged in users retrieved from UserInfoRepository
  * Created by Jackiexing on 12/5/21
  */
-public class LoggedInUser {
+public class LoggedInUser extends User {
 
     private boolean logged;
     private String userId;

@@ -16,18 +16,6 @@ import java.io.IOException;
 public class LoginDataSource {
     private String responseData;
     private boolean ifResponsed = false;
-//    private final String ipLogin = "http:192.168.1.108:8080/Server_C3/LoginServlet";
-//    private final String ipRegister = "http:192.168.1.108:8080/Server_C3/RegisterServlet";
-//    private final String ipAddFriends = "http:192.168.1.108:8080/Server_C3/AddFriendsServlet";
-//    private final String ipQueryFriends = "http:192.168.1.108:8080/Server_C3/QueryFriendsServlet";
-
-    private final String ipLogin = "http:39.100.35.131:8080/Server_C3/LoginServlet";
-    private final String ipRegister = "http:39.100.35.131:8080/Server_C3/RegisterServlet";
-    private final String ipAddFriends = "http:39.100.35.131:8080/Server_C3/AddFriendsServlet";
-    private final String ipQueryFriends = "http:39.100.35.131:8080/Server_C3/QueryFriendsServlet";
-
-    private final String ip = "39.35.100.131";
-    private final String port = "39.35.100.131";
 
     private static final String EMPTY_MSG = "the msg is empty";
     private static final String TAG = "LoginDataSource";

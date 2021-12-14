@@ -11,6 +11,9 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.penglab.hi5.basic.utils.AppStatus;
+import com.penglab.hi5.basic.utils.AppStatusManager;
+import com.penglab.hi5.core.ui.splash.SplashScreenActivity;
 import com.penglab.hi5.data.dataStore.DataManager;
 import com.penglab.hi5.data.dataStore.PreferenceSetting;
 import com.penglab.hi5.data.dataStore.S2paraSetting;
@@ -35,12 +38,18 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.v("BaseActivity","onCreate()");
+
         dataManager = new DataManager(this);
         preferenceSetting = new PreferenceSetting(this);
         s2paraSetting = new S2paraSetting(this);
         context = getApplicationContext();
-        Log.v("BaseActivity","onCreate()");
         ActivityCollector.addActivity(this);
+
+        if (AppStatusManager.getInstance().getAppStatus() == AppStatus.STATUS_RECYCLE){
+            // app 在后台被杀掉之后重启会打开 SplashScreenActivity
+            SplashScreenActivity.start(this);
+        }
     }
 
 

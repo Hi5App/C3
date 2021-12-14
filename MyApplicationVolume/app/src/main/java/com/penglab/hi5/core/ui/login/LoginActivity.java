@@ -44,6 +44,7 @@ import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.home.screens.HomeActivity;
 import com.penglab.hi5.core.ui.password.FindPasswordActivity;
 import com.penglab.hi5.core.ui.register.RegisterActivity;
+import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.dataStore.PreferenceLogin;
 
 import java.io.BufferedReader;
@@ -154,7 +155,16 @@ public class LoginActivity extends AppCompatActivity{
                     loginNim(usernameEditText.getText().toString(), passwordEditText.getText().toString(), loginResult);
                 }
                 setResult(Activity.RESULT_OK);
+            }
+        });
 
+        loginViewModel.getUserDataSource().getResult().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                if (result == null){
+                    return;
+                }
+                loginViewModel.updateLoginResult(result);
             }
         });
 

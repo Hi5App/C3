@@ -7,7 +7,9 @@ import androidx.annotation.NonNull;
 import com.penglab.hi5.core.ui.login.LoginViewModel;
 import com.penglab.hi5.core.ui.password.FindPasswordViewModel;
 import com.penglab.hi5.core.ui.register.RegisterViewModel;
-import com.penglab.hi5.data.FindPasswordDataSource;
+import com.penglab.hi5.core.ui.splash.SplashScreenViewModel;
+import com.penglab.hi5.data.ResourceDataSource;
+import com.penglab.hi5.data.UserDataSource;
 import com.penglab.hi5.data.LoginDataSource;
 import com.penglab.hi5.data.RegisterDataSource;
 import com.penglab.hi5.data.UserInfoRepository;
@@ -23,11 +25,17 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     @SuppressWarnings("unchecked")
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         if (modelClass.isAssignableFrom(LoginViewModel.class)) {
-            return (T) new LoginViewModel(UserInfoRepository.getInstance(new LoginDataSource()));
+            // used in LoginActivity
+            return (T) new LoginViewModel(UserInfoRepository.getInstance(), new UserDataSource());
         } else if (modelClass.isAssignableFrom(RegisterViewModel.class)) {
-            return (T) new RegisterViewModel(new RegisterDataSource());
+            // used in RegisterActivity
+            return (T) new RegisterViewModel(new UserDataSource());
         } else if (modelClass.isAssignableFrom(FindPasswordViewModel.class)) {
-            return (T) new FindPasswordViewModel(new FindPasswordDataSource());
+            // used in FindPasswordActivity
+            return (T) new FindPasswordViewModel(new UserDataSource());
+        } else if (modelClass.isAssignableFrom(SplashScreenViewModel.class)) {
+            // used in SplashScreenActivity
+            return (T) new SplashScreenViewModel(UserInfoRepository.getInstance(), new ResourceDataSource(), new UserDataSource());
         } else {
             throw new IllegalArgumentException("Unknown ViewModel class");
         }

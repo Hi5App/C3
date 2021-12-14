@@ -260,6 +260,14 @@ public class Myapplication extends Application {
                 .show();
     }
 
+    public static void ToastEasy(int stringId){
+
+        ToastUtil.getInstance()
+                .createBuilder(context)
+                .setMessage(context.getString(stringId))
+                .show();
+    }
+
 
     public static void ToastEasy(String message, int length){
         Toast.makeText(context, message, length).show();
