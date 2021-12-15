@@ -1,7 +1,10 @@
 package com.penglab.hi5.core.ui.home.screens;
 
+import static com.penglab.hi5.core.MainActivity.getContext;
 import static com.penglab.hi5.core.MainActivity.ifGuestLogin;
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
+import static com.penglab.hi5.data.model.user.LogStatus.GUEST;
+import static com.penglab.hi5.data.model.user.LogStatus.LOGIN;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -12,8 +15,10 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -21,6 +26,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.ViewPager;;
 
 import com.gigamole.navigationtabstrip.NavigationTabStrip;
@@ -35,39 +42,41 @@ import com.penglab.hi5.R;
 import com.penglab.hi5.basic.utils.CrashHandler;
 import com.penglab.hi5.basic.utils.CrashReports;
 import com.penglab.hi5.core.BaseActivity;
+import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.core.ui.home.adapters.MainPagerAdapter;
+import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.dataStore.PreferenceLogin;
+import com.penglab.hi5.data.model.user.LogStatus;
 
 import java.io.File;
 
 public class HomeActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "HomeActivity";
-    private static final String USERNAME = "USERNAME";
+    private static final String GUEST_NICKNAME = "Guest user";
+    private static final String GUEST_EMAIL = "hi5@penglab.com";
 
-    public static String username = null;
     private long exitTime = 0;
 
+    private HomeViewModel homeViewModel;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
     private NavigationView navigationView;
-    private Context homeContext;
+    private TextView nickName;
+    private TextView email;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        homeContext = this;
-        username = getIntent().getStringExtra(USERNAME);
-
         Toolbar toolbar = findViewById(R.id.toolbar_home);
         setSupportActionBar(toolbar);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
 
+        // set up for NavDrawer
         setNavDrawer();
 
         // set up for cards view
@@ -80,6 +89,64 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
 //        navigationTabStrip.setTitles("HOW WE WORK", "WE WORK WITH");
         navigationTabStrip.setTitles("HOW WE WORK");
         navigationTabStrip.setViewPager(viewPager);
+
+        homeViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(HomeViewModel.class);
+        homeViewModel.getLogStatus().observe(this, new Observer<LogStatus>() {
+            @Override
+            public void onChanged(LogStatus logStatus) {
+                if (logStatus == null) {
+                    return;
+                }
+                MenuItem accountItem = navigationView.getMenu().findItem(R.id.nav_account);
+                if (logStatus == LOGIN) {
+                    accountItem.setTitle("Logout");
+                } else if (logStatus == GUEST) {
+                    accountItem.setTitle("Login");
+                } else {
+                    LoginActivity.start(HomeActivity.this);
+                    finish();
+                }
+                homeViewModel.updateUserView();
+                homeViewModel.updateScore();
+            }
+        });
+
+        homeViewModel.getUserView().observe(this, new Observer<UserView>() {
+            @Override
+            public void onChanged(UserView userView) {
+                if (userView == null) {
+                    return;
+                }
+                if (homeViewModel.isLogged()) {
+                    nickName.setText(userView.getNickName());
+                    email.setText(userView.getEmail());
+                } else {
+                    nickName.setText(GUEST_NICKNAME);
+                    email.setText(GUEST_EMAIL);
+                }
+            }
+        });
+
+        homeViewModel.getScore().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                if (integer == null) {
+                    return;
+                }
+                Log.e(TAG, "score: " + integer);
+            }
+        });
+
+        homeViewModel.getUserDataSource().getResult().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                if (result == null) {
+                    return;
+                }
+                homeViewModel.updateLogStatus(result);
+            }
+        });
+
     }
 
     @Override
@@ -87,6 +154,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
         drawerToggle.syncState();
+        homeViewModel.updateLogged();
     }
 
     @Override
@@ -103,7 +171,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         return super.onOptionsItemSelected(item);
     }
 
-    private void setNavDrawer(){
+    private void setNavDrawer() {
         drawerLayout = findViewById(R.id.drawer_layout);
         drawerToggle = new ActionBarDrawerToggle(
                 this,
@@ -132,11 +200,12 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
 
         drawerLayout.addDrawerListener(drawerToggle);
         navigationView = findViewById(R.id.nav_view);
-        if (ifGuestLogin) {
-            MenuItem accountItem = navigationView.getMenu().findItem(R.id.nav_account);
-            accountItem.setTitle("Login");
-        }
         navigationView.setNavigationItemSelectedListener(this);
+
+        View header = LayoutInflater.from(HomeActivity.this)
+                .inflate(R.layout.nav_header_main, navigationView);
+        nickName = header.findViewById(R.id.nickname);
+        email = header.findViewById(R.id.email);
     }
 
     @Override
@@ -144,10 +213,11 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.nav_account:
-                if (ifGuestLogin) {
-                    login();
-                } else
+                if (homeViewModel.isLogged()) {
                     logout();
+                } else {
+                    login();
+                }
                 break;
             case R.id.nav_settings:
                 settings();
@@ -160,22 +230,13 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         return false;
     }
 
-    /*
-    Start this activity
-     */
+    /* Start this activity */
     public static void start(Context context) {
-        start(context, null);
-    }
-
-    public static void start(Context context, String username) {
         Intent intent = new Intent(context, HomeActivity.class);
-        intent.putExtra(USERNAME, username);
         context.startActivity(intent);
     }
 
-    /*
-    Press twice to exit app
-     */
+    /* Press twice to exit app */
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
             if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
@@ -196,68 +257,41 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     private void logout() {
-        new AlertDialog.Builder(homeContext)
-                .setTitle("Log out")
-                .setMessage("Are you sure to Log out?")
-                .setIcon(R.mipmap.ic_launcher)
-                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // 清理缓存&注销监听&清除状态
-                        NimUIKit.logout();
-                        NIMClient.getService(AuthService.class).logout();
-
-//                        AgoraMsgManager.getInstance().getRtmClient().logout(null);
-
-                        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
-                        preferenceLogin.setPref(preferenceLogin.getUsername(), preferenceLogin.getPassword(), false, true);
-                        // DemoCache.clear();
-
-                        LoginActivity.start(HomeActivity.this);
-                        finish();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .create()
+        new XPopup.Builder(this)
+                .asConfirm("Log out", "Are you sure to Log out ?",
+                        new OnConfirmListener() {
+                            @Override
+                            public void onConfirm() {
+                                homeViewModel.logout();
+                            }
+                        })
+                .setCancelText("Cancel")
+                .setConfirmText("Confirm")
                 .show();
     }
 
     private void login() {
-        new AlertDialog.Builder(homeContext)
-                .setTitle("Log in")
-                .setMessage("Are you sure to Log in?")
-                .setIcon(R.mipmap.ic_launcher)
-                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
-                        preferenceLogin.setPref(preferenceLogin.getUsername(), preferenceLogin.getPassword(), false, true);
-                        // DemoCache.clear();
-
-                        LoginActivity.start(HomeActivity.this);
-                        finish();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .create()
+        new XPopup.Builder(this)
+                .asConfirm("Log in", "Are you sure to Log in ?",
+                        new OnConfirmListener() {
+                            @Override
+                            public void onConfirm() {
+                                LoginActivity.start(HomeActivity.this);
+                                finish();
+                            }
+                        })
+                .setCancelText("Cancel")
+                .setConfirmText("Confirm")
                 .show();
     }
 
-    private void settings(){
+    private void settings() {
         new XPopup.Builder(this)
                 .asCenterList("Settings", new String[]{"Crash Report", "Clean Img Cache"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                switch (text){
+                                switch (text) {
                                     case "Crash Report":
                                         shareCrashReports();
                                         break;
@@ -265,7 +299,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                                         cleanImgCache();
                                         break;
                                     default:
-                                        Log.e(TAG,"Something wrong in settings !");
+                                        Log.e(TAG, "Something wrong in settings !");
                                 }
                             }
                         })
@@ -289,25 +323,26 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     /* share crash report */
-    private void shareCrashReports(){
-        CrashReports crashReports = CrashHandler.getCrashReportFiles(homeContext);
+    private void shareCrashReports() {
+        CrashReports crashReports = CrashHandler.getCrashReportFiles(getContext());
         new XPopup.Builder(this)
                 .maxHeight(1350)
                 .asCenterList("Select a Crash Report", crashReports.reportNames,
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
-                                if (!crashReports.isEmpty){
+                                if (!crashReports.isEmpty) {
+                                    // get the file path
                                     String filePath = CrashHandler.getCrashFilePath(getApplicationContext()) + "/" + text + ".txt";
                                     File file = new File(filePath);
-                                    if (file.exists()){
+                                    if (file.exists()) {
                                         Intent intent = new Intent();
                                         intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                                         intent.setAction(Intent.ACTION_SEND);
-                                        intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(homeContext, "com.penglab.hi5.provider", new File(filePath)));  //传输图片或者文件 采用流的方式
+                                        intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(getContext(), "com.penglab.hi5.provider", new File(filePath)));  //传输图片或者文件 采用流的方式
                                         intent.setType("*/*");   //分享文件
                                         startActivity(Intent.createChooser(intent, "Share From Hi5"));
-                                    }else {
+                                    } else {
                                         ToastEasy("File does not exist");
                                     }
                                 }
@@ -317,24 +352,18 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     /* clean img cache of Big Data */
-    public void cleanImgCache(){
+    public void cleanImgCache() {
         new XPopup.Builder(this)
                 .asConfirm("Clean the img cache", "Are you sure to CLEAN ALL IMG CACHE OF BIG DATA MODULE?",
                         new OnConfirmListener() {
                             @Override
                             public void onConfirm() {
-                                deleteImg();
+                                homeViewModel.cleanImgCache();
                             }
                         })
                 .setCancelText("Cancel")
                 .setConfirmText("Confirm")
                 .show();
-    }
-
-    private void deleteImg(){
-        String imgPath = getExternalFilesDir(null).toString() + "/Img";
-        File file = new File(imgPath);
-        recursionDeleteFile(file);
     }
 }
 

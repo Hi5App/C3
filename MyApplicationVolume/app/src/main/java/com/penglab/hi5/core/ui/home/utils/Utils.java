@@ -1,10 +1,6 @@
 package com.penglab.hi5.core.ui.home.utils;
 
-import static com.penglab.hi5.core.ui.home.screens.HomeActivity.username;
-
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -34,10 +30,10 @@ public class Utils {
                 Context context = v.getContext();
                 switch (libraryObject.getTitle()){
                     case "Big Image":
-                        MainActivity.actionStart(context, username);
+                        MainActivity.actionStart(context, "empty");
                         break;
                     case "Smart Imaging":
-                        S2Activity.actionStart(context, username);
+                        S2Activity.actionStart(context, "empty");
                         break;
                     case "Chat":
                         ChatActivity.start(context);
