@@ -2,6 +2,7 @@ package com.penglab.hi5.core.ui.splash;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.lifecycle.LiveData;
@@ -24,6 +25,7 @@ import java.io.File;
 
 public class SplashScreenViewModel extends ViewModel {
 
+    private final String TAG = "SplashScreenViewModel";
     public static final String MUSIC_EXIST = "All the music resources already exist.";
     public static final String MUSIC_DOWNLOAD_FINISHED = "All the music resources are downloaded.";
 
@@ -75,6 +77,7 @@ public class SplashScreenViewModel extends ViewModel {
             for (int i = 0; i < musicArray.length(); i++) {
                 try{
                     JSONObject musicInfo = musicArray.getJSONObject(i);
+                    Log.e(TAG, "name: " + musicInfo.getString("name") + ", url: " + musicInfo.getString("url"));
                     resourceDataSource.downloadMusic(musicInfo.getString("name"), musicInfo.getString("url"), i, musicArray.length());
                 }catch (Exception e){
                     musicResult.setValue(new ResourceResult(false,"Fail to parse music list !"));

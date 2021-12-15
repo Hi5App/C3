@@ -389,7 +389,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
         InfoCache.setToken(preferenceLogin.getPassword());
 
 //        MainActivity.actionStart(SplashScreenActivity.this, account);
-        HomeActivity.start(SplashScreenActivity.this, account);
+        HomeActivity.start(SplashScreenActivity.this);
         ToastEasy("Welcome, " + account +" !");
         finish();
     }

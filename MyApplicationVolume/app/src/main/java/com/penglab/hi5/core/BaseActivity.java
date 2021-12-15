@@ -107,7 +107,7 @@ public class BaseActivity extends AppCompatActivity {
             Log.v("RecursionDeleteFile","file.isDirectory()");
             File[] childFile = file.listFiles();
             Log.v("RecursionDeleteFile","childFile.length: " + childFile.length);
-            if (childFile == null || childFile.length == 0) {
+            if (childFile.length == 0) {
                 file.delete();
                 return;
             }

@@ -10,13 +10,15 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.netease.nim.uikit.api.NimUIKit;
 import com.penglab.hi5.R;
+import com.penglab.hi5.basic.utils.AppStatus;
+import com.penglab.hi5.basic.utils.AppStatusManager;
 import com.penglab.hi5.chat.nim.InfoCache;
-import com.penglab.hi5.core.BaseActivity;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.home.screens.HomeActivity;
 import com.penglab.hi5.core.ui.login.LoggedInUserView;
@@ -24,7 +26,7 @@ import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.dataStore.PreferenceLogin;
 
-public class SplashScreenActivity extends BaseActivity {
+public class SplashScreenActivity extends AppCompatActivity {
 
     private static final String TAG = "SplashScreenActivity";
 
@@ -87,6 +89,7 @@ public class SplashScreenActivity extends BaseActivity {
                 }
                 if (loginResult.getSuccess() != null) {
                     updateUiWithUser(loginResult.getSuccess());
+                    showHomeActivity();
                 }
                 setResult(Activity.RESULT_OK);
             }
@@ -98,6 +101,7 @@ public class SplashScreenActivity extends BaseActivity {
         super.onResume();
         Log.e(TAG, "onResume");
         splashScreenViewModel.getMusicList();
+        AppStatusManager.getInstance().setAppStatus(AppStatus.STATUS_NORMAL);
     }
 
     @Override
@@ -145,18 +149,22 @@ public class SplashScreenActivity extends BaseActivity {
             splashScreenViewModel.login(preferenceLogin.getUsername(), preferenceLogin.getPassword());
         } else {
             LoginActivity.start(SplashScreenActivity.this);
+            finish();
         }
     }
 
     private void updateUiWithUser(LoggedInUserView model) {
-        String welcome = getString(R.string.welcome) + model.getDisplayName() + " !";
+        String welcome = getString(R.string.welcome) + model.getNickName() + " !";
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
-        HomeActivity.start(SplashScreenActivity.this);
-        finish();
     }
 
     private void showFailed(@Nullable String errorString) {
         Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_LONG).show();
+    }
+
+    private void showHomeActivity(){
+        HomeActivity.start(SplashScreenActivity.this);
+        finish();
     }
 
     private void showSplashView() {
