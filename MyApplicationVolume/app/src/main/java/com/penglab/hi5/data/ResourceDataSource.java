@@ -1,5 +1,9 @@
 package com.penglab.hi5.data;
 
+import static com.penglab.hi5.core.ui.splash.SplashScreenViewModel.MUSIC_DOWNLOAD_FINISHED;
+
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -39,13 +43,13 @@ public class ResourceDataSource {
                     try {
                         if (response.body() != null) {
                             JSONArray jsonArray = new JSONArray(response.body().string());
-                            result.setValue(new Result.Success<JSONArray>(jsonArray));
+                            result.postValue(new Result.Success<JSONArray>(jsonArray));
                         } else {
-                            result.setValue(new Result.Error(new Exception("Response from server is null !")));
+                            result.postValue(new Result.Error(new Exception("Response from server is null !")));
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        result.setValue(new Result.Error(new Exception("Fail to get music list !")));
+                        result.postValue(new Result.Error(new Exception("Fail to get music list !")));
                     }
                 }
             });
@@ -67,16 +71,18 @@ public class ResourceDataSource {
                     try {
                         if (response.body() != null) {
                             byte[] fileContent = response.body().bytes();
-                            FileHelper.storeFile(Myapplication.getContext().getExternalFilesDir(null) + "/Resources/Music", name, fileContent);
-                            if (index == sum){
-                                result.setValue(new Result.Success<String>("download "));
+                            if (!FileHelper.storeFile(Myapplication.getContext().getExternalFilesDir(null) + "/Resources/Music", name, fileContent)) {
+                                Log.e(TAG, "Fail to store music");
+                            }
+                            if (index + 1 == sum) {
+                                result.postValue(new Result.Success<String>(MUSIC_DOWNLOAD_FINISHED));
                             }
                         } else {
-                            result.setValue(new Result.Error(new Exception("Response from server is null when download music !")));
+                            result.postValue(new Result.Error(new Exception("Response from server is null when download music !")));
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        result.setValue(new Result.Error(new Exception("Fail to download music file !")));
+                        result.postValue(new Result.Error(new Exception("Fail to download music file !")));
                     }
                 }
             });

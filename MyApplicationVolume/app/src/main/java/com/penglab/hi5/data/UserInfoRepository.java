@@ -1,5 +1,7 @@
 package com.penglab.hi5.data;
 
+import android.util.Log;
+
 import com.penglab.hi5.data.model.user.LoggedInUser;
 
 /**
@@ -33,7 +35,14 @@ public class UserInfoRepository {
         user = null;
     }
 
+    public LoggedInUser getUser() {
+        return user;
+    }
+
     public void setLoggedInUser(LoggedInUser user) {
+        Log.e("UserInfoRepository", "userId: " + user.getUserId());
+        Log.e("UserInfoRepository", "nickName: " + user.getNickName());
+        Log.e("UserInfoRepository", "email: " + user.getEmail());
         this.user = user;
     }
 

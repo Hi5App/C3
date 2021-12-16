@@ -31,7 +31,6 @@ public class LoginDataSource {
 
                 LoggedInUser curUser =
                         new LoggedInUser(
-                                true,
                                 username,
                                 username,
                                 "email");

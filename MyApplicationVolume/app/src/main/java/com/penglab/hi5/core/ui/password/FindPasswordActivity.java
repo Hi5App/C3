@@ -3,6 +3,11 @@ package com.penglab.hi5.core.ui.password;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -19,13 +24,18 @@ import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.core.ui.register.RegisterActivity;
 import com.penglab.hi5.core.ui.register.RegisterView;
+import com.penglab.hi5.data.Result;
 
 /**
  * Created by Jackiexing on 12/7/21
  */
-public class FindPasswordActivity extends AppCompatActivity {
+public class FindPasswordActivity extends AppCompatActivity implements View.OnClickListener{
 
+    private final String TAG = "FindPasswordActivity";
     private FindPasswordViewModel findPasswordViewModel;
+    private EditText usernameEditText;
+    private EditText emailEditText;
+    private Button confirmButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -34,9 +44,9 @@ public class FindPasswordActivity extends AppCompatActivity {
         findPasswordViewModel = new ViewModelProvider(this, new ViewModelFactory())
                 .get(FindPasswordViewModel.class);
 
-        EditText usernameEditText = findViewById(R.id.username);
-        EditText emailEditText = findViewById(R.id.email);
-        Button confirmButton = findViewById(R.id.confirm);
+        usernameEditText = findViewById(R.id.username);
+        emailEditText = findViewById(R.id.email);
+        confirmButton = findViewById(R.id.confirm);
 
         findPasswordViewModel.getFindPasswordFormState().observe(this, new Observer<FindPasswordFormState>() {
             @Override
@@ -69,6 +79,42 @@ public class FindPasswordActivity extends AppCompatActivity {
             }
         });
 
+        findPasswordViewModel.getUserDataSource().getResult().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                findPasswordViewModel.updateFindPasswordResult(result);
+            }
+        });
+
+        TextWatcher afterTextChangedListener = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                findPasswordViewModel.userDataChanged(usernameEditText.getText().toString(),
+                        emailEditText.getText().toString());
+            }
+        };
+
+        usernameEditText.addTextChangedListener(afterTextChangedListener);
+        emailEditText.addTextChangedListener(afterTextChangedListener);
+        confirmButton.setOnClickListener(this);
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.confirm){
+            findPasswordViewModel.findPassword(usernameEditText.getText().toString(), emailEditText.getText().toString());
+        }else {
+            Log.e(TAG,"Can find this view");
+        }
     }
 
     private void showFindPasswordSuccessfully(FindPasswordView model) {

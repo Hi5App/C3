@@ -8,8 +8,6 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.media.SoundPool;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -33,13 +31,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.netease.nim.uikit.api.NimUIKit;
-import com.netease.nim.uikit.common.ToastHelper;
-import com.netease.nim.uikit.common.util.log.LogUtil;
-import com.netease.nimlib.sdk.RequestCallback;
-import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.penglab.hi5.R;
-import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.home.screens.HomeActivity;
 import com.penglab.hi5.core.ui.password.FindPasswordActivity;
@@ -150,11 +142,10 @@ public class LoginActivity extends AppCompatActivity{
                 if (loginResult.getSuccess() != null) {
                     preferenceLogin.setPref(usernameEditText.getText().toString(),
                             passwordEditText.getText().toString(),true,true);
-
-                    /* login IM module */
-                    loginNim(usernameEditText.getText().toString(), passwordEditText.getText().toString(), loginResult);
+                    updateUiWithUser(loginResult.getSuccess());
+                    showHomeActivity();
+                    setResult(Activity.RESULT_OK);
                 }
-                setResult(Activity.RESULT_OK);
             }
         });
 
@@ -381,15 +372,13 @@ public class LoginActivity extends AppCompatActivity{
         }
     }
 
-
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
     }
 
     private void updateUiWithUser(LoggedInUserView model) {
-        String welcome = getString(R.string.welcome) + model.getDisplayName() + " !";
+        String welcome = getString(R.string.welcome) + model.getNickName() + " !";
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
     }
 
@@ -397,64 +386,10 @@ public class LoginActivity extends AppCompatActivity{
         Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_LONG).show();
     }
 
-    private void loginNim(String account, String password, LoginResult loginResult){
-        Log.e(TAG, "account: " + account + ", password: " + password);
-
-        /* for test */
-//        InfoCache.setAccount(account);
-//        InfoCache.setToken(password);
-
-//        // 进入主界面
-//        MainActivity.actionStart(LoginActivity.this, loginResult.getSuccess().getDisplayName());
-//        updateUiWithUser(loginResult.getSuccess());
-//        finish();
-
-        NimUIKit.login(new LoginInfo(account, password),
-                new RequestCallback<LoginInfo>() {
-                    @Override
-                    public void onSuccess(LoginInfo param) {
-                        LogUtil.i(TAG, "login success");
-                        InfoCache.setAccount(account);
-                        InfoCache.setToken(password);
-                        NimUIKit.loginSuccess(account);
-
-                        // 进入主界面
-                        if(ifGuestLogin){
-//                            MainActivity.start(LoginActivity.this);
-                            HomeActivity.start(LoginActivity.this);
-                        }
-                        else{
-//                            MainActivity.actionStart(LoginActivity.this, loginResult.getSuccess().getDisplayName());
-                            HomeActivity.start(LoginActivity.this, loginResult.getSuccess().getDisplayName());
-                            updateUiWithUser(loginResult.getSuccess());finish();
-                        }
-
-                    }
-
-                    @Override
-                    public void onFailed(int code) {
-                        if (code == 302 || code == 404) {
-                            ToastHelper.showToast(LoginActivity.this,
-                                    R.string.login_failed);
-                        } else if(code == 408) {
-                            ToastHelper.showToast(LoginActivity.this,
-                                    "连接超时： " + account);
-                        }else {
-                            ToastHelper.showToast(LoginActivity.this,
-                                    "登录失败: " + code);
-                        }
-                    }
-
-                    @Override
-                    public void onException(Throwable exception) {
-                        ToastHelper.showToast(LoginActivity.this,
-                                "Exception When Login !");
-                    }
-                });
+    private void showHomeActivity(){
+        HomeActivity.start(LoginActivity.this);
+        finish();
     }
-
-
-
 
     public static void start(Context context) {
         start(context, false, "");
@@ -467,7 +402,6 @@ public class LoginActivity extends AppCompatActivity{
         intent.putExtra(KICK_OUT_DESC, kickOutDesc);
         context.startActivity(intent);
     }
-
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK

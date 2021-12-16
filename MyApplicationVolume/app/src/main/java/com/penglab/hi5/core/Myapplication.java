@@ -109,6 +109,8 @@ public class Myapplication extends Application {
         // user cache info
         InfoCache.setContext(this);
         infoCache = InfoCache.getInstance();
+        InfoCache.setAccount("xf");
+        InfoCache.setToken("123456");
 
         // init log module
         initLogcat();

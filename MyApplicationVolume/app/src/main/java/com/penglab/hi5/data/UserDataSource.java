@@ -12,7 +12,9 @@ import androidx.lifecycle.MutableLiveData;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.common.ToastHelper;
 import com.netease.nim.uikit.common.util.log.LogUtil;
+import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
+import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.penglab.hi5.R;
 import com.penglab.hi5.chat.nim.InfoCache;
@@ -20,6 +22,7 @@ import com.penglab.hi5.core.net.HttpUtilsResource;
 import com.penglab.hi5.core.net.HttpUtilsUser;
 import com.penglab.hi5.core.ui.home.screens.HomeActivity;
 import com.penglab.hi5.core.ui.login.LoginActivity;
+import com.penglab.hi5.data.dataStore.PreferenceLogin;
 import com.penglab.hi5.data.model.user.FindPasswordUser;
 import com.penglab.hi5.data.model.user.LoggedInUser;
 import com.penglab.hi5.data.model.user.RegisterUser;
@@ -36,16 +39,20 @@ import okhttp3.Response;
 
 /**
  * Class that handles user information w/ server.
- *
+ * <p>
  * Created by Jackiexing on 12/7/21
  */
 public class UserDataSource {
 
+    public static final String LOGOUT_SUCCESS = "Logout Success";
+
     private final String TAG = "UserDataSource";
+    private final String REGISTER_SUCCESS = "Register Success";
+    private final String LOGIN_SUCCESS = "Login Success";
     private final MutableLiveData<Result> result = new MutableLiveData<>();
     private String responseData;
 
-    public LiveData<Result> getResult(){
+    public LiveData<Result> getResult() {
         return result;
     }
 
@@ -64,11 +71,21 @@ public class UserDataSource {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     responseData = response.body().string();
-                    Log.e(TAG,"responseData: " + responseData);
+                    Log.e(TAG, "responseData: " + responseData);
 
-                    if (responseData.equals("true")) {
-                        LoggedInUser loggedInUser = new LoggedInUser(true, username, username, username);
-                        result.postValue(new Result.Success<LoggedInUser>(loggedInUser));
+                    if (responseData.startsWith(LOGIN_SUCCESS)) {
+                        String userInfoString = responseData.split("\n")[1];
+                        try {
+                            JSONObject userInfo = new JSONObject(userInfoString);
+                            LoggedInUser loggedInUser = new LoggedInUser(
+                                    userInfo.getString("username"),
+                                    userInfo.getString("nickname"),
+                                    userInfo.getString("email"));
+                            result.postValue(new Result.Success<LoggedInUser>(loggedInUser));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            result.postValue(new Result.Error(new Exception("Fail to parse user info !")));
+                        }
                     } else {
                         result.postValue(new Result.Error(new IOException(responseData)));
                     }
@@ -93,8 +110,9 @@ public class UserDataSource {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     responseData = response.body().string();
+                    Log.e(TAG, "responseData: " + responseData);
 
-                    if (responseData.equals("true")) {
+                    if (responseData.equals(REGISTER_SUCCESS)) {
                         RegisterUser registerUser = new RegisterUser(username, nickname);
                         result.postValue(new Result.Success<RegisterUser>(registerUser));
                     } else {
@@ -112,7 +130,7 @@ public class UserDataSource {
      */
     public void findPassword(String username, String email) {
         try {
-            HttpUtilsUser.findPasswordWithOkHttp(email, username, new Callback() {
+            HttpUtilsUser.findPasswordWithOkHttp(username, email, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     result.postValue(new Result.Error(new Exception("Connect Failed When Register")));
@@ -121,8 +139,9 @@ public class UserDataSource {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     responseData = response.body().string();
+                    Log.e(TAG, "responseData: " + responseData);
 
-                    if (responseData.equals("true")) {
+                    if (responseData.equals("ForgetPassword Success")) {
                         FindPasswordUser findPasswordUser = new FindPasswordUser(username, email);
                         result.postValue(new Result.Success<FindPasswordUser>(findPasswordUser));
                     } else {
@@ -153,9 +172,9 @@ public class UserDataSource {
                         Log.e(TAG, "login failed");
                         if (code == 302 || code == 404) {
                             result.postValue(new Result.Error(new Exception(getContext().getString(R.string.login_failed))));
-                        } else if(code == 408) {
+                        } else if (code == 408) {
                             result.postValue(new Result.Error(new Exception("Nim: Time out " + username)));
-                        }else {
+                        } else {
                             result.postValue(new Result.Error(new Exception("Nim: Login Failed, Fail Code: " + code)));
                         }
                     }
@@ -167,8 +186,22 @@ public class UserDataSource {
                 });
     }
 
+    /**
+     * Logout account, clear local info
+     */
     public void logout() {
-        // TODO: revoke authentication
+        // 清理缓存 & 注销监听 & 清除状态
+        NimUIKit.logout();
+        NIMClient.getService(AuthService.class).logout();
+
+        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
+        preferenceLogin.setPref(
+                preferenceLogin.getUsername(),
+                preferenceLogin.getPassword(),
+                false,
+                true);
+
+        result.setValue(new Result.Success<String>(LOGOUT_SUCCESS));
     }
 
 }

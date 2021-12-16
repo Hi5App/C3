@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel;
 
 import com.penglab.hi5.R;
 import com.penglab.hi5.data.Result;
-import com.penglab.hi5.data.RegisterDataSource;
 import com.penglab.hi5.data.UserDataSource;
 import com.penglab.hi5.data.model.user.RegisterUser;
 
@@ -42,7 +41,7 @@ public class RegisterViewModel extends ViewModel {
         // will be called in RegisterActivity
         if (result instanceof Result.Success) {
             RegisterUser data = ((Result.Success<RegisterUser>) result).getData();
-            registerResult.setValue(new RegisterResult(new RegisterView(data.getNickName())));
+            registerResult.setValue(new RegisterResult(new RegisterView(data.getUserId())));
         } else {
             registerResult.setValue(new RegisterResult(((Result.Error) result).getError().getMessage()));
         }
