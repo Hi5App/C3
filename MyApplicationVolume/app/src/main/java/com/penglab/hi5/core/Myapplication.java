@@ -109,6 +109,8 @@ public class Myapplication extends Application {
         // user cache info
         InfoCache.setContext(this);
         infoCache = InfoCache.getInstance();
+        InfoCache.setAccount("xf");
+        InfoCache.setToken("123456");
 
         // init log module
         initLogcat();
@@ -257,6 +259,14 @@ public class Myapplication extends Application {
         ToastUtil.getInstance()
                 .createBuilder(context)
                 .setMessage(message)
+                .show();
+    }
+
+    public static void ToastEasy(int stringId){
+
+        ToastUtil.getInstance()
+                .createBuilder(context)
+                .setMessage(context.getString(stringId))
                 .show();
     }
 

@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.penglab.hi5.R;
-import com.penglab.hi5.data.FindPasswordDataSource;
+import com.penglab.hi5.data.UserDataSource;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.model.user.FindPasswordUser;
 
@@ -18,14 +18,18 @@ public class FindPasswordViewModel extends ViewModel {
 
     private final MutableLiveData<FindPasswordFormState> findPasswordFormState = new MutableLiveData<>();
     private final MutableLiveData<FindPasswordResult> findPasswordResult = new MutableLiveData<>();
-    private final FindPasswordDataSource findPasswordDataSource;
+    private final UserDataSource userDataSource;
 
-    public FindPasswordViewModel(FindPasswordDataSource findPasswordDataSource){
-        this.findPasswordDataSource = findPasswordDataSource;
+    public FindPasswordViewModel(UserDataSource userDataSource){
+        this.userDataSource = userDataSource;
     }
 
     public LiveData<FindPasswordFormState> getFindPasswordFormState(){
         return findPasswordFormState;
+    }
+
+    public UserDataSource getUserDataSource(){
+        return userDataSource;
     }
 
     public LiveData<FindPasswordResult> getFindPasswordResult(){
@@ -33,15 +37,17 @@ public class FindPasswordViewModel extends ViewModel {
     }
 
     public void findPassword(String username, String email){
-        Result<FindPasswordUser> result = findPasswordDataSource.findPassword(username, email);
+        userDataSource.findPassword(username, email);
+    }
 
+    public void updateFindPasswordResult(Result<FindPasswordUser> result){
+        // will be called in FindPasswordActivity
         if (result instanceof Result.Success) {
             FindPasswordUser data = ((Result.Success<FindPasswordUser>) result).getData();
-            findPasswordResult.setValue(new FindPasswordResult(new FindPasswordView(data.getUsername())));
+            findPasswordResult.setValue(new FindPasswordResult(new FindPasswordView(data.getUserId())));
         } else {
             findPasswordResult.setValue(new FindPasswordResult(((Result.Error) result).getError().getMessage()));
         }
-
     }
 
     public void userDataChanged(String username, String email){

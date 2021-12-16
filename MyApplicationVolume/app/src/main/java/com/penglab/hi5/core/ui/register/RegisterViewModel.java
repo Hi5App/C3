@@ -8,15 +8,15 @@ import androidx.lifecycle.ViewModel;
 
 import com.penglab.hi5.R;
 import com.penglab.hi5.data.Result;
-import com.penglab.hi5.data.RegisterDataSource;
+import com.penglab.hi5.data.UserDataSource;
 import com.penglab.hi5.data.model.user.RegisterUser;
 
 public class RegisterViewModel extends ViewModel {
     private final MutableLiveData<RegisterFormState> registerFormState = new MutableLiveData<>();
     private final MutableLiveData<RegisterResult> registerResult = new MutableLiveData<>();
-    private final RegisterDataSource registerDataSource;
+    private final UserDataSource registerDataSource;
 
-    public RegisterViewModel(RegisterDataSource registerDataSource) {
+    public RegisterViewModel(UserDataSource registerDataSource) {
         this.registerDataSource = registerDataSource;
     }
 
@@ -28,12 +28,20 @@ public class RegisterViewModel extends ViewModel {
         return registerResult;
     }
 
-    public void register(String email, String username, String nickname, String password, String inviterCode) {
-        Result<RegisterUser> result = registerDataSource.register(email, username, nickname, password, inviterCode);
+    UserDataSource getRegisterDataSource(){
+        return registerDataSource;
+    }
 
+    public void register(String email, String username, String nickname, String password, String inviterCode) {
+        // launched in a separate asynchronous job
+        registerDataSource.register(email, username, nickname, password, inviterCode);
+    }
+
+    public void updateRegisterResult(Result<RegisterUser> result){
+        // will be called in RegisterActivity
         if (result instanceof Result.Success) {
             RegisterUser data = ((Result.Success<RegisterUser>) result).getData();
-            registerResult.setValue(new RegisterResult(new RegisterView(data.getNickName())));
+            registerResult.setValue(new RegisterResult(new RegisterView(data.getUserId())));
         } else {
             registerResult.setValue(new RegisterResult(((Result.Error) result).getError().getMessage()));
         }

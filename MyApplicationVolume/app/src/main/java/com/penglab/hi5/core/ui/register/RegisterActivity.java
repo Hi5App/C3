@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.penglab.hi5.R;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.core.ui.ViewModelFactory;
+import com.penglab.hi5.data.Result;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -97,6 +98,16 @@ public class RegisterActivity extends AppCompatActivity {
                 if (registerResult.getSuccess() != null) {
                     showRegisterSuccessfully(registerResult.getSuccess());
                 }
+            }
+        });
+
+        registerViewModel.getRegisterDataSource().getResult().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                if (result == null){
+                    return;
+                }
+                registerViewModel.updateRegisterResult(result);
             }
         });
 

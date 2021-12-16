@@ -6,18 +6,18 @@ package com.penglab.hi5.core.ui.login;
 public class LoggedInUserView {
 
     private final String userId;
-    private final String displayName;
+    private final String nickName;
 
-    public LoggedInUserView(String userId, String displayName) {
+    public LoggedInUserView(String userId, String nickName) {
         this.userId = userId;
-        this.displayName = displayName;
+        this.nickName = nickName;
     }
 
     public String getUserId() {
         return userId;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public String getNickName() {
+        return nickName;
     }
 }

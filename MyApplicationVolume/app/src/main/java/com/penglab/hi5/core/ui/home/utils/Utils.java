@@ -1,26 +1,36 @@
 package com.penglab.hi5.core.ui.home.utils;
 
-import static com.penglab.hi5.core.ui.home.screens.HomeActivity.username;
-
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.penglab.hi5.R;
+import com.penglab.hi5.basic.utils.FileHelper;
 import com.penglab.hi5.chat.ChatActivity;
 import com.penglab.hi5.core.HelpActivity;
 import com.penglab.hi5.core.MainActivity;
+import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.S2Activity;
+import com.penglab.hi5.core.net.HttpUtilsImage;
+import com.penglab.hi5.data.UserInfoRepository;
+
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 
 /**
  * Modified by Jackiexing on 11/22/21.
  */
 public class Utils {
+
+    private static final String TAG = "Home-Utils";
 
     public static void setupItem(final View view, final LibraryObject libraryObject) {
         final TextView txt = (TextView) view.findViewById(R.id.txt_item);
@@ -32,17 +42,88 @@ public class Utils {
             @Override
             public void onClick(View v) {
                 Context context = v.getContext();
+                UserInfoRepository userInfoRepository = UserInfoRepository.getInstance();
                 switch (libraryObject.getTitle()){
                     case "Big Image":
-                        MainActivity.actionStart(context, username);
+//                        HttpUtilsImage.getImageListWithOkHttp(
+//                                userInfoRepository.getUser().getUserId(),
+//                                "123456", new Callback() {
+//                            @Override
+//                            public void onFailure(Call call, IOException e) {
+//                                Log.e(TAG, "Failed");
+//                                Log.e(TAG, e.getMessage());
+//                            }
+//
+//                            @Override
+//                            public void onResponse(Call call, Response response) throws IOException {
+//                                Log.e(TAG, "Success");
+//                                Log.e(TAG, response.body().string());
+//                            }
+//                        });
+                        MainActivity.actionStart(context, "empty");
                         break;
                     case "Smart Imaging":
-                        S2Activity.actionStart(context, username);
+//                        HttpUtilsImage.getNeuronListWithOkHttp(
+//                                userInfoRepository.getUser().getUserId(),
+//                                "123456", "18454", new Callback() {
+//                                    @Override
+//                                    public void onFailure(Call call, IOException e) {
+//                                        Log.e(TAG, "Failed");
+//                                        Log.e(TAG, e.getMessage());
+//                                    }
+//
+//                                    @Override
+//                                    public void onResponse(Call call, Response response) throws IOException {
+//                                        Log.e(TAG, "Success");
+//                                        Log.e(TAG, response.body().string());
+//                                    }
+//                                });
+                        S2Activity.actionStart(context, "empty");
                         break;
                     case "Chat":
+//                        HttpUtilsImage.getAnoListWithOkHttp(
+//                                userInfoRepository.getUser().getUserId(),
+//                                "123456", "18454_00049", new Callback() {
+//                                    @Override
+//                                    public void onFailure(Call call, IOException e) {
+//                                        Log.e(TAG, "Failed");
+//                                        Log.e(TAG, e.getMessage());
+//                                    }
+//
+//                                    @Override
+//                                    public void onResponse(Call call, Response response) throws IOException {
+//                                        Log.e(TAG, "Success");
+//                                        Log.e(TAG, response.body().string());
+//                                    }
+//                                });
                         ChatActivity.start(context);
                         break;
                     case "Help":
+//                        HttpUtilsImage.downloadImageWithOkHttp(
+//                                userInfoRepository.getUser().getUserId(),
+//                                "123456",
+//                                "18454/RES(26298x35000x11041)",
+//                                14530,
+//                                10693,
+//                                3124,
+//                                128,
+//                                new Callback() {
+//                                    @Override
+//                                    public void onFailure(Call call, IOException e) {
+//                                        Log.e(TAG, "Failed");
+//                                        Log.e(TAG, e.getMessage());
+//                                    }
+//
+//                                    @Override
+//                                    public void onResponse(Call call, Response response) throws IOException {
+//                                        Log.e(TAG, "Success");
+//                                        byte[] fileContent = response.body().bytes();
+//                                        Log.e(TAG,"content len: " + fileContent.length);
+//                                        if (!FileHelper.storeFile(Myapplication.getContext().getExternalFilesDir(null) + "/Img", "18454_RES(26298x35000x11041).v3dpbd", fileContent)) {
+//                                            Log.e(TAG, "Fail to store music");
+//                                        }
+//                                    }
+//                                });
                         HelpActivity.start(context);
                         break;
                     default:

@@ -88,8 +88,9 @@
         <activity android:name=".core.ui.register.RegisterActivity"/>
         <activity android:name=".core.ui.password.FindPasswordActivity"/>
         <activity android:name=".core.ui.login.LoginActivity"/>
+<!--        android:name=".core.SplashScreenActivity"-->
         <activity
-            android:name=".core.SplashScreenActivity"
+            android:name=".core.ui.splash.SplashScreenActivity"
             android:configChanges="keyboardHidden|orientation"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
