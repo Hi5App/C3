@@ -81,7 +81,7 @@ import static javax.microedition.khronos.opengles.GL10.GL_SRC_ALPHA;
 
 //@android.support.annotation.RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
 public class MyRenderer implements GLSurfaceView.Renderer {
-    enum FileType { V3draw, SWC, ESWC, APO, ANO, TIF, JPG, PNG, V3dPBD, NotSupport }
+    public enum FileType { V3draw, SWC, ESWC, APO, ANO, TIF, JPG, PNG, V3dPBD, NotSupport }
 
     private enum Operate {DRAWCURVE, DELETECURVE, DRAWMARKER, DELETEMARKER, CHANGELINETYPE, SPLIT}
 

@@ -131,6 +131,8 @@ import com.penglab.hi5.core.game.RewardActivity;
 import com.penglab.hi5.core.game.RewardLitePalConnector;
 import com.penglab.hi5.core.game.Score;
 import com.penglab.hi5.core.game.ScoreLitePalConnector;
+import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
+import com.penglab.hi5.core.ui.annotation.FileInfoState;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.data.dataStore.PreferenceLogin;
 import com.penglab.hi5.data.dataStore.SettingFileManager;
@@ -174,6 +176,8 @@ import com.michaldrabik.tapbarmenulib.TapBarMenu;
 public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static final String TAG = "MainActivity";
 
+    private AnnotationViewModel annotationViewModel = new AnnotationViewModel();
+
     private enum EditMode {
         NONE, ZOOM, PINPOINT, PAINTCURVE, DELETEMARKER, DELETECURVE, SPLIT, CHANGEMARKERTYPE, CHANGECURVETYPE, DELETEMULTIMARKER, ZOOMINROI
     }
@@ -206,8 +210,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private boolean ifAnimation = false;
 
     public static boolean ifGuestLogin = false;
-
-    private boolean[] temp_mode = new boolean[8];
 
     private static Button Zoom_in;
     private static Button Zoom_out;
@@ -406,7 +408,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         if (msg.startsWith("/users:")){
 
             if (firstLoad || copyFile){
-                /*
+                /*a
                 when first join the room, try to get the image
                  */
                 MsgConnector.getInstance().sendMsg("/ImageRes:" + Communicator.BrainNum);
@@ -421,7 +423,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             updateUserList(newUserList);
 
         }
-
 
 
         /*
@@ -880,6 +881,31 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 getLeaderBoard();
             }
         }, 1 * 1000);
+
+        annotationViewModel.getFileInfoState().conPath.observe(this, new androidx.lifecycle.Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                FileInfoState fileInfoState = annotationViewModel.getFileInfoState();
+                new XPopup.Builder(mainContext)
+                        .maxHeight(1350)
+                        .maxWidth(800)
+                        .asCenterList("BigData File", fileInfoState.sonFileList,
+                                new OnSelectListener() {
+                                    @RequiresApi(api = Build.VERSION_CODES.N)
+                                    @Override
+                                    public void onSelect(int position, String text) {
+                                        switch (text) {
+                                            case "Create A New Room":
+                                                createFilePopup();
+                                                break;
+                                            default:
+                                                annotationViewModel.loadFile(text);
+                                        }
+                                    }
+                                })
+                        .show();
+            }
+        });
 
     }
 
@@ -2223,7 +2249,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
 
         if (isFile){
-            list_array.add(0, "create a new Room");
+            list_array.add(0, "Create A New Room");
         }
 
         String[] list_show = new String[list_array.size()];
@@ -2255,7 +2281,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 }
                             })
                     .show();
-
         }else {
             new XPopup.Builder(this)
                     .maxHeight(1350)
@@ -2272,6 +2297,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     .show();
         }
     }
+
+
+
 
 
     private void loadFileMode(String filepath){
@@ -2313,6 +2341,18 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         }
                     }
                 })
+                .show();
+    }
+
+    private void createFilePopup() {
+        new XPopup.Builder(this)
+                .asInputConfirm("Create Room", "Input the name of the new room",
+                        new OnInputConfirmListener() {
+                            @Override
+                            public void onConfirm(String text) {
+                                annotationViewModel.createFile(text);
+                            }
+                        })
                 .show();
     }
 
