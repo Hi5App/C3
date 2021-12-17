@@ -18,10 +18,6 @@ import java.util.List;
  */
 public class AnnotationViewModel {
 
-    public enum EditMode {
-        NONE, ZOOM, PINPOINT, PAINTCURVE, DELETEMARKER, DELETECURVE, SPLIT, CHANGEMARKERTYPE, CHANGECURVETYPE, DELETEMULTIMARKER, ZOOMINROI
-    }
-
     public enum OpenFileMode {
         NONE, IMPORTSWC, ANALYZESWC, LOADLOCALIMAGE
     }
