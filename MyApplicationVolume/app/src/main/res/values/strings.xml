@@ -312,7 +312,7 @@
     <string name="login_register_hint" translatable="false">login_register_hint</string>
     <string name="DirectlyAccess" translatable="false">DirectlyAccess</string>
     <string name="login_other_hint" translatable="false" />
-    <string name="Directly_Access">Directly_Access</string>
+    <string name="Directly_Access" translatable="false">Directly_Access</string>
     <string name="Direct_Access">direct access</string>
     <string name="forget_password">forget password ?</string>
     <string name="undo">undo</string>

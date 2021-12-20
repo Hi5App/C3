@@ -6,9 +6,9 @@ package com.penglab.hi5.data.model.user;
  */
 public class LoggedInUser extends User {
 
-    private String userId;
-    private String nickName;
-    private String email;
+    private final String userId;
+    private final String nickName;
+    private final String email;
     private int Score;
 
     public LoggedInUser(String userId, String nickName, String email) {
