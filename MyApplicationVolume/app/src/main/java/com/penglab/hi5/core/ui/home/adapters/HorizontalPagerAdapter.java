@@ -33,11 +33,11 @@ public class HorizontalPagerAdapter extends PagerAdapter {
             new Utils.LibraryObject(
                     R.drawable.ic_development,
                     "Help"
+            ),
+            new Utils.LibraryObject(
+                    R.drawable.ic_development,
+                    "Check"
             )
-//            new Utils.LibraryObject(
-//                    R.drawable.ic_qa,
-//                    "Quality Assurance"
-//            )
     };
 
     private Context mContext;

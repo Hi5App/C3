@@ -4,11 +4,13 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.annotation.NonNull;
 
+import com.penglab.hi5.core.ui.check.CheckViewModel;
 import com.penglab.hi5.core.ui.home.screens.HomeViewModel;
 import com.penglab.hi5.core.ui.login.LoginViewModel;
 import com.penglab.hi5.core.ui.password.FindPasswordViewModel;
 import com.penglab.hi5.core.ui.register.RegisterViewModel;
 import com.penglab.hi5.core.ui.splash.SplashScreenViewModel;
+import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ResourceDataSource;
 import com.penglab.hi5.data.UserDataSource;
 import com.penglab.hi5.data.UserInfoRepository;
@@ -38,6 +40,9 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         } else if (modelClass.isAssignableFrom(HomeViewModel.class)) {
             // used in HomeActivity
             return (T) new HomeViewModel(UserInfoRepository.getInstance(), new UserDataSource());
+        } else if (modelClass.isAssignableFrom(CheckViewModel.class)) {
+            // used in HomeActivity
+            return (T) new CheckViewModel(new ImageDataSource());
         } else {
             throw new IllegalArgumentException("Unknown ViewModel class");
         }

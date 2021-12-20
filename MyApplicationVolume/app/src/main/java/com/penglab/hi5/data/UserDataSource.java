@@ -39,7 +39,7 @@ import okhttp3.Response;
 
 /**
  * Class that handles user information w/ server.
- * <p>
+ *
  * Created by Jackiexing on 12/7/21
  */
 public class UserDataSource {
@@ -57,11 +57,10 @@ public class UserDataSource {
     }
 
     /**
-     * called in LoginViewModel, change of result will be observe in LoginActivity
+     * called in LoginViewModel & SplashScreenViewModel, change of result will be observe in LoginActivity & SplashScreenActivity
      */
     public void login(String username, String password) {
         try {
-//            HttpUtilsResource.getMusicListWithOkHttp(new Callback() {
             HttpUtilsUser.loginWithOkHttp(username, password, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {

@@ -88,9 +88,11 @@
         <activity android:name=".chat.nim.main.activity.SettingsActivity" />
         <activity android:name=".chat.nim.main.activity.NoDisturbActivity" />
         <activity android:name=".core.S2Activity" />
-        <activity android:name=".core.ui.register.RegisterActivity" />
-        <activity android:name=".core.ui.password.FindPasswordActivity" />
-        <activity android:name=".core.ui.login.LoginActivity" /> <!-- android:name=".core.SplashScreenActivity" -->
+        <activity android:name=".core.ui.register.RegisterActivity"/>
+        <activity android:name=".core.ui.password.FindPasswordActivity"/>
+        <activity android:name=".core.ui.login.LoginActivity"/>
+        <activity android:name=".core.ui.check.CheckActivity"/>
+<!--        android:name=".core.SplashScreenActivity"-->
         <activity
             android:name=".core.ui.splash.SplashScreenActivity"
             android:configChanges="keyboardHidden|orientation"
