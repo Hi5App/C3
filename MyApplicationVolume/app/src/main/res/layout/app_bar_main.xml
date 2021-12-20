@@ -25,25 +25,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-    <!--&lt;!&ndash;        <com.google.android.material.floatingactionbutton.FloatingActionButton&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:id="@+id/fab"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_width="wrap_content"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_gravity="bottom|left"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_margin="16dp"&ndash;&gt;-->
-    <!--&lt;!&ndash;            app:srcCompat="@android:drawable/ic_dialog_email" />&ndash;&gt;-->
+        <!--&lt;!&ndash;        <com.google.android.material.floatingactionbutton.FloatingActionButton&ndash;&gt;-->
+        <!--&lt;!&ndash;            android:id="@+id/fab"&ndash;&gt;-->
+        <!--&lt;!&ndash;            android:layout_width="wrap_content"&ndash;&gt;-->
+        <!--&lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
+        <!--&lt;!&ndash;            android:layout_gravity="bottom|left"&ndash;&gt;-->
+        <!--&lt;!&ndash;            android:layout_margin="16dp"&ndash;&gt;-->
+        <!--&lt;!&ndash;            app:srcCompat="@android:drawable/ic_dialog_email" />&ndash;&gt;-->
 
-    <!--&lt;!&ndash;        <com.example.basic.DragFloatActionButton&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:id="@+id/img_btn"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_width="wrap_content"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
-    <!--&lt;!&ndash;            app:fabSize="mini"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:foregroundGravity="center"&ndash;&gt;-->
-    <!--&lt;!&ndash;            app:backgroundTint="@android:color/white"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_gravity="bottom|left"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_margin="10dp"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:src="@drawable/ic_call_end_black_24dp"&ndash;&gt;-->
-    <!--&lt;!&ndash;            />&ndash;&gt;-->
+        <!--&lt;!&ndash;        <com.example.basic.DragFloatActionButton&ndash;&gt;-->
+        <!--&lt;!&ndash;            android:id="@+id/img_btn"&ndash;&gt;-->
+        <!--&lt;!&ndash;            android:layout_width="wrap_content"&ndash;&gt;-->
+        <!--&lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
+        <!--&lt;!&ndash;            app:fabSize="mini"&ndash;&gt;-->
+        <!--&lt;!&ndash;            android:foregroundGravity="center"&ndash;&gt;-->
+        <!--&lt;!&ndash;            app:backgroundTint="@android:color/white"&ndash;&gt;-->
+        <!--&lt;!&ndash;            android:layout_gravity="bottom|left"&ndash;&gt;-->
+        <!--&lt;!&ndash;            android:layout_margin="10dp"&ndash;&gt;-->
+        <!--&lt;!&ndash;            android:src="@drawable/ic_call_end_black_24dp"&ndash;&gt;-->
+        <!--&lt;!&ndash;            />&ndash;&gt;-->
 
     </FrameLayout>
 
