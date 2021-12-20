@@ -305,7 +305,6 @@
     <string name="nim_status_bar_hidden_msg_content" translatable="false">你收到一条新消息</string>
 
 
-
     <!-- Called View -->
     <string name="video_called_activity_info" translatable="false">This user is requesting a video call</string>
     <string name="voice_called_activity_info" translatable="false">This user is calling you</string>
