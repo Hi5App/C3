@@ -1,4 +1,4 @@
-package com.penglab.hi5.core.render;
+package com.penglab.hi5.core.render.pattern;
 
 public class MyMarker {
     public double x;

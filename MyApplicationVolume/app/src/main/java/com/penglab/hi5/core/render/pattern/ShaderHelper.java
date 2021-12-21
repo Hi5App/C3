@@ -1,4 +1,4 @@
-package com.penglab.hi5.core.render;
+package com.penglab.hi5.core.render.pattern;
 
 import android.opengl.GLES30;
 import android.util.Log;

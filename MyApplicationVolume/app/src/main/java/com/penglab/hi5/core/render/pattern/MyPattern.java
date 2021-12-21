@@ -1,4 +1,4 @@
-package com.penglab.hi5.core.render;
+package com.penglab.hi5.core.render.pattern;
 
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +18,7 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 import static com.penglab.hi5.core.Myapplication.getContext;
-import static com.penglab.hi5.core.render.ShaderHelper.initShaderProgram;
+import static com.penglab.hi5.core.render.pattern.ShaderHelper.initShaderProgram;
 
 
 public class MyPattern{

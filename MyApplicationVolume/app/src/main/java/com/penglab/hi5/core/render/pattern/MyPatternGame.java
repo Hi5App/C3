@@ -1,4 +1,4 @@
-package com.penglab.hi5.core.render;
+package com.penglab.hi5.core.render.pattern;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.penglab.hi5.core.render.ShaderHelper.initShaderProgram;
+import static com.penglab.hi5.core.render.pattern.ShaderHelper.initShaderProgram;
 import static com.penglab.hi5.game.GameMapPoint.distance;
 
 public class MyPatternGame {

@@ -1,4 +1,4 @@
-package com.penglab.hi5.core.render;
+package com.penglab.hi5.core.render.pattern;
 
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-import static com.penglab.hi5.core.render.ShaderHelper.initShaderProgram;
+import static com.penglab.hi5.core.render.pattern.ShaderHelper.initShaderProgram;
 
 public class MyPattern2D {
 
