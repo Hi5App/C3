@@ -67,3 +67,4 @@ public class CheckActivity extends BaseActivity {
         context.startActivity(intent);
     }
 }
+
