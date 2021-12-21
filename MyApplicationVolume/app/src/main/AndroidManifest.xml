@@ -118,7 +118,7 @@
             android:hardwareAccelerated="true"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan"></activity>
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".core.ui.home.screens.HomeActivity">
 
             <!-- <intent-filter> -->

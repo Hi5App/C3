@@ -3,7 +3,6 @@ package com.penglab.hi5.core.ui.splash;
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -34,6 +33,9 @@ public class SplashScreenViewModel extends ViewModel {
     private final UserInfoRepository userInfoRepository;
     private final ResourceDataSource resourceDataSource;
     private final UserDataSource userDataSource;
+
+    private int musicNumAlreadyDownload = 0;
+    private int musicSumToDownload = 0;
 
     public SplashScreenViewModel(UserInfoRepository userInfoRepository, ResourceDataSource resourceDataSource, UserDataSource userDataSource) {
         this.userInfoRepository = userInfoRepository;
@@ -73,12 +75,14 @@ public class SplashScreenViewModel extends ViewModel {
 
         if (!musicDir.exists() || musicDir.listFiles() == null || musicDir.listFiles().length < musicArray.length()) {
             ToastEasy("Need to download some resources file !");
+            musicSumToDownload = musicArray.length();
+            musicNumAlreadyDownload = 0;
 
-            for (int i = 0; i < musicArray.length(); i++) {
+            for (int i = 0; i < musicSumToDownload; i++) {
                 try{
                     JSONObject musicInfo = musicArray.getJSONObject(i);
                     Log.e(TAG, "name: " + musicInfo.getString("name") + ", url: " + musicInfo.getString("url"));
-                    resourceDataSource.downloadMusic(musicInfo.getString("name"), musicInfo.getString("url"), i, musicArray.length());
+                    resourceDataSource.downloadMusic(musicInfo.getString("name"), musicInfo.getString("url"));
                 }catch (Exception e){
                     musicResult.setValue(new ResourceResult(false,"Fail to parse music list !"));
                 }
@@ -110,7 +114,10 @@ public class SplashScreenViewModel extends ViewModel {
             if (data instanceof String){
                 // download music successfully
                 if (((String) data).equals(MUSIC_DOWNLOAD_FINISHED)){
-                    musicResult.setValue(new ResourceResult(true));
+                    musicNumAlreadyDownload++;
+                    if (musicNumAlreadyDownload >= musicSumToDownload) {
+                        musicResult.setValue(new ResourceResult(true));
+                    }
                 }
             }
         } else {

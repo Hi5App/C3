@@ -7,8 +7,10 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.netease.nim.uikit.common.util.C;
 import com.penglab.hi5.basic.utils.FileHelper;
 import com.penglab.hi5.core.Myapplication;
+import com.penglab.hi5.core.net.HttpUtilsImage;
 import com.penglab.hi5.core.net.HttpUtilsResource;
 
 import org.json.JSONArray;
@@ -58,7 +60,7 @@ public class ResourceDataSource {
         }
     }
 
-    public void downloadMusic(String name, String url, int index, int sum) {
+    public void downloadMusic(String name, String url) {
         try {
             HttpUtilsResource.downloadMusicWithOkHttp(url, new Callback() {
                 @Override
@@ -74,9 +76,9 @@ public class ResourceDataSource {
                             if (!FileHelper.storeFile(Myapplication.getContext().getExternalFilesDir(null) + "/Resources/Music", name, fileContent)) {
                                 Log.e(TAG, "Fail to store music");
                             }
-                            if (index + 1 == sum) {
-                                result.postValue(new Result.Success<String>(MUSIC_DOWNLOAD_FINISHED));
-                            }
+
+                            result.postValue(new Result.Success<String>(MUSIC_DOWNLOAD_FINISHED));
+
                         } else {
                             result.postValue(new Result.Error(new Exception("Response from server is null when download music !")));
                         }

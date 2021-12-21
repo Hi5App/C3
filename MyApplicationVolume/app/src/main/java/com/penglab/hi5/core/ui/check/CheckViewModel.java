@@ -20,6 +20,8 @@ public class CheckViewModel extends ViewModel {
 
     public CheckViewModel(ImageDataSource imageDataSource) {
         this.imageDataSource = imageDataSource;
+
+
     }
 
     LiveData<String> getBrainId() {
