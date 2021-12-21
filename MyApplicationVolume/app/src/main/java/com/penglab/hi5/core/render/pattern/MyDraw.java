@@ -1,4 +1,4 @@
-package com.penglab.hi5.core.render;
+package com.penglab.hi5.core.render.pattern;
 
 import android.opengl.GLES30;
 import android.opengl.Matrix;
@@ -10,7 +10,7 @@ import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 
-import static com.penglab.hi5.core.render.ShaderHelper.initShaderProgram;
+import static com.penglab.hi5.core.render.pattern.ShaderHelper.initShaderProgram;
 
 public class MyDraw {
     private static final String TAG = "MyDraw";

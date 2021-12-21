@@ -1,4 +1,4 @@
-package com.penglab.hi5.core.render;
+package com.penglab.hi5.core.render.pattern;
 
 import android.opengl.GLES30;
 import android.util.Log;
@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
-import static com.penglab.hi5.core.render.ShaderHelper.initShaderProgram;
+import static com.penglab.hi5.core.render.pattern.ShaderHelper.initShaderProgram;
 
 public class MyAxis {
 

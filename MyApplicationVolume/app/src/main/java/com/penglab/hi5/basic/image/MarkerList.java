@@ -2,7 +2,7 @@ package com.penglab.hi5.basic.image;
 
 import android.util.Log;
 
-import com.penglab.hi5.core.render.MyDraw;
+import com.penglab.hi5.core.render.pattern.MyDraw;
 
 import java.io.File;
 import java.io.FileOutputStream;
