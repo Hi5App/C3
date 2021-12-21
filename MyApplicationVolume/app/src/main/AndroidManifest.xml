@@ -53,12 +53,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <activity
-            android:name=".core.ui.check.CheckActivity"
-            android:exported="false" />
-        <activity
-            android:name=".core.ui.annotation.AnnotationActivity"
-            android:exported="false" />
         <activity android:name=".core.game.RewardActivity" />
         <activity android:name=".core.game.LeaderBoardActivity" />
         <activity
