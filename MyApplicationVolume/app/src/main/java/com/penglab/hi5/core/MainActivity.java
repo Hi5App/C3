@@ -134,6 +134,10 @@ import com.penglab.hi5.core.game.ScoreLitePalConnector;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
 import com.penglab.hi5.core.ui.annotation.FileInfoState;
 import com.penglab.hi5.core.ui.login.LoginActivity;
+import com.penglab.hi5.data.ImageDataSource;
+import com.penglab.hi5.data.ImageInfoRepository;
+import com.penglab.hi5.data.UserDataSource;
+import com.penglab.hi5.data.UserInfoRepository;
 import com.penglab.hi5.data.dataStore.PreferenceLogin;
 import com.penglab.hi5.data.dataStore.SettingFileManager;
 import com.warkiz.widget.IndicatorSeekBar;
@@ -176,7 +180,7 @@ import com.michaldrabik.tapbarmenulib.TapBarMenu;
 public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static final String TAG = "MainActivity";
 
-    private AnnotationViewModel annotationViewModel = new AnnotationViewModel();
+    private AnnotationViewModel annotationViewModel = new AnnotationViewModel(ImageInfoRepository.getInstance(), UserInfoRepository.getInstance(), new UserDataSource(), new ImageDataSource());
 
     private enum EditMode {
         NONE, ZOOM, PINPOINT, PAINTCURVE, DELETEMARKER, DELETECURVE, SPLIT, CHANGEMARKERTYPE, CHANGECURVETYPE, DELETEMULTIMARKER, ZOOMINROI
@@ -899,7 +903,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                                 createFilePopup();
                                                 break;
                                             default:
-                                                annotationViewModel.loadFile(text);
+//                                                annotationViewModel.loadFile(text);
                                         }
                                     }
                                 })
@@ -2350,7 +2354,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         new OnInputConfirmListener() {
                             @Override
                             public void onConfirm(String text) {
-                                annotationViewModel.createFile(text);
+//                                annotationViewModel.createFile(text);
                             }
                         })
                 .show();

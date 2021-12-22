@@ -17,4 +17,8 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
     public AnnotationGLSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs, new AnnotationRender());
     }
+
+    public void openFile(){
+
+    }
 }

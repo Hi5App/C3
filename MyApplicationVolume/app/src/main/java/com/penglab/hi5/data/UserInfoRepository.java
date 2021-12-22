@@ -22,7 +22,11 @@ public class UserInfoRepository {
 
     public static UserInfoRepository getInstance() {
         if (instance == null) {
-            instance = new UserInfoRepository();
+            synchronized (UserInfoRepository.class){
+                if (instance == null){
+                    instance = new UserInfoRepository();
+                }
+            }
         }
         return instance;
     }
