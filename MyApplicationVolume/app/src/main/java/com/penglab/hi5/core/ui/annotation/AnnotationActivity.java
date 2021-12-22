@@ -1,9 +1,13 @@
 package com.penglab.hi5.core.ui.annotation;
 
+import static com.penglab.hi5.core.Myapplication.ToastEasy;
+
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -15,18 +19,26 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnInputConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
+import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
+import com.penglab.hi5.core.ui.ViewModelFactory;
 
 public class AnnotationActivity extends AppCompatActivity {
 
-    private final String TAG = "AnnotationActivity";
-    private AnnotationViewModel annotationViewModel;
+    private static final String TAG = "AnnotationActivity";
+
+    private static final int OPEN_LOCAL_FILE = 1;
+    private static final int OPEN_ANALYSIS_SWC = 2;
+    private static final int LOAD_LOCAL_FILE = 3;
+
     private Context annotationContext;
+    private AnnotationViewModel annotationViewModel;
     private AnnotationGLSurfaceView annotationGLSurfaceView;
 
     private View localFileModeView;
@@ -36,38 +48,13 @@ public class AnnotationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//        setContentView(annotationGLSurfaceView);
         setContentView(R.layout.activity_annotation);
         annotationGLSurfaceView = findViewById(R.id.gl_surface_view);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_annotation);
         setSupportActionBar(toolbar);
 
         annotationContext = this;
-        annotationViewModel = new AnnotationViewModel();
-        annotationViewModel.getFileInfoState().conPath.observe(this, new androidx.lifecycle.Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                FileInfoState fileInfoState = annotationViewModel.getFileInfoState();
-                new XPopup.Builder(annotationContext)
-                        .maxHeight(1350)
-                        .maxWidth(800)
-                        .asCenterList("BigData File", fileInfoState.sonFileList,
-                                new OnSelectListener() {
-                                    @RequiresApi(api = Build.VERSION_CODES.N)
-                                    @Override
-                                    public void onSelect(int position, String text) {
-                                        switch (text) {
-                                            case "Create A New Room":
-                                                createFilePopup();
-                                                break;
-                                            default:
-                                                annotationViewModel.loadFile(text);
-                                        }
-                                    }
-                                })
-                        .show();
-            }
-        });
+        annotationViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(AnnotationViewModel.class);
     }
 
     @Override
@@ -82,8 +69,7 @@ public class AnnotationActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.file:
                 Log.e(TAG,"open file");
-                hideUI4BigDataMode();
-                loadUI4LocalFileMode();
+                openFile();
                 return true;
 
             case R.id.more:
@@ -96,8 +82,54 @@ public class AnnotationActivity extends AppCompatActivity {
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK){
+            switch (requestCode){
+                case OPEN_LOCAL_FILE:
+                    Log.e(TAG,"open local file !");
+                    annotationViewModel.openLocalFile(data);
+                    break;
+                case OPEN_ANALYSIS_SWC:
+                    Log.e(TAG,"open analysis swc !");
+                default:
+                    ToastEasy("UnSupportable request type !");
+            }
+        }else {
+            ToastEasy("Something wrong when get content !");
+        }
+    }
+
+    private void openFile(){
+        new XPopup.Builder(this)
+                .asCenterList("File Open", new String[]{"Open BigData", "Open LocalFile"},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String item) {
+                                switch (item) {
+                                    case "Open LocalFile":
+                                        openLocalFile();
+                                        break;
+                                    case "Open BigData":
+                                        break;
+                                    default:
+                                        ToastEasy("Something wrong in function openFile !");
+                                }
+                            }
+                        })
+                .show();
+    }
+
+    private void openLocalFile(){
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        startActivityForResult(intent, OPEN_LOCAL_FILE);
     }
 
     private void loadUI4LocalFileMode(){
@@ -136,18 +168,6 @@ public class AnnotationActivity extends AppCompatActivity {
         if (bigDataModeView != null){
             bigDataModeView.setVisibility(View.GONE);
         }
-    }
-
-    private void createFilePopup() {
-        new XPopup.Builder(this)
-                .asInputConfirm("Create Room", "Input the name of the new room",
-                        new OnInputConfirmListener() {
-                            @Override
-                            public void onConfirm(String text) {
-                                annotationViewModel.createFile(text);
-                            }
-                        })
-                .show();
     }
 
     public static void start(Context context){
