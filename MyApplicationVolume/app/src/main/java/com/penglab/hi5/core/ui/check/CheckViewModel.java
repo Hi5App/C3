@@ -5,6 +5,11 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.penglab.hi5.data.ImageDataSource;
+import com.penglab.hi5.data.Result;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -20,8 +25,6 @@ public class CheckViewModel extends ViewModel {
 
     public CheckViewModel(ImageDataSource imageDataSource) {
         this.imageDataSource = imageDataSource;
-
-
     }
 
     LiveData<String> getBrainId() {
@@ -46,5 +49,27 @@ public class CheckViewModel extends ViewModel {
 
     public void updateBrainList(){
         imageDataSource.getBrainList();
+    }
+
+    public void updateImageResult(Result result) {
+        if (result instanceof Result.Success) {
+            Object data = ((Result.Success<?>) result).getData();
+            if (data instanceof JSONArray) {
+                try {
+                    JSONObject jsonObject = ((JSONArray) data).getJSONObject(0);
+                    String firstKey = jsonObject.keys().next().toString();
+                    if (firstKey.equals("imageid")) {
+                        String imageId = jsonObject.getString("imageid");
+                        List<String> brainList = (List<String>) jsonObject.get("detail");
+                        String url = jsonObject.getString("url");
+                    } else if (firstKey.equals("somaid")) {
+                        String somaId = jsonObject.getString("somaid");
+                        String imageId = jsonObject.getString("imageid");
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

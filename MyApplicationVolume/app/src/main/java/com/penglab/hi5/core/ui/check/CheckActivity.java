@@ -38,6 +38,8 @@ public class CheckActivity extends BaseActivity {
                 if (result == null){
                     return;
                 }
+
+                checkViewModel.updateImageResult(result);
             }
         });
 
