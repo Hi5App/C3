@@ -28,6 +28,8 @@ public class ImageDataSource {
 
     private final MutableLiveData<Result> result = new MutableLiveData<>();
 
+    private final String IMAGE_DOWNLOAD_FINISHED = "Image download finished";
+
     public LiveData<Result> getResult() {
         return result;
     }
@@ -44,7 +46,9 @@ public class ImageDataSource {
                 public void onResponse(Call call, Response response) throws IOException {
                     try {
                         if (response.body() != null) {
-                            JSONArray jsonArray = new JSONArray(response.body().string());
+                            String str = response.body().string();
+                            Log.e("GetBrainList", str);
+                            JSONArray jsonArray = new JSONArray(str);
                             result.postValue(new Result.Success<JSONArray>(jsonArray));
                         } else {
                             result.postValue(new Result.Error(new Exception("Response from server is null !")));
@@ -132,6 +136,7 @@ public class ImageDataSource {
                             byte[] fileContent = response.body().bytes();
                             if (!FileHelper.storeFile(Myapplication.getContext().getExternalFilesDir(null) + "/Resources/Image", InfoCache.getAccount(), fileContent)) {
                             }
+                            result.postValue(new Result.Success(IMAGE_DOWNLOAD_FINISHED));
                         } else {
                             result.postValue(new Result.Error(new Exception("Response from server is null when download image !")));
                         }
