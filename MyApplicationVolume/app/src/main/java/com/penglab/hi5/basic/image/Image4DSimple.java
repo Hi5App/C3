@@ -1,20 +1,19 @@
 package com.penglab.hi5.basic.image;
 
-import android.content.Context;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 import com.penglab.hi5.basic.ByteTranslate;
+import com.penglab.hi5.basic.utils.FileHelper;
 import com.penglab.hi5.basic.utils.FileManager;
-import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.fileReader.imageReader.BigImgReader;
 import com.penglab.hi5.core.fileReader.imageReader.BitmapReader;
-import com.penglab.hi5.core.fileReader.imageReader.Rawreader;
-import com.penglab.hi5.core.fileReader.imageReader.Tiffreader;
+import com.penglab.hi5.core.fileReader.imageReader.RawReader;
+import com.penglab.hi5.core.fileReader.imageReader.TiffReader;
+import com.penglab.hi5.data.model.img.FilePath;
+import com.penglab.hi5.data.model.img.FileType;
 
 import org.apache.commons.io.IOUtils;
 
@@ -22,14 +21,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.Collections;
 
 import static com.penglab.hi5.basic.BitmapRotation.getBitmapDegree;
-import static com.penglab.hi5.basic.BitmapRotation.rotateBitmapByDegree;
 import static com.penglab.hi5.basic.image.Image4DSimple.ImagePixelType.V3D_FLOAT32;
 import static com.penglab.hi5.basic.image.Image4DSimple.ImagePixelType.V3D_UINT16;
 import static com.penglab.hi5.basic.image.Image4DSimple.ImagePixelType.V3D_UINT8;
@@ -576,6 +571,84 @@ public class Image4DSimple {
         return isBig;
     }
 
+    public static Image4DSimple loadImage(FilePath<?> filePath, FileType fileType){
+        Image4DSimple image4DSimple = null;
+        InputStream is;
+        long length;
+
+        if (filePath.getData() instanceof Uri){
+            Log.e(TAG,"filePath is Uri !");
+            Uri uri = (Uri) filePath.getData();
+
+            try {
+                ParcelFileDescriptor parcelFileDescriptor =
+                        getContext().getContentResolver().openFileDescriptor(uri, "r");
+                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+                length = parcelFileDescriptor.getStatSize();
+
+                Log.e(TAG,"length " + length);
+
+                switch (fileType){
+                    case V3DRAW:
+                            image4DSimple =  new RawReader().read(length, is);
+                            is.close();
+                        break;
+                    case TIFF:
+                        // create a new file
+                        String fileName = FileManager.getFileName(uri);
+                        String storePath = getContext().getExternalFilesDir(null).toString() + "/temp_tif";
+                        File tempFile = FileHelper.createFile(storePath, fileName);
+
+                        OutputStream out = new FileOutputStream(tempFile);
+                        IOUtils.copy(is, out);
+                        out.close();
+                        is.close();
+
+                        image4DSimple =  new TiffReader().read(tempFile);
+                        break;
+                    case V3DPBD:
+                        image4DSimple = new ImageLoaderBasic().loadRaw2StackPBD(is, length, false);
+                        is.close();
+                        break;
+                    default:
+                        return null;
+                }
+            } catch (Exception e){
+                e.printStackTrace();
+                return null;
+            }
+
+        } else if (filePath.getData() instanceof String){
+            Log.e(TAG,"filePath is String !");
+            String path = (String) filePath.getData();
+
+            try {
+                File file = new File(path);
+                is = new FileInputStream(file);
+                length = file.length();
+
+                switch (fileType){
+                    case V3DRAW:
+                        image4DSimple =  new RawReader().read(length, is);
+                        is.close();
+                        break;
+                    case TIFF:
+                        image4DSimple =  new TiffReader().read(file);
+                        break;
+                    case V3DPBD:
+                        image4DSimple = new ImageLoaderBasic().loadRaw2StackPBD(is, length, false);
+                        is.close();
+                        break;
+                    default:
+                        return null;
+                }
+            } catch (Exception e){
+                e.printStackTrace();
+                return null;
+            }
+        }
+        return image4DSimple;
+    }
 
     public static Image4DSimple loadImage(String filepath, String filetype){
         Image4DSimple image = new Image4DSimple();
@@ -583,7 +656,7 @@ public class Image4DSimple {
         if (filetype.equals(".V3DRAW")){
             Log.v(TAG, "FileType: " + ".V3DRAW  " + filepath);
 
-            Rawreader rr = new Rawreader();
+            RawReader rr = new RawReader();
             File file = new File(filepath);
             long length = 0;
             InputStream is = null;
@@ -592,7 +665,7 @@ public class Image4DSimple {
                 try {
                     length = file.length();
                     is = new FileInputStream(file);
-                    image = rr.run(length, is);
+                    image = rr.read(length, is);
                     is.close();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -605,7 +678,7 @@ public class Image4DSimple {
 
                     is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
                     length = (int)parcelFileDescriptor.getStatSize();
-                    image =  rr.run(length, is);
+                    image =  rr.read(length, is);
                     is.close();
 
                 }catch (Exception e){
@@ -618,14 +691,14 @@ public class Image4DSimple {
         else if (filetype.equals(".TIF")){
             Log.v(TAG, "FileType: " + ".TIF  " + filepath);
 
-            Tiffreader tr = new Tiffreader();
+            TiffReader tr = new TiffReader();
             File file = new File(filepath);
             long length = 0;
             InputStream is = null;
 
             if (file.exists()){
                 try {
-                    image = tr.run(file);
+                    image = tr.read(file);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -660,7 +733,7 @@ public class Image4DSimple {
                     Log.v(TAG,"Something wrong when open tif file !");
                     e.printStackTrace();
                 }
-                image =  tr.run(temp_file);
+                image =  tr.read(temp_file);
             }
         }
 

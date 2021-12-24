@@ -32,9 +32,6 @@ public class MyPattern{
     private static int mProgram_raycasting;
     private static int mProgram_curve;
 
-//    private final int mProgram_threshold;
-
-
     private FloatBuffer vertexBuffer;
     private FloatBuffer vertexPreBuffer;
     private FloatBuffer colorBuffer;
@@ -79,7 +76,7 @@ public class MyPattern{
     private int[] rbo = new int[1];//生成renderbuffer
 
 
-    private final int fboBackCoord;
+    private int fboBackCoord;
 
     private int vol_w;
     private int vol_h;
@@ -105,12 +102,11 @@ public class MyPattern{
 
     private boolean ifGame = false;
     private boolean isNeedRelease= false;
+    private boolean needSet = false;
+    private boolean needDraw = false;
 
     public static enum Mode{NORMAL, GAME};
     private Mode mode = Mode.NORMAL;
-
-//    private float threshold = (float)(myrenderer.threshold) / 255;
-
 
     private final short[] drawlist = {
 
@@ -328,11 +324,6 @@ public class MyPattern{
                     "}";
 
 
-
-
-
-
-
     public static void initProgram(){
         // 创建两个着色器程序
         mProgram_simple = initShaderProgram(TAG, vertexShaderCode_1, fragmentShaderCode_1);
@@ -344,6 +335,44 @@ public class MyPattern{
     }
 
 
+    public MyPattern(){
+    }
+
+    public void setImage(Image4DSimple image, int width, int height, float[] normalizedDim){
+        Log.e(TAG,"set Image !");
+
+        this.image = image;
+        this.dim = normalizedDim;
+
+        setPoint(normalizedDim);
+
+        bufferSet();
+
+        // load texture
+        try {
+            initTexture_3d();
+        }catch (Exception e){
+            e.printStackTrace();
+            Context context = getContext();
+            Intent intent = new Intent(context, MainActivity.class);
+            String message = "File to Init Texture !";
+            intent.putExtra(MyRenderer.OUT_OF_MEMORY, message);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }catch (OutOfMemoryError error){
+            error.printStackTrace();
+            Context context = getContext();
+            Intent intent = new Intent(context, MainActivity.class);
+            String message = "Out of memory when load file";
+            intent.putExtra(MyRenderer.OUT_OF_MEMORY, message);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }
+
+        fboBackCoord = initFBO(width, height);
+        setNeedSet(false);
+        setNeedDraw(true);
+    }
 
     public MyPattern(int width, int height, Image4DSimple img, float[] mz, Mode m) {
 
@@ -567,6 +596,7 @@ public class MyPattern{
 
 
     public void drawVolume_3d(float[] mvpMatrix, boolean ifDownSampling, float contrast) {
+        Log.e(TAG,"Draw the volume !");
 
         // Add program to OpenGL ES environment
         GLES30.glUseProgram(mProgram_simple);
@@ -1397,8 +1427,22 @@ public class MyPattern{
         isNeedRelease = true;
     }
 
+    public boolean isNeedSet() {
+        return needSet;
+    }
 
+    public void setNeedSet(boolean needSet) {
+        this.needSet = needSet;
+    }
 
+    public boolean isNeedDraw() {
+        return needDraw;
+    }
+
+    public void setNeedDraw(boolean needDraw) {
+        Log.d(TAG,"setNeedDraw " + needDraw);
+        this.needDraw = needDraw;
+    }
 
     /**
      * clean the texture
