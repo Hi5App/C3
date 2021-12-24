@@ -4,17 +4,28 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.lxj.xpopup.XPopup;
+import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
 import com.penglab.hi5.core.BaseActivity;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.data.Result;
+import com.penglab.hi5.data.model.img.AnoInfo;
+import com.penglab.hi5.data.model.img.BrainInfo;
+import com.penglab.hi5.data.model.img.NeuronInfo;
+
+import java.util.List;
 
 /**
  * Created by Jackiexing on 12/18/21
@@ -23,6 +34,13 @@ public class CheckActivity extends BaseActivity {
 
     private static final String TAG = "CheckActivity";
     private CheckViewModel checkViewModel;
+
+    private ImageButton checkYesButton;
+    private ImageButton checkNoButton;
+    private Button checkROIButton;
+    private ImageButton checkFileListButton;
+    private ImageButton checkNextFileButton;
+    private ImageButton checkFormerFileButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -38,19 +56,75 @@ public class CheckActivity extends BaseActivity {
                 if (result == null){
                     return;
                 }
+
+                checkViewModel.updateImageResult(result);
             }
         });
 
+        checkViewModel.getFileInfoState().currentOpenState.observe(this, new Observer<FileInfoState.OpenState>() {
+            @Override
+            public void onChanged(FileInfoState.OpenState openState) {
+                switch (openState) {
+                    case BRAIN_LIST:
+                        showBrainListPopup();
+                        break;
+                    case NEURON_LIST:
+                        showNeuronListPopup();
+                        break;
+                    case ANO_LIST:
+                        showAnoListPopup();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+
+        checkViewModel.getImageResult().observe(this, new Observer<ImageResult>() {
+            @Override
+            public void onChanged(ImageResult imageResult) {
+                if (!imageResult.isSuccess()) {
+                    Toast_in_Thread(imageResult.getError());
+                } else {
+                    // 打开下载到本地的文件
+                }
+            }
+        });
+
+        initButtons();
+    }
+
+    private void initButtons() {
+        checkYesButton = findViewById(R.id.check_yes_button);
+        checkNoButton = findViewById(R.id.check_no_button);
+        checkFileListButton = findViewById(R.id.check_file_list_button);
+        checkNextFileButton = findViewById(R.id.check_next_file_button);
+        checkFormerFileButton = findViewById(R.id.check_former_file_button);
+        checkROIButton = findViewById(R.id.check_roi_button);
+
+        checkYesButton.setOnClickListener(new CheckButtonsClickListener());
+        checkNoButton.setOnClickListener(new CheckButtonsClickListener());
+        checkFileListButton.setOnClickListener(new CheckButtonsClickListener());
+        checkNextFileButton.setOnClickListener(new CheckButtonsClickListener());
+        checkFormerFileButton.setOnClickListener(new CheckButtonsClickListener());
+        checkROIButton.setOnClickListener(new CheckButtonsClickListener());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.check_toolbar_menu, menu);
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.file:
-                Log.e(TAG,"open file");
+            case R.id.check_open_file_toolbar:
+                checkViewModel.getBrainList();
                 return true;
 
-            case R.id.more:
+            case R.id.check_more_toolbar:
                 Log.e(TAG,"more functions");
                 return true;
 
@@ -65,6 +139,102 @@ public class CheckActivity extends BaseActivity {
     public static void start(Context context){
         Intent intent = new Intent(context, CheckActivity.class);
         context.startActivity(intent);
+    }
+
+    private void showBrainListPopup() {
+        List<BrainInfo> brainInfoList = checkViewModel.getFileInfoState().getBrainList();
+        String [] imageIdList = new String[brainInfoList.size()];
+        for (int i = 0; i < imageIdList.length; i++) {
+            imageIdList[i] = brainInfoList.get(i).getImageId();
+        }
+
+        new XPopup.Builder(this)
+                .asCenterList("Brain List", imageIdList, new OnSelectListener() {
+                    @Override
+                    public void onSelect(int position, String text) {
+                        checkViewModel.getNeuronListWithBrainInfo(brainInfoList.get(position));
+                    }
+                }).show();
+    }
+
+    private void showNeuronListPopup() {
+        List<NeuronInfo> neuronInfoList = checkViewModel.getFileInfoState().getNeuronList();
+        String [] neuronIdList = new String[neuronInfoList.size()];
+        for (int i = 0; i < neuronIdList.length; i++) {
+            neuronIdList[i] = neuronInfoList.get(i).getNeuronId();
+        }
+
+        new XPopup.Builder(this)
+                .asCenterList("Neuron List", neuronIdList, new OnSelectListener() {
+                    @Override
+                    public void onSelect(int position, String text) {
+                        checkViewModel.getAnoListWithNeuronInfo(neuronInfoList.get(position));
+                    }
+                }).show();
+    }
+
+    private void showAnoListPopup() {
+        List<AnoInfo> anoInfoList = checkViewModel.getFileInfoState().getAnoList();
+        String [] anoNameList = new String[anoInfoList.size()];
+        for (int i = 0; i < anoNameList.length; i++) {
+            anoNameList[i] = anoInfoList.get(i).getAnoName();
+        }
+
+        new XPopup.Builder(this)
+                .asCenterList("Ano List", anoNameList, new OnSelectListener() {
+                    @Override
+                    public void onSelect(int position, String text) {
+                        checkViewModel.getImageWithAnoInfo(anoInfoList.get(position));
+                    }
+                }).show();
+    }
+
+    private void showROIListPopup() {
+        String [] rois = checkViewModel.getFileInfoState().getRois();
+        new XPopup.Builder(this)
+                .asCenterList("ROI List", rois, new OnSelectListener() {
+                    @Override
+                    public void onSelect(int position, String text) {
+
+                    }
+                }).show();
+    }
+
+    private void checkYes() {
+
+    }
+
+    private void checkNo() {
+
+    }
+
+    class CheckButtonsClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.check_yes_button:
+                    checkYes();
+                    break;
+                case R.id.check_no_button:
+                    checkNo();
+                    break;
+                case R.id.check_file_list_button:
+                    showNeuronListPopup();
+                    break;
+                case R.id.check_roi_button:
+                    showROIListPopup();
+                    break;
+                case R.id.check_next_file_button:
+
+                    break;
+                case R.id.check_former_file_button:
+
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }
 

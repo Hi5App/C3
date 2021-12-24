@@ -63,7 +63,7 @@ public class Utils {
 //                            }
 //                        });
 //                        MainActivity.actionStart(context, "empty");
-                        AnnotationActivity.start(context);
+                        CheckActivity.start(context);
                         break;
                     case "Smart Imaging":
 //                        HttpUtilsImage.getNeuronListWithOkHttp(

@@ -45,7 +45,7 @@
                 android:layout_marginBottom="110dp"
                 android:src="@drawable/ic_baseline_check_24"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <ImageButton
                 android:id="@+id/check_no_button"

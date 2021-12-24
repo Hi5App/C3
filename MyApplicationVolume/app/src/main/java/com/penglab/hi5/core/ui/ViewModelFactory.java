@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
 import com.penglab.hi5.core.ui.check.CheckViewModel;
+import com.penglab.hi5.core.ui.check.FileInfoState;
 import com.penglab.hi5.core.ui.home.screens.HomeViewModel;
 import com.penglab.hi5.core.ui.login.LoginViewModel;
 import com.penglab.hi5.core.ui.password.FindPasswordViewModel;
@@ -44,7 +45,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             return (T) new HomeViewModel(UserInfoRepository.getInstance(), new UserDataSource());
         } else if (modelClass.isAssignableFrom(CheckViewModel.class)) {
             // used in HomeActivity
-            return (T) new CheckViewModel(new ImageDataSource());
+            return (T) new CheckViewModel(new ImageDataSource(), new FileInfoState());
         } else if (modelClass.isAssignableFrom(AnnotationViewModel.class)) {
             // used in AnnotationActivity
             return (T) new AnnotationViewModel(ImageInfoRepository.getInstance(), UserInfoRepository.getInstance(), new UserDataSource(), new ImageDataSource());
