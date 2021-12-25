@@ -674,7 +674,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                             }
                         }
                     }
-
                 }
 
                 if (ifGame){

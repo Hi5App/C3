@@ -9,7 +9,7 @@ import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import static com.penglab.hi5.core.render.pattern.ShaderHelper.initShaderProgram;
 
-public class MyAxis {
+public class MyAxis extends BasicPattern {
 
     private static final String TAG = "MyAxis";
     private static int mProgram_axis;
@@ -25,7 +25,6 @@ public class MyAxis {
     private float[] vertexBorder;
 
     private boolean isNeedRelease = false;
-
 
     // Axis -----------------------------------------------------------------
 
@@ -117,14 +116,19 @@ public class MyAxis {
         Log.v(TAG, "mProgram_border: " + Integer.toString(mProgram_border));
     }
 
-
-    public MyAxis(float[] dim){
-
-        setPoints(dim);
-        bufferSet();
-
+    public MyAxis(){
     }
 
+    public MyAxis(float[] dim){
+        setPoints(dim);
+        bufferSet();
+    }
+
+    public void setAxis(float[] normalizedDim){
+        setPoints(normalizedDim);
+        bufferSet();
+        setNeedDraw(true);
+    }
 
     private void setPoints(float[] mz){
 
@@ -160,15 +164,13 @@ public class MyAxis {
 
     public void draw(float[] mvpMatrix){
         //draw the border
-        draw_border(mvpMatrix);
+        drawBorder(mvpMatrix);
 
         //draw the axis
-        draw_axis(mvpMatrix);
+        drawAxis(mvpMatrix);
     }
 
-
-
-    public void draw_axis(float[] mvpMatrix){
+    public void drawAxis(float[] mvpMatrix){
 
         GLES30.glUseProgram(mProgram_axis);
 
@@ -198,9 +200,7 @@ public class MyAxis {
 
     }
 
-
-
-    public void draw_border(float[] mvpMatrix){
+    public void drawBorder(float[] mvpMatrix){
 
         GLES30.glUseProgram(mProgram_border);
 

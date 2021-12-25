@@ -11,7 +11,9 @@ import android.opengl.Matrix;
 import android.util.Log;
 
 import com.penglab.hi5.basic.image.Image4DSimple;
+import com.penglab.hi5.core.render.pattern.MyAxis;
 import com.penglab.hi5.core.render.pattern.MyPattern;
+import com.penglab.hi5.core.render.utils.RenderOptions;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.model.img.BasicFile;
 import com.penglab.hi5.data.model.img.FilePath;
@@ -34,7 +36,6 @@ public class AnnotationRender extends BasicRender{
     private final float[] persProjectionMatrix = new float[16];      // for 3D
     private final float[] orthProjectionMatrix = new float[16];      // for 2D
     private final float[] viewMatrix           = new float[16];
-    private final float[] vPMatrix             = new float[16];
     private final float[] translate2Matrix     = new float[16];
     private final float[] zoomMatrix           = new float[16];
     private final float[] rotateMatrix         = new float[16];
@@ -46,7 +47,9 @@ public class AnnotationRender extends BasicRender{
 
     private Image4DSimple image4DSimple;
 
-    private MyPattern myPattern = new MyPattern();
+    private final MyPattern myPattern = new MyPattern();
+    private final MyAxis myAxis = new MyAxis();
+    private final RenderOptions renderOptions = new RenderOptions();
 
     private int screenWidth;
     private int screenHeight;
@@ -59,10 +62,9 @@ public class AnnotationRender extends BasicRender{
 
         // init shader program
         MyPattern.initProgram();
+        MyAxis.initProgram();
 //        MyPattern2D.initProgram();
-//        MyAxis.initProgram();
 //        MyDraw.initProgram();
-//        MyNavLoc.initProgram();
 
         // init basic Matrix
         initMatrix();
@@ -125,7 +127,7 @@ public class AnnotationRender extends BasicRender{
 
         // Set translate2Matrix
         Matrix.setIdentityM(translate2Matrix, 0);
-        Matrix.translateM(translate2Matrix, 0, 0, 0, 1.0f / 2 * (float) Math.sqrt(3));
+        Matrix.translateM(translate2Matrix, 0, 0, 0, renderOptions.getScale() / 2 * (float) Math.sqrt(3));
     }
 
     @Override
@@ -143,7 +145,7 @@ public class AnnotationRender extends BasicRender{
         // Calculate final matrix
         Matrix.multiplyMM(finalMatrix, 0, finalMatrix, 0, modelMatrix, 0);
 
-        Log.e(TAG,"finalMatrix " + Arrays.toString(finalMatrix));
+//        Log.e(TAG,"finalMatrix " + Arrays.toString(finalMatrix));
     }
 
     public void loadFile(){
@@ -161,7 +163,8 @@ public class AnnotationRender extends BasicRender{
                 if (image4DSimple != null){
                     updateNormalizedDim(new Integer[]{
                             (int) image4DSimple.getSz0(), (int) image4DSimple.getSz1(), (int) image4DSimple.getSz2()});
-                    myPattern.setNeedSet(true);
+                    myPattern.setNeedSetContent(true);
+                    myAxis.setNeedSetContent(true);
                 }
                 break;
             default:
@@ -174,17 +177,20 @@ public class AnnotationRender extends BasicRender{
     }
 
     private void setResource(){
-        if (myPattern.isNeedSet()){
-//            myPattern = new MyPattern(screenWidth, screenHeight, image4DSimple, normalizedDim, MyPattern.Mode.NORMAL);
-//            myPattern.setNeedDraw(true);
-//            myPattern.setNeedSet(false);
+        if (myPattern.isNeedSetContent()){
             myPattern.setImage(image4DSimple, screenWidth, screenHeight, normalizedDim);
+        }
+        if (myAxis.isNeedSetContent()){
+            myAxis.setAxis(normalizedDim);
         }
     }
 
     private void drawFrame(){
         if (myPattern.isNeedDraw()){
-            myPattern.drawVolume_3d(finalMatrix, false, 1.0f);
+            myPattern.drawVolume_3d(finalMatrix, renderOptions.isDownSampling(), renderOptions.getContrast());
+        }
+        if (myAxis.isNeedDraw()){
+            myAxis.draw(finalMatrix);
         }
     }
 
@@ -197,6 +203,31 @@ public class AnnotationRender extends BasicRender{
 
         Log.e(TAG,"max dim " + maxDim);
         Log.e(TAG,Arrays.toString(normalizedDim));
+    }
+
+
+    public void scale(float ratio){
+        float curScale = renderOptions.getScale();
+        if ((curScale < 0.2 && ratio < 1) || (curScale > 30 && ratio > 1)){
+            Log.e(TAG, "Can't be smaller or bigger !");
+        } else {
+            // set scale
+            renderOptions.setScale(curScale * ratio);
+
+            Matrix.scaleM(zoomMatrix, 0, ratio, ratio, ratio);
+            Matrix.setIdentityM(translate2Matrix, 0);
+            Matrix.translateM(translate2Matrix, 0, 0, 0, renderOptions.getScale() / 2 * (float) Math.sqrt(3));
+            updateFinalMatrix();
+        }
+    }
+
+    public void rotate(float distanceX, float distanceY){
+        float[] tempRotateMatrix = new float[16];
+        Matrix.setRotateM(tempRotateMatrix, 0, distanceY * 70, 1.0f, 0.0f, 0.0f);
+        Matrix.rotateM(tempRotateMatrix, 0, distanceX * 70, 0.0f, 1.0f, 0.0f);
+
+        Matrix.multiplyMM(rotateMatrix, 0, tempRotateMatrix, 0, rotateMatrix, 0);
+        updateFinalMatrix();
     }
 
 }

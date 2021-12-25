@@ -18,7 +18,7 @@ public class BasicGLSurfaceView extends GLSurfaceView {
 
     protected BasicRender basicRender;
 
-    protected float X, Y;
+    protected float lastX, lastY;
     protected double dis_start;
     protected float dis_x_start;
     protected float dis_y_start;
@@ -83,7 +83,6 @@ public class BasicGLSurfaceView extends GLSurfaceView {
             return -((value / (float) view.getHeight()) * 2 - 1);
         }
     }
-
 
     // 距离计算
     protected double computeDis(float x1, float x2, float y1, float y2) {
