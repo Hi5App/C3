@@ -6,11 +6,15 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.data.ImageDataSource;
+import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.dataStore.database.Image;
 import com.penglab.hi5.data.model.img.AnoInfo;
 import com.penglab.hi5.data.model.img.BrainInfo;
+import com.penglab.hi5.data.model.img.FilePath;
+import com.penglab.hi5.data.model.img.FileType;
 import com.penglab.hi5.data.model.img.NeuronInfo;
 
 import org.json.JSONArray;
@@ -31,9 +35,12 @@ public class CheckViewModel extends ViewModel {
 
     private MutableLiveData<ImageResult> imageResult = new MutableLiveData<>();
 
-    public CheckViewModel(ImageDataSource imageDataSource, FileInfoState fileInfoState) {
+    private ImageInfoRepository imageInfoRepository;
+
+    public CheckViewModel(ImageDataSource imageDataSource, FileInfoState fileInfoState, ImageInfoRepository imageInfoRepository) {
         this.imageDataSource = imageDataSource;
         this.fileInfoState = fileInfoState;
+        this.imageInfoRepository = imageInfoRepository;
     }
 
     ImageDataSource getImageDataSource() {
@@ -95,6 +102,9 @@ public class CheckViewModel extends ViewModel {
                     imageResult.setValue(new ImageResult(false, "Fail to parse file list"));
                 }
             } else if (data instanceof String){
+                String fileName = FileManager.getFileName((String) data);
+                FileType fileType = FileManager.getFileType((String) data);
+                imageInfoRepository.getBasicImage().setFileInfo(fileName, new FilePath<String >((String) data), fileType);
                 imageResult.setValue(new ImageResult(true));
             }
         }

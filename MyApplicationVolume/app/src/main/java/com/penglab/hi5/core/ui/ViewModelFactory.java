@@ -45,7 +45,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             return (T) new HomeViewModel(UserInfoRepository.getInstance(), new UserDataSource());
         } else if (modelClass.isAssignableFrom(CheckViewModel.class)) {
             // used in HomeActivity
-            return (T) new CheckViewModel(new ImageDataSource(), new FileInfoState());
+            return (T) new CheckViewModel(new ImageDataSource(), FileInfoState.getInstance(), ImageInfoRepository.getInstance());
         } else if (modelClass.isAssignableFrom(AnnotationViewModel.class)) {
             // used in AnnotationActivity
             return (T) new AnnotationViewModel(ImageInfoRepository.getInstance(), UserInfoRepository.getInstance(), new UserDataSource(), new ImageDataSource());

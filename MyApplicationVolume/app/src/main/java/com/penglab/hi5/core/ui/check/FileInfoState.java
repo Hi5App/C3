@@ -3,6 +3,7 @@ package com.penglab.hi5.core.ui.check;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 
+import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.model.img.AnoInfo;
 import com.penglab.hi5.data.model.img.BrainInfo;
 import com.penglab.hi5.data.model.img.NeuronInfo;
@@ -14,6 +15,9 @@ public class FileInfoState {
     enum OpenState {
         NONE, BRAIN_LIST, NEURON_LIST, ANO_LIST, FILE
     };
+
+    private static volatile FileInfoState INSTANCE;
+
     MutableLiveData<OpenState> currentOpenState;
 
     @Nullable
@@ -60,6 +64,17 @@ public class FileInfoState {
 
     @Nullable
     private String owner;
+
+    public static FileInfoState getInstance(){
+        if (INSTANCE == null){
+            synchronized (ImageInfoRepository.class){
+                if (INSTANCE == null){
+                    INSTANCE = new FileInfoState();
+                }
+            }
+        }
+        return INSTANCE;
+    }
 
     @Nullable
     public List<AnoInfo> getAnoList() {

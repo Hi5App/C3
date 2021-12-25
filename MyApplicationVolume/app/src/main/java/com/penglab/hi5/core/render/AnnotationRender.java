@@ -22,6 +22,7 @@ import com.penglab.hi5.core.render.pattern.MyDraw;
 import com.penglab.hi5.core.render.pattern.MyPattern;
 import com.penglab.hi5.core.render.utils.AnnotationManager;
 import com.penglab.hi5.core.render.utils.RenderOptions;
+import com.penglab.hi5.core.ui.check.FileInfoState;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.model.img.BasicFile;
 import com.penglab.hi5.data.model.img.FilePath;
@@ -43,6 +44,7 @@ public class AnnotationRender extends BasicRender{
 
     private final String TAG = "AnnotationRender";
     private final ImageInfoRepository imageInfoRepository = ImageInfoRepository.getInstance();
+    private final FileInfoState fileInfoState = FileInfoState.getInstance();
 
     private final float[] persProjectionMatrix = new float[16];      // for 3D
     private final float[] orthProjectionMatrix = new float[16];      // for 2D

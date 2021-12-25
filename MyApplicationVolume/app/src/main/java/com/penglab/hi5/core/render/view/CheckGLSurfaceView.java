@@ -6,10 +6,11 @@ import android.view.MotionEvent;
 
 import com.penglab.hi5.core.MyRenderer;
 import com.penglab.hi5.core.render.BasicRender;
+import com.penglab.hi5.core.render.CheckRender;
 
 public class CheckGLSurfaceView extends BasicGLSurfaceView{
 
-    MyRenderer myrenderer;
+    CheckRender checkRender;
 
     public CheckGLSurfaceView(Context context) {
         super(context);
@@ -25,7 +26,7 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
 
     public CheckGLSurfaceView(Context context, AttributeSet attrs, BasicRender basicRender) {
         super(context, attrs, basicRender);
-        setRenderer(myrenderer);
+        setRenderer(checkRender);
     }
 
     @Override
@@ -71,21 +72,21 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
                             double dis = computeDis(normalizedX, x2, normalizedY, y2);
                             double scale = dis / dis_start;
 
-                            myrenderer.zoom((float) scale);
+                            checkRender.zoom((float) scale);
 
                             float dis_x = x2 - normalizedX;
                             float dis_y = y2 - normalizedY;
                             float ave_x = (x2 - x1_start + normalizedX - x0_start) / 2;
                             float ave_y = (y2 - y1_start + normalizedY - y0_start) / 2;
-                            if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
-                                if (!myrenderer.getIfDownSampling())
-                                    myrenderer.setIfDownSampling(true);
+                            if (!(checkRender.getFileType() == MyRenderer.FileType.JPG || checkRender.getFileType() == MyRenderer.FileType.PNG)) {
+                                if (!checkRender.getIfDownSampling())
+                                    checkRender.setIfDownSampling(true);
                             }
 //                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker){
 //                                myrenderer.rotate2f(dis_x_start, dis_x, dis_y_start, dis_y);
 //                            }else {
 //                                myrenderer.rotate(dis_x - dis_x_start, dis_y - dis_y_start, (float) (computeDis(dis_x, dis_x_start, dis_y, dis_y_start)));
-                            myrenderer.rotate(ave_x, ave_y, (float) (computeDis((x2 + normalizedX) / 2, (x1_start + x0_start) / 2, (y2 + normalizedY) / 2, (y1_start + y0_start) / 2)));
+                            checkRender.rotate(ave_x, ave_y, (float) (computeDis((x2 + normalizedX) / 2, (x1_start + x0_start) / 2, (y2 + normalizedY) / 2, (y1_start + y0_start) / 2)));
 //                            }
                             //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
                             requestRender();
@@ -97,11 +98,12 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
                             x1_start = x2;
                             y1_start = y2;
                         } else if (!isZooming) {
-                            if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
-                                if (!myrenderer.getIfDownSampling())
-                                    myrenderer.setIfDownSampling(true);
+                            if (!(checkRender.getFileType() == MyRenderer.FileType.JPG || checkRender.getFileType() == MyRenderer.FileType.PNG)) {
+                                if (!checkRender.getIfDownSampling())
+                                    checkRender.setIfDownSampling(true);
                             }
-                            myrenderer.rotate(normalizedX - lastX, normalizedY - lastY, (float) (computeDis(normalizedX, lastX, normalizedY, lastY)));
+                            checkRender.rotate(normalizedX - lastX, normalizedY - lastY, (float) (computeDis(normalizedX, lastX, normalizedY, lastY)));
+
 
                             //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
                             requestRender();
@@ -112,16 +114,14 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
                     case MotionEvent.ACTION_POINTER_UP:
 //                        isZooming = false;
                         isZoomingNotStop = false;
-                        myrenderer.setIfDownSampling(false);
+                        checkRender.setIfDownSampling(false);
                         lastX = normalizedX;
                         lastY = normalizedY;
-                        myrenderer.setIfPainting(false);
                         break;
                     case MotionEvent.ACTION_UP:
-                        myrenderer.setIfPainting(false);
                         requestRender();
                         isZooming = false;
-                        myrenderer.setIfDownSampling(false);
+                        checkRender.setIfDownSampling(false);
                         break;
                     default:
                         break;
@@ -133,5 +133,9 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
             e.printStackTrace();
         }
         return false;
+    }
+
+    public void loadFile(){
+        checkRender.loadFile();
     }
 }

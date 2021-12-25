@@ -19,6 +19,7 @@ import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
 import com.penglab.hi5.core.BaseActivity;
+import com.penglab.hi5.core.render.view.CheckGLSurfaceView;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.model.img.AnoInfo;
@@ -35,6 +36,7 @@ public class CheckActivity extends BaseActivity {
     private static final String TAG = "CheckActivity";
     private CheckViewModel checkViewModel;
 
+    private CheckGLSurfaceView checkGLSurfaceView;
     private ImageButton checkYesButton;
     private ImageButton checkNoButton;
     private Button checkROIButton;
@@ -48,6 +50,8 @@ public class CheckActivity extends BaseActivity {
         setContentView(R.layout.activity_check);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_check);
         setSupportActionBar(toolbar);
+
+        checkGLSurfaceView = findViewById(R.id.check_gl_surface_view);
 
         checkViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(CheckViewModel.class);
         checkViewModel.getImageDataSource().getResult().observe(this, new Observer<Result>() {
@@ -86,7 +90,7 @@ public class CheckActivity extends BaseActivity {
                 if (!imageResult.isSuccess()) {
                     Toast_in_Thread(imageResult.getError());
                 } else {
-                    // 打开下载到本地的文件
+
                 }
             }
         });
