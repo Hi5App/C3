@@ -37,7 +37,7 @@ public class AnnotationRender extends BasicRender{
     private final float[] vPMatrix             = new float[16];
     private final float[] translate2Matrix     = new float[16];
     private final float[] zoomMatrix           = new float[16];
-    private final float[] rotateMatrix = new float[16];
+    private final float[] rotateMatrix         = new float[16];
     private final float[] translateMatrix      = new float[16];
     private final float[] modelMatrix          = new float[16];
     private final float[] finalMatrix          = new float[16];

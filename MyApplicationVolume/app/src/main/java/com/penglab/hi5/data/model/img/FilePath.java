@@ -5,13 +5,13 @@ package com.penglab.hi5.data.model.img;
  */
 public class FilePath<T> {
 
-    private final T path;
+    private final T data;
 
-    public FilePath(T path) {
-        this.path = path;
+    public FilePath(T data) {
+        this.data = data;
     }
 
-    public T getPath() {
-        return path;
+    public T getData() {
+        return data;
     }
 }

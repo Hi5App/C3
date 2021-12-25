@@ -81,7 +81,8 @@ public class Utils {
 //                                        Log.e(TAG, response.body().string());
 //                                    }
 //                                });
-                        S2Activity.actionStart(context, "empty");
+//                        S2Activity.actionStart(context, "empty");
+                        AnnotationActivity.start(context);
                         break;
                     case "Chat":
 //                        HttpUtilsImage.getAnoListWithOkHttp(

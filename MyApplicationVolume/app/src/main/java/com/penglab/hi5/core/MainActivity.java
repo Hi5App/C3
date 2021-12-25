@@ -886,30 +886,30 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
         }, 1 * 1000);
 
-        annotationViewModel.getFileInfoState().conPath.observe(this, new androidx.lifecycle.Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                FileInfoState fileInfoState = annotationViewModel.getFileInfoState();
-                new XPopup.Builder(mainContext)
-                        .maxHeight(1350)
-                        .maxWidth(800)
-                        .asCenterList("BigData File", fileInfoState.sonFileList,
-                                new OnSelectListener() {
-                                    @RequiresApi(api = Build.VERSION_CODES.N)
-                                    @Override
-                                    public void onSelect(int position, String text) {
-                                        switch (text) {
-                                            case "Create A New Room":
-                                                createFilePopup();
-                                                break;
-                                            default:
-//                                                annotationViewModel.loadFile(text);
-                                        }
-                                    }
-                                })
-                        .show();
-            }
-        });
+//        annotationViewModel.getFileInfoState().conPath.observe(this, new androidx.lifecycle.Observer<String>() {
+//            @Override
+//            public void onChanged(String s) {
+//                FileInfoState fileInfoState = annotationViewModel.getFileInfoState();
+//                new XPopup.Builder(mainContext)
+//                        .maxHeight(1350)
+//                        .maxWidth(800)
+//                        .asCenterList("BigData File", fileInfoState.sonFileList,
+//                                new OnSelectListener() {
+//                                    @RequiresApi(api = Build.VERSION_CODES.N)
+//                                    @Override
+//                                    public void onSelect(int position, String text) {
+//                                        switch (text) {
+//                                            case "Create A New Room":
+//                                                createFilePopup();
+//                                                break;
+//                                            default:
+////                                                annotationViewModel.loadFile(text);
+//                                        }
+//                                    }
+//                                })
+//                        .show();
+//            }
+//        });
 
     }
 

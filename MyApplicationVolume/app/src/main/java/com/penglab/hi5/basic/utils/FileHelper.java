@@ -16,6 +16,24 @@ public class FileHelper {
 
     private static final String TAG = "FileHelper";
 
+    public static File createFile(String path, String name) throws IOException {
+        File dir = new File(path);
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                ToastEasy("FileHelper: Fail to create dir !");
+                return null;
+            }
+        }
+
+        File file = new File(path + "/" + name);
+        if (!file.exists()) {
+            if (!file.createNewFile()) {
+                return null;
+            }
+        }
+        return file;
+    }
+
     public static boolean storeFile(String path, String name, byte[] fileContent) throws IOException {
         File dir = new File(path);
         if (!dir.exists()) {
