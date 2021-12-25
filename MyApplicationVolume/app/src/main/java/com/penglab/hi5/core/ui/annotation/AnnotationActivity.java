@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import com.lxj.xpopup.XPopup;
@@ -33,7 +34,6 @@ public class AnnotationActivity extends AppCompatActivity {
     private static final int OPEN_ANALYSIS_SWC = 2;
     private static final int LOAD_LOCAL_FILE = 3;
 
-    private Context annotationContext;
     private AnnotationViewModel annotationViewModel;
     private AnnotationGLSurfaceView annotationGLSurfaceView;
 
@@ -49,7 +49,6 @@ public class AnnotationActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_annotation);
         setSupportActionBar(toolbar);
 
-        annotationContext = this;
         annotationViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(AnnotationViewModel.class);
         annotationViewModel.getWorkStatus().observe(this, new Observer<WorkStatus>() {
             @Override
@@ -57,7 +56,6 @@ public class AnnotationActivity extends AppCompatActivity {
                 if (workStatus == null){
                     return;
                 }
-
                 switch(workStatus){
                     case OPEN_FILE:
                         annotationGLSurfaceView.loadFile();
@@ -75,7 +73,6 @@ public class AnnotationActivity extends AppCompatActivity {
                 if (annotationMode == null){
                     return;
                 }
-
                 switch (annotationMode){
                     case LOCAL_FILE:
                         showUI4LocalFileMode();
@@ -163,43 +160,61 @@ public class AnnotationActivity extends AppCompatActivity {
         startActivityForResult(intent, OPEN_LOCAL_FILE);
     }
 
-//    private void loadUI4LocalFileMode(){
-//        LinearLayout.LayoutParams lp4LocalFileMode = new LinearLayout.LayoutParams(
-//                LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
-//        localFileModeView = getLayoutInflater().inflate(R.layout.annotation_local_file, null);
-//        this.addContentView(localFileModeView, lp4LocalFileMode);
-//    }
-//
-//    private void loadUI4BigDataMode(){
-//        LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
-//                LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
-//        bigDataModeView = getLayoutInflater().inflate(R.layout.annotation_big_data, null);
-//        this.addContentView(bigDataModeView, lp4BigDataMode);
-//    }
+    private void initUI4LocalFileMode(){
+        // load layout view
+        LinearLayout.LayoutParams lp4LocalFileMode = new LinearLayout.LayoutParams(
+                LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+        localFileModeView = getLayoutInflater().inflate(R.layout.annotation_local_file, null);
+        this.addContentView(localFileModeView, lp4LocalFileMode);
+
+        // set onClickListener for buttons
+        ImageButton zoomIn = findViewById(R.id.zoomIn);
+        zoomIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                annotationGLSurfaceView.zoomIn();
+            }
+        });
+
+        ImageButton zoomOut = findViewById(R.id.zoomOut);
+        zoomOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                annotationGLSurfaceView.zoomOut();
+            }
+        });
+
+        ImageButton rotate = findViewById(R.id.rotate);
+        rotate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+    }
+
+    private void initUI4BigDataMode(){
+        // load layout view
+        LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
+                LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+        bigDataModeView = getLayoutInflater().inflate(R.layout.annotation_big_data, null);
+        this.addContentView(bigDataModeView, lp4BigDataMode);
+    }
 
     private void showUI4LocalFileMode(){
-
         resetUI4AllMode();
         if (localFileModeView == null){
-            // loadUI4LocalFileMode
-            LinearLayout.LayoutParams lp4LocalFileMode = new LinearLayout.LayoutParams(
-                    LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
-            localFileModeView = getLayoutInflater().inflate(R.layout.annotation_local_file, null);
-            this.addContentView(localFileModeView, lp4LocalFileMode);
+            initUI4LocalFileMode();
         } else {
             localFileModeView.setVisibility(View.VISIBLE);
         }
     }
 
     private void showUI4BigDataMode(){
-
         resetUI4AllMode();
         if (bigDataModeView == null){
-            // loadUI4BigDataMode
-            LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
-                    LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
-            bigDataModeView = getLayoutInflater().inflate(R.layout.annotation_big_data, null);
-            this.addContentView(bigDataModeView, lp4BigDataMode);
+            initUI4BigDataMode();
         } else {
             bigDataModeView.setVisibility(View.VISIBLE);
         }

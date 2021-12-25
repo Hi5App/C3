@@ -1,26 +1,11 @@
 package com.penglab.hi5.core.render.view;
 
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
-import androidx.annotation.RequiresApi;
-
-import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
-import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
-import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.MyRenderer;
-import com.penglab.hi5.core.collaboration.Communicator;
-import com.penglab.hi5.core.game.Score;
 import com.penglab.hi5.core.render.BasicRender;
-
-import java.util.Vector;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 public class CheckGLSurfaceView extends BasicGLSurfaceView{
 
@@ -56,8 +41,8 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
 
                 switch (motionEvent.getActionMasked()) {
                     case MotionEvent.ACTION_DOWN:
-                        X = normalizedX;
-                        Y = normalizedY;
+                        lastX = normalizedX;
+                        lastY = normalizedY;
                         break;
                     case MotionEvent.ACTION_POINTER_DOWN:
                         requestRender();
@@ -116,20 +101,20 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
                                 if (!myrenderer.getIfDownSampling())
                                     myrenderer.setIfDownSampling(true);
                             }
-                            myrenderer.rotate(normalizedX - X, normalizedY - Y, (float) (computeDis(normalizedX, X, normalizedY, Y)));
+                            myrenderer.rotate(normalizedX - lastX, normalizedY - lastY, (float) (computeDis(normalizedX, lastX, normalizedY, lastY)));
 
                             //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
                             requestRender();
-                            X = normalizedX;
-                            Y = normalizedY;
+                            lastX = normalizedX;
+                            lastY = normalizedY;
                         }
                         break;
                     case MotionEvent.ACTION_POINTER_UP:
 //                        isZooming = false;
                         isZoomingNotStop = false;
                         myrenderer.setIfDownSampling(false);
-                        X = normalizedX;
-                        Y = normalizedY;
+                        lastX = normalizedX;
+                        lastY = normalizedY;
                         myrenderer.setIfPainting(false);
                         break;
                     case MotionEvent.ACTION_UP:

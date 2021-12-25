@@ -21,7 +21,7 @@ import static com.penglab.hi5.core.Myapplication.getContext;
 import static com.penglab.hi5.core.render.pattern.ShaderHelper.initShaderProgram;
 
 
-public class MyPattern{
+public class MyPattern extends BasicPattern {
 
     private static final String TAG = "MyPattern";
     private final int scale = 128;
@@ -102,8 +102,7 @@ public class MyPattern{
 
     private boolean ifGame = false;
     private boolean isNeedRelease= false;
-    private boolean needSet = false;
-    private boolean needDraw = false;
+
 
     public static enum Mode{NORMAL, GAME};
     private Mode mode = Mode.NORMAL;
@@ -370,7 +369,7 @@ public class MyPattern{
         }
 
         fboBackCoord = initFBO(width, height);
-        setNeedSet(false);
+        setNeedSetContent(false);
         setNeedDraw(true);
     }
 
@@ -1425,23 +1424,6 @@ public class MyPattern{
     public void setNeedRelease(){
 //        Log.i(TAG,"setNeedRelease()");
         isNeedRelease = true;
-    }
-
-    public boolean isNeedSet() {
-        return needSet;
-    }
-
-    public void setNeedSet(boolean needSet) {
-        this.needSet = needSet;
-    }
-
-    public boolean isNeedDraw() {
-        return needDraw;
-    }
-
-    public void setNeedDraw(boolean needDraw) {
-        Log.d(TAG,"setNeedDraw " + needDraw);
-        this.needDraw = needDraw;
     }
 
     /**
