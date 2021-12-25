@@ -58,12 +58,12 @@ public class HttpUtilsImage extends HttpUtils {
      * @param len size of image block
      * @param callback the callback func
      */
-    public static void downloadImageWithOkHttp(String username, String password, String image, int x, int y, int z, int len, Callback callback) {
+    public static void downloadImageWithOkHttp(String username, String password, String brainId, String roi, int x, int y, int z, int len, Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("name", username)
                     .put("password", password)
-                    .put("image", image)
+                    .put("image", brainId + "/" + roi)
                     .put("x", x)
                     .put("y", y)
                     .put("z", z)
