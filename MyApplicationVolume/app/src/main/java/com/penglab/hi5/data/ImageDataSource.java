@@ -120,10 +120,10 @@ public class ImageDataSource {
         }
     }
 
-    public void downloadImage(String imageInfo, int offsetX, int offsetY, int offsetZ, int size){
+    public void downloadImage(String brainId, String roi, int offsetX, int offsetY, int offsetZ, int size){
         try {
             HttpUtilsImage.downloadImageWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(),
-                    imageInfo, offsetX, offsetY, offsetZ, size, new Callback() {
+                    brainId, roi, offsetX, offsetY, offsetZ, size, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     result.postValue(new Result.Error(new Exception("Connect Failed When Download Music")));

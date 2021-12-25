@@ -56,7 +56,18 @@ public class CheckViewModel extends ViewModel {
 
     public void getImageWithAnoInfo(AnoInfo anoInfo) {
         fileInfoState.updateWithAnoInfo(anoInfo);
-        imageDataSource.downloadImage(fileInfoState.getImageId(), fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
+        String [] rois = fileInfoState.getRois();
+        String roi;
+        if (rois.length > 1) {
+            roi = rois[rois.length - 2];
+        } else {
+            roi = rois[0];
+        }
+        imageDataSource.downloadImage(fileInfoState.getImageId(), roi, fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
+    }
+
+    public void getImageWithROI(String roi) {
+        imageDataSource.downloadImage(fileInfoState.getImageId(), roi, fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
     }
 
     public void updateImageResult(Result result) {

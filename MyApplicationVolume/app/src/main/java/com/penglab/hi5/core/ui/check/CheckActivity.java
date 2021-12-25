@@ -195,7 +195,7 @@ public class CheckActivity extends BaseActivity {
                 .asCenterList("ROI List", rois, new OnSelectListener() {
                     @Override
                     public void onSelect(int position, String text) {
-
+                        checkViewModel.getImageWithROI(text);
                     }
                 }).show();
     }
