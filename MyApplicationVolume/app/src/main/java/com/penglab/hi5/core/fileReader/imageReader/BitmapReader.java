@@ -34,10 +34,9 @@ public class BitmapReader {
         for (int i=0; i<sz[0]; i++){
             for(int j=0; j<sz[1]; j++){
                 if (img.getValue(i,j,0,0)>255 || img.getValue(i,j,0,0)<0)
-                Log.e("Img4D","value: " + img.getValue(i,j,0,0));
+                Log.e("BitmapReader","value: " + img.getValue(i,j,0,0));
             }
         }
-
         return img;
     }
 }

@@ -3,29 +3,25 @@ package com.penglab.hi5.core.ui.annotation;
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.lxj.xpopup.XPopup;
-import com.lxj.xpopup.interfaces.OnInputConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
-import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 
@@ -55,6 +51,42 @@ public class AnnotationActivity extends AppCompatActivity {
 
         annotationContext = this;
         annotationViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(AnnotationViewModel.class);
+        annotationViewModel.getWorkStatus().observe(this, new Observer<WorkStatus>() {
+            @Override
+            public void onChanged(WorkStatus workStatus) {
+                if (workStatus == null){
+                    return;
+                }
+
+                switch(workStatus){
+                    case OPEN_FILE:
+                        annotationGLSurfaceView.loadFile();
+                        break;
+                    default:
+                        ToastEasy("Something wrong with work status !");
+                        break;
+                }
+            }
+        });
+
+        annotationViewModel.getAnnotationMode().observe(this, new Observer<AnnotationViewModel.AnnotationMode>() {
+            @Override
+            public void onChanged(AnnotationViewModel.AnnotationMode annotationMode) {
+                if (annotationMode == null){
+                    return;
+                }
+
+                switch (annotationMode){
+                    case LOCAL_FILE:
+                        showUI4LocalFileMode();
+                        break;
+                    case BIG_DATA:
+                    case NONE:
+                    default:
+                        ToastEasy("Something wrong with annotation mode !");
+                }
+            }
+        });
     }
 
     @Override
@@ -74,8 +106,7 @@ public class AnnotationActivity extends AppCompatActivity {
 
             case R.id.more:
                 Log.e(TAG,"more functions");
-                hideUI4LocalFileMode();
-                loadUI4BigDataMode();
+                showUI4LocalFileMode();
                 return true;
 
             default:
@@ -132,28 +163,44 @@ public class AnnotationActivity extends AppCompatActivity {
         startActivityForResult(intent, OPEN_LOCAL_FILE);
     }
 
-    private void loadUI4LocalFileMode(){
-        LinearLayout.LayoutParams lp4LocalFileMode = new LinearLayout.LayoutParams(
-                LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
-        localFileModeView = getLayoutInflater().inflate(R.layout.annotation_local_file, null);
-        this.addContentView(localFileModeView, lp4LocalFileMode);
-    }
-
-    private void loadUI4BigDataMode(){
-        LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
-                LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
-        bigDataModeView = getLayoutInflater().inflate(R.layout.annotation_big_data, null);
-        this.addContentView(bigDataModeView, lp4BigDataMode);
-    }
+//    private void loadUI4LocalFileMode(){
+//        LinearLayout.LayoutParams lp4LocalFileMode = new LinearLayout.LayoutParams(
+//                LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+//        localFileModeView = getLayoutInflater().inflate(R.layout.annotation_local_file, null);
+//        this.addContentView(localFileModeView, lp4LocalFileMode);
+//    }
+//
+//    private void loadUI4BigDataMode(){
+//        LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
+//                LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+//        bigDataModeView = getLayoutInflater().inflate(R.layout.annotation_big_data, null);
+//        this.addContentView(bigDataModeView, lp4BigDataMode);
+//    }
 
     private void showUI4LocalFileMode(){
-        if (localFileModeView != null){
+
+        resetUI4AllMode();
+        if (localFileModeView == null){
+            // loadUI4LocalFileMode
+            LinearLayout.LayoutParams lp4LocalFileMode = new LinearLayout.LayoutParams(
+                    LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+            localFileModeView = getLayoutInflater().inflate(R.layout.annotation_local_file, null);
+            this.addContentView(localFileModeView, lp4LocalFileMode);
+        } else {
             localFileModeView.setVisibility(View.VISIBLE);
         }
     }
 
     private void showUI4BigDataMode(){
-        if (bigDataModeView != null){
+
+        resetUI4AllMode();
+        if (bigDataModeView == null){
+            // loadUI4BigDataMode
+            LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
+                    LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+            bigDataModeView = getLayoutInflater().inflate(R.layout.annotation_big_data, null);
+            this.addContentView(bigDataModeView, lp4BigDataMode);
+        } else {
             bigDataModeView.setVisibility(View.VISIBLE);
         }
     }
@@ -168,6 +215,11 @@ public class AnnotationActivity extends AppCompatActivity {
         if (bigDataModeView != null){
             bigDataModeView.setVisibility(View.GONE);
         }
+    }
+
+    private void resetUI4AllMode(){
+        hideUI4LocalFileMode();
+        hideUI4BigDataMode();
     }
 
     public static void start(Context context){
