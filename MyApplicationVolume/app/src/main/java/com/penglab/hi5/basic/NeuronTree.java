@@ -12,6 +12,7 @@ import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
+import com.penglab.hi5.data.model.img.FilePath;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -31,7 +32,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import static com.penglab.hi5.core.MainActivity.getContext;
-
+import static com.penglab.hi5.core.Myapplication.ToastEasy;
 
 
 public class NeuronTree extends BasicSurfObj {
@@ -226,6 +227,20 @@ public class NeuronTree extends BasicSurfObj {
         return true;
     }
 
+    public static NeuronTree parse(FilePath<?> filePath){
+        if (filePath == null){
+            return null;
+        }
+        if (filePath.getData() instanceof Uri){
+            Uri uri = (Uri) filePath.getData();
+            return readSWC_file(uri);
+        } else if (filePath.getData() instanceof String){
+            String pathString = (String) filePath.getData();
+            return readSWC_file(pathString);
+        }
+        return null;
+    }
+
     public static NeuronTree readSWC_file(String filename) {
         ArrayList<String> arraylist = new ArrayList<String>();
         NeuronTree nt = new NeuronTree();
@@ -327,7 +342,7 @@ public class NeuronTree extends BasicSurfObj {
         nt.file = uri.toString();
         String file_type = FileManager.getFileType(uri);
         if (!(file_type.equals(".SWC") | file_type.equals(".ESWC"))) {
-            Toast.makeText(MainActivity.getContext(), "failed, only support swc or eswc file", Toast.LENGTH_LONG).show();
+            ToastEasy("failed, only support swc or eswc file");
             return null;
         }
         try {

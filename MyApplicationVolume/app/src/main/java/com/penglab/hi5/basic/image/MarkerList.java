@@ -2,6 +2,8 @@ package com.penglab.hi5.basic.image;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.penglab.hi5.core.render.pattern.MyDraw;
 
 import java.io.File;
@@ -10,7 +12,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 public class MarkerList implements Cloneable {
-    private ArrayList<ImageMarker> markers;
+    private final ArrayList<ImageMarker> markers;
 
     public MarkerList(){
         markers = new ArrayList<ImageMarker>();
@@ -18,6 +20,10 @@ public class MarkerList implements Cloneable {
 
     public MarkerList(ArrayList<ImageMarker> arrayList){
         markers = arrayList;
+    }
+
+    public boolean add(ArrayList<ImageMarker> markerArrayList){
+        return markers.addAll(markerArrayList);
     }
 
     public boolean add(ImageMarker marker){
@@ -44,12 +50,11 @@ public class MarkerList implements Cloneable {
         markers.clear();
     }
 
+    @NonNull
     public MarkerList clone() throws CloneNotSupportedException {
         super.clone();
-        ArrayList<ImageMarker> new_markers = (ArrayList<ImageMarker>)markers.clone();
-        MarkerList new_imageMaker = new MarkerList(new_markers);
-
-        return new_imageMaker;
+        ArrayList<ImageMarker> newMarkerArrayList = (ArrayList<ImageMarker>) this.markers.clone();
+        return new MarkerList(newMarkerArrayList);
     }
 
     public ArrayList<ImageMarker> getMarkers(){
@@ -57,7 +62,6 @@ public class MarkerList implements Cloneable {
     }
 
     public boolean saveAsApo(String filepath){
-
         try {
             File f = new File(filepath);
             if (!f.createNewFile()){
