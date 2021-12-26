@@ -9,10 +9,16 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.penglab.hi5.core.render.pattern.ShaderHelper.initShaderProgram;
 
-public class MyDraw {
+import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
+import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
+import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
+
+public class MyDraw extends BasicPattern {
     private static final String TAG = "MyDraw";
 
     public final static float[][] colormap = {
@@ -26,7 +32,7 @@ public class MyDraw {
             {0f,0.7843f,0.07843f}              //green
     } ;
 
-    private final float [] modelVertex = {
+    private final float[] modelVertex = {
         //1:123
         0.020f, 0.000f, 0.010f,
         0.007f, 0.000f, 0.010f,
@@ -169,7 +175,6 @@ public class MyDraw {
                     "}";
 
 
-
     private static final String fragmentShaderCode_line =
             "#version 300 es\n" +
                     "precision mediump float;" +
@@ -181,8 +186,6 @@ public class MyDraw {
                     "}";
 
 
-
-
     private static final String vertexShaderCode_marker =
             // This matrix member variable provides a hook to manipulate
             // the coordinates of the objects that use this vertex shader
@@ -190,13 +193,10 @@ public class MyDraw {
                     "layout (location = 0) in vec4 vPosition;" +
                     "layout (location = 1) in vec3 aVertexNormal;" +
 
-
-
                     "uniform mat4 uNormalMatrix;" +
                     "uniform mat4 uMVPMatrix;" +
                     "uniform float offset[3];" +
                     "uniform float color[3];" +
-
 
                     "out vec3 vLighting;" +
                     "out vec4 vOutColor;" +
@@ -208,7 +208,6 @@ public class MyDraw {
 //                    "    vPosition.y = 0.5;" +
 //                    "    vPosition.z = 0.5;" +
 //                    "    vPosition = vec4(0.5, 0.5, 0.5, 1.0);" +
-
 
                     "    gl_Position = uMVPMatrix * vOffsetPosition;\n" +
 
@@ -306,13 +305,8 @@ public class MyDraw {
 
 
     public MyDraw(){
-
         BufferSet_Normalize();
-
         BufferSet_Marker_Default();
-
-//        BufferSet_Marker_Vertex(0.02f);
-
     }
 
     private void BufferSet_GameModel(float x, float y, float z, int type, float [] dir, float [] head){
@@ -711,9 +705,6 @@ public class MyDraw {
         GLES30.glVertexAttribPointer(colorPoints_handle,3,GLES30.GL_FLOAT, false, 0,colorBuffer_marker);
         GLES30.glEnableVertexAttribArray(colorPoints_handle);
 
-
-
-
         // get handle to vertex shader's uMVPMatrix member
         int vPMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_marker,"uMVPMatrix");
 
@@ -744,8 +735,7 @@ public class MyDraw {
 
     }
 
-
-    public void drawLine(float [] mvpMatrix, ArrayList<Float> lineDrawed, int type){
+    public void drawLine(float[] mvpMatrix, ArrayList<Float> lineDrawed, int type){
         float [] line = new float[lineDrawed.size()];
 
         for (int i = 0; i < lineDrawed.size(); i++){
@@ -786,7 +776,7 @@ public class MyDraw {
         GLES30.glEnable(GLES30.GL_DEPTH_TEST);
     }
 
-    public void drawPoints(float []  linePoints, int num){
+    public void drawPoints(float[]  linePoints, int num){
         GLES30.glUseProgram(mProgram_points);
 
         BufferSet_Points(linePoints);

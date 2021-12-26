@@ -132,7 +132,6 @@ import com.penglab.hi5.core.game.RewardLitePalConnector;
 import com.penglab.hi5.core.game.Score;
 import com.penglab.hi5.core.game.ScoreLitePalConnector;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
-import com.penglab.hi5.core.ui.annotation.FileInfoState;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;

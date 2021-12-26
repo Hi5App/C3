@@ -120,6 +120,10 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
         annotationRender.loadFile();
     }
 
+    public void loadAnnotationFile(){
+        annotationRender.loadAnnotationFile();
+    }
+
     public void zoomIn(){
         annotationRender.scale(2.0f);
         requestRender();

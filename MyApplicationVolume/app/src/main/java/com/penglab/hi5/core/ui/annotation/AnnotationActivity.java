@@ -60,6 +60,9 @@ public class AnnotationActivity extends AppCompatActivity {
                     case OPEN_FILE:
                         annotationGLSurfaceView.loadFile();
                         break;
+                    case LOAD_ANNOTATION_FILE:
+                        annotationGLSurfaceView.loadAnnotationFile();
+                        break;
                     default:
                         ToastEasy("Something wrong with work status !");
                         break;
@@ -116,6 +119,9 @@ public class AnnotationActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (data == null){
+            return;
+        }
 
         if (resultCode == RESULT_OK){
             switch (requestCode){
@@ -125,6 +131,9 @@ public class AnnotationActivity extends AppCompatActivity {
                     break;
                 case OPEN_ANALYSIS_SWC:
                     Log.e(TAG,"open analysis swc !");
+                case LOAD_LOCAL_FILE:
+                    Log.e(TAG,"load local file !");
+                    annotationViewModel.loadLocalFile(data);
                 default:
                     ToastEasy("UnSupportable request type !");
             }
@@ -160,6 +169,13 @@ public class AnnotationActivity extends AppCompatActivity {
         startActivityForResult(intent, OPEN_LOCAL_FILE);
     }
 
+    private void loadLocalFile(){
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        startActivityForResult(intent, LOAD_LOCAL_FILE);
+    }
+
     private void initUI4LocalFileMode(){
         // load layout view
         LinearLayout.LayoutParams lp4LocalFileMode = new LinearLayout.LayoutParams(
@@ -188,7 +204,14 @@ public class AnnotationActivity extends AppCompatActivity {
         rotate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+            }
+        });
 
+        ImageButton loadFile = findViewById(R.id.loadFile);
+        loadFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadLocalFile();
             }
         });
 

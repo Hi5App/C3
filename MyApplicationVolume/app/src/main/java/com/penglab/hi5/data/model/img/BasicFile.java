@@ -43,4 +43,10 @@ public class BasicFile {
     public void setFileType(FileType fileType) {
         this.fileType = fileType;
     }
+
+    public void setFileInfo(String fileName, FilePath filePath, FileType fileType){
+        this.fileName = fileName;
+        this.filePath = filePath;
+        this.fileType = fileType;
+    }
 }
