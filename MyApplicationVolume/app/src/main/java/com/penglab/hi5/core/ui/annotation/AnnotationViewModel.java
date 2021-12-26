@@ -69,4 +69,13 @@ public class AnnotationViewModel extends ViewModel {
         workStatus.setValue(WorkStatus.OPEN_FILE);
     }
 
+    public void loadLocalFile(Intent data){
+        Uri uri = data.getData();
+        String fileName = FileManager.getFileName(uri);
+        FileType fileType = FileManager.getFileTypeUri(uri);
+
+        imageInfoRepository.getBasicFile().setFileInfo(fileName, new FilePath<Uri>(uri), fileType);
+        workStatus.setValue(WorkStatus.LOAD_ANNOTATION_FILE);
+    }
+
 }

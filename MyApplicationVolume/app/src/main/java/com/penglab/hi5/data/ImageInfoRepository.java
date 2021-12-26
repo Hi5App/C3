@@ -1,5 +1,6 @@
 package com.penglab.hi5.data;
 
+import com.penglab.hi5.data.model.img.BasicFile;
 import com.penglab.hi5.data.model.img.BasicImage;
 
 /**
@@ -13,6 +14,8 @@ public class ImageInfoRepository {
     private static volatile ImageInfoRepository INSTANCE;
 
     private BasicImage basicImage = new BasicImage();
+
+    private BasicFile basicFile = new BasicFile();
 
     private ImageInfoRepository(){ }
 
@@ -33,5 +36,13 @@ public class ImageInfoRepository {
 
     public void setBasicImage(BasicImage basicImage) {
         this.basicImage = basicImage;
+    }
+
+    public BasicFile getBasicFile() {
+        return basicFile;
+    }
+
+    public void setBasicFile(BasicFile basicFile) {
+        this.basicFile = basicFile;
     }
 }

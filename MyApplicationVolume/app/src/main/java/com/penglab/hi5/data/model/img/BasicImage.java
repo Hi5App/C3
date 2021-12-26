@@ -28,10 +28,4 @@ public class BasicImage extends BasicFile{
     public void setImage4DSimple(Image4DSimple image4DSimple) {
         this.image4DSimple = image4DSimple;
     }
-
-    public void setFileInfo(String fileName, FilePath filePath, FileType fileType){
-        this.fileName = fileName;
-        this.filePath = filePath;
-        this.fileType = fileType;
-    }
 }
