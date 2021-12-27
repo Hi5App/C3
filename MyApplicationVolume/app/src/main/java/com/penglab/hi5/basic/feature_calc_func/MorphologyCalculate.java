@@ -9,6 +9,7 @@ import android.widget.Toast;
 import com.penglab.hi5.basic.NeuronSWC;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.core.MainActivity;
+import com.penglab.hi5.data.model.img.FilePath;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -531,43 +532,30 @@ public class MorphologyCalculate {
         return (m + 1);
     }
 
-//    /**
-//     * compute morphology features from a .swc file.
-//     * Input: path: absolute path of .swc file
-//     * Output:
-//     */
-//    double[] Compute_from_file(String path, boolean isglobal) {
-//        readSWC_file_nt reader = new readSWC_file_nt();
-//        MorphologyCalculate MC = new MorphologyCalculate();
-//        NeuronTree nt = reader.readSWC_file(path);
-//        double[] feature_list = new double[22];
-//        MC.computeFeature(nt, feature_list, isglobal);
-//
-//        return feature_list;
-//    }
-
-//    public static void main(String[] args) {
-//        MorphologyCalculate MC = new MorphologyCalculate();
-//        //test data
-//        System.out.println(MC.Compute_from_file("F:\\XiScience\\SEU\\C3\\test_data\\1pic1.v3draw.swc")[0]);
-//
-//    }
-
-
     public List<double[]> calculate(Uri uri, boolean isglobal) {
         readSWC_file_nt reader = new readSWC_file_nt();
         MorphologyCalculate MC = new MorphologyCalculate();
-        //test data
+        // test data
         NeuronTree nt = reader.readSWC_file(uri);
         if (nt == null) return null;
         return MC.computeFeature(nt, isglobal);
     }
 
-
     public List<double[]> calculatefromNT(NeuronTree nt, boolean isglobal) {
         MorphologyCalculate MC = new MorphologyCalculate();
         if (nt == null) return null;
         return MC.computeFeature(nt, isglobal);
+    }
+
+    public List<double[]> calculateFromFile(FilePath<?> filePath, boolean isGlobal){
+        MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
+        NeuronTree neuronTree = NeuronTree.parse(filePath);
+
+        if (neuronTree == null){
+            return null;
+        }else {
+            return morphologyCalculate.computeFeature(neuronTree, isGlobal);
+        }
     }
 
 }

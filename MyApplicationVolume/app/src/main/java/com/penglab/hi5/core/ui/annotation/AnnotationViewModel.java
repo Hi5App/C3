@@ -2,11 +2,14 @@ package com.penglab.hi5.core.ui.annotation;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.penglab.hi5.basic.NeuronTree;
+import com.penglab.hi5.basic.feature_calc_func.MorphologyCalculate;
 import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
@@ -14,6 +17,8 @@ import com.penglab.hi5.data.UserDataSource;
 import com.penglab.hi5.data.UserInfoRepository;
 import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.img.FileType;
+
+import java.util.List;
 
 /**
  * Created by Jackiexing on 12/09/21
@@ -33,6 +38,7 @@ public class AnnotationViewModel extends ViewModel {
     private final MutableLiveData<EditMode> editMode = new MutableLiveData<>();
     private final MutableLiveData<AnnotationMode> annotationMode = new MutableLiveData<>();
     private final MutableLiveData<WorkStatus> workStatus = new MutableLiveData<>();
+    private final MutableLiveData<List<double[]>> analyzeSwcResults = new MutableLiveData<>();
 
     private ImageInfoRepository imageInfoRepository;
     private UserInfoRepository userInfoRepository;
@@ -59,6 +65,10 @@ public class AnnotationViewModel extends ViewModel {
         return workStatus;
     }
 
+    public LiveData<List<double[]>> getAnalyzeSwcResults() {
+        return analyzeSwcResults;
+    }
+
     public void openLocalFile(Intent data){
         Uri uri = data.getData();
         String fileName = FileManager.getFileName(uri);
@@ -76,6 +86,24 @@ public class AnnotationViewModel extends ViewModel {
 
         imageInfoRepository.getBasicFile().setFileInfo(fileName, new FilePath<Uri>(uri), fileType);
         workStatus.setValue(WorkStatus.LOAD_ANNOTATION_FILE);
+    }
+
+    public void analyzeSwcFile(Intent data){
+        Uri uri = data.getData();
+        MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
+        List<double[]> features = morphologyCalculate.calculateFromFile(new FilePath<Uri>(uri), false);
+        analyzeSwcResults.setValue(features);
+    }
+
+    public void analyzeCurTracing(NeuronTree neuronTree){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
+                List<double[]> features = morphologyCalculate.calculatefromNT(neuronTree, false);
+                analyzeSwcResults.postValue(features);
+            }
+        }).start();
     }
 
 }
