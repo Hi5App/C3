@@ -3,10 +3,9 @@ package com.penglab.hi5.core.render.view;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 
-import com.penglab.hi5.core.MyRenderer;
+import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.core.render.AnnotationRender;
 
 /**
@@ -132,5 +131,9 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
     public void zoomOut(){
         annotationRender.scale(0.5f);
         requestRender();
+    }
+
+    public NeuronTree getNeuronTree(){
+        return annotationRender.getNeuronTree();
     }
 }
