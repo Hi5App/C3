@@ -10,7 +10,16 @@ import com.penglab.hi5.core.render.CheckRender;
 
 public class CheckGLSurfaceView extends BasicGLSurfaceView{
 
-    CheckRender checkRender;
+    private CheckRender checkRender;
+
+    private final int DOUBLE_TAP_TIMEOUT = 200;
+
+    private boolean isMove = false;
+
+    private MotionEvent mCurrentDownEvent;
+    private MotionEvent mPreviousUpEvent;
+
+    private OnDoubleClickListener onDoubleClickListener;
 
     public CheckGLSurfaceView(Context context) {
         super(context);
@@ -44,6 +53,7 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
                     case MotionEvent.ACTION_DOWN:
                         lastX = normalizedX;
                         lastY = normalizedY;
+
                         break;
                     case MotionEvent.ACTION_POINTER_DOWN:
                         requestRender();
@@ -64,6 +74,7 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
                         y1_start = y1;
                         break;
                     case MotionEvent.ACTION_MOVE:
+                        isMove = true;
                         if (isZooming && isZoomingNotStop) {
 
                             float x2 = toOpenGLCoord(this, motionEvent.getX(1), true);
@@ -104,7 +115,6 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
                             }
                             checkRender.rotate(normalizedX - lastX, normalizedY - lastY, (float) (computeDis(normalizedX, lastX, normalizedY, lastY)));
 
-
                             //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
                             requestRender();
                             lastX = normalizedX;
@@ -113,6 +123,16 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
                         break;
                     case MotionEvent.ACTION_POINTER_UP:
 //                        isZooming = false;
+                        if (!isMove) {
+                            if (mPreviousUpEvent != null && isConsideredDoubleTap(mPreviousUpEvent, motionEvent)) {
+                                int [] newCenter = checkRender.newCenterWhenNavigateWhenClick(normalizedX, normalizedY);
+                                onDoubleClickListener.run(newCenter);
+                            }
+                            mPreviousUpEvent = motionEvent;
+                        } else {
+                            mPreviousUpEvent = null;
+                        }
+                        isMove = false;
                         isZoomingNotStop = false;
                         checkRender.setIfDownSampling(false);
                         lastX = normalizedX;
@@ -135,7 +155,24 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
         return false;
     }
 
+    private boolean isConsideredDoubleTap(MotionEvent firstUp, MotionEvent secondUp){
+        if (secondUp.getEventTime() - firstUp.getEventTime() > DOUBLE_TAP_TIMEOUT) {
+            return false;
+        }
+        int deltaX =(int) firstUp.getX() - (int)secondUp.getX();
+        int deltaY =(int) firstUp.getY()- (int)secondUp.getY();
+        return deltaX * deltaX + deltaY * deltaY < 10000;
+    }
+
     public void loadFile(){
         checkRender.loadFile();
+    }
+
+    public interface OnDoubleClickListener {
+        void run(int [] center);
+    }
+
+    public void setOnDoubleClickListener(OnDoubleClickListener onDoubleClickListener) {
+        this.onDoubleClickListener = onDoubleClickListener;
     }
 }

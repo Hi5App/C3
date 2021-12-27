@@ -43,6 +43,8 @@ public class CheckActivity extends BaseActivity {
     private ImageButton checkFileListButton;
     private ImageButton checkNextFileButton;
     private ImageButton checkFormerFileButton;
+    private ImageButton checkZoomInButton;
+    private ImageButton checkZoomOutButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,8 +52,6 @@ public class CheckActivity extends BaseActivity {
         setContentView(R.layout.activity_check);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_check);
         setSupportActionBar(toolbar);
-
-        checkGLSurfaceView = findViewById(R.id.check_gl_surface_view);
 
         checkViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(CheckViewModel.class);
         checkViewModel.getImageDataSource().getResult().observe(this, new Observer<Result>() {
@@ -90,7 +90,23 @@ public class CheckActivity extends BaseActivity {
                 if (!imageResult.isSuccess()) {
                     Toast_in_Thread(imageResult.getError());
                 } else {
+                    checkGLSurfaceView.loadFile();
+                    checkViewModel.downloadSWC();
+                }
+            }
+        });
 
+        checkViewModel.getAnnotationDataSource().getResult().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                if (result == null) {
+                    return;
+                }
+
+                if (result instanceof Result.Success) {
+
+                } else {
+                    Toast_in_Thread(result.toString());
                 }
             }
         });
@@ -105,6 +121,8 @@ public class CheckActivity extends BaseActivity {
         checkNextFileButton = findViewById(R.id.check_next_file_button);
         checkFormerFileButton = findViewById(R.id.check_former_file_button);
         checkROIButton = findViewById(R.id.check_roi_button);
+        checkZoomInButton = findViewById(R.id.check_zoom_in_button);
+        checkZoomOutButton = findViewById(R.id.check_zoom_out_button);
 
         checkYesButton.setOnClickListener(new CheckButtonsClickListener());
         checkNoButton.setOnClickListener(new CheckButtonsClickListener());
@@ -112,6 +130,19 @@ public class CheckActivity extends BaseActivity {
         checkNextFileButton.setOnClickListener(new CheckButtonsClickListener());
         checkFormerFileButton.setOnClickListener(new CheckButtonsClickListener());
         checkROIButton.setOnClickListener(new CheckButtonsClickListener());
+        checkZoomInButton.setOnClickListener(new CheckButtonsClickListener());
+        checkZoomOutButton.setOnClickListener(new CheckButtonsClickListener());
+    }
+
+    private void initCheckGLSurfaceView() {
+        checkGLSurfaceView = findViewById(R.id.check_gl_surface_view);
+
+        checkGLSurfaceView.setOnDoubleClickListener(new CheckGLSurfaceView.OnDoubleClickListener() {
+            @Override
+            public void run(int[] center) {
+                checkViewModel.getImageWithNewCenter(center);
+            }
+        });
     }
 
     @Override
@@ -234,6 +265,12 @@ public class CheckActivity extends BaseActivity {
                     break;
                 case R.id.check_former_file_button:
 
+                    break;
+                case R.id.check_zoom_in_button:
+                    checkViewModel.getImageZoomIn();
+                    break;
+                case R.id.check_zoom_out_button:
+                    checkViewModel.getImageZoomOut();
                     break;
                 default:
                     break;

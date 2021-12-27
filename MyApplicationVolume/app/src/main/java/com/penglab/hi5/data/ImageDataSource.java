@@ -28,8 +28,6 @@ public class ImageDataSource {
 
     private final MutableLiveData<Result> result = new MutableLiveData<>();
 
-    private final String IMAGE_DOWNLOAD_FINISHED = "Image download finished";
-
     public LiveData<Result> getResult() {
         return result;
     }
@@ -151,4 +149,5 @@ public class ImageDataSource {
             result.postValue(new Result.Error(new IOException("Check the network please !", exception)));
         }
     }
+
 }

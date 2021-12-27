@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.penglab.hi5.basic.utils.FileManager;
+import com.penglab.hi5.data.AnnotationDataSource;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.Result;
@@ -31,20 +32,26 @@ import java.util.List;
 public class CheckViewModel extends ViewModel {
 
     private ImageDataSource imageDataSource;
+    private AnnotationDataSource annotationDataSource;
     private FileInfoState fileInfoState;
 
     private MutableLiveData<ImageResult> imageResult = new MutableLiveData<>();
 
     private ImageInfoRepository imageInfoRepository;
 
-    public CheckViewModel(ImageDataSource imageDataSource, FileInfoState fileInfoState, ImageInfoRepository imageInfoRepository) {
+    public CheckViewModel(ImageDataSource imageDataSource, AnnotationDataSource annotationDataSource, FileInfoState fileInfoState, ImageInfoRepository imageInfoRepository) {
         this.imageDataSource = imageDataSource;
+        this.annotationDataSource = annotationDataSource;
         this.fileInfoState = fileInfoState;
         this.imageInfoRepository = imageInfoRepository;
     }
 
     ImageDataSource getImageDataSource() {
         return imageDataSource;
+    }
+
+    public AnnotationDataSource getAnnotationDataSource() {
+        return annotationDataSource;
     }
 
     public void getBrainList() {
@@ -64,17 +71,44 @@ public class CheckViewModel extends ViewModel {
     public void getImageWithAnoInfo(AnoInfo anoInfo) {
         fileInfoState.updateWithAnoInfo(anoInfo);
         String [] rois = fileInfoState.getRois();
-        String roi;
-        if (rois.length > 1) {
-            roi = rois[rois.length - 2];
-        } else {
-            roi = rois[0];
-        }
+        String roi = rois[rois.length - 1 - fileInfoState.getCurRoi()];
         imageDataSource.downloadImage(fileInfoState.getImageId(), roi, fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
     }
 
     public void getImageWithROI(String roi) {
         imageDataSource.downloadImage(fileInfoState.getImageId(), roi, fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
+    }
+
+    public void getImageZoomIn() {
+        String [] rois = fileInfoState.getRois();
+        int curRoi = fileInfoState.getCurRoi();
+        if (curRoi > 0) {
+            fileInfoState.setCurRoi(curRoi - 1);
+            String roi = rois[rois.length - curRoi];
+            imageDataSource.downloadImage(fileInfoState.getImageId(), roi, fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
+        }
+    }
+
+    public void getImageZoomOut() {
+        String [] rois = fileInfoState.getRois();
+        int curRoi = fileInfoState.getCurRoi();
+        if (curRoi < rois.length - 1) {
+            fileInfoState.setCurRoi(curRoi + 1);
+            String roi = rois[rois.length - curRoi - 2];
+            imageDataSource.downloadImage(fileInfoState.getImageId(), roi, fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
+        }
+    }
+
+    public void getImageWithNewCenter(int [] center) {
+        fileInfoState.setX(center[0]);
+        fileInfoState.setY(center[1]);
+        fileInfoState.setZ(center[2]);
+        imageDataSource.downloadImage(fileInfoState.getImageId(), fileInfoState.getRois()[fileInfoState.getCurRoi()], fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
+    }
+
+
+    public void downloadSWC() {
+        annotationDataSource.downloadSWC(fileInfoState.getImageId(), fileInfoState.getRois()[fileInfoState.getCurRoi()], fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
     }
 
     public void updateImageResult(Result result) {
@@ -172,4 +206,5 @@ public class CheckViewModel extends ViewModel {
     public MutableLiveData<ImageResult> getImageResult() {
         return imageResult;
     }
+
 }
