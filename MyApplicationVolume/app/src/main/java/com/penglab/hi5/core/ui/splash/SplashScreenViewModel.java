@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.penglab.hi5.basic.utils.FileHelper;
 import com.penglab.hi5.core.Myapplication;
+import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.login.LoggedInUserView;
 import com.penglab.hi5.data.ResourceDataSource;
 import com.penglab.hi5.data.Result;
@@ -114,8 +115,8 @@ public class SplashScreenViewModel extends ViewModel {
             if (data instanceof String){
                 // download music successfully
                 if (((String) data).equals(MUSIC_DOWNLOAD_FINISHED)){
-                    musicNumAlreadyDownload++;
-                    if (musicNumAlreadyDownload >= musicSumToDownload) {
+                    File musicDir = FileHelper.getDir(Myapplication.getContext().getExternalFilesDir(null) + "/Resources/Music");
+                    if (musicDir.exists() && musicDir.listFiles() != null && musicDir.listFiles().length >= musicSumToDownload) {
                         musicResult.setValue(new ResourceResult(true));
                     }
                 }

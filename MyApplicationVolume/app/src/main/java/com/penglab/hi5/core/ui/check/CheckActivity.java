@@ -20,6 +20,7 @@ import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
 import com.penglab.hi5.core.BaseActivity;
 import com.penglab.hi5.core.render.view.CheckGLSurfaceView;
+import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.model.img.AnoInfo;
@@ -84,13 +85,13 @@ public class CheckActivity extends BaseActivity {
             }
         });
 
-        checkViewModel.getImageResult().observe(this, new Observer<ImageResult>() {
+        checkViewModel.getImageResult().observe(this, new Observer<ResourceResult>() {
             @Override
-            public void onChanged(ImageResult imageResult) {
+            public void onChanged(ResourceResult imageResult) {
                 if (!imageResult.isSuccess()) {
                     Toast_in_Thread(imageResult.getError());
                 } else {
-                    checkGLSurfaceView.loadFile();
+                    checkGLSurfaceView.loadImageFile();
                     checkViewModel.downloadSWC();
                 }
             }
@@ -103,15 +104,24 @@ public class CheckActivity extends BaseActivity {
                     return;
                 }
 
-                if (result instanceof Result.Success) {
+                checkViewModel.updateAnnotationResult(result);
 
+            }
+        });
+
+        checkViewModel.getAnnotationResult().observe(this, new Observer<ResourceResult>() {
+            @Override
+            public void onChanged(ResourceResult annotationResult) {
+                if (!annotationResult.isSuccess()) {
+                    Toast_in_Thread(annotationResult.getError());
                 } else {
-                    Toast_in_Thread(result.toString());
+                    checkGLSurfaceView.loadAnnotationFile();
                 }
             }
         });
 
         initButtons();
+        initCheckGLSurfaceView();
     }
 
     private void initButtons() {

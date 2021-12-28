@@ -11,9 +11,17 @@ import android.opengl.Matrix;
 import android.util.Log;
 
 import com.penglab.hi5.basic.ByteTranslate;
+import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.Image4DSimple;
+import com.penglab.hi5.basic.image.MarkerList;
+import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
+import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
+import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
+import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
 import com.penglab.hi5.core.render.pattern.MyAxis;
+import com.penglab.hi5.core.render.pattern.MyDraw;
 import com.penglab.hi5.core.render.pattern.MyPattern;
+import com.penglab.hi5.core.render.utils.AnnotationManager;
 import com.penglab.hi5.core.render.utils.RenderOptions;
 import com.penglab.hi5.core.ui.check.FileInfoState;
 import com.penglab.hi5.data.ImageInfoRepository;
@@ -21,8 +29,11 @@ import com.penglab.hi5.data.model.img.BasicFile;
 import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.img.FileType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -53,7 +64,10 @@ public class CheckRender extends BasicRender {
 
     private final MyPattern myPattern = new MyPattern();
     private final MyAxis myAxis = new MyAxis();
+    private final MyDraw myDraw = new MyDraw();
+
     private final RenderOptions renderOptions = new RenderOptions();
+    private final AnnotationManager annotationManager = new AnnotationManager();
 
     private int screenWidth;
     private int screenHeight;
@@ -67,8 +81,8 @@ public class CheckRender extends BasicRender {
         // init shader program
         MyPattern.initProgram();
         MyAxis.initProgram();
+        MyDraw.initProgram();
 //        MyPattern2D.initProgram();
-//        MyDraw.initProgram();
 
         // init basic Matrix
         initMatrix();
@@ -165,13 +179,11 @@ public class CheckRender extends BasicRender {
             case TIFF:
                 image4DSimple = Image4DSimple.loadImage(filePath, fileType);
                 if (image4DSimple != null){
-                    originalSize[0] = (int) image4DSimple.getSz0();
-                    originalSize[1] = (int) image4DSimple.getSz1();
-                    originalSize[2] = (int) image4DSimple.getSz2();
-                    updateNormalizedDim(new Integer[]{
+                    updateFileSize(new Integer[]{
                             (int) image4DSimple.getSz0(), (int) image4DSimple.getSz1(), (int) image4DSimple.getSz2()});
                     myPattern.setNeedSetContent(true);
                     myAxis.setNeedSetContent(true);
+                    myDraw.setNeedDraw(true);
                 }
                 break;
             default:
@@ -181,6 +193,40 @@ public class CheckRender extends BasicRender {
         initMatrix();
         setMatrixByFile();
         updateFinalMatrix();
+    }
+
+    public void loadAnnotationFile(){
+        Log.d(TAG,"Load annotation file");
+
+        BasicFile basicFile = imageInfoRepository.getBasicFile();
+        FilePath<?> filePath = basicFile.getFilePath();
+        FileType fileType = basicFile.getFileType();
+
+        switch (fileType){
+            case ANO:
+                Log.e(TAG,"load .ano file !");
+                break;
+            case SWC:
+            case ESWC:
+                Log.e(TAG,"load .swc file !");
+                NeuronTree neuronTree = NeuronTree.parse(filePath);
+                if (neuronTree == null){
+                    ToastEasy("Something wrong with this .swc/.eswc file, can't load it");
+                } else {
+                    annotationManager.loadNeuronTree(neuronTree);
+                }
+                break;
+            case APO:
+                MarkerList markerList = ApoReader.parse(filePath);
+                if (markerList == null){
+                    ToastEasy("Something wrong with this .apo file, can't load it");
+                } else {
+                    annotationManager.loadMarkerList(markerList);
+                }
+                break;
+            default:
+                ToastEasy("Unsupported file !");
+        }
     }
 
     private void setResource(){
@@ -199,21 +245,30 @@ public class CheckRender extends BasicRender {
         if (myAxis.isNeedDraw()){
             myAxis.draw(finalMatrix);
         }
+        if (myDraw.isNeedDraw()){
+            drawNeuronSwc(annotationManager.getCurSwcList());
+            drawNeuronSwc(annotationManager.getNewSwcList());
+            drawNeuronSwc(annotationManager.getLoadedSwcList());
+        }
     }
 
-    private void updateNormalizedDim(Integer[] size){
-        float maxDim = (float) Collections.max(Arrays.asList(size));
+    private void updateFileSize(Integer[] size){
+        float maxSize = (float) Collections.max(Arrays.asList(size));
 
-        normalizedSize[0] = (float) size[0] / maxDim;
-        normalizedSize[1] = (float) size[1] / maxDim;
-        normalizedSize[2] = (float) size[2] / maxDim;
+        originalSize[0] = size[0];
+        originalSize[1] = size[1];
+        originalSize[2] = size[2];
 
-        Log.e(TAG,"max dim " + maxDim);
+        normalizedSize[0] = (float) size[0] / maxSize;
+        normalizedSize[1] = (float) size[1] / maxSize;
+        normalizedSize[2] = (float) size[2] / maxSize;
+
+        Log.e(TAG,"max Size " + maxSize);
         Log.e(TAG,Arrays.toString(normalizedSize));
     }
 
 
-    public void scale(float ratio){
+    public void zoom(float ratio){
         float curScale = renderOptions.getScale();
         if ((curScale < 0.2 && ratio < 1) || (curScale > 30 && ratio > 1)){
             Log.e(TAG, "Can't be smaller or bigger !");
@@ -235,6 +290,74 @@ public class CheckRender extends BasicRender {
 
         Matrix.multiplyMM(rotateMatrix, 0, tempRotateMatrix, 0, rotateMatrix, 0);
         updateFinalMatrix();
+    }
+
+    public void drawNeuronSwc(V_NeuronSWC_list swcList){
+        if (swcList.nsegs() > 0) {
+            ArrayList<Float> lines = new ArrayList<Float>();
+            for (int i = 0; i < swcList.seg.size(); i++) {
+                V_NeuronSWC seg = swcList.seg.get(i);
+                Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
+                lines.clear();
+
+                for (int j = 0; j < seg.row.size(); j++) {
+                    if (seg.row.get(j).parent != -1 && seg.getIndexofParent(j) != -1) {
+                        V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(j));
+                        swcUnitMap.put(j, parent);
+                    }
+                }
+
+                int type = 0;
+                for (int j = 0; j < seg.row.size(); j++) {
+                    V_NeuronSWC_unit child = seg.row.get(j);
+                    int parentId = (int) child.parent;
+                    if (parentId == -1 || seg.getIndexofParent(j) == -1) {
+                        float[] position = volumeToModel(new float[]{(float) child.x, (float) child.y, (float) child.z});
+                        myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int) child.type);
+                        continue;
+                    }
+                    V_NeuronSWC_unit parent = swcUnitMap.get(j);
+                    if (parent == null){
+                        continue;
+                    }
+                    lines.add((float) ((originalSize[0] - parent.x) / originalSize[0] * normalizedSize[0]));
+                    lines.add((float) ((originalSize[1] - parent.y) / originalSize[1] * normalizedSize[1]));
+                    lines.add((float) ((parent.z) / originalSize[2] * normalizedSize[2]));
+                    lines.add((float) ((originalSize[0] - child.x) / originalSize[0] * normalizedSize[0]));
+                    lines.add((float) ((originalSize[1] - child.y) / originalSize[1] * normalizedSize[1]));
+                    lines.add((float) ((child.z) / originalSize[2] * normalizedSize[2]));
+                    type = (int) parent.type;
+                }
+                myDraw.drawLine(finalMatrix, lines, type);
+                lines.clear();
+            }
+        }
+    }
+
+    public float[] volumeToModel(float[] point){
+        if (point == null){
+            Log.e(TAG,"null array in volume2Model");
+            return null;
+        }
+
+        float[] result = new float[3];
+        result[0] = (originalSize[0] - point[0]) / originalSize[0] * normalizedSize[0];
+        result[1] = (originalSize[1] - point[1]) / originalSize[1] * normalizedSize[1];
+        result[2] = point[2] / originalSize[2] * normalizedSize[2];
+
+        return result;
+    }
+
+    public float[] modelToVolume(float[] input){
+        if (input == null)
+            return null;
+
+        float[] result = new float[3];
+        result[0] = (1.0f - input[0] / normalizedSize[0]) * originalSize[0];
+        result[1] = (1.0f - input[1] / normalizedSize[1]) * originalSize[1];
+        result[2] = input[2] / normalizedSize[2] * originalSize[2];
+
+        return result;
     }
 
     public float[] solveMarkerCenter(float x, float y){
@@ -302,8 +425,8 @@ public class CheckRender extends BasicRender {
         float[] loc2_index = new float[3];
         boolean isInBoundingBox = false;
 
-        loc1_index = modeltoVolume(loc1);
-        loc2_index = modeltoVolume(loc2);
+        loc1_index = modelToVolume(loc1);
+        loc2_index = modelToVolume(loc2);
 
         float[] d = minus(loc1_index, loc2_index);
         normalize(d);
@@ -398,18 +521,6 @@ public class CheckRender extends BasicRender {
 
         return true;
 
-    }
-
-    public float[] modeltoVolume(float[] input){
-        if (input == null)
-            return null;
-
-        float[] result = new float[3];
-        result[0] = (1.0f - input[0] / normalizedSize[0]) * originalSize[0];
-        result[1] = (1.0f - input[1] / normalizedSize[1]) * originalSize[1];
-        result[2] = input[2] / normalizedSize[2] * originalSize[2];
-
-        return result;
     }
 
     // 除法运算

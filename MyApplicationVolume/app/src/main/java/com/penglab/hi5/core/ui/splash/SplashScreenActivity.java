@@ -19,6 +19,7 @@ import com.penglab.hi5.R;
 import com.penglab.hi5.basic.utils.AppStatus;
 import com.penglab.hi5.basic.utils.AppStatusManager;
 import com.penglab.hi5.chat.nim.InfoCache;
+import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.home.screens.HomeActivity;
 import com.penglab.hi5.core.ui.login.LoggedInUserView;

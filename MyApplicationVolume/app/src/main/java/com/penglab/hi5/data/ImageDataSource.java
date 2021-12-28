@@ -133,9 +133,10 @@ public class ImageDataSource {
                         if (response.body() != null) {
                             byte[] fileContent = response.body().bytes();
                             String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Resources/Image";
-                            if (!FileHelper.storeFile(storePath, InfoCache.getAccount(), fileContent)) {
+                            String filename = brainId + "_" + roi + "_" + offsetX + "_" + offsetY + "_" + offsetZ + ".v3dpbd";
+                            if (!FileHelper.storeFile(storePath, filename, fileContent)) {
                             }
-                            result.postValue(new Result.Success(storePath));
+                            result.postValue(new Result.Success(storePath + "/" + filename));
                         } else {
                             result.postValue(new Result.Error(new Exception("Response from server is null when download image !")));
                         }

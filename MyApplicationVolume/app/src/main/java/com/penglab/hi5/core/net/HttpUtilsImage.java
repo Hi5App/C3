@@ -93,7 +93,7 @@ public class HttpUtilsImage extends HttpUtils {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("name", username)
                     .put("password", password)
-                    .put("image", brainId + "/" + roi)
+                    .put("swc", "/Users/huanglei/Desktop/dataserver/1.eswc")
                     .put("x", x)
                     .put("y", y)
                     .put("z", z)
