@@ -127,6 +127,7 @@ public class MyAxis extends BasicPattern {
     public void setAxis(float[] normalizedDim){
         setPoints(normalizedDim);
         bufferSet();
+        setNeedSetContent(false);
         setNeedDraw(true);
     }
 

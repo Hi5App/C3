@@ -21,7 +21,8 @@ import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
 import com.penglab.hi5.core.render.pattern.MyAxis;
 import com.penglab.hi5.core.render.pattern.MyDraw;
 import com.penglab.hi5.core.render.pattern.MyPattern;
-import com.penglab.hi5.core.render.utils.AnnotationManager;
+import com.penglab.hi5.core.render.utils.AnnotationDataManager;
+import com.penglab.hi5.core.render.utils.MatrixManager;
 import com.penglab.hi5.core.render.utils.RenderOptions;
 import com.penglab.hi5.core.ui.check.FileInfoState;
 import com.penglab.hi5.data.ImageInfoRepository;
@@ -47,16 +48,6 @@ public class CheckRender extends BasicRender {
     private final ImageInfoRepository imageInfoRepository = ImageInfoRepository.getInstance();
     private final FileInfoState fileInfoState = FileInfoState.getInstance();
 
-    private final float[] persProjectionMatrix = new float[16];      // for 3D
-    private final float[] orthProjectionMatrix = new float[16];      // for 2D
-    private final float[] viewMatrix           = new float[16];
-    private final float[] translate2Matrix     = new float[16];
-    private final float[] zoomMatrix           = new float[16];
-    private final float[] rotateMatrix         = new float[16];
-    private final float[] translateMatrix      = new float[16];
-    private final float[] modelMatrix          = new float[16];
-    private final float[] finalMatrix          = new float[16];
-
     private final float[] normalizedSize = new float[3];
     private final int[] originalSize = new int[3];
 
@@ -67,7 +58,8 @@ public class CheckRender extends BasicRender {
     private final MyDraw myDraw = new MyDraw();
 
     private final RenderOptions renderOptions = new RenderOptions();
-    private final AnnotationManager annotationManager = new AnnotationManager();
+    private final AnnotationDataManager annotationDataManager = new AnnotationDataManager();
+    private final MatrixManager matrixManager = new MatrixManager();
 
     private int screenWidth;
     private int screenHeight;
@@ -85,7 +77,7 @@ public class CheckRender extends BasicRender {
 //        MyPattern2D.initProgram();
 
         // init basic Matrix
-        initMatrix();
+        matrixManager.initMatrix();
     }
 
     @Override
@@ -95,15 +87,8 @@ public class CheckRender extends BasicRender {
         // this projection matrix is applied to object coordinates
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
-        float ratio = (float) screenWidth / screenHeight;
+        matrixManager.setProjectionMatrix(screenWidth, screenHeight);
 
-        if (screenWidth > screenHeight) {
-            Matrix.orthoM(orthProjectionMatrix, 0, -ratio, ratio, -1, 1, 1, 100);
-            Matrix.frustumM(persProjectionMatrix, 0, -ratio, ratio, -1, 1, 2f, 100);
-        } else {
-            Matrix.orthoM(orthProjectionMatrix, 0, -1, 1, -1 / ratio, 1 / ratio, 1, 100);
-            Matrix.frustumM(persProjectionMatrix, 0, -1, 1, -1 / ratio, 1 / ratio, 2f, 100);
-        }
     }
 
     @Override
@@ -124,46 +109,6 @@ public class CheckRender extends BasicRender {
         GLES30.glDisable(GL_BLEND);
         GLES30.glDisable(GL_ALPHA_TEST);
         GLES30.glDisable(GLES30.GL_DEPTH_TEST);
-    }
-
-    @Override
-    protected void initMatrix() {
-        // set the camera position (View matrix)
-        Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
-
-        // init model matrix
-        Matrix.setIdentityM(translateMatrix,0);
-        Matrix.setIdentityM(zoomMatrix,0);
-        Matrix.setIdentityM(rotateMatrix, 0);
-        Matrix.setRotateM(rotateMatrix, 0, 0, -1.0f, -1.0f, 0.0f);
-    }
-
-    @Override
-    protected void setMatrixByFile() {
-        // Set translateMatrix
-        Matrix.translateM(translateMatrix, 0, -0.5f * normalizedSize[0], -0.5f * normalizedSize[1], -0.5f * normalizedSize[2]);
-
-        // Set translate2Matrix
-        Matrix.setIdentityM(translate2Matrix, 0);
-        Matrix.translateM(translate2Matrix, 0, 0, 0, renderOptions.getScale() / 2 * (float) Math.sqrt(3));
-    }
-
-    @Override
-    protected void updateFinalMatrix(){
-
-        // Calculate the projection and view transformation
-        Matrix.multiplyMM(finalMatrix, 0, persProjectionMatrix, 0, viewMatrix, 0);
-
-        // model = zoom * rotate * translate
-        // Calculate model matrix
-        Matrix.multiplyMM(modelMatrix, 0, rotateMatrix, 0, translateMatrix, 0);
-        Matrix.multiplyMM(modelMatrix, 0, zoomMatrix, 0, modelMatrix, 0);
-        Matrix.multiplyMM(modelMatrix, 0, translate2Matrix, 0, modelMatrix, 0);
-
-        // Calculate final matrix
-        Matrix.multiplyMM(finalMatrix, 0, finalMatrix, 0, modelMatrix, 0);
-
-//        Log.e(TAG,"finalMatrix " + Arrays.toString(finalMatrix));
     }
 
     public void loadFile(){
@@ -189,10 +134,7 @@ public class CheckRender extends BasicRender {
             default:
                 ToastEasy("Unsupported file !");
         }
-
-        initMatrix();
-        setMatrixByFile();
-        updateFinalMatrix();
+        matrixManager.initMatrixByFile(normalizedSize, renderOptions.getScale());
     }
 
     public void loadAnnotationFile(){
@@ -213,7 +155,7 @@ public class CheckRender extends BasicRender {
                 if (neuronTree == null){
                     ToastEasy("Something wrong with this .swc/.eswc file, can't load it");
                 } else {
-                    annotationManager.loadNeuronTree(neuronTree);
+                    annotationDataManager.loadNeuronTree(neuronTree);
                 }
                 break;
             case APO:
@@ -221,7 +163,7 @@ public class CheckRender extends BasicRender {
                 if (markerList == null){
                     ToastEasy("Something wrong with this .apo file, can't load it");
                 } else {
-                    annotationManager.loadMarkerList(markerList);
+                    annotationDataManager.loadMarkerList(markerList);
                 }
                 break;
             default:
@@ -240,15 +182,15 @@ public class CheckRender extends BasicRender {
 
     private void drawFrame(){
         if (myPattern.isNeedDraw()){
-            myPattern.drawVolume_3d(finalMatrix, renderOptions.isDownSampling(), renderOptions.getContrast());
+            myPattern.drawVolume_3d(matrixManager.getFinalMatrix(), renderOptions.isDownSampling(), renderOptions.getContrast());
         }
         if (myAxis.isNeedDraw()){
-            myAxis.draw(finalMatrix);
+            myAxis.draw(matrixManager.getFinalMatrix());
         }
         if (myDraw.isNeedDraw()){
-            drawNeuronSwc(annotationManager.getCurSwcList());
-            drawNeuronSwc(annotationManager.getNewSwcList());
-            drawNeuronSwc(annotationManager.getLoadedSwcList());
+            drawNeuronSwc(annotationDataManager.getCurSwcList());
+            drawNeuronSwc(annotationDataManager.getNewSwcList());
+            drawNeuronSwc(annotationDataManager.getLoadedSwcList());
         }
     }
 
@@ -267,29 +209,12 @@ public class CheckRender extends BasicRender {
         Log.e(TAG,Arrays.toString(normalizedSize));
     }
 
-
     public void zoom(float ratio){
-        float curScale = renderOptions.getScale();
-        if ((curScale < 0.2 && ratio < 1) || (curScale > 30 && ratio > 1)){
-            Log.e(TAG, "Can't be smaller or bigger !");
-        } else {
-            // set scale
-            renderOptions.setScale(curScale * ratio);
-
-            Matrix.scaleM(zoomMatrix, 0, ratio, ratio, ratio);
-            Matrix.setIdentityM(translate2Matrix, 0);
-            Matrix.translateM(translate2Matrix, 0, 0, 0, renderOptions.getScale() / 2 * (float) Math.sqrt(3));
-            updateFinalMatrix();
-        }
+        matrixManager.zoom(ratio, renderOptions);
     }
 
     public void rotate(float distanceX, float distanceY){
-        float[] tempRotateMatrix = new float[16];
-        Matrix.setRotateM(tempRotateMatrix, 0, distanceY * 70, 1.0f, 0.0f, 0.0f);
-        Matrix.rotateM(tempRotateMatrix, 0, distanceX * 70, 0.0f, 1.0f, 0.0f);
-
-        Matrix.multiplyMM(rotateMatrix, 0, tempRotateMatrix, 0, rotateMatrix, 0);
-        updateFinalMatrix();
+        matrixManager.rotate(distanceX, distanceY);
     }
 
     public void drawNeuronSwc(V_NeuronSWC_list swcList){
@@ -313,7 +238,7 @@ public class CheckRender extends BasicRender {
                     int parentId = (int) child.parent;
                     if (parentId == -1 || seg.getIndexofParent(j) == -1) {
                         float[] position = volumeToModel(new float[]{(float) child.x, (float) child.y, (float) child.z});
-                        myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int) child.type);
+                        myDraw.drawSplitPoints(matrixManager.getFinalMatrix(), position[0], position[1], position[2], (int) child.type);
                         continue;
                     }
                     V_NeuronSWC_unit parent = swcUnitMap.get(j);
@@ -328,7 +253,7 @@ public class CheckRender extends BasicRender {
                     lines.add((float) ((child.z) / originalSize[2] * normalizedSize[2]));
                     type = (int) parent.type;
                 }
-                myDraw.drawLine(finalMatrix, lines, type);
+                myDraw.drawLine(matrixManager.getFinalMatrix(), lines, type);
                 lines.clear();
             }
         }
@@ -395,7 +320,7 @@ public class CheckRender extends BasicRender {
         // mvp矩阵的逆矩阵
         float [] invertfinalMatrix = new float[16];
 
-        Matrix.invertM(invertfinalMatrix, 0, finalMatrix, 0);
+        Matrix.invertM(invertfinalMatrix, 0, matrixManager.getFinalMatrix(), 0);
 //        Log.v("invert_rotation",Arrays.toString(invertfinalMatrix));
 
         float [] near = new float[4];

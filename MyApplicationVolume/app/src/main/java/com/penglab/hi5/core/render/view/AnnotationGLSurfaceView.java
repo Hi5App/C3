@@ -5,8 +5,12 @@ import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+import androidx.lifecycle.LiveData;
+
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.core.render.AnnotationRender;
+import com.penglab.hi5.core.ui.annotation.EditMode;
+import com.penglab.hi5.core.ui.annotation.SwitchMutableLiveData;
 
 /**
  * Created by Jackiexing on 12/20/21
@@ -14,7 +18,9 @@ import com.penglab.hi5.core.render.AnnotationRender;
 public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
 
     private final String TAG = "AnnotationGLSurfaceView";
+    SwitchMutableLiveData<EditMode> editMode = new SwitchMutableLiveData<>(EditMode.NONE);
     AnnotationRender annotationRender;
+
 
     public AnnotationGLSurfaceView(Context context) {
         super(context, new AnnotationRender());
@@ -72,7 +78,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
 
                         double dis = computeDis(currentX, x2, currentY, y2);
                         double scale = dis / dis_start;
-                        annotationRender.scale((float) scale);
+                        annotationRender.zoom((float) scale);
 
                         float dis_x = x2 - currentX;
                         float dis_y = y2 - currentY;
@@ -115,6 +121,14 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
         return false;
     }
 
+    public LiveData<EditMode> getEditMode(){
+        return editMode;
+    }
+
+    public boolean setEditMode(EditMode mode){
+        return editMode.setSwitchableValue(mode);
+    }
+
     public void loadFile(){
         annotationRender.loadFile();
     }
@@ -124,12 +138,12 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
     }
 
     public void zoomIn(){
-        annotationRender.scale(2.0f);
+        annotationRender.zoom(2.0f);
         requestRender();
     }
 
     public void zoomOut(){
-        annotationRender.scale(0.5f);
+        annotationRender.zoom(0.5f);
         requestRender();
     }
 

@@ -14,7 +14,7 @@ import java.util.Vector;
 /**
  * Created by Jackiexing on 12/26/21
  */
-public class AnnotationManager {
+public class AnnotationDataManager {
 
     private final String TAG = "AnnotationManager";
 
