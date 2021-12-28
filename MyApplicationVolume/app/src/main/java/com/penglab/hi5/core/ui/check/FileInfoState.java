@@ -1,8 +1,16 @@
 package com.penglab.hi5.core.ui.check;
 
+import static com.penglab.hi5.core.MainActivity.Toast_in_Thread_static;
+
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 
+import com.penglab.hi5.core.collaboration.Communicator;
+import com.penglab.hi5.core.collaboration.basic.ImageInfo;
+import com.penglab.hi5.core.collaboration.connector.MsgConnector;
+import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.model.img.AnoInfo;
 import com.penglab.hi5.data.model.img.BrainInfo;
 import com.penglab.hi5.data.model.img.NeuronInfo;
@@ -14,6 +22,9 @@ public class FileInfoState {
     enum OpenState {
         NONE, BRAIN_LIST, NEURON_LIST, ANO_LIST, FILE
     };
+
+    private static volatile FileInfoState INSTANCE;
+
     MutableLiveData<OpenState> currentOpenState;
 
     @Nullable
@@ -30,6 +41,9 @@ public class FileInfoState {
 
     @Nullable
     private String [] rois;
+
+    @Nullable
+    private int curRoi;
 
     @Nullable
     private String somaId;
@@ -60,6 +74,17 @@ public class FileInfoState {
 
     @Nullable
     private String owner;
+
+    public static FileInfoState getInstance(){
+        if (INSTANCE == null){
+            synchronized (ImageInfoRepository.class){
+                if (INSTANCE == null){
+                    INSTANCE = new FileInfoState();
+                }
+            }
+        }
+        return INSTANCE;
+    }
 
     @Nullable
     public List<AnoInfo> getAnoList() {
@@ -117,6 +142,14 @@ public class FileInfoState {
 
     public void setRois(@Nullable String[] rois) {
         this.rois = rois;
+    }
+
+    public int getCurRoi() {
+        return curRoi;
+    }
+
+    public void setCurRoi(int curRoi) {
+        this.curRoi = curRoi;
     }
 
     @Nullable
@@ -209,6 +242,11 @@ public class FileInfoState {
     public void updateWithBrainInfo(BrainInfo brainInfo) {
         imageId = brainInfo.getImageId();
         rois = brainInfo.getRois();
+        if (rois.length > 1) {
+            curRoi = 1;
+        } else {
+            curRoi = 0;
+        }
     }
 
     public void updateWithNeuronInfo(NeuronInfo neuronInfo) {
@@ -227,5 +265,56 @@ public class FileInfoState {
         apoUrl = anoInfo.getApoUrl();
         swcUrl = anoInfo.getSwcUrl();
         owner = anoInfo.getOwner();
+    }
+
+    public int [] newCenterWhenNavigateBlockToTargetOffset(int offset_x, int offset_y, int offset_z) {
+        String img_size = rois[curRoi - 1].replace("RES(","").replace(")","");
+
+        int img_size_x_i = Integer.parseInt(img_size.split("x")[0]);
+        int img_size_y_i = Integer.parseInt(img_size.split("x")[1]);
+        int img_size_z_i = Integer.parseInt(img_size.split("x")[2]);
+
+        int offset_x_i = (int) x;
+        int offset_y_i = (int) y;
+        int offset_z_i = (int) z;
+        int size_i     =       128;
+
+        if ( (offset_x_i + offset_x) <= 1 || (offset_x_i + offset_x) >= img_size_x_i - 1){
+//            System.out.println("----- You have already reached left boundary!!! -----");
+            Toast_in_Thread_static("You have already reached boundary!!!");
+
+        }else {
+            offset_x_i += offset_x;
+            if (offset_x_i - size_i / 2 <= 0)
+                offset_x_i = size_i / 2 + 1;
+            else if (offset_x_i + size_i / 2 >= img_size_x_i - 1)
+                offset_x_i = img_size_x_i - size_i / 2 - 1;
+        }
+
+        if ( (offset_y_i + offset_y) <= 1 || (offset_y_i + offset_y) >= img_size_y_i - 1){
+//            System.out.println("----- You have already reached left boundary!!! -----");
+            Toast_in_Thread_static("You have already reached boundary!!!");
+
+        }else {
+            offset_y_i += offset_y;
+            if (offset_y_i - size_i / 2 <= 0)
+                offset_y_i = size_i / 2 + 1;
+            else if (offset_y_i + size_i / 2 >= img_size_y_i - 1)
+                offset_y_i = img_size_y_i - size_i / 2 - 1;
+        }
+
+        if ( (offset_z_i + offset_z) <= 1 || (offset_z_i + offset_z) >= img_size_z_i - 1){
+//            System.out.println("----- You have already reached left boundary!!! -----");
+            Toast_in_Thread_static("You have already reached boundary!!!");
+
+        }else {
+            offset_z_i += offset_z;
+            if (offset_z_i - size_i / 2 <= 0)
+                offset_z_i = size_i / 2 + 1;
+            else if (offset_z_i + size_i / 2 >= img_size_z_i - 1)
+                offset_z_i = img_size_z_i - size_i / 2 - 1;
+        }
+
+        return new int[]{offset_x_i, offset_y_i, offset_z_i};
     }
 }

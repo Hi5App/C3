@@ -2,15 +2,19 @@ package com.penglab.hi5.core.ui.check;
 
 import android.util.Log;
 
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.penglab.hi5.basic.utils.FileManager;
+import com.penglab.hi5.core.ui.ResourceResult;
+import com.penglab.hi5.data.AnnotationDataSource;
 import com.penglab.hi5.data.ImageDataSource;
+import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.Result;
-import com.penglab.hi5.data.dataStore.database.Image;
 import com.penglab.hi5.data.model.img.AnoInfo;
 import com.penglab.hi5.data.model.img.BrainInfo;
+import com.penglab.hi5.data.model.img.FilePath;
+import com.penglab.hi5.data.model.img.FileType;
 import com.penglab.hi5.data.model.img.NeuronInfo;
 
 import org.json.JSONArray;
@@ -18,7 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,17 +31,27 @@ import java.util.List;
 public class CheckViewModel extends ViewModel {
 
     private ImageDataSource imageDataSource;
+    private AnnotationDataSource annotationDataSource;
     private FileInfoState fileInfoState;
 
-    private MutableLiveData<ImageResult> imageResult = new MutableLiveData<>();
+    private MutableLiveData<ResourceResult> imageResult = new MutableLiveData<>();
+    private MutableLiveData<ResourceResult> annotationResult = new MutableLiveData<>();
 
-    public CheckViewModel(ImageDataSource imageDataSource, FileInfoState fileInfoState) {
+    private ImageInfoRepository imageInfoRepository;
+
+    public CheckViewModel(ImageDataSource imageDataSource, AnnotationDataSource annotationDataSource, FileInfoState fileInfoState, ImageInfoRepository imageInfoRepository) {
         this.imageDataSource = imageDataSource;
+        this.annotationDataSource = annotationDataSource;
         this.fileInfoState = fileInfoState;
+        this.imageInfoRepository = imageInfoRepository;
     }
 
     ImageDataSource getImageDataSource() {
         return imageDataSource;
+    }
+
+    public AnnotationDataSource getAnnotationDataSource() {
+        return annotationDataSource;
     }
 
     public void getBrainList() {
@@ -57,17 +71,44 @@ public class CheckViewModel extends ViewModel {
     public void getImageWithAnoInfo(AnoInfo anoInfo) {
         fileInfoState.updateWithAnoInfo(anoInfo);
         String [] rois = fileInfoState.getRois();
-        String roi;
-        if (rois.length > 1) {
-            roi = rois[rois.length - 2];
-        } else {
-            roi = rois[0];
-        }
+        String roi = rois[rois.length - 1 - fileInfoState.getCurRoi()];
         imageDataSource.downloadImage(fileInfoState.getImageId(), roi, fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
     }
 
     public void getImageWithROI(String roi) {
         imageDataSource.downloadImage(fileInfoState.getImageId(), roi, fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
+    }
+
+    public void getImageZoomIn() {
+        String [] rois = fileInfoState.getRois();
+        int curRoi = fileInfoState.getCurRoi();
+        if (curRoi > 0) {
+            fileInfoState.setCurRoi(curRoi - 1);
+            String roi = rois[rois.length - curRoi];
+            imageDataSource.downloadImage(fileInfoState.getImageId(), roi, fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
+        }
+    }
+
+    public void getImageZoomOut() {
+        String [] rois = fileInfoState.getRois();
+        int curRoi = fileInfoState.getCurRoi();
+        if (curRoi < rois.length - 1) {
+            fileInfoState.setCurRoi(curRoi + 1);
+            String roi = rois[rois.length - curRoi - 2];
+            imageDataSource.downloadImage(fileInfoState.getImageId(), roi, fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
+        }
+    }
+
+    public void getImageWithNewCenter(int [] center) {
+        fileInfoState.setX(center[0]);
+        fileInfoState.setY(center[1]);
+        fileInfoState.setZ(center[2]);
+        imageDataSource.downloadImage(fileInfoState.getImageId(), fileInfoState.getRois()[fileInfoState.getCurRoi()], fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
+    }
+
+
+    public void downloadSWC() {
+        annotationDataSource.downloadSWC(fileInfoState.getImageId(), fileInfoState.getRois()[fileInfoState.getCurRoi()], fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
     }
 
     public void updateImageResult(Result result) {
@@ -85,18 +126,45 @@ public class CheckViewModel extends ViewModel {
                         } else if (firstKey.equals("anoname")) {
                             handleAnoListJSON((JSONArray) data);
                         } else {
-                            imageResult.setValue(new ImageResult(false, "JSON error"));
+                            imageResult.setValue(new ResourceResult(false, "JSON error"));
                         }
                     } else {
-                        imageResult.setValue(new ImageResult(false, "No file here"));
+//                        imageResult.setValue(new ResourceResult(false, "No file here"));
+
+
+                        String [] rois = fileInfoState.getRois();
+                        String roi = rois[rois.length - 1 - fileInfoState.getCurRoi()];
+                        imageDataSource.downloadImage(fileInfoState.getImageId(), roi, fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
                     }
                 } catch (JSONException e) {
                     Log.e("updateImageResult", e.getMessage());
-                    imageResult.setValue(new ImageResult(false, "Fail to parse file list"));
+                    imageResult.setValue(new ResourceResult(false, "Fail to parse file list"));
                 }
             } else if (data instanceof String){
-                imageResult.setValue(new ImageResult(true));
+                Log.e("updateImageResultData", (String) data);
+                String fileName = FileManager.getFileName((String) data);
+                FileType fileType = FileManager.getFileType((String) data);
+                imageInfoRepository.getBasicImage().setFileInfo(fileName, new FilePath<String >((String) data), fileType);
+                imageResult.setValue(new ResourceResult(true));
             }
+        } else {
+            imageResult.setValue(new ResourceResult(false, result.toString()));
+        }
+    }
+
+    public void updateAnnotationResult(Result result) {
+        if (result instanceof Result.Success) {
+            Object data = ((Result.Success<?>) result).getData();
+            if (data instanceof String) {
+                String fileName = FileManager.getFileName((String) data);
+                FileType fileType = FileManager.getFileType((String) data);
+                imageInfoRepository.getBasicFile().setFileInfo(fileName, new FilePath<String >((String) data), fileType);
+                annotationResult.setValue(new ResourceResult(true));
+            } else {
+                annotationResult.setValue(new ResourceResult(false, result.toString()));
+            }
+        } else {
+            annotationResult.setValue(new ResourceResult(false, result.toString()));
         }
     }
 
@@ -106,10 +174,11 @@ public class CheckViewModel extends ViewModel {
         for (int i = 0; i < length; i++) {
             JSONObject jsonObject = data.getJSONObject(i);
             String imageId = jsonObject.getString("imageid");
-            JSONArray detail = jsonObject.getJSONArray("detail");
-            String [] rois = new String[detail.length()];
-            for (int j = 0; j < detail.length(); j++) {
-                rois[j] = detail.getString(j);
+            String detail = jsonObject.getString("detail");
+            detail = detail.substring(1, detail.length() - 1);
+            String [] rois = detail.split(", ");
+            for (int j = 0; j < rois.length; j++) {
+                rois[j] = rois[j].substring(1, rois[j].length() - 1);
             }
             String url = jsonObject.getString("url");
             BrainInfo brainInfo = new BrainInfo(imageId, rois, url);
@@ -159,7 +228,11 @@ public class CheckViewModel extends ViewModel {
         return fileInfoState;
     }
 
-    public MutableLiveData<ImageResult> getImageResult() {
+    public MutableLiveData<ResourceResult> getImageResult() {
         return imageResult;
+    }
+
+    public MutableLiveData<ResourceResult> getAnnotationResult() {
+        return annotationResult;
     }
 }

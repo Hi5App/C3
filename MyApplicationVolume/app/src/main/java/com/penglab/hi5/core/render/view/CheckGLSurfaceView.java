@@ -1,15 +1,27 @@
 package com.penglab.hi5.core.render.view;
 
 import android.content.Context;
+import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
 import com.penglab.hi5.core.MyRenderer;
+import com.penglab.hi5.core.render.AnnotationRender;
 import com.penglab.hi5.core.render.BasicRender;
+import com.penglab.hi5.core.render.CheckRender;
 
 public class CheckGLSurfaceView extends BasicGLSurfaceView{
 
-    MyRenderer myrenderer;
+    private CheckRender checkRender;
+
+    private final int DOUBLE_TAP_TIMEOUT = 200;
+
+    private boolean isMove = false;
+
+    private MotionEvent mCurrentDownEvent;
+    private MotionEvent mPreviousUpEvent;
+
+    private OnDoubleClickListener onDoubleClickListener;
 
     public CheckGLSurfaceView(Context context) {
         super(context);
@@ -17,6 +29,18 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
 
     public CheckGLSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        checkRender = new CheckRender();
+
+        // 设置一下opengl版本；
+        setEGLContextClientVersion(3);
+        setRenderer(checkRender);
+
+        // 调用 onPause 的时候保存EGLContext
+        setPreserveEGLContextOnPause(true);
+
+        // 当发生交互时重新执行渲染， 需要配合requestRender();
+        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+
     }
 
     public CheckGLSurfaceView(Context context, BasicRender basicRender) {
@@ -25,24 +49,21 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
 
     public CheckGLSurfaceView(Context context, AttributeSet attrs, BasicRender basicRender) {
         super(context, attrs, basicRender);
-        setRenderer(myrenderer);
+        setRenderer(checkRender);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
         try {
-            //ACTION_DOWN不return true，就无触发后面的各个事件
             if (motionEvent != null) {
-                final float normalizedX = toOpenGLCoord(this, motionEvent.getX(), true);
-                final float normalizedY = toOpenGLCoord(this, motionEvent.getY(), false);
-//
-//                final float normalizedX =motionEvent.getX();
-//                final float normalizedY =motionEvent.getY();
+                final float currentX = toOpenGLCoord(this, motionEvent.getX(), true);
+                final float currentY = toOpenGLCoord(this, motionEvent.getY(), false);
 
                 switch (motionEvent.getActionMasked()) {
                     case MotionEvent.ACTION_DOWN:
-                        lastX = normalizedX;
-                        lastY = normalizedY;
+                        lastX = currentX;
+                        lastY = currentY;
+
                         break;
                     case MotionEvent.ACTION_POINTER_DOWN:
                         requestRender();
@@ -51,77 +72,76 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
                         float x1 = toOpenGLCoord(this, motionEvent.getX(1), true);
                         float y1 = toOpenGLCoord(this, motionEvent.getY(1), false);
 
-//                        float x1=motionEvent.getX(1);
-//                        float y1=motionEvent.getY(1);
-                        dis_start = computeDis(normalizedX, x1, normalizedY, y1);
-                        dis_x_start = x1 - normalizedX;
-                        dis_y_start = y1 - normalizedY;
+                        dis_start = computeDis(currentX, x1, currentY, y1);
+                        dis_x_start = x1 - currentX;
+                        dis_y_start = y1 - currentY;
 
-                        x0_start = normalizedX;
-                        y0_start = normalizedY;
+                        x0_start = currentX;
+                        y0_start = currentY;
                         x1_start = x1;
                         y1_start = y1;
                         break;
                     case MotionEvent.ACTION_MOVE:
+                        isMove = true;
                         if (isZooming && isZoomingNotStop) {
 
                             float x2 = toOpenGLCoord(this, motionEvent.getX(1), true);
                             float y2 = toOpenGLCoord(this, motionEvent.getY(1), false);
 
-                            double dis = computeDis(normalizedX, x2, normalizedY, y2);
+                            double dis = computeDis(currentX, x2, currentY, y2);
                             double scale = dis / dis_start;
 
-                            myrenderer.zoom((float) scale);
+                            checkRender.zoom((float) scale);
 
-                            float dis_x = x2 - normalizedX;
-                            float dis_y = y2 - normalizedY;
-                            float ave_x = (x2 - x1_start + normalizedX - x0_start) / 2;
-                            float ave_y = (y2 - y1_start + normalizedY - y0_start) / 2;
-                            if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
-                                if (!myrenderer.getIfDownSampling())
-                                    myrenderer.setIfDownSampling(true);
-                            }
-//                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker){
-//                                myrenderer.rotate2f(dis_x_start, dis_x, dis_y_start, dis_y);
-//                            }else {
-//                                myrenderer.rotate(dis_x - dis_x_start, dis_y - dis_y_start, (float) (computeDis(dis_x, dis_x_start, dis_y, dis_y_start)));
-                            myrenderer.rotate(ave_x, ave_y, (float) (computeDis((x2 + normalizedX) / 2, (x1_start + x0_start) / 2, (y2 + normalizedY) / 2, (y1_start + y0_start) / 2)));
+                            float dis_x = x2 - currentX;
+                            float dis_y = y2 - currentY;
+                            float ave_x = (x2 - x1_start + currentX - x0_start) / 2;
+                            float ave_y = (y2 - y1_start + currentY - y0_start) / 2;
+//                            if (!(checkRender.getFileType() == MyRenderer.FileType.JPG || checkRender.getFileType() == MyRenderer.FileType.PNG)) {
+//                                if (!checkRender.getIfDownSampling())
+//                                    checkRender.setIfDownSampling(true);
 //                            }
-                            //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
+                            checkRender.rotate(ave_x, ave_y);
                             requestRender();
                             dis_start = dis;
                             dis_x_start = dis_x;
                             dis_y_start = dis_y;
-                            x0_start = normalizedX;
-                            y0_start = normalizedY;
+                            x0_start = currentX;
+                            y0_start = currentY;
                             x1_start = x2;
                             y1_start = y2;
                         } else if (!isZooming) {
-                            if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
-                                if (!myrenderer.getIfDownSampling())
-                                    myrenderer.setIfDownSampling(true);
-                            }
-                            myrenderer.rotate(normalizedX - lastX, normalizedY - lastY, (float) (computeDis(normalizedX, lastX, normalizedY, lastY)));
+//                            if (!(checkRender.getFileType() == MyRenderer.FileType.JPG || checkRender.getFileType() == MyRenderer.FileType.PNG)) {
+//                                if (!checkRender.getIfDownSampling())
+//                                    checkRender.setIfDownSampling(true);
+//                            }
+                            checkRender.rotate(currentX - lastX, currentY - lastY);
 
-                            //配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
                             requestRender();
-                            lastX = normalizedX;
-                            lastY = normalizedY;
+                            lastX = currentX;
+                            lastY = currentY;
                         }
                         break;
                     case MotionEvent.ACTION_POINTER_UP:
-//                        isZooming = false;
+                        if (!isMove) {
+                            if (mPreviousUpEvent != null && isConsideredDoubleTap(mPreviousUpEvent, motionEvent)) {
+                                int [] newCenter = checkRender.newCenterWhenNavigateWhenClick(currentX, currentY);
+                                onDoubleClickListener.run(newCenter);
+                            }
+                            mPreviousUpEvent = motionEvent;
+                        } else {
+                            mPreviousUpEvent = null;
+                        }
+                        isMove = false;
                         isZoomingNotStop = false;
-                        myrenderer.setIfDownSampling(false);
-                        lastX = normalizedX;
-                        lastY = normalizedY;
-                        myrenderer.setIfPainting(false);
+//                        checkRender.setIfDownSampling(false);
+                        lastX = currentX;
+                        lastY = currentY;
                         break;
                     case MotionEvent.ACTION_UP:
-                        myrenderer.setIfPainting(false);
                         requestRender();
                         isZooming = false;
-                        myrenderer.setIfDownSampling(false);
+//                        checkRender.setIfDownSampling(false);
                         break;
                     default:
                         break;
@@ -133,5 +153,32 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
             e.printStackTrace();
         }
         return false;
+    }
+
+    private boolean isConsideredDoubleTap(MotionEvent firstUp, MotionEvent secondUp){
+        if (secondUp.getEventTime() - firstUp.getEventTime() > DOUBLE_TAP_TIMEOUT) {
+            return false;
+        }
+        int deltaX =(int) firstUp.getX() - (int)secondUp.getX();
+        int deltaY =(int) firstUp.getY()- (int)secondUp.getY();
+        return deltaX * deltaX + deltaY * deltaY < 10000;
+    }
+
+    public void loadImageFile(){
+        checkRender.loadFile();
+        requestRender();
+    }
+
+    public void loadAnnotationFile() {
+        checkRender.loadAnnotationFile();
+        requestRender();
+    }
+
+    public interface OnDoubleClickListener {
+        void run(int [] center);
+    }
+
+    public void setOnDoubleClickListener(OnDoubleClickListener onDoubleClickListener) {
+        this.onDoubleClickListener = onDoubleClickListener;
     }
 }

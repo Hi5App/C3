@@ -10,6 +10,7 @@ import android.opengl.GLES30;
 import android.opengl.Matrix;
 import android.util.Log;
 
+import com.penglab.hi5.basic.ByteTranslate;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.basic.image.MarkerList;
@@ -38,11 +39,11 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
- * Created by Jackiexing on 12/20/21
+ * Created by Yihang zhu 12/25/21
  */
-public class AnnotationRender extends BasicRender{
+public class CheckRender extends BasicRender {
 
-    private final String TAG = "AnnotationRender";
+    private final String TAG = "CheckRender";
     private final ImageInfoRepository imageInfoRepository = ImageInfoRepository.getInstance();
     private final FileInfoState fileInfoState = FileInfoState.getInstance();
 
@@ -267,7 +268,7 @@ public class AnnotationRender extends BasicRender{
     }
 
 
-    public void scale(float ratio){
+    public void zoom(float ratio){
         float curScale = renderOptions.getScale();
         if ((curScale < 0.2 && ratio < 1) || (curScale > 30 && ratio > 1)){
             Log.e(TAG, "Can't be smaller or bigger !");
@@ -333,27 +334,9 @@ public class AnnotationRender extends BasicRender{
         }
     }
 
-    public NeuronTree getNeuronTree(){
-        return annotationManager.getNeuronTree();
-    }
-
-    public float[] modeToVolume(float[] point){
-        if (point == null){
-            Log.e(TAG,"null array in modeToVolume");
-            return null;
-        }
-
-        float[] result = new float[3];
-        result[0] = (1.0f - point[0] / normalizedSize[0]) * originalSize[0];
-        result[1] = (1.0f - point[1] / normalizedSize[1]) * originalSize[1];
-        result[2] = point[2] / normalizedSize[2] * originalSize[2];
-
-        return result;
-    }
-
     public float[] volumeToModel(float[] point){
         if (point == null){
-            Log.e(TAG,"null array in volumeToModel");
+            Log.e(TAG,"null array in volume2Model");
             return null;
         }
 
@@ -363,5 +346,350 @@ public class AnnotationRender extends BasicRender{
         result[2] = point[2] / originalSize[2] * normalizedSize[2];
 
         return result;
+    }
+
+    public float[] modelToVolume(float[] input){
+        if (input == null)
+            return null;
+
+        float[] result = new float[3];
+        result[0] = (1.0f - input[0] / normalizedSize[0]) * originalSize[0];
+        result[1] = (1.0f - input[1] / normalizedSize[1]) * originalSize[1];
+        result[2] = input[2] / normalizedSize[2] * originalSize[2];
+
+        return result;
+    }
+
+    public float[] solveMarkerCenter(float x, float y){
+
+        float [] loc1 = new float[3];
+        float [] loc2 = new float[3];
+
+        get_NearFar_Marker_2(x, y, loc1, loc2);
+
+//        Log.v("loc1",Arrays.toString(loc1));
+//        Log.v("loc2",Arrays.toString(loc2));
+
+        float steps = 512;
+        float [] step = devide(minus(loc1, loc2), steps);
+//        Log.v("step",Arrays.toString(step));
+
+
+        if(make_Point_near(loc1, loc2)){
+            float [] Marker = getCenterOfLineProfile(loc1, loc2);
+            if (Marker == null){
+                return null;
+            }
+//            Log.v("Marker",Arrays.toString(Marker));
+            return Marker;
+        }else {
+//            Log.v("solveMarkerCenter","please make sure the point inside the bounding box");
+            ToastEasy("please make sure the point inside the bounding box");
+            return null;
+        }
+
+    }
+
+    //用于透视投影中获取近平面和远平面的焦点
+    private void get_NearFar_Marker_2(float x, float y, float [] res1, float [] res2){
+        // mvp矩阵的逆矩阵
+        float [] invertfinalMatrix = new float[16];
+
+        Matrix.invertM(invertfinalMatrix, 0, finalMatrix, 0);
+//        Log.v("invert_rotation",Arrays.toString(invertfinalMatrix));
+
+        float [] near = new float[4];
+        float [] far = new float[4];
+
+        Matrix.multiplyMV(near, 0, invertfinalMatrix, 0, new float [] {x, y, -1, 1}, 0);
+        Matrix.multiplyMV(far, 0, invertfinalMatrix, 0, new float [] {x, y, 1, 1}, 0);
+
+        devideByw(near);
+        devideByw(far);
+
+//        Log.v("near",Arrays.toString(near));
+//        Log.v("far",Arrays.toString(far));
+
+        for(int i=0; i<3; i++){
+            res1[i] = near[i];
+            res2[i] = far[i];
+        }
+
+    }
+
+    // 类似于光线投射，找直线上强度最大的一点
+    private float[] getCenterOfLineProfile(float[] loc1, float[] loc2){
+
+        float[] result = new float[3];
+        float[] loc1_index = new float[3];
+        float[] loc2_index = new float[3];
+        boolean isInBoundingBox = false;
+
+        loc1_index = modelToVolume(loc1);
+        loc2_index = modelToVolume(loc2);
+
+        float[] d = minus(loc1_index, loc2_index);
+        normalize(d);
+
+        float[][] dim = new float[3][2];
+        for(int i=0; i<3; i++){
+            dim[i][0] = 0;
+            dim[i][1] = originalSize[i] - 1;
+        }
+
+        result = devide(plus(loc1_index, loc2_index), 2);
+        float max_value = 0f;
+
+        //单位向量
+//        float[] d = minus(loc1_index, loc2_index);
+//        normalize(d);
+//        Log.v("getCenterOfLineProfile:", "step: " + Arrays.toString(d));
+
+        // 判断是不是一个像素
+        float length = distance(loc1_index, loc2_index);
+        if(length < 0.5)
+            return result;
+
+        int nstep = (int)(length+0.5);
+        float one_step = length/nstep;
+
+        Log.v("getCenterOfLineProfile", Float.toString(one_step));
+
+        float[] poc;
+        for (int i = 0; i <= nstep; i++) {
+            float value;
+            poc = minus(loc1_index, multiply(d, one_step * i));
+
+            if (isInBoundingBox(poc, dim)) {
+                value = sample3D(poc[0], poc[1], poc[2]);
+
+                isInBoundingBox = true;
+                if(value > max_value){
+//                    Log.v("getCenterOfLineProfile", "(" + poc[0] + "," + poc[1] + "," + poc[2] + "): " +value);
+//                    Log.v("getCenterOfLineProfile:", "update the max");
+                    max_value = value;
+                    for (int j = 0; j < 3; j++){
+                        result[j] = poc[j];
+                    }
+                    isInBoundingBox = true;
+                }
+            }
+        }
+
+        if(!isInBoundingBox){
+            ToastEasy("please make sure the point inside the bounding box");
+            return null;
+        }
+
+        return result;
+    }
+
+    // 找到靠近boundingbox的两处端点
+    private boolean make_Point_near(float[] loc1, float[] loc2){
+
+        float steps = 512;
+        float [] near = loc1;
+        float [] far = loc2;
+        float [] step = devide(minus(near, far), steps);
+
+        float[][] dim = new float[3][2];
+        for(int i=0; i<3; i++){
+            dim[i][0]= 0;
+            dim[i][1]= normalizedSize[i];
+        }
+
+        int num = 0;
+        while(num<steps && !isInBoundingBox(near, dim)){
+            near = minus(near, step);
+            num++;
+        }
+        if(num == steps)
+            return false;
+
+
+        while(!isInBoundingBox(far, dim)){
+            far = plus(far, step);
+        }
+
+        near = plus(near, step);
+        far = minus(far, step);
+
+        for(int i=0; i<3; i++){
+            loc1[i] = near[i];
+            loc2[i] = far[i];
+        }
+
+        return true;
+
+    }
+
+    // 除法运算
+    private void devideByw(float[] x){
+        if(Math.abs(x[3]) < 0.000001f){
+            Log.v("devideByw","can not be devided by 0");
+            return;
+        }
+
+        for(int i=0; i<3; i++)
+            x[i] = x[i]/x[3];
+
+    }
+
+    // 除法运算
+    private float [] devide(float[] x, float num){
+
+        int length = x.length;
+        float [] result = new float[length];
+
+        for(int i=0; i<length; i++)
+            result[i] = x[i]/num;
+
+        return result;
+    }
+
+    // 减法运算
+    private float [] minus(float[] x, float[] y){
+        if(x.length != y.length){
+            Log.v("minus","length is not the same!");
+            return null;
+        }
+
+        int length = x.length;
+        float [] result = new float[length];
+
+        for (int i=0; i<length; i++)
+            result[i] = x[i] - y[i];
+        return result;
+    }
+
+    private void normalize(float[] x){
+        int length = x.length;
+        float sum = 0;
+
+        for(int i=0; i<length; i++)
+            sum += Math.pow(x[i], 2);
+
+        for(int i=0; i<length; i++)
+            x[i] = x[i] / (float)Math.sqrt(sum);
+    }
+
+    // 加法运算
+    private float [] plus(float[] x, float[] y){
+        if(x.length != y.length){
+            Log.v("plus","length is not the same!");
+            return null;
+        }
+
+        int length = x.length;
+        float [] result = new float[length];
+
+        for (int i=0; i<length; i++)
+            result[i] = x[i] + y[i];
+        return result;
+    }
+
+    private float distance(float[] x, float[] y){
+        int length = x.length;
+        float sum = 0;
+
+        for(int i=0; i<length; i++){
+            sum += Math.pow(x[i]-y[i], 2);
+        }
+        return (float)Math.sqrt(sum);
+    }
+
+    // 乘法运算
+    private float [] multiply(float[] x, float num){
+        if(num == 0){
+            Log.v("multiply","can not be multiply by 0");
+        }
+
+        int length = x.length;
+        float [] result = new float[length];
+
+        for(int i=0; i<length; i++)
+            result[i] = x[i] * num;
+
+        return result;
+    }
+
+    private float sample3D(float x, float y, float z){
+        int x0, x1, y0, y1, z0, z1;
+        x0 = (int) Math.floor(x);         x1 = (int) Math.ceil(x);
+        y0 = (int) Math.floor(y);         y1 = (int) Math.ceil(y);
+        z0 = (int) Math.floor(z);         z1 = (int) Math.ceil(z);
+
+        float xf, yf, zf;
+        xf = x-x0;
+        yf = y-y0;
+        zf = z-z0;
+
+        float [][][] is = new float[2][2][2];
+        is[0][0][0] = grayData(x0, y0, z0);
+        is[0][0][1] = grayData(x0, y0, z1);
+        is[0][1][0] = grayData(x0, y1, z0);
+        is[0][1][1] = grayData(x0, y1, z1);
+        is[1][0][0] = grayData(x1, y0, z0);
+        is[1][0][1] = grayData(x1, y0, z1);
+        is[1][1][0] = grayData(x1, y1, z0);
+        is[1][1][1] = grayData(x1, y1, z1);
+
+        float [][][] sf = new float[2][2][2];
+        sf[0][0][0] = (1-xf)*(1-yf)*(1-zf);
+        sf[0][0][1] = (1-xf)*(1-yf)*(  zf);
+        sf[0][1][0] = (1-xf)*(  yf)*(1-zf);
+        sf[0][1][1] = (1-xf)*(  yf)*(  zf);
+        sf[1][0][0] = (  xf)*(1-yf)*(1-zf);
+        sf[1][0][1] = (  xf)*(1-yf)*(  zf);
+        sf[1][1][0] = (  xf)*(  yf)*(1-zf);
+        sf[1][1][1] = (  xf)*(  yf)*(  zf);
+
+        float result = 0f;
+
+        for(int i=0; i<2; i++)
+            for(int j=0; j<2; j++)
+                for(int k=0; k<2; k++)
+                    result +=  is[i][j][k] * sf[i][j][k];
+
+        return result;
+    }
+
+    private int grayData(int x, int y, int z){
+        int result = 0;
+        int data_length = imageInfoRepository.getBasicImage().getImage4DSimple().getDatatype().ordinal();
+        byte [] grayscale = imageInfoRepository.getBasicImage().getImage4DSimple().getData();
+        boolean isBig = imageInfoRepository.getBasicImage().getImage4DSimple().getIsBig();
+        if (data_length == 1){
+            byte b = grayscale[z * originalSize[0] * originalSize[1] + y * originalSize[0] + x];
+            result = ByteTranslate.byte1ToInt(b);
+        }else if (data_length == 2){
+            byte [] b = new byte[2];
+            b[0] = grayscale[(z * originalSize[0] * originalSize[1] + y * originalSize[0] + x) * 2];
+            b[1] = grayscale[(z * originalSize[0] * originalSize[1] + y * originalSize[0] + x) * 2 + 1];
+            result = ByteTranslate.byte2ToInt(b, isBig);
+        }else if (data_length == 4){
+            byte [] b = new byte[4];
+            b[0] = grayscale[(z * originalSize[0] * originalSize[1] + y * originalSize[0] + x) * 4];
+            b[1] = grayscale[(z * originalSize[0] * originalSize[1] + y * originalSize[0] + x) * 4 + 1];
+            b[2] = grayscale[(z * originalSize[0] * originalSize[1] + y * originalSize[0] + x) * 4 + 2];
+            b[3] = grayscale[(z * originalSize[0] * originalSize[1] + y * originalSize[0] + x) * 4 + 3];
+            result = ByteTranslate.byte2ToInt(b, isBig);
+        }
+        return result;
+    }
+
+    // 判断是否在图像内部了
+    private boolean isInBoundingBox(float[] x, float[][] dim){
+        int length = x.length;
+        for(int i=0; i<length; i++){
+            if(x[i]>=dim[i][1] || x[i]<=dim[i][0])
+                return false;
+        }
+        return true;
+    }
+
+    public int [] newCenterWhenNavigateWhenClick(float x, float y) {
+        float [] center = solveMarkerCenter(x, y);
+        return fileInfoState.newCenterWhenNavigateBlockToTargetOffset((int) center[0] - 64, (int) center[1] - 64, (int) center[2] - 64);
     }
 }

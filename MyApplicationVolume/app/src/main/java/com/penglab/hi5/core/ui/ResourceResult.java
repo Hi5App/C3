@@ -1,4 +1,4 @@
-package com.penglab.hi5.core.ui.splash;
+package com.penglab.hi5.core.ui;
 
 
 import androidx.annotation.Nullable;
@@ -14,12 +14,12 @@ public class ResourceResult {
 
     private String error;
 
-    ResourceResult(boolean isSuccess, @Nullable String error) {
+    public ResourceResult(boolean isSuccess, @Nullable String error) {
         this.isSuccess = isSuccess;
         this.error = error;
     }
 
-    ResourceResult(boolean isSuccess) {
+    public ResourceResult(boolean isSuccess) {
         this.isSuccess = isSuccess;
     }
 
@@ -28,7 +28,7 @@ public class ResourceResult {
         return isSuccess;
     }
 
-    String getError() {
+    public String getError() {
         return error;
     }
 }

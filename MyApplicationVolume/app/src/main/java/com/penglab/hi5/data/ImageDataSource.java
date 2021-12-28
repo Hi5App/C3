@@ -28,8 +28,6 @@ public class ImageDataSource {
 
     private final MutableLiveData<Result> result = new MutableLiveData<>();
 
-    private final String IMAGE_DOWNLOAD_FINISHED = "Image download finished";
-
     public LiveData<Result> getResult() {
         return result;
     }
@@ -134,9 +132,11 @@ public class ImageDataSource {
                     try {
                         if (response.body() != null) {
                             byte[] fileContent = response.body().bytes();
-                            if (!FileHelper.storeFile(Myapplication.getContext().getExternalFilesDir(null) + "/Resources/Image", InfoCache.getAccount(), fileContent)) {
+                            String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Resources/Image";
+                            String filename = brainId + "_" + roi + "_" + offsetX + "_" + offsetY + "_" + offsetZ + ".v3dpbd";
+                            if (!FileHelper.storeFile(storePath, filename, fileContent)) {
                             }
-                            result.postValue(new Result.Success(IMAGE_DOWNLOAD_FINISHED));
+                            result.postValue(new Result.Success(storePath + "/" + filename));
                         } else {
                             result.postValue(new Result.Error(new Exception("Response from server is null when download image !")));
                         }
@@ -150,4 +150,5 @@ public class ImageDataSource {
             result.postValue(new Result.Error(new IOException("Check the network please !", exception)));
         }
     }
+
 }

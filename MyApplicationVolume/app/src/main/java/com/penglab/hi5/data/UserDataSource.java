@@ -81,6 +81,7 @@ public class UserDataSource {
                                     userInfo.getString("nickname"),
                                     userInfo.getString("email"));
                             result.postValue(new Result.Success<LoggedInUser>(loggedInUser));
+                            storeUserCache(username, password);
                         } catch (JSONException e) {
                             e.printStackTrace();
                             result.postValue(new Result.Error(new Exception("Fail to parse user info !")));
@@ -203,4 +204,8 @@ public class UserDataSource {
         result.setValue(new Result.Success<String>(LOGOUT_SUCCESS));
     }
 
+    private void storeUserCache(String username, String password){
+        InfoCache.setAccount(username);
+        InfoCache.setToken(password);
+    }
 }

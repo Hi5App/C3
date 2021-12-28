@@ -19,6 +19,8 @@ import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
 import com.penglab.hi5.core.BaseActivity;
+import com.penglab.hi5.core.render.view.CheckGLSurfaceView;
+import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.model.img.AnoInfo;
@@ -35,12 +37,15 @@ public class CheckActivity extends BaseActivity {
     private static final String TAG = "CheckActivity";
     private CheckViewModel checkViewModel;
 
+    private CheckGLSurfaceView checkGLSurfaceView;
     private ImageButton checkYesButton;
     private ImageButton checkNoButton;
     private Button checkROIButton;
     private ImageButton checkFileListButton;
     private ImageButton checkNextFileButton;
     private ImageButton checkFormerFileButton;
+    private ImageButton checkZoomInButton;
+    private ImageButton checkZoomOutButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,18 +85,43 @@ public class CheckActivity extends BaseActivity {
             }
         });
 
-        checkViewModel.getImageResult().observe(this, new Observer<ImageResult>() {
+        checkViewModel.getImageResult().observe(this, new Observer<ResourceResult>() {
             @Override
-            public void onChanged(ImageResult imageResult) {
+            public void onChanged(ResourceResult imageResult) {
                 if (!imageResult.isSuccess()) {
                     Toast_in_Thread(imageResult.getError());
                 } else {
-                    // 打开下载到本地的文件
+                    checkGLSurfaceView.loadImageFile();
+                    checkViewModel.downloadSWC();
+                }
+            }
+        });
+
+        checkViewModel.getAnnotationDataSource().getResult().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                if (result == null) {
+                    return;
+                }
+
+                checkViewModel.updateAnnotationResult(result);
+
+            }
+        });
+
+        checkViewModel.getAnnotationResult().observe(this, new Observer<ResourceResult>() {
+            @Override
+            public void onChanged(ResourceResult annotationResult) {
+                if (!annotationResult.isSuccess()) {
+                    Toast_in_Thread(annotationResult.getError());
+                } else {
+                    checkGLSurfaceView.loadAnnotationFile();
                 }
             }
         });
 
         initButtons();
+        initCheckGLSurfaceView();
     }
 
     private void initButtons() {
@@ -101,6 +131,8 @@ public class CheckActivity extends BaseActivity {
         checkNextFileButton = findViewById(R.id.check_next_file_button);
         checkFormerFileButton = findViewById(R.id.check_former_file_button);
         checkROIButton = findViewById(R.id.check_roi_button);
+        checkZoomInButton = findViewById(R.id.check_zoom_in_button);
+        checkZoomOutButton = findViewById(R.id.check_zoom_out_button);
 
         checkYesButton.setOnClickListener(new CheckButtonsClickListener());
         checkNoButton.setOnClickListener(new CheckButtonsClickListener());
@@ -108,6 +140,19 @@ public class CheckActivity extends BaseActivity {
         checkNextFileButton.setOnClickListener(new CheckButtonsClickListener());
         checkFormerFileButton.setOnClickListener(new CheckButtonsClickListener());
         checkROIButton.setOnClickListener(new CheckButtonsClickListener());
+        checkZoomInButton.setOnClickListener(new CheckButtonsClickListener());
+        checkZoomOutButton.setOnClickListener(new CheckButtonsClickListener());
+    }
+
+    private void initCheckGLSurfaceView() {
+        checkGLSurfaceView = findViewById(R.id.check_gl_surface_view);
+
+        checkGLSurfaceView.setOnDoubleClickListener(new CheckGLSurfaceView.OnDoubleClickListener() {
+            @Override
+            public void run(int[] center) {
+                checkViewModel.getImageWithNewCenter(center);
+            }
+        });
     }
 
     @Override
@@ -230,6 +275,12 @@ public class CheckActivity extends BaseActivity {
                     break;
                 case R.id.check_former_file_button:
 
+                    break;
+                case R.id.check_zoom_in_button:
+                    checkViewModel.getImageZoomIn();
+                    break;
+                case R.id.check_zoom_out_button:
+                    checkViewModel.getImageZoomOut();
                     break;
                 default:
                     break;

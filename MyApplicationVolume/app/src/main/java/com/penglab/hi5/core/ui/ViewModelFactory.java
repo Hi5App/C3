@@ -12,6 +12,7 @@ import com.penglab.hi5.core.ui.login.LoginViewModel;
 import com.penglab.hi5.core.ui.password.FindPasswordViewModel;
 import com.penglab.hi5.core.ui.register.RegisterViewModel;
 import com.penglab.hi5.core.ui.splash.SplashScreenViewModel;
+import com.penglab.hi5.data.AnnotationDataSource;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.ResourceDataSource;
@@ -45,7 +46,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             return (T) new HomeViewModel(UserInfoRepository.getInstance(), new UserDataSource());
         } else if (modelClass.isAssignableFrom(CheckViewModel.class)) {
             // used in HomeActivity
-            return (T) new CheckViewModel(new ImageDataSource(), new FileInfoState());
+            return (T) new CheckViewModel(new ImageDataSource(), new AnnotationDataSource(), FileInfoState.getInstance(), ImageInfoRepository.getInstance());
         } else if (modelClass.isAssignableFrom(AnnotationViewModel.class)) {
             // used in AnnotationActivity
             return (T) new AnnotationViewModel(ImageInfoRepository.getInstance(), UserInfoRepository.getInstance(), new UserDataSource(), new ImageDataSource());
