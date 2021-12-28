@@ -63,5 +63,18 @@ public class AnnotationManager {
         }
     }
 
+    public NeuronTree getNeuronTree(){
+        try {
+            V_NeuronSWC_list curSwc = curSwcList.clone();
+            V_NeuronSWC_list loadedSwc = loadedSwcList.clone();
+
+            curSwc.append(loadedSwc.seg);
+            return curSwc.mergeSameNode();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
 }

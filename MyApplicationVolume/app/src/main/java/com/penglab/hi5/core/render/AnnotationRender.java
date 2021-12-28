@@ -309,7 +309,7 @@ public class AnnotationRender extends BasicRender{
                     V_NeuronSWC_unit child = seg.row.get(j);
                     int parentId = (int) child.parent;
                     if (parentId == -1 || seg.getIndexofParent(j) == -1) {
-                        float[] position = volume2Model(new float[]{(float) child.x, (float) child.y, (float) child.z});
+                        float[] position = volumeToModel(new float[]{(float) child.x, (float) child.y, (float) child.z});
                         myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int) child.type);
                         continue;
                     }
@@ -331,9 +331,13 @@ public class AnnotationRender extends BasicRender{
         }
     }
 
-    public float[] model2Volume(float[] point){
+    public NeuronTree getNeuronTree(){
+        return annotationManager.getNeuronTree();
+    }
+
+    public float[] modeToVolume(float[] point){
         if (point == null){
-            Log.e(TAG,"null array in model2Volume");
+            Log.e(TAG,"null array in modeToVolume");
             return null;
         }
 
@@ -345,9 +349,9 @@ public class AnnotationRender extends BasicRender{
         return result;
     }
 
-    public float[] volume2Model(float[] point){
+    public float[] volumeToModel(float[] point){
         if (point == null){
-            Log.e(TAG,"null array in volume2Model");
+            Log.e(TAG,"null array in volumeToModel");
             return null;
         }
 
