@@ -1,5 +1,7 @@
 package com.penglab.hi5.core.ui.annotation;
 
+import static com.penglab.hi5.core.Myapplication.ToastEasy;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
@@ -17,6 +19,7 @@ import com.penglab.hi5.data.UserDataSource;
 import com.penglab.hi5.data.UserInfoRepository;
 import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.img.FileType;
+import com.penglab.hi5.data.model.img.FileTypeHelper;
 
 import java.util.List;
 
@@ -30,7 +33,7 @@ public class AnnotationViewModel extends ViewModel {
     }
 
     public enum AnnotationMode{
-        LOCAL_FILE, BIG_DATA, NONE
+        LOCAL_FILE_EDITABLE, LOCAL_FILE_UNEDITABLE, BIG_DATA, NONE
     }
 
     private final MutableLiveData<UserInfoView> userInfo = new MutableLiveData<>();
@@ -40,8 +43,8 @@ public class AnnotationViewModel extends ViewModel {
     private final MutableLiveData<WorkStatus> workStatus = new MutableLiveData<>();
     private final MutableLiveData<List<double[]>> analyzeSwcResults = new MutableLiveData<>();
 
-    private ImageInfoRepository imageInfoRepository;
-    private UserInfoRepository userInfoRepository;
+    private final ImageInfoRepository imageInfoRepository;
+    private final UserInfoRepository userInfoRepository;
     private UserDataSource userDataSource;
     private ImageDataSource imageDataSource;
 
@@ -74,9 +77,14 @@ public class AnnotationViewModel extends ViewModel {
         String fileName = FileManager.getFileName(uri);
         FileType fileType = FileManager.getFileTypeUri(uri);
 
-        imageInfoRepository.getBasicImage().setFileInfo(fileName, new FilePath<Uri>(uri), fileType);
-        annotationMode.setValue(AnnotationMode.LOCAL_FILE);
-        workStatus.setValue(WorkStatus.OPEN_FILE);
+        if (FileTypeHelper.isOpenableType(fileType)){
+            imageInfoRepository.getBasicImage().setFileInfo(fileName, new FilePath<Uri>(uri), fileType);
+            workStatus.setValue(WorkStatus.OPEN_FILE);
+            annotationMode.setValue(FileTypeHelper.isEditableType(fileType) ?
+                    AnnotationMode.LOCAL_FILE_EDITABLE : AnnotationMode.LOCAL_FILE_UNEDITABLE);
+        } else {
+            ToastEasy("Do not support this file !");
+        }
     }
 
     public void loadLocalFile(Intent data){

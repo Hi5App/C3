@@ -30,4 +30,36 @@ public class FileTypeHelper {
         return fileType;
     }
 
+    public static boolean isSupportableType(FileType fileType){
+        return fileType != FileType.UNSUPPORTED;
+    }
+
+    public static boolean isOpenableType(FileType fileType){
+        switch (fileType){
+            case V3DPBD:
+            case V3DRAW:
+            case TIFF:
+            case JPG:
+            case PNG:
+            case SWC:
+            case ESWC:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public static boolean isEditableType(FileType fileType){
+        switch (fileType){
+            case V3DPBD:
+            case V3DRAW:
+            case TIFF:
+            case JPG:
+            case PNG:
+                return true;
+            default:
+                return false;
+        }
+    }
+
 }

@@ -1,5 +1,7 @@
 package com.penglab.hi5.data;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -25,9 +27,9 @@ public class AnnotationDataSource {
         return result;
     }
 
-    public void downloadSWC(String brainId, String roi, int x, int y, int z, int size) {
+    public void downloadSWC(String brainId, String res, int x, int y, int z, int size) {
         try {
-            HttpUtilsImage.getBBSwcWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), brainId, roi, x, y, z, size, new Callback() {
+            HttpUtilsImage.getBBSwcWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), brainId, res, x, y, z, size, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     result.postValue(new Result.Error(new Exception("Connect")));

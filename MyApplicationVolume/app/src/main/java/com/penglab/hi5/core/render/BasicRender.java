@@ -10,10 +10,6 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public abstract class BasicRender implements GLSurfaceView.Renderer {
 
-    abstract protected void initMatrix();
-    abstract protected void setMatrixByFile();
-    abstract protected void updateFinalMatrix();
-
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 

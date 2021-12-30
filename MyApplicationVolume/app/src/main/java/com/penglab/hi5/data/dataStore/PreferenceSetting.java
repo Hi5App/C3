@@ -1,5 +1,6 @@
 package com.penglab.hi5.data.dataStore;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -11,21 +12,35 @@ import android.content.SharedPreferences;
 
 public class PreferenceSetting {
 
-    private SharedPreferences pref;
-    private SharedPreferences.Editor editor;
-    private Context mContext;
+    @SuppressLint("StaticFieldLeak")
+    private static volatile PreferenceSetting INSTANCE;
+    @SuppressLint("StaticFieldLeak")
+    private static Context mContext;
+    private final SharedPreferences pref;
 
-    public PreferenceSetting(Context context){
+    public static void init(Context context){
         mContext = context;
-        pref = mContext.getSharedPreferences("settings",Context.MODE_PRIVATE);
+    }
+
+    public static PreferenceSetting getInstance(){
+        if (INSTANCE == null){
+            synchronized (PreferenceLogin.class){
+                if (INSTANCE == null){
+                    INSTANCE = new PreferenceSetting();
+                }
+            }
+        }
+        return INSTANCE;
+    }
+    private PreferenceSetting(){
+        pref = mContext.getSharedPreferences("settings", Context.MODE_PRIVATE);
     }
 
     public void setPref(boolean DownSampleMode, int Contrast){
-        editor = pref.edit();
+        SharedPreferences.Editor editor = pref.edit();
         editor.putBoolean("DownSampleMode",DownSampleMode);
         editor.putInt("Contrast",Contrast);
         editor.apply();
-
     }
 
     public boolean getDownSampleMode(){

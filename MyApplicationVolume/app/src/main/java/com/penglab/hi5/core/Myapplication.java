@@ -43,6 +43,7 @@ import com.penglab.hi5.core.game.RewardLitePalConnector;
 import com.penglab.hi5.core.game.Score;
 import com.penglab.hi5.core.game.ScoreLitePalConnector;
 import com.penglab.hi5.data.dataStore.PreferenceLogin;
+import com.penglab.hi5.data.dataStore.PreferenceSetting;
 
 import org.litepal.LitePal;
 import java.io.IOException;
@@ -83,6 +84,7 @@ public class Myapplication extends Application {
 
         // store user info
         PreferenceLogin.init(getApplicationContext());
+        PreferenceSetting.init(getApplicationContext());
         LitePal.initialize(this);
         SQLiteDatabase db = LitePal.getDatabase();
         DailyQuestsContainer.init(this);

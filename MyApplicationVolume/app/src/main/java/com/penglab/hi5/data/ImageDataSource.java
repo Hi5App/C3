@@ -118,10 +118,10 @@ public class ImageDataSource {
         }
     }
 
-    public void downloadImage(String brainId, String roi, int offsetX, int offsetY, int offsetZ, int size){
+    public void downloadImage(String brainId, String res, int offsetX, int offsetY, int offsetZ, int size){
         try {
             HttpUtilsImage.downloadImageWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(),
-                    brainId, roi, offsetX, offsetY, offsetZ, size, new Callback() {
+                    brainId, res, offsetX, offsetY, offsetZ, size, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     result.postValue(new Result.Error(new Exception("Connect Failed When Download Music")));
@@ -133,7 +133,7 @@ public class ImageDataSource {
                         if (response.body() != null) {
                             byte[] fileContent = response.body().bytes();
                             String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Resources/Image";
-                            String filename = brainId + "_" + roi + "_" + offsetX + "_" + offsetY + "_" + offsetZ + ".v3dpbd";
+                            String filename = brainId + "_" + res + "_" + offsetX + "_" + offsetY + "_" + offsetZ + ".v3dpbd";
                             if (!FileHelper.storeFile(storePath, filename, fileContent)) {
                             }
                             result.postValue(new Result.Success(storePath + "/" + filename));

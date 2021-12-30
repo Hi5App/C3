@@ -3,7 +3,6 @@ package com.penglab.hi5.core.ui.annotation;
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.Toolbar;
@@ -13,7 +12,6 @@ import androidx.lifecycle.ViewModelProvider;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -21,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -32,14 +31,11 @@ import com.nightonke.boommenu.BoomButtons.TextOutsideCircleButton;
 import com.nightonke.boommenu.BoomMenuButton;
 import com.penglab.hi5.R;
 import com.penglab.hi5.basic.NeuronTree;
-import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import cn.carbs.android.library.MDDialog;
 
@@ -70,6 +66,12 @@ public class AnnotationActivity extends AppCompatActivity {
 
     private View localFileModeView;
     private View bigDataModeView;
+    private View commonView;
+    private TapBarMenu tapBarMenu;
+    private ImageView addCurve;
+    private ImageView addMarker;
+    private ImageView deleteCurve;
+    private ImageView deleteMarker;
     private MDDialog featuresDisplay;
     private ImageButton editModeIndicator;
 
@@ -93,10 +95,10 @@ public class AnnotationActivity extends AppCompatActivity {
                 }
                 switch(workStatus){
                     case OPEN_FILE:
-                        annotationGLSurfaceView.loadFile();
+                        annotationGLSurfaceView.openFile();
                         break;
                     case LOAD_ANNOTATION_FILE:
-                        annotationGLSurfaceView.loadAnnotationFile();
+                        annotationGLSurfaceView.loadFile();
                         break;
                     default:
                         ToastEasy("Something wrong with work status !");
@@ -112,7 +114,7 @@ public class AnnotationActivity extends AppCompatActivity {
                     return;
                 }
                 switch (annotationMode){
-                    case LOCAL_FILE:
+                    case LOCAL_FILE_EDITABLE:
                         showUI4LocalFileMode();
                         break;
                     case BIG_DATA:
@@ -136,17 +138,29 @@ public class AnnotationActivity extends AppCompatActivity {
             }
         });
 
-        annotationViewModel.getEditMode().observe(this, new Observer<EditMode>() {
+        annotationGLSurfaceView.getEditMode().observe(this, new Observer<EditMode>() {
             @Override
             public void onChanged(EditMode editMode) {
                 if (editMode == null){
                     return;
                 }
-                if (editModeIconMap.get(editMode) != null){
+                if (editModeIconMap.get(editMode) != null && editModeIndicator != null){
                     editModeIndicator.setImageResource(editModeIconMap.get(editMode));
                 }
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        annotationGLSurfaceView.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        annotationGLSurfaceView.onPause();
     }
 
     @Override
@@ -301,6 +315,185 @@ public class AnnotationActivity extends AppCompatActivity {
         }
     }
 
+    private void initUI4LocalFileMode(){
+        initCommonUI();
+
+        // load layout view
+        LinearLayout.LayoutParams lp4LocalFileMode = new LinearLayout.LayoutParams(
+                LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+        localFileModeView = getLayoutInflater().inflate(R.layout.annotation_local_file, null);
+        this.addContentView(localFileModeView, lp4LocalFileMode);
+
+        // set onClickListener for buttons
+        ImageButton zoomIn = findViewById(R.id.zoomIn);
+        ImageButton zoomOut = findViewById(R.id.zoomOut);
+        ImageButton loadFile = findViewById(R.id.loadFile);
+        ImageButton rotate = findViewById(R.id.rotate);
+
+        zoomIn.setOnClickListener(v -> annotationGLSurfaceView.zoomIn());
+        zoomOut.setOnClickListener(v -> annotationGLSurfaceView.zoomOut());
+        loadFile.setOnClickListener(v -> loadLocalFile());
+        rotate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
+    }
+
+    private void initUI4BigDataMode(){
+        initCommonUI();
+
+        // load layout view
+        LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
+                LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+        bigDataModeView = getLayoutInflater().inflate(R.layout.annotation_big_data, null);
+        this.addContentView(bigDataModeView, lp4BigDataMode);
+
+    }
+
+    private void initCommonUI(){
+        // load layout view
+        LinearLayout.LayoutParams lpCommon = new LinearLayout.LayoutParams(
+                LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+        commonView = getLayoutInflater().inflate(R.layout.annotation_common, null);
+        this.addContentView(commonView, lpCommon);
+
+        editModeIndicator = findViewById(R.id.edit_mode_indicator);
+        tapBarMenu = findViewById(R.id.tapBarMenu);
+        addCurve = tapBarMenu.findViewById(R.id.draw_i);
+        addMarker = tapBarMenu.findViewById(R.id.pinpoint);
+        deleteCurve = tapBarMenu.findViewById(R.id.delete_curve);
+        deleteMarker = tapBarMenu.findViewById(R.id.delete_marker);
+        ImageView autoReconstruction = tapBarMenu.findViewById(R.id.auto_reconstruction);
+        BoomMenuButton boomMenuButton = tapBarMenu.findViewById(R.id.expanded_menu);
+
+        tapBarMenu.setOnClickListener(v -> tapBarMenu.toggle());
+        addCurve.setOnClickListener(this::onMenuItemClick);
+        addMarker.setOnClickListener(this::onMenuItemClick);
+        deleteCurve.setOnClickListener(this::onMenuItemClick);
+        deleteMarker.setOnClickListener(this::onMenuItemClick);
+        autoReconstruction.setOnClickListener(this::onMenuItemClick);
+
+        boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+
+            }
+        }).normalImageRes(R.drawable.ic_change_curve_type).normalText("Change Curve Color"));
+
+        boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+
+            }
+        }).normalImageRes(R.drawable.ic_change_marker_type).normalText("Change Marker Color"));
+
+        boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+
+            }
+        }).normalImageRes(R.drawable.ic_split).normalText("Split"));
+
+        boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+
+            }
+        }).normalImageRes(R.drawable.ic_delete_multimarker).normalText("Delete Multi Markers"));
+
+        boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+            }
+        }).normalImageRes(R.drawable.ic_gd_tracing).normalText("GD-Tracing"));
+
+        boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+            }
+        }).normalImageRes(R.drawable.ic_clear).normalText("Clear Tracing"));
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    public void onMenuItemClick(View view) {
+        // resetUI
+        addCurve.setImageResource(R.drawable.ic_draw_main);
+        addMarker.setImageResource(R.drawable.ic_marker_main);
+        deleteCurve.setImageResource(R.drawable.ic_delete_curve_normal);
+        deleteMarker.setImageResource(R.drawable.ic_marker_delete_normal);
+
+        switch (view.getId()) {
+            case R.id.draw_i:
+                if (annotationGLSurfaceView.setEditMode(EditMode.PAINT_CURVE)){
+                    addCurve.setImageResource(R.drawable.ic_draw);
+                }
+                break;
+            case R.id.pinpoint:
+                if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)){
+                    addMarker.setImageResource(R.drawable.ic_add_marker);
+                }
+                break;
+            case R.id.auto_reconstruction:
+                // TODO: run app2 here | async
+                break;
+            case R.id.delete_curve:
+                if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_CURVE)){
+                    deleteCurve.setImageResource(R.drawable.ic_delete_curve);
+                }
+                break;
+            case R.id.delete_marker:
+                if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_MARKER)){
+                    deleteMarker.setImageResource(R.drawable.ic_marker_delete);
+                }
+        }
+    }
+
+    private void showUI4LocalFileMode(){
+        resetUI4AllMode();
+        if (localFileModeView == null){
+            initUI4LocalFileMode();
+        } else {
+            localFileModeView.setVisibility(View.VISIBLE);
+            commonView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void showUI4BigDataMode(){
+        resetUI4AllMode();
+        if (bigDataModeView == null){
+            initUI4BigDataMode();
+        } else {
+            bigDataModeView.setVisibility(View.VISIBLE);
+            commonView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideUI4LocalFileMode(){
+        if (localFileModeView != null){
+            localFileModeView.setVisibility(View.GONE);
+        }
+    }
+
+    private void hideUI4BigDataMode(){
+        if (bigDataModeView != null){
+            bigDataModeView.setVisibility(View.GONE);
+        }
+    }
+
+    private void hideCommonUI(){
+        if (commonView != null){
+            commonView.setVisibility(View.GONE);
+        }
+    }
+
+    private void resetUI4AllMode(){
+        hideUI4LocalFileMode();
+        hideUI4BigDataMode();
+        hideCommonUI();
+    }
+
+
     /**
      * display the result of morphology calculate
      * @param featureList the features of result
@@ -448,124 +641,6 @@ public class AnnotationActivity extends AppCompatActivity {
         } else {
             return Math.min((8 - len), 4);
         }
-    }
-
-    private void initUI4LocalFileMode(){
-        // load layout view
-        LinearLayout.LayoutParams lp4LocalFileMode = new LinearLayout.LayoutParams(
-                LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
-        localFileModeView = getLayoutInflater().inflate(R.layout.annotation_local_file, null);
-        this.addContentView(localFileModeView, lp4LocalFileMode);
-
-        // set onClickListener for buttons
-        ImageButton zoomIn = findViewById(R.id.zoomIn);
-        ImageButton zoomOut = findViewById(R.id.zoomOut);
-        ImageButton loadFile = findViewById(R.id.loadFile);
-        ImageButton rotate = findViewById(R.id.rotate);
-        TapBarMenu tapBarMenu = findViewById(R.id.tapBarMenu);
-        BoomMenuButton boomMenuButton = tapBarMenu.findViewById(R.id.expanded_menu);
-
-        zoomIn.setOnClickListener(v -> annotationGLSurfaceView.zoomIn());
-        zoomOut.setOnClickListener(v -> annotationGLSurfaceView.zoomOut());
-        loadFile.setOnClickListener(v -> loadLocalFile());
-        rotate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            }
-        });
-
-        tapBarMenu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                tapBarMenu.toggle();
-            }
-        });
-
-        boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
-            @Override
-            public void onBoomButtonClick(int index) {
-
-            }
-        }).normalImageRes(R.drawable.ic_change_curve_type).normalText("Change Curve Color"));
-
-        boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
-            @Override
-            public void onBoomButtonClick(int index) {
-
-            }
-        }).normalImageRes(R.drawable.ic_change_marker_type).normalText("Change Marker Color"));
-
-        boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
-            @Override
-            public void onBoomButtonClick(int index) {
-
-            }
-        }).normalImageRes(R.drawable.ic_split).normalText("Split"));
-
-        boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
-            @Override
-            public void onBoomButtonClick(int index) {
-
-            }
-        }).normalImageRes(R.drawable.ic_delete_multimarker).normalText("Delete Multi Markers"));
-
-        boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
-            @Override
-            public void onBoomButtonClick(int index) {
-            }
-        }).normalImageRes(R.drawable.ic_gd_tracing).normalText("GD-Tracing"));
-
-        boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
-            @Override
-            public void onBoomButtonClick(int index) {
-            }
-        }).normalImageRes(R.drawable.ic_clear).normalText("Clear Tracing"));
-
-    }
-
-    private void initUI4BigDataMode(){
-        // load layout view
-        LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
-                LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
-        bigDataModeView = getLayoutInflater().inflate(R.layout.annotation_big_data, null);
-        this.addContentView(bigDataModeView, lp4BigDataMode);
-
-
-    }
-
-    private void showUI4LocalFileMode(){
-        resetUI4AllMode();
-        if (localFileModeView == null){
-            initUI4LocalFileMode();
-        } else {
-            localFileModeView.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void showUI4BigDataMode(){
-        resetUI4AllMode();
-        if (bigDataModeView == null){
-            initUI4BigDataMode();
-        } else {
-            bigDataModeView.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void hideUI4LocalFileMode(){
-        if (localFileModeView != null){
-            localFileModeView.setVisibility(View.GONE);
-        }
-    }
-
-    private void hideUI4BigDataMode(){
-        if (bigDataModeView != null){
-            bigDataModeView.setVisibility(View.GONE);
-        }
-    }
-
-    private void resetUI4AllMode(){
-        hideUI4LocalFileMode();
-        hideUI4BigDataMode();
     }
 
     public static void start(Context context){

@@ -19,11 +19,30 @@ public class ImageMarker extends BasicSurfObj {
     public float radius;
 
     public ImageMarker() {
-        new ImageMarker(0, 0, 0.0f, 0.0f, 0.0f, 0.0f);
+        this.type = 0;
+        this.shape = 0;
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
+        this.radius = 0;
     }
 
     public ImageMarker(float x, float y, float z) {
-        new ImageMarker(0, 0, x, y, z, 0.0f);
+        this.type = 0;
+        this.shape = 0;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.radius = 0;
+    }
+
+    public ImageMarker(int type, float x, float y, float z) {
+        this.type = type;
+        this.shape = 0;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.radius = 0;
     }
 
     public ImageMarker(int type, int shape, float x, float y, float z, float radius) {

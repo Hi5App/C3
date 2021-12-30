@@ -1,23 +1,36 @@
 package com.penglab.hi5.core.render.utils;
 
+import com.penglab.hi5.data.dataStore.PreferenceSetting;
+
 /**
  * Created by Jackiexing on 12/25/21
  */
 public class RenderOptions {
 
+    private PreferenceSetting preferenceSetting;
+
     private boolean downSampling;
+
+    private boolean showFingerTrajectory;
+
+    private boolean imageChanging;
+
+    private boolean screenCapture;
 
     private float contrast;
 
     private float scale;
 
     public RenderOptions(){
+        preferenceSetting = PreferenceSetting.getInstance();
         initOptions();
     }
 
     public void initOptions(){
-        this.downSampling = false;
-        this.contrast = 1.0f;
+        this.downSampling = preferenceSetting.getDownSampleMode();
+        this.contrast = preferenceSetting.getContrast() / 100.0f + 1.0f;
+        this.imageChanging = false;
+        this.screenCapture = false;
         this.scale = 1.0f;
     }
 
@@ -43,5 +56,29 @@ public class RenderOptions {
 
     public void setScale(float scale) {
         this.scale = scale;
+    }
+
+    public boolean isShowFingerTrajectory() {
+        return showFingerTrajectory;
+    }
+
+    public void setShowFingerTrajectory(boolean showFingerTrajectory) {
+        this.showFingerTrajectory = showFingerTrajectory;
+    }
+
+    public boolean isScreenCapture() {
+        return screenCapture;
+    }
+
+    public void setScreenCapture(boolean screenCapture) {
+        this.screenCapture = screenCapture;
+    }
+
+    public boolean isImageChanging() {
+        return imageChanging;
+    }
+
+    public void setImageChanging(boolean imageChanging) {
+        this.imageChanging = imageChanging;
     }
 }
