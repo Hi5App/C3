@@ -314,7 +314,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             Log.v(TAG,"---------------   init img when SurfaceChanged  -------------");
             if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD) {
                 if (myPattern != null){
-                    myPattern.free();
+                    myPattern.releaseMemory();
                     myPattern = null;
                 }
 
@@ -332,7 +332,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             if (fileType == FileType.PNG || fileType == FileType.JPG){
                 if (myPattern2D != null){
-                    myPattern2D.free();
+                    myPattern2D.releaseMemory();
                     myPattern2D = null;
                 }
                 myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
@@ -340,9 +340,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             if (fileType == FileType.TIF || fileType == FileType.V3draw || fileType == FileType.V3dPBD
                     || fileType == FileType.SWC || fileType == FileType.APO || fileType == FileType.ANO) {
-                if (myAxis == null || myAxis.getNeedRelease()){
+                if (myAxis == null || myAxis.isNeedReleaseMemory()){
                     if (myAxis != null)
-                        myAxis.free();
+                        myAxis.releaseMemory();
                     myAxis = new MyAxis(mz);
                 }
             }
@@ -408,12 +408,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             /*
             init the {MyPattern, MyPattern2D, MyAxis, MyDraw, MyAnimation}
             */
-            if (myPattern == null || myPattern2D == null || myPatternGame == null || myPattern.getNeedRelease() || myPattern2D.getNeedRelease()){
+            if (myPattern == null || myPattern2D == null || myPatternGame == null || myPattern.isNeedReleaseMemory() || myPattern2D.isNeedReleaseMemory()){
                 if (ifFileSupport){
 
                     if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD) {
                         if (myPattern != null){
-                            myPattern.free();
+                            myPattern.releaseMemory();
                             myPattern = null;
                         }
 
@@ -430,7 +430,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         }
                     }else if (fileType == FileType.PNG || fileType == FileType.JPG){
                         if(myPattern2D != null){
-                            myPattern2D.free();
+                            myPattern2D.releaseMemory();
                             myPattern = null;
                         }
                         myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
@@ -440,9 +440,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
                     if (fileType == FileType.TIF || fileType == FileType.V3draw || fileType == FileType.V3dPBD ||
                             fileType == FileType.SWC || fileType == FileType.APO || fileType == FileType.ANO){
-                        if (myAxis == null || myAxis.getNeedRelease()){
+                        if (myAxis == null || myAxis.isNeedReleaseMemory()){
                             if (myAxis != null)
-                                myAxis.free();
+                                myAxis.releaseMemory();
                             myAxis = new MyAxis(mz);
                         }
                     }
@@ -1076,7 +1076,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         setFileType();
 
         if (myAxis != null){
-            myAxis.setNeedRelease();
+            myAxis.setNeedReleaseMemory(true);
         }
 
         if (myDraw != null){
@@ -1203,7 +1203,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         setFileType();
 
         if (myAxis != null){
-            myAxis.setNeedRelease();
+            myAxis.setNeedReleaseMemory(true);
         }
 
         if (myDraw != null){
@@ -1394,7 +1394,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        resetImg(img);
 
         if (myPattern2D != null){
-            myPattern2D.setNeedRelease();
+            myPattern2D.setNeedReleaseMemory(true);
         }
     }
 
@@ -1484,7 +1484,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         if (myPattern != null){
-            myPattern.setNeedRelease();
+            myPattern.setNeedReleaseMemory(true);
         }
 
         grayscale =  img.getData();
@@ -1515,7 +1515,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Log.v(TAG,"Before myPattern.free()");
 //
 //        if (myPattern != null){
-//            myPattern.setNeedRelease();
+//            myPattern.setNeedReleaseMemory(true);
 //        }
 //
 //        grayscale =  img.getData();

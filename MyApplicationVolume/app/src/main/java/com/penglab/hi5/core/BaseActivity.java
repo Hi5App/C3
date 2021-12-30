@@ -41,7 +41,7 @@ public class BaseActivity extends AppCompatActivity {
         Log.v("BaseActivity","onCreate()");
 
         dataManager = new DataManager(this);
-        preferenceSetting = new PreferenceSetting(this);
+        preferenceSetting = PreferenceSetting.getInstance();
         s2paraSetting = new S2paraSetting(this);
         context = getApplicationContext();
         ActivityCollector.addActivity(this);

@@ -189,8 +189,7 @@ public class CheckRender extends BasicRender {
         }
         if (myDraw.isNeedDraw()){
             drawNeuronSwc(annotationDataManager.getCurSwcList());
-            drawNeuronSwc(annotationDataManager.getNewSwcList());
-            drawNeuronSwc(annotationDataManager.getLoadedSwcList());
+            drawNeuronSwc(annotationDataManager.getSyncSwcList());
         }
     }
 

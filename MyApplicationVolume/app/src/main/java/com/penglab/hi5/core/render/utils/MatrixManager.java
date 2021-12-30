@@ -18,6 +18,7 @@ public class MatrixManager {
     private final float[] rotateMatrix         = new float[16];
     private final float[] translateMatrix      = new float[16];
     private final float[] modelMatrix          = new float[16];
+    private final float[] modelTempMatrix      = new float[16];
     private final float[] finalMatrix          = new float[16];
     private final float[] finalTempMatrix      = new float[16];
 
@@ -30,6 +31,7 @@ public class MatrixManager {
         Matrix.setIdentityM(zoomMatrix,0);
         Matrix.setIdentityM(rotateMatrix, 0);
         Matrix.setIdentityM(finalTempMatrix, 0);
+        Matrix.setIdentityM(modelTempMatrix, 0);
         Matrix.setRotateM(rotateMatrix, 0, 0, -1.0f, -1.0f, 0.0f);
     }
 
@@ -40,6 +42,9 @@ public class MatrixManager {
         // Set translate2Matrix
         Matrix.setIdentityM(translate2Matrix, 0);
         Matrix.translateM(translate2Matrix, 0, 0, 0, scale / 2 * (float) Math.sqrt(3));
+
+        // Set zoomMatrix
+        Matrix.scaleM(zoomMatrix, 0, scale, scale, scale);
     }
 
     public void updateFinalMatrix(){
@@ -48,9 +53,9 @@ public class MatrixManager {
 
         // model = zoom * rotate * translate
         // Calculate model matrix
-        Matrix.multiplyMM(modelMatrix, 0, rotateMatrix, 0, translateMatrix, 0);
-        Matrix.multiplyMM(modelMatrix, 0, zoomMatrix, 0, modelMatrix, 0);
-        Matrix.multiplyMM(modelMatrix, 0, translate2Matrix, 0, modelMatrix, 0);
+        Matrix.multiplyMM(modelTempMatrix, 0, rotateMatrix, 0, translateMatrix, 0);
+        Matrix.multiplyMM(modelTempMatrix, 0, zoomMatrix, 0, modelTempMatrix, 0);
+        Matrix.multiplyMM(modelMatrix, 0, translate2Matrix, 0, modelTempMatrix, 0);
 
         // Calculate final matrix
         Matrix.multiplyMM(finalMatrix, 0, finalTempMatrix, 0, modelMatrix, 0);
@@ -77,9 +82,7 @@ public class MatrixManager {
 
     public void zoom(float ratio, RenderOptions renderOptions){
         float curScale = renderOptions.getScale();
-        if ((curScale < 0.2 && ratio < 1) || (curScale > 30 && ratio > 1)){
-            Log.e(TAG, "Can't be smaller or bigger !");
-        } else {
+        if ((curScale >= 0.2 && curScale <= 30) || (curScale > 30 && ratio < 1) || (curScale < 0.2 && ratio > 1)){
             // set scale
             renderOptions.setScale(curScale * ratio);
 
@@ -103,7 +106,8 @@ public class MatrixManager {
         return finalMatrix;
     }
 
-    public void getFinalMatrix(float[] finalMatrix){
+    public float[] getModelMatrix(){
+        return modelMatrix;
     }
 
 }

@@ -98,7 +98,7 @@ public class AnnotationActivity extends AppCompatActivity {
                         annotationGLSurfaceView.openFile();
                         break;
                     case LOAD_ANNOTATION_FILE:
-                        annotationGLSurfaceView.loadAnnotationFile();
+                        annotationGLSurfaceView.loadFile();
                         break;
                     default:
                         ToastEasy("Something wrong with work status !");

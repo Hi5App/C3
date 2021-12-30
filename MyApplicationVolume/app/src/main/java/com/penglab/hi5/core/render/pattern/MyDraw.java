@@ -948,6 +948,12 @@ public class MyDraw extends BasicPattern {
         return f;
     }
 
+    @Override
+    public void releaseMemory() {
+        super.releaseMemory();
+        freeMarker();
+        freeLine();
+    }
 
     public void freeMarker(){
         if (vertexBuffer_marker != null){

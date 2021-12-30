@@ -24,8 +24,6 @@ public class MyAxis extends BasicPattern {
     private float[] vertexAxis;
     private float[] vertexBorder;
 
-    private boolean isNeedRelease = false;
-
     // Axis -----------------------------------------------------------------
 
     private final float[] colorAxis={
@@ -269,33 +267,28 @@ public class MyAxis extends BasicPattern {
 
     }
 
+    @Override
+    public void releaseMemory() {
+        super.releaseMemory();
+        if (colorBuffer_axis != null){
+            colorBuffer_axis.clear();
+            colorBuffer_axis = null;
+        }
 
-    public boolean getNeedRelease(){
-        Log.i(TAG,"getNeedRelease(): " + isNeedRelease);
-        return isNeedRelease;
-    }
+        if (vertexBuffer_axis != null){
+            vertexBuffer_axis.clear();
+            vertexBuffer_axis = null;
+        }
 
+        if (vertexBuffer_border != null){
+            vertexBuffer_border.clear();
+            vertexBuffer_border = null;
+        }
 
-    public void setNeedRelease(){
-        Log.i(TAG,"setNeedRelease()");
-        isNeedRelease = true;
-    }
-
-    public void free(){
-        Log.i(TAG,"free() is called in MyAxis");
-
-        colorBuffer_axis.clear();
-        colorBuffer_axis = null;
-
-        vertexBuffer_axis.clear();
-        vertexBuffer_axis = null;
-
-        vertexBuffer_border.clear();
-        vertexBuffer_border = null;
-
-        ListBuffer_border.clear();
-        ListBuffer_border = null;
-
+        if (ListBuffer_border != null){
+            ListBuffer_border.clear();
+            ListBuffer_border = null;
+        }
     }
 
 }

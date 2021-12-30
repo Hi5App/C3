@@ -12,7 +12,7 @@ import java.nio.FloatBuffer;
 
 import static com.penglab.hi5.core.render.pattern.ShaderHelper.initShaderProgram;
 
-public class MyPattern2D {
+public class MyPattern2D extends BasicPattern {
 
     private static final String TAG = "MyPattern2D";
     private static final String vertexShaderCode =
@@ -63,9 +63,19 @@ public class MyPattern2D {
     private FloatBuffer bPos;
     private FloatBuffer bCoord;
 
-    private boolean isNeedRelease;
+    public MyPattern2D(){
+    }
 
     public MyPattern2D(Bitmap bitmap, int w, int h, float [] vmz){
+        width = w;
+        height = h;
+        mBitmap = bitmap;
+        mz = vmz;
+
+        createTexture();
+    }
+
+    public void setContent(Bitmap bitmap, int w, int h, float [] vmz){
         width = w;
         height = h;
         mBitmap = bitmap;
@@ -86,23 +96,6 @@ public class MyPattern2D {
                 texture, //纹理id的数组
                 0  //偏移量
         );
-
-    }
-
-    public void free(){
-        Log.i(TAG,"free() is called");
-
-        GLES30.glDeleteTextures( //删除纹理对象
-                1, //删除纹理id的数量
-                texture, //纹理id的数组
-                0  //偏移量
-        );
-
-        bPos.clear();
-        bPos = null;
-
-        bCoord.clear();
-        bCoord = null;
 
     }
 
@@ -200,15 +193,23 @@ public class MyPattern2D {
         bCoord.position(0);
     }
 
-    public boolean getNeedRelease(){
-//        Log.i(TAG,"getNeedRelease(): " + isNeedRelease);
-        return isNeedRelease;
+    @Override
+    public void releaseMemory() {
+        super.releaseMemory();
+        GLES30.glDeleteTextures( //删除纹理对象
+                1, //删除纹理id的数量
+                texture, //纹理id的数组
+                0  //偏移量
+        );
+
+        if (bPos != null){
+            bPos.clear();
+            bPos = null;
+        }
+
+        if (bCoord != null){
+            bCoord.clear();
+            bCoord = null;
+        }
     }
-
-
-    public void setNeedRelease(){
-//        Log.i(TAG,"setNeedRelease()");
-        isNeedRelease = true;
-    }
-
 }

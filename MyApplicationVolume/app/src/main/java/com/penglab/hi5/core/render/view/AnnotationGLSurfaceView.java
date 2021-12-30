@@ -1,16 +1,45 @@
 package com.penglab.hi5.core.render.view;
 
+import static com.penglab.hi5.core.Myapplication.ToastEasy;
+
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 
+import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 
 import com.penglab.hi5.basic.NeuronTree;
+import com.penglab.hi5.basic.image.Image4DSimple;
+import com.penglab.hi5.basic.image.MarkerList;
+import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
+import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
+import com.penglab.hi5.core.collaboration.Communicator;
+import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
 import com.penglab.hi5.core.render.AnnotationRender;
+import com.penglab.hi5.core.render.utils.AnnotationDataManager;
+import com.penglab.hi5.core.render.utils.AnnotationHelper;
+import com.penglab.hi5.core.render.utils.MatrixManager;
+import com.penglab.hi5.core.render.utils.RenderOptions;
 import com.penglab.hi5.core.ui.annotation.EditMode;
 import com.penglab.hi5.core.ui.annotation.SwitchMutableLiveData;
+import com.penglab.hi5.data.ImageInfoRepository;
+import com.penglab.hi5.data.model.img.BasicFile;
+import com.penglab.hi5.data.model.img.FilePath;
+import com.penglab.hi5.data.model.img.FileType;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Jackiexing on 12/20/21
@@ -18,17 +47,30 @@ import com.penglab.hi5.core.ui.annotation.SwitchMutableLiveData;
 public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
 
     private final String TAG = "AnnotationGLSurfaceView";
-    SwitchMutableLiveData<EditMode> editMode = new SwitchMutableLiveData<>(EditMode.NONE);
-    AnnotationRender annotationRender;
+    private final SwitchMutableLiveData<EditMode> editMode = new SwitchMutableLiveData<>(EditMode.NONE);
 
+    private final RenderOptions renderOptions = new RenderOptions();
+    private final MatrixManager matrixManager = new MatrixManager();
+    private final AnnotationDataManager annotationDataManager = new AnnotationDataManager();
+    private final AnnotationHelper annotationHelper = new AnnotationHelper(annotationDataManager, matrixManager);
+    private final AnnotationRender annotationRender = new AnnotationRender(annotationDataManager, matrixManager, renderOptions);
+
+    private final ImageInfoRepository imageInfoRepository = ImageInfoRepository.getInstance();
+    private Image4DSimple image4DSimple;
+    private final float[] normalizedSize = new float[3];
+    private final int[] originalSize = new int[3];
+
+    private final ExecutorService exeService = Executors.newSingleThreadExecutor();
+    private final ArrayList<Float> fingerTrajectory = new ArrayList<Float>();
+    private FileType fileType;
+    private boolean isBigData;
 
     public AnnotationGLSurfaceView(Context context) {
-        super(context, new AnnotationRender());
+        super(context);
     }
 
     public AnnotationGLSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        annotationRender = new AnnotationRender();
 
         // 设置一下opengl版本；
         setEGLContextClientVersion(3);
@@ -42,6 +84,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
     }
 
     @Override
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public boolean onTouchEvent(MotionEvent event) {
 
         // ACTION_DOWN 不return true，就无触发后面的各个事件
@@ -53,9 +96,25 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
                 case MotionEvent.ACTION_DOWN:
                     lastX = currentX;
                     lastY = currentY;
+                    switch (Objects.requireNonNull(editMode.getValue())){
+                        case PAINT_CURVE:
+                        case DELETE_CURVE:
+                        case SPLIT:
+                        case CHANGE_CURVE_TYPE:
+                        case DELETE_MULTI_MARKER:
+                        case ZOOM_IN_ROI:
+                            updateFingerTrajectory(lastX, lastY);
+                            renderOptions.setShowFingerTrajectory(true);
+                            requestRender();
+                            break;
+                        case PINPOINT:
+                            break;
+                    }
                     break;
                 case MotionEvent.ACTION_POINTER_DOWN:
+                    clearFingerTrajectory();
                     requestRender();
+
                     isZooming = true;
                     isZoomingNotStop = true;
                     float x1 = toOpenGLCoord(this, event.getX(1), true);
@@ -73,9 +132,12 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
                 case MotionEvent.ACTION_MOVE:
                     if (isZooming && isZoomingNotStop) {
 
+                        if (!is2DImage()){
+                            renderOptions.setImageChanging(true);
+                        }
+
                         float x2 = toOpenGLCoord(this, event.getX(1), true);
                         float y2 = toOpenGLCoord(this, event.getY(1), false);
-
                         double dis = computeDis(currentX, x2, currentY, y2);
                         double scale = dis / dis_start;
                         annotationRender.zoom((float) scale);
@@ -86,7 +148,6 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
                         float ave_y = (y2 - y1_start + currentY - y0_start) / 2;
                         annotationRender.rotate(ave_x, ave_y);
 
-                        // 配合GLSurfaceView.RENDERMODE_WHEN_DIRTY使用
                         requestRender();
                         dis_start = dis;
                         dis_x_start = dis_x;
@@ -96,22 +157,137 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
                         x1_start = x2;
                         y1_start = y2;
                     } else if (!isZooming) {
-                        annotationRender.rotate(currentX - lastX, currentY - lastY);
-
-                        // 配合 GLSurfaceView.RENDERMODE_WHEN_DIRTY 使用
-                        requestRender();
-                        lastX = currentX;
-                        lastY = currentY;
+                        if (editMode.getValue() == EditMode.NONE){
+                            if (!is2DImage()){
+                                renderOptions.setImageChanging(true);
+                            }
+                            annotationRender.rotate(currentX - lastX, currentY - lastY);
+                            requestRender();
+                            lastX = currentX;
+                            lastY = currentY;
+                        } else {
+                            updateFingerTrajectory(currentX, currentY);
+                            annotationRender.updateFingerTrajectory(fingerTrajectory);
+                            requestRender();
+                        }
                     }
                     break;
                 case MotionEvent.ACTION_POINTER_UP:
+                    // TODO: downSample
+                    if (editMode.getValue() == EditMode.NONE){
+                        renderOptions.setImageChanging(false);
+                    }
                     isZoomingNotStop = false;
                     lastX = currentX;
                     lastY = currentY;
+                    clearFingerTrajectory();
                     break;
                 case MotionEvent.ACTION_UP:
+                    if (!isZooming) {
+                        try {
+                            switch (Objects.requireNonNull(editMode.getValue())){
+                                case ZOOM:
+                                    editMode.setValue(EditMode.NONE);
+                                    float [] center = annotationHelper.solveMarkerCenter(currentX, currentY);
+                                    if (center != null) {
+                                        Communicator communicator = Communicator.getInstance();
+                                        communicator.navigateAndZoomInBlock((int) center[0] - 64, (int) center[1] - 64, (int) center[2] - 64);
+                                        clearFingerTrajectory();
+                                        requestRender();
+                                    }
+                                    clearFingerTrajectory();
+                                    break;
+
+                                case ZOOM_IN_ROI:
+                                    editMode.setValue(EditMode.NONE);
+                                    float [] roiCenter = annotationHelper.getROICenter(fingerTrajectory, isBigData);
+                                    if (roiCenter != null) {
+                                        Communicator communicator = Communicator.getInstance();
+                                        communicator.navigateAndZoomInBlock((int) roiCenter[0] - 64, (int) roiCenter[1] - 64, (int) roiCenter[2] - 64);
+                                        clearFingerTrajectory();
+                                        requestRender();
+                                    }
+                                    break;
+
+                                case PINPOINT:
+                                    // TODO: set score
+                                    if (is2DImage()){
+                                        annotationHelper.add2DMarker(currentX, currentY);
+                                    } else {
+                                        annotationHelper.addMarker(currentX, currentY, isBigData);
+                                    }
+                                    requestRender();
+                                    break;
+
+                                case DELETE_MARKER:
+                                    annotationHelper.deleteMarker(currentX, currentY, isBigData);
+                                    requestRender();
+                                    break;
+
+                                case DELETE_MULTI_MARKER:
+                                    annotationHelper.deleteMultiMarkerByStroke(fingerTrajectory, isBigData);
+                                    requestRender();
+                                    break;
+
+                                case CHANGE_MARKER_TYPE:
+                                    annotationHelper.changeMarkerType(currentX, currentY, isBigData);
+                                    requestRender();
+                                    break;
+
+                                case PAINT_CURVE:
+                                    renderOptions.setShowFingerTrajectory(false);
+                                    // TODO: set score
+
+                                    if (is2DImage()){
+                                        annotationHelper.add2DCurve(fingerTrajectory);
+                                    } else {
+                                        Future<String> future = exeService.submit(new Callable<String>() {
+                                            @RequiresApi(api = Build.VERSION_CODES.N)
+                                            @Override
+                                            public String call() throws Exception {
+                                                V_NeuronSWC_list[] v_neuronSWC_list = new V_NeuronSWC_list[1];
+                                                V_NeuronSWC seg = annotationHelper.addBackgroundCurve(fingerTrajectory, v_neuronSWC_list);
+                                                if (seg != null) {
+                                                    annotationHelper.addCurve(fingerTrajectory, seg, isBigData);
+                                                    annotationHelper.deleteFromCur(seg, v_neuronSWC_list[0]);
+                                                }
+                                                requestRender();
+                                                return "success";
+                                            }
+                                        });
+                                        try {
+                                            String result = future.get(1500, TimeUnit.MILLISECONDS);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                            Log.e(TAG, "The curve is too complex, unfinished in 1.5 second");
+                                        }
+                                    }
+                                    requestRender();
+                                    break;
+
+                                case DELETE_CURVE:
+                                    annotationHelper.deleteCurve(fingerTrajectory, isBigData);
+                                    requestRender();
+                                    break;
+
+                                case SPLIT:
+                                    annotationHelper.splitCurve(fingerTrajectory, isBigData);
+                                    requestRender();
+                                    break;
+
+                                case CHANGE_CURVE_TYPE:
+                                    annotationHelper.changeCurveType(fingerTrajectory, isBigData);
+                                    requestRender();
+                                    break;
+                            }
+                        } catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                    clearFingerTrajectory();
                     requestRender();
                     isZooming = false;
+                    renderOptions.setImageChanging(false);
                     break;
                 default:
                     break;
@@ -119,6 +295,22 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
             return true;
         }
         return false;
+    }
+
+    private void clearFingerTrajectory(){
+        fingerTrajectory.clear();
+        renderOptions.setShowFingerTrajectory(false);
+        annotationRender.updateFingerTrajectory(fingerTrajectory);
+    }
+
+    private void updateFingerTrajectory(float x, float y){
+        fingerTrajectory.add(x);
+        fingerTrajectory.add(y);
+        fingerTrajectory.add(-1.0f);
+    }
+
+    private boolean is2DImage(){
+        return (fileType == FileType.JPG || fileType == FileType.PNG);
     }
 
     public LiveData<EditMode> getEditMode(){
@@ -129,12 +321,65 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
         return editMode.setSwitchableValue(mode);
     }
 
-    public void loadFile(){
-        annotationRender.loadFile();
+    public void openFile(){
+        Log.d(TAG,"Open File");
+
+        BasicFile basicFile = imageInfoRepository.getBasicImage();
+        FilePath<?> filePath = basicFile.getFilePath();
+        FileType fileType = basicFile.getFileType();
+        this.fileType = fileType;
+
+        switch (fileType){
+            case V3DPBD:
+            case V3DRAW:
+            case TIFF:
+                image4DSimple = Image4DSimple.loadImage(filePath, fileType);
+                if (image4DSimple != null){
+                    updateImageSize(new Integer[]{
+                            (int) image4DSimple.getSz0(), (int) image4DSimple.getSz1(), (int) image4DSimple.getSz2()});
+                    annotationRender.init3DImageInfo(image4DSimple, normalizedSize, originalSize);
+                    annotationHelper.initImageInfo(image4DSimple, normalizedSize, originalSize);
+                    annotationDataManager.init();
+                }
+                break;
+            default:
+                ToastEasy("Unsupported file !");
+        }
     }
 
-    public void loadAnnotationFile(){
-        annotationRender.loadAnnotationFile();
+    public void loadFile(){
+        Log.d(TAG,"Load file");
+
+        BasicFile basicFile = imageInfoRepository.getBasicFile();
+        FilePath<?> filePath = basicFile.getFilePath();
+        FileType fileType = basicFile.getFileType();
+
+        switch (fileType){
+            case ANO:
+                Log.e(TAG,"load .ano file !");
+                break;
+            case SWC:
+            case ESWC:
+                Log.e(TAG,"load .swc file !");
+                NeuronTree neuronTree = NeuronTree.parse(filePath);
+                if (neuronTree == null){
+                    ToastEasy("Something wrong with this .swc/.eswc file, can't load it");
+                } else {
+                    annotationDataManager.loadNeuronTree(neuronTree);
+                }
+                break;
+            case APO:
+                Log.e(TAG,"load .apo file !");
+                MarkerList markerList = ApoReader.parse(filePath);
+                if (markerList == null){
+                    ToastEasy("Something wrong with this .apo file, can't load it");
+                } else {
+                    annotationDataManager.loadMarkerList(markerList);
+                }
+                break;
+            default:
+                ToastEasy("Unsupported file !");
+        }
     }
 
     public void zoomIn(){
@@ -147,7 +392,37 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
         requestRender();
     }
 
+    public Image4DSimple getImage() {
+        return image4DSimple;
+    }
+
     public NeuronTree getNeuronTree(){
-        return annotationRender.getNeuronTree();
+        return annotationDataManager.getNeuronTree();
+    }
+
+    private void updateImageSize(Integer[] size){
+        float maxSize = (float) Collections.max(Arrays.asList(size));
+
+        originalSize[0] = size[0];
+        originalSize[1] = size[1];
+        originalSize[2] = size[2];
+
+        normalizedSize[0] = (float) size[0] / maxSize;
+        normalizedSize[1] = (float) size[1] / maxSize;
+        normalizedSize[2] = (float) size[2] / maxSize;
+
+    }
+
+    private void updateFileSize(Integer[] size){
+        float maxSize = (float) Collections.max(Arrays.asList(size));
+
+        originalSize[0] = size[0];
+        originalSize[1] = size[1];
+        originalSize[2] = size[2];
+
+        normalizedSize[0] = (float) size[0] / maxSize;
+        normalizedSize[1] = (float) size[1] / maxSize;
+        normalizedSize[2] = (float) size[2] / maxSize;
+
     }
 }

@@ -101,8 +101,6 @@ public class MyPattern extends BasicPattern {
     private int threshold;
 
     private boolean ifGame = false;
-    private boolean isNeedRelease= false;
-
 
     public static enum Mode{NORMAL, GAME};
     private Mode mode = Mode.NORMAL;
@@ -338,13 +336,10 @@ public class MyPattern extends BasicPattern {
     }
 
     public void setImage(Image4DSimple image, int width, int height, float[] normalizedDim){
-        Log.e(TAG,"set Image !");
-
         this.image = image;
         this.dim = normalizedDim;
 
         setPoint(normalizedDim);
-
         bufferSet();
 
         // load texture
@@ -414,8 +409,6 @@ public class MyPattern extends BasicPattern {
      */
     @Override
     protected void finalize(){
-        Log.v(TAG,"finalize() is called");
-
         GLES30.glDeleteTextures( //删除纹理对象
                 1, //删除纹理id的数量
                 fbo_tex, //纹理id的数组
@@ -595,8 +588,6 @@ public class MyPattern extends BasicPattern {
 
 
     public void drawVolume_3d(float[] mvpMatrix, boolean ifDownSampling, float contrast) {
-        Log.e(TAG,"Draw the volume !");
-
         // Add program to OpenGL ES environment
         GLES30.glUseProgram(mProgram_simple);
 
@@ -735,7 +726,6 @@ public class MyPattern extends BasicPattern {
 
     //生成三维纹理 for opengl es 3.0~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     private void initTexture_3d(){
-        Log.v("initTexture_3d:", "here we are!!!!!!!");
 
         vol_w = (int)image.getSz0();
         vol_h = (int)image.getSz1();
@@ -932,9 +922,6 @@ public class MyPattern extends BasicPattern {
     //为三维纹理准备数据
     private byte[] getIntensity_3d(byte[] data_src){
 
-        Log.v(TAG, "getIntensity_3d");
-        Log.v(TAG,String.format("vol_w: %s, vol_h: %s, vol_d: %s",vol_w, vol_h, vol_d));
-
         byte [] data_image = new byte[vol_w * vol_h * vol_d * data_length * nchannel * 4];
         if (nchannel == 3){
             for (int i = 0; i < vol_w * vol_h * vol_d * data_length; i++){
@@ -1003,7 +990,6 @@ public class MyPattern extends BasicPattern {
             }
 
             threshold = newT; //最佳阈值
-            Log.d("threshold",String.valueOf(threshold));
 
             if (threshold >= 35 & threshold <= 45)
                 threshold += 2;
@@ -1019,8 +1005,6 @@ public class MyPattern extends BasicPattern {
 
 
     private short [] getIntensity_short3d(byte [] data_src){
-
-        Log.v(TAG, "getIntensity_short3d");
 
         short [] data_image = new short[vol_w * vol_h * vol_d * nchannel * 4];
         byte [] b= new byte[2];
@@ -1398,40 +1382,20 @@ public class MyPattern extends BasicPattern {
 
         //get handle to vertex shader's vPosition member
         //启用顶点的句柄
-//        positionHandle = 0;
         GLES30.glEnableVertexAttribArray(positionHandle);
-//        Log.v("positionHandle", Integer.toString(positionHandle));
 
         //get handle to vertex shader's vPosition member
         //启用纹理的句柄
-//        colorHandle = 1;
         GLES30.glEnableVertexAttribArray(colorHandle);
-//        Log.v("colorHandle", Integer.toString(colorHandle));
 
         // get handle to vertex shader's uMVPMatrix member
         vPMatrixHandle = GLES30.glGetUniformLocation(mProgram,"uMVPMatrix");
 
-//        trAMatrixHandle = GLES30.glGetUniformLocation(mProgram, "trAMatrix");
     }
 
-
-    public boolean getNeedRelease(){
-//        Log.i(TAG,"getNeedRelease(): " + isNeedRelease);
-        return isNeedRelease;
-    }
-
-
-    public void setNeedRelease(){
-//        Log.i(TAG,"setNeedRelease()");
-        isNeedRelease = true;
-    }
-
-    /**
-     * clean the texture
-     */
-    public void free(){
-        Log.v(TAG,"free() is called");
-
+    @Override
+    public void releaseMemory() {
+        super.releaseMemory();
         GLES30.glDeleteTextures( //删除纹理对象
                 1, //删除纹理id的数量
                 fbo_tex, //纹理id的数组
@@ -1462,30 +1426,45 @@ public class MyPattern extends BasicPattern {
                 rbo,
                 0);
 
-        vertexBuffer.clear();
-        vertexBuffer = null;
+        if (vertexBuffer != null){
+            vertexBuffer.clear();
+            vertexBuffer = null;
+        }
 
-        colorBuffer.clear();
-        colorBuffer = null;
+        if (colorBuffer != null){
+            colorBuffer.clear();
+            colorBuffer = null;
+        }
 
-        drawListBuffer.clear();
-        drawListBuffer = null;
+        if (drawListBuffer != null){
+            drawListBuffer.clear();
+            drawListBuffer = null;
+        }
 
-        dimBuffer.clear();
-        dimBuffer = null;
+        if (dimBuffer != null){
+            dimBuffer.clear();
+            dimBuffer = null;
+        }
 
-        imageBuffer_FBO.clear();
-        imageBuffer_FBO = null;
+        if (imageBuffer_FBO != null){
+            imageBuffer_FBO.clear();
+            imageBuffer_FBO = null;
+        }
 
-        vertexPreBuffer.clear();
-        vertexPreBuffer = null;
+        if (vertexPreBuffer != null){
+            vertexPreBuffer.clear();
+            vertexPreBuffer = null;
+        }
 
-        colorPreBuffer.clear();
-        colorPreBuffer = null;
+        if (colorPreBuffer != null){
+            colorPreBuffer.clear();
+            colorPreBuffer = null;
+        }
 
-        drawListPreBuffer.clear();
-        drawListPreBuffer = null;
-
+        if (drawListPreBuffer != null){
+            drawListPreBuffer.clear();
+            drawListPreBuffer = null;
+        }
     }
 
 
