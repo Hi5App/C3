@@ -1,5 +1,6 @@
-package com.penglab.hi5.core.game;
+package com.penglab.hi5.core.game.quest;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,8 @@ public class QuestAdapter extends RecyclerView.Adapter<QuestAdapter.ViewHolder> 
     private Context mContext;
 
     private List<Quest> mQuestList;
+
+    private OnReceiveButtonClicked onReceiveButtonClicked;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         CardView cardView;
@@ -45,11 +48,12 @@ public class QuestAdapter extends RecyclerView.Adapter<QuestAdapter.ViewHolder> 
             mContext = parent.getContext();
         }
         View view = LayoutInflater.from(mContext).inflate(R.layout.quest_item, parent, false);
-        return new ViewHolder(view);
+        ViewHolder viewHolder = new ViewHolder(view);
+        return viewHolder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull QuestAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull QuestAdapter.ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         Quest quest = mQuestList.get(position);
         holder.questContent.setText(quest.getContent() + " " + quest.getAlreadyDone() + "/" + quest.getToBeDone());
         if (quest.getStatus() == Quest.Status.UnFinished){
@@ -61,15 +65,7 @@ public class QuestAdapter extends RecyclerView.Adapter<QuestAdapter.ViewHolder> 
             holder.receiveButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Score score = Score.getInstance();
-                    score.addScore(quest.getReward());
-                    holder.receiveButton.setEnabled(false);
-                    holder.receiveButton.setText("√");
-                    quest.setStatus(Quest.Status.Finished);
-
-                    DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
-                    dailyQuestsContainer.updateNDailyQuest(position, Quest.Status.Finished);
-
+                    onReceiveButtonClicked.receive(quest);
                 }
             });
             holder.receiveButton.setText(Integer.toString(quest.getReward()));
@@ -83,5 +79,13 @@ public class QuestAdapter extends RecyclerView.Adapter<QuestAdapter.ViewHolder> 
     @Override
     public int getItemCount() {
         return mQuestList.size();
+    }
+
+    public interface OnReceiveButtonClicked {
+        public  void receive(Quest quest);
+    }
+
+    public void setOnReceiveButtonClicked(QuestAdapter.OnReceiveButtonClicked onReceiveButtonClicked) {
+        this.onReceiveButtonClicked = onReceiveButtonClicked;
     }
 }

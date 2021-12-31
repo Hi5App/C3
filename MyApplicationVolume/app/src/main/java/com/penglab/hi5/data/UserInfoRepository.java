@@ -2,6 +2,8 @@ package com.penglab.hi5.data;
 
 import android.util.Log;
 
+import com.penglab.hi5.core.game.Score;
+import com.penglab.hi5.core.game.score.ScoreModel;
 import com.penglab.hi5.data.model.user.LoggedInUser;
 
 /**
@@ -16,8 +18,11 @@ public class UserInfoRepository {
     // @see https://developer.android.com/training/articles/keystore
     private LoggedInUser user = null;
 
+    private ScoreModel scoreModel = new ScoreModel();
+
     // private constructor : singleton access
     private UserInfoRepository() {
+        scoreModel.initFromLitePal();
     }
 
     public static UserInfoRepository getInstance() {
@@ -48,6 +53,10 @@ public class UserInfoRepository {
         Log.e("UserInfoRepository", "nickName: " + user.getNickName());
         Log.e("UserInfoRepository", "email: " + user.getEmail());
         this.user = user;
+        scoreModel.setId(user.getUserId());
     }
 
+    public ScoreModel getScoreModel() {
+        return scoreModel;
+    }
 }

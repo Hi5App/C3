@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.annotation.NonNull;
 
+import com.penglab.hi5.core.game.quest.QuestViewModel;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
 import com.penglab.hi5.core.ui.check.CheckViewModel;
 import com.penglab.hi5.core.ui.check.FileInfoState;
@@ -50,6 +51,8 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         } else if (modelClass.isAssignableFrom(AnnotationViewModel.class)) {
             // used in AnnotationActivity
             return (T) new AnnotationViewModel(ImageInfoRepository.getInstance(), UserInfoRepository.getInstance(), new UserDataSource(), new ImageDataSource());
+        } else if (modelClass.isAssignableFrom(QuestViewModel.class)) {
+            return (T) new QuestViewModel();
         } else {
             throw new IllegalArgumentException("Unknown ViewModel class");
         }

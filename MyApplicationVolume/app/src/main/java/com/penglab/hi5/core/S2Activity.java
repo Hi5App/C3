@@ -113,7 +113,7 @@ import com.penglab.hi5.core.game.AchievementPopup;
 import com.penglab.hi5.core.game.LeaderBoardActivity;
 import com.penglab.hi5.core.game.LeaderBoardContainer;
 import com.penglab.hi5.core.game.LeaderBoardItem;
-import com.penglab.hi5.core.game.QuestActivity;
+import com.penglab.hi5.core.game.quest.QuestActivity;
 import com.penglab.hi5.core.game.RewardActivity;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.data.dataStore.SettingFileManager;

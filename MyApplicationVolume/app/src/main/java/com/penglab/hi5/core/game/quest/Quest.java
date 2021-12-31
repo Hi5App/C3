@@ -1,4 +1,4 @@
-package com.penglab.hi5.core.game;
+package com.penglab.hi5.core.game.quest;
 
 public class Quest {
     public enum Status

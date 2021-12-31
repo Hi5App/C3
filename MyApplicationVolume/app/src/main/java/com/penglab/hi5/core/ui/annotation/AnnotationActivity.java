@@ -39,6 +39,9 @@ import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.model.img.FilePath;
 
+import com.robinhood.ticker.TickerUtils;
+import com.robinhood.ticker.TickerView;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -86,6 +89,8 @@ public class AnnotationActivity extends AppCompatActivity {
     private ImageView deleteMarker;
     private MDDialog featuresDisplay;
     private ImageButton editModeIndicator;
+
+    private TickerView scoreTickerView;
 
     private int featureDisplayId;
 

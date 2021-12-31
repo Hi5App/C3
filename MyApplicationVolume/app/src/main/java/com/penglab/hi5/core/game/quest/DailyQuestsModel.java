@@ -1,38 +1,17 @@
-package com.penglab.hi5.core.game;
-
-import android.content.Context;
-import android.util.Log;
+package com.penglab.hi5.core.game.quest;
 
 import java.util.ArrayList;
 
-public class DailyQuestsContainer {
-
-    private String TAG = "DailyQuestsContainer";
+/**
+ * Created by Yihang zhu 12/29/21
+ */
+public class DailyQuestsModel {
+    private String userId;
 
     private ArrayList<Quest> dailyQuests = new ArrayList<>();
 
-    private static DailyQuestsContainer INSTANCE;
-    private static Context mContext;
-
-    private static String userId;
-
-    public static DailyQuestsContainer getInstance(){
-        if (INSTANCE == null){
-            synchronized (DailyQuestsContainer.class){
-                if (INSTANCE == null){
-                    INSTANCE = new DailyQuestsContainer();
-                }
-            }
-        }
-        return INSTANCE;
-    }
-
-    public static void init(Context context){
-        mContext = context;
-    }
-
-    public static void initId(String userId){
-        DailyQuestsContainer.userId = userId;
+    public void setUserId(String userId){
+        this.userId = userId;
     }
 
     public ArrayList<Quest> getDailyQuests() {
@@ -44,9 +23,8 @@ public class DailyQuestsContainer {
     }
 
     public void initFromLitePal(){
-        DailyQuestLitePalConnector dailyQuestLitePalConnector = DailyQuestLitePalConnector.getInstance();
+        DailyQuestLitePalConnector dailyQuestLitePalConnector = new DailyQuestLitePalConnector();
         dailyQuests = (ArrayList<Quest>) ((ArrayList<Quest>) dailyQuestLitePalConnector.getDailyQuests(userId)).clone();
-        Log.d(TAG, "dailyQuests.size(): " + dailyQuests.size());
     }
 
     public void updateNDailyQuest(int n, int alreadyDone){
@@ -56,7 +34,7 @@ public class DailyQuestsContainer {
 
         dailyQuests.get(n).updateAlreadyDone(alreadyDone);
 
-        DailyQuestLitePalConnector dailyQuestLitePalConnector = DailyQuestLitePalConnector.getInstance();
+        DailyQuestLitePalConnector dailyQuestLitePalConnector = new DailyQuestLitePalConnector();
         dailyQuestLitePalConnector.updateDailyQuests(userId, n, dailyQuests.get(n).getContent(), dailyQuests.get(n).getStatus().ordinal(), dailyQuests.get(n).getAlreadyDone());
     }
 
@@ -67,7 +45,7 @@ public class DailyQuestsContainer {
 
         dailyQuests.get(n).setStatus(status);
 
-        DailyQuestLitePalConnector dailyQuestLitePalConnector = DailyQuestLitePalConnector.getInstance();
+        DailyQuestLitePalConnector dailyQuestLitePalConnector = new DailyQuestLitePalConnector();
         dailyQuestLitePalConnector.updateDailyQuests(userId, n, dailyQuests.get(n).getContent(), dailyQuests.get(n).getStatus().ordinal(), dailyQuests.get(n).getAlreadyDone());
     }
 
@@ -77,7 +55,7 @@ public class DailyQuestsContainer {
         // draw 100 curves
         dailyQuests.get(2).updateAlreadyDone(n);
 
-        DailyQuestLitePalConnector dailyQuestLitePalConnector = DailyQuestLitePalConnector.getInstance();
+        DailyQuestLitePalConnector dailyQuestLitePalConnector = new DailyQuestLitePalConnector();
         dailyQuestLitePalConnector.updateDailyQuests(userId, 1, dailyQuests.get(1).getContent(), dailyQuests.get(1).getStatus().ordinal(), dailyQuests.get(1).getAlreadyDone());
         dailyQuestLitePalConnector.updateDailyQuests(userId, 2, dailyQuests.get(2).getContent(), dailyQuests.get(2).getStatus().ordinal(), dailyQuests.get(2).getAlreadyDone());
     }
@@ -88,8 +66,19 @@ public class DailyQuestsContainer {
         // draw 100 markers
         dailyQuests.get(4).updateAlreadyDone(n);
 
-        DailyQuestLitePalConnector dailyQuestLitePalConnector = DailyQuestLitePalConnector.getInstance();
+        DailyQuestLitePalConnector dailyQuestLitePalConnector = new DailyQuestLitePalConnector();
         dailyQuestLitePalConnector.updateDailyQuests(userId, 3, dailyQuests.get(3).getContent(), dailyQuests.get(3).getStatus().ordinal(), dailyQuests.get(3).getAlreadyDone());
         dailyQuestLitePalConnector.updateDailyQuests(userId, 4, dailyQuests.get(4).getContent(), dailyQuests.get(4).getStatus().ordinal(), dailyQuests.get(4).getAlreadyDone());
+    }
+
+    public int questFinished(Quest quest) {
+        for (int i = 0; i < dailyQuests.size(); i++) {
+            Quest dailyQuest = dailyQuests.get(i);
+            if (quest.getContent().equals(dailyQuest.getContent())) {
+                updateNDailyQuest(i, Quest.Status.Finished);
+                return dailyQuest.getReward();
+            }
+        }
+        return 0;
     }
 }

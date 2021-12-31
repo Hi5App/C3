@@ -1,60 +1,39 @@
-package com.penglab.hi5.core.game;
+package com.penglab.hi5.core.game.score;
+
+import static com.penglab.hi5.core.MainActivity.Toast_in_Thread_static;
 
 import android.content.Context;
 import android.util.Log;
 
-import com.penglab.hi5.core.game.score.ScoreModel;
+import com.penglab.hi5.core.game.Score;
 import com.penglab.hi5.data.dataStore.database.User;
 
 import org.litepal.LitePal;
 
 import java.util.List;
 
-import static com.penglab.hi5.core.MainActivity.Toast_in_Thread_static;
-
+/**
+ * Created by Yihang zhu 12/29/21
+ */
 public class ScoreLitePalConnector {
 
     private String TAG = "ScoreLitePalConnector";
 
-    private static ScoreLitePalConnector INSTANCE;
+    private String userId;
 
-    private static String userid;
-
-    private static Context mContext;
-
-    public static void init(Context mContext){
-        ScoreLitePalConnector.mContext = mContext;
+    public ScoreLitePalConnector(String userId) {
+        this.userId = userId;
     }
-
-    public static void initUser(String userid){
-        ScoreLitePalConnector.userid = userid;
-    }
-
-
-    /**
-     * 获取ScoreLitePalConnector实例 ,单例模式
-     */
-    public static ScoreLitePalConnector getInstance(){
-        if (INSTANCE == null){
-            synchronized (ScoreLitePalConnector.class){
-                if (INSTANCE == null){
-                    INSTANCE = new ScoreLitePalConnector();
-                }
-            }
-        }
-        return INSTANCE;
-    }
-
 
     public int queryScore(){
-        if (ScoreLitePalConnector.userid != null)
-            return queryScore(ScoreLitePalConnector.userid);
+        if (userId != null)
+            return queryScore(userId);
         else
             return -1;
     }
 
 
-    public int queryScore(String userid){
+    private int queryScore(String userid){
         List<User> users = LitePal.where("userid = ?", userid).find(User.class);
         if (users.size() != 1 ) {
             Toast_in_Thread_static("Something wrong with database !");
@@ -64,61 +43,15 @@ public class ScoreLitePalConnector {
         }
     }
 
-    public void initScoreFromLitePal(String userid){
-        List<User> users = LitePal.where("userid = ?", userid).find(User.class);
-        if (users.size() > 1 ) {
-            Toast_in_Thread_static("Something wrong with database !");
-        } else if (users.size() == 0){
-            Log.d(TAG, "Not found int database. Create a new one");
-            User user = new User();
-            user.setUserid(userid);
-            user.setCurveNum(0);
-            user.setMarkerNum(0);
-            user.setCurveNumToday(0);
-            user.setMarkerNumToday(0);
-            user.setEditImageNum(0);
-            user.setEditImageNumToday(0);
-            user.setLastLoginDay(0);
-            user.setLastLoginYear(0);
-            user.setScore(0);
-            user.save();
-
-            Score score = Score.getInstance();
-            score.setId(userid);
-            score.setScore(user.getScore());
-            score.setCurveNum(user.getCurveNum());
-            score.setMarkerNum(user.getMarkerNum());
-            score.setLastLoginDay(user.getLastLoginDay());
-            score.setLastLoginYear(user.getLastLoginYear());
-            score.setCurveNumToday(user.getCurveNumToday());
-            score.setMarkerNumToday(user.getMarkerNumToday());
-            score.setEditImageNum(user.getEditImageNum());
-            score.setEditImageNumToday(user.getEditImageNumToday());
-        } else {
-            User user = users.get(0);
-            Score score = Score.getInstance();
-            score.setId(userid);
-            score.setScore(user.getScore());
-            score.setCurveNum(user.getCurveNum());
-            score.setMarkerNum(user.getMarkerNum());
-            score.setLastLoginDay(user.getLastLoginDay());
-            score.setLastLoginYear(user.getLastLoginYear());
-            score.setCurveNumToday(user.getCurveNumToday());
-            score.setMarkerNumToday(user.getMarkerNumToday());
-            score.setEditImageNum(user.getEditImageNum());
-            score.setEditImageNumToday(user.getEditImageNumToday());
-        }
-    }
-
     public ScoreModel getScoreModelFromLitePal() {
-        List<User> users = LitePal.where("userid = ?", userid).find(User.class);
+        List<User> users = LitePal.where("userid = ?", userId).find(User.class);
         ScoreModel scoreModel = new ScoreModel();
         if (users.size() > 1 ) {
             return null;
         } else if (users.size() == 0){
             Log.d(TAG, "Not found int database. Create a new one");
             User user = new User();
-            user.setUserid(userid);
+            user.setUserid(userId);
             user.setCurveNum(0);
             user.setMarkerNum(0);
             user.setCurveNumToday(0);
@@ -130,7 +63,7 @@ public class ScoreLitePalConnector {
             user.setScore(0);
             user.save();
 
-            scoreModel.setId(userid);
+            scoreModel.setId(userId);
             scoreModel.setScore(user.getScore());
             scoreModel.setCurveNum(user.getCurveNum());
             scoreModel.setMarkerNum(user.getMarkerNum());
@@ -142,7 +75,7 @@ public class ScoreLitePalConnector {
             scoreModel.setEditImageNumToday(user.getEditImageNumToday());
         } else {
             User user = users.get(0);
-            scoreModel.setId(userid);
+            scoreModel.setId(userId);
             scoreModel.setScore(user.getScore());
             scoreModel.setCurveNum(user.getCurveNum());
             scoreModel.setMarkerNum(user.getMarkerNum());
@@ -159,18 +92,18 @@ public class ScoreLitePalConnector {
 
 
     public boolean updateScore(int score){
-        return updateScore(ScoreLitePalConnector.userid, score);
+        return updateScore(userId, score);
     }
 
 
-    public boolean updateScore(String userid, int score){
+    private boolean updateScore(String userid, int score){
         List<User> users = LitePal.where("userid = ?", userid).find(User.class);
         if (users.size() == 0){
             User user = new User();
             user.setUserid(userid);
             user.setScore(score);
             user.save();
-        }else if(users.size() == 1){
+        }else if(users.size() == 1) {
             User user = new User();
             user.setScore(score);
             user.updateAll("userid = ?", userid);
@@ -189,22 +122,20 @@ public class ScoreLitePalConnector {
 
 
     public boolean addScore(int score){
-        List<User> users = LitePal.where("userid = ?", userid).find(User.class);
+        List<User> users = LitePal.where("userid = ?", userId).find(User.class);
         if (users.size() == 0){
             User user = new User();
-            user.setUserid(userid);
+            user.setUserid(userId);
             user.setScore(score);
             user.save();
         }else if(users.size() == 1){
             User user = new User();
             user.setScore(user.getScore() + score);
-            user.updateAll("userid = ?", userid);
+            user.updateAll("userid = ?", userId);
         }else {
             Toast_in_Thread_static("Something wrong with database !");
             return false;
         }
         return true;
     }
-
-
 }

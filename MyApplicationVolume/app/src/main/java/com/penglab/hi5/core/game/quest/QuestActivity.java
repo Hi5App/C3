@@ -1,21 +1,21 @@
-package com.penglab.hi5.core.game;
+package com.penglab.hi5.core.game.quest;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.penglab.hi5.R;
+import com.penglab.hi5.core.ui.ViewModelFactory;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class QuestActivity extends AppCompatActivity {
 
@@ -29,9 +29,8 @@ public class QuestActivity extends AppCompatActivity {
 //            new Quest("Draw 100 markers", 0, 100, 100),
 //    };
 
-    private List<Quest> questList = new ArrayList<>();
-
-    private QuestAdapter adapter;
+    private QuestBindingAdapter questBindingAdapter;
+    private QuestViewModel questViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,12 +40,12 @@ public class QuestActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        initQuests();
+        questViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(QuestViewModel.class);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.quest_recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new QuestAdapter(questList);
-        recyclerView.setAdapter(adapter);
+        initAdapter();
+        recyclerView.setAdapter(questBindingAdapter);
         recyclerView.addItemDecoration(new SpacesItemDecoration(5));
     }
 
@@ -88,13 +87,11 @@ public class QuestActivity extends AppCompatActivity {
         }
     }
 
-    private void initQuests(){
-        questList.clear();
-        DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
-        questList = dailyQuestsContainer.getDailyQuests();
-        Log.d(TAG, "questList.size(): " + questList.size());
-//        for (int i = 0; i < quests.length; i++){
-//            questList.add(quests[i]);
-//        }
+    private void initAdapter() {
+        questBindingAdapter = new QuestBindingAdapter(this);
+        ArrayList<Quest> dailyQuests = questViewModel.getDailyQuestsModel().getDailyQuests();
+        for (int i = 0; i < dailyQuests.size(); i++) {
+            questBindingAdapter.getItems().add(dailyQuests.get(i));
+        }
     }
 }
