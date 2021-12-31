@@ -5,18 +5,26 @@ import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import android.opengl.Matrix;
 import android.os.Build;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.RequiresApi;
 
 import com.penglab.hi5.basic.ByteTranslate;
 import com.penglab.hi5.basic.FastMarching_Linker;
+import com.penglab.hi5.basic.LocationSimple;
+import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.image.XYZ;
+import com.penglab.hi5.basic.tracingfunc.app2.ParaAPP2;
+import com.penglab.hi5.basic.tracingfunc.app2.V3dNeuronAPP2Tracing;
+import com.penglab.hi5.basic.tracingfunc.gd.CurveTracePara;
+import com.penglab.hi5.basic.tracingfunc.gd.V3dNeuronGDTracing;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
+import com.penglab.hi5.core.MyRenderer;
 import com.penglab.hi5.core.collaboration.Communicator;
 import com.penglab.hi5.core.render.pattern.MyMarker;
 
@@ -69,6 +77,97 @@ public class AnnotationHelper {
 
     public void setLastCurveType(int lastCurveType) {
         this.lastCurveType = lastCurveType;
+    }
+
+    /**
+     * AutoTracing algorithm
+     */
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public boolean APP2(Image4DSimple img, boolean is2DImage, boolean isBigData){
+        if(img == null || !img.valid()){
+            ToastEasy("Please load image first !");
+            return false;
+        }
+
+        float imgZ = is2DImage ? Math.max((int)img.getSz0(), (int)img.getSz1()) / 2.0f : 0;
+        ArrayList<ImageMarker> markers = annotationDataManager.getMarkerList().getMarkers();
+
+        try {
+            ParaAPP2 p = new ParaAPP2();
+            p.p4dImage = img;
+            p.xc0 = p.yc0 = p.zc0 = 0;
+            p.xc1 = (int) p.p4dImage.getSz0() - 1;
+            p.yc1 = (int) p.p4dImage.getSz1() - 1;
+            p.zc1 = (int) p.p4dImage.getSz2() - 1;
+            p.landmarks = new LocationSimple[markers.size()];
+            p.bkg_thresh = -1;
+            for (int i = 0; i < markers.size(); i++) {
+                p.landmarks[i] = is2DImage ? new LocationSimple(markers.get(i).x, markers.get(i).y, 0):
+                        new LocationSimple(markers.get(i).x, markers.get(i).y, markers.get(i).z);
+            }
+
+            V3dNeuronAPP2Tracing.proc_app2(p);
+            NeuronTree neuronTree = p.resultNt;
+            for (int i = 0; i < neuronTree.listNeuron.size(); i++) {
+                neuronTree.listNeuron.get(i).type = 4;
+                if (is2DImage){
+                    neuronTree.listNeuron.get(i).z = imgZ;
+                }
+            }
+
+            ToastEasy("APP2 tracing algorithm finished, size of result swc: " + Integer.toString(neuronTree.listNeuron.size()));
+            annotationDataManager.loadNeuronTree(neuronTree, isBigData);
+            annotationDataManager.saveUndo();
+            return true;
+
+        } catch (Exception e) {
+            ToastEasy(e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean GD(Image4DSimple img, boolean is2DImage, boolean isBigData){
+        if(img == null || !img.valid()){
+            ToastEasy("Please load image first !");
+            return false;
+        }
+
+        ArrayList<ImageMarker> markerList = annotationDataManager.getMarkerList().getMarkers();
+        if (markerList.size() <= 1) {
+            ToastEasy("Please produce at least two markerList !");
+            return false;
+        }
+
+        try {
+            float imgZ = is2DImage ? markerList.get(0).z / 2.0f : 0;
+            Vector<LocationSimple> pp = new Vector<LocationSimple>();
+            LocationSimple p0 = is2DImage ? new LocationSimple(markerList.get(0).x, markerList.get(0).y, 0) :
+                    new LocationSimple(markerList.get(0).x, markerList.get(0).y, markerList.get(0).z);
+
+            for (int i = 1; i < markerList.size(); i++) {
+                LocationSimple p = is2DImage ? new LocationSimple(markerList.get(i).x, markerList.get(i).y, 0) :
+                        new LocationSimple(markerList.get(i).x, markerList.get(i).y, markerList.get(i).z);
+                pp.add(p);
+            }
+
+            NeuronTree outSwc = new NeuronTree();
+            CurveTracePara curveTracePara = new CurveTracePara();
+            outSwc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img, p0, pp, curveTracePara, 1.0);
+
+            for (int i = 0; i < outSwc.listNeuron.size(); i++) {
+                outSwc.listNeuron.get(i).type = 5;
+                if (is2DImage) outSwc.listNeuron.get(i).z = imgZ;
+            }
+
+            ToastEasy("GD-Tracing finished, size of result swc: " + Integer.toString(outSwc.listNeuron.size()));
+            annotationDataManager.loadNeuronTree(outSwc, isBigData);
+            annotationDataManager.saveUndo();
+            return true;
+
+        } catch (Exception e) {
+            ToastEasy(e.getMessage());
+            return false;
+        }
     }
 
 

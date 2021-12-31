@@ -61,11 +61,15 @@ public class AnnotationDataManager {
         return markerList.add(markerList.getMarkers());
     }
 
-    public boolean loadNeuronTree(NeuronTree neuronTree) {
+    public boolean loadNeuronTree(NeuronTree neuronTree, boolean isBigData) {
         try {
             Vector<V_NeuronSWC> segments = neuronTree.devideByBranch();
             for (V_NeuronSWC segment: segments){
-                curSwcList.append(segment);
+                if (isBigData){
+                    syncSwcList.append(segment);
+                }else {
+                    curSwcList.append(segment);
+                }
             }
             return true;
         } catch (Exception e){
@@ -85,6 +89,20 @@ public class AnnotationDataManager {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public void clearAllTracing(){
+        try {
+            for (int i = curSwcList.seg.size(); i >= 0; i--){
+                curSwcList.deleteSeg(i);
+            }
+            for (int i = markerList.size()-1; i >= 0; i--){
+                markerList.remove(i);
+            }
+            saveUndo();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
         }
     }
 

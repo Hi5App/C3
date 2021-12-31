@@ -3,6 +3,7 @@ package com.penglab.hi5.core.ui.annotation;
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.Toolbar;
@@ -12,6 +13,8 @@ import androidx.lifecycle.ViewModelProvider;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -33,9 +36,14 @@ import com.penglab.hi5.R;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ViewModelFactory;
+import com.penglab.hi5.data.ImageInfoRepository;
+import com.penglab.hi5.data.model.img.FilePath;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import cn.carbs.android.library.MDDialog;
 
@@ -61,12 +69,16 @@ public class AnnotationActivity extends AppCompatActivity {
         put(EditMode.ZOOM_IN_ROI, R.drawable.ic_roi);
     }};
 
+    private final ExecutorService executorService = Executors.newFixedThreadPool(3);;
+
     private AnnotationViewModel annotationViewModel;
     private AnnotationGLSurfaceView annotationGLSurfaceView;
 
+    private Toolbar toolbar;
     private View localFileModeView;
     private View bigDataModeView;
     private View commonView;
+
     private TapBarMenu tapBarMenu;
     private ImageView addCurve;
     private ImageView addMarker;
@@ -83,7 +95,7 @@ public class AnnotationActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_annotation);
         annotationGLSurfaceView = findViewById(R.id.gl_surface_view);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_annotation);
+        toolbar = (Toolbar) findViewById(R.id.toolbar_annotation);
         setSupportActionBar(toolbar);
 
         annotationViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(AnnotationViewModel.class);
@@ -113,16 +125,8 @@ public class AnnotationActivity extends AppCompatActivity {
                 if (annotationMode == null){
                     return;
                 }
-                switch (annotationMode){
-                    case LOCAL_FILE_EDITABLE:
-                        showUI4LocalFileMode();
-                        break;
-                    case BIG_DATA:
-                    case NONE:
-                        resetUI4AllMode();
-                    default:
-                        ToastEasy("Something wrong with annotation mode !");
-                }
+                updateOptionsMenu(annotationMode);
+                updateUI(annotationMode);
             }
         });
 
@@ -149,6 +153,13 @@ public class AnnotationActivity extends AppCompatActivity {
                 }
             }
         });
+
+        ImageInfoRepository.getInstance().getScreenCapture().observe(this, new Observer<FilePath<?>>() {
+            @Override
+            public void onChanged(FilePath<?> filePath) {
+                screenCapture((Uri) filePath.getData());
+            }
+        });
     }
 
     @Override
@@ -163,9 +174,42 @@ public class AnnotationActivity extends AppCompatActivity {
         annotationGLSurfaceView.onPause();
     }
 
+    private void updateUI(AnnotationViewModel.AnnotationMode annotationMode){
+        resetUI4AllMode();
+        switch (annotationMode){
+            case LOCAL_FILE_EDITABLE:
+                showCommonUI();
+                showUI4LocalFileMode();
+                break;
+            case BIG_DATA:
+                showCommonUI();
+                showUI4BigDataMode();
+                break;
+            case NONE:
+                Log.e(TAG,"Default UI");
+                break;
+            default:
+                ToastEasy("Something wrong with annotation mode !");
+        }
+    }
+
+    private void updateOptionsMenu(AnnotationViewModel.AnnotationMode annotationMode) {
+        toolbar.getMenu().clear();
+        switch (annotationMode) {
+            case NONE:
+                toolbar.inflateMenu(R.menu.annotation_menu_basic);
+                break;
+            case LOCAL_FILE_EDITABLE:
+            case LOCAL_FILE_UNEDITABLE:
+            case BIG_DATA:
+                toolbar.inflateMenu(R.menu.annotation_menu_open_file);
+                break;
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.annotation_menu, menu);
+        getMenuInflater().inflate(R.menu.annotation_menu_basic, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -173,9 +217,18 @@ public class AnnotationActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.load:
+                Log.e(TAG,"load file");
+                loadLocalFile();
+                return true;
+
             case R.id.file:
                 Log.e(TAG,"open file");
                 openFile();
+                return true;
+
+            case R.id.share:
+                annotationGLSurfaceView.screenCapture();
                 return true;
 
             case R.id.more:
@@ -206,9 +259,11 @@ public class AnnotationActivity extends AppCompatActivity {
                 case OPEN_ANALYSIS_SWC:
                     Log.e(TAG,"open analysis swc !");
                     annotationViewModel.analyzeSwcFile(data);
+                    break;
                 case LOAD_LOCAL_FILE:
                     Log.e(TAG,"load local file !");
                     annotationViewModel.loadLocalFile(data);
+                    break;
                 default:
                     ToastEasy("UnSupportable request type !");
             }
@@ -251,6 +306,16 @@ public class AnnotationActivity extends AppCompatActivity {
         startActivityForResult(intent, LOAD_LOCAL_FILE);
     }
 
+    private void screenCapture(Uri uri){
+        Intent intent = new Intent();
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setAction(Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        intent.setType("image/jpeg");
+        startActivity(Intent.createChooser(intent, "Share from Hi5"));
+    }
+
     private void moreFunctions(){
         String[] centerList = new String[] {"Analyze Swc", "Filter by example", "Animate", "Settings"};
         new XPopup.Builder(this)
@@ -280,15 +345,15 @@ public class AnnotationActivity extends AppCompatActivity {
 
     private void analyzeSwc(){
         new XPopup.Builder(this)
-                .asCenterList("Morphology calculate", new String[] {"Analyze from swc file", "Analyze from current tracing"},
+                .asCenterList("Morphology calculate", new String[] {"Analyze swc file", "Analyze current tracing"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
                                 switch (text) {
-                                    case "Analyze from swc file":
+                                    case "Analyze swc file":
                                         analyzeSwcFile();
                                         break;
-                                    case "Analyze from current tracing":
+                                    case "Analyze current tracing":
                                         analyzeCurTracing();
                                         break;
                                     default:
@@ -315,106 +380,62 @@ public class AnnotationActivity extends AppCompatActivity {
         }
     }
 
-    private void initUI4LocalFileMode(){
-        initCommonUI();
+    private void showCommonUI(){
+        if (commonView == null){
+            // load layout view
+            LinearLayout.LayoutParams lpCommon = new LinearLayout.LayoutParams(
+                    LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+            commonView = getLayoutInflater().inflate(R.layout.annotation_common, null);
+            this.addContentView(commonView, lpCommon);
 
-        // load layout view
-        LinearLayout.LayoutParams lp4LocalFileMode = new LinearLayout.LayoutParams(
-                LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
-        localFileModeView = getLayoutInflater().inflate(R.layout.annotation_local_file, null);
-        this.addContentView(localFileModeView, lp4LocalFileMode);
+            editModeIndicator = findViewById(R.id.edit_mode_indicator);
+            tapBarMenu = findViewById(R.id.tapBarMenu);
+            addCurve = tapBarMenu.findViewById(R.id.draw_i);
+            addMarker = tapBarMenu.findViewById(R.id.pinpoint);
+            deleteCurve = tapBarMenu.findViewById(R.id.delete_curve);
+            deleteMarker = tapBarMenu.findViewById(R.id.delete_marker);
+            ImageView autoReconstruction = tapBarMenu.findViewById(R.id.auto_reconstruction);
+            BoomMenuButton boomMenuButton = tapBarMenu.findViewById(R.id.expanded_menu);
 
-        // set onClickListener for buttons
-        ImageButton zoomIn = findViewById(R.id.zoomIn);
-        ImageButton zoomOut = findViewById(R.id.zoomOut);
-        ImageButton loadFile = findViewById(R.id.loadFile);
-        ImageButton rotate = findViewById(R.id.rotate);
+            tapBarMenu.setOnClickListener(v -> tapBarMenu.toggle());
+            addCurve.setOnClickListener(this::onMenuItemClick);
+            addMarker.setOnClickListener(this::onMenuItemClick);
+            deleteCurve.setOnClickListener(this::onMenuItemClick);
+            deleteMarker.setOnClickListener(this::onMenuItemClick);
+            autoReconstruction.setOnClickListener(this::onMenuItemClick);
 
-        zoomIn.setOnClickListener(v -> annotationGLSurfaceView.zoomIn());
-        zoomOut.setOnClickListener(v -> annotationGLSurfaceView.zoomOut());
-        loadFile.setOnClickListener(v -> loadLocalFile());
-        rotate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            }
-        });
+            // All is lambda expression
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_CURVE_TYPE))
+                    .normalImageRes(R.drawable.ic_change_curve_type).normalText("Change Curve Color"));
+
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_MARKER_TYPE))
+                    .normalImageRes(R.drawable.ic_change_marker_type).normalText("Change Marker Color"));
+
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.SPLIT))
+                    .normalImageRes(R.drawable.ic_split).normalText("Split"));
+
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.DELETE_MULTI_MARKER))
+                    .normalImageRes(R.drawable.ic_delete_multimarker).normalText("Delete Multi Markers"));
+
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> {
+                ToastEasy("GD tracing algorithm start !");
+                executorService.submit(() -> annotationGLSurfaceView.GD());
+            }).normalImageRes(R.drawable.ic_gd_tracing).normalText("GD-Tracing"));
+
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+                    .listener(index -> annotationGLSurfaceView.clearAllTracing())
+                    .normalImageRes(R.drawable.ic_clear).normalText("Clear Tracing"));
+
+        } else {
+            commonView.setVisibility(View.VISIBLE);
+        }
     }
 
-    private void initUI4BigDataMode(){
-        initCommonUI();
-
-        // load layout view
-        LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
-                LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
-        bigDataModeView = getLayoutInflater().inflate(R.layout.annotation_big_data, null);
-        this.addContentView(bigDataModeView, lp4BigDataMode);
-
-    }
-
-    private void initCommonUI(){
-        // load layout view
-        LinearLayout.LayoutParams lpCommon = new LinearLayout.LayoutParams(
-                LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
-        commonView = getLayoutInflater().inflate(R.layout.annotation_common, null);
-        this.addContentView(commonView, lpCommon);
-
-        editModeIndicator = findViewById(R.id.edit_mode_indicator);
-        tapBarMenu = findViewById(R.id.tapBarMenu);
-        addCurve = tapBarMenu.findViewById(R.id.draw_i);
-        addMarker = tapBarMenu.findViewById(R.id.pinpoint);
-        deleteCurve = tapBarMenu.findViewById(R.id.delete_curve);
-        deleteMarker = tapBarMenu.findViewById(R.id.delete_marker);
-        ImageView autoReconstruction = tapBarMenu.findViewById(R.id.auto_reconstruction);
-        BoomMenuButton boomMenuButton = tapBarMenu.findViewById(R.id.expanded_menu);
-
-        tapBarMenu.setOnClickListener(v -> tapBarMenu.toggle());
-        addCurve.setOnClickListener(this::onMenuItemClick);
-        addMarker.setOnClickListener(this::onMenuItemClick);
-        deleteCurve.setOnClickListener(this::onMenuItemClick);
-        deleteMarker.setOnClickListener(this::onMenuItemClick);
-        autoReconstruction.setOnClickListener(this::onMenuItemClick);
-
-        boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
-            @Override
-            public void onBoomButtonClick(int index) {
-
-            }
-        }).normalImageRes(R.drawable.ic_change_curve_type).normalText("Change Curve Color"));
-
-        boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
-            @Override
-            public void onBoomButtonClick(int index) {
-
-            }
-        }).normalImageRes(R.drawable.ic_change_marker_type).normalText("Change Marker Color"));
-
-        boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
-            @Override
-            public void onBoomButtonClick(int index) {
-
-            }
-        }).normalImageRes(R.drawable.ic_split).normalText("Split"));
-
-        boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
-            @Override
-            public void onBoomButtonClick(int index) {
-
-            }
-        }).normalImageRes(R.drawable.ic_delete_multimarker).normalText("Delete Multi Markers"));
-
-        boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
-            @Override
-            public void onBoomButtonClick(int index) {
-            }
-        }).normalImageRes(R.drawable.ic_gd_tracing).normalText("GD-Tracing"));
-
-        boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
-            @Override
-            public void onBoomButtonClick(int index) {
-            }
-        }).normalImageRes(R.drawable.ic_clear).normalText("Clear Tracing"));
-    }
-
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @SuppressLint("NonConstantResourceId")
     public void onMenuItemClick(View view) {
         // resetUI
@@ -436,6 +457,8 @@ public class AnnotationActivity extends AppCompatActivity {
                 break;
             case R.id.auto_reconstruction:
                 // TODO: run app2 here | async
+                ToastEasy("APP2 tracing algorithm start !");
+                executorService.submit(() -> annotationGLSurfaceView.APP2());
                 break;
             case R.id.delete_curve:
                 if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_CURVE)){
@@ -450,23 +473,47 @@ public class AnnotationActivity extends AppCompatActivity {
     }
 
     private void showUI4LocalFileMode(){
-        resetUI4AllMode();
         if (localFileModeView == null){
-            initUI4LocalFileMode();
+            // load layout view
+            LinearLayout.LayoutParams lp4LocalFileMode = new LinearLayout.LayoutParams(
+                    LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+            localFileModeView = getLayoutInflater().inflate(R.layout.annotation_local_file, null);
+            this.addContentView(localFileModeView, lp4LocalFileMode);
+
+            // set onClickListener for buttons
+            ImageButton zoomIn = findViewById(R.id.zoomIn);
+            ImageButton zoomOut = findViewById(R.id.zoomOut);
+            ImageButton rotate = findViewById(R.id.rotate);
+
+            zoomIn.setOnClickListener(v -> annotationGLSurfaceView.zoomIn());
+            zoomOut.setOnClickListener(v -> annotationGLSurfaceView.zoomOut());
+            rotate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                }
+            });
         } else {
             localFileModeView.setVisibility(View.VISIBLE);
-            commonView.setVisibility(View.VISIBLE);
         }
     }
 
     private void showUI4BigDataMode(){
-        resetUI4AllMode();
         if (bigDataModeView == null){
-            initUI4BigDataMode();
+            // load layout view
+            LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
+                    LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+            bigDataModeView = getLayoutInflater().inflate(R.layout.annotation_big_data, null);
+            this.addContentView(bigDataModeView, lp4BigDataMode);
+
         } else {
             bigDataModeView.setVisibility(View.VISIBLE);
-            commonView.setVisibility(View.VISIBLE);
         }
+    }
+
+    private void resetUI4AllMode(){
+        hideUI4LocalFileMode();
+        hideUI4BigDataMode();
+        hideCommonUI();
     }
 
     private void hideUI4LocalFileMode(){
@@ -485,12 +532,6 @@ public class AnnotationActivity extends AppCompatActivity {
         if (commonView != null){
             commonView.setVisibility(View.GONE);
         }
-    }
-
-    private void resetUI4AllMode(){
-        hideUI4LocalFileMode();
-        hideUI4BigDataMode();
-        hideCommonUI();
     }
 
 

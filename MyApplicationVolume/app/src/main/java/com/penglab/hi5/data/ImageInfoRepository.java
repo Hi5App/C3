@@ -1,7 +1,11 @@
 package com.penglab.hi5.data;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import com.penglab.hi5.data.model.img.BasicFile;
 import com.penglab.hi5.data.model.img.BasicImage;
+import com.penglab.hi5.data.model.img.FilePath;
 
 /**
  * Class that requests image information from the remote data source and
@@ -12,6 +16,8 @@ import com.penglab.hi5.data.model.img.BasicImage;
 public class ImageInfoRepository {
 
     private static volatile ImageInfoRepository INSTANCE;
+
+    private final MutableLiveData<FilePath<?>> screenCapture = new MutableLiveData<>();
 
     private BasicImage basicImage = new BasicImage();
 
@@ -44,5 +50,9 @@ public class ImageInfoRepository {
 
     public void setBasicFile(BasicFile basicFile) {
         this.basicFile = basicFile;
+    }
+
+    public MutableLiveData<FilePath<?>> getScreenCapture() {
+        return screenCapture;
     }
 }
