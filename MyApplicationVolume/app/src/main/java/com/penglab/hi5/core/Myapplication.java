@@ -37,11 +37,8 @@ import com.penglab.hi5.core.collaboration.Communicator;
 import com.penglab.hi5.core.collaboration.basic.ImageInfo;
 import com.penglab.hi5.core.collaboration.connector.MsgConnector;
 import com.penglab.hi5.core.collaboration.connector.ServerConnector;
-import com.penglab.hi5.core.game.DailyQuestLitePalConnector;
-import com.penglab.hi5.core.game.DailyQuestsContainer;
 import com.penglab.hi5.core.game.RewardLitePalConnector;
 import com.penglab.hi5.core.game.Score;
-import com.penglab.hi5.core.game.ScoreLitePalConnector;
 import com.penglab.hi5.data.dataStore.PreferenceLogin;
 import com.penglab.hi5.data.dataStore.PreferenceSetting;
 
@@ -87,10 +84,6 @@ public class Myapplication extends Application {
         PreferenceSetting.init(getApplicationContext());
         LitePal.initialize(this);
         SQLiteDatabase db = LitePal.getDatabase();
-        DailyQuestsContainer.init(this);
-        DailyQuestLitePalConnector.init(this);
-
-        ScoreLitePalConnector.init(this);
         Score.init(this);
         RewardLitePalConnector.init(this);
         ImageInfo.init(this);

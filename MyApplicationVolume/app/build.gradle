@@ -50,6 +50,9 @@ android {
         }
     }
 
+    dataBinding {
+        enabled true
+    }
 
 }
 
@@ -134,4 +137,5 @@ dependencies {
     implementation 'com.github.devlight:infinitecycleviewpager:1.0.2'
 
     implementation 'com.nightonke:boommenu:2.1.1'
+    implementation 'com.robinhood.ticker:ticker:2.0.4'
 }

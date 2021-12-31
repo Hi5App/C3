@@ -122,15 +122,13 @@ import com.penglab.hi5.core.fileReader.annotationReader.AnoReader;
 import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
 import com.penglab.hi5.core.fileReader.imageReader.BigImgReader;
 import com.penglab.hi5.core.game.AchievementPopup;
-import com.penglab.hi5.core.game.DailyQuestsContainer;
 import com.penglab.hi5.core.game.LeaderBoardActivity;
 import com.penglab.hi5.core.game.LeaderBoardContainer;
 import com.penglab.hi5.core.game.LeaderBoardItem;
-import com.penglab.hi5.core.game.QuestActivity;
+import com.penglab.hi5.core.game.quest.QuestActivity;
 import com.penglab.hi5.core.game.RewardActivity;
 import com.penglab.hi5.core.game.RewardLitePalConnector;
 import com.penglab.hi5.core.game.Score;
-import com.penglab.hi5.core.game.ScoreLitePalConnector;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.data.ImageDataSource;
@@ -866,7 +864,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             initNim();
             initServerConnector();
             initService();
-            initDataBase();
+//            initDataBase();
         }else{
             Toast.makeText(context,
                     "You are logged in as a visitor",Toast.LENGTH_LONG).show();
@@ -4847,7 +4845,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         if(ifGuestLogin == false)
                                         {
                                             Score scoreInstance = Score.getInstance();
-                                            scoreInstance.pinpoint();
+//                                            scoreInstance.pinpoint();
                                         }
                                         if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
                                             myrenderer.add2DMarker(normalizedX, normalizedY);
@@ -4874,7 +4872,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         if(ifGuestLogin == false)
                                         {
                                             Score scoreInstance = Score.getInstance();
-                                            scoreInstance.drawACurve();
+//                                            scoreInstance.drawACurve();
                                         }
 
                                         if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
@@ -5383,33 +5381,19 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .show();
     }
 
-    public void initDataBase(int serverScore){
-        DailyQuestsContainer.initId(username);
-        Score.initId(username);
-        ScoreLitePalConnector.initUser(username);
-        RewardLitePalConnector.initUserId(username);
-
-        Score score = Score.getInstance();
-        if (!score.initFromLitePal()) {
-            setScore(score.getScore());
-        }
-
-        updateScoreText();
-    }
-
-    public void initDataBase(){
-        DailyQuestsContainer.initId(username);
-        Score.initId(username);
-        ScoreLitePalConnector.initUser(username);
-        RewardLitePalConnector.initUserId(username);
-
-        Score score = Score.getInstance();
-        if (score.initFromLitePal()) {
-            setScore(score.getScore());
-        }
-
-        updateScoreText();
-    }
+//    public void initDataBase(){
+//        DailyQuestsContainer.initId(username);
+//        Score.initId(username);
+//        ScoreLitePalConnector.initUser(username);
+//        RewardLitePalConnector.initUserId(username);
+//
+//        Score score = Score.getInstance();
+//        if (score.initFromLitePal()) {
+//            setScore(score.getScore());
+//        }
+//
+//        updateScoreText();
+//    }
 
 
 

@@ -63,7 +63,7 @@ public class Utils {
 //                            }
 //                        });
 //                        MainActivity.actionStart(context, "empty");
-                        CheckActivity.start(context);
+                        AnnotationActivity.start(context);
                         break;
                     case "Smart Imaging":
 //                        HttpUtilsImage.getNeuronListWithOkHttp(
@@ -82,7 +82,7 @@ public class Utils {
 //                                    }
 //                                });
 //                        S2Activity.actionStart(context, "empty");
-                        AnnotationActivity.start(context);
+                        S2Activity.start(context);
                         break;
                     case "Chat":
 //                        HttpUtilsImage.getAnoListWithOkHttp(

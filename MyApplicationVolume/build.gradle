@@ -54,6 +54,8 @@ ext {
     reportSdkVersion = '2.0.1'
 }
 
+
+
 static def getGitVersion() {
     try {
         return 'git rev-parse --short HEAD'.execute().text.trim()

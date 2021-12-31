@@ -56,7 +56,7 @@
         <activity android:name=".core.game.RewardActivity" />
         <activity android:name=".core.game.LeaderBoardActivity" />
         <activity
-            android:name=".core.game.QuestActivity"
+            android:name=".core.game.quest.QuestActivity"
             android:theme="@style/dialog_style" />
         <!--
          APP key, 可以在这里设置，也可以在 SDKOptions 中提供。
