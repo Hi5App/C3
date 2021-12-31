@@ -6,12 +6,15 @@ import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import static com.penglab.hi5.data.model.user.LogStatus.GUEST;
 import static com.penglab.hi5.data.model.user.LogStatus.LOGIN;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -23,6 +26,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -57,6 +61,13 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
     private static final String GUEST_NICKNAME = "Guest user";
     private static final String GUEST_EMAIL = "hi5@penglab.com";
 
+    private static final String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO};
+    private static final int REQUEST_PERMISSION_CODE = 1;
+
     private long exitTime = 0;
 
     private HomeViewModel homeViewModel;
@@ -89,6 +100,11 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
 //        navigationTabStrip.setTitles("HOW WE WORK", "WE WORK WITH");
         navigationTabStrip.setTitles("HOW WE WORK");
         navigationTabStrip.setViewPager(viewPager);
+
+        // Set the permission for user
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
+        }
 
         homeViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(HomeViewModel.class);
         homeViewModel.getLogStatus().observe(this, new Observer<LogStatus>() {
@@ -147,6 +163,16 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
             }
         });
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_PERMISSION_CODE){
+            for (int i = 0; i < permissions.length; i++) {
+                Log.i(TAG,"Request permission " + permissions[i] + ", result " + grantResults[i]);
+            }
+        }
     }
 
     @Override

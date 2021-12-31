@@ -42,6 +42,7 @@ public class AnnotationViewModel extends ViewModel {
     private final MutableLiveData<AnnotationMode> annotationMode = new MutableLiveData<>();
     private final MutableLiveData<WorkStatus> workStatus = new MutableLiveData<>();
     private final MutableLiveData<List<double[]>> analyzeSwcResults = new MutableLiveData<>();
+    private final MutableLiveData<FilePath<?>> screenCaptureFile = new MutableLiveData<>();
 
     private final ImageInfoRepository imageInfoRepository;
     private final UserInfoRepository userInfoRepository;
@@ -68,8 +69,12 @@ public class AnnotationViewModel extends ViewModel {
         return workStatus;
     }
 
-    public LiveData<List<double[]>> getAnalyzeSwcResults() {
+    LiveData<List<double[]>> getAnalyzeSwcResults() {
         return analyzeSwcResults;
+    }
+
+    LiveData<FilePath<?>> getScreenCaptureFile(){
+        return screenCaptureFile;
     }
 
     public void openLocalFile(Intent data){

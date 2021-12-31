@@ -7,7 +7,7 @@ import com.penglab.hi5.data.dataStore.PreferenceSetting;
  */
 public class RenderOptions {
 
-    private PreferenceSetting preferenceSetting;
+    private final PreferenceSetting preferenceSetting;
 
     private boolean downSampling;
 

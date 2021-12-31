@@ -34,16 +34,20 @@ import com.penglab.hi5.core.render.utils.MatrixManager;
 import com.penglab.hi5.core.render.utils.RenderOptions;
 import com.penglab.hi5.core.ui.check.FileInfoState;
 import com.penglab.hi5.data.ImageInfoRepository;
+import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.img.FileType;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -69,6 +73,8 @@ public class AnnotationRender extends BasicRender{
     private final MatrixManager matrixManager;
     private final AnnotationDataManager annotationDataManager;
 
+    private final ExecutorService exeService = Executors.newSingleThreadExecutor();
+    private ByteBuffer mCaptureBuffer;
     private int screenWidth;
     private int screenHeight;
     private float[] fingerTrajectory;
@@ -98,6 +104,7 @@ public class AnnotationRender extends BasicRender{
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         matrixManager.setProjectionMatrix(screenWidth, screenHeight);
+        mCaptureBuffer = ByteBuffer.allocate(screenHeight * screenWidth * 4);
 
     }
 
@@ -123,6 +130,7 @@ public class AnnotationRender extends BasicRender{
         drawFrame();
 
         // screenCapture
+        screenCapture();
 
 
         GLES30.glDisable(GL_BLEND);
@@ -208,6 +216,36 @@ public class AnnotationRender extends BasicRender{
         }
         if (renderOptions.isShowFingerTrajectory()){
             drawTrajectory();
+        }
+    }
+
+    private void screenCapture(){
+        if (renderOptions.isScreenCapture()){
+            mCaptureBuffer.rewind();
+            GLES30.glReadPixels(0,0, screenWidth, screenHeight, GLES30.GL_RGBA, GLES30.GL_UNSIGNED_BYTE, mCaptureBuffer);
+            renderOptions.setScreenCapture(false);
+            exeService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    mCaptureBuffer.rewind();
+                    Bitmap bitmap = Bitmap.createBitmap(screenWidth, screenHeight, Bitmap.Config.ARGB_8888);
+                    bitmap.copyPixelsFromBuffer(mCaptureBuffer);
+
+                    // reverse image
+                    android.graphics.Matrix matrix = new android.graphics.Matrix();
+                    matrix.postScale(1, -1);
+                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, screenWidth, screenHeight, matrix, true);
+                    mCaptureBuffer.clear();
+
+                    Bitmap outBitmap = ImageUtil.drawTextToRightBottom(getContext(),
+                            bitmap, "Hi5", 20, Color.RED, 40, 30);
+                    Uri shareUri = Uri.parse(MediaStore.Images.Media.insertImage(getContext().getContentResolver(), outBitmap,
+                            "Image" + System.currentTimeMillis(), "ScreenCapture from Hi5"));
+
+                    ImageInfoRepository.getInstance().getScreenCapture().postValue(new FilePath<>(shareUri));
+                }
+            });
+
         }
     }
 

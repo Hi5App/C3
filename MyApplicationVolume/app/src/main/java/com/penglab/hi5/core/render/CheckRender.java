@@ -155,7 +155,7 @@ public class CheckRender extends BasicRender {
                 if (neuronTree == null){
                     ToastEasy("Something wrong with this .swc/.eswc file, can't load it");
                 } else {
-                    annotationDataManager.loadNeuronTree(neuronTree);
+                    annotationDataManager.loadNeuronTree(neuronTree, false);
                 }
                 break;
             case APO:

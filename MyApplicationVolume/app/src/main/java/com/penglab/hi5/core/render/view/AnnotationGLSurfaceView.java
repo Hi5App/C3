@@ -1,10 +1,16 @@
 package com.penglab.hi5.core.render.view;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
+import static com.penglab.hi5.core.Myapplication.getContext;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
+import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -12,11 +18,14 @@ import android.view.MotionEvent;
 import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 
+import com.penglab.hi5.R;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.Image4DSimple;
+import com.penglab.hi5.basic.image.ImageUtil;
 import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
+import com.penglab.hi5.basic.utils.FileHelper;
 import com.penglab.hi5.core.collaboration.Communicator;
 import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
 import com.penglab.hi5.core.render.AnnotationRender;
@@ -173,7 +182,6 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
                     }
                     break;
                 case MotionEvent.ACTION_POINTER_UP:
-                    // TODO: downSample
                     if (editMode.getValue() == EditMode.NONE){
                         renderOptions.setImageChanging(false);
                     }
@@ -365,7 +373,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
                 if (neuronTree == null){
                     ToastEasy("Something wrong with this .swc/.eswc file, can't load it");
                 } else {
-                    annotationDataManager.loadNeuronTree(neuronTree);
+                    annotationDataManager.loadNeuronTree(neuronTree, false);
                 }
                 break;
             case APO:
@@ -389,6 +397,29 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
 
     public void zoomOut(){
         annotationRender.zoom(0.5f);
+        requestRender();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public boolean APP2(){
+        boolean result = annotationHelper.APP2(image4DSimple, is2DImage(), isBigData);
+        requestRender();
+        return result;
+    }
+
+    public boolean GD(){
+        boolean result = annotationHelper.GD(image4DSimple, is2DImage(), isBigData);
+        requestRender();
+        return result;
+    }
+
+    public void clearAllTracing(){
+        annotationDataManager.clearAllTracing();
+        requestRender();
+    }
+
+    public void screenCapture(){
+        renderOptions.setScreenCapture(true);
         requestRender();
     }
 
