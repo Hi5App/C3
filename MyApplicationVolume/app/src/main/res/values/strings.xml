@@ -313,31 +313,36 @@
     <string name="DirectlyAccess" translatable="false">DirectlyAccess</string>
     <string name="login_other_hint" translatable="false" />
     <string name="Directly_Access" translatable="false">Directly_Access</string>
-    <string name="Direct_Access" translatable="false">direct access</string>
-    <string name="forget_password" translatable="false">forget password ?</string>
-    <string name="undo" translatable="false">undo</string>
-    <string name="redo" translatable="false">redo</string>
-    <string name="drawer_open_content_description" translatable="false">drawer_open_content_description</string>
-    <string name="drawer_closed_content_description" translatable="false">drawer_closed_content_description</string>
-    <string name="nav_home" translatable="false">nav_home</string>
-    <string name="nav_account" translatable="false">nav_account</string>
-    <string name="nav_settings" translatable="false">nav_settings</string>
-    <string name="nav_chat" translatable="false">nav_chat</string>
-    <string name="home" translatable="false">home</string>
-    <string name="account" translatable="false">account</string>
-    <string name="chat" translatable="false">chatting</string>
-    <string name="setting" translatable="false">setting</string>
-    <string name="Settings" translatable="false">Settings</string>
-    <string name="About" translatable="false">About</string>
-    <string name="Login" translatable="false">Login</string>
-    <string name="Logout" translatable="false">Logout</string>
-    <string name="Help" translatable="false">Help</string>
-
-    <string name="nav_header_desc" translatable="false">Navigation header</string>
-    <string name="nav_header_title" translatable="false">Hi 5</string>
-    <string name="nav_header_subtitle" translatable="false">hi5@penglab.com</string>
 
     <string name="curve_map_title" translatable="false">Select curve color</string>
     <string name="marker_map_title" translatable="false">Select marker color</string>
     <string name="color_selector_confirm" translatable="false">Confirm</string>
+
+    <string name="Direct_Access">direct access</string>
+    <string name="forget_password">forget password ?</string>
+    <string name="undo">undo</string>
+    <string name="redo">redo</string>
+    <string name="drawer_open_content_description">drawer_open_content_description</string>
+    <string name="drawer_closed_content_description">drawer_closed_content_description</string>
+    <string name="nav_home">nav_home</string>
+    <string name="nav_account">nav_account</string>
+    <string name="nav_settings">nav_settings</string>
+    <string name="nav_chat">nav_chat</string>
+    <string name="home">home</string>
+    <string name="account">account</string>
+    <string name="chat">chatting</string>
+    <string name="setting">setting</string>
+    <string name="Settings">Settings</string>
+    <string name="About">About</string>
+    <string name="Login">Login</string>
+    <string name="Logout">Logout</string>
+    <string name="Help">Help</string>
+
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="nav_header_title">Hi 5</string>
+    <string name="nav_header_subtitle">hi5@penglab.com</string>
+    <string name="title_activity_my">ScrollingActivity</string>
+    <string name="action_settings">Settings</string>
+
+
 </resources>

@@ -53,6 +53,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+
+        <activity android:name=".core.ui.userProfile.UserInfoActivity"></activity>
+        <activity
+            android:name=".core.ui.userProfile.MyActivity"
+            android:label="@string/title_activity_my"
+            android:theme="@style/AppTheme.NoActionBar.NoActionBar" />
         <activity android:name=".core.game.RewardActivity" />
         <activity android:name=".core.game.LeaderBoardActivity" />
         <activity
@@ -90,7 +96,7 @@
         <activity android:name=".core.ui.login.LoginActivity"/>
         <activity android:name=".core.ui.check.CheckActivity"/>
         <activity android:name=".core.ui.annotation.AnnotationActivity"/>
-<!--        android:name=".core.SplashScreenActivity"-->
+
         <activity
             android:name=".core.ui.splash.SplashScreenActivity"
             android:configChanges="keyboardHidden|orientation"

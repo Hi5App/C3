@@ -107,4 +107,7 @@
     <color name="color_333333">#333333</color>
     <color name="color_999999">#999999</color>
     <color name="color_222222">#222222</color>
+
+    <color name ="color_gray_bg">#DBDFE0</color>
+    <color name ="color_gray_bg2">#c8969696</color>
 </resources>

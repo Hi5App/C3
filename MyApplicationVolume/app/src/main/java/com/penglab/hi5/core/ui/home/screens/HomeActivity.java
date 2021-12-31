@@ -22,7 +22,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-
+import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
@@ -47,6 +47,7 @@ import com.penglab.hi5.basic.utils.CrashHandler;
 import com.penglab.hi5.basic.utils.CrashReports;
 import com.penglab.hi5.core.BaseActivity;
 import com.penglab.hi5.core.ui.ViewModelFactory;
+import com.penglab.hi5.core.ui.userProfile.MyActivity;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.core.ui.home.adapters.MainPagerAdapter;
 import com.penglab.hi5.data.Result;
@@ -54,6 +55,7 @@ import com.penglab.hi5.data.dataStore.PreferenceLogin;
 import com.penglab.hi5.data.model.user.LogStatus;
 
 import java.io.File;
+
 
 public class HomeActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -256,7 +258,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         return false;
     }
 
-    /* Start this activity */
+
     public static void start(Context context) {
         Intent intent = new Intent(context, HomeActivity.class);
         context.startActivity(intent);

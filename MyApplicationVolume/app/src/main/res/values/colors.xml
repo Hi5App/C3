@@ -97,4 +97,6 @@
         <item>@color/green_map</item>
     </array>
 
+    <color name="navigate">#666</color>
+
 </resources>
