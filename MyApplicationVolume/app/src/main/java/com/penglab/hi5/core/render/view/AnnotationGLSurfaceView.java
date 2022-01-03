@@ -23,6 +23,7 @@ import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.basic.image.ImageUtil;
 import com.penglab.hi5.basic.image.MarkerList;
+import com.penglab.hi5.basic.learning.pixelclassification.PixelClassification;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
 import com.penglab.hi5.basic.utils.FileHelper;
@@ -329,6 +330,11 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
         return editMode.setSwitchableValue(mode);
     }
 
+    public void updateRenderOptions(){
+        renderOptions.update();
+        requestRender();
+    }
+
     public void openFile(){
         Log.d(TAG,"Open File");
 
@@ -400,6 +406,18 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
         requestRender();
     }
 
+    public void autoRotateStart(){
+        renderOptions.setImageChanging(true);
+        setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        requestRender();
+    }
+
+    public void autoRotateStop(){
+        renderOptions.setImageChanging(false);
+        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        requestRender();
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     public boolean APP2(){
         boolean result = annotationHelper.APP2(image4DSimple, is2DImage(), isBigData);
@@ -421,6 +439,33 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
     public void screenCapture(){
         renderOptions.setScreenCapture(true);
         requestRender();
+    }
+
+    public void pixelClassification(){
+        NeuronTree neuronTree = annotationDataManager.getNeuronTree();
+        PixelClassification pixelClassification = new PixelClassification();
+        boolean[][] selections =
+                {{true,true,true,false,false,false,false},
+                {true,true,true,false,false,false,false},
+                {false,false,false,false,false,false,false},
+                {false,false,false,false,false,false,false},
+                {false,false,false,false,false,false,false},
+                {true,true,true,false,false,false,false}};
+        pixelClassification.setSelections(selections);
+
+        try {
+            image4DSimple = pixelClassification.getPixelClassificationResult(image4DSimple, neuronTree);
+            if (image4DSimple != null){
+                updateImageSize(new Integer[]{
+                        (int) image4DSimple.getSz0(), (int) image4DSimple.getSz1(), (int) image4DSimple.getSz2()});
+                annotationRender.init3DImageInfo(image4DSimple, normalizedSize, originalSize);
+                annotationHelper.initImageInfo(image4DSimple, normalizedSize, originalSize);
+                annotationDataManager.init();
+            }
+            requestRender();
+        } catch (Exception e){
+            ToastEasy(e.getMessage());
+        }
     }
 
     public Image4DSimple getImage() {

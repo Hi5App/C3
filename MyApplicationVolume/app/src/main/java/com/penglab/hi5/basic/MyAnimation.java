@@ -2,8 +2,7 @@ package com.penglab.hi5.basic;
 
 import android.opengl.Matrix;
 
-enum RotationType
-{
+enum RotationType {
     X,
     XY,
     XYZ,
@@ -217,8 +216,6 @@ public class MyAnimation {
                     }
                 }
                 break;
-
-
         }
 
         count ++;

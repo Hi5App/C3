@@ -126,6 +126,9 @@ public class AnnotationRender extends BasicRender{
         // set content for new pattern
         setResource();
 
+        // auto rotating
+        autoRotate();
+
         // draw image | annotation | fingerTrajectory
         drawFrame();
 
@@ -197,6 +200,11 @@ public class AnnotationRender extends BasicRender{
         }
     }
 
+    private void autoRotate(){
+        matrixManager.autoRotate();
+
+    }
+
     private void drawFrame(){
         if (myPattern.isNeedDraw()){
             myPattern.drawVolume_3d(matrixManager.getFinalMatrix(),
@@ -237,6 +245,7 @@ public class AnnotationRender extends BasicRender{
                     bitmap = Bitmap.createBitmap(bitmap, 0, 0, screenWidth, screenHeight, matrix, true);
                     mCaptureBuffer.clear();
 
+                    // add watermark
                     Bitmap outBitmap = ImageUtil.drawTextToRightBottom(getContext(),
                             bitmap, "Hi5", 20, Color.RED, 40, 30);
                     Uri shareUri = Uri.parse(MediaStore.Images.Media.insertImage(getContext().getContentResolver(), outBitmap,

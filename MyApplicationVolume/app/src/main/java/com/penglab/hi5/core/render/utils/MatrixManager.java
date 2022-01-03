@@ -3,6 +3,8 @@ package com.penglab.hi5.core.render.utils;
 import android.opengl.Matrix;
 import android.util.Log;
 
+import com.penglab.hi5.basic.MyAnimation;
+
 /**
  * Created by Jackiexing on 12/25/21
  */
@@ -21,6 +23,8 @@ public class MatrixManager {
     private final float[] modelTempMatrix      = new float[16];
     private final float[] finalMatrix          = new float[16];
     private final float[] finalTempMatrix      = new float[16];
+
+    private final MyAnimation myAnimation = new MyAnimation();
 
     public void initMatrix() {
         // set the camera position (View matrix)
@@ -108,6 +112,19 @@ public class MatrixManager {
 
     public float[] getModelMatrix(){
         return modelMatrix;
+    }
+
+    public void autoRotate(){
+        Matrix.multiplyMM(rotateMatrix, 0, rotateMatrix, 0, myAnimation.Rotation(), 0);
+        updateFinalMatrix();
+    }
+
+    public void autoRotateStart(){
+        myAnimation.quickStart();
+    }
+
+    public void autoRotateStop(){
+        myAnimation.quickStop();
     }
 
 }
