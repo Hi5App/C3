@@ -106,22 +106,24 @@ public class CheckViewModel extends ViewModel {
     }
 
     public void getImageZoomIn() {
-        String [] rois = fileInfoState.getRois();
-        int curRoi = fileInfoState.getCurRoi();
-        if (curRoi > 0) {
-            fileInfoState.setCurRoi(curRoi - 1);
-            String roi = rois[rois.length - curRoi];
-            imageDataSource.downloadImage(fileInfoState.getImageId(), roi, fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
+        String [] rois = checkArborInfoState.getRois();
+        int curRoi = checkArborInfoState.getCurROI();
+        if (curRoi < rois.length - 1) {
+            checkArborInfoState.setCurROI(curRoi + 1);
+            String roi = rois[curRoi + 1];
+            ArborInfo chosenArborInfo = checkArborInfoState.getChosenArbor();
+            imageDataSource.downloadImage(chosenArborInfo.getImageId(), roi, chosenArborInfo.getXc(), chosenArborInfo.getYc(), chosenArborInfo.getZc(), 128);
         }
     }
 
     public void getImageZoomOut() {
-        String [] rois = fileInfoState.getRois();
-        int curRoi = fileInfoState.getCurRoi();
-        if (curRoi < rois.length - 1) {
-            fileInfoState.setCurRoi(curRoi + 1);
-            String roi = rois[rois.length - curRoi - 2];
-            imageDataSource.downloadImage(fileInfoState.getImageId(), roi, fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
+        String [] rois = checkArborInfoState.getRois();
+        int curRoi = checkArborInfoState.getCurROI();
+        if (curRoi > 0) {
+            checkArborInfoState.setCurROI(curRoi - 1);
+            String roi = rois[curRoi - 1];
+            ArborInfo chosenArborInfo = checkArborInfoState.getChosenArbor();
+            imageDataSource.downloadImage(chosenArborInfo.getImageId(), roi, chosenArborInfo.getXc(), chosenArborInfo.getYc(), chosenArborInfo.getZc(), 128);
         }
     }
 
@@ -135,8 +137,8 @@ public class CheckViewModel extends ViewModel {
 
     public void downloadSWC() {
         ArborInfo chosenArbor = checkArborInfoState.getChosenArbor();
-        String url = chosenArbor.getUrl() + "/" + chosenArbor.getImageId() + ".eswc";
-        annotationDataSource.downloadSWC(url, "1", chosenArbor.getXc(), chosenArbor.getYc(), chosenArbor.getZc(), 128);
+        String url = chosenArbor.getUrl() + "/" + chosenArbor.getArborName() + ".eswc";
+        annotationDataSource.downloadSWC(url, 1 << (checkArborInfoState.getRois().length - checkArborInfoState.getCurROI() - 1), chosenArbor.getXc(), chosenArbor.getYc(), chosenArbor.getZc(), 128);
     }
 
     public void getCheckArborList() {
@@ -145,21 +147,17 @@ public class CheckViewModel extends ViewModel {
 
     public void getImageWithArborInfo(ArborInfo arborInfo) {
         checkArborInfoState.setChosenArbor(arborInfo);
-        imageDataSource.downloadImage(arborInfo.getImageId(), "1", arborInfo.getXc(), arborInfo.getYc(), arborInfo.getZc(), 128);
-    }
-
-    public void getArborSWCWithArborInfo(ArborInfo arborInfo) {
-        checkArborInfoState.setChosenArbor(arborInfo);
-        String url = arborInfo.getUrl() + "/" + arborInfo.getArborName() + ".eswc";
-        annotationDataSource.downloadSWC(url, "1", arborInfo.getXc(), arborInfo.getYc(), arborInfo.getZc(), 128);
+        getBrainList();
     }
 
     public void sendCheckYes() {
-        checkDataSource.uploadCheckResult(fileInfoState.getImageId(), fileInfoState.getNeuronId(), 0);
+        ArborInfo chosenArborInfo = checkArborInfoState.getChosenArbor();
+        checkDataSource.uploadCheckResult(chosenArborInfo.getArborName(), 0);
     }
 
     public void sendCheckNo() {
-        checkDataSource.uploadCheckResult(fileInfoState.getImageId(), fileInfoState.getNeuronId(), 1);
+        ArborInfo chosenArborInfo = checkArborInfoState.getChosenArbor();
+        checkDataSource.uploadCheckResult(chosenArborInfo.getArborName(), 1);
     }
 
     public void updateImageResult(Result result) {
@@ -252,22 +250,39 @@ public class CheckViewModel extends ViewModel {
 
     private void handleBrainListJSON(JSONArray data) throws JSONException {
         int length = data.length();
-        List<BrainInfo> brainList = new ArrayList<>();
+        ArborInfo chosenArborInfo = checkArborInfoState.getChosenArbor();
+        String imageId = chosenArborInfo.getImageId();
         for (int i = 0; i < length; i++) {
             JSONObject jsonObject = data.getJSONObject(i);
-            String imageId = jsonObject.getString("imageid");
-            String detail = jsonObject.getString("detail");
-            detail = detail.substring(1, detail.length() - 1);
-            String [] rois = detail.split(", ");
-            for (int j = 0; j < rois.length; j++) {
-                rois[j] = rois[j].substring(1, rois[j].length() - 1);
+            if (imageId.equals(jsonObject.getString("imageid"))) {
+                String detail = jsonObject.getString("detail");
+                detail = detail.substring(1, detail.length() - 1);
+                String [] rois = detail.split(", ");
+                for (int j = 0; j < rois.length; j++) {
+                    rois[j] = rois[j].substring(1, rois[j].length() - 1);
+                }
+                checkArborInfoState.setRois(rois);
+                checkArborInfoState.setCurROI(rois.length - 1);
+                ArborInfo arborInfo = checkArborInfoState.getChosenArbor();
+                imageDataSource.downloadImage(arborInfo.getImageId(), rois[checkArborInfoState.getCurROI()], arborInfo.getXc(), arborInfo.getYc(), arborInfo.getZc(), 128);
             }
-            String url = jsonObject.getString("url");
-            BrainInfo brainInfo = new BrainInfo(imageId, rois, url);
-            brainList.add(brainInfo);
         }
-        fileInfoState.setBrainList(brainList);
-        fileInfoState.setCurrentOpenState(FileInfoState.OpenState.BRAIN_LIST);
+//        List<BrainInfo> brainList = new ArrayList<>();
+//        for (int i = 0; i < length; i++) {
+//            JSONObject jsonObject = data.getJSONObject(i);
+//            String imageId = jsonObject.getString("imageid");
+//            String detail = jsonObject.getString("detail");
+//            detail = detail.substring(1, detail.length() - 1);
+//            String [] rois = detail.split(", ");
+//            for (int j = 0; j < rois.length; j++) {
+//                rois[j] = rois[j].substring(1, rois[j].length() - 1);
+//            }
+//            String url = jsonObject.getString("url");
+//            BrainInfo brainInfo = new BrainInfo(imageId, rois, url);
+//            brainList.add(brainInfo);
+//        }
+//        fileInfoState.setBrainList(brainList);
+//        fileInfoState.setCurrentOpenState(FileInfoState.OpenState.BRAIN_LIST);
     }
 
     private void handleNeuronListJSON(JSONArray data) throws JSONException {

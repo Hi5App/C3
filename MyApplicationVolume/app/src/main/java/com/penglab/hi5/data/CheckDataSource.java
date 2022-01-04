@@ -22,9 +22,9 @@ public class CheckDataSource {
         return result;
     }
 
-    public void uploadCheckResult(String brainId, String neuronId, int checkResult) {
+    public void uploadCheckResult(String arborName, int checkResult) {
         try {
-            HttpUtilsCheck.checkWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), brainId, neuronId, checkResult, new Callback() {
+            HttpUtilsCheck.checkWithOkHttp(arborName, InfoCache.getAccount(), InfoCache.getToken(), InfoCache.getAccount(), checkResult, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     result.postValue(new Result.Error(new Exception("Fail to send check result")));

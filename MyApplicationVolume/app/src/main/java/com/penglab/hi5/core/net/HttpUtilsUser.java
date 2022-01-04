@@ -14,7 +14,6 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class HttpUtilsUser extends HttpUtils {
-
     private static final String URL_REGISTER = SERVER_IP + "/user/register";
     private static final String URL_LOGIN = SERVER_IP + "/user/login";
     private static final String URL_UPDATE_PASSWORD = SERVER_IP + "/user/updatepassword";

@@ -21,8 +21,8 @@ public class HttpUtilsCheckArbor extends HttpUtils{
                     .put("Off", off)
                     .put("Limit", limit)));
             asyncRequest(GET_CHECK_INFOS_URL, body, callback);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -36,7 +36,7 @@ public class HttpUtilsCheckArbor extends HttpUtils{
                     .put("imageId", imageId)
                     .put("url", url)));
             asyncRequest(GET_CHECK_INFOS_URL, body, callback);
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
