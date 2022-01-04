@@ -46,92 +46,20 @@ public class Utils {
                 Context context = v.getContext();
                 UserInfoRepository userInfoRepository = UserInfoRepository.getInstance();
                 switch (libraryObject.getTitle()){
-                    case "Big Image":
-//                        HttpUtilsImage.getImageListWithOkHttp(
-//                                userInfoRepository.getUser().getUserId(),
-//                                "123456", new Callback() {
-//                            @Override
-//                            public void onFailure(Call call, IOException e) {
-//                                Log.e(TAG, "Failed");
-//                                Log.e(TAG, e.getMessage());
-//                            }
-//
-//                            @Override
-//                            public void onResponse(Call call, Response response) throws IOException {
-//                                Log.e(TAG, "Success");
-//                                Log.e(TAG, response.body().string());
-//                            }
-//                        });
-//                        MainActivity.actionStart(context, "empty");
+                    case "Annotation":
                         AnnotationActivity.start(context);
-                        break;
-                    case "Smart Imaging":
-//                        HttpUtilsImage.getNeuronListWithOkHttp(
-//                                userInfoRepository.getUser().getUserId(),
-//                                "123456", "18454", new Callback() {
-//                                    @Override
-//                                    public void onFailure(Call call, IOException e) {
-//                                        Log.e(TAG, "Failed");
-//                                        Log.e(TAG, e.getMessage());
-//                                    }
-//
-//                                    @Override
-//                                    public void onResponse(Call call, Response response) throws IOException {
-//                                        Log.e(TAG, "Success");
-//                                        Log.e(TAG, response.body().string());
-//                                    }
-//                                });
-//                        S2Activity.actionStart(context, "empty");
-                        S2Activity.start(context);
-                        break;
-                    case "Chat":
-//                        HttpUtilsImage.getAnoListWithOkHttp(
-//                                userInfoRepository.getUser().getUserId(),
-//                                "123456", "18454_00049", new Callback() {
-//                                    @Override
-//                                    public void onFailure(Call call, IOException e) {
-//                                        Log.e(TAG, "Failed");
-//                                        Log.e(TAG, e.getMessage());
-//                                    }
-//
-//                                    @Override
-//                                    public void onResponse(Call call, Response response) throws IOException {
-//                                        Log.e(TAG, "Success");
-//                                        Log.e(TAG, response.body().string());
-//                                    }
-//                                });
-                        ChatActivity.start(context);
-                        break;
-                    case "Help":
-//                        HttpUtilsImage.downloadImageWithOkHttp(
-//                                userInfoRepository.getUser().getUserId(),
-//                                "123456",
-//                                "18454/RES(26298x35000x11041)",
-//                                14530,
-//                                10693,
-//                                3124,
-//                                128,
-//                                new Callback() {
-//                                    @Override
-//                                    public void onFailure(Call call, IOException e) {
-//                                        Log.e(TAG, "Failed");
-//                                        Log.e(TAG, e.getMessage());
-//                                    }
-//
-//                                    @Override
-//                                    public void onResponse(Call call, Response response) throws IOException {
-//                                        Log.e(TAG, "Success");
-//                                        byte[] fileContent = response.body().bytes();
-//                                        Log.e(TAG,"content len: " + fileContent.length);
-//                                        if (!FileHelper.storeFile(Myapplication.getContext().getExternalFilesDir(null) + "/Img", "18454_RES(26298x35000x11041).v3dpbd", fileContent)) {
-//                                            Log.e(TAG, "Fail to store music");
-//                                        }
-//                                    }
-//                                });
-                        HelpActivity.start(context);
                         break;
                     case "Check":
                         CheckActivity.start(context);
+                        break;
+                    case "Smart Imaging":
+                        S2Activity.start(context);
+                        break;
+                    case "Chat":
+                        ChatActivity.start(context);
+                        break;
+                    case "Help":
+                        HelpActivity.start(context);
                         break;
                     default:
                         Log.e("Utils","Something error");

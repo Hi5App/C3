@@ -10,7 +10,7 @@ import okhttp3.RequestBody;
  * Created by Yihang zhu 01/04/21
  */
 public class HttpUtilsCheckArbor extends HttpUtils{
-    private static final String GET_CHECK_INFOS_URL = "http://192.168.3.158:8080/check/getcheckinfos";
+    private static final String GET_CHECK_INFOS_URL = SERVER_IP + "/check/getcheckinfos";
 
     public static void getCheckArborList(String username, String password, boolean withChecked, int off, int limit, Callback callback) {
         try {

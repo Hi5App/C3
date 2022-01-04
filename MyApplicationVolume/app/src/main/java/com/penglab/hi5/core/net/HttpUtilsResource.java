@@ -12,8 +12,8 @@ import okhttp3.RequestBody;
 
 public class HttpUtilsResource extends HttpUtils {
 
-    private static final String URL_MUSIC = "http://192.168.3.158:8080/resource/getmusicres";
-    private static final String URL_DOWNLOAD = "http://192.168.3.158:8080/download";
+    private static final String URL_MUSIC = SERVER_IP + "/resource/getmusicres";
+    private static final String URL_DOWNLOAD = SERVER_IP + "/download";
 
     public static void getMusicListWithOkHttp(Callback callback) {
         try {
