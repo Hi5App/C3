@@ -38,22 +38,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
-        <com.robinhood.ticker.TickerView
-            android:id="@+id/scoreTickerView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/colorPrimary"
-            android:textSize="16dp"
-            android:text="12345"
-            android:gravity="center"
-            app:ticker_animationDuration="1500"
-            app:ticker_defaultPreferredScrollingDirection="any"
-            app:ticker_defaultCharacterList="number"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintVertical_bias="0.13"/>
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

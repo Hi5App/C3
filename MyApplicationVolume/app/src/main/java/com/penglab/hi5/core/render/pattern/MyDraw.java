@@ -22,15 +22,15 @@ public class MyDraw extends BasicPattern {
     private static final String TAG = "MyDraw";
 
     public final static float[][] colormap = {
-            {1f,1f,1f},                        //white
-            {0.07843f,0.07843f,0.07843f},      //black
-            {0.7843f,0.07843f,0f},             //red
-            {0f,0.07843f,0.7843f},             //blue
-            {0.7843f,0f,0.7843f},              //purple
-            {0f,0.7843f,0.7843f},              //cyan
-            {0.8627f,0.7843f,0f},              //yellow
-            {0f,0.7843f,0.07843f}              //green
-    } ;
+            {1f, 1f, 1f},                        //white
+            {0.07843f, 0.07843f, 0.07843f},      //black
+            {0.7843f, 0.07843f, 0f},             //red
+            {0f, 0.07843f, 0.7843f},             //blue
+            {0.7843f, 0f, 0.7843f},              //purple
+            {0f, 0.7843f, 0.7843f},              //cyan
+            {0.8627f, 0.7843f, 0f},              //yellow
+            {0f, 0.7843f, 0.07843f}              //green
+    };
 
     private final float[] modelVertex = {
         //1:123

@@ -33,7 +33,7 @@
     <string name="repeat_send_has_blank">重 发</string>
     <string name="repeat_send_message">重发消息?</string>
     <string name="reply_has_blank">回 复</string>
-    <string name="reply_with_message">回复 %s: %s</string>
+    <string name="reply_with_message">回复 %1$s: %2$s</string>
     <string name="reply_with_amount">%s 条回复</string>
     <string name="copy_has_blank">复 制</string>
     <string name="delete_has_blank">删 除</string>

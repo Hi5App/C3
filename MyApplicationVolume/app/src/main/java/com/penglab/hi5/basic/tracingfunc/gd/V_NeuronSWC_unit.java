@@ -2,9 +2,36 @@ package com.penglab.hi5.basic.tracingfunc.gd;
 
 import android.util.Log;
 
+import com.penglab.hi5.R;
+
+import java.util.HashMap;
 import java.util.Vector;
 
 public class V_NeuronSWC_unit implements Cloneable {
+    private static final int DEFAULT_TYPE = 3;
+
+    private static final HashMap<Integer, Integer> typeToColor = new HashMap<Integer, Integer>() {{
+        put(0, R.color.white_map);
+        put(1, R.color.black_map);
+        put(2, R.color.red_map);
+        put(3, R.color.blue_map);
+        put(4, R.color.purple_map);
+        put(5, R.color.cyan_map);
+        put(6, R.color.yellow_map);
+        put(7, R.color.green_map);
+    }};
+
+    private static final HashMap<String, Integer> colorToType = new HashMap<String, Integer>() {{
+        put("FFFFFFFF",  0);
+        put("FF141414",  1);
+        put("FFC81400",  2);
+        put("FF0014C8",  3);
+        put("FFC814C8",  4);
+        put("FF00C8C8",  5);
+        put("FFDCC800",  6);
+        put("FF00C814",  7);
+    }};
+
     public double n, type, x, y, z, r, parent, nchild, seg_id, nodeinseg_id, level, creatmode, timestamp, tfresindex;
 
     public V_NeuronSWC_unit()
@@ -43,11 +70,24 @@ public class V_NeuronSWC_unit implements Cloneable {
     }
 
     public void move(float [] dis, float l){
-        Log.v("movebefore", Double.toString(x) + ' ' + Double.toString(y) + ' ' + Double.toString(z));
         x += dis[0] * l;
         y += dis[1] * l;
         z += dis[2] * l;
-        Log.v("moveafter", Double.toString(x) + ' ' + Double.toString(y) + ' ' + Double.toString(z));
+    }
 
+    public static int typeToColor(int type){
+        if (!typeToColor.containsKey(type)){
+            return typeToColor.get(DEFAULT_TYPE);
+        } else {
+            return typeToColor.get(type);
+        }
+    }
+
+    public static int colorToType(String color){
+        if (!colorToType.containsKey(color)){
+            return DEFAULT_TYPE;
+        } else {
+            return colorToType.get(color);
+        }
     }
 }

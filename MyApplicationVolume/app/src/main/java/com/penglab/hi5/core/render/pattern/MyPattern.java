@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.penglab.hi5.basic.ByteTranslate;
 import com.penglab.hi5.basic.image.Image4DSimple;
@@ -17,6 +18,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
+import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import static com.penglab.hi5.core.Myapplication.getContext;
 import static com.penglab.hi5.core.render.pattern.ShaderHelper.initShaderProgram;
 
@@ -347,20 +349,23 @@ public class MyPattern extends BasicPattern {
             initTexture_3d();
         }catch (Exception e){
             e.printStackTrace();
-            Context context = getContext();
-            Intent intent = new Intent(context, MainActivity.class);
-            String message = "File to Init Texture !";
-            intent.putExtra(MyRenderer.OUT_OF_MEMORY, message);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
+            ToastEasy("File to Init Texture !");
+//            Context context = getContext();
+//            Intent intent = new Intent(context, MainActivity.class);
+//            String message = "File to Init Texture !";
+//            intent.putExtra(MyRenderer.OUT_OF_MEMORY, message);
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            context.startActivity(intent);
         }catch (OutOfMemoryError error){
             error.printStackTrace();
-            Context context = getContext();
-            Intent intent = new Intent(context, MainActivity.class);
-            String message = "Out of memory when load file";
-            intent.putExtra(MyRenderer.OUT_OF_MEMORY, message);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
+            ToastEasy("Out of memory when load file !");
+
+//            Context context = getContext();
+//            Intent intent = new Intent(context, MainActivity.class);
+//            String message = "Out of memory when load file";
+//            intent.putExtra(MyRenderer.OUT_OF_MEMORY, message);
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            context.startActivity(intent);
         }
 
         fboBackCoord = initFBO(width, height);
