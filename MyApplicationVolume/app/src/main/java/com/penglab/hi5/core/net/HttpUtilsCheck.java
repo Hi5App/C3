@@ -10,7 +10,7 @@ import okhttp3.RequestBody;
  */
 public class HttpUtilsCheck extends HttpUtils{
 
-    private static final String URL_CHECK = "http://192.168.3.158:8080/check/insertcheckresult";
+    private static final String URL_CHECK = SERVER_IP + "/check/insertcheckresult";
 
     public static void checkWithOkHttp(String arborname, String username, String password, String owner, int result, Callback callback) {
         try {

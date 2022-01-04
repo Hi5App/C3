@@ -7,11 +7,11 @@ import okhttp3.RequestBody;
 
 public class HttpUtilsImage extends HttpUtils {
 
-    private static final String URL_GET_BRAIN_LIST = "http://192.168.3.158:8080/ano/getimagelist";
-    private static final String URL_GET_NEURON_LIST = "http://192.168.3.158:8080/ano/getneuronlist";
-    private static final String URL_GET_ANO_LIST = "http://192.168.3.158:8080/ano/getanolist";
-    private static final String URL_DOWNLOAD_IMAGE = "http://192.168.3.158:8080/coll/getimagebb";
-    private static final String URL_GET_BBSWC = "http://192.168.3.158:8080/coll/getswcbb";
+    private static final String URL_GET_BRAIN_LIST = SERVER_IP + "/ano/getimagelist";
+    private static final String URL_GET_NEURON_LIST = SERVER_IP + "/ano/getneuronlist";
+    private static final String URL_GET_ANO_LIST = SERVER_IP + "/ano/getanolist";
+    private static final String URL_DOWNLOAD_IMAGE = SERVER_IP + "/coll/getimagebb";
+    private static final String URL_GET_BBSWC = SERVER_IP + "/coll/getswcbb";
 
     public static void getBrainListWithOkHttp(String username, String password, Callback callback) {
         try {

@@ -20,7 +20,11 @@ public class HorizontalPagerAdapter extends PagerAdapter {
     private final Utils.LibraryObject[] LIBRARIES = new Utils.LibraryObject[]{
             new Utils.LibraryObject(
                     R.drawable.ic_design,
-                    "Big Image"
+                    "Annotation"
+            ),
+            new Utils.LibraryObject(
+                    R.drawable.ic_development,
+                    "Check"
             ),
             new Utils.LibraryObject(
                     R.drawable.ic_strategy,
@@ -33,10 +37,6 @@ public class HorizontalPagerAdapter extends PagerAdapter {
             new Utils.LibraryObject(
                     R.drawable.ic_development,
                     "Help"
-            ),
-            new Utils.LibraryObject(
-                    R.drawable.ic_development,
-                    "Check"
             )
     };
 

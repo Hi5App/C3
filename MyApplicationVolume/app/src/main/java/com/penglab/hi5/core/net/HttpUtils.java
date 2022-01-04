@@ -16,12 +16,13 @@ import okhttp3.RequestBody;
 public class HttpUtils {
 
     protected static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    protected static final String SERVER_IP = "http://139.155.28.154:26000";
 
-    protected static void asyncRequest(String url, RequestBody body, Callback callback) throws Exception {
+    protected static void asyncRequest(String url, RequestBody body, Callback callback) {
         OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(10, TimeUnit.SECONDS)
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .writeTimeout(5, TimeUnit.SECONDS)
+                .readTimeout(5, TimeUnit.SECONDS)
                 .build();
         Request request = new Request.Builder()
                 .url(url)
