@@ -1,12 +1,45 @@
 package com.penglab.hi5.basic.image;
 
+import com.penglab.hi5.R;
+import com.penglab.hi5.core.ui.annotation.EditMode;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ImageMarker extends BasicSurfObj {
+    private static final int DEFAULT_TYPE = 3;
+
+    private static final HashMap<Integer, Integer> typeToColor = new HashMap<Integer, Integer>() {{
+        put(0, R.color.white_map);
+        put(1, R.color.black_map);
+        put(2, R.color.red_map);
+        put(3, R.color.blue_map);
+        put(4, R.color.purple_map);
+        put(5, R.color.cyan_map);
+        put(6, R.color.yellow_map);
+        put(7, R.color.green_map);
+    }};
+
+    private static final HashMap<String, Integer> colorToType = new HashMap<String, Integer>() {{
+        put("FFFFFFFF",  0);
+        put("FF141414",  1);
+        put("FFC81400",  2);
+        put("FF0014C8",  3);
+        put("FFC814C8",  4);
+        put("FF00C8C8",  5);
+        put("FFDCC800",  6);
+        put("FF00C814",  7);
+    }};
 
     /**
-     * 0: White RGB(255, 255, 255)
-     * 1:
+     * 0-white    RGB(255, 255, 255):  undefined
+     * 1-black    RGB(20, 20, 20):     soma
+     * 2-red      RGB(200, 20, 0):     axon
+     * 3-blue     RGB(0, 20, 200):     dendrite
+     * 4-purple   RGB(200, 20, 200):   apical dendrite
+     * 5-cyan     RGB(0, 200, 200):
+     * 6-yellow   RGB(220, 200, 0):
+     * 7-green    RGB(0, 200, 20):
      */
     public int type;			// 0-pxUnknown, 1-pxLocaNotUseful, 2-pxLocaUseful, 3-pxLocaUnsure, 4-pxTemp
 
@@ -113,4 +146,19 @@ public class ImageMarker extends BasicSurfObj {
         return imageMarker;
     }
 
+    public static int typeToColor(int type){
+        if (!typeToColor.containsKey(type)){
+            return typeToColor.get(DEFAULT_TYPE);
+        } else {
+            return typeToColor.get(type);
+        }
+    }
+
+    public static int colorToType(String color){
+        if (!colorToType.containsKey(color)){
+            return DEFAULT_TYPE;
+        } else {
+            return colorToType.get(color);
+        }
+    }
 }

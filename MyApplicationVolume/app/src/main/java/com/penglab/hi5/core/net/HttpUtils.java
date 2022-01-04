@@ -17,7 +17,7 @@ public class HttpUtils {
 
     protected static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    protected static void asyncRequest(String url, RequestBody body, Callback callback) {
+    protected static void asyncRequest(String url, RequestBody body, Callback callback) throws Exception {
         OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .writeTimeout(10, TimeUnit.SECONDS)

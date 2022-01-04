@@ -370,6 +370,10 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
                     annotationDataManager.init();
                 }
                 break;
+            case SWC:
+            case ESWC:
+//                ToastEasy("Unsupported file !");
+                break;
             default:
                 ToastEasy("Unsupported file !");
         }
@@ -454,6 +458,22 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
             e.printStackTrace();
         }
         requestRender();
+    }
+
+    public void setLastCurveType(int curveType){
+        annotationHelper.setLastCurveType(curveType);
+    }
+
+    public void setLastMarkerType(int markerType){
+        annotationHelper.setLastMarkerType(markerType);
+    }
+
+    public int getLastCurveType(){
+        return annotationHelper.getLastCurveType();
+    }
+
+    public int getLastMarkerType(){
+        return annotationHelper.getLastMarkerType();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)

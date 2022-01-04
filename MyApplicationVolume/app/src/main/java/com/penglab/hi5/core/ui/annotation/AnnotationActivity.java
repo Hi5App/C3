@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -30,6 +31,9 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.jaredrummler.android.colorpicker.ColorPickerDialog;
+import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
+import com.jaredrummler.android.colorpicker.ColorPickerView;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.michaldrabik.tapbarmenulib.TapBarMenu;
@@ -37,6 +41,8 @@ import com.nightonke.boommenu.BoomButtons.TextOutsideCircleButton;
 import com.nightonke.boommenu.BoomMenuButton;
 import com.penglab.hi5.R;
 import com.penglab.hi5.basic.NeuronTree;
+import com.penglab.hi5.basic.image.ImageMarker;
+import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.data.ImageInfoRepository;
@@ -51,18 +57,20 @@ import com.robinhood.ticker.TickerView;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import cn.carbs.android.library.MDDialog;
 
-public class AnnotationActivity extends AppCompatActivity {
+public class AnnotationActivity extends AppCompatActivity implements ColorPickerDialogListener {
 
     private static final String TAG = "AnnotationActivity";
 
     private static final int OPEN_LOCAL_FILE = 1;
     private static final int OPEN_ANALYSIS_SWC = 2;
     private static final int LOAD_LOCAL_FILE = 3;
+    private static final int COLOR_MAP_COLUMNS = 4;
 
     private final HashMap<EditMode, Integer> editModeIconMap = new HashMap<EditMode, Integer>() {{
         put(EditMode.NONE, 0);
@@ -325,6 +333,7 @@ public class AnnotationActivity extends AppCompatActivity {
                                         openLocalFile();
                                         break;
                                     case "Open BigData":
+                                        ToastEasy("BigData is under maintenance ！");
                                         break;
                                     default:
                                         ToastEasy("Something wrong in function openFile !");
@@ -359,7 +368,7 @@ public class AnnotationActivity extends AppCompatActivity {
     }
 
     private void moreFunctions(){
-        String[] centerList = new String[] {"Analyze Swc", "Filter by example", "Animate", "Settings"};
+        String[] centerList = new String[] {"Analyze Swc", "Filter by example", "Settings"};
         new XPopup.Builder(this)
                 .maxHeight(1500)
                 .asCenterList("More Functions...", centerList,
@@ -492,6 +501,9 @@ public class AnnotationActivity extends AppCompatActivity {
             deleteMarker.setOnClickListener(this::onMenuItemClick);
             autoReconstruction.setOnClickListener(this::onMenuItemClick);
 
+            addCurve.setOnLongClickListener(this::onMenuItemLongClick);
+            addMarker.setOnLongClickListener(this::onMenuItemLongClick);
+
             // All is lambda expression
             boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
                     .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_CURVE_TYPE))
@@ -525,7 +537,7 @@ public class AnnotationActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @SuppressLint("NonConstantResourceId")
-    public void onMenuItemClick(View view) {
+    private void onMenuItemClick(View view) {
         // resetUI
         addCurve.setImageResource(R.drawable.ic_draw_main);
         addMarker.setImageResource(R.drawable.ic_marker_main);
@@ -544,7 +556,6 @@ public class AnnotationActivity extends AppCompatActivity {
                 }
                 break;
             case R.id.auto_reconstruction:
-                // TODO: run app2 here | async
                 ToastEasy("APP2 tracing algorithm start !");
                 executorService.submit(() -> annotationGLSurfaceView.APP2());
                 break;
@@ -557,6 +568,57 @@ public class AnnotationActivity extends AppCompatActivity {
                 if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_MARKER)){
                     deleteMarker.setImageResource(R.drawable.ic_marker_delete);
                 }
+        }
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    private boolean onMenuItemLongClick(View view){
+        switch (view.getId()){
+            case R.id.draw_i:
+                ColorPickerDialog.newBuilder()
+                        .setShowColorShades(false)
+                        .setAllowCustom(false)
+                        .setDialogId(R.id.draw_i)
+                        .setDialogTitle(R.string.curve_map_title)
+                        .setColor(ContextCompat.getColor(this,
+                                V_NeuronSWC_unit.typeToColor(annotationGLSurfaceView.getLastCurveType())))
+                        .setPresets(getResources().getIntArray(R.array.colorMap))
+                        .setSelectedButtonText(R.string.color_selector_confirm)
+                        .show(this);
+                return true;
+            case R.id.pinpoint:
+                ColorPickerDialog.newBuilder()
+                        .setShowColorShades(false)
+                        .setAllowCustom(false)
+                        .setDialogId(R.id.pinpoint)
+                        .setDialogTitle(R.string.marker_map_title)
+                        .setColor(ContextCompat.getColor(this,
+                                ImageMarker.typeToColor(annotationGLSurfaceView.getLastMarkerType())))
+                        .setPresets(getResources().getIntArray(R.array.colorMap))
+                        .setSelectedButtonText(R.string.color_selector_confirm)
+                        .show(this);
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    @Override
+    public void onDialogDismissed(int dialogId) {
+        // TODO: sth when dialog dismiss, cur is empty
+    }
+
+    @Override
+    @SuppressLint("NonConstantResourceId")
+    public void onColorSelected(int dialogId, int color) {
+        String colorRGB = Integer.toHexString(color).toUpperCase(Locale.ROOT);
+        switch (dialogId){
+            case R.id.draw_i:
+                annotationGLSurfaceView.setLastCurveType(V_NeuronSWC_unit.colorToType(colorRGB));
+                break;
+            case R.id.pinpoint:
+                annotationGLSurfaceView.setLastMarkerType(ImageMarker.colorToType(colorRGB));
+                break;
         }
     }
 
