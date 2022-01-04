@@ -23,6 +23,10 @@ public class CheckArborInfoState {
 
     private ArborInfo chosenArbor;
 
+    private String [] rois;
+
+    private int curROI;
+
     public List<ArborInfo> getArborInfoList() {
         return arborInfoList;
     }
@@ -49,5 +53,21 @@ public class CheckArborInfoState {
 
     public void setChosenArbor(ArborInfo chosenArbor) {
         this.chosenArbor = chosenArbor;
+    }
+
+    public String[] getRois() {
+        return rois;
+    }
+
+    public void setRois(String[] rois) {
+        this.rois = rois;
+    }
+
+    public int getCurROI() {
+        return curROI;
+    }
+
+    public void setCurROI(int curROI) {
+        this.curROI = curROI;
     }
 }

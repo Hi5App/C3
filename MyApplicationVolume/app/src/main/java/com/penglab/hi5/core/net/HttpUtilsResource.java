@@ -11,7 +11,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 public class HttpUtilsResource extends HttpUtils {
-
     private static final String URL_MUSIC = SERVER_IP + "/resource/getmusicres";
     private static final String URL_DOWNLOAD = SERVER_IP + "/download";
 

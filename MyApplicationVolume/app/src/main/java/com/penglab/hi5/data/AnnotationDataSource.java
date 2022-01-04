@@ -27,7 +27,7 @@ public class AnnotationDataSource {
         return result;
     }
 
-    public void downloadSWC(String swc, String res, int x, int y, int z, int size) {
+    public void downloadSWC(String swc, int res, int x, int y, int z, int size) {
         try {
             HttpUtilsImage.getBBSwcWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), swc, res, x, y, z, size, new Callback() {
                 @Override
@@ -41,7 +41,8 @@ public class AnnotationDataSource {
                         if (response.body() != null) {
                             byte[] fileContent = response.body().bytes();
                             String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Resources/Annotation";
-                            if (!FileHelper.storeFile(storePath, swc, fileContent)) {
+                            String filename = swc.substring(swc.lastIndexOf("/") + 1);
+                            if (!FileHelper.storeFile(storePath, filename, fileContent)) {
                             }
                             result.postValue(new Result.Success(storePath + "/" + swc));
                         } else {

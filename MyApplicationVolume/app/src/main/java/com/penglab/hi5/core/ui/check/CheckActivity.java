@@ -67,24 +67,24 @@ public class CheckActivity extends BaseActivity {
             }
         });
 
-        checkViewModel.getFileInfoState().currentOpenState.observe(this, new Observer<FileInfoState.OpenState>() {
-            @Override
-            public void onChanged(FileInfoState.OpenState openState) {
-                switch (openState) {
-                    case BRAIN_LIST:
-                        showBrainListPopup();
-                        break;
-                    case NEURON_LIST:
-                        showNeuronListPopup();
-                        break;
-                    case ANO_LIST:
-                        showAnoListPopup();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
+//        checkViewModel.getFileInfoState().currentOpenState.observe(this, new Observer<FileInfoState.OpenState>() {
+//            @Override
+//            public void onChanged(FileInfoState.OpenState openState) {
+//                switch (openState) {
+//                    case BRAIN_LIST:
+//                        showBrainListPopup();
+//                        break;
+//                    case NEURON_LIST:
+//                        showNeuronListPopup();
+//                        break;
+//                    case ANO_LIST:
+//                        showAnoListPopup();
+//                        break;
+//                    default:
+//                        break;
+//                }
+//            }
+//        });
 
         checkViewModel.getImageResult().observe(this, new Observer<ResourceResult>() {
             @Override
@@ -138,8 +138,6 @@ public class CheckActivity extends BaseActivity {
             public void onChanged(CheckArborInfoState.ArborOpenState arborOpenState) {
                 if (arborOpenState == CheckArborInfoState.ArborOpenState.ARBOR_LIST) {
                     showCheckArborListPopup();
-                } else if (arborOpenState == CheckArborInfoState.ArborOpenState.ARBOR_URL) {
-
                 }
             }
         });
@@ -161,6 +159,7 @@ public class CheckActivity extends BaseActivity {
         checkYesButton.setVisibility(View.GONE);
         checkNoButton.setVisibility(View.GONE);
         checkFileListButton.setVisibility(View.GONE);
+        checkFormerFileButton.setVisibility(View.GONE);
         checkNextFileButton.setVisibility(View.GONE);
         checkROIButton.setVisibility(View.GONE);
         checkZoomInButton.setVisibility(View.GONE);
@@ -180,6 +179,7 @@ public class CheckActivity extends BaseActivity {
         checkYesButton.setVisibility(View.VISIBLE);
         checkNoButton.setVisibility(View.VISIBLE);
         checkFileListButton.setVisibility(View.VISIBLE);
+        checkFormerFileButton.setVisibility(View.VISIBLE);
         checkNextFileButton.setVisibility(View.VISIBLE);
         checkROIButton.setVisibility(View.VISIBLE);
         checkZoomInButton.setVisibility(View.VISIBLE);

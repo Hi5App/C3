@@ -6,7 +6,6 @@ import okhttp3.Callback;
 import okhttp3.RequestBody;
 
 public class HttpUtilsImage extends HttpUtils {
-
     private static final String URL_GET_BRAIN_LIST = SERVER_IP + "/ano/getimagelist";
     private static final String URL_GET_NEURON_LIST = SERVER_IP + "/ano/getneuronlist";
     private static final String URL_GET_ANO_LIST = SERVER_IP + "/ano/getanolist";
@@ -88,7 +87,7 @@ public class HttpUtilsImage extends HttpUtils {
      * @param len size of image block
      * @param callback the callback func
      */
-    public static void getBBSwcWithOkHttp(String username, String password, String swc, String res, int x, int y, int z, int len, Callback callback) {
+    public static void getBBSwcWithOkHttp(String username, String password, String swc, int res, int x, int y, int z, int len, Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("name", username)
