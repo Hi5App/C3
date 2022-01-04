@@ -11,7 +11,6 @@
         android:orientation="vertical"
         tools:ignore="MissingConstraints">
 
-
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -21,38 +20,10 @@
             android:paddingLeft="16dp"
             android:paddingRight="16dp" >
 
-            <TextView
-                android:id="@+id/clean_cache"
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:textColor="#bb333333"
-                android:text="Clean Img Cache"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1px"
-                android:layout_alignLeft="@id/clean_cache"
-                android:layout_alignRight="@id/clean_cache"
-                android:layout_below="@id/clean_cache"
-                android:layout_marginTop="10dp"
-                android:background="#33333333" />
-
-        </RelativeLayout>
-
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="15dp"
-            android:paddingBottom="15dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp" >
-
-            <Switch
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/downSample_mode"
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
+                android:layout_height="50dp"
                 android:textColor="#bb333333"
                 android:textOff="OFF"
                 android:textOn="ON"
@@ -60,7 +31,7 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="1px"
+                android:layout_height="1dp"
                 android:layout_alignLeft="@id/downSample_mode"
                 android:layout_alignRight="@id/downSample_mode"
                 android:layout_below="@id/downSample_mode"
@@ -110,6 +81,7 @@
                 app:isb_track_background_size="2dp"
                 app:isb_track_progress_color="@color/colorAccent"
                 app:isb_track_progress_size="4dp" />
+
 
         </LinearLayout>
 

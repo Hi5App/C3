@@ -1898,7 +1898,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     editMode.setValue(EditMode.NONE);
                 }
             }
-        }).normalImageRes(R.drawable.ic_delete_multimarker).normalText("Delete Multi Markers"));
+        }).normalImageRes(R.drawable.ic_delete_multi_marker).normalText("Delete Multi Markers"));
 
         bmb.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
             @Override
@@ -1960,7 +1960,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         edit_mode_imagebutton.setImageResource(R.drawable.ic_change_marker_type);
                         break;
                     case DELETEMULTIMARKER:
-                        edit_mode_imagebutton.setImageResource(R.drawable.ic_delete_multimarker);
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_delete_multi_marker);
                         break;
                     case SPLIT:
                         edit_mode_imagebutton.setImageResource(R.drawable.ic_split);
@@ -3787,8 +3787,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     @Override
                     public void operate(View contentView) {
 
-                        Switch downsample_on_off = contentView.findViewById(R.id.switch_rotation_mode);
-                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
+                        Switch downsample_on_off = contentView.findViewById(R.id.downSample_mode);
+                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.contrast_indicator_seekbar);
                         TextView clean_cache = contentView.findViewById(R.id.clean_cache);
                         SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
                         SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
@@ -3859,7 +3859,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
                     @Override
                     public void onClick(View clickedView, View contentView) {
-                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
+                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.contrast_indicator_seekbar);
                         int contrast = seekbar.getProgress();
 
                         myrenderer.setIfNeedDownSample(downsample[0]);

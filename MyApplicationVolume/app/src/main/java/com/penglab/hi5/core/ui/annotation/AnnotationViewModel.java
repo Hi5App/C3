@@ -36,13 +36,17 @@ public class AnnotationViewModel extends ViewModel {
         LOCAL_FILE_EDITABLE, LOCAL_FILE_UNEDITABLE, BIG_DATA, NONE
     }
 
+    public enum RotateStatus{
+        STOP, PAUSE, ROTATING
+    }
+
     private final MutableLiveData<UserInfoView> userInfo = new MutableLiveData<>();
     private final MutableLiveData<Integer> score = new MutableLiveData<>();
     private final MutableLiveData<EditMode> editMode = new MutableLiveData<>();
     private final MutableLiveData<AnnotationMode> annotationMode = new MutableLiveData<>();
     private final MutableLiveData<WorkStatus> workStatus = new MutableLiveData<>();
+    private final SwitchMutableLiveData<RotateStatus> rotateStatus= new SwitchMutableLiveData(RotateStatus.STOP);
     private final MutableLiveData<List<double[]>> analyzeSwcResults = new MutableLiveData<>();
-    private final MutableLiveData<FilePath<?>> screenCaptureFile = new MutableLiveData<>();
 
     private final ImageInfoRepository imageInfoRepository;
     private final UserInfoRepository userInfoRepository;
@@ -73,8 +77,8 @@ public class AnnotationViewModel extends ViewModel {
         return analyzeSwcResults;
     }
 
-    LiveData<FilePath<?>> getScreenCaptureFile(){
-        return screenCaptureFile;
+    LiveData<RotateStatus> getRotateStatus(){
+        return rotateStatus;
     }
 
     public void openLocalFile(Intent data){
@@ -117,6 +121,10 @@ public class AnnotationViewModel extends ViewModel {
                 analyzeSwcResults.postValue(features);
             }
         }).start();
+    }
+
+    public void autoRotate(){
+        rotateStatus.setSwitchableValue(RotateStatus.ROTATING);
     }
 
 }

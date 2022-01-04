@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -21,15 +22,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.michaldrabik.tapbarmenulib.TapBarMenu;
-import com.nightonke.boommenu.BoomButtons.OnBMClickListener;
 import com.nightonke.boommenu.BoomButtons.TextOutsideCircleButton;
 import com.nightonke.boommenu.BoomMenuButton;
 import com.penglab.hi5.R;
@@ -37,14 +40,17 @@ import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.data.ImageInfoRepository;
+import com.penglab.hi5.data.dataStore.PreferenceSetting;
 import com.penglab.hi5.data.model.img.FilePath;
+import com.warkiz.widget.IndicatorSeekBar;
+import com.warkiz.widget.OnSeekChangeListener;
+import com.warkiz.widget.SeekParams;
 
 import com.robinhood.ticker.TickerUtils;
 import com.robinhood.ticker.TickerView;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -89,6 +95,7 @@ public class AnnotationActivity extends AppCompatActivity {
     private ImageView deleteMarker;
     private MDDialog featuresDisplay;
     private ImageButton editModeIndicator;
+    private ImageButton rotate;
 
     private TickerView scoreTickerView;
 
@@ -105,6 +112,7 @@ public class AnnotationActivity extends AppCompatActivity {
 
         annotationViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(AnnotationViewModel.class);
         annotationViewModel.getWorkStatus().observe(this, new Observer<WorkStatus>() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onChanged(WorkStatus workStatus) {
                 if (workStatus == null){
@@ -144,6 +152,27 @@ public class AnnotationActivity extends AppCompatActivity {
                 }
                 featureDisplayId = 0;
                 displayAnalyzeResults(features);
+            }
+        });
+
+        annotationViewModel.getRotateStatus().observe(this, new Observer<AnnotationViewModel.RotateStatus>() {
+            @Override
+            public void onChanged(AnnotationViewModel.RotateStatus rotateStatus) {
+                if (rotateStatus == null){
+                    return;
+                }
+                switch (rotateStatus){
+                    case STOP:
+                        if (rotate != null){
+                            rotate.setImageResource(R.drawable.ic_3d_rotation_red_24dp);
+                            annotationGLSurfaceView.autoRotateStop();
+                        }
+                        break;
+                    case ROTATING:
+                        rotate.setImageResource(R.drawable.ic_block_red_24dp);
+                        annotationGLSurfaceView.autoRotateStart();
+                        break;
+                }
             }
         });
 
@@ -222,6 +251,14 @@ public class AnnotationActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.undo:
+                annotationGLSurfaceView.undo();
+                return true;
+
+            case R.id.redo:
+                annotationGLSurfaceView.redo();
+                return true;
+
             case R.id.load:
                 Log.e(TAG,"load file");
                 loadLocalFile();
@@ -336,9 +373,10 @@ public class AnnotationActivity extends AppCompatActivity {
                                     case "Animate":
                                         break;
                                     case "Filter image by example":
+                                        annotationGLSurfaceView.pixelClassification();
                                         break;
                                     case "Settings":
-//                                        settings();
+                                        settings();
                                         break;
                                     default:
                                         ToastEasy("Something wrong with more functions...");
@@ -383,6 +421,51 @@ public class AnnotationActivity extends AppCompatActivity {
         } else {
             annotationViewModel.analyzeCurTracing(neuronTree);
         }
+    }
+
+    private void settings(){
+        new MDDialog.Builder(this)
+                .setContentView(R.layout.annotation_settings)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {
+                        PreferenceSetting preferenceSetting = PreferenceSetting.getInstance();
+                        SwitchCompat downSampleSwitch = contentView.findViewById(R.id.downSample_mode);
+                        IndicatorSeekBar contrastIndicator = contentView.findViewById(R.id.contrast_indicator_seekbar);
+                        SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
+                        SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
+                        SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
+                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
+
+                        downSampleSwitch.setChecked(preferenceSetting.getDownSampleMode());
+                        contrastIndicator.setProgress(preferenceSetting.getContrast());
+
+                        downSampleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                preferenceSetting.setDownSampleMode(isChecked);
+                            }
+                        });
+
+                        contrastIndicator.setOnSeekChangeListener(new OnSeekChangeListener() {
+                            @Override
+                            public void onSeeking(SeekParams seekParams) {
+                                preferenceSetting.setContrast(seekParams.progress);
+                            }
+                            @Override
+                            public void onStartTrackingTouch(IndicatorSeekBar seekBar) {
+                            }
+                            @Override
+                            public void onStopTrackingTouch(IndicatorSeekBar seekBar) {
+                            }
+                        });
+                    }
+                })
+                .setNegativeButton("Cancel", v -> { })
+                .setPositiveButton("Confirm", v -> annotationGLSurfaceView.updateRenderOptions())
+                .setTitle("Settings")
+                .create()
+                .show();
     }
 
     private void showCommonUI(){
@@ -488,15 +571,11 @@ public class AnnotationActivity extends AppCompatActivity {
             // set onClickListener for buttons
             ImageButton zoomIn = findViewById(R.id.zoomIn);
             ImageButton zoomOut = findViewById(R.id.zoomOut);
-            ImageButton rotate = findViewById(R.id.rotate);
+            rotate = findViewById(R.id.rotate);
 
             zoomIn.setOnClickListener(v -> annotationGLSurfaceView.zoomIn());
             zoomOut.setOnClickListener(v -> annotationGLSurfaceView.zoomOut());
-            rotate.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                }
-            });
+            rotate.setOnClickListener(v -> annotationViewModel.autoRotate());
         } else {
             localFileModeView.setVisibility(View.VISIBLE);
         }

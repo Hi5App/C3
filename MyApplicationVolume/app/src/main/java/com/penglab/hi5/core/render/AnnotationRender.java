@@ -61,6 +61,7 @@ public class AnnotationRender extends BasicRender{
 
     private boolean is2DImage;
     private Image4DSimple image4DSimple;
+    private Bitmap bitmap2D;
     private float[] normalizedSize = new float[3];
     private int[] originalSize = new int[3];
 
@@ -126,6 +127,9 @@ public class AnnotationRender extends BasicRender{
         // set content for new pattern
         setResource();
 
+        // auto rotating
+        autoRotate();
+
         // draw image | annotation | fingerTrajectory
         drawFrame();
 
@@ -145,21 +149,22 @@ public class AnnotationRender extends BasicRender{
         this.is2DImage = false;
 
         initPatterns();
-        matrixManager.initMatrixByFile(normalizedSize, renderOptions.getScale());
+        matrixManager.initMatrixByFile(normalizedSize, renderOptions.getScale(), false);
         myPattern.setNeedSetContent(true);
         myAxis.setNeedSetContent(true);
         myDraw.setNeedDraw(true);
     }
 
-    public void init2DImageInfo(Image4DSimple image4DSimple, float[] normalizedSize, int[] originalSize){
+    public void init2DImageInfo(Image4DSimple image4DSimple, Bitmap bitmap2D, float[] normalizedSize, int[] originalSize){
         this.image4DSimple = image4DSimple;
+        this.bitmap2D = bitmap2D;
         this.normalizedSize = normalizedSize;
         this.originalSize = originalSize;
         this.is2DImage = true;
 
         initPatterns();
-        matrixManager.initMatrixByFile(normalizedSize, renderOptions.getScale());
-        myPattern.setNeedSetContent(true);
+        matrixManager.initMatrixByFile(normalizedSize, renderOptions.getScale(), true);
+        myPattern2D.setNeedSetContent(true);
         myDraw.setNeedDraw(true);
     }
 
@@ -193,8 +198,13 @@ public class AnnotationRender extends BasicRender{
             myAxis.setAxis(normalizedSize);
         }
         if (myPattern2D.isNeedSetContent()){
-//            myPattern2D.setContent();
+            myPattern2D.setContent(bitmap2D, originalSize[0], originalSize[1], normalizedSize);
         }
+    }
+
+    private void autoRotate(){
+        matrixManager.autoRotate();
+
     }
 
     private void drawFrame(){
@@ -237,6 +247,7 @@ public class AnnotationRender extends BasicRender{
                     bitmap = Bitmap.createBitmap(bitmap, 0, 0, screenWidth, screenHeight, matrix, true);
                     mCaptureBuffer.clear();
 
+                    // add watermark
                     Bitmap outBitmap = ImageUtil.drawTextToRightBottom(getContext(),
                             bitmap, "Hi5", 20, Color.RED, 40, 30);
                     Uri shareUri = Uri.parse(MediaStore.Images.Media.insertImage(getContext().getContentResolver(), outBitmap,

@@ -45,6 +45,7 @@ import com.penglab.hi5.core.render.pattern.MyNavLoc;
 import com.penglab.hi5.core.render.pattern.MyPattern;
 import com.penglab.hi5.core.render.pattern.MyPattern2D;
 import com.penglab.hi5.core.render.pattern.MyPatternGame;
+import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.game.GameCharacter;
 
 import org.apache.commons.io.IOUtils;
@@ -1334,6 +1335,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void loadImage2D(){
         File file = new File(filepath);
         long length = 0;
@@ -1364,7 +1366,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        degree = getBitmapDegree(filepath);
+        degree = getBitmapDegree(new FilePath<>(filepath));
         bitmap2D = BitmapFactory.decodeStream(is);
 
         if (bitmap2D != null){

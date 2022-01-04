@@ -134,7 +134,7 @@ public class CheckRender extends BasicRender {
             default:
                 ToastEasy("Unsupported file !");
         }
-        matrixManager.initMatrixByFile(normalizedSize, renderOptions.getScale());
+        matrixManager.initMatrixByFile(normalizedSize, renderOptions.getScale(), false);
     }
 
     public void loadAnnotationFile(){

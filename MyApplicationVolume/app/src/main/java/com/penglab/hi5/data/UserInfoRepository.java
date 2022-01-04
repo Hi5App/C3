@@ -22,7 +22,6 @@ public class UserInfoRepository {
 
     // private constructor : singleton access
     private UserInfoRepository() {
-        scoreModel.initFromLitePal();
     }
 
     public static UserInfoRepository getInstance() {
@@ -54,6 +53,7 @@ public class UserInfoRepository {
         Log.e("UserInfoRepository", "email: " + user.getEmail());
         this.user = user;
         scoreModel.setId(user.getUserId());
+        scoreModel.initFromLitePal();
     }
 
     public ScoreModel getScoreModel() {

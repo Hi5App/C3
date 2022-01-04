@@ -81,4 +81,9 @@ public class RenderOptions {
     public void setImageChanging(boolean imageChanging) {
         this.imageChanging = imageChanging;
     }
+
+    public void update(){
+        this.downSampling = preferenceSetting.getDownSampleMode();
+        this.contrast = preferenceSetting.getContrast() / 100.0f + 1.0f;
+    }
 }

@@ -43,6 +43,20 @@ public class PreferenceSetting {
         editor.apply();
     }
 
+    public void setDownSampleMode(boolean downSampleMode){
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putBoolean("DownSampleMode", downSampleMode);
+        editor.putInt("Contrast", pref.getInt("Contrast",0));
+        editor.apply();
+    }
+
+    public void setContrast(int contrast){
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putBoolean("DownSampleMode", pref.getBoolean("DownSampleMode",true));
+        editor.putInt("Contrast", contrast);
+        editor.apply();
+    }
+
     public boolean getDownSampleMode(){
         return pref.getBoolean("DownSampleMode",true);
     }
