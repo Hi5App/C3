@@ -10,15 +10,15 @@ import okhttp3.RequestBody;
  */
 public class HttpUtilsCheck extends HttpUtils{
 
-    private static final String URL_CHECK = "http://192.168.3.158:8000/check/sendcheckresult";
+    private static final String URL_CHECK = "http://192.168.3.158:8080/check/insertcheckresult";
 
-    public static void checkWithOkHttp(String username, String password, String brainId, String neuronId, String result, Callback callback) {
+    public static void checkWithOkHttp(String arborname, String username, String password, String owner, int result, Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
+                    .put("arborname", arborname)
                     .put("name", username)
                     .put("password", password)
-                    .put("brainId", brainId)
-                    .put("neuronId", neuronId)
+                    .put("owner", owner)
                     .put("result", result)));
             asyncRequest(URL_CHECK, body, callback);
         } catch (Exception e) {

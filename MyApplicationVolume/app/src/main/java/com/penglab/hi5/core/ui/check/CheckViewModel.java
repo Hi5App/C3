@@ -8,10 +8,13 @@ import androidx.lifecycle.ViewModel;
 import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.data.AnnotationDataSource;
+import com.penglab.hi5.data.CheckDataSource;
+import com.penglab.hi5.data.CheckArborDataSource;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.model.img.AnoInfo;
+import com.penglab.hi5.data.model.img.ArborInfo;
 import com.penglab.hi5.data.model.img.BrainInfo;
 import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.img.FileType;
@@ -22,7 +25,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -32,18 +34,25 @@ public class CheckViewModel extends ViewModel {
 
     private ImageDataSource imageDataSource;
     private AnnotationDataSource annotationDataSource;
+    private CheckDataSource checkDataSource;
     private FileInfoState fileInfoState;
+    private CheckArborDataSource checkArborDataSource;
+    private CheckArborInfoState checkArborInfoState;
 
     private MutableLiveData<ResourceResult> imageResult = new MutableLiveData<>();
     private MutableLiveData<ResourceResult> annotationResult = new MutableLiveData<>();
+    private MutableLiveData<ResourceResult> checkArborResult = new MutableLiveData<>();
 
     private ImageInfoRepository imageInfoRepository;
 
-    public CheckViewModel(ImageDataSource imageDataSource, AnnotationDataSource annotationDataSource, FileInfoState fileInfoState, ImageInfoRepository imageInfoRepository) {
+    public CheckViewModel(ImageDataSource imageDataSource, AnnotationDataSource annotationDataSource, CheckDataSource checkDataSource, FileInfoState fileInfoState, ImageInfoRepository imageInfoRepository) {
         this.imageDataSource = imageDataSource;
         this.annotationDataSource = annotationDataSource;
+        this.checkDataSource = checkDataSource;
         this.fileInfoState = fileInfoState;
         this.imageInfoRepository = imageInfoRepository;
+        this.checkArborDataSource = new CheckArborDataSource();
+        this.checkArborInfoState = new CheckArborInfoState();
     }
 
     ImageDataSource getImageDataSource() {
@@ -52,6 +61,22 @@ public class CheckViewModel extends ViewModel {
 
     public AnnotationDataSource getAnnotationDataSource() {
         return annotationDataSource;
+    }
+
+    public CheckDataSource getCheckDataSource() {
+        return checkDataSource;
+    }
+
+    public CheckArborDataSource getCheckArborDataSource() {
+        return checkArborDataSource;
+    }
+
+    public CheckArborInfoState getCheckArborInfoState() {
+        return checkArborInfoState;
+    }
+
+    public MutableLiveData<ResourceResult> getCheckArborResult() {
+        return checkArborResult;
     }
 
     public void getBrainList() {
@@ -76,7 +101,8 @@ public class CheckViewModel extends ViewModel {
     }
 
     public void getImageWithROI(String roi) {
-        imageDataSource.downloadImage(fileInfoState.getImageId(), roi, fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
+        ArborInfo chosenArborInfo = checkArborInfoState.getChosenArbor();
+        imageDataSource.downloadImage(chosenArborInfo.getImageId(), roi, chosenArborInfo.getXc(), chosenArborInfo.getYc(), chosenArborInfo.getZc(), 128);
     }
 
     public void getImageZoomIn() {
@@ -108,7 +134,32 @@ public class CheckViewModel extends ViewModel {
 
 
     public void downloadSWC() {
-        annotationDataSource.downloadSWC(fileInfoState.getImageId(), fileInfoState.getRois()[fileInfoState.getCurRoi()], fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
+        ArborInfo chosenArbor = checkArborInfoState.getChosenArbor();
+        String url = chosenArbor.getUrl() + "/" + chosenArbor.getImageId() + ".eswc";
+        annotationDataSource.downloadSWC(url, "1", chosenArbor.getXc(), chosenArbor.getYc(), chosenArbor.getZc(), 128);
+    }
+
+    public void getCheckArborList() {
+        checkArborDataSource.getCheckArborList(true, 0, 10);
+    }
+
+    public void getImageWithArborInfo(ArborInfo arborInfo) {
+        checkArborInfoState.setChosenArbor(arborInfo);
+        imageDataSource.downloadImage(arborInfo.getImageId(), "1", arborInfo.getXc(), arborInfo.getYc(), arborInfo.getZc(), 128);
+    }
+
+    public void getArborSWCWithArborInfo(ArborInfo arborInfo) {
+        checkArborInfoState.setChosenArbor(arborInfo);
+        String url = arborInfo.getUrl() + "/" + arborInfo.getArborName() + ".eswc";
+        annotationDataSource.downloadSWC(url, "1", arborInfo.getXc(), arborInfo.getYc(), arborInfo.getZc(), 128);
+    }
+
+    public void sendCheckYes() {
+        checkDataSource.uploadCheckResult(fileInfoState.getImageId(), fileInfoState.getNeuronId(), 0);
+    }
+
+    public void sendCheckNo() {
+        checkDataSource.uploadCheckResult(fileInfoState.getImageId(), fileInfoState.getNeuronId(), 1);
     }
 
     public void updateImageResult(Result result) {
@@ -166,6 +217,37 @@ public class CheckViewModel extends ViewModel {
         } else {
             annotationResult.setValue(new ResourceResult(false, result.toString()));
         }
+    }
+
+    public void updateCheckArborResult(Result result) {
+        if (result instanceof Result.Success) {
+            Object data = ((Result.Success<?>) result).getData();
+            if (data instanceof JSONArray) {
+                try {
+                    handleArborListJSON((JSONArray) data);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void handleArborListJSON(JSONArray data) throws JSONException {
+        int length = data.length();
+        List<ArborInfo> arborInfoList = new ArrayList<>();
+        for (int i = 0; i < length; i++) {
+            JSONObject jsonObject = data.getJSONObject(i);
+            String arborName = jsonObject.getString("arborName");
+            int xc = jsonObject.getInt("xc");
+            int yc = jsonObject.getInt("yc");
+            int zc = jsonObject.getInt("zc");
+            String imageId = jsonObject.getString("imageId");
+            String url = jsonObject.getString("url");
+            ArborInfo arborInfo = new ArborInfo(arborName, xc, yc, zc, imageId, url);
+            arborInfoList.add(arborInfo);
+        }
+        checkArborInfoState.setArborInfoList(arborInfoList);
+        checkArborInfoState.setArborOpenState(CheckArborInfoState.ArborOpenState.ARBOR_LIST);
     }
 
     private void handleBrainListJSON(JSONArray data) throws JSONException {

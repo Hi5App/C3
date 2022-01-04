@@ -27,12 +27,17 @@ public class ScoreModel {
 
     private DailyQuestsModel dailyQuestsModel;
 
+    public ScoreModel() {
+        dailyQuestsModel = new DailyQuestsModel();
+    }
+
     public String getId() {
         return id;
     }
 
     public void setId(String id) {
         this.id = id;
+        dailyQuestsModel.setUserId(id);
     }
 
     public int getScore() {

@@ -27,9 +27,9 @@ public class AnnotationDataSource {
         return result;
     }
 
-    public void downloadSWC(String brainId, String res, int x, int y, int z, int size) {
+    public void downloadSWC(String swc, String res, int x, int y, int z, int size) {
         try {
-            HttpUtilsImage.getBBSwcWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), brainId, res, x, y, z, size, new Callback() {
+            HttpUtilsImage.getBBSwcWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), swc, res, x, y, z, size, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     result.postValue(new Result.Error(new Exception("Connect")));
@@ -41,9 +41,9 @@ public class AnnotationDataSource {
                         if (response.body() != null) {
                             byte[] fileContent = response.body().bytes();
                             String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Resources/Annotation";
-                            if (!FileHelper.storeFile(storePath, "1.eswc", fileContent)) {
+                            if (!FileHelper.storeFile(storePath, swc, fileContent)) {
                             }
-                            result.postValue(new Result.Success(storePath + "/" + "1.eswc"));
+                            result.postValue(new Result.Success(storePath + "/" + swc));
                         } else {
                             result.postValue(new Result.Error(new Exception("Response from server is null when download image !")));
                         }

@@ -15,10 +15,10 @@ import okhttp3.Response;
 
 public class HttpUtilsUser extends HttpUtils {
 
-    private static final String URL_REGISTER = "http://192.168.3.158:8000/user/register";
-    private static final String URL_LOGIN = "http://192.168.3.158:8000/user/login";
-    private static final String URL_UPDATE_PASSWORD = "http://192.168.3.158:8000/user/updatepassword";
-    private static final String URL_FIND_PASSWORD = "http://192.168.3.158:8000/user/forgetpassword";
+    private static final String URL_REGISTER = "http://192.168.3.158:8080/user/register";
+    private static final String URL_LOGIN = "http://192.168.3.158:8080/user/login";
+    private static final String URL_UPDATE_PASSWORD = "http://192.168.3.158:8080/user/updatepassword";
+    private static final String URL_FIND_PASSWORD = "http://192.168.3.158:8080/user/forgetpassword";
 
     /* 登录 异步方法 */
     public static void loginWithOkHttp(String account, String password, Callback callback) {

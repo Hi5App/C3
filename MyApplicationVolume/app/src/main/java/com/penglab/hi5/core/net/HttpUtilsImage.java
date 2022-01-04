@@ -7,11 +7,11 @@ import okhttp3.RequestBody;
 
 public class HttpUtilsImage extends HttpUtils {
 
-    private static final String URL_GET_BRAIN_LIST = "http://192.168.3.158:8000/ano/getimagelist";
-    private static final String URL_GET_NEURON_LIST = "http://192.168.3.158:8000/ano/getneuronlist";
-    private static final String URL_GET_ANO_LIST = "http://192.168.3.158:8000/ano/getanolist";
-    private static final String URL_DOWNLOAD_IMAGE = "http://192.168.3.158:8000/coll/getimagebb";
-    private static final String URL_GET_BBSWC = "http://192.168.3.158:8000/coll/getswcbb";
+    private static final String URL_GET_BRAIN_LIST = "http://192.168.3.158:8080/ano/getimagelist";
+    private static final String URL_GET_NEURON_LIST = "http://192.168.3.158:8080/ano/getneuronlist";
+    private static final String URL_GET_ANO_LIST = "http://192.168.3.158:8080/ano/getanolist";
+    private static final String URL_DOWNLOAD_IMAGE = "http://192.168.3.158:8080/coll/getimagebb";
+    private static final String URL_GET_BBSWC = "http://192.168.3.158:8080/coll/getswcbb";
 
     public static void getBrainListWithOkHttp(String username, String password, Callback callback) {
         try {
@@ -80,7 +80,7 @@ public class HttpUtilsImage extends HttpUtils {
      * download image block
      * @param username username
      * @param password password
-     * @param brainId such as 18454
+     * @param swc such as 18454/18454_01130/18454_01130_DAH_YLL_SYY_stamp_2021_12_29_17_45/18454_01130_DAH_YLL_SYY_stamp_2021_12_29_17_45.ano.eswc
      * @param res such as RES(26298x35000x11041)"
      * @param x offset of axis x
      * @param y offset of axis y
@@ -88,12 +88,12 @@ public class HttpUtilsImage extends HttpUtils {
      * @param len size of image block
      * @param callback the callback func
      */
-    public static void getBBSwcWithOkHttp(String username, String password, String brainId, String res, int x, int y, int z, int len, Callback callback) {
+    public static void getBBSwcWithOkHttp(String username, String password, String swc, String res, int x, int y, int z, int len, Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("name", username)
                     .put("password", password)
-                    .put("swc", "18454/18454_01130/18454_01130_DAH_YLL_SYY_stamp_2021_12_29_17_45/18454_01130_DAH_YLL_SYY_stamp_2021_12_29_17_45.ano.eswc")
+                    .put("swc", swc)
                     .put("x", x)
                     .put("y", y)
                     .put("z", z)
