@@ -82,6 +82,8 @@ public class MyPattern2D extends BasicPattern {
         mz = vmz;
 
         createTexture();
+        setNeedSetContent(false);
+        setNeedDraw(true);
     }
 
     /**

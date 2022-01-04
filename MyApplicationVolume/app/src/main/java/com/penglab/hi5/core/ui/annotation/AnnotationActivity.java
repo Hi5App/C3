@@ -112,6 +112,7 @@ public class AnnotationActivity extends AppCompatActivity {
 
         annotationViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(AnnotationViewModel.class);
         annotationViewModel.getWorkStatus().observe(this, new Observer<WorkStatus>() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onChanged(WorkStatus workStatus) {
                 if (workStatus == null){
@@ -250,6 +251,14 @@ public class AnnotationActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.undo:
+                annotationGLSurfaceView.undo();
+                return true;
+
+            case R.id.redo:
+                annotationGLSurfaceView.redo();
+                return true;
+
             case R.id.load:
                 Log.e(TAG,"load file");
                 loadLocalFile();

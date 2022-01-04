@@ -1,16 +1,27 @@
 package com.penglab.hi5.basic;
 
+import static com.penglab.hi5.core.MainActivity.getContext;
+
 import android.graphics.Bitmap;
 import android.media.ExifInterface;
 import android.graphics.Matrix;
+import android.net.Uri;
 import android.os.Build;
+import android.os.ParcelFileDescriptor;
+import android.util.Log;
 
 import androidx.annotation.RequiresApi;
+
+import com.penglab.hi5.data.model.img.FilePath;
 
 import java.io.IOException;
 import java.io.InputStream;
 
+import jxl.write.biff.File;
+
 public class BitmapRotation {
+    private static final String TAG = "BitmapRotation";
+
     /**
      * 获取图片的旋转角度
      *
@@ -55,21 +66,28 @@ public class BitmapRotation {
         }
     }
 
-    public static int getBitmapDegree(String path) {
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public static int getBitmapDegree(FilePath<?> filePath) {
         int degree = 0;
         try {
+            ExifInterface exifInterface = null;
+
+            if (filePath.getData() instanceof Uri){
+                ParcelFileDescriptor parcelFileDescriptor =
+                        getContext().getContentResolver().openFileDescriptor((Uri) filePath.getData(), "r");
+                exifInterface = new ExifInterface(parcelFileDescriptor.getFileDescriptor());
+
+            } else if (filePath.getData() instanceof String) {
+                exifInterface = new ExifInterface((String) filePath.getData());
+            }
             // 从指定路径下读取图片，并获取其EXIF信息
-            ExifInterface exifInterface = new ExifInterface(path);
             if (exifInterface == null){
-                System.out.println("NULLLLLLLLLLLLLL");
+                Log.e(TAG, "exifInterface is null");
             }
             // 获取图片的旋转信息
             String ori = exifInterface.getAttribute(ExifInterface.TAG_ORIENTATION);
             int orientation = Integer.valueOf(ori);
-//            exifInterface.getAttributeInt(ExifInterface.TAG_DATETIME)
-//            exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL+"");
-            System.out.println("orientation");
-            System.out.println(orientation);
+            Log.e(TAG, "orientation: " + orientation);
             switch (orientation) {
                 case ExifInterface.ORIENTATION_ROTATE_90:
                     degree = 90;

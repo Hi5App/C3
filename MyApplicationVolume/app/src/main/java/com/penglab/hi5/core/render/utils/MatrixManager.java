@@ -12,6 +12,7 @@ public class MatrixManager {
 
     private final String TAG = "MatrixManager";
 
+    private float[] projectionMatrix           = new float[16];
     private final float[] persProjectionMatrix = new float[16];      // for 3D
     private final float[] orthProjectionMatrix = new float[16];      // for 2D
     private final float[] viewMatrix           = new float[16];
@@ -39,7 +40,14 @@ public class MatrixManager {
         Matrix.setRotateM(rotateMatrix, 0, 0, -1.0f, -1.0f, 0.0f);
     }
 
-    public void setMatrixByFile(float[] normalizedSize, float scale) {
+    public void setMatrixByFile(float[] normalizedSize, float scale, boolean is2DImage) {
+        // Set ProjectionMatrix
+        if (is2DImage){
+            projectionMatrix = orthProjectionMatrix;
+        } else {
+            projectionMatrix = persProjectionMatrix;
+        }
+
         // Set translateMatrix
         Matrix.translateM(translateMatrix, 0, -0.5f * normalizedSize[0], -0.5f * normalizedSize[1], -0.5f * normalizedSize[2]);
 
@@ -53,7 +61,7 @@ public class MatrixManager {
 
     public void updateFinalMatrix(){
         // Calculate the projection and view transformation
-        Matrix.multiplyMM(finalTempMatrix, 0, persProjectionMatrix, 0, viewMatrix, 0);
+        Matrix.multiplyMM(finalTempMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
 
         // model = zoom * rotate * translate
         // Calculate model matrix
@@ -66,9 +74,9 @@ public class MatrixManager {
 
     }
 
-    public void initMatrixByFile(float[] normalizedSize, float scale){
+    public void initMatrixByFile(float[] normalizedSize, float scale, boolean is2DImage){
         initMatrix();
-        setMatrixByFile(normalizedSize, scale);
+        setMatrixByFile(normalizedSize, scale, is2DImage);
         updateFinalMatrix();
     }
 
@@ -115,8 +123,10 @@ public class MatrixManager {
     }
 
     public void autoRotate(){
-        Matrix.multiplyMM(rotateMatrix, 0, rotateMatrix, 0, myAnimation.Rotation(), 0);
-        updateFinalMatrix();
+        if (myAnimation.getStatus()){
+            Matrix.multiplyMM(rotateMatrix, 0, rotateMatrix, 0, myAnimation.Rotation(), 0);
+            updateFinalMatrix();
+        }
     }
 
     public void autoRotateStart(){

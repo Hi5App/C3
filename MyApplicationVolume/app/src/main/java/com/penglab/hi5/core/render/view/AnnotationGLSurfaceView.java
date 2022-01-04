@@ -67,6 +67,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
 
     private final ImageInfoRepository imageInfoRepository = ImageInfoRepository.getInstance();
     private Image4DSimple image4DSimple;
+    private Bitmap bitmap2D;
     private final float[] normalizedSize = new float[3];
     private final int[] originalSize = new int[3];
 
@@ -335,6 +336,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
         requestRender();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void openFile(){
         Log.d(TAG,"Open File");
 
@@ -352,6 +354,18 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
                     updateImageSize(new Integer[]{
                             (int) image4DSimple.getSz0(), (int) image4DSimple.getSz1(), (int) image4DSimple.getSz2()});
                     annotationRender.init3DImageInfo(image4DSimple, normalizedSize, originalSize);
+                    annotationHelper.initImageInfo(image4DSimple, normalizedSize, originalSize);
+                    annotationDataManager.init();
+                }
+                break;
+            case JPG:
+            case PNG:
+                bitmap2D = Image4DSimple.loadImage2D(filePath);
+                image4DSimple = Image4DSimple.loadImage2D(bitmap2D, filePath);
+                if (bitmap2D != null && image4DSimple != null){
+                    update2DImageSize(new Integer[]{
+                            bitmap2D.getWidth(), bitmap2D.getHeight(), Math.max(bitmap2D.getWidth(), bitmap2D.getHeight())});
+                    annotationRender.init2DImageInfo(image4DSimple, bitmap2D, normalizedSize, originalSize);
                     annotationHelper.initImageInfo(image4DSimple, normalizedSize, originalSize);
                     annotationDataManager.init();
                 }
@@ -408,13 +422,37 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
 
     public void autoRotateStart(){
         renderOptions.setImageChanging(true);
+        matrixManager.autoRotateStart();
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         requestRender();
     }
 
     public void autoRotateStop(){
         renderOptions.setImageChanging(false);
+        matrixManager.autoRotateStop();
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        requestRender();
+    }
+
+    public void undo(){
+        try {
+            if (!annotationDataManager.undo()){
+                ToastEasy("nothing to undo");
+            }
+        } catch (Exception e){
+          e.printStackTrace();
+        }
+        requestRender();
+    }
+
+    public void redo(){
+        try {
+            if (!annotationDataManager.redo()){
+                ToastEasy("nothing to redo");
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
         requestRender();
     }
 
@@ -489,7 +527,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
 
     }
 
-    private void updateFileSize(Integer[] size){
+    private void update2DImageSize(Integer[] size){
         float maxSize = (float) Collections.max(Arrays.asList(size));
 
         originalSize[0] = size[0];

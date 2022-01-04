@@ -1,7 +1,9 @@
 package com.penglab.hi5.basic.image;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
@@ -25,6 +27,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import static com.penglab.hi5.basic.BitmapRotation.getBitmapDegree;
+import static com.penglab.hi5.basic.BitmapRotation.rotateBitmapByDegree;
 import static com.penglab.hi5.basic.image.Image4DSimple.ImagePixelType.V3D_FLOAT32;
 import static com.penglab.hi5.basic.image.Image4DSimple.ImagePixelType.V3D_UINT16;
 import static com.penglab.hi5.basic.image.Image4DSimple.ImagePixelType.V3D_UINT8;
@@ -35,6 +38,7 @@ import static java.lang.Math.floor;
 import static java.lang.Math.round;
 import static java.lang.System.out;
 
+import androidx.annotation.RequiresApi;
 
 
 public class Image4DSimple {
@@ -648,6 +652,63 @@ public class Image4DSimple {
             }
         }
         return image4DSimple;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public static Bitmap loadImage2D(FilePath<?> filePath){
+        Bitmap bitmap2D = null;
+        InputStream is;
+        long length;
+        if (filePath.getData() instanceof Uri){
+            Log.e(TAG,"filePath is Uri !");
+            Uri uri = (Uri) filePath.getData();
+
+            try {
+                ParcelFileDescriptor parcelFileDescriptor =
+                        getContext().getContentResolver().openFileDescriptor(uri, "r");
+                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+                length = parcelFileDescriptor.getStatSize();
+
+                Log.e(TAG,"length " + length);
+                int degree = getBitmapDegree(filePath);
+                bitmap2D = BitmapFactory.decodeStream(is);
+                bitmap2D = rotateBitmapByDegree(bitmap2D, degree);
+                is.close();
+
+            } catch (Exception e){
+                e.printStackTrace();
+                return null;
+            }
+        } else if (filePath.getData() instanceof String){
+            String path = (String) filePath.getData();
+            File file = new File(path);
+
+            try {
+                length = file.length();
+                is = new FileInputStream(file);
+
+                int degree = getBitmapDegree(filePath);
+                bitmap2D = BitmapFactory.decodeStream(is);
+                bitmap2D = rotateBitmapByDegree(bitmap2D, degree);
+                is.close();
+
+            } catch (Exception e){
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        return bitmap2D;
+    }
+
+    public static Image4DSimple loadImage2D(Bitmap bitmapOrigin, FilePath filePath){
+        Image4DSimple image = new Image4DSimple();
+        BitmapReader bmr = new BitmapReader();
+
+        if (bitmapOrigin != null){
+            image = bmr.read(bitmapOrigin);
+        }
+        return image;
     }
 
     public static Image4DSimple loadImage(String filepath, String filetype){
