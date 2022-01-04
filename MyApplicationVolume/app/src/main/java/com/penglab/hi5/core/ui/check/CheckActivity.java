@@ -24,6 +24,7 @@ import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.model.img.AnoInfo;
+import com.penglab.hi5.data.model.img.ArborInfo;
 import com.penglab.hi5.data.model.img.BrainInfo;
 import com.penglab.hi5.data.model.img.NeuronInfo;
 
@@ -116,6 +117,29 @@ public class CheckActivity extends BaseActivity {
                     Toast_in_Thread(annotationResult.getError());
                 } else {
                     checkGLSurfaceView.loadAnnotationFile();
+                    showButtons();
+                }
+            }
+        });
+
+        checkViewModel.getCheckArborDataSource().getResult().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                if (result == null) {
+                    return;
+                }
+
+                checkViewModel.updateCheckArborResult(result);
+            }
+        });
+
+        checkViewModel.getCheckArborInfoState().getArborOpenState().observe(this, new Observer<CheckArborInfoState.ArborOpenState>() {
+            @Override
+            public void onChanged(CheckArborInfoState.ArborOpenState arborOpenState) {
+                if (arborOpenState == CheckArborInfoState.ArborOpenState.ARBOR_LIST) {
+                    showCheckArborListPopup();
+                } else if (arborOpenState == CheckArborInfoState.ArborOpenState.ARBOR_URL) {
+
                 }
             }
         });
@@ -134,6 +158,14 @@ public class CheckActivity extends BaseActivity {
         checkZoomInButton = findViewById(R.id.check_zoom_in_button);
         checkZoomOutButton = findViewById(R.id.check_zoom_out_button);
 
+        checkYesButton.setVisibility(View.GONE);
+        checkNoButton.setVisibility(View.GONE);
+        checkFileListButton.setVisibility(View.GONE);
+        checkNextFileButton.setVisibility(View.GONE);
+        checkROIButton.setVisibility(View.GONE);
+        checkZoomInButton.setVisibility(View.GONE);
+        checkZoomOutButton.setVisibility(View.GONE);
+
         checkYesButton.setOnClickListener(new CheckButtonsClickListener());
         checkNoButton.setOnClickListener(new CheckButtonsClickListener());
         checkFileListButton.setOnClickListener(new CheckButtonsClickListener());
@@ -142,6 +174,16 @@ public class CheckActivity extends BaseActivity {
         checkROIButton.setOnClickListener(new CheckButtonsClickListener());
         checkZoomInButton.setOnClickListener(new CheckButtonsClickListener());
         checkZoomOutButton.setOnClickListener(new CheckButtonsClickListener());
+    }
+
+    private void showButtons() {
+        checkYesButton.setVisibility(View.VISIBLE);
+        checkNoButton.setVisibility(View.VISIBLE);
+        checkFileListButton.setVisibility(View.VISIBLE);
+        checkNextFileButton.setVisibility(View.VISIBLE);
+        checkROIButton.setVisibility(View.VISIBLE);
+        checkZoomInButton.setVisibility(View.VISIBLE);
+        checkZoomOutButton.setVisibility(View.VISIBLE);
     }
 
     private void initCheckGLSurfaceView() {
@@ -166,7 +208,7 @@ public class CheckActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.check_open_file_toolbar:
-                checkViewModel.getBrainList();
+                checkViewModel.getCheckArborList();
                 return true;
 
             case R.id.check_more_toolbar:
@@ -245,12 +287,27 @@ public class CheckActivity extends BaseActivity {
                 }).show();
     }
 
-    private void checkYes() {
+    private void showCheckArborListPopup() {
+        List<ArborInfo> arborInfoList = checkViewModel.getCheckArborInfoState().getArborInfoList();
+        String [] arborNameList = new String[arborInfoList.size()];
+        for (int i = 0; i < arborNameList.length; i++) {
+            arborNameList[i] = arborInfoList.get(i).getArborName();
+        }
+        new XPopup.Builder(this)
+                .asCenterList("Arbor List", arborNameList, new OnSelectListener() {
+                    @Override
+                    public void onSelect(int position, String text) {
+                        checkViewModel.getImageWithArborInfo(arborInfoList.get(position));
+                    }
+                }).show();
+    }
 
+    private void checkYes() {
+        checkViewModel.sendCheckYes();
     }
 
     private void checkNo() {
-
+        checkViewModel.sendCheckNo();
     }
 
     class CheckButtonsClickListener implements View.OnClickListener {
