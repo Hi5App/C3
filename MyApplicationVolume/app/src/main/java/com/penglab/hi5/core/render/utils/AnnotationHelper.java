@@ -220,7 +220,7 @@ public class AnnotationHelper {
     }
 
     public void zoomInByPinpoint(float x, float y) {
-        float [] target = solveMarkerCenter(x, y);
+        float[] target = solveMarkerCenter(x, y);
     }
 
 
