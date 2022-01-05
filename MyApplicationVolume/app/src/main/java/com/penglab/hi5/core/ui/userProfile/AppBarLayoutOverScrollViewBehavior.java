@@ -18,7 +18,7 @@ public class AppBarLayoutOverScrollViewBehavior extends AppBarLayout.Behavior{
     private int mCardViewHeight;
     private int mLimitHeight;
     private View mToolBar;
-    private float scaleValue = 2f / 3;// 显示卡片的三分之一 所以抛出三分之二
+    private float scaleValue = 3f / 3;// 显示卡片的三分之一 所以抛出三分之二
     private View mNameTitle;
 
     public AppBarLayoutOverScrollViewBehavior() {
@@ -34,7 +34,7 @@ public class AppBarLayoutOverScrollViewBehavior extends AppBarLayout.Behavior{
         boolean handled = super.onLayoutChild(parent, abl, layoutDirection);
         mCardView = parent.findViewById(R.id.cardview);
         if (null == mToolBar) {
-            mToolBar = parent.findViewById(R.id.toolbar);
+            mToolBar = parent.findViewById(R.id.toolbar_my);
         }
         if (null == mNameTitle) {
             mNameTitle = parent.findViewById(R.id.name);

@@ -14,6 +14,7 @@
 
 
     <!--    头像-->
+
     <LinearLayout
         android:id="@+id/ll_portrait"
         android:layout_width="match_parent"

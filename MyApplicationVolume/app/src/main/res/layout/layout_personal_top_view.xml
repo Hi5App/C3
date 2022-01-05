@@ -14,20 +14,20 @@
 
 
         <TextView
-            android:id="@+id/center"
+            android:id="@+id/item_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/name"
             android:layout_marginLeft="30dp"
             android:paddingTop="35dp"
             android:paddingBottom="15dp"
-            android:text="My Center "
+            android:text="Username"
+            android:textSize="25sp"
             android:textColor="@android:color/white" />
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/HeadView"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:layout_alignParentRight="true"
             android:layout_marginRight="30dp"
             android:layout_marginBottom="10dp"
@@ -53,12 +53,13 @@
             android:scaleType="fitCenter"
             android:src="@drawable/ic_share"/>
         <ImageView
-            android:id="@+id/comment"
+            android:id="@+id/person_chat"
             android:layout_width="0dp"
             android:layout_height="25dp"
             android:layout_weight="1"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_comment"/>
+            android:src="@drawable/ic_person_chat"/>
+
         <ImageView
             android:id="@+id/like"
             android:layout_width="0dp"
@@ -66,6 +67,8 @@
             android:layout_weight="1"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_like"/>
+
+
         <ImageView
             android:id="@+id/edit"
             android:layout_width="0dp"
