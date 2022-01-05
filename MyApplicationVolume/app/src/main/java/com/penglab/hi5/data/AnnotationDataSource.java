@@ -41,10 +41,10 @@ public class AnnotationDataSource {
                         if (response.body() != null) {
                             byte[] fileContent = response.body().bytes();
                             String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Resources/Annotation";
-                            String filename = swc.substring(swc.lastIndexOf("/") + 1);
+                            String filename = res + "_" + swc.substring(swc.lastIndexOf("/") + 1);
                             if (!FileHelper.storeFile(storePath, filename, fileContent)) {
                             }
-                            result.postValue(new Result.Success(storePath + "/" + swc));
+                            result.postValue(new Result.Success(storePath + "/" + filename));
                         } else {
                             result.postValue(new Result.Error(new Exception("Response from server is null when download image !")));
                         }
