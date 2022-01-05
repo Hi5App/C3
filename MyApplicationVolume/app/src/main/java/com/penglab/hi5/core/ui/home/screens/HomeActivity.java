@@ -22,7 +22,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-
+import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
@@ -47,6 +47,7 @@ import com.penglab.hi5.basic.utils.CrashHandler;
 import com.penglab.hi5.basic.utils.CrashReports;
 import com.penglab.hi5.core.BaseActivity;
 import com.penglab.hi5.core.ui.ViewModelFactory;
+import com.penglab.hi5.core.ui.userProfile.MyActivity;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.core.ui.home.adapters.MainPagerAdapter;
 import com.penglab.hi5.data.Result;
@@ -54,6 +55,7 @@ import com.penglab.hi5.data.dataStore.PreferenceLogin;
 import com.penglab.hi5.data.model.user.LogStatus;
 
 import java.io.File;
+
 
 public class HomeActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -76,6 +78,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
     private NavigationView navigationView;
     private TextView nickName;
     private TextView email;
+    private ImageView headview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -228,11 +231,26 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
         View header = LayoutInflater.from(HomeActivity.this)
                 .inflate(R.layout.nav_header_main, navigationView);
+
         nickName = header.findViewById(R.id.nickname);
         email = header.findViewById(R.id.email);
-    }
+        headview = header.findViewById(R.id.HeadView);
+
+        headview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                MyActivity.start(HomeActivity.this);
+
+                if (homeViewModel.isLogged()){
+                    MyActivity.start(HomeActivity.this);
+                }
+            }
+        });
+        };
+
 
     @Override
     @SuppressLint("NonConstantResourceId")
@@ -256,7 +274,6 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         return false;
     }
 
-    /* Start this activity */
     public static void start(Context context) {
         Intent intent = new Intent(context, HomeActivity.class);
         context.startActivity(intent);

@@ -97,7 +97,7 @@ dependencies {
     implementation 'com.github.warkiz.widget:indicatorseekbar:2.1.2'
     implementation 'com.squareup.okhttp3:okhttp:4.7.2'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
-    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    implementation 'com.github.bumptech.glide:glide:3.12.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
 
 
@@ -137,6 +137,20 @@ dependencies {
     implementation 'com.github.devlight:infinitecycleviewpager:1.0.2'
 
     implementation 'com.nightonke:boommenu:2.1.1'
+
     implementation 'com.robinhood.ticker:ticker:2.0.4'
     implementation 'com.jaredrummler:colorpicker:1.1.0'
+
+    implementation 'com.google.android.material:material:1.2.1'
+
+    implementation 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.4@aar'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
+    implementation "io.reactivex.rxjava2:rxjava:2.0.0"
+
+    //热门强大的图片加载器
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    implementation 'com.contrarywind:Android-PickerView:4.1.8'
+    //noinspection GradleCompatible,GradleCompatible
+
 }
