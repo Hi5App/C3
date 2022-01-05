@@ -113,14 +113,9 @@ public class AnnotationViewModel extends ViewModel {
     }
 
     public void analyzeCurTracing(NeuronTree neuronTree){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
-                List<double[]> features = morphologyCalculate.calculatefromNT(neuronTree, false);
-                analyzeSwcResults.postValue(features);
-            }
-        }).start();
+        MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
+        List<double[]> features = morphologyCalculate.calculatefromNT(neuronTree, false);
+        analyzeSwcResults.postValue(features);
     }
 
     public void autoRotate(){

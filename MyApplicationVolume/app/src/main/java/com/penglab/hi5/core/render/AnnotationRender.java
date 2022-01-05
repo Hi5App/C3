@@ -1,14 +1,11 @@
 package com.penglab.hi5.core.render;
 
-import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import static com.penglab.hi5.core.Myapplication.getContext;
 import static javax.microedition.khronos.opengles.GL10.GL_ALPHA_TEST;
 import static javax.microedition.khronos.opengles.GL10.GL_BLEND;
 import static javax.microedition.khronos.opengles.GL10.GL_ONE_MINUS_SRC_ALPHA;
 import static javax.microedition.khronos.opengles.GL10.GL_SRC_ALPHA;
 
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
@@ -16,7 +13,6 @@ import android.opengl.GLES30;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import com.penglab.hi5.R;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.basic.image.ImageMarker;
@@ -32,17 +28,11 @@ import com.penglab.hi5.core.render.pattern.MyPattern2D;
 import com.penglab.hi5.core.render.utils.AnnotationDataManager;
 import com.penglab.hi5.core.render.utils.MatrixManager;
 import com.penglab.hi5.core.render.utils.RenderOptions;
-import com.penglab.hi5.core.ui.check.FileInfoState;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.model.img.FilePath;
-import com.penglab.hi5.data.model.img.FileType;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -165,6 +155,18 @@ public class AnnotationRender extends BasicRender{
         initPatterns();
         matrixManager.initMatrixByFile(normalizedSize, renderOptions.getScale(), true);
         myPattern2D.setNeedSetContent(true);
+        myDraw.setNeedDraw(true);
+    }
+
+    public void initSwcInfo(NeuronTree neuronTree, float[] normalizedSize, int[] originalSize){
+        this.normalizedSize = normalizedSize;
+        this.originalSize = originalSize;
+        this.is2DImage = false;
+        annotationDataManager.loadNeuronTree(neuronTree, false);
+
+        initPatterns();
+        matrixManager.initMatrixByFile(normalizedSize, renderOptions.getScale(), false);
+        myAxis.setNeedSetContent(true);
         myDraw.setNeedDraw(true);
     }
 
