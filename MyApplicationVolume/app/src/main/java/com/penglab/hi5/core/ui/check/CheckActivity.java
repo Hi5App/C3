@@ -277,12 +277,12 @@ public class CheckActivity extends BaseActivity {
     }
 
     private void showROIListPopup() {
-        String [] rois = checkViewModel.getFileInfoState().getRois();
+        String [] rois = checkViewModel.getCheckArborInfoState().getRois();
         new XPopup.Builder(this)
                 .asCenterList("ROI List", rois, new OnSelectListener() {
                     @Override
                     public void onSelect(int position, String text) {
-                        checkViewModel.getImageWithROI(text);
+                        checkViewModel.getImageWithROI(position);
                     }
                 }).show();
     }
@@ -297,7 +297,7 @@ public class CheckActivity extends BaseActivity {
                 .asCenterList("Arbor List", arborNameList, new OnSelectListener() {
                     @Override
                     public void onSelect(int position, String text) {
-                        checkViewModel.getImageWithArborInfo(arborInfoList.get(position));
+                        checkViewModel.getImageWithArborInfoPos(position);
                     }
                 }).show();
     }
@@ -322,16 +322,16 @@ public class CheckActivity extends BaseActivity {
                     checkNo();
                     break;
                 case R.id.check_file_list_button:
-                    showNeuronListPopup();
+                    showCheckArborListPopup();
                     break;
                 case R.id.check_roi_button:
                     showROIListPopup();
                     break;
                 case R.id.check_next_file_button:
-
+                    checkViewModel.getNextArbor();
                     break;
                 case R.id.check_former_file_button:
-
+                    checkViewModel.getFormerArbor();
                     break;
                 case R.id.check_zoom_in_button:
                     checkViewModel.getImageZoomIn();

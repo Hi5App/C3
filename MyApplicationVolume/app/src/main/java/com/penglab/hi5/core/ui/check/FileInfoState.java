@@ -77,7 +77,7 @@ public class FileInfoState {
 
     public static FileInfoState getInstance(){
         if (INSTANCE == null){
-            synchronized (ImageInfoRepository.class){
+            synchronized (FileInfoState.class){
                 if (INSTANCE == null){
                     INSTANCE = new FileInfoState();
                 }

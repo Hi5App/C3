@@ -123,22 +123,23 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
                         }
                         break;
                     case MotionEvent.ACTION_POINTER_UP:
-                        if (!isMove) {
-                            if (mPreviousUpEvent != null && isConsideredDoubleTap(mPreviousUpEvent, motionEvent)) {
-                                int [] newCenter = checkRender.newCenterWhenNavigateWhenClick(currentX, currentY);
-                                onDoubleClickListener.run(newCenter);
-                            }
-                            mPreviousUpEvent = motionEvent;
-                        } else {
-                            mPreviousUpEvent = null;
-                        }
-                        isMove = false;
+
                         isZoomingNotStop = false;
 //                        checkRender.setIfDownSampling(false);
                         lastX = currentX;
                         lastY = currentY;
                         break;
                     case MotionEvent.ACTION_UP:
+                        if (!isMove) {
+                            if (mPreviousUpEvent != null && isConsideredDoubleTap(mPreviousUpEvent, motionEvent)) {
+//                                int [] newCenter = checkRender.newCenterWhenNavigateWhenClick(currentX, currentY);
+//                                onDoubleClickListener.run(newCenter);
+                            }
+                            mPreviousUpEvent = motionEvent;
+                        } else {
+                            mPreviousUpEvent = null;
+                        }
+                        isMove = false;
                         requestRender();
                         isZooming = false;
 //                        checkRender.setIfDownSampling(false);

@@ -67,4 +67,28 @@ public class ArborInfo {
     public void setUrl(String url) {
         this.url = url;
     }
+
+    public void zoomIn() {
+        xc *= 2;
+        yc *= 2;
+        zc *= 2;
+    }
+
+    public void zoomOut() {
+        xc /= 2;
+        yc /= 2;
+        zc /= 2;
+    }
+
+    public void zoomScale(int scale) {
+        if (scale > 0) {
+            xc = xc >> scale;
+            yc = yc >> scale;
+            zc = zc >> scale;
+        } else {
+            xc = xc << (-scale);
+            yc = yc << (-scale);
+            zc = zc << (-scale);
+        }
+    }
 }
