@@ -1,16 +1,11 @@
 package com.penglab.hi5.core.render.view;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
-import static com.penglab.hi5.core.Myapplication.getContext;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
-import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -18,15 +13,12 @@ import android.view.MotionEvent;
 import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 
-import com.penglab.hi5.R;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.Image4DSimple;
-import com.penglab.hi5.basic.image.ImageUtil;
 import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.learning.pixelclassification.PixelClassification;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
-import com.penglab.hi5.basic.utils.FileHelper;
 import com.penglab.hi5.core.collaboration.Communicator;
 import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
 import com.penglab.hi5.core.render.AnnotationRender;
@@ -57,6 +49,8 @@ import java.util.concurrent.TimeUnit;
 public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
 
     private final String TAG = "AnnotationGLSurfaceView";
+    private final int DEFAULT_SIZE = 128;
+
     private final SwitchMutableLiveData<EditMode> editMode = new SwitchMutableLiveData<>(EditMode.NONE);
 
     private final RenderOptions renderOptions = new RenderOptions();
@@ -67,7 +61,6 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
 
     private final ImageInfoRepository imageInfoRepository = ImageInfoRepository.getInstance();
     private Image4DSimple image4DSimple;
-    private Bitmap bitmap2D;
     private final float[] normalizedSize = new float[3];
     private final int[] originalSize = new int[3];
 
@@ -351,7 +344,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
             case TIFF:
                 image4DSimple = Image4DSimple.loadImage(filePath, fileType);
                 if (image4DSimple != null){
-                    updateImageSize(new Integer[]{
+                    update3DFileSize(new Integer[]{
                             (int) image4DSimple.getSz0(), (int) image4DSimple.getSz1(), (int) image4DSimple.getSz2()});
                     annotationRender.init3DImageInfo(image4DSimple, normalizedSize, originalSize);
                     annotationHelper.initImageInfo(image4DSimple, normalizedSize, originalSize);
@@ -360,7 +353,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
                 break;
             case JPG:
             case PNG:
-                bitmap2D = Image4DSimple.loadImage2D(filePath);
+                Bitmap bitmap2D = Image4DSimple.loadImage2D(filePath);
                 image4DSimple = Image4DSimple.loadImage2D(bitmap2D, filePath);
                 if (bitmap2D != null && image4DSimple != null){
                     update2DImageSize(new Integer[]{
@@ -372,7 +365,12 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
                 break;
             case SWC:
             case ESWC:
-//                ToastEasy("Unsupported file !");
+                NeuronTree neuronTree = NeuronTree.parse(filePath);
+                if (neuronTree != null){
+                    update3DFileSize(new Integer[]{DEFAULT_SIZE, DEFAULT_SIZE, DEFAULT_SIZE});
+                    annotationDataManager.init();
+                    annotationRender.initSwcInfo(neuronTree, normalizedSize, originalSize );
+                }
                 break;
             default:
                 ToastEasy("Unsupported file !");
@@ -514,7 +512,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
         try {
             image4DSimple = pixelClassification.getPixelClassificationResult(image4DSimple, neuronTree);
             if (image4DSimple != null){
-                updateImageSize(new Integer[]{
+                update3DFileSize(new Integer[]{
                         (int) image4DSimple.getSz0(), (int) image4DSimple.getSz1(), (int) image4DSimple.getSz2()});
                 annotationRender.init3DImageInfo(image4DSimple, normalizedSize, originalSize);
                 annotationHelper.initImageInfo(image4DSimple, normalizedSize, originalSize);
@@ -534,7 +532,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
         return annotationDataManager.getNeuronTree();
     }
 
-    private void updateImageSize(Integer[] size){
+    private void update3DFileSize(Integer[] size){
         float maxSize = (float) Collections.max(Arrays.asList(size));
 
         originalSize[0] = size[0];

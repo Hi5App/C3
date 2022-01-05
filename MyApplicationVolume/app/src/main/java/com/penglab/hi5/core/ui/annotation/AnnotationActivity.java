@@ -33,7 +33,6 @@ import android.widget.TextView;
 
 import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
-import com.jaredrummler.android.colorpicker.ColorPickerView;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.michaldrabik.tapbarmenulib.TapBarMenu;
@@ -52,7 +51,6 @@ import com.warkiz.widget.IndicatorSeekBar;
 import com.warkiz.widget.OnSeekChangeListener;
 import com.warkiz.widget.SeekParams;
 
-import com.robinhood.ticker.TickerUtils;
 import com.robinhood.ticker.TickerView;
 
 import java.util.HashMap;
@@ -223,6 +221,9 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                 showCommonUI();
                 showUI4LocalFileMode();
                 break;
+            case LOCAL_FILE_UNEDITABLE:
+                showUI4LocalFileMode();
+                break;
             case BIG_DATA:
                 showCommonUI();
                 showUI4BigDataMode();
@@ -242,9 +243,11 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                 toolbar.inflateMenu(R.menu.annotation_menu_basic);
                 break;
             case LOCAL_FILE_EDITABLE:
-            case LOCAL_FILE_UNEDITABLE:
             case BIG_DATA:
-                toolbar.inflateMenu(R.menu.annotation_menu_open_file);
+                toolbar.inflateMenu(R.menu.annotation_menu_editable_file);
+                break;
+            case LOCAL_FILE_UNEDITABLE:
+                toolbar.inflateMenu(R.menu.annotation_menu_uneditable_file);
                 break;
         }
     }
@@ -268,12 +271,10 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                 return true;
 
             case R.id.load:
-                Log.e(TAG,"load file");
                 loadLocalFile();
                 return true;
 
             case R.id.file:
-                Log.e(TAG,"open file");
                 openFile();
                 return true;
 
@@ -282,7 +283,6 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                 return true;
 
             case R.id.more:
-                Log.e(TAG,"more functions");
                 moreFunctions();
                 return true;
 
@@ -303,15 +303,12 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         if (resultCode == RESULT_OK){
             switch (requestCode){
                 case OPEN_LOCAL_FILE:
-                    Log.e(TAG,"open local file !");
                     annotationViewModel.openLocalFile(data);
                     break;
                 case OPEN_ANALYSIS_SWC:
-                    Log.e(TAG,"open analysis swc !");
                     annotationViewModel.analyzeSwcFile(data);
                     break;
                 case LOAD_LOCAL_FILE:
-                    Log.e(TAG,"load local file !");
                     annotationViewModel.loadLocalFile(data);
                     break;
                 default:
@@ -428,7 +425,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         if (neuronTree.listNeuron.isEmpty()){
             ToastEasy("Empty tracing, do nothing");
         } else {
-            annotationViewModel.analyzeCurTracing(neuronTree);
+            executorService.submit(() -> annotationViewModel.analyzeCurTracing(neuronTree));
         }
     }
 
