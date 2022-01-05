@@ -78,6 +78,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
     private NavigationView navigationView;
     private TextView nickName;
     private TextView email;
+    private ImageView headview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -230,11 +231,26 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
         View header = LayoutInflater.from(HomeActivity.this)
                 .inflate(R.layout.nav_header_main, navigationView);
+
         nickName = header.findViewById(R.id.nickname);
         email = header.findViewById(R.id.email);
-    }
+        headview = header.findViewById(R.id.HeadView);
+
+        headview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                MyActivity.start(HomeActivity.this);
+
+                if (homeViewModel.isLogged()){
+                    MyActivity.start(HomeActivity.this);
+                }
+            }
+        });
+        };
+
 
     @Override
     @SuppressLint("NonConstantResourceId")
@@ -257,7 +273,6 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         drawerLayout.closeDrawer(navigationView);
         return false;
     }
-
 
     public static void start(Context context) {
         Intent intent = new Intent(context, HomeActivity.class);

@@ -12,14 +12,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorMid_yellow"
+        android:fitsSystemWindows="true"
         app:layout_behavior= ".core.ui.userProfile.AppBarLayoutOverScrollViewBehavior">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/mCollapsingToolbarLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorMid_yellow"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
+            app:statusBarScrim="@color/color_gray_bg2"
+            app:contentScrim="@color/colorMid_yellow"
+            android:minHeight="10dp"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -41,14 +44,14 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/boss_card_bg" />
+                        android:src="@mipmap/card" />
                 </LinearLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar_my"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
+                android:layout_height="wrap_content"
                 android:alpha="0"
                 android:background="@color/colorMid_yellow"
                 app:layout_collapseMode="pin" />
@@ -64,16 +67,46 @@
                 android:textColor="@android:color/white"
                 android:textSize="28sp"
                 android:textStyle="bold"
+                app:layout_collapseMode="parallax"
                 android:typeface="monospace" />
 
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
 
-            <include
-                android:id="@+id/personal_menu"
-                layout="@layout/item_personal_menu" />
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+        <include
+            android:id="@+id/personal_menu"
+            layout="@layout/item_personal_menu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
 
 
     </com.google.android.material.appbar.AppBarLayout>
+
+
+
+<!--    <androidx.appcompat.widget.Toolbar-->
+<!--        android:id="@+id/toolbar_my"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:alpha="0"-->
+<!--        android:background="@color/colorMid_yellow"-->
+<!--        app:layout_collapseMode="pin" />-->
+<!--    <TextView-->
+<!--        android:id="@+id/name"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginLeft="30dp"-->
+<!--        android:layout_marginTop="25dp"-->
+<!--        android:elevation="2dp"-->
+<!--        android:gravity="center"-->
+<!--        android:text="username"-->
+<!--        android:textColor="@android:color/white"-->
+<!--        android:textSize="28sp"-->
+<!--        android:textStyle="bold"-->
+<!--        android:typeface="monospace" />-->
+
+
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -9,6 +9,7 @@ import static com.penglab.hi5.data.model.user.LogStatus.GUEST;
 import static com.penglab.hi5.data.model.user.LogStatus.LOGIN;
 import static com.penglab.hi5.data.model.user.LogStatus.LOGOUT;
 
+import com.penglab.hi5.core.ui.home.screens.UserView;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.UserDataSource;
 import com.penglab.hi5.data.UserInfoRepository;
@@ -102,4 +103,4 @@ public class MyViewModel extends ViewModel {
     }
 }
 
-}
+
