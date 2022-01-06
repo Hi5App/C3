@@ -1,6 +1,8 @@
 package com.penglab.hi5.core.ui.annotation;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
+import static com.penglab.hi5.core.Myapplication.updateMusicVolume;
+import static com.penglab.hi5.core.Myapplication.playButtonSound;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -42,9 +44,11 @@ import com.penglab.hi5.R;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
+import com.penglab.hi5.core.music.MusicService;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.data.ImageInfoRepository;
+import com.penglab.hi5.data.dataStore.PreferenceMusic;
 import com.penglab.hi5.data.dataStore.PreferenceSetting;
 import com.penglab.hi5.data.model.img.FilePath;
 import com.warkiz.widget.IndicatorSeekBar;
@@ -83,7 +87,6 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         put(EditMode.ZOOM, R.drawable.ic_zoom);
         put(EditMode.ZOOM_IN_ROI, R.drawable.ic_roi);
     }};
-
     private final ExecutorService executorService = Executors.newFixedThreadPool(3);;
 
     private AnnotationViewModel annotationViewModel;
@@ -200,18 +203,56 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                 screenCapture((Uri) filePath.getData());
             }
         });
+
+        startMusicService();
     }
 
     @Override
     protected void onResume() {
+        Log.e(TAG,"onResume");
         super.onResume();
         annotationGLSurfaceView.onResume();
     }
 
     @Override
     protected void onPause() {
+        Log.e(TAG,"onPause");
         super.onPause();
         annotationGLSurfaceView.onPause();
+    }
+
+    @Override
+    protected void onRestart() {
+        Log.e(TAG,"onRestart");
+        super.onRestart();
+        startMusicService();
+    }
+
+    @Override
+    protected void onStop() {
+        Log.e(TAG,"onStop");
+        super.onStop();
+        stopMusicService();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopMusicService();
+    }
+
+    private void startMusicService(){
+        Log.e(TAG,"init MusicService");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(new Intent(this, MusicService.class));
+        } else {
+            startService(new Intent(this, MusicService.class));
+        }
+    }
+
+    private void stopMusicService(){
+        Intent bgmIntent = new Intent(this, MusicService.class);
+        stopService(bgmIntent);
     }
 
     private void updateUI(AnnotationViewModel.AnnotationMode annotationMode){
@@ -379,7 +420,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                                     case "Animate":
                                         break;
                                     case "Filter by example":
-                                        annotationGLSurfaceView.pixelClassification();
+                                        executorService.submit(() -> annotationGLSurfaceView.pixelClassification());
                                         break;
                                     case "Settings":
                                         settings();
@@ -436,6 +477,8 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                     @Override
                     public void operate(View contentView) {
                         PreferenceSetting preferenceSetting = PreferenceSetting.getInstance();
+                        PreferenceMusic preferenceMusic = PreferenceMusic.getInstance();
+
                         SwitchCompat downSampleSwitch = contentView.findViewById(R.id.downSample_mode);
                         IndicatorSeekBar contrastIndicator = contentView.findViewById(R.id.contrast_indicator_seekbar);
                         SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
@@ -445,11 +488,15 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
 
                         downSampleSwitch.setChecked(preferenceSetting.getDownSampleMode());
                         contrastIndicator.setProgress(preferenceSetting.getContrast());
+                        bgmVolumeBar.setProgress(preferenceMusic.getBackgroundSound());
+                        buttonVolumeBar.setProgress(preferenceMusic.getButtonSound());
+                        actionVolumeBar.setProgress(preferenceMusic.getActionSound());
 
                         downSampleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                             @Override
                             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                                 preferenceSetting.setDownSampleMode(isChecked);
+                                annotationGLSurfaceView.updateRenderOptions();
                             }
                         });
 
@@ -457,18 +504,56 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                             @Override
                             public void onSeeking(SeekParams seekParams) {
                                 preferenceSetting.setContrast(seekParams.progress);
+                                annotationGLSurfaceView.updateRenderOptions();
                             }
                             @Override
-                            public void onStartTrackingTouch(IndicatorSeekBar seekBar) {
+                            public void onStartTrackingTouch(IndicatorSeekBar seekBar) { }
+                            @Override
+                            public void onStopTrackingTouch(IndicatorSeekBar seekBar) { }
+                        });
+
+                        bgmVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                            @Override
+                            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                preferenceMusic.setBackgroundSound(progress);
+                                updateMusicVolume();
                             }
                             @Override
-                            public void onStopTrackingTouch(IndicatorSeekBar seekBar) {
+                            public void onStartTrackingTouch(SeekBar seekBar) { }
+                            @Override
+                            public void onStopTrackingTouch(SeekBar seekBar) { }
+                        });
+
+                        buttonVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                            @Override
+                            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                preferenceMusic.setButtonSound(progress);
+                                updateMusicVolume();
                             }
+                            @Override
+                            public void onStartTrackingTouch(SeekBar seekBar) { }
+                            @Override
+                            public void onStopTrackingTouch(SeekBar seekBar) { }
+                        });
+
+                        actionVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                            @Override
+                            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                preferenceMusic.setActionSound(progress);
+                                updateMusicVolume();
+                            }
+                            @Override
+                            public void onStartTrackingTouch(SeekBar seekBar) { }
+                            @Override
+                            public void onStopTrackingTouch(SeekBar seekBar) { }
                         });
                     }
                 })
                 .setNegativeButton("Cancel", v -> { })
-                .setPositiveButton("Confirm", v -> annotationGLSurfaceView.updateRenderOptions())
+                .setPositiveButton("Confirm", v -> {
+                    annotationGLSurfaceView.requestRender();
+                    playButtonSound();
+                })
                 .setTitle("Settings")
                 .create()
                 .show();

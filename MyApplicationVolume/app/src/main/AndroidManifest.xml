@@ -142,7 +142,7 @@
         <!-- android:exported="false" /> -->
         <!-- 背景音乐后台服务 -->
         <service
-            android:name=".core.MusicServer"
+            android:name=".core.music.MusicService"
             android:enabled="true"
             android:exported="true" /> <!-- 协同工作通信服务 -->
         <service

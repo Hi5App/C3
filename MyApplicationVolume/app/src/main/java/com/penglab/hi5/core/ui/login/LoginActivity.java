@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import static com.penglab.hi5.core.MainActivity.ifGuestLogin;
+import static com.penglab.hi5.core.Myapplication.playButtonSound;
 
 public class LoginActivity extends AppCompatActivity{
 
@@ -54,12 +55,6 @@ public class LoginActivity extends AppCompatActivity{
     private static final String KICK_OUT_DESC = "KICK_OUT_DESC";
 
     private LoginViewModel loginViewModel;
-    private SoundPool soundPool;
-    private int soundId;
-
-    private float bgmVolume = 1.0f;
-    private float buttonVolume = 1.0f;
-    private float actionVolume = 1.0f;
     private long exitTime = 0;
 
     EditText usernameEditText;
@@ -103,9 +98,6 @@ public class LoginActivity extends AppCompatActivity{
         mLayBackBar = findViewById(R.id.ly_retrieve_bar);
         mIvLoginLogo = findViewById(R.id.iv_login_logo);
 
-        /* music module */
-        loadMusicModule();
-
         /* load local user info */
         if (preferenceLogin.getRem_or_not()){
             usernameEditText.setText(preferenceLogin.getUsername());
@@ -128,7 +120,6 @@ public class LoginActivity extends AppCompatActivity{
                 }
             }
         });
-
 
         loginViewModel.getLoginResult().observe(this, new Observer<LoginResult>() {
             @Override
@@ -220,42 +211,17 @@ public class LoginActivity extends AppCompatActivity{
 
     }
 
-    private void loadMusicModule(){
-        soundPool = new SoundPool.Builder().setMaxStreams(1).build();
-        soundId = soundPool.load(this, R.raw.button01, 1);
-
-        File volumeFile = new File(getBaseContext().getExternalFilesDir(null).toString() + "/Settings/volume.txt");
-        if (volumeFile.exists()){
-            try {
-                BufferedReader volumeReader = new BufferedReader(new InputStreamReader(new FileInputStream(volumeFile)));
-                String volumeStr = volumeReader.readLine();
-                if (volumeStr != null) {
-                    String[] volumes = volumeStr.split(" ");
-                    Log.d(TAG, "VolumeStr: " + volumeStr);
-                    if (volumes.length == 3){
-                        bgmVolume = Float.parseFloat(volumes[0]);
-                        buttonVolume = Float.parseFloat(volumes[1]);
-                        actionVolume = Float.parseFloat(volumes[2]);
-                    }
-                }
-                volumeReader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     public class MyClick implements View.OnClickListener{
         @SuppressLint("NonConstantResourceId")
         @Override
         public void onClick(View v) {
             switch(v.getId()){
                 case R.id.login:
-                    soundPool.play(soundId, buttonVolume, buttonVolume, 0, 0, 1.0f);
+                    playButtonSound();
                     loginViewModel.login(usernameEditText.getText().toString(), passwordEditText.getText().toString());
                     break;
                 case R.id.visitor_login:
-                    soundPool.play(soundId, buttonVolume, buttonVolume, 0, 0, 1.0f);
+                    playButtonSound();
                     ifGuestLogin = true;
                     HomeActivity.start(LoginActivity.this);
                     Toast.makeText(getApplicationContext(),"you are now logged in as a visitor",Toast.LENGTH_SHORT).show();
@@ -287,7 +253,6 @@ public class LoginActivity extends AppCompatActivity{
             }
         }
     }
-
 
     public void onFocusChange(View v, boolean hasFocus) {
         int id = v.getId();

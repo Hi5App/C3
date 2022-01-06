@@ -39,7 +39,9 @@ import com.penglab.hi5.core.collaboration.connector.MsgConnector;
 import com.penglab.hi5.core.collaboration.connector.ServerConnector;
 import com.penglab.hi5.core.game.RewardLitePalConnector;
 import com.penglab.hi5.core.game.Score;
+import com.penglab.hi5.core.music.MusicHelper;
 import com.penglab.hi5.data.dataStore.PreferenceLogin;
+import com.penglab.hi5.data.dataStore.PreferenceMusic;
 import com.penglab.hi5.data.dataStore.PreferenceSetting;
 
 import org.litepal.LitePal;
@@ -64,6 +66,7 @@ public class Myapplication extends Application {
     private static ServerConnector serverConnector;
     private static MsgConnector msgConnector;
     private static Communicator communicator;
+    private static MusicHelper musicHelper;
 
     public static final Object lockForMsgSocket = new Object();
     public static final Object lockForManageSocket = new Object();
@@ -76,12 +79,14 @@ public class Myapplication extends Application {
         mInstance = this;
         context = getApplicationContext();
 
-        //store crash info zyh
+        // store crash info
         CrashHandler.getInstance().init(getApplicationContext(), this);
 
         // store user info
         PreferenceLogin.init(getApplicationContext());
         PreferenceSetting.init(getApplicationContext());
+        PreferenceMusic.init(getApplicationContext());
+
         LitePal.initialize(this);
         SQLiteDatabase db = LitePal.getDatabase();
         Score.init(this);
@@ -89,6 +94,10 @@ public class Myapplication extends Application {
         ImageInfo.init(this);
 
         Log.e(TAG, String.format("Database version: %d", db.getVersion()));
+
+        // music module
+        MusicHelper.init(getApplicationContext());
+        musicHelper = MusicHelper.getInstance();
 
 //        AgoraClient.init(this, getLoginInfo());
 //        agoraMsgManager = AgoraMsgManager.getInstance();
@@ -263,38 +272,28 @@ public class Myapplication extends Application {
                 .show();
     }
 
-
     public static void ToastEasy(String message, int length){
         Toast.makeText(context, message, length).show();
     }
 
-
-    private SDKOptions options(){
-
-//        SDKOptions options = new SDKOptions();
-//        // 配置是否需要预下载附件缩略图，默认为 true
-//        options.preloadAttach = true;
-//        options.appKey = "0fda06baee636802cb441b62e6f65549";
-//        return options;
-
-        SDKOptions options = new SDKOptions();
-
-        // 配置是否需要预下载附件缩略图，默认为 true
-        options.preloadAttach = true;
-        options.appKey = "86a7aa13ac797a95247a03c54ed483b4";
-
-        // 配置由sdk托管来接收新的消息通知
-        StatusBarNotificationConfig config = new StatusBarNotificationConfig();
-        config.notificationEntrance = ChatActivity.class;
-        config.notificationSmallIconId = R.mipmap.ic_launcher;
-        options.statusBarNotificationConfig = config;
-
-        // 配置文件存储路径
-        String sdkPath = getExternalFilesDir(null).toString() + "/nim";
-        options.sdkStorageRootPath = sdkPath;
-        options.thumbnailSize = 480 / 2;
-
-        return options;
-
+    public static void playButtonSound(){
+        musicHelper.playButtonSound();
     }
+
+    public static void playCurveActionSound(){
+        musicHelper.playActionSound(MusicHelper.ActionType.CURVE);
+    }
+
+    public static void playMarkerActionSound(){
+        musicHelper.playActionSound(MusicHelper.ActionType.MARKER);
+    }
+
+    public static void playFailSound(){
+        musicHelper.playFailSound();
+    }
+
+    public static void updateMusicVolume(){
+        musicHelper.updateVolume();
+    }
+
 }
