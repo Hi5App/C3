@@ -1,5 +1,7 @@
 package com.penglab.hi5.core.ui.register;
 
+import static com.penglab.hi5.core.Myapplication.playButtonSound;
+
 import android.content.Context;
 import android.content.Intent;
 import android.media.SoundPool;
@@ -36,13 +38,6 @@ public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = "RegisterActivity";
     private RegisterViewModel registerViewModel;
 
-    private SoundPool soundPool;
-    private int soundId;
-
-    private float bgmVolume = 1.0f;
-    private float buttonVolume = 1.0f;
-    private float actionVolume = 1.0f;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,10 +54,6 @@ public class RegisterActivity extends AppCompatActivity {
         EditText emailEditText = findViewById(R.id.register_email);
         EditText inviterText = findViewById(R.id.register_inviter);
         Button   registerButton = findViewById(R.id.register);
-
-
-        /* music module */
-        loadMusicModule();
 
         registerViewModel.getRegisterFormState().observe(this, new Observer<RegisterFormState>() {
             @Override
@@ -148,7 +139,7 @@ public class RegisterActivity extends AppCompatActivity {
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                soundPool.play(soundId, buttonVolume, buttonVolume, 0, 0, 1.0f);
+                playButtonSound();
 
                 if (passwordEditText.getText().toString().equals(passwordCheckEditText.getText().toString())){
                     registerViewModel.register(emailEditText.getText().toString(), usernameEditText.getText().toString(),
@@ -158,31 +149,6 @@ public class RegisterActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    private void loadMusicModule(){
-        soundPool = new SoundPool.Builder().setMaxStreams(1).build();
-        soundId = soundPool.load(this, R.raw.button01, 1);
-
-        File volumeFile = new File(getBaseContext().getExternalFilesDir(null).toString() + "/Settings/volume.txt");
-        if (volumeFile.exists()){
-            try {
-                BufferedReader volumeReader = new BufferedReader(new InputStreamReader(new FileInputStream(volumeFile)));
-                String volumeStr = volumeReader.readLine();
-                if (volumeStr != null) {
-                    String[] volumes = volumeStr.split(" ");
-                    Log.d(TAG, "VolumeStr: " + volumeStr);
-                    if (volumes.length == 3){
-                        bgmVolume = Float.parseFloat(volumes[0]);
-                        buttonVolume = Float.parseFloat(volumes[1]);
-                        actionVolume = Float.parseFloat(volumes[2]);
-                    }
-                }
-                volumeReader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     @Override
