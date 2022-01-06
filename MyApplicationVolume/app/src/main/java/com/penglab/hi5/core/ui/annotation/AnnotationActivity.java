@@ -378,7 +378,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                                         break;
                                     case "Animate":
                                         break;
-                                    case "Filter image by example":
+                                    case "Filter by example":
                                         annotationGLSurfaceView.pixelClassification();
                                         break;
                                     case "Settings":

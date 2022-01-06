@@ -153,13 +153,21 @@ public class CheckViewModel extends ViewModel {
     }
 
     public void getImageWithArborInfo(ArborInfo arborInfo) {
-        checkArborInfoState.setChosenArbor(arborInfo);
+        try {
+            checkArborInfoState.setChosenArbor((ArborInfo) arborInfo.clone());
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
         getBrainList();
     }
 
     public void getImageWithArborInfoPos(int position) {
         List<ArborInfo> arborInfoList = checkArborInfoState.getArborInfoList();
-        checkArborInfoState.setChosenArbor(arborInfoList.get(position));
+        try {
+            checkArborInfoState.setChosenArbor((ArborInfo) arborInfoList.get(position).clone());
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
         checkArborInfoState.setChosenPos(position);
         getBrainList();
     }
