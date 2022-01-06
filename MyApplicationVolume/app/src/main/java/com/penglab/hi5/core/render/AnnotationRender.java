@@ -206,7 +206,6 @@ public class AnnotationRender extends BasicRender{
 
     private void autoRotate(){
         matrixManager.autoRotate();
-
     }
 
     private void drawFrame(){

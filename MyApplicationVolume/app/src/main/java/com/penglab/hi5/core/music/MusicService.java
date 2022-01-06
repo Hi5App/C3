@@ -1,4 +1,4 @@
-package com.penglab.hi5.core;
+package com.penglab.hi5.core.music;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -11,12 +11,13 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.penglab.hi5.R;
+import com.penglab.hi5.core.Myapplication;
 
 import java.io.File;
 import java.io.IOException;
 
-public class MusicServer extends Service {
-    private static final String TAG = MusicServer.class.getSimpleName();
+public class MusicService extends Service {
+    private static final String TAG = MusicService.class.getSimpleName();
 
     private static MediaPlayer bgmPlayer;
 
@@ -26,7 +27,7 @@ public class MusicServer extends Service {
 
     private Notification notification;
 
-    public MusicServer() {
+    public MusicService() {
     }
 
     @Override
@@ -67,8 +68,11 @@ public class MusicServer extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-    public static void setVolume(float f){
-        volume = f;
+    public static void setVolume(float bgmVolume){
+        if (bgmPlayer != null){
+            bgmPlayer.setVolume(bgmVolume, bgmVolume);
+        }
+        volume = bgmVolume;
     }
 
     public static void setBgmVolume(float f){

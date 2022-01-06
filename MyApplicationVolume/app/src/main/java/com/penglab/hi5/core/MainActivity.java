@@ -129,6 +129,7 @@ import com.penglab.hi5.core.game.quest.QuestActivity;
 import com.penglab.hi5.core.game.RewardActivity;
 import com.penglab.hi5.core.game.RewardLitePalConnector;
 import com.penglab.hi5.core.game.Score;
+import com.penglab.hi5.core.music.MusicService;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.data.ImageDataSource;
@@ -780,7 +781,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         Log.d(TAG, "Volumes: " + Arrays.toString(volumes));
                         Log.d(TAG, "Volumes: " + bgmVolume + " " + buttonVolume + " " + actionVolume);
 
-                        MusicServer.setVolume(bgmVolume);
+                        MusicService.setVolume(bgmVolume);
                     }
                 }
                 volumeReader.close();
@@ -796,9 +797,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //        soundPool = new SoundPool(SOUNDNUM, AudioManager.STREAM_MUSIC, 5);
         soundPool = new SoundPool.Builder().setMaxStreams(SOUNDNUM).build();
         soundId = new int[SOUNDNUM];
-        soundId[0] = soundPool.load(this, R.raw.piano2, 1);
-        soundId[1] = soundPool.load(this, R.raw.piano1, 1);
-        soundId[2] = soundPool.load(this, R.raw.button01, 1);
+        soundId[0] = soundPool.load(this, R.raw.marker, 1);
+        soundId[1] = soundPool.load(this, R.raw.curve, 1);
+        soundId[2] = soundPool.load(this, R.raw.button, 1);
         soundId[3] = soundPool.load(this, R.raw.fail, 1);
 
 
@@ -1042,7 +1043,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         super.onDestroy();
         Log.e(TAG, "onDestroy()");
 
-        Intent bgmIntent = new Intent(this, MusicServer.class);
+        Intent bgmIntent = new Intent(this, MusicService.class);
         stopService(bgmIntent);
 
         // update score
@@ -1119,7 +1120,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     @Override
     protected void onStop() {
         Log.v(TAG, "onStop start");
-        Intent bgmIntent = new Intent(MainActivity.this, MusicServer.class);
+        Intent bgmIntent = new Intent(MainActivity.this, MusicService.class);
         stopService(bgmIntent);
         super.onStop();
     }
@@ -2102,9 +2103,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Log.e(TAG,"init MusicService");
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(new Intent(this, MusicServer.class));
+            startForegroundService(new Intent(this, MusicService.class));
         } else {
-            startService(new Intent(this, MusicServer.class));
+            startService(new Intent(this, MusicService.class));
         }
     }
 
@@ -3882,13 +3883,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             String selected = bgmSpinner.getSelectedItem().toString();
                             if (selectedBGM != bgmSpinner.getSelectedItemPosition()) {
                                 if (selected.equals("BGM1"))
-                                    MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
+                                    MusicService.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
 
                                 else if (selected.equals("BGM2"))
-                                    MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/DelRioBravo.mp3");
+                                    MusicService.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/DelRioBravo.mp3");
 
                                 else
-                                    MusicServer.defaultBgmSource();
+                                    MusicService.defaultBgmSource();
 
                                 selectedBGM = bgmSpinner.getSelectedItemPosition();
 
@@ -3897,8 +3898,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         }
 
 
-                        MusicServer.setBgmVolume(bgmVolume);
-                        MusicServer.setVolume(bgmVolume);
+                        MusicService.setBgmVolume(bgmVolume);
+                        MusicService.setVolume(bgmVolume);
 
                         String settingsPath = context.getExternalFilesDir(null).toString() + "/Settings";
                         File settingsFile = new File(settingsPath);

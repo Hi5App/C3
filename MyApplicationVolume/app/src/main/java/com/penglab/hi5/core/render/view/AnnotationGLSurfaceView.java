@@ -1,6 +1,8 @@
 package com.penglab.hi5.core.render.view;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
+import static com.penglab.hi5.core.Myapplication.playCurveActionSound;
+import static com.penglab.hi5.core.Myapplication.playMarkerActionSound;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -91,7 +93,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
     @RequiresApi(api = Build.VERSION_CODES.N)
     public boolean onTouchEvent(MotionEvent event) {
 
-        // ACTION_DOWN 不return true，就无触发后面的各个事件
+        // ACTION_DOWN 不 return true，就无触发后面的各个事件
         if (event != null) {
             final float currentX = toOpenGLCoord(this, event.getX(), true);
             final float currentY = toOpenGLCoord(this, event.getY(), false);
@@ -110,8 +112,6 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
                             updateFingerTrajectory(lastX, lastY);
                             renderOptions.setShowFingerTrajectory(true);
                             requestRender();
-                            break;
-                        case PINPOINT:
                             break;
                     }
                     break;
@@ -135,7 +135,6 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
                     break;
                 case MotionEvent.ACTION_MOVE:
                     if (isZooming && isZoomingNotStop) {
-
                         if (!is2DImage()){
                             renderOptions.setImageChanging(true);
                         }
@@ -170,6 +169,24 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
                             lastX = currentX;
                             lastY = currentY;
                         } else {
+                            // play music when curve / marker action start
+                            // The step ACTION_DOWN will add 3 item into fingerTrajectory
+                            if (fingerTrajectory.size() <= 3){
+                                switch (Objects.requireNonNull(editMode.getValue())){
+                                    case PINPOINT:
+                                    case DELETE_MARKER:
+                                    case CHANGE_MARKER_TYPE:
+                                    case ZOOM_IN_ROI:
+                                        playMarkerActionSound();
+                                        break;
+                                    case PAINT_CURVE:
+                                    case DELETE_CURVE:
+                                    case CHANGE_CURVE_TYPE:
+                                    case SPLIT:
+                                        playCurveActionSound();
+                                        break;
+                                }
+                            }
                             updateFingerTrajectory(currentX, currentY);
                             annotationRender.updateFingerTrajectory(fingerTrajectory);
                             requestRender();
@@ -326,7 +343,6 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
 
     public void updateRenderOptions(){
         renderOptions.update();
-        requestRender();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -498,29 +514,33 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
     }
 
     public void pixelClassification(){
-        NeuronTree neuronTree = annotationDataManager.getNeuronTree();
-        PixelClassification pixelClassification = new PixelClassification();
-        boolean[][] selections =
-                {{true,true,true,false,false,false,false},
-                {true,true,true,false,false,false,false},
-                {false,false,false,false,false,false,false},
-                {false,false,false,false,false,false,false},
-                {false,false,false,false,false,false,false},
-                {true,true,true,false,false,false,false}};
-        pixelClassification.setSelections(selections);
+        if (annotationDataManager.getNeuronTree() != null && image4DSimple != null){
+            NeuronTree neuronTree = annotationDataManager.getNeuronTree();
+            PixelClassification pixelClassification = new PixelClassification();
+            boolean[][] selections =
+                    {{true,true,true,false,false,false,false},
+                            {true,true,true,false,false,false,false},
+                            {false,false,false,false,false,false,false},
+                            {false,false,false,false,false,false,false},
+                            {false,false,false,false,false,false,false},
+                            {true,true,true,false,false,false,false}};
+            pixelClassification.setSelections(selections);
 
-        try {
-            image4DSimple = pixelClassification.getPixelClassificationResult(image4DSimple, neuronTree);
-            if (image4DSimple != null){
-                update3DFileSize(new Integer[]{
-                        (int) image4DSimple.getSz0(), (int) image4DSimple.getSz1(), (int) image4DSimple.getSz2()});
-                annotationRender.init3DImageInfo(image4DSimple, normalizedSize, originalSize);
-                annotationHelper.initImageInfo(image4DSimple, normalizedSize, originalSize);
-                annotationDataManager.init();
+            try {
+                image4DSimple = pixelClassification.getPixelClassificationResult(image4DSimple, neuronTree);
+                if (image4DSimple != null){
+                    update3DFileSize(new Integer[]{
+                            (int) image4DSimple.getSz0(), (int) image4DSimple.getSz1(), (int) image4DSimple.getSz2()});
+                    annotationRender.init3DImageInfo(image4DSimple, normalizedSize, originalSize);
+                    annotationHelper.initImageInfo(image4DSimple, normalizedSize, originalSize);
+                    annotationDataManager.init();
+                }
+                requestRender();
+            } catch (Exception e){
+                ToastEasy(e.getMessage());
             }
-            requestRender();
-        } catch (Exception e){
-            ToastEasy(e.getMessage());
+        } else {
+            ToastEasy("Load a image first");
         }
     }
 
