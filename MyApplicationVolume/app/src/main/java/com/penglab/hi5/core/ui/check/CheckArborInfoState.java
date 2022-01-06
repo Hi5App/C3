@@ -98,7 +98,7 @@ public class CheckArborInfoState {
     }
 
     public int [] newCenterWhenNavigateBlockToTargetOffset(int offset_x, int offset_y, int offset_z) {
-        String img_size = rois[curROI - 1].replace("RES(","").replace(")","");
+        String img_size = rois[curROI].replace("RES(","").replace(")","");
 
         int img_size_x_i = Integer.parseInt(img_size.split("x")[0]);
         int img_size_y_i = Integer.parseInt(img_size.split("x")[1]);
@@ -171,7 +171,11 @@ public class CheckArborInfoState {
         } else {
             chosenPos = 0;
         }
-        chosenArbor = arborInfoList.get(chosenPos);
+        try {
+            chosenArbor = (ArborInfo) arborInfoList.get(chosenPos).clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void formerArbor() {
@@ -180,6 +184,10 @@ public class CheckArborInfoState {
         } else {
             chosenPos = arborInfoList.size() - 1;
         }
-        chosenArbor = arborInfoList.get(chosenPos);
+        try {
+            chosenArbor = (ArborInfo) arborInfoList.get(chosenPos).clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
     }
 }

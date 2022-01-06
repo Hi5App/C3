@@ -1,9 +1,11 @@
 package com.penglab.hi5.data.model.img;
 
+import androidx.annotation.NonNull;
+
 /**
  * Created by Yihang zhu 01/04/21
  */
-public class ArborInfo {
+public class ArborInfo implements Cloneable{
     private String arborName;
     private int xc;
     private int yc;
@@ -90,5 +92,12 @@ public class ArborInfo {
             yc = yc << (-scale);
             zc = zc << (-scale);
         }
+    }
+
+    @NonNull
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        ArborInfo clonedArbor = new ArborInfo(arborName, xc, yc, zc, imageId, url);
+        return clonedArbor;
     }
 }
