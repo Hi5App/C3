@@ -16,8 +16,6 @@ import com.penglab.hi5.core.render.BasicRender;
  */
 public class BasicGLSurfaceView extends GLSurfaceView {
 
-    protected BasicRender basicRender;
-
     protected float lastX, lastY;
     protected double dis_start;
     protected float dis_x_start;
@@ -35,44 +33,6 @@ public class BasicGLSurfaceView extends GLSurfaceView {
 
     public BasicGLSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
-    }
-
-    public BasicGLSurfaceView(Context context, BasicRender basicRender) {
-        super(context);
-        this.basicRender = basicRender;
-
-        // 设置一下opengl版本；
-        setEGLContextClientVersion(3);
-        setRenderer(basicRender);
-
-        // 调用 onPause 的时候保存EGLContext
-        setPreserveEGLContextOnPause(true);
-
-        // 当发生交互时重新执行渲染， 需要配合requestRender();
-        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-    }
-
-    public BasicGLSurfaceView(Context context, AttributeSet attrs, BasicRender basicRender) {
-        super(context, attrs);
-        this.basicRender = basicRender;
-
-        // 设置一下opengl版本；
-        setEGLContextClientVersion(3);
-        setRenderer(basicRender);
-
-        // 调用 onPause 的时候保存EGLContext
-        setPreserveEGLContextOnPause(true);
-
-        // 当发生交互时重新执行渲染， 需要配合requestRender();
-        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-    }
-
-    public BasicRender getBasicRender() {
-        return basicRender;
-    }
-
-    public void setBasicRender(BasicRender basicRender) {
-        this.basicRender = basicRender;
     }
 
     // 坐标系变换

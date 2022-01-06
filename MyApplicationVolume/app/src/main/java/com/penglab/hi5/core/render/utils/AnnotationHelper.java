@@ -219,8 +219,8 @@ public class AnnotationHelper {
         return centerXYZ;
     }
 
-    public void zoomInByPinpoint(float x, float y) {
-        float[] target = solveMarkerCenter(x, y);
+    public float[] zoomInByPinpoint(float x, float y) {
+        return solveMarkerCenter(x, y);
     }
 
 
