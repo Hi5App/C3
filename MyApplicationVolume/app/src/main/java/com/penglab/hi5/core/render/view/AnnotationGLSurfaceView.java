@@ -135,7 +135,6 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
                     break;
                 case MotionEvent.ACTION_MOVE:
                     if (isZooming && isZoomingNotStop) {
-
                         if (!is2DImage()){
                             renderOptions.setImageChanging(true);
                         }

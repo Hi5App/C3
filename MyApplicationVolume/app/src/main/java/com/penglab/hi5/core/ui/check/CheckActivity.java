@@ -2,6 +2,7 @@ package com.penglab.hi5.core.ui.check;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -11,6 +12,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -87,12 +89,13 @@ public class CheckActivity extends BaseActivity {
 //        });
 
         checkViewModel.getImageResult().observe(this, new Observer<ResourceResult>() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onChanged(ResourceResult imageResult) {
                 if (!imageResult.isSuccess()) {
                     Toast_in_Thread(imageResult.getError());
                 } else {
-                    checkGLSurfaceView.loadImageFile();
+                    checkGLSurfaceView.openFile();
                     checkViewModel.downloadSWC();
                 }
             }
@@ -116,7 +119,7 @@ public class CheckActivity extends BaseActivity {
                 if (!annotationResult.isSuccess()) {
                     Toast_in_Thread(annotationResult.getError());
                 } else {
-                    checkGLSurfaceView.loadAnnotationFile();
+                    checkGLSurfaceView.loadFile();
                     showButtons();
                 }
             }
@@ -192,6 +195,7 @@ public class CheckActivity extends BaseActivity {
         checkGLSurfaceView.setOnDoubleClickListener(new CheckGLSurfaceView.OnDoubleClickListener() {
             @Override
             public void run(int[] center) {
+                Log.e(TAG, "checkViewModel.getImageWithNewCenter(center)");
                 checkViewModel.getImageWithNewCenter(center);
             }
         });
