@@ -24,6 +24,7 @@ import com.penglab.hi5.core.render.pattern.MyPattern;
 import com.penglab.hi5.core.render.utils.AnnotationDataManager;
 import com.penglab.hi5.core.render.utils.MatrixManager;
 import com.penglab.hi5.core.render.utils.RenderOptions;
+import com.penglab.hi5.core.ui.check.CheckArborInfoState;
 import com.penglab.hi5.core.ui.check.FileInfoState;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.model.img.BasicFile;
@@ -46,7 +47,7 @@ public class CheckRender extends BasicRender {
 
     private final String TAG = "CheckRender";
     private final ImageInfoRepository imageInfoRepository = ImageInfoRepository.getInstance();
-    private final FileInfoState fileInfoState = FileInfoState.getInstance();
+    private final CheckArborInfoState checkArborInfoState = CheckArborInfoState.getInstance();
 
     private final float[] normalizedSize = new float[3];
     private final int[] originalSize = new int[3];
@@ -124,6 +125,7 @@ public class CheckRender extends BasicRender {
             case TIFF:
                 image4DSimple = Image4DSimple.loadImage(filePath, fileType);
                 if (image4DSimple != null){
+                    annotationDataManager.init();
                     updateFileSize(new Integer[]{
                             (int) image4DSimple.getSz0(), (int) image4DSimple.getSz1(), (int) image4DSimple.getSz2()});
                     myPattern.setNeedSetContent(true);
@@ -369,7 +371,7 @@ public class CheckRender extends BasicRender {
 //        normalize(d);
 //        Log.v("getCenterOfLineProfile:", "step: " + Arrays.toString(d));
 
-        // 判断是不是一个像素
+        // 判断是不是一个像素网易buff
         float length = distance(loc1_index, loc2_index);
         if(length < 0.5)
             return result;
@@ -580,9 +582,9 @@ public class CheckRender extends BasicRender {
 
     private int grayData(int x, int y, int z){
         int result = 0;
-        int data_length = imageInfoRepository.getBasicImage().getImage4DSimple().getDatatype().ordinal();
-        byte [] grayscale = imageInfoRepository.getBasicImage().getImage4DSimple().getData();
-        boolean isBig = imageInfoRepository.getBasicImage().getImage4DSimple().getIsBig();
+        int data_length = image4DSimple.getDatatype().ordinal();
+        byte [] grayscale = image4DSimple.getData();
+        boolean isBig = image4DSimple.getIsBig();
         if (data_length == 1){
             byte b = grayscale[z * originalSize[0] * originalSize[1] + y * originalSize[0] + x];
             result = ByteTranslate.byte1ToInt(b);
@@ -614,6 +616,6 @@ public class CheckRender extends BasicRender {
 
     public int [] newCenterWhenNavigateWhenClick(float x, float y) {
         float [] center = solveMarkerCenter(x, y);
-        return fileInfoState.newCenterWhenNavigateBlockToTargetOffset((int) center[0] - 64, (int) center[1] - 64, (int) center[2] - 64);
+        return checkArborInfoState.newCenterWhenNavigateBlockToTargetOffset((int) center[0] - 64, (int) center[1] - 64, (int) center[2] - 64);
     }
 }

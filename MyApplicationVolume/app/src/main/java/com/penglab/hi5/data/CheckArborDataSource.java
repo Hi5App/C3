@@ -1,5 +1,7 @@
 package com.penglab.hi5.data;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -19,6 +21,7 @@ import okhttp3.Response;
  * Created by Yihang zhu 01/04/21
  */
 public class CheckArborDataSource {
+    private final String TAG = "CheckArborDataSource";
     private final MutableLiveData<Result> result = new MutableLiveData<>();
 
     public LiveData<Result> getResult() {

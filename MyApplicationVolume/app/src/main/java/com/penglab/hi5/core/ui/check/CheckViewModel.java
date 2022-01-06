@@ -52,7 +52,7 @@ public class CheckViewModel extends ViewModel {
         this.fileInfoState = fileInfoState;
         this.imageInfoRepository = imageInfoRepository;
         this.checkArborDataSource = new CheckArborDataSource();
-        this.checkArborInfoState = new CheckArborInfoState();
+        this.checkArborInfoState = CheckArborInfoState.getInstance();
     }
 
     ImageDataSource getImageDataSource() {
@@ -105,40 +105,47 @@ public class CheckViewModel extends ViewModel {
         imageDataSource.downloadImage(chosenArborInfo.getImageId(), roi, chosenArborInfo.getXc(), chosenArborInfo.getYc(), chosenArborInfo.getZc(), 128);
     }
 
+    public void getImageWithROI(int roiPosition) {
+        checkArborInfoState.zoomToROI(roiPosition);
+        String roi = checkArborInfoState.getRois()[roiPosition];
+        ArborInfo chosenArborInfo = checkArborInfoState.getChosenArbor();
+        imageDataSource.downloadImage(chosenArborInfo.getImageId(), roi, chosenArborInfo.getXc(), chosenArborInfo.getYc(), chosenArborInfo.getZc(), 128);
+    }
+
     public void getImageZoomIn() {
-        String [] rois = checkArborInfoState.getRois();
-        int curRoi = checkArborInfoState.getCurROI();
-        if (curRoi < rois.length - 1) {
-            checkArborInfoState.setCurROI(curRoi + 1);
-            String roi = rois[curRoi + 1];
+        if (checkArborInfoState.zoomIn()) {
+            String [] rois = checkArborInfoState.getRois();
+            int curRoi = checkArborInfoState.getCurROI();
+            String roi = rois[curRoi];
             ArborInfo chosenArborInfo = checkArborInfoState.getChosenArbor();
             imageDataSource.downloadImage(chosenArborInfo.getImageId(), roi, chosenArborInfo.getXc(), chosenArborInfo.getYc(), chosenArborInfo.getZc(), 128);
         }
     }
 
     public void getImageZoomOut() {
-        String [] rois = checkArborInfoState.getRois();
-        int curRoi = checkArborInfoState.getCurROI();
-        if (curRoi > 0) {
-            checkArborInfoState.setCurROI(curRoi - 1);
-            String roi = rois[curRoi - 1];
+        if (checkArborInfoState.zoomOut()) {
+            String [] rois = checkArborInfoState.getRois();
+            int curRoi = checkArborInfoState.getCurROI();
+            String roi = rois[curRoi];
             ArborInfo chosenArborInfo = checkArborInfoState.getChosenArbor();
             imageDataSource.downloadImage(chosenArborInfo.getImageId(), roi, chosenArborInfo.getXc(), chosenArborInfo.getYc(), chosenArborInfo.getZc(), 128);
         }
     }
 
     public void getImageWithNewCenter(int [] center) {
-        fileInfoState.setX(center[0]);
-        fileInfoState.setY(center[1]);
-        fileInfoState.setZ(center[2]);
-        imageDataSource.downloadImage(fileInfoState.getImageId(), fileInfoState.getRois()[fileInfoState.getCurRoi()], fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
+        checkArborInfoState.getChosenArbor().setXc(center[0]);
+        checkArborInfoState.getChosenArbor().setYc(center[1]);
+        checkArborInfoState.getChosenArbor().setZc(center[2]);
+        imageDataSource.downloadImage(checkArborInfoState.getChosenArbor().getImageId(), checkArborInfoState.getRois()[checkArborInfoState.getCurROI()],
+                checkArborInfoState.getChosenArbor().getXc(), checkArborInfoState.getChosenArbor().getYc(), checkArborInfoState.getChosenArbor().getZc(), 128);
     }
 
 
     public void downloadSWC() {
         ArborInfo chosenArbor = checkArborInfoState.getChosenArbor();
         String url = chosenArbor.getUrl() + "/" + chosenArbor.getArborName() + ".eswc";
-        annotationDataSource.downloadSWC(url, 1 << (checkArborInfoState.getRois().length - checkArborInfoState.getCurROI() - 1), chosenArbor.getXc(), chosenArbor.getYc(), chosenArbor.getZc(), 128);
+        int resScale = 1 << checkArborInfoState.getCurROI();
+        annotationDataSource.downloadSWC(url, resScale, chosenArbor.getXc(), chosenArbor.getYc(), chosenArbor.getZc(), 128);
     }
 
     public void getCheckArborList() {
@@ -146,7 +153,22 @@ public class CheckViewModel extends ViewModel {
     }
 
     public void getImageWithArborInfo(ArborInfo arborInfo) {
-        checkArborInfoState.setChosenArbor(arborInfo);
+        try {
+            checkArborInfoState.setChosenArbor((ArborInfo) arborInfo.clone());
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        getBrainList();
+    }
+
+    public void getImageWithArborInfoPos(int position) {
+        List<ArborInfo> arborInfoList = checkArborInfoState.getArborInfoList();
+        try {
+            checkArborInfoState.setChosenArbor((ArborInfo) arborInfoList.get(position).clone());
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        checkArborInfoState.setChosenPos(position);
         getBrainList();
     }
 
@@ -182,7 +204,7 @@ public class CheckViewModel extends ViewModel {
 
 
                         String [] rois = fileInfoState.getRois();
-                        String roi = rois[rois.length - 1 - fileInfoState.getCurRoi()];
+                        String roi = rois[fileInfoState.getCurRoi()];
                         imageDataSource.downloadImage(fileInfoState.getImageId(), roi, fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
                     }
                 } catch (JSONException e) {
@@ -262,27 +284,11 @@ public class CheckViewModel extends ViewModel {
                     rois[j] = rois[j].substring(1, rois[j].length() - 1);
                 }
                 checkArborInfoState.setRois(rois);
-                checkArborInfoState.setCurROI(rois.length - 1);
+                checkArborInfoState.setCurROI(0);
                 ArborInfo arborInfo = checkArborInfoState.getChosenArbor();
                 imageDataSource.downloadImage(arborInfo.getImageId(), rois[checkArborInfoState.getCurROI()], arborInfo.getXc(), arborInfo.getYc(), arborInfo.getZc(), 128);
             }
         }
-//        List<BrainInfo> brainList = new ArrayList<>();
-//        for (int i = 0; i < length; i++) {
-//            JSONObject jsonObject = data.getJSONObject(i);
-//            String imageId = jsonObject.getString("imageid");
-//            String detail = jsonObject.getString("detail");
-//            detail = detail.substring(1, detail.length() - 1);
-//            String [] rois = detail.split(", ");
-//            for (int j = 0; j < rois.length; j++) {
-//                rois[j] = rois[j].substring(1, rois[j].length() - 1);
-//            }
-//            String url = jsonObject.getString("url");
-//            BrainInfo brainInfo = new BrainInfo(imageId, rois, url);
-//            brainList.add(brainInfo);
-//        }
-//        fileInfoState.setBrainList(brainList);
-//        fileInfoState.setCurrentOpenState(FileInfoState.OpenState.BRAIN_LIST);
     }
 
     private void handleNeuronListJSON(JSONArray data) throws JSONException {
@@ -331,5 +337,15 @@ public class CheckViewModel extends ViewModel {
 
     public MutableLiveData<ResourceResult> getAnnotationResult() {
         return annotationResult;
+    }
+
+    public void getNextArbor() {
+        checkArborInfoState.nextArbor();
+        getBrainList();
+    }
+
+    public void getFormerArbor() {
+        checkArborInfoState.formerArbor();
+        getBrainList();
     }
 }

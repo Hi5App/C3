@@ -20,6 +20,9 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
 
     private MotionEvent mCurrentDownEvent;
     private MotionEvent mPreviousUpEvent;
+    private long previousUpTime = -1;
+    private float previousUpX;
+    private float previousUpY;
 
     private OnDoubleClickListener onDoubleClickListener;
 
@@ -123,22 +126,25 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
                         }
                         break;
                     case MotionEvent.ACTION_POINTER_UP:
-                        if (!isMove) {
-                            if (mPreviousUpEvent != null && isConsideredDoubleTap(mPreviousUpEvent, motionEvent)) {
-                                int [] newCenter = checkRender.newCenterWhenNavigateWhenClick(currentX, currentY);
-                                onDoubleClickListener.run(newCenter);
-                            }
-                            mPreviousUpEvent = motionEvent;
-                        } else {
-                            mPreviousUpEvent = null;
-                        }
-                        isMove = false;
+
                         isZoomingNotStop = false;
 //                        checkRender.setIfDownSampling(false);
                         lastX = currentX;
                         lastY = currentY;
                         break;
                     case MotionEvent.ACTION_UP:
+                        if (!isMove) {
+                            if (previousUpTime > 0 && isConsideredDoubleTap(previousUpTime, previousUpX, previousUpY, motionEvent)) {
+                                int [] newCenter = checkRender.newCenterWhenNavigateWhenClick(currentX, currentY);
+                                onDoubleClickListener.run(newCenter);
+                            }
+                            previousUpTime = motionEvent.getEventTime();
+                            previousUpX = motionEvent.getX();
+                            previousUpY = motionEvent.getY();
+                        } else {
+                            previousUpTime = -1;
+                        }
+                        isMove = false;
                         requestRender();
                         isZooming = false;
 //                        checkRender.setIfDownSampling(false);
@@ -161,6 +167,15 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
         }
         int deltaX =(int) firstUp.getX() - (int)secondUp.getX();
         int deltaY =(int) firstUp.getY()- (int)secondUp.getY();
+        return deltaX * deltaX + deltaY * deltaY < 10000;
+    }
+
+    private boolean isConsideredDoubleTap(long firstUpTime, float firstUpX, float firstUpY, MotionEvent secondUp) {
+        if (secondUp.getEventTime() - firstUpTime > DOUBLE_TAP_TIMEOUT) {
+            return false;
+        }
+        int deltaX =(int) firstUpX - (int)secondUp.getX();
+        int deltaY =(int) firstUpY- (int)secondUp.getY();
         return deltaX * deltaX + deltaY * deltaY < 10000;
     }
 
