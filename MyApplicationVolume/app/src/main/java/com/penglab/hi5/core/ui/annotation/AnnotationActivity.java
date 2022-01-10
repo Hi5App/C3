@@ -119,6 +119,10 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         toolbar = (Toolbar) findViewById(R.id.toolbar_annotation);
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
         annotationViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(AnnotationViewModel.class);
         annotationViewModel.getWorkStatus().observe(this, new Observer<WorkStatus>() {
             @RequiresApi(api = Build.VERSION_CODES.N)
@@ -303,6 +307,10 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+
             case R.id.undo:
                 annotationGLSurfaceView.undo();
                 return true;
@@ -650,6 +658,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                 if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_MARKER)){
                     deleteMarker.setImageResource(R.drawable.ic_marker_delete);
                 }
+                break;
         }
     }
 

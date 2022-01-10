@@ -7,6 +7,9 @@ import android.media.SoundPool;
 import com.penglab.hi5.R;
 import com.penglab.hi5.data.dataStore.PreferenceMusic;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
  * Class to manage backgroundSound, buttonSound, actionSound
  *
@@ -31,6 +34,7 @@ public class MusicHelper {
             R.raw.button,
             R.raw.fail };
 
+    private final ExecutorService executorService = Executors.newFixedThreadPool(3);
     private final PreferenceMusic preferenceMusic;
     private final SoundPool soundPool;
     private final int SOUND_NUM = 4;
@@ -66,22 +70,22 @@ public class MusicHelper {
     }
 
     public void playButtonSound(){
-        soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+        executorService.submit(() -> soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f));
     }
 
     public void playActionSound(ActionType actionType){
         switch (actionType){
             case CURVE:
-                soundPool.play(soundId[1], actionVolume, actionVolume, 0, 0, 1.0f);
+                executorService.submit(() -> soundPool.play(soundId[1], actionVolume, actionVolume, 0, 0, 1.0f));
                 break;
             case MARKER:
-                soundPool.play(soundId[0], actionVolume, actionVolume, 0, 0, 1.0f);
+                executorService.submit(() -> soundPool.play(soundId[0], actionVolume, actionVolume, 0, 0, 1.0f));
                 break;
         }
     }
 
     public void playFailSound(){
-        soundPool.play(soundId[3], buttonVolume, buttonVolume, 0, 0, 1.0f);
+        executorService.submit(() -> soundPool.play(soundId[3], buttonVolume, buttonVolume, 0, 0, 1.0f));
     }
 
     public void updateVolume(){
@@ -89,5 +93,11 @@ public class MusicHelper {
         buttonVolume = preferenceMusic.getButtonSound() / 100.0f;
         actionVolume = preferenceMusic.getActionSound() / 100.0f;
         MusicService.setVolume(bgmVolume);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        executorService.shutdown();
     }
 }

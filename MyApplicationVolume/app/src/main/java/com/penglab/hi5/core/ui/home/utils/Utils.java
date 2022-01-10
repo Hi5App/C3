@@ -16,6 +16,7 @@ import com.penglab.hi5.core.S2Activity;
 import com.penglab.hi5.core.net.HttpUtilsImage;
 import com.penglab.hi5.core.ui.annotation.AnnotationActivity;
 import com.penglab.hi5.core.ui.check.CheckActivity;
+import com.penglab.hi5.core.ui.marker.MarkerFactoryActivity;
 import com.penglab.hi5.data.UserInfoRepository;
 
 import org.json.JSONObject;
@@ -44,8 +45,10 @@ public class Utils {
             @Override
             public void onClick(View v) {
                 Context context = v.getContext();
-                UserInfoRepository userInfoRepository = UserInfoRepository.getInstance();
                 switch (libraryObject.getTitle()){
+                    case "Marker Factory":
+                        MarkerFactoryActivity.start(context);
+                        break;
                     case "Annotation":
                         AnnotationActivity.start(context);
                         break;

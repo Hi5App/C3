@@ -95,6 +95,7 @@
         <activity android:name=".core.ui.login.LoginActivity" />
         <activity android:name=".core.ui.check.CheckActivity" />
         <activity android:name=".core.ui.annotation.AnnotationActivity" />
+        <activity android:name=".core.ui.marker.MarkerFactoryActivity" />
         <activity
             android:name=".core.ui.splash.SplashScreenActivity"
             android:configChanges="keyboardHidden|orientation"

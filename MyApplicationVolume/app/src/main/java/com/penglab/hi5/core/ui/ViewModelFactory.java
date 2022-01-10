@@ -10,6 +10,8 @@ import com.penglab.hi5.core.ui.check.CheckViewModel;
 import com.penglab.hi5.core.ui.check.FileInfoState;
 import com.penglab.hi5.core.ui.home.screens.HomeViewModel;
 import com.penglab.hi5.core.ui.login.LoginViewModel;
+import com.penglab.hi5.core.ui.marker.MarkerFactoryActivity;
+import com.penglab.hi5.core.ui.marker.MarkerFactoryViewModel;
 import com.penglab.hi5.core.ui.password.FindPasswordViewModel;
 import com.penglab.hi5.core.ui.register.RegisterViewModel;
 import com.penglab.hi5.core.ui.splash.SplashScreenViewModel;
@@ -54,6 +56,8 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             return (T) new AnnotationViewModel(ImageInfoRepository.getInstance(), UserInfoRepository.getInstance(), new UserDataSource(), new ImageDataSource());
         } else if (modelClass.isAssignableFrom(QuestViewModel.class)) {
             return (T) new QuestViewModel();
+        } else if (modelClass.isAssignableFrom(MarkerFactoryViewModel.class)) {
+            return (T) new MarkerFactoryViewModel();
         } else {
             throw new IllegalArgumentException("Unknown ViewModel class");
         }

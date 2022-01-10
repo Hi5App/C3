@@ -19,6 +19,10 @@ public class HorizontalPagerAdapter extends PagerAdapter {
 
     private final Utils.LibraryObject[] LIBRARIES = new Utils.LibraryObject[]{
             new Utils.LibraryObject(
+                    R.drawable.ic_marker_factory,
+                    "Marker Factory"
+            ),
+            new Utils.LibraryObject(
                     R.drawable.ic_design,
                     "Annotation"
             ),
