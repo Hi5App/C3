@@ -171,22 +171,22 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
                         } else {
                             // play music when curve / marker action start
                             // The step ACTION_DOWN will add 3 item into fingerTrajectory
-                            if (fingerTrajectory.size() <= 3){
-                                switch (Objects.requireNonNull(editMode.getValue())){
-                                    case PINPOINT:
-                                    case DELETE_MARKER:
-                                    case CHANGE_MARKER_TYPE:
-                                    case ZOOM_IN_ROI:
-                                        playMarkerActionSound();
-                                        break;
-                                    case PAINT_CURVE:
-                                    case DELETE_CURVE:
-                                    case CHANGE_CURVE_TYPE:
-                                    case SPLIT:
-                                        playCurveActionSound();
-                                        break;
-                                }
-                            }
+//                            if (fingerTrajectory.size() <= 3){
+//                                switch (Objects.requireNonNull(editMode.getValue())){
+//                                    case PINPOINT:
+//                                    case DELETE_MARKER:
+//                                    case CHANGE_MARKER_TYPE:
+//                                    case ZOOM_IN_ROI:
+//                                        playMarkerActionSound();
+//                                        break;
+//                                    case PAINT_CURVE:
+//                                    case DELETE_CURVE:
+//                                    case CHANGE_CURVE_TYPE:
+//                                    case SPLIT:
+//                                        playCurveActionSound();
+//                                        break;
+//                                }
+//                            }
                             updateFingerTrajectory(currentX, currentY);
                             annotationRender.updateFingerTrajectory(fingerTrajectory);
                             requestRender();
@@ -562,6 +562,8 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
         normalizedSize[0] = (float) size[0] / maxSize;
         normalizedSize[1] = (float) size[1] / maxSize;
         normalizedSize[2] = (float) size[2] / maxSize;
+
+        Log.e(TAG,Arrays.toString(originalSize));
 
     }
 
