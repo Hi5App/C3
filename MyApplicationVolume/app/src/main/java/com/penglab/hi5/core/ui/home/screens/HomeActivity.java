@@ -14,8 +14,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -54,7 +56,12 @@ import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.dataStore.PreferenceLogin;
 import com.penglab.hi5.data.model.user.LogStatus;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 
 
 public class HomeActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -269,6 +276,9 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
             case R.id.nav_about:
                 about();
                 break;
+            case R.id.nav_check_for_updates:
+                installApk();
+                break;
         }
         drawerLayout.closeDrawer(navigationView);
         return false;
@@ -353,7 +363,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
 
-                                "Version: 20210803a 11:39 UTC+8 build",
+                                "Version: 20220110a 11:39 UTC+8 build",
 
                         new OnConfirmListener() {
                             @Override
@@ -408,6 +418,126 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                 .setConfirmText("Confirm")
                 .show();
     }
+
+    private void installApk() {
+        String filePath = null;
+        try {
+            filePath = Environment.getExternalStorageDirectory().getCanonicalPath();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String fileName = "Hi5_20220105.apk";
+        File apkFile = new File(filePath, fileName);
+        if (!apkFile.exists()) {
+            return;
+        }
+        Uri apkUri;// = FileProvider.getUriForFile(mContext, "com.zjs.znstorepack.fileprovider", apkfile);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        // 通过Intent安装APK文件
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//            apkUri = FileProvider.getUriForFile(context,
+//                    "com.penglab.hi5",
+//                    apkFile);
+//        } else {
+//            apkUri = Uri.fromFile(apkFile);
+//        }
+        apkUri = FileProvider.getUriForFile(this, context.getPackageName() + ".provider", apkFile);
+        //打开新版本应用的
+
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+        startActivity(intent);
+//        android.os.Process.killProcess(android.os.Process.myPid());
+    }
+
+//    public boolean installApk() {
+//
+//        String apkPath = null;
+//        try {
+//            apkPath = Environment.getExternalStorageDirectory().getCanonicalPath() + "/Hi5_20220105.apk";
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        boolean result =false;
+//
+//        DataOutputStream dataOutputStream =null;
+//
+//        BufferedReader errorStream =null;
+//
+//        try{
+//
+//
+//            Process process = Runtime.getRuntime().exec("su");
+//
+//            dataOutputStream =new DataOutputStream(process.getOutputStream());
+//
+//
+//            String command ="pm install -r "+ apkPath +"\n";
+//
+//            dataOutputStream.write(command.getBytes(Charset.forName("utf-8")));
+//
+//            dataOutputStream.flush();
+//
+//            dataOutputStream.writeBytes("exit\n");
+//
+//            dataOutputStream.flush();
+//
+//            process.waitFor();
+//
+//            errorStream =new BufferedReader(new InputStreamReader(process.getErrorStream()));
+//
+//            String msg ="";
+//
+//            String line;
+//
+//            while((line = errorStream.readLine()) !=null) {
+//
+//                msg += line;
+//
+//            }
+//
+//            Log.d("TAG","install msg is "+ msg);
+//
+//            if(!msg.contains("Failure")) {
+//
+//                result =true;
+//
+//            }
+//
+//        }catch(Exception e) {
+//
+//            Log.e("TAG",e.getMessage(),e);
+//
+//        }finally{
+//
+//            try{
+//
+//                if(dataOutputStream !=null) {
+//
+//                    dataOutputStream.close();
+//
+//                }
+//
+//                if(errorStream !=null) {
+//
+//                    errorStream.close();
+//
+//                }
+//
+//            }catch(IOException e) {
+//
+//                Log.e("TAG",e.getMessage(),e);
+//
+//            }
+//
+//        }
+//
+//        return result;
+//
+//    }
+
 }
 
 
