@@ -88,7 +88,7 @@ public class QuestActivity extends AppCompatActivity {
     }
 
     private void initAdapter() {
-        questBindingAdapter = new QuestBindingAdapter(this);
+        questBindingAdapter = new QuestBindingAdapter(this, questViewModel);
         ArrayList<Quest> dailyQuests = questViewModel.getDailyQuestsModel().getDailyQuests();
         for (int i = 0; i < dailyQuests.size(); i++) {
             questBindingAdapter.getItems().add(dailyQuests.get(i));
