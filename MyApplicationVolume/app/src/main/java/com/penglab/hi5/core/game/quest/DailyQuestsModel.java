@@ -72,9 +72,11 @@ public class DailyQuestsModel {
     }
 
     public int questFinished(Quest quest) {
+
         for (int i = 0; i < dailyQuests.size(); i++) {
             Quest dailyQuest = dailyQuests.get(i);
             if (quest.getContent().equals(dailyQuest.getContent())) {
+                quest.setStatus(Quest.Status.Finished);
                 updateNDailyQuest(i, Quest.Status.Finished);
                 return dailyQuest.getReward();
             }
