@@ -47,6 +47,7 @@ import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.game.LeaderBoardActivity;
 //import com.penglab.hi5.core.game.QuestActivity;
 import com.penglab.hi5.core.game.RewardActivity;
+import com.penglab.hi5.core.game.quest.QuestActivity;
 import com.penglab.hi5.data.UserInfoRepository;
 
 import java.util.ArrayList;
@@ -144,12 +145,12 @@ public class MyActivity extends AppCompatActivity {
             }
         });
 
-        //        person_daily_quests.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                startActivity(new Intent(MyActivity.this, QuestActivity.class));
-//            }
-//        });
+        person_daily_quests.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MyActivity.this, QuestActivity.class));
+            }
+        });
 
 
 

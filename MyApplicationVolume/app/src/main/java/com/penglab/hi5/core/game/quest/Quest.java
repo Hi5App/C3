@@ -1,6 +1,10 @@
 package com.penglab.hi5.core.game.quest;
 
-public class Quest {
+import androidx.databinding.BaseObservable;
+
+import com.netease.nim.uikit.common.framework.infra.Observable;
+
+public class Quest extends BaseObservable {
     public enum Status
     {
         UnFinished, Pending, Finished
@@ -61,6 +65,7 @@ public class Quest {
 
     public void setStatus(Status status){
         this.status = status;
+        notifyChange();
     }
 
     public void setAlreadyDone(int alreadyDone) {

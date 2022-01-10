@@ -11,6 +11,8 @@ import androidx.databinding.ObservableArrayList;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.netease.nim.uikit.common.framework.infra.Observable;
+
 /**
  * Created by Yihang zhu 12/31/21
  */
