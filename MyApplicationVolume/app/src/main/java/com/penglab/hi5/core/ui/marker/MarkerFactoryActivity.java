@@ -83,7 +83,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_marker_factory);
-        annotationGLSurfaceView = findViewById(R.id.gl_surface_view);
+        annotationGLSurfaceView = findViewById(R.id.gl_surface_view_marker_factory);
         toolbar = (Toolbar) findViewById(R.id.toolbar_marker_factory);
         setSupportActionBar(toolbar);
 
@@ -113,9 +113,12 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             }
         });
 
-        ImageInfoRepository.getInstance().getScreenCapture().observe(this, new Observer<FilePath<?>>() {
+        ImageInfoRepository.getInstance().getScreenCaptureFilePath().observe(this, new Observer<FilePath<?>>() {
             @Override
             public void onChanged(FilePath<?> filePath) {
+                if (filePath == null){
+                    return;
+                }
                 screenCapture((Uri) filePath.getData());
             }
         });
@@ -214,6 +217,9 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         intent.setType("image/jpeg");
         startActivity(Intent.createChooser(intent, "Share from Hi5"));
+
+        // need to reset after use
+        ImageInfoRepository.getInstance().getScreenCaptureFilePath().setValue(null);
     }
 
     private void moreFunctions(){
