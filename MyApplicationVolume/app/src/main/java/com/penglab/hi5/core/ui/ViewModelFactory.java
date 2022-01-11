@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.annotation.NonNull;
 
+import com.penglab.hi5.core.game.leaderBoard.LeaderBoardItemModel;
+import com.penglab.hi5.core.game.leaderBoard.LeaderBoardViewModel;
 import com.penglab.hi5.core.game.quest.QuestViewModel;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
 import com.penglab.hi5.core.ui.check.CheckViewModel;
@@ -56,6 +58,8 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             return (T) new AnnotationViewModel(ImageInfoRepository.getInstance(), UserInfoRepository.getInstance(), new UserDataSource(), new ImageDataSource());
         } else if (modelClass.isAssignableFrom(QuestViewModel.class)) {
             return (T) new QuestViewModel();
+        } else if (modelClass.isAssignableFrom(LeaderBoardViewModel.class)) {
+            return (T) new LeaderBoardViewModel(LeaderBoardItemModel.getInstance());
         } else if (modelClass.isAssignableFrom(MarkerFactoryViewModel.class)) {
             return (T) new MarkerFactoryViewModel();
         } else {

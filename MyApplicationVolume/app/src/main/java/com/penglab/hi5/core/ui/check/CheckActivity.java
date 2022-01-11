@@ -2,6 +2,7 @@ package com.penglab.hi5.core.ui.check;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,10 +25,12 @@ import com.penglab.hi5.core.BaseActivity;
 import com.penglab.hi5.core.render.view.CheckGLSurfaceView;
 import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.ViewModelFactory;
+import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.model.img.AnoInfo;
 import com.penglab.hi5.data.model.img.ArborInfo;
 import com.penglab.hi5.data.model.img.BrainInfo;
+import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.img.NeuronInfo;
 
 import java.util.List;
@@ -145,6 +148,13 @@ public class CheckActivity extends BaseActivity {
             }
         });
 
+        ImageInfoRepository.getInstance().getScreenCapture().observe(this, new Observer<FilePath<?>>() {
+            @Override
+            public void onChanged(FilePath<?> filePath) {
+                screenCapture((Uri) filePath.getData());
+            }
+        });
+
         initButtons();
         initCheckGLSurfaceView();
     }
@@ -218,6 +228,9 @@ public class CheckActivity extends BaseActivity {
             case R.id.check_more_toolbar:
                 Log.e(TAG,"more functions");
                 return true;
+
+            case R.id.check_share_toolbar:
+                checkGLSurfaceView.screenCapture();
 
             default:
                 // If we got here, the user's action was not recognized.
@@ -347,6 +360,16 @@ public class CheckActivity extends BaseActivity {
                     break;
             }
         }
+    }
+
+    private void screenCapture(Uri uri){
+        Intent intent = new Intent();
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setAction(Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        intent.setType("image/jpeg");
+        startActivity(Intent.createChooser(intent, "Share from Hi5"));
     }
 }
 

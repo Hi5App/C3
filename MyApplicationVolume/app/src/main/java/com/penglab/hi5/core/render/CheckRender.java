@@ -1,18 +1,24 @@
 package com.penglab.hi5.core.render;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
+import static com.penglab.hi5.core.Myapplication.getContext;
 import static javax.microedition.khronos.opengles.GL10.GL_ALPHA_TEST;
 import static javax.microedition.khronos.opengles.GL10.GL_BLEND;
 import static javax.microedition.khronos.opengles.GL10.GL_ONE_MINUS_SRC_ALPHA;
 import static javax.microedition.khronos.opengles.GL10.GL_SRC_ALPHA;
 
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.net.Uri;
 import android.opengl.GLES30;
 import android.opengl.Matrix;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import com.penglab.hi5.basic.ByteTranslate;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.Image4DSimple;
+import com.penglab.hi5.basic.image.ImageUtil;
 import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
@@ -31,11 +37,14 @@ import com.penglab.hi5.data.model.img.BasicFile;
 import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.img.FileType;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -62,6 +71,9 @@ public class CheckRender extends BasicRender {
 
     private int screenWidth;
     private int screenHeight;
+
+    private final ExecutorService exeService = Executors.newSingleThreadExecutor();
+    private ByteBuffer mCaptureBuffer;
 
     public CheckRender(AnnotationDataManager annotationDataManager, MatrixManager matrixManager, RenderOptions renderOptions){
         this.annotationDataManager = annotationDataManager;
@@ -92,7 +104,7 @@ public class CheckRender extends BasicRender {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         matrixManager.setProjectionMatrix(screenWidth, screenHeight);
-
+        mCaptureBuffer = ByteBuffer.allocate(screenHeight * screenWidth * 4);
     }
 
     @Override
@@ -118,6 +130,9 @@ public class CheckRender extends BasicRender {
 
         // draw image | annotation
         drawFrame();
+
+        // screenCapture
+        screenCapture();
 
         GLES30.glDisable(GL_BLEND);
         GLES30.glDisable(GL_ALPHA_TEST);
@@ -254,6 +269,37 @@ public class CheckRender extends BasicRender {
         result[2] = input[2] / normalizedSize[2] * originalSize[2];
 
         return result;
+    }
+
+    private void screenCapture() {
+        if (renderOptions.isScreenCapture()) {
+            mCaptureBuffer.rewind();
+            GLES30.glReadPixels(0, 0, screenWidth, screenHeight, GLES30.GL_RGBA, GLES30.GL_UNSIGNED_BYTE, mCaptureBuffer);
+            renderOptions.setScreenCapture(false);
+            exeService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    mCaptureBuffer.rewind();
+                    Bitmap bitmap = Bitmap.createBitmap(screenWidth, screenHeight, Bitmap.Config.ARGB_8888);
+                    bitmap.copyPixelsFromBuffer(mCaptureBuffer);
+
+                    // reverse image
+                    android.graphics.Matrix matrix = new android.graphics.Matrix();
+                    matrix.postScale(1, -1);
+                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, screenWidth, screenHeight, matrix, true);
+                    mCaptureBuffer.clear();
+
+                    // add watermark
+                    Bitmap outBitmap = ImageUtil.drawTextToRightBottom(getContext(),
+                            bitmap, "Hi5", 20, Color.RED, 40, 30);
+                    Uri shareUri = Uri.parse(MediaStore.Images.Media.insertImage(getContext().getContentResolver(), outBitmap,
+                            "Image" + System.currentTimeMillis(), "ScreenCapture from Hi5"));
+
+                    ImageInfoRepository.getInstance().getScreenCapture().postValue(new FilePath<>(shareUri));
+                }
+            });
+
+        }
     }
 
 }

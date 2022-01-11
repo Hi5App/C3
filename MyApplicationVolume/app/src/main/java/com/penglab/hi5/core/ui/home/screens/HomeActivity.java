@@ -431,112 +431,15 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         if (!apkFile.exists()) {
             return;
         }
-        Uri apkUri;// = FileProvider.getUriForFile(mContext, "com.zjs.znstorepack.fileprovider", apkfile);
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        // 通过Intent安装APK文件
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-//            apkUri = FileProvider.getUriForFile(context,
-//                    "com.penglab.hi5",
-//                    apkFile);
-//        } else {
-//            apkUri = Uri.fromFile(apkFile);
-//        }
-        apkUri = FileProvider.getUriForFile(this, context.getPackageName() + ".provider", apkFile);
-        //打开新版本应用的
+        Uri apkUri = FileProvider.getUriForFile(this, context.getPackageName() + ".provider", apkFile);
 
+        Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
         startActivity(intent);
 //        android.os.Process.killProcess(android.os.Process.myPid());
     }
-
-//    public boolean installApk() {
-//
-//        String apkPath = null;
-//        try {
-//            apkPath = Environment.getExternalStorageDirectory().getCanonicalPath() + "/Hi5_20220105.apk";
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        boolean result =false;
-//
-//        DataOutputStream dataOutputStream =null;
-//
-//        BufferedReader errorStream =null;
-//
-//        try{
-//
-//
-//            Process process = Runtime.getRuntime().exec("su");
-//
-//            dataOutputStream =new DataOutputStream(process.getOutputStream());
-//
-//
-//            String command ="pm install -r "+ apkPath +"\n";
-//
-//            dataOutputStream.write(command.getBytes(Charset.forName("utf-8")));
-//
-//            dataOutputStream.flush();
-//
-//            dataOutputStream.writeBytes("exit\n");
-//
-//            dataOutputStream.flush();
-//
-//            process.waitFor();
-//
-//            errorStream =new BufferedReader(new InputStreamReader(process.getErrorStream()));
-//
-//            String msg ="";
-//
-//            String line;
-//
-//            while((line = errorStream.readLine()) !=null) {
-//
-//                msg += line;
-//
-//            }
-//
-//            Log.d("TAG","install msg is "+ msg);
-//
-//            if(!msg.contains("Failure")) {
-//
-//                result =true;
-//
-//            }
-//
-//        }catch(Exception e) {
-//
-//            Log.e("TAG",e.getMessage(),e);
-//
-//        }finally{
-//
-//            try{
-//
-//                if(dataOutputStream !=null) {
-//
-//                    dataOutputStream.close();
-//
-//                }
-//
-//                if(errorStream !=null) {
-//
-//                    errorStream.close();
-//
-//                }
-//
-//            }catch(IOException e) {
-//
-//                Log.e("TAG",e.getMessage(),e);
-//
-//            }
-//
-//        }
-//
-//        return result;
-//
-//    }
 
 }
 

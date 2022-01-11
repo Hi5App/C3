@@ -53,7 +53,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <activity android:name=".core.ui.userProfile.UserInfoActivity"></activity>
+        <activity
+            android:name=".core.game.leaderBoard.LeaderBoardActivity"
+            android:exported="false" />
+        <activity android:name=".core.ui.userProfile.UserInfoActivity" />
         <activity
             android:name=".core.ui.userProfile.MyActivity"
             android:label=""
@@ -196,12 +199,14 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-        <receiver android:name="com.penglab.hi5.basic.UpdateReceiver">
+
+        <receiver android:name=".basic.UpdateReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_ADDED" />
                 <action android:name="android.intent.action.PACKAGE_REPLACED" />
                 <action android:name="android.intent.action.PACKAGE_REMOVED" />
-                <data android:scheme="package"/>
+
+                <data android:scheme="package" />
             </intent-filter>
         </receiver>
     </application>
