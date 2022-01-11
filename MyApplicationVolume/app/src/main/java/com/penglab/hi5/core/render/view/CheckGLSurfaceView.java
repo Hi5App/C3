@@ -304,4 +304,9 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
     public void setOnDoubleClickListener(OnDoubleClickListener onDoubleClickListener) {
         this.onDoubleClickListener = onDoubleClickListener;
     }
+
+    public void screenCapture(){
+        renderOptions.setScreenCapture(true);
+        requestRender();
+    }
 }

@@ -7,11 +7,19 @@
         android:title="file"
         app:showAsAction="always"
         android:icon="@drawable/ic_folder_black_24dp"/>
+    <item
+        android:id="@+id/check_share_toolbar"
+        android:orderInCategory="2"
+        android:title="share"
+        android:icon="@drawable/ic_share_black_24dp"
+        app:showAsAction="always"/>
 
     <item
         android:id="@+id/check_more_toolbar"
-        android:orderInCategory="2"
+        android:orderInCategory="3"
         android:title="more"
         android:icon="@drawable/ic_more_vert_black_24dp"
         app:showAsAction="always" />
+
+
 </menu>
