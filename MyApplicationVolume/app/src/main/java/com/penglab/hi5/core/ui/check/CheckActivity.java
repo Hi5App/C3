@@ -245,54 +245,6 @@ public class CheckActivity extends BaseActivity {
         context.startActivity(intent);
     }
 
-    private void showBrainListPopup() {
-        List<BrainInfo> brainInfoList = checkViewModel.getFileInfoState().getBrainList();
-        String [] imageIdList = new String[brainInfoList.size()];
-        for (int i = 0; i < imageIdList.length; i++) {
-            imageIdList[i] = brainInfoList.get(i).getImageId();
-        }
-
-        new XPopup.Builder(this)
-                .asCenterList("Brain List", imageIdList, new OnSelectListener() {
-                    @Override
-                    public void onSelect(int position, String text) {
-                        checkViewModel.getNeuronListWithBrainInfo(brainInfoList.get(position));
-                    }
-                }).show();
-    }
-
-    private void showNeuronListPopup() {
-        List<NeuronInfo> neuronInfoList = checkViewModel.getFileInfoState().getNeuronList();
-        String [] neuronIdList = new String[neuronInfoList.size()];
-        for (int i = 0; i < neuronIdList.length; i++) {
-            neuronIdList[i] = neuronInfoList.get(i).getNeuronId();
-        }
-
-        new XPopup.Builder(this)
-                .asCenterList("Neuron List", neuronIdList, new OnSelectListener() {
-                    @Override
-                    public void onSelect(int position, String text) {
-                        checkViewModel.getAnoListWithNeuronInfo(neuronInfoList.get(position));
-                    }
-                }).show();
-    }
-
-    private void showAnoListPopup() {
-        List<AnoInfo> anoInfoList = checkViewModel.getFileInfoState().getAnoList();
-        String [] anoNameList = new String[anoInfoList.size()];
-        for (int i = 0; i < anoNameList.length; i++) {
-            anoNameList[i] = anoInfoList.get(i).getAnoName();
-        }
-
-        new XPopup.Builder(this)
-                .asCenterList("Ano List", anoNameList, new OnSelectListener() {
-                    @Override
-                    public void onSelect(int position, String text) {
-                        checkViewModel.getImageWithAnoInfo(anoInfoList.get(position));
-                    }
-                }).show();
-    }
-
     private void showROIListPopup() {
         String [] rois = checkViewModel.getCheckArborInfoState().getRois();
         new XPopup.Builder(this)

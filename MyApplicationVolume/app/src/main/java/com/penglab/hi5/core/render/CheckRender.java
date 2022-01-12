@@ -295,7 +295,7 @@ public class CheckRender extends BasicRender {
                     Uri shareUri = Uri.parse(MediaStore.Images.Media.insertImage(getContext().getContentResolver(), outBitmap,
                             "Image" + System.currentTimeMillis(), "ScreenCapture from Hi5"));
 
-                    ImageInfoRepository.getInstance().getScreenCapture().postValue(new FilePath<>(shareUri));
+                    ImageInfoRepository.getInstance().getScreenCaptureFilePath().postValue(new FilePath<>(shareUri));
                 }
             });
 

@@ -8,6 +8,7 @@ import com.penglab.hi5.core.game.leaderBoard.LeaderBoardItemModel;
 import com.penglab.hi5.core.game.leaderBoard.LeaderBoardViewModel;
 import com.penglab.hi5.core.game.quest.QuestViewModel;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
+import com.penglab.hi5.core.ui.check.CheckArborInfoState;
 import com.penglab.hi5.core.ui.check.CheckViewModel;
 import com.penglab.hi5.core.ui.check.FileInfoState;
 import com.penglab.hi5.core.ui.home.screens.HomeViewModel;
@@ -18,6 +19,7 @@ import com.penglab.hi5.core.ui.password.FindPasswordViewModel;
 import com.penglab.hi5.core.ui.register.RegisterViewModel;
 import com.penglab.hi5.core.ui.splash.SplashScreenViewModel;
 import com.penglab.hi5.data.AnnotationDataSource;
+import com.penglab.hi5.data.CheckArborDataSource;
 import com.penglab.hi5.data.CheckDataSource;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
@@ -52,7 +54,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             return (T) new HomeViewModel(UserInfoRepository.getInstance(), new UserDataSource());
         } else if (modelClass.isAssignableFrom(CheckViewModel.class)) {
             // used in HomeActivity
-            return (T) new CheckViewModel(new ImageDataSource(), new AnnotationDataSource(), new CheckDataSource(), FileInfoState.getInstance(), ImageInfoRepository.getInstance());
+            return (T) new CheckViewModel(new ImageDataSource(), new AnnotationDataSource(), new CheckDataSource(), ImageInfoRepository.getInstance(), new CheckArborDataSource(), CheckArborInfoState.getInstance());
         } else if (modelClass.isAssignableFrom(AnnotationViewModel.class)) {
             // used in AnnotationActivity
             return (T) new AnnotationViewModel(ImageInfoRepository.getInstance(), UserInfoRepository.getInstance(), new UserDataSource(), new ImageDataSource());
