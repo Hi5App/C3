@@ -44,7 +44,7 @@ import android.widget.TextView;
 import com.penglab.hi5.R;
 import com.penglab.hi5.chat.ChatActivity;
 import com.penglab.hi5.core.MainActivity;
-import com.penglab.hi5.core.game.LeaderBoardActivity;
+import com.penglab.hi5.core.game.leaderBoard.LeaderBoardActivity;
 //import com.penglab.hi5.core.game.QuestActivity;
 import com.penglab.hi5.core.game.RewardActivity;
 import com.penglab.hi5.core.game.quest.QuestActivity;
@@ -151,9 +151,6 @@ public class MyActivity extends AppCompatActivity {
                 startActivity(new Intent(MyActivity.this, QuestActivity.class));
             }
         });
-
-
-
 
     }
 
