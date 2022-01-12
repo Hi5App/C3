@@ -35,7 +35,6 @@ public class CheckViewModel extends ViewModel {
     private ImageDataSource imageDataSource;
     private AnnotationDataSource annotationDataSource;
     private CheckDataSource checkDataSource;
-    private FileInfoState fileInfoState;
     private CheckArborDataSource checkArborDataSource;
     private CheckArborInfoState checkArborInfoState;
 
@@ -45,14 +44,15 @@ public class CheckViewModel extends ViewModel {
 
     private ImageInfoRepository imageInfoRepository;
 
-    public CheckViewModel(ImageDataSource imageDataSource, AnnotationDataSource annotationDataSource, CheckDataSource checkDataSource, FileInfoState fileInfoState, ImageInfoRepository imageInfoRepository) {
+    public CheckViewModel(ImageDataSource imageDataSource, AnnotationDataSource annotationDataSource,
+                          CheckDataSource checkDataSource, ImageInfoRepository imageInfoRepository,
+                          CheckArborDataSource checkArborDataSource, CheckArborInfoState checkArborInfoState) {
         this.imageDataSource = imageDataSource;
         this.annotationDataSource = annotationDataSource;
         this.checkDataSource = checkDataSource;
-        this.fileInfoState = fileInfoState;
         this.imageInfoRepository = imageInfoRepository;
-        this.checkArborDataSource = new CheckArborDataSource();
-        this.checkArborInfoState = CheckArborInfoState.getInstance();
+        this.checkArborDataSource = checkArborDataSource;
+        this.checkArborInfoState = checkArborInfoState;
     }
 
     ImageDataSource getImageDataSource() {
@@ -81,28 +81,6 @@ public class CheckViewModel extends ViewModel {
 
     public void getBrainList() {
         imageDataSource.getBrainList();
-    }
-
-    public void getNeuronListWithBrainInfo(BrainInfo brainInfo) {
-        fileInfoState.updateWithBrainInfo(brainInfo);
-        imageDataSource.getNeuronList(brainInfo.getImageId());
-    }
-
-    public void getAnoListWithNeuronInfo(NeuronInfo neuronInfo) {
-        fileInfoState.updateWithNeuronInfo(neuronInfo);
-        imageDataSource.getAnoList(neuronInfo.getNeuronId());
-    }
-
-    public void getImageWithAnoInfo(AnoInfo anoInfo) {
-        fileInfoState.updateWithAnoInfo(anoInfo);
-        String [] rois = fileInfoState.getRois();
-        String roi = rois[rois.length - 1 - fileInfoState.getCurRoi()];
-        imageDataSource.downloadImage(fileInfoState.getImageId(), roi, fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
-    }
-
-    public void getImageWithROI(String roi) {
-        ArborInfo chosenArborInfo = checkArborInfoState.getChosenArbor();
-        imageDataSource.downloadImage(chosenArborInfo.getImageId(), roi, chosenArborInfo.getXc(), chosenArborInfo.getYc(), chosenArborInfo.getZc(), 128);
     }
 
     public void getImageWithROI(int roiPosition) {
@@ -152,15 +130,6 @@ public class CheckViewModel extends ViewModel {
         checkArborDataSource.getCheckArborList(true, 0, 10);
     }
 
-    public void getImageWithArborInfo(ArborInfo arborInfo) {
-        try {
-            checkArborInfoState.setChosenArbor((ArborInfo) arborInfo.clone());
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
-        getBrainList();
-    }
-
     public void getImageWithArborInfoPos(int position) {
         List<ArborInfo> arborInfoList = checkArborInfoState.getArborInfoList();
         try {
@@ -192,27 +161,17 @@ public class CheckViewModel extends ViewModel {
                         String firstKey = jsonObject.keys().next().toString();
                         if (firstKey.equals("imageid")) {
                             handleBrainListJSON((JSONArray) data);
-                        } else if (firstKey.equals("somaid")) {
-                            handleNeuronListJSON((JSONArray) data);
-                        } else if (firstKey.equals("anoname")) {
-                            handleAnoListJSON((JSONArray) data);
                         } else {
                             imageResult.setValue(new ResourceResult(false, "JSON error"));
                         }
                     } else {
-//                        imageResult.setValue(new ResourceResult(false, "No file here"));
-
-
-                        String [] rois = fileInfoState.getRois();
-                        String roi = rois[fileInfoState.getCurRoi()];
-                        imageDataSource.downloadImage(fileInfoState.getImageId(), roi, fileInfoState.getX(), fileInfoState.getY(), fileInfoState.getZ(), 128);
+                        imageResult.setValue(new ResourceResult(false, "No file here"));
                     }
                 } catch (JSONException e) {
                     Log.e("updateImageResult", e.getMessage());
                     imageResult.setValue(new ResourceResult(false, "Fail to parse file list"));
                 }
             } else if (data instanceof String){
-                Log.e("updateImageResultData", (String) data);
                 String fileName = FileManager.getFileName((String) data);
                 FileType fileType = FileManager.getFileType((String) data);
                 imageInfoRepository.getBasicImage().setFileInfo(fileName, new FilePath<String >((String) data), fileType);
@@ -289,46 +248,6 @@ public class CheckViewModel extends ViewModel {
                 imageDataSource.downloadImage(arborInfo.getImageId(), rois[checkArborInfoState.getCurROI()], arborInfo.getXc(), arborInfo.getYc(), arborInfo.getZc(), 128);
             }
         }
-    }
-
-    private void handleNeuronListJSON(JSONArray data) throws JSONException {
-        int length = data.length();
-        List<NeuronInfo> neuronList = new ArrayList<>();
-        for (int i = 0; i < length; i++) {
-            JSONObject jsonObject = data.getJSONObject(i);
-            String somaId = jsonObject.getString("somaid");
-            String imageId = jsonObject.getString("imageid");
-            String neuronId = jsonObject.getString("neuronid");
-            int x = jsonObject.getInt("x");
-            int y = jsonObject.getInt("y");
-            int z = jsonObject.getInt("z");
-            NeuronInfo neuronInfo = new NeuronInfo(somaId, imageId, neuronId, x, y, z);
-            neuronList.add(neuronInfo);
-        }
-        fileInfoState.setNeuronList(neuronList);
-        fileInfoState.setCurrentOpenState(FileInfoState.OpenState.NEURON_LIST);
-    }
-
-    private void handleAnoListJSON(JSONArray data) throws JSONException{
-        int length = data.length();
-        List<AnoInfo> anoList = new ArrayList<>();
-        for (int i = 0; i < length; i++) {
-            JSONObject jsonObject = data.getJSONObject(i);
-            String anoName = jsonObject.getString("anoname");
-            String neuronId = jsonObject.getString("neuronid");
-            String anoUrl = jsonObject.getString("anourl");
-            String apoUrl = jsonObject.getString("apourl");
-            String swcUrl = jsonObject.getString("swcurl");
-            String owner = jsonObject.getString("owner");
-            AnoInfo anoInfo = new AnoInfo(anoName, neuronId, anoUrl, apoUrl, swcUrl, owner);
-            anoList.add(anoInfo);
-        }
-        fileInfoState.setAnoList(anoList);
-        fileInfoState.setCurrentOpenState(FileInfoState.OpenState.ANO_LIST);
-    }
-
-    public FileInfoState getFileInfoState() {
-        return fileInfoState;
     }
 
     public MutableLiveData<ResourceResult> getImageResult() {
