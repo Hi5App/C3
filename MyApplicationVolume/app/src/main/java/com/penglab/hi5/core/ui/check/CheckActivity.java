@@ -148,7 +148,7 @@ public class CheckActivity extends BaseActivity {
             }
         });
 
-        ImageInfoRepository.getInstance().getScreenCapture().observe(this, new Observer<FilePath<?>>() {
+        ImageInfoRepository.getInstance().getScreenCaptureFilePath().observe(this, new Observer<FilePath<?>>() {
             @Override
             public void onChanged(FilePath<?> filePath) {
                 screenCapture((Uri) filePath.getData());
@@ -370,6 +370,9 @@ public class CheckActivity extends BaseActivity {
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         intent.setType("image/jpeg");
         startActivity(Intent.createChooser(intent, "Share from Hi5"));
+
+        // need to reset after use
+        ImageInfoRepository.getInstance().getScreenCaptureFilePath().setValue(null);
     }
 }
 

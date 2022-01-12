@@ -56,32 +56,4 @@ public class CheckArborDataSource {
             result.postValue(new Result.Error(new IOException("Check the network please !", exception)));
         }
     }
-
-    public void getCheckArborUrl(String arborName, int xc, int yc, int zc, String imageId, String url) {
-        try {
-            HttpUtilsCheckArbor.getArborUrl(arborName, xc, yc, zc, imageId, "/18454_00001", new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    result.postValue(new Result.Error(new Exception("Connect failed when get arbor url")));
-                }
-
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    try {
-                        if (response.body() != null) {
-                            String str = response.body().string();
-                            result.postValue(new Result.Success<String>(str));
-                        } else {
-                            result.postValue(new Result.Error(new Exception("Response from server is null !")));
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        result.postValue(new Result.Error(new Exception("Fail to get arbor url !")));
-                    }
-                }
-            });
-        } catch (Exception exception) {
-            result.postValue(new Result.Error(new IOException("Check the network please !", exception)));
-        }
-    }
 }
