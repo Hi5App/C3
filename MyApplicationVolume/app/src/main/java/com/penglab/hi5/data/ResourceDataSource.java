@@ -43,11 +43,16 @@ public class ResourceDataSource {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     try {
-                        if (response.body() != null) {
-                            JSONArray jsonArray = new JSONArray(response.body().string());
-                            result.postValue(new Result.Success<JSONArray>(jsonArray));
+                        int responseCode = response.code();
+                        if (responseCode == 200){
+                            if (response.body() != null) {
+                                JSONArray jsonArray = new JSONArray(response.body().string());
+                                result.postValue(new Result.Success<JSONArray>(jsonArray));
+                            } else {
+                                result.postValue(new Result.Error(new Exception("Response from server is null !")));
+                            }
                         } else {
-                            result.postValue(new Result.Error(new Exception("Response from server is null !")));
+                            result.postValue(new Result.Error(new Exception("Fail to get music list !")));
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();

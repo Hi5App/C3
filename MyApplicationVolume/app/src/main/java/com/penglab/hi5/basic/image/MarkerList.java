@@ -103,8 +103,7 @@ public class MarkerList implements Cloneable {
     }
 
     public static JSONArray toJSONArray(MarkerList markerList) throws JSONException {
-        if (markerList == null || markerList.size() == 0){
-            ToastEasy("Empty markerList");
+        if (markerList == null){
             return null;
         }
 
@@ -125,7 +124,6 @@ public class MarkerList implements Cloneable {
     /* for marker factory mode */
     public static MarkerList parseFromJSONArray(JSONArray jsonArray) throws JSONException {
         if (jsonArray == null){
-            ToastEasy("Empty jsonArray");
             return null;
         }
 

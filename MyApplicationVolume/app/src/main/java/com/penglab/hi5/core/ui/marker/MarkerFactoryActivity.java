@@ -40,6 +40,7 @@ import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.dataStore.PreferenceMusic;
 import com.penglab.hi5.data.dataStore.PreferenceSetting;
+import com.penglab.hi5.data.dataStore.PreferenceSoma;
 import com.penglab.hi5.data.model.img.FilePath;
 import com.warkiz.widget.IndicatorSeekBar;
 import com.warkiz.widget.OnSeekChangeListener;
@@ -72,6 +73,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         put(EditMode.ZOOM_IN_ROI, R.drawable.ic_roi);
     }};
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
+    private final PreferenceSoma preferenceSoma = PreferenceSoma.getInstance();
 
     private AnnotationGLSurfaceView annotationGLSurfaceView;
     private MarkerFactoryViewModel markerFactoryViewModel;
@@ -255,7 +257,11 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 return true;
 
             case R.id.file:
-                openFile();
+                if (markerFactoryViewModel.isLoggedIn()) {
+                    openFile();
+                } else {
+                    ToastEasy("Login first please !");
+                }
                 playButtonSound();
                 return true;
 
@@ -321,18 +327,28 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                     public void operate(View contentView) {
                         PreferenceSetting preferenceSetting = PreferenceSetting.getInstance();
                         PreferenceMusic preferenceMusic = PreferenceMusic.getInstance();
+                        PreferenceSoma preferenceSoma = PreferenceSoma.getInstance();
 
                         SwitchCompat downSampleSwitch = contentView.findViewById(R.id.downSample_mode);
+                        SwitchCompat autoUploadSwitch = contentView.findViewById(R.id.autoUpload_mode);
                         IndicatorSeekBar contrastIndicator = contentView.findViewById(R.id.contrast_indicator_seekbar);
                         SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
                         SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
                         SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
 
                         downSampleSwitch.setChecked(preferenceSetting.getDownSampleMode());
+                        autoUploadSwitch.setChecked(preferenceSoma.getAutoUploadMode());
                         contrastIndicator.setProgress(preferenceSetting.getContrast());
                         bgmVolumeBar.setProgress(preferenceMusic.getBackgroundSound());
                         buttonVolumeBar.setProgress(preferenceMusic.getButtonSound());
                         actionVolumeBar.setProgress(preferenceMusic.getActionSound());
+
+                        autoUploadSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                preferenceSoma.setAutoUploadMode(isChecked);
+                            }
+                        });
 
                         downSampleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                             @Override
@@ -429,8 +445,8 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
             addMarker.setOnClickListener(this::onButtonClick);
             deleteMarker.setOnClickListener(this::onButtonClick);
-            previousFile.setOnClickListener(v -> markerFactoryViewModel.previousFile());
-            nextFile.setOnClickListener(v -> markerFactoryViewModel.nextFile());
+            previousFile.setOnClickListener(v -> previousFile());
+            nextFile.setOnClickListener(v -> nextFile());
 
         } else {
             markerFactoryView.setVisibility(View.VISIBLE);
@@ -457,6 +473,20 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 }
                 break;
         }
+    }
+
+    private void previousFile(){
+        if (preferenceSoma.getAutoUploadMode()){
+            markerFactoryViewModel.insertSomaList(annotationGLSurfaceView.getMarkerList());
+        }
+        markerFactoryViewModel.previousFile();
+    }
+
+    private void nextFile(){
+        if (preferenceSoma.getAutoUploadMode()){
+            markerFactoryViewModel.insertSomaList(annotationGLSurfaceView.getMarkerList());
+        }
+        markerFactoryViewModel.nextFile();
     }
 
     private void resetUI4AllMode(){

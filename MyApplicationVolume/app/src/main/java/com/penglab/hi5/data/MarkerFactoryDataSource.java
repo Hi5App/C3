@@ -27,6 +27,7 @@ import okhttp3.Response;
  * Created by Jackiexing on 01/11/21
  */
 public class MarkerFactoryDataSource {
+    public static final String UPLOAD_SUCCESSFULLY = "Upload soma successfully !";
     private final String TAG = "MarkerFactoryDataSource";
     private final MutableLiveData<Result> result = new MutableLiveData<>();
     private String responseData;
@@ -40,16 +41,16 @@ public class MarkerFactoryDataSource {
             HttpUtilsSoma.getPotentialLocationWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    result.postValue(new Result.Error(new Exception("Connect Failed When Login")));
+                    result.postValue(new Result.Error(new Exception("Connect failed when get potential location !")));
                 }
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     int responseCode = response.code();
-                    responseData = response.body().string();
-                    Log.e(TAG, "responseData: " + responseData);
-
                     if (responseCode == 200) {
+                        // process response
+                        responseData = response.body().string();
+                        Log.e(TAG, "responseData: " + responseData);
                         try {
                             JSONObject potentialLocation = new JSONObject(responseData);
                             JSONObject loc = potentialLocation.getJSONObject("loc");
@@ -63,10 +64,10 @@ public class MarkerFactoryDataSource {
                             result.postValue(new Result.Success<PotentialSomaInfo>(potentialSomaInfo));
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            result.postValue(new Result.Error(new Exception("Fail to parse user info !")));
+                            result.postValue(new Result.Error(new Exception("Fail to parse potential location info !")));
                         }
                     } else {
-                        result.postValue(new Result.Error(new IOException(responseData)));
+                        result.postValue(new Result.Error(new Exception("Fail to get potential location info !")));
                     }
                 }
             });
@@ -80,26 +81,26 @@ public class MarkerFactoryDataSource {
             HttpUtilsSoma.getSomaListWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), image, x, y, z, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    result.postValue(new Result.Error(new Exception("Connect Failed When Login")));
+                    result.postValue(new Result.Error(new Exception("Connect failed when get soma list !")));
                 }
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     int responseCode = response.code();
-                    responseData = response.body().string();
-                    Log.e(TAG, "responseData: " + responseData);
-
                     if (responseCode == 200) {
+                        // process response
+                        responseData = response.body().string();
+                        Log.e(TAG, "responseData: " + responseData);
                         try {
                             JSONArray somaList = new JSONArray(responseData);
                             MarkerList markerList = MarkerList.parseFromJSONArray(somaList);
                             result.postValue(new Result.Success<MarkerList>(markerList));
                         } catch (JSONException e) {
+                            result.postValue(new Result.Error(new Exception("Fail to parse soma list !")));
                             e.printStackTrace();
-                            result.postValue(new Result.Error(new Exception("Fail to parse user info !")));
                         }
                     } else {
-                        result.postValue(new Result.Error(new IOException(responseData)));
+                        result.postValue(new Result.Error(new Exception("Fail to get soma list !")));
                     }
                 }
             });
@@ -108,24 +109,24 @@ public class MarkerFactoryDataSource {
         }
     }
 
-    public void insertSomaList(String image, int locationId, JSONArray somaList){
+    public void insertSomaList(String image, int locationId, String nickName, JSONArray somaList){
         try {
-            HttpUtilsSoma.insertSomaListWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), locationId, somaList, "xingfei", image, new Callback() {
+            HttpUtilsSoma.insertSomaListWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), locationId, somaList, nickName, image, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    result.postValue(new Result.Error(new Exception("Connect Failed When Login")));
+                    result.postValue(new Result.Error(new Exception("Connect failed when upload marker list !")));
                 }
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     int responseCode = response.code();
-                    responseData = response.body().string();
-                    Log.e(TAG, "responseData: " + responseData);
-
                     if (responseCode == 200) {
-                        result.postValue(new Result.Success<String>("Insert soma successfully !"));
+                        // process response
+                        responseData = response.body().string();
+                        Log.e(TAG, "responseData: " + responseData);
+                        result.postValue(new Result.Success<String>(UPLOAD_SUCCESSFULLY));
                     } else {
-                        result.postValue(new Result.Error(new IOException(responseData)));
+                        result.postValue(new Result.Error(new Exception("Fail to upload marker list !")));
                     }
                 }
             });
