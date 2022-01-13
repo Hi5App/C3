@@ -19,6 +19,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.SwitchCompat;
@@ -29,11 +30,14 @@ import androidx.lifecycle.ViewModelProvider;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
+import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.core.music.MusicService;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
+import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.annotation.EditMode;
 import com.penglab.hi5.data.ImageInfoRepository;
+import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.dataStore.PreferenceMusic;
 import com.penglab.hi5.data.dataStore.PreferenceSetting;
 import com.penglab.hi5.data.model.img.FilePath;
@@ -98,6 +102,53 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                     return;
                 }
                 updateUI(annotationMode);
+                updateOptionsMenu(annotationMode);
+            }
+        });
+
+        markerFactoryViewModel.getMarkerFactoryDataSource().getResult().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                if (result == null){
+                    return;
+                }
+                markerFactoryViewModel.updateSomaResult(result);
+            }
+        });
+
+        markerFactoryViewModel.getImageDataSource().getResult().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                if (result == null) {
+                    return;
+                }
+                markerFactoryViewModel.updateImageResult(result);
+            }
+        });
+
+        markerFactoryViewModel.getImageResult().observe(this, new Observer<ResourceResult>() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onChanged(ResourceResult resourceResult) {
+                if (resourceResult == null){
+                    return;
+                }
+                if (resourceResult.isSuccess()){
+                    annotationGLSurfaceView.openFile();
+                    markerFactoryViewModel.getSomaList();
+                } else {
+                    ToastEasy(resourceResult.getError());
+                }
+            }
+        });
+
+        markerFactoryViewModel.getSyncMarkerList().observe(this, new Observer<MarkerList>() {
+            @Override
+            public void onChanged(MarkerList markerList) {
+                if (markerList == null){
+                    return;
+                }
+                annotationGLSurfaceView.syncMarkerList(markerList);
             }
         });
 
@@ -172,8 +223,20 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.marker_factory_menu, menu);
+        getMenuInflater().inflate(R.menu.marker_factory_menu_basic, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    private void updateOptionsMenu(MarkerFactoryViewModel.AnnotationMode annotationMode) {
+        toolbar.getMenu().clear();
+        switch (annotationMode) {
+            case NONE:
+                toolbar.inflateMenu(R.menu.marker_factory_menu_basic);
+                break;
+            case BIG_DATA:
+                toolbar.inflateMenu(R.menu.marker_factory_menu_annotation);
+                break;
+        }
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -185,16 +248,25 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 finish();
                 return true;
 
+            case R.id.confirm:
+                // TODO: confirm
+                markerFactoryViewModel.insertSomaList(annotationGLSurfaceView.getMarkerList());
+                playButtonSound();
+                return true;
+
             case R.id.file:
                 openFile();
+                playButtonSound();
                 return true;
 
             case R.id.share:
                 annotationGLSurfaceView.screenCapture();
+                playButtonSound();
                 return true;
 
             case R.id.more:
                 moreFunctions();
+                playButtonSound();
                 return true;
 
             default:
@@ -206,7 +278,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
     private void openFile(){
         // TODO: download image
-        markerFactoryViewModel.openFile();
+        markerFactoryViewModel.openNewFile();
     }
 
     private void screenCapture(Uri uri){
@@ -352,13 +424,13 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             editModeIndicator = findViewById(R.id.edit_mode_indicator);
             addMarker = findViewById(R.id.add_marker);
             deleteMarker = findViewById(R.id.delete_marker);
-            ImageButton formerFile = findViewById(R.id.former_file);
+            ImageButton previousFile = findViewById(R.id.previous_file);
             ImageButton nextFile = findViewById(R.id.next_file);
 
             addMarker.setOnClickListener(this::onButtonClick);
             deleteMarker.setOnClickListener(this::onButtonClick);
-            formerFile.setOnClickListener(this::onButtonClick);
-            nextFile.setOnClickListener(this::onButtonClick);
+            previousFile.setOnClickListener(v -> markerFactoryViewModel.previousFile());
+            nextFile.setOnClickListener(v -> markerFactoryViewModel.nextFile());
 
         } else {
             markerFactoryView.setVisibility(View.VISIBLE);
@@ -370,6 +442,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         // reset UI
         addMarker.setImageResource(R.drawable.ic_marker_main);
         deleteMarker.setImageResource(R.drawable.ic_marker_delete_normal);
+        playButtonSound();
 
         switch (view.getId()){
             case R.id.add_marker:
@@ -382,12 +455,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_MARKER)){
                     deleteMarker.setImageResource(R.drawable.ic_marker_delete);
                 }
-                break;
-
-            case R.id.former_file:
-                break;
-
-            case R.id.next_file:
                 break;
         }
     }

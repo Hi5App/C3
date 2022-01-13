@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/confirm"
+        android:orderInCategory="3"
+        android:title="confirm"
+        android:icon="@drawable/ic_baseline_check_24_white"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/file"
+        android:orderInCategory="4"
+        android:title="file"
+        android:icon="@drawable/ic_folder_black_24dp"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/share"
+        android:orderInCategory="5"
+        android:title="share"
+        android:icon="@drawable/ic_share_black_24dp"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/more"
+        android:orderInCategory="6"
+        android:title="more"
+        android:icon="@drawable/ic_more_vert_black_24dp"
+        app:showAsAction="always" />
+</menu>

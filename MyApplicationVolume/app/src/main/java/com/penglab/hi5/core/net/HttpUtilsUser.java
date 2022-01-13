@@ -24,7 +24,7 @@ public class HttpUtilsUser extends HttpUtils {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("name", account)
-                    .put("password", password)
+                    .put("passwd", password)
                     .put("limit", 1)));
             asyncRequest(URL_LOGIN, body, callback);
         } catch (Exception e) {
@@ -38,7 +38,7 @@ public class HttpUtilsUser extends HttpUtils {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("name", username)
                     .put("email", email)
-                    .put("password", password)
+                    .put("passwd", password)
                     .put("nickname", nickname)));
             asyncRequest(URL_REGISTER, body, callback);
         } catch (Exception e) {
@@ -63,7 +63,7 @@ public class HttpUtilsUser extends HttpUtils {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("email", email)
-                    .put("password", password)
+                    .put("passwd", password)
                     .put("n_password", n_password)));
             asyncRequest(URL_UPDATE_PASSWORD, body, callback);
         } catch (Exception e) {

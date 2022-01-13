@@ -69,15 +69,15 @@ public class UserDataSource {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
+                    int responseCode = response.code();
                     responseData = response.body().string();
                     Log.e(TAG, "responseData: " + responseData);
 
-                    if (responseData.startsWith(LOGIN_SUCCESS)) {
-                        String userInfoString = responseData.split("\n")[1];
+                    if (responseCode == 200) {
                         try {
-                            JSONObject userInfo = new JSONObject(userInfoString);
+                            JSONObject userInfo = new JSONObject(responseData);
                             LoggedInUser loggedInUser = new LoggedInUser(
-                                    userInfo.getString("username"),
+                                    userInfo.getString("name"),
                                     userInfo.getString("nickname"),
                                     userInfo.getString("email"));
                             result.postValue(new Result.Success<LoggedInUser>(loggedInUser));
@@ -109,10 +109,8 @@ public class UserDataSource {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    responseData = response.body().string();
-                    Log.e(TAG, "responseData: " + responseData);
-
-                    if (responseData.equals(REGISTER_SUCCESS)) {
+                    int responseCode = response.code();
+                    if (responseCode == 200) {
                         RegisterUser registerUser = new RegisterUser(username, nickname);
                         result.postValue(new Result.Success<RegisterUser>(registerUser));
                     } else {

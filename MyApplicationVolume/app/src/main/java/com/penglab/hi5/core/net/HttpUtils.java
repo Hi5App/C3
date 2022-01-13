@@ -14,7 +14,8 @@ import okhttp3.RequestBody;
 public class HttpUtils {
 
     protected static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    protected static final String SERVER_IP = "http://139.155.28.154:26000";
+    protected static final String SERVER_IP = "http://192.168.3.158:8000";
+//    protected static final String SERVER_IP = "http://139.155.28.154:26000";
     private static final OkHttpClient client =
             new OkHttpClient.Builder()
             .connectTimeout(5, TimeUnit.SECONDS)

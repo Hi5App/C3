@@ -23,6 +23,7 @@ import com.penglab.hi5.data.CheckArborDataSource;
 import com.penglab.hi5.data.CheckDataSource;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
+import com.penglab.hi5.data.MarkerFactoryDataSource;
 import com.penglab.hi5.data.ResourceDataSource;
 import com.penglab.hi5.data.UserDataSource;
 import com.penglab.hi5.data.UserInfoRepository;
@@ -63,7 +64,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         } else if (modelClass.isAssignableFrom(LeaderBoardViewModel.class)) {
             return (T) new LeaderBoardViewModel(LeaderBoardItemModel.getInstance());
         } else if (modelClass.isAssignableFrom(MarkerFactoryViewModel.class)) {
-            return (T) new MarkerFactoryViewModel();
+            return (T) new MarkerFactoryViewModel(ImageInfoRepository.getInstance(), new MarkerFactoryDataSource(), new ImageDataSource());
         } else {
             throw new IllegalArgumentException("Unknown ViewModel class");
         }
