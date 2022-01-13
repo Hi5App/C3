@@ -1,6 +1,7 @@
 package com.penglab.hi5.core.ui.marker;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
+import static com.penglab.hi5.data.MarkerFactoryDataSource.UPLOAD_SUCCESSFULLY;
 
 import android.util.Log;
 
@@ -12,13 +13,16 @@ import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.image.XYZ;
 import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.core.ui.ResourceResult;
+import com.penglab.hi5.core.ui.home.screens.UserView;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.MarkerFactoryDataSource;
 import com.penglab.hi5.data.Result;
+import com.penglab.hi5.data.UserInfoRepository;
 import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.img.FileType;
 import com.penglab.hi5.data.model.img.PotentialSomaInfo;
+import com.penglab.hi5.data.model.user.LoggedInUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,6 +30,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by Jackiexing on 01/10/21
@@ -45,19 +50,23 @@ public class MarkerFactoryViewModel extends ViewModel {
     private final MutableLiveData<MarkerList> syncMarkerList = new MutableLiveData<>();
     private final MutableLiveData<ResourceResult> imageResult = new MutableLiveData<>();
 
+    private final UserInfoRepository userInfoRepository;
     private final ImageInfoRepository imageInfoRepository;
     private final MarkerFactoryDataSource markerFactoryDataSource;
     private final ImageDataSource imageDataSource;
 
+    private final LoggedInUser loggedInUser;
     private final HashMap<String, String> resMap = new HashMap<>();
-    private final ArrayList<PotentialSomaInfo> potentialSomaInfoList = new ArrayList<>();
+    private final List<PotentialSomaInfo> potentialSomaInfoList = new ArrayList<>();
     private PotentialSomaInfo curPotentialSomaInfo;
     private int curIndex = -1;
 
-    public MarkerFactoryViewModel(ImageInfoRepository imageInfoRepository, MarkerFactoryDataSource markerFactoryDataSource, ImageDataSource imageDataSource) {
+    public MarkerFactoryViewModel(UserInfoRepository userInfoRepository, ImageInfoRepository imageInfoRepository, MarkerFactoryDataSource markerFactoryDataSource, ImageDataSource imageDataSource) {
+        this.userInfoRepository = userInfoRepository;
         this.imageInfoRepository = imageInfoRepository;
         this.markerFactoryDataSource = markerFactoryDataSource;
         this.imageDataSource = imageDataSource;
+        this.loggedInUser = userInfoRepository.getUser();
     }
 
     public LiveData<AnnotationMode> getAnnotationMode(){
@@ -82,6 +91,10 @@ public class MarkerFactoryViewModel extends ViewModel {
 
     public MarkerFactoryDataSource getMarkerFactoryDataSource() {
         return markerFactoryDataSource;
+    }
+
+    public boolean isLoggedIn(){
+        return userInfoRepository.isLoggedIn();
     }
 
     public void updateImageResult(Result result) {
@@ -135,6 +148,10 @@ public class MarkerFactoryViewModel extends ViewModel {
                 syncMarkerList.setValue((MarkerList) data);
             } else if (data instanceof String){
                 Log.e(TAG,"data: " + data);
+                String response = (String) data;
+                if (response.equals(UPLOAD_SUCCESSFULLY)){
+                    ToastEasy("Upload markers successfully");
+                }
             }
         } else {
 
@@ -198,10 +215,14 @@ public class MarkerFactoryViewModel extends ViewModel {
     }
 
     public void insertSomaList(MarkerList markerList) {
+        if (markerList == null || markerList.size() == 0){
+            return;
+        }
         try {
-            String brainId = curPotentialSomaInfo.getBrainId();
             int locationId = curPotentialSomaInfo.getId();
-            markerFactoryDataSource.insertSomaList(brainId, locationId, MarkerList.toJSONArray(markerList));
+            String brainId = curPotentialSomaInfo.getBrainId();
+            String nickName = loggedInUser.getNickName();
+            markerFactoryDataSource.insertSomaList(brainId, locationId, nickName, MarkerList.toJSONArray(markerList));
         } catch (JSONException e) {
             ToastEasy("Fail to convert MarkerList ot JSONArray !");
             e.printStackTrace();
