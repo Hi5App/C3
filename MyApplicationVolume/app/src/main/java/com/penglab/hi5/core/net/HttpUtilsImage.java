@@ -6,10 +6,10 @@ import okhttp3.Callback;
 import okhttp3.RequestBody;
 
 public class HttpUtilsImage extends HttpUtils {
-    private static final String URL_GET_BRAIN_LIST = SERVER_IP + "/ano/getimagelist";
+    private static final String URL_GET_BRAIN_LIST = SERVER_IP + "/image/getimagelist";
     private static final String URL_GET_NEURON_LIST = SERVER_IP + "/ano/getneuronlist";
     private static final String URL_GET_ANO_LIST = SERVER_IP + "/ano/getanolist";
-    private static final String URL_DOWNLOAD_IMAGE = SERVER_IP + "/coll/getimagebb";
+    private static final String URL_DOWNLOAD_IMAGE = SERVER_IP + "/image/cropimage";
     private static final String URL_GET_BBSWC = SERVER_IP + "/coll/getswcbb";
 
     public static void getBrainListWithOkHttp(String username, String password, Callback callback) {
@@ -88,23 +88,6 @@ public class HttpUtilsImage extends HttpUtils {
      * @param callback the callback func
      */
     public static void getBBSwcWithOkHttp(String username, String password, String swc, int res, int x, int y, int z, int len, Callback callback) {
-        try {
-            RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
-                    .put("name", username)
-                    .put("password", password)
-                    .put("swc", swc)
-                    .put("x", x)
-                    .put("y", y)
-                    .put("z", z)
-                    .put("len", len)
-                    .put("res", res)));
-            asyncRequest(URL_GET_BBSWC, body, callback);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void downloadSomaBlockWithOkHttp(String username, String password, String swc, int res, int x, int y, int z, int len, Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("name", username)

@@ -552,6 +552,14 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
         return annotationDataManager.getNeuronTree();
     }
 
+    public MarkerList getMarkerList(){
+        return annotationDataManager.getMarkerList();
+    }
+
+    public void syncMarkerList(MarkerList markerList){
+        annotationDataManager.loadMarkerList(markerList);
+    }
+
     private void update3DFileSize(Integer[] size){
         float maxSize = (float) Collections.max(Arrays.asList(size));
 

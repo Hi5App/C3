@@ -1,10 +1,16 @@
 package com.penglab.hi5.basic.image;
 
+import static com.penglab.hi5.core.Myapplication.ToastEasy;
+
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.penglab.hi5.core.render.pattern.MyDraw;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -94,5 +100,46 @@ public class MarkerList implements Cloneable {
             return false;
         }
         return true;
+    }
+
+    public static JSONArray toJSONArray(MarkerList markerList) throws JSONException {
+        if (markerList == null || markerList.size() == 0){
+            ToastEasy("Empty markerList");
+            return null;
+        }
+
+        JSONArray jsonArray = new JSONArray();
+        for (int i=0; i<markerList.size(); i++){
+            ImageMarker imageMarker = markerList.get(i);
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("x", imageMarker.x + 5);
+            jsonObject.put("y", imageMarker.y + 5);
+            jsonObject.put("z", imageMarker.z + 5);
+
+            jsonArray.put(jsonObject);
+        }
+        return jsonArray;
+    }
+
+    /* for marker factory mode */
+    public static MarkerList parseFromJSONArray(JSONArray jsonArray) throws JSONException {
+        if (jsonArray == null){
+            ToastEasy("Empty jsonArray");
+            return null;
+        }
+
+        MarkerList markerList = new MarkerList();
+        for (int i=0; i<jsonArray.length(); i++){
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            JSONObject loc = jsonObject.getJSONObject("loc");
+            ImageMarker imageMarker = new ImageMarker(
+                    (float) loc.getDouble("x"),
+                    (float) loc.getDouble("y"),
+                    (float) loc.getDouble("z"));
+
+            markerList.add(imageMarker);
+        }
+        return markerList;
     }
 }

@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
         android:id="@+id/file"
         android:orderInCategory="4"
         android:title="file"
         android:icon="@drawable/ic_folder_black_24dp"
-        app:showAsAction="always"/>
-
-    <item
-        android:id="@+id/share"
-        android:orderInCategory="5"
-        android:title="share"
-        android:icon="@drawable/ic_share_black_24dp"
         app:showAsAction="always"/>
 
     <item
