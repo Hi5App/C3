@@ -14,10 +14,10 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class HttpUtilsUser extends HttpUtils {
-    private static final String URL_REGISTER = SERVER_IP + "/user/register";
-    private static final String URL_LOGIN = SERVER_IP + "/user/login";
-    private static final String URL_UPDATE_PASSWORD = SERVER_IP + "/user/updatepassword";
-    private static final String URL_FIND_PASSWORD = SERVER_IP + "/user/forgetpassword";
+    private static final String URL_REGISTER = SERVER_IP + "/dynamic/user/register";
+    private static final String URL_LOGIN = SERVER_IP + "/dynamic/user/login";
+    private static final String URL_UPDATE_PASSWORD = SERVER_IP + "/dynamic/user/updatepassword";
+    private static final String URL_FIND_PASSWORD = SERVER_IP + "/dynamic/user/forgetpassword";
 
     /* 登录 异步方法 */
     public static void loginWithOkHttp(String account, String password, Callback callback) {

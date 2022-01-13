@@ -6,11 +6,11 @@ import okhttp3.Callback;
 import okhttp3.RequestBody;
 
 public class HttpUtilsImage extends HttpUtils {
-    private static final String URL_GET_BRAIN_LIST = SERVER_IP + "/image/getimagelist";
-    private static final String URL_GET_NEURON_LIST = SERVER_IP + "/ano/getneuronlist";
-    private static final String URL_GET_ANO_LIST = SERVER_IP + "/ano/getanolist";
-    private static final String URL_DOWNLOAD_IMAGE = SERVER_IP + "/image/cropimage";
-    private static final String URL_GET_BBSWC = SERVER_IP + "/coll/getswcbb";
+    private static final String URL_GET_BRAIN_LIST = SERVER_IP + "/dynamic/image/getimagelist";
+    private static final String URL_GET_NEURON_LIST = SERVER_IP + "/dynamic/ano/getneuronlist";
+    private static final String URL_GET_ANO_LIST = SERVER_IP + "/dynamic/ano/getanolist";
+    private static final String URL_DOWNLOAD_IMAGE = SERVER_IP + "/dynamic/image/cropimage";
+    private static final String URL_GET_BBSWC = SERVER_IP + "/dynamic/coll/getswcbb";
 
     public static void getBrainListWithOkHttp(String username, String password, Callback callback) {
         try {
