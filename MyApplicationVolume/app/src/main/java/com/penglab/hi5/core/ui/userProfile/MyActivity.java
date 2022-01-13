@@ -1,59 +1,32 @@
 package com.penglab.hi5.core.ui.userProfile;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.widget.NestedScrollView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
 
-import android.os.Handler;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.textclassifier.TextLinks;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.penglab.hi5.R;
 import com.penglab.hi5.chat.ChatActivity;
+
 import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.game.leaderBoard.LeaderBoardActivity;
 //import com.penglab.hi5.core.game.QuestActivity;
 import com.penglab.hi5.core.game.RewardActivity;
 import com.penglab.hi5.core.game.quest.QuestActivity;
+
 import com.penglab.hi5.data.UserInfoRepository;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import butterknife.OnClick;
 
 
 public class MyActivity extends AppCompatActivity {
@@ -67,6 +40,7 @@ public class MyActivity extends AppCompatActivity {
     Toolbar toolbar_my;
     CollapsingToolbarLayout collapsingToolbarLayout;
     private TextView name;
+    private TextView email;
     private ImageView like;
     private ImageView person_chat;
     private ImageView infoEdit;
@@ -81,20 +55,26 @@ public class MyActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_test);
+        setContentView(R.layout.activity_my);
 //        appbar = (AppBarLayout)findViewById(R.id.appbar);
 //        appbar.addOnOffsetChangedListener(this::onOffsetChanged);
 
 
         toolbar_my = findViewById(R.id.toolbar_my);
-//        toolbar_my.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24);
+//        toolbar_my.setNavigationIcon(R.drawable.ic_base
+//
+//
+//
+//        line_arrow_back_24);
         collapsingToolbarLayout = findViewById(R.id.mCollapsingToolbarLayout);
         layout_personal_top_view = findViewById(R.id.person_top_view);
 
         setSupportActionBar(toolbar_my);
 
         name =layout_personal_top_view.findViewById(R.id.item_name);
+        email = layout_personal_top_view.findViewById(R.id.item_email);
         name.setText(UserInfoRepository.getInstance().getUser().getNickName());
+//        email.setText(UserInfoRepository.getInstance().getUser().getEmail());
 
 
         mMaskColor = getResources().getColor(R.color.blue);
@@ -132,8 +112,10 @@ public class MyActivity extends AppCompatActivity {
         person_reward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MyActivity.this, RewardActivity.class);
-                startActivity(intent);
+                Toast.makeText(getBaseContext(),"Reward activity is under maintenance!",Toast.LENGTH_SHORT).show();
+
+//                Intent intent = new Intent(MyActivity.this, RewardActivity.class);
+//                startActivity(intent);
             }
 
         });
@@ -151,7 +133,6 @@ public class MyActivity extends AppCompatActivity {
                 startActivity(new Intent(MyActivity.this, QuestActivity.class));
             }
         });
-
     }
 
 
