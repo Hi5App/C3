@@ -250,6 +250,14 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 finish();
                 return true;
 
+            case R.id.undo:
+                annotationGLSurfaceView.undo();
+                return true;
+
+            case R.id.redo:
+                annotationGLSurfaceView.redo();
+                return true;
+
             case R.id.confirm:
                 // TODO: confirm
                 markerFactoryViewModel.insertSomaList(annotationGLSurfaceView.getMarkerList());
@@ -456,20 +464,20 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     @SuppressLint("NonConstantResourceId")
     private void onButtonClick(View view){
         // reset UI
-        addMarker.setImageResource(R.drawable.ic_marker_main);
-        deleteMarker.setImageResource(R.drawable.ic_marker_delete_normal);
+        addMarker.setImageResource(R.drawable.ic_add_marker);
+        deleteMarker.setImageResource(R.drawable.ic_marker_delete);
         playButtonSound();
 
         switch (view.getId()){
             case R.id.add_marker:
                 if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)){
-                    addMarker.setImageResource(R.drawable.ic_add_marker);
+                    addMarker.setImageResource(R.drawable.ic_marker_main);
                 }
                 break;
 
             case R.id.delete_marker:
                 if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_MARKER)){
-                    deleteMarker.setImageResource(R.drawable.ic_marker_delete);
+                    deleteMarker.setImageResource(R.drawable.ic_marker_delete_normal);
                 }
                 break;
         }
@@ -480,6 +488,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             markerFactoryViewModel.insertSomaList(annotationGLSurfaceView.getMarkerList());
         }
         markerFactoryViewModel.previousFile();
+        playButtonSound();
     }
 
     private void nextFile(){
@@ -487,6 +496,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             markerFactoryViewModel.insertSomaList(annotationGLSurfaceView.getMarkerList());
         }
         markerFactoryViewModel.nextFile();
+        playButtonSound();
     }
 
     private void resetUI4AllMode(){

@@ -45,7 +45,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:background="@drawable/circle_normal"
-        app:srcCompat="@drawable/ic_marker_main" />
+        app:srcCompat="@drawable/ic_add_marker" />
 
     <ImageButton
         android:id="@+id/delete_marker"
@@ -56,6 +56,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:background="@drawable/circle_normal"
-        app:srcCompat="@drawable/ic_marker_delete_normal" />
+        app:srcCompat="@drawable/ic_marker_delete" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

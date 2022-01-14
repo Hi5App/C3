@@ -57,8 +57,8 @@ public class AnnotationDataManager {
         syncMarkerList.clear();
     }
 
-    public boolean loadMarkerList(MarkerList markerList) {
-        return markerList.add(markerList.getMarkers());
+    public boolean loadMarkerList(MarkerList newMarkerList) {
+        return markerList.add(newMarkerList.getMarkers());
     }
 
     public boolean loadNeuronTree(NeuronTree neuronTree, boolean isBigData) {
