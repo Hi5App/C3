@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModel;
 import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.image.XYZ;
 import com.penglab.hi5.basic.utils.FileManager;
+import com.penglab.hi5.core.game.Score;
 import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
@@ -109,6 +110,10 @@ public class MarkerFactoryViewModel extends ViewModel {
 
     public boolean isLoggedIn(){
         return userInfoRepository.isLoggedIn();
+    }
+
+    public MutableLiveData<Integer> getObservableScore() {
+        return userInfoRepository.getScoreModel().getObservableScore();
     }
 
     public void updateImageResult(Result result) {
