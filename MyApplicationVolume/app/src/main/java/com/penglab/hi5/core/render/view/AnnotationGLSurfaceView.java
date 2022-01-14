@@ -391,6 +391,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
             default:
                 ToastEasy("Unsupported file !");
         }
+        requestRender();
     }
 
     public void loadFile(){
@@ -426,6 +427,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
             default:
                 ToastEasy("Unsupported file !");
         }
+        requestRender();
     }
 
     public void zoomIn(){

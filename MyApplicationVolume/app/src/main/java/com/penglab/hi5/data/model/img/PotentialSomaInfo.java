@@ -8,7 +8,7 @@ import com.penglab.hi5.basic.image.XYZ;
 public class PotentialSomaInfo {
     private final int id;
     private final String brainId;
-    private final XYZ location;
+    private final XYZ location;  // under the highest resolution
 
     public PotentialSomaInfo(int id, String brainId, XYZ location) {
         this.id = id;

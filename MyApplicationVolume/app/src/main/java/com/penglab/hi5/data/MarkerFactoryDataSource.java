@@ -38,7 +38,8 @@ public class MarkerFactoryDataSource {
 
     public void getPotentialLocation(){
         try {
-            HttpUtilsSoma.getPotentialLocationWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), new Callback() {
+            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
+            HttpUtilsSoma.getPotentialLocationWithOkHttp(userInfo, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     result.postValue(new Result.Error(new Exception("Connect failed when get potential location !")));
@@ -78,7 +79,8 @@ public class MarkerFactoryDataSource {
 
     public void getSomaList(String image, int x, int y, int z){
         try {
-            HttpUtilsSoma.getSomaListWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), image, x, y, z, new Callback() {
+            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
+            HttpUtilsSoma.getSomaListWithOkHttp(userInfo, image, x, y, z, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     result.postValue(new Result.Error(new Exception("Connect failed when get soma list !")));
@@ -109,9 +111,10 @@ public class MarkerFactoryDataSource {
         }
     }
 
-    public void insertSomaList(String image, int locationId, String nickName, JSONArray somaList){
+    public void insertSomaList(String image, int locationId, String username, JSONArray somaList){
         try {
-            HttpUtilsSoma.insertSomaListWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), locationId, somaList, nickName, image, new Callback() {
+            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
+            HttpUtilsSoma.insertSomaListWithOkHttp(userInfo, locationId, somaList, username, image, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     result.postValue(new Result.Error(new Exception("Connect failed when upload marker list !")));
@@ -122,8 +125,6 @@ public class MarkerFactoryDataSource {
                     int responseCode = response.code();
                     if (responseCode == 200) {
                         // process response
-                        responseData = response.body().string();
-                        Log.e(TAG, "responseData: " + responseData);
                         result.postValue(new Result.Success<String>(UPLOAD_SUCCESSFULLY));
                     } else {
                         result.postValue(new Result.Error(new Exception("Fail to upload marker list !")));

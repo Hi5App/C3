@@ -24,11 +24,11 @@ public class HttpUtilsResource extends HttpUtils {
         }
     }
 
-    public static void downloadMusicWithOkHttp(String url, Callback callback) {
+    public static void downloadMusicWithOkHttp(String musicName, Callback callback) {
         try {
             // url: ""
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()));
-            asyncRequest(URL_DOWNLOAD + url, body, callback);
+            asyncRequest(URL_DOWNLOAD + "/" + musicName, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }

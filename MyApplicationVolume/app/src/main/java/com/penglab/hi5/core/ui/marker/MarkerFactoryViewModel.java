@@ -58,6 +58,7 @@ public class MarkerFactoryViewModel extends ViewModel {
     private final LoggedInUser loggedInUser;
     private final HashMap<String, String> resMap = new HashMap<>();
     private final List<PotentialSomaInfo> potentialSomaInfoList = new ArrayList<>();
+    private final CoordinateConvert coordinateConvert = new CoordinateConvert();
     private PotentialSomaInfo curPotentialSomaInfo;
     private int curIndex = -1;
 
@@ -67,6 +68,8 @@ public class MarkerFactoryViewModel extends ViewModel {
         this.markerFactoryDataSource = markerFactoryDataSource;
         this.imageDataSource = imageDataSource;
         this.loggedInUser = userInfoRepository.getUser();
+        coordinateConvert.setResIndex(2);
+        coordinateConvert.setImgSize(128);
     }
 
     public LiveData<AnnotationMode> getAnnotationMode(){
@@ -136,6 +139,9 @@ public class MarkerFactoryViewModel extends ViewModel {
             Object data = ((Result.Success<?>) result).getData();
             if (data instanceof PotentialSomaInfo){
                 curPotentialSomaInfo = (PotentialSomaInfo) data;
+                potentialSomaInfoList.add(curPotentialSomaInfo);
+                coordinateConvert.initLocation(curPotentialSomaInfo.getLocation());
+
                 // get res list when first download img
                 if (resMap.isEmpty()){
                     getBrainList();
@@ -145,7 +151,7 @@ public class MarkerFactoryViewModel extends ViewModel {
                 // TODO: open image
             } else if (data instanceof MarkerList){
                 // TODO: import somaList
-                syncMarkerList.setValue((MarkerList) data);
+                syncMarkerList.setValue(MarkerList.covertGlobalToLocal((MarkerList) data, coordinateConvert));
             } else if (data instanceof String){
                 Log.e(TAG,"data: " + data);
                 String response = (String) data;
@@ -159,12 +165,14 @@ public class MarkerFactoryViewModel extends ViewModel {
     }
 
     public void openNewFile() {
-        getPotentialLocation();
+        Log.e(TAG,"openNewFile");
         curIndex = potentialSomaInfoList.size();
+        getPotentialLocation();
         annotationMode.setValue(AnnotationMode.BIG_DATA);
     }
 
     public void previousFile() {
+        Log.e(TAG,"previousFile");
         if (curIndex == 0) {
             ToastEasy("You have reached the earliest image !");
         } else if (curIndex <= potentialSomaInfoList.size()-1 && curIndex > 0) {
@@ -177,6 +185,8 @@ public class MarkerFactoryViewModel extends ViewModel {
     }
 
     public void nextFile() {
+        Log.e(TAG,"nextFile");
+        Log.e(TAG,"curIndex: " + curIndex + ", potentialSomaInfoList.size()" + potentialSomaInfoList.size());
         if (curIndex == potentialSomaInfoList.size()-1) {
             // open new file
             openNewFile();
@@ -199,7 +209,7 @@ public class MarkerFactoryViewModel extends ViewModel {
 
     public void downloadImage() {
         String brainId = curPotentialSomaInfo.getBrainId();
-        XYZ loc = curPotentialSomaInfo.getLocation();
+        XYZ loc = coordinateConvert.getCenterLocation();
         String res = resMap.get(brainId);
         if (res == null){
             ToastEasy("Fail to download image, something wrong with res list !");
@@ -215,14 +225,16 @@ public class MarkerFactoryViewModel extends ViewModel {
     }
 
     public void insertSomaList(MarkerList markerList) {
+        Log.e(TAG,"insertSomaList");
         if (markerList == null || markerList.size() == 0){
             return;
         }
         try {
             int locationId = curPotentialSomaInfo.getId();
             String brainId = curPotentialSomaInfo.getBrainId();
-            String nickName = loggedInUser.getNickName();
-            markerFactoryDataSource.insertSomaList(brainId, locationId, nickName, MarkerList.toJSONArray(markerList));
+            String username = loggedInUser.getUserId();
+            markerFactoryDataSource.insertSomaList(brainId, locationId, username,
+                    MarkerList.toJSONArray(MarkerList.covertLocalToGlobal(markerList, coordinateConvert)));
         } catch (JSONException e) {
             ToastEasy("Fail to convert MarkerList ot JSONArray !");
             e.printStackTrace();

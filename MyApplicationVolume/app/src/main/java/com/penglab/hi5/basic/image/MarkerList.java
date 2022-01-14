@@ -7,6 +7,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.penglab.hi5.core.render.pattern.MyDraw;
+import com.penglab.hi5.core.ui.marker.CoordinateConvert;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -112,9 +113,9 @@ public class MarkerList implements Cloneable {
             ImageMarker imageMarker = markerList.get(i);
 
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("x", imageMarker.x + 5);
-            jsonObject.put("y", imageMarker.y + 5);
-            jsonObject.put("z", imageMarker.z + 5);
+            jsonObject.put("x", imageMarker.x);
+            jsonObject.put("y", imageMarker.y);
+            jsonObject.put("z", imageMarker.z);
 
             jsonArray.put(jsonObject);
         }
@@ -139,5 +140,32 @@ public class MarkerList implements Cloneable {
             markerList.add(imageMarker);
         }
         return markerList;
+    }
+
+    public static MarkerList covertLocalToGlobal(MarkerList markerList, CoordinateConvert coordinateConvert) {
+        if (markerList == null || coordinateConvert == null){
+            return null;
+        }
+
+        MarkerList resultList = new MarkerList();
+        for (int i=0; i<markerList.size(); i++){
+            ImageMarker oldMarker = markerList.get(i);
+            ImageMarker newMarker = new ImageMarker(coordinateConvert.convertLocalToGlobal(oldMarker.x, oldMarker.y, oldMarker.z));
+            resultList.add(newMarker);
+        }
+        return resultList;
+    }
+
+    public static MarkerList covertGlobalToLocal(MarkerList markerList, CoordinateConvert coordinateConvert) {
+        if (markerList == null || coordinateConvert == null){
+            return null;
+        }
+        MarkerList resultList = new MarkerList();
+        for (int i=0; i<markerList.size(); i++){
+            ImageMarker oldMarker = markerList.get(i);
+            ImageMarker newMarker = new ImageMarker(coordinateConvert.convertGlobalToLocal(oldMarker.x, oldMarker.y, oldMarker.z));
+            resultList.add(newMarker);
+        }
+        return resultList;
     }
 }

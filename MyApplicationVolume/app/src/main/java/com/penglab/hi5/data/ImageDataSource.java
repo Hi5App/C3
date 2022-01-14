@@ -12,8 +12,11 @@ import com.penglab.hi5.core.net.HttpUtilsImage;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -25,8 +28,9 @@ import okhttp3.Response;
  * Created by Jackiexing on 12/09/21
  */
 public class ImageDataSource {
-
+    private final String TAG = "ImageDataSource";
     private final MutableLiveData<Result> result = new MutableLiveData<>();
+    private final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public LiveData<Result> getResult() {
         return result;
@@ -34,7 +38,8 @@ public class ImageDataSource {
 
     public void getBrainList(){
         try {
-            HttpUtilsImage.getBrainListWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), new Callback() {
+            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
+            HttpUtilsImage.getBrainListWithOkHttp(userInfo, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     result.postValue(new Result.Error(new Exception("Connect failed when get Brain List")));
@@ -120,8 +125,13 @@ public class ImageDataSource {
 
     public void downloadImage(String brainId, String res, int offsetX, int offsetY, int offsetZ, int size){
         try {
-            HttpUtilsImage.downloadImageWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(),
-                    brainId, res, offsetX, offsetY, offsetZ, size, new Callback() {
+            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
+            JSONObject loc = new JSONObject().put("x", offsetX).put("y", offsetY).put("z", offsetZ);
+
+            String date = df.format(new Date());
+            Log.e(TAG,"send time: " + date);
+
+            HttpUtilsImage.downloadImageWithOkHttp(userInfo, brainId, res, loc, size, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     result.postValue(new Result.Error(new Exception("Connect Failed When Download Music")));
@@ -130,11 +140,15 @@ public class ImageDataSource {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     try {
+                        String date = df.format(new Date());
+                        Log.e(TAG,"receive time: " + date);
                         if (response.body() != null) {
                             byte[] fileContent = response.body().bytes();
+                            Log.e(TAG, "file size: " + fileContent.length);
                             String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Resources/Image";
                             String filename = brainId + "_" + res + "_" + offsetX + "_" + offsetY + "_" + offsetZ + ".v3dpbd";
                             if (!FileHelper.storeFile(storePath, filename, fileContent)) {
+                                result.postValue(new Result.Error(new Exception("Fail to store image file !")));
                             }
                             result.postValue(new Result.Success(storePath + "/" + filename));
                         } else {

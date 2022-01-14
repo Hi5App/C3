@@ -14,22 +14,20 @@ public class HttpUtilsSoma extends HttpUtils {
     private static final String URL_GET_SOMA_LIST = SERVER_IP + "/dynamic/soma/getsomalist";
     private static final String URL_INSERT_SOMA_LIST = SERVER_IP + "/dynamic/soma/insertsomalist";
 
-    public static void getPotentialLocationWithOkHttp(String username, String password, Callback callback) {
+    public static void getPotentialLocationWithOkHttp(JSONObject userInfo, Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
-                .put("name", username)
-                .put("passwd", password)));
+                .put("user", userInfo)));
             asyncRequest(URL_GET_POTENTIAL_LOCATION, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void getSomaListWithOkHttp(String username, String password, String image, int x, int y, int z, Callback callback) {
+    public static void getSomaListWithOkHttp(JSONObject userInfo, String image, int x, int y, int z, Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
-                    .put("name", username)
-                    .put("passwd", password)
+                    .put("user", userInfo)
                     .put("image", image)
                     .put("pa2", new JSONObject().put("x", x).put("y", y).put("z", z))));
             asyncRequest(URL_GET_SOMA_LIST, body, callback);
@@ -38,14 +36,13 @@ public class HttpUtilsSoma extends HttpUtils {
         }
     }
 
-    public static void insertSomaListWithOkHttp(String username, String password, int locationId, JSONArray somaList, String nickName, String image, Callback callback) {
+    public static void insertSomaListWithOkHttp(JSONObject userInfo, int locationId, JSONArray somaList, String username, String image, Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
-                    .put("name", username)
-                    .put("passwd", password)
+                    .put("user", userInfo)
                     .put("locationId", locationId)
                     .put("somalist", somaList)
-                    .put("owner", nickName)
+                    .put("owner", username)
                     .put("image", image)));
             asyncRequest(URL_INSERT_SOMA_LIST, body, callback);
         } catch (Exception e) {

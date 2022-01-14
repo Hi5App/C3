@@ -81,9 +81,9 @@ public class SplashScreenViewModel extends ViewModel {
 
             for (int i = 0; i < musicSumToDownload; i++) {
                 try{
-                    JSONObject musicInfo = musicArray.getJSONObject(i);
-                    Log.e(TAG, "name: " + musicInfo.getString("name") + ", url: " + musicInfo.getString("url"));
-                    resourceDataSource.downloadMusic(musicInfo.getString("name"), musicInfo.getString("url"));
+                    String musicName = musicArray.getString(i);
+                    Log.e(TAG, "musicName: " + musicName);
+                    resourceDataSource.downloadMusic(musicName);
                 }catch (Exception e){
                     musicResult.setValue(new ResourceResult(false,"Fail to parse music list !"));
                 }
