@@ -3,6 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/undo"
+        android:orderInCategory="1"
+        android:title="redo"
+        android:icon="@drawable/ic_baseline_undo_24"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/redo"
+        android:orderInCategory="2"
+        android:title="redo"
+        android:icon="@drawable/ic_baseline_redo_24"
+        app:showAsAction="always"/>
+
+    <item
         android:id="@+id/confirm"
         android:orderInCategory="3"
         android:title="confirm"

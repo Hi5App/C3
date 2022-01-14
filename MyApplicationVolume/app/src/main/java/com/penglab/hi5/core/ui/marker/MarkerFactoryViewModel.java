@@ -37,6 +37,8 @@ import java.util.List;
  */
 public class MarkerFactoryViewModel extends ViewModel {
     private final String TAG = "MarkerFactoryViewModel";
+    private final int DEFAULT_IMAGE_SIZE = 128;
+
     public enum AnnotationMode{
        BIG_DATA, NONE
     }
@@ -69,7 +71,7 @@ public class MarkerFactoryViewModel extends ViewModel {
         this.imageDataSource = imageDataSource;
         this.loggedInUser = userInfoRepository.getUser();
         coordinateConvert.setResIndex(2);
-        coordinateConvert.setImgSize(128);
+        coordinateConvert.setImgSize(DEFAULT_IMAGE_SIZE);
     }
 
     public LiveData<AnnotationMode> getAnnotationMode(){
@@ -178,6 +180,7 @@ public class MarkerFactoryViewModel extends ViewModel {
         } else if (curIndex <= potentialSomaInfoList.size()-1 && curIndex > 0) {
             curIndex--;
             curPotentialSomaInfo = potentialSomaInfoList.get(curIndex);
+            coordinateConvert.initLocation(curPotentialSomaInfo.getLocation());
             downloadImage();
         } else {
             // TODO: something wrong with curIndex
@@ -193,6 +196,7 @@ public class MarkerFactoryViewModel extends ViewModel {
         } else if (curIndex < potentialSomaInfoList.size()-1 && curIndex >= 0) {
             curIndex++;
             curPotentialSomaInfo = potentialSomaInfoList.get(curIndex);
+            coordinateConvert.initLocation(curPotentialSomaInfo.getLocation());
             downloadImage();
         } else {
             // TODO: something wrong with curIndex
@@ -221,7 +225,8 @@ public class MarkerFactoryViewModel extends ViewModel {
     public void getSomaList() {
         String brainId = curPotentialSomaInfo.getBrainId();
         XYZ loc = curPotentialSomaInfo.getLocation();
-        markerFactoryDataSource.getSomaList(brainId, (int) loc.x, (int) loc.y, (int) loc.z);
+        Log.e(TAG,"loc: (" + loc.x + ", " + loc.y + ", " + loc.z + ")");
+        markerFactoryDataSource.getSomaList(brainId, (int) loc.x, (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE * (int) Math.pow(2, coordinateConvert.getResIndex()-1));
     }
 
     public void insertSomaList(MarkerList markerList) {
@@ -229,6 +234,7 @@ public class MarkerFactoryViewModel extends ViewModel {
         if (markerList == null || markerList.size() == 0){
             return;
         }
+        Log.e(TAG,"start insertSomaList");
         try {
             int locationId = curPotentialSomaInfo.getId();
             String brainId = curPotentialSomaInfo.getBrainId();

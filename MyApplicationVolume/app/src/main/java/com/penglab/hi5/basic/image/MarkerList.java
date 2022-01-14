@@ -133,6 +133,7 @@ public class MarkerList implements Cloneable {
             JSONObject jsonObject = jsonArray.getJSONObject(i);
             JSONObject loc = jsonObject.getJSONObject("loc");
             ImageMarker imageMarker = new ImageMarker(
+                    3,
                     (float) loc.getDouble("x"),
                     (float) loc.getDouble("y"),
                     (float) loc.getDouble("z"));
@@ -150,7 +151,8 @@ public class MarkerList implements Cloneable {
         MarkerList resultList = new MarkerList();
         for (int i=0; i<markerList.size(); i++){
             ImageMarker oldMarker = markerList.get(i);
-            ImageMarker newMarker = new ImageMarker(coordinateConvert.convertLocalToGlobal(oldMarker.x, oldMarker.y, oldMarker.z));
+            ImageMarker newMarker = new ImageMarker(3, coordinateConvert.convertLocalToGlobal(oldMarker.x, oldMarker.y, oldMarker.z));
+            Log.e("covertLocalToGlobal","loc: (" + newMarker.x + ", " + newMarker.y + ", " + newMarker.z + ")");
             resultList.add(newMarker);
         }
         return resultList;
@@ -163,7 +165,8 @@ public class MarkerList implements Cloneable {
         MarkerList resultList = new MarkerList();
         for (int i=0; i<markerList.size(); i++){
             ImageMarker oldMarker = markerList.get(i);
-            ImageMarker newMarker = new ImageMarker(coordinateConvert.convertGlobalToLocal(oldMarker.x, oldMarker.y, oldMarker.z));
+            ImageMarker newMarker = new ImageMarker(3, coordinateConvert.convertGlobalToLocal(oldMarker.x, oldMarker.y, oldMarker.z));
+            Log.e("covertGlobalToLocal","loc: (" + newMarker.x + ", " + newMarker.y + ", " + newMarker.z + ")");
             resultList.add(newMarker);
         }
         return resultList;

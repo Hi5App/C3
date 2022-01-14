@@ -53,6 +53,7 @@ public class ImageDataSource {
                             Log.e("GetBrainList", str);
                             JSONArray jsonArray = new JSONArray(str);
                             result.postValue(new Result.Success<JSONArray>(jsonArray));
+                            response.body().close();
                         } else {
                             result.postValue(new Result.Error(new Exception("Response from server is null !")));
                         }
@@ -142,15 +143,30 @@ public class ImageDataSource {
                     try {
                         String date = df.format(new Date());
                         Log.e(TAG,"receive time: " + date);
+
                         if (response.body() != null) {
                             byte[] fileContent = response.body().bytes();
+
+                            date = df.format(new Date());
+                            Log.e(TAG,"finish receive file time: " + date);
+
                             Log.e(TAG, "file size: " + fileContent.length);
                             String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Resources/Image";
                             String filename = brainId + "_" + res + "_" + offsetX + "_" + offsetY + "_" + offsetZ + ".v3dpbd";
+
+                            date = df.format(new Date());
+                            Log.e(TAG,"start to store file time: " + date);
+
                             if (!FileHelper.storeFile(storePath, filename, fileContent)) {
+
+                                date = df.format(new Date());
+                                Log.e(TAG,"finish store file time: " + date);
+
                                 result.postValue(new Result.Error(new Exception("Fail to store image file !")));
                             }
                             result.postValue(new Result.Success(storePath + "/" + filename));
+
+                            response.body().close();
                         } else {
                             result.postValue(new Result.Error(new Exception("Response from server is null when download image !")));
                         }

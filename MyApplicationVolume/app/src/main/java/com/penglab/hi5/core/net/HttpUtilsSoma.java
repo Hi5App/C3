@@ -24,12 +24,13 @@ public class HttpUtilsSoma extends HttpUtils {
         }
     }
 
-    public static void getSomaListWithOkHttp(JSONObject userInfo, String image, int x, int y, int z, Callback callback) {
+    public static void getSomaListWithOkHttp(JSONObject userInfo, String image, int x, int y, int z, int size, Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("user", userInfo)
                     .put("image", image)
-                    .put("pa2", new JSONObject().put("x", x).put("y", y).put("z", z))));
+                    .put("pa1", new JSONObject().put("x", x - size/2).put("y", y - size/2).put("z", z - size/2))
+                    .put("pa2", new JSONObject().put("x", x + size/2).put("y", y + size/2).put("z", z + size/2))));
             asyncRequest(URL_GET_SOMA_LIST, body, callback);
         } catch (Exception e) {
             e.printStackTrace();

@@ -69,6 +69,15 @@ public class ImageMarker extends BasicSurfObj {
         this.radius = 0;
     }
 
+    public ImageMarker(int type, XYZ pos) {
+        this.type = type;
+        this.shape = 0;
+        this.x = pos.x;
+        this.y = pos.y;
+        this.z = pos.z;
+        this.radius = 0;
+    }
+
     public ImageMarker(float x, float y, float z) {
         this.type = 0;
         this.shape = 0;

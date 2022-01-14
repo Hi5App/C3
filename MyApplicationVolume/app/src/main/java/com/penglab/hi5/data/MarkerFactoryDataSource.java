@@ -67,6 +67,7 @@ public class MarkerFactoryDataSource {
                             e.printStackTrace();
                             result.postValue(new Result.Error(new Exception("Fail to parse potential location info !")));
                         }
+                        response.body().close();
                     } else {
                         result.postValue(new Result.Error(new Exception("Fail to get potential location info !")));
                     }
@@ -77,10 +78,10 @@ public class MarkerFactoryDataSource {
         }
     }
 
-    public void getSomaList(String image, int x, int y, int z){
+    public void getSomaList(String image, int x, int y, int z, int size){
         try {
             JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-            HttpUtilsSoma.getSomaListWithOkHttp(userInfo, image, x, y, z, new Callback() {
+            HttpUtilsSoma.getSomaListWithOkHttp(userInfo, image, x, y, z, size, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     result.postValue(new Result.Error(new Exception("Connect failed when get soma list !")));
@@ -101,6 +102,7 @@ public class MarkerFactoryDataSource {
                             result.postValue(new Result.Error(new Exception("Fail to parse soma list !")));
                             e.printStackTrace();
                         }
+                        response.body().close();
                     } else {
                         result.postValue(new Result.Error(new Exception("Fail to get soma list !")));
                     }
@@ -113,6 +115,7 @@ public class MarkerFactoryDataSource {
 
     public void insertSomaList(String image, int locationId, String username, JSONArray somaList){
         try {
+            Log.e(TAG,"start insertSomaList");
             JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
             HttpUtilsSoma.insertSomaListWithOkHttp(userInfo, locationId, somaList, username, image, new Callback() {
                 @Override
@@ -122,9 +125,11 @@ public class MarkerFactoryDataSource {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
+                    Log.e(TAG,"receive response");
                     int responseCode = response.code();
                     if (responseCode == 200) {
                         // process response
+                        Log.e(TAG,"receive response successfully");
                         result.postValue(new Result.Success<String>(UPLOAD_SUCCESSFULLY));
                     } else {
                         result.postValue(new Result.Error(new Exception("Fail to upload marker list !")));
