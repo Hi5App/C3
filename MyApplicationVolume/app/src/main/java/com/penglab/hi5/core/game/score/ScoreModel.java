@@ -1,5 +1,7 @@
 package com.penglab.hi5.core.game.score;
 
+import androidx.lifecycle.MutableLiveData;
+
 import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.game.quest.DailyQuestsModel;
 import com.penglab.hi5.core.game.quest.Quest;
@@ -13,7 +15,7 @@ import java.util.Calendar;
  */
 public class ScoreModel {
     private String id;
-    private int score;
+    private MutableLiveData<Integer> score = new MutableLiveData<>();
     private int curveNum;
     private int markerNum;
     private int lastLoginYear;
@@ -40,12 +42,16 @@ public class ScoreModel {
         dailyQuestsModel.setUserId(id);
     }
 
-    public int getScore() {
+    public MutableLiveData<Integer> getObservableScore() {
         return score;
     }
 
+    public int getScore() {
+        return score.getValue();
+    }
+
     public void setScore(int score) {
-        this.score = score;
+        this.score.postValue(score);
     }
 
     public int getCurveNum() {
@@ -144,11 +150,11 @@ public class ScoreModel {
 
     public boolean serverUpdateScore(int serverScore){
         ScoreLitePalConnector scoreLitePalConnector = new ScoreLitePalConnector(id);
-        if (score < serverScore){
-            score = serverScore;
+        if (score.getValue() < serverScore){
+            score.postValue(serverScore);
             scoreLitePalConnector.updateScore(serverScore);
             return true;
-        } else if (score >= serverScore){
+        } else if (score.getValue() >= serverScore){
             return false;
         }
         return true;
@@ -162,7 +168,7 @@ public class ScoreModel {
         dailyQuestsModel.updateCurveNum(curveNumToday);
 
         User user = new User();
-        user.setScore(score);
+        user.setScore(score.getValue());
         user.setCurveNum(curveNum);
         user.setCurveNumToday(curveNumToday);
         user.updateAll("userid = ?", id);
@@ -176,7 +182,7 @@ public class ScoreModel {
         dailyQuestsModel.updateMarkerNum(markerNumToday);
 
         User user = new User();
-        user.setScore(score);
+        user.setScore(score.getValue());
         user.setMarkerNum(markerNum);
         user.setMarkerNumToday(markerNumToday);
         user.updateAll("userid = ?", id);
@@ -204,10 +210,10 @@ public class ScoreModel {
     }
 
     public void addScore(int s){
-        score += s;
+        score.postValue(score.getValue() + s);
 
         User user = new User();
-        user.setScore(score);
+        user.setScore(score.getValue());
         user.updateAll("userid = ?", id);
     }
 
