@@ -24,7 +24,6 @@
             android:minHeight="10dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
-
             <include
                 android:id="@+id/person_top_view"
                 layout="@layout/layout_personal_top_view"
@@ -42,9 +41,6 @@
                 app:contentInsetLeft="0dp"
                 app:contentInsetStart="0dp"
                 app:layout_collapseMode="pin">
-
-
-
 
 
             </androidx.appcompat.widget.Toolbar>
