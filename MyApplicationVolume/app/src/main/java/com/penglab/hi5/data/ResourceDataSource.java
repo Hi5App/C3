@@ -43,11 +43,17 @@ public class ResourceDataSource {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     try {
-                        if (response.body() != null) {
-                            JSONArray jsonArray = new JSONArray(response.body().string());
-                            result.postValue(new Result.Success<JSONArray>(jsonArray));
+                        int responseCode = response.code();
+                        if (responseCode == 200){
+                            if (response.body() != null) {
+                                responseData = response.body().string();
+                                JSONArray jsonArray = new JSONArray(responseData);
+                                result.postValue(new Result.Success<JSONArray>(jsonArray));
+                            } else {
+                                result.postValue(new Result.Error(new Exception("Response from server is null !")));
+                            }
                         } else {
-                            result.postValue(new Result.Error(new Exception("Response from server is null !")));
+                            result.postValue(new Result.Error(new Exception("Fail to get music list !")));
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -60,9 +66,9 @@ public class ResourceDataSource {
         }
     }
 
-    public void downloadMusic(String name, String url) {
+    public void downloadMusic(String musicName) {
         try {
-            HttpUtilsResource.downloadMusicWithOkHttp(url, new Callback() {
+            HttpUtilsResource.downloadMusicWithOkHttp(musicName, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     result.postValue(new Result.Error(new Exception("Connect Failed When Download Music")));
@@ -73,7 +79,7 @@ public class ResourceDataSource {
                     try {
                         if (response.body() != null) {
                             byte[] fileContent = response.body().bytes();
-                            if (!FileHelper.storeFile(Myapplication.getContext().getExternalFilesDir(null) + "/Resources/Music", name, fileContent)) {
+                            if (!FileHelper.storeFile(Myapplication.getContext().getExternalFilesDir(null) + "/Resources/Music", musicName, fileContent)) {
                                 Log.e(TAG, "Fail to store music");
                             }
 

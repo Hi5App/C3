@@ -6,17 +6,16 @@ import okhttp3.Callback;
 import okhttp3.RequestBody;
 
 public class HttpUtilsImage extends HttpUtils {
-    private static final String URL_GET_BRAIN_LIST = SERVER_IP + "/ano/getimagelist";
-    private static final String URL_GET_NEURON_LIST = SERVER_IP + "/ano/getneuronlist";
-    private static final String URL_GET_ANO_LIST = SERVER_IP + "/ano/getanolist";
-    private static final String URL_DOWNLOAD_IMAGE = SERVER_IP + "/coll/getimagebb";
-    private static final String URL_GET_BBSWC = SERVER_IP + "/coll/getswcbb";
+    private static final String URL_GET_BRAIN_LIST = SERVER_IP + "/dynamic/image/getimagelist";
+    private static final String URL_GET_NEURON_LIST = SERVER_IP + "/dynamic/ano/getneuronlist";
+    private static final String URL_GET_ANO_LIST = SERVER_IP + "/dynamic/ano/getanolist";
+    private static final String URL_DOWNLOAD_IMAGE = SERVER_IP + "/dynamic/image/cropimage";
+    private static final String URL_GET_BBSWC = SERVER_IP + "/dynamic/coll/getswcbb";
 
-    public static void getBrainListWithOkHttp(String username, String password, Callback callback) {
+    public static void getBrainListWithOkHttp(JSONObject userInfo, Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
-                    .put("name", username)
-                    .put("password", password)));
+                    .put("user", userInfo)));
             asyncRequest(URL_GET_BRAIN_LIST, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
@@ -49,25 +48,20 @@ public class HttpUtilsImage extends HttpUtils {
 
     /**
      * download image block
-     * @param username username
-     * @param password password
+     * @param userInfo username & password
      * @param brainId such as 18454
      * @param res such as RES(26298x35000x11041)"
-     * @param x offset of axis x
-     * @param y offset of axis y
-     * @param z offset of axis z
+     * @param loc offset of axis x, y, z
      * @param len size of image block
      * @param callback the callback func
      */
-    public static void downloadImageWithOkHttp(String username, String password, String brainId, String res, int x, int y, int z, int len, Callback callback) {
+    public static void downloadImageWithOkHttp(JSONObject userInfo, String brainId, String res, JSONObject loc, int len, Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
-                    .put("name", username)
-                    .put("password", password)
-                    .put("image", brainId + "/" + res)
-                    .put("x", x)
-                    .put("y", y)
-                    .put("z", z)
+                    .put("user", userInfo)
+                    .put("image", brainId)
+                    .put("res", res)
+                    .put("loc", loc)
                     .put("len", len)));
             asyncRequest(URL_DOWNLOAD_IMAGE, body, callback);
         } catch (Exception e) {

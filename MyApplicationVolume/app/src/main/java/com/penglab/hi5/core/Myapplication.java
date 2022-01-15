@@ -43,6 +43,7 @@ import com.penglab.hi5.core.music.MusicHelper;
 import com.penglab.hi5.data.dataStore.PreferenceLogin;
 import com.penglab.hi5.data.dataStore.PreferenceMusic;
 import com.penglab.hi5.data.dataStore.PreferenceSetting;
+import com.penglab.hi5.data.dataStore.PreferenceSoma;
 
 import org.litepal.LitePal;
 import java.io.IOException;
@@ -86,6 +87,7 @@ public class Myapplication extends Application {
         PreferenceLogin.init(getApplicationContext());
         PreferenceSetting.init(getApplicationContext());
         PreferenceMusic.init(getApplicationContext());
+        PreferenceSoma.init(getApplicationContext());
 
         LitePal.initialize(this);
         SQLiteDatabase db = LitePal.getDatabase();

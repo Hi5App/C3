@@ -14,17 +14,17 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class HttpUtilsUser extends HttpUtils {
-    private static final String URL_REGISTER = SERVER_IP + "/user/register";
-    private static final String URL_LOGIN = SERVER_IP + "/user/login";
-    private static final String URL_UPDATE_PASSWORD = SERVER_IP + "/user/updatepassword";
-    private static final String URL_FIND_PASSWORD = SERVER_IP + "/user/forgetpassword";
+    private static final String URL_REGISTER = SERVER_IP + "/dynamic/user/register";
+    private static final String URL_LOGIN = SERVER_IP + "/dynamic/user/login";
+    private static final String URL_UPDATE_PASSWORD = SERVER_IP + "/dynamic/user/updatepassword";
+    private static final String URL_FIND_PASSWORD = SERVER_IP + "/dynamic/user/forgetpassword";
 
     /* 登录 异步方法 */
     public static void loginWithOkHttp(String account, String password, Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("name", account)
-                    .put("password", password)
+                    .put("passwd", password)
                     .put("limit", 1)));
             asyncRequest(URL_LOGIN, body, callback);
         } catch (Exception e) {
@@ -38,7 +38,7 @@ public class HttpUtilsUser extends HttpUtils {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("name", username)
                     .put("email", email)
-                    .put("password", password)
+                    .put("passwd", password)
                     .put("nickname", nickname)));
             asyncRequest(URL_REGISTER, body, callback);
         } catch (Exception e) {
@@ -63,7 +63,7 @@ public class HttpUtilsUser extends HttpUtils {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("email", email)
-                    .put("password", password)
+                    .put("passwd", password)
                     .put("n_password", n_password)));
             asyncRequest(URL_UPDATE_PASSWORD, body, callback);
         } catch (Exception e) {

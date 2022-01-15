@@ -48,9 +48,6 @@ public class UserInfoRepository {
     }
 
     public void setLoggedInUser(LoggedInUser user) {
-        Log.e("UserInfoRepository", "userId: " + user.getUserId());
-        Log.e("UserInfoRepository", "nickName: " + user.getNickName());
-        Log.e("UserInfoRepository", "email: " + user.getEmail());
         this.user = user;
         scoreModel.setId(user.getUserId());
         scoreModel.initFromLitePal();

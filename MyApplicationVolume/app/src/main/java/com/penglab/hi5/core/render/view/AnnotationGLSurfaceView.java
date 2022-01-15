@@ -52,6 +52,16 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
 
     private final String TAG = "AnnotationGLSurfaceView";
     private final int DEFAULT_SIZE = 128;
+<<<<<<< HEAD
+=======
+    private final boolean[][] selections =
+            {{true,true,true,false,false,false,false},
+             {true,true,true,false,false,false,false},
+             {false,false,false,false,false,false,false},
+             {false,false,false,false,false,false,false},
+             {false,false,false,false,false,false,false},
+             {true,true,true,false,false,false,false}};
+>>>>>>> cf66337540c450dea1537ddad7dcbf20064aadc9
 
     private final SwitchMutableLiveData<EditMode> editMode = new SwitchMutableLiveData<>(EditMode.NONE);
 
@@ -171,6 +181,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
                         } else {
                             // play music when curve / marker action start
                             // The step ACTION_DOWN will add 3 item into fingerTrajectory
+<<<<<<< HEAD
 //                            if (fingerTrajectory.size() <= 3){
 //                                switch (Objects.requireNonNull(editMode.getValue())){
 //                                    case PINPOINT:
@@ -187,6 +198,24 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
 //                                        break;
 //                                }
 //                            }
+=======
+                            if (fingerTrajectory.size() <= 3){
+                                switch (Objects.requireNonNull(editMode.getValue())){
+                                    case PINPOINT:
+                                    case DELETE_MARKER:
+                                    case CHANGE_MARKER_TYPE:
+                                    case ZOOM_IN_ROI:
+                                        playMarkerActionSound();
+                                        break;
+                                    case PAINT_CURVE:
+                                    case DELETE_CURVE:
+                                    case CHANGE_CURVE_TYPE:
+                                    case SPLIT:
+                                        playCurveActionSound();
+                                        break;
+                                }
+                            }
+>>>>>>> cf66337540c450dea1537ddad7dcbf20064aadc9
                             updateFingerTrajectory(currentX, currentY);
                             annotationRender.updateFingerTrajectory(fingerTrajectory);
                             requestRender();
@@ -391,6 +420,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
             default:
                 ToastEasy("Unsupported file !");
         }
+        requestRender();
     }
 
     public void loadFile(){
@@ -426,6 +456,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
             default:
                 ToastEasy("Unsupported file !");
         }
+        requestRender();
     }
 
     public void zoomIn(){
@@ -517,6 +548,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
         if (annotationDataManager.getNeuronTree() != null && image4DSimple != null){
             NeuronTree neuronTree = annotationDataManager.getNeuronTree();
             PixelClassification pixelClassification = new PixelClassification();
+<<<<<<< HEAD
             boolean[][] selections =
                     {{true,true,true,false,false,false,false},
                             {true,true,true,false,false,false,false},
@@ -524,6 +556,9 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
                             {false,false,false,false,false,false,false},
                             {false,false,false,false,false,false,false},
                             {true,true,true,false,false,false,false}};
+=======
+
+>>>>>>> cf66337540c450dea1537ddad7dcbf20064aadc9
             pixelClassification.setSelections(selections);
 
             try {
@@ -552,6 +587,18 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
         return annotationDataManager.getNeuronTree();
     }
 
+<<<<<<< HEAD
+=======
+    public MarkerList getMarkerList(){
+        return annotationDataManager.getMarkerList();
+    }
+
+    public void syncMarkerList(MarkerList markerList){
+        annotationDataManager.loadMarkerList(markerList);
+        requestRender();
+    }
+
+>>>>>>> cf66337540c450dea1537ddad7dcbf20064aadc9
     private void update3DFileSize(Integer[] size){
         float maxSize = (float) Collections.max(Arrays.asList(size));
 

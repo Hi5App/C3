@@ -17,8 +17,13 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
+<<<<<<< HEAD
         android:id="@+id/former_file"
         android:layout_width="25dp"
+=======
+        android:id="@+id/previous_file"
+        android:layout_width="35dp"
+>>>>>>> cf66337540c450dea1537ddad7dcbf20064aadc9
         android:layout_height="50dp"
         android:src="@drawable/ic_chevron_left_black_24dp"
         android:layout_marginStart="10dp"
@@ -28,7 +33,11 @@
 
     <ImageButton
         android:id="@+id/next_file"
+<<<<<<< HEAD
         android:layout_width="25dp"
+=======
+        android:layout_width="35dp"
+>>>>>>> cf66337540c450dea1537ddad7dcbf20064aadc9
         android:layout_height="50dp"
         android:src="@drawable/ic_chevron_right_black_24dp"
         android:layout_marginEnd="10dp"
@@ -45,7 +54,11 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:background="@drawable/circle_normal"
+<<<<<<< HEAD
         app:srcCompat="@drawable/ic_marker_main" />
+=======
+        app:srcCompat="@drawable/ic_add_marker" />
+>>>>>>> cf66337540c450dea1537ddad7dcbf20064aadc9
 
     <ImageButton
         android:id="@+id/delete_marker"
@@ -56,6 +69,10 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:background="@drawable/circle_normal"
+<<<<<<< HEAD
         app:srcCompat="@drawable/ic_marker_delete_normal" />
+=======
+        app:srcCompat="@drawable/ic_marker_delete" />
+>>>>>>> cf66337540c450dea1537ddad7dcbf20064aadc9
 
 </androidx.constraintlayout.widget.ConstraintLayout>
