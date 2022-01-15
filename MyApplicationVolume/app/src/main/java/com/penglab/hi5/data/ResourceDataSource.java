@@ -49,6 +49,9 @@ public class ResourceDataSource {
                                 responseData = response.body().string();
                                 JSONArray jsonArray = new JSONArray(responseData);
                                 result.postValue(new Result.Success<JSONArray>(jsonArray));
+
+                                response.body().close();
+                                response.close();
                             } else {
                                 result.postValue(new Result.Error(new Exception("Response from server is null !")));
                             }
@@ -84,7 +87,8 @@ public class ResourceDataSource {
                             }
 
                             result.postValue(new Result.Success<String>(MUSIC_DOWNLOAD_FINISHED));
-
+                            response.body().close();
+                            response.close();
                         } else {
                             result.postValue(new Result.Error(new Exception("Response from server is null when download music !")));
                         }

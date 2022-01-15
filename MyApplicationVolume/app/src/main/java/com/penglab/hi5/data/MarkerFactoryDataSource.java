@@ -9,9 +9,7 @@ import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.image.XYZ;
 import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.net.HttpUtilsSoma;
-import com.penglab.hi5.core.net.HttpUtilsUser;
 import com.penglab.hi5.data.model.img.PotentialSomaInfo;
-import com.penglab.hi5.data.model.user.LoggedInUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,6 +26,7 @@ import okhttp3.Response;
  */
 public class MarkerFactoryDataSource {
     public static final String UPLOAD_SUCCESSFULLY = "Upload soma successfully !";
+    public static final String NO_MORE_FILE = "No more file need to process !";
     private final String TAG = "MarkerFactoryDataSource";
     private final MutableLiveData<Result> result = new MutableLiveData<>();
     private String responseData;
@@ -38,6 +37,7 @@ public class MarkerFactoryDataSource {
 
     public void getPotentialLocation(){
         try {
+            Log.e(TAG,"getPotentialLocation");
             JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
             HttpUtilsSoma.getPotentialLocationWithOkHttp(userInfo, new Callback() {
                 @Override
@@ -68,6 +68,14 @@ public class MarkerFactoryDataSource {
                             result.postValue(new Result.Error(new Exception("Fail to parse potential location info !")));
                         }
                         response.body().close();
+                        response.close();
+                    } else if (responseCode == 502) {
+                        responseData = response.body().string();
+                        Log.e(TAG,"responseData: " + responseData);
+                        if (responseData.trim().equals("Empty")) {
+                            Log.e(TAG,"get Empty response");
+                            result.postValue(new Result.Success<String>(NO_MORE_FILE));
+                        }
                     } else {
                         result.postValue(new Result.Error(new Exception("Fail to get potential location info !")));
                     }
@@ -103,6 +111,7 @@ public class MarkerFactoryDataSource {
                             e.printStackTrace();
                         }
                         response.body().close();
+                        response.close();
                     } else {
                         result.postValue(new Result.Error(new Exception("Fail to get soma list !")));
                     }
@@ -113,11 +122,11 @@ public class MarkerFactoryDataSource {
         }
     }
 
-    public void insertSomaList(String image, int locationId, String username, JSONArray somaList){
+    public void updateSomaList(String image, int locationId, String username, JSONArray insertSomaList, JSONArray deleteSomaList){
         try {
-            Log.e(TAG,"start insertSomaList");
+            Log.e(TAG,"start updateSomaList");
             JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-            HttpUtilsSoma.insertSomaListWithOkHttp(userInfo, locationId, somaList, username, image, new Callback() {
+            HttpUtilsSoma.updateSomaListWithOkHttp(userInfo, locationId, insertSomaList, deleteSomaList, username, image, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     result.postValue(new Result.Error(new Exception("Connect failed when upload marker list !")));
@@ -134,6 +143,7 @@ public class MarkerFactoryDataSource {
                     } else {
                         result.postValue(new Result.Error(new Exception("Fail to upload marker list !")));
                     }
+                    response.close();
                 }
             });
         } catch (Exception exception) {
