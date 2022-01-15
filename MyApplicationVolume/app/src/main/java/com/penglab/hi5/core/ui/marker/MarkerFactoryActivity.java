@@ -10,10 +10,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -28,9 +30,12 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.lxj.xpopup.XPopup;
+import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
+import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.image.MarkerList;
+import com.penglab.hi5.basic.image.XYZ;
 import com.penglab.hi5.core.music.MusicService;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ResourceResult;
@@ -78,8 +83,10 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     private AnnotationGLSurfaceView annotationGLSurfaceView;
     private MarkerFactoryViewModel markerFactoryViewModel;
 
+    private Handler uiHandler = new Handler();
     private Toolbar toolbar;
     private View markerFactoryView;
+    private BasePopupView downloadingPopupView;
     private ImageButton editModeIndicator;
     private ImageButton addMarker;
     private ImageButton deleteMarker;
@@ -96,6 +103,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
+        downloadingPopupView = new XPopup.Builder(this).asLoading("Downloading......");
         markerFactoryViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(MarkerFactoryViewModel.class);
         markerFactoryViewModel.getAnnotationMode().observe(this, new Observer<MarkerFactoryViewModel.AnnotationMode>() {
             @Override
@@ -151,6 +159,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                     return;
                 }
                 annotationGLSurfaceView.syncMarkerList(markerList);
+
             }
         });
 
@@ -232,6 +241,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     private void updateOptionsMenu(MarkerFactoryViewModel.AnnotationMode annotationMode) {
         toolbar.getMenu().clear();
         switch (annotationMode) {
+            case NO_MORE_FILE:
             case NONE:
                 toolbar.inflateMenu(R.menu.marker_factory_menu_basic);
                 break;
@@ -260,13 +270,15 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
             case R.id.confirm:
                 // TODO: confirm
-                markerFactoryViewModel.insertSomaList(annotationGLSurfaceView.getMarkerList());
+                markerFactoryViewModel.updateSomaList(annotationGLSurfaceView.getMarkerListToAdd(),
+                        annotationGLSurfaceView.getMarkerListToDelete());
                 playButtonSound();
                 return true;
 
             case R.id.file:
                 if (markerFactoryViewModel.isLoggedIn()) {
                     openFile();
+                    showDownloadingProgressBar();
                 } else {
                     ToastEasy("Login first please !");
                 }
@@ -430,8 +442,12 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         switch (annotationMode){
             case BIG_DATA:
                 showUI4Annotation();
+                hideDownloadingProgressBar();
                 break;
 
+            case NO_MORE_FILE:
+                hideDownloadingProgressBar();
+                break;
             case NONE:
                 break;
         }
@@ -485,17 +501,21 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
     private void previousFile(){
         if (preferenceSoma.getAutoUploadMode()){
-            markerFactoryViewModel.insertSomaList(annotationGLSurfaceView.getMarkerList());
+            markerFactoryViewModel.updateSomaList(annotationGLSurfaceView.getMarkerListToAdd(),
+                    annotationGLSurfaceView.getMarkerListToDelete());
         }
         markerFactoryViewModel.previousFile();
+        showDownloadingProgressBar();
         playButtonSound();
     }
 
     private void nextFile(){
         if (preferenceSoma.getAutoUploadMode()){
-            markerFactoryViewModel.insertSomaList(annotationGLSurfaceView.getMarkerList());
+            markerFactoryViewModel.updateSomaList(annotationGLSurfaceView.getMarkerListToAdd(),
+                    annotationGLSurfaceView.getMarkerListToDelete());
         }
         markerFactoryViewModel.nextFile();
+        showDownloadingProgressBar();
         playButtonSound();
     }
 
@@ -503,6 +523,22 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         if (markerFactoryView != null){
             markerFactoryView.setVisibility(View.GONE);
         }
+    }
+
+    private void showDownloadingProgressBar(){
+        downloadingPopupView.show();
+        uiHandler.postDelayed(this::timeOutHandler, 30 * 1000);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    private void hideDownloadingProgressBar(){
+        downloadingPopupView.dismiss();
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    private void timeOutHandler(){
+        downloadingPopupView.dismiss();
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
     public static void start(Context context) {

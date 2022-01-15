@@ -17,6 +17,7 @@ import androidx.lifecycle.LiveData;
 
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.Image4DSimple;
+import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.learning.pixelclassification.PixelClassification;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
@@ -34,6 +35,8 @@ import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.model.img.BasicFile;
 import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.img.FileType;
+
+import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -367,8 +370,10 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
             case TIFF:
                 image4DSimple = Image4DSimple.loadImage(filePath, fileType);
                 if (image4DSimple != null){
+
                     update3DFileSize(new Integer[]{
                             (int) image4DSimple.getSz0(), (int) image4DSimple.getSz1(), (int) image4DSimple.getSz2()});
+                    renderOptions.initOptions();
                     annotationRender.init3DImageInfo(image4DSimple, normalizedSize, originalSize);
                     annotationHelper.initImageInfo(image4DSimple, normalizedSize, originalSize);
                     annotationDataManager.init();
@@ -560,8 +565,16 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
     }
 
     public void syncMarkerList(MarkerList markerList){
-        annotationDataManager.loadMarkerList(markerList);
+        annotationDataManager.syncMarkerList(markerList);
         requestRender();
+    }
+
+    public MarkerList getMarkerListToAdd(){
+        return annotationDataManager.getMarkerListToAdd();
+    }
+
+    public JSONArray getMarkerListToDelete(){
+        return annotationDataManager.getMarkerListToDelete();
     }
 
     private void update3DFileSize(Integer[] size){
