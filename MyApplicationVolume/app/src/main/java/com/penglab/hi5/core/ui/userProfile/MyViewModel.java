@@ -32,6 +32,10 @@ public class MyViewModel extends ViewModel {
         this.userDataSource = userDataSource;
     }
 
+    public UserInfoRepository getUserInfoRepository() {
+        return userInfoRepository;
+    }
+
     public MutableLiveData<UserView> getUserView() {
         return userView;
     }

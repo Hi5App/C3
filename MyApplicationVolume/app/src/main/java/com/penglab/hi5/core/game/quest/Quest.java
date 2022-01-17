@@ -10,6 +10,9 @@ public class Quest extends BaseObservable {
         UnFinished, Pending, Finished
     }
 
+    public final String NOT_FINISHED_BUTTON_TEXT = "RECEIVE";
+    public final String FINISHED_BUTTON_TEXT = "FINISHED";
+
     private String content = "";
     private Status status = Status.UnFinished;
 

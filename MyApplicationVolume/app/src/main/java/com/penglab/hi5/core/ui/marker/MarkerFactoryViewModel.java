@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModel;
 import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.image.XYZ;
 import com.penglab.hi5.basic.utils.FileManager;
+import com.penglab.hi5.core.game.Score;
 import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
@@ -111,6 +112,10 @@ public class MarkerFactoryViewModel extends ViewModel {
         return userInfoRepository.isLoggedIn();
     }
 
+    public MutableLiveData<Integer> getObservableScore() {
+        return userInfoRepository.getScoreModel().getObservableScore();
+    }
+
     public void updateImageResult(Result result) {
         if (result instanceof Result.Success){
             Object data = ((Result.Success<?>) result).getData();
@@ -163,9 +168,7 @@ public class MarkerFactoryViewModel extends ViewModel {
                 } else {
                     downloadImage();
                 }
-                // TODO: open image
             } else if (data instanceof MarkerList) {
-                // TODO: import somaList
                 syncMarkerList.setValue(MarkerList.covertGlobalToLocal((MarkerList) data, coordinateConvert));
                 annotationMode.setValue(AnnotationMode.BIG_DATA);
             } else if (data instanceof String){
@@ -252,10 +255,21 @@ public class MarkerFactoryViewModel extends ViewModel {
             String username = loggedInUser.getUserId();
             markerFactoryDataSource.updateSomaList(brainId, locationId, username,
                     MarkerList.toJSONArray(MarkerList.covertLocalToGlobal(markerListToAdd, coordinateConvert)), markerListToDelete);
+            if (curIndex == potentialSomaInfoList.size() - 1) {
+                winScoreByFinishConfirmAnImage();
+            }
         } catch (JSONException e) {
             ToastEasy("Fail to convert MarkerList ot JSONArray !");
             e.printStackTrace();
         }
+    }
+    
+    public void winScoreByFinishConfirmAnImage() {
+        userInfoRepository.getScoreModel().finishAnImage();
+    }
+
+    public void winScoreByPinPoint() {
+        userInfoRepository.getScoreModel().pinpoint();
     }
 
 }

@@ -47,8 +47,6 @@ public class Utils {
                 Context context = v.getContext();
                 switch (libraryObject.getTitle()){
                     case "Marker Factory":
-                        MarkerList markerList = null;
-                        markerList.size();
                         MarkerFactoryActivity.start(context);
                         break;
                     case "Annotation":

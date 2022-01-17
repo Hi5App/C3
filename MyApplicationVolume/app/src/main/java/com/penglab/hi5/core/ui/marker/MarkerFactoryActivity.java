@@ -7,6 +7,7 @@ import static com.penglab.hi5.core.Myapplication.updateMusicVolume;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.OvershootInterpolator;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -48,6 +50,7 @@ import com.penglab.hi5.data.dataStore.PreferenceSetting;
 import com.penglab.hi5.data.dataStore.PreferenceSoma;
 
 import com.penglab.hi5.data.model.img.FilePath;
+import com.robinhood.ticker.TickerView;
 import com.warkiz.widget.IndicatorSeekBar;
 import com.warkiz.widget.OnSeekChangeListener;
 import com.warkiz.widget.SeekParams;
@@ -91,6 +94,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     private ImageButton editModeIndicator;
     private ImageButton addMarker;
     private ImageButton deleteMarker;
+    private TickerView scoreTickerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +102,14 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_marker_factory);
         annotationGLSurfaceView = findViewById(R.id.gl_surface_view_marker_factory);
+        annotationGLSurfaceView.setOnScoreWinWithTouchEventListener(new AnnotationGLSurfaceView.OnScoreWinWithTouchEventListener() {
+            @Override
+            public void run() {
+                if (annotationGLSurfaceView.getEditMode().getValue() == EditMode.PINPOINT) {
+                    markerFactoryViewModel.winScoreByPinPoint();
+                }
+            }
+        });
         toolbar = (Toolbar) findViewById(R.id.toolbar_marker_factory);
         setSupportActionBar(toolbar);
 
@@ -186,6 +198,8 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 screenCapture((Uri) filePath.getData());
             }
         });
+
+        initScoreTickerView();
 
         startMusicService();
     }
@@ -511,6 +525,22 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 }
                 break;
         }
+    }
+
+    private void initScoreTickerView() {
+        scoreTickerView = findViewById(R.id.score_ticker_view);
+        scoreTickerView.setTypeface(Typeface.DEFAULT);
+        scoreTickerView.setAnimationDuration(500);
+        scoreTickerView.setAnimationInterpolator(new OvershootInterpolator());
+        scoreTickerView.setPreferredScrollingDirection(TickerView.ScrollingDirection.ANY);
+//        scoreTickerView.setText("0");
+
+        markerFactoryViewModel.getObservableScore().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                scoreTickerView.setText(Integer.toString(integer));
+            }
+        });
     }
 
     private void previousFile(){
