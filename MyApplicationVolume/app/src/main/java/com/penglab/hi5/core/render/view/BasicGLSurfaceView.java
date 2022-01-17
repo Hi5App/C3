@@ -3,13 +3,10 @@ package com.penglab.hi5.core.render.view;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
-import android.app.ActivityManager;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import android.view.View;
-
-import com.penglab.hi5.core.render.BasicRender;
 
 /**
  * Created by Jackiexing on 12/20/21

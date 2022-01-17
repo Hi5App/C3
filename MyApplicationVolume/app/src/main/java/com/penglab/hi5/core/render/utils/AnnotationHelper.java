@@ -5,7 +5,6 @@ import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import android.opengl.Matrix;
 import android.os.Build;
 import android.util.Log;
-import android.view.View;
 
 import androidx.annotation.RequiresApi;
 
@@ -24,7 +23,6 @@ import com.penglab.hi5.basic.tracingfunc.gd.V3dNeuronGDTracing;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
-import com.penglab.hi5.core.MyRenderer;
 import com.penglab.hi5.core.collaboration.Communicator;
 import com.penglab.hi5.core.render.pattern.MyMarker;
 

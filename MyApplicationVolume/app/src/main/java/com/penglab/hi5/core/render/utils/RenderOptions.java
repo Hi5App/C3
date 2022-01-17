@@ -31,7 +31,7 @@ public class RenderOptions {
         this.contrast = preferenceSetting.getContrast() / 100.0f + 1.0f;
         this.imageChanging = false;
         this.screenCapture = false;
-        this.scale = 1.0f;
+        this.scale = 2.5f;
     }
 
     public boolean isDownSampling() {

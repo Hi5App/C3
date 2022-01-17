@@ -2,6 +2,7 @@ package com.penglab.hi5.core.ui.marker;
 
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
+import static com.penglab.hi5.data.MarkerFactoryDataSource.NO_MORE_FILE;
 import static com.penglab.hi5.data.MarkerFactoryDataSource.UPLOAD_SUCCESSFULLY;
 
 import android.util.Log;
@@ -16,7 +17,6 @@ import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.image.XYZ;
 import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.core.ui.ResourceResult;
-import com.penglab.hi5.core.ui.home.screens.UserView;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.MarkerFactoryDataSource;
@@ -42,10 +42,11 @@ public class MarkerFactoryViewModel extends ViewModel {
 
     private final String TAG = "MarkerFactoryViewModel";
     private final int DEFAULT_IMAGE_SIZE = 128;
+    private final int DEFAULT_RES_INDEX = 2;
 
 
     public enum AnnotationMode{
-       BIG_DATA, NONE
+       BIG_DATA, NO_MORE_FILE, NONE
     }
 
 
@@ -64,9 +65,9 @@ public class MarkerFactoryViewModel extends ViewModel {
     private final ImageDataSource imageDataSource;
 
     private final LoggedInUser loggedInUser;
+    private final CoordinateConvert coordinateConvert = new CoordinateConvert();
     private final HashMap<String, String> resMap = new HashMap<>();
     private final List<PotentialSomaInfo> potentialSomaInfoList = new ArrayList<>();
-    private final CoordinateConvert coordinateConvert = new CoordinateConvert();
     private PotentialSomaInfo curPotentialSomaInfo;
     private int curIndex = -1;
 
@@ -76,7 +77,7 @@ public class MarkerFactoryViewModel extends ViewModel {
         this.markerFactoryDataSource = markerFactoryDataSource;
         this.imageDataSource = imageDataSource;
         this.loggedInUser = userInfoRepository.getUser();
-        coordinateConvert.setResIndex(2);
+        coordinateConvert.setResIndex(DEFAULT_RES_INDEX);
         coordinateConvert.setImgSize(DEFAULT_IMAGE_SIZE);
 
     }
@@ -114,12 +115,15 @@ public class MarkerFactoryViewModel extends ViewModel {
         if (result instanceof Result.Success){
             Object data = ((Result.Success<?>) result).getData();
             if (data instanceof JSONArray){
+                // process Brain List, store res info for each brain
                 JSONArray jsonArray = (JSONArray) data;
                 for (int i = 0; i < jsonArray.length(); i++) {
                     try {
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
                         String imageId = jsonObject.getString("name");
                         String detail = jsonObject.getString("detail");
+
+                        // parse brain info
                         detail = detail.substring(1, detail.length() - 1);
                         String [] rois = detail.split(", ");
                         for (int j = 0; j < rois.length; j++) {
@@ -134,13 +138,14 @@ public class MarkerFactoryViewModel extends ViewModel {
                 }
                 downloadImage();
             } else if (data instanceof String){
+                // process image file after download
                 String fileName = FileManager.getFileName((String) data);
                 FileType fileType = FileManager.getFileType((String) data);
                 imageInfoRepository.getBasicImage().setFileInfo(fileName, new FilePath<String >((String) data), fileType);
                 imageResult.setValue(new ResourceResult(true));
             }
-        } else {
-
+        } else if (result instanceof Result.Error){
+            ToastEasy(result.toString());
         }
     }
 
@@ -153,24 +158,27 @@ public class MarkerFactoryViewModel extends ViewModel {
                 coordinateConvert.initLocation(curPotentialSomaInfo.getLocation());
 
                 // get res list when first download img
-                if (resMap.isEmpty()){
+                if (resMap.isEmpty()) {
                     getBrainList();
                 } else {
                     downloadImage();
                 }
                 // TODO: open image
-            } else if (data instanceof MarkerList){
+            } else if (data instanceof MarkerList) {
                 // TODO: import somaList
                 syncMarkerList.setValue(MarkerList.covertGlobalToLocal((MarkerList) data, coordinateConvert));
+                annotationMode.setValue(AnnotationMode.BIG_DATA);
             } else if (data instanceof String){
-                Log.e(TAG,"data: " + data);
                 String response = (String) data;
                 if (response.equals(UPLOAD_SUCCESSFULLY)){
                     ToastEasy("Upload markers successfully");
+                } else if (response.equals(NO_MORE_FILE)){
+                    annotationMode.setValue(AnnotationMode.NO_MORE_FILE);
+                    ToastEasy("No more file need to process !");
                 }
             }
-        } else {
-
+        } else if (result instanceof Result.Error){
+            ToastEasy(result.toString());
         }
     }
 
@@ -178,7 +186,6 @@ public class MarkerFactoryViewModel extends ViewModel {
         Log.e(TAG,"openNewFile");
         curIndex = potentialSomaInfoList.size();
         getPotentialLocation();
-        annotationMode.setValue(AnnotationMode.BIG_DATA);
     }
 
     public void previousFile() {
@@ -196,8 +203,6 @@ public class MarkerFactoryViewModel extends ViewModel {
     }
 
     public void nextFile() {
-        Log.e(TAG,"nextFile");
-        Log.e(TAG,"curIndex: " + curIndex + ", potentialSomaInfoList.size()" + potentialSomaInfoList.size());
         if (curIndex == potentialSomaInfoList.size()-1) {
             // open new file
             openNewFile();
@@ -227,7 +232,7 @@ public class MarkerFactoryViewModel extends ViewModel {
             ToastEasy("Fail to download image, something wrong with res list !");
             return;
         }
-        imageDataSource.downloadImage(curPotentialSomaInfo.getBrainId(), res, (int) loc.x , (int) loc.y, (int) loc.z, 128);
+        imageDataSource.downloadImage(curPotentialSomaInfo.getBrainId(), res, (int) loc.x , (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE);
     }
 
     public void getSomaList() {
@@ -237,18 +242,16 @@ public class MarkerFactoryViewModel extends ViewModel {
         markerFactoryDataSource.getSomaList(brainId, (int) loc.x, (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE * (int) Math.pow(2, coordinateConvert.getResIndex()-1));
     }
 
-    public void insertSomaList(MarkerList markerList) {
-        Log.e(TAG,"insertSomaList");
-        if (markerList == null || markerList.size() == 0){
+    public void updateSomaList(MarkerList markerListToAdd, JSONArray markerListToDelete) {
+        if ((markerListToAdd == null || markerListToAdd.size() == 0) && (markerListToDelete == null || markerListToDelete.length() == 0)){
             return;
         }
-        Log.e(TAG,"start insertSomaList");
         try {
             int locationId = curPotentialSomaInfo.getId();
             String brainId = curPotentialSomaInfo.getBrainId();
             String username = loggedInUser.getUserId();
-            markerFactoryDataSource.insertSomaList(brainId, locationId, username,
-                    MarkerList.toJSONArray(MarkerList.covertLocalToGlobal(markerList, coordinateConvert)));
+            markerFactoryDataSource.updateSomaList(brainId, locationId, username,
+                    MarkerList.toJSONArray(MarkerList.covertLocalToGlobal(markerListToAdd, coordinateConvert)), markerListToDelete);
         } catch (JSONException e) {
             ToastEasy("Fail to convert MarkerList ot JSONArray !");
             e.printStackTrace();

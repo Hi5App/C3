@@ -8,6 +8,9 @@ import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
+import com.penglab.hi5.basic.image.ImageMarkerExt;
+
+import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.Vector;
@@ -48,6 +51,8 @@ public class AnnotationDataManager {
 
     public void init(){
         curUndo = 0;
+        undoCurveList.clear();
+        undoMarkerList.clear();
         undoCurveList.add(new V_NeuronSWC_list());
         undoMarkerList.add(new MarkerList());
 
@@ -55,6 +60,7 @@ public class AnnotationDataManager {
         syncSwcList.clear();
         markerList.clear();
         syncMarkerList.clear();
+
     }
 
     public boolean loadMarkerList(MarkerList newMarkerList) {
@@ -165,6 +171,17 @@ public class AnnotationDataManager {
         return b;
     }
 
+    public boolean undo() throws CloneNotSupportedException {
+        if (curUndo == 0){
+            return false;
+        }
+
+        markerList = undoMarkerList.get(curUndo - 1).clone();
+        curSwcList = undoCurveList.get(curUndo - 1).clone();
+        curUndo -= 1;
+        return true;
+    }
+
     public V_NeuronSWC_list saveUndo() throws CloneNotSupportedException {
 
         MarkerList tempMarkerList = markerList.clone();
@@ -187,17 +204,6 @@ public class AnnotationDataManager {
         return tempCurveList;
     }
 
-    public boolean undo() throws CloneNotSupportedException {
-        if (curUndo == 0){
-            return false;
-        }
-
-        markerList = undoMarkerList.get(curUndo - 1).clone();
-        curSwcList = undoCurveList.get(curUndo - 1).clone();
-        curUndo -= 1;
-        return true;
-    }
-
     public boolean redo() throws CloneNotSupportedException {
         if (curUndo >= undoMarkerList.size() - 1)
             return false;
@@ -207,6 +213,50 @@ public class AnnotationDataManager {
         curUndo += 1;
 
         return true;
+    }
+
+    /**
+     * MarkerFactory part
+     */
+    public MarkerList getMarkerListToAdd() {
+        MarkerList startStatus = undoMarkerList.get(0);
+        MarkerList endStatus = undoMarkerList.get(undoMarkerList.size()-1);
+        MarkerList markerListToAdd = new MarkerList();
+        for (int i=0; i<endStatus.size(); i++){
+            ImageMarker marker = endStatus.get(i);
+            if (!startStatus.getMarkers().contains(marker)){
+                markerListToAdd.add(marker);
+            }
+        }
+        return markerListToAdd;
+    }
+
+    public JSONArray getMarkerListToDelete() {
+        MarkerList startStatus = undoMarkerList.get(0);
+        MarkerList endStatus = undoMarkerList.get(undoMarkerList.size()-1);
+        JSONArray markerListToDelete = new JSONArray();
+        for (int i=0; i<startStatus.size(); i++){
+            ImageMarkerExt marker = (ImageMarkerExt) startStatus.get(i);
+            if (!endStatus.getMarkers().contains(marker)){
+                markerListToDelete.put(marker.getName());
+            }
+        }
+        return markerListToDelete;
+    }
+
+    public void syncMarkerList(MarkerList newMarkerList){
+        try {
+            markerList.add(newMarkerList.getMarkers());
+            undoMarkerList.remove(0);
+            saveUndo4Sync();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void saveUndo4Sync() throws CloneNotSupportedException {
+        MarkerList tempMarkerList = markerList.clone();
+        undoMarkerList.add(tempMarkerList);
     }
 
     /**
@@ -376,6 +426,5 @@ public class AnnotationDataManager {
         }
         return (float) Math.sqrt(sum);
     }
-
 
 }

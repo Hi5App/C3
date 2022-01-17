@@ -12,7 +12,7 @@ import okhttp3.RequestBody;
 public class HttpUtilsSoma extends HttpUtils {
     private static final String URL_GET_POTENTIAL_LOCATION = SERVER_IP + "/dynamic/soma/getpotentiallocation";
     private static final String URL_GET_SOMA_LIST = SERVER_IP + "/dynamic/soma/getsomalist";
-    private static final String URL_INSERT_SOMA_LIST = SERVER_IP + "/dynamic/soma/insertsomalist";
+    private static final String URL_INSERT_SOMA_LIST = SERVER_IP + "/dynamic/soma/updatesomalist";
 
     public static void getPotentialLocationWithOkHttp(JSONObject userInfo, Callback callback) {
         try {
@@ -37,12 +37,13 @@ public class HttpUtilsSoma extends HttpUtils {
         }
     }
 
-    public static void insertSomaListWithOkHttp(JSONObject userInfo, int locationId, JSONArray somaList, String username, String image, Callback callback) {
+    public static void updateSomaListWithOkHttp(JSONObject userInfo, int locationId, JSONArray insertSomaList, JSONArray deleteSomaList, String username, String image, Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("user", userInfo)
                     .put("locationId", locationId)
-                    .put("somalist", somaList)
+                    .put("insertsomalist", insertSomaList)
+                    .put("deletesomalist", deleteSomaList)
                     .put("owner", username)
                     .put("image", image)));
             asyncRequest(URL_INSERT_SOMA_LIST, body, callback);

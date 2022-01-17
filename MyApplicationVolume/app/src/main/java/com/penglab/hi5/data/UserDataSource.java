@@ -70,10 +70,10 @@ public class UserDataSource {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     int responseCode = response.code();
-                    responseData = response.body().string();
-                    Log.e(TAG, "responseData: " + responseData);
-
                     if (responseCode == 200) {
+                        responseData = response.body().string();
+                        Log.e(TAG, "responseData: " + responseData);
+
                         try {
                             JSONObject userInfo = new JSONObject(responseData);
                             LoggedInUser loggedInUser = new LoggedInUser(
@@ -82,6 +82,9 @@ public class UserDataSource {
                                     userInfo.getString("email"));
                             result.postValue(new Result.Success<LoggedInUser>(loggedInUser));
                             storeUserCache(username, password);
+
+                            response.body().close();
+                            response.close();
                         } catch (JSONException e) {
                             e.printStackTrace();
                             result.postValue(new Result.Error(new Exception("Fail to parse user info !")));
@@ -113,6 +116,9 @@ public class UserDataSource {
                     if (responseCode == 200) {
                         RegisterUser registerUser = new RegisterUser(username, nickname);
                         result.postValue(new Result.Success<RegisterUser>(registerUser));
+
+                        response.body().close();
+                        response.close();
                     } else {
                         result.postValue(new Result.Error(new IOException(responseData)));
                     }

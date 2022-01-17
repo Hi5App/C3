@@ -3,7 +3,6 @@ package com.penglab.hi5.core.render.view;
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -15,10 +14,7 @@ import androidx.annotation.RequiresApi;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.basic.image.MarkerList;
-import com.penglab.hi5.core.MyRenderer;
 import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
-import com.penglab.hi5.core.render.AnnotationRender;
-import com.penglab.hi5.core.render.BasicRender;
 import com.penglab.hi5.core.render.CheckRender;
 import com.penglab.hi5.core.render.utils.AnnotationDataManager;
 import com.penglab.hi5.core.render.utils.AnnotationHelper;
@@ -33,7 +29,7 @@ import com.penglab.hi5.data.model.img.FileType;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class CheckGLSurfaceView extends BasicGLSurfaceView{
+public class CheckGLSurfaceView extends BasicGLSurfaceView {
 
     private final String TAG = "CheckGLSurfaceView";
     private final int DOUBLE_TAP_TIMEOUT = 200;
@@ -73,7 +69,7 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView{
         // 调用 onPause 的时候保存EGLContext
         setPreserveEGLContextOnPause(true);
 
-        // 当发生交互时重新执行渲染， 需要配合requestRender();
+        // 当发生交互时重新执行渲染， 需要配合requestRender()
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
     }
