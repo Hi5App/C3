@@ -46,6 +46,7 @@ import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.dataStore.PreferenceMusic;
 import com.penglab.hi5.data.dataStore.PreferenceSetting;
 import com.penglab.hi5.data.dataStore.PreferenceSoma;
+
 import com.penglab.hi5.data.model.img.FilePath;
 import com.warkiz.widget.IndicatorSeekBar;
 import com.warkiz.widget.OnSeekChangeListener;
@@ -77,6 +78,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         put(EditMode.ZOOM, R.drawable.ic_zoom);
         put(EditMode.ZOOM_IN_ROI, R.drawable.ic_roi);
     }};
+    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
     private final PreferenceSoma preferenceSoma = PreferenceSoma.getInstance();
 
     private AnnotationGLSurfaceView annotationGLSurfaceView;
@@ -111,6 +113,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                     return;
                 }
                 updateUI(annotationMode);
+
                 updateOptionsMenu(annotationMode);
             }
         });
@@ -249,6 +252,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         }
     }
 
+
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -284,12 +288,16 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
             case R.id.share:
                 annotationGLSurfaceView.screenCapture();
+
                 playButtonSound();
+
                 return true;
 
             case R.id.more:
                 moreFunctions();
+
                 playButtonSound();
+
                 return true;
 
             default:
@@ -344,17 +352,21 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                     public void operate(View contentView) {
                         PreferenceSetting preferenceSetting = PreferenceSetting.getInstance();
                         PreferenceMusic preferenceMusic = PreferenceMusic.getInstance();
+
                         PreferenceSoma preferenceSoma = PreferenceSoma.getInstance();
 
                         SwitchCompat downSampleSwitch = contentView.findViewById(R.id.downSample_mode);
                         SwitchCompat autoUploadSwitch = contentView.findViewById(R.id.autoUpload_mode);
+
                         IndicatorSeekBar contrastIndicator = contentView.findViewById(R.id.contrast_indicator_seekbar);
                         SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
                         SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
                         SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
 
                         downSampleSwitch.setChecked(preferenceSetting.getDownSampleMode());
+
                         autoUploadSwitch.setChecked(preferenceSoma.getAutoUploadMode());
+
                         contrastIndicator.setProgress(preferenceSetting.getContrast());
                         bgmVolumeBar.setProgress(preferenceMusic.getBackgroundSound());
                         buttonVolumeBar.setProgress(preferenceMusic.getButtonSound());
@@ -366,6 +378,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                                 preferenceSoma.setAutoUploadMode(isChecked);
                             }
                         });
+
 
                         downSampleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                             @Override
@@ -461,7 +474,9 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             editModeIndicator = findViewById(R.id.edit_mode_indicator);
             addMarker = findViewById(R.id.add_marker);
             deleteMarker = findViewById(R.id.delete_marker);
+
             ImageButton previousFile = findViewById(R.id.previous_file);
+
             ImageButton nextFile = findViewById(R.id.next_file);
 
             addMarker.setOnClickListener(this::onButtonClick);
@@ -477,6 +492,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     @SuppressLint("NonConstantResourceId")
     private void onButtonClick(View view){
         // reset UI
+
         addMarker.setImageResource(R.drawable.ic_add_marker);
         deleteMarker.setImageResource(R.drawable.ic_marker_delete);
         playButtonSound();
@@ -485,6 +501,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             case R.id.add_marker:
                 if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)){
                     addMarker.setImageResource(R.drawable.ic_marker_main);
+
                 }
                 break;
 

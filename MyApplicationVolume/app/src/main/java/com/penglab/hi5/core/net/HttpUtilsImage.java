@@ -97,4 +97,21 @@ public class HttpUtilsImage extends HttpUtils {
             e.printStackTrace();
         }
     }
+
+    public static void downloadSomaBlockWithOkHttp(String username, String password, String swc, int res, int x, int y, int z, int len, Callback callback) {
+        try {
+            RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
+                    .put("name", username)
+                    .put("password", password)
+                    .put("swc", swc)
+                    .put("x", x)
+                    .put("y", y)
+                    .put("z", z)
+                    .put("len", len)
+                    .put("res", res)));
+            asyncRequest(URL_GET_BBSWC, body, callback);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

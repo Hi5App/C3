@@ -63,6 +63,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
              {false,false,false,false,false,false,false},
              {true,true,true,false,false,false,false}};
 
+
     private final SwitchMutableLiveData<EditMode> editMode = new SwitchMutableLiveData<>(EditMode.NONE);
 
     private final RenderOptions renderOptions = new RenderOptions();
@@ -531,7 +532,6 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         if (annotationDataManager.getNeuronTree() != null && image4DSimple != null){
             NeuronTree neuronTree = annotationDataManager.getNeuronTree();
             PixelClassification pixelClassification = new PixelClassification();
-
             pixelClassification.setSelections(selections);
 
             try {

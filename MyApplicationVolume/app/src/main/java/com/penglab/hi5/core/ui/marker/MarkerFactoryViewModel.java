@@ -1,14 +1,17 @@
 package com.penglab.hi5.core.ui.marker;
 
+
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import static com.penglab.hi5.data.MarkerFactoryDataSource.NO_MORE_FILE;
 import static com.penglab.hi5.data.MarkerFactoryDataSource.UPLOAD_SUCCESSFULLY;
 
 import android.util.Log;
 
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+
 
 import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.image.XYZ;
@@ -36,13 +39,16 @@ import java.util.List;
  * Created by Jackiexing on 01/10/21
  */
 public class MarkerFactoryViewModel extends ViewModel {
+
     private final String TAG = "MarkerFactoryViewModel";
     private final int DEFAULT_IMAGE_SIZE = 128;
     private final int DEFAULT_RES_INDEX = 2;
 
+
     public enum AnnotationMode{
        BIG_DATA, NO_MORE_FILE, NONE
     }
+
 
     public enum WorkStatus{
         GET_POTENTIAL_LOCATION, NONE
@@ -73,11 +79,13 @@ public class MarkerFactoryViewModel extends ViewModel {
         this.loggedInUser = userInfoRepository.getUser();
         coordinateConvert.setResIndex(DEFAULT_RES_INDEX);
         coordinateConvert.setImgSize(DEFAULT_IMAGE_SIZE);
+
     }
 
     public LiveData<AnnotationMode> getAnnotationMode(){
         return annotationMode;
     }
+
 
     public LiveData<WorkStatus> getWorkStatus() {
         return workStatus;
@@ -249,4 +257,5 @@ public class MarkerFactoryViewModel extends ViewModel {
             e.printStackTrace();
         }
     }
+
 }
