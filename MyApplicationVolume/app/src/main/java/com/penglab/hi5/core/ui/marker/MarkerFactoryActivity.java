@@ -77,7 +77,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         put(EditMode.ZOOM, R.drawable.ic_zoom);
         put(EditMode.ZOOM_IN_ROI, R.drawable.ic_roi);
     }};
-    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
     private final PreferenceSoma preferenceSoma = PreferenceSoma.getInstance();
 
     private AnnotationGLSurfaceView annotationGLSurfaceView;
@@ -219,7 +218,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     }
 
     private void startMusicService() {
-        Log.e(TAG, "init MusicService");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(new Intent(this, MusicService.class));
         } else {
@@ -269,7 +267,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 return true;
 
             case R.id.confirm:
-                // TODO: confirm
                 markerFactoryViewModel.updateSomaList(annotationGLSurfaceView.getMarkerListToAdd(),
                         annotationGLSurfaceView.getMarkerListToDelete());
                 playButtonSound();

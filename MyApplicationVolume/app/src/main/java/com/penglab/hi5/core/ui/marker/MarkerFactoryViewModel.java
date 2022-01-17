@@ -38,6 +38,7 @@ import java.util.List;
 public class MarkerFactoryViewModel extends ViewModel {
     private final String TAG = "MarkerFactoryViewModel";
     private final int DEFAULT_IMAGE_SIZE = 128;
+    private final int DEFAULT_RES_INDEX = 2;
 
     public enum AnnotationMode{
        BIG_DATA, NO_MORE_FILE, NONE
@@ -58,9 +59,9 @@ public class MarkerFactoryViewModel extends ViewModel {
     private final ImageDataSource imageDataSource;
 
     private final LoggedInUser loggedInUser;
+    private final CoordinateConvert coordinateConvert = new CoordinateConvert();
     private final HashMap<String, String> resMap = new HashMap<>();
     private final List<PotentialSomaInfo> potentialSomaInfoList = new ArrayList<>();
-    private final CoordinateConvert coordinateConvert = new CoordinateConvert();
     private PotentialSomaInfo curPotentialSomaInfo;
     private int curIndex = -1;
 
@@ -70,7 +71,7 @@ public class MarkerFactoryViewModel extends ViewModel {
         this.markerFactoryDataSource = markerFactoryDataSource;
         this.imageDataSource = imageDataSource;
         this.loggedInUser = userInfoRepository.getUser();
-        coordinateConvert.setResIndex(2);
+        coordinateConvert.setResIndex(DEFAULT_RES_INDEX);
         coordinateConvert.setImgSize(DEFAULT_IMAGE_SIZE);
     }
 
@@ -106,12 +107,15 @@ public class MarkerFactoryViewModel extends ViewModel {
         if (result instanceof Result.Success){
             Object data = ((Result.Success<?>) result).getData();
             if (data instanceof JSONArray){
+                // process Brain List, store res info for each brain
                 JSONArray jsonArray = (JSONArray) data;
                 for (int i = 0; i < jsonArray.length(); i++) {
                     try {
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
                         String imageId = jsonObject.getString("name");
                         String detail = jsonObject.getString("detail");
+
+                        // parse brain info
                         detail = detail.substring(1, detail.length() - 1);
                         String [] rois = detail.split(", ");
                         for (int j = 0; j < rois.length; j++) {
@@ -126,6 +130,7 @@ public class MarkerFactoryViewModel extends ViewModel {
                 }
                 downloadImage();
             } else if (data instanceof String){
+                // process image file after download
                 String fileName = FileManager.getFileName((String) data);
                 FileType fileType = FileManager.getFileType((String) data);
                 imageInfoRepository.getBasicImage().setFileInfo(fileName, new FilePath<String >((String) data), fileType);
@@ -219,7 +224,7 @@ public class MarkerFactoryViewModel extends ViewModel {
             ToastEasy("Fail to download image, something wrong with res list !");
             return;
         }
-        imageDataSource.downloadImage(curPotentialSomaInfo.getBrainId(), res, (int) loc.x , (int) loc.y, (int) loc.z, 128);
+        imageDataSource.downloadImage(curPotentialSomaInfo.getBrainId(), res, (int) loc.x , (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE);
     }
 
     public void getSomaList() {

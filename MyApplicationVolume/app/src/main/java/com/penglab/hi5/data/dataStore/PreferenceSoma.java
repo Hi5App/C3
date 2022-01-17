@@ -36,11 +36,23 @@ public class PreferenceSoma {
     public void setAutoUploadMode(boolean autoUploadMode){
         SharedPreferences.Editor editor = pref.edit();
         editor.putBoolean("AutoUploadMode", autoUploadMode);
+        editor.putInt("ImageSize", getImageSize());
+        editor.apply();
+    }
+
+    public void setImageSize(int imageSize){
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putInt("ImageSize", imageSize);
+        editor.putBoolean("AutoUploadMode", getAutoUploadMode());
         editor.apply();
     }
 
     public boolean getAutoUploadMode(){
-        return pref.getBoolean("AutoUploadMode",true);
+        return pref.getBoolean("AutoUploadMode",false);
+    }
+
+    public int getImageSize(){
+        return pref.getInt("ImageSize",128);
     }
 
 }

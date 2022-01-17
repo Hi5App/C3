@@ -2,10 +2,10 @@ package com.penglab.hi5.core.ui.marker;
 
 import com.penglab.hi5.basic.image.XYZ;
 
-import java.text.DecimalFormat;
-
 /**
  * Created by Jackiexing on 01/13/21
+ *
+ * Util Class to process coordinate conversion when communicate with Server
  */
 public class CoordinateConvert {
     private final String TAG = "CoordinateConvert";
@@ -74,8 +74,8 @@ public class CoordinateConvert {
         centerLocation.y = (int) (centerLoc.y / Math.pow(2, resIndex-1));
         centerLocation.z = (int) (centerLoc.z / Math.pow(2, resIndex-1));
 
-        startLocation.x = centerLocation.x - imgSize/2;
-        startLocation.y = centerLocation.y - imgSize/2;
-        startLocation.z = centerLocation.z - imgSize/2;
+        startLocation.x = centerLocation.x - imgSize / 2;
+        startLocation.y = centerLocation.y - imgSize / 2;
+        startLocation.z = centerLocation.z - imgSize / 2;
     }
 }

@@ -51,7 +51,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by Jackiexing on 12/20/21
  */
-public class AnnotationGLSurfaceView extends BasicGLSurfaceView{
+public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
 
     private final String TAG = "AnnotationGLSurfaceView";
     private final int DEFAULT_SIZE = 128;

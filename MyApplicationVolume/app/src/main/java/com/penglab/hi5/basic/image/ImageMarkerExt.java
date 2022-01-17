@@ -1,10 +1,12 @@
-package com.penglab.hi5.core.ui.marker;
+package com.penglab.hi5.basic.image;
 
 import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.image.XYZ;
 
 /**
  * Created by Jackiexing on 01/15/21
+ *
+ * Add parameter name to support MarkerFactory Mode
  */
 public class ImageMarkerExt extends ImageMarker {
     private final String name;
