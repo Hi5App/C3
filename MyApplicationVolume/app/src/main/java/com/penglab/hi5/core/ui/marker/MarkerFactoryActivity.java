@@ -102,6 +102,14 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_marker_factory);
         annotationGLSurfaceView = findViewById(R.id.gl_surface_view_marker_factory);
+        annotationGLSurfaceView.setOnScoreWinWithTouchEventListener(new AnnotationGLSurfaceView.OnScoreWinWithTouchEventListener() {
+            @Override
+            public void run() {
+                if (annotationGLSurfaceView.getEditMode().getValue() == EditMode.PINPOINT) {
+                    markerFactoryViewModel.winScoreByPinPoint();
+                }
+            }
+        });
         toolbar = (Toolbar) findViewById(R.id.toolbar_marker_factory);
         setSupportActionBar(toolbar);
 

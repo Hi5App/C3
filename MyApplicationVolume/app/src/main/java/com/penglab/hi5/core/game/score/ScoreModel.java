@@ -189,16 +189,18 @@ public class ScoreModel {
     public void finishAnImage(){
         addScore(ScoreRule.getScorePerImage());
 
-        if (editImageNumToday == 0) {
-//            dailyQuestFinished(1);
-        }
-
         editImageNum += 1;
         editImageNumToday += 1;
+
+        User user = new User();
+        user.setScore(score.getValue());
+        user.setEditImageNum(editImageNum);
+        user.setEditImageNumToday(editImageNumToday);
+        user.updateAll("userid = ?", id);
     }
 
     public void addScore(int s){
-        score.postValue(score.getValue() + s);
+        score.setValue(score.getValue() + s);
 
         User user = new User();
         user.setScore(score.getValue());

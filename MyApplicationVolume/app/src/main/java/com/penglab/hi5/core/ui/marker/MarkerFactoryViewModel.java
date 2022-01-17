@@ -168,9 +168,7 @@ public class MarkerFactoryViewModel extends ViewModel {
                 } else {
                     downloadImage();
                 }
-                // TODO: open image
             } else if (data instanceof MarkerList) {
-                // TODO: import somaList
                 syncMarkerList.setValue(MarkerList.covertGlobalToLocal((MarkerList) data, coordinateConvert));
                 annotationMode.setValue(AnnotationMode.BIG_DATA);
             } else if (data instanceof String){
@@ -257,6 +255,9 @@ public class MarkerFactoryViewModel extends ViewModel {
             String username = loggedInUser.getUserId();
             markerFactoryDataSource.updateSomaList(brainId, locationId, username,
                     MarkerList.toJSONArray(MarkerList.covertLocalToGlobal(markerListToAdd, coordinateConvert)), markerListToDelete);
+            if (curIndex == potentialSomaInfoList.size() - 1) {
+                winScoreByFinishConfirmAnImage();
+            }
         } catch (JSONException e) {
             ToastEasy("Fail to convert MarkerList ot JSONArray !");
             e.printStackTrace();
