@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.penglab.hi5.R;
+import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.utils.FileHelper;
 import com.penglab.hi5.chat.ChatActivity;
 import com.penglab.hi5.core.HelpActivity;
@@ -27,7 +28,6 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-
 /**
  * Modified by Jackiexing on 11/22/21.
  */
@@ -47,6 +47,8 @@ public class Utils {
                 Context context = v.getContext();
                 switch (libraryObject.getTitle()){
                     case "Marker Factory":
+                        MarkerList markerList = null;
+                        markerList.size();
                         MarkerFactoryActivity.start(context);
                         break;
                     case "Annotation":

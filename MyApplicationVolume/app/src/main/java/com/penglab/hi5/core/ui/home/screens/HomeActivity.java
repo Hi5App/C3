@@ -386,17 +386,17 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                             public void onSelect(int position, String text) {
                                 if (!crashReports.isEmpty) {
                                     // get the file path
-                                    String filePath = CrashHandler.getCrashFilePath(getApplicationContext()) + "/" + text + ".txt";
-                                    File file = new File(filePath);
-                                    if (file.exists()) {
+                                    String filePath = CrashHandler.getCrashFilePath(getContext()) + "/" + text + ".txt";
+                                    File requestFile = new File(filePath);
+                                    if (requestFile.exists()) {
                                         Intent intent = new Intent();
                                         intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                                         intent.setAction(Intent.ACTION_SEND);
-                                        intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(getContext(), "com.penglab.hi5.provider", new File(filePath)));  //传输图片或者文件 采用流的方式
+                                        intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(HomeActivity.this, "com.penglab.hi5.provider", requestFile));
                                         intent.setType("*/*");   //分享文件
                                         startActivity(Intent.createChooser(intent, "Share From Hi5"));
                                     } else {
-                                        ToastEasy("File does not exist");
+                                        ToastEasy("File does not exist !");
                                     }
                                 }
                             }
