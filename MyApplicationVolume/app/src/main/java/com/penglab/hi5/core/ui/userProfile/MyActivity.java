@@ -89,9 +89,6 @@ public class MyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
 
-//        appbar = (AppBarLayout)findViewById(R.id.appbar);
-//        appbar.addOnOffsetChangedListener(this::onOffsetChanged);
-
 
         toolbar_my = findViewById(R.id.toolbar_my);
 
@@ -168,36 +165,6 @@ public class MyActivity extends AppCompatActivity {
         });
 
     }
-
-
-//    public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-//        Log.d("aaa", "verticalOffset=" + verticalOffset);
-//        //720*1080手机 verticalOffset取值范围[0-200]px
-//        int absVerticalOffset = Math.abs(verticalOffset);//AppBarLayout竖直方向偏移距离px
-//        int totalScrollRange = appBarLayout.getTotalScrollRange();//AppBarLayout总的距离px
-//        //背景颜色转化成RGB的渐变色
-//        int argb = Color.argb(absVerticalOffset, Color.red(mMaskColor), Color.green(mMaskColor), Color.blue(mMaskColor));
-//        int argbDouble = Color.argb(absVerticalOffset * 2, Color.red(mMaskColor), Color.green(mMaskColor), Color.blue(mMaskColor));
-//        //appBarLayout上滑一半距离后小图标应该由渐变到全透明
-//        int title_small_offset = (200 - absVerticalOffset) < 0 ? 0 : 200 - absVerticalOffset;
-//        int title_small_argb = Color.argb(title_small_offset * 2, Color.red(mMaskColor),
-//                Color.green(mMaskColor), Color.blue(mMaskColor));
-//        //appBarLayout上滑不到一半距离
-//        if (absVerticalOffset <= totalScrollRange / 2) {
-//            toolbar_my.setVisibility(View.VISIBLE);
-//            layout_personal_top_view.setVisibility(View.GONE);
-//            //为了和下面的大图标渐变区分,乘以2倍渐变
-////            v_toolbar_search_mask.setBackgroundColor(argbDouble);
-//        } else {
-//            toolbar_my.setVisibility(View.GONE);
-//            layout_personal_top_view.setVisibility(View.VISIBLE);
-//            //appBarLayout上滑一半距离后小图标应该由渐变到全透明
-////            v_toolbar_small_mask.setBackgroundColor(title_small_argb);
-//
-//        }
-////        //上滑时遮罩由全透明到半透明
-////        v_title_big_mask.setBackgroundColor(argb);
-//    }
 
 
 
