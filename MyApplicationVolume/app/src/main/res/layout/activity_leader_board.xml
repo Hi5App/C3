@@ -16,14 +16,26 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_marginTop="80dp">
+        android:layout_marginTop="50dp">
 
-        <TextView
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="LEADERBOARD"
-            android:textSize="24dp"
-            android:gravity="center"/>
+            app:tabIndicatorColor="@color/black"
+            tools:ignore="MissingConstraints">
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Today"
+
+                />
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Universal"
+                />
+        </com.google.android.material.tabs.TabLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/leaderboard_recyclerview"
