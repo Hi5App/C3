@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.material.tabs.TabLayout;
 import com.penglab.hi5.R;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 
@@ -21,6 +22,11 @@ public class LeaderBoardActivity extends AppCompatActivity {
     private LeaderBoardAdapter adapter;
 
     private LeaderBoardViewModel leaderBoardViewModel;
+
+    private TabLayout tabLayout;
+
+    private String [] titles = {"today","universal"};
+    private int images[] = {};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +44,12 @@ public class LeaderBoardActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         adapter = new LeaderBoardAdapter(leaderBoardViewModel.getLeaderBoardItemList());
         recyclerView.setAdapter(adapter);
+
+
+
+
+
+
     }
 
     @Override

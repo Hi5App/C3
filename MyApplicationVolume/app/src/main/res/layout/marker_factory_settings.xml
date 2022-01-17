@@ -41,8 +41,7 @@
 
         </RelativeLayout>
 
-<<<<<<< HEAD
-=======
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -71,7 +70,7 @@
                 android:background="#33333333" />
 
         </RelativeLayout>
->>>>>>> cf66337540c450dea1537ddad7dcbf20064aadc9
+
 
         <LinearLayout
             android:layout_width="match_parent"

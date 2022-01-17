@@ -39,7 +39,7 @@ public class AnnotationHelper {
     private final AnnotationDataManager annotationDataManager;
     private final MatrixManager matrixManager;
 
-    private int lastMarkerType = 3;
+    private int lastMarkerType = 2;
     private int lastCurveType = 3;
 
     private float[] normalizedSize = new float[3];
