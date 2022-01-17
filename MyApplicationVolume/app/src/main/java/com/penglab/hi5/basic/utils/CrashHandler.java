@@ -59,16 +59,16 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
      */
     private static final String CRASH_REPORTER_EXTENSION = ".txt";
 
+    private final MyActivityLifeCycleCallbacks mMyActivityLifeCycleCallbacks = new MyActivityLifeCycleCallbacks();
+
+    private final Map<String, String> infos = new HashMap();
+
     /**
      * CrashHandler实例
      */
     private static CrashHandler INSTANCE;
 
     private Application mApplication;
-
-    private MyActivityLifeCycleCallbacks mMyActivityLifeCycleCallbacks = new MyActivityLifeCycleCallbacks();
-
-    private Map<String, String> infos = new HashMap();
 
     /**
      * 保证只有一个CrashHandler实例
@@ -105,9 +105,9 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         Thread.setDefaultUncaughtExceptionHandler(this);
     }
 
-    public class ThreadCollector{
+    public class ThreadCollector {
         @NonNull
-        public String collect(@Nullable Thread thread){
+        public String collect(@Nullable Thread thread) {
             StringBuilder result = new StringBuilder();
             if(thread != null){
                 result.append("id=").append(thread.getId()).append("\n");
@@ -122,14 +122,11 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
 
     }
 
-
-    final class DumpSysCollector
-    {
+    final class DumpSysCollector {
         private static final String LOG_TAG = "DumpSysCollector";
         private static final int DEFAULT_BUFFER_SIZE_IN_BYTES = 8192;
         @NonNull
-        public String collectMemInfo()
-        {
+        public String collectMemInfo() {
             final StringBuilder meminfo = new StringBuilder();
             BufferedReader bufferedReader = null;
             try{
@@ -256,7 +253,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
             crashReportList.reportNames = fileNames;
         }else {
             crashReportList.isEmpty = true;
-            crashReportList.reportNames = new String[]{"There is no crash report!"};
+            crashReportList.reportNames = new String[] {"There is no crash report!"};
         }
         return crashReportList;
     }
@@ -312,18 +309,15 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
     public static String getCrashFilePath(Context context) {
         String path = null;
         try {
-            if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+            if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
                 path = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name) + "/Crash/";
                 File file = new File(path);
                 if (!file.exists()) {
-                    if (!file.mkdirs()){
+                    if (!file.mkdirs()) {
                         Toast.makeText(context,"Fail to create the folder !",Toast.LENGTH_SHORT).show();
                     }
                 }
-
-
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -7,4 +7,7 @@
     <external-path
         path="Pictures"
         name="my_images" />
+    <external-path
+        path="Hi 5/Crash"
+        name="crash_reports" />
 </paths>

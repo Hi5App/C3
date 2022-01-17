@@ -21,9 +21,9 @@ public class MyActivityLifeCycleCallbacks implements Application.ActivityLifecyc
 
     private final String TAG = "MyActivityLifeCycle";
     private final String MY_PKG_NAME = "com.penglab.hi5";
-    private int activityCount = 0;
     private List<Activity> activities = new LinkedList<>();
     public static int sAnimationId = 0;
+    private int activityCount = 0;
 
     @Override
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
@@ -38,12 +38,10 @@ public class MyActivityLifeCycleCallbacks implements Application.ActivityLifecyc
 
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
-
     }
 
     @Override
     public void onActivityPaused(@NonNull Activity activity) {
-
     }
 
     @Override
@@ -53,7 +51,6 @@ public class MyActivityLifeCycleCallbacks implements Application.ActivityLifecyc
 
     @Override
     public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle bundle) {
-
     }
 
     @Override
