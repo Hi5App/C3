@@ -41,14 +41,14 @@
             android:id="@+id/quest_receive_button"
             android:layout_width="80dp"
             android:layout_height="40dp"
+            android:textSize="8dp"
             android:enabled="@{quest.status == quest.Status.Pending?true:false}"
-            android:text="Receive"
+            android:text="@{quest.status == quest.Status.Finished?quest.FINISHED_BUTTON_TEXT:quest.NOT_FINISHED_BUTTON_TEXT}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/quest_content_text"
             app:layout_constraintTop_toTopOf="parent"
-            android:onClick="@{() -> questViewModel.questFinished(quest)}"
-             />
+            android:onClick="@{() -> questViewModel.questFinished(quest)}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

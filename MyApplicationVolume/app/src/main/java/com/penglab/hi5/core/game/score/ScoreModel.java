@@ -25,8 +25,6 @@ public class ScoreModel {
     private int editImageNum;
     private int editImageNumToday;
 
-    private int [] achievementsScore = { -1, 100, 100, 100, 100, 500, 300 };
-
     private DailyQuestsModel dailyQuestsModel;
 
     public ScoreModel() {
@@ -163,7 +161,7 @@ public class ScoreModel {
     public void drawACurve(){
         curveNum += 1;
         curveNumToday += 1;
-        addScore(2);
+        addScore(ScoreRule.getScorePerCurve());
 
         dailyQuestsModel.updateCurveNum(curveNumToday);
 
@@ -177,7 +175,7 @@ public class ScoreModel {
     public void pinpoint(){
         markerNum += 1;
         markerNumToday += 1;
-        addScore(1);
+        addScore(ScoreRule.getScorePerPinPoint());
 
         dailyQuestsModel.updateMarkerNum(markerNumToday);
 
@@ -188,25 +186,15 @@ public class ScoreModel {
         user.updateAll("userid = ?", id);
     }
 
-    public void openImage(){
-        if (editImageNum == 0) {
-            achievementFinished(1);
-        }
+    public void finishAnImage(){
+        addScore(ScoreRule.getScorePerImage());
 
         if (editImageNumToday == 0) {
-            dailyQuestFinished(1);
+//            dailyQuestFinished(1);
         }
 
         editImageNum += 1;
         editImageNumToday += 1;
-    }
-
-    public void achievementFinished(int i){
-        addScore(achievementsScore[i]);
-    }
-
-    public void dailyQuestFinished(int i){
-        addScore(dailyQuestsModel.getDailyQuests().get(i).getReward());
     }
 
     public void addScore(int s){

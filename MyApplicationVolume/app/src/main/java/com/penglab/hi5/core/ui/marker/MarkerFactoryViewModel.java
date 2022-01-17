@@ -262,5 +262,13 @@ public class MarkerFactoryViewModel extends ViewModel {
             e.printStackTrace();
         }
     }
+    
+    public void winScoreByFinishConfirmAnImage() {
+        userInfoRepository.getScoreModel().finishAnImage();
+    }
+
+    public void winScoreByPinPoint() {
+        userInfoRepository.getScoreModel().pinpoint();
+    }
 
 }
