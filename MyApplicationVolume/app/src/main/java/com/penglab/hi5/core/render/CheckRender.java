@@ -1,6 +1,5 @@
 package com.penglab.hi5.core.render;
 
-import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import static com.penglab.hi5.core.Myapplication.getContext;
 import static javax.microedition.khronos.opengles.GL10.GL_ALPHA_TEST;
 import static javax.microedition.khronos.opengles.GL10.GL_BLEND;
@@ -11,19 +10,15 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.opengl.GLES30;
-import android.opengl.Matrix;
+import android.opengl.GLSurfaceView;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import com.penglab.hi5.basic.ByteTranslate;
-import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.basic.image.ImageUtil;
-import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
-import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
 import com.penglab.hi5.core.render.pattern.MyAxis;
 import com.penglab.hi5.core.render.pattern.MyDraw;
 import com.penglab.hi5.core.render.pattern.MyPattern;
@@ -31,16 +26,11 @@ import com.penglab.hi5.core.render.utils.AnnotationDataManager;
 import com.penglab.hi5.core.render.utils.MatrixManager;
 import com.penglab.hi5.core.render.utils.RenderOptions;
 import com.penglab.hi5.core.ui.check.CheckArborInfoState;
-import com.penglab.hi5.core.ui.check.FileInfoState;
 import com.penglab.hi5.data.ImageInfoRepository;
-import com.penglab.hi5.data.model.img.BasicFile;
 import com.penglab.hi5.data.model.img.FilePath;
-import com.penglab.hi5.data.model.img.FileType;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -52,7 +42,7 @@ import javax.microedition.khronos.opengles.GL10;
 /**
  * Created by Yihang zhu 12/25/21
  */
-public class CheckRender extends BasicRender {
+public class CheckRender implements GLSurfaceView.Renderer {
 
     private final String TAG = "CheckRender";
     private final CheckArborInfoState checkArborInfoState = CheckArborInfoState.getInstance();

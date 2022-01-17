@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.opengl.GLES30;
+import android.opengl.GLSurfaceView;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -45,7 +46,7 @@ import javax.microedition.khronos.opengles.GL10;
 /**
  * Created by Jackiexing on 12/20/21
  */
-public class AnnotationRender extends BasicRender{
+public class AnnotationRender implements GLSurfaceView.Renderer {
 
     private final String TAG = "AnnotationRender";
 
@@ -223,7 +224,7 @@ public class AnnotationRender extends BasicRender{
             drawNeuronSwc(annotationDataManager.getCurSwcList());
             drawNeuronSwc(annotationDataManager.getSyncSwcList());
             drawMarker(annotationDataManager.getMarkerList());
-            drawMarker(annotationDataManager.getSyncMarkerList());
+            drawMarker(annotationDataManager.getMarkerList());
         }
         if (renderOptions.isShowFingerTrajectory()){
             drawTrajectory();

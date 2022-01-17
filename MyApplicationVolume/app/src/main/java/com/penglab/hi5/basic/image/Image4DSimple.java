@@ -581,7 +581,6 @@ public class Image4DSimple {
         long length;
 
         if (filePath.getData() instanceof Uri){
-            Log.e(TAG,"filePath is Uri !");
             Uri uri = (Uri) filePath.getData();
 
             try {
@@ -589,8 +588,6 @@ public class Image4DSimple {
                         getContext().getContentResolver().openFileDescriptor(uri, "r");
                 is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
                 length = parcelFileDescriptor.getStatSize();
-
-                Log.e(TAG,"length " + length);
 
                 switch (fileType){
                     case V3DRAW:
@@ -623,7 +620,6 @@ public class Image4DSimple {
             }
 
         } else if (filePath.getData() instanceof String){
-            Log.e(TAG,"filePath is String !");
             String path = (String) filePath.getData();
 
             try {

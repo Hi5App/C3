@@ -8,7 +8,6 @@ import androidx.annotation.NonNull;
 
 import com.penglab.hi5.core.render.pattern.MyDraw;
 import com.penglab.hi5.core.ui.marker.CoordinateConvert;
-import com.penglab.hi5.core.ui.marker.ImageMarkerExt;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -104,6 +103,9 @@ public class MarkerList implements Cloneable {
         return true;
     }
 
+    /**
+     *  Support marker factory mode
+     */
     public static JSONArray toJSONArray(MarkerList markerList) throws JSONException {
         if (markerList == null){
             return null;
@@ -123,7 +125,6 @@ public class MarkerList implements Cloneable {
         return jsonArray;
     }
 
-    /* for marker factory mode */
     public static MarkerList parseFromJSONArray(JSONArray jsonArray) throws JSONException {
         if (jsonArray == null){
             return null;

@@ -2,18 +2,15 @@ package com.penglab.hi5.core.render.utils;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 
-import android.util.Log;
-
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
-import com.penglab.hi5.core.ui.marker.ImageMarkerExt;
+import com.penglab.hi5.basic.image.ImageMarkerExt;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Vector;
@@ -52,34 +49,6 @@ public class AnnotationDataManager {
         return syncSwcList;
     }
 
-    public MarkerList getMarkerListToAdd() {
-        MarkerList startStatus = undoMarkerList.get(0);
-        MarkerList endStatus = undoMarkerList.get(undoMarkerList.size()-1);
-        MarkerList markerListToAdd = new MarkerList();
-        for (int i=0; i<endStatus.size(); i++){
-            ImageMarker marker = endStatus.get(i);
-            if (!startStatus.getMarkers().contains(marker)){
-                markerListToAdd.add(marker);
-            }
-        }
-        int len = markerListToAdd.size();
-        return markerListToAdd;
-    }
-
-    public JSONArray getMarkerListToDelete() {
-        MarkerList startStatus = undoMarkerList.get(0);
-        MarkerList endStatus = undoMarkerList.get(undoMarkerList.size()-1);
-        JSONArray markerListToDelete = new JSONArray();
-        for (int i=0; i<startStatus.size(); i++){
-            ImageMarkerExt marker = (ImageMarkerExt) startStatus.get(i);
-            if (!endStatus.getMarkers().contains(marker)){
-                markerListToDelete.put(marker.getName());
-            }
-        }
-        int len = markerListToDelete.length();
-        return markerListToDelete;
-    }
-
     public void init(){
         curUndo = 0;
         undoCurveList.clear();
@@ -92,16 +61,6 @@ public class AnnotationDataManager {
         markerList.clear();
         syncMarkerList.clear();
 
-    }
-
-    public void syncMarkerList(MarkerList newMarkerList){
-        try {
-            markerList.add(newMarkerList.getMarkers());
-            undoMarkerList.remove(0);
-            saveUndo4Sync();
-        } catch (Exception e){
-            e.printStackTrace();
-        }
     }
 
     public boolean loadMarkerList(MarkerList newMarkerList) {
@@ -212,11 +171,6 @@ public class AnnotationDataManager {
         return b;
     }
 
-    public void saveUndo4Sync() throws CloneNotSupportedException {
-        MarkerList tempMarkerList = markerList.clone();
-        undoMarkerList.add(tempMarkerList);
-    }
-
     public boolean undo() throws CloneNotSupportedException {
         if (curUndo == 0){
             return false;
@@ -259,6 +213,50 @@ public class AnnotationDataManager {
         curUndo += 1;
 
         return true;
+    }
+
+    /**
+     * MarkerFactory part
+     */
+    public MarkerList getMarkerListToAdd() {
+        MarkerList startStatus = undoMarkerList.get(0);
+        MarkerList endStatus = undoMarkerList.get(undoMarkerList.size()-1);
+        MarkerList markerListToAdd = new MarkerList();
+        for (int i=0; i<endStatus.size(); i++){
+            ImageMarker marker = endStatus.get(i);
+            if (!startStatus.getMarkers().contains(marker)){
+                markerListToAdd.add(marker);
+            }
+        }
+        return markerListToAdd;
+    }
+
+    public JSONArray getMarkerListToDelete() {
+        MarkerList startStatus = undoMarkerList.get(0);
+        MarkerList endStatus = undoMarkerList.get(undoMarkerList.size()-1);
+        JSONArray markerListToDelete = new JSONArray();
+        for (int i=0; i<startStatus.size(); i++){
+            ImageMarkerExt marker = (ImageMarkerExt) startStatus.get(i);
+            if (!endStatus.getMarkers().contains(marker)){
+                markerListToDelete.put(marker.getName());
+            }
+        }
+        return markerListToDelete;
+    }
+
+    public void syncMarkerList(MarkerList newMarkerList){
+        try {
+            markerList.add(newMarkerList.getMarkers());
+            undoMarkerList.remove(0);
+            saveUndo4Sync();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void saveUndo4Sync() throws CloneNotSupportedException {
+        MarkerList tempMarkerList = markerList.clone();
+        undoMarkerList.add(tempMarkerList);
     }
 
     /**
@@ -428,6 +426,5 @@ public class AnnotationDataManager {
         }
         return (float) Math.sqrt(sum);
     }
-
 
 }
