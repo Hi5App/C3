@@ -88,26 +88,18 @@ public class MyActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
-
-
         toolbar_my = findViewById(R.id.toolbar_my);
-
-
         collapsingToolbarLayout = findViewById(R.id.mCollapsingToolbarLayout);
         layout_personal_top_view = findViewById(R.id.person_top_view);
 
         setSupportActionBar(toolbar_my);
 
         name =layout_personal_top_view.findViewById(R.id.item_name);
-
         email = layout_personal_top_view.findViewById(R.id.item_email);
-
         name.setText(UserInfoRepository.getInstance().getUser().getNickName());
 //        email.setText(UserInfoRepository.getInstance().getUser().getEmail());
 
-
         mMaskColor = getResources().getColor(R.color.blue);
-
         like = findViewById(R.id.like);
         infoEdit =findViewById(R.id.edit);
         person_chat =findViewById(R.id.person_chat);
@@ -142,7 +134,6 @@ public class MyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getBaseContext(),"Reward activity is under maintenance!",Toast.LENGTH_SHORT).show();
-
 //                Intent intent = new Intent(MyActivity.this, RewardActivity.class);
 //                startActivity(intent);
             }
@@ -165,7 +156,6 @@ public class MyActivity extends AppCompatActivity {
         });
 
     }
-
 
 
     public static void start(Context context) {
