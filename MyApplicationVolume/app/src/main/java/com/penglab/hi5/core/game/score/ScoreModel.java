@@ -1,5 +1,7 @@
 package com.penglab.hi5.core.game.score;
 
+import androidx.lifecycle.MutableLiveData;
+
 import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.game.quest.DailyQuestsModel;
 import com.penglab.hi5.core.game.quest.Quest;
@@ -13,7 +15,7 @@ import java.util.Calendar;
  */
 public class ScoreModel {
     private String id;
-    private int score;
+    private MutableLiveData<Integer> score = new MutableLiveData<>();
     private int curveNum;
     private int markerNum;
     private int lastLoginYear;
@@ -22,8 +24,6 @@ public class ScoreModel {
     private int markerNumToday;
     private int editImageNum;
     private int editImageNumToday;
-
-    private int [] achievementsScore = { -1, 100, 100, 100, 100, 500, 300 };
 
     private DailyQuestsModel dailyQuestsModel;
 
@@ -40,12 +40,16 @@ public class ScoreModel {
         dailyQuestsModel.setUserId(id);
     }
 
-    public int getScore() {
+    public MutableLiveData<Integer> getObservableScore() {
         return score;
     }
 
+    public int getScore() {
+        return score.getValue();
+    }
+
     public void setScore(int score) {
-        this.score = score;
+        this.score.postValue(score);
     }
 
     public int getCurveNum() {
@@ -144,11 +148,11 @@ public class ScoreModel {
 
     public boolean serverUpdateScore(int serverScore){
         ScoreLitePalConnector scoreLitePalConnector = new ScoreLitePalConnector(id);
-        if (score < serverScore){
-            score = serverScore;
+        if (score.getValue() < serverScore){
+            score.postValue(serverScore);
             scoreLitePalConnector.updateScore(serverScore);
             return true;
-        } else if (score >= serverScore){
+        } else if (score.getValue() >= serverScore){
             return false;
         }
         return true;
@@ -157,12 +161,12 @@ public class ScoreModel {
     public void drawACurve(){
         curveNum += 1;
         curveNumToday += 1;
-        addScore(2);
+        addScore(ScoreRule.getScorePerCurve());
 
         dailyQuestsModel.updateCurveNum(curveNumToday);
 
         User user = new User();
-        user.setScore(score);
+        user.setScore(score.getValue());
         user.setCurveNum(curveNum);
         user.setCurveNumToday(curveNumToday);
         user.updateAll("userid = ?", id);
@@ -171,43 +175,35 @@ public class ScoreModel {
     public void pinpoint(){
         markerNum += 1;
         markerNumToday += 1;
-        addScore(1);
+        addScore(ScoreRule.getScorePerPinPoint());
 
         dailyQuestsModel.updateMarkerNum(markerNumToday);
 
         User user = new User();
-        user.setScore(score);
+        user.setScore(score.getValue());
         user.setMarkerNum(markerNum);
         user.setMarkerNumToday(markerNumToday);
         user.updateAll("userid = ?", id);
     }
 
-    public void openImage(){
-        if (editImageNum == 0) {
-            achievementFinished(1);
-        }
-
-        if (editImageNumToday == 0) {
-            dailyQuestFinished(1);
-        }
+    public void finishAnImage(){
+        addScore(ScoreRule.getScorePerImage());
 
         editImageNum += 1;
         editImageNumToday += 1;
-    }
 
-    public void achievementFinished(int i){
-        addScore(achievementsScore[i]);
-    }
-
-    public void dailyQuestFinished(int i){
-        addScore(dailyQuestsModel.getDailyQuests().get(i).getReward());
+        User user = new User();
+        user.setScore(score.getValue());
+        user.setEditImageNum(editImageNum);
+        user.setEditImageNumToday(editImageNumToday);
+        user.updateAll("userid = ?", id);
     }
 
     public void addScore(int s){
-        score += s;
+        score.setValue(score.getValue() + s);
 
         User user = new User();
-        user.setScore(score);
+        user.setScore(score.getValue());
         user.updateAll("userid = ?", id);
     }
 

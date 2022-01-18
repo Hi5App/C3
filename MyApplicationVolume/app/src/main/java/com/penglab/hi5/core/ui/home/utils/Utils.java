@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.penglab.hi5.R;
+import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.utils.FileHelper;
 import com.penglab.hi5.chat.ChatActivity;
 import com.penglab.hi5.core.HelpActivity;
@@ -26,7 +27,6 @@ import java.io.IOException;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
-
 
 /**
  * Modified by Jackiexing on 11/22/21.

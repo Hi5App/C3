@@ -17,7 +17,6 @@ import androidx.lifecycle.LiveData;
 
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.Image4DSimple;
-import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.learning.pixelclassification.PixelClassification;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
@@ -79,6 +78,8 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
     private final ArrayList<Float> fingerTrajectory = new ArrayList<Float>();
     private FileType fileType;
     private boolean isBigData;
+
+    private OnScoreWinWithTouchEventListener onScoreWinWithTouchEventListener;
 
     public AnnotationGLSurfaceView(Context context) {
         super(context);
@@ -244,6 +245,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                                         annotationHelper.add2DMarker(currentX, currentY);
                                     } else {
                                         annotationHelper.addMarker(currentX, currentY, isBigData);
+                                        onScoreWinWithTouchEventListener.run();
                                     }
                                     requestRender();
                                     break;
@@ -601,5 +603,13 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         normalizedSize[1] = (float) size[1] / maxSize;
         normalizedSize[2] = (float) size[2] / maxSize;
 
+    }
+
+    public interface OnScoreWinWithTouchEventListener {
+        void run();
+    }
+
+    public void setOnScoreWinWithTouchEventListener(OnScoreWinWithTouchEventListener onScoreWinWithTouchEventListener) {
+        this.onScoreWinWithTouchEventListener = onScoreWinWithTouchEventListener;
     }
 }

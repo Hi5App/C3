@@ -32,6 +32,18 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.widget.NestedScrollView;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
+import android.os.Handler;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
 
 import android.view.View;
 import android.widget.ImageView;
@@ -48,7 +60,7 @@ import com.penglab.hi5.core.game.leaderBoard.LeaderBoardActivity;
 //import com.penglab.hi5.core.game.QuestActivity;
 import com.penglab.hi5.core.game.RewardActivity;
 import com.penglab.hi5.core.game.quest.QuestActivity;
-
+import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.data.UserInfoRepository;
 
 import java.util.ArrayList;
@@ -65,6 +77,8 @@ public class MyActivity extends AppCompatActivity {
     private static final String TAG = "MyActivity";
     private static final String USERNAME = "USERNAME";
 
+    private MyViewModel myViewModel;
+
     public static String username = null;
     private AppBarLayout appbar;
     private long exitTime = 0;
@@ -72,6 +86,8 @@ public class MyActivity extends AppCompatActivity {
     CollapsingToolbarLayout collapsingToolbarLayout;
     private TextView name;
     private TextView email;
+
+    private TextView scoreTextView;
 
     private ImageView like;
     private ImageView person_chat;
@@ -88,6 +104,8 @@ public class MyActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
+
+        myViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(MyViewModel.class);
         toolbar_my = findViewById(R.id.toolbar_my);
         collapsingToolbarLayout = findViewById(R.id.mCollapsingToolbarLayout);
         layout_personal_top_view = findViewById(R.id.person_top_view);
@@ -100,6 +118,7 @@ public class MyActivity extends AppCompatActivity {
 //        email.setText(UserInfoRepository.getInstance().getUser().getEmail());
 
         mMaskColor = getResources().getColor(R.color.blue);
+        scoreTextView = findViewById(R.id.score_textview);
         like = findViewById(R.id.like);
         infoEdit =findViewById(R.id.edit);
         person_chat =findViewById(R.id.person_chat);
@@ -152,6 +171,13 @@ public class MyActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 startActivity(new Intent(MyActivity.this, QuestActivity.class));
+            }
+        });
+
+        myViewModel.getUserInfoRepository().getScoreModel().getObservableScore().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                scoreTextView.setText(Integer.toString(integer));
             }
         });
 
