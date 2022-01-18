@@ -60,7 +60,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
 
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Overridegit
+            @Override
             public void onClick(View v) {
                 finish();
             }

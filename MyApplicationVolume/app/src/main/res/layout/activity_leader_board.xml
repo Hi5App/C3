@@ -31,6 +31,7 @@
             app:tabGravity="fill"
             tools:ignore="MissingConstraints">
         </com.google.android.material.tabs.TabLayout>
+
         <androidx.viewpager.widget.ViewPager
             android:id = "@+id/vp_pager"
             android:layout_width="match_parent"
