@@ -612,4 +612,16 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
     public void setOnScoreWinWithTouchEventListener(OnScoreWinWithTouchEventListener onScoreWinWithTouchEventListener) {
         this.onScoreWinWithTouchEventListener = onScoreWinWithTouchEventListener;
     }
+
+    public boolean nothingToUpload() {
+        MarkerList markerListToAdd = annotationDataManager.getMarkerListToAdd();
+        JSONArray markerListToDelete = annotationDataManager.getMarkerListToDelete();
+        if (markerListToAdd != null || markerListToAdd.size() > 0) {
+            return false;
+        }
+        if (markerListToDelete != null || markerListToDelete.length() > 0) {
+            return false;
+        }
+        return true;
+    }
 }

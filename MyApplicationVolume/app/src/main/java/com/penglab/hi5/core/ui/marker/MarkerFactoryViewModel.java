@@ -45,7 +45,6 @@ public class MarkerFactoryViewModel extends ViewModel {
     private final int DEFAULT_IMAGE_SIZE = 128;
     private final int DEFAULT_RES_INDEX = 2;
 
-
     public enum AnnotationMode{
        BIG_DATA, NO_MORE_FILE, NONE
     }
