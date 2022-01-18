@@ -42,8 +42,6 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-
-
 <!--    <androidx.recyclerview.widget.RecyclerView-->
 <!--        android:id="@+id/leaderboard_recyclerview"-->
 <!--        android:layout_width="match_parent"-->
@@ -53,7 +51,6 @@
 <!--        tools:layout_editor_absoluteY="0dp">-->
 
 <!--    </androidx.recyclerview.widget.RecyclerView>-->
-
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

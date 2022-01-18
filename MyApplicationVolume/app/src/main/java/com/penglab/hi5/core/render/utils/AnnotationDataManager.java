@@ -60,7 +60,6 @@ public class AnnotationDataManager {
         syncSwcList.clear();
         markerList.clear();
         syncMarkerList.clear();
-
     }
 
     public boolean loadMarkerList(MarkerList newMarkerList) {
@@ -244,19 +243,17 @@ public class AnnotationDataManager {
         return markerListToDelete;
     }
 
-    public void syncMarkerList(MarkerList newMarkerList){
+    public synchronized void syncMarkerList(MarkerList newMarkerList) {
         try {
+            markerList.clear();
             markerList.add(newMarkerList.getMarkers());
-            undoMarkerList.remove(0);
-            saveUndo4Sync();
+
+            curUndo = 0;
+            undoMarkerList.clear();
+            undoMarkerList.add(markerList.clone());
         } catch (Exception e){
             e.printStackTrace();
         }
-    }
-
-    public void saveUndo4Sync() throws CloneNotSupportedException {
-        MarkerList tempMarkerList = markerList.clone();
-        undoMarkerList.add(tempMarkerList);
     }
 
     /**
