@@ -1,19 +1,31 @@
 package com.penglab.hi5.core.game.leaderBoard;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.tabs.TabLayout;
 import com.penglab.hi5.R;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +37,8 @@ public class LeaderBoardActivity extends AppCompatActivity {
 
     private TabLayout tabLayout;
 
+    private ViewPager viewPager;
+
     private String [] titles = {"today","universal"};
     private int images[] = {};
 
@@ -33,24 +47,74 @@ public class LeaderBoardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_leader_board);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar_leaderboard);
         setSupportActionBar(toolbar);
 
         leaderBoardViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(LeaderBoardViewModel.class);
 
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.leaderboard_recyclerview);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-        adapter = new LeaderBoardAdapter(leaderBoardViewModel.getLeaderBoardItemList());
-        recyclerView.setAdapter(adapter);
+//        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.leaderboard_recyclerview);
+//        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+//        recyclerView.setLayoutManager(layoutManager);
+//        adapter = new LeaderBoardAdapter(leaderBoardViewModel.getLeaderBoardItemList());
+//        recyclerView.setAdapter(adapter);
 
+        tabLayout = findViewById(R.id.tab_layout);
+        tabLayout.addTab(tabLayout.newTab().setText(titles[0]));
+        tabLayout.addTab(tabLayout.newTab().setText(titles[1]));
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                Toast.makeText(LeaderBoardActivity.this,"selected: "+tab.getText(),Toast.LENGTH_SHORT).show();
+            }
 
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
 
+            }
 
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+        viewPager =(ViewPager)findViewById(R.id.vp_pager);
+
+        TabPagerAdapter adapter = new TabPagerAdapter();
+        viewPager.setAdapter(adapter);
+        tabLayout.setupWithViewPager(viewPager);
+//        List<Fragment> fragments = new ArrayList<>();
+//        fragments.add(FirstFragment.newInstance());
+//        fragments.add(SecondFragment.newInstance());
+
+//        MyFragmentAdapter adapter = new MyFragmentAdapter(getSupportFragmentManager(),fragments, Array.asList(titles));
+//        viewPager.setAdapter(adapter);
+//        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+//            @Override
+//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//
+//            }
+//
+//            @Override
+//            public void onPageSelected(int position){
+//                Log.i(TAG,"select page:" + position);
+//            }
+//
+//            @Override
+//            public void onPageSelected(int position) {
+//
+//            }
+//
+//            @Override
+//            public void onPageScrollStateChanged(int state) {
+//
+//            }
+//        });
 
 
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -69,4 +133,41 @@ public class LeaderBoardActivity extends AppCompatActivity {
                 return true;
         }
     }
-}
+
+    public class TabPagerAdapter extends PagerAdapter{
+
+        @Override
+        public int getCount() {
+            return titles.length;
+        }
+
+        @Override
+        public boolean isViewFromObject(@NonNull @NotNull View view, @NonNull @NotNull Object object) {
+            return view == object;
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            TextView tv = new TextView(LeaderBoardActivity.this);
+            tv.setText(titles[position]);
+            tv.setGravity(Gravity.CENTER);
+            container.addView(tv, ViewPager.LayoutParams.MATCH_PARENT, ViewPager.LayoutParams.WRAP_CONTENT);
+            return tv;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView((View) object);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return titles[position];
+        }
+    }
+
+    }
+
+
+
+
