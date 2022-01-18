@@ -585,6 +585,11 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
+//    private void showNotUploadConfirmPopup() {
+//        new XPopup.Builder(this)
+//                .
+//    }
+
     public static void start(Context context) {
         Intent intent = new Intent(context, MarkerFactoryActivity.class);
         context.startActivity(intent);
