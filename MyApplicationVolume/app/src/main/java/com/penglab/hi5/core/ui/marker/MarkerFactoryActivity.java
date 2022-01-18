@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,11 +32,12 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
+import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
-import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.image.MarkerList;
-import com.penglab.hi5.basic.image.XYZ;
+import com.penglab.hi5.basic.utils.xpopupExt.ConfirmPopupViewExt;
+import com.penglab.hi5.basic.utils.xpopupExt.OnIgnoreListener;
 import com.penglab.hi5.core.music.MusicService;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ResourceResult;
@@ -87,7 +87,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     private AnnotationGLSurfaceView annotationGLSurfaceView;
     private MarkerFactoryViewModel markerFactoryViewModel;
 
-    private Handler uiHandler = new Handler();
+    private final Handler uiHandler = new Handler();
     private Toolbar toolbar;
     private View markerFactoryView;
     private BasePopupView downloadingPopupView;
@@ -95,6 +95,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     private ImageButton addMarker;
     private ImageButton deleteMarker;
     private TickerView scoreTickerView;
+    private boolean needSyncSomaList = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,8 +126,34 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                     return;
                 }
                 updateUI(annotationMode);
-
                 updateOptionsMenu(annotationMode);
+            }
+        });
+
+        markerFactoryViewModel.getWorkStatus().observe(this, new Observer<MarkerFactoryViewModel.WorkStatus>() {
+            @Override
+            public void onChanged(MarkerFactoryViewModel.WorkStatus workStatus) {
+                if (workStatus == null) {
+                    return;
+                }
+                switch (workStatus) {
+                    case NO_MORE_FILE:
+                        hideDownloadingProgressBar();
+                        ToastEasy("No more file need to process !");
+                        break;
+
+                    case UPLOAD_MARKERS_SUCCESSFULLY:
+                        ToastEasy("Upload markers successfully");
+                        if (needSyncSomaList) {
+                            markerFactoryViewModel.getSomaList();
+                            needSyncSomaList = false;
+                        }
+                        break;
+
+                    case GET_SOMA_LIST_SUCCESSFULLY:
+                        hideDownloadingProgressBar();
+                        break;
+                }
             }
         });
 
@@ -173,7 +200,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                     return;
                 }
                 annotationGLSurfaceView.syncMarkerList(markerList);
-
             }
         });
 
@@ -200,7 +226,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         });
 
         initScoreTickerView();
-
         startMusicService();
     }
 
@@ -256,7 +281,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     private void updateOptionsMenu(MarkerFactoryViewModel.AnnotationMode annotationMode) {
         toolbar.getMenu().clear();
         switch (annotationMode) {
-            case NO_MORE_FILE:
             case NONE:
                 toolbar.inflateMenu(R.menu.marker_factory_menu_basic);
                 break;
@@ -285,6 +309,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 return true;
 
             case R.id.confirm:
+                needSyncSomaList = true;
                 markerFactoryViewModel.updateSomaList(annotationGLSurfaceView.getMarkerListToAdd(),
                         annotationGLSurfaceView.getMarkerListToDelete());
                 playButtonSound();
@@ -302,16 +327,12 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
             case R.id.share:
                 annotationGLSurfaceView.screenCapture();
-
                 playButtonSound();
-
                 return true;
 
             case R.id.more:
                 moreFunctions();
-
                 playButtonSound();
-
                 return true;
 
             default:
@@ -366,21 +387,17 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                     public void operate(View contentView) {
                         PreferenceSetting preferenceSetting = PreferenceSetting.getInstance();
                         PreferenceMusic preferenceMusic = PreferenceMusic.getInstance();
-
                         PreferenceSoma preferenceSoma = PreferenceSoma.getInstance();
 
                         SwitchCompat downSampleSwitch = contentView.findViewById(R.id.downSample_mode);
                         SwitchCompat autoUploadSwitch = contentView.findViewById(R.id.autoUpload_mode);
-
                         IndicatorSeekBar contrastIndicator = contentView.findViewById(R.id.contrast_indicator_seekbar);
                         SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
                         SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
                         SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
 
                         downSampleSwitch.setChecked(preferenceSetting.getDownSampleMode());
-
                         autoUploadSwitch.setChecked(preferenceSoma.getAutoUploadMode());
-
                         contrastIndicator.setProgress(preferenceSetting.getContrast());
                         bgmVolumeBar.setProgress(preferenceMusic.getBackgroundSound());
                         buttonVolumeBar.setProgress(preferenceMusic.getButtonSound());
@@ -392,7 +409,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                                 preferenceSoma.setAutoUploadMode(isChecked);
                             }
                         });
-
 
                         downSampleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                             @Override
@@ -469,16 +485,13 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 hideDownloadingProgressBar();
                 break;
 
-            case NO_MORE_FILE:
-                hideDownloadingProgressBar();
-                break;
             case NONE:
                 break;
         }
     }
 
-    private void showUI4Annotation(){
-        if (markerFactoryView == null){
+    private void showUI4Annotation() {
+        if (markerFactoryView == null) {
             // load layout view
             LinearLayout.LayoutParams lpMarkerFactoryView = new LinearLayout.LayoutParams(
                     LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
@@ -490,7 +503,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             deleteMarker = findViewById(R.id.delete_marker);
 
             ImageButton previousFile = findViewById(R.id.previous_file);
-
             ImageButton nextFile = findViewById(R.id.next_file);
 
             addMarker.setOnClickListener(this::onButtonClick);
@@ -504,9 +516,8 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     }
 
     @SuppressLint("NonConstantResourceId")
-    private void onButtonClick(View view){
+    private void onButtonClick(View view) {
         // reset UI
-
         addMarker.setImageResource(R.drawable.ic_add_marker);
         deleteMarker.setImageResource(R.drawable.ic_marker_delete);
         playButtonSound();
@@ -533,7 +544,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         scoreTickerView.setAnimationDuration(500);
         scoreTickerView.setAnimationInterpolator(new OvershootInterpolator());
         scoreTickerView.setPreferredScrollingDirection(TickerView.ScrollingDirection.ANY);
-//        scoreTickerView.setText("0");
 
         markerFactoryViewModel.getObservableScore().observe(this, new Observer<Integer>() {
             @Override
@@ -544,23 +554,49 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     }
 
     private void previousFile(){
-        if (preferenceSoma.getAutoUploadMode()){
-            markerFactoryViewModel.updateSomaList(annotationGLSurfaceView.getMarkerListToAdd(),
-                    annotationGLSurfaceView.getMarkerListToDelete());
+        if (!preferenceSoma.getAutoUploadMode() && !annotationGLSurfaceView.nothingToUpload()){
+            warning4ChangeFile(false);
+            return;
         }
-        markerFactoryViewModel.previousFile();
-        showDownloadingProgressBar();
+        navigateFile(true, false);
         playButtonSound();
     }
 
     private void nextFile(){
-        if (preferenceSoma.getAutoUploadMode()){
+        if (!preferenceSoma.getAutoUploadMode() && !annotationGLSurfaceView.nothingToUpload()){
+            warning4ChangeFile(true);
+            return;
+        }
+        navigateFile(true, true);
+        playButtonSound();
+    }
+
+    private void navigateFile(boolean needUpload, boolean nextFile) {
+        if (needUpload){
             markerFactoryViewModel.updateSomaList(annotationGLSurfaceView.getMarkerListToAdd(),
                     annotationGLSurfaceView.getMarkerListToDelete());
         }
-        markerFactoryViewModel.nextFile();
+        if (nextFile) {
+            markerFactoryViewModel.nextFile();
+        } else {
+            markerFactoryViewModel.previousFile();
+        }
         showDownloadingProgressBar();
-        playButtonSound();
+    }
+
+    private void warning4ChangeFile(boolean nextFile){
+        new XPopup.Builder(this)
+                .asCustom(
+                        ConfirmPopupViewExt.init(this, "Warning...",
+                                "You have not upload your annotation (by press √ button), navigate to another image will lose your annotation.\n\n" +
+                                        " Do you want to upload your annotation? (Or you can choose auto upload in settings)",
+                                () -> navigateFile(true, nextFile),
+                                () -> navigateFile(false, nextFile),
+                                null)
+                        .setConfirmText("Upload")
+                        .setIgnoreText("Don't upload")
+                        .setCancelText("Cancel")
+                ).show();
     }
 
     private void resetUI4AllMode(){
@@ -584,11 +620,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         downloadingPopupView.dismiss();
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
-
-//    private void showNotUploadConfirmPopup() {
-//        new XPopup.Builder(this)
-//                .
-//    }
 
     public static void start(Context context) {
         Intent intent = new Intent(context, MarkerFactoryActivity.class);

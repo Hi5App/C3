@@ -138,9 +138,9 @@ public class MarkerFactoryDataSource {
                     int responseCode = response.code();
                     if (responseCode == 200) {
                         // process response
-                        Log.e(TAG,"receive response successfully");
                         result.postValue(new Result.Success<String>(UPLOAD_SUCCESSFULLY));
                     } else {
+                        Log.e(TAG,"response: " + response.body().string());
                         result.postValue(new Result.Error(new Exception("Fail to upload marker list !")));
                     }
                     response.close();

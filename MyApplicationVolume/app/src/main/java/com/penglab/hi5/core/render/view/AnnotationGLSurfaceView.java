@@ -564,19 +564,6 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         return annotationDataManager.getMarkerList();
     }
 
-    public void syncMarkerList(MarkerList markerList){
-        annotationDataManager.syncMarkerList(markerList);
-        requestRender();
-    }
-
-    public MarkerList getMarkerListToAdd(){
-        return annotationDataManager.getMarkerListToAdd();
-    }
-
-    public JSONArray getMarkerListToDelete(){
-        return annotationDataManager.getMarkerListToDelete();
-    }
-
     private void update3DFileSize(Integer[] size){
         float maxSize = (float) Collections.max(Arrays.asList(size));
 
@@ -605,23 +592,34 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
 
     }
 
+    /**
+     * MarkerFactory part
+     */
+    public void syncMarkerList(MarkerList markerList) {
+        annotationDataManager.syncMarkerList(markerList);
+        requestRender();
+    }
+
+    public MarkerList getMarkerListToAdd() {
+        return annotationDataManager.getMarkerListToAdd();
+    }
+
+    public JSONArray getMarkerListToDelete() {
+        return annotationDataManager.getMarkerListToDelete();
+    }
+
+    public boolean nothingToUpload() {
+        MarkerList markerListToAdd = annotationDataManager.getMarkerListToAdd();
+        JSONArray markerListToDelete = annotationDataManager.getMarkerListToDelete();
+        return ((markerListToAdd == null || markerListToAdd.size() == 0) &&
+                (markerListToDelete == null || markerListToDelete.length() == 0));
+    }
+
     public interface OnScoreWinWithTouchEventListener {
         void run();
     }
 
     public void setOnScoreWinWithTouchEventListener(OnScoreWinWithTouchEventListener onScoreWinWithTouchEventListener) {
         this.onScoreWinWithTouchEventListener = onScoreWinWithTouchEventListener;
-    }
-
-    public boolean nothingToUpload() {
-        MarkerList markerListToAdd = annotationDataManager.getMarkerListToAdd();
-        JSONArray markerListToDelete = annotationDataManager.getMarkerListToDelete();
-        if (markerListToAdd != null || markerListToAdd.size() > 0) {
-            return false;
-        }
-        if (markerListToDelete != null || markerListToDelete.length() > 0) {
-            return false;
-        }
-        return true;
     }
 }
