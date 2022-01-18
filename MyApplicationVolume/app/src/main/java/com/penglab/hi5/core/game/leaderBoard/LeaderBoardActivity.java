@@ -1,18 +1,26 @@
 package com.penglab.hi5.core.game.leaderBoard;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -21,6 +29,9 @@ import com.google.android.material.tabs.TabLayout;
 import com.netease.nim.uikit.common.media.imagepicker.view.SystemBarTintManager;
 import com.penglab.hi5.R;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,9 +45,11 @@ public class LeaderBoardActivity extends AppCompatActivity {
 
     private ViewPager viewPager;
 
+
     List<Fragment> fragmentList = new ArrayList<>();
     UniversalFragment UniversalFragment;
     TodayFragment TodayFragment;
+
     private String [] titles = {"today","universal"};
 
     @Override
@@ -58,6 +71,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar_leaderboard);
         setSupportActionBar(toolbar);
 
+
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,6 +90,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
         TodayFragment = new TodayFragment();
         fragmentList.add(TodayFragment);
 
+
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -84,6 +99,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
+
             }
 
             @Override
@@ -96,6 +112,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
 //        tabLayout.setVerticalScrollbarPosition(0);
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -145,6 +162,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
             Fragment fragment =(Fragment)super.instantiateItem(container,position);
             fm.beginTransaction().show(fragment).commitAllowingStateLoss();
             return fragment;
+
         }
 
         @Override
@@ -153,11 +171,8 @@ public class LeaderBoardActivity extends AppCompatActivity {
         }
     }
 
-
-
-
-
 }
+
 
 
 

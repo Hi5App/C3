@@ -31,13 +31,22 @@
             app:tabGravity="fill"
             tools:ignore="MissingConstraints">
         </com.google.android.material.tabs.TabLayout>
-
         <androidx.viewpager.widget.ViewPager
             android:id = "@+id/vp_pager"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1" />
 
+
+<!--    <androidx.recyclerview.widget.RecyclerView-->
+<!--        android:id="@+id/leaderboard_recyclerview"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:layout_marginTop="24dp"-->
+<!--        tools:layout_editor_absoluteX="0dp"-->
+<!--        tools:layout_editor_absoluteY="0dp">-->
+
+<!--    </androidx.recyclerview.widget.RecyclerView>-->
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
