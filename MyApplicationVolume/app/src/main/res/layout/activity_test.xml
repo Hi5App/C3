@@ -217,7 +217,7 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_quests"/>
+                            android:src="@drawable/ic_quest"/>
                         <TextView
                             android:layout_marginLeft="10dp"
                             android:layout_weight="1"
@@ -248,7 +248,7 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@mipmap/icon_hot"/>
+                            android:src="@drawable/ic_trophy"/>
                         <TextView
                             android:layout_marginLeft="10dp"
                             android:layout_weight="1"
