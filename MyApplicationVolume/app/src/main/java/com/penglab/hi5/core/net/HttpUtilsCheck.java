@@ -20,7 +20,7 @@ public class HttpUtilsCheck extends HttpUtils{
                     .put("password", password)
                     .put("owner", owner)
                     .put("result", result)));
-            asyncRequest(URL_CHECK, body, callback);
+            asyncPostRequest(URL_CHECK, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }

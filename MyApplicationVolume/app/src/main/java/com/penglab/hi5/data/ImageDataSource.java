@@ -149,7 +149,7 @@ public class ImageDataSource {
                             byte[] fileContent = response.body().bytes();
 
                             Log.e(TAG, "file size: " + fileContent.length);
-                            String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Resources/Image";
+                            String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image";
                             String filename = brainId + "_" + res + "_" + offsetX + "_" + offsetY + "_" + offsetZ + ".v3dpbd";
 
                             if (!FileHelper.storeFile(storePath, filename, fileContent)) {

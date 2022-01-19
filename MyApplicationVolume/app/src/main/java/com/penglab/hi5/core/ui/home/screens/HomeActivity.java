@@ -18,11 +18,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.ImageView;
 import androidx.annotation.NonNull;
@@ -39,14 +41,17 @@ import androidx.viewpager.widget.ViewPager;;
 import com.gigamole.navigationtabstrip.NavigationTabStrip;
 import com.google.android.material.navigation.NavigationView;
 import com.lxj.xpopup.XPopup;
+import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.penglab.hi5.R;
+import com.penglab.hi5.basic.utils.APKVersionInfoUtils;
 import com.penglab.hi5.basic.utils.CrashHandler;
 import com.penglab.hi5.basic.utils.CrashReports;
+import com.penglab.hi5.basic.utils.FileHelper;
 import com.penglab.hi5.core.BaseActivity;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.userProfile.MyActivity;
@@ -54,6 +59,7 @@ import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.core.ui.home.adapters.MainPagerAdapter;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.dataStore.PreferenceLogin;
+import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.user.LogStatus;
 
 import java.io.BufferedReader;
@@ -76,9 +82,10 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
             Manifest.permission.CAMERA,
             Manifest.permission.RECORD_AUDIO};
     private static final int REQUEST_PERMISSION_CODE = 1;
-
     private long exitTime = 0;
 
+    private final Handler uiHandler = new Handler();
+    private BasePopupView downloadingPopupView;
     private HomeViewModel homeViewModel;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
@@ -116,6 +123,8 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
             ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
         }
 
+        downloadingPopupView = new XPopup.Builder(this).asLoading("Downloading......");
+
         homeViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(HomeViewModel.class);
         homeViewModel.getLogStatus().observe(this, new Observer<LogStatus>() {
             @Override
@@ -134,6 +143,25 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                 }
                 homeViewModel.updateUserView();
                 homeViewModel.updateScore();
+            }
+        });
+
+        homeViewModel.getWorkStatus().observe(this, new Observer<HomeViewModel.WorkStatus>() {
+            @Override
+            public void onChanged(HomeViewModel.WorkStatus workStatus) {
+                if (workStatus == null) {
+                    return;
+                }
+                switch (workStatus) {
+                    case START_TO_DOWNLOAD_APK:
+                        showDownloadingProgressBar();
+                        break;
+                    case ALREADY_LATEST_VERSION:
+                        alreadyLatestVersionPopup();
+                        break;
+                    case NONE:
+                        break;
+                }
             }
         });
 
@@ -163,6 +191,30 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
             }
         });
 
+        homeViewModel.getApkPath().observe(this, new Observer<FilePath>() {
+            @Override
+            public void onChanged(FilePath filePath) {
+                if (filePath == null) {
+                    return;
+                }
+                hideDownloadingProgressBar();
+                installApk(filePath);
+                homeViewModel.getApkPath().setValue(null);
+            }
+        });
+
+        homeViewModel.getApkUrl().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String url) {
+                if (url == null) {
+                    return;
+                }
+                String[] details = url.split("/");
+                newVersionPopup(url, details[details.length-1]);
+                homeViewModel.getApkUrl().setValue(null);
+            }
+        });
+
         homeViewModel.getUserDataSource().getResult().observe(this, new Observer<Result>() {
             @Override
             public void onChanged(Result result) {
@@ -173,6 +225,15 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
             }
         });
 
+        homeViewModel.getResourceDataSource().getResult().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                if (result == null) {
+                    return;
+                }
+                homeViewModel.updateResourceResult(result);
+            }
+        });
     }
 
     @Override
@@ -238,7 +299,6 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
         View header = LayoutInflater.from(HomeActivity.this)
                 .inflate(R.layout.nav_header_main, navigationView);
 
@@ -256,8 +316,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                 }
             }
         });
-        };
-
+    };
 
     @Override
     @SuppressLint("NonConstantResourceId")
@@ -277,7 +336,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                 about();
                 break;
             case R.id.nav_check_for_updates:
-                installApk();
+                checkLatestVersion();
                 break;
         }
         drawerLayout.closeDrawer(navigationView);
@@ -419,28 +478,55 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                 .show();
     }
 
-    private void installApk() {
-        String filePath = null;
-        try {
-            filePath = Environment.getExternalStorageDirectory().getCanonicalPath();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String fileName = "Hi5_20220105.apk";
-        File apkFile = new File(filePath, fileName);
+    private void checkLatestVersion() {
+        homeViewModel.checkLatestVersion(APKVersionInfoUtils.getVersionName(this));
+    }
+
+    private void alreadyLatestVersionPopup() {
+        new XPopup.Builder(this)
+                .asConfirm("Already Latest Version", "Current version is already latest version.", null)
+        .show();
+    }
+
+    private void newVersionPopup(String url, String newVersionName) {
+        new XPopup.Builder(this)
+                .asConfirm("New Version", "There is a new version: " + newVersionName + "\n\nDo you want to update ?", new OnConfirmListener() {
+                    @Override
+                    public void onConfirm() {
+                        homeViewModel.downloadLatestVersion(url, newVersionName);
+                    }
+                })
+                .show();
+    }
+
+    private void installApk(FilePath filePath) {
+        File apkFile = new File((String) filePath.getData());
         if (!apkFile.exists()) {
             return;
         }
         Uri apkUri = FileProvider.getUriForFile(this, context.getPackageName() + ".provider", apkFile);
-
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
         startActivity(intent);
-//        android.os.Process.killProcess(android.os.Process.myPid());
     }
 
+    private void showDownloadingProgressBar(){
+        downloadingPopupView.show();
+        uiHandler.postDelayed(this::timeOutHandler, 180 * 1000);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    private void hideDownloadingProgressBar(){
+        downloadingPopupView.dismiss();
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    private void timeOutHandler(){
+        downloadingPopupView.dismiss();
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
 }
 
 
