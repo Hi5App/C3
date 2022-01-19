@@ -1,6 +1,5 @@
 package com.penglab.hi5.core.net;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import okhttp3.Callback;
@@ -20,7 +19,7 @@ public class HttpUtilsCheckArbor extends HttpUtils{
                     .put("WithChecked", withChecked)
                     .put("Off", off)
                     .put("Limit", limit)));
-            asyncRequest(GET_CHECK_INFOS_URL, body, callback);
+            asyncPostRequest(GET_CHECK_INFOS_URL, body, callback);
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -35,7 +34,7 @@ public class HttpUtilsCheckArbor extends HttpUtils{
                     .put("zc", zc)
                     .put("imageId", imageId)
                     .put("url", url)));
-            asyncRequest(GET_CHECK_INFOS_URL, body, callback);
+            asyncPostRequest(GET_CHECK_INFOS_URL, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,33 +1,24 @@
 package com.penglab.hi5.core.game.leaderBoard;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.penglab.hi5.R;
 import com.penglab.hi5.core.ui.ViewModelFactory;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
 
 public class LeaderBoardActivity extends AppCompatActivity {
 
@@ -142,7 +133,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
         }
 
         @Override
-        public boolean isViewFromObject(@NonNull @NotNull View view, @NonNull @NotNull Object object) {
+        public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
             return view == object;
         }
 
@@ -166,7 +157,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
         }
     }
 
-    }
+}
 
 
 

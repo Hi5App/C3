@@ -21,6 +21,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -139,7 +140,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 switch (workStatus) {
                     case NO_MORE_FILE:
                         hideDownloadingProgressBar();
-                        ToastEasy("No more file need to process !");
+                        ToastEasy("No more file need to process !", Toast.LENGTH_LONG);
                         break;
 
                     case UPLOAD_MARKERS_SUCCESSFULLY:
@@ -152,6 +153,10 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
                     case GET_SOMA_LIST_SUCCESSFULLY:
                         hideDownloadingProgressBar();
+                        break;
+
+                    case START_TO_DOWNLOAD_IMAGE:
+                        showDownloadingProgressBar();
                         break;
                 }
             }
@@ -318,7 +323,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             case R.id.file:
                 if (markerFactoryViewModel.isLoggedIn()) {
                     openFile();
-                    showDownloadingProgressBar();
                 } else {
                     ToastEasy("Login first please !");
                 }
@@ -581,7 +585,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         } else {
             markerFactoryViewModel.previousFile();
         }
-        showDownloadingProgressBar();
     }
 
     private void warning4ChangeFile(boolean nextFile){
