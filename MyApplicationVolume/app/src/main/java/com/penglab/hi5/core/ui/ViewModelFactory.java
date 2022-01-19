@@ -53,7 +53,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             return (T) new SplashScreenViewModel(UserInfoRepository.getInstance(), new ResourceDataSource(), new UserDataSource());
         } else if (modelClass.isAssignableFrom(HomeViewModel.class)) {
             // used in HomeActivity
-            return (T) new HomeViewModel(UserInfoRepository.getInstance(), new UserDataSource());
+            return (T) new HomeViewModel(UserInfoRepository.getInstance(), new UserDataSource(), new ResourceDataSource());
         } else if (modelClass.isAssignableFrom(CheckViewModel.class)) {
             // used in HomeActivity
             return (T) new CheckViewModel(new ImageDataSource(), new AnnotationDataSource(), new CheckDataSource(), ImageInfoRepository.getInstance(), new CheckArborDataSource(), CheckArborInfoState.getInstance());

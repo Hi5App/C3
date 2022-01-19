@@ -23,15 +23,20 @@ import android.view.ViewGroup;
 
 import android.view.Window;
 import android.view.WindowManager;
+
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.netease.nim.uikit.common.media.imagepicker.view.SystemBarTintManager;
 import com.penglab.hi5.R;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -150,6 +155,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
             fragment.setArguments(bundle);
             viewPager.setCurrentItem(position);
             return mFragments.get(position);
+
         }
 
         @Override

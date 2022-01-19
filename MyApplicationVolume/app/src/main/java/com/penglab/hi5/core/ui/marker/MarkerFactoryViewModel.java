@@ -50,7 +50,7 @@ public class MarkerFactoryViewModel extends ViewModel {
     }
 
     public enum WorkStatus{
-        GET_SOMA_LIST_SUCCESSFULLY, UPLOAD_MARKERS_SUCCESSFULLY, NO_MORE_FILE, NONE
+        START_TO_DOWNLOAD_IMAGE, GET_SOMA_LIST_SUCCESSFULLY, UPLOAD_MARKERS_SUCCESSFULLY, NO_MORE_FILE, NONE
     }
 
     private final MutableLiveData<AnnotationMode> annotationMode = new MutableLiveData<>();
@@ -232,6 +232,8 @@ public class MarkerFactoryViewModel extends ViewModel {
             ToastEasy("Fail to download image, something wrong with res list !");
             return;
         }
+        // show progressBar
+        workStatus.setValue(WorkStatus.START_TO_DOWNLOAD_IMAGE);
         imageDataSource.downloadImage(curPotentialSomaInfo.getBrainId(), res, (int) loc.x , (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE);
     }
 

@@ -16,7 +16,7 @@ public class HttpUtilsImage extends HttpUtils {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("user", userInfo)));
-            asyncRequest(URL_GET_BRAIN_LIST, body, callback);
+            asyncPostRequest(URL_GET_BRAIN_LIST, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -28,7 +28,7 @@ public class HttpUtilsImage extends HttpUtils {
                     .put("name", username)
                     .put("password", password)
                     .put("brain_id", brain_id)));
-            asyncRequest(URL_GET_NEURON_LIST, body, callback);
+            asyncPostRequest(URL_GET_NEURON_LIST, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -40,7 +40,7 @@ public class HttpUtilsImage extends HttpUtils {
                     .put("name", username)
                     .put("password", password)
                     .put("neuron_id", neuron_id)));
-            asyncRequest(URL_GET_ANO_LIST, body, callback);
+            asyncPostRequest(URL_GET_ANO_LIST, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -63,7 +63,7 @@ public class HttpUtilsImage extends HttpUtils {
                     .put("res", res)
                     .put("loc", loc)
                     .put("len", len)));
-            asyncRequest(URL_DOWNLOAD_IMAGE, body, callback);
+            asyncPostRequest(URL_DOWNLOAD_IMAGE, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -92,7 +92,7 @@ public class HttpUtilsImage extends HttpUtils {
                     .put("z", z)
                     .put("len", len)
                     .put("res", res)));
-            asyncRequest(URL_GET_BBSWC, body, callback);
+            asyncPostRequest(URL_GET_BBSWC, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -109,7 +109,7 @@ public class HttpUtilsImage extends HttpUtils {
                     .put("z", z)
                     .put("len", len)
                     .put("res", res)));
-            asyncRequest(URL_GET_BBSWC, body, callback);
+            asyncPostRequest(URL_GET_BBSWC, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
