@@ -97,6 +97,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     private ImageButton deleteMarker;
     private TickerView scoreTickerView;
     private boolean needSyncSomaList = false;
+    private boolean needUpload = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -192,6 +193,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 if (resourceResult.isSuccess()){
                     annotationGLSurfaceView.openFile();
                     markerFactoryViewModel.getSomaList();
+                    needUpload = true;
                 } else {
                     ToastEasy(resourceResult.getError());
                 }
@@ -315,6 +317,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
             case R.id.confirm:
                 needSyncSomaList = true;
+                needUpload = false;
                 markerFactoryViewModel.updateSomaList(annotationGLSurfaceView.getMarkerListToAdd(),
                         annotationGLSurfaceView.getMarkerListToDelete());
                 playButtonSound();
@@ -486,7 +489,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         switch (annotationMode){
             case BIG_DATA:
                 showUI4Annotation();
-                hideDownloadingProgressBar();
                 break;
 
             case NONE:
@@ -558,20 +560,24 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     }
 
     private void previousFile(){
-        if (!preferenceSoma.getAutoUploadMode() && !annotationGLSurfaceView.nothingToUpload()){
+        if (preferenceSoma.getAutoUploadMode()) {
+            navigateFile(true, false);
+        } else if (!preferenceSoma.getAutoUploadMode() && (!annotationGLSurfaceView.nothingToUpload() || needUpload)){
             warning4ChangeFile(false);
-            return;
+        } else {
+            navigateFile(false, false);
         }
-        navigateFile(true, false);
         playButtonSound();
     }
 
     private void nextFile(){
-        if (!preferenceSoma.getAutoUploadMode() && !annotationGLSurfaceView.nothingToUpload()){
+        if (preferenceSoma.getAutoUploadMode()) {
+            navigateFile(true, true);
+        } else if (!preferenceSoma.getAutoUploadMode() && (!annotationGLSurfaceView.nothingToUpload() || needUpload)){
             warning4ChangeFile(true);
-            return;
+        } else {
+            navigateFile(false, true);
         }
-        navigateFile(true, true);
         playButtonSound();
     }
 
