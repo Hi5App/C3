@@ -20,6 +20,13 @@ import com.google.android.material.tabs.TabLayout;
 import com.penglab.hi5.R;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 
+
+//import org.jetbrains.annotations.NotNull;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+
 public class LeaderBoardActivity extends AppCompatActivity {
 
     private LeaderBoardAdapter adapter;

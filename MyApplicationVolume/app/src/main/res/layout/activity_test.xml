@@ -122,7 +122,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/ranking"
+                        android:id="@+id/soma_text_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/navigate"
@@ -132,7 +132,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="ranking"
+                        android:text="Soma"
                         android:textColor="@color/navigate" />
                 </LinearLayout>
 
@@ -144,7 +144,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/Grade"
+                        android:id="@+id/daily_soma_text_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="20sp"
@@ -153,7 +153,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Grade"
+                        android:text="Daily Soma"
                         android:textColor="@color/navigate" />
                 </LinearLayout>
             </LinearLayout>

@@ -28,6 +28,7 @@ import com.penglab.hi5.data.MarkerFactoryDataSource;
 import com.penglab.hi5.data.ResourceDataSource;
 import com.penglab.hi5.data.UserDataSource;
 import com.penglab.hi5.data.UserInfoRepository;
+import com.penglab.hi5.data.UserPerformanceDataSource;
 
 /**
  * ViewModel provider factory to instantiate LoginViewModel.
@@ -67,7 +68,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         } else if (modelClass.isAssignableFrom(MarkerFactoryViewModel.class)) {
             return (T) new MarkerFactoryViewModel(UserInfoRepository.getInstance(), ImageInfoRepository.getInstance(), new MarkerFactoryDataSource(), new ImageDataSource());
         } else if (modelClass.isAssignableFrom(MyViewModel.class)) {
-            return (T) new MyViewModel(UserInfoRepository.getInstance(), new UserDataSource());
+            return (T) new MyViewModel(UserInfoRepository.getInstance(), new UserDataSource(), new UserPerformanceDataSource());
         } else {
             throw new IllegalArgumentException("Unknown ViewModel class");
         }
