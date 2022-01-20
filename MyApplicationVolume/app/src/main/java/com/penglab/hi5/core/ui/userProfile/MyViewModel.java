@@ -13,9 +13,14 @@ import com.penglab.hi5.core.ui.home.screens.UserView;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.UserDataSource;
 import com.penglab.hi5.data.UserInfoRepository;
+import com.penglab.hi5.data.UserPerformanceDataSource;
 import com.penglab.hi5.data.model.user.LogStatus;
 import com.penglab.hi5.data.model.user.LoggedInUser;
 import com.penglab.hi5.data.UserInfoRepository;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.File;
 
 public class MyViewModel extends ViewModel {
@@ -23,13 +28,17 @@ public class MyViewModel extends ViewModel {
     private MutableLiveData<UserView> userView = new MutableLiveData<>();
     private MutableLiveData<LogStatus> logStatus = new MutableLiveData<>();
     private MutableLiveData<Integer> score = new MutableLiveData<>();
+    private MutableLiveData<Integer> somaCount = new MutableLiveData<>();
+    private MutableLiveData<Integer> dailySomaCount = new MutableLiveData<>();
 
     private final UserInfoRepository userInfoRepository;
     private final UserDataSource userDataSource;
+    private final UserPerformanceDataSource userPerformanceDataSource;
 
-    public MyViewModel(UserInfoRepository userInfoRepository, UserDataSource userDataSource) {
+    public MyViewModel(UserInfoRepository userInfoRepository, UserDataSource userDataSource, UserPerformanceDataSource userPerformanceDataSource) {
         this.userInfoRepository = userInfoRepository;
         this.userDataSource = userDataSource;
+        this.userPerformanceDataSource = userPerformanceDataSource;
     }
 
     public UserInfoRepository getUserInfoRepository() {
@@ -50,6 +59,18 @@ public class MyViewModel extends ViewModel {
 
     UserDataSource getUserDataSource() {
         return userDataSource;
+    }
+
+    public UserPerformanceDataSource getUserPerformanceDataSource() {
+        return userPerformanceDataSource;
+    }
+
+    public MutableLiveData<Integer> getSomaCount() {
+        return somaCount;
+    }
+
+    public MutableLiveData<Integer> getDailySomaCount() {
+        return dailySomaCount;
     }
 
     public boolean isLogged() {
@@ -104,6 +125,20 @@ public class MyViewModel extends ViewModel {
     public void cleanImgCache() {
         File file = new File(getContext().getExternalFilesDir(null).toString() + "/Img");
         recursionDeleteFile(file);
+    }
+
+    public void updateSomaAndDailySoma(Result result) {
+        if (result instanceof Result.Success) {
+            Object data = ((Result.Success<?>) result).getData();
+            if (data instanceof JSONObject) {
+                try {
+                    somaCount.postValue(((JSONObject) data).getInt("performance"));
+                    dailySomaCount.postValue(((JSONObject) data).getInt("dailyperformance"));
+                } catch (Exception e) {
+
+                }
+            }
+        }
     }
 }
 

@@ -61,6 +61,7 @@ import com.penglab.hi5.core.game.leaderBoard.LeaderBoardActivity;
 import com.penglab.hi5.core.game.RewardActivity;
 import com.penglab.hi5.core.game.quest.QuestActivity;
 import com.penglab.hi5.core.ui.ViewModelFactory;
+import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.UserInfoRepository;
 
 import java.util.ArrayList;
@@ -88,6 +89,8 @@ public class MyActivity extends AppCompatActivity {
     private TextView email;
 
     private TextView scoreTextView;
+    private TextView somaTextView;
+    private TextView dailySomaTextView;
 
     private ImageView like;
     private ImageView person_chat;
@@ -119,6 +122,8 @@ public class MyActivity extends AppCompatActivity {
 
         mMaskColor = getResources().getColor(R.color.blue);
         scoreTextView = findViewById(R.id.score_textview);
+        somaTextView = findViewById(R.id.soma_text_view);
+        dailySomaTextView = findViewById(R.id.daily_soma_text_view);
         like = findViewById(R.id.like);
         infoEdit =findViewById(R.id.edit);
         person_chat =findViewById(R.id.person_chat);
@@ -181,6 +186,26 @@ public class MyActivity extends AppCompatActivity {
             }
         });
 
+        myViewModel.getUserPerformanceDataSource().getPersonalResult().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                myViewModel.updateSomaAndDailySoma(result);
+            }
+        });
+
+        myViewModel.getSomaCount().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                somaTextView.setText(Integer.toString(integer));
+            }
+        });
+
+        myViewModel.getDailySomaCount().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                dailySomaTextView.setText(Integer.toString(integer));
+            }
+        });
     }
 
 
