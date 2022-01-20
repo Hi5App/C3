@@ -38,7 +38,6 @@ public class SplashScreenActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
-        Log.e(TAG, "onCreate");
 
         InfoCache.setMainTaskLaunching(true);
         preferenceLogin = PreferenceLogin.getInstance();
@@ -168,9 +167,5 @@ public class SplashScreenActivity extends AppCompatActivity {
         finish();
     }
 
-    private void showSplashView() {
-        // 首次进入，打开欢迎界面
-        getWindow().setBackgroundDrawableResource(R.drawable.splash_screen_background);
-    }
 }
 
