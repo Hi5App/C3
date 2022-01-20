@@ -1834,15 +1834,28 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 
-    public  int getImgHeight(){
+    public int getImgHeight(char type){
 
-        return bitmap2D.getHeight();
+        if(type==1)//jpg
+        {
+            return bitmap2D.getHeight();
+        }else if(type==2)//tif
+        {
+            return (int) img.getSz1(); //
+        }
+        return 0;
 
     }
 
-    public  int getImgWidth(){
-
-        return bitmap2D.getWidth();
+    public  int getImgWidth(char type){
+        if(type==1)//jpg
+        {
+            return bitmap2D.getWidth();
+        } else if(type==2)//tif
+        {
+            return (int) img.getSz0(); //
+        }
+        return 0;
 
     }
 

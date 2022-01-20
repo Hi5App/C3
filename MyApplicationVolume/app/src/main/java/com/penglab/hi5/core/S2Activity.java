@@ -297,6 +297,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private List<double[]> fl;
 
     private static boolean isBigData_Remote;
+    private static boolean isVirtualScope;
     private static boolean isBigData_Local;
     private static boolean isS2Start = false;
     private static ProgressBar progressBar;
@@ -339,6 +340,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private long exitTime = 0;
 
     private static String filename = "";
+    private String S2path = "";
 
     private enum PenColor {
         WHITE, BLACK, RED, BLUE, PURPLE, CYAN, YELLOW, GREEN
@@ -415,6 +417,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         if (msg.startsWith("GETFILELIST:")) {
             LoadFiles(msg.split(":")[1]);
         }
+
+
+        if (msg.startsWith("getimglist:")) {
+            LoadFiles(msg.split(":")[1]);
+        }
+
 
         if (msg.startsWith("s2start:")) {
 
@@ -895,7 +903,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         S2Context = this;
 
-
+        isVirtualScope = false;
         isBigData_Remote = false;
         isBigData_Local = false;
 
@@ -1653,6 +1661,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             public void onClick(View v) {
                 Log.e(TAG, "s2send ");
                 isBigData_Remote = true;
+                isVirtualScope = false;
                 isBigData_Local = false;
                // ifGetRoiPoint = true;
                 isS2Start = true;
@@ -1949,6 +1958,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         try {
 
             String dir_str_server = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name) + "/S2";
+            S2path   =    dir_str_server;
             File dir_server = new File(dir_str_server);
             if (!dir_server.exists()) {
                 dir_server.mkdirs();
@@ -2148,14 +2158,16 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             new XPopup.Builder(this)
                     .maxHeight(1350)
                     .maxWidth(800)
-                    .asCenterList("BigData File", list_show,
+                    .asCenterList("VirtualScope File", list_show,
                             new OnSelectListener() {
                                 @RequiresApi(api = Build.VERSION_CODES.N)
                                 @Override
                                 public void onSelect(int position, String text) {
                                     ServerConnector serverConnector = ServerConnector.getInstance();
                                     conPath = conPath + "/" + text;
-                                    serverConnector.sendMsg("GETFILELIST:" + conPath);
+                                    serverConnector.sendMsg("getimglist:" + conPath);
+                                    isVirtualScope=true;
+                                    Toast_in_Thread("VirtualScope Mode!");
                                 }
                             })
                     .show();
@@ -2223,7 +2235,18 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     }
 
+    private void loadvirtualscope() {
 
+        conPath = "";
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ServerConnector.getInstance().sendMsg("getimglist:" + "/", true, true);
+            }
+        }).start();
+
+    }
     private void showRoomID() {
 
         new XPopup.Builder(this).asConfirm("Collaboration Room", "Room name: " + ServerConnector.getInstance().getRoomName() + "\n\n"
@@ -2479,7 +2502,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     public void File_icon() {
 
         new XPopup.Builder(this)
-                .asCenterList("File Open", new String[]{"Open BigData", "Open LocalFile", "Load SwcFile"},
+                .asCenterList("File Open", new String[]{"Open virtualscope","Open BigData", "Open LocalFile"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -2491,12 +2514,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         loadLocalFile();
                                         Log.e("Open LocalFile", "Open LocalFile");
                                         break;
+                                    case "Open virtualscope":
+                                        loadvirtualscope();
+                                        break;
                                     case "Open BigData":
                                         loadBigData();
                                         break;
-                                    case "Load SwcFile":
-                                        LoadSwcFile();
-                                        break;
+
 
                                     default:
                                         ToastEasy("Default in file");
@@ -3484,60 +3508,19 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     public void More_icon() {
 
         new XPopup.Builder(this)
-                .asCenterList("More Functions...", new String[]{"Analyze Swc", "Chat", "Animate", "Settings", "Crash Info", "Quests", "Reward", "LeaderBoard", "Logout", "Help", "About"},
+                .asCenterList("More Functions...", new String[]{ "Settings", "Crash Info","Help"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
 
                                 switch (text) {
-                                    case "Analyze Swc":
-                                        AnalyzeSwc();
-                                        break;
-
-                                    case "Animate":
-                                        if (myS2renderer.ifImageLoaded()) {
-                                            ifPainting = false;
-                                            ifPoint = false;
-                                            ifDeletingMarker = false;
-                                            ifDeletingLine = false;
-                                            ifSpliting = false;
-                                            ifChangeLineType = false;
-                                            ifZooming = false;
-                                            setAnimation();
-                                        } else {
-                                            ToastEasy("Please Load a Img First !");
-                                        }
-                                        break;
-
-                                    case "Chat":
-                                        openChatActivity();
-                                        break;
-
-                                    case "Game":
-//                                        System.out.println("Game Start!!!!!!!");
-//
-//                                        ifGame = true;
-//                                        Select_map();
-                                        break;
 
                                     case "Settings":
                                         setSettings();
                                         break;
 
-                                    case "Account Name":
-                                        popUpUserAccount(S2Activity.this);
-                                        break;
-
-                                    case "Logout":
-                                        logout();
-                                        break;
                                     case "Crash Info":
                                         CrashInfoShare();
-                                        break;
-
-                                    case "About":
-                                        About();
-                                        ;
                                         break;
 
                                     case "Help":
@@ -3549,21 +3532,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         }
                                         break;
 
-                                    case "Quests":
-                                        startActivity(new Intent(S2Activity.this, QuestActivity.class));
-                                        break;
 
-                                    case "Achievements":
-                                        showAchievementFinished();
-                                        break;
-
-                                    case "LeaderBoard":
-                                        startActivity(new Intent(S2Activity.this, LeaderBoardActivity.class));
-                                        break;
-
-                                    case "Reward":
-                                        startActivity(new Intent(S2Activity.this, RewardActivity.class));
-                                        break;
 
                                     default:
                                         ToastEasy("Default in More Functions...");
@@ -3992,7 +3961,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         boolean ifConnect_Scope = ServerConnector.getInstance().sendMsg("test:");
-                        Log.e(TAG, "ifConnect_Scope: " + ifConnect_Scope);
+                        Log.e(TAG, "ifConnect_Scope: " + ifgetTest);
 
                         Connect_Scope.setChecked(ifgetTest);
                         isif_flag[1] = ifConnect_Scope;
@@ -4096,15 +4065,30 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     private void SmartControl() {
         String scLocation=null;
+        char img_type=0;
 
-        int x=myS2renderer.getImgWidth();
-        int y=myS2renderer.getImgHeight();
-        Log.v(TAG, "myS2renderer:scLocation " + x+y );
+        if(myS2renderer.getFileType() == MyRenderer.FileType.JPG)
+        {
+            img_type=1;
+
+        }else if(myS2renderer.getFileType() == MyRenderer.FileType.TIF)
+        {
+            img_type=2;
+        }else
+        {
+           Log.e(TAG, "SmartControl img type error" );
+           return;
+        }
+
+
+        int x=myS2renderer.getImgWidth(img_type);
+        int y=myS2renderer.getImgHeight(img_type);
+        Log.v(TAG, "myS2renderer:scLocation " + x+y +"img_type"+img_type);
 
         Log.v(TAG, "scLocation: " + locationFor2dImg[0]+locationFor2dImg[1] );
 
         int xx = (int) (locationFor2dImg[0]-x/2.0);
-        int yy = (int) (locationFor2dImg[1]-y/2.0);
+        int yy = -(int) (locationFor2dImg[1]-y/2.0);
 
         scLocation="sclocation:"+String.valueOf(xx)+":"+String.valueOf(yy);
         Log.v(TAG, "scLocation: " + scLocation );
@@ -4599,17 +4583,26 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
+            @SuppressLint("LongLogTag")
             @RequiresApi(api = Build.VERSION_CODES.N)
             public void run() {
+                String[] Direction = {"Left", "Right", "Top", "Bottom", "Front", "Back"};
+                if (isBigData_Remote&&!isVirtualScope) {
 
-                if (isBigData_Remote) {
-                    String[] Direction = {"Left", "Right", "Top", "Bottom", "Front", "Back"};
                     if (Arrays.asList(Direction).contains(text)) {
                         Log.e("S2_Block_navigate", text);
                         ServerConnector.getInstance().sendMsg("s2_move:" + text);
 
                     }
 
+                }else if(isVirtualScope)
+                {
+                    //String[] Direction = {"Left", "Right", "Top", "Bottom", "Front", "Back"};
+                    if (Arrays.asList(Direction).contains(text)) {
+                        Log.e("VirtualScope_Block_navigate", text);
+                        ServerConnector.getInstance().sendMsg("virtualscope:" + text);
+
+                    }
                 }
 
 
@@ -4824,8 +4817,14 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                 if (myS2renderer.getFileType() == MyRenderer.FileType.JPG || myS2renderer.getFileType() == MyRenderer.FileType.PNG  || myS2renderer.getFileType() == MyRenderer.FileType.TIF) {
 
                                     locationFor2dImg = myS2renderer.get2dLocation(normalizedX, normalizedY);
-                                    Log.v("ifGetRoiPoint", "locationFor2dImg"+locationFor2dImg[0]+locationFor2dImg[1]);
-                                    SmartControl();
+                                    if(locationFor2dImg!=null)
+                                    {
+                                           Log.v("ifGetRoiPoint", "locationFor2dImg"+locationFor2dImg[0]+locationFor2dImg[1]);
+                                                                            SmartControl();
+
+                                    }
+
+
 
                                 } else {
                                      myS2renderer.setMarkerDrawed(normalizedX, normalizedY, isBigData_Remote);
@@ -4950,7 +4949,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //                                        scoreInstance.pinpoint();
 
                                         Log.v("actionUp", "Pointinggggggggggg");
-                                        if (myS2renderer.getFileType() == MyRenderer.FileType.JPG || myS2renderer.getFileType() == MyRenderer.FileType.PNG)
+                                        if (myS2renderer.getFileType() == MyRenderer.FileType.JPG || myS2renderer.getFileType() == MyRenderer.FileType.PNG|| myS2renderer.getFileType() == MyRenderer.FileType.TIF)
                                             myS2renderer.add2DMarker(normalizedX, normalizedY);
                                         else {
                                             myS2renderer.setMarkerDrawed(normalizedX, normalizedY, isBigData_Remote);
@@ -5110,7 +5109,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         ifZooming = false;
         Log.e(TAG, "loadBigDataImg: "+filepath);
         if (ifZscanSeries) {
-            //progressDialog_zscan.dismiss();
+            progressDialog_zscan.dismiss();
             ifZscanSeries=false;
             Log.e(TAG, "loadBigDataImg:ifZscanSeries "+ifZscanSeries);
         }
