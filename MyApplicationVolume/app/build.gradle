@@ -53,6 +53,9 @@ android {
     dataBinding {
         enabled true
     }
+    buildFeatures {
+        viewBinding true
+    }
 
 }
 
@@ -68,6 +71,9 @@ dependencies {
     implementation files('libs\\pinyin4j-2.5.0.jar')
     api project(path: ':uikit')
     implementation project(path: ':logger')
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
@@ -123,9 +129,6 @@ dependencies {
     // 子模块用
     implementation 'com.github.iflove.Hunter:logExtlibrary:logExtlibrary-1.0'
     implementation 'com.github.michaldrabik:TapBarMenu:1.0.6'
-
-    implementation 'com.jakewharton:butterknife:10.0.0'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
 
     implementation "androidx.drawerlayout:drawerlayout:1.1.1"
     implementation 'de.hdodenhof:circleimageview:3.0.1'

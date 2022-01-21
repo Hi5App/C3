@@ -67,8 +67,6 @@ import com.penglab.hi5.data.UserInfoRepository;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.OnClick;
-
 //import com.penglab.hi5.core.game.QuestActivity;
 import com.penglab.hi5.data.UserInfoRepository;
 
