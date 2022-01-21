@@ -18,7 +18,7 @@ public class HttpUtilsUserPerformance extends HttpUtils{
                     .put("name", account)
                     .put("passwd", password)
                     .put("limit", 1)));
-            asyncRequest(URL_SOMA_COUNT, body, callback);
+            asyncPostRequest(URL_SOMA_COUNT, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -31,7 +31,7 @@ public class HttpUtilsUserPerformance extends HttpUtils{
                     .put("passwd", password)
                     .put("k", k)
                     .put("limit", 1)));
-            asyncRequest(URL_SOMA_COUNT, body, callback);
+            asyncPostRequest(URL_SOMA_COUNT, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
