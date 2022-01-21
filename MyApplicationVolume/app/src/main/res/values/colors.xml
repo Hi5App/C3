@@ -85,6 +85,7 @@
     <color name="cyan_map">#00C8C8</color>
     <color name="yellow_map">#DCC800</color>
     <color name="green_map">#00C814</color>
+    <color name ="reward">#FF6557</color>
 
     <array name="colorMap">
         <item>@color/white_map</item>

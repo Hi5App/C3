@@ -1,31 +1,26 @@
 package com.penglab.hi5.core.game.leaderBoard;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.PagerAdapter;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.os.Build;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.TextView;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.google.android.material.tabs.TabLayout;
+import com.netease.nim.uikit.common.media.imagepicker.view.SystemBarTintManager;
 import com.penglab.hi5.R;
-import com.penglab.hi5.core.ui.ViewModelFactory;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,29 +34,48 @@ public class LeaderBoardActivity extends AppCompatActivity {
 
     private ViewPager viewPager;
 
+    List<Fragment> fragmentList = new ArrayList<>();
+    UniversalFragment UniversalFragment;
+    TodayFragment TodayFragment;
     private String [] titles = {"today","universal"};
-    private int images[] = {};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            Window win = getWindow();
+            WindowManager.LayoutParams winParams = win.getAttributes();
+            final int bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+            winParams.flags |= bits;
+            win.setAttributes(winParams);
+            SystemBarTintManager tintManager = new SystemBarTintManager(this);
+            tintManager.setStatusBarTintEnabled(true);
+            tintManager.setStatusBarTintResource(R.color.reward);
+        }
         setContentView(R.layout.activity_leader_board);
 
         Toolbar toolbar = findViewById(R.id.toolbar_leaderboard);
         setSupportActionBar(toolbar);
 
-        leaderBoardViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(LeaderBoardViewModel.class);
-
-
-//        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.leaderboard_recyclerview);
-//        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-//        recyclerView.setLayoutManager(layoutManager);
-//        adapter = new LeaderBoardAdapter(leaderBoardViewModel.getLeaderBoardItemList());
-//        recyclerView.setAdapter(adapter);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Overridegit
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         tabLayout = findViewById(R.id.tab_layout);
+        viewPager =(ViewPager)findViewById(R.id.vp_pager);
         tabLayout.addTab(tabLayout.newTab().setText(titles[0]));
         tabLayout.addTab(tabLayout.newTab().setText(titles[1]));
+
+        UniversalFragment = new UniversalFragment();
+        fragmentList.add(UniversalFragment);
+        TodayFragment = new TodayFragment();
+        fragmentList.add(TodayFragment);
+
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -70,55 +84,21 @@ public class LeaderBoardActivity extends AppCompatActivity {
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-
             }
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-
             }
         });
 
-        viewPager =(ViewPager)findViewById(R.id.vp_pager);
-
-        TabPagerAdapter adapter = new TabPagerAdapter();
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(),fragmentList,titles);
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
-//        List<Fragment> fragments = new ArrayList<>();
-//        fragments.add(FirstFragment.newInstance());
-//        fragments.add(SecondFragment.newInstance());
-
-//        MyFragmentAdapter adapter = new MyFragmentAdapter(getSupportFragmentManager(),fragments, Array.asList(titles));
-//        viewPager.setAdapter(adapter);
-//        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-//            @Override
-//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//
-//            }
-//
-//            @Override
-//            public void onPageSelected(int position){
-//                Log.i(TAG,"select page:" + position);
-//            }
-//
-//            @Override
-//            public void onPageSelected(int position) {
-//
-//            }
-//
-//            @Override
-//            public void onPageScrollStateChanged(int state) {
-//
-//            }
-//        });
-
-
+//        tabLayout.setVerticalScrollbarPosition(0);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.help_menu, menu);
         return true;
     }
@@ -134,30 +114,37 @@ public class LeaderBoardActivity extends AppCompatActivity {
         }
     }
 
-    public class TabPagerAdapter extends PagerAdapter{
+    public class ViewPagerAdapter extends FragmentStatePagerAdapter {
+        List<Fragment> mFragments;
+        String[] mTitles;
+        private  FragmentManager fm;
+        public ViewPagerAdapter(FragmentManager fm,List<Fragment>fragmentList,String[]titles){
+            super(fm);
+            this.fm = fm;
+            mFragments = fragmentList;
+            mTitles = titles;
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            Fragment fragment = new Fragment ();
+            fragment = mFragments.get(position);
+            Bundle bundle = new Bundle();
+            fragment.setArguments(bundle);
+            viewPager.setCurrentItem(position);
+            return mFragments.get(position);
+        }
 
         @Override
         public int getCount() {
-            return titles.length;
+            return mFragments.size();
         }
 
         @Override
-        public boolean isViewFromObject(@NonNull @NotNull View view, @NonNull @NotNull Object object) {
-            return view == object;
-        }
-
-        @Override
-        public Object instantiateItem(ViewGroup container, int position) {
-            TextView tv = new TextView(LeaderBoardActivity.this);
-            tv.setText(titles[position]);
-            tv.setGravity(Gravity.CENTER);
-            container.addView(tv, ViewPager.LayoutParams.MATCH_PARENT, ViewPager.LayoutParams.WRAP_CONTENT);
-            return tv;
-        }
-
-        @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
-            container.removeView((View) object);
+        public Fragment instantiateItem (ViewGroup container,int position){
+            Fragment fragment =(Fragment)super.instantiateItem(container,position);
+            fm.beginTransaction().show(fragment).commitAllowingStateLoss();
+            return fragment;
         }
 
         @Override
@@ -166,7 +153,11 @@ public class LeaderBoardActivity extends AppCompatActivity {
         }
     }
 
-    }
+
+
+
+
+}
 
 
 

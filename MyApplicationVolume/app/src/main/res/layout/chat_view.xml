@@ -11,14 +11,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <com.penglab.hi5.chat.chatlist.LetterView
-        android:id="@+id/letter_view"
-        android:layout_width="30dp"
-        android:layout_height="match_parent"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="10dp"
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp" />
+<!--    <com.penglab.hi5.chat.chatlist.LetterView-->
+<!--        android:id="@+id/letter_view"-->
+<!--        android:layout_width="30dp"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:layout_alignParentRight="true"-->
+<!--        android:layout_marginRight="10dp"-->
+<!--        android:paddingTop="15dp"-->
+<!--        android:paddingBottom="15dp" />-->
 
     <TextView
         android:id="@+id/text_home"
