@@ -82,7 +82,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/navigate"
-                        android:textSize="25sp"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -144,7 +144,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/Grade"
+                        android:id="@+id/marker_num"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="20sp"
@@ -153,7 +153,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Grade"
+                        android:text="Number"
                         android:textColor="@color/navigate" />
                 </LinearLayout>
             </LinearLayout>

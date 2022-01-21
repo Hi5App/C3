@@ -55,7 +55,8 @@
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
         <activity
             android:name=".core.game.leaderBoard.LeaderBoardActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar.NoActionBar"/>
         <activity android:name=".core.ui.userProfile.UserInfoActivity" />
         <activity
             android:name=".core.ui.userProfile.MyActivity"
