@@ -45,14 +45,12 @@ public class MarkerFactoryViewModel extends ViewModel {
     private final int DEFAULT_IMAGE_SIZE = 128;
     private final int DEFAULT_RES_INDEX = 2;
 
-
     public enum AnnotationMode{
-       BIG_DATA, NO_MORE_FILE, NONE
+       BIG_DATA, NONE
     }
 
-
     public enum WorkStatus{
-        GET_POTENTIAL_LOCATION, NONE
+        START_TO_DOWNLOAD_IMAGE, GET_SOMA_LIST_SUCCESSFULLY, UPLOAD_MARKERS_SUCCESSFULLY, NO_MORE_FILE, NONE
     }
 
     private final MutableLiveData<AnnotationMode> annotationMode = new MutableLiveData<>();
@@ -80,13 +78,11 @@ public class MarkerFactoryViewModel extends ViewModel {
         this.loggedInUser = userInfoRepository.getUser();
         coordinateConvert.setResIndex(DEFAULT_RES_INDEX);
         coordinateConvert.setImgSize(DEFAULT_IMAGE_SIZE);
-
     }
 
     public LiveData<AnnotationMode> getAnnotationMode(){
         return annotationMode;
     }
-
 
     public LiveData<WorkStatus> getWorkStatus() {
         return workStatus;
@@ -161,6 +157,7 @@ public class MarkerFactoryViewModel extends ViewModel {
                 curPotentialSomaInfo = (PotentialSomaInfo) data;
                 potentialSomaInfoList.add(curPotentialSomaInfo);
                 coordinateConvert.initLocation(curPotentialSomaInfo.getLocation());
+                curIndex = potentialSomaInfoList.size()-1;
 
                 // get res list when first download img
                 if (resMap.isEmpty()) {
@@ -169,15 +166,16 @@ public class MarkerFactoryViewModel extends ViewModel {
                     downloadImage();
                 }
             } else if (data instanceof MarkerList) {
+                // get soma list successfully
                 syncMarkerList.setValue(MarkerList.covertGlobalToLocal((MarkerList) data, coordinateConvert));
                 annotationMode.setValue(AnnotationMode.BIG_DATA);
+                workStatus.setValue(WorkStatus.GET_SOMA_LIST_SUCCESSFULLY);
             } else if (data instanceof String){
                 String response = (String) data;
                 if (response.equals(UPLOAD_SUCCESSFULLY)){
-                    ToastEasy("Upload markers successfully");
+                    workStatus.setValue(WorkStatus.UPLOAD_MARKERS_SUCCESSFULLY);
                 } else if (response.equals(NO_MORE_FILE)){
-                    annotationMode.setValue(AnnotationMode.NO_MORE_FILE);
-                    ToastEasy("No more file need to process !");
+                    workStatus.setValue(WorkStatus.NO_MORE_FILE);
                 }
             }
         } else if (result instanceof Result.Error){
@@ -187,7 +185,6 @@ public class MarkerFactoryViewModel extends ViewModel {
 
     public void openNewFile() {
         Log.e(TAG,"openNewFile");
-        curIndex = potentialSomaInfoList.size();
         getPotentialLocation();
     }
 
@@ -201,7 +198,7 @@ public class MarkerFactoryViewModel extends ViewModel {
             coordinateConvert.initLocation(curPotentialSomaInfo.getLocation());
             downloadImage();
         } else {
-            // TODO: something wrong with curIndex
+            ToastEasy("Something wrong with curIndex");
         }
     }
 
@@ -215,7 +212,7 @@ public class MarkerFactoryViewModel extends ViewModel {
             coordinateConvert.initLocation(curPotentialSomaInfo.getLocation());
             downloadImage();
         } else {
-            // TODO: something wrong with curIndex
+            ToastEasy("Something wrong with curIndex");
         }
     }
 
@@ -235,6 +232,8 @@ public class MarkerFactoryViewModel extends ViewModel {
             ToastEasy("Fail to download image, something wrong with res list !");
             return;
         }
+        // show progressBar
+        workStatus.setValue(WorkStatus.START_TO_DOWNLOAD_IMAGE);
         imageDataSource.downloadImage(curPotentialSomaInfo.getBrainId(), res, (int) loc.x , (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE);
     }
 
@@ -246,7 +245,7 @@ public class MarkerFactoryViewModel extends ViewModel {
     }
 
     public void updateSomaList(MarkerList markerListToAdd, JSONArray markerListToDelete) {
-        if ((markerListToAdd == null || markerListToAdd.size() == 0) && (markerListToDelete == null || markerListToDelete.length() == 0)){
+        if ((markerListToAdd == null) && (markerListToDelete == null)){
             return;
         }
         try {

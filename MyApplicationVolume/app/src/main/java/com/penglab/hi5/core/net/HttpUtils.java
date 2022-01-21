@@ -23,10 +23,18 @@ public class HttpUtils {
             .readTimeout(20, TimeUnit.SECONDS)
             .build();;
 
-    protected static void asyncRequest(String url, RequestBody body, Callback callback) {
+    protected static void asyncPostRequest(String url, RequestBody body, Callback callback) {
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)
+                .build();
+        client.newCall(request).enqueue(callback);
+    }
+
+    protected static void asyncGetRequest(String url, Callback callback) {
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
                 .build();
         client.newCall(request).enqueue(callback);
     }

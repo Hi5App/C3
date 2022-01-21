@@ -18,7 +18,7 @@ public class HttpUtilsSoma extends HttpUtils {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                 .put("user", userInfo)));
-            asyncRequest(URL_GET_POTENTIAL_LOCATION, body, callback);
+            asyncPostRequest(URL_GET_POTENTIAL_LOCATION, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -31,7 +31,7 @@ public class HttpUtilsSoma extends HttpUtils {
                     .put("image", image)
                     .put("pa1", new JSONObject().put("x", x - size/2).put("y", y - size/2).put("z", z - size/2))
                     .put("pa2", new JSONObject().put("x", x + size/2).put("y", y + size/2).put("z", z + size/2))));
-            asyncRequest(URL_GET_SOMA_LIST, body, callback);
+            asyncPostRequest(URL_GET_SOMA_LIST, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -46,7 +46,7 @@ public class HttpUtilsSoma extends HttpUtils {
                     .put("deletesomalist", deleteSomaList)
                     .put("owner", username)
                     .put("image", image)));
-            asyncRequest(URL_INSERT_SOMA_LIST, body, callback);
+            asyncPostRequest(URL_INSERT_SOMA_LIST, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }

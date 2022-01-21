@@ -3,15 +3,8 @@ package com.penglab.hi5.core.net;
 
 import org.json.JSONObject;
 
-import java.util.concurrent.TimeUnit;
-
 import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.Response;
 
 public class HttpUtilsUser extends HttpUtils {
     private static final String URL_REGISTER = SERVER_IP + "/dynamic/user/register";
@@ -26,7 +19,7 @@ public class HttpUtilsUser extends HttpUtils {
                     .put("name", account)
                     .put("passwd", password)
                     .put("limit", 1)));
-            asyncRequest(URL_LOGIN, body, callback);
+            asyncPostRequest(URL_LOGIN, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -40,7 +33,7 @@ public class HttpUtilsUser extends HttpUtils {
                     .put("email", email)
                     .put("passwd", password)
                     .put("nickname", nickname)));
-            asyncRequest(URL_REGISTER, body, callback);
+            asyncPostRequest(URL_REGISTER, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -52,7 +45,7 @@ public class HttpUtilsUser extends HttpUtils {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("email", email)
                     .put("username", username)));
-            asyncRequest(URL_FIND_PASSWORD, body, callback);
+            asyncPostRequest(URL_FIND_PASSWORD, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -65,7 +58,7 @@ public class HttpUtilsUser extends HttpUtils {
                     .put("email", email)
                     .put("passwd", password)
                     .put("n_password", n_password)));
-            asyncRequest(URL_UPDATE_PASSWORD, body, callback);
+            asyncPostRequest(URL_UPDATE_PASSWORD, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }

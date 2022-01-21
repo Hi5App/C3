@@ -564,19 +564,6 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         return annotationDataManager.getMarkerList();
     }
 
-    public void syncMarkerList(MarkerList markerList){
-        annotationDataManager.syncMarkerList(markerList);
-        requestRender();
-    }
-
-    public MarkerList getMarkerListToAdd(){
-        return annotationDataManager.getMarkerListToAdd();
-    }
-
-    public JSONArray getMarkerListToDelete(){
-        return annotationDataManager.getMarkerListToDelete();
-    }
-
     private void update3DFileSize(Integer[] size){
         float maxSize = (float) Collections.max(Arrays.asList(size));
 
@@ -603,6 +590,29 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         normalizedSize[1] = (float) size[1] / maxSize;
         normalizedSize[2] = (float) size[2] / maxSize;
 
+    }
+
+    /**
+     * MarkerFactory part
+     */
+    public void syncMarkerList(MarkerList markerList) {
+        annotationDataManager.syncMarkerList(markerList);
+        requestRender();
+    }
+
+    public MarkerList getMarkerListToAdd() {
+        return annotationDataManager.getMarkerListToAdd();
+    }
+
+    public JSONArray getMarkerListToDelete() {
+        return annotationDataManager.getMarkerListToDelete();
+    }
+
+    public boolean nothingToUpload() {
+        MarkerList markerListToAdd = annotationDataManager.getMarkerListToAdd();
+        JSONArray markerListToDelete = annotationDataManager.getMarkerListToDelete();
+        return ((markerListToAdd == null || markerListToAdd.size() == 0) &&
+                (markerListToDelete == null || markerListToDelete.length() == 0));
     }
 
     public interface OnScoreWinWithTouchEventListener {
