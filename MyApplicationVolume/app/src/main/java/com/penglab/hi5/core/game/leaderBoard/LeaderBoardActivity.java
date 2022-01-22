@@ -1,14 +1,20 @@
 package com.penglab.hi5.core.game.leaderBoard;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
-
 import android.os.Build;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.Menu;
@@ -30,10 +36,16 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-
 import com.google.android.material.tabs.TabLayout;
 import com.netease.nim.uikit.common.media.imagepicker.view.SystemBarTintManager;
 import com.penglab.hi5.R;
+
+
+//import org.jetbrains.annotations.NotNull;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 
 
 //import org.jetbrains.annotations.NotNull;
@@ -56,8 +68,6 @@ public class LeaderBoardActivity extends AppCompatActivity {
     List<Fragment> fragmentList = new ArrayList<>();
     UniversalFragment UniversalFragment;
     TodayFragment TodayFragment;
-
-
     private String [] titles = {"today","universal"};
 
     @Override
@@ -78,7 +88,6 @@ public class LeaderBoardActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar_leaderboard);
         setSupportActionBar(toolbar);
-
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,12 +105,6 @@ public class LeaderBoardActivity extends AppCompatActivity {
         fragmentList.add(UniversalFragment);
         TodayFragment = new TodayFragment();
         fragmentList.add(TodayFragment);
-
-//        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.leaderboard_recyclerview);
-//        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-//        recyclerView.setLayoutManager(layoutManager);
-//        adapter = new LeaderBoardAdapter(leaderBoardViewModel.getLeaderBoardItemList());
-//        recyclerView.setAdapter(adapter);
 
         tabLayout = findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText(titles[0]));
@@ -127,9 +130,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
 //        tabLayout.setVerticalScrollbarPosition(0);
-
-
-            }
+    }
 
 
     @Override
@@ -189,7 +190,4 @@ public class LeaderBoardActivity extends AppCompatActivity {
     }
 
 }
-
-
-
 

@@ -6,12 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".core.game.LeaderBoardActivity">
 
-
-<!--    <include-->
-<!--        layout="@layout/app_bar_main"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content" />-->
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -21,7 +15,6 @@
             android:id ="@+id/toolbar_leaderboard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:background="@color/reward"
             android:fitsSystemWindows="true"
             app:titleTextColor="@color/white"
@@ -33,7 +26,6 @@
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:background="@color/reward"
             app:tabIndicatorColor="@color/white"
             app:tabGravity="fill"
