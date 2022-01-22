@@ -622,4 +622,8 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
     public void setOnScoreWinWithTouchEventListener(OnScoreWinWithTouchEventListener onScoreWinWithTouchEventListener) {
         this.onScoreWinWithTouchEventListener = onScoreWinWithTouchEventListener;
     }
+
+    public void setImageInfoInRender(String imageInfo) {
+        annotationRender.setImageInfo(imageInfo);
+    }
 }

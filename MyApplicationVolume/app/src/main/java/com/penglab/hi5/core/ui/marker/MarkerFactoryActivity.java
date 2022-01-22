@@ -21,6 +21,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
@@ -51,6 +52,7 @@ import com.penglab.hi5.data.dataStore.PreferenceSetting;
 import com.penglab.hi5.data.dataStore.PreferenceSoma;
 
 import com.penglab.hi5.data.model.img.FilePath;
+import com.penglab.hi5.data.model.img.PotentialSomaInfo;
 import com.robinhood.ticker.TickerView;
 import com.warkiz.widget.IndicatorSeekBar;
 import com.warkiz.widget.OnSeekChangeListener;
@@ -96,6 +98,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     private ImageButton addMarker;
     private ImageButton deleteMarker;
     private TickerView scoreTickerView;
+    private TextView imageIdLocationTextView;
     private boolean needSyncSomaList = false;
     private boolean needUpload = false;
 
@@ -113,6 +116,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 }
             }
         });
+        imageIdLocationTextView = findViewById(R.id.imageid_location_text_view);
         toolbar = (Toolbar) findViewById(R.id.toolbar_marker_factory);
         setSupportActionBar(toolbar);
 
@@ -193,10 +197,14 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 if (resourceResult.isSuccess()){
                     annotationGLSurfaceView.openFile();
                     markerFactoryViewModel.getSomaList();
+                    PotentialSomaInfo somaInfo = markerFactoryViewModel.getCurPotentialSomaInfo();
+                    imageIdLocationTextView.setText(somaInfo.getBrainId() + "_" + somaInfo.getLocation().toString());
+                    annotationGLSurfaceView.setImageInfoInRender(somaInfo.getBrainId() + "_" + somaInfo.getLocation().toString());
                     needUpload = true;
                 } else {
                     ToastEasy(resourceResult.getError());
                 }
+
             }
         });
 
