@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+import android.os.Build;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -23,7 +24,9 @@ import android.view.ViewGroup;
 
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -37,6 +40,10 @@ import com.google.android.material.tabs.TabLayout;
 import com.netease.nim.uikit.common.media.imagepicker.view.SystemBarTintManager;
 import com.penglab.hi5.R;
 
+
+//import org.jetbrains.annotations.NotNull;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +68,6 @@ public class LeaderBoardActivity extends AppCompatActivity {
     List<Fragment> fragmentList = new ArrayList<>();
     UniversalFragment UniversalFragment;
     TodayFragment TodayFragment;
-
     private String [] titles = {"today","universal"};
 
     @Override
@@ -82,8 +88,6 @@ public class LeaderBoardActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar_leaderboard);
         setSupportActionBar(toolbar);
-
-
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,6 +106,9 @@ public class LeaderBoardActivity extends AppCompatActivity {
         TodayFragment = new TodayFragment();
         fragmentList.add(TodayFragment);
 
+        tabLayout = findViewById(R.id.tab_layout);
+        tabLayout.addTab(tabLayout.newTab().setText(titles[0]));
+        tabLayout.addTab(tabLayout.newTab().setText(titles[1]));
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -162,7 +169,6 @@ public class LeaderBoardActivity extends AppCompatActivity {
             fragment.setArguments(bundle);
             viewPager.setCurrentItem(position);
             return mFragments.get(position);
-
         }
 
         @Override
@@ -175,7 +181,6 @@ public class LeaderBoardActivity extends AppCompatActivity {
             Fragment fragment =(Fragment)super.instantiateItem(container,position);
             fm.beginTransaction().show(fragment).commitAllowingStateLoss();
             return fragment;
-
         }
 
         @Override
@@ -185,8 +190,4 @@ public class LeaderBoardActivity extends AppCompatActivity {
     }
 
 }
-
-
-
-
 
