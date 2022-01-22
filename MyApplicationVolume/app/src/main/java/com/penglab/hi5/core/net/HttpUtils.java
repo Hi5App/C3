@@ -21,7 +21,7 @@ public class HttpUtils {
             .connectTimeout(20, TimeUnit.SECONDS)
             .writeTimeout(20, TimeUnit.SECONDS)
             .readTimeout(20, TimeUnit.SECONDS)
-            .build();;
+            .build();
 
     protected static void asyncPostRequest(String url, RequestBody body, Callback callback) {
         Request request = new Request.Builder()
