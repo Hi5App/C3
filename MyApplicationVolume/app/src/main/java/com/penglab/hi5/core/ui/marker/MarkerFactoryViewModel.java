@@ -112,6 +112,10 @@ public class MarkerFactoryViewModel extends ViewModel {
         return userInfoRepository.getScoreModel().getObservableScore();
     }
 
+    public PotentialSomaInfo getCurPotentialSomaInfo() {
+        return curPotentialSomaInfo;
+    }
+
     public void updateImageResult(Result result) {
         if (result instanceof Result.Success){
             Object data = ((Result.Success<?>) result).getData();

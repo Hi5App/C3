@@ -71,6 +71,8 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
     private int screenHeight;
     private float[] fingerTrajectory;
 
+    private String imageInfo;
+
     public AnnotationRender(AnnotationDataManager annotationDataManager, MatrixManager matrixManager, RenderOptions renderOptions){
         this.annotationDataManager = annotationDataManager;
         this.matrixManager = matrixManager;
@@ -252,6 +254,7 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
                     // add watermark
                     Bitmap outBitmap = ImageUtil.drawTextToRightBottom(getContext(),
                             bitmap, "Hi5", 20, Color.RED, 40, 30);
+                    outBitmap = ImageUtil.drawTextToLeftTop(getContext(), outBitmap, imageInfo, 20, Color.RED, 40, 30);
                     Uri shareUri = Uri.parse(MediaStore.Images.Media.insertImage(getContext().getContentResolver(), outBitmap,
                             "Image" + System.currentTimeMillis(), "ScreenCapture from Hi5"));
 
@@ -377,5 +380,9 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
         result[2] = point[2] / originalSize[2] * normalizedSize[2];
 
         return result;
+    }
+
+    public void setImageInfo(String imageInfo) {
+        this.imageInfo = imageInfo;
     }
 }

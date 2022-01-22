@@ -65,5 +65,8 @@ public class XYZ implements Cloneable{
         return a;
     }
 
+    public String toString() {
+        return Float.toString(x) + "_" + y + "_" + z;
+    }
 
 }
