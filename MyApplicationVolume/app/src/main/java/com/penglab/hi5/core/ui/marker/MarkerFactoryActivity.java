@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.OvershootInterpolator;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -34,12 +35,11 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
-import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
 import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.utils.xpopupExt.ConfirmPopupViewExt;
-import com.penglab.hi5.basic.utils.xpopupExt.OnIgnoreListener;
+import com.penglab.hi5.basic.utils.xpopupExt.ConfirmPopupViewWithCheckBox;
 import com.penglab.hi5.core.music.MusicService;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ResourceResult;
@@ -149,7 +149,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                         break;
 
                     case UPLOAD_MARKERS_SUCCESSFULLY:
-                        ToastEasy("Upload markers successfully");
+                        ToastEasy("Upload successfully");
                         if (needSyncSomaList) {
                             markerFactoryViewModel.getSomaList();
                             needSyncSomaList = false;
@@ -200,7 +200,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                     PotentialSomaInfo somaInfo = markerFactoryViewModel.getCurPotentialSomaInfo();
                     imageIdLocationTextView.setText(somaInfo.getBrainId() + "_" + somaInfo.getLocation().toString());
                     annotationGLSurfaceView.setImageInfoInRender(somaInfo.getBrainId() + "_" + somaInfo.getLocation().toString());
-                    needUpload = true;
                 } else {
                     ToastEasy(resourceResult.getError());
                 }
@@ -305,7 +304,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         }
     }
 
-
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -324,11 +322,12 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 return true;
 
             case R.id.confirm:
-                needSyncSomaList = true;
-                needUpload = false;
-                markerFactoryViewModel.updateSomaList(annotationGLSurfaceView.getMarkerListToAdd(),
-                        annotationGLSurfaceView.getMarkerListToDelete());
-                playButtonSound();
+                if (!annotationGLSurfaceView.nothingToUpload()) {
+                    needSyncSomaList = true;
+                    markerFactoryViewModel.updateSomaList(annotationGLSurfaceView.getMarkerListToAdd(),
+                            annotationGLSurfaceView.getMarkerListToDelete());
+                    playButtonSound();
+                }
                 return true;
 
             case R.id.file:
@@ -518,11 +517,13 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
             ImageButton previousFile = findViewById(R.id.previous_file);
             ImageButton nextFile = findViewById(R.id.next_file);
+            ImageButton boringFile = findViewById(R.id.boring_file);
 
             addMarker.setOnClickListener(this::onButtonClick);
             deleteMarker.setOnClickListener(this::onButtonClick);
             previousFile.setOnClickListener(v -> previousFile());
             nextFile.setOnClickListener(v -> nextFile());
+            boringFile.setOnClickListener(v -> boringFile());
 
         } else {
             markerFactoryView.setVisibility(View.VISIBLE);
@@ -540,7 +541,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             case R.id.add_marker:
                 if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)){
                     addMarker.setImageResource(R.drawable.ic_marker_main);
-
                 }
                 break;
 
@@ -567,10 +567,18 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         });
     }
 
+    private void boringFile() {
+        if (preferenceSoma.getShowBoringFileWaring()) {
+            warning4BoringFile();
+        } else {
+            navigateFile(true, true);
+        }
+    }
+
     private void previousFile(){
-        if (preferenceSoma.getAutoUploadMode()) {
+        if (preferenceSoma.getAutoUploadMode() && !annotationGLSurfaceView.nothingToUpload()) {
             navigateFile(true, false);
-        } else if (!preferenceSoma.getAutoUploadMode() && (!annotationGLSurfaceView.nothingToUpload() || needUpload)){
+        } else if (!preferenceSoma.getAutoUploadMode() && !annotationGLSurfaceView.nothingToUpload()){
             warning4ChangeFile(false);
         } else {
             navigateFile(false, false);
@@ -579,9 +587,9 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     }
 
     private void nextFile(){
-        if (preferenceSoma.getAutoUploadMode()) {
+        if (preferenceSoma.getAutoUploadMode() && !annotationGLSurfaceView.nothingToUpload()) {
             navigateFile(true, true);
-        } else if (!preferenceSoma.getAutoUploadMode() && (!annotationGLSurfaceView.nothingToUpload() || needUpload)){
+        } else if (!preferenceSoma.getAutoUploadMode() && !annotationGLSurfaceView.nothingToUpload()){
             warning4ChangeFile(true);
         } else {
             navigateFile(false, true);
@@ -613,6 +621,20 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                         .setConfirmText("Upload")
                         .setIgnoreText("Don't upload")
                         .setCancelText("Cancel")
+                ).show();
+    }
+
+    private void warning4BoringFile(){
+        new XPopup.Builder(this)
+                .asCustom(
+                        ConfirmPopupViewWithCheckBox.init(this, "Warning...",
+                                "You are marking this file as a boring file, are you sure to do that ?",
+                                () -> navigateFile(true, true),
+                                null,
+                                v -> preferenceSoma.setShowBoringFileWaring(!((CheckBox) v).isChecked()))
+                                .setConfirmText("Confirm")
+                                .setOptionText("Don't show again")
+                                .setCancelText("Cancel")
                 ).show();
     }
 

@@ -188,12 +188,10 @@ public class MarkerFactoryViewModel extends ViewModel {
     }
 
     public void openNewFile() {
-        Log.e(TAG,"openNewFile");
         getPotentialLocation();
     }
 
     public void previousFile() {
-        Log.e(TAG,"previousFile");
         if (curIndex == 0) {
             ToastEasy("You have reached the earliest image !");
         } else if (curIndex <= potentialSomaInfoList.size()-1 && curIndex > 0) {
@@ -244,7 +242,6 @@ public class MarkerFactoryViewModel extends ViewModel {
     public void getSomaList() {
         String brainId = curPotentialSomaInfo.getBrainId();
         XYZ loc = curPotentialSomaInfo.getLocation();
-        Log.e(TAG,"loc: (" + loc.x + ", " + loc.y + ", " + loc.z + ")");
         markerFactoryDataSource.getSomaList(brainId, (int) loc.x, (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE * (int) Math.pow(2, coordinateConvert.getResIndex()-1));
     }
 

@@ -15,4 +15,6 @@
 .cxx
 /uikit/build
 /app/build
+/app/.idea
 /app/release
+/app/local.properties
