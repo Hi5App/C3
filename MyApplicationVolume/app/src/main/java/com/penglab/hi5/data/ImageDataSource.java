@@ -130,9 +130,6 @@ public class ImageDataSource {
             JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
             JSONObject loc = new JSONObject().put("x", offsetX).put("y", offsetY).put("z", offsetZ);
 
-            String date = df.format(new Date());
-            Log.e(TAG,"send time: " + date);
-
             HttpUtilsImage.downloadImageWithOkHttp(userInfo, brainId, res, loc, size, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
@@ -142,9 +139,6 @@ public class ImageDataSource {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     try {
-                        String date = df.format(new Date());
-                        Log.e(TAG,"receive time: " + date);
-
                         if (response.body() != null) {
                             byte[] fileContent = response.body().bytes();
 
@@ -156,7 +150,6 @@ public class ImageDataSource {
                                 result.postValue(new Result.Error(new Exception("Fail to store image file !")));
                             }
                             result.postValue(new Result.Success(storePath + "/" + filename));
-
                             response.body().close();
                             response.close();
                         } else {

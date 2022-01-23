@@ -576,7 +576,6 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         normalizedSize[2] = (float) size[2] / maxSize;
 
         Log.e(TAG,Arrays.toString(originalSize));
-
     }
 
     private void update2DImageSize(Integer[] size){
