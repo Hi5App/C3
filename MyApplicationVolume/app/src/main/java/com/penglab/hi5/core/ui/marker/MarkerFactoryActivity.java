@@ -36,6 +36,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
+import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
 import com.penglab.hi5.basic.image.MarkerList;
@@ -572,6 +573,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         if (preferenceSoma.getShowBoringFileWarning()) {
             warning4BoringFile();
         } else {
+            markerFactoryViewModel.removeCurFileFromList();
             navigateFile(true, true);
         }
     }
@@ -630,8 +632,14 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 .asCustom(
                         ConfirmPopupViewWithCheckBox.init(this, "Warning...",
                                 "You are marking this file as a boring file, are you sure to do that ?",
-                                () -> navigateFile(true, true),
-                                null,
+                                new OnConfirmListener() {
+                                    @Override
+                                    public void onConfirm() {
+                                        markerFactoryViewModel.removeCurFileFromList();
+                                        navigateFile(true, true);
+                                    }
+                                },
+        null,
                                 v -> preferenceSoma.setShowBoringFileWarning(!((CheckBox) v).isChecked()))
                                 .setConfirmText("Confirm")
                                 .setOptionText("Don't show again")
