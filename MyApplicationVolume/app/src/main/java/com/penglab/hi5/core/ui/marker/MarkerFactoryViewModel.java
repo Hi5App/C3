@@ -191,10 +191,19 @@ public class MarkerFactoryViewModel extends ViewModel {
         getPotentialLocation();
     }
 
+    public void removeCurFileFromList() {
+        if (curIndex >= 0 && curIndex < potentialSomaInfoList.size()) {
+            potentialSomaInfoList.remove(curIndex);
+            curIndex--;
+        } else {
+            ToastEasy("Something wrong with curIndex");
+        }
+    }
+
     public void previousFile() {
         if (curIndex == 0) {
             ToastEasy("You have reached the earliest image !");
-        } else if (curIndex <= potentialSomaInfoList.size()-1 && curIndex > 0) {
+        } else if (curIndex <= potentialSomaInfoList.size() - 1 && curIndex > 0) {
             curIndex--;
             curPotentialSomaInfo = potentialSomaInfoList.get(curIndex);
             coordinateConvert.initLocation(curPotentialSomaInfo.getLocation());
