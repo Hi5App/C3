@@ -3,9 +3,11 @@ package com.penglab.hi5.basic.utils.xpopupExt;
 import android.content.Context;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -17,12 +19,12 @@ import com.lxj.xpopup.interfaces.OnCancelListener;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.penglab.hi5.R;
 
-public class ConfirmPopupViewWithCheckBox extends CenterPopupView implements View.OnClickListener{
+public class ConfirmPopupViewWithCheckBox extends CenterPopupView implements View.OnClickListener {
     OnCancelListener cancelListener;
     OnConfirmListener confirmListener;
     OnCheckListener checkListener;
     TextView tv_title, tv_content, tv_cancel, tv_confirm;
-    CharSequence title, content, hint, cancelText, ignoreText, confirmText, optionText;
+    CharSequence title, content, hint, cancelText, confirmText, optionText;
     EditText et_input;
     CheckBox cb_option;
     View divider1, divider2;
@@ -72,6 +74,7 @@ public class ConfirmPopupViewWithCheckBox extends CenterPopupView implements Vie
 
         tv_cancel.setOnClickListener(this);
         tv_confirm.setOnClickListener(this);
+        cb_option.setOnClickListener(this);
 
         if (!TextUtils.isEmpty(title)) {
             tv_title.setText(title);
@@ -172,6 +175,7 @@ public class ConfirmPopupViewWithCheckBox extends CenterPopupView implements Vie
 
     @Override
     public void onClick(View v) {
+        Log.e("onClick","viewId: " + v.getId());
         if (v == tv_cancel) {
             if (cancelListener != null) cancelListener.onCancel();
             dismiss();

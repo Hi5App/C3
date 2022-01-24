@@ -113,12 +113,15 @@ public class UserDataSource {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     int responseCode = response.code();
+                    Log.e("RegisterViewModel","ResponseCode: " + response.code());
                     if (responseCode == 200) {
                         RegisterUser registerUser = new RegisterUser(username, nickname);
                         result.postValue(new Result.Success<RegisterUser>(registerUser));
 
                         response.body().close();
                         response.close();
+                    } else if (responseCode == 501) {
+                        result.postValue(new Result.Error(new IOException("Fail to register !")));
                     } else {
                         result.postValue(new Result.Error(new IOException(responseData)));
                     }

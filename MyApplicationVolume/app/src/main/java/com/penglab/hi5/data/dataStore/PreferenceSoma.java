@@ -33,9 +33,9 @@ public class PreferenceSoma {
         pref = mContext.getSharedPreferences("somaSettings", Context.MODE_PRIVATE);
     }
 
-    public void setShowBoringFileWaring(boolean showBoringFileWaring){
+    public void setShowBoringFileWarning(boolean ShowBoringFileWarning){
         SharedPreferences.Editor editor = pref.edit();
-        editor.putBoolean("ShowBoringFileWaring", showBoringFileWaring);
+        editor.putBoolean("ShowBoringFileWarning", ShowBoringFileWarning);
         editor.putBoolean("AutoUploadMode", getAutoUploadMode());
         editor.putInt("ImageSize", getImageSize());
         editor.apply();
@@ -44,7 +44,7 @@ public class PreferenceSoma {
     public void setAutoUploadMode(boolean autoUploadMode){
         SharedPreferences.Editor editor = pref.edit();
         editor.putBoolean("AutoUploadMode", autoUploadMode);
-        editor.putBoolean("ShowBoringFileWaring", getShowBoringFileWaring());
+        editor.putBoolean("ShowBoringFileWaring", getShowBoringFileWarning());
         editor.putInt("ImageSize", getImageSize());
         editor.apply();
     }
@@ -53,7 +53,7 @@ public class PreferenceSoma {
         SharedPreferences.Editor editor = pref.edit();
         editor.putInt("ImageSize", imageSize);
         editor.putBoolean("AutoUploadMode", getAutoUploadMode());
-        editor.putBoolean("ShowBoringFileWaring", getShowBoringFileWaring());
+        editor.putBoolean("ShowBoringFileWarning", getShowBoringFileWarning());
         editor.apply();
     }
 
@@ -61,8 +61,8 @@ public class PreferenceSoma {
         return pref.getBoolean("AutoUploadMode",false);
     }
 
-    public boolean getShowBoringFileWaring(){
-        return pref.getBoolean("ShowBoringFileWaring",true);
+    public boolean getShowBoringFileWarning(){
+        return pref.getBoolean("ShowBoringFileWarning",true);
     }
 
     public int getImageSize(){

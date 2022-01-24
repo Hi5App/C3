@@ -1,5 +1,6 @@
 package com.penglab.hi5.core.ui.register;
 
+import android.util.Log;
 import android.util.Patterns;
 
 import androidx.lifecycle.LiveData;
