@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -568,7 +569,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     }
 
     private void boringFile() {
-        if (preferenceSoma.getShowBoringFileWaring()) {
+        if (preferenceSoma.getShowBoringFileWarning()) {
             warning4BoringFile();
         } else {
             navigateFile(true, true);
@@ -631,7 +632,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                                 "You are marking this file as a boring file, are you sure to do that ?",
                                 () -> navigateFile(true, true),
                                 null,
-                                v -> preferenceSoma.setShowBoringFileWaring(!((CheckBox) v).isChecked()))
+                                v -> preferenceSoma.setShowBoringFileWarning(!((CheckBox) v).isChecked()))
                                 .setConfirmText("Confirm")
                                 .setOptionText("Don't show again")
                                 .setCancelText("Cancel")
