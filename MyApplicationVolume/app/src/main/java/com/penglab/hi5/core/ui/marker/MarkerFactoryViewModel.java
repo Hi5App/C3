@@ -193,14 +193,19 @@ public class MarkerFactoryViewModel extends ViewModel {
 
     public void removeCurFileFromList() {
         if (curIndex >= 0 && curIndex < potentialSomaInfoList.size()) {
-            potentialSomaInfoList.remove(curIndex);
-            curIndex--;
+            potentialSomaInfoList.get(curIndex).setBoring(true);
         } else {
             ToastEasy("Something wrong with curIndex");
         }
     }
 
     public void previousFile() {
+        while (curIndex > 0) {
+            if (!potentialSomaInfoList.get(curIndex - 1).isBoring()) {
+                break;
+            }
+            curIndex--;
+        }
         if (curIndex == 0) {
             ToastEasy("You have reached the earliest image !");
         } else if (curIndex <= potentialSomaInfoList.size() - 1 && curIndex > 0) {
@@ -214,6 +219,12 @@ public class MarkerFactoryViewModel extends ViewModel {
     }
 
     public void nextFile() {
+        while (curIndex < potentialSomaInfoList.size() - 1) {
+            if (!potentialSomaInfoList.get(curIndex + 1).isBoring()) {
+                break;
+            }
+            curIndex++;
+        }
         if (curIndex == potentialSomaInfoList.size()-1) {
             // open new file
             openNewFile();
@@ -281,4 +292,17 @@ public class MarkerFactoryViewModel extends ViewModel {
         userInfoRepository.getScoreModel().pinpoint();
     }
 
+    private void initPreDownloadThread() {
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                while (true) {
+                    synchronized (potentialSomaInfoList) {
+                        getPotentialLocation();
+                    }
+                }
+            }
+        };
+    }
 }

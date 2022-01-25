@@ -9,6 +9,7 @@ public class PotentialSomaInfo {
     private final int id;
     private final String brainId;
     private final XYZ location;  // under the highest resolution
+    private boolean isBoring = false;
 
     public PotentialSomaInfo(int id, String brainId, XYZ location) {
         this.id = id;
@@ -26,5 +27,13 @@ public class PotentialSomaInfo {
 
     public XYZ getLocation() {
         return location;
+    }
+
+    public boolean isBoring() {
+        return isBoring;
+    }
+
+    public void setBoring(boolean boring) {
+        isBoring = boring;
     }
 }
