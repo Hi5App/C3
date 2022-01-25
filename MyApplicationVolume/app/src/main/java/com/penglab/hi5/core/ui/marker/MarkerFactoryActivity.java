@@ -104,7 +104,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     private TickerView scoreTickerView;
     private TextView imageIdLocationTextView;
     private boolean needSyncSomaList = false;
-    private boolean needUpload = false;
     private boolean switchMarkerMode = true;
 
     @Override
@@ -556,8 +555,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
         switch (view.getId()){
             case R.id.add_marker:
-                if(switchMarkerMode)
-                {
+                if(switchMarkerMode) {
                     if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
                         addMarker.setImageResource(R.drawable.ic_marker_main);
                     }
@@ -661,7 +659,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                                         navigateFile(true, true);
                                     }
                                 },
-        null,
+                                null,
                                 v -> preferenceSoma.setShowBoringFileWarning(!((CheckBox) v).isChecked()))
                                 .setConfirmText("Confirm")
                                 .setOptionText("Don't show again")

@@ -1,7 +1,9 @@
 package com.penglab.hi5.core.ui.marker;
 
 
+import static android.content.Context.DOWNLOAD_SERVICE;
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
+import static com.penglab.hi5.data.ImageDataSource.DOWNLOAD_IMAGE_FAILED;
 import static com.penglab.hi5.data.MarkerFactoryDataSource.NO_MORE_FILE;
 import static com.penglab.hi5.data.MarkerFactoryDataSource.UPLOAD_SUCCESSFULLY;
 
@@ -150,6 +152,13 @@ public class MarkerFactoryViewModel extends ViewModel {
                 imageResult.setValue(new ResourceResult(true));
             }
         } else if (result instanceof Result.Error){
+            // Fail to download image
+            if (result.toString().equals("Error: " + DOWNLOAD_IMAGE_FAILED)) {
+                if (curIndex == potentialSomaInfoList.size()-1) {
+                    curIndex--;
+                }
+                potentialSomaInfoList.remove(potentialSomaInfoList.size()-1);
+            }
             ToastEasy(result.toString());
         }
     }
