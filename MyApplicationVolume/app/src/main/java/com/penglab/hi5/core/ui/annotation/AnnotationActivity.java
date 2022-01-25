@@ -88,7 +88,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         put(EditMode.ZOOM, R.drawable.ic_zoom);
         put(EditMode.ZOOM_IN_ROI, R.drawable.ic_roi);
     }};
-    private final ExecutorService executorService = Executors.newFixedThreadPool(3);;
+    private final ExecutorService executorService = Executors.newFixedThreadPool(3);
 
     private AnnotationViewModel annotationViewModel;
     private AnnotationGLSurfaceView annotationGLSurfaceView;

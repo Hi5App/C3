@@ -219,7 +219,7 @@ public class AnnotationDataManager {
      */
     public MarkerList getMarkerListToAdd() {
         MarkerList startStatus = undoMarkerList.get(0);
-        MarkerList endStatus = undoMarkerList.get(undoMarkerList.size()-1);
+        MarkerList endStatus = undoMarkerList.get(curUndo);
         MarkerList markerListToAdd = new MarkerList();
         for (int i=0; i<endStatus.size(); i++){
             ImageMarker marker = endStatus.get(i);
@@ -232,7 +232,7 @@ public class AnnotationDataManager {
 
     public JSONArray getMarkerListToDelete() {
         MarkerList startStatus = undoMarkerList.get(0);
-        MarkerList endStatus = undoMarkerList.get(undoMarkerList.size()-1);
+        MarkerList endStatus = undoMarkerList.get(curUndo);
         JSONArray markerListToDelete = new JSONArray();
         for (int i=0; i<startStatus.size(); i++){
             ImageMarkerExt marker = (ImageMarkerExt) startStatus.get(i);
