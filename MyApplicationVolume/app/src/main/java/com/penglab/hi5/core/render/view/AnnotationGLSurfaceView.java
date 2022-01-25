@@ -372,6 +372,10 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         return editMode.setSwitchableValue(mode);
     }
 
+    public EditMode getEditModeValue() {
+        return editMode.getValue();
+    }
+
     public void updateRenderOptions(){
         renderOptions.update();
     }

@@ -105,7 +105,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     private TextView imageIdLocationTextView;
     private boolean needSyncSomaList = false;
     private boolean needUpload = false;
-    private boolean switchMarkerMode = false;
+    private boolean switchMarkerMode = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -538,6 +538,13 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     }
     private void OnCheckChanged(CompoundButton compoundButton,boolean isChecked){
         switchMarkerMode = (isChecked ? true:false);
+        if (annotationGLSurfaceView.getEditModeValue() != EditMode.NONE) {
+            if (switchMarkerMode) {
+                annotationGLSurfaceView.setEditMode(EditMode.PINPOINT);
+            } else {
+                annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE);
+            }
+        }
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -549,14 +556,15 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
         switch (view.getId()){
             case R.id.add_marker:
-                if(switchMarkerMode == true)
+                if(switchMarkerMode)
                 {
-                    annotationGLSurfaceView.setEditMode(EditMode.PINPOINT);
+                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
+                        addMarker.setImageResource(R.drawable.ic_marker_main);
+                    }
                 }else{
-                    annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE);
-                }
-                if(annotationGLSurfaceView.setEditMode(EditMode.PINPOINT) || annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE)){
-                    addMarker.setImageResource(R.drawable.ic_marker_main);
+                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE)) {
+                        addMarker.setImageResource(R.drawable.ic_marker_main);
+                    }
                 }
                 break;
 
