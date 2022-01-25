@@ -78,6 +78,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         put(EditMode.NONE, 0);
         put(EditMode.PAINT_CURVE, R.drawable.ic_draw_main);
         put(EditMode.PINPOINT, R.drawable.ic_add_marker);
+        put(EditMode.PINPOINT_STROKE,R.drawable.ic_add_marker);
         put(EditMode.DELETE_CURVE, R.drawable.ic_delete_curve);
         put(EditMode.DELETE_MARKER, R.drawable.ic_marker_delete);
         put(EditMode.CHANGE_CURVE_TYPE, R.drawable.ic_change_curve_type);
