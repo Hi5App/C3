@@ -70,7 +70,9 @@ public class MarkerFactoryViewModel extends ViewModel {
     private final HashMap<String, String> resMap = new HashMap<>();
     private final List<PotentialSomaInfo> potentialSomaInfoList = new ArrayList<>();
     private PotentialSomaInfo curPotentialSomaInfo;
+    private PotentialSomaInfo lastDownloadPotentialSomaInfo;
     private int curIndex = -1;
+    private boolean isDownloading = false;
 
     public MarkerFactoryViewModel(UserInfoRepository userInfoRepository, ImageInfoRepository imageInfoRepository, MarkerFactoryDataSource markerFactoryDataSource, ImageDataSource imageDataSource) {
         this.userInfoRepository = userInfoRepository;
@@ -80,6 +82,8 @@ public class MarkerFactoryViewModel extends ViewModel {
         this.loggedInUser = userInfoRepository.getUser();
         coordinateConvert.setResIndex(DEFAULT_RES_INDEX);
         coordinateConvert.setImgSize(DEFAULT_IMAGE_SIZE);
+
+        initPreDownloadThread();
     }
 
     public LiveData<AnnotationMode> getAnnotationMode(){
@@ -145,11 +149,13 @@ public class MarkerFactoryViewModel extends ViewModel {
                 }
                 downloadImage();
             } else if (data instanceof String){
+                potentialSomaInfoList.add(lastDownloadPotentialSomaInfo);
+                isDownloading = false;
                 // process image file after download
-                String fileName = FileManager.getFileName((String) data);
-                FileType fileType = FileManager.getFileType((String) data);
-                imageInfoRepository.getBasicImage().setFileInfo(fileName, new FilePath<String >((String) data), fileType);
-                imageResult.setValue(new ResourceResult(true));
+//                String fileName = FileManager.getFileName((String) data);
+//                FileType fileType = FileManager.getFileType((String) data);
+//                imageInfoRepository.getBasicImage().setFileInfo(fileName, new FilePath<String >((String) data), fileType);
+//                imageResult.setValue(new ResourceResult(true));
             }
         } else if (result instanceof Result.Error){
             // Fail to download image
@@ -159,6 +165,7 @@ public class MarkerFactoryViewModel extends ViewModel {
                 }
                 potentialSomaInfoList.remove(potentialSomaInfoList.size()-1);
             }
+            isDownloading = false;
             ToastEasy(result.toString());
         }
     }
@@ -167,10 +174,10 @@ public class MarkerFactoryViewModel extends ViewModel {
         if (result instanceof Result.Success){
             Object data = ((Result.Success<?>) result).getData();
             if (data instanceof PotentialSomaInfo){
-                curPotentialSomaInfo = (PotentialSomaInfo) data;
-                potentialSomaInfoList.add(curPotentialSomaInfo);
-                coordinateConvert.initLocation(curPotentialSomaInfo.getLocation());
-                curIndex = potentialSomaInfoList.size()-1;
+                lastDownloadPotentialSomaInfo = (PotentialSomaInfo) data;
+//                potentialSomaInfoList.add(curPotentialSomaInfo);
+//                coordinateConvert.initLocation(curPotentialSomaInfo.getLocation());
+//                curIndex = potentialSomaInfoList.size()-1;
 
                 // get res list when first download img
                 if (resMap.isEmpty()) {
@@ -192,6 +199,7 @@ public class MarkerFactoryViewModel extends ViewModel {
                 }
             }
         } else if (result instanceof Result.Error){
+            isDownloading = false;
             ToastEasy(result.toString());
         }
     }
@@ -256,8 +264,8 @@ public class MarkerFactoryViewModel extends ViewModel {
     }
 
     public void downloadImage() {
-        String brainId = curPotentialSomaInfo.getBrainId();
-        XYZ loc = coordinateConvert.getCenterLocation();
+        String brainId = lastDownloadPotentialSomaInfo.getBrainId();
+        XYZ loc = lastDownloadPotentialSomaInfo.getLocation();
         String res = resMap.get(brainId);
         if (res == null){
             ToastEasy("Fail to download image, something wrong with res list !");
@@ -265,7 +273,7 @@ public class MarkerFactoryViewModel extends ViewModel {
         }
         // show progressBar
         workStatus.setValue(WorkStatus.START_TO_DOWNLOAD_IMAGE);
-        imageDataSource.downloadImage(curPotentialSomaInfo.getBrainId(), res, (int) loc.x , (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE);
+        imageDataSource.downloadImage(lastDownloadPotentialSomaInfo.getBrainId(), res, (int) loc.x , (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE);
     }
 
     public void getSomaList() {
@@ -307,11 +315,13 @@ public class MarkerFactoryViewModel extends ViewModel {
             public void run() {
                 super.run();
                 while (true) {
-                    synchronized (potentialSomaInfoList) {
+                    if (curIndex > potentialSomaInfoList.size() - 5 && !isDownloading) {
                         getPotentialLocation();
+                        isDownloading = true;
                     }
                 }
             }
         };
+        thread.start();
     }
 }

@@ -129,8 +129,10 @@ public class ImageDataSource {
 
     public void downloadImage(String brainId, String res, int offsetX, int offsetY, int offsetZ, int size){
         try {
+
             JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
             JSONObject loc = new JSONObject().put("x", offsetX).put("y", offsetY).put("z", offsetZ);
+            Log.d(TAG, brainId + loc.toString());
 
             HttpUtilsImage.downloadImageWithOkHttp(userInfo, brainId, res, loc, size, new Callback() {
                 @Override

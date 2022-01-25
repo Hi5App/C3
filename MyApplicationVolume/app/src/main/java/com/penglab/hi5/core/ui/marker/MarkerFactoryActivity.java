@@ -160,13 +160,13 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                         }
                         break;
 
-                    case GET_SOMA_LIST_SUCCESSFULLY:
-                        hideDownloadingProgressBar();
-                        break;
-
-                    case START_TO_DOWNLOAD_IMAGE:
-                        showDownloadingProgressBar();
-                        break;
+//                    case GET_SOMA_LIST_SUCCESSFULLY:
+//                        hideDownloadingProgressBar();
+//                        break;
+//
+//                    case START_TO_DOWNLOAD_IMAGE:
+//                        showDownloadingProgressBar();
+//                        break;
                 }
             }
         });
