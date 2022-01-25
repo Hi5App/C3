@@ -37,7 +37,7 @@ public class MatrixManager {
         Matrix.setIdentityM(rotateMatrix, 0);
         Matrix.setIdentityM(finalTempMatrix, 0);
         Matrix.setIdentityM(modelTempMatrix, 0);
-        Matrix.setRotateM(rotateMatrix, 0, 0, -1.0f, -1.0f, 0.0f);
+        Matrix.setRotateM(rotateMatrix, 0, 30, -1.0f, 3.0f, 0.0f);
     }
 
     public void setMatrixByFile(float[] normalizedSize, float scale, boolean is2DImage) {

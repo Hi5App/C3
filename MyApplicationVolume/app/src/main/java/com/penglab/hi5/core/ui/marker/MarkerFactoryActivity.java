@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,11 +19,13 @@ import android.view.WindowManager;
 import android.view.animation.OvershootInterpolator;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -77,6 +78,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         put(EditMode.NONE, 0);
         put(EditMode.PAINT_CURVE, R.drawable.ic_draw_main);
         put(EditMode.PINPOINT, R.drawable.ic_add_marker);
+        put(EditMode.PINPOINT_STROKE,R.drawable.ic_add_marker);
         put(EditMode.DELETE_CURVE, R.drawable.ic_delete_curve);
         put(EditMode.DELETE_MARKER, R.drawable.ic_marker_delete);
         put(EditMode.CHANGE_CURVE_TYPE, R.drawable.ic_change_curve_type);
@@ -103,6 +105,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     private TextView imageIdLocationTextView;
     private boolean needSyncSomaList = false;
     private boolean needUpload = false;
+    private boolean switchMarkerMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +116,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         annotationGLSurfaceView.setOnScoreWinWithTouchEventListener(new AnnotationGLSurfaceView.OnScoreWinWithTouchEventListener() {
             @Override
             public void run() {
-                if (annotationGLSurfaceView.getEditMode().getValue() == EditMode.PINPOINT) {
+                if (annotationGLSurfaceView.getEditMode().getValue() == EditMode.PINPOINT ) {
                     markerFactoryViewModel.winScoreByPinPoint();
                 }
             }
@@ -419,14 +422,14 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                         buttonVolumeBar.setProgress(preferenceMusic.getButtonSound());
                         actionVolumeBar.setProgress(preferenceMusic.getActionSound());
 
-                        autoUploadSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                        autoUploadSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
                             @Override
                             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                                 preferenceSoma.setAutoUploadMode(isChecked);
                             }
                         });
 
-                        downSampleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                        downSampleSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
                             @Override
                             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                                 preferenceSetting.setDownSampleMode(isChecked);
@@ -520,16 +523,21 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             ImageButton previousFile = findViewById(R.id.previous_file);
             ImageButton nextFile = findViewById(R.id.next_file);
             ImageButton boringFile = findViewById(R.id.boring_file);
+            ToggleButton pinpointStroke = findViewById(R.id.switch_marker_mode);
 
             addMarker.setOnClickListener(this::onButtonClick);
             deleteMarker.setOnClickListener(this::onButtonClick);
             previousFile.setOnClickListener(v -> previousFile());
             nextFile.setOnClickListener(v -> nextFile());
             boringFile.setOnClickListener(v -> boringFile());
-
-        } else {
+            pinpointStroke.setOnCheckedChangeListener(this::OnCheckChanged);
+        }
+        else {
             markerFactoryView.setVisibility(View.VISIBLE);
         }
+    }
+    private void OnCheckChanged(CompoundButton compoundButton,boolean isChecked){
+        switchMarkerMode = (isChecked ? true:false);
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -541,7 +549,13 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
         switch (view.getId()){
             case R.id.add_marker:
-                if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)){
+                if(switchMarkerMode == true)
+                {
+                    annotationGLSurfaceView.setEditMode(EditMode.PINPOINT);
+                }else{
+                    annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE);
+                }
+                if(annotationGLSurfaceView.setEditMode(EditMode.PINPOINT) || annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE)){
                     addMarker.setImageResource(R.drawable.ic_marker_main);
                 }
                 break;

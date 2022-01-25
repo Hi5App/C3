@@ -114,6 +114,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                     lastY = currentY;
                     switch (Objects.requireNonNull(editMode.getValue())){
                         case PAINT_CURVE:
+                        case PINPOINT_STROKE:
                         case DELETE_CURVE:
                         case SPLIT:
                         case CHANGE_CURVE_TYPE:
@@ -184,6 +185,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                             if (fingerTrajectory.size() <= 3){
                                 switch (Objects.requireNonNull(editMode.getValue())){
                                     case PINPOINT:
+                                    case PINPOINT_STROKE:
                                     case DELETE_MARKER:
                                     case CHANGE_MARKER_TYPE:
                                     case ZOOM_IN_ROI:
@@ -244,12 +246,21 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                                     if (is2DImage()){
                                         annotationHelper.add2DMarker(currentX, currentY);
                                     } else {
-                                        annotationHelper.addMarker(currentX, currentY, isBigData);
+                                        annotationHelper.addMarker(currentX,currentY,isBigData);
                                         onScoreWinWithTouchEventListener.run();
                                     }
                                     requestRender();
                                     break;
 
+                                case PINPOINT_STROKE:
+                                    if (is2DImage()){
+                                        annotationHelper.add2DMarker(currentX, currentY);
+                                    } else {
+                                        annotationHelper.addMarker_stroke(fingerTrajectory, isBigData);
+                                        onScoreWinWithTouchEventListener.run();
+                                    }
+                                    requestRender();
+                                    break;
                                 case DELETE_MARKER:
                                     annotationHelper.deleteMarker(currentX, currentY, isBigData);
                                     requestRender();
@@ -327,6 +338,15 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         }
         return false;
     }
+//    @Override
+//    public boolean onInterceptTouchEvent(MotionEvent motionEvent) {
+//        try {
+//            return super.onInterceptTouchEvent(motionEvent);
+//        } catch (IllegalArgumentException ex) {
+//            ex.printStackTrace();
+//        }
+//        return false;
+//    }
 
     private void clearFingerTrajectory(){
         fingerTrajectory.clear();
