@@ -968,7 +968,7 @@ public class AnnotationHelper {
         }
         Vector<MyMarker> outswc = solveCurveMarkerListsFM(line);
         if (outswc == null) {
-            ToastEasy("Make sure the point is in boundingBox");
+            ToastEasy("Make sure pinpoint by one stroke");
             return null;
         }
         float[] center = new float[3];
@@ -976,7 +976,7 @@ public class AnnotationHelper {
         float max_val = 0.0f;
         for(int i =0;i<outswc.size()-1;i++){
             MyMarker node_cur = outswc.get(i);
-            value = sample3D((int)node_cur.x,(int)node_cur.y,(int)node_cur.z);
+            value = sample3D((float)node_cur.x,(float)node_cur.y,(float)node_cur.z);
             if(value > max_val){
                 max_val = value;
                 center[0] = (float) node_cur.x;
