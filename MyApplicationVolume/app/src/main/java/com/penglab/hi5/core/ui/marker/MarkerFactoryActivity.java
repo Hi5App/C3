@@ -41,6 +41,7 @@ import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
 import com.penglab.hi5.basic.image.MarkerList;
+import com.penglab.hi5.basic.utils.view.ImageButtonExt;
 import com.penglab.hi5.basic.utils.xpopupExt.ConfirmPopupViewExt;
 import com.penglab.hi5.basic.utils.xpopupExt.ConfirmPopupViewWithCheckBox;
 import com.penglab.hi5.core.music.MusicService;
@@ -559,9 +560,9 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             addMarker = findViewById(R.id.add_marker);
             deleteMarker = findViewById(R.id.delete_marker);
 
-            ImageButton previousFile = findViewById(R.id.previous_file);
-            ImageButton nextFile = findViewById(R.id.next_file);
-            ImageButton boringFile = findViewById(R.id.boring_file);
+            ImageButtonExt previousFile = findViewById(R.id.previous_file);
+            ImageButtonExt nextFile = findViewById(R.id.next_file);
+            ImageButtonExt boringFile = findViewById(R.id.boring_file);
             ToggleButton pinpointStroke = findViewById(R.id.switch_marker_mode);
 
             addMarker.setOnClickListener(this::onButtonClick);
@@ -662,8 +663,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
     private void navigateFile(boolean needUpload, boolean nextFile) {
         if (needUpload) {
-//            annotationGLSurfaceView.getMarkerListToAdd();
-//            annotationGLSurfaceView.getMarkerListToDelete();
             markerFactoryViewModel.updateSomaList(annotationGLSurfaceView.getMarkerListToAdd(),
                     annotationGLSurfaceView.getMarkerListToDelete());
         }
