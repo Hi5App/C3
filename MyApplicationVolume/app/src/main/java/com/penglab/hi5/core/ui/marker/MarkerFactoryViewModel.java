@@ -214,11 +214,11 @@ public class MarkerFactoryViewModel extends ViewModel {
                 }
                 downloadImage();
             } else {
-                ToastEasy("Error with brain list");
+//                ToastEasy("Error with brain list");
                 isDownloading = false;
             }
         } else {
-            ToastEasy(result.toString());
+//            ToastEasy(result.toString());
             isDownloading = false;
         }
     }
@@ -236,11 +236,11 @@ public class MarkerFactoryViewModel extends ViewModel {
                     workStatus.setValue(WorkStatus.DOWNLOAD_IMAGE_FINISH);
                 }
             } else {
-                ToastEasy("Error when download image");
+//                ToastEasy("Error when download image");
                 isDownloading = false;
             }
         } else {
-            ToastEasy(result.toString());
+//            ToastEasy(result.toString());
             isDownloading = false;
         }
     }
@@ -295,11 +295,11 @@ public class MarkerFactoryViewModel extends ViewModel {
                 noFileLeft = true;
                 isDownloading = false;
             } else {
-                ToastEasy("Error with potential location");
+//                ToastEasy("Error with potential location");
                 isDownloading = false;
             }
         } else {
-            ToastEasy(result.toString());
+//            ToastEasy(result.toString());
             isDownloading = false;
         }
     }
@@ -477,7 +477,7 @@ public class MarkerFactoryViewModel extends ViewModel {
             public void run() {
                 super.run();
                 while (true) {
-                    if (lastIndex > potentialSomaInfoList.size() - 5 && !isDownloading && !noFileLeft) {
+                    if (lastIndex > potentialSomaInfoList.size() - 7 && !isDownloading && !noFileLeft) {
                         getPotentialLocation();
                         isDownloading = true;
                     }
