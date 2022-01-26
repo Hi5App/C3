@@ -27,11 +27,8 @@ import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.Result;
-import com.penglab.hi5.data.model.img.AnoInfo;
 import com.penglab.hi5.data.model.img.ArborInfo;
-import com.penglab.hi5.data.model.img.BrainInfo;
 import com.penglab.hi5.data.model.img.FilePath;
-import com.penglab.hi5.data.model.img.NeuronInfo;
 
 import java.util.List;
 
@@ -61,7 +58,7 @@ public class CheckActivity extends BaseActivity {
         setSupportActionBar(toolbar);
 
         checkViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(CheckViewModel.class);
-        checkViewModel.getImageDataSource().getResult().observe(this, new Observer<Result>() {
+        checkViewModel.getImageDataSource().getBrainListResult().observe(this, new Observer<Result>() {
             @Override
             public void onChanged(Result result) {
                 if (result == null){
