@@ -256,7 +256,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                                     if (is2DImage()){
                                         annotationHelper.add2DMarker(currentX, currentY);
                                     } else {
-                                        annotationHelper.addMarker_stroke(fingerTrajectory, isBigData);
+                                        annotationHelper.addMarkerByStroke(fingerTrajectory, isBigData);
                                         onScoreWinWithTouchEventListener.run();
                                     }
                                     requestRender();

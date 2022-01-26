@@ -923,7 +923,7 @@ public class AnnotationHelper {
     /**
      * Process of marker
      */
-    public void addMarker(float x, float y, boolean isBigData){
+    public void addMarker(float x, float y, boolean isBigData) {
         try {
             float[] markerPosition = solveMarkerCenter(x, y);
             if (markerPosition != null){
@@ -940,10 +940,11 @@ public class AnnotationHelper {
             e.printStackTrace();
         }
     }
-        @RequiresApi(api = Build.VERSION_CODES.N)
-        public void addMarker_stroke(ArrayList<Float> line, boolean isBigData){
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void addMarkerByStroke(ArrayList<Float> line, boolean isBigData){
         try {
-            float[] markerPosition = solveMarkerCenterMaxIntensity(line,isBigData);
+            float[] markerPosition = solveMarkerCenterMaxIntensity(line, isBigData);
             if (markerPosition != null){
                 ImageMarker imageMarker = new ImageMarker(lastMarkerType,
                         markerPosition[0], markerPosition[1], markerPosition[2]);
@@ -957,38 +958,6 @@ public class AnnotationHelper {
             e.printStackTrace();
         }
     }
-
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private float[] solveMarkerCenterMaxIntensity(ArrayList<Float> line, boolean isBigData)
-    {
-
-        if (grayScale == null){
-            return null;
-        }
-        Vector<MyMarker> outswc = solveCurveMarkerListsFM(line);
-        if (outswc == null) {
-            ToastEasy("Make sure pinpoint by one stroke");
-            return null;
-        }
-        float[] center = new float[3];
-        float value;
-        float max_val = 0.0f;
-        for(int i =0;i<outswc.size()-1;i++){
-            MyMarker node_cur = outswc.get(i);
-            value = sample3D((float)node_cur.x,(float)node_cur.y,(float)node_cur.z);
-            if(value > max_val){
-                max_val = value;
-                center[0] = (float) node_cur.x;
-                center[1] = (float) node_cur.y;
-                center[2] = (float) node_cur.z;
-            }
-
-        }
-        return center;
-
-    }
-
 
     public void deleteMarker(float x, float y, boolean isBigData) throws CloneNotSupportedException {
         if (deleteMarkerInList(x, y, isBigData, annotationDataManager.getMarkerList()) || deleteMarkerInList(x, y, isBigData, annotationDataManager.getSyncMarkerList())){
@@ -1142,6 +1111,32 @@ public class AnnotationHelper {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private float[] solveMarkerCenterMaxIntensity(ArrayList<Float> line, boolean isBigData) {
+
+        if (grayScale == null){
+            return null;
+        }
+        Vector<MyMarker> outswc = solveCurveMarkerListsFM(line);
+        if (outswc == null) {
+            ToastEasy("Make sure pinpoint by one stroke");
+            return null;
+        }
+        float[] center = new float[3];
+        float value;
+        float max_val = 0.0f;
+        for(int i =0;i<outswc.size()-1;i++) {
+            MyMarker node_cur = outswc.get(i);
+            value = sample3D((float)node_cur.x, (float)node_cur.y, (float)node_cur.z);
+            if(value > max_val){
+                max_val = value;
+                center[0] = (float) node_cur.x;
+                center[1] = (float) node_cur.y;
+                center[2] = (float) node_cur.z;
+            }
+        }
+        return center;
+    }
 
     // 类似于光线投射，找直线上强度最大的一点
     private float[] getCenterOfLineProfile(float[] loc1, float[] loc2){

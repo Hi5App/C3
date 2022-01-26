@@ -26,8 +26,6 @@ public class AnnotationDataManager {
     private V_NeuronSWC_list curSwcList = new V_NeuronSWC_list();
     private final MarkerList syncMarkerList = new MarkerList();
     private final V_NeuronSWC_list syncSwcList = new V_NeuronSWC_list();
-
-    private final int UNDO_LIMIT = 20;
     private int curUndo = -1;
 
     private final ArrayList<MarkerList> undoMarkerList = new ArrayList<>();
@@ -140,16 +138,9 @@ public class AnnotationDataManager {
         MarkerList tempMarkerList = markerList.clone();
         V_NeuronSWC_list tempCurveList = curSwcList.clone();
 
-        if (curUndo < UNDO_LIMIT){
-            curUndo += 1;
-            undoMarkerList.add(tempMarkerList);
-            undoCurveList.add(tempCurveList);
-        } else {
-            undoMarkerList.remove(0);
-            undoCurveList.remove(0);
-            undoMarkerList.add(tempMarkerList);
-            undoCurveList.add(tempCurveList);
-        }
+        curUndo += 1;
+        undoMarkerList.add(tempMarkerList);
+        undoCurveList.add(tempCurveList);
 
         for (int i = 0; i < markerList.size(); i++){
             markerList.get(i).type = lastMarkerType;
@@ -191,12 +182,7 @@ public class AnnotationDataManager {
             undoCurveList.remove(i);
         }
 
-        if (curUndo < UNDO_LIMIT){
-            curUndo += 1;
-        } else {
-            undoMarkerList.remove(0);
-            undoCurveList.remove(0);
-        }
+        curUndo += 1;
         undoMarkerList.add(tempMarkerList);
         undoCurveList.add(tempCurveList);
 

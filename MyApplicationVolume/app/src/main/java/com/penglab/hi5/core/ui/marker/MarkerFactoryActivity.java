@@ -621,7 +621,9 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     }
 
     private void navigateFile(boolean needUpload, boolean nextFile) {
-        if (needUpload){
+        if (needUpload) {
+//            annotationGLSurfaceView.getMarkerListToAdd();
+//            annotationGLSurfaceView.getMarkerListToDelete();
             markerFactoryViewModel.updateSomaList(annotationGLSurfaceView.getMarkerListToAdd(),
                     annotationGLSurfaceView.getMarkerListToDelete());
         }
