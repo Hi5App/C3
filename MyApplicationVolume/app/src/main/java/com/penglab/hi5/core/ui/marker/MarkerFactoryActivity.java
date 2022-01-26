@@ -163,31 +163,60 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 //                    case GET_SOMA_LIST_SUCCESSFULLY:
 //                        hideDownloadingProgressBar();
 //                        break;
-//
-//                    case START_TO_DOWNLOAD_IMAGE:
-//                        showDownloadingProgressBar();
-//                        break;
+
+                    case START_TO_DOWNLOAD_IMAGE:
+                        showDownloadingProgressBar();
+                        break;
+
+                    case DOWNLOAD_IMAGE_FINISH:
+                        hideDownloadingProgressBar();
+                        markerFactoryViewModel.openNewFile();
+                        break;
                 }
             }
         });
 
-        markerFactoryViewModel.getMarkerFactoryDataSource().getResult().observe(this, new Observer<Result>() {
+        markerFactoryViewModel.getMarkerFactoryDataSource().getPotentialLocationResult().observe(this, new Observer<Result>() {
             @Override
             public void onChanged(Result result) {
                 if (result == null){
                     return;
                 }
-                markerFactoryViewModel.updateSomaResult(result);
+                markerFactoryViewModel.handlePotentialLocationResult(result);
             }
         });
 
-        markerFactoryViewModel.getImageDataSource().getResult().observe(this, new Observer<Result>() {
+        markerFactoryViewModel.getMarkerFactoryDataSource().getSomaListResult().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                markerFactoryViewModel.handleMarkerListResult(result);
+            }
+        });
+
+        markerFactoryViewModel.getMarkerFactoryDataSource().getUpdateSomaResult().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                markerFactoryViewModel.handleUpdateSomaResult(result);
+            }
+        });
+
+        markerFactoryViewModel.getImageDataSource().getBrainListResult().observe(this, new Observer<Result>() {
             @Override
             public void onChanged(Result result) {
                 if (result == null) {
                     return;
                 }
-                markerFactoryViewModel.updateImageResult(result);
+                markerFactoryViewModel.handleBrainListResult(result);
+            }
+        });
+
+        markerFactoryViewModel.getImageDataSource().getDownloadImageResult().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                if (result == null) {
+                    return;
+                }
+                markerFactoryViewModel.handleDownloadImageResult(result);
             }
         });
 
@@ -208,6 +237,17 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                     ToastEasy(resourceResult.getError());
                 }
 
+            }
+        });
+
+        markerFactoryViewModel.getUploadResult().observe(this, new Observer<ResourceResult>() {
+            @Override
+            public void onChanged(ResourceResult resourceResult) {
+                if (resourceResult.isSuccess()) {
+                    ToastEasy("Upload soma successfully !");
+                } else {
+                    ToastEasy("Upload failed");
+                }
             }
         });
 

@@ -10,13 +10,13 @@ import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.net.HttpUtilsImage;
 
+import org.apache.lucene.util.packed.PackedInts;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -31,11 +31,16 @@ public class ImageDataSource {
     public static final String DOWNLOAD_IMAGE_FAILED = "Something wrong when download image !";
 
     private final String TAG = "ImageDataSource";
-    private final MutableLiveData<Result> result = new MutableLiveData<>();
+    private final MutableLiveData<Result> brainListResult = new MutableLiveData<>();
+    private final MutableLiveData<Result> downloadImageResult = new MutableLiveData<>();
     private final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public LiveData<Result> getResult() {
-        return result;
+    public LiveData<Result> getBrainListResult() {
+        return brainListResult;
+    }
+
+    public MutableLiveData<Result> getDownloadImageResult() {
+        return downloadImageResult;
     }
 
     public void getBrainList(){
@@ -44,7 +49,7 @@ public class ImageDataSource {
             HttpUtilsImage.getBrainListWithOkHttp(userInfo, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    result.postValue(new Result.Error(new Exception("Connect failed when get Brain List")));
+                    brainListResult.postValue(new Result.Error(new Exception("Connect failed when get Brain List")));
                 }
 
                 @Override
@@ -54,20 +59,20 @@ public class ImageDataSource {
                             String str = response.body().string();
                             Log.e("GetBrainList", str);
                             JSONArray jsonArray = new JSONArray(str);
-                            result.postValue(new Result.Success<JSONArray>(jsonArray));
+                            brainListResult.postValue(new Result.Success<JSONArray>(jsonArray));
                             response.body().close();
                             response.close();
                         } else {
-                            result.postValue(new Result.Error(new Exception("Response from server is null !")));
+                            brainListResult.postValue(new Result.Error(new Exception("Response from server is null !")));
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        result.postValue(new Result.Error(new Exception("Fail to get brain list !")));
+                        brainListResult.postValue(new Result.Error(new Exception("Fail to get brain list !")));
                     }
                 }
             });
         } catch (Exception exception) {
-            result.postValue(new Result.Error(new IOException("Check the network please !", exception)));
+            brainListResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
         }
     }
 
@@ -76,7 +81,7 @@ public class ImageDataSource {
             HttpUtilsImage.getNeuronListWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), brainId, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    result.postValue(new Result.Error(new Exception("Connect failed when get neuron list")));
+                    brainListResult.postValue(new Result.Error(new Exception("Connect failed when get neuron list")));
                 }
 
                 @Override
@@ -84,18 +89,18 @@ public class ImageDataSource {
                     try {
                         if (response.body() != null) {
                             JSONArray jsonArray = new JSONArray(response.body().string());
-                            result.postValue(new Result.Success<JSONArray>(jsonArray));
+                            brainListResult.postValue(new Result.Success<JSONArray>(jsonArray));
                         } else {
-                            result.postValue(new Result.Error(new Exception("Response from server is null !")));
+                            brainListResult.postValue(new Result.Error(new Exception("Response from server is null !")));
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        result.postValue(new Result.Error(new Exception("Fail to get neuron list !")));
+                        brainListResult.postValue(new Result.Error(new Exception("Fail to get neuron list !")));
                     }
                 }
             });
         } catch (Exception exception) {
-            result.postValue(new Result.Error(new IOException("Check the network please !", exception)));
+            brainListResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
         }
     }
 
@@ -104,7 +109,7 @@ public class ImageDataSource {
             HttpUtilsImage.getAnoListWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), neuronId, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    result.postValue(new Result.Error(new Exception("Connect failed when get ano list")));
+                    brainListResult.postValue(new Result.Error(new Exception("Connect failed when get ano list")));
                 }
 
                 @Override
@@ -112,18 +117,18 @@ public class ImageDataSource {
                     try {
                         if (response.body() != null) {
                             JSONArray jsonArray = new JSONArray(response.body().string());
-                            result.postValue(new Result.Success<JSONArray>(jsonArray));
+                            brainListResult.postValue(new Result.Success<JSONArray>(jsonArray));
                         } else {
-                            result.postValue(new Result.Error(new Exception("Response from server is null !")));
+                            brainListResult.postValue(new Result.Error(new Exception("Response from server is null !")));
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        result.postValue(new Result.Error(new Exception("Fail to get ano list !")));
+                        brainListResult.postValue(new Result.Error(new Exception("Fail to get ano list !")));
                     }
                 }
             });
         } catch (Exception exception) {
-            result.postValue(new Result.Error(new IOException("Check the network please !", exception)));
+            brainListResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
         }
     }
 
@@ -137,41 +142,36 @@ public class ImageDataSource {
             HttpUtilsImage.downloadImageWithOkHttp(userInfo, brainId, res, loc, size, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    result.postValue(new Result.Error(new Exception("Connect Failed When Download Music")));
+                    downloadImageResult.postValue(new Result.Error(new Exception("Connect Failed When Download Music")));
                 }
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     try {
-                        int responseCode = response.code();
-                        if (responseCode == 200) {
-                            if (response.body() != null) {
-                                byte[] fileContent = response.body().bytes();
+                        if (response.body() != null) {
+                            byte[] fileContent = response.body().bytes();
 
-                                Log.e(TAG, "file size: " + fileContent.length);
-                                String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image";
-                                String filename = brainId + "_" + res + "_" + offsetX + "_" + offsetY + "_" + offsetZ + ".v3dpbd";
+                            Log.e(TAG, "file size: " + fileContent.length);
+                            String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image";
+                            String filename = brainId + "_" + res + "_" + offsetX + "_" + offsetY + "_" + offsetZ + ".v3dpbd";
 
-                                if (!FileHelper.storeFile(storePath, filename, fileContent)) {
-                                    result.postValue(new Result.Error(new Exception("Fail to store image file !")));
-                                }
-                                result.postValue(new Result.Success(storePath + "/" + filename));
-                                response.body().close();
-                                response.close();
-                            } else {
-                                result.postValue(new Result.Error(new Exception("Response from server is null when download image !")));
+                            if (!FileHelper.storeFile(storePath, filename, fileContent)) {
+                                downloadImageResult.postValue(new Result.Error(new Exception("Fail to store image file !")));
                             }
+                            downloadImageResult.postValue(new Result.Success(storePath + "/" + filename));
+                            response.body().close();
+                            response.close();
                         } else {
-                            result.postValue(new Result.Error(new Exception(DOWNLOAD_IMAGE_FAILED)));
+                            downloadImageResult.postValue(new Result.Error(new Exception("Response from server is null when download image !")));
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        result.postValue(new Result.Error(new Exception("Fail to download image file !")));
+                        downloadImageResult.postValue(new Result.Error(new Exception("Fail to download image file !")));
                     }
                 }
             });
         } catch (Exception exception) {
-            result.postValue(new Result.Error(new IOException("Check the network please !", exception)));
+            downloadImageResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
         }
     }
 
