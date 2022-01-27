@@ -283,6 +283,7 @@ public class MarkerFactoryViewModel extends ViewModel {
             if (data instanceof PotentialSomaInfo){
                 lastDownloadPotentialSomaInfo = (PotentialSomaInfo) data;
                 lastDownloadCoordinateConvert.initLocation(lastDownloadPotentialSomaInfo.getLocation());
+                lastDownloadPotentialSomaInfo.setCreatedTime(System.currentTimeMillis());
 
                 // get res list when first download img
                 if (resMap.isEmpty()) {
@@ -346,6 +347,13 @@ public class MarkerFactoryViewModel extends ViewModel {
 
     public void openNewFile() {
         noFileLeft = false;
+        while (lastIndex < potentialSomaInfoList.size() - 1) {
+            PotentialSomaInfo somaInfo = potentialSomaInfoList.get(lastIndex + 1);
+            if (somaInfo.ifStillFresh()) {
+                break;
+            }
+            lastIndex++;
+        }
         if (lastIndex + 1 >= potentialSomaInfoList.size()) {
             workStatus.setValue(WorkStatus.START_TO_DOWNLOAD_IMAGE);
         } else {
@@ -383,7 +391,9 @@ public class MarkerFactoryViewModel extends ViewModel {
 
     public void previousFile() {
         while (curIndex > 0) {
-            if (!potentialSomaInfoList.get(curIndex - 1).isBoring()) {
+            if (!potentialSomaInfoList.get(curIndex - 1).isBoring()
+                    && (potentialSomaInfoList.get(curIndex + 1).ifStillFresh()
+                    || (potentialSomaInfoList.get(curIndex + 1).isAlreadyUpload()))) {
                 break;
             }
             curIndex--;
@@ -400,7 +410,9 @@ public class MarkerFactoryViewModel extends ViewModel {
 
     public void nextFile() {
         while (curIndex < potentialSomaInfoList.size() - 1) {
-            if (!potentialSomaInfoList.get(curIndex + 1).isBoring()) {
+            if (!potentialSomaInfoList.get(curIndex + 1).isBoring()
+                    && (potentialSomaInfoList.get(curIndex + 1).ifStillFresh()
+                    || (potentialSomaInfoList.get(curIndex + 1).isAlreadyUpload()))) {
                 break;
             }
             curIndex++;
@@ -448,13 +460,18 @@ public class MarkerFactoryViewModel extends ViewModel {
         if ((markerListToAdd == null) && (markerListToDelete == null)){
             return;
         }
+        if (!curPotentialSomaInfo.ifStillFresh() && !curPotentialSomaInfo.isAlreadyUpload()) {
+            uploadResult.setValue(new ResourceResult(false, "Expired"));
+            return;
+        }
         try {
             int locationId = curPotentialSomaInfo.getId();
             String brainId = curPotentialSomaInfo.getBrainId();
             String username = loggedInUser.getUserId();
             markerFactoryDataSource.updateSomaList(brainId, locationId, username,
                     MarkerList.toJSONArray(MarkerList.covertLocalToGlobal(markerListToAdd, coordinateConvert)), markerListToDelete);
-            if (curIndex == lastIndex) {
+            if (!curPotentialSomaInfo.isAlreadyUpload()) {
+                curPotentialSomaInfo.setAlreadyUpload(true);
                 winScoreByFinishConfirmAnImage();
             }
         } catch (JSONException e) {

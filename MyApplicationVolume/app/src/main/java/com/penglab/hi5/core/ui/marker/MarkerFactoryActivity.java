@@ -246,6 +246,8 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             public void onChanged(ResourceResult resourceResult) {
                 if (resourceResult.isSuccess()) {
                     ToastEasy("Upload soma successfully !");
+                } else if (resourceResult.getError().equals("Expired")) {
+                    ToastEasy("The image you just upload is expired.");
                 } else {
                     ToastEasy("Upload failed");
                 }
