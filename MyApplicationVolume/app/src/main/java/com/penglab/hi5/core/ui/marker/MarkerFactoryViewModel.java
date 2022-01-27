@@ -61,6 +61,7 @@ public class MarkerFactoryViewModel extends ViewModel {
     }
 
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(2);
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final MutableLiveData<AnnotationMode> annotationMode = new MutableLiveData<>();
     private final MutableLiveData<WorkStatus> workStatus = new MutableLiveData<>();
@@ -496,10 +497,9 @@ public class MarkerFactoryViewModel extends ViewModel {
     }
 
     private void initPreDownloadThread() {
-        Thread thread = new Thread() {
+        executorService.submit(new Runnable() {
             @Override
             public void run() {
-                super.run();
                 while (true) {
                     if (lastIndex > potentialSomaInfoList.size() - 7 && !isDownloading && !noFileLeft) {
                         getPotentialLocation();
@@ -507,8 +507,7 @@ public class MarkerFactoryViewModel extends ViewModel {
                     }
                 }
             }
-        };
-        thread.start();
+        });
     }
 
     private void initCheckFreshThread() {
@@ -526,6 +525,7 @@ public class MarkerFactoryViewModel extends ViewModel {
     }
 
     public void shutDownThreadPool() {
+        executorService.shutdown();
         scheduledExecutorService.shutdown();
     }
 }

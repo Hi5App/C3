@@ -13,7 +13,7 @@ public class PotentialSomaInfo {
     private long createdTime;
     private boolean isFresh = true;
     private boolean alreadyUpload = false;
-    private final long shelfLife = 8 * 60 * 1000;
+    private final long shelfLife = 7 * 60 * 1000;
 
     public PotentialSomaInfo(int id, String brainId, XYZ location) {
         this.id = id;
