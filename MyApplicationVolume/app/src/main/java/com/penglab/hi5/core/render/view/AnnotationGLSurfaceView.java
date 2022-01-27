@@ -382,8 +382,6 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void openFile(){
-        Log.d(TAG,"Open File");
-
         BasicFile basicFile = imageInfoRepository.getBasicImage();
         FilePath<?> filePath = basicFile.getFilePath();
         FileType fileType = basicFile.getFileType();
@@ -432,8 +430,6 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
     }
 
     public void loadFile(){
-        Log.d(TAG,"Load file");
-
         BasicFile basicFile = imageInfoRepository.getBasicFile();
         FilePath<?> filePath = basicFile.getFilePath();
         FileType fileType = basicFile.getFileType();
@@ -598,8 +594,6 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         normalizedSize[0] = (float) size[0] / maxSize;
         normalizedSize[1] = (float) size[1] / maxSize;
         normalizedSize[2] = (float) size[2] / maxSize;
-
-        Log.e(TAG,Arrays.toString(originalSize));
     }
 
     private void update2DImageSize(Integer[] size){
@@ -612,7 +606,6 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         normalizedSize[0] = (float) size[0] / maxSize;
         normalizedSize[1] = (float) size[1] / maxSize;
         normalizedSize[2] = (float) size[2] / maxSize;
-
     }
 
     /**
