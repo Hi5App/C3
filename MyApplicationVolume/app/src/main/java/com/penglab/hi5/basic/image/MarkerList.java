@@ -156,7 +156,6 @@ public class MarkerList implements Cloneable {
         for (int i=0; i<markerList.size(); i++){
             ImageMarker oldMarker = markerList.get(i);
             ImageMarker newMarker = new ImageMarker(3, coordinateConvert.convertLocalToGlobal(oldMarker.x, oldMarker.y, oldMarker.z));
-            Log.e("covertLocalToGlobal","loc: (" + newMarker.x + ", " + newMarker.y + ", " + newMarker.z + ")");
             resultList.add(newMarker);
         }
         return resultList;
@@ -170,7 +169,6 @@ public class MarkerList implements Cloneable {
         for (int i=0; i<markerList.size(); i++){
             ImageMarkerExt oldMarker = (ImageMarkerExt) markerList.get(i);
             ImageMarkerExt newMarker = new ImageMarkerExt(3, coordinateConvert.convertGlobalToLocal(oldMarker.x, oldMarker.y, oldMarker.z), oldMarker.getName());
-            Log.e("covertGlobalToLocal","loc: (" + newMarker.x + ", " + newMarker.y + ", " + newMarker.z + ")");
             resultList.add(newMarker);
         }
         return resultList;

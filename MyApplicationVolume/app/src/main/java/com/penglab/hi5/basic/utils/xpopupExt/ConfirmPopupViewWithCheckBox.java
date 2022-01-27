@@ -175,7 +175,6 @@ public class ConfirmPopupViewWithCheckBox extends CenterPopupView implements Vie
 
     @Override
     public void onClick(View v) {
-        Log.e("onClick","viewId: " + v.getId());
         if (v == tv_cancel) {
             if (cancelListener != null) cancelListener.onCancel();
             dismiss();
