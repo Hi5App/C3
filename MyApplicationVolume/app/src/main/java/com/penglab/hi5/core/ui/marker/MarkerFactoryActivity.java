@@ -89,7 +89,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         put(EditMode.ZOOM, R.drawable.ic_zoom);
         put(EditMode.ZOOM_IN_ROI, R.drawable.ic_roi);
     }};
-    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
     private final PreferenceSoma preferenceSoma = PreferenceSoma.getInstance();
 
     private AnnotationGLSurfaceView annotationGLSurfaceView;
@@ -172,6 +171,10 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                     case DOWNLOAD_IMAGE_FINISH:
                         hideDownloadingProgressBar();
                         markerFactoryViewModel.openNewFile();
+                        break;
+
+                    case IMAGE_FILE_EXPIRED:
+                        warning4ExpiredFile();
                         break;
                 }
             }
@@ -318,6 +321,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         stopMusicService();
+        markerFactoryViewModel.shutDownThreadPool();
     }
 
     private void startMusicService() {
@@ -708,6 +712,18 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                                 .setOptionText("Don't show again")
                                 .setCancelText("Cancel")
                 ).show();
+    }
+
+    private void warning4ExpiredFile(){
+        new XPopup.Builder(this)
+                .dismissOnTouchOutside(false)
+                .asConfirm("Warning...",
+                        "Current file is expired, will change another file for you.",
+                        () -> navigateFile(false, true),
+                        () -> navigateFile(false, true))
+                .setConfirmText("Confirm")
+                .setCancelText("I know")
+                .show();
     }
 
     private void resetUI4AllMode(){
