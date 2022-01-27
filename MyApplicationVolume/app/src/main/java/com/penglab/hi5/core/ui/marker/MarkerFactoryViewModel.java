@@ -38,6 +38,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Jackiexing on 01/10/21
@@ -53,8 +57,10 @@ public class MarkerFactoryViewModel extends ViewModel {
     }
 
     public enum WorkStatus{
-        START_TO_DOWNLOAD_IMAGE, GET_SOMA_LIST_SUCCESSFULLY, UPLOAD_MARKERS_SUCCESSFULLY, NO_MORE_FILE, NONE, DOWNLOAD_IMAGE_FINISH
+        IMAGE_FILE_EXPIRED, START_TO_DOWNLOAD_IMAGE, GET_SOMA_LIST_SUCCESSFULLY, UPLOAD_MARKERS_SUCCESSFULLY, NO_MORE_FILE, DOWNLOAD_IMAGE_FINISH, NONE
     }
+
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(2);
 
     private final MutableLiveData<AnnotationMode> annotationMode = new MutableLiveData<>();
     private final MutableLiveData<WorkStatus> workStatus = new MutableLiveData<>();
@@ -72,8 +78,8 @@ public class MarkerFactoryViewModel extends ViewModel {
     private final CoordinateConvert lastDownloadCoordinateConvert = new CoordinateConvert();
     private final HashMap<String, String> resMap = new HashMap<>();
     private final List<PotentialSomaInfo> potentialSomaInfoList = new ArrayList<>();
-    private PotentialSomaInfo curPotentialSomaInfo;
-    private PotentialSomaInfo lastDownloadPotentialSomaInfo;
+    private volatile PotentialSomaInfo curPotentialSomaInfo;
+    private volatile PotentialSomaInfo lastDownloadPotentialSomaInfo;
     private int curIndex = -1;
     private int lastIndex = -1;
     private boolean isDownloading = false;
@@ -91,6 +97,7 @@ public class MarkerFactoryViewModel extends ViewModel {
         lastDownloadCoordinateConvert.setImgSize(DEFAULT_IMAGE_SIZE);
 
         initPreDownloadThread();
+        initCheckFreshThread();
     }
 
     public LiveData<AnnotationMode> getAnnotationMode(){
@@ -502,5 +509,23 @@ public class MarkerFactoryViewModel extends ViewModel {
             }
         };
         thread.start();
+    }
+
+    private void initCheckFreshThread() {
+        scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                if (curPotentialSomaInfo != null &&
+                        !curPotentialSomaInfo.isAlreadyUpload() && !curPotentialSomaInfo.ifStillFresh()) {
+                    if (workStatus.getValue() != WorkStatus.IMAGE_FILE_EXPIRED) {
+                        workStatus.postValue(WorkStatus.IMAGE_FILE_EXPIRED);
+                    }
+                }
+            }
+        }, 30,30, TimeUnit.SECONDS);
+    }
+
+    public void shutDownThreadPool() {
+        scheduledExecutorService.shutdown();
     }
 }
