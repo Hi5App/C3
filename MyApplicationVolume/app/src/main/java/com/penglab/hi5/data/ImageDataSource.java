@@ -148,21 +148,26 @@ public class ImageDataSource {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     try {
-                        if (response.body() != null) {
-                            byte[] fileContent = response.body().bytes();
+                        int responseCode = response.code();
+                        if (responseCode == 200) {
+                            if (response.body() != null) {
+                                byte[] fileContent = response.body().bytes();
 
-                            Log.e(TAG, "file size: " + fileContent.length);
-                            String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image";
-                            String filename = brainId + "_" + res + "_" + offsetX + "_" + offsetY + "_" + offsetZ + ".v3dpbd";
+                                Log.e(TAG, "file size: " + fileContent.length);
+                                String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image";
+                                String filename = brainId + "_" + res + "_" + offsetX + "_" + offsetY + "_" + offsetZ + ".v3dpbd";
 
-                            if (!FileHelper.storeFile(storePath, filename, fileContent)) {
-                                downloadImageResult.postValue(new Result.Error(new Exception("Fail to store image file !")));
+                                if (!FileHelper.storeFile(storePath, filename, fileContent)) {
+                                    downloadImageResult.postValue(new Result.Error(new Exception("Fail to store image file !")));
+                                }
+                                downloadImageResult.postValue(new Result.Success(storePath + "/" + filename));
+                                response.body().close();
+                                response.close();
+                            } else {
+                                downloadImageResult.postValue(new Result.Error(new Exception("Response from server is null when download image !")));
                             }
-                            downloadImageResult.postValue(new Result.Success(storePath + "/" + filename));
-                            response.body().close();
-                            response.close();
                         } else {
-                            downloadImageResult.postValue(new Result.Error(new Exception("Response from server is null when download image !")));
+                            downloadImageResult.postValue(new Result.Error(new Exception("Response from server is error when download image !")));
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
