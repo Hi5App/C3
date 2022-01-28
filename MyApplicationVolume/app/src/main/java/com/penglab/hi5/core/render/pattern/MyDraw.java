@@ -190,37 +190,32 @@ public class MyDraw extends BasicPattern {
             // This matrix member variable provides a hook to manipulate
             // the coordinates of the objects that use this vertex shader
             "#version 300 es\n" +
-                    "layout (location = 0) in vec4 vPosition;" +
-                    "layout (location = 1) in vec3 aVertexNormal;" +
+                    "layout (location = 0) in vec4 vPosition;" +          // marker 上三角形的坐标
+                    "layout (location = 1) in vec3 aVertexNormal;" +      // 法向量
 
-                    "uniform mat4 uNormalMatrix;" +
-                    "uniform mat4 uMVPMatrix;" +
-                    "uniform float offset[3];" +
+                    "uniform mat4 uNormalMatrix;" +                       // model matrix
+                    "uniform mat4 uMVPMatrix;" +                          // final matrix
+                    "uniform float offset[3];" +                          // marker 位置
                     "uniform float color[3];" +
 
                     "out vec3 vLighting;" +
                     "out vec4 vOutColor;" +
 
                     "void main() {\n" +
-//                    "    vOffset = vec4(0.5, 0.5, 0.5, 0.0);" +
                     "    vec4 vOffsetPosition = vPosition + vec4(offset[0], offset[1], offset[2], 0.0);\n" +
-//                    "    vPosition.x = 0.5;" +
-//                    "    vPosition.y = 0.5;" +
-//                    "    vPosition.z = 0.5;" +
-//                    "    vPosition = vec4(0.5, 0.5, 0.5, 1.0);" +
-
                     "    gl_Position = uMVPMatrix * vOffsetPosition;\n" +
 
-                    "    vec3 uAmbientColor = vec3(0.2, 0.2, 0.2);\n" +
+                    "    float ambientStrength = 0.2;\n" +
+                    "    vec3 ambientLight = vec3(1.0, 1.0, 1.0);\n" +
+                    "    vec3 ambientColor = ambientStrength * ambientLight;\n" +
+
                     "    vec3 uDirectionalColor = vec3(0.8, 0.8, 0.8);\n" +
                     "    vec3 directionalVector = normalize(vec3(-1.0, 1.0, -1.0));\n" +
                     "    vec3 transformedNormal = (uNormalMatrix * vec4(aVertexNormal, 1.0)).xyz;\n" +
-                    "    float directionalLightWeighting = max(dot(transformedNormal, directionalVector), 0.0);\n" +
-                    "    vLighting = uAmbientColor + uDirectionalColor * directionalLightWeighting;\n" +
+                    "    float directionalLightStrength = max(dot(transformedNormal, directionalVector), 0.0);\n" +
+                    "    vLighting = ambientColor + uDirectionalColor * directionalLightStrength;\n" +
                     "    vOutColor = vec4(color[0], color[1], color[2], 1.0);\n" +
                     "}";
-
-
 
     private static final String fragmentShaderCode_marker =
             "#version 300 es\n" +
@@ -233,7 +228,7 @@ public class MyDraw extends BasicPattern {
                     "void main() {" +
 //                    "  vec4 markerColor = vec4(0.29, 0.13, 0.36, 1.0);" +
 //                    "  vec4 markerColor = vec4(1.0, 0.0, 0.0, 1.0);" +
-                    "  vec4 markerColor = vOutColor;"+
+                    "  vec4 markerColor = vOutColor;" +
                     "  FragColor = vec4(markerColor.rgb * vLighting, 1.0);" +
                     "}";
 
@@ -539,10 +534,7 @@ public class MyDraw extends BasicPattern {
 
         float [] locAfterDivide = {locAfterRotate[0] / locAfterRotate[3], locAfterRotate[1] / locAfterRotate[3], locAfterRotate[2] / locAfterRotate[3]};
 
-        
         BufferSet_GameModel(locAfterDivide[0], locAfterDivide[1], locAfterDivide[2], type, dir, head);
-
-//        System.out.println("set marker end");
 
         GLES30.glEnable(GLES30.GL_DEPTH_TEST);
 

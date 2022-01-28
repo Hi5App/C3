@@ -14,6 +14,7 @@ import android.opengl.GLSurfaceView;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import com.penglab.hi5.basic.MyAnimation;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.basic.image.ImageMarker;
@@ -22,10 +23,12 @@ import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
+import com.penglab.hi5.core.MyRenderer;
 import com.penglab.hi5.core.render.pattern.MyAxis;
 import com.penglab.hi5.core.render.pattern.MyDraw;
 import com.penglab.hi5.core.render.pattern.MyPattern;
 import com.penglab.hi5.core.render.pattern.MyPattern2D;
+import com.penglab.hi5.core.render.pattern.MyPatternGame;
 import com.penglab.hi5.core.render.utils.AnnotationDataManager;
 import com.penglab.hi5.core.render.utils.MatrixManager;
 import com.penglab.hi5.core.render.utils.RenderOptions;
@@ -94,12 +97,22 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
     public void onSurfaceChanged(GL10 gl, int screenWidth, int screenHeight) {
         GLES30.glViewport(0, 0, screenWidth, screenHeight);
 
+        boolean surfaceChanged = (screenWidth != this.screenWidth || screenHeight != this.screenHeight);
+
         // this projection matrix is applied to object coordinates
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         matrixManager.setProjectionMatrix(screenWidth, screenHeight);
         mCaptureBuffer = ByteBuffer.allocate(screenHeight * screenWidth * 4);
 
+        if (surfaceChanged){
+            if (image4DSimple != null) {
+                initPatterns();
+                myPattern.setNeedSetContent(true);
+                myAxis.setNeedSetContent(true);
+                myDraw.setNeedDraw(true);
+            }
+        }
     }
 
     @Override
@@ -226,7 +239,7 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
             drawNeuronSwc(annotationDataManager.getCurSwcList());
             drawNeuronSwc(annotationDataManager.getSyncSwcList());
             drawMarker(annotationDataManager.getMarkerList());
-            drawMarker(annotationDataManager.getMarkerList());
+            drawMarker(annotationDataManager.getSyncMarkerList());
         }
         if (renderOptions.isShowFingerTrajectory()){
             drawTrajectory();
@@ -315,7 +328,7 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
         }
     }
 
-    private void drawMarker(MarkerList markerList){
+    private void drawMarker(MarkerList markerList) {
         if (markerList.size() > 0) {
             float radius = is2DImage ? 0.01f : 0.02f;
             for (int i = 0; i < markerList.size(); i++) {

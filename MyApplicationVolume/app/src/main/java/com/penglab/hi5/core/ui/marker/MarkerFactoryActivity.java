@@ -679,7 +679,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         }
     }
 
-    private void warning4ChangeFile(boolean nextFile){
+    private void warning4ChangeFile(boolean nextFile) {
         new XPopup.Builder(this)
                 .asCustom(
                         ConfirmPopupViewExt.init(this, "Warning...",
@@ -694,7 +694,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 ).show();
     }
 
-    private void warning4BoringFile(){
+    private void warning4BoringFile() {
         new XPopup.Builder(this)
                 .asCustom(
                         ConfirmPopupViewWithCheckBox.init(this, "Warning...",
@@ -714,7 +714,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 ).show();
     }
 
-    private void warning4ExpiredFile(){
+    private void warning4ExpiredFile() {
         new XPopup.Builder(this)
                 .dismissOnTouchOutside(false)
                 .asConfirm("Warning...",
@@ -726,24 +726,24 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void resetUI4AllMode(){
+    private void resetUI4AllMode() {
         if (markerFactoryView != null){
             markerFactoryView.setVisibility(View.GONE);
         }
     }
 
-    private void showDownloadingProgressBar(){
+    private void showDownloadingProgressBar() {
         downloadingPopupView.show();
         uiHandler.postDelayed(this::timeOutHandler, 30 * 1000);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
-    private void hideDownloadingProgressBar(){
+    private void hideDownloadingProgressBar() {
         downloadingPopupView.dismiss();
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
-    private void timeOutHandler(){
+    private void timeOutHandler() {
         downloadingPopupView.dismiss();
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ImageMarker extends BasicSurfObj {
-    private static final int DEFAULT_TYPE = 3;
+    private static final int DEFAULT_TYPE = 6;
 
     private static final HashMap<Integer, Integer> typeToColor = new HashMap<Integer, Integer>() {{
         put(0, R.color.white_map);
