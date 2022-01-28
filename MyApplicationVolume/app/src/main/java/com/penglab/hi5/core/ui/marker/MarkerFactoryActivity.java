@@ -755,21 +755,4 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         Intent intent = new Intent(context, MarkerFactoryActivity.class);
         context.startActivity(intent);
     }
-
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-//        DisplayMetrics displayMetrics = new DisplayMetrics();
-//        getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
-//        int w = displayMetrics.widthPixels;
-//        int h = displayMetrics.heightPixels;
-//
-//        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-//            annotationGLSurfaceView.getLayoutParams().width = h;
-//            annotationGLSurfaceView.getLayoutParams().height = w;
-//        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
-//            annotationGLSurfaceView.getLayoutParams().width = w;
-//            annotationGLSurfaceView.getLayoutParams().height = h;
-//        }
-    }
 }

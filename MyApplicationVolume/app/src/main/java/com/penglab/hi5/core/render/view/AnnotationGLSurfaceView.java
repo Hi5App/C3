@@ -391,10 +391,10 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
             case V3DPBD:
             case V3DRAW:
             case TIFF:
-                image4DSimple = Image4DSimple.loadImage(filePath, fileType);
-                if (image4DSimple != null){
-
-                    update3DFileSize(new Integer[]{
+                Image4DSimple curImage = Image4DSimple.loadImage(filePath, fileType);
+                if (curImage != null){
+                    image4DSimple = curImage;
+                            update3DFileSize(new Integer[]{
                             (int) image4DSimple.getSz0(), (int) image4DSimple.getSz1(), (int) image4DSimple.getSz2()});
                     renderOptions.initOptions();
                     annotationRender.init3DImageInfo(image4DSimple, normalizedSize, originalSize);
@@ -405,8 +405,9 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
             case JPG:
             case PNG:
                 Bitmap bitmap2D = Image4DSimple.loadImage2D(filePath);
-                image4DSimple = Image4DSimple.loadImage2D(bitmap2D, filePath);
-                if (bitmap2D != null && image4DSimple != null){
+                Image4DSimple curImage2D = Image4DSimple.loadImage(filePath, fileType);
+                if (bitmap2D != null && curImage2D != null){
+                    image4DSimple = curImage2D;
                     update2DImageSize(new Integer[]{
                             bitmap2D.getWidth(), bitmap2D.getHeight(), Math.max(bitmap2D.getWidth(), bitmap2D.getHeight())});
                     annotationRender.init2DImageInfo(image4DSimple, bitmap2D, normalizedSize, originalSize);
