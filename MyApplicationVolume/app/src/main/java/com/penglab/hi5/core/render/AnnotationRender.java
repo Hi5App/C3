@@ -103,6 +103,7 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         matrixManager.setProjectionMatrix(screenWidth, screenHeight);
+        matrixManager.initMatrixByFile(normalizedSize, renderOptions.getScale(), false);
         mCaptureBuffer = ByteBuffer.allocate(screenHeight * screenWidth * 4);
 
         if (surfaceChanged){
