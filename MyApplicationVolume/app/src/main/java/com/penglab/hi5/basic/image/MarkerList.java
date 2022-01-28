@@ -19,6 +19,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 public class MarkerList implements Cloneable {
+    private static final int DEFAULT_TYPE = 6;
     private final ArrayList<ImageMarker> markers;
 
     public MarkerList(){
@@ -136,7 +137,7 @@ public class MarkerList implements Cloneable {
             JSONObject loc = jsonObject.getJSONObject("loc");
             String name = jsonObject.getString("name");
             ImageMarkerExt imageMarker = new ImageMarkerExt(
-                    3,
+                    DEFAULT_TYPE,
                     (float) loc.getDouble("x"),
                     (float) loc.getDouble("y"),
                     (float) loc.getDouble("z"),
@@ -155,7 +156,7 @@ public class MarkerList implements Cloneable {
         MarkerList resultList = new MarkerList();
         for (int i=0; i<markerList.size(); i++){
             ImageMarker oldMarker = markerList.get(i);
-            ImageMarker newMarker = new ImageMarker(3, coordinateConvert.convertLocalToGlobal(oldMarker.x, oldMarker.y, oldMarker.z));
+            ImageMarker newMarker = new ImageMarker(DEFAULT_TYPE, coordinateConvert.convertLocalToGlobal(oldMarker.x, oldMarker.y, oldMarker.z));
             resultList.add(newMarker);
         }
         return resultList;
@@ -168,7 +169,7 @@ public class MarkerList implements Cloneable {
         MarkerList resultList = new MarkerList();
         for (int i=0; i<markerList.size(); i++){
             ImageMarkerExt oldMarker = (ImageMarkerExt) markerList.get(i);
-            ImageMarkerExt newMarker = new ImageMarkerExt(3, coordinateConvert.convertGlobalToLocal(oldMarker.x, oldMarker.y, oldMarker.z), oldMarker.getName());
+            ImageMarkerExt newMarker = new ImageMarkerExt(DEFAULT_TYPE, coordinateConvert.convertGlobalToLocal(oldMarker.x, oldMarker.y, oldMarker.z), oldMarker.getName());
             resultList.add(newMarker);
         }
         return resultList;
