@@ -7,11 +7,13 @@ import static com.penglab.hi5.core.Myapplication.updateMusicVolume;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
@@ -751,5 +754,22 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     public static void start(Context context) {
         Intent intent = new Intent(context, MarkerFactoryActivity.class);
         context.startActivity(intent);
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+//        DisplayMetrics displayMetrics = new DisplayMetrics();
+//        getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
+//        int w = displayMetrics.widthPixels;
+//        int h = displayMetrics.heightPixels;
+//
+//        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+//            annotationGLSurfaceView.getLayoutParams().width = h;
+//            annotationGLSurfaceView.getLayoutParams().height = w;
+//        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+//            annotationGLSurfaceView.getLayoutParams().width = w;
+//            annotationGLSurfaceView.getLayoutParams().height = h;
+//        }
     }
 }
