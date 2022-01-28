@@ -205,16 +205,26 @@ public class MyDraw extends BasicPattern {
                     "    vec4 vOffsetPosition = vPosition + vec4(offset[0], offset[1], offset[2], 0.0);\n" +
                     "    gl_Position = uMVPMatrix * vOffsetPosition;\n" +
 
-                    "    float ambientStrength = 0.2;\n" +
+                    // ambient light
+                    "    float ambientStrength = 0.5;\n" +
                     "    vec3 ambientLight = vec3(1.0, 1.0, 1.0);\n" +
                     "    vec3 ambientColor = ambientStrength * ambientLight;\n" +
 
-                    "    vec3 uDirectionalColor = vec3(0.8, 0.8, 0.8);\n" +
-                    "    vec3 directionalVector = normalize(vec3(-1.0, 1.0, -1.0));\n" +
-                    "    vec3 transformedNormal = (uNormalMatrix * vec4(aVertexNormal, 1.0)).xyz;\n" +
+                    // point source light
+                    "    vec3 directionColor = vec3(1.0, 1.0, 1.0);\n" +
+                    "    vec3 surfacePos = (uNormalMatrix * vPosition).xyz;\n" +  // 球体表面坐标
+                    "    float radius = length(surfacePos) * 1.5;\n" +
+                    "    vec3 pointLight = (uNormalMatrix * vec4(offset[0], offset[1], offset[2], 1.0)).xyz + radius * normalize(vec3(1.0, 1.0, 1.0));\n" +
+
+                    "    vec3 transformedNormal = normalize(uNormalMatrix * vec4(aVertexNormal, 1.0)).xyz;\n" +
+                    "    vec3 directionalVector = normalize(pointLight - surfacePos);\n" +
                     "    float directionalLightStrength = max(dot(transformedNormal, directionalVector), 0.0);\n" +
-                    "    vLighting = ambientColor + uDirectionalColor * directionalLightStrength;\n" +
+
+                    "    vLighting = ambientColor + directionColor * directionalLightStrength;\n" +
                     "    vOutColor = vec4(color[0], color[1], color[2], 1.0);\n" +
+
+//                    "    vec3 directionalVector = normalize(vec3(-1.0, 1.0, -1.0));\n" +
+//                    "    vec3 transformedNormal = aVertexNormal;\n" +
                     "}";
 
     private static final String fragmentShaderCode_marker =

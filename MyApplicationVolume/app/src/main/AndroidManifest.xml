@@ -98,7 +98,8 @@
         <activity android:name=".core.ui.password.FindPasswordActivity" />
         <activity android:name=".core.ui.login.LoginActivity" />
         <activity android:name=".core.ui.check.CheckActivity" />
-        <activity android:name=".core.ui.annotation.AnnotationActivity" />
+        <activity android:name=".core.ui.annotation.AnnotationActivity"
+            android:configChanges="orientation|keyboardHidden|layoutDirection|screenSize"/>
         <activity android:name=".core.ui.marker.MarkerFactoryActivity"
             android:configChanges="orientation|keyboardHidden|layoutDirection|screenSize"/>
         <activity
