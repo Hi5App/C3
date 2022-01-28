@@ -65,6 +65,8 @@ import com.warkiz.widget.IndicatorSeekBar;
 import com.warkiz.widget.OnSeekChangeListener;
 import com.warkiz.widget.SeekParams;
 
+import org.jetbrains.annotations.Contract;
+
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -105,6 +107,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     private ImageButton addMarker;
     private ImageButton deleteMarker;
     private TickerView scoreTickerView;
+    private SeekBar contrastSeekBar;
     private TextView imageIdLocationTextView;
     private boolean needSyncSomaList = false;
     private boolean switchMarkerMode = true;
@@ -568,6 +571,8 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             editModeIndicator = findViewById(R.id.edit_mode_indicator);
             addMarker = findViewById(R.id.add_marker);
             deleteMarker = findViewById(R.id.delete_marker);
+            contrastSeekBar = (SeekBar) findViewById(R.id.mySeekBar);
+            PreferenceSetting preferenceSetting = PreferenceSetting.getInstance();
 
             ImageButtonExt previousFile = findViewById(R.id.previous_file);
             ImageButtonExt nextFile = findViewById(R.id.next_file);
@@ -579,12 +584,31 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             previousFile.setOnClickListener(v -> previousFile());
             nextFile.setOnClickListener(v -> nextFile());
             boringFile.setOnClickListener(v -> boringFile());
+
+            contrastSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromuser) {
+                    if(fromuser){
+                        preferenceSetting.setContrast(progress);
+                        annotationGLSurfaceView.updateRenderOptions();
+                    }
+                }
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) { }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    annotationGLSurfaceView.requestRender();
+                }});
             pinpointStroke.setOnCheckedChangeListener(this::OnCheckChanged);
         }
         else {
             markerFactoryView.setVisibility(View.VISIBLE);
         }
     }
+
+
+
     private void OnCheckChanged(CompoundButton compoundButton,boolean isChecked){
         switchMarkerMode = (isChecked ? true:false);
         if (annotationGLSurfaceView.getEditModeValue() != EditMode.NONE) {

@@ -1,9 +1,12 @@
 package com.penglab.hi5.data;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.penglab.hi5.chat.nim.InfoCache;
+import com.penglab.hi5.core.net.HttpUtilsImage;
 import com.penglab.hi5.core.net.HttpUtilsUserPerformance;
 
 import org.json.JSONArray;
@@ -40,16 +43,18 @@ public class UserPerformanceDataSource {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    try {
+                    if(response.code() == 200) {
                         if (response.body() != null) {
-                            JSONObject jsonObject = new JSONObject(response.body().string());
-                            personalResult.postValue(new Result.Success<JSONObject>(jsonObject));
+                            String [] responseList = response.body().string().split("\n");
+                            int userCount = Integer.parseInt(responseList[0].trim());
+                            int dailyCount = Integer.parseInt(responseList[1].trim());
+                            JSONArray jsonArray = new JSONArray().put(userCount).put(dailyCount);
+                            personalResult.postValue(new Result.Success<JSONArray>(jsonArray));
                         } else {
                             personalResult.postValue(new Result.Error(new Exception("Response from server is null !")));
                         }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        personalResult.postValue(new Result.Error(new Exception("Fail to get user performance !")));
+                    } else {
+                        personalResult.postValue(new Result.Error(new Exception("Response code from server is error !")));
                     }
                 }
             });

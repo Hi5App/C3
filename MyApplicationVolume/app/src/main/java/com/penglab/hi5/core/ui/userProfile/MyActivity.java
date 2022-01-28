@@ -69,6 +69,7 @@ import java.util.List;
 
 //import com.penglab.hi5.core.game.QuestActivity;
 import com.penglab.hi5.data.UserInfoRepository;
+import com.penglab.hi5.data.UserPerformanceDataSource;
 
 
 public class MyActivity extends AppCompatActivity {
@@ -98,7 +99,7 @@ public class MyActivity extends AppCompatActivity {
     private LinearLayout person_reward;
     private LinearLayout person_leaderboard;
     private LinearLayout person_daily_quests;
-    private int mMaskColor;
+
 
 
     @Override
@@ -118,7 +119,6 @@ public class MyActivity extends AppCompatActivity {
         name.setText(UserInfoRepository.getInstance().getUser().getNickName());
 //        email.setText(UserInfoRepository.getInstance().getUser().getEmail());
 
-        mMaskColor = getResources().getColor(R.color.blue);
         scoreTextView = findViewById(R.id.score_textview);
         somaTextView = findViewById(R.id.soma_text_view);
         dailySomaTextView = findViewById(R.id.daily_soma_text_view);
@@ -180,14 +180,25 @@ public class MyActivity extends AppCompatActivity {
         myViewModel.getUserInfoRepository().getScoreModel().getObservableScore().observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(Integer integer) {
-                scoreTextView.setText(Integer.toString(integer));
+                if(integer == null) {
+                    return;
+                }
+                else {
+                    scoreTextView.setText(Integer.toString(integer));
+                }
+
             }
         });
 
         myViewModel.getUserPerformanceDataSource().getPersonalResult().observe(this, new Observer<Result>() {
             @Override
             public void onChanged(Result result) {
-                myViewModel.updateSomaAndDailySoma(result);
+                if(result == null) {
+                    return;
+                } else {
+                    myViewModel.updateSomaAndDailySoma(result);
+                }
+
             }
         });
 
@@ -204,6 +215,7 @@ public class MyActivity extends AppCompatActivity {
                 dailySomaTextView.setText(Integer.toString(integer));
             }
         });
+        myViewModel.getUserPerformance();
     }
 
 
