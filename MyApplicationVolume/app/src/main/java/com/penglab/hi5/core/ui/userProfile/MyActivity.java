@@ -176,6 +176,7 @@ public class MyActivity extends AppCompatActivity {
                 startActivity(new Intent(MyActivity.this, QuestActivity.class));
             }
         });
+        myViewModel.getUserPerformance();
 
         myViewModel.getUserInfoRepository().getScoreModel().getObservableScore().observe(this, new Observer<Integer>() {
             @Override
@@ -215,7 +216,7 @@ public class MyActivity extends AppCompatActivity {
                 dailySomaTextView.setText(Integer.toString(integer));
             }
         });
-        myViewModel.getUserPerformance();
+
     }
 
 

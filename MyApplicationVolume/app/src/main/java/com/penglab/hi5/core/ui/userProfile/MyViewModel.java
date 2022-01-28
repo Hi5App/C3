@@ -136,7 +136,7 @@ public class MyViewModel extends ViewModel {
     public void updateSomaAndDailySoma(Result result) {
         if (result instanceof Result.Success) {
             Object data = ((Result.Success<?>) result).getData();
-            if (data instanceof JSONObject) {
+            if (data instanceof JSONArray) {
                 JSONArray performanceResult = (JSONArray) data;
                 try {
                     somaCount.postValue(performanceResult.getInt(0));
