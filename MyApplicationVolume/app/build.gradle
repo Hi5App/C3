@@ -156,4 +156,6 @@ dependencies {
     implementation 'com.contrarywind:Android-PickerView:4.1.8'
     //noinspection GradleCompatible,GradleCompatible
 
+    implementation 'com.h6ah4i.android.widget.verticalseekbar:verticalseekbar:1.0.0'
+
 }

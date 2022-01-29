@@ -73,7 +73,6 @@ public class UserDataSource {
                     if (responseCode == 200) {
                         responseData = response.body().string();
                         Log.e(TAG, "responseData: " + responseData);
-
                         try {
                             JSONObject userInfo = new JSONObject(responseData);
                             LoggedInUser loggedInUser = new LoggedInUser(

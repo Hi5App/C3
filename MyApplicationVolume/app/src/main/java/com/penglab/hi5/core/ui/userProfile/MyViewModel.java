@@ -3,11 +3,14 @@ package com.penglab.hi5.core.ui.userProfile;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import static com.penglab.hi5.basic.utils.FileHelper.recursionDeleteFile;
+import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import static com.penglab.hi5.core.Myapplication.getContext;
 import static com.penglab.hi5.data.UserDataSource.LOGOUT_SUCCESS;
 import static com.penglab.hi5.data.model.user.LogStatus.GUEST;
 import static com.penglab.hi5.data.model.user.LogStatus.LOGIN;
 import static com.penglab.hi5.data.model.user.LogStatus.LOGOUT;
+
+import android.util.Log;
 
 import com.penglab.hi5.core.ui.home.screens.UserView;
 import com.penglab.hi5.data.Result;
@@ -39,6 +42,9 @@ public class MyViewModel extends ViewModel {
         this.userInfoRepository = userInfoRepository;
         this.userDataSource = userDataSource;
         this.userPerformanceDataSource = userPerformanceDataSource;
+    }
+    public void getUserPerformance(){
+        userPerformanceDataSource.getUserPerformance();
     }
 
     public UserInfoRepository getUserInfoRepository() {
@@ -130,14 +136,19 @@ public class MyViewModel extends ViewModel {
     public void updateSomaAndDailySoma(Result result) {
         if (result instanceof Result.Success) {
             Object data = ((Result.Success<?>) result).getData();
-            if (data instanceof JSONObject) {
+            if (data instanceof JSONArray) {
+                JSONArray performanceResult = (JSONArray) data;
                 try {
-                    somaCount.postValue(((JSONObject) data).getInt("performance"));
-                    dailySomaCount.postValue(((JSONObject) data).getInt("dailyperformance"));
+                    somaCount.postValue(performanceResult.getInt(0));
+                    dailySomaCount.postValue(performanceResult.getInt(1));
+                    Log.e("somaCount", String.valueOf(somaCount));
+                    Log.e("dailySomaCount",String.valueOf(dailySomaCount));
                 } catch (Exception e) {
-
+                    ToastEasy("Fail to parse jsonArray when get user performance !");
                 }
             }
+        } else {
+            ToastEasy(result.toString());
         }
     }
 }
