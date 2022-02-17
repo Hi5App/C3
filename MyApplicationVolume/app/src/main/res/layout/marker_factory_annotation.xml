@@ -47,6 +47,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
+    <com.penglab.hi5.basic.utils.view.ImageButtonExt
+        android:id="@+id/ignore_file"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/circle_normal"
+        android:src="@drawable/ic_ignore_icon"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
     <ToggleButton
         android:id="@+id/switch_marker_mode"
         android:layout_width="40dp"

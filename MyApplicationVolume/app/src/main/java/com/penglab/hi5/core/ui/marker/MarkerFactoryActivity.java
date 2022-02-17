@@ -577,6 +577,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             ImageButtonExt previousFile = findViewById(R.id.previous_file);
             ImageButtonExt nextFile = findViewById(R.id.next_file);
             ImageButtonExt boringFile = findViewById(R.id.boring_file);
+            ImageButtonExt ignoreFile = findViewById(R.id.ignore_file);
             ToggleButton pinpointStroke = findViewById(R.id.switch_marker_mode);
 
             addMarker.setOnClickListener(this::onButtonClick);
@@ -584,6 +585,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             previousFile.setOnClickListener(v -> previousFile());
             nextFile.setOnClickListener(v -> nextFile());
             boringFile.setOnClickListener(v -> boringFile());
+            ignoreFile.setOnClickListener(v -> boringFile());
 
             contrastSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
