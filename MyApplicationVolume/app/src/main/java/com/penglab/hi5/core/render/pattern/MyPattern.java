@@ -223,13 +223,7 @@ public class MyPattern extends BasicPattern {
 
                     "uniform highp float dim[3];" +
                     "uniform highp float contrast;" +
-                    "uniform highp float threshold;" +
                     "layout (location = 0) out vec4 fragColor;" +
-
-//                    "const float numberOfSlices = 128.0;" +
-//                    "const float slicesOverX = 8.0;" +
-//                    "const float slicesOverY = 16.0;" +
-
 
                     "void main(void)" +
                     "{" +
@@ -240,86 +234,48 @@ public class MyPattern extends BasicPattern {
                     "  vec4 backColor = texture(uBackCoord, texC);" +
                     "  " +
                     "  vec3 dir = backColor.rgb - frontColor.rgb;" +
-                    "  float steps = 512.0;" +
+                    "  int steps = 256;" +
+                    "  int stepSize = 1;" +
                     "  vec4 vpos = frontColor;" +
                     "  " +
-                    "  float cont = 0.0;" +
+                    "  vec3 Step = dir/float(steps);" +
                     "  " +
-                    "  vec3 Step = dir/steps;" +
-                    "  " +
-                    "  vec4 accum = vec4(0, 0, 0, 0);" +
-//                    "  vec4 sample = vec4(0.0, 0.0, 0.0, 0.0);" +
+                    "  vec4 accumulatedValue = vec4(0, 0, 0, 0);" +
                     "  vec4 value = vec4(0, 0, 0, 0);" +
                     "  " +
-                    "  float opacityFactor = 8.0;" +
-                    "  float lightFactor = 1.3;" +
-                    "  " +
-                    "  for(float i = 0.0; i < steps; i+=1.0)" +
+
+                    "  for(int i = 0; i < steps; i+=stepSize)" +
                     "  {" +
+                    "     vec4 texture_value;" +
+                    "     texture_value = texture(uVolData, vec3(1.0 - vpos.x/dim[0], 1.0 - vpos.y/dim[1], vpos.z/dim[2]));" +
+                    "     value = vec4(texture_value.x * contrast, texture_value.y * contrast, texture_value.z * contrast, texture_value.x);" +
+//                    "     value = vec4(texture_value.x, texture_value.y, texture_value.z, texture_value.x);" +
 
-                    "     vec4 tf_value;" +
-//                    "     tf_value = texture(uVolData, vpos.xyz);" +
-                    "     tf_value = texture(uVolData, vec3(1.0 - vpos.x/dim[0], 1.0 - vpos.y/dim[1], vpos.z/dim[2]));" +
-//                    "     if (vpos" +
-//                    "     tf_value = texture(uVolData, vec3(1.0 - vpos.x, 1.0 - vpos.y, vpos.z));" +
-//                    "     tf_value = texture(uVolData, vec3(vpos.x, 1.0 - vpos.y, vpos.z));" +
-//                    "     value = vec4(tf_value.x);" +
-                    "     value = vec4(tf_value.x * contrast, tf_value.y * contrast, tf_value.z * contrast, tf_value.x);" +
+//                    "     if(value.r <= 3.0/255.0 && value.g <= 3.0/255.0 && value.b <= 3.0/255.0)" +
+//                    "         stepSize = 2;" +
+//                    "     else" +
+//                    "         stepSize = 1;" +
 
-                    "     if(value.r > accum.r)\n" +
-                    "         accum.r = value.r;\n" +
-                    "     if(value.g > accum.g)\n" +
-                    "         accum.g = value.g\n;" +
-                    "     if(value.b > accum.b)\n" +
-                    "         accum.b = value.b\n;" +
-                    "     accum.a += (1.0 - accum.a) * value.a;" +
-                    "     vpos.xyz += Step;" +
+                    "     if(value.r > accumulatedValue.r)\n" +
+                    "         accumulatedValue.r = value.r;\n" +
+                    "     if(value.g > accumulatedValue.g)\n" +
+                    "         accumulatedValue.g = value.g\n;" +
+                    "     if(value.b > accumulatedValue.b)\n" +
+                    "         accumulatedValue.b = value.b\n;" +
+                    "     vpos.xyz += Step * float(stepSize);" +
 
-                    "     if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || accum.a>=1.0)" +
+//                    "     accumulatedValue.a += (1.0 - accumulatedValue.a) * value.a;" +
+//                    "     if(accumulatedValue.r > 0.15 && accumulatedValue.g > 0.15 && accumulatedValue.b > 0.15)\n" +
+//                    "         break;" +
+
+                    "     if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || accumulatedValue.a>=1.0)" +
                     "         break;" +
                     "  }" +
-                    "  accum.a = 1.0;" +
-//                    "     float old_contrast = contrast;" +
-                    "  if(threshold != 0.0){\n" +
-//                    "         accum.r /= old_contrast;" +
-//                    "         accum.g /= old_contrast;" +
-//                    "         accum.b /= old_contrast;" +
-
-                    "      if (accum.r > 2.0*threshold){\n" +
-                    "          accum.r *= contrast;" +
-                    "          accum.g *= contrast;" +
-                    "          accum.b *= contrast;" +
-//                    "             accum.r = 1.0;" +
-//                    "             accum.g = 1.0;" +
-//                    "             accum.b = 1.0;" +
-                    "      }else{\n" +
-                    "          accum.r /= contrast;" +
-                    "          accum.g /= contrast;" +
-                    "          accum.b /= contrast;" +
-//                    "             accum.r = 0.0;" +
-//                    "             accum.g = 0.0;" +
-//                    "             accum.b = 0.0;" +
-                    "      }\n" +
-
-
-                    "  }\n" +
-//                    "  float threshold = (float)(myrenderer.threshold) / 255;" +
-//                    "  float r,g,b;" +
-//
-//                    "  r = accum.r;" +
-//                    "  g = accum.g;" +
-//                    "  b = accum.b;" +
-//                    "  float gray = r*0.3+g*0.59+b*0.11;" +
-//                    "  if(gray < threshold){" +
-//                    "    gray = 0.0;" +
-//                    "  }else{" +
-//                    "    gray = 1.0;}" +
-////                    "  newpixel = accum.a | (gray << 16) | (gray << 8) | gray" +
-////                    "  fragColor = newpixel;" +
-//                    "  accum.r = gray;" +
-//                    "  accum.g = gray;" +
-//                    "  accum.b = gray;" +
-                    "  fragColor = accum;" +
+//                    "  accumulatedValue.r *= contrast;" +
+//                    "  accumulatedValue.g *= contrast;" +
+//                    "  accumulatedValue.b *= contrast;" +
+                    "  accumulatedValue.a = 1.0;" +
+                    "  fragColor = accumulatedValue;" +
                     "}";
 
 
@@ -621,14 +577,6 @@ public class MyPattern extends BasicPattern {
 
         contrastHandle = GLES30.glGetUniformLocation(mProgram_raycasting, "contrast");
         GLES20.glUniform1f(contrastHandle,contrast);
-
-        thresholdHandle = GLES30.glGetUniformLocation(mProgram_raycasting, "threshold");
-        if (mode == Mode.GAME) {
-            GLES20.glUniform1f(thresholdHandle, 0);
-//            GLES20.glUniform1f(thresholdHandle, (float)threshold/255);
-        }else {
-            GLES20.glUniform1f(thresholdHandle, 0);
-        }
 
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0); // 设置使用的纹理编号
         if (ifDownSampling)

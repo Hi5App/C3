@@ -98,8 +98,12 @@ public class MarkerFactoryDataSource {
 
     public void getSomaList(String image, int x, int y, int z, int size){
         try {
+            JSONObject pa1 = new JSONObject().put("x", x - size/2).put("y", y - size/2).put("z", z - size/2);
+            JSONObject pa2 = new JSONObject().put("x", x + size/2).put("y", y + size/2).put("z", z + size/2);
+            JSONObject bBox = new JSONObject().put("pa1", pa1).put("pa2", pa2).put("res", "").put("obj", image);
             JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-            HttpUtilsSoma.getSomaListWithOkHttp(userInfo, image, x, y, z, size, new Callback() {
+
+            HttpUtilsSoma.getSomaListWithOkHttp(userInfo, bBox, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     somaListResult.postValue(new Result.Error(new Exception("Connect failed when get soma list !")));
@@ -132,11 +136,11 @@ public class MarkerFactoryDataSource {
         }
     }
 
-    public void updateSomaList(String image, int locationId, String username, JSONArray insertSomaList, JSONArray deleteSomaList){
+    public void updateSomaList(String image, int locationId, int locationType, String username, JSONArray insertSomaList, JSONArray deleteSomaList){
         try {
             Log.e(TAG,"start updateSomaList");
             JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-            HttpUtilsSoma.updateSomaListWithOkHttp(userInfo, locationId, insertSomaList, deleteSomaList, username, image, new Callback() {
+            HttpUtilsSoma.updateSomaListWithOkHttp(userInfo, locationId, locationType,  insertSomaList, deleteSomaList, username, image, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     updateSomaResult.postValue(new Result.Error(new Exception("Connect failed when upload marker list !")));

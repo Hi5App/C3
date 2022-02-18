@@ -13,12 +13,10 @@ public class HttpUtilsUser extends HttpUtils {
     private static final String URL_FIND_PASSWORD = SERVER_IP + "/dynamic/user/forgetpassword";
 
     /* 登录 异步方法 */
-    public static void loginWithOkHttp(String account, String password, Callback callback) {
+    public static void loginWithOkHttp(JSONObject userInfo, Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
-                    .put("name", account)
-                    .put("passwd", password)
-                    .put("limit", 1)));
+                    .put("user", userInfo)));
             asyncPostRequest(URL_LOGIN, body, callback);
         } catch (Exception e) {
             e.printStackTrace();

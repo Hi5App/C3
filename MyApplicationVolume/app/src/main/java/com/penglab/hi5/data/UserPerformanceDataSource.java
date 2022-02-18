@@ -35,7 +35,8 @@ public class UserPerformanceDataSource {
 
     public void getUserPerformance() {
         try {
-            HttpUtilsUserPerformance.getUserPerformance(InfoCache.getAccount(), InfoCache.getToken(), new Callback() {
+            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
+            HttpUtilsUserPerformance.getUserPerformance(userInfo, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     personalResult.postValue(new Result.Error(new Exception("Connect failed when get user performance")));
@@ -45,11 +46,13 @@ public class UserPerformanceDataSource {
                 public void onResponse(Call call, Response response) throws IOException {
                     if(response.code() == 200) {
                         if (response.body() != null) {
-                            String [] responseList = response.body().string().split("\n");
-                            int userCount = Integer.parseInt(responseList[0].trim());
-                            int dailyCount = Integer.parseInt(responseList[1].trim());
-                            JSONArray jsonArray = new JSONArray().put(userCount).put(dailyCount);
-                            personalResult.postValue(new Result.Success<JSONArray>(jsonArray));
+                            try {
+                                JSONObject jsonObject = new JSONObject(response.body().string());
+                                personalResult.postValue(new Result.Success<JSONObject>(jsonObject));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                personalResult.postValue(new Result.Error(new Exception("Fail to parse JsonObject !")));
+                            }
                         } else {
                             personalResult.postValue(new Result.Error(new Exception("Response from server is null !")));
                         }
@@ -65,7 +68,8 @@ public class UserPerformanceDataSource {
 
     public void getUserPerformanceTopK(int k) {
         try {
-            HttpUtilsUserPerformance.getUserPerformanceTopK(InfoCache.getAccount(), InfoCache.getToken(), k, new Callback() {
+            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
+            HttpUtilsUserPerformance.getUserPerformanceTopK(userInfo, k, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     leaderboardResult.postValue(new Result.Error(new Exception("Connect failed when get leaderboard")));

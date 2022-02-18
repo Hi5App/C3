@@ -17,6 +17,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -134,12 +135,12 @@ public class ImageDataSource {
 
     public void downloadImage(String brainId, String res, int offsetX, int offsetY, int offsetZ, int size){
         try {
-
+            JSONObject pa1 = new JSONObject().put("x", offsetX - size/2).put("y", offsetY - size/2).put("z", offsetZ - size/2);
+            JSONObject pa2 = new JSONObject().put("x", offsetX + size/2).put("y", offsetY + size/2).put("z", offsetZ + size/2);
+            JSONObject bBox = new JSONObject().put("pa1", pa1).put("pa2", pa2).put("res", res).put("obj", brainId);
             JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-            JSONObject loc = new JSONObject().put("x", offsetX).put("y", offsetY).put("z", offsetZ);
-            Log.d(TAG, brainId + loc.toString());
 
-            HttpUtilsImage.downloadImageWithOkHttp(userInfo, brainId, res, loc, size, new Callback() {
+            HttpUtilsImage.downloadImageWithOkHttp(userInfo, bBox, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     downloadImageResult.postValue(new Result.Error(new Exception("Connect Failed When Download Music")));
