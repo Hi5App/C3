@@ -61,7 +61,8 @@ public class UserDataSource {
      */
     public void login(String username, String password) {
         try {
-            HttpUtilsUser.loginWithOkHttp(username, password, new Callback() {
+            JSONObject userInfo = new JSONObject().put("name", username).put("passwd", password);
+            HttpUtilsUser.loginWithOkHttp(userInfo, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     result.postValue(new Result.Error(new Exception("Connect Failed When Login")));

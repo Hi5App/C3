@@ -14,8 +14,11 @@ public class HttpUtilsImage extends HttpUtils {
 
     public static void getBrainListWithOkHttp(JSONObject userInfo, Callback callback) {
         try {
+            // set for query parameters on server, default value: off=0, limit=2000
+            JSONObject queryCondition = new JSONObject().put("off",0).put("limit",2000);
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
-                    .put("user", userInfo)));
+                    .put("user", userInfo)
+                    .put("condition", queryCondition)));
             asyncPostRequest(URL_GET_BRAIN_LIST, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
@@ -49,20 +52,14 @@ public class HttpUtilsImage extends HttpUtils {
     /**
      * download image block
      * @param userInfo username & password
-     * @param brainId such as 18454
-     * @param res such as RES(26298x35000x11041)"
-     * @param loc offset of axis x, y, z
-     * @param len size of image block
+     * @param bBox info of Bounding Box, include startPos, endPos, resolution, brainId
      * @param callback the callback func
      */
-    public static void downloadImageWithOkHttp(JSONObject userInfo, String brainId, String res, JSONObject loc, int len, Callback callback) {
+    public static void downloadImageWithOkHttp(JSONObject userInfo, JSONObject bBox, Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
-                    .put("user", userInfo)
-                    .put("image", brainId)
-                    .put("res", res)
-                    .put("loc", loc)
-                    .put("len", len)));
+                    .put("bb", bBox)
+                    .put("user", userInfo)));
             asyncPostRequest(URL_DOWNLOAD_IMAGE, body, callback);
         } catch (Exception e) {
             e.printStackTrace();

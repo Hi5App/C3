@@ -97,6 +97,7 @@
         app:srcCompat="@drawable/ic_marker_delete" />
 
     <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper
+        android:id="@+id/seekbar_wrapper"
         android:layout_width="wrap_content"
         android:layout_height="150dp"
         tools:ignore="MissingConstraints"
@@ -104,10 +105,13 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf ="@+id/next_file"
         app:layout_constraintBottom_toTopOf="@+id/add_marker">
+
         <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
             android:id="@+id/mySeekBar"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:min="-50"
+            android:max="150"
             android:splitTrack="false"
             app:seekBarRotation="CW270" /> <!-- Rotation: CW90 or CW270 -->
     </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>

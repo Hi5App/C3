@@ -136,13 +136,13 @@ public class MyViewModel extends ViewModel {
     public void updateSomaAndDailySoma(Result result) {
         if (result instanceof Result.Success) {
             Object data = ((Result.Success<?>) result).getData();
-            if (data instanceof JSONArray) {
-                JSONArray performanceResult = (JSONArray) data;
+            if (data instanceof JSONObject) {
+                JSONObject performanceResult = (JSONObject) data;
                 try {
-                    somaCount.postValue(performanceResult.getInt(0));
-                    dailySomaCount.postValue(performanceResult.getInt(1));
-                    Log.e("somaCount", String.valueOf(somaCount));
-                    Log.e("dailySomaCount",String.valueOf(dailySomaCount));
+                    somaCount.postValue(performanceResult.getInt("totalsoma"));
+                    dailySomaCount.postValue(performanceResult.getInt("dailysoma"));
+                    Log.e("MyViewModel", "totalSoma: " + performanceResult.getInt("totalsoma"));
+                    Log.e("MyViewModel","dailySomaCount: " + performanceResult.getInt("dailysoma"));
                 } catch (Exception e) {
                     ToastEasy("Fail to parse jsonArray when get user performance !");
                 }

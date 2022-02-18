@@ -485,6 +485,8 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
     private void alreadyLatestVersionPopup() {
         new XPopup.Builder(this)
                 .asConfirm("Already Latest Version", "Current version is already latest version.", null)
+                .setCancelText("Cancel")
+                .setConfirmText("Confirm")
         .show();
     }
 
@@ -496,6 +498,8 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                         homeViewModel.downloadLatestVersion(url, newVersionName);
                     }
                 })
+                .setCancelText("Cancel")
+                .setConfirmText("Confirm")
                 .show();
     }
 

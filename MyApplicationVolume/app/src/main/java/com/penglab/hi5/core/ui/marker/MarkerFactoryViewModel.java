@@ -466,7 +466,7 @@ public class MarkerFactoryViewModel extends ViewModel {
         markerFactoryDataSource.getSomaList(brainId, (int) loc.x, (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE * (int) Math.pow(2, coordinateConvert.getResIndex()-1));
     }
 
-    public void updateSomaList(MarkerList markerListToAdd, JSONArray markerListToDelete) {
+    public void updateSomaList(MarkerList markerListToAdd, JSONArray markerListToDelete, int locationType) {
         if ((markerListToAdd == null) && (markerListToDelete == null)){
             return;
         }
@@ -478,7 +478,7 @@ public class MarkerFactoryViewModel extends ViewModel {
             int locationId = curPotentialSomaInfo.getId();
             String brainId = curPotentialSomaInfo.getBrainId();
             String username = loggedInUser.getUserId();
-            markerFactoryDataSource.updateSomaList(brainId, locationId, username,
+            markerFactoryDataSource.updateSomaList(brainId, locationId, locationType, username,
                     MarkerList.toJSONArray(MarkerList.covertLocalToGlobal(markerListToAdd, coordinateConvert)), markerListToDelete);
             if (!curPotentialSomaInfo.isAlreadyUpload()) {
                 curPotentialSomaInfo.setAlreadyUpload(true);
