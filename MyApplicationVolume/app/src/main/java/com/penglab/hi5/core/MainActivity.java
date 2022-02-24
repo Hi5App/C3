@@ -353,7 +353,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
         if (msg.startsWith("TestSocketConnection")){
-            ServerConnector.getInstance().sendMsg("HeartBeat");
+            //ServerConnector.getInstance().sendMsg("HeartBeat");
         }else {
             Log.e(TAG,"onRecMessage()  " + msg);
 //            Logcat.w("onRecMessage", msg);

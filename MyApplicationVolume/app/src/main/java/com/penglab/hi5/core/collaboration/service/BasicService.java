@@ -75,8 +75,8 @@ public abstract class BasicService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        timer = new Timer();
-        timer.schedule(task, 30 * 1000, HEART_BEAT_RATE);
+//        timer = new Timer();
+//        timer.schedule(task, 30 * 1000, HEART_BEAT_RATE);
 
     }
 
@@ -89,7 +89,7 @@ public abstract class BasicService extends Service {
     public boolean onUnbind(Intent intent) {
         // All clients have unbound with unbindService()
         receiveMsgInterface = null;
-        timer.cancel();
+//        timer.cancel();
         return mAllowRebind;
     }
 
