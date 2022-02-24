@@ -1,8 +1,17 @@
 package com.penglab.hi5.basic.image;
 
+import static com.penglab.hi5.core.Myapplication.ToastEasy;
+
 import android.util.Log;
 
-import com.penglab.hi5.core.render.MyDraw;
+import androidx.annotation.NonNull;
+
+import com.penglab.hi5.core.render.pattern.MyDraw;
+import com.penglab.hi5.core.ui.marker.CoordinateConvert;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,7 +19,8 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 public class MarkerList implements Cloneable {
-    private ArrayList<ImageMarker> markers;
+    private static final int DEFAULT_TYPE = 6;
+    private final ArrayList<ImageMarker> markers;
 
     public MarkerList(){
         markers = new ArrayList<ImageMarker>();
@@ -18,6 +28,10 @@ public class MarkerList implements Cloneable {
 
     public MarkerList(ArrayList<ImageMarker> arrayList){
         markers = arrayList;
+    }
+
+    public boolean add(ArrayList<ImageMarker> markerArrayList){
+        return markers.addAll(markerArrayList);
     }
 
     public boolean add(ImageMarker marker){
@@ -44,12 +58,11 @@ public class MarkerList implements Cloneable {
         markers.clear();
     }
 
+    @NonNull
     public MarkerList clone() throws CloneNotSupportedException {
         super.clone();
-        ArrayList<ImageMarker> new_markers = (ArrayList<ImageMarker>)markers.clone();
-        MarkerList new_imageMaker = new MarkerList(new_markers);
-
-        return new_imageMaker;
+        ArrayList<ImageMarker> newMarkerArrayList = (ArrayList<ImageMarker>) this.markers.clone();
+        return new MarkerList(newMarkerArrayList);
     }
 
     public ArrayList<ImageMarker> getMarkers(){
@@ -57,7 +70,6 @@ public class MarkerList implements Cloneable {
     }
 
     public boolean saveAsApo(String filepath){
-
         try {
             File f = new File(filepath);
             if (!f.createNewFile()){
@@ -90,5 +102,80 @@ public class MarkerList implements Cloneable {
             return false;
         }
         return true;
+    }
+
+    /**
+     *  Support marker factory mode
+     */
+    public static JSONArray toJSONArray(MarkerList markerList) throws JSONException {
+        if (markerList == null){
+            return null;
+        }
+
+        JSONArray jsonArray = new JSONArray();
+        for (int i=0; i<markerList.size(); i++){
+            ImageMarker imageMarker = markerList.get(i);
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("x", formatDouble(imageMarker.x));
+            jsonObject.put("y", formatDouble(imageMarker.y));
+            jsonObject.put("z", formatDouble(imageMarker.z));
+
+            jsonArray.put(jsonObject);
+        }
+        return jsonArray;
+    }
+
+    public static MarkerList parseFromJSONArray(JSONArray jsonArray) throws JSONException {
+        if (jsonArray == null){
+            return null;
+        }
+
+        MarkerList markerList = new MarkerList();
+        for (int i=0; i<jsonArray.length(); i++){
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            JSONObject loc = jsonObject.getJSONObject("loc");
+            String name = jsonObject.getString("name");
+            ImageMarkerExt imageMarker = new ImageMarkerExt(
+                    DEFAULT_TYPE,
+                    (float) loc.getDouble("x"),
+                    (float) loc.getDouble("y"),
+                    (float) loc.getDouble("z"),
+                    name);
+
+            markerList.add(imageMarker);
+        }
+        return markerList;
+    }
+
+    public static MarkerList covertLocalToGlobal(MarkerList markerList, CoordinateConvert coordinateConvert) {
+        if (markerList == null || coordinateConvert == null){
+            return null;
+        }
+
+        MarkerList resultList = new MarkerList();
+        for (int i=0; i<markerList.size(); i++){
+            ImageMarker oldMarker = markerList.get(i);
+            ImageMarker newMarker = new ImageMarker(DEFAULT_TYPE, coordinateConvert.convertLocalToGlobal(oldMarker.x, oldMarker.y, oldMarker.z));
+            resultList.add(newMarker);
+        }
+        return resultList;
+    }
+
+    public static MarkerList covertGlobalToLocal(MarkerList markerList, CoordinateConvert coordinateConvert) {
+        if (markerList == null || coordinateConvert == null){
+            return null;
+        }
+        MarkerList resultList = new MarkerList();
+        for (int i=0; i<markerList.size(); i++){
+            ImageMarkerExt oldMarker = (ImageMarkerExt) markerList.get(i);
+            ImageMarkerExt newMarker = new ImageMarkerExt(DEFAULT_TYPE, coordinateConvert.convertGlobalToLocal(oldMarker.x, oldMarker.y, oldMarker.z), oldMarker.getName());
+            resultList.add(newMarker);
+        }
+        return resultList;
+    }
+
+    private static double formatDouble(double num) {
+        return (int) Math.round(num * 1000) / 1000f;
     }
 }

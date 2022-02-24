@@ -2,8 +2,7 @@ package com.penglab.hi5.basic;
 
 import android.opengl.Matrix;
 
-enum RotationType
-{
+enum RotationType {
     X,
     XY,
     XYZ,
@@ -36,7 +35,7 @@ public class MyAnimation {
     public MyAnimation(){
 
         status = false;
-        speed = 36/60f;                            //36度每秒钟
+        speed = 36/60f;                            // 36度每秒钟
         rotationType = RotationType.XYZ;
         angleX = 0f;
         angleY = 0f;
@@ -217,8 +216,6 @@ public class MyAnimation {
                     }
                 }
                 break;
-
-
         }
 
         count ++;

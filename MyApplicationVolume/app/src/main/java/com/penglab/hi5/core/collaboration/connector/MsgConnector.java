@@ -81,7 +81,6 @@ public class MsgConnector extends BasicConnector implements ReconnectionInterfac
 
     @Override
     public void onReconnection(String msg) {
-
         /*
         reconnect
          */
@@ -96,5 +95,8 @@ public class MsgConnector extends BasicConnector implements ReconnectionInterfac
         }
     }
 
+    public void closeSender(){
+        msgSender.close();
+    }
 
 }

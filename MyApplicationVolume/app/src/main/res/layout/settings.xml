@@ -50,7 +50,7 @@
             android:paddingRight="16dp" >
 
             <Switch
-                android:id="@+id/switch_rotation_mode"
+                android:id="@+id/downSample_mode"
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
                 android:textColor="#bb333333"
@@ -61,9 +61,9 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1px"
-                android:layout_alignLeft="@id/switch_rotation_mode"
-                android:layout_alignRight="@id/switch_rotation_mode"
-                android:layout_below="@id/switch_rotation_mode"
+                android:layout_alignLeft="@id/downSample_mode"
+                android:layout_alignRight="@id/downSample_mode"
+                android:layout_below="@id/downSample_mode"
                 android:layout_marginTop="10dp"
                 android:background="#33333333" />
 
@@ -86,7 +86,7 @@
                 android:paddingBottom="10dp"/>
 
             <com.warkiz.widget.IndicatorSeekBar
-                android:id="@+id/indicator_seekbar"
+                android:id="@+id/contrast_indicator_seekbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:isb_max="150"

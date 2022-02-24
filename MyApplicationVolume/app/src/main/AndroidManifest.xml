@@ -8,25 +8,20 @@
         android:required="true" />
     <uses-feature
         android:name="android.hardware.camera"
-        android:required="true" />
-
-    <!-- 权限声明 -->
+        android:required="true" /> <!-- 权限声明 -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <!-- 外置存储存取权限 -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" /> <!-- 外置存储存取权限 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <!-- 多媒体相关 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- 多媒体相关 -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <!-- 控制呼吸灯，振动器等，用于新消息提醒 -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!-- 控制呼吸灯，振动器等，用于新消息提醒 -->
     <uses-permission android:name="android.permission.FLASHLIGHT" />
-    <uses-permission android:name="android.permission.VIBRATE" />
-    <!-- 8.0+系统需要 -->
+    <uses-permission android:name="android.permission.VIBRATE" /> <!-- 8.0+系统需要 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <permission
         android:name="com.penglab.hi5.permission.RECEIVE_MSG"
         android:protectionLevel="signature" />
@@ -38,8 +33,15 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true"
+        android:xlargeScreens="true" />
+
     <application
-        android:name="com.penglab.hi5.core.Myapplication"
+        android:name=".core.Myapplication"
         android:allowBackup="true"
         android:exported="true"
         android:icon="@mipmap/ic_launcher"
@@ -51,17 +53,24 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-
+        <activity
+            android:name=".core.game.leaderBoard.LeaderBoardActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar.NoActionBar"/>
+        <activity android:name=".core.ui.userProfile.UserInfoActivity" />
+        <activity
+            android:name=".core.ui.userProfile.MyActivity"
+            android:label=""
+            android:theme="@style/AppTheme.NoActionBar.NoActionBar" />
         <activity android:name=".core.game.RewardActivity" />
         <activity android:name=".core.game.LeaderBoardActivity" />
         <activity
-            android:name=".core.game.QuestActivity"
+            android:name=".core.game.quest.QuestActivity"
             android:theme="@style/dialog_style" />
-
-
         <!--
          APP key, 可以在这里设置，也可以在 SDKOptions 中提供。
-           如果 SDKOptions 中提供了，则取 SDKOptions 中的值。-->
+           如果 SDKOptions 中提供了，则取 SDKOptions 中的值。
+        -->
         <meta-data
             android:name="com.netease.nim.appKey"
             android:value="86a7aa13ac797a95247a03c54ed483b4" />
@@ -85,9 +94,18 @@
         <activity android:name=".chat.nim.main.activity.SettingsActivity" />
         <activity android:name=".chat.nim.main.activity.NoDisturbActivity" />
         <activity android:name=".core.S2Activity" />
+        <activity android:name=".core.ui.register.RegisterActivity" />
+        <activity android:name=".core.ui.password.FindPasswordActivity" />
+        <activity android:name=".core.ui.login.LoginActivity" />
+        <activity android:name=".core.ui.check.CheckActivity" />
+        <activity android:name=".core.ui.annotation.AnnotationActivity"
+            android:configChanges="orientation|keyboardHidden|layoutDirection|screenSize"/>
+        <activity android:name=".core.ui.marker.MarkerFactoryActivity"
+            android:configChanges="orientation|keyboardHidden|layoutDirection|screenSize"/>
         <activity
-            android:name="com.penglab.hi5.core.SplashScreenActivity"
+            android:name=".core.ui.splash.SplashScreenActivity"
             android:configChanges="keyboardHidden|orientation"
+            android:exported="true"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SplashScreenTheme"
@@ -100,74 +118,58 @@
         </activity>
         <activity
             android:name=".chat.ChatActivity"
-            android:label="@string/app_name" />
+            android:label="@string/app_name" /> <!-- <activity -->
+        <!-- android:name="com.penglab.hi5.core.GameActivity" -->
+        <!-- android:screenOrientation="landscape" /> -->
+        <activity android:name=".core.HelpActivity" />
         <activity
-            android:name=".core.ui.login.RegisterActivity"/>
-        <activity
-            android:name=".core.ui.login.LoginActivity">
-        </activity>
-<!--        <activity-->
-<!--            android:name="com.penglab.hi5.core.GameActivity"-->
-<!--            android:screenOrientation="landscape" />-->
-        <activity android:name="com.penglab.hi5.core.HelpActivity" />
-        <activity
-            android:name="com.penglab.hi5.core.MainActivity"
+            android:name=".core.MainActivity"
             android:configChanges="keyboardHidden|orientation|layoutDirection|screenSize"
             android:hardwareAccelerated="true"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan">
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".core.ui.home.screens.HomeActivity">
 
-        </activity>
-
-<!--        <activity-->
-<!--            android:name=".chat.agora.activity.PeerToPeerVideoActivity">-->
-<!--        </activity>-->
-
-<!--        <activity-->
-<!--            android:name=".chat.agora.activity.PeerToPeerVoiceActivity">-->
-<!--        </activity>-->
-
-
-
-<!--        &lt;!&ndash; 声网通信服务 &ndash;&gt;-->
-<!--        <service-->
-<!--            android:name=".chat.agora.AgoraService"-->
-<!--            android:exported="false" />-->
-
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" /> -->
+            <!-- </intent-filter> -->
+        </activity> <!-- <activity -->
+        <!-- android:name=".chat.agora.activity.PeerToPeerVideoActivity"> -->
+        <!-- </activity> -->
+        <!-- <activity -->
+        <!-- android:name=".chat.agora.activity.PeerToPeerVoiceActivity"> -->
+        <!-- </activity> -->
+        <!-- &lt;!&ndash; 声网通信服务 &ndash;&gt; -->
+        <!-- <service -->
+        <!-- android:name=".chat.agora.AgoraService" -->
+        <!-- android:exported="false" /> -->
         <!-- 背景音乐后台服务 -->
         <service
-            android:name="com.penglab.hi5.core.MusicServer"
+            android:name=".core.music.MusicService"
             android:enabled="true"
-            android:exported="true" />
-
-        <!-- 协同工作通信服务 -->
+            android:exported="true" /> <!-- 协同工作通信服务 -->
         <service
             android:name=".core.collaboration.service.ManageService"
-            android:exported="false" />
-
-        <!-- 协同工作通信服务 -->
+            android:exported="false" /> <!-- 协同工作通信服务 -->
         <service
             android:name=".core.collaboration.service.CollaborationService"
-            android:exported="false" />
-
-        <!-- 云信后台服务，请使用独立进程 -->
+            android:exported="false" /> <!-- 云信后台服务，请使用独立进程 -->
         <service
             android:name="com.netease.nimlib.service.NimService"
             android:exported="false"
-            android:process=":core" />
-        <!-- 云信后台辅助服务 -->
+            android:process=":core" /> <!-- 云信后台辅助服务 -->
         <service
             android:name="com.netease.nimlib.service.NimService$Aux"
             android:exported="false"
-            android:process=":core" />
-        <!-- 云信后台辅助服务 -->
+            android:process=":core" /> <!-- 云信后台辅助服务 -->
         <service
             android:name="com.netease.nimlib.job.NIMJobService"
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE"
-            android:process=":core" />
-        <!-- 云信监视系统启动和网络变化的广播接收器，保持和 NimService 同一进程 -->
+            android:process=":core" /> <!-- 云信监视系统启动和网络变化的广播接收器，保持和 NimService 同一进程 -->
         <receiver
             android:name="com.netease.nimlib.service.NimReceiver"
             android:exported="false"
@@ -176,18 +178,14 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
-        </receiver>
-        <!-- 云信进程间通信 Receiver -->
-        <receiver android:name="com.netease.nimlib.service.ResponseReceiver" />
-        <!-- 云信进程间通信service -->
-        <service android:name="com.netease.nimlib.service.ResponseService" />
-        <!-- 云信进程间通信provider -->
+        </receiver> <!-- 云信进程间通信 Receiver -->
+        <receiver android:name="com.netease.nimlib.service.ResponseReceiver" /> <!-- 云信进程间通信service -->
+        <service android:name="com.netease.nimlib.service.ResponseService" /> <!-- 云信进程间通信provider -->
         <provider
             android:name="com.netease.nimlib.ipc.NIMContentProvider"
             android:authorities="com.penglab.hi5.ipc.provider"
             android:exported="false"
-            android:process=":core" />
-        <!-- 云信内部使用的进程间通信provider -->
+            android:process=":core" /> <!-- 云信内部使用的进程间通信provider -->
         <!-- SDK启动时会强制检测该组件的声明是否配置正确，如果检测到该声明不正确，SDK会主动抛出异常引发崩溃 -->
         <provider
             android:name="com.netease.nimlib.ipc.cp.provider.PreferenceContentProvider"
@@ -204,11 +202,15 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <receiver android:name=".basic.UpdateReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
     </application>
-    <supports-screens
-        android:smallScreens="true"
-        android:normalScreens="true"
-        android:largeScreens="true"
-        android:xlargeScreens="true"
-        android:anyDensity="true" />
+
 </manifest>

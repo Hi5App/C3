@@ -3,26 +3,45 @@ package com.penglab.hi5.basic.utils;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
+import android.text.PrecomputedText;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.preference.PreferenceManager;
 
 import com.penglab.hi5.R;
 import com.penglab.hi5.core.MyActivityLifeCycleCallbacks;
 import com.penglab.hi5.core.Myapplication;
 
+import org.apache.commons.io.IOExceptionWithCause;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
 import cn.carbs.android.library.BuildConfig;
+import io.agora.rtm.jni.LOGIN_ERR_CODE;
 
 public class CrashHandler implements Thread.UncaughtExceptionHandler {
 
@@ -40,14 +59,16 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
      */
     private static final String CRASH_REPORTER_EXTENSION = ".txt";
 
+    private final MyActivityLifeCycleCallbacks mMyActivityLifeCycleCallbacks = new MyActivityLifeCycleCallbacks();
+
+    private final Map<String, String> infos = new HashMap();
+
     /**
      * CrashHandler实例
      */
     private static CrashHandler INSTANCE;
 
     private Application mApplication;
-
-    private MyActivityLifeCycleCallbacks mMyActivityLifeCycleCallbacks = new MyActivityLifeCycleCallbacks();
 
     /**
      * 保证只有一个CrashHandler实例
@@ -80,11 +101,61 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         mContext = ctx;
         mApplication = application;
         application.registerActivityLifecycleCallbacks(mMyActivityLifeCycleCallbacks);
-
         mDefaultHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(this);
+    }
 
+    public class ThreadCollector {
+        @NonNull
+        public String collect(@Nullable Thread thread) {
+            StringBuilder result = new StringBuilder();
+            if(thread != null){
+                result.append("id=").append(thread.getId()).append("\n");
+                result.append("name=").append(thread.getName()).append("\n");
+                result.append("priority=").append(thread.getPriority()).append("\n");
+                if(thread.getThreadGroup() !=null){
+                    result.append("groupName=").append(thread.getThreadGroup().getName()).append("\n");
+                }
+            }
+            return result.toString();
+        }
 
+    }
+
+    final class DumpSysCollector {
+        private static final String LOG_TAG = "DumpSysCollector";
+        private static final int DEFAULT_BUFFER_SIZE_IN_BYTES = 8192;
+        @NonNull
+        public String collectMemInfo() {
+            final StringBuilder meminfo = new StringBuilder();
+            BufferedReader bufferedReader = null;
+            try{
+                final List<String> commandLine = new ArrayList<String>();
+                commandLine.add("dumpsys");
+                commandLine.add("meminfo");
+                commandLine.add(Integer.toString(android.os.Process.myPid()));
+                final Process process = Runtime.getRuntime().exec(commandLine.toArray(new String[commandLine.size()]));
+                bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()),DEFAULT_BUFFER_SIZE_IN_BYTES);
+                while (true)
+                {
+                    final String line = bufferedReader.readLine();
+                    if(line == null){
+                        break;
+                    }
+                    meminfo.append(line);
+                    meminfo.append("\n");
+                }
+            }catch (IOException e){
+                Log.e(LOG_TAG,"DumpSysCollector.meminfo could not retrieve data", e);
+            }
+            try{
+                if(null != bufferedReader){
+                    bufferedReader.close();
+                }
+            }catch (IOException e){
+            }
+            return meminfo.toString();
+        }
     }
 
     /**
@@ -113,6 +184,8 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         }
     }
 
+
+
     /**
      * 自定义错误处理,收集错误信息
      * 发送错误报告等操作均在此完成.
@@ -129,8 +202,36 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         }
         //收集设备信息
         //保存错误报告文件
+
+        collectDeviceInfo();
         saveCrashInfoToFile(ex);
         return true;
+    }
+
+
+    public void collectDeviceInfo() {
+        try {
+            PackageManager pm = mApplication.getPackageManager();
+            PackageInfo pi = pm.getPackageInfo(mApplication.getPackageName(), PackageManager.GET_ACTIVITIES);
+            if (pi != null) {
+                String versionName = pi.versionName == null ? "null" : pi.versionName;
+                String versionCode = pi.versionCode + "";
+                infos.put("versionName", versionName);
+                infos.put("versionCode", versionCode);
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "collectDeviceInfo() an error occured when collect package info NameNotFoundException:");
+        }
+        Field[] fields = Build.class.getDeclaredFields();
+        for (Field field : fields) {
+            try {
+                field.setAccessible(true);
+                infos.put(field.getName(), field.get(null).toString());
+                Log.i(TAG, field.getName() + " : " + field.get(null));
+            } catch (Exception e) {
+                Log.e(TAG, "collectDeviceInfo() an error occured when collect crash info Exception:");
+            }
+        }
     }
 
 
@@ -152,7 +253,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
             crashReportList.reportNames = fileNames;
         }else {
             crashReportList.isEmpty = true;
-            crashReportList.reportNames = new String[]{"There is no crash report!"};
+            crashReportList.reportNames = new String[] {"There is no crash report!"};
         }
         return crashReportList;
     }
@@ -208,11 +309,13 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
     public static String getCrashFilePath(Context context) {
         String path = null;
         try {
-            path = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name) + "/Crash/";
-            File file = new File(path);
-            if (!file.exists()) {
-                if (!file.mkdirs()){
-                    Toast.makeText(context,"Fail to create the folder !",Toast.LENGTH_SHORT).show();
+            if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+                path = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name) + "/Crash/";
+                File file = new File(path);
+                if (!file.exists()) {
+                    if (!file.mkdirs()) {
+                        Toast.makeText(context,"Fail to create the folder !",Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         } catch (IOException e) {

@@ -3,11 +3,15 @@ package com.penglab.hi5.core;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.penglab.hi5.R;
+import com.penglab.hi5.chat.ChatActivity;
 
 public class HelpActivity extends AppCompatActivity {
 
@@ -22,8 +26,8 @@ public class HelpActivity extends AppCompatActivity {
 
     /**
      * on top bar menu created, link res/menu/main.xml
-     * @param menu
-     * @return
+     * @param menu menu layout
+     * @return if create Menu
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -34,23 +38,22 @@ public class HelpActivity extends AppCompatActivity {
 
     /**
      * call the corresponding function when button in top bar clicked
-     * @param item
-     * @return
+     * @param item item clicked
+     * @return if handle the event
      */
+    @SuppressLint("NonConstantResourceId")
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.back:
-//                try {
-//                    Intent intent = new Intent(HelpActivity.this, MainActivity.class);
-//                    startActivity(intent);
-//                }catch (Exception e){
-//                    e.printStackTrace();
-//                }
                 finish();
             default:
                 return true;
-//                return super.onOptionsItemSelected(item);
         }
+    }
+
+    public static void start(Context context){
+        Intent intent = new Intent(context, HelpActivity.class);
+        context.startActivity(intent);
     }
 }

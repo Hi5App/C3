@@ -2,7 +2,7 @@ package com.penglab.hi5.core.collaboration.basic;
 
 import android.content.Context;
 
-import com.penglab.hi5.dataStore.database.Image;
+import com.penglab.hi5.data.dataStore.database.Image;
 
 import org.litepal.LitePal;
 

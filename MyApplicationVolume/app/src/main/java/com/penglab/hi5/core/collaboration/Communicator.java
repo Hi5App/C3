@@ -112,7 +112,6 @@ public class Communicator {
         return imageMarker;
     }
 
-
     public V_NeuronSWC MSGToV_NeuronSWC(String msg){
 
         V_NeuronSWC seg = new V_NeuronSWC();

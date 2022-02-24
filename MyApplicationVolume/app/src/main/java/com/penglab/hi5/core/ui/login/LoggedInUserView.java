@@ -3,15 +3,21 @@ package com.penglab.hi5.core.ui.login;
 /**
  * Class exposing authenticated user details to the UI.
  */
-class LoggedInUserView {
-    private String displayName;
-    //... other data fields that may be accessible to the UI
+public class LoggedInUserView {
 
-    LoggedInUserView(String displayName) {
-        this.displayName = displayName;
+    private final String userId;
+    private final String nickName;
+
+    public LoggedInUserView(String userId, String nickName) {
+        this.userId = userId;
+        this.nickName = nickName;
     }
 
-    String getDisplayName() {
-        return displayName;
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getNickName() {
+        return nickName;
     }
 }

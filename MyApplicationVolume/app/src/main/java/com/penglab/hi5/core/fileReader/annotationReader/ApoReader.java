@@ -1,6 +1,5 @@
 package com.penglab.hi5.core.fileReader.annotationReader;
 
-import android.Manifest;
 import android.content.Context;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
@@ -15,24 +14,77 @@ import java.util.ArrayList;
 
 import static com.penglab.hi5.core.MainActivity.getContext;
 
+import com.penglab.hi5.basic.image.ImageMarker;
+import com.penglab.hi5.basic.image.MarkerList;
+import com.penglab.hi5.data.model.img.FilePath;
+
 public class ApoReader {
 
-    //读写权限
-    private static String[] PERMISSIONS_STORAGE = {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE};
-    private static int REQUEST_PERMISSION_CODE = 1;
+    private static final String TAG = "ApoReader";
 
+    public static MarkerList parse(FilePath<?> filePath){
+        if (filePath == null){
+            return null;
+        }
+        if (filePath.getData() instanceof Uri){
+            Uri uri = (Uri) filePath.getData();
+            return readFromUri(uri);
+        } else if (filePath.getData() instanceof String){
+
+        }
+        return null;
+
+    }
+    public static MarkerList readFromUri(Uri uri) {
+        // ##n, orderinfo,name,comment,z,x,y, pixmax,intensity,sdev,volsize,mass,,,, color_r,color_g,color_b
+        MarkerList markerList = new MarkerList();
+
+        try {
+            ParcelFileDescriptor parcelFileDescriptor =
+                    getContext().getContentResolver().openFileDescriptor(uri, "r");
+            InputStream is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            long fileSize = parcelFileDescriptor.getStatSize();
+
+            // 文件头有多少行
+            String headString = " ";
+            int headLength = headString.length();
+            if (fileSize < headLength){
+                throw new Exception("The size of your input file is too small and is not correct, -- it is too small to contain the legal header.");
+            }
+
+            ArrayList<String> contentList = new ArrayList<String>();
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.charAt(0) == '#'){
+                    continue;
+                }
+                contentList.add(line);
+            }
+            br.close();
+            is.close();
+
+            if (contentList.size() <= 0){
+                throw new Exception("The number of columns is not correct");
+            }
+
+            // 一共有多少行数据
+            for (String curLine: contentList){
+                markerList.add(ImageMarker.parse(curLine));
+            }
+            return markerList;
+        } catch (Exception e){
+            Log.e(TAG,"error " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public ArrayList<ArrayList<Float>> read(String filePath){
 
-        Context context = getContext();
-
-
-
-        //文件头有多少行
-        String headstr = " ";
-        int head_length = headstr.length();
+        // 文件头有多少行
+        String headString = " ";
+        int headLength = headString.length();
 
         ArrayList<ArrayList<Float>> result = new ArrayList<ArrayList<Float>>();
         ArrayList<String> arraylist = new ArrayList<String>();
@@ -46,7 +98,7 @@ public class ApoReader {
             long filesize = f.length();
             Log.v("ApoReader", Long.toString(filesize));
 
-            if (filesize < head_length){
+            if (filesize < headLength){
                 throw new Exception("The size of your input file is too small and is not correct, -- it is too small to contain the legal header.");
             }
 

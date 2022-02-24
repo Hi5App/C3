@@ -31,7 +31,8 @@ import com.penglab.hi5.core.collaboration.connector.ServerConnector;
 import com.penglab.hi5.core.collaboration.service.BasicService;
 import com.penglab.hi5.core.collaboration.service.ManageService;
 import com.penglab.hi5.core.ui.login.LoginActivity;
-import com.penglab.hi5.dataStore.PreferenceLogin;
+import com.penglab.hi5.core.ui.home.screens.HomeActivity;
+import com.penglab.hi5.data.dataStore.PreferenceLogin;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -55,11 +56,10 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 
     private static Context splashContext;
 
-    private int musicTotalNum = 3;
+    private final int musicTotalNum = 3;
     private int musicAlreadyNum = 0;
 
     private static Timer timerLogin;
-
 
     /** Defines callbacks for service binding, passed to bindService() */
     private ServiceConnection connection = new ServiceConnection() {
@@ -139,8 +139,6 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
 
-        Log.e(TAG, " onCreate in SplashScreenActivity ");
-
         InfoCache.setMainTaskLaunching(true);
         splashContext = this;
 
@@ -148,10 +146,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
             setIntent(new Intent()); // 从堆栈恢复，不再重复解析之前的intent
         }
 
-        Log.e(TAG, " Before if (!firstEnter) { ");
-
         if (!firstEnter) {
-            Log.e(TAG, " !firstEnter ");
             onIntent(); // APP进程还在，Activity被重新调度起来
         } else {
             showSplashView(); // APP进程重新起来
@@ -159,9 +154,6 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 
         initServerConnector();
         initService();
-
-        Log.e(TAG, " After if (!firstEnter) } ");
-
     }
 
 
@@ -255,7 +247,15 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(connection);
+        if (mBound){
+            Log.e(TAG,"unbind management service !");
+            ManageService.setStop(true);
+            unbindService(connection);
+            Intent manageServiceIntent = new Intent(this, ManageService.class);
+            stopService(manageServiceIntent);
+
+            ServerConnector.getInstance().releaseConnection(false);
+        }
         InfoCache.setMainTaskLaunching(false);
 
         // avoid memory leak
@@ -339,8 +339,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
      * 已经登陆过，自动登陆
      */
     private boolean canAutoLogin() {
-        PreferenceLogin preferenceLogin = new PreferenceLogin(this);
-        return preferenceLogin.getAutoLogin();
+        return PreferenceLogin.getInstance().getAutoLogin();
     }
 
     private void parseNotifyIntent(Intent intent) {
@@ -383,13 +382,14 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 
     private void showMainActivity(Intent intent) {
         Log.e(TAG,"showMainActivity");
-        PreferenceLogin preferenceLogin = new PreferenceLogin(SplashScreenActivity.this);
+        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
         String account = preferenceLogin.getUsername();
 
         InfoCache.setAccount(account);
         InfoCache.setToken(preferenceLogin.getPassword());
 
-        MainActivity.actionStart(SplashScreenActivity.this, account);
+//        MainActivity.actionStart(SplashScreenActivity.this, account);
+        HomeActivity.start(SplashScreenActivity.this);
         ToastEasy("Welcome, " + account +" !");
         finish();
     }
@@ -398,9 +398,8 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
         handler.sendEmptyMessage(3);
     }
 
-
     private void autoLogin(){
-        PreferenceLogin preferenceLogin = new PreferenceLogin(this);
+        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
         ServerConnector serverConnector = ServerConnector.getInstance();
 
         if (serverConnector.checkConnection()){
@@ -533,6 +532,5 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
                 handler.sendMessage(message);
             }
         }
-
     }
 }

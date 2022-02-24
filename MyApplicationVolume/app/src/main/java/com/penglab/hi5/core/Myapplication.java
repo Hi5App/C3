@@ -37,19 +37,16 @@ import com.penglab.hi5.core.collaboration.Communicator;
 import com.penglab.hi5.core.collaboration.basic.ImageInfo;
 import com.penglab.hi5.core.collaboration.connector.MsgConnector;
 import com.penglab.hi5.core.collaboration.connector.ServerConnector;
-import com.penglab.hi5.core.game.DailyQuestLitePalConnector;
-import com.penglab.hi5.core.game.DailyQuestsContainer;
 import com.penglab.hi5.core.game.RewardLitePalConnector;
 import com.penglab.hi5.core.game.Score;
-import com.penglab.hi5.core.game.ScoreLitePalConnector;
-import com.penglab.hi5.dataStore.PreferenceLogin;
+import com.penglab.hi5.core.music.MusicHelper;
+import com.penglab.hi5.data.dataStore.PreferenceLogin;
+import com.penglab.hi5.data.dataStore.PreferenceMusic;
+import com.penglab.hi5.data.dataStore.PreferenceSetting;
+import com.penglab.hi5.data.dataStore.PreferenceSoma;
 
 import org.litepal.LitePal;
-
 import java.io.IOException;
-
-
-//用于在app全局获取context
 
 public class Myapplication extends Application {
 
@@ -59,58 +56,53 @@ public class Myapplication extends Application {
      *    3. init collaboration module
      *    4. init AV module agora
      */
-    private static Myapplication sInstance;
+    private static Myapplication mInstance;
 
     private static Context context;
 
     private static InfoCache infoCache;
-
-    private static ImageInfo imageInfo;
 
 //    private static AgoraMsgManager agoraMsgManager;
 
     private static ServerConnector serverConnector;
     private static MsgConnector msgConnector;
     private static Communicator communicator;
+    private static MusicHelper musicHelper;
 
     public static final Object lockForMsgSocket = new Object();
-
     public static final Object lockForManageSocket = new Object();
-
-    public static Myapplication the() {
-        return sInstance;
-    }
 
     private final String TAG = "MyApplication";
 
     @Override
     public void onCreate() {
         super.onCreate();
-        sInstance = this;
+        mInstance = this;
         context = getApplicationContext();
 
-        //store crash info zyh
-        CrashHandler crashHandler = CrashHandler.getInstance();
-        crashHandler.init(getApplicationContext(), this);
+        // store crash info
+        CrashHandler.getInstance().init(getApplicationContext(), this);
 
         // store user info
+        PreferenceLogin.init(getApplicationContext());
+        PreferenceSetting.init(getApplicationContext());
+        PreferenceMusic.init(getApplicationContext());
+        PreferenceSoma.init(getApplicationContext());
+
         LitePal.initialize(this);
         SQLiteDatabase db = LitePal.getDatabase();
-        DailyQuestsContainer.init(this);
-        DailyQuestLitePalConnector.init(this);
-
-        ScoreLitePalConnector.init(this);
         Score.init(this);
         RewardLitePalConnector.init(this);
         ImageInfo.init(this);
-        imageInfo = ImageInfo.getInstance();
-
 
         Log.e(TAG, String.format("Database version: %d", db.getVersion()));
 
+        // music module
+        MusicHelper.init(getApplicationContext());
+        musicHelper = MusicHelper.getInstance();
+
 //        AgoraClient.init(this, getLoginInfo());
 //        agoraMsgManager = AgoraMsgManager.getInstance();
-
 
         // for collaboration
         ServerConnector.init(this);
@@ -126,9 +118,6 @@ public class Myapplication extends Application {
 
         // init log module
         initLogcat();
-
-
-
 
         // IM 网易云信
         // 4.6.0 开始，第三方推送配置入口改为 SDKOption#mixPushConfig，旧版配置方式依旧支持。
@@ -156,89 +145,27 @@ public class Myapplication extends Application {
             // 云信sdk相关业务初始化
             NIMInitManager.getInstance().init(true);
         }
-
-//        registerActivityLifecycleCallbacks(new MyActivityLifeCycleCallbacks());
-
-//        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
-//            @Override
-//            public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
-//
-//            }
-//
-//            @Override
-//            public void onActivityStarted(@NonNull Activity activity) {
-//                Log.d(TAG, "onActivityStarted");
-//                activityCount++;
-//            }
-//
-//            @Override
-//            public void onActivityResumed(@NonNull Activity activity) {
-//
-//            }
-//
-//            @Override
-//            public void onActivityPaused(@NonNull Activity activity) {
-//
-//            }
-//
-//            @Override
-//            public void onActivityStopped(@NonNull Activity activity) {
-//                Log.d(TAG, "onActivityStopped");
-//                activityCount--;
-//                if (activityCount <= 0){
-//                    Log.d(TAG, "Now On Background");
-//                    if (isActivityAlive("ComponentInfo{com.penglab.hi5/com.penglab.hi5.core.MainActivity}")){
-//                        Score score = Score.getInstance();
-//                        MainActivity.setScore(score.getScore());
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle bundle) {
-//
-//            }
-//
-//            @Override
-//            public void onActivityDestroyed(@NonNull Activity activity) {
-//
-//            }
-//
-//            private boolean isActivityAlive(String activityName){
-//                ActivityManager am = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
-//                List<ActivityManager.RunningTaskInfo> list = am.getRunningTasks(100);
-//                for (ActivityManager.RunningTaskInfo info : list){
-//                    if (info.topActivity.toString().equals(activityName) || info.baseActivity.toString().equals(activityName))
-//                        return true;
-//                }
-//                return false;
-//            }
-//        });
     }
 
 
     // load user info
     private LoginInfo getLoginInfo() {
-        PreferenceLogin preferenceLogin = new PreferenceLogin(this);
+        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
         String account = preferenceLogin.getUsername();
-        String token = preferenceLogin.getPassword();
+        String password = preferenceLogin.getPassword();
 
-        if (preferenceLogin.getRem_or_not() && !account.equals("") && !token.equals("")) {
-            Log.e(TAG,"account: " + account);
-            Log.e(TAG,"token: "   + token);
-
+        if (preferenceLogin.getRem_or_not() && !account.equals("") && !password.equals("")) {
+            Log.e(TAG,"account: " + account + ";  password: " + password);
             InfoCache.setAccount(account.toLowerCase());
-            InfoCache.setToken(token);
-            return new LoginInfo(account, token);
+            InfoCache.setToken(password);
+            return new LoginInfo(account, password);
         } else {
             return null;
         }
-
-        /* for test */
-//        return null;
     }
 
 
+    // build log to local file
     private void initLogcat(){
         Builder builder = Logcat.newBuilder();
         //设置Log 保存的文件夹
@@ -291,37 +218,6 @@ public class Myapplication extends Application {
     }
 
 
-
-    private SDKOptions options(){
-
-//        SDKOptions options = new SDKOptions();
-//        // 配置是否需要预下载附件缩略图，默认为 true
-//        options.preloadAttach = true;
-//        options.appKey = "0fda06baee636802cb441b62e6f65549";
-//        return options;
-
-        SDKOptions options = new SDKOptions();
-
-        // 配置是否需要预下载附件缩略图，默认为 true
-        options.preloadAttach = true;
-        options.appKey = "86a7aa13ac797a95247a03c54ed483b4";
-
-        // 配置由sdk托管来接收新的消息通知
-        StatusBarNotificationConfig config = new StatusBarNotificationConfig();
-        config.notificationEntrance = ChatActivity.class;
-        config.notificationSmallIconId = R.mipmap.ic_launcher;
-        options.statusBarNotificationConfig = config;
-
-        // 配置文件存储路径
-        String sdkPath = getExternalFilesDir(null).toString() + "/nim";
-        options.sdkStorageRootPath = sdkPath;
-        options.thumbnailSize = 480 / 2;
-
-        return options;
-
-    }
-
-
     private void initUIKit() {
         // 初始化
         NimUIKit.init(this, buildUIKitOptions());
@@ -370,9 +266,36 @@ public class Myapplication extends Application {
                 .show();
     }
 
+    public static void ToastEasy(int stringId){
+
+        ToastUtil.getInstance()
+                .createBuilder(context)
+                .setMessage(context.getString(stringId))
+                .show();
+    }
 
     public static void ToastEasy(String message, int length){
         Toast.makeText(context, message, length).show();
+    }
+
+    public static void playButtonSound(){
+        musicHelper.playButtonSound();
+    }
+
+    public static void playCurveActionSound(){
+        musicHelper.playActionSound(MusicHelper.ActionType.CURVE);
+    }
+
+    public static void playMarkerActionSound(){
+        musicHelper.playActionSound(MusicHelper.ActionType.MARKER);
+    }
+
+    public static void playFailSound(){
+        musicHelper.playFailSound();
+    }
+
+    public static void updateMusicVolume(){
+        musicHelper.updateVolume();
     }
 
 }

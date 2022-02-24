@@ -22,6 +22,7 @@ import static java.lang.Math.sqrt;
 //import com.sun.tools.javac.util..Pair;
 
 public class GD {
+    private static final String TAG = "GD";
     public static int ITER_POSITION = 10;
     public Edge_table_item[] edge_table;
     public GD(){
@@ -55,7 +56,6 @@ public class GD {
 
 
     // return error message, 0 is no error
-    //
     String find_shortest_path_graphimg(int[][][] img3d, int dim0, int dim1, int dim2, //image
                                        float zthickness, // z-thickness for weighted edge
                                        //final int box[6],  //bounding box
@@ -66,33 +66,28 @@ public class GD {
                                        Vector< Vector<V_NeuronSWC_unit> > mmUnit, // change from Coord3D for shortest path tree
                                        ParaShortestPath  para) throws Exception
     {
-        //System.out.println("start of find_shortest_path_graphimg ");
         boolean b_error = false;
         String s_error = "";
         final double dd = 0.5;
 
-        // System.out.println("sizeof(Weight) = %d, sizeof(Node) = %d ", sizeof(Weight), sizeof(Node));
-        System.out.printf("bounding (%d %d %d)--(%d %d %d) in image (%d x %d x %d)\n", bx0,by0,bz0, bx1,by1,bz1, dim0,dim1,dim2);
-        if (img3d == null || img3d.length == 0 || dim0<=0 || dim1<=0 || dim2<=0)
-        {
-            System.out.println(s_error="Error happens: no image data!");
+        Log.d(TAG,String.format("bounding (%d %d %d)--(%d %d %d) in image (%d x %d x %d)", bx0, by0, bz0, bx1, by1, bz1, dim0, dim1, dim2));
+        if (img3d == null || img3d.length == 0 || dim0<=0 || dim1<=0 || dim2<=0) {
+            Log.e(TAG,s_error = "Error happens: no image data!");
             return s_error;
         }
         if ((bx0<0-dd || bx0>=dim0-dd || by0<0-dd || by0>=dim1-dd || bz0<0-dd || bz0>=dim2-dd)
-                || (bx1<0-dd || bx1>=dim0-dd || by1<0-dd || by1>=dim1-dd || bz1<0-dd || bz1>=dim2-dd))
-        {
-            System.out.println(s_error="Error happens: bounding box out of image bound!");
-            System.out.printf("inside z1=%d\n", bz1);;
+                || (bx1<0-dd || bx1>=dim0-dd || by1<0-dd || by1>=dim1-dd || bz1<0-dd || bz1>=dim2-dd)) {
+            Log.d(TAG,s_error = "Error happens: bounding box out of image bound!");
+            Log.d(TAG,String.format("inside z1 = %d", bz1));
             return s_error;
         }
 
-        //now set parameters
+        // now set parameters
         int min_step       = para.node_step; //should be >=1
         int smooth_winsize = para.smooth_winsize;
         int edge_select    = para.edge_select;  //0 -- only use length 1 edge(optimal for small step), 1 -- plus diagonal edge
         double imgTH = para.imgTH; //anything <= imgTH will NOT be traced!
         int background_select = para.background_select;
-
         int dowsample_method = para.downsample_method; //0 for average, 1 for max
 
         if (min_step<1)       min_step =1;
@@ -104,13 +99,10 @@ public class GD {
         int nx=((xmax-xmin)/min_step)+1, 	xstep=min_step,
                 ny=((ymax-ymin)/min_step)+1, 	ystep=min_step,
                 nz=((zmax-zmin)/min_step)+1, 	zstep=min_step;
-
-//        edge_select = 1;
-
         int num_edge_table = (edge_select==0)? 3:13; // exclude/include diagonal-edge
 
-        System.out.printf("valid bounding (%d %d %d)--(%d %d %d) ......  \n", xmin,ymin,zmin, xmax,ymax,zmax);
-        System.out.printf("%d x %d x %d nodes, step = %d, connect = %d \n", nx, ny, nz, min_step, num_edge_table*2);
+//        Log.d(TAG,String.format("valid bounding (%d %d %d)--(%d %d %d) ......", xmin,ymin,zmin, xmax,ymax,zmax));
+//        Log.d(TAG,String.format("%d x %d x %d nodes, step = %d, connect = %d", nx, ny, nz, min_step, num_edge_table*2));
 
         int num_nodes = nx*ny*nz;
         int i,j,k,n,m;
@@ -134,78 +126,55 @@ public class GD {
 
         int start_nodeind;
         int[] end_nodeind = new int[n_end_nodes];
-//        if (n_end_nodes>0) //101210 PHC
-//            end_nodeind = new int [n_end_nodes]; //100520, PHC
-//        else
-//            System.out.println("**************** n_end_nodes is 0, and thus do not need to allocate memory. *********************");
+//        Log.d(TAG,"x0,y0,z0:"+x0 + ", " + y0 + ", "+ z0);
 
-//        System.out.println("start_nodeind: "+start_nodeind);
-        System.out.println("x0,y0,z0:"+x0 + ", " + y0 + ", "+ z0);
-//        System.out.println("num_nodes: "+num_nodes);
-//        System.out.println("xm,ym,zm: "+xmin+ymin+zmin);
-//        System.out.println("nx,ny,nz: "+nx+ny+nz);
-
-
-
-        if (x0<xmin-dd || x0>xmax+dd || y0<ymin-dd || y0>ymax+dd || z0<zmin-dd || z0>zmax+dd)
-        {
-            System.out.println(s_error="Error happens: start_node out of bound! ");
+        if (x0<xmin-dd || x0>xmax+dd || y0<ymin-dd || y0>ymax+dd || z0<zmin-dd || z0>zmax+dd) {
+            Log.e(TAG,s_error = "Error happens: start_node out of bound! ");
             return s_error;
         }
+
         // start_nodeind = NODE_FROM_XYZ(x0,y0,z0);
         start_nodeind = (int)((z0+0.5)-zmin)/zstep*ny*nx + (int)((y0+0.5)-ymin)/ystep*nx + (int)((x0+0.5)-xmin)/xstep;
-
-
-        if (start_nodeind<0 || start_nodeind>=num_nodes)
-        {
-            System.out.println(s_error="Error happens: start_node index out of range! ");
-            // if (end_nodeind) {delete []end_nodeind; end_nodeind=0;} //100520, by PHC
+        if (start_nodeind<0 || start_nodeind>=num_nodes) {
+            Log.e(TAG,s_error = "Error happens: start_node index out of range! ");
             return s_error;
         }
 
         int n_end_outbound = 0;
-        for (i=0; i<n_end_nodes; i++)
-        {
-            if (x1[i]<xmin-dd || x1[i]>xmax+dd || y1[i]<ymin-dd || y1[i]>ymax+dd || z1[i]<zmin-dd || z1[i]>zmax+dd)
-            {
+        for (i=0; i<n_end_nodes; i++) {
+            if (x1[i]<xmin-dd || x1[i]>xmax+dd || y1[i]<ymin-dd || y1[i]>ymax+dd || z1[i]<zmin-dd || z1[i]>zmax+dd) {
                 end_nodeind[i] = -1;
-                System.out.printf("Warning: end_node[%d] out of bound! \n", i);
+                Log.e(TAG,String.format("Warning: end_node[%d] out of bound! \n", i));
                 n_end_outbound ++;
                 continue; //ignore this end_node out of ROI
             }
+
             end_nodeind[i]   = (int)((z1[i]+0.5)-zmin)/zstep*ny*nx + (int)((y1[i]+0.5)-ymin)/ystep*nx + (int)((x1[i]+0.5)-xmin)/xstep;
+//            Log.d(TAG,"end_nodeind: " + end_nodeind[i]);
 
-            Log.v("end_nodeind", Integer.toString(end_nodeind[i]));
-
-            if (end_nodeind[i]<0 || end_nodeind[i]>=num_nodes)
-            {
+            if (end_nodeind[i]<0 || end_nodeind[i]>=num_nodes) {
                 end_nodeind[i] = -1;
-                System.out.printf("Warning: end_node[%d] index out of range! \n", i);
+                Log.e(TAG,String.format("Warning: end_node[%d] out of range! \n", i));
                 n_end_outbound ++;
                 continue; //ignore this end_node out of ROI
             }
         }
 
         if (n_end_nodes>0 //for 1-to-N, not 1-to-image
-                && n_end_outbound>=n_end_nodes)
-        {
-            System.out.println(s_error="Error happens: all end_nodes out of bound! At least one end_node must be in bound.");
-            // if (end_nodeind) {delete []end_nodeind; end_nodeind=0;} //100520, by PHC
+                && n_end_outbound>=n_end_nodes) {
+            Log.e(TAG,s_error="Error happens: all end_nodes out of bound! At least one end_node must be in bound.");
             return s_error;
         }
-
 
         double imgMax = getImageMaxValue(img3d, dim0, dim1, dim2);
         double imgAve = getImageAveValue(img3d, dim0, dim1, dim2);
         double imgStd = getImageStdValue(img3d, dim0, dim1, dim2);
-        System.out.println("background: "+background_select);
-        System.out.println("imgave: "+imgAve);
-        System.out.println("imgstd: "+imgStd);
 //        double imgTH = 0;
+//        Log.d(TAG,"background: " + background_select + " ,imgave: "+imgAve + " ,imgstd: "+imgStd);
         if (background_select==1) imgTH = (imgAve < imgStd)? imgAve : (imgAve+imgStd)*0.5;
-        System.out.println("imgth: "+imgTH);
-        // #define _creating_graph_
+//        Log.d(TAG,"imgth: " + imgTH);
 
+        // #define _creating_graph_
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
         //switch back to new[] from std::vector for *** glibc detected *** ??? on Linux
         // std::vector<Node> 	plist(num_nodes);		for (i=0;i<num_nodes;i++) plist[i]=i;
@@ -219,11 +188,10 @@ public class GD {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // #define _setting_weight_of_edges_
-        System.out.println("setting weight of edges ......  ");
+//        Log.d(TAG,"setting weight of edges ......");
 
         // z-thickness weighted edge
-        for (int it=0; it<num_edge_table; it++)
-        {
+        for (int it=0; it<num_edge_table; it++) {
             double di = (edge_table[it].i0 - edge_table[it].i1);
             double dj = (edge_table[it].j0 - edge_table[it].j1);
             double dk = (edge_table[it].k0 - edge_table[it].k1) * zthickness;
@@ -281,18 +249,8 @@ public class GD {
 
                             Float w =(float) edge_weight_func(it, va,vb, imgMax);
 
-//                            if(va>30||vb>30)
-//                            {
-//                                System.out.println("it: "+it+" i0: "+edge_table[it].i0+" j0: "+edge_table[it].j0+
-//                                        " k0: "+edge_table[it].k0+" i1: "+edge_table[it].i1+" j1: "+edge_table[it].j1+
-//                                        " k1: "+edge_table[it].k1+" dist: "+edge_table[it].dist);
-//                                System.out.println("ii: "+ii+" jj: "+jj+" kk: "+kk+" ii1: "+ii1+" jj1: "+jj1+" kk1: "+kk1);
-//                                System.out.println("node_a: "+node_a+" node_b: "+node_b+" va: "+va+" vb: "+vb+" w: "+w);
-//                            }
-
                             //now try to use favorite direction if literally specified. by PHC 20170606
-                            if (para.b_use_favorite_direction)
-                            {
+                            if (para.b_use_favorite_direction) {
                                 //do nothing
 //                            double x_mid = (double)((xmin+(ii)*xstep) + xmin+(ii1)*xstep)/2.0;
 //                            double y_mid = (double)((ymin+(jj)*ystep) + ymin+(jj1)*ystep)/2.0;
@@ -318,80 +276,50 @@ public class GD {
                                 //also in the furture we may not need to divide Math.sqrt(vqq) because it is finalant, and this should also avoid the extra-exception when vqq=0
                             }
 
-                            weights.add( w );
+                            weights.add(w);
                             //=========================================================================================
 
                             n++; // that is the correct position of n++
-
                             if (w>maxw) maxw=w;	if (w<minw) minw=w;
                         }
                     }
                 }
             }
         }catch (OutOfMemoryError e){
-            System.out.println("-----------------start to print error info---------------");
-            System.out.println(e.getMessage());
-//            System.exit(1);
-            return (s_error = e.getMessage());
+            Log.e(TAG,"error info: " + e.getMessage());
+            return e.getMessage();
         }
 
-        System.out.printf(" minw=%g maxw=%g \n", minw,maxw);
-        System.out.println(" graph defined! ");
+//        Log.d(TAG,String.format("minw = %g maxw = %g", minw, maxw));
+//        Log.d(TAG,"graph defined! ");
 
-        if (n != edge_array.size())
-        {
-            System.out.println(s_error="The number of edges is not consistent ");
-            // if (end_nodeind) {delete []end_nodeind; end_nodeind=0;} //100520, by PHC
+        if (n != edge_array.size()) {
+            Log.e(TAG,s_error="The number of edges is not consistent ");
             return s_error;
         }
         int num_edges = n; // back to undirectEdge for less memory consumption
 
-        //System.out.println("image average =%g, std =%g, max =%g.  select %ld out of %ld links ", imgAve, imgStd, imgMax, n, m);
-        System.out.printf("select %d out of %d links \n", n, m);
-        System.out.printf("total %d nodes, total %d edges \n", num_nodes, num_edges);
-        System.out.printf("start from #%d to \n", start_nodeind);
-        for(i=0; i<n_end_nodes; i++) System.out.printf("#%d ", end_nodeind[i]); System.out.println("");
-        System.out.println("---------------------------------------------------------------");
-
-
-
         // #define _do_shortest_path_algorithm_
         //========================================================================================================
-
         int code_select = 2; // BGL has the best speed and correctness
-        switch(code_select)
-        {
+        switch(code_select) {
             case 0:
-//                System.out.println("bgl_shortest_path() ");
-                // s_error = bgl_shortest_path(edge_array[0], num_edges, &weights[0], num_nodes, start_nodeind, &plist[0]);
-                System.out.println("j_shortest_path ");
-//                s_error = Jgragh.j_shortest_path(edge_array, (int) num_edges, weights, (int) num_nodes,	(int) start_nodeind, (int) end_nodeind[0], plist);
+                Log.e(TAG,"j_shortest_path");
                 break;
             case 1:
-                System.out.println("phc_shortest_path() ");
+                Log.e(TAG,"phc_shortest_path()");
                 s_error = phc_shortest_path(edge_array, (int) num_edges, weights, (int) num_nodes,	(int) start_nodeind, plist);
                 break;
             case 2:
-//                System.out.println("mst_shortest_path() ");
-                // s_error = mst_shortest_path(&edge_array[0], num_edges, &weights[0], num_nodes,	start_nodeind, &plist[0]);
-                System.out.println("my_shortest_path()");
+                Log.e(TAG,"my_shortest_path()");
                 s_error = my_shortest_path(edge_array, (int) num_edges, weights, (int) num_nodes,	(int) start_nodeind, plist);
                 break;
         }
-        if (s_error != "" && s_error != null)
-        {
+
+        if (s_error != null && !s_error.equals("")) {
             // if (end_nodeind) {delete []end_nodeind; end_nodeind=0;} //100520, by PHC
             return s_error;
         }
-        //=========================================================================================================
-        //for (i=0;i<num_nodes;i++)	std::cout<<"p("<<i<<")="<<plist[i]<<";   ";  std::cout<<std::endl;
-
-
-
-//        for(i = 0; i<plist.size(); i++){
-//            System.out.println(plist.get(i));
-//        }
-
 
         // output node coordinates of the shortest path
         mmUnit.clear();
@@ -399,7 +327,6 @@ public class GD {
 
         V_NeuronSWC_unit cc = new V_NeuronSWC_unit();
         Vector<V_NeuronSWC_unit> mUnit = new Vector<V_NeuronSWC_unit>();
-
 
         if (n_end_nodes==0) // trace from start-.each possible node
         {
@@ -411,8 +338,7 @@ public class GD {
             // set nchild=0
             for (j=0; j<num_nodes; j++)
             {
-                if (j==start_nodeind)
-                {
+                if (j==start_nodeind) {
                     cc.x = x0;
                     cc.y = y0;
                     cc.z = z0;
@@ -422,7 +348,7 @@ public class GD {
                     mUnit.add(cc.clone());
                     // index_map[cc.n] = mUnit.size()-1; //fix the missing line bug by PHC, 2010-12-30
                     index_map.put(cc.n,mUnit.size()-1);
-                    System.out.printf("[start: x y z] %d: %g %g %g \n", j, cc.x, cc.y, cc.z);
+//                    Log.d(TAG,String.format("[start: x y z] %d: %g %g %g", j, cc.x, cc.y, cc.z));
                 }
                 else if ( (k=plist[j]) != j ) // has parent
                     if (k>=0 && k<num_nodes)  // is valid
@@ -435,38 +361,31 @@ public class GD {
                         cc.parent = 1+k; //k=plist[j]
                         cc.nchild = 0;
                         mUnit.add(cc.clone());
-                        //System.out.println("[node: x y z] %ld: %g %g %g ", j, cc.x, cc.y, cc.z);
-
-                        // index_map[cc.n] = mUnit.size()-1;
                         index_map.put(cc.n,mUnit.size()-1);
                     }
             }
 
-            System.out.println("counting parent.nchild ");
+//            Log.d(TAG,"counting parent.nchild");
             // count parent.nchild
             for (j=0; j<mUnit.size(); j++)
             {
                 double parent = mUnit.elementAt(j).parent;
                 // int i = index_map[parent]; // this is very fast
                 Integer index = index_map.get(parent);
-
                 mUnit.elementAt(index).nchild++;
             }
 
             double myTH = imgTH; if (myTH<para.visible_thresh) myTH=para.visible_thresh;
-            if (true)
-            {
-                System.out.println("labeling to remove bark leaf child ");
-                System.out.printf("before dark-pruning there are %d nodes in total, from %d nodes in the initial graph. \n", mUnit.size(), num_nodes);
-                //remove leaf node (nchild==0)
+            if (true) {
 
-                for (k=0; ; k++)
-                {
+//                Log.d(TAG,"labeling to remove bark leaf child");
+//                Log.d(TAG,String.format("before dark-pruning there are %d nodes in total, from %d nodes in the initial graph.", mUnit.size(), num_nodes));
+
+                //remove leaf node (nchild==0)
+                for (k=0; ; k++) {
                     int nprune=0;
-                    for (j=0; j<mUnit.size(); j++)
-                    {
-                        if (mUnit.elementAt(j).nchild ==0)
-                        {
+                    for (j=0; j<mUnit.size(); j++) {
+                        if (mUnit.elementAt(j).nchild ==0) {
                             double parent = mUnit.elementAt(j).parent;
                             Integer index = index_map.get(parent);
 
@@ -504,30 +423,7 @@ public class GD {
                         }
                     }
 
-//                    if (0)
-//                        for (j=mUnit.size()-1; j>=0; j--)
-//                        {
-//                            if (mUnit[j].nchild ==0)
-//                            {
-//                                double parent = mUnit[j].parent;
-//                                // int i = index_map[parent];
-//                                int i = index_map.get(parent);
-//
-//                                int min_cut_level = 10/min_step;	if (min_cut_level<1) min_cut_level=1;
-//                                double va = getBlockAveValue(img3d, dim0, dim1, dim2, mUnit[i].x,mUnit[i].y,mUnit[i].z,
-//                                        min_cut_level, min_cut_level, min_cut_level);
-//
-//                                if (va <= myTH || (k<5
-//                                        //&& mUnit[i].nchild >=2
-//                                )) //this gives a symmetric pruning, seems better than (k<5) criterion which leads to an asymmetric prunning
-//                                {
-//                                    mUnit[i].nchild--;
-//                                    mUnit[j].nchild = -1; 							//label to remove
-//                                }
-//                            }
-//                        }
-
-                    System.out.printf("dark prune loop %d. remove %d nodes.\n", k, nprune);
+                    Log.d(TAG,String.format("dark prune loop %d. remove %d nodes.", k, nprune));
                     if (nprune==0)
                         break;
                 }
@@ -537,15 +433,13 @@ public class GD {
 
             mmUnit.add(mUnit);
             rearrange_and_remove_labeled_deletion_nodes_mmUnit(mmUnit);
-
-            System.out.println("done with the SP step. ");
         }
 
         else {
             for (int npath = 0; npath < n_end_nodes; npath++) // n path of back tracing end-.start
             {
                 // #define _output_shortest_path_N_
-                System.out.printf("the #%d path of back tracing end-.start \n", npath + 1);
+                Log.d(TAG,String.format("the #%d path of back tracing end-.start", npath + 1));
                 mUnit.clear();
 
                 j = (int) end_nodeind[npath]; //search from the last one
@@ -553,15 +447,13 @@ public class GD {
                 cc.y = y1[npath];
                 cc.z = z1[npath];
                 cc.n = nexist + 1 + mUnit.size();
-                cc.parent = cc.n + 1; //父节点n属性比自己大1
-                System.out.printf("[end: x y z] %d: %g %g %g \n", j, cc.x, cc.y, cc.z);
+                cc.parent = cc.n + 1; // 父节点n属性比自己大1
+//                Log.d(TAG,String.format("[end: x y z] %d: %g %g %g \n", j, cc.x, cc.y, cc.z));
                 if (j < 0 || j >= num_nodes) // for the end_node out of ROI
                 {
-                    System.out.println(" end_node is out of ROI, ignored.");
+                    Log.e(TAG,"end_node is out of ROI, ignored.");
                     continue;
                 }
-                // System.out.println("");
-
                 mUnit.add(cc.clone());
 
                 for (k = 0; k < n; k++) //at most n edge links
@@ -571,19 +463,19 @@ public class GD {
 
                     if (j == jj) {
                         mUnit.clear();
-                        System.out.println(s_error = "Error happens: this path is broken because a node has a self-link!");
-                        System.out.printf(" [j.p(j)] %d.%d \n", jj, j);
+                        Log.e(TAG,s_error = "Error happens: this path is broken because a node has a self-link!");
+                        Log.e(TAG,String.format("[j.p(j)] %d.%d \n", jj, j));
                         break;
                     } else if (j >= num_nodes) {
                         mUnit.clear();
-                        System.out.println(s_error = "Error happens: this node's parent has an index out of range!");
-                        System.out.printf(" [j.p(j)] %d.%d \n", jj, j);
+                        Log.e(TAG,s_error = "Error happens: this node's parent has an index out of range!");
+                        Log.e(TAG,String.format("[j.p(j)] %d.%d \n", jj, j));
                         break;
                     } else if (j < 0) // should not be reached, because stop back trace at his child node
                     {
                         mUnit.clear();
-                        System.out.println(s_error = "find the negative node, which should indicate the root has been over-reached.");
-                        System.out.printf(" [j.p(j)] %d.%d \n", jj, j);
+                        Log.e(TAG,s_error = "find the negative node, which should indicate the root has been over-reached.");
+                        Log.e(TAG,String.format("[j.p(j)] %d.%d \n", jj, j));
                         break;
                     }
 
@@ -595,11 +487,9 @@ public class GD {
                         cc.x = xmin + (cc.x) * xstep;
                         cc.y = ymin + (cc.y) * ystep;
                         cc.z = zmin + (cc.z) * zstep;
-
                         cc.n = nexist + 1 + mUnit.size();
                         cc.parent = cc.n + 1;
                         mUnit.add(cc.clone());
-                        //System.out.println("[node: x y z] %ld: %g %g %g ", j, cc.x, cc.y, cc.z);
                     } else //j==start_nodeind
                     {
                         cc.x = x0;
@@ -608,8 +498,7 @@ public class GD {
                         cc.n = nexist + 1 + mUnit.size();
                         cc.parent = -1;
                         mUnit.add(cc.clone());
-                        System.out.printf("[start: x y z] %d: %g %g %g \n", j, cc.x, cc.y, cc.z);
-
+                        Log.d(TAG,String.format("[start: x y z] %d: %g %g %g \n", j, cc.x, cc.y, cc.z));
                         break; //STOP back tracing
                     }
                 }
@@ -630,9 +519,7 @@ public class GD {
         //	System.out.println("smooth_curve + downsample_curve ");
         //	smooth_curve(mCoord, smooth_winsize);
         //	mCoord = downsample_curve(mCoord, outsample_step);
-
         // if (end_nodeind) {delete []end_nodeind; end_nodeind=0;} //100520, by PHC
-
         // if (mmUnit.size())	return 0;
         return s_error;
     }

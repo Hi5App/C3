@@ -19,7 +19,7 @@
             android:layout_alignParentLeft="true"
             android:gravity="center"
             android:paddingLeft="0dp"
-            android:text="swc name"
+            android:text="file name"
             android:textSize="17dp"
             android:textColor="#bb333333" />
 

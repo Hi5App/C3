@@ -1,171 +1,100 @@
 package com.penglab.hi5.basic.utils;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Looper;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.util.Log;
 
 import static com.penglab.hi5.core.MainActivity.getContext;
 
+import com.penglab.hi5.data.model.img.FileType;
+import com.penglab.hi5.data.model.img.FileTypeHelper;
+
 public class FileManager {
-
-    public FileManager(){
-
-    }
+    public static String TAG = "FileManager";
+    public FileManager(){ }
 
     public static String getFileName(Uri uri){
-        String filetype = null;
-        String v3d_head = "raw_image_stack_by_hpeng";
-        int length_v3d = v3d_head.length();
-
-        Context context = getContext();
-
         Cursor returnCursor =
-                context.getContentResolver().query(uri, null, null, null, null);
+                getContext().getContentResolver().query(uri, null, null, null, null);
 
         int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
         int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
         returnCursor.moveToFirst();
-        String filename = returnCursor.getString(nameIndex);
 
-        System.out.println("getFileName:  " + filename);
+        String filename = returnCursor.getString(nameIndex);
+        returnCursor.close();
+        Log.d(TAG, "getFileName: " + filename);
 
         return filename;
-
-//        try {
-//
-//            ParcelFileDescriptor parcelFileDescriptor =
-//                    context.getContentResolver().openFileDescriptor(uri, "r");
-//
-//            InputStream is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-//            FileInputStream fid = (FileInputStream) (is);
-//            InputStreamReader isr = new InputStreamReader(fid);
-//            BufferedReader br = new BufferedReader(isr);
-//            file_head = br.readLine();
-////            System.out.println(file_head.substring(0, length_v3d));
-//            System.out.println(file_head);
-////
-////            file_head.substring(0, length_v3d);
-//
-//            if (file_head.substring(0, 5).equals("#name")){
-//
-//                filetype = ".SWC";
-//
-//            }else if (file_head.substring(0, 7).equals("APOFILE")){
-//
-//                filetype = ".ANO";
-//
-//            }else if (file_head.substring(0, length_v3d).equals("raw_image_stack_by_hpeng")){
-//
-//                filetype = ".V3DRAW";
-//
-//            }else {
-//
-//                filetype = "no such type";
-//
-//            }
-//
-//            br.close();
-//            isr.close();
-//        } catch (Exception e) {
-//            System.out.println("getFileType" + e.getMessage());
-//            return "fail to read file";
-//        }
-//
-//        Log.v("filetype: ", filetype);
-//
-//        return filetype;
     }
 
-    @SuppressLint("ShowToast")
     public static String getFileType(Uri uri){
-        String v3d_head = "raw_image_stack_by_hpeng";
-        int length_v3d = v3d_head.length();
-        String filetype = "Fail to read";
-
-        Context context = getContext();
-
-        if (Looper.myLooper() == null)
-            Looper.prepare();
+        String fileType = "";
 
         try {
             Cursor returnCursor =
-                    context.getContentResolver().query(uri, null, null, null, null);
+                    getContext().getContentResolver().query(uri, null, null, null, null);
 
             int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
 //            int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
             returnCursor.moveToFirst();
-            String filename = returnCursor.getString(nameIndex);
+            String fileName = returnCursor.getString(nameIndex);
 
-            System.out.println("------nameIndex: " + nameIndex + "---------");
-
-            if ( filename == null ){
+            if (fileName == null){
                 int columnIndex = returnCursor.getColumnIndexOrThrow(MediaStore.Images.Media.TITLE);
+                Log.d(TAG, "getFileType: columnIndex " + columnIndex);
                 returnCursor.moveToFirst();
-                filename = returnCursor.getString(columnIndex);
-                System.out.println("------columnIndex: " + columnIndex + "---------");
-
+                fileName = returnCursor.getString(columnIndex);
             }
 
-            System.out.println("------filename: " + filename + "---------");
-            filetype= filename.substring(filename.lastIndexOf(".")).toUpperCase();
+            fileType= fileName.substring(fileName.lastIndexOf(".")).toUpperCase();
+            returnCursor.close();
+            Log.d(TAG, "getFileType: " + fileType);
 
         }catch (Exception e){
             e.printStackTrace();
-//            Toast.makeText(context,"Fail to read",Toast.LENGTH_SHORT);
-//            Looper.loop();
             return "Fail to read";
         }
+        return fileType;
+    }
 
+    public static FileType getFileTypeUri(Uri uri){
+        FileType fileType;
+        try {
+            Cursor returnCursor =
+                    getContext().getContentResolver().query(uri, null, null, null, null);
 
-        return filetype;
+            int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+            returnCursor.moveToFirst();
+            String fileName = returnCursor.getString(nameIndex);
 
-//        try {
-//
-//            ParcelFileDescriptor parcelFileDescriptor =
-//                    context.getContentResolver().openFileDescriptor(uri, "r");
-//
-//            InputStream is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-//            FileInputStream fid = (FileInputStream) (is);
-//            InputStreamReader isr = new InputStreamReader(fid);
-//            BufferedReader br = new BufferedReader(isr);
-//            file_head = br.readLine();
-////            System.out.println(file_head.substring(0, length_v3d));
-//            System.out.println(file_head);
-////
-////            file_head.substring(0, length_v3d);
-//
-//            if (file_head.substring(0, 5).equals("#name")){
-//
-//                filetype = ".SWC";
-//
-//            }else if (file_head.substring(0, 7).equals("APOFILE")){
-//
-//                filetype = ".ANO";
-//
-//            }else if (file_head.substring(0, length_v3d).equals("raw_image_stack_by_hpeng")){
-//
-//                filetype = ".V3DRAW";
-//
-//            }else {
-//
-//                filetype = "no such type";
-//
-//            }
-//
-//            br.close();
-//            isr.close();
-//        } catch (Exception e) {
-//            System.out.println("getFileType" + e.getMessage());
-//            return "fail to read file";
-//        }
-//
-//        Log.v("filetype: ", filetype);
-//
-//        return filetype;
+            if (fileName == null){
+                int columnIndex = returnCursor.getColumnIndexOrThrow(MediaStore.Images.Media.TITLE);
+                Log.d(TAG, "getFileType: columnIndex " + columnIndex);
+                returnCursor.moveToFirst();
+                fileName = returnCursor.getString(columnIndex);
+            }
+
+            fileType = FileTypeHelper.getType(fileName);
+            returnCursor.close();
+            Log.d(TAG, "getFileType: " + fileType);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return FileType.UNSUPPORTED;
+        }
+        return fileType;
+    }
+
+    public static String getFileName(String filePath){
+        return filePath.substring(filePath.lastIndexOf("/"));
+    }
+
+    public static FileType getFileType(String filePath){
+        String fileName =  filePath.substring(filePath.lastIndexOf("/"));
+        return FileTypeHelper.getType(fileName);
     }
 
 }

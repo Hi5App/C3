@@ -123,8 +123,7 @@ public class readSWC_file_nt {
 
         ArrayList<String> arraylist = new ArrayList<String>();
         NeuronTree nt = new NeuronTree();
-        FileManager fileManager = new FileManager();
-        nt.file = fileManager.getFileName(uri);
+        nt.file = FileManager.getFileName(uri);
         String file_type = nt.file.substring(nt.file.lastIndexOf(".")).toUpperCase();
         if (!(file_type.equals(".SWC") | file_type.equals(".ESWC"))) {
             Toast.makeText(MainActivity.getContext(), "Failed, Only support SWC or ESWC file", Toast.LENGTH_LONG).show();

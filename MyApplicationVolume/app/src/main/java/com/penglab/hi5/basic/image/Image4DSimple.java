@@ -1,20 +1,21 @@
 package com.penglab.hi5.basic.image;
 
-import android.content.Context;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 import com.penglab.hi5.basic.ByteTranslate;
+import com.penglab.hi5.basic.utils.FileHelper;
 import com.penglab.hi5.basic.utils.FileManager;
-import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.fileReader.imageReader.BigImgReader;
 import com.penglab.hi5.core.fileReader.imageReader.BitmapReader;
-import com.penglab.hi5.core.fileReader.imageReader.Rawreader;
-import com.penglab.hi5.core.fileReader.imageReader.Tiffreader;
+import com.penglab.hi5.core.fileReader.imageReader.RawReader;
+import com.penglab.hi5.core.fileReader.imageReader.TiffReader;
+import com.penglab.hi5.data.model.img.FilePath;
+import com.penglab.hi5.data.model.img.FileType;
 
 import org.apache.commons.io.IOUtils;
 
@@ -22,11 +23,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.Collections;
 
 import static com.penglab.hi5.basic.BitmapRotation.getBitmapDegree;
 import static com.penglab.hi5.basic.BitmapRotation.rotateBitmapByDegree;
@@ -40,9 +38,12 @@ import static java.lang.Math.floor;
 import static java.lang.Math.round;
 import static java.lang.System.out;
 
+import androidx.annotation.RequiresApi;
 
 
 public class Image4DSimple {
+    public static String TAG = "Image4DSimple";
+
     public enum ImagePixelType {V3D_UNKNOWN, V3D_UINT8, V3D_UINT16, V3D_THREEBYTE, V3D_FLOAT32}
     public enum TimePackType {TIME_PACK_NONE,TIME_PACK_Z,TIME_PACK_C}
     protected long sz0;
@@ -574,80 +575,197 @@ public class Image4DSimple {
         return isBig;
     }
 
-//    public void loadImage(String filename){
-//
-//    }
+    public static Image4DSimple loadImage(FilePath<?> filePath, FileType fileType){
+        Image4DSimple image4DSimple = null;
+        InputStream is;
+        long length;
 
+        if (filePath.getData() instanceof Uri){
+            Uri uri = (Uri) filePath.getData();
+
+            try {
+                ParcelFileDescriptor parcelFileDescriptor =
+                        getContext().getContentResolver().openFileDescriptor(uri, "r");
+                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+                length = parcelFileDescriptor.getStatSize();
+
+                switch (fileType){
+                    case V3DRAW:
+                            image4DSimple =  new RawReader().read(length, is);
+                            is.close();
+                        break;
+                    case TIFF:
+                        // create a new file
+                        String fileName = FileManager.getFileName(uri);
+                        String storePath = getContext().getExternalFilesDir(null).toString() + "/temp_tif";
+                        File tempFile = FileHelper.createFile(storePath, fileName);
+
+                        OutputStream out = new FileOutputStream(tempFile);
+                        IOUtils.copy(is, out);
+                        out.close();
+                        is.close();
+
+                        image4DSimple =  new TiffReader().read(tempFile);
+                        break;
+                    case V3DPBD:
+                        image4DSimple = new ImageLoaderBasic().loadRaw2StackPBD(is, length, false);
+                        is.close();
+                        break;
+                    default:
+                        return null;
+                }
+            } catch (Exception e){
+                e.printStackTrace();
+                return null;
+            }
+
+        } else if (filePath.getData() instanceof String){
+            String path = (String) filePath.getData();
+
+            try {
+                File file = new File(path);
+                is = new FileInputStream(file);
+                length = file.length();
+
+                switch (fileType){
+                    case V3DRAW:
+                        image4DSimple =  new RawReader().read(length, is);
+                        is.close();
+                        break;
+                    case TIFF:
+                        image4DSimple =  new TiffReader().read(file);
+                        break;
+                    case V3DPBD:
+                        image4DSimple = new ImageLoaderBasic().loadRaw2StackPBD(is, length, false);
+                        is.close();
+                        break;
+                    default:
+                        return null;
+                }
+            } catch (Exception e){
+                e.printStackTrace();
+                return null;
+            }
+        }
+        return image4DSimple;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public static Bitmap loadImage2D(FilePath<?> filePath){
+        Bitmap bitmap2D = null;
+        InputStream is;
+        long length;
+        if (filePath.getData() instanceof Uri){
+            Log.e(TAG,"filePath is Uri !");
+            Uri uri = (Uri) filePath.getData();
+
+            try {
+                ParcelFileDescriptor parcelFileDescriptor =
+                        getContext().getContentResolver().openFileDescriptor(uri, "r");
+                is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+                length = parcelFileDescriptor.getStatSize();
+
+                Log.e(TAG,"length " + length);
+                int degree = getBitmapDegree(filePath);
+                bitmap2D = BitmapFactory.decodeStream(is);
+                bitmap2D = rotateBitmapByDegree(bitmap2D, degree);
+                is.close();
+
+            } catch (Exception e){
+                e.printStackTrace();
+                return null;
+            }
+        } else if (filePath.getData() instanceof String){
+            String path = (String) filePath.getData();
+            File file = new File(path);
+
+            try {
+                length = file.length();
+                is = new FileInputStream(file);
+
+                int degree = getBitmapDegree(filePath);
+                bitmap2D = BitmapFactory.decodeStream(is);
+                bitmap2D = rotateBitmapByDegree(bitmap2D, degree);
+                is.close();
+
+            } catch (Exception e){
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        return bitmap2D;
+    }
+
+    public static Image4DSimple loadImage2D(Bitmap bitmapOrigin, FilePath filePath){
+        Image4DSimple image = new Image4DSimple();
+        BitmapReader bmr = new BitmapReader();
+
+        if (bitmapOrigin != null){
+            image = bmr.read(bitmapOrigin);
+        }
+        return image;
+    }
 
     public static Image4DSimple loadImage(String filepath, String filetype){
         Image4DSimple image = new Image4DSimple();
 
         if (filetype.equals(".V3DRAW")){
-            Rawreader rr = new Rawreader();
+            Log.v(TAG, "FileType: " + ".V3DRAW  " + filepath);
+
+            RawReader rr = new RawReader();
             File file = new File(filepath);
             long length = 0;
             InputStream is = null;
+
             if (file.exists()){
                 try {
                     length = file.length();
                     is = new FileInputStream(file);
-//                grayscale =  rr.run(length, is);
-                    image = rr.run(length, is);
-
-                    Log.v("getIntensity_3d", filepath);
-
-                } catch (FileNotFoundException e) {
+                    image = rr.read(length, is);
+                    is.close();
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
-
-            else {
+            } else {
                 Uri uri = Uri.parse(filepath);
-
                 try {
                     ParcelFileDescriptor parcelFileDescriptor =
                             getContext().getContentResolver().openFileDescriptor(uri, "r");
 
                     is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-
                     length = (int)parcelFileDescriptor.getStatSize();
-
-                    Log.v("MyPattern","Successfully load intensity");
+                    image =  rr.read(length, is);
+                    is.close();
 
                 }catch (Exception e){
-                    Log.v("MyPattern","Some problems in the MyPattern when load intensity");
+                    e.printStackTrace();
+                    Log.v(TAG,"Something wrong when open v3draw file !");
                 }
-
-                image =  rr.run(length, is);
             }
         }
 
         else if (filetype.equals(".TIF")){
-            Context context = getContext();
-            Tiffreader tr = new Tiffreader();
+            Log.v(TAG, "FileType: " + ".TIF  " + filepath);
+
+            TiffReader tr = new TiffReader();
             File file = new File(filepath);
             long length = 0;
             InputStream is = null;
 
             if (file.exists()){
                 try {
-
-                    image = tr.run(file);
-
-                    Log.v("getIntensity_3d", filepath);
-
+                    image = tr.read(file);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
-
-            else {
+            } else {
                 Uri uri = Uri.parse(filepath);
 
-                FileManager fileManager = new FileManager();
-                String filename = fileManager.getFileName(uri);
-                String dir_str = context.getExternalFilesDir(null).toString() + "/temp_tif";
+                String filename = FileManager.getFileName(uri);
+                String dir_str = getContext().getExternalFilesDir(null).toString() + "/temp_tif";
                 File dir = new File(dir_str);
+
                 if (!dir.exists()) {
                     if (!dir.mkdirs()){
                         Log.e("Image4DSimple","Fail to create directory !");
@@ -666,77 +784,51 @@ public class Image4DSimple {
                     OutputStream outputStream = new FileOutputStream(temp_file);
                     IOUtils.copy(is, outputStream);
                     outputStream.close();
+                    is.close();
 
                 }catch (Exception e){
-                    Log.v("Image4D","Some problems in the MyPattern when load intensity");
+                    Log.v(TAG,"Something wrong when open tif file !");
+                    e.printStackTrace();
                 }
-
-                image =  tr.run(temp_file);
-//                temp_file.delete();
-
+                image =  tr.read(temp_file);
             }
         }
 
         else if (filetype.equals(".V3DPBD")){
+            Log.v(TAG, "FileType: " + ".V3DPBD  " + filepath);
+
             ImageLoaderBasic il = new ImageLoaderBasic();
             File file = new File(filepath);
             long length = 0;
             InputStream is = null;
+
             if (file.exists()){
                 try {
                     length = file.length();
                     is = new FileInputStream(file);
-//                grayscale =  rr.run(length, is);
                     image = il.loadRaw2StackPBD(is, length, false);
+                    is.close();
 
-                    Log.v("getIntensity_3d", filepath);
-
-                } catch (FileNotFoundException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
-
-            else {
+            } else {
                 Uri uri = Uri.parse(filepath);
-
                 try {
                     ParcelFileDescriptor parcelFileDescriptor =
                             getContext().getContentResolver().openFileDescriptor(uri, "r");
 
                     is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
+                    length = (int) parcelFileDescriptor.getStatSize();
+                    image = il.loadRaw2StackPBD(is, length, false);
+                    is.close();
 
-                    length = (int)parcelFileDescriptor.getStatSize();
-
-                    Log.v("MyPattern","Successfully load intensity");
-
-                }catch (Exception e){
-                    Log.v("MyPattern","Some problems in the MyPattern when load intensity");
+                } catch (Exception e) {
+                    Log.v(TAG,"Something wrong when open v3dpbd file !");
+                    e.printStackTrace();
                 }
-
-                image = il.loadRaw2StackPBD(is, length, false);
             }
         }
-
-//        else if (filetype.equals(".DEMO")){
-//            ImageLoaderBasic il = new ImageLoaderBasic();
-//            AssetManager am = getContext().getAssets();
-//
-//            long length = 0;
-//            InputStream is = null;
-//
-//            try {
-//                is = am.open(filepath + ".v3dpbd");
-//                length = is.available();
-//                image = il.loadRaw2StackPBD(is, length, false);
-//
-//                Log.v("getIntensity_3d", filepath);
-//
-//            } catch (FileNotFoundException e) {
-//                e.printStackTrace();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
 
         if (image != null) {
             image.setImgSrcFile(filepath);
@@ -772,7 +864,6 @@ public class Image4DSimple {
                         getContext().getContentResolver().openFileDescriptor(uri, "r");
 
                 is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
-
                 length = (int)parcelFileDescriptor.getStatSize();
 
                 Log.v("MyPattern","Successfully load intensity");

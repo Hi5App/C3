@@ -6,6 +6,7 @@ repositories {
         url 'https://maven.fabric.io/public'
     }
     maven { url 'http://developer.huawei.com/repo/' }
+    mavenCentral()
 }
 
 dependencies {

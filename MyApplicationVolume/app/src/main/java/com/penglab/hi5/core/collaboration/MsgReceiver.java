@@ -91,9 +91,7 @@ public class MsgReceiver {
                 try {
                     String header = "";
                     if (is.available() > 0){
-//                        Log.e(TAG,"available size: " + is.available());
                         header = MyReadLine(is);
-//                        Log.e(TAG,"available size: " + is.available());
 
                         Log.e(TAG,"read header: " + header);
                         if (processHeader(header + "\n")){
@@ -109,15 +107,12 @@ public class MsgReceiver {
                 try {
                     if (is.available() >= dataType.dataSize){
                         // read msg
-//                        Log.e(TAG,"read msg !");
                         String msg = MyReadLine(is) + "\n";
-//                        Log.e(TAG, "msg: " + msg);
 
                         if (processMsg(msg)){
 //                            onRead("after read msg !");
                         }
                     }
-
                 }catch (Exception e){
                     e.printStackTrace();
                     Log.d(TAG,"Fail to get Input Stream!");
@@ -130,7 +125,6 @@ public class MsgReceiver {
                 e.printStackTrace();
             }
         }
-
     }
 
 
@@ -142,7 +136,6 @@ public class MsgReceiver {
             if (msg.startsWith("DataTypeWithSize:")){
                 Log.e(TAG,"msg: " + msg);
                 msg = msg.substring("DataTypeWithSize:".length());
-                Log.e(TAG,"msg: " + msg);
 
                 String[] paras_list = msg.split(" ");
                 ArrayList<String> paras = new ArrayList<>();
@@ -154,7 +147,7 @@ public class MsgReceiver {
                     dataType.filename = paras_list[1];
                     dataType.dataSize = Long.parseLong(paras_list[2]);
 
-                    Log.e(TAG,"This is a file !");
+//                    Log.e(TAG,"This is a file !");
                         /*
                         data file path
                          */
@@ -169,7 +162,7 @@ public class MsgReceiver {
             ret = 1;
         }
 
-        Log.e(TAG, "ret: " + ret);
+//        Log.e(TAG, "ret: " + ret);
         if (ret==0) return true;
         errorprocess(ret, rmsg.trim());  return false;
 

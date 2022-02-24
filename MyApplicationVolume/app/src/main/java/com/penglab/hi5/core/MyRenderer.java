@@ -38,13 +38,14 @@ import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.core.collaboration.Communicator;
 import com.penglab.hi5.core.fileReader.annotationReader.AnoReader;
 import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
-import com.penglab.hi5.core.render.MyAxis;
-import com.penglab.hi5.core.render.MyDraw;
-import com.penglab.hi5.core.render.MyMarker;
-import com.penglab.hi5.core.render.MyNavLoc;
-import com.penglab.hi5.core.render.MyPattern;
-import com.penglab.hi5.core.render.MyPattern2D;
-import com.penglab.hi5.core.render.MyPatternGame;
+import com.penglab.hi5.core.render.pattern.MyAxis;
+import com.penglab.hi5.core.render.pattern.MyDraw;
+import com.penglab.hi5.core.render.pattern.MyMarker;
+import com.penglab.hi5.core.render.pattern.MyNavLoc;
+import com.penglab.hi5.core.render.pattern.MyPattern;
+import com.penglab.hi5.core.render.pattern.MyPattern2D;
+import com.penglab.hi5.core.render.pattern.MyPatternGame;
+import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.game.GameCharacter;
 
 import org.apache.commons.io.IOUtils;
@@ -81,7 +82,7 @@ import static javax.microedition.khronos.opengles.GL10.GL_SRC_ALPHA;
 
 //@android.support.annotation.RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
 public class MyRenderer implements GLSurfaceView.Renderer {
-    enum FileType { V3draw, SWC, ESWC, APO, ANO, TIF, JPG, PNG, V3dPBD, NotSupport }
+    public enum FileType { V3draw, SWC, ESWC, APO, ANO, TIF, JPG, PNG, V3dPBD, NotSupport }
 
     private enum Operate {DRAWCURVE, DELETECURVE, DRAWMARKER, DELETEMARKER, CHANGELINETYPE, SPLIT}
 
@@ -139,7 +140,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private final float[] paraProjectionMatrix = new float[16];
     private final float[] persProjectionMatrix = new float[16];
     private final float[] viewMatrix = new float[16];
-    private final float[] rotationMatrix =new float[16];
+    private final float[] rotationMatrix = new float[16];
     private final float[] rotationXMatrix = new float[16];
     private final float[] rotationYMatrix = new float[16];
     private final float[] rotationZMatrix = new float[16];
@@ -314,7 +315,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             Log.v(TAG,"---------------   init img when SurfaceChanged  -------------");
             if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD) {
                 if (myPattern != null){
-                    myPattern.free();
+                    myPattern.releaseMemory();
                     myPattern = null;
                 }
 
@@ -332,7 +333,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             if (fileType == FileType.PNG || fileType == FileType.JPG){
                 if (myPattern2D != null){
-                    myPattern2D.free();
+                    myPattern2D.releaseMemory();
                     myPattern2D = null;
                 }
                 myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
@@ -340,9 +341,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             if (fileType == FileType.TIF || fileType == FileType.V3draw || fileType == FileType.V3dPBD
                     || fileType == FileType.SWC || fileType == FileType.APO || fileType == FileType.ANO) {
-                if (myAxis == null || myAxis.getNeedRelease()){
+                if (myAxis == null || myAxis.isNeedReleaseMemory()){
                     if (myAxis != null)
-                        myAxis.free();
+                        myAxis.releaseMemory();
                     myAxis = new MyAxis(mz);
                 }
             }
@@ -408,12 +409,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             /*
             init the {MyPattern, MyPattern2D, MyAxis, MyDraw, MyAnimation}
             */
-            if (myPattern == null || myPattern2D == null || myPatternGame == null || myPattern.getNeedRelease() || myPattern2D.getNeedRelease()){
+            if (myPattern == null || myPattern2D == null || myPatternGame == null || myPattern.isNeedReleaseMemory() || myPattern2D.isNeedReleaseMemory()){
                 if (ifFileSupport){
 
                     if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD) {
                         if (myPattern != null){
-                            myPattern.free();
+                            myPattern.releaseMemory();
                             myPattern = null;
                         }
 
@@ -430,7 +431,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         }
                     }else if (fileType == FileType.PNG || fileType == FileType.JPG){
                         if(myPattern2D != null){
-                            myPattern2D.free();
+                            myPattern2D.releaseMemory();
                             myPattern = null;
                         }
                         myPattern2D = new MyPattern2D(bitmap2D, sz[0], sz[1], mz);
@@ -440,9 +441,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
                     if (fileType == FileType.TIF || fileType == FileType.V3draw || fileType == FileType.V3dPBD ||
                             fileType == FileType.SWC || fileType == FileType.APO || fileType == FileType.ANO){
-                        if (myAxis == null || myAxis.getNeedRelease()){
+                        if (myAxis == null || myAxis.isNeedReleaseMemory()){
                             if (myAxis != null)
-                                myAxis.free();
+                                myAxis.releaseMemory();
                             myAxis = new MyAxis(mz);
                         }
                     }
@@ -463,15 +464,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //                setVisual(gamePosition, gameDir);
             }
 
-            setMatrix();
-
-
-            if (myAnimation != null){
-                if (myAnimation.status){
-                    animationRotation();
-                }
+            if (myAnimation != null && myAnimation.status){
+                animationRotation();
             }
 
+            setMatrix();
 
             /*
             if not loacation mode
@@ -483,7 +480,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         if (ifGame) {
                             myPatternGame.drawMarker(finalMatrix, modelMatrix);
                         } else {
-                            myPattern.drawVolume_3d(finalMatrix, translateAfterMatrix, ifDownSampling, contrast);
+                            myPattern.drawVolume_3d(finalMatrix, ifDownSampling, contrast);
                         }
                 }
                 if (fileType == FileType.JPG || fileType == FileType.PNG){
@@ -502,6 +499,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                      */
                     if (curSwcList.nsegs() > 0) {
                         ArrayList<Float> lines = new ArrayList<Float>();
+                        int type = 0;
                         for (int i = 0; i < curSwcList.seg.size(); i++) {
                             V_NeuronSWC seg = curSwcList.seg.get(i);
                             Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
@@ -522,7 +520,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                         float y = (float) child.y;
                                         float z = (float) child.z;
                                         float[] position = volumetoModel(new float[]{x, y, z});
-//                                        Log.d(TAG, "drawSplitPoints: " + x + " " + y + " " + z);
                                         myDraw.drawSplitPoints(finalMatrix, position[0], position[1], position[2], (int) child.type);
                                     }
                                     continue;
@@ -531,31 +528,30 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                 if (parent == null){
                                     continue;
                                 }
-//                                Log.d(TAG, "lines.add: " + parent.x + " " + parent.y + " " + parent.z + " " + child.x + " " + child.y + " " + child.z);
                                 lines.add((float) ((sz[0] - parent.x) / sz[0] * mz[0]));
                                 lines.add((float) ((sz[1] - parent.y) / sz[1] * mz[1]));
                                 lines.add((float) ((parent.z) / sz[2] * mz[2]));
                                 lines.add((float) ((sz[0] - child.x) / sz[0] * mz[0]));
                                 lines.add((float) ((sz[1] - child.y) / sz[1] * mz[1]));
                                 lines.add((float) ((child.z) / sz[2] * mz[2]));
-
-                                myDraw.drawLine(finalMatrix, lines, (int) parent.type);
-                                if (ifGame) {
-                                    float x = lines.get(0) / mz[0] - 0.5f;
-                                    float y = lines.get(1) / mz[1] - 0.5f;
-                                    float z = lines.get(2) / mz[2] - 0.5f;
-                                    if (Math.sqrt((double)(x * x + y * y + z * z)) < 1) {
-                                        myDraw.drawLine(finalSmallMapMatrix, lines, (int) parent.type);
-                                    }
-                                }
-                                lines.clear();
+                                type = (int) parent.type;
                             }
+                            myDraw.drawLine(finalMatrix, lines, type);
+//                            if (ifGame) {
+//                                float x = lines.get(0) / mz[0] - 0.5f;
+//                                float y = lines.get(1) / mz[1] - 0.5f;
+//                                float z = lines.get(2) / mz[2] - 0.5f;
+//                                if (Math.sqrt((double)(x * x + y * y + z * z)) < 1) {
+//                                    myDraw.drawLine(finalSmallMapMatrix, lines, (int) parent.type);
+//                                }
+//                            }
+                            lines.clear();
                         }
-
                     }
 
                     if (newSwcList.nsegs() > 0) {
                         ArrayList<Float> lines = new ArrayList<Float>();
+                        int type = 0;
                         for (int i = 0; i < newSwcList.seg.size(); i++) {
                             V_NeuronSWC seg = newSwcList.seg.get(i);
                             Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
@@ -588,16 +584,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                 lines.add((float) ((sz[0] - child.x) / sz[0] * mz[0]));
                                 lines.add((float) ((sz[1] - child.y) / sz[1] * mz[1]));
                                 lines.add((float) ((child.z) / sz[2] * mz[2]));
-
-                                myDraw.drawLine(finalMatrix, lines, (int) parent.type);
-                                lines.clear();
+                                type = (int) parent.type;
                             }
+
+                            myDraw.drawLine(finalMatrix, lines, type);
+                            lines.clear();
                         }
 
                     }
 
                     if (syncSwcList.nsegs() > 0) {
                         ArrayList<Float> lines = new ArrayList<Float>();
+                        int type = 0;
                         for (int i = 0; i < syncSwcList.seg.size(); i++) {
                             V_NeuronSWC seg = syncSwcList.seg.get(i);
                             Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
@@ -634,18 +632,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                 lines.add((float) ((sz[0] - child.x) / sz[0] * mz[0]));
                                 lines.add((float) ((sz[1] - child.y) / sz[1] * mz[1]));
                                 lines.add((float) ((child.z) / sz[2] * mz[2]));
+                                type = (int) parent.type;
 
-                                myDraw.drawLine(finalMatrix, lines, (int) parent.type);
-                                if (ifGame) {
-                                    float x = lines.get(0) / mz[0] - 0.5f;
-                                    float y = lines.get(1) / mz[1] - 0.5f;
-                                    float z = lines.get(2) / mz[2] - 0.5f;
-                                    if (Math.sqrt((double)(x * x + y * y + z * z)) < 1) {
-                                        myDraw.drawLine(finalSmallMapMatrix, lines, (int) parent.type);
-                                    }
-                                }
-                                lines.clear();
                             }
+                            myDraw.drawLine(finalMatrix, lines, type);
+//                            if (ifGame) {
+//                                float x = lines.get(0) / mz[0] - 0.5f;
+//                                float y = lines.get(1) / mz[1] - 0.5f;
+//                                float z = lines.get(2) / mz[2] - 0.5f;
+//                                if (Math.sqrt((double)(x * x + y * y + z * z)) < 1) {
+//                                    myDraw.drawLine(finalSmallMapMatrix, lines, (int) parent.type);
+//                                }
+//                            }
+                            lines.clear();
                         }
 
                     }
@@ -676,7 +675,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                             }
                         }
                     }
-
                 }
 
                 if (ifGame){
@@ -775,8 +773,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 m.postScale(1, -1);
                 mBitmap = Bitmap.createBitmap(mBitmap, 0, 0, screen_w, screen_h, m, true);
 
-                ImageUtil imageUtil = new ImageUtil();
-                Bitmap output_mBitmap = imageUtil.drawTextToRightBottom(getContext(), mBitmap, "Hi5", 20, Color.RED, 40, 30);
+                Bitmap output_mBitmap = ImageUtil.drawTextToRightBottom(getContext(), mBitmap, "Hi5", 20, Color.RED, 40, 30);
                 String mCaptureDir = "/storage/emulated/0/" + getContext().getResources().getString(R.string.app_name) + "/screenCapture";
                 File dir = new File(mCaptureDir);
                 if (!dir.exists()){
@@ -790,6 +787,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
                     String[] imgPath = new String[1];
                     imgPath[0] = mCapturePath;
+                    fos.close();
                     if (imgPath[0] != null)
                     {
 
@@ -1079,7 +1077,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         setFileType();
 
         if (myAxis != null){
-            myAxis.setNeedRelease();
+            myAxis.setNeedReleaseMemory(true);
         }
 
         if (myDraw != null){
@@ -1206,7 +1204,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         setFileType();
 
         if (myAxis != null){
-            myAxis.setNeedRelease();
+            myAxis.setNeedReleaseMemory(true);
         }
 
         if (myDraw != null){
@@ -1337,6 +1335,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void loadImage2D(){
         File file = new File(filepath);
         long length = 0;
@@ -1367,7 +1366,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        degree = getBitmapDegree(filepath);
+        degree = getBitmapDegree(new FilePath<>(filepath));
         bitmap2D = BitmapFactory.decodeStream(is);
 
         if (bitmap2D != null){
@@ -1397,7 +1396,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        resetImg(img);
 
         if (myPattern2D != null){
-            myPattern2D.setNeedRelease();
+            myPattern2D.setNeedReleaseMemory(true);
         }
     }
 
@@ -1411,11 +1410,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             filetype = filepath.substring(filepath.lastIndexOf(".")).toUpperCase();
         }else {
             Uri uri = Uri.parse(filepath);
-            FileManager fileManager = new FileManager();
-            filetype = fileManager.getFileType(uri);
+            filetype = FileManager.getFileType(uri);
         }
 
-        Log.v(TAG,"setFileType, filepath: " + filepath + ", filetype: " + filetype);
+        Log.v(TAG,"filepath: " + filepath + "| filetype: " + filetype);
 
         switch (filetype){
             case ".V3DRAW":
@@ -1488,7 +1486,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         if (myPattern != null){
-            myPattern.setNeedRelease();
+            myPattern.setNeedReleaseMemory(true);
         }
 
         grayscale =  img.getData();
@@ -1519,7 +1517,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Log.v(TAG,"Before myPattern.free()");
 //
 //        if (myPattern != null){
-//            myPattern.setNeedRelease();
+//            myPattern.setNeedReleaseMemory(true);
 //        }
 //
 //        grayscale =  img.getData();
@@ -2040,33 +2038,24 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public float[] solve2DMarker(float x, float y){
         if (ifIn2DImage(x, y)){
-            float i;
             float [] result = new float[3];
-            for (i = -1; i < 1; i += 0.005){
-                float [] invertfinalMatrix = new float[16];
-                Matrix.invertM(invertfinalMatrix, 0, finalMatrix, 0);
-                Log.d(TAG, "solve2DMarker: " + Arrays.toString(finalMatrix));
-                Log.d(TAG, "solve2DMarker: mz: " + mz[2]);
+            float [] invertfinalMatrix = new float[16];
+            Matrix.invertM(invertfinalMatrix, 0, finalMatrix, 0);
 
+            for (float i = -1; i < 1; i += 0.005){
+                // calculate the temp result
                 float [] temp = new float[4];
                 Matrix.multiplyMV(temp, 0, invertfinalMatrix, 0, new float[]{x, y, i, 1}, 0);
-                Log.d(TAG, "solve2DMarker: temp before: " + Arrays.toString(temp));
-
                 devideByw(temp);
                 float dis = Math.abs(temp[2] - mz[2] / 2);
-                Log.d(TAG, "solve2DMarker: invertfinalmatrix: " + Arrays.toString(invertfinalMatrix));
-                Log.d(TAG, "solve2DMarker: temp: " + Arrays.toString(temp));
-                Log.d(TAG, "solve2DMarker: dis: " + dis);
+
                 if (dis < 0.1) {
-                    System.out.println(temp[0]);
-                    System.out.println(temp[1]);
+//                    Log.d(TAG,"temp[0]: " + temp[0] + ", temp[1]: " + temp[1]);
                     result = new float[]{temp[0], temp[1], mz[2] / 2};
                     break;
                 }
             }
             result = modeltoVolume(result);
-            System.out.println(result[0]);
-            System.out.println(result[1]);
             return result;
         }
         return null;
@@ -3854,7 +3843,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                             firstClone2.parent = -1;
                             newSeg2.append(firstClone2);
                         }catch (Exception e){
-                            System.out.println(e.getMessage());
+                            Log.e(TAG,"splitCurveInSwcList: " + e.getMessage());
                         }
                         for (int w = 0; w < seg.row.size(); w++){
                             try {
@@ -3866,14 +3855,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                                     newSeg1.append(temp);
                                 }
                             }catch (Exception e){
-                                System.out.println(e.getMessage());
+                                Log.e(TAG,"splitCurveInSwcList: " + e.getMessage());
                             }
                         }
                         try {
                             V_NeuronSWC_unit firstClone = first.clone();
                             newSeg1.append(firstClone);
                         }catch (Exception e){
-                            System.out.println(e.getMessage());
+                            Log.e(TAG,"splitCurveInSwcList: " + e.getMessage());
                         }
 
                         if (isBigData){
@@ -5233,17 +5222,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         float z = (thirdDir[0] * dis[0] + thirdDir[1] * dis[1] + thirdDir[2] * dis[2]) / (float)Math.sqrt(thirdDir[0] * thirdDir[0] + thirdDir[1] * thirdDir[1] + thirdDir[2] * thirdDir[2]);
         float y = (thirdHead[0] * dis[0] + thirdHead[1] * dis[1] + thirdHead[2] * dis[2]) / (float)Math.sqrt(thirdHead[0] * thirdHead[0] + thirdHead[1] * thirdHead[1] + thirdHead[2] * thirdHead[2]);
         float [] axis = new float[]{thirdDir[1] * thirdHead[2] - thirdHead[1] * thirdDir[2], thirdDir[2] * thirdHead[0] - thirdHead[2] * thirdDir[0], thirdDir[0] * thirdHead[1] - thirdHead[0] * thirdDir[1]};
-//        System.out.print(axis[0]);
-//        System.out.print(' ');
-//        System.out.print(axis[1]);
-//        System.out.print(' ');
-//        System.out.println(axis[2]);
         float x = (axis[0] * dis[0] + axis[1] * dis[1] + axis[2] * dis[2]) / (float)Math.sqrt(axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]);
-        System.out.print(x);
-        System.out.print(' ');
-        System.out.print(y);
-        System.out.print(' ');
-        System.out.println(z);
+
+//        Log.d(TAG,"x: " + x + ", y: " + y + ", z: " + z);
         Matrix.translateM(translateAfterMoveMatrix, 0, x, -y, -z);
     }
 

@@ -6,10 +6,9 @@ import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nimlib.sdk.StatusBarNotificationConfig;
 
 /**
- * Created by jezhee on 2/20/15.
+ * Modified by Jackiexing on 11/30/21.
  */
 public class InfoCache {
-
 
     private static volatile InfoCache INSTANCE = null;
 
@@ -34,7 +33,6 @@ public class InfoCache {
     }
 
     private static boolean mainTaskLaunching;
-
 
     /**
      * 获取InfoCache实例 ,单例模式
@@ -74,14 +72,12 @@ public class InfoCache {
 
     public static void setContext(Context context) {
         InfoCache.context = context.getApplicationContext();
-
 //        AVChatKit.setContext(context);
 //        RTSKit.setContext(context);
     }
 
     public static void setMainTaskLaunching(boolean mainTaskLaunching) {
         InfoCache.mainTaskLaunching = mainTaskLaunching;
-
 //        AVChatKit.setMainTaskLaunching(mainTaskLaunching);
     }
 

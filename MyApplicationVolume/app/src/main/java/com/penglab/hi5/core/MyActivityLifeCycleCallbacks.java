@@ -10,6 +10,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.penglab.hi5.core.collaboration.connector.MsgConnector;
+import com.penglab.hi5.core.collaboration.connector.ServerConnector;
 import com.penglab.hi5.core.game.Score;
 
 import java.util.LinkedList;
@@ -17,12 +19,11 @@ import java.util.List;
 
 public class MyActivityLifeCycleCallbacks implements Application.ActivityLifecycleCallbacks {
 
-    private String TAG = "MyActivityLifeCycleCallbacks";
-    private int activityCount = 0;
-
+    private final String TAG = "MyActivityLifeCycle";
+    private final String MY_PKG_NAME = "com.penglab.hi5";
     private List<Activity> activities = new LinkedList<>();
-
     public static int sAnimationId = 0;
+    private int activityCount = 0;
 
     @Override
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
@@ -37,35 +38,34 @@ public class MyActivityLifeCycleCallbacks implements Application.ActivityLifecyc
 
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
-
     }
 
     @Override
     public void onActivityPaused(@NonNull Activity activity) {
-
     }
 
     @Override
     public void onActivityStopped(@NonNull Activity activity) {
-        Log.d(TAG, "onActivityStopped");
         activityCount--;
-        if (activityCount <= 0){
-            Log.d(TAG, "Now On Background");
-            if (isActivityAlive("ComponentInfo{com.penglab.hi5/com.penglab.hi5.core.MainActivity}")){
-                Score score = Score.getInstance();
-                MainActivity.setScore(score.getScore());
-            }
-        }
     }
 
     @Override
     public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle bundle) {
-
     }
 
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
         removeActivity(activity);
+    }
+
+    private boolean isAppRun() {
+        ActivityManager am = (ActivityManager)Myapplication.getContext().getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> list = am.getRunningTasks(100);
+        for (ActivityManager.RunningTaskInfo info : list){
+            if (info.topActivity.getPackageName().equals(MY_PKG_NAME) && info.baseActivity.getPackageName().equals(MY_PKG_NAME))
+                return true;
+        }
+        return false;
     }
 
     private boolean isActivityAlive(String activityName) {
@@ -95,6 +95,8 @@ public class MyActivityLifeCycleCallbacks implements Application.ActivityLifecyc
 
         if (activities.size() == 0) {
             activities = null;
+            ServerConnector.getInstance().closeSender();
+            MsgConnector.getInstance().closeSender();
         }
     }
 

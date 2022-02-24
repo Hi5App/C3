@@ -1,5 +1,7 @@
 package com.penglab.hi5.basic.feature_calc_func;
 
+import static com.penglab.hi5.core.Myapplication.ToastEasy;
+
 import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
@@ -7,6 +9,7 @@ import android.widget.Toast;
 import com.penglab.hi5.basic.NeuronSWC;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.core.MainActivity;
+import com.penglab.hi5.data.model.img.FilePath;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +18,7 @@ import java.util.Vector;
 
 
 public class MorphologyCalculate {
+    private static final String TAG = "MorphologyCalculate";
     final int VOID = 1000000000;
     final double PI = 3.14159265359f;
 
@@ -24,8 +28,6 @@ public class MorphologyCalculate {
             Fragmentation = 0;
     int rootidx = 0;
     int count = 0;  //components count...
-//    List<Integer> rootidxlist = new ArrayList<>();
-
     Vector<Vector<Integer>> childs;
 
     List<double[]> computeFeature(NeuronTree nt, boolean isglobal) {
@@ -56,11 +58,8 @@ public class MorphologyCalculate {
             BifA_remote = 0;
             Soma_surface = 0;
             Fragmentation = 0;
-
             rootidx = 0;
-
             count = 0;
-
             int neuronNum = nt.listNeuron.size();
 
             // find the root
@@ -70,13 +69,11 @@ public class MorphologyCalculate {
                 if (list.get(i).parent == -1) {
                     // compute the first tree in the forest
                     rootidx = i;
-//                rootidxlist.add(i);
-//                break;
                 }
             }
             if (rootidx == VOID) {
-                System.out.println("the input neuron tree does not have a root, please check your data");
-                Toast.makeText(MainActivity.getContext(), "the input neuron tree does not have a root, please check your data", Toast.LENGTH_LONG).show();
+                Log.e(TAG,"the input neuron tree does not have a root, please check your data");
+                ToastEasy("the input neuron tree does not have a root, please check your data");
                 return null;
             }
             childs = new Vector<Vector<Integer>>(neuronNum);
@@ -94,13 +91,10 @@ public class MorphologyCalculate {
                 try {   //there is sth wrong...Only calculate one neuron tree...
                     childs.get(nt.hashNeuron.get(par.intValue())).addElement(i);
                 } catch (NullPointerException e) {
-                    System.out.println("redundant root: " + par);
-//                    nt.listNeuron.get(i).parent = -1;
+                    Log.e(TAG,"redundant root: " + par);
                     count += 1;
                 }
             }
-//        for (int nn = 0; nn < rootidxlist.size(); nn++) {
-//            rootidx = rootidxlist.get(nn);
 
             N_node = list.size();
             N_stem = childs.get(rootidx).size();
@@ -438,7 +432,7 @@ public class MorphologyCalculate {
                             rt[k] += dr[k];
                         m = mark(m, r, cell);
                         if (m >= NCELL)
-                            System.out.println("maximal cell number reached");
+                            Log.e(TAG,"maximal cell number reached");
                         if (m >= NCELL)
                             System.exit(1);
                     }
@@ -467,7 +461,7 @@ public class MorphologyCalculate {
         return (hd);
     }
 
-    int fillArray(NeuronTree nt, int r1[][], int r2[][]) {
+    int fillArray(NeuronTree nt, int[][] r1, int[][] r2) {
         List<NeuronSWC> list = nt.listNeuron;
 
         int siz = list.size();
@@ -493,8 +487,8 @@ public class MorphologyCalculate {
         return siz;
     }
 
-    int matrix(int n, int m)[][] {
-        int mat[][] = new int[n][];
+    int[][] matrix(int n, int m) {
+        int[][] mat = new int[n][];
         for (int i = 0; i < n; i++) {
             mat[i] = new int[m];
             for (int j = 0; j < m; j++)
@@ -502,10 +496,9 @@ public class MorphologyCalculate {
         }
         /* Return pointer to array of pointers to rows. */
         return mat;
-
     }
 
-    void free_matrix(int mat[][], int n, int m)
+    void free_matrix(int[][] mat, int n, int m)
 
         /* Free a float matrix allocated by matrix(). */ {
         int i;
@@ -517,7 +510,7 @@ public class MorphologyCalculate {
     }
 
     /*********************** mark lattice cell r, keep marked set ordered */
-    int mark(int m, int r[], int c[][]) {
+    int mark(int m, int[] r, int[][] c) {
         int i, j, k;
         if (m <= 0)
             for (k = 0; k < 3; k++)
@@ -539,62 +532,30 @@ public class MorphologyCalculate {
         return (m + 1);
     }
 
-//    /**
-//     * compute morphology features from a .swc file.
-//     * Input: path: absolute path of .swc file
-//     * Output:
-//     */
-//    double[] Compute_from_file(String path, boolean isglobal) {
-//        readSWC_file_nt reader = new readSWC_file_nt();
-//        MorphologyCalculate MC = new MorphologyCalculate();
-//        NeuronTree nt = reader.readSWC_file(path);
-//        double[] feature_list = new double[22];
-//        MC.computeFeature(nt, feature_list, isglobal);
-//
-//        return feature_list;
-//    }
-
-//    public static void main(String[] args) {
-//        MorphologyCalculate MC = new MorphologyCalculate();
-//        //test data
-//        System.out.println(MC.Compute_from_file("F:\\XiScience\\SEU\\C3\\test_data\\1pic1.v3draw.swc")[0]);
-//
-//    }
-
-
     public List<double[]> calculate(Uri uri, boolean isglobal) {
         readSWC_file_nt reader = new readSWC_file_nt();
         MorphologyCalculate MC = new MorphologyCalculate();
-        //test data
+        // test data
         NeuronTree nt = reader.readSWC_file(uri);
         if (nt == null) return null;
-
-        double[] ff = new double[23];
-        List<double[]> fl = MC.computeFeature(nt, isglobal);
-
-        for (int i = 0; i < ff.length; i++) {
-            Log.v("Calculate", Double.toString(ff[i]));
-        }
-
-        return fl;
-
+        return MC.computeFeature(nt, isglobal);
     }
 
-
     public List<double[]> calculatefromNT(NeuronTree nt, boolean isglobal) {
-
         MorphologyCalculate MC = new MorphologyCalculate();
-
         if (nt == null) return null;
-        double[] ff = new double[23];
-        List<double[]> fl = MC.computeFeature(nt, isglobal);
+        return MC.computeFeature(nt, isglobal);
+    }
 
-        for (int i = 0; i < ff.length; i++) {
-            Log.v("Calculate", Double.toString(ff[i]));
+    public List<double[]> calculateFromFile(FilePath<?> filePath, boolean isGlobal){
+        MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
+        NeuronTree neuronTree = NeuronTree.parse(filePath);
+
+        if (neuronTree == null){
+            return null;
+        }else {
+            return morphologyCalculate.computeFeature(neuronTree, isGlobal);
         }
-
-        return fl;
-
     }
 
 }

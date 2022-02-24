@@ -6,7 +6,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,7 +16,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.media.AudioManager;
 import android.media.SoundPool;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
@@ -30,7 +28,6 @@ import android.os.Message;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -60,10 +57,11 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
+import androidx.lifecycle.MutableLiveData;
+
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.enums.PopupAnimation;
-import com.lxj.xpopup.enums.PopupPosition;
 import com.lxj.xpopup.interfaces.OnCancelListener;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnInputConfirmListener;
@@ -85,6 +83,13 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.uinfo.UserService;
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
+import com.nightonke.boommenu.BoomButtons.ButtonPlaceEnum;
+import com.nightonke.boommenu.BoomButtons.OnBMClickListener;
+import com.nightonke.boommenu.BoomButtons.TextOutsideCircleButton;
+import com.nightonke.boommenu.BoomMenuButton;
+import com.nightonke.boommenu.ButtonEnum;
+import com.nightonke.boommenu.Piece.PiecePlaceEnum;
+import com.nightonke.boommenu.Util;
 import com.penglab.hi5.R;
 import com.penglab.hi5.basic.LocationSimple;
 import com.penglab.hi5.basic.NeuronTree;
@@ -117,18 +122,22 @@ import com.penglab.hi5.core.fileReader.annotationReader.AnoReader;
 import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
 import com.penglab.hi5.core.fileReader.imageReader.BigImgReader;
 import com.penglab.hi5.core.game.AchievementPopup;
-import com.penglab.hi5.core.game.DailyQuestsContainer;
 import com.penglab.hi5.core.game.LeaderBoardActivity;
 import com.penglab.hi5.core.game.LeaderBoardContainer;
 import com.penglab.hi5.core.game.LeaderBoardItem;
-import com.penglab.hi5.core.game.QuestActivity;
+import com.penglab.hi5.core.game.quest.QuestActivity;
 import com.penglab.hi5.core.game.RewardActivity;
 import com.penglab.hi5.core.game.RewardLitePalConnector;
 import com.penglab.hi5.core.game.Score;
-import com.penglab.hi5.core.game.ScoreLitePalConnector;
+import com.penglab.hi5.core.music.MusicService;
+import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
 import com.penglab.hi5.core.ui.login.LoginActivity;
-import com.penglab.hi5.dataStore.PreferenceLogin;
-import com.penglab.hi5.dataStore.SettingFileManager;
+import com.penglab.hi5.data.ImageDataSource;
+import com.penglab.hi5.data.ImageInfoRepository;
+import com.penglab.hi5.data.UserDataSource;
+import com.penglab.hi5.data.UserInfoRepository;
+import com.penglab.hi5.data.dataStore.PreferenceLogin;
+import com.penglab.hi5.data.dataStore.SettingFileManager;
 import com.warkiz.widget.IndicatorSeekBar;
 
 import java.io.BufferedReader;
@@ -142,7 +151,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -156,9 +164,9 @@ import java.util.concurrent.TimeUnit;
 import cn.carbs.android.library.MDDialog;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
-import static com.penglab.hi5.dataStore.SettingFileManager.getFilename_Remote;
-import static com.penglab.hi5.dataStore.SettingFileManager.getoffset_Remote;
-import static com.penglab.hi5.dataStore.SettingFileManager.setSelectSource;
+import static com.penglab.hi5.data.dataStore.SettingFileManager.getFilename_Remote;
+import static com.penglab.hi5.data.dataStore.SettingFileManager.getoffset_Remote;
+import static com.penglab.hi5.data.dataStore.SettingFileManager.setSelectSource;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
@@ -166,8 +174,27 @@ import static java.lang.Math.sqrt;
 //import com.penglab.hi5.chat.agora.message.AgoraMsgManager;
 import com.michaldrabik.tapbarmenulib.TapBarMenu;
 
+
 public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static final String TAG = "MainActivity";
+
+    private AnnotationViewModel annotationViewModel = new AnnotationViewModel(ImageInfoRepository.getInstance(), UserInfoRepository.getInstance(), new UserDataSource(), new ImageDataSource());
+
+    private enum EditMode {
+        NONE, ZOOM, PINPOINT, PAINTCURVE, DELETEMARKER, DELETECURVE, SPLIT, CHANGEMARKERTYPE, CHANGECURVETYPE, DELETEMULTIMARKER, ZOOMINROI
+    }
+
+    private enum OpenFileMode {
+        NONE, IMPORTSWC, ANALYZESWC, LOADLOCALIMAGE
+    }
+
+    private enum PenColor {
+        WHITE, BLACK, RED, BLUE, PURPLE, CYAN, YELLOW, GREEN
+    }
+
+    private enum VoicePattern {
+        PEER_TO_PEER, CHAT_ROOM, UNCERTAIN
+    }                                                                       // 疑似弃用 原聊天用？
 
     private Timer timer = null;
     private TimerTask timerTask;
@@ -177,27 +204,14 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static MyRenderer myrenderer;
     private static Context mainContext;
 
-    private String filepath = "";
-    private boolean ifZooming = false;
-    private boolean ifDeletingMultiMarker = false;
-    private boolean ifChangeMarkerType = false;
-    private boolean ifPainting = false;
-    private boolean ifPoint = false;
-    private boolean ifImport = false;
-    private boolean ifAnalyze = false;
-    private boolean ifUpload = false;
-    private boolean ifDeletingMarker = false;
-    private boolean ifDeletingLine = false;
-    private boolean ifSpliting = false;
-    private boolean ifChangeLineType = false;
-    private boolean ifSwitch = false;
-    private boolean ifLoadLocal = false;
-    private boolean ifButtonShowed = true;
-    private boolean ifAnimation = false;
-    private boolean ifSettingROI =false;
-    public static boolean ifGuestLogin = false;
+    private MutableLiveData<EditMode> editMode = new MutableLiveData<>(EditMode.NONE);
 
-    private boolean[] temp_mode = new boolean[8];
+    private OpenFileMode openFileMode = OpenFileMode.NONE;
+
+    private boolean ifButtonShowed = true;      // 功能已弃用
+    private boolean ifAnimation = false;
+
+    public static boolean ifGuestLogin = false;
 
     private static Button Zoom_in;
     private static Button Zoom_out;
@@ -207,25 +221,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static ImageButton Rotation_i;
     private static ImageButton Hide_i;
 
-    private static ImageButton Undo_i;
-    private static ImageButton Redo_i;
-    private ImageButton Sync_i;
-    private Button Sync;
-    private Button Switch;
-    private Button Remoteleft;
-    private Button Share;
     private static ImageButton animation_i;
-    private ImageButton draw_i;
-    private ImageButton tracing_i;
-    private ImageButton classify_i;
-    private static TextView filenametext;
+    private static TextView filenametext;   // 已弃用 原上方文件名
 
 
     private static ImageButton navigation_left;
     private static ImageButton navigation_right;
     private static ImageButton navigation_up;
     private static ImageButton navigation_down;
-    private static ImageButton navigation_location;
+    private static ImageButton navigation_location; // 已弃用 待删除 功能代码暂时保留
     private static ImageButton manual_sync;
     private static ImageButton ROI_i;
     private static Button navigation_front;
@@ -237,19 +241,19 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     private static ImageButton user_list;
     private static ImageButton room_id;
 
+    private static ImageButton edit_mode_imagebutton;
+
 //    private static ImageButton neuron_list;
 //    private static ImageButton sync_push;
 //    private static ImageButton sync_pull;
 
-
-    private FrameLayout.LayoutParams lp_undo_i;
     private FrameLayout.LayoutParams lp_left_i;
     private FrameLayout.LayoutParams lp_right_i;
     private static FrameLayout.LayoutParams lp_up_i;
     private FrameLayout.LayoutParams lp_down_i;
     private FrameLayout.LayoutParams lp_front_i;
     private FrameLayout.LayoutParams lp_back_i;
-    private static FrameLayout.LayoutParams lp_nacloc_i;
+    private static FrameLayout.LayoutParams lp_nacloc_i;   // 已弃用 待删除 同navigation_location按钮
     private static FrameLayout.LayoutParams lp_sync_i;
 //    private static FrameLayout.LayoutParams lp_sync_push;
 //    private static FrameLayout.LayoutParams lp_sync_pull;
@@ -258,111 +262,73 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //    private static FrameLayout.LayoutParams lp_red_color;
     private static FrameLayout.LayoutParams lp_res_list;
     private FrameLayout.LayoutParams lp_animation_i;
-    private static FrameLayout.LayoutParams lp_undo;
-    private static FrameLayout.LayoutParams lp_redo;
     private static FrameLayout.LayoutParams lp_score;
 
     private static FrameLayout.LayoutParams lp_room_id;
     private static FrameLayout.LayoutParams lp_user_list;
 
-    private Button PixelClassification;
-    private boolean[][]select= {{true,true,true,false,false,false,false},
-            {true,true,true,false,false,false,false},
-            {false,false,false,false,false,false,false},
-            {false,false,false,false,false,false,false},
-            {false,false,false,false,false,false,false},
-            {true,true,true,false,false,false,false}};
+    private static FrameLayout.LayoutParams lp_edit_mode;
 
-
-    private BigImgReader bigImgReader;
+    private BigImgReader bigImgReader;                      // 用于local bigdata模式 目前该模式弃用
     private static TapBarMenu tapBarMenu;
 
+    private static LinearLayout ll_file;                    // 已弃用 原上方文件名
 
-    private LinearLayout ll_top;
-    private LinearLayout ll_bottom;
-    private static LinearLayout ll_file;
-
-    private static int measure_count = 0;
-    private static List<double[]> fl;
+    private static int measure_count = 0;                   // 仅用于analyze功能 考虑换位置
     private static MDDialog ar_mdDialog = null;
 
 
     private static boolean isBigData_Remote;
-    private static boolean isBigData_Local;
+    private static boolean isBigData_Local;                 // 用于local bigdata模式 目前该模式弃用
     private static ProgressBar progressBar;
 
-    private CircleImageView wave;
+    private CircleImageView wave;                           // 波纹效果？疑似弃用
 
-    private int eswc_length;
     // 读写权限
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.CAMERA,
-            Manifest.permission.RECORD_AUDIO};
+            Manifest.permission.RECORD_AUDIO};              // 权限 考虑前移至应用打开时 HomeActivity?
     private static final int REQUEST_PERMISSION_CODE = 1;
-    private static final int REQUEST_IMAGE_CAPTURE = 2;
-    private static final int REQUEST_TAKE_PHOTO = 3;
+    private static final int REQUEST_IMAGE_CAPTURE = 2;     // 疑似弃用 未找到发送点
 
-    private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
-    private static final int TOAST_INFO_STATIC = 5;
+    private static final int HANDLER_SHOW_DOWNLOADING_POPUPVIEW = 0;
+    private static final int HANDLER_HIDE_DOWNLOADING_POPUPVIEW = 1;
+    private static final int HANDLER_SET_BUTTONS_BIGDATA = 2;
+    private static final int HANDLER_NETWORK_TIME_OUT = 3;
+    private static final int HANDLER_SET_FILENAME_BIGDATA = 4;
+    private static final int HANDLER_TOAST_INFO_STATIC = 5;
+    private static final int HANDLER_SHOW_PROGRESSBAR = 6;
+    private static final int HANDLER_UPDATE_SCORE_TEXT = 7;
+    private static final int HANDLER_SHOW_SYNCING_POPUPVIEW = 9;
+    private static final int HANDLER_HIDE_SYNCING_POPUPVIEW = 10;
+    private static final int HANDLER_DISPLAY_ANALYZE_RESULT = 11;
 
     //    private int Paintmode = 0;
-    private ArrayList<Float> lineDrawed = new ArrayList<Float>();
-
-    private BroadcastReceiver broadcastReceiver;
 
     private String currentPhotoPath; // 指定一个不会跟其他文件产生冲突的文件名，用于后面相机拍照的图片的保存
-
+                                     // 弃用
     private File showPic;
-    private Uri picUri;
+    private Uri picUri;              // 疑似弃用
 
-    private static BasePopupView popupView;
-    private static BasePopupView popupViewSync;
+    private static BasePopupView downloadingPopupView;
+    private static BasePopupView syncingPopupView;
 
-    private static final int animation_id = 0;
-    private int rotation_speed = 36;
-
-    private long exitTime = 0;
-
-    private static String filename = "";
-
-    private enum PenColor {
-        WHITE, BLACK, RED, BLUE, PURPLE, CYAN, YELLOW, GREEN
-    }
-
-    private enum VoicePattern {
-        PEER_TO_PEER, CHAT_ROOM, UNCERTAIN
-    }
-
-
-    private BasePopupView drawPopupView;
-
-    private static boolean ifGame = false;
-
-    HashMap<Integer, String> User_Map = new HashMap<Integer, String>();
+    private int rotation_speed = 36;                                        // 疑似无效 本为旋转速度设置
 
     public static String USERNAME = "username";
 
-    public static String username;
+    public static String username;                                          // 用户信息 可放入state类管理
 
-    private static float [] gamePositionForIntent = {0.5f, 0.5f, 0.5f};
-    private static float [] gameDirForIntent = {1, 1, 1};
-    private static float [] gameHeadForIntent = {1, 0, -1};
-    private static int gameLastIndexForIntent = -1;
-    private static boolean gameIfNewForIntent = true;
-    private static int gameScoreForIntent = 0;
     private SoundPool soundPool;
     private final int SOUNDNUM = 4;
     private int [] soundId;
 
-//    private boolean mBoundAgora = false;
     private boolean mBoundManagement = false;
     private boolean mBoundCollaboration = false;
 
-    private int count = 0;
-
-    private static String conPath = "";
+    private static String conPath = "";                                     // 可移到记录图像信息的state里
 
     private float bgmVolume = 0f;
     private float buttonVolume = 1.0f;
@@ -376,6 +342,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private static TextView scoreText;
     private int selectedBGM = 0;
+
+//    private int mSelectedItem = 0;
+//    private DrawerLayout drawerLayout;
+//    private ActionBarDrawerToggle mDrawerToggle;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -440,7 +410,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         if (msg.startsWith("/users:")){
 
             if (firstLoad || copyFile){
-                /*
+                /*a
                 when first join the room, try to get the image
                  */
                 MsgConnector.getInstance().sendMsg("/ImageRes:" + Communicator.BrainNum);
@@ -455,7 +425,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             updateUserList(newUserList);
 
         }
-
 
 
         /*
@@ -493,7 +462,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                 Log.e(TAG, "File: .eswc");
                 loadBigDataSwc(msg.split(":")[1]);
-                hideSyncBar();  // for sync button
+
+                // for sync bar when click sync button
+                if(timerSync != null){
+                    hideSyncBar();
+                }
 
             }
         }
@@ -597,8 +570,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             if (msg.split(":").length > 1) {
                 String body = msg.split(":")[1];
                 String [] accountsWithScore = body.split(";");
-                Log.d(TAG, "accountsWithScore: " + accountsWithScore.length);
-                Log.d(TAG, "accountsWithScore: " + accountsWithScore);
+//                Log.d(TAG, "accountsWithScore: " + Arrays.toString(accountsWithScore));
 
                 if (accountsWithScore.length % 2 == 0) {
                     ArrayList<String> accounts = new ArrayList<>();
@@ -615,19 +587,19 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                     leaderBoardItems.add(new LeaderBoardItem(accountsWithScore[i * 2], param.get(i).getName(), Integer.parseInt(accountsWithScore[i * 2 + 1])));
                                 }
                             } else {
-                                postMessage("LeaderBoard Account Error");
+                                Toast_in_Thread_static("LeaderBoard Account Error");
                             }
                         }
 
                         @Override
                         public void onFailed(int code) {
-                            postMessage("LeaderBoard Account Error");
+                            Toast_in_Thread_static("LeaderBoard Account Error");
 
                         }
 
                         @Override
                         public void onException(Throwable exception) {
-                            postMessage("LeaderBoard Account Error");
+                            Toast_in_Thread_static("LeaderBoard Account Error");
 
                         }
                     });
@@ -642,13 +614,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
     }
 
-    private void postMessage(String message) {
-        Message msg = Message.obtain();
-        msg.what = 8;
-        msg.obj = message;
-        puiHandler.sendMessage(msg);
-    }
-
 
     @SuppressLint("HandlerLeak")
     private static Handler puiHandler = new Handler(){
@@ -656,20 +621,20 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what){
-                case 0:
-                    popupView.show();
+                case HANDLER_SHOW_DOWNLOADING_POPUPVIEW:
+                    downloadingPopupView.show();
                     Activity activity = getActivityFromContext(mainContext);
                     activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     break;
 
-                case 1:
-                    popupView.dismiss();
+                case HANDLER_HIDE_DOWNLOADING_POPUPVIEW:
+                    downloadingPopupView.dismiss();
                     Activity activity_2 = getActivityFromContext(mainContext);
                     activity_2.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     break;
 
-                case 2:
+                case HANDLER_SET_BUTTONS_BIGDATA:
                     setButtonsBigData();
                     showButtonsOnFile();
                     if (isBigData_Local){
@@ -683,40 +648,36 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     }
                     break;
 
-                case 3:
+                case HANDLER_NETWORK_TIME_OUT:
                     Toast.makeText(context,"Time out, please try again!",Toast.LENGTH_SHORT).show();
                     break;
 
-                case 4:
+                case HANDLER_SET_FILENAME_BIGDATA:
                     setFileName(Communicator.BrainNum);
                     break;
 
-                case 5:
+                case HANDLER_TOAST_INFO_STATIC:
                     String Toast_msg = msg.getData().getString("Toast_msg");
                     Toast.makeText(getContext(),Toast_msg, Toast.LENGTH_SHORT).show();
                     break;
 
-                case 6:
+                case HANDLER_SHOW_PROGRESSBAR:
                     progressBar.setVisibility(View.GONE);
                     break;
 
-                case 7:
+                case HANDLER_UPDATE_SCORE_TEXT:
                     updateScoreTextHandler();
                     break;
 
-                case 8:
-                    Toast_in_Thread_static((String)msg.obj);
+                case HANDLER_SHOW_SYNCING_POPUPVIEW:
+                    syncingPopupView.show();
                     break;
 
-                case 9:
-                    popupViewSync.show();
+                case HANDLER_HIDE_SYNCING_POPUPVIEW:
+                    syncingPopupView.dismiss();
                     break;
 
-                case 10:
-                    popupViewSync.dismiss();
-                    break;
-
-                case 11:
+                case HANDLER_DISPLAY_ANALYZE_RESULT:
                     List<double[]> features = (List<double[]>) msg.obj;
                     if (features.size() != 0) displayResult(features);
                     else ToastEasy("The file is empty");
@@ -743,12 +704,63 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         super.onCreate(savedInstanceState);
         Log.e(TAG,"------------------ onCreate ------------------");
 
-        // set layout
+        // set layout & toolbar
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
         mainContext = this;
+
+//        drawerLayout  = findViewById(R.id.drawer_layout);
+//        mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout,R.drawable.ic_menu,R.string.drawer_open_content_description,R.string.drawer_closed_content_description);
+//        drawerLayout.setDrawerListener(mDrawerToggle);
+//        drawerLayout.setDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+//            @Override
+//            public void onDrawerSlide(View drawerView, float slideOffset) {
+//                super.onDrawerSlide(drawerView, slideOffset);
+//                drawerLayout.bringChildToFront(drawerView);
+//                drawerLayout.requestLayout();
+//            }
+//        });
+//        ActionBar actionBar = getSupportActionBar();
+//        if (actionBar != null){
+//            actionBar.setDisplayHomeAsUpEnabled(true);
+//            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+//        }
+//
+//        final NavigationView navigationView = findViewById(R.id.nav_view);
+//        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+//            @Override
+//            public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem item) {
+//                mSelectedItem = item.getItemId();
+//                switch(item.getItemId()){
+//                    case R.id.nav_account:
+//                        if(ifGuestLogin){
+//                            navigationView.getMenu().findItem(R.id.account).setTitle(R.string.Login);
+//                            login();
+//                        }else
+//                        logout();
+//                        break;
+//                    case R.id.nav_settings:
+//                        setSettings();
+//                        break;
+//                    case R.id.nav_chat:
+//                        openChatActivity();
+//                        break;
+//                    case R.id.nav_About:
+//                        About();
+//                        break;
+//                }
+//
+//                item.setChecked(true);
+//                drawerLayout.closeDrawer(navigationView);
+//                return false;
+//            }
+//        });
+
 
         /*
         music module  -------------------------------------------------------------------------------------------------
@@ -769,7 +781,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         Log.d(TAG, "Volumes: " + Arrays.toString(volumes));
                         Log.d(TAG, "Volumes: " + bgmVolume + " " + buttonVolume + " " + actionVolume);
 
-                        MusicServer.setVolume(bgmVolume);
+                        MusicService.setVolume(bgmVolume);
                     }
                 }
                 volumeReader.close();
@@ -782,11 +794,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         initMusicService();
 
-        soundPool = new SoundPool(SOUNDNUM, AudioManager.STREAM_MUSIC, 5);
+//        soundPool = new SoundPool(SOUNDNUM, AudioManager.STREAM_MUSIC, 5);
+        soundPool = new SoundPool.Builder().setMaxStreams(SOUNDNUM).build();
         soundId = new int[SOUNDNUM];
-        soundId[0] = soundPool.load(this, R.raw.piano2, 1);
-        soundId[1] = soundPool.load(this, R.raw.piano1, 1);
-        soundId[2] = soundPool.load(this, R.raw.button01, 1);
+        soundId[0] = soundPool.load(this, R.raw.marker, 1);
+        soundId[1] = soundPool.load(this, R.raw.curve, 1);
+        soundId[2] = soundPool.load(this, R.raw.button, 1);
         soundId[3] = soundPool.load(this, R.raw.fail, 1);
 
 
@@ -795,10 +808,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         isBigData_Remote = false;
         isBigData_Local  = false;
 
-        popupView = new XPopup.Builder(this)
+        downloadingPopupView = new XPopup.Builder(this)
                 .asLoading("Downloading......");
 
-        popupViewSync = new XPopup.Builder(this)
+        syncingPopupView = new XPopup.Builder(this)
                 .asLoading("Syncing......");
 
 
@@ -852,7 +865,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             initNim();
             initServerConnector();
             initService();
-            initDataBase();
+//            initDataBase();
         }else{
             Toast.makeText(context,
                     "You are logged in as a visitor",Toast.LENGTH_LONG).show();
@@ -871,89 +884,91 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
         }, 1 * 1000);
 
+//        annotationViewModel.getFileInfoState().conPath.observe(this, new androidx.lifecycle.Observer<String>() {
+//            @Override
+//            public void onChanged(String s) {
+//                FileInfoState fileInfoState = annotationViewModel.getFileInfoState();
+//                new XPopup.Builder(mainContext)
+//                        .maxHeight(1350)
+//                        .maxWidth(800)
+//                        .asCenterList("BigData File", fileInfoState.sonFileList,
+//                                new OnSelectListener() {
+//                                    @RequiresApi(api = Build.VERSION_CODES.N)
+//                                    @Override
+//                                    public void onSelect(int position, String text) {
+//                                        switch (text) {
+//                                            case "Create A New Room":
+//                                                createFilePopup();
+//                                                break;
+//                                            default:
+////                                                annotationViewModel.loadFile(text);
+//                                        }
+//                                    }
+//                                })
+//                        .show();
+//            }
+//        });
+
     }
 
+//    @Override
+//    protected void onPostCreate(Bundle savedInstanceState) {
+//        super.onPostCreate(savedInstanceState);
+//        // Sync the toggle state after onRestoreInstanceState has occurred.
+//        mDrawerToggle.syncState();
+//    }
+
+//    @Override
+//    public void onBackPressed(){
+//        if(drawerLayout.isDrawerOpen(GravityCompat.START)){
+//            drawerLayout.closeDrawer(GravityCompat.START);
+//        }else
+//            super.onBackPressed();
+//    };
+
+
+
     public void onMenuItemClick(View view) {
+        ImageView draw = findViewById(R.id.draw_i);
+        ImageView marker = findViewById(R.id.pinpoint);
+        ImageView DeleteCurve = findViewById(R.id.delete_curve);
+        ImageView DeleteMarker = findViewById(R.id.delete_marker);
 //        tapBarMenu.close();
         switch (view.getId()) {
             case R.id.draw_i:
-                ImageView draw = findViewById(R.id.draw_i);
+
                 if (!myrenderer.ifImageLoaded()){
                     ToastEasy("Please load a image first");
                     return;
                 }
-                ifPainting = !ifPainting;
-                ifPoint = false;
-                ifDeletingMarker = false;
-                ifDeletingLine = false;
-                ifSpliting = false;
-                ifChangeLineType = false;
-                ifChangeMarkerType = false;
-                ifDeletingMultiMarker = false;
-                ifZooming = false;
-                if (ifPainting && !ifSwitch) {
+                if (editMode.getValue() != EditMode.PAINTCURVE) {
+                    editMode.setValue(EditMode.PAINTCURVE);
                     draw.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw));
-                    ImageView marker = findViewById(R.id.pinpoint);
                     marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_main));
-//                    draw_i.setImageResource(R.drawable.ic_draw);
-
-
-                    try {
-                        ifSwitch = false;
-//                        ll_bottom.addView(Switch);
-//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-
+                    DeleteCurve.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_curve_normal));
+                    DeleteMarker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_delete_normal));
                 } else {
-                    ifSwitch = false;
-                    ifPainting = false;
-                    Switch.setText("Pause");
-                    Switch.setTextColor(Color.BLACK);
+                    editMode.setValue(EditMode.NONE);
                     draw.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw_main));
-//                    draw_i.setImageResource(R.drawable.ic_draw_main);
-//                    ll_bottom.removeView(Switch);
-//                                            ll_top.removeView(buttonUndo_i);
                 }
 
                 break;
             case R.id.pinpoint:
-                ImageView marker = findViewById(R.id.pinpoint);
                 if (!myrenderer.ifImageLoaded()){
                     ToastEasy("Please load a image first");
                     return;
                 }
-                ifPoint = !ifPoint;
-                ifPainting = false;
-                ifDeletingMarker = false;
-                ifDeletingLine = false;
-                ifSpliting = false;
-                ifChangeLineType = false;
-                ifChangeMarkerType = false;
-                ifDeletingMultiMarker = false;
-                ifZooming = false;
-                if (ifPoint && !ifSwitch) {
+                if (editMode.getValue() != EditMode.PINPOINT) {
+                    editMode.setValue(EditMode.PINPOINT);
                     marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_marker));
-                    ImageView drawi = findViewById(R.id.draw_i);
-                    drawi.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw_main));
+                    draw.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw_main));
+                    DeleteCurve.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_curve_normal));
+                    DeleteMarker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_delete_normal));
 
-                    try {
-                        ifSwitch = false;
-//                        ll_bottom.addView(Switch);
-//                                      ll_top.addView(buttonUndo_i, lp_undo_i);
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
 
                 } else {
-                    ifSwitch = false;
-                    ifPoint = false;
-                    Switch.setText("Pause");
-                    Switch.setTextColor(Color.BLACK);
+                    editMode.setValue(EditMode.NONE);
                     marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_main));
-//                    ll_bottom.removeView(Switch);
-//                                  ll_top.removeView(buttonUndo_i);
                 }
                 break;
             case R.id.auto_reconstruction:
@@ -978,11 +993,40 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     e.printStackTrace();
                 }
                 break;
-            case R.id.clear:
-                myrenderer.deleteAllTracing();
-                myGLSurfaceView.requestRender();
-//                drawPopupView.dismiss();
+            case R.id.delete_curve:
+
+                if (!myrenderer.ifImageLoaded()){
+                    ToastEasy("Please load a image first");
+                    return;
+                }
+                if (editMode.getValue() != EditMode.DELETECURVE) {
+                    editMode.setValue(EditMode.DELETECURVE);
+                    DeleteCurve.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_curve));
+                    draw.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw_main));
+                    marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_main));
+                    DeleteMarker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_delete_normal));
+                } else {
+                    editMode.setValue(EditMode.NONE);
+                    DeleteCurve.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_curve_normal));
+                }
                 break;
+            case R.id.delete_marker:
+
+                if (!myrenderer.ifImageLoaded()){
+                    ToastEasy("Please load a image first");
+                    return;
+                }
+                    if (editMode.getValue() != EditMode.DELETEMARKER) {
+                        editMode.setValue(EditMode.DELETEMARKER);
+                        DeleteMarker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_delete));
+                        draw.setImageDrawable(getResources().getDrawable(R.drawable.ic_draw_main));
+                        marker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_main));
+                        DeleteCurve.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_curve_normal));
+                    } else {
+                        editMode.setValue(EditMode.NONE);
+                        DeleteMarker.setImageDrawable(getResources().getDrawable(R.drawable.ic_marker_delete_normal));
+                    }
+                    break;
         }
     }
     
@@ -997,11 +1041,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestroy()");
+        Log.e(TAG, "onDestroy()");
 
-        Intent bgmIntent = new Intent(this, MusicServer.class);
+        Intent bgmIntent = new Intent(this, MusicService.class);
         stopService(bgmIntent);
 
+        // update score
         Score score = Score.getInstance();
         setScore(score.getScore());
 
@@ -1032,7 +1077,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             MsgConnector.getInstance().releaseConnection(false);
         }
 
-
         mainContext = null;
 
         if (timer != null){
@@ -1045,6 +1089,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             timerTask = null;
         }
 
+        if (timerDownload != null){
+            timerDownload.cancel();
+            timerDownload = null;
+        }
+
+        if (timerSync != null){
+            timerSync.cancel();
+            timerSync = null;
+        }
 
     }
 
@@ -1060,7 +1113,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     protected void onResume() {
         super.onResume();
         Log.v(TAG, "onResume start");
-        Log.v("Path", filepath);
         myGLSurfaceView.onResume();
 
     }
@@ -1068,7 +1120,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     @Override
     protected void onStop() {
         Log.v(TAG, "onStop start");
-        Intent bgmIntent = new Intent(MainActivity.this, MusicServer.class);
+        Intent bgmIntent = new Intent(MainActivity.this, MusicService.class);
         stopService(bgmIntent);
         super.onStop();
     }
@@ -1106,13 +1158,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-
-
     public static void actionStart(Context context, String username){
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra(USERNAME, username);
         context.startActivity(intent);
     }
+
 
     public static void actionStart(Context context, String invitor, String path, String soma){
         Intent intent = new Intent(context, MainActivity.class);
@@ -1133,7 +1184,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
          */
 
         FrameLayout ll = (FrameLayout) findViewById(R.id.container);
+//        ll.setVisibility(View.GONE);
         ll.addView(myGLSurfaceView);
+        FrameLayout.LayoutParams surfaceview_layout = new FrameLayout.LayoutParams(100, 100);
+        surfaceview_layout.width = FrameLayout.LayoutParams.MATCH_PARENT;
+        surfaceview_layout.height = FrameLayout.LayoutParams.MATCH_PARENT;
+        myGLSurfaceView.setLayoutParams(surfaceview_layout);
+
 
 //        LinearLayout ll_up = new LinearLayout(this);
 //        ll_up.setOrientation(LinearLayout.VERTICAL);
@@ -1224,7 +1281,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         animation_i = new ImageButton(this);
         animation_i.setImageResource(R.drawable.ic_animation);
-        animation_i.setId(animation_id);
 
         navigation_left = new ImageButton(this);
         navigation_left.setImageResource(R.drawable.ic_chevron_left_black_24dp);
@@ -1256,14 +1312,15 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         manual_sync = new ImageButton(this);
         manual_sync.setImageResource(R.drawable.ic_baseline_autorenew_24);
 
-
         room_id = new ImageButton(this);
         room_id.setImageResource(R.drawable.ic_baseline_place_24);
 
         user_list = new ImageButton(this);
         user_list.setImageResource(R.drawable.ic_baseline_account_box_24);
 
-
+        edit_mode_imagebutton = new ImageButton(this);
+        edit_mode_imagebutton.setImageResource(0);
+        edit_mode_imagebutton.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         /*
         set button layout ------------------------------------------------------------------------------------
@@ -1279,7 +1336,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         FrameLayout.LayoutParams lp_zoom_in_no = new FrameLayout.LayoutParams(100, 150);
         lp_zoom_in_no.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
-
 
         FrameLayout.LayoutParams lp_zoom_out_no = new FrameLayout.LayoutParams(100, 150);
         lp_zoom_out_no.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
@@ -1363,8 +1419,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         lp_user_list.gravity = Gravity.TOP | Gravity.RIGHT;
         lp_user_list.setMargins(0, 440, 20, 0);
 
-
-
+        lp_edit_mode = new FrameLayout.LayoutParams(115, 115);
+        lp_edit_mode.gravity = Gravity.TOP | Gravity.RIGHT;
+        lp_edit_mode.setMargins(0, 340, 120, 0);
 
         /*
         button onclick event  -----------------------------------------------------------------------------
@@ -1423,16 +1480,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 }
 
                 if (isBigData_Remote){
-                    ifZooming = !ifZooming;
-                    ifChangeLineType = false;
-                    ifDeletingLine = false;
-                    ifPainting = false;
-                    ifSettingROI=false;
-                    ifPoint = false;
-                    ifDeletingMarker = false;
-                    ifSpliting = false;
-                    ifChangeMarkerType = false;
-                    ifDeletingMultiMarker = false;
+                    editMode.setValue(EditMode.ZOOM);
 //                    new Thread(new Runnable() {
 //                        @Override
 //                        public void run() {
@@ -1569,22 +1617,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 }
 
                 if (isBigData_Remote){
-                    ifSettingROI = !ifSettingROI;
-                    if(ifSettingROI == true){
+                    if(editMode.getValue() == EditMode.ZOOMINROI){
+                        editMode.setValue(EditMode.NONE);
                         ROI_i.setImageResource(R.drawable.ic_roi_stop);
                     }else{
+                        editMode.setValue(EditMode.ZOOMINROI);
                         ROI_i.setImageResource(R.drawable.ic_roi);
                     }
-
-                    ifZooming = false;
-                    ifChangeLineType = false;
-                    ifDeletingLine = false;
-                    ifPainting = false;
-                    ifPoint = false;
-                    ifDeletingMarker = false;
-                    ifSpliting = false;
-                    ifChangeMarkerType = false;
-                    ifDeletingMultiMarker = false;
                 }
 
             }
@@ -1623,20 +1662,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //                myGLSurfaceView.requestRender();
 //            }
 //        });
-
-
-
-        Switch = new Button(this);
-        Switch.setText("Pause");
-
-        Switch.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                Switch();
-            }
-        });
-
 
         animation_i.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
@@ -1805,11 +1830,151 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }
         });
 
-        ImageView clear = tapBarMenu.findViewById(R.id.clear);
-        clear.setOnClickListener(new View.OnClickListener() {
+        ImageView delete_curve = tapBarMenu.findViewById(R.id.delete_curve);
+        delete_curve.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onMenuItemClick(v);
+            }
+        });
+
+        ImageView delete_marker = tapBarMenu.findViewById(R.id.delete_marker);
+        delete_marker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onMenuItemClick(v);
+            }
+        });
+
+
+
+
+        BoomMenuButton bmb = (BoomMenuButton) findViewById(R.id.expanded_menu);
+        bmb.setButtonEnum(ButtonEnum.TextOutsideCircle);
+        bmb.setPiecePlaceEnum(PiecePlaceEnum.DOT_6_1);
+        bmb.setButtonPlaceEnum(ButtonPlaceEnum.SC_6_1);
+        bmb.setButtonRadius(Util.dp2px(15));
+        bmb.setBackgroundEffect(false);
+        bmb.setShadowEffect(false);
+
+        bmb.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+                if (editMode.getValue() != EditMode.CHANGECURVETYPE) {
+                    editMode.setValue(EditMode.CHANGECURVETYPE);
+                } else {
+                    editMode.setValue(EditMode.NONE);
+                }
+            }
+        }).normalImageRes(R.drawable.ic_change_curve_type).normalText("Change Curve Color"));
+
+        bmb.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+                if (editMode.getValue() != EditMode.CHANGEMARKERTYPE) {
+                    editMode.setValue(EditMode.CHANGEMARKERTYPE);
+                } else {
+                    editMode.setValue(EditMode.NONE);
+                }
+            }
+        }).normalImageRes(R.drawable.ic_change_marker_type).normalText("Change Marker Color"));
+
+        bmb.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+                if (editMode.getValue() != EditMode.SPLIT) {
+                    editMode.setValue(EditMode.SPLIT);
+                } else {
+                    editMode.setValue(EditMode.NONE);
+                }
+            }
+        }).normalImageRes(R.drawable.ic_split).normalText("Split"));
+
+        bmb.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+                if (editMode.getValue() != EditMode.DELETEMULTIMARKER) {
+                    editMode.setValue(EditMode.DELETEMULTIMARKER);
+                } else {
+                    editMode.setValue(EditMode.NONE);
+                }
+            }
+        }).normalImageRes(R.drawable.ic_delete_multi_marker).normalText("Delete Multi Markers"));
+
+        bmb.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+                try {
+                    Log.v(TAG, "GD-Tracing start ~");
+                    ToastEasy("GD-Tracing start !");
+                    progressBar.setVisibility(View.VISIBLE);
+                    timer = new Timer();
+                    timerTask = new TimerTask() {
+                        @RequiresApi(api = Build.VERSION_CODES.N)
+                        @Override
+                        public void run() {
+                            try {
+                                GDTracing();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    };
+                    timer.schedule(timerTask, 1000);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).normalImageRes(R.drawable.ic_gd_tracing).normalText("GD-Tracing"));
+
+        bmb.addBuilder(new TextOutsideCircleButton.Builder().listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+                myrenderer.deleteAllTracing();
+                myGLSurfaceView.requestRender();
+            }
+        }).normalImageRes(R.drawable.ic_clear).normalText("Clear Tracing"));
+
+        editMode.observe(this, new androidx.lifecycle.Observer<EditMode>() {
+            @Override
+            public void onChanged(EditMode editMode) {
+                switch (editMode) {
+                    case NONE:
+                        edit_mode_imagebutton.setImageResource(0);
+                        break;
+                    case CHANGECURVETYPE:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_change_curve_type);
+                        break;
+                    case PAINTCURVE:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_draw_main);
+                        break;
+                    case PINPOINT:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_add_marker);
+                        break;
+                    case DELETECURVE:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_delete_curve);
+                        break;
+                    case DELETEMARKER:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_marker_delete);
+                        break;
+                    case CHANGEMARKERTYPE:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_change_marker_type);
+                        break;
+                    case DELETEMULTIMARKER:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_delete_multi_marker);
+                        break;
+                    case SPLIT:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_split);
+                        break;
+                    case ZOOM:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_zoom_in);
+                        break;
+                    case ZOOMINROI:
+                        edit_mode_imagebutton.setImageResource(R.drawable.ic_roi);
+                        break;
+                    default:
+                        break;
+                }
             }
         });
 
@@ -1847,6 +2012,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         this.addContentView(room_id, lp_room_id);
         this.addContentView(user_list, lp_user_list);
         this.addContentView(animation_i,lp_animation_i);
+        this.addContentView(edit_mode_imagebutton, lp_edit_mode);
 
 
         Zoom_in_Big.setVisibility(View.GONE);
@@ -1870,6 +2036,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         room_id.setVisibility(View.GONE);
         user_list.setVisibility(View.GONE);
         animation_i.setVisibility(View.GONE);
+        edit_mode_imagebutton.setVisibility(View.GONE);
 
 
 //        this.addContentView(neuron_list, lp_neuron_list);
@@ -1918,7 +2085,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public static void setScore(int score){
         if (score == 0)
             return;
-        ServerConnector.getInstance().sendMsg("SETSOCRE:" + score);
+        ServerConnector.getInstance().sendMsg("SETSOCRE:" + score, true, true);
     }
 
     public static void getLeaderBoard(){
@@ -1936,9 +2103,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Log.e(TAG,"init MusicService");
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(new Intent(this, MusicServer.class));
+            startForegroundService(new Intent(this, MusicService.class));
         } else {
-            startService(new Intent(this, MusicServer.class));
+            startService(new Intent(this, MusicService.class));
         }
     }
 
@@ -1965,13 +2132,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //    }
 
     private void initService(){
-        // Bind to LocalService
+        // Bind to ManageService
         Intent intent = new Intent(this, ManageService.class);
         bindService(intent, connection_management, Context.BIND_AUTO_CREATE);
     }
 
     private void initMsgService(){
-        // Bind to LocalService
+        // Bind to CollaborationService
         Intent intent = new Intent(this, CollaborationService.class);
         bindService(intent, connection_collaboration, Context.BIND_AUTO_CREATE);
     }
@@ -2019,7 +2186,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         public void onServiceConnected(ComponentName name, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             BasicService.LocalBinder binder = (BasicService.LocalBinder) service;
-            ManageService manageService = (ManageService) binder.getService();
+//            ManageService manageService = (ManageService) binder.getService();
             binder.addReceiveMsgInterface((MainActivity) getActivityFromContext(mainContext));
             mBoundManagement = true;
         }
@@ -2039,7 +2206,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         public void onServiceConnected(ComponentName name, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             BasicService.LocalBinder binder = (BasicService.LocalBinder) service;
-            CollaborationService collaborationService = (CollaborationService) binder.getService();
+//            CollaborationService collaborationService = (CollaborationService) binder.getService();
             binder.addReceiveMsgInterface((MainActivity) getActivityFromContext(mainContext));
             mBoundCollaboration = true;
         }
@@ -2084,7 +2251,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
 
         if (isFile){
-            list_array.add(0, "create a new Room");
+            list_array.add(0, "Create A New Room");
         }
 
         String[] list_show = new String[list_array.size()];
@@ -2116,7 +2283,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 }
                             })
                     .show();
-
         }else {
             new XPopup.Builder(this)
                     .maxHeight(1350)
@@ -2133,6 +2299,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     .show();
         }
     }
+
+
+
 
 
     private void loadFileMode(String filepath){
@@ -2174,6 +2343,18 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         }
                     }
                 })
+                .show();
+    }
+
+    private void createFilePopup() {
+        new XPopup.Builder(this)
+                .asInputConfirm("Create Room", "Input the name of the new room",
+                        new OnInputConfirmListener() {
+                            @Override
+                            public void onConfirm(String text) {
+//                                annotationViewModel.createFile(text);
+                            }
+                        })
                 .show();
     }
 
@@ -2469,7 +2650,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         break;
                                     case "Open BigData":
                                         if(ifGuestLogin){
-                                            Toast.makeText(MainActivity.this,"you are now logged in as a visitor and need to log in to use this function",Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(MainActivity.this,"you are now logged in as a visitor and need to log in to use this function", Toast.LENGTH_SHORT).show();
                                             break;
                                         }else{
                                             loadBigData();
@@ -2494,13 +2675,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
     private void LoadSwcFile() {
-
-        if (!ifImport) {
-            ifImport = true;
-            ifAnalyze = false;
-            ifUpload = false;
-            ifLoadLocal = false;
-        }
+        openFileMode = OpenFileMode.IMPORTSWC;
 
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
@@ -2510,9 +2685,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     private void loadLocalFile(){
-        ifLoadLocal = true;
-        ifImport = false;
-        ifAnalyze = false;
+        openFileMode = OpenFileMode.LOADLOCALIMAGE;
 
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
@@ -2541,396 +2714,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //                        })
 //                .show();
 //    }
-
-
-
-    /**
-     * for draw button
-     * @param v
-     */
-    private void Draw_list(View v){
-        String[] drawList = isBigData_Remote ? new String[]{"For Marker", "For Curve", "Exit Drawing Mode"} : new String[]{"For Marker", "For Curve", "Clear Tracing", "Exit Drawing Mode"};
-        drawPopupView = new XPopup.Builder(this)
-                .atView(v)
-                .autoDismiss(false)
-                .asAttachList(drawList,
-                        new int[]{}, new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                                switch (text){
-                                    case "For Marker":
-                                        markerProcessList(v);
-                                        break;
-                                    case "For Curve":
-                                        curveProcessList(v);
-                                        break;
-                                    case "Clear Tracing":
-                                        myrenderer.deleteAllTracing();
-                                        myGLSurfaceView.requestRender();
-                                        drawPopupView.dismiss();
-                                        break;
-                                    case "Exit Drawing Mode":
-                                        ifDeletingLine = false;
-                                        ifPainting = false;
-                                        ifPoint = false;
-                                        ifDeletingMarker = false;
-                                        ifSpliting = false;
-                                        ifChangeLineType = false;
-                                        ifChangeMarkerType = false;
-                                        ifDeletingMultiMarker = false;
-                                        draw_i.setImageResource(R.drawable.ic_draw_main);
-                                        ll_bottom.removeView(Switch);
-                                        drawPopupView.dismiss();
-//                                        ll_top.removeView(buttonUndo_i);
-                                        break;
-                                }
-                            }
-                        }).show();
-    }
-
-    private void markerProcessList(View v){
-        String[] processList = isBigData_Remote ? new String[]{"PinPoint   ", "Delete Marker", "Delete MultiMarker", "Set MColor", "Change MColor"}
-                                                : new String[]{"PinPoint   ", "Delete Marker", "Delete MultiMarker", "Set MColor", "Change MColor", "Change All MColor"};
-        new XPopup.Builder(this)
-                .atView(v)
-                .offsetX(580)
-                .isRequestFocus(false)
-                .popupPosition(PopupPosition.Right)
-                .asAttachList(processList, new int[]{}, new OnSelectListener() {
-                    @Override
-                    public void onSelect(int position, String text) {
-                        soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                        switch (text){
-                            case "PinPoint   ":
-                                if (!myrenderer.ifImageLoaded()){
-                                    ToastEasy("Please load a image first");
-                                    return;
-                                }
-                                ifPoint = !ifPoint;
-                                ifPainting = false;
-                                ifDeletingMarker = false;
-                                ifDeletingLine = false;
-                                ifSpliting = false;
-                                ifChangeLineType = false;
-                                ifChangeMarkerType = false;
-                                ifDeletingMultiMarker = false;
-                                ifZooming = false;
-                                if (ifPoint && !ifSwitch) {
-                                    draw_i.setImageResource(R.drawable.ic_add_marker);
-
-                                    try {
-                                        ifSwitch = false;
-                                        ll_bottom.addView(Switch);
-//                                      ll_top.addView(buttonUndo_i, lp_undo_i);
-                                    }catch (Exception e){
-                                        e.printStackTrace();
-                                    }
-
-                                } else {
-                                    ifSwitch = false;
-                                    ifPoint = false;
-                                    Switch.setText("Pause");
-                                    Switch.setTextColor(Color.BLACK);
-                                    draw_i.setImageResource(R.drawable.ic_draw_main);
-                                    ll_bottom.removeView(Switch);
-//                                  ll_top.removeView(buttonUndo_i);
-                                }
-                                break;
-
-                            case "Delete Marker":
-                                ifDeletingMarker = !ifDeletingMarker;
-                                ifPainting = false;
-                                ifPoint = false;
-                                ifDeletingLine = false;
-                                ifSpliting = false;
-                                ifChangeLineType = false;
-                                ifChangeMarkerType = false;
-                                ifDeletingMultiMarker = false;
-                                ifZooming = false;
-                                if (ifDeletingMarker && !ifSwitch) {
-                                    draw_i.setImageResource(R.drawable.ic_marker_delete);
-
-                                    try {
-                                        ifSwitch = false;
-                                        ll_bottom.addView(Switch);
-//                                      ll_top.addView(buttonUndo_i, lp_undo_i);
-                                    }catch (Exception e){
-                                        e.printStackTrace();
-                                    }
-
-                                } else {
-                                    ifSwitch = false;
-                                    ifDeletingMarker = false;
-                                    Switch.setText("Pause");
-                                    Switch.setTextColor(Color.BLACK);
-                                    draw_i.setImageResource(R.drawable.ic_draw_main);
-                                    ll_bottom.removeView(Switch);
-//                                  ll_top.removeView(buttonUndo_i);
-                                }
-                                break;
-
-                            case "Delete MultiMarker":
-                                ifDeletingMultiMarker = !ifDeletingMultiMarker;
-                                ifPainting = false;
-                                ifPoint = false;
-                                ifDeletingMarker = false;
-                                ifSpliting = false;
-                                ifChangeLineType = false;
-                                ifChangeMarkerType = false;
-                                ifDeletingLine = false;
-                                ifZooming = false;
-                                if (ifDeletingMultiMarker && !ifSwitch) {
-                                    draw_i.setImageResource(R.drawable.ic_draw_main);
-
-                                    try {
-                                        ifSwitch = false;
-                                        ll_bottom.addView(Switch);
-//                                      ll_top.addView(buttonUndo_i, lp_undo_i);
-                                    }catch (Exception e){
-                                        e.printStackTrace();
-                                    }
-
-                                } else {
-                                    ifSwitch = false;
-                                    ifDeletingMultiMarker = false;
-                                    Switch.setText("Pause");
-                                    Switch.setTextColor(Color.BLACK);
-                                    draw_i.setImageResource(R.drawable.ic_draw_main);
-                                    ll_bottom.removeView(Switch);
-//                                  ll_top.removeView(buttonUndo_i);
-                                }
-                                break;
-
-                            case "Set MColor":
-                                markerPenSet();
-                                break;
-
-                            case "Change MColor":
-                                ifChangeMarkerType = !ifChangeMarkerType;
-                                ifDeletingLine = false;
-                                ifPainting = false;
-                                ifPoint = false;
-                                ifDeletingMarker = false;
-                                ifChangeLineType = false;
-                                ifSpliting = false;
-                                ifDeletingMultiMarker = false;
-                                ifZooming = false;
-                                if (ifChangeMarkerType && !ifSwitch) {
-                                    draw_i.setImageResource(R.drawable.ic_draw_main);
-
-                                    try {
-                                        ifSwitch = false;
-                                        ll_bottom.addView(Switch);
-//                                      ll_top.addView(buttonUndo_i, lp_undo_i);
-                                    }catch (Exception e){
-                                        e.printStackTrace();
-                                    }
-
-                                } else {
-                                    ifSwitch = false;
-                                    ifChangeMarkerType = false;
-                                    Switch.setText("Pause");
-                                    Switch.setTextColor(Color.BLACK);
-                                    draw_i.setImageResource(R.drawable.ic_draw_main);
-                                    ll_bottom.removeView(Switch);
-//                                  ll_top.removeView(buttonUndo_i);
-                                }
-                                break;
-
-                            case "Change All MColor":
-                                try {
-                                    myrenderer.changeAllMarkerType();
-                                } catch (CloneNotSupportedException e) {
-                                    e.printStackTrace();
-                                }
-                                myGLSurfaceView.requestRender();
-                                break;
-
-                        }
-                        drawPopupView.dismiss();
-                    }
-                }).show();
-    }
-
-
-
-    private void curveProcessList(View v){
-        String[] processList = isBigData_Remote ? new String[]{"Draw Curve", "Delete Curve", "Split       ", "Set PenColor", "Change PenColor"}
-                                                : new String[]{"Draw Curve", "Delete Curve", "Split       ", "Set PenColor", "Change PenColor", "Change All PenColor"};
-        new XPopup.Builder(this)
-                .atView(v)
-                .offsetX(580)
-                .asAttachList(processList, new int[]{},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                                switch (text){
-                                    case "Draw Curve":
-                                        if (!myrenderer.ifImageLoaded()){
-                                            ToastEasy("Please load a image first");
-                                            return;
-                                        }
-                                        ifPainting = !ifPainting;
-                                        ifPoint = false;
-                                        ifDeletingMarker = false;
-                                        ifDeletingLine = false;
-                                        ifSpliting = false;
-                                        ifChangeLineType = false;
-                                        ifChangeMarkerType = false;
-                                        ifDeletingMultiMarker = false;
-                                        ifZooming = false;
-                                        if (ifPainting && !ifSwitch) {
-                                            draw_i.setImageResource(R.drawable.ic_draw);
-
-                                            try {
-                                                ifSwitch = false;
-                                                ll_bottom.addView(Switch);
-//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
-                                            }catch (Exception e){
-                                                e.printStackTrace();
-                                            }
-
-                                        } else {
-                                            ifSwitch = false;
-                                            ifPainting = false;
-                                            Switch.setText("Pause");
-                                            Switch.setTextColor(Color.BLACK);
-                                            draw_i.setImageResource(R.drawable.ic_draw_main);
-                                            ll_bottom.removeView(Switch);
-//                                            ll_top.removeView(buttonUndo_i);
-                                        }
-                                        break;
-
-                                    case "Delete Curve":
-                                        ifDeletingLine = !ifDeletingLine;
-                                        ifPainting = false;
-                                        ifPoint = false;
-                                        ifDeletingMarker = false;
-                                        ifSpliting = false;
-                                        ifChangeLineType = false;
-                                        ifChangeMarkerType = false;
-                                        ifDeletingMultiMarker = false;
-                                        ifZooming = false;
-                                        if (ifDeletingLine && !ifSwitch) {
-                                            draw_i.setImageResource(R.drawable.ic_delete_curve);
-
-                                            try {
-                                                ifSwitch = false;
-                                                ll_bottom.addView(Switch);
-//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
-                                            }catch (Exception e){
-                                                e.printStackTrace();
-                                            }
-
-                                        } else {
-                                            ifSwitch = false;
-                                            ifDeletingLine = false;
-                                            Switch.setText("Pause");
-                                            Switch.setTextColor(Color.BLACK);
-                                            draw_i.setImageResource(R.drawable.ic_draw_main);
-                                            ll_bottom.removeView(Switch);
-//                                            ll_top.removeView(buttonUndo_i);
-                                        }
-                                        break;
-
-                                    case "Split       ":
-                                        ifSpliting = !ifSpliting;
-                                        ifDeletingLine = false;
-                                        ifPainting = false;
-                                        ifPoint = false;
-                                        ifDeletingMarker = false;
-                                        ifChangeLineType = false;
-                                        ifChangeMarkerType = false;
-                                        ifDeletingMultiMarker = false;
-                                        ifZooming = false;
-                                        if (ifSpliting && !ifSwitch) {
-                                            draw_i.setImageResource(R.drawable.ic_split);
-
-                                            try {
-                                                ifSwitch = false;
-//                                                ll_bottom.addView(Switch);
-//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
-                                            }catch (Exception e){
-                                                e.printStackTrace();
-                                            }
-
-                                        } else {
-                                            ifSwitch = false;
-                                            ifSpliting = false;
-                                            Switch.setText("Pause");
-                                            Switch.setTextColor(Color.BLACK);
-                                            draw_i.setImageResource(R.drawable.ic_draw_main);
-//                                            ll_bottom.removeView(Switch);
-//                                            ll_top.removeView(buttonUndo_i);
-                                        }
-                                        break;
-
-                                    case "Set PenColor":
-                                        // 调用选择画笔窗口
-                                        penSet();
-                                        break;
-
-                                    case "Change PenColor":
-                                        ifChangeLineType = !ifChangeLineType;
-                                        ifDeletingLine = false;
-                                        ifPainting = false;
-                                        ifPoint = false;
-                                        ifDeletingMarker = false;
-                                        ifSpliting = false;
-                                        ifChangeMarkerType = false;
-                                        ifDeletingMultiMarker = false;
-                                        ifZooming = false;
-                                        if(ifChangeLineType && !ifSwitch){
-//                                            Draw.setText("Change PenColor");
-//                                            Draw.setTextColor(Color.RED);
-                                            draw_i.setImageResource(R.drawable.ic_draw_main);
-
-                                            try {
-                                                ifSwitch = false;
-//                                                ifChangeLineType = false;
-//                                                Switch.setText("Pause");
-//                                                Switch.setTextColor(Color.BLACK);
-//                                                ifSwitch = false;
-                                                ll_bottom.addView(Switch);
-//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
-                                            }catch (Exception e){
-                                                e.printStackTrace();
-                                            }
-
-                                        } else {
-                                            ifSwitch = false;
-                                            ifChangeLineType = false;
-                                            Switch.setText("Pause");
-                                            Switch.setTextColor(Color.BLACK);
-                                            draw_i.setImageResource(R.drawable.ic_draw_main);
-                                            ll_bottom.removeView(Switch);
-//                                            ll_top.removeView(buttonUndo_i);
-//                                            draw_i.setImageResource(R.drawable.ic_draw_main);
-
-                                        }
-                                        break;
-
-                                    case "Change All PenColor":
-                                        try {
-                                            myrenderer.changeAllType();
-                                        } catch (CloneNotSupportedException e) {
-                                            e.printStackTrace();
-                                        }
-                                        myGLSurfaceView.requestRender();
-                                        break;
-
-                                }
-                                drawPopupView.dismiss();
-                            }
-                        }).show();
-    }
-
-
 
     public void penSet(){
         String [] pcolor = new String[1];
@@ -3190,9 +2973,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             ToastEasy(e.getMessage());
                         }
                         if (!error.equals("")) {
-                            if (error.equals("This file already exists")){
+                            if (error.equals("This file already exist")){
                                 AlertDialog aDialog = new AlertDialog.Builder(mainContext)
-                                        .setTitle("This file already exists")
+                                        .setTitle("This file already exist")
                                         .setMessage("Are you sure to overwrite it?")
                                         .setIcon(R.mipmap.ic_launcher)
                                         .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
@@ -3226,7 +3009,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 ToastEasy(error);
                             }
                         } else{
-                            ToastEasy("save SWC to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG);
+
+                            ToastEasy("save annotation information to " + dir + "/" + swcFileName + ".swc", Toast.LENGTH_LONG);
                         }
                     }
                 })
@@ -3235,7 +3019,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     public void onClick(View clickedView, View contentView) {
                     }
                 })
-                .setTitle("Save SWC File")
+
+                .setTitle("Save Annotation File")
                 .create();
         mdDialog.show();
     }
@@ -3382,7 +3167,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                             @Override
                                             public void run() {
                                                 pixelClassification();
-                                                puiHandler.sendEmptyMessage(6);
+                                                puiHandler.sendEmptyMessage(HANDLER_SHOW_PROGRESSBAR);
                                             }
                                         }).start();
                                         break;
@@ -3405,9 +3190,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         NeuronTree nt = myrenderer.getNeuronTree();
         PixelClassification p = new PixelClassification();
 
-        boolean[][] selections = select;
-        System.out.println("select is");
-        System.out.println(select);
+        boolean[][] selections = {{true,true,true,false,false,false,false},
+                {true,true,true,false,false,false,false},
+                {false,false,false,false,false,false,false},
+                {false,false,false,false,false,false,false},
+                {false,false,false,false,false,false,false},
+                {true,true,true,false,false,false,false}};  ;
         p.setSelections(selections);
 
         ToastEasy("pixel  classification start !");
@@ -3447,6 +3235,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
+            case android.R.id.home:  // support back button
+                finish();
+                break;
             case R.id.Undo:
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
@@ -3461,8 +3252,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                 }
                 myGLSurfaceView.requestRender();
-
-                return true;
+                break;
             case R.id.Redo:
 //                ImageView redo_i = findViewById(R.id.Redo);
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
@@ -3477,27 +3267,23 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                 }
                 myGLSurfaceView.requestRender();
-
-                return true;
-
+                break;
             case R.id.file:
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
                 File_icon();
-                return true;
-
+                break;
             case R.id.share:
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
                 ShareScreenShot();
-                return true;
+                break;
             case R.id.save_swc:
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
                 SaveSWC();
-                return true;
-
+                break;
             case R.id.more:
                 soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
                 More_icon();
-                return true;
+                break;
 
 //            case R.id.view:
 //                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
@@ -3510,325 +3296,150 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //                }
 //                return true;
             default:
-                return true;
+                break;
         }
+        return true;
     }
 
 
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-            if ((System.currentTimeMillis() - exitTime) > 2000) {
-                ToastEasy("Press again to exit the program");
-                exitTime = System.currentTimeMillis();
-            } else {
-                finish();
-                System.exit(0);
-            }
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-
-
+//    public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+//            if(drawerLayout.isDrawerOpen(GravityCompat.START)){
+//                drawerLayout.closeDrawers();
+//                return false;
+//            }else{
+//                if ((System.currentTimeMillis() - exitTime) > 2000) {
+//                    ToastEasy("Press again to exit the program");
+//                    exitTime = System.currentTimeMillis();
+//                } else {
+//                    finish();
+//                    System.exit(0);
+//                }
+//            }
+//            return true;
+//        }
+//        return super.onKeyDown(keyCode, event);
+//    }
 
 
     /**
      * pop up a menu when button more is clicked, include analyze swc file, sensor information, downsample mode, animate and version
      */
     public void More_icon(){
-        if(ifGuestLogin)
-        {
-            new XPopup.Builder(this)
-                    .maxHeight(1500)
-                    .asCenterList("More Functions...", new String[]{"Login", "Analyze Swc" , "GD","Filter by example","Split       ","Animate", "Crash Info", "Settings", "Help", "About"},
-                            new OnSelectListener() {
-                                @Override
+        String [] centerList;
+        if (ifGuestLogin) {
+            centerList = new String[] {"Login", "Analyze Swc" , "Filter by example","Animate", "Crash Info", "Settings"};
+        } else {
+            centerList = new String[] {"Logout","Analyze Swc", "Chat", "Filter by example", "Animate", "Crash Info", "Quests", "Reward", "LeaderBoard",  "Settings"};
+        }
+        new XPopup.Builder(this)
+                .maxHeight(1500)
+                .asCenterList("More Functions...", centerList,
+                        new OnSelectListener() {
+                            @Override
 
-                                public void onSelect(int position, String text) {
-                                    soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+                            public void onSelect(int position, String text) {
+                                soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
 
-                                    switch (text) {
-                                        case "Login":
-                                            login();
-                                            break;
+                                switch (text) {
+                                    case "Login":
+                                        login();
+                                        break;
 
-                                        case "Analyze Swc":
-                                            AnalyzeSwc();
-                                            break;
+                                    case "Analyze Swc":
+                                        AnalyzeSwc();
+                                        break;
 
-                                        case "GD":
-                                            try {
-                                                Log.v(TAG, "GD-Tracing start ~");
-                                                ToastEasy("GD-Tracing start !");
-                                                progressBar.setVisibility(View.VISIBLE);
-                                                timer = new Timer();
-                                                timerTask = new TimerTask() {
-                                                    @RequiresApi(api = Build.VERSION_CODES.N)
-                                                    @Override
-                                                    public void run() {
-                                                        try {
-                                                            GDTracing();
-                                                        } catch (Exception e) {
-                                                            e.printStackTrace();
-                                                        }
-                                                    }
-                                                };
-                                                timer.schedule(timerTask, 1000);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
+                                    case "Animate":
+                                        if (myrenderer.ifImageLoaded()){
+                                            editMode.setValue(EditMode.NONE);
+                                            setAnimation();
+                                        }else {
+                                            ToastEasy("Please Load a Img First !");
+                                        }
+                                        break;
+
+
+//                                    case "S2":
+//                                        openS2Activity();
+//
+//                                        break;
+                                    case "Chat":
+                                        openChatActivity();
+                                        break;
+
+                                    case "Filter by example":
+                                        //调用像素分类接口，显示分类结果
+                                        progressBar.setVisibility(View.VISIBLE);
+
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                pixelClassification();
+                                                puiHandler.sendEmptyMessage(HANDLER_SHOW_PROGRESSBAR);
                                             }
-                                            break;
+                                        }).start();
+                                        break;
 
-                                        case "Filter by example":
-                                            //调用像素分类接口，显示分类结果
-                                            progressBar.setVisibility(View.VISIBLE);
-
-                                            new Thread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    pixelClassification();
-                                                    puiHandler.sendEmptyMessage(6);
-                                                }
-                                            }).start();
-                                            break;
-
-                                        case "Split       ":
-                                            ifSpliting = !ifSpliting;
-                                            ifPainting = false;
-                                            ifZooming = false;
-                                            if (ifSpliting && !ifSwitch) {
-//                                                draw_i.setImageResource(R.drawable.ic_split);
-                                                try {
-                                                    ifSwitch = false;
-//                                                ll_bottom.addView(Switch);
-//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
-                                                }catch (Exception e){
-                                                    e.printStackTrace();
-                                                }
-
-                                            } else {
-                                                ifSwitch = false;
-                                                ifSpliting = false;
-//                                                Switch.setText("Pause");
-//                                                Switch.setTextColor(Color.BLACK);
-//                                                draw_i.setImageResource(R.drawable.ic_draw_main);
-//                                            ll_bottom.removeView(Switch);
-//                                            ll_top.removeView(buttonUndo_i);
-                                            }
-                                            break;
-
-
-                                        case "Animate":
-                                            if (myrenderer.ifImageLoaded()) {
-                                                ifPainting = false;
-                                                ifPoint = false;
-                                                ifDeletingMarker = false;
-                                                ifDeletingLine = false;
-                                                ifSpliting = false;
-                                                ifChangeLineType = false;
-                                                ifZooming = false;
-                                                setAnimation();
-                                            } else {
-                                                ToastEasy("Please Load a Img First !");
-                                            }
-                                            break;
-
-                                        case "Account Name":
-                                            popUpUserAccount(MainActivity.this);
-                                            break;
-
-                                        case "Crash Info":
-                                            CrashInfoShare();
-                                            break;
-
-                                        case "Settings":
-                                            setSettings();
-                                            break;
-
-                                        case "About":
-                                            About();
-                                            break;
-
-                                        case "Help":
-                                            try {
-                                                Intent helpIntent = new Intent(MainActivity.this, HelpActivity.class);
-                                                startActivity(helpIntent);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-                                            break;
-                                        default:
-                                            ToastEasy("Default in More Functions...");
-                                    }
-                                }
-                            })
-                    .show();
-        }else
-            new XPopup.Builder(this)
-                    .maxHeight(1500)
-                    .asCenterList("More Functions...", new String[] {"Analyze Swc", "Chat","S2", "GD","Filter by example","Split       ","Animate", "Crash Info", "Quests", "Reward", "LeaderBoard", "Logout", "Settings", "Help", "About"},
-                            new OnSelectListener() {
-                                @Override
-
-                                public void onSelect(int position, String text) {
-                                    soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
-
-                                    switch (text) {
-                                        case "Analyze Swc":
-                                            AnalyzeSwc();
-                                            break;
-
-                                        case "Animate":
-                                            if (myrenderer.ifImageLoaded()){
-                                                ifPainting = false;
-                                                ifPoint = false;
-                                                ifDeletingMarker = false;
-                                                ifDeletingLine = false;
-                                                ifSpliting = false;
-                                                ifChangeLineType = false;
-                                                ifZooming = false;
-                                                setAnimation();
-                                            }else {
-                                                ToastEasy("Please Load a Img First !");
-                                            }
-                                            break;
-
-                                        case "S2":
-                                            openS2Activity();
-
-                                            break;
-                                        case "Chat":
-                                            openChatActivity();
-                                            break;
-
-                                        case "GD":
-                                            try {
-                                                Log.v(TAG, "GD-Tracing start ~");
-                                                ToastEasy("GD-Tracing start !");
-                                                progressBar.setVisibility(View.VISIBLE);
-                                                timer = new Timer();
-                                                timerTask = new TimerTask() {
-                                                    @RequiresApi(api = Build.VERSION_CODES.N)
-                                                    @Override
-                                                    public void run() {
-                                                        try {
-                                                            GDTracing();
-                                                        } catch (Exception e) {
-                                                            e.printStackTrace();
-                                                        }
-                                                    }
-                                                };
-                                                timer.schedule(timerTask, 1000);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-                                            break;
-
-                                        case "Filter by example":
-                                            //调用像素分类接口，显示分类结果
-                                            progressBar.setVisibility(View.VISIBLE);
-
-                                            new Thread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    pixelClassification();
-                                                    puiHandler.sendEmptyMessage(6);
-                                                }
-                                            }).start();
-                                            break;
-
-                                        case "Split       ":
-                                            ifSpliting = !ifSpliting;
-                                            ifDeletingLine = false;
-                                            ifPainting = false;
-                                            ifPoint = false;
-                                            ifDeletingMarker = false;
-                                            ifChangeLineType = false;
-                                            ifChangeMarkerType = false;
-                                            ifDeletingMultiMarker = false;
-                                            ifZooming = false;
-                                            if (ifSpliting && !ifSwitch) {
-//                                                draw_i.setImageResource(R.drawable.ic_split);
-
-                                                try {
-                                                    ifSwitch = false;
-//                                                ll_bottom.addView(Switch);
-//                                                ll_top.addView(buttonUndo_i, lp_undo_i);
-                                                }catch (Exception e){
-                                                    e.printStackTrace();
-                                                }
-
-                                            } else {
-                                                ifSwitch = false;
-                                                ifSpliting = false;
-//                                                Switch.setText("Pause");
-//                                                Switch.setTextColor(Color.BLACK);
-//                                                draw_i.setImageResource(R.drawable.ic_draw_main);
-//                                            ll_bottom.removeView(Switch);
-//                                            ll_top.removeView(buttonUndo_i);
-                                            }
-                                            break;
-
-                                        case "Game":
-    //                                        System.out.println("Game Start!!!!!!!");
+                                    case "Game":
+    //                                    System.out.println("Game Start!!!!!!!");
     //
-    //                                        ifGame = true;
-    //                                        Select_map();
-                                            break;
+    //                                    ifGame = true;
+    //                                    Select_map();
+                                        break;
 
-                                        case "Account Name":
-                                            popUpUserAccount(MainActivity.this);
-                                            break;
+                                    case "Account Name":
+                                        popUpUserAccount(MainActivity.this);
+                                        break;
 
-                                        case "Logout":
-                                            logout();
-                                            break;
+                                    case "Logout":
+                                        logout();
+                                        break;
 
-                                        case "Crash Info":
-                                            CrashInfoShare();
-                                            break;
+                                    case "Crash Info":
+                                        CrashInfoShare();
+                                        break;
 
-                                        case "Quests":
-                                            startActivity(new Intent(MainActivity.this, QuestActivity.class));
-                                            break;
+                                    case "Quests":
+                                        startActivity(new Intent(MainActivity.this, QuestActivity.class));
+                                        break;
 
-                                        case "Achievements":
-                                            showAchievementFinished();
-                                            break;
+                                    case "Achievements":
+                                        showAchievementFinished();
+                                        break;
 
-                                        case "LeaderBoard":
-                                            startActivity(new Intent(MainActivity.this, LeaderBoardActivity.class));
-                                            break;
+                                    case "LeaderBoard":
+                                        startActivity(new Intent(MainActivity.this, LeaderBoardActivity.class));
+                                        break;
 
-                                        case "Reward":
-                                            startActivity(new Intent(MainActivity.this, RewardActivity.class));
-                                            break;
+                                    case "Reward":
+                                        startActivity(new Intent(MainActivity.this, RewardActivity.class));
+                                        break;
 
-                                        case "Settings":
-                                            setSettings();
-                                            break;
+                                    case "Settings":
+                                        setSettings();
+                                        break;
 
-                                        case "About":
-                                            About();;
-                                            break;
+//                                    case "About":
+//                                        About();;
+//                                        break;
 
-                                        case "Help":
-                                            try{
-                                                Intent helpIntent = new Intent(MainActivity.this, HelpActivity.class);
-                                                startActivity(helpIntent);
-                                            } catch (Exception e){
-                                                e.printStackTrace();
-                                            }
-                                            break;
+//                                    case "Help":
+//                                        try{
+//                                            Intent helpIntent = new Intent(MainActivity.this, HelpActivity.class);
+//                                            startActivity(helpIntent);
+//                                        } catch (Exception e){
+//                                            e.printStackTrace();
+//                                        }
+//                                        break;
 
-                                        default:
-                                            ToastEasy("Default in More Functions...");
+                                    default:
+                                        ToastEasy("Default in More Functions...");
 
-                                    }
                                 }
-                            })
-                    .show();
+                            }
+                        })
+                .show();
 
     }
 
@@ -3909,45 +3520,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
     }
 
-
-    private void Switch() {
-        ifSwitch = !ifSwitch;
-        if (ifSwitch) {
-            Switch.setText("Restart");
-            Switch.setTextColor(Color.RED);
-            temp_mode[0] = ifPainting;
-            temp_mode[1] = ifPoint;
-            temp_mode[2] = ifDeletingLine;
-            temp_mode[3] = ifDeletingMarker;
-            temp_mode[4] = ifSpliting;
-            temp_mode[5] = ifChangeLineType;
-            temp_mode[6] = ifChangeMarkerType;
-            temp_mode[7] = ifDeletingMultiMarker;
-
-            ifPainting = false;
-            ifPoint = false;
-            ifDeletingLine = false;
-            ifDeletingMarker = false;
-            ifSpliting = false;
-            ifChangeLineType = false;
-            ifChangeMarkerType = false;
-            ifDeletingMultiMarker = false;
-
-        } else {
-            Switch.setText("Pause");
-            Switch.setTextColor(Color.BLACK);
-            ifPainting            = temp_mode[0];
-            ifPoint               = temp_mode[1];
-            ifDeletingLine        = temp_mode[2];
-            ifDeletingMarker      = temp_mode[3];
-            ifSpliting            = temp_mode[4];
-            ifChangeLineType      = temp_mode[5];
-            ifChangeMarkerType    = temp_mode[6];
-            ifDeletingMultiMarker = temp_mode[7];
-        }
-    }
-
-
     private void About() {
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
@@ -4015,9 +3587,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
                                         intent.addCategory(Intent.CATEGORY_OPENABLE);
                                         startActivityForResult(intent, 1);
-                                        ifAnalyze = true;
-                                        ifImport = false;
-                                        ifUpload = false;
+                                        openFileMode = OpenFileMode.ANALYZESWC;
                                         break;
 
                                     case "Analyze current tracing":
@@ -4031,7 +3601,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                             public void run() {
                                                 MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
                                                 List<double[]> features = morphologyCalculate.calculatefromNT(nt, false);
-                                                fl = new ArrayList<double[]>(features);
                                                 measure_count = 0;
                                                 sendAnalyseResult(features);
                                                 Log.e(TAG,"calculate swc");
@@ -4051,7 +3620,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private void sendAnalyseResult(List<double[]> features){
         Message msg = new Message();
-        msg.what = 11;
+        msg.what = HANDLER_DISPLAY_ANALYZE_RESULT;
         msg.obj = features;
         puiHandler.sendMessage(msg);
     }
@@ -4219,8 +3788,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     @Override
                     public void operate(View contentView) {
 
-                        Switch downsample_on_off = contentView.findViewById(R.id.switch_rotation_mode);
-                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
+                        Switch downsample_on_off = contentView.findViewById(R.id.downSample_mode);
+                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.contrast_indicator_seekbar);
                         TextView clean_cache = contentView.findViewById(R.id.clean_cache);
                         SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
                         SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
@@ -4291,7 +3860,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
                     @Override
                     public void onClick(View clickedView, View contentView) {
-                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
+                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.contrast_indicator_seekbar);
                         int contrast = seekbar.getProgress();
 
                         myrenderer.setIfNeedDownSample(downsample[0]);
@@ -4314,13 +3883,13 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             String selected = bgmSpinner.getSelectedItem().toString();
                             if (selectedBGM != bgmSpinner.getSelectedItemPosition()) {
                                 if (selected.equals("BGM1"))
-                                    MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
+                                    MusicService.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
 
                                 else if (selected.equals("BGM2"))
-                                    MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/DelRioBravo.mp3");
+                                    MusicService.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/DelRioBravo.mp3");
 
                                 else
-                                    MusicServer.defaultBgmSource();
+                                    MusicService.defaultBgmSource();
 
                                 selectedBGM = bgmSpinner.getSelectedItemPosition();
 
@@ -4329,8 +3898,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         }
 
 
-                        MusicServer.setBgmVolume(bgmVolume);
-                        MusicServer.setVolume(bgmVolume);
+                        MusicService.setBgmVolume(bgmVolume);
+                        MusicService.setVolume(bgmVolume);
 
                         String settingsPath = context.getExternalFilesDir(null).toString() + "/Settings";
                         File settingsFile = new File(settingsPath);
@@ -4395,6 +3964,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
+
+
+
     private void deleteImg(){
         Log.v("BaseActivity","deleteImg()");
         String img_path = context.getExternalFilesDir(null).toString() + "/Img";
@@ -4420,7 +3992,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 //                        AgoraMsgManager.getInstance().getRtmClient().logout(null);
 
-                        PreferenceLogin preferenceLogin = new PreferenceLogin(MainActivity.this);
+                        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
                         preferenceLogin.setPref(preferenceLogin.getUsername(),preferenceLogin.getPassword(),false, true);
                         // DemoCache.clear();
 
@@ -4452,7 +4024,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 //                        AgoraMsgManager.getInstance().getRtmClient().logout(null);
 
-                        PreferenceLogin preferenceLogin = new PreferenceLogin(MainActivity.this);
+                        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
                         preferenceLogin.setPref(preferenceLogin.getUsername(),preferenceLogin.getPassword(),false, true);
                         // DemoCache.clear();
 
@@ -4506,7 +4078,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         final boolean [] ifChecked = {false, false};
 
         MDDialog mdDialog = new MDDialog.Builder(this)
-                .setContentView(R.layout.animation)
+                .setContentView(R.layout.dialog_animation)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
                     @Override
                     public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
@@ -4648,12 +4220,10 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             Log.v(TAG, filePath);
 
             try {
-                if (ifImport) {
+                if (openFileMode == OpenFileMode.IMPORTSWC) {
 
-                    FileManager fileManager = new FileManager();
-                    String fileName = fileManager.getFileName(uri);
+                    String fileName = FileManager.getFileName(uri);
                     String filetype = fileName.substring(fileName.lastIndexOf(".")).toUpperCase();
-                    Log.v(TAG,"FileType: " + filetype + ", FileName: " + fileName);
 
                     if (myrenderer.getIfFileLoaded()) {
                         switch (filetype) {
@@ -4699,34 +4269,32 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     }
 
                     else {
-                        System.out.println("-------- open --------");
                         myrenderer.setSwcPath(filePath);
-                        ifLoadLocal = false;
                         setButtonsImport();
                     }
-                    ifImport = false;
+                    openFileMode = OpenFileMode.NONE;
                 }
 
 
-                if (ifAnalyze) {
+                if (openFileMode == OpenFileMode.ANALYZESWC) {
                     MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
                     List features = morphologyCalculate.calculate(uri, false);
 
                     if (features != null) {
-                        fl = new ArrayList<double[]>(features);
                         displayResult(features);
                     }
+                    openFileMode = OpenFileMode.NONE;
                 }
 
 
-                if (ifLoadLocal) {
-                    Log.e(TAG,"Load Local File");
+                if (openFileMode == OpenFileMode.LOADLOCALIMAGE) {
                     myrenderer.setPath(filePath);
 
                     setButtonsLocal();
                     String filename = FileManager.getFileName(uri);
                     setFileName(filename);
                     showButtonsOnFile();
+                    openFileMode = OpenFileMode.NONE;
                 }
 
 
@@ -5112,24 +4680,27 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         private float y0_start;
 
 
+        private ArrayList<Float> lineDrawed = new ArrayList<Float>();           // 考虑移到GLSurfaceView下
+
+
         public MyGLSurfaceView(Context context) {
             super(context);
 
             ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
             ConfigurationInfo info = am.getDeviceConfigurationInfo();
-            String v = info.getGlEsVersion(); //判断是否为3.0 ，一般4.4就开始支持3.0版本了。
 
-            Log.e(TAG, "GLES-version: " + v);
+            // 判断是否为3.0 ，一般4.4就开始支持3.0版本了
+            Log.e(TAG, "GLES-version: " + info.getGlEsVersion());
 
-            //设置一下opengl版本；
+            // 设置一下opengl版本；
             setEGLContextClientVersion(3);
 
             setRenderer(myrenderer);
 
-            //调用 onPause 的时候保存EGLContext
+            // 调用 onPause 的时候保存EGLContext
             setPreserveEGLContextOnPause(true);
 
-            //当发生交互时重新执行渲染， 需要配合requestRender();
+            // 当发生交互时重新执行渲染， 需要配合requestRender();
             setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 //            setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
@@ -5155,44 +4726,22 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                         case MotionEvent.ACTION_DOWN:
                             X = normalizedX;
                             Y = normalizedY;
-                            if (ifPainting || ifDeletingLine || ifSpliting || ifChangeLineType || ifDeletingMultiMarker || ifSettingROI) {
+                            if (editMode.getValue() == EditMode.PAINTCURVE || editMode.getValue() == EditMode.DELETECURVE
+                                    || editMode.getValue() == EditMode.SPLIT || editMode.getValue() == EditMode.DELETEMULTIMARKER
+                                    || editMode.getValue() == EditMode.CHANGECURVETYPE || editMode.getValue() == EditMode.ZOOMINROI) {
                                 soundPool.play(soundId[0], actionVolume, actionVolume, 0, 0, 1.0f);
                                 lineDrawed.add(X);
                                 lineDrawed.add(Y);
                                 lineDrawed.add(-1.0f);
                                 myrenderer.setIfPainting(true);
                                 requestRender();
-                                Log.v("actionPointerDown", "Paintinggggggggggg");
                             }
-                            if (ifPoint){
+                            if (editMode.getValue() == EditMode.PINPOINT){
                                 soundPool.play(soundId[1], actionVolume, actionVolume, 0, 0, 1.0f);
                             }
-                            if (ifPainting){
+                            if (editMode.getValue() == EditMode.PAINTCURVE){
                                 soundPool.play(soundId[0], actionVolume, actionVolume, 0, 0, 1.0f);
                             }
-//                        if (ifPoint) {
-//                            Log.v("actionPointerDown", "Pointinggggggggggg");
-//                            if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
-//                                myrenderer.add2DMarker(X, Y);
-//                            else {
-//                                myrenderer.setMarkerDrawed(X, Y);
-//                            }
-//                            Log.v("actionPointerDown", "(" + X + "," + Y + ")");
-//                            requestRender();
-//
-//                        }
-//                        if (ifDeletingMarker) {
-//                            Log.v("actionPointerDown", "DeletingMarker");
-//                            myrenderer.deleteMarkerDrawed(X, Y);
-//                            requestRender();
-//                        }
-//                        if (ifDeletingLine){
-//                            lineDrawed.add(X);
-//                            lineDrawed.add(Y);
-//                            lineDrawed.add(-1.0f);
-//                            myrenderer.setIfPainting(true);
-//                            requestRender();
-//                        }
                             break;
                         case MotionEvent.ACTION_POINTER_DOWN:
                             lineDrawed.clear();
@@ -5220,19 +4769,17 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 float x2 = toOpenGLCoord(this, motionEvent.getX(1), true);
                                 float y2 = toOpenGLCoord(this, motionEvent.getY(1), false);
 
-//                            float x2=motionEvent.getX(1);
-//                            float y2=motionEvent.getY(1);
                                 double dis = computeDis(normalizedX, x2, normalizedY, y2);
                                 double scale = dis / dis_start;
-//                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker) {
+
                                 myrenderer.zoom((float) scale);
-//                            }
+
                                 float dis_x = x2 - normalizedX;
                                 float dis_y = y2 - normalizedY;
                                 float ave_x = (x2 - x1_start + normalizedX - x0_start) / 2;
                                 float ave_y = (y2 - y1_start + normalizedY - y0_start) / 2;
                                 if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
-                                    if (myrenderer.getIfDownSampling() == false)
+                                    if (!myrenderer.getIfDownSampling())
                                         myrenderer.setIfDownSampling(true);
                                 }
 //                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker){
@@ -5251,9 +4798,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                 x1_start = x2;
                                 y1_start = y2;
                             } else if (!isZooming){
-                                if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker && !ifChangeMarkerType && !ifDeletingMultiMarker && !ifSettingROI) {
+                                if (editMode.getValue() == EditMode.NONE) {
                                     if (!(myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)) {
-                                        if (myrenderer.getIfDownSampling() == false)
+                                        if (!myrenderer.getIfDownSampling())
                                             myrenderer.setIfDownSampling(true);
                                     }
                                     myrenderer.rotate(normalizedX - X, normalizedY - Y, (float) (computeDis(normalizedX, X, normalizedY, Y)));
@@ -5282,21 +4829,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                             Y = normalizedY;
                             lineDrawed.clear();
                             myrenderer.setIfPainting(false);
-//                        if (ifPainting){
-//                            lineDrawed.clear();
-//                            myrenderer.setLineDrawed(lineDrawed);
-//                            requestRender();
-//
-//                            myrenderer.setIfPaiFting(false);
-//                            requestRender();
-//
-//                        }
                             break;
                         case MotionEvent.ACTION_UP:
                             if (!isZooming) {
                                 try {
-                                    if (ifZooming) {
-                                        ifZooming = false;
+                                    if (editMode.getValue() == EditMode.ZOOM) {
+                                        editMode.setValue(EditMode.NONE);
                                         float [] center = myrenderer.solveMarkerCenter(normalizedX, normalizedY);
                                         if (center != null) {
                                             Communicator communicator = Communicator.getInstance();
@@ -5304,49 +4842,43 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                             requestRender();
                                         }
                                     }
-                                    if (ifPoint) {
+                                    if (editMode.getValue() == EditMode.PINPOINT) {
                                         if(ifGuestLogin == false)
                                         {
                                             Score scoreInstance = Score.getInstance();
-                                            scoreInstance.pinpoint();
+//                                            scoreInstance.pinpoint();
                                         }
-                                        Log.v("actionUp", "Pointinggggggggggg");
                                         if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
                                             myrenderer.add2DMarker(normalizedX, normalizedY);
                                         else {
                                             myrenderer.setMarkerDrawed(normalizedX, normalizedY, isBigData_Remote);
                                         }
-                                        Log.v("actionPointerDown", "(" + X + "," + Y + ")");
                                         requestRender();
-
                                     }
-                                    if (ifDeletingMarker) {
-                                        Log.v("actionUp", "DeletingMarker");
+                                    if (editMode.getValue() == EditMode.DELETEMARKER) {
                                         myrenderer.deleteMarkerDrawed(normalizedX, normalizedY, isBigData_Remote);
                                         requestRender();
                                     }
-                                    if (ifDeletingMultiMarker) {
+                                    if (editMode.getValue() == EditMode.DELETEMULTIMARKER) {
                                         myrenderer.deleteMultiMarkerByStroke(lineDrawed, isBigData_Remote);
                                         requestRender();
                                     }
-                                    if (ifChangeMarkerType) {
+                                    if (editMode.getValue() == EditMode.CHANGEMARKERTYPE) {
                                         myrenderer.changeMarkerType(normalizedX, normalizedY, isBigData_Remote);
                                         requestRender();
                                     }
-                                    if (ifPainting ) {
+                                    if (editMode.getValue() == EditMode.PAINTCURVE) {
                                         Vector<Integer> segids = new Vector<>();
                                         myrenderer.setIfPainting(false);
                                         if(ifGuestLogin == false)
                                         {
                                             Score scoreInstance = Score.getInstance();
-                                            scoreInstance.drawACurve();
-
+//                                            scoreInstance.drawACurve();
                                         }
 
                                         if (myrenderer.getFileType() == MyRenderer.FileType.JPG || myrenderer.getFileType() == MyRenderer.FileType.PNG)
                                             myrenderer.add2DCurve(lineDrawed);
                                         else {
-
                                             Callable<String> task = new Callable<String>() {
                                                 @RequiresApi(api = Build.VERSION_CODES.N)
                                                 @Override
@@ -5371,8 +4903,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                                 System.out.println("unfinished in 1.5 seconds");
-//                                            exeService.shutdown();
-//                                            future.cancel(true);
                                             }
                                         }
 
@@ -5382,8 +4912,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         requestRender();
                                     }
 
-                                    if(ifSettingROI){
-                                        ifSettingROI=false;
+                                    if(editMode.getValue() == EditMode.ZOOMINROI){
+                                        editMode.setValue(EditMode.NONE);
                                         float [] center = myrenderer.GetROICenter(lineDrawed,isBigData_Remote);
                                         if (center != null) {
                                             Communicator communicator = Communicator.getInstance();
@@ -5392,22 +4922,23 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                                         }
                                     }
 
-
-                                    if (ifDeletingLine) {
+                                    if (editMode.getValue() == EditMode.DELETECURVE) {
                                         myrenderer.setIfPainting(false);
                                         myrenderer.deleteLine1(lineDrawed, isBigData_Remote);
                                         lineDrawed.clear();
                                         myrenderer.setLineDrawed(lineDrawed);
                                         requestRender();
                                     }
-                                    if (ifSpliting) {
+
+                                    if (editMode.getValue() == EditMode.SPLIT) {
                                         myrenderer.setIfPainting(false);
                                         myrenderer.splitCurve(lineDrawed, isBigData_Remote);
                                         lineDrawed.clear();
                                         myrenderer.setLineDrawed(lineDrawed);
                                         requestRender();
                                     }
-                                    if (ifChangeLineType) {
+
+                                    if (editMode.getValue() == EditMode.CHANGECURVETYPE) {
                                         myrenderer.setIfPainting(false);
                                         int type = myrenderer.getLastLineType();
                                         myrenderer.changeLineType(lineDrawed, type, isBigData_Remote);
@@ -5436,12 +4967,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             }catch (IllegalArgumentException e){
                 e.printStackTrace();
             }
-
             return false;
         }
 
 
-        //坐标系变换
+        // 坐标系变换
         private float toOpenGLCoord(View view, float value, boolean isWidth) {
             if (isWidth) {
                 return (value / (float) view.getWidth()) * 2 - 1;
@@ -5451,7 +4981,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
 
 
-        //距离计算
+        // 距离计算
         private double computeDis(float x1, float x2, float y1, float y2) {
             return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
         }
@@ -5467,7 +4997,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     public void loadBigDataImg(String filepath){
         isBigData_Remote = true;
         isBigData_Local = false;
-        ifZooming = false;
 
         myrenderer.setPath(filepath);
         myrenderer.zoom(2.2f);
@@ -5510,7 +5039,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }catch (Exception e){
             e.printStackTrace();
         }
-        hideProgressBar();
+        hideDownloadingPopupView();
     }
 
     /*
@@ -5518,51 +5047,60 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
      */
 
     static Timer timerDownload;
+    static Timer timerSync;
 
-    public static void showProgressBar(){
-        puiHandler.sendEmptyMessage(0);
+    public static void showDownloadingPopupView(){
+        puiHandler.sendEmptyMessage(HANDLER_SHOW_DOWNLOADING_POPUPVIEW);
         timerDownload = new Timer();
         timerDownload.schedule(new TimerTask() {
             @Override
             public void run() {
-                timeOutHandler();
+                downloadTimeOutHandler();
             }
         },30 * 1000);
     }
 
 
-    public static void hideProgressBar(){
+    public static void hideDownloadingPopupView(){
+        if (timerDownload == null)
+            return;
         timerDownload.cancel();
-        puiHandler.sendEmptyMessage(1);
+        puiHandler.sendEmptyMessage(HANDLER_HIDE_DOWNLOADING_POPUPVIEW);
     }
 
 
-    public static void timeOutHandler(){
-        hideProgressBar();
-        puiHandler.sendEmptyMessage(3);
+    public static void downloadTimeOutHandler(){
+        hideDownloadingPopupView();
+        puiHandler.sendEmptyMessage(HANDLER_NETWORK_TIME_OUT);
     }
 
 
     public static void showSyncBar(){
-        puiHandler.sendEmptyMessage(9);
-        timerDownload = new Timer();
-        timerDownload.schedule(new TimerTask() {
+        puiHandler.sendEmptyMessage(HANDLER_SHOW_SYNCING_POPUPVIEW);
+        timerSync = new Timer();
+        timerSync.schedule(new TimerTask() {
             @Override
             public void run() {
-                timeOutHandler();
+                syncTimeOutHandler();
             }
         },10 * 1000);
     }
 
 
     public static void hideSyncBar(){
-        timerDownload.cancel();
-        puiHandler.sendEmptyMessage(10);
+        timerSync.cancel();
+        puiHandler.sendEmptyMessage(HANDLER_HIDE_SYNCING_POPUPVIEW);
+    }
+
+
+    public static void syncTimeOutHandler(){
+        hideSyncBar();
+        puiHandler.sendEmptyMessage(HANDLER_NETWORK_TIME_OUT);
     }
 
 
     public static void setBigDataName(){
-        puiHandler.sendEmptyMessage(4);
+        puiHandler.sendEmptyMessage(HANDLER_SET_FILENAME_BIGDATA);
     }
 
 
@@ -5606,7 +5144,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     private static void setButtons(){
-        puiHandler.sendEmptyMessage(2);
+        puiHandler.sendEmptyMessage(HANDLER_SET_BUTTONS_BIGDATA);
     }
 
     public static void setButtonsBigData(){
@@ -5629,7 +5167,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                     room_id.setVisibility(View.VISIBLE);
                     manual_sync.setVisibility(View.VISIBLE);
                     ROI_i.setVisibility(View.VISIBLE);
-
+                    edit_mode_imagebutton.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -5642,6 +5180,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 room_id.setVisibility(View.GONE);
                 manual_sync.setVisibility(View.GONE);
                 ROI_i.setVisibility(View.GONE);
+                edit_mode_imagebutton.setVisibility(View.GONE);
             }
             isBigData_Remote = false;
             isBigData_Local  = false;
@@ -5676,6 +5215,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 room_id.setVisibility(View.GONE);
                 manual_sync.setVisibility(View.GONE);
                 ROI_i.setVisibility(View.GONE);
+                edit_mode_imagebutton.setVisibility(View.GONE);
             }
             isBigData_Remote = false;
             isBigData_Local  = false;
@@ -5705,14 +5245,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         if (!ifButtonShowed)
             return;
 
-        ll_top.setVisibility(View.GONE);
-        ll_bottom.setVisibility(View.GONE);
-
         animation_i.setVisibility(View.GONE);
         Rotation_i.setVisibility(View.GONE);
         Hide_i.setVisibility(View.GONE);
-        Undo_i.setVisibility(View.GONE);
-        Redo_i.setVisibility(View.GONE);
 
 
         if (isBigData_Remote || isBigData_Local){
@@ -5732,6 +5267,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 room_id.setVisibility(View.GONE);
                 manual_sync.setVisibility(View.GONE);
                 ROI_i.setVisibility(View.GONE);
+                edit_mode_imagebutton.setVisibility(View.GONE);
             }
         }else {
             Zoom_in.setVisibility(View.GONE);
@@ -5748,13 +5284,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         if (ifButtonShowed)
             return;
 
-        ll_top.setVisibility(View.VISIBLE);
-        ll_bottom.setVisibility(View.VISIBLE);
-
         Rotation_i.setVisibility(View.VISIBLE);
         Hide_i.setVisibility(View.VISIBLE);
-        Undo_i.setVisibility(View.VISIBLE);
-        Redo_i.setVisibility(View.VISIBLE);
 
 
         if (isBigData_Remote || isBigData_Local){
@@ -5774,6 +5305,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 room_id.setVisibility(View.VISIBLE);
                 manual_sync.setVisibility(View.VISIBLE);
                 ROI_i.setVisibility(View.VISIBLE);
+                edit_mode_imagebutton.setVisibility(View.VISIBLE);
             }
 
         }else {
@@ -5811,7 +5343,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
 
     public static void updateScore(){
-        puiHandler.sendEmptyMessage(7);
+        puiHandler.sendEmptyMessage(HANDLER_UPDATE_SCORE_TEXT);
     }
 
 
@@ -5821,7 +5353,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     }
 
     private static void updateScoreText(){
-        puiHandler.sendEmptyMessage(7);
+        puiHandler.sendEmptyMessage(HANDLER_UPDATE_SCORE_TEXT);
     }
 
     private static void updateScoreTextHandler(){
@@ -5839,7 +5371,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         } else {
             scoreString = Integer.toString(score);
         }
-        Log.d("UpdateScore", Integer.toString(score) + "   " + scoreString);
         scoreText.setText(scoreString);
     }
 
@@ -5851,33 +5382,19 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 .show();
     }
 
-    public void initDataBase(int serverScore){
-        DailyQuestsContainer.initId(username);
-        Score.initId(username);
-        ScoreLitePalConnector.initUser(username);
-        RewardLitePalConnector.initUserId(username);
-
-        Score score = Score.getInstance();
-        if (!score.initFromLitePal()) {
-            setScore(score.getScore());
-        }
-
-        updateScoreText();
-    }
-
-    public void initDataBase(){
-        DailyQuestsContainer.initId(username);
-        Score.initId(username);
-        ScoreLitePalConnector.initUser(username);
-        RewardLitePalConnector.initUserId(username);
-
-        Score score = Score.getInstance();
-        if (score.initFromLitePal()) {
-            setScore(score.getScore());
-        }
-
-        updateScoreText();
-    }
+//    public void initDataBase(){
+//        DailyQuestsContainer.initId(username);
+//        Score.initId(username);
+//        ScoreLitePalConnector.initUser(username);
+//        RewardLitePalConnector.initUserId(username);
+//
+//        Score score = Score.getInstance();
+//        if (score.initFromLitePal()) {
+//            setScore(score.getScore());
+//        }
+//
+//        updateScoreText();
+//    }
 
 
 
@@ -5885,7 +5402,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     public static void Toast_in_Thread_static(String message){
         Message msg = new Message();
-        msg.what = TOAST_INFO_STATIC;
+        msg.what = HANDLER_TOAST_INFO_STATIC;
         Bundle bundle = new Bundle();
         bundle.putString("Toast_msg",message);
         msg.setData(bundle);
@@ -6011,57 +5528,6 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     /*
     functions for old version bigdata  ---------------------------------------------------------------------------------
      */
-
-
-
-
-
-    private void gameStart(){
-        float [] startPoint = new float[]{
-                0.5f, 0.5f, 0.5f
-        };
-
-        float [] dir = new float[]{
-                1, 1, 1
-        };
-
-        ArrayList<Integer> sec_proj1 = new ArrayList<Integer>();
-        ArrayList<Integer> sec_proj2 = new ArrayList<Integer>();
-        ArrayList<Integer> sec_proj3 = new ArrayList<Integer>();
-        ArrayList<Integer> sec_proj4 = new ArrayList<Integer>();
-        ArrayList<Float> sec_anti = new ArrayList<Float>();
-
-
-        ArrayList<Float> tangent = myrenderer.tangentPlane(startPoint[0], startPoint[1], startPoint[2], dir[0], dir[1], dir[2], 1);
-
-        System.out.println("TangentPlane:::::");
-        System.out.println(tangent.size());
-
-
-
-        float [] vertexPoints = new float[sec_anti.size()];
-        for (int i = 0; i < sec_anti.size(); i++){
-
-            vertexPoints[i] = sec_anti.get(i);
-            System.out.print(vertexPoints[i]);
-            System.out.print(" ");
-            if (i % 3 == 2){
-                System.out.print("\n");
-            }
-        }
-
-//        boolean gameSucceed = myrenderer.driveMode(vertexPoints, dir);
-//        if (!gameSucceed){
-//            Toast.makeText(context, "wrong vertex to draw", Toast.LENGTH_SHORT);
-//        } else {
-//            myGLSurfaceView.requestRender();
-//        }
-    }
-
-    public static void setIfGame(boolean b){
-        ifGame = b;
-    }
-
 
 
 

@@ -10,9 +10,12 @@
 /.idea/assetWizardSettings.xml
 .DS_Store
 /build
+/release
 /captures
 .externalNativeBuild
 .cxx
 /uikit/build
 /app/build
+/app/.idea
 /app/release
+/app/local.properties

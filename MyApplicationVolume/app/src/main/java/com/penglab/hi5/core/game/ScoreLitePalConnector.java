@@ -3,7 +3,8 @@ package com.penglab.hi5.core.game;
 import android.content.Context;
 import android.util.Log;
 
-import com.penglab.hi5.dataStore.database.User;
+import com.penglab.hi5.core.game.score.ScoreModel;
+import com.penglab.hi5.data.dataStore.database.User;
 
 import org.litepal.LitePal;
 
@@ -107,6 +108,52 @@ public class ScoreLitePalConnector {
             score.setEditImageNum(user.getEditImageNum());
             score.setEditImageNumToday(user.getEditImageNumToday());
         }
+    }
+
+    public ScoreModel getScoreModelFromLitePal() {
+        List<User> users = LitePal.where("userid = ?", userid).find(User.class);
+        ScoreModel scoreModel = new ScoreModel();
+        if (users.size() > 1 ) {
+            return null;
+        } else if (users.size() == 0){
+            Log.d(TAG, "Not found int database. Create a new one");
+            User user = new User();
+            user.setUserid(userid);
+            user.setCurveNum(0);
+            user.setMarkerNum(0);
+            user.setCurveNumToday(0);
+            user.setMarkerNumToday(0);
+            user.setEditImageNum(0);
+            user.setEditImageNumToday(0);
+            user.setLastLoginDay(0);
+            user.setLastLoginYear(0);
+            user.setScore(0);
+            user.save();
+
+            scoreModel.setId(userid);
+            scoreModel.setScore(user.getScore());
+            scoreModel.setCurveNum(user.getCurveNum());
+            scoreModel.setMarkerNum(user.getMarkerNum());
+            scoreModel.setLastLoginDay(user.getLastLoginDay());
+            scoreModel.setLastLoginYear(user.getLastLoginYear());
+            scoreModel.setCurveNumToday(user.getCurveNumToday());
+            scoreModel.setMarkerNumToday(user.getMarkerNumToday());
+            scoreModel.setEditImageNum(user.getEditImageNum());
+            scoreModel.setEditImageNumToday(user.getEditImageNumToday());
+        } else {
+            User user = users.get(0);
+            scoreModel.setId(userid);
+            scoreModel.setScore(user.getScore());
+            scoreModel.setCurveNum(user.getCurveNum());
+            scoreModel.setMarkerNum(user.getMarkerNum());
+            scoreModel.setLastLoginDay(user.getLastLoginDay());
+            scoreModel.setLastLoginYear(user.getLastLoginYear());
+            scoreModel.setCurveNumToday(user.getCurveNumToday());
+            scoreModel.setMarkerNumToday(user.getMarkerNumToday());
+            scoreModel.setEditImageNum(user.getEditImageNum());
+            scoreModel.setEditImageNumToday(user.getEditImageNumToday());
+        }
+        return scoreModel;
     }
 
 

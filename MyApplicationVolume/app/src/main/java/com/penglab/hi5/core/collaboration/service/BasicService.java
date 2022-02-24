@@ -7,11 +7,9 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.penglab.hi5.core.MainActivity;
-import com.penglab.hi5.core.collaboration.Communicator;
 import com.penglab.hi5.core.collaboration.basic.DataType;
 import com.penglab.hi5.core.collaboration.basic.ReceiveMsgInterface;
 import com.penglab.hi5.core.collaboration.connector.BasicConnector;
-import com.penglab.hi5.core.collaboration.connector.MsgConnector;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -50,6 +48,7 @@ public abstract class BasicService extends Service {
 
     protected abstract void reConnection();
 
+    // judge if the connector is releasing the socket; when the connector release the socket, cannot use the socket in service
     protected abstract boolean getRelease();
 
     protected abstract void setReleaseInner(boolean flag);
@@ -107,9 +106,6 @@ public abstract class BasicService extends Service {
     }
 
 
-
-
-
     TimerTask task = new TimerTask() {
         @Override
         public void run() {
@@ -120,15 +116,13 @@ public abstract class BasicService extends Service {
 
 
     public void sendMsg(final String msg){
-        Log.e(TAG,"Send Heart Beat Msg");
-
         Socket mSocket = mBasicConnector.getSocket();
         if (mSocket != null && !mSocket.isClosed() && mSocket.isConnected()){
             if (mBasicConnector.sendMsg(msg, true, true)){
                 Log.e(TAG,"Send Heart Beat Msg Successfully !");
-                if (TAG.startsWith("CollaborationService")){
-                    MsgConnector.getInstance().sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
-                }
+//                if (TAG.startsWith("CollaborationService")){
+//                    MsgConnector.getInstance().sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
+//                }
             }
         }else {
             reConnection();
@@ -200,7 +194,7 @@ public abstract class BasicService extends Service {
         @Override
         public void run() {
             super.run();
-            if (null != mSocket) {
+            if (mSocket != null) {
                 try {
                     is = mSocket.getInputStream();
                     int keepalive = 0;
@@ -351,7 +345,6 @@ public abstract class BasicService extends Service {
                     resetDataType();
                 }
             }
-
         }
 
 
@@ -381,7 +374,7 @@ public abstract class BasicService extends Service {
                         else
                             dataType.filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Img";
 
-                        Log.e(TAG,"This is a file !");
+//                        Log.e(TAG,"This is a file !");
                     }else {
                         ret = 3;
                     }
@@ -398,7 +391,6 @@ public abstract class BasicService extends Service {
 
             if (ret==0) return true;
             errorprocess(ret, rmsg.trim());  return false;
-
         }
 
 
@@ -446,7 +438,9 @@ public abstract class BasicService extends Service {
                     Log.d(TAG, String.format("ERROR:%s next read size < 0", msg));
                     break;
             }
-           // MainActivity.hideProgressBar();
+
+            MainActivity.hideDownloadingPopupView();
+
             reConnection();
         }
 
@@ -478,9 +472,6 @@ public abstract class BasicService extends Service {
     }
 
 
-
-
-
     /**
      * my function for Readline from inputstream
      * @param is inputstream
@@ -488,7 +479,7 @@ public abstract class BasicService extends Service {
      */
     private String MyReadLine(InputStream is){
 
-        String s = "";
+        StringBuilder s = new StringBuilder();
         try {
 
             String c;
@@ -499,14 +490,12 @@ public abstract class BasicService extends Service {
                 c = new String(byte_c, StandardCharsets.UTF_8);
                 if (c.equals("\n"))
                     break;
-                s += c + "";
+                s.append(c);
             } while (num > 0);
 
         }catch (Exception e){
             e.printStackTrace();
         }
-        return s;
+        return s.toString();
     }
-
-
 }

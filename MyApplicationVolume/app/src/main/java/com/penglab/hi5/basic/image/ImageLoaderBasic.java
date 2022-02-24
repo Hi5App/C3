@@ -1,30 +1,18 @@
 package com.penglab.hi5.basic.image;
 
+import android.util.Log;
+
 import java.io.FileInputStream;
 import java.io.InputStream;
 
 public class ImageLoaderBasic {
 
-
+    private static final String TAG = "ImageLoaderBasic";
     private byte[] decompressionBuffer;
     private byte[] compressionBuffer;
     private long compressionPosition;
     private long decompressionPosition;
     private long decompressionPrior;
-
-
-//    public int loadRaw2StackPBD(String filename, Image4DSimple image, boolean useThreading){
-//
-//        File file = new File(filename);
-//        fid = fopen(filename, "rb");
-//        if (! fid)
-//            return exitWithError(std::string("Fail to open file for reading."));
-//        fseek (fid, 0, SEEK_END);
-//        int fileSize = ftell(fid);
-//        rewind(fid);
-//        FileStarStream fileStream(fid);
-//        return loadRaw2StackPBD(fileStream, fileSize, image, useThreading);
-//    }
 
     public ImageLoaderBasic(){
         decompressionBuffer = null;
@@ -37,11 +25,10 @@ public class ImageLoaderBasic {
     public Image4DSimple loadRaw2StackPBD(InputStream is, long fileSize, boolean useThreading) {
 
         FileInputStream fid = (FileInputStream)(is);
-
         Image4DSimple image = new Image4DSimple();
 
         if (useThreading) {
-            System.out.println("Error: attempt to use threading with ImageLoaderBasic");
+            Log.e(TAG,"Error: attempt to use threading with ImageLoaderBasic");
         }
 
         decompressionPrior = 0;
@@ -53,8 +40,8 @@ public class ImageLoaderBasic {
 
         if (fileSize < ( lenkey+2+4*4+1 )) // datatype has 2 bytes, and sz has 4*4 bytes and endian flag has 1 byte.
         {
-            System.out.println("The size of your input file is too small and is not correct, -- it is too small to contain the legal header.\n");
-            System.out.println("The fseek-ftell produces a file size = " + fileSize);
+            Log.e(TAG,"The size of your input file is too small and is not correct, -- it is too small to contain the legal header.");
+            Log.e(TAG,"The fseek-ftell produces a file size = " + fileSize);
             return null;
         }
 
@@ -65,7 +52,7 @@ public class ImageLoaderBasic {
             byte[] by = new byte[lenkey];
             long nread = fid.read(by);
             String keyread = new String(by);
-            if (nread!=lenkey)
+            if (nread != lenkey)
                 throw new Exception("File unrecognized or corrupted file.");
             if (!keyread.equals(formatkey))
                 throw new Exception("Unrecognized file format.");
@@ -74,8 +61,7 @@ public class ImageLoaderBasic {
             //read the endianness
             by = new byte[1];
             fid.read(by);
-//            System.out.println((char)(by[0]));
-            if (by[0]!='B' && by[0]!='L')
+            if (by[0] != 'B' && by[0] != 'L')
                 throw new Exception("This program only supports big- or little- endian but not other format. Check your endian.");
 
             boolean isBig = (by[0]=='B');
@@ -85,7 +71,7 @@ public class ImageLoaderBasic {
             by = new byte[2];
             fid.read(by);
             short dcode = (short)bytes2int(by,isBig);
-            System.out.println(dcode);
+//            Log.e(TAG,"dcode: " + dcode);
 
             int datatype;
             switch (dcode){
@@ -102,12 +88,12 @@ public class ImageLoaderBasic {
                     datatype = 4;
                     break;
                 default:
-                    throw new Exception("Unrecognized datatype code"+dcode+". The file is incorrect or this code is not supported in this version");
+                    throw new Exception("Unrecognized datatype code " + dcode + ". The file is incorrect or this code is not supported in this version");
             }
             int unitSize = datatype;
             by = null;
 
-            System.out.println("datatype: " + datatype);
+//            Log.e(TAG,"datatype: " + datatype);
 
             // Here is the datatype
             Image4DSimple.ImagePixelType dt = null;
@@ -120,7 +106,7 @@ public class ImageLoaderBasic {
                     dt = Image4DSimple.ImagePixelType.V3D_UINT16;
                     break;
                 default:
-                    System.out.println("ImageLoader::loadRaw2StackPBD : only datatype=1 or datatype=2 supported");
+                    Log.e(TAG,"ImageLoader::loadRaw2StackPBD : only datatype=1 or datatype=2 supported");
             }
 
             //read the data size info (the data size is stored in either 2-byte or 4-byte space)
@@ -136,8 +122,6 @@ public class ImageLoaderBasic {
                 fid.read(by);
                 sz[i] = bytes2int(by,isBig);
                 pbd_sz[i] = sz[i];
-
-                System.out.println("sz[" + i + "]: " + sz[i]);
                 totalUnit *= sz[i];
             }
             by = null;
@@ -151,9 +135,7 @@ public class ImageLoaderBasic {
 
             compressionBuffer = new byte[(int) compressedBytes];
             decompressionBuffer = new byte[(int) ( totalUnit * unitSize)];
-
-            System.out.println("length of compressionBuffer:   " + compressionBuffer.length);
-            System.out.println("length of decompressionBuffer: " + decompressionBuffer.length);
+            Log.d(TAG,String.format("length of compressionBuffer: %d, decompressionBuffer: %d", compressionBuffer.length, decompressionBuffer.length));
 
             by = new byte[(int) compressedBytes];
             long pbd3_current_channel = 0;
@@ -166,19 +148,18 @@ public class ImageLoaderBasic {
 
                 long curReadBytes = Math.min(remainingBytes, readStepSizeBytes);
                 pbd3_current_channel=totalReadBytes/channelLength;
-                System.out.println("pbd3_current_channel " + pbd3_current_channel);
                 long bytesToChannelBoundary=(pbd3_current_channel+1)*channelLength - totalReadBytes;
                 curReadBytes = Math.min(curReadBytes, bytesToChannelBoundary);
+//                Log.d(TAG,"pbd3_current_channel " + pbd3_current_channel);
 
                 nread = fid.read(compressionBuffer, (int)totalReadBytes, (int)curReadBytes);
                 totalReadBytes+=nread;
-
-                System.out.println( "nread=" + nread + " curReadBytes=" + curReadBytes + " bytesToChannelBoundary=" + bytesToChannelBoundary + " totalReadBytes=" + totalReadBytes );
+//                Log.d(TAG,"nread=" + nread + " curReadBytes=" + curReadBytes + " bytesToChannelBoundary=" + bytesToChannelBoundary + " totalReadBytes=" + totalReadBytes);
 
                 if (nread != curReadBytes){
-                    System.out.println("Something wrong in file reading. The program reads [" +
-                                        nread + " data points] but the file says there should be [" +
-                                        curReadBytes + " data points].");
+                    Log.e(TAG,"Something wrong in file reading. The program reads [" +
+                            nread + " data points] but the file says there should be [" +
+                            curReadBytes + " data points].");
                     return null;
                 }
 
@@ -190,36 +171,27 @@ public class ImageLoaderBasic {
 
                 }else {
                     //assume datatype == 2
-
                 }
-
             }
             
             img_result.setDataFromImage(decompressionBuffer, sz[0], sz[1], sz[2], sz[3], dt, isBig);
 
-
-
         }catch (Exception e){
             e.printStackTrace();
         }
-
-
         return img_result;
-
     }
 
 
     private void updateCompressionBuffer8(int updatedCompressionBuffer){
-
         if (compressionPosition == 0){
 
         }
 
         long lookAhead = compressionPosition;
-        System.out.println("lookAhead: " + lookAhead + ",  compressionPosition: " + compressionPosition + ", updatedCompressionBuffer: " + updatedCompressionBuffer);
+//        Log.d(TAG,"lookAhead: " + lookAhead + ",  compressionPosition: " + compressionPosition + ", updatedCompressionBuffer: " + updatedCompressionBuffer)
 
-        while( lookAhead < updatedCompressionBuffer){
-
+        while(lookAhead < updatedCompressionBuffer){
             int lav = byteToInt(compressionBuffer[(int) lookAhead]);
             // We will keep going until we find nonsense or reach the end of the block
             if (lav < 33){
@@ -266,9 +238,7 @@ public class ImageLoaderBasic {
         long dlength = decompressPBD8((int) compressionPosition, (int) decompressionPosition, (int) compressionLength);
         compressionPosition = lookAhead;
         decompressionPosition += dlength;
-
-        System.out.println("compressionPosition: " + compressionPosition + ",  decompressionPosition:" + decompressionPosition);
-
+//        Log.d(TAG,"compressionPosition: " + compressionPosition + ",  decompressionPosition:" + decompressionPosition)
     }
 
 
@@ -353,23 +323,20 @@ public class ImageLoaderBasic {
     }
 
 
-    public static final int bytes2int(byte[] b,boolean isBig)
-    {
+    public static int bytes2int(byte[] b,boolean isBig) {
         int retVal = 0;
         if (!isBig)
-            for (int i=b.length-1;i>=0;i--) {
+            for (int i = b.length-1; i>=0; i--) {
                 retVal = (retVal<<8) + (b[i] & 0xff);
             }
         else
-            for (int i=0;i<b.length;i++) {
-                retVal = (retVal<<8) + (b[i] & 0xff);
+            for (byte value : b) {
+                retVal = (retVal << 8) + (value & 0xff);
             }
-
         return retVal;
     }
     public static int byteToInt(byte b){
-        int x = b & 0xff;
-        return x;
+        return b & 0xff;
     }
 
 

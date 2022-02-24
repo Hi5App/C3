@@ -2,6 +2,7 @@ package com.penglab.hi5.chat;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -56,7 +57,6 @@ public class ChatActivity extends BaseActivity {
                     Log.d(TAG, "handleMessage: 0" + (String)msg.obj);
                     String [] inviteMessage = ((String) msg.obj).split(" ");
                     MainActivity.actionStart(chatContext, inviteMessage[0], inviteMessage[1], inviteMessage[2]);
-
                     break;
 
                 default:
@@ -171,7 +171,11 @@ public class ChatActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         chatContext = null;
+    }
+
+    public static void start(Context context){
+        Intent intent = new Intent(context, ChatActivity.class);
+        context.startActivity(intent);
     }
 }

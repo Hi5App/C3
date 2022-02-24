@@ -68,11 +68,7 @@ public class Graph {
                     q.add(v);
                 }
             }
-
             count++;
-            if (count % 500 == 0){
-                System.out.println(count);
-            }
         }
     }
 

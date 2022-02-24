@@ -39,12 +39,12 @@ public class LeaderBoardActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
-        initLeaderBoardItems();
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.leaderboard_recyclerview);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-        adapter = new LeaderBoardAdapter(leaderBoardItemList);
-        recyclerView.setAdapter(adapter);
+//        initLeaderBoardItems();
+//        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.leaderboard_recyclerview);
+//        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+//        recyclerView.setLayoutManager(layoutManager);
+//        adapter = new LeaderBoardAdapter(leaderBoardItemList);
+//        recyclerView.setAdapter(adapter);
     }
 
     @Override
@@ -68,8 +68,5 @@ public class LeaderBoardActivity extends AppCompatActivity {
     private void initLeaderBoardItems(){
         LeaderBoardContainer leaderBoardContainer = LeaderBoardContainer.getInstance();
         leaderBoardItemList = leaderBoardContainer.getLeaderBoardItems();
-//        for (int i = 0; i < leaderBoardItems.length; i++){
-//            leaderBoardItemList.add(leaderBoardItems[i]);
-//        }
     }
 }

@@ -25,7 +25,8 @@ Marker 1
 
 import android.content.Context;
 
-import com.penglab.hi5.dataStore.database.User;
+import com.penglab.hi5.core.game.quest.Quest;
+import com.penglab.hi5.data.dataStore.database.User;
 import com.penglab.hi5.core.MainActivity;
 
 import java.util.ArrayList;
@@ -84,36 +85,7 @@ public class Score {
         Score.id = id;
     }
 
-    public boolean initFromLitePal(){
-        boolean result = true;
-        ScoreLitePalConnector scoreLitePalConnector = ScoreLitePalConnector.getInstance();
-        scoreLitePalConnector.initScoreFromLitePal(id);
 
-//        if (score < serverScore){
-//
-//            score = serverScore;
-//            scoreLitePalConnector.updateScore(serverScore);
-//        } else if (score > serverScore){
-//            result = false;
-//        }
-
-        DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
-        dailyQuestsContainer.initFromLitePal();
-        setDailyQuests(dailyQuestsContainer.getDailyQuests());
-
-//        DailyQuestLitePalConnector dailyQuestLitePalConnector = DailyQuestLitePalConnector.getInstance();
-//        setDailyQuests(dailyQuestLitePalConnector.getDailyQuests(id));
-
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int date = calendar.get(Calendar.DAY_OF_YEAR);
-        if (year > lastLoginYear || (year == lastLoginYear && date > lastLoginDay)){
-            dailyQuestsContainer.updateNDailyQuest(0, 1);
-//            dailyQuests[0].updateAlreadyDone(1);
-        }
-
-        return result;
-    }
 
     public void updateLitePalDate(){
         Calendar calendar = Calendar.getInstance();
@@ -136,61 +108,61 @@ public class Score {
         return true;
     }
 
-    public void drawACurve(){
+//    public void drawACurve(){
+//
+//
+//        curveNum += 1;
+//        curveNumToday += 1;
+//        addScore(2);
+//
+//        DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
+//        dailyQuestsContainer.updateCurveNum(curveNumToday);
+//
+//        User user = new User();
+//        user.setScore(score);
+//        user.setCurveNum(curveNum);
+//        user.setCurveNumToday(curveNumToday);
+//        user.updateAll("userid = ?", id);
+//    }
 
+//    public void pinpoint(){
+//
+//
+//        markerNum += 1;
+//        markerNumToday += 1;
+//        addScore(1);
+//
+//        DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
+//        dailyQuestsContainer.updateMarkerNum(markerNumToday);
+//
+//        User user = new User();
+//        user.setScore(score);
+//        user.setMarkerNum(markerNum);
+//        user.setMarkerNumToday(markerNumToday);
+//        user.updateAll("userid = ?", id);
+//    }
 
-        curveNum += 1;
-        curveNumToday += 1;
-        addScore(2);
-
-        DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
-        dailyQuestsContainer.updateCurveNum(curveNumToday);
-
-        User user = new User();
-        user.setScore(score);
-        user.setCurveNum(curveNum);
-        user.setCurveNumToday(curveNumToday);
-        user.updateAll("userid = ?", id);
-    }
-
-    public void pinpoint(){
-
-
-        markerNum += 1;
-        markerNumToday += 1;
-        addScore(1);
-
-        DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
-        dailyQuestsContainer.updateMarkerNum(markerNumToday);
-
-        User user = new User();
-        user.setScore(score);
-        user.setMarkerNum(markerNum);
-        user.setMarkerNumToday(markerNumToday);
-        user.updateAll("userid = ?", id);
-    }
-
-    public void openImage(){
-        if (editImageNum == 0) {
-            achievementFinished(1);
-        }
-
-        if (editImageNumToday == 0) {
-            dailyQuestFinished(1);
-        }
-
-        editImageNum += 1;
-        editImageNumToday += 1;
-    }
+//    public void openImage(){
+//        if (editImageNum == 0) {
+//            achievementFinished(1);
+//        }
+//
+//        if (editImageNumToday == 0) {
+//            dailyQuestFinished(1);
+//        }
+//
+//        editImageNum += 1;
+//        editImageNumToday += 1;
+//    }
 
     public void achievementFinished(int i){
         addScore(achievementsScore[i]);
     }
 
-    public void dailyQuestFinished(int i){
-        DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
-        addScore(dailyQuestsContainer.getDailyQuests().get(i).getReward());
-    }
+//    public void dailyQuestFinished(int i){
+//        DailyQuestsContainer dailyQuestsContainer = DailyQuestsContainer.getInstance();
+//        addScore(dailyQuestsContainer.getDailyQuests().get(i).getReward());
+//    }
 
     public void addScore(int s){
         score += s;

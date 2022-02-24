@@ -31,10 +31,7 @@
         android:paddingBottom="10dp"
         android:src="@drawable/ic_marker_main" />
 
-    <Space
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1" />
+
 
     <ImageView
         android:id="@+id/auto_reconstruction"
@@ -45,13 +42,36 @@
         android:paddingBottom="10dp"
         android:src="@drawable/ic_neuron" />
 
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
+
     <ImageView
-        android:id="@+id/clear"
+        android:id="@+id/delete_curve"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
-        android:src="@drawable/ic_clear" />
+        android:src="@drawable/ic_delete_curve_normal" />
+
+    <ImageView
+        android:id="@+id/delete_marker"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:src="@drawable/ic_marker_delete_normal" />
+
+    <com.nightonke.boommenu.BoomMenuButton
+        android:id="@+id/expanded_menu"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        />
 
 </com.michaldrabik.tapbarmenulib.TapBarMenu>

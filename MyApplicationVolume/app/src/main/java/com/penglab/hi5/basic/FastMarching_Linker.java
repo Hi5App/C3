@@ -5,7 +5,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
-import com.penglab.hi5.core.render.MyMarker;
+import com.penglab.hi5.core.render.pattern.MyMarker;
 import com.penglab.hi5.basic.tracingfunc.app2.HeapElemX;
 
 import java.util.Arrays;
