@@ -98,14 +98,21 @@ public class Tiffreader {
                 for (int k = 0; k < width; k++){
 
                     for (int j = 0; j < height/2; j++){
-                        int pixel = bmp.getPixel(k, height/2 - ( j + 1));
+                        int pixel;
+                        if(dirCount!=1)
+                        { pixel = bmp.getPixel(k, height/2 - ( j + 1));}
+                       else{  pixel = bmp.getPixel(k, j);}
                         int red = Color.red(pixel);
                         byte gray = (byte) (red & 0xff);
                         data[curDir * offset_xy + j * width + k] = gray;
                     }
 
                     for (int j = height/2; j < height; j++){
-                        int pixel = bmp.getPixel(k, height - ( j + 1) + height/2);
+                        int pixel;
+                        if(dirCount!=1) {
+                             pixel = bmp.getPixel(k, height - (j + 1) + height / 2);
+                        }
+                      else{  pixel = bmp.getPixel(k, j);}
                         int red = Color.red(pixel);
                         byte gray = (byte) (red & 0xff);
                         data[curDir * offset_xy + j * width + k] = gray;

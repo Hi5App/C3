@@ -84,9 +84,9 @@ public class ServerConnector extends BasicConnector implements ReconnectionInter
 
     @Override
     public void reLogin(){
-        Log.e(TAG,"start to reLogin !");
-        if (InfoCache.getAccount() != null && InfoCache.getToken() != null)
-            sendMsg(String.format("LOGIN:%s %s", InfoCache.getAccount(), InfoCache.getToken()), true, false);
+//        Log.e(TAG,"start to reLogin !");
+//        if (InfoCache.getAccount() != null && InfoCache.getToken() != null)
+//            sendMsg(String.format("LOGIN:%s %s", InfoCache.getAccount(), InfoCache.getToken()), true, false);
 //        else
 //            ToastEasy("user account is null, fail to relogin !");
     }

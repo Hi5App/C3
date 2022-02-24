@@ -406,8 +406,8 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
         if (serverConnector.checkConnection()){
             if ((preferenceLogin.getUsername() != null) && (preferenceLogin.getPassword() != null) &&
                     !preferenceLogin.getUsername().equals("") && !preferenceLogin.getPassword().equals("")){
-                serverConnector.sendMsg(String.format("LOGIN:%s %s", preferenceLogin.getUsername(), preferenceLogin.getPassword()),
-                        false,false);
+                //serverConnector.sendMsg(String.format("LOGIN:%s %s", preferenceLogin.getUsername(), preferenceLogin.getPassword()),
+                  //      false,false);
             }else {
                 Log.e(TAG,"user info is empty !");
                 ToastEasy("user info is empty !");
