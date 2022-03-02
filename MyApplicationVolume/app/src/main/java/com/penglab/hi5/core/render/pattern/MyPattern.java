@@ -8,6 +8,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.penglab.hi5.basic.ByteTranslate;
+import com.penglab.hi5.basic.FastMarching_Linker;
 import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.MyRenderer;
@@ -41,6 +42,7 @@ public class MyPattern extends BasicPattern {
     private ShortBuffer drawListBuffer;
     private ShortBuffer drawListPreBuffer;
     private FloatBuffer dimBuffer;
+    private IntBuffer sizeBuffer;
 
     private FloatBuffer vertexBuffer_curve;
     private FloatBuffer colorBuffer_suqre;
@@ -53,12 +55,16 @@ public class MyPattern extends BasicPattern {
     private IntBuffer   imageIntBuffer;
     private IntBuffer   imageIntDSBuffer;
     private ByteBuffer  imageBuffer_FBO;
+    private ByteBuffer imageDisBuffer;
+//    private IntBuffer phiBuffer;
 
 
     private int positionHandle = 0;
     private int colorHandle = 1;
     private int vPMatrixHandle;
     private int dimHandle;
+    private int sizeHandle;
+//    private int phiHandle;
     private int contrastHandle;
     private int trAMatrixHandle;
     private int thresholdHandle;
@@ -73,6 +79,7 @@ public class MyPattern extends BasicPattern {
     private int[] fbo_tex = new int[1]; //生成纹理id;
     private int[] vol_texDS = new int[1];
     private int[] backCoord = new int[1]; //生成纹理id;
+    private int[] dis_tex = new int[1];
 
     private int[] fbo = new int[1];//生成framebuffer
     private int[] rbo = new int[1];//生成renderbuffer
@@ -99,6 +106,7 @@ public class MyPattern extends BasicPattern {
     private float[] Colors;
     private float[] ColorsPre;
     private float[] dim;
+    private int[] size;
 
     private int threshold;
 
@@ -155,6 +163,8 @@ public class MyPattern extends BasicPattern {
 
     };
 
+    private byte [] phi;
+//    private int [] phi2;
 
 
 
@@ -220,8 +230,11 @@ public class MyPattern extends BasicPattern {
 
                     "layout (binding = 0) uniform highp sampler3D uVolData;" +
                     "layout (binding = 1) uniform sampler2D uBackCoord;" +
+                    "layout (binding = 2) uniform highp sampler3D uDisData;" +
 
                     "uniform highp float dim[3];" +
+                    "uniform highp int size[3];" +
+//                    "uniform highp int phi[128*128*128];" +
                     "uniform highp float contrast;" +
                     "layout (location = 0) out vec4 fragColor;" +
 
@@ -236,9 +249,9 @@ public class MyPattern extends BasicPattern {
                     "  vec3 dir = backColor.rgb - frontColor.rgb;" +
                     "  int steps = 256;" +
                     "  int stepSize = 1;" +
-                    "  vec4 vpos = frontColor;" +
+                    "  vec4 vpos = vec4(frontColor.r * float(size[0]), frontColor.g * float(size[1]), frontColor.b * float(size[2]), frontColor.a);" +
                     "  " +
-                    "  vec3 Step = dir/float(steps);" +
+                    "  vec3 Step = normalize(dir);" +
                     "  " +
                     "  vec4 accumulatedValue = vec4(0, 0, 0, 0);" +
                     "  vec4 value = vec4(0, 0, 0, 0);" +
@@ -247,7 +260,15 @@ public class MyPattern extends BasicPattern {
                     "  for(int i = 0; i < steps; i+=stepSize)" +
                     "  {" +
                     "     vec4 texture_value;" +
-                    "     texture_value = texture(uVolData, vec3(1.0 - vpos.x/dim[0], 1.0 - vpos.y/dim[1], vpos.z/dim[2]));" +
+                    "     float texture_dis;" +
+                    "     vec3 tempPos = vec3(int(vpos.x), int(vpos.y), int(vpos.z));" +
+                    "     texture_value = texture(uVolData, vec3(1.0 - float(vpos.x)/float(size[0]), 1.0 - float(vpos.y)/float(size[1]), float(vpos.z)/float(size[2])));" +
+                    "     texture_dis = texture(uDisData, vec3(1.0 - float(tempPos.x)/float(size[0]), 1.0 - float(tempPos.y)/float(size[1]), float(tempPos.z)/float(size[2]))).r;" +
+//                    "     texture_dis = float(phi[int(tempPos.x) * size[0] * size[1] + int(tempPos.y) * size[0] + int(tempPos.z)]);" +
+                    "     stepSize = int(texture_dis * 255.0 / 5.0);" +
+                    "     if (stepSize < 1) {" +
+                    "         stepSize = 1;" +
+                    "     }" +
                     "     value = vec4(texture_value.x * contrast, texture_value.y * contrast, texture_value.z * contrast, texture_value.x);" +
 //                    "     value = vec4(texture_value.x, texture_value.y, texture_value.z, texture_value.x);" +
 
@@ -268,7 +289,7 @@ public class MyPattern extends BasicPattern {
 //                    "     if(accumulatedValue.r > 0.15 && accumulatedValue.g > 0.15 && accumulatedValue.b > 0.15)\n" +
 //                    "         break;" +
 
-                    "     if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || accumulatedValue.a>=1.0)" +
+                    "     if(vpos.x > float(size[0]) || vpos.y > float(size[1]) || vpos.z > float(size[2]) || accumulatedValue.a>=1.0)" +
                     "         break;" +
                     "  }" +
 //                    "  accumulatedValue.r *= contrast;" +
@@ -293,9 +314,10 @@ public class MyPattern extends BasicPattern {
     public MyPattern(){
     }
 
-    public void setImage(Image4DSimple image, int width, int height, float[] normalizedDim){
+    public void setImage(Image4DSimple image, int width, int height, float[] normalizedDim, int [] originalSize){
         this.image = image;
         this.dim = normalizedDim;
+        this.size = originalSize;
 
         setPoint(normalizedDim);
         bufferSet();
@@ -575,6 +597,12 @@ public class MyPattern extends BasicPattern {
         dimHandle = GLES30.glGetUniformLocation(mProgram_raycasting, "dim");
         GLES20.glUniform1fv(dimHandle,3, dimBuffer);
 
+        sizeHandle = GLES30.glGetUniformLocation(mProgram_raycasting, "size");
+        GLES20.glUniform1iv(sizeHandle, 3, sizeBuffer);
+
+//        phiHandle = GLES30.glGetUniformLocation(mProgram_raycasting, "phi");
+//        GLES20.glUniform1iv(phiHandle, 128 * 128 * 128, phiBuffer);
+
         contrastHandle = GLES30.glGetUniformLocation(mProgram_raycasting, "contrast");
         GLES20.glUniform1f(contrastHandle,contrast);
 
@@ -586,6 +614,8 @@ public class MyPattern extends BasicPattern {
 
         GLES30.glActiveTexture(GLES30.GL_TEXTURE1); // 设置使用的纹理编号
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, fbo_tex[0]); // 绑定指定的纹理id
+        GLES30.glActiveTexture(GLES30.GL_TEXTURE2); // 设置使用的纹理编号
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_3D, dis_tex[0]);
 
 
         // 将纹理单元传递片段着色器的uVolData
@@ -594,11 +624,12 @@ public class MyPattern extends BasicPattern {
         // 将纹理单元传递片段着色器的uBackCoord
         GLES30.glUniform1i(GLES30.glGetUniformLocation(mProgram_raycasting,"uBackCoord"), 1);
 
+        GLES30.glUniform1i(GLES30.glGetUniformLocation(mProgram_raycasting, "uDisData"), 2);
+
         drawCube(mvpMatrix, mProgram_raycasting);
 
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,0); //解除绑定指定的纹理id
         GLES30.glBindTexture(GLES30.GL_TEXTURE_3D,0); //解除绑定指定的纹理id
-
     }
 
 
@@ -865,6 +896,55 @@ public class MyPattern extends BasicPattern {
 
         GLES30.glBindTexture(GLES30.GL_TEXTURE_3D,0);
 
+        phi = FastMarching_Linker.fastmarching_threshold(image.getData(), (int)image.getSz0(), (int)image.getSz1(), (int)image.getSz2(),
+                3, (int)Math.pow(2, image.getDatatype().ordinal() - 1), image.getIsBig(), 15);
+
+//        phi = FastMarching_Linker.dis(image.getData(), (int)image.getSz0(), (int)image.getSz1(), (int)image.getSz2(),
+//                (int)Math.pow(2, image.getDatatype().ordinal() - 1), image.getIsBig(), 20);
+
+//        for (int i = 0; i < phi.length; i++) {
+//            phi2[i] = (int)phi[i];
+//        }
+
+
+//        phiBuffer = IntBuffer.wrap(phi2);
+//        phiBuffer.position(0);
+
+        GLES30.glGenTextures(  //创建纹理对象
+                1, //产生纹理id的数量
+                dis_tex, //纹理id的数组
+                0  //偏移量
+        );
+
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_3D,dis_tex[0]);
+
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
+                GLES30.GL_TEXTURE_MIN_FILTER,GLES30.GL_NEAREST);//设置MIN 采样方式
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
+                GLES30.GL_TEXTURE_MAG_FILTER,GLES30.GL_NEAREST);//设置MAG采样方式
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
+                GLES30.GL_TEXTURE_WRAP_S,GLES30.GL_CLAMP_TO_EDGE);//设置S轴拉伸方式
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
+                GLES30.GL_TEXTURE_WRAP_T,GLES30.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
+                GLES30.GL_TEXTURE_WRAP_R,GLES30.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
+
+        imageDisBuffer = CreateBuffer(phi);
+
+        GLES30.glTexImage3D(GLES30.GL_TEXTURE_3D, //纹理类型
+                0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
+                GLES30.GL_R8, //图片的格式
+                vol_wDS,   //宽
+                vol_hDS,   //高
+                vol_dDS,   //切片数
+                0, //纹理边框尺寸();
+                GLES30.GL_RED,
+                GLES30.GL_UNSIGNED_BYTE,
+                imageDisBuffer);
+        imageDisBuffer.clear();
+        imageDisBuffer = null;
+
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_3D,0);
     }
 
     /*
@@ -1285,6 +1365,11 @@ public class MyPattern extends BasicPattern {
         dimBuffer.put(dim);
         dimBuffer.position(0);
 
+        sizeBuffer = ByteBuffer.allocateDirect(size.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asIntBuffer();
+        sizeBuffer.put(size);
+        sizeBuffer.position(0);
     }
 
 
@@ -1328,6 +1413,16 @@ public class MyPattern extends BasicPattern {
         templateBuffer.position(0);
         return templateBuffer;
 
+    }
+
+    private FloatBuffer CreateBuffer(float[] data) {
+        FloatBuffer templateBuffer;
+        templateBuffer = ByteBuffer.allocate(data.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        templateBuffer.put(data);
+        templateBuffer.position(0);
+        return templateBuffer;
     }
 
 

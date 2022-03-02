@@ -161,7 +161,7 @@ public class CheckRender implements GLSurfaceView.Renderer {
 
     private void setResource(){
         if (myPattern.isNeedSetContent()){
-            myPattern.setImage(image4DSimple, screenWidth, screenHeight, normalizedSize);
+            myPattern.setImage(image4DSimple, screenWidth, screenHeight, normalizedSize, originalSize);
         }
         if (myAxis.isNeedSetContent()){
             myAxis.setAxis(normalizedSize);

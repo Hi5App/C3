@@ -212,7 +212,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
             }
         });
 
-        startMusicService();
+//        startMusicService();
     }
 
     @Override
@@ -233,7 +233,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
     protected void onRestart() {
         Log.e(TAG,"onRestart");
         super.onRestart();
-        startMusicService();
+//        startMusicService();
     }
 
     @Override
