@@ -5,9 +5,9 @@ import android.content.Intent;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.penglab.hi5.basic.ByteTranslate;
+import com.penglab.hi5.basic.FastMarching_Linker;
 import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.MyRenderer;
@@ -46,6 +46,7 @@ public class MyPattern extends BasicPattern {
     private FloatBuffer colorBuffer_suqre;
 
 
+    private ByteBuffer  imageJudgeBuffer;
     private ByteBuffer  imageBuffer;
     private ByteBuffer  imageDSBuffer;
     private ShortBuffer imageShortBuffer;
@@ -72,6 +73,7 @@ public class MyPattern extends BasicPattern {
     private int[] vol_tex = new int[1]; //生成纹理id;
     private int[] fbo_tex = new int[1]; //生成纹理id;
     private int[] vol_texDS = new int[1];
+    private int[] vol_texJudge = new int[1];
     private int[] backCoord = new int[1]; //生成纹理id;
 
     private int[] fbo = new int[1];//生成framebuffer
@@ -99,6 +101,7 @@ public class MyPattern extends BasicPattern {
     private float[] Colors;
     private float[] ColorsPre;
     private float[] dim;
+    private byte[] texJudge;
 
     private int threshold;
 
@@ -219,7 +222,8 @@ public class MyPattern extends BasicPattern {
                     "in vec4 pos;" +
 
                     "layout (binding = 0) uniform highp sampler3D uVolData;" +
-                    "layout (binding = 1) uniform sampler2D uBackCoord;" +
+                    "layout (binding = 1) uniform highp sampler2D uBackCoord;" +
+                    "layout (binding = 2) uniform highp sampler3D uVolJudge;" +
 
                     "uniform highp float dim[3];" +
                     "uniform highp float contrast;" +
@@ -238,7 +242,7 @@ public class MyPattern extends BasicPattern {
                     "  int stepSize = 1;" +
                     "  vec4 vpos = frontColor;" +
                     "  " +
-                    "  vec3 Step = dir/float(steps);" +
+                    "  vec3 Step = normalize(dir)/float(steps);" +
                     "  " +
                     "  vec4 accumulatedValue = vec4(0, 0, 0, 0);" +
                     "  vec4 value = vec4(0, 0, 0, 0);" +
@@ -247,14 +251,12 @@ public class MyPattern extends BasicPattern {
                     "  for(int i = 0; i < steps; i+=stepSize)" +
                     "  {" +
                     "     vec4 texture_value;" +
+                    "     float texture_simple;" +
+
                     "     texture_value = texture(uVolData, vec3(1.0 - vpos.x/dim[0], 1.0 - vpos.y/dim[1], vpos.z/dim[2]));" +
                     "     value = vec4(texture_value.x * contrast, texture_value.y * contrast, texture_value.z * contrast, texture_value.x);" +
-//                    "     value = vec4(texture_value.x, texture_value.y, texture_value.z, texture_value.x);" +
 
-//                    "     if(value.r <= 3.0/255.0 && value.g <= 3.0/255.0 && value.b <= 3.0/255.0)" +
-//                    "         stepSize = 2;" +
-//                    "     else" +
-//                    "         stepSize = 1;" +
+                    "     texture_simple = texture(uVolJudge, vec3(1.0 - vpos.x/dim[0], 1.0 - vpos.y/dim[1], vpos.z/dim[2])).x * 255.0 / 2.0;" +
 
                     "     if(value.r > accumulatedValue.r)\n" +
                     "         accumulatedValue.r = value.r;\n" +
@@ -262,18 +264,17 @@ public class MyPattern extends BasicPattern {
                     "         accumulatedValue.g = value.g\n;" +
                     "     if(value.b > accumulatedValue.b)\n" +
                     "         accumulatedValue.b = value.b\n;" +
+
+                    "     if (texture_simple <= 1.0) {" +
+                    "         texture_simple = 1.0;" +
+                    "     }" +
+                    "     stepSize = int(texture_simple);" +
+
                     "     vpos.xyz += Step * float(stepSize);" +
-
-//                    "     accumulatedValue.a += (1.0 - accumulatedValue.a) * value.a;" +
-//                    "     if(accumulatedValue.r > 0.15 && accumulatedValue.g > 0.15 && accumulatedValue.b > 0.15)\n" +
-//                    "         break;" +
-
                     "     if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || accumulatedValue.a>=1.0)" +
                     "         break;" +
+
                     "  }" +
-//                    "  accumulatedValue.r *= contrast;" +
-//                    "  accumulatedValue.g *= contrast;" +
-//                    "  accumulatedValue.b *= contrast;" +
                     "  accumulatedValue.a = 1.0;" +
                     "  fragColor = accumulatedValue;" +
                     "}";
@@ -385,6 +386,12 @@ public class MyPattern extends BasicPattern {
         GLES30.glDeleteTextures( //删除纹理对象
                 1, //删除纹理id的数量
                 vol_texDS, //纹理id的数组
+                0  //偏移量
+        );
+
+        GLES30.glDeleteTextures( //删除纹理对象
+                1, //删除纹理id的数量
+                vol_texJudge, //纹理id的数组
                 0  //偏移量
         );
     }
@@ -594,6 +601,12 @@ public class MyPattern extends BasicPattern {
         // 将纹理单元传递片段着色器的uBackCoord
         GLES30.glUniform1i(GLES30.glGetUniformLocation(mProgram_raycasting,"uBackCoord"), 1);
 
+        GLES30.glActiveTexture(GLES30.GL_TEXTURE2); // 设置使用的纹理编号
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_3D, vol_texJudge[0]); // 绑定指定的纹理id
+
+        // 将纹理单元传递片段着色器的uBackCoord
+        GLES30.glUniform1i(GLES30.glGetUniformLocation(mProgram_raycasting,"uVolJudge"), 2);
+
         drawCube(mvpMatrix, mProgram_raycasting);
 
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,0); //解除绑定指定的纹理id
@@ -688,7 +701,7 @@ public class MyPattern extends BasicPattern {
         vol_hDS = vol_h / downSampleScale + 1;
         vol_dDS = vol_d / downSampleScale + 1;
 
-        byte [] data_src = image.getData();
+        byte[] data_src = image.getData();
 
         nchannel = (int)image.getSz3();
         data_length = image.getDatatype().ordinal();
@@ -865,6 +878,51 @@ public class MyPattern extends BasicPattern {
 
         GLES30.glBindTexture(GLES30.GL_TEXTURE_3D,0);
 
+        GLES30.glGenTextures(  //创建纹理对象
+                1, //产生纹理id的数量
+                vol_texJudge, //纹理id的数组
+                0  //偏移量
+        );
+
+        //绑定纹理id，将对象绑定到环境的纹理单元
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_3D, vol_texJudge[0]);
+
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
+                GLES30.GL_TEXTURE_MIN_FILTER,GLES30.GL_NEAREST);//设置MIN 采样方式
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
+                GLES30.GL_TEXTURE_MAG_FILTER,GLES30.GL_LINEAR);//设置MAG采样方式
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
+                GLES30.GL_TEXTURE_WRAP_S,GLES30.GL_CLAMP_TO_EDGE);//设置S轴拉伸方式
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
+                GLES30.GL_TEXTURE_WRAP_T,GLES30.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
+                GLES30.GL_TEXTURE_WRAP_R,GLES30.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
+
+//        for (int i = 0; i < texJudge.length; i++) {
+//            if (texJudge[i] != 0)
+//                Log.e(TAG, "texJudge " + i + ": " + texJudge[i]);
+//        }
+        texJudge = FastMarching_Linker.fastmarching_threshold(data_src, (int)image.getSz0(), (int)image.getSz1(), (int)image.getSz2(),
+                3, (int)Math.pow(2, image.getDatatype().ordinal() - 1), image.getIsBig(), 15);
+
+        imageJudgeBuffer = CreateBuffer(texJudge);
+        GLES30.glTexImage3D(
+                GLES30.GL_TEXTURE_3D, //纹理类型
+                0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
+                GLES30.GL_R8, //图片的格式
+                vol_w,   //宽
+                vol_h,   //高
+                vol_d,   //切片数
+                0, //纹理边框尺寸();
+                GLES30.GL_RED,
+                GLES30.GL_UNSIGNED_BYTE,
+                imageJudgeBuffer
+        );
+        imageJudgeBuffer.clear();
+        imageJudgeBuffer = null;
+
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_3D,0);
+
     }
 
     /*
@@ -876,6 +934,7 @@ public class MyPattern extends BasicPattern {
     private byte[] getIntensity_3d(byte[] data_src){
 
         byte [] data_image = new byte[vol_w * vol_h * vol_d * data_length * nchannel * 4];
+//        texJudge = new byte[vol_w * vol_h * vol_d * data_length * nchannel];
         if (nchannel == 3){
             for (int i = 0; i < vol_w * vol_h * vol_d * data_length; i++){
                 data_image[i * 4] = data_src[i];
@@ -885,6 +944,8 @@ public class MyPattern extends BasicPattern {
             }
         }else{
             for (int i = 0; i < vol_w * vol_h * vol_d * data_length; i++){
+//                texJudge[i] = ByteTranslate.intToByte((data_src[i] < 15 && data_src[i] >= 0) ? 0 : 255);
+
                 data_image[i * 4] = data_src[i];
                 data_image[i * 4 + 1] = data_src[i];
                 data_image[i * 4 + 2] = data_src[i];

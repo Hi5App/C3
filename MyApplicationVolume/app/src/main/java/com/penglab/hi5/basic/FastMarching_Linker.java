@@ -2,6 +2,7 @@ package com.penglab.hi5.basic;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
@@ -1894,6 +1895,136 @@ public class FastMarching_Linker {
         }
         return outswc;
     }
+
+    public static byte[] fastmarching_threshold(byte [] inimg1d, int sz0, int sz1, int sz2, int cnn_type, int datatype, boolean isBig, int threshold) {
+        int tol_sz = sz0 * sz1 * sz2;
+        int sz01 = sz0 * sz1;
+
+        if (tol_sz <= 0) {
+            Log.e("FastMarching_Threshold:", "wrong size info in fastmarching_linker");
+            return null;
+        }
+
+        int i;
+        double[] phi = new double[tol_sz];
+        Type[] state = new Type[tol_sz];
+        int[] parent = new int[(int) tol_sz];
+        int count = 0;
+
+        BasicHeap heap = new BasicHeap();
+        Map<Integer, HeapElemX> elems = new HashMap<>();
+        for(i = 0; i < tol_sz; i++) {
+            phi[i] = INF;
+            state[i] = FAR;
+            parent[i] = i;
+        }
+
+        for(i = 0; i < tol_sz; i++)
+        {
+            int val = 0;
+
+            switch (datatype){
+                case 1:
+                    val = ByteTranslate.byte1ToInt(inimg1d[i]);
+
+                    break;
+
+                case 2:
+                    byte [] b = new byte[2];
+                    b[0] = inimg1d[i * 2];
+                    b[1] = inimg1d[i * 2 + 1];
+                    val = ByteTranslate.byte2ToInt(b, isBig);
+
+                    break;
+
+                case 4:
+                    b= new byte[4];
+                    b[0] = inimg1d[i * 4];
+                    b[1] = inimg1d[i * 4 + 1];
+                    b[2] = inimg1d[i * 4 + 2];
+                    b[3] = inimg1d[i * 4 + 3];
+                    val = ByteTranslate.byte2ToInt(b, isBig);
+
+                    break;
+
+                default:
+                    break;
+            }
+
+            if (val > threshold) {
+                phi[i / datatype] = 0.0;
+                state[i / datatype] = ALIVE;
+                HeapElemX elem = new HeapElemX((int) i, (int) i, phi[(int) i]);
+                heap.insert(elem);
+                elems.put(i, elem);
+            }
+        }
+
+        while (!heap.empty()){
+            HeapElemX min_elem = heap.delete_min();
+            elems.remove((int) min_elem.img_index);
+
+            int min_ind = min_elem.img_index;
+            parent[(int) min_ind] = min_elem.prev_index;
+
+            state[min_ind] = ALIVE;
+            int ix = min_ind % sz0;
+            int jy = (min_ind/sz0) % sz1;
+            int kz = (min_ind/sz01) % sz2;
+            int w, h, d;
+
+            for(int kk = -1; kk <= 1; kk++)
+            {
+                d = kz + kk;
+                if(d < 0 || d >= sz2) continue;
+                for(int jj = -1; jj <= 1; jj++)
+                {
+                    h = jy + jj;
+                    if(h < 0 || h >= sz1) continue;
+                    for(int ii = -1; ii <= 1; ii++)
+                    {
+                        w = ix + ii;
+                        if(w < 0 || w >= sz0) continue;
+                        int offset = Math.abs(ii) + Math.abs(jj) + Math.abs(kk);
+                        if(offset == 0 || offset > cnn_type) continue;
+                        double factor = (offset == 1) ? 1.0 : ((offset == 2) ? 1.414214 : ((offset == 3) ? 1.732051 : 0.0));
+                        int index = d*sz01 + h*sz0 + w;
+
+                        if(state[index] != ALIVE)
+                        {
+                            double new_dist = phi[(int) min_ind] + factor;
+                            int prev_ind = min_ind;
+
+                            if(state[index] == FAR)
+                            {
+                                phi[index] = new_dist;
+                                HeapElemX  elem = new HeapElemX((int) index, (int) prev_ind, phi[(int) index]);
+                                heap.insert(elem);
+                                elems.put(index, elem);
+                                state[index] = TRIAL;
+                            }
+                            else if(state[index] == TRIAL)
+                            {
+                                if(phi[index] > new_dist)
+                                {
+                                    phi[index] = new_dist;
+                                    HeapElemX elem = elems.get(index);
+                                    heap.adjust(elem.heap_id, phi[index]);
+                                    elem.setPrev_index(prev_ind);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        byte[] result = new byte[tol_sz];
+        for (i = 0; i < tol_sz; i++) {
+            result[i] = (byte)((int)phi[i] & 0xff);
+        }
+        return result;
+    }
+
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static Vector<MyMarker> fastmarching_drawing_serialboxes(Vector<MyMarker> near_markers, Vector<MyMarker> far_markers,
