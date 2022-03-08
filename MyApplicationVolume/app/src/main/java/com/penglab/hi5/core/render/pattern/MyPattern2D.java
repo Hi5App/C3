@@ -100,7 +100,22 @@ public class MyPattern2D extends BasicPattern {
         );
 
     }
+    public void free(){
+        Log.i(TAG,"free() is called");
 
+        GLES30.glDeleteTextures( //删除纹理对象
+                1, //删除纹理id的数量
+                texture, //纹理id的数组
+                0  //偏移量
+        );
+
+        bPos.clear();
+        bPos = null;
+
+        bCoord.clear();
+        bCoord = null;
+
+    }
     public static void initProgram(){
         mProgram = initShaderProgram(TAG, vertexShaderCode, fragmentShaderCode);
         Log.v(TAG,"mProgram: " + mProgram);
