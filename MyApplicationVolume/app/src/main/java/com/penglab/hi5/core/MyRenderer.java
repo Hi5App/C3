@@ -405,6 +405,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         GLES30.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
         GLES30.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+        if(ifclear) {
+            if (fileType == FileType.V3draw|| fileType == FileType.TIF || fileType == FileType.V3dPBD) { //
+                myPattern.releaseMemory();
+            }else if (fileType == FileType.PNG || fileType == FileType.JPG) {
+                myPattern2D.releaseMemory();
+            }
+
+
+            ifclear=false;
+            return;
+        }
+
         if (judgeImg()){
             /*
             init the {MyPattern, MyPattern2D, MyAxis, MyDraw, MyAnimation}
