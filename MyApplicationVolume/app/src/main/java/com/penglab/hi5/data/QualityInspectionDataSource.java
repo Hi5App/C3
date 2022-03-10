@@ -28,10 +28,9 @@ public class QualityInspectionDataSource {
     public static final String NO_MORE_FILE = "No more file need to process !";
     private final String TAG = "QualityInspectionDataSource";
 
-
     private final MutableLiveData<Result> potentialArborLocationResult = new MutableLiveData<>();
-    private final MutableLiveData<Result> somaListResult = new MutableLiveData<>();
-    private final MutableLiveData<Result> updateSomaResult = new MutableLiveData<>();
+    private final MutableLiveData<Result> arborMarkerListResult = new MutableLiveData<>();
+    private final MutableLiveData<Result> updateArborMarkerResult = new MutableLiveData<>();
     private String responseData;
 
     public LiveData<Result> getPotentialArborLocationResult() {
@@ -39,11 +38,11 @@ public class QualityInspectionDataSource {
     }
 
     public MutableLiveData<Result> getSomaListResult() {
-        return somaListResult;
+        return arborMarkerListResult;
     }
 
     public MutableLiveData<Result> getUpdateSomaResult() {
-        return updateSomaResult;
+        return updateArborMarkerResult;
     }
 
     public void getArbor(){
@@ -98,15 +97,16 @@ public class QualityInspectionDataSource {
         }
     }
 
-    public void getSwc(){
+    public void getSwc(int x,int y,int z,int size,String arborName){
         try{
+            JSONObject pa1 = new JSONObject().put("x", x - size/2).put("y", y - size/2).put("z", z - size/2);
+            JSONObject pa2 = new JSONObject().put("x", x + size/2).put("y", y + size/2).put("z", z + size/2);
+            JSONObject bBox = new JSONObject().put("pa1", pa1).put("pa2", pa2).put("res", "").put("obj", arborName);
             JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-            HttpUtilsQualityInspection.getSwcWithOkHttp(userInfo, new Callback() {
+            HttpUtilsQualityInspection.getSwcWithOkHttp(userInfo,bBox, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-
                 }
-
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     int responseCode = response.code();
@@ -115,15 +115,12 @@ public class QualityInspectionDataSource {
                         try{
                             JSONObject arbor_location = new JSONObject(responseData);
                             JSONObject loc = arbor_location.getJSONObject("loc");
-
-
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                         response.body().close();
                         response.close();
                     }
-
                 }
             });
         } catch (Exception e) {
@@ -132,13 +129,13 @@ public class QualityInspectionDataSource {
     }
 
 
-    public void UpdateCheckResult(int somaId,int somaType,JSONArray insertList,JSONArray deleteList,String name,String image){
+    public void UpdateCheckResult(int arborId,String arborName,int somaType,JSONArray insertList,JSONArray deleteList,String name,String image){
         try{
             JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-            HttpUtilsQualityInspection.UpdateCheckResultWithOkHttp(userInfo, somaId, somaType, insertList, deleteList, name, image, new Callback() {
+            HttpUtilsQualityInspection.UpdateCheckResultWithOkHttp(userInfo, arborId,arborName,somaType, insertList, deleteList, name, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    updateSomaResult.postValue(new Result.Error(new Exception("Connect failed when upload marker list !")));
+                    updateArborMarkerResult.postValue(new Result.Error(new Exception("Connect failed when upload marker list !")));
 
                 }
                 @Override
@@ -147,17 +144,38 @@ public class QualityInspectionDataSource {
                     int responseCode = response.code();
                     if (responseCode == 200) {
                         // process response
-                        updateSomaResult.postValue(new Result.Success<String>(UPLOAD_SUCCESSFULLY));
+                        updateArborMarkerResult.postValue(new Result.Success<String>(UPLOAD_SUCCESSFULLY));
                     } else {
                         Log.e(TAG,"response: " + response.body().string());
-                        updateSomaResult.postValue(new Result.Error(new Exception("Fail to upload marker list !")));
+                        updateArborMarkerResult.postValue(new Result.Error(new Exception("Fail to upload marker list !")));
                     }
                     response.close();
                 }
             });
 
         } catch (Exception e) {
-            updateSomaResult.postValue(new Result.Error(new IOException("Check the network please !", e)));
+            updateArborMarkerResult.postValue(new Result.Error(new IOException("Check the network please !", e)));
+            e.printStackTrace();
+        }
+    }
+
+
+    public void getArborMarkerList(String arborName){
+        try{
+            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
+            HttpUtilsQualityInspection.getArborMarkerListWithOkHttp(userInfo, arborName, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    arborMarkerListResult.postValue(new Result.Error(new Exception("Connect failed when get arbor list!")));
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+
+                }
+            });
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -166,68 +184,68 @@ public class QualityInspectionDataSource {
 
 
 
-    public void getSomaList(String image, int x, int y, int z, int size){
-        try {
-            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-            HttpUtilsSoma.getSomaListWithOkHttp(userInfo, image, x, y, z, size, new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    somaListResult.postValue(new Result.Error(new Exception("Connect failed when get soma list !")));
-                }
-
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    int responseCode = response.code();
-                    if (responseCode == 200) {
-                        // process response
-                        responseData = response.body().string();
-                        Log.e(TAG, "responseData: " + responseData);
-                        try {
-                            JSONArray somaList = new JSONArray(responseData);
-                            MarkerList markerList = MarkerList.parseFromJSONArray(somaList);
-                            somaListResult.postValue(new Result.Success<MarkerList>(markerList));
-                        } catch (JSONException e) {
-                            somaListResult.postValue(new Result.Error(new Exception("Fail to parse soma list !")));
-                            e.printStackTrace();
-                        }
-                        response.body().close();
-                        response.close();
-                    } else {
-                        somaListResult.postValue(new Result.Error(new Exception("Fail to get soma list !")));
-                    }
-                }
-            });
-        } catch (Exception exception) {
-            somaListResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
-        }
-    }
-
-    public void updateSomaList(String image, int locationId, String username, JSONArray insertSomaList, JSONArray deleteSomaList){
-        try {
-            Log.e(TAG,"start updateSomaList");
-            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-            HttpUtilsSoma.updateSomaListWithOkHttp(userInfo, locationId, insertSomaList, deleteSomaList, username, image, new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    updateSomaResult.postValue(new Result.Error(new Exception("Connect failed when upload marker list !")));
-                }
-
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    Log.e(TAG,"receive response");
-                    int responseCode = response.code();
-                    if (responseCode == 200) {
-                        // process response
-                        updateSomaResult.postValue(new Result.Success<String>(UPLOAD_SUCCESSFULLY));
-                    } else {
-                        Log.e(TAG,"response: " + response.body().string());
-                        updateSomaResult.postValue(new Result.Error(new Exception("Fail to upload marker list !")));
-                    }
-                    response.close();
-                }
-            });
-        } catch (Exception exception) {
-            updateSomaResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
-        }
-    }
+//    public void getSomaList(String image, int x, int y, int z, int size){
+//        try {
+//            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
+//            HttpUtilsSoma.getSomaListWithOkHttp(userInfo, image, x, y, z, size, new Callback() {
+//                @Override
+//                public void onFailure(Call call, IOException e) {
+//                    somaListResult.postValue(new Result.Error(new Exception("Connect failed when get soma list !")));
+//                }
+//
+//                @Override
+//                public void onResponse(Call call, Response response) throws IOException {
+//                    int responseCode = response.code();
+//                    if (responseCode == 200) {
+//                        // process response
+//                        responseData = response.body().string();
+//                        Log.e(TAG, "responseData: " + responseData);
+//                        try {
+//                            JSONArray somaList = new JSONArray(responseData);
+//                            MarkerList markerList = MarkerList.parseFromJSONArray(somaList);
+//                            somaListResult.postValue(new Result.Success<MarkerList>(markerList));
+//                        } catch (JSONException e) {
+//                            somaListResult.postValue(new Result.Error(new Exception("Fail to parse soma list !")));
+//                            e.printStackTrace();
+//                        }
+//                        response.body().close();
+//                        response.close();
+//                    } else {
+//                        somaListResult.postValue(new Result.Error(new Exception("Fail to get soma list !")));
+//                    }
+//                }
+//            });
+//        } catch (Exception exception) {
+//            somaListResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
+//        }
+//    }
+//
+//    public void updateSomaList(String image, int locationId, String username, JSONArray insertSomaList, JSONArray deleteSomaList){
+//        try {
+//            Log.e(TAG,"start updateSomaList");
+//            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
+//            HttpUtilsSoma.updateSomaListWithOkHttp(userInfo, locationId, insertSomaList, deleteSomaList, username, image, new Callback() {
+//                @Override
+//                public void onFailure(Call call, IOException e) {
+//                    updateSomaResult.postValue(new Result.Error(new Exception("Connect failed when upload marker list !")));
+//                }
+//
+//                @Override
+//                public void onResponse(Call call, Response response) throws IOException {
+//                    Log.e(TAG,"receive response");
+//                    int responseCode = response.code();
+//                    if (responseCode == 200) {
+//                        // process response
+//                        updateSomaResult.postValue(new Result.Success<String>(UPLOAD_SUCCESSFULLY));
+//                    } else {
+//                        Log.e(TAG,"response: " + response.body().string());
+//                        updateSomaResult.postValue(new Result.Error(new Exception("Fail to upload marker list !")));
+//                    }
+//                    response.close();
+//                }
+//            });
+//        } catch (Exception exception) {
+//            updateSomaResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
+//        }
+//    }
 }
