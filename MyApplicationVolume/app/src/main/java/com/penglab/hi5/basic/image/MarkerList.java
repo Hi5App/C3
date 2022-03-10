@@ -148,7 +148,7 @@ public class MarkerList implements Cloneable {
         return markerList;
     }
 
-    public static MarkerList parseTOJSONArray (JSONArray jsonArray)  throws JSONException{
+    public static MarkerList parseToJSONArray (JSONArray jsonArray)  throws JSONException{
         if(jsonArray == null){
             return null;
         }
@@ -156,9 +156,8 @@ public class MarkerList implements Cloneable {
         for(int i =0;i<jsonArray.length();i++){
             JSONObject jsonObject = jsonArray.getJSONObject(i);
             JSONObject loc = jsonObject.getJSONObject("loc");
-            int type = jsonObject.getInt("type");
+            int type = jsonObject.getInt("Type");
             String name = jsonObject.getString("name");
-
             ImageMarkerExt imageMarker = new ImageMarkerExt(
                     type,
                     (float) loc.getDouble("x"),
