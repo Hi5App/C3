@@ -10,6 +10,7 @@ public class HttpUtilsQualityInspection extends HttpUtils{
     private static final String URL_GET_ARBOR = SERVER_IP + "/arbor/getarbor";
     private static final String URL_UPDATE_CHECK_RESULT = SERVER_IP + "/arbor/updatearborresult";
     private static final String URL_GET_SWC = SERVER_IP + "swc/cropswc";
+    private static final String URL_GET_ARBOR_MARKER_LIST = SERVER_IP + "arbor/queryarborresult";
 
     public static void getArborWithOkHttp(JSONObject userInfo, Callback callback) 
     {
@@ -22,30 +23,45 @@ public class HttpUtilsQualityInspection extends HttpUtils{
             e.printStackTrace();
         }
     }
-    public static void UpdateCheckResultWithOkHttp(JSONObject userInfo, int somaId, int somaType,JSONArray insertList, JSONArray deleteList, String owner, String image,Callback callback)
+
+
+    public static void getSwcWithOkHttp(JSONObject userInfo,JSONObject bBox,Callback callback)
     {
         try {
             RequestBody body = RequestBody.create(JSON,String.valueOf(new JSONObject()
-                    .put("user", userInfo)
-                    .put("somaId", somaId)
-                    .put("somaType",somaType)
-                    .put("insertlist", insertList)
-                    .put("deletelist", deleteList)
-                    .put("owner", owner)
-                    .put("image", image)));
-            asyncPostRequest(URL_UPDATE_CHECK_RESULT, body, callback);
-
+                    .put("bb", bBox)
+                    .put("user", userInfo)));
+            asyncPostRequest(URL_GET_SWC, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void getSwcWithOkHttp(JSONObject userInfo,Callback callback)
+    public static void UpdateCheckResultWithOkHttp(JSONObject userInfo, int arborId, String arborName,int somaType,JSONArray insertList, JSONArray deleteList, String owner, Callback callback)
     {
         try {
             RequestBody body = RequestBody.create(JSON,String.valueOf(new JSONObject()
-                    .put("user", userInfo)));
-            asyncPostRequest(URL_GET_SWC, body, callback);
+
+                    .put("arborId", arborId)
+                    .put("arborname",arborName)
+                    .put("somatype",somaType)
+                    .put("insertlist", insertList)
+                    .put("deletelist", deleteList)
+                    .put("owner", owner)
+                    .put("user",userInfo)));
+            asyncPostRequest(URL_UPDATE_CHECK_RESULT, body, callback);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void getArborMarkerListWithOkHttp(JSONObject userInfo,String arborName,Callback callback)
+    {
+        try{
+            RequestBody body = RequestBody.create(JSON,String.valueOf(new JSONObject()
+                    .put("user", userInfo)
+                    .put("arborname",arborName)));
+            asyncPostRequest(URL_GET_ARBOR_MARKER_LIST,body,callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
