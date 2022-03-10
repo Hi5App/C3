@@ -148,6 +148,30 @@ public class MarkerList implements Cloneable {
         return markerList;
     }
 
+    public static MarkerList parseTOJSONArray (JSONArray jsonArray)  throws JSONException{
+        if(jsonArray == null){
+            return null;
+        }
+        MarkerList markerList = new MarkerList();
+        for(int i =0;i<jsonArray.length();i++){
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            JSONObject loc = jsonObject.getJSONObject("loc");
+            int type = jsonObject.getInt("type");
+            String name = jsonObject.getString("name");
+
+            ImageMarkerExt imageMarker = new ImageMarkerExt(
+                    type,
+                    (float) loc.getDouble("x"),
+                    (float) loc.getDouble("y"),
+                    (float) loc.getDouble("z"),
+                    name);
+            markerList.add(imageMarker);
+        }
+        return markerList;
+    }
+
+
+
     public static MarkerList covertLocalToGlobal(MarkerList markerList, CoordinateConvert coordinateConvert) {
         if (markerList == null || coordinateConvert == null){
             return null;
