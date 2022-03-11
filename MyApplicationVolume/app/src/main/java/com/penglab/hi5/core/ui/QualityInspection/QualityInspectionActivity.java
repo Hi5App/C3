@@ -55,6 +55,7 @@ import com.penglab.hi5.data.dataStore.PreferenceMusic;
 import com.penglab.hi5.data.dataStore.PreferenceSetting;
 import com.penglab.hi5.data.dataStore.PreferenceSoma;
 import com.penglab.hi5.data.model.img.FilePath;
+import com.penglab.hi5.data.model.img.PotentialArborMarkerInfo;
 import com.penglab.hi5.data.model.img.PotentialSomaInfo;
 import com.robinhood.ticker.TickerView;
 import com.warkiz.widget.IndicatorSeekBar;
@@ -96,7 +97,9 @@ public class QualityInspectionActivity extends AppCompatActivity {
     private View markerFactoryView;
     private BasePopupView downloadingPopupView;
     private ImageButton editModeIndicator;
-    private ImageButton addMarker;
+    private ImageButton addMarkerBlue;
+    private ImageButton addMarkerRed;
+    private ImageButton addMarkerYellow;
     private ImageButton deleteMarker;
     private TickerView scoreTickerView;
     private SeekBar contrastSeekBar;
@@ -154,7 +157,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
                     case UPLOAD_MARKERS_SUCCESSFULLY:
                         ToastEasy("Upload successfully");
                         if (needSyncSomaList) {
-                            QualityInspectionViewModel.getSomaList();
+                            QualityInspectionViewModel.getArborMarkerList();
                             needSyncSomaList = false;
                         }
                         break;
@@ -179,7 +182,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
             }
         });
 
-        QualityInspectionViewModel.getMarkerFactoryDataSource().getPotentialLocationResult().observe(this, new Observer<Result>() {
+        QualityInspectionViewModel.getQualityInspectionDataSource().getPotentialArborLocationResult().observe(this, new Observer<Result>() {
             @Override
             public void onChanged(Result result) {
                 if (result == null){
@@ -189,14 +192,14 @@ public class QualityInspectionActivity extends AppCompatActivity {
             }
         });
 
-        QualityInspectionViewModel.getMarkerFactoryDataSource().getSomaListResult().observe(this, new Observer<Result>() {
+        QualityInspectionViewModel.getQualityInspectionDataSource().getArborMarkerListResult().observe(this, new Observer<Result>() {
             @Override
             public void onChanged(Result result) {
                 QualityInspectionViewModel.handleMarkerListResult(result);
             }
         });
 
-        QualityInspectionViewModel.getMarkerFactoryDataSource().getUpdateSomaResult().observe(this, new Observer<Result>() {
+        QualityInspectionViewModel.getQualityInspectionDataSource().getUpdateCheckResult().observe(this, new Observer<Result>() {
             @Override
             public void onChanged(Result result) {
                 QualityInspectionViewModel.handleUpdateSomaResult(result);
@@ -232,10 +235,10 @@ public class QualityInspectionActivity extends AppCompatActivity {
                 }
                 if (resourceResult.isSuccess()){
                     annotationGLSurfaceView.openFile();
-                    QualityInspectionViewModel.getSomaList();
-                    PotentialSomaInfo somaInfo = QualityInspectionViewModel.getCurPotentialSomaInfo();
-                    imageIdLocationTextView.setText(somaInfo.getBrainId() + "_" + somaInfo.getLocation().toString());
-                    annotationGLSurfaceView.setImageInfoInRender(somaInfo.getBrainId() + "_" + somaInfo.getLocation().toString());
+                    QualityInspectionViewModel.getArborMarkerList();
+                    PotentialArborMarkerInfo arborMarkerInfo = QualityInspectionViewModel.getCurPotentialArborMarkerInfo();
+//                    imageIdLocationTextView.setText(arborMarkerInfo.getBrainId() + "_" + arborMarkerInfo.getLocation().toString());
+//                    annotationGLSurfaceView.setImageInfoInRender(arborMarkerInfo.getBrainId() + "_" + arborMarkerInfo.getLocation().toString());
                 } else {
                     ToastEasy(resourceResult.getError());
                 }
@@ -374,7 +377,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
             case R.id.confirm:
                 if (!annotationGLSurfaceView.nothingToUpload()) {
                     needSyncSomaList = true;
-                    QualityInspectionViewModel.updateSomaList(annotationGLSurfaceView.getMarkerListToAdd(),
+                    QualityInspectionViewModel.updateCheckResult(annotationGLSurfaceView.getMarkerListToAdd(),
                             annotationGLSurfaceView.getMarkerListToDelete());
                     playButtonSound();
                 }
@@ -562,7 +565,10 @@ public class QualityInspectionActivity extends AppCompatActivity {
             this.addContentView(QualityInspectionView, lpQualityInspectionView);
 
             editModeIndicator = findViewById(R.id.edit_mode_indicator);
-            addMarker = findViewById(R.id.add_marker);
+            addMarkerBlue = findViewById(R.id.add_marker_blue);
+            addMarkerRed = findViewById(R.id.add_marker_red);
+            addMarkerYellow = findViewById(R.id.add_marker_yellow);
+
             deleteMarker = findViewById(R.id.delete_marker);
             contrastSeekBar = (SeekBar) findViewById(R.id.mySeekBar);
             PreferenceSetting preferenceSetting = PreferenceSetting.getInstance();
@@ -574,7 +580,9 @@ public class QualityInspectionActivity extends AppCompatActivity {
             ToggleButton pinpointStroke = findViewById(R.id.switch_marker_mode);
             ImageButton hideSwc = findViewById(R.id.hide_swc);
 
-            addMarker.setOnClickListener(this::onButtonClick);
+            addMarkerBlue.setOnClickListener(this::onButtonClick);
+            addMarkerYellow.setOnClickListener(this::onButtonClick);
+            addMarkerRed.setOnClickListener(this::onButtonClick);
             deleteMarker.setOnClickListener(this::onButtonClick);
             previousFile.setOnClickListener(v -> previousFile());
             nextFile.setOnClickListener(v -> nextFile());
@@ -623,26 +631,52 @@ public class QualityInspectionActivity extends AppCompatActivity {
     @SuppressLint("NonConstantResourceId")
     private void onButtonClick(View view) {
         // reset UI
-        addMarker.setImageResource(R.drawable.ic_add_marker);
-        deleteMarker.setImageResource(R.drawable.ic_marker_delete);
+        addMarkerBlue.setImageResource(R.drawable.ic_add_marker_blue);
+        addMarkerRed.setImageResource(R.drawable.ic_add_marker_red);
+        addMarkerYellow.setImageResource(R.drawable.ic_add_marker_yellow);
+        deleteMarker.setImageResource(R.drawable.ic_delete_marker_checkmode);
         playButtonSound();
 
         switch (view.getId()){
             case R.id.add_marker:
                 if(switchMarkerMode) {
                     if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
-                        addMarker.setImageResource(R.drawable.ic_marker_main);
+                        annotationGLSurfaceView.setLastMarkerType(3);
+                        addMarkerBlue.setImageResource(R.drawable.ic_marker_main_checkmode);
                     }
                 }else{
                     if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE)) {
-                        addMarker.setImageResource(R.drawable.ic_marker_main);
+                        addMarkerBlue.setImageResource(R.drawable.ic_marker_main_checkmode);
                     }
                 }
                 break;
-
+            case R.id.add_marker_red:
+                if(switchMarkerMode) {
+                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
+                        annotationGLSurfaceView.setLastMarkerType(2);
+                        addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
+                    }
+                }else{
+                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE)) {
+                        addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
+                    }
+                }
+                break;
+            case R.id.add_marker_yellow:
+                if(switchMarkerMode) {
+                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
+                        annotationGLSurfaceView.setLastMarkerType(6);
+                        addMarkerYellow.setImageResource(R.drawable.ic_marker_main_checkmode);
+                    }
+                }else{
+                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE)) {
+                        addMarkerYellow.setImageResource(R.drawable.ic_marker_main_checkmode);
+                    }
+                }
+                break;
             case R.id.delete_marker:
                 if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_MARKER)){
-                    deleteMarker.setImageResource(R.drawable.ic_marker_delete_normal);
+                    deleteMarker.setImageResource(R.drawable.ic_delete_marker_checkmode);
                 }
                 break;
         }
@@ -696,7 +730,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
 
     private void navigateFile(boolean needUpload, boolean nextFile) {
         if (needUpload) {
-            QualityInspectionViewModel.updateSomaList(annotationGLSurfaceView.getMarkerListToAdd(),
+            QualityInspectionViewModel.updateCheckResult(annotationGLSurfaceView.getMarkerListToAdd(),
                     annotationGLSurfaceView.getMarkerListToDelete());
         }
         if (nextFile) {

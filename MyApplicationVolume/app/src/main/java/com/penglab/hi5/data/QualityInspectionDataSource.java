@@ -12,7 +12,8 @@ import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.net.HttpUtilsQualityInspection;
 import com.penglab.hi5.core.net.HttpUtilsSoma;
-import com.penglab.hi5.data.model.img.PotentialArborInfo;
+import com.penglab.hi5.data.model.img.PotentialArborMarkerInfo;
+import com.penglab.hi5.data.model.img.PotentialArborMarkerInfo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,11 +41,11 @@ public class QualityInspectionDataSource {
         return potentialArborLocationResult;
     }
 
-    public MutableLiveData<Result> getSomaListResult() {
+    public MutableLiveData<Result> getArborMarkerListResult() {
         return arborMarkerListResult;
     }
 
-    public MutableLiveData<Result> getUpdateSomaResult() {
+    public MutableLiveData<Result> getUpdateCheckResult() {
         return updateArborMarkerResult;
     }
 
@@ -67,14 +68,15 @@ public class QualityInspectionDataSource {
                         try {
                             JSONObject potentialArborLocation = new JSONObject(responseData);
                             JSONObject loc = potentialArborLocation.getJSONObject("loc");
-                            PotentialArborInfo potentialArborInfo = new PotentialArborInfo(
+                            PotentialArborMarkerInfo potentialArborMarkerInfo = new PotentialArborMarkerInfo(
                                     potentialArborLocation.getInt("id"),
+                                    potentialArborLocation.getString("name"),
                                     potentialArborLocation.getInt("somaId"),
                                     potentialArborLocation.getString("image"),
                                     new XYZ(loc.getInt("x"),
                                             loc.getInt("y"),
                                             loc.getInt("z")));
-                            potentialArborLocationResult.postValue(new Result.Success<PotentialArborInfo>(potentialArborInfo));
+                            potentialArborLocationResult.postValue(new Result.Success<PotentialArborMarkerInfo>(potentialArborMarkerInfo));
                         } catch (JSONException e) {
                             e.printStackTrace();
                             potentialArborLocationResult.postValue(new Result.Error(new Exception("Fail to parse potential location info !")));
@@ -147,11 +149,11 @@ public class QualityInspectionDataSource {
     }
 
 
-    public void UpdateCheckResult(int arborId,String arborName,int somaType,JSONArray insertList,JSONArray deleteList,String name,String image){
+    public void UpdateCheckResult(int arborId,String arborName,JSONArray insertList,JSONArray deleteList,String name,String image){
         try{
             Log.e(TAG,"start updateCheckResult");
             JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-            HttpUtilsQualityInspection.UpdateCheckResultWithOkHttp(userInfo, arborId,arborName,somaType, insertList, deleteList, name, new Callback() {
+            HttpUtilsQualityInspection.UpdateCheckResultWithOkHttp(userInfo, arborId,arborName, insertList, deleteList, name, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     updateArborMarkerResult.postValue(new Result.Error(new Exception("Connect failed when upload marker list !")));

@@ -37,14 +37,13 @@ public class HttpUtilsQualityInspection extends HttpUtils{
         }
     }
 
-    public static void UpdateCheckResultWithOkHttp(JSONObject userInfo, int arborId, String arborName,int somaType,JSONArray insertList, JSONArray deleteList, String owner, Callback callback)
+    public static void UpdateCheckResultWithOkHttp(JSONObject userInfo, int arborId, String arborName,JSONArray insertList, JSONArray deleteList, String owner, Callback callback)
     {
         try {
             RequestBody body = RequestBody.create(JSON,String.valueOf(new JSONObject()
 
                     .put("arborId", arborId)
                     .put("arborname",arborName)
-                    .put("somatype",somaType)
                     .put("insertlist", insertList)
                     .put("deletelist", deleteList)
                     .put("owner", owner)
