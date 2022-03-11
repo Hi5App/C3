@@ -2,7 +2,6 @@ package com.penglab.hi5.core.ui.QualityInspection;
 
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
-import static com.penglab.hi5.data.ImageDataSource.DOWNLOAD_IMAGE_FAILED;
 import static com.penglab.hi5.data.MarkerFactoryDataSource.NO_MORE_FILE;
 import static com.penglab.hi5.data.MarkerFactoryDataSource.UPLOAD_SUCCESSFULLY;
 
@@ -24,9 +23,10 @@ import com.penglab.hi5.data.MarkerFactoryDataSource;
 import com.penglab.hi5.data.QualityInspectionDataSource;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.UserInfoRepository;
-import com.penglab.hi5.data.model.img.ArborInfo;
 import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.img.FileType;
+import com.penglab.hi5.data.model.img.PotentialArborMarkerInfo;
+import com.penglab.hi5.data.model.img.PotentialArborMarkerInfo;
 import com.penglab.hi5.data.model.img.PotentialSomaInfo;
 import com.penglab.hi5.data.model.user.LoggedInUser;
 
@@ -56,7 +56,7 @@ public class QualityInspectionViewModel extends ViewModel {
     }
 
     public enum WorkStatus{
-        IMAGE_FILE_EXPIRED, START_TO_DOWNLOAD_IMAGE, GET_SOMA_LIST_SUCCESSFULLY, UPLOAD_MARKERS_SUCCESSFULLY, NO_MORE_FILE, DOWNLOAD_IMAGE_FINISH, NONE
+        IMAGE_FILE_EXPIRED, START_TO_DOWNLOAD_IMAGE, START_TO_DOWNLOAD_SWC,GET_ARBOR_MARKER_LIST_SUCCESSFULLY, UPLOAD_MARKERS_SUCCESSFULLY, NO_MORE_FILE, DOWNLOAD_IMAGE_FINISH, NONE
     }
 
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(2);
@@ -71,7 +71,6 @@ public class QualityInspectionViewModel extends ViewModel {
 
     private final UserInfoRepository userInfoRepository;
     private final ImageInfoRepository imageInfoRepository;
-    private final MarkerFactoryDataSource markerFactoryDataSource;
     private final ImageDataSource imageDataSource;
     private final AnnotationDataSource annotationDataSource;
     private CheckArborDataSource checkArborDataSource;
@@ -82,9 +81,9 @@ public class QualityInspectionViewModel extends ViewModel {
     private final com.penglab.hi5.core.ui.marker.CoordinateConvert coordinateConvert = new com.penglab.hi5.core.ui.marker.CoordinateConvert();
     private final CoordinateConvert lastDownloadCoordinateConvert = new CoordinateConvert();
     private final HashMap<String, String> resMap = new HashMap<>();
-    private final List<PotentialSomaInfo> potentialSomaInfoList = new ArrayList<>();
-    private volatile PotentialSomaInfo curPotentialSomaInfo;
-    private volatile PotentialSomaInfo lastDownloadPotentialSomaInfo;
+    private final List<PotentialArborMarkerInfo> potentialArborMarkerInfoList = new ArrayList<>();
+    private volatile PotentialArborMarkerInfo curPotentialArborMarkerInfo;
+    private volatile PotentialArborMarkerInfo lastDownloadPotentialArborMarkerInfo;
     private int curIndex = -1;
     private int lastIndex = -1;
     private boolean isDownloading = false;
@@ -93,7 +92,7 @@ public class QualityInspectionViewModel extends ViewModel {
     public QualityInspectionViewModel(UserInfoRepository userInfoRepository, ImageInfoRepository imageInfoRepository, MarkerFactoryDataSource markerFactoryDataSource, ImageDataSource imageDataSource, AnnotationDataSource annotationDataSource, AnnotationDataSource annotationDataSource1) {
         this.userInfoRepository = userInfoRepository;
         this.imageInfoRepository = imageInfoRepository;
-        this.markerFactoryDataSource = markerFactoryDataSource;
+        this.qualityInspectionDataSource = qualityInspectionDataSource;
         this.imageDataSource = imageDataSource;
         this.loggedInUser = userInfoRepository.getUser();
         this.annotationDataSource = annotationDataSource1;
@@ -130,8 +129,8 @@ public class QualityInspectionViewModel extends ViewModel {
         return imageDataSource;
     }
 
-    public MarkerFactoryDataSource getMarkerFactoryDataSource() {
-        return markerFactoryDataSource;
+    public QualityInspectionDataSource getQualityInspectionDataSource() {
+        return qualityInspectionDataSource;
     }
 
     public boolean isLoggedIn(){
@@ -142,8 +141,8 @@ public class QualityInspectionViewModel extends ViewModel {
         return userInfoRepository.getScoreModel().getObservableScore();
     }
 
-    public PotentialSomaInfo getCurPotentialSomaInfo() {
-        return curPotentialSomaInfo;
+    public PotentialArborMarkerInfo getCurPotentialArborMarkerInfo() {
+        return curPotentialArborMarkerInfo;
     }
 
 //    public void updateImageResult(Result result) {
@@ -243,7 +242,7 @@ public class QualityInspectionViewModel extends ViewModel {
         if (result instanceof Result.Success) {
             Object data = ((Result.Success<?>) result).getData();
             if (data instanceof String){
-                potentialSomaInfoList.add(lastDownloadPotentialSomaInfo);
+                potentialArborMarkerInfoList.add(lastDownloadPotentialArborMarkerInfo);
                 isDownloading = false;
                 if (workStatus.getValue() == WorkStatus.START_TO_DOWNLOAD_IMAGE) {
                     workStatus.setValue(WorkStatus.DOWNLOAD_IMAGE_FINISH);
@@ -257,9 +256,6 @@ public class QualityInspectionViewModel extends ViewModel {
             isDownloading = false;
         }
     }
-
-
-
 
     public void updateAnnotationResult(Result result) {
         if (result instanceof Result.Success) {
@@ -286,8 +282,8 @@ public class QualityInspectionViewModel extends ViewModel {
         if (result instanceof Result.Success){
             Object data = ((Result.Success<?>) result).getData();
             if (data instanceof PotentialSomaInfo){
-                lastDownloadPotentialSomaInfo = (PotentialSomaInfo) data;
-                lastDownloadCoordinateConvert.initLocation(lastDownloadPotentialSomaInfo.getLocation());
+                lastDownloadPotentialArborMarkerInfo = (PotentialArborMarkerInfo) data;
+                lastDownloadCoordinateConvert.initLocation(lastDownloadPotentialArborMarkerInfo.getLocation());
 
                 // get res list when first download img
                 if (resMap.isEmpty()) {
@@ -299,7 +295,7 @@ public class QualityInspectionViewModel extends ViewModel {
                 // get soma list successfully
                 syncMarkerList.setValue(MarkerList.covertGlobalToLocal((MarkerList) data, coordinateConvert));
                 annotationMode.setValue(AnnotationMode.BIG_DATA);
-                workStatus.setValue(WorkStatus.GET_SOMA_LIST_SUCCESSFULLY);
+                workStatus.setValue(WorkStatus.GET_ARBOR_MARKER_LIST_SUCCESSFULLY);
             } else if (data instanceof String){
                 String response = (String) data;
                 if (response.equals(UPLOAD_SUCCESSFULLY)){
@@ -317,10 +313,10 @@ public class QualityInspectionViewModel extends ViewModel {
     public void handlePotentialLocationResult(Result result) {
         if (result instanceof Result.Success) {
             Object data = ((Result.Success<?>) result).getData();
-            if (data instanceof PotentialSomaInfo){
-                lastDownloadPotentialSomaInfo = (PotentialSomaInfo) data;
-                lastDownloadCoordinateConvert.initLocation(lastDownloadPotentialSomaInfo.getLocation());
-                lastDownloadPotentialSomaInfo.setCreatedTime(System.currentTimeMillis());
+            if (data instanceof PotentialArborMarkerInfo){
+                lastDownloadPotentialArborMarkerInfo = (PotentialArborMarkerInfo) data;
+                lastDownloadCoordinateConvert.initLocation(lastDownloadPotentialArborMarkerInfo.getLocation());
+                lastDownloadPotentialArborMarkerInfo.setCreatedTime(System.currentTimeMillis());
 
                 // get res list when first download img
                 if (resMap.isEmpty()) {
@@ -353,7 +349,7 @@ public class QualityInspectionViewModel extends ViewModel {
                 // get soma list successfully
                 syncMarkerList.setValue(MarkerList.covertGlobalToLocal((MarkerList) data, coordinateConvert));
                 annotationMode.setValue(AnnotationMode.BIG_DATA);
-                workStatus.setValue(WorkStatus.GET_SOMA_LIST_SUCCESSFULLY);
+                workStatus.setValue(WorkStatus.GET_ARBOR_MARKER_LIST_SUCCESSFULLY);
             } else {
                 ToastEasy("Error get soma list");
             }
@@ -384,14 +380,14 @@ public class QualityInspectionViewModel extends ViewModel {
 
     public void openNewFile() {
         noFileLeft = false;
-        while (lastIndex < potentialSomaInfoList.size() - 1) {
-            PotentialSomaInfo somaInfo = potentialSomaInfoList.get(lastIndex + 1);
-            if (somaInfo.ifStillFresh()) {
+        while (lastIndex < potentialArborMarkerInfoList.size() - 1) {
+            PotentialArborMarkerInfo arborMarkerInfo = potentialArborMarkerInfoList.get(lastIndex + 1);
+            if (arborMarkerInfo.ifStillFresh()) {
                 break;
             }
             lastIndex++;
         }
-        if (lastIndex + 1 >= potentialSomaInfoList.size()) {
+        if (lastIndex + 1 >= potentialArborMarkerInfoList.size()) {
             workStatus.setValue(WorkStatus.START_TO_DOWNLOAD_IMAGE);
         } else {
             lastIndex++;
@@ -401,9 +397,9 @@ public class QualityInspectionViewModel extends ViewModel {
     }
 
     private void openFileWithCurIndex() {
-        curPotentialSomaInfo = potentialSomaInfoList.get(curIndex);
-        coordinateConvert.initLocation(curPotentialSomaInfo.getLocation());
-        String brainId = curPotentialSomaInfo.getBrainId();
+        curPotentialArborMarkerInfo = potentialArborMarkerInfoList.get(curIndex);
+        coordinateConvert.initLocation(curPotentialArborMarkerInfo.getLocation());
+        String brainId = curPotentialArborMarkerInfo.getBrianId();
         String res = resMap.get(brainId);
         if (res == null) {
             imageResult.setValue(new ResourceResult(false, "No res found"));
@@ -419,8 +415,8 @@ public class QualityInspectionViewModel extends ViewModel {
     }
 
     public void removeCurFileFromList() {
-        if (curIndex >= 0 && curIndex < potentialSomaInfoList.size()) {
-            potentialSomaInfoList.get(curIndex).setBoring(true);
+        if (curIndex >= 0 && curIndex < potentialArborMarkerInfoList.size()) {
+            potentialArborMarkerInfoList.get(curIndex).setBoring(true);
         } else {
             ToastEasy("Something wrong with curIndex");
         }
@@ -429,16 +425,16 @@ public class QualityInspectionViewModel extends ViewModel {
     public void previousFile() {
         int tempCurIndex = curIndex;
         while (tempCurIndex > 0) {
-            if (!potentialSomaInfoList.get(tempCurIndex - 1).isBoring()
-                    && (potentialSomaInfoList.get(tempCurIndex - 1).ifStillFresh()
-                    || (potentialSomaInfoList.get(tempCurIndex - 1).isAlreadyUpload()))) {
+            if (!potentialArborMarkerInfoList.get(tempCurIndex - 1).isBoring()
+                    && (potentialArborMarkerInfoList.get(tempCurIndex - 1).ifStillFresh()
+                    || (potentialArborMarkerInfoList.get(tempCurIndex - 1).isAlreadyUpload()))) {
                 break;
             }
             tempCurIndex--;
         }
         if (tempCurIndex == 0) {
             ToastEasy("You have reached the earliest image !");
-        } else if (tempCurIndex <= potentialSomaInfoList.size() - 1 && tempCurIndex > 0) {
+        } else if (tempCurIndex <= potentialArborMarkerInfoList.size() - 1 && tempCurIndex > 0) {
             curIndex = tempCurIndex-1;
             openFileWithCurIndex();
         } else {
@@ -448,18 +444,18 @@ public class QualityInspectionViewModel extends ViewModel {
 
     public void nextFile() {
         int tempCurIndex = curIndex;
-        while (tempCurIndex < potentialSomaInfoList.size() - 1) {
-            if (!potentialSomaInfoList.get(tempCurIndex + 1).isBoring()
-                    && (potentialSomaInfoList.get(tempCurIndex + 1).ifStillFresh()
-                    || (potentialSomaInfoList.get(tempCurIndex + 1).isAlreadyUpload()))) {
+        while (tempCurIndex < potentialArborMarkerInfoList.size() - 1) {
+            if (!potentialArborMarkerInfoList.get(tempCurIndex + 1).isBoring()
+                    && (potentialArborMarkerInfoList.get(tempCurIndex + 1).ifStillFresh()
+                    || (potentialArborMarkerInfoList.get(tempCurIndex + 1).isAlreadyUpload()))) {
                 break;
             }
             tempCurIndex++;
         }
-        if (tempCurIndex == potentialSomaInfoList.size()-1) {
+        if (tempCurIndex == potentialArborMarkerInfoList.size()-1) {
             // open new file
             openNewFile();
-        } else if (tempCurIndex < potentialSomaInfoList.size()-1 && tempCurIndex >= 0) {
+        } else if (tempCurIndex < potentialArborMarkerInfoList.size()-1 && tempCurIndex >= 0) {
             curIndex = tempCurIndex+1;
             if (curIndex > lastIndex) {
                 lastIndex = curIndex;
@@ -474,43 +470,43 @@ public class QualityInspectionViewModel extends ViewModel {
         imageDataSource.getBrainList();
     }
 
-    private void getPotentialLocation() {
-        markerFactoryDataSource.getPotentialLocation();
+    private void getArbor() {
+        qualityInspectionDataSource.getArbor();
     }
 
     public void downloadImage() {
-        String brainId = lastDownloadPotentialSomaInfo.getBrainId();
+        String brianId = lastDownloadPotentialArborMarkerInfo.getBrianId();
         XYZ loc = lastDownloadCoordinateConvert.getCenterLocation();
-        String res = resMap.get(brainId);
+        String res = resMap.get(brianId);
         if (res == null){
             ToastEasy("Fail to download image, something wrong with res list !");
             return;
         }
-        imageDataSource.downloadImage(lastDownloadPotentialSomaInfo.getBrainId(), res, (int) loc.x , (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE);
+        imageDataSource.downloadImage(brianId, res, (int) loc.x , (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE);
     }
 
-    public void getSomaList() {
-        String brainId = curPotentialSomaInfo.getBrainId();
-        XYZ loc = curPotentialSomaInfo.getLocation();
-        markerFactoryDataSource.getSomaList(brainId, (int) loc.x, (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE * (int) Math.pow(2, coordinateConvert.getResIndex()-1));
+    public void getArborMarkerList() {
+        String arborName = curPotentialArborMarkerInfo.getArborName();
+        qualityInspectionDataSource.getArborMarkerList(arborName);
     }
 
-    public void updateSomaList(MarkerList markerListToAdd, JSONArray markerListToDelete) {
+    public void updateCheckResult(MarkerList markerListToAdd, JSONArray markerListToDelete) {
         if ((markerListToAdd == null) && (markerListToDelete == null)){
             return;
         }
-        if (!curPotentialSomaInfo.ifStillFresh() && !curPotentialSomaInfo.isAlreadyUpload()) {
+        if (!curPotentialArborMarkerInfo.ifStillFresh() && !curPotentialArborMarkerInfo.isAlreadyUpload()) {
             uploadResult.setValue(new ResourceResult(false, "Expired"));
             return;
         }
         try {
-            int locationId = curPotentialSomaInfo.getId();
-            String brainId = curPotentialSomaInfo.getBrainId();
+            int arborId = curPotentialArborMarkerInfo.getArborId();
+            String arborName = curPotentialArborMarkerInfo.getArborName();
+            String image = curPotentialArborMarkerInfo.getBrianId();
             String username = loggedInUser.getUserId();
-            markerFactoryDataSource.updateSomaList(brainId, locationId, username,
-                    MarkerList.toJSONArray(MarkerList.covertLocalToGlobal(markerListToAdd, coordinateConvert)), markerListToDelete);
-            if (!curPotentialSomaInfo.isAlreadyUpload()) {
-                curPotentialSomaInfo.setAlreadyUpload(true);
+            qualityInspectionDataSource.UpdateCheckResult(arborId, arborName,
+                    MarkerList.toJSONArray(MarkerList.covertLocalToGlobal(markerListToAdd, coordinateConvert)), markerListToDelete,username,image);
+            if (!curPotentialArborMarkerInfo.isAlreadyUpload()) {
+                curPotentialArborMarkerInfo.setAlreadyUpload(true);
                 winScoreByFinishConfirmAnImage();
             }
         } catch (JSONException e) {
@@ -532,8 +528,8 @@ public class QualityInspectionViewModel extends ViewModel {
             @Override
             public void run() {
                 while (true) {
-                    if (lastIndex > potentialSomaInfoList.size() - 7 && !isDownloading && !noFileLeft) {
-                        getPotentialLocation();
+                    if (lastIndex > potentialArborMarkerInfoList.size() - 7 && !isDownloading && !noFileLeft) {
+                        getArbor();
                         isDownloading = true;
                     }
                 }
@@ -545,8 +541,8 @@ public class QualityInspectionViewModel extends ViewModel {
         scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                if (curPotentialSomaInfo != null &&
-                        !curPotentialSomaInfo.isAlreadyUpload() && !curPotentialSomaInfo.ifStillFresh()) {
+                if (curPotentialArborMarkerInfo != null &&
+                        !curPotentialArborMarkerInfo.isAlreadyUpload() && !curPotentialArborMarkerInfo.ifStillFresh()) {
                     if (workStatus.getValue() != WorkStatus.IMAGE_FILE_EXPIRED) {
                         workStatus.postValue(WorkStatus.IMAGE_FILE_EXPIRED);
                     }

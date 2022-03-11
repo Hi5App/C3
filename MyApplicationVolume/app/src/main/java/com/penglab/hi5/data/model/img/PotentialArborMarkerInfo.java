@@ -2,10 +2,11 @@ package com.penglab.hi5.data.model.img;
 
 import com.penglab.hi5.basic.image.XYZ;
 
-public class PotentialArborInfo {
+public class PotentialArborMarkerInfo {
     private final int id;
     private final int somaId;
     private final String brainId;
+    private final String name;
     private final XYZ location;  // under the highest resolution
     private boolean isBoring = false;
     private long createdTime;
@@ -13,20 +14,28 @@ public class PotentialArborInfo {
     private boolean alreadyUpload = false;
     private final long shelfLife = 7 * 60 * 1000;
 
-    public PotentialArborInfo(int id, int somaId, String brainId, XYZ location) {
+    public PotentialArborMarkerInfo(int id, String name, int somaId, String brainId, XYZ location) {
         this.id = id;
-        this.somaId = somaId;
+        this.name = name;
         this.brainId = brainId;
+        this.somaId = somaId;
         this.location = location;
     }
 
-    public int getId() {
+    public String getBrianId() {
+        return brainId;
+    }
+    public int getSomaId(){
+        return somaId;
+    }
+    public int getArborId(){
         return id;
     }
 
-    public String getBrainId() {
-        return brainId;
+    public String getArborName(){
+        return name;
     }
+
 
     public XYZ getLocation() {
         return location;
