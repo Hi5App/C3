@@ -40,6 +40,9 @@ public class QualityInspectionDataSource {
     public LiveData<Result> getPotentialArborLocationResult() {
         return potentialArborLocationResult;
     }
+    public MutableLiveData<Result> getDownloadSwcResult(){
+        return downloadSwcResult;
+    }
 
     public MutableLiveData<Result> getArborMarkerListResult() {
         return arborMarkerListResult;
@@ -71,13 +74,15 @@ public class QualityInspectionDataSource {
                             PotentialArborMarkerInfo potentialArborMarkerInfo = new PotentialArborMarkerInfo(
                                     potentialArborLocation.getInt("id"),
                                     potentialArborLocation.getString("name"),
-                                    potentialArborLocation.getInt("somaId"),
+                                    potentialArborLocation.getString("somaId"),
                                     potentialArborLocation.getString("image"),
-                                    new XYZ(loc.getInt("x"),
-                                            loc.getInt("y"),
-                                            loc.getInt("z")));
+                                    new XYZ((float) loc.getDouble("x"),
+                                            (float) loc.getDouble("y"),
+                                            (float) loc.getDouble("z")));
+                            Log.e(TAG, "handle response successfully");
                             potentialArborLocationResult.postValue(new Result.Success<PotentialArborMarkerInfo>(potentialArborMarkerInfo));
-                        } catch (JSONException e) {
+                        } catch (Exception e) {
+                            Log.e(TAG,"potentialArborLocationResultException");
                             e.printStackTrace();
                             potentialArborLocationResult.postValue(new Result.Error(new Exception("Fail to parse potential location info !")));
                         }
@@ -101,8 +106,9 @@ public class QualityInspectionDataSource {
         }
     }
 
-    public void getSwc(String res,int offsetX,int offsetY,int offsetZ,int size,String arborName){
+    public void getSwc(String res,float offsetX,float offsetY,float offsetZ,int size,String arborName){
         try{
+            Log.e("TAG","getSwc");
             JSONObject pa1 = new JSONObject().put("x", offsetX - size/2).put("y", offsetY - size/2).put("z", offsetZ - size/2);
             JSONObject pa2 = new JSONObject().put("x", offsetX + size/2).put("y", offsetY + size/2).put("z", offsetZ + size/2);
             JSONObject bBox = new JSONObject().put("pa1", pa1).put("pa2", pa2).put("res", res).put("obj", arborName);
@@ -116,13 +122,13 @@ public class QualityInspectionDataSource {
                 public void onResponse(Call call, Response response) throws IOException {
                     try {
                         int responseCode = response.code();
+                        Log.e(TAG,"getSwcResponseCode" + responseCode);
                         if(responseCode == 200){
                             if(response.body()!= null){
                                 byte[] fileContent = response.body().bytes();
-                                Log.e(TAG, "file size: " + fileContent.length);
-                                Log.e(TAG, "file size: " + fileContent.length);
-                                String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/imagename/somaname";
-                                String filename = arborName + "_" + res + "_" + offsetX + "_" + offsetY + "_" + offsetZ + ".swc";
+                                Log.e(TAG, "swc file size: " + fileContent.length);
+                                String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/swc";
+                                String filename = arborName + "_"  + offsetX + "_" + offsetY + "_" + offsetZ + ".swc";
                                 if (!FileHelper.storeFile(storePath, filename, fileContent)) {
                                     downloadSwcResult.postValue(new Result.Error(new Exception("Fail to store image file !")));
                                 }
@@ -136,6 +142,7 @@ public class QualityInspectionDataSource {
                             downloadSwcResult.postValue(new Result.Error(new Exception("Response from server is error when download swc !")));
                         }
                     } catch (Exception e) {
+                        Log.e(TAG,"download swc failed");
                         downloadSwcResult.postValue(new Result.Error(new Exception("Fail to download swc file !")));
                         e.printStackTrace();
                     }
@@ -149,7 +156,7 @@ public class QualityInspectionDataSource {
     }
 
 
-    public void UpdateCheckResult(int arborId,String arborName,JSONArray insertList,JSONArray deleteList,String name,String image){
+    public void UpdateCheckResult(int arborId,String arborName,JSONArray insertList,JSONArray deleteList,String name){
         try{
             Log.e(TAG,"start updateCheckResult");
             JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
@@ -160,13 +167,13 @@ public class QualityInspectionDataSource {
                 }
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    Log.e(TAG,"receive response");
+                    Log.e(TAG,"receive response when upload marker");
                     int responseCode = response.code();
                     if (responseCode == 200) {
                         // process response
                         updateArborMarkerResult.postValue(new Result.Success<String>(UPLOAD_SUCCESSFULLY));
                     } else {
-                        Log.e(TAG,"response: " + response.body().string());
+                        Log.e(TAG,"response_upload_marker_list: " + response.body().string());
                         updateArborMarkerResult.postValue(new Result.Error(new Exception("Fail to upload marker list !")));
                     }
                     response.close();
@@ -187,7 +194,7 @@ public class QualityInspectionDataSource {
             HttpUtilsQualityInspection.getArborMarkerListWithOkHttp(userInfo, arborName, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    arborMarkerListResult.postValue(new Result.Error(new Exception("Connect failed when get arbor list!")));
+                    arborMarkerListResult.postValue(new Result.Error(new Exception("Connect failed when get arbor marker list!")));
                 }
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {

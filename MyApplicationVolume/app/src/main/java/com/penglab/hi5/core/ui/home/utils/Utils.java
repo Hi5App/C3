@@ -15,6 +15,7 @@ import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.S2Activity;
 import com.penglab.hi5.core.net.HttpUtilsImage;
+import com.penglab.hi5.core.ui.QualityInspection.QualityInspectionActivity;
 import com.penglab.hi5.core.ui.annotation.AnnotationActivity;
 import com.penglab.hi5.core.ui.check.CheckActivity;
 import com.penglab.hi5.core.ui.marker.MarkerFactoryActivity;
@@ -53,7 +54,7 @@ public class Utils {
                         AnnotationActivity.start(context);
                         break;
                     case "Check":
-                        CheckActivity.start(context);
+                        QualityInspectionActivity.start(context);
                         break;
                     case "Smart Imaging":
                         S2Activity.start(context);
