@@ -4,28 +4,28 @@ import com.penglab.hi5.basic.image.XYZ;
 
 public class PotentialArborMarkerInfo {
     private final int id;
-    private final int somaId;
-    private final String brainId;
+    private final String somaId;
+    private final String image;
     private final String name;
-    private final XYZ location;  // under the highest resolution
+    private final XYZ loc;  // under the highest resolution
     private boolean isBoring = false;
     private long createdTime;
     private boolean isFresh = true;
     private boolean alreadyUpload = false;
     private final long shelfLife = 7 * 60 * 1000;
 
-    public PotentialArborMarkerInfo(int id, String name, int somaId, String brainId, XYZ location) {
+    public PotentialArborMarkerInfo(int id, String name, String somaId, String image, XYZ loc) {
         this.id = id;
         this.name = name;
-        this.brainId = brainId;
+        this.image = image;
         this.somaId = somaId;
-        this.location = location;
+        this.loc = loc;
     }
 
     public String getBrianId() {
-        return brainId;
+        return image;
     }
-    public int getSomaId(){
+    public String getSomaId(){
         return somaId;
     }
     public int getArborId(){
@@ -38,7 +38,7 @@ public class PotentialArborMarkerInfo {
 
 
     public XYZ getLocation() {
-        return location;
+        return loc;
     }
 
     public boolean isBoring() {

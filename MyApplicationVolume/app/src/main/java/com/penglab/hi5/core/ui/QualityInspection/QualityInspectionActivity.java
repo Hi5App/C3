@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -56,7 +57,6 @@ import com.penglab.hi5.data.dataStore.PreferenceSetting;
 import com.penglab.hi5.data.dataStore.PreferenceSoma;
 import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.img.PotentialArborMarkerInfo;
-import com.penglab.hi5.data.model.img.PotentialSomaInfo;
 import com.robinhood.ticker.TickerView;
 import com.warkiz.widget.IndicatorSeekBar;
 import com.warkiz.widget.OnSeekChangeListener;
@@ -90,11 +90,10 @@ public class QualityInspectionActivity extends AppCompatActivity {
     private final PreferenceSoma preferenceSoma = PreferenceSoma.getInstance();
 
     private AnnotationGLSurfaceView annotationGLSurfaceView;
-    private QualityInspectionViewModel QualityInspectionViewModel;
+    private QualityInspectionViewModel qualityInspectionViewModel;
 
     private final Handler uiHandler = new Handler();
     private Toolbar toolbar;
-    private View markerFactoryView;
     private BasePopupView downloadingPopupView;
     private ImageButton editModeIndicator;
     private ImageButton addMarkerBlue;
@@ -118,7 +117,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
             @Override
             public void run() {
                 if (annotationGLSurfaceView.getEditMode().getValue() == EditMode.PINPOINT ) {
-                    QualityInspectionViewModel.winScoreByPinPoint();
+                    qualityInspectionViewModel.winScoreByPinPoint();
                 }
             }
         });
@@ -130,8 +129,8 @@ public class QualityInspectionActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
 
         downloadingPopupView = new XPopup.Builder(this).asLoading("Downloading......");
-        QualityInspectionViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(QualityInspectionViewModel.class);
-        QualityInspectionViewModel.getAnnotationMode().observe(this, new Observer<QualityInspectionViewModel.AnnotationMode>() {
+        qualityInspectionViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(QualityInspectionViewModel.class);
+        qualityInspectionViewModel.getAnnotationMode().observe(this, new Observer<QualityInspectionViewModel.AnnotationMode>() {
             @Override
             public void onChanged(QualityInspectionViewModel.AnnotationMode annotationMode) {
                 if (annotationMode == null){
@@ -142,7 +141,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
             }
         });
 
-        QualityInspectionViewModel.getWorkStatus().observe(this, new Observer<QualityInspectionViewModel.WorkStatus>() {
+        qualityInspectionViewModel.getWorkStatus().observe(this, new Observer<QualityInspectionViewModel.WorkStatus>() {
             @Override
             public void onChanged(QualityInspectionViewModel.WorkStatus workStatus) {
                 if (workStatus == null) {
@@ -157,7 +156,8 @@ public class QualityInspectionActivity extends AppCompatActivity {
                     case UPLOAD_MARKERS_SUCCESSFULLY:
                         ToastEasy("Upload successfully");
                         if (needSyncSomaList) {
-                            QualityInspectionViewModel.getArborMarkerList();
+                            qualityInspectionViewModel.getArborMarkerList();
+                            qualityInspectionViewModel.getSwc();
                             needSyncSomaList = false;
                         }
                         break;
@@ -170,9 +170,15 @@ public class QualityInspectionActivity extends AppCompatActivity {
                         showDownloadingProgressBar();
                         break;
 
+                    case START_TO_DOWNLOAD_SWC:
+                        qualityInspectionViewModel.getSwc();
+                        break;
+
                     case DOWNLOAD_IMAGE_FINISH:
-                        hideDownloadingProgressBar();
-                        QualityInspectionViewModel.openNewFile();
+                        Log.e(TAG,"downloadImageFinished");
+//                        hideDownloadingProgressBar();
+                        qualityInspectionViewModel.getSwc();
+//                        qualityInspectionViewModel.openNewFile();
                         break;
 
                     case IMAGE_FILE_EXPIRED:
@@ -182,51 +188,63 @@ public class QualityInspectionActivity extends AppCompatActivity {
             }
         });
 
-        QualityInspectionViewModel.getQualityInspectionDataSource().getPotentialArborLocationResult().observe(this, new Observer<Result>() {
+        qualityInspectionViewModel.getQualityInspectionDataSource().getPotentialArborLocationResult().observe(this, new Observer<Result>() {
             @Override
             public void onChanged(Result result) {
                 if (result == null){
                     return;
                 }
-                QualityInspectionViewModel.handlePotentialLocationResult(result);
+                qualityInspectionViewModel.handlePotentialLocationResult(result);
             }
         });
 
-        QualityInspectionViewModel.getQualityInspectionDataSource().getArborMarkerListResult().observe(this, new Observer<Result>() {
+        qualityInspectionViewModel.getQualityInspectionDataSource().getArborMarkerListResult().observe(this, new Observer<Result>() {
             @Override
             public void onChanged(Result result) {
-                QualityInspectionViewModel.handleMarkerListResult(result);
+                qualityInspectionViewModel.handleMarkerListResult(result);
             }
         });
 
-        QualityInspectionViewModel.getQualityInspectionDataSource().getUpdateCheckResult().observe(this, new Observer<Result>() {
+        qualityInspectionViewModel.getQualityInspectionDataSource().getUpdateCheckResult().observe(this, new Observer<Result>() {
             @Override
             public void onChanged(Result result) {
-                QualityInspectionViewModel.handleUpdateSomaResult(result);
+                qualityInspectionViewModel.handleUpdateSomaResult(result);
             }
         });
 
-        QualityInspectionViewModel.getImageDataSource().getBrainListResult().observe(this, new Observer<Result>() {
-            @Override
-            public void onChanged(Result result) {
-                if (result == null) {
-                    return;
-                }
-                QualityInspectionViewModel.handleBrainListResult(result);
-            }
-        });
-
-        QualityInspectionViewModel.getImageDataSource().getDownloadImageResult().observe(this, new Observer<Result>() {
+        qualityInspectionViewModel.getImageDataSource().getBrainListResult().observe(this, new Observer<Result>() {
             @Override
             public void onChanged(Result result) {
                 if (result == null) {
                     return;
                 }
-                QualityInspectionViewModel.handleDownloadImageResult(result);
+                qualityInspectionViewModel.handleBrainListResult(result);
             }
         });
 
-        QualityInspectionViewModel.getImageResult().observe(this, new Observer<ResourceResult>() {
+        qualityInspectionViewModel.getImageDataSource().getDownloadImageResult().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                if (result == null) {
+                    return;
+                }
+                qualityInspectionViewModel.handleDownloadImageResult(result);
+                Log.e(TAG,"handle downloadImageResult Success");
+            }
+        });
+
+        qualityInspectionViewModel.getQualityInspectionDataSource().getDownloadSwcResult().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                if(result == null){
+                    return;
+                }
+                qualityInspectionViewModel.handleDownloadSwcResult(result);
+                Log.e(TAG,"handle downloadSwcResult Success");
+            }
+        });
+
+        qualityInspectionViewModel.getImageResult().observe(this, new Observer<ResourceResult>() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onChanged(ResourceResult resourceResult) {
@@ -235,10 +253,14 @@ public class QualityInspectionActivity extends AppCompatActivity {
                 }
                 if (resourceResult.isSuccess()){
                     annotationGLSurfaceView.openFile();
-                    QualityInspectionViewModel.getArborMarkerList();
-                    PotentialArborMarkerInfo arborMarkerInfo = QualityInspectionViewModel.getCurPotentialArborMarkerInfo();
-//                    imageIdLocationTextView.setText(arborMarkerInfo.getBrainId() + "_" + arborMarkerInfo.getLocation().toString());
-//                    annotationGLSurfaceView.setImageInfoInRender(arborMarkerInfo.getBrainId() + "_" + arborMarkerInfo.getLocation().toString());
+                    qualityInspectionViewModel.getArborMarkerList();
+                    qualityInspectionViewModel.getSwc();
+                    Log.e(TAG,"download swc");
+                    PotentialArborMarkerInfo arborMarkerInfo = qualityInspectionViewModel.getCurPotentialArborMarkerInfo();
+
+
+                    imageIdLocationTextView.setText(arborMarkerInfo.getBrianId() + "_" + arborMarkerInfo.getLocation().toString());
+                    annotationGLSurfaceView.setImageInfoInRender(arborMarkerInfo.getBrianId() + "_" + arborMarkerInfo.getLocation().toString());
                 } else {
                     ToastEasy(resourceResult.getError());
                 }
@@ -246,7 +268,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
             }
         });
 
-        QualityInspectionViewModel.getUploadResult().observe(this, new Observer<ResourceResult>() {
+        qualityInspectionViewModel.getUploadResult().observe(this, new Observer<ResourceResult>() {
             @Override
             public void onChanged(ResourceResult resourceResult) {
                 if (resourceResult.isSuccess()) {
@@ -259,7 +281,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
             }
         });
 
-        QualityInspectionViewModel.getSyncMarkerList().observe(this, new Observer<MarkerList>() {
+        qualityInspectionViewModel.getSyncMarkerList().observe(this, new Observer<MarkerList>() {
             @Override
             public void onChanged(MarkerList markerList) {
                 if (markerList == null){
@@ -323,7 +345,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         stopMusicService();
-        QualityInspectionViewModel.shutDownThreadPool();
+        qualityInspectionViewModel.shutDownThreadPool();
     }
 
     private void startMusicService() {
@@ -377,14 +399,14 @@ public class QualityInspectionActivity extends AppCompatActivity {
             case R.id.confirm:
                 if (!annotationGLSurfaceView.nothingToUpload()) {
                     needSyncSomaList = true;
-                    QualityInspectionViewModel.updateCheckResult(annotationGLSurfaceView.getMarkerListToAdd(),
+                    qualityInspectionViewModel.updateCheckResult(annotationGLSurfaceView.getMarkerListToAdd(),
                             annotationGLSurfaceView.getMarkerListToDelete());
                     playButtonSound();
                 }
                 return true;
 
             case R.id.file:
-                if (QualityInspectionViewModel.isLoggedIn()) {
+                if (qualityInspectionViewModel.isLoggedIn()) {
                     openFile();
                 } else {
                     ToastEasy("Login first please !");
@@ -411,7 +433,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
 
     private void openFile(){
         // TODO: download image
-        QualityInspectionViewModel.openNewFile();
+        qualityInspectionViewModel.openNewFile();
     }
 
     private void screenCapture(Uri uri){
@@ -608,7 +630,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
             pinpointStroke.setOnCheckedChangeListener(this::OnCheckChanged);
         }
         else {
-            markerFactoryView.setVisibility(View.VISIBLE);
+            QualityInspectionView.setVisibility(View.VISIBLE);
         }
     }
 
@@ -689,7 +711,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
         scoreTickerView.setAnimationInterpolator(new OvershootInterpolator());
         scoreTickerView.setPreferredScrollingDirection(TickerView.ScrollingDirection.ANY);
 
-        QualityInspectionViewModel.getObservableScore().observe(this, new Observer<Integer>() {
+        qualityInspectionViewModel.getObservableScore().observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(Integer integer) {
                 scoreTickerView.setText(Integer.toString(integer));
@@ -701,7 +723,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
         if (preferenceSoma.getShowBoringFileWarning()) {
             warning4BoringFile();
         } else {
-            QualityInspectionViewModel.removeCurFileFromList();
+            qualityInspectionViewModel.removeCurFileFromList();
             navigateFile(true, true);
         }
     }
@@ -730,13 +752,13 @@ public class QualityInspectionActivity extends AppCompatActivity {
 
     private void navigateFile(boolean needUpload, boolean nextFile) {
         if (needUpload) {
-            QualityInspectionViewModel.updateCheckResult(annotationGLSurfaceView.getMarkerListToAdd(),
+            qualityInspectionViewModel.updateCheckResult(annotationGLSurfaceView.getMarkerListToAdd(),
                     annotationGLSurfaceView.getMarkerListToDelete());
         }
         if (nextFile) {
-            QualityInspectionViewModel.nextFile();
+            qualityInspectionViewModel.nextFile();
         } else {
-            QualityInspectionViewModel.previousFile();
+            qualityInspectionViewModel.previousFile();
         }
     }
 
@@ -763,7 +785,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
                                 new OnConfirmListener() {
                                     @Override
                                     public void onConfirm() {
-                                        QualityInspectionViewModel.removeCurFileFromList();
+                                        qualityInspectionViewModel.removeCurFileFromList();
                                         navigateFile(true, true);
                                     }
                                 },
@@ -788,8 +810,8 @@ public class QualityInspectionActivity extends AppCompatActivity {
     }
 
     private void resetUI4AllMode() {
-        if (markerFactoryView != null){
-            markerFactoryView.setVisibility(View.GONE);
+        if (QualityInspectionView != null){
+            QualityInspectionView.setVisibility(View.GONE);
         }
     }
 

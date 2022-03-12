@@ -7,13 +7,12 @@ import androidx.annotation.NonNull;
 import com.penglab.hi5.core.game.leaderBoard.LeaderBoardItemModel;
 import com.penglab.hi5.core.game.leaderBoard.LeaderBoardViewModel;
 import com.penglab.hi5.core.game.quest.QuestViewModel;
+import com.penglab.hi5.core.ui.QualityInspection.QualityInspectionViewModel;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
 import com.penglab.hi5.core.ui.check.CheckArborInfoState;
 import com.penglab.hi5.core.ui.check.CheckViewModel;
-import com.penglab.hi5.core.ui.check.FileInfoState;
 import com.penglab.hi5.core.ui.home.screens.HomeViewModel;
 import com.penglab.hi5.core.ui.login.LoginViewModel;
-import com.penglab.hi5.core.ui.marker.MarkerFactoryActivity;
 import com.penglab.hi5.core.ui.marker.MarkerFactoryViewModel;
 import com.penglab.hi5.core.ui.password.FindPasswordViewModel;
 import com.penglab.hi5.core.ui.register.RegisterViewModel;
@@ -25,6 +24,7 @@ import com.penglab.hi5.data.CheckDataSource;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.MarkerFactoryDataSource;
+import com.penglab.hi5.data.QualityInspectionDataSource;
 import com.penglab.hi5.data.ResourceDataSource;
 import com.penglab.hi5.data.UserDataSource;
 import com.penglab.hi5.data.UserInfoRepository;
@@ -69,6 +69,9 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             return (T) new MarkerFactoryViewModel(UserInfoRepository.getInstance(), ImageInfoRepository.getInstance(), new MarkerFactoryDataSource(), new ImageDataSource());
         } else if (modelClass.isAssignableFrom(MyViewModel.class)) {
             return (T) new MyViewModel(UserInfoRepository.getInstance(), new UserDataSource(), new UserPerformanceDataSource());
+        } else if(modelClass.isAssignableFrom(QualityInspectionViewModel.class)){
+            return (T) new QualityInspectionViewModel(UserInfoRepository.getInstance(),ImageInfoRepository.getInstance(),new QualityInspectionDataSource(),new ImageDataSource(),new AnnotationDataSource());
+
         } else {
             throw new IllegalArgumentException("Unknown ViewModel class");
         }

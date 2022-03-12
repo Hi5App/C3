@@ -5,6 +5,8 @@ import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import static com.penglab.hi5.data.MarkerFactoryDataSource.NO_MORE_FILE;
 import static com.penglab.hi5.data.MarkerFactoryDataSource.UPLOAD_SUCCESSFULLY;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -51,8 +53,9 @@ public class QualityInspectionViewModel extends ViewModel {
     private final int DEFAULT_IMAGE_SIZE = 128;
     private final int DEFAULT_RES_INDEX = 2;
 
+
     public enum AnnotationMode{
-       BIG_DATA, NONE
+        BIG_DATA, NONE
     }
 
     public enum WorkStatus{
@@ -73,8 +76,6 @@ public class QualityInspectionViewModel extends ViewModel {
     private final ImageInfoRepository imageInfoRepository;
     private final ImageDataSource imageDataSource;
     private final AnnotationDataSource annotationDataSource;
-    private CheckArborDataSource checkArborDataSource;
-    private CheckArborInfoState checkArborInfoState;
     private QualityInspectionDataSource qualityInspectionDataSource;
 
     private final LoggedInUser loggedInUser;
@@ -89,20 +90,20 @@ public class QualityInspectionViewModel extends ViewModel {
     private boolean isDownloading = false;
     private boolean noFileLeft = false;
 
-    public QualityInspectionViewModel(UserInfoRepository userInfoRepository, ImageInfoRepository imageInfoRepository, MarkerFactoryDataSource markerFactoryDataSource, ImageDataSource imageDataSource, AnnotationDataSource annotationDataSource, AnnotationDataSource annotationDataSource1) {
+    public QualityInspectionViewModel(UserInfoRepository userInfoRepository, ImageInfoRepository imageInfoRepository, QualityInspectionDataSource qualityInspectionDataSource,ImageDataSource imageDataSource, AnnotationDataSource annotationDataSource) {
         this.userInfoRepository = userInfoRepository;
         this.imageInfoRepository = imageInfoRepository;
         this.qualityInspectionDataSource = qualityInspectionDataSource;
         this.imageDataSource = imageDataSource;
         this.loggedInUser = userInfoRepository.getUser();
-        this.annotationDataSource = annotationDataSource1;
+        this.annotationDataSource = annotationDataSource;
         coordinateConvert.setResIndex(DEFAULT_RES_INDEX);
         coordinateConvert.setImgSize(DEFAULT_IMAGE_SIZE);
         lastDownloadCoordinateConvert.setResIndex(DEFAULT_RES_INDEX);
         lastDownloadCoordinateConvert.setImgSize(DEFAULT_IMAGE_SIZE);
 
-        initPreDownloadThread();
-        initCheckFreshThread();
+//        initPreDownloadThread();
+//        initCheckFreshThread();
     }
 
     public LiveData<AnnotationMode> getAnnotationMode(){
@@ -199,8 +200,10 @@ public class QualityInspectionViewModel extends ViewModel {
     public void handleBrainListResult(Result result) {
         if (result == null) {
             isDownloading = false;
+            Log.e(TAG,"handleBrainResult_equals_to_null");
         }
         if (result instanceof Result.Success) {
+            Log.e(TAG,"begin to handle brain list result");
             Object data = ((Result.Success<?>) result).getData();
             if (data instanceof JSONArray){
                 // process Brain List, store res info for each brain
@@ -244,9 +247,11 @@ public class QualityInspectionViewModel extends ViewModel {
             if (data instanceof String){
                 potentialArborMarkerInfoList.add(lastDownloadPotentialArborMarkerInfo);
                 isDownloading = false;
-                if (workStatus.getValue() == WorkStatus.START_TO_DOWNLOAD_IMAGE) {
-                    workStatus.setValue(WorkStatus.DOWNLOAD_IMAGE_FINISH);
-                }
+//                if (workStatus.getValue() == WorkStatus.START_TO_DOWNLOAD_IMAGE) {
+//                    workStatus.setValue(WorkStatus.DOWNLOAD_IMAGE_FINISH);
+//                }
+
+                workStatus.setValue(WorkStatus.DOWNLOAD_IMAGE_FINISH);
             } else {
 //                ToastEasy("Error when download image");
                 isDownloading = false;
@@ -255,6 +260,19 @@ public class QualityInspectionViewModel extends ViewModel {
 //            ToastEasy(result.toString());
             isDownloading = false;
         }
+    }
+
+    public void handleDownloadSwcResult(Result result){
+        if(result instanceof Result.Success){
+            Object data =( (Result.Success<?>)result).getData();
+            if(data instanceof String){
+                String fileName = FileManager.getFileName((String) data);
+                FileType fileType =FileManager.getFileType((String) data);
+
+
+            }
+        }
+
     }
 
     public void updateAnnotationResult(Result result) {
@@ -311,7 +329,9 @@ public class QualityInspectionViewModel extends ViewModel {
     }
 
     public void handlePotentialLocationResult(Result result) {
+        Log.e(TAG, "start to handlePotentialLocationResult");
         if (result instanceof Result.Success) {
+            Log.e(TAG,"handlePotentialLocationResultSuccess");
             Object data = ((Result.Success<?>) result).getData();
             if (data instanceof PotentialArborMarkerInfo){
                 lastDownloadPotentialArborMarkerInfo = (PotentialArborMarkerInfo) data;
@@ -321,8 +341,10 @@ public class QualityInspectionViewModel extends ViewModel {
                 // get res list when first download img
                 if (resMap.isEmpty()) {
                     getBrainList();
+                    Log.e(TAG,"getBrainListSuccess");
                 } else {
                     downloadImage();
+                    Log.e(TAG,"downloadImageSuccess");
                 }
             } else if (data instanceof String && ((String) data).equals(NO_MORE_FILE)) {
                 workStatus.setValue(WorkStatus.NO_MORE_FILE);
@@ -379,21 +401,22 @@ public class QualityInspectionViewModel extends ViewModel {
 //    }
 
     public void openNewFile() {
-        noFileLeft = false;
-        while (lastIndex < potentialArborMarkerInfoList.size() - 1) {
-            PotentialArborMarkerInfo arborMarkerInfo = potentialArborMarkerInfoList.get(lastIndex + 1);
-            if (arborMarkerInfo.ifStillFresh()) {
-                break;
-            }
-            lastIndex++;
-        }
-        if (lastIndex + 1 >= potentialArborMarkerInfoList.size()) {
-            workStatus.setValue(WorkStatus.START_TO_DOWNLOAD_IMAGE);
-        } else {
-            lastIndex++;
-            curIndex = lastIndex;
-            openFileWithCurIndex();
-        }
+        getArbor();
+//        noFileLeft = false;
+//        while (lastIndex < potentialArborMarkerInfoList.size() - 1) {
+//            PotentialArborMarkerInfo arborMarkerInfo = potentialArborMarkerInfoList.get(lastIndex + 1);
+//            if (arborMarkerInfo.ifStillFresh()) {
+//                break;
+//            }
+//            lastIndex++;
+//        }
+//        if (lastIndex + 1 >= potentialArborMarkerInfoList.size()) {
+//            workStatus.setValue(WorkStatus.START_TO_DOWNLOAD_IMAGE);
+//        } else {
+//            lastIndex++;
+//            curIndex = lastIndex;
+//            openFileWithCurIndex();
+//        }
     }
 
     private void openFileWithCurIndex() {
@@ -482,7 +505,8 @@ public class QualityInspectionViewModel extends ViewModel {
             ToastEasy("Fail to download image, something wrong with res list !");
             return;
         }
-        imageDataSource.downloadImage(brianId, res, (int) loc.x , (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE);
+        imageDataSource.downloadImage(lastDownloadPotentialArborMarkerInfo.getBrianId(), res, (int) loc.x , (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE);
+
     }
 
     public void getArborMarkerList() {
@@ -504,7 +528,7 @@ public class QualityInspectionViewModel extends ViewModel {
             String image = curPotentialArborMarkerInfo.getBrianId();
             String username = loggedInUser.getUserId();
             qualityInspectionDataSource.UpdateCheckResult(arborId, arborName,
-                    MarkerList.toJSONArray(MarkerList.covertLocalToGlobal(markerListToAdd, coordinateConvert)), markerListToDelete,username,image);
+                    MarkerList.toJSONArray(MarkerList.covertLocalToGlobal(markerListToAdd, coordinateConvert)), markerListToDelete,username);
             if (!curPotentialArborMarkerInfo.isAlreadyUpload()) {
                 curPotentialArborMarkerInfo.setAlreadyUpload(true);
                 winScoreByFinishConfirmAnImage();
@@ -514,7 +538,18 @@ public class QualityInspectionViewModel extends ViewModel {
             e.printStackTrace();
         }
     }
-    
+
+
+    public void getSwc(){
+        Log.e(TAG,"GET SWC");
+//        String arborName = curPotentialArborMarkerInfo.getArborName();
+//        XYZ loc =curPotentialArborMarkerInfo.getLocation();
+        String arborName =lastDownloadPotentialArborMarkerInfo.getArborName();
+        XYZ loc = lastDownloadPotentialArborMarkerInfo.getLocation();
+        String res ="/"+lastDownloadPotentialArborMarkerInfo.getBrianId()+"/"+lastDownloadPotentialArborMarkerInfo.getSomaId();
+        qualityInspectionDataSource.getSwc(res,(float)loc.x,(float)loc.y,(float) loc.z,DEFAULT_IMAGE_SIZE * (int) Math.pow(2, coordinateConvert.getResIndex()-1),arborName);
+    }
+
     public void winScoreByFinishConfirmAnImage() {
         userInfoRepository.getScoreModel().finishAnImage();
     }
