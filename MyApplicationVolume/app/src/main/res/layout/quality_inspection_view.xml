@@ -102,7 +102,8 @@
             android:layout_height = "40dp"
             android:layout_weight = "1"
             android:layout_gravity="center"
-            android:src = "@drawable/ic_add_marker_red"/>
+            android:background="@drawable/circle_normal"
+            android:src = "@drawable/ic_marker_red"/>
 
         <ImageButton
             android:id ="@+id/add_marker_blue"
@@ -110,7 +111,8 @@
             android:layout_height = "40dp"
             android:layout_weight = "1"
             android:layout_gravity="center"
-            android:src = "@drawable/ic_add_marker_blue"/>
+            android:background="@drawable/circle_normal"
+            android:src = "@drawable/ic_marker_blue"/>
 
         <ImageButton
             android:id ="@+id/add_marker_yellow"
@@ -118,14 +120,16 @@
             android:layout_height="40dp"
             android:layout_weight="1"
             android:layout_gravity="center"
-            android:src = "@drawable/ic_add_marker_yellow"/>
+            android:background="@drawable/circle_normal"
+            android:src = "@drawable/ic_marker_yellow"/>
         <ImageButton
             android:id = "@+id/delete_marker"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:src = "@drawable/ic_delete_marker_checkmode">
+            android:background="@drawable/circle_normal"
+            android:src = "@drawable/ic_delete_marker_check">
 
         </ImageButton>
 

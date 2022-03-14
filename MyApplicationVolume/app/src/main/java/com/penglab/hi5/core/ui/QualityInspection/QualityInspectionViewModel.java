@@ -11,10 +11,13 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.image.XYZ;
+import com.penglab.hi5.basic.utils.FileHelper;
 import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.core.Myapplication;
+import com.penglab.hi5.core.render.utils.AnnotationDataManager;
 import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.check.CheckArborInfoState;
 import com.penglab.hi5.data.AnnotationDataSource;
@@ -59,7 +62,7 @@ public class QualityInspectionViewModel extends ViewModel {
     }
 
     public enum WorkStatus{
-        IMAGE_FILE_EXPIRED, START_TO_DOWNLOAD_IMAGE, START_TO_DOWNLOAD_SWC,GET_ARBOR_MARKER_LIST_SUCCESSFULLY, UPLOAD_MARKERS_SUCCESSFULLY, NO_MORE_FILE, DOWNLOAD_IMAGE_FINISH, NONE
+        IMAGE_FILE_EXPIRED, START_TO_DOWNLOAD_IMAGE, START_TO_DOWNLOAD_SWC,GET_ARBOR_MARKER_LIST_SUCCESSFULLY, GET_SWC_SUCCESSFULLY,UPLOAD_MARKERS_SUCCESSFULLY, NO_MORE_FILE, DOWNLOAD_IMAGE_FINISH, NONE
     }
 
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(2);
@@ -75,6 +78,7 @@ public class QualityInspectionViewModel extends ViewModel {
     private final UserInfoRepository userInfoRepository;
     private final ImageInfoRepository imageInfoRepository;
     private final ImageDataSource imageDataSource;
+    AnnotationDataManager annotationDataManager;
     private final AnnotationDataSource annotationDataSource;
     private QualityInspectionDataSource qualityInspectionDataSource;
 
@@ -245,6 +249,7 @@ public class QualityInspectionViewModel extends ViewModel {
         if (result instanceof Result.Success) {
             Object data = ((Result.Success<?>) result).getData();
             if (data instanceof String){
+                Log.e(TAG,"Download_Image_data"+data);
                 potentialArborMarkerInfoList.add(lastDownloadPotentialArborMarkerInfo);
                 isDownloading = false;
 //                if (workStatus.getValue() == WorkStatus.START_TO_DOWNLOAD_IMAGE) {
@@ -264,16 +269,31 @@ public class QualityInspectionViewModel extends ViewModel {
 
     public void handleDownloadSwcResult(Result result){
         if(result instanceof Result.Success){
+            Log.e(TAG,"begin to handle download swc result");
             Object data =( (Result.Success<?>)result).getData();
             if(data instanceof String){
                 String fileName = FileManager.getFileName((String) data);
                 FileType fileType =FileManager.getFileType((String) data);
-
-
+                imageInfoRepository.getBasicFile().setFileInfo(fileName,new FilePath<String>((String) data),fileType);
+//                Log.e(TAG,"SWC FILE PATH"+filePath);
+//                NeuronTree neuronTree = NeuronTree.parse(filePath);
+//                NeuronTree neuronTreeCoordinateConvert = neuronTree.covertLocalToGlobal(neuronTree,coordinateConvert);
+//                if (neuronTree == null){
+//                    ToastEasy("Something wrong with this .swc/.eswc file, can't load it");
+//                } else {
+//                    annotationDataManager.loadNeuronTree(neuronTreeCoordinateConvert, false);
+//                }
+                annotationResult.setValue( new ResourceResult(true));
+                annotationMode.setValue(AnnotationMode.BIG_DATA);
+                workStatus.setValue(WorkStatus.GET_SWC_SUCCESSFULLY);
+            }
+            else {
+                annotationResult.setValue(new ResourceResult(false,result.toString()));
+                ToastEasy("failed to get swc successfully");
             }
         }
-
     }
+
 
     public void updateAnnotationResult(Result result) {
         if (result instanceof Result.Success) {
@@ -368,6 +388,7 @@ public class QualityInspectionViewModel extends ViewModel {
         if (result instanceof Result.Success) {
             Object data = ((Result.Success<?>) result).getData();
             if (data instanceof MarkerList) {
+                Log.e(TAG,"handle marker list result successfully");
                 // get soma list successfully
                 syncMarkerList.setValue(MarkerList.covertGlobalToLocal((MarkerList) data, coordinateConvert));
                 annotationMode.setValue(AnnotationMode.BIG_DATA);
@@ -417,6 +438,23 @@ public class QualityInspectionViewModel extends ViewModel {
 //            curIndex = lastIndex;
 //            openFileWithCurIndex();
 //        }
+    }
+
+    void openFileWithNoIndex(){
+        String brainId = lastDownloadPotentialArborMarkerInfo.getBrianId();
+        String res = resMap.get(brainId);
+        if (res == null) {
+            imageResult.setValue(new ResourceResult(false, "No res found"));
+            return;
+        }
+        XYZ location = lastDownloadCoordinateConvert.getCenterLocation();
+        String filePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image" +
+                "/" + brainId + "_" + res + "_" + (int)location.x + "_" + (int)location.y + "_" + (int)location.z + ".v3dpbd";
+        String fileName = FileManager.getFileName(filePath);
+        Log.e(TAG,"filePath"+filePath);
+        FileType fileType = FileManager.getFileType(filePath);
+        imageInfoRepository.getBasicImage().setFileInfo(fileName, new FilePath<String >(filePath), fileType);
+        imageResult.setValue(new ResourceResult(true));
     }
 
     private void openFileWithCurIndex() {
@@ -510,7 +548,8 @@ public class QualityInspectionViewModel extends ViewModel {
     }
 
     public void getArborMarkerList() {
-        String arborName = curPotentialArborMarkerInfo.getArborName();
+        String arborName = lastDownloadPotentialArborMarkerInfo.getArborName();
+//        String arborName = curPotentialArborMarkerInfo.getArborName();
         qualityInspectionDataSource.getArborMarkerList(arborName);
     }
 
@@ -547,7 +586,7 @@ public class QualityInspectionViewModel extends ViewModel {
         String arborName =lastDownloadPotentialArborMarkerInfo.getArborName();
         XYZ loc = lastDownloadPotentialArborMarkerInfo.getLocation();
         String res ="/"+lastDownloadPotentialArborMarkerInfo.getBrianId()+"/"+lastDownloadPotentialArborMarkerInfo.getSomaId();
-        qualityInspectionDataSource.getSwc(res,(float)loc.x,(float)loc.y,(float) loc.z,DEFAULT_IMAGE_SIZE * (int) Math.pow(2, coordinateConvert.getResIndex()-1),arborName);
+        qualityInspectionDataSource.getSwc(res,(float)loc.x,(float)loc.y,(float) loc.z,DEFAULT_IMAGE_SIZE * (int) Math.pow(2, lastDownloadCoordinateConvert.getResIndex()-1),arborName);
     }
 
     public void winScoreByFinishConfirmAnImage() {

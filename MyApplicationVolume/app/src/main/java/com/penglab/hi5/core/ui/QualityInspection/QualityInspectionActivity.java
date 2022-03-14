@@ -157,7 +157,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
                         ToastEasy("Upload successfully");
                         if (needSyncSomaList) {
                             qualityInspectionViewModel.getArborMarkerList();
-                            qualityInspectionViewModel.getSwc();
+//                            qualityInspectionViewModel.getSwc();
                             needSyncSomaList = false;
                         }
                         break;
@@ -165,20 +165,30 @@ public class QualityInspectionActivity extends AppCompatActivity {
 //                    case GET_SOMA_LIST_SUCCESSFULLY:
 //                        hideDownloadingProgressBar();
 //                        break;
+                    case GET_ARBOR_MARKER_LIST_SUCCESSFULLY:
+                        hideDownloadingProgressBar();
+                        Log.e(TAG,"GET ARBOR MARKERLIST SUCCESSFULLY");
+                        break;
 
                     case START_TO_DOWNLOAD_IMAGE:
                         showDownloadingProgressBar();
                         break;
 
-                    case START_TO_DOWNLOAD_SWC:
-                        qualityInspectionViewModel.getSwc();
-                        break;
+//                    case START_TO_DOWNLOAD_SWC:
+////                        qualityInspectionViewModel.getSwc();
+////                        break;
 
                     case DOWNLOAD_IMAGE_FINISH:
                         Log.e(TAG,"downloadImageFinished");
+                        qualityInspectionViewModel.openFileWithNoIndex();
 //                        hideDownloadingProgressBar();
-                        qualityInspectionViewModel.getSwc();
 //                        qualityInspectionViewModel.openNewFile();
+//                        qualityInspectionViewModel.getSwc();
+                        break;
+                    case GET_SWC_SUCCESSFULLY:
+                        annotationGLSurfaceView.loadFile();
+                        qualityInspectionViewModel.getArborMarkerList();
+                        Log.e(TAG,"get swc successfully");
                         break;
 
                     case IMAGE_FILE_EXPIRED:
@@ -229,7 +239,6 @@ public class QualityInspectionActivity extends AppCompatActivity {
                     return;
                 }
                 qualityInspectionViewModel.handleDownloadImageResult(result);
-                Log.e(TAG,"handle downloadImageResult Success");
             }
         });
 
@@ -240,7 +249,6 @@ public class QualityInspectionActivity extends AppCompatActivity {
                     return;
                 }
                 qualityInspectionViewModel.handleDownloadSwcResult(result);
-                Log.e(TAG,"handle downloadSwcResult Success");
             }
         });
 
@@ -252,15 +260,13 @@ public class QualityInspectionActivity extends AppCompatActivity {
                     return;
                 }
                 if (resourceResult.isSuccess()){
+                    Log.e(TAG,"getImageResultSuccessfully");
                     annotationGLSurfaceView.openFile();
-                    qualityInspectionViewModel.getArborMarkerList();
                     qualityInspectionViewModel.getSwc();
-                    Log.e(TAG,"download swc");
-                    PotentialArborMarkerInfo arborMarkerInfo = qualityInspectionViewModel.getCurPotentialArborMarkerInfo();
-
-
-                    imageIdLocationTextView.setText(arborMarkerInfo.getBrianId() + "_" + arborMarkerInfo.getLocation().toString());
-                    annotationGLSurfaceView.setImageInfoInRender(arborMarkerInfo.getBrianId() + "_" + arborMarkerInfo.getLocation().toString());
+                    qualityInspectionViewModel.getArborMarkerList();
+//                    PotentialArborMarkerInfo arborMarkerInfo = qualityInspectionViewModel.getCurPotentialArborMarkerInfo();
+//                    imageIdLocationTextView.setText(arborMarkerInfo.getBrianId() + "_" + arborMarkerInfo.getLocation().toString());
+//                    annotationGLSurfaceView.setImageInfoInRender(arborMarkerInfo.getBrianId() + "_" + arborMarkerInfo.getLocation().toString());
                 } else {
                     ToastEasy(resourceResult.getError());
                 }
@@ -313,7 +319,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
             }
         });
 
-        initScoreTickerView();
+//        initScoreTickerView();
         startMusicService();
     }
 
@@ -608,7 +614,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
             deleteMarker.setOnClickListener(this::onButtonClick);
             previousFile.setOnClickListener(v -> previousFile());
             nextFile.setOnClickListener(v -> nextFile());
-            boringFile.setOnClickListener(v -> boringFile());
+//            boringFile.setOnClickListener(v -> boringFile());
             ignoreFile.setOnClickListener(v -> boringFile());
             hideSwc.setOnClickListener(v ->hideSwc());
 
@@ -636,6 +642,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
 
     private void hideSwc() {
 
+
     }
 
 
@@ -653,14 +660,14 @@ public class QualityInspectionActivity extends AppCompatActivity {
     @SuppressLint("NonConstantResourceId")
     private void onButtonClick(View view) {
         // reset UI
-        addMarkerBlue.setImageResource(R.drawable.ic_add_marker_blue);
-        addMarkerRed.setImageResource(R.drawable.ic_add_marker_red);
-        addMarkerYellow.setImageResource(R.drawable.ic_add_marker_yellow);
-        deleteMarker.setImageResource(R.drawable.ic_delete_marker_checkmode);
+        addMarkerBlue.setImageResource(R.drawable.ic_marker_blue);
+        addMarkerRed.setImageResource(R.drawable.ic_marker_red);
+        addMarkerYellow.setImageResource(R.drawable.ic_marker_yellow);
+        deleteMarker.setImageResource(R.drawable.ic_delete_marker_check);
         playButtonSound();
 
         switch (view.getId()){
-            case R.id.add_marker:
+            case R.id.add_marker_blue:
                 if(switchMarkerMode) {
                     if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
                         annotationGLSurfaceView.setLastMarkerType(3);
@@ -698,26 +705,26 @@ public class QualityInspectionActivity extends AppCompatActivity {
                 break;
             case R.id.delete_marker:
                 if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_MARKER)){
-                    deleteMarker.setImageResource(R.drawable.ic_delete_marker_checkmode);
+                    deleteMarker.setImageResource(R.drawable.ic_delete_marker_check_main);
                 }
                 break;
         }
     }
 
-    private void initScoreTickerView() {
-        scoreTickerView = findViewById(R.id.score_ticker_view);
-        scoreTickerView.setTypeface(Typeface.DEFAULT);
-        scoreTickerView.setAnimationDuration(500);
-        scoreTickerView.setAnimationInterpolator(new OvershootInterpolator());
-        scoreTickerView.setPreferredScrollingDirection(TickerView.ScrollingDirection.ANY);
-
-        qualityInspectionViewModel.getObservableScore().observe(this, new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer integer) {
-                scoreTickerView.setText(Integer.toString(integer));
-            }
-        });
-    }
+//    private void initScoreTickerView() {
+//        scoreTickerView = findViewById(R.id.score_ticker_view);
+//        scoreTickerView.setTypeface(Typeface.DEFAULT);
+//        scoreTickerView.setAnimationDuration(500);
+//        scoreTickerView.setAnimationInterpolator(new OvershootInterpolator());
+//        scoreTickerView.setPreferredScrollingDirection(TickerView.ScrollingDirection.ANY);
+//
+//        qualityInspectionViewModel.getObservableScore().observe(this, new Observer<Integer>() {
+//            @Override
+//            public void onChanged(Integer integer) {
+//                scoreTickerView.setText(Integer.toString(integer));
+//            }
+//        });
+//    }
 
     private void boringFile() {
         if (preferenceSoma.getShowBoringFileWarning()) {

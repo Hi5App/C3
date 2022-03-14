@@ -42,7 +42,7 @@ public class HttpUtilsQualityInspection extends HttpUtils{
         try {
             RequestBody body = RequestBody.create(JSON,String.valueOf(new JSONObject()
 
-                    .put("arborId", arborId)
+                    .put("arborid", arborId)
                     .put("arborname",arborName)
                     .put("insertlist", insertList)
                     .put("deletelist", deleteList)
