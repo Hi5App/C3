@@ -384,6 +384,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
     public void openFile(){
         BasicFile basicFile = imageInfoRepository.getBasicImage();
         FilePath<?> filePath = basicFile.getFilePath();
+        Log.d("openfile", filePath.getData().toString());
         FileType fileType = basicFile.getFileType();
         this.fileType = fileType;
 

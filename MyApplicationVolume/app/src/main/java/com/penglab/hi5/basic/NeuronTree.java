@@ -8,10 +8,13 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.penglab.hi5.basic.image.BasicSurfObj;
+import com.penglab.hi5.basic.image.ImageMarkerExt;
+import com.penglab.hi5.basic.image.XYZ;
 import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
+import com.penglab.hi5.core.ui.marker.CoordinateConvert;
 import com.penglab.hi5.data.model.img.FilePath;
 
 import java.io.BufferedReader;
@@ -117,6 +120,32 @@ public class NeuronTree extends BasicSurfObj {
 
             listNeuron.set(i, S);
         }
+    }
+
+    public static NeuronTree covertLocalToGlobal(NeuronTree neuronTree,CoordinateConvert coordinateConvert)
+    {
+        NeuronTree neuronTreeLocal = new NeuronTree();
+
+        for (int i =0;i<neuronTree.listNeuron.size();i++){
+            NeuronSWC s = new NeuronSWC();
+            XYZ xyz = coordinateConvert.convertLocalToGlobal(neuronTree.listNeuron.get(i).x,neuronTree.listNeuron.get(i).y,neuronTree.listNeuron.get(i).z);
+            s.n = neuronTree.listNeuron.get(i).n;
+            s.x = xyz.x;
+            s.y =xyz.y;
+            s.z = xyz.z;
+            s.radius = neuronTree.listNeuron.get(i).radius;
+            s.parent = neuronTree.listNeuron.get(i).parent;
+            s.seg_id = neuronTree.listNeuron.get(i).seg_id;
+            s.level = neuronTree.listNeuron.get(i).level;
+            s.creatmode = neuronTree.listNeuron.get(i).creatmode;  // Creation Mode LMG 8/10/2018
+            s.timestamp = neuronTree.listNeuron.get(i).timestamp;  // Timestamp LMG 27/9/2018
+            s.tfresindex = neuronTree.listNeuron.get(i).tfresindex; // TeraFly resolution index LMG 13/12/2018
+            s.fea_val =neuronTree.listNeuron.get(i).fea_val;
+            neuronTreeLocal.listNeuron.set(i,s);
+
+        }
+        return neuronTreeLocal;
+
     }
 
     public boolean projection(int axiscode){    //axiscode, 1 -- x, 2 -- y, 3 -- z, 4 -- r

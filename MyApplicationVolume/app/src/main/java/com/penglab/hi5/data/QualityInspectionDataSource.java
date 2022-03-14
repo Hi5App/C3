@@ -130,7 +130,8 @@ public class QualityInspectionDataSource {
                                 String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/swc";
                                 String filename = arborName + "_"  + offsetX + "_" + offsetY + "_" + offsetZ + ".swc";
                                 if (!FileHelper.storeFile(storePath, filename, fileContent)) {
-                                    downloadSwcResult.postValue(new Result.Error(new Exception("Fail to store image file !")));
+                                    Log.e(TAG,"fail to store swc file");
+                                    downloadSwcResult.postValue(new Result.Error(new Exception("Fail to store swc file !")));
                                 }
                                 downloadSwcResult.postValue(new Result.Success(storePath + "/" + filename));
                                 response.body().close();
