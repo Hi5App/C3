@@ -163,9 +163,6 @@ public class QualityInspectionActivity extends AppCompatActivity {
                         }
                         break;
 
-//                    case GET_SOMA_LIST_SUCCESSFULLY:
-//                        hideDownloadingProgressBar();
-//                        break;
                     case GET_ARBOR_MARKER_LIST_SUCCESSFULLY:
                         hideDownloadingProgressBar();
                         Log.e(TAG,"GET ARBOR MARKERLIST SUCCESSFULLY");
@@ -175,17 +172,13 @@ public class QualityInspectionActivity extends AppCompatActivity {
                         showDownloadingProgressBar();
                         break;
 
-//                    case START_TO_DOWNLOAD_SWC:
-////                        qualityInspectionViewModel.getSwc();
-////                        break;
-
                     case DOWNLOAD_IMAGE_FINISH:
                         Log.e(TAG,"downloadImageFinished");
-//                        qualityInspectionViewModel.openFileWithNoIndex();
                         hideDownloadingProgressBar();
                         qualityInspectionViewModel.openNewFile();
                         qualityInspectionViewModel.getSwc();
                         break;
+
                     case GET_SWC_SUCCESSFULLY:
 //                        annotationGLSurfaceView.loadFile();
                         qualityInspectionViewModel.getArborMarkerList();
@@ -684,6 +677,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
                 if(switchMarkerMode) {
                     if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
                         annotationGLSurfaceView.setLastMarkerType(3);
+                        ToastEasy("finding wrong part");
                         addMarkerBlue.setImageResource(R.drawable.ic_marker_main_checkmode);
                     }
                 }else{
@@ -696,6 +690,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
                 if(switchMarkerMode) {
                     if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
                         annotationGLSurfaceView.setLastMarkerType(2);
+                        ToastEasy("finding missing part");
                         addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
                     }
                 }else{
@@ -708,6 +703,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
                 if(switchMarkerMode) {
                     if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
                         annotationGLSurfaceView.setLastMarkerType(6);
+                        ToastEasy("finding breaking part");
                         addMarkerYellow.setImageResource(R.drawable.ic_marker_main_checkmode);
                     }
                 }else{
