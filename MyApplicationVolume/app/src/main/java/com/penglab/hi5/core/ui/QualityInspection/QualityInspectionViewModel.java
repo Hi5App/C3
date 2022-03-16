@@ -583,7 +583,7 @@ public class QualityInspectionViewModel extends ViewModel {
             String image = curPotentialArborMarkerInfo.getBrianId();
             String username = loggedInUser.getUserId();
             qualityInspectionDataSource.UpdateCheckResult(arborId, arborName,
-                    MarkerList.toJSONArray(MarkerList.covertLocalToGlobal(markerListToAdd, coordinateConvert)), markerListToDelete,username);
+                    MarkerList.toJSONArrayAddType(MarkerList.covertLocalToGlobal(markerListToAdd, coordinateConvert)), markerListToDelete,username);
             if (!curPotentialArborMarkerInfo.isAlreadyUpload()) {
                 curPotentialArborMarkerInfo.setAlreadyUpload(true);
                 winScoreByFinishConfirmAnImage();
