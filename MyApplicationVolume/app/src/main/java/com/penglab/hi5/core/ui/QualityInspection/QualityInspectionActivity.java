@@ -41,6 +41,7 @@ import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
+import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.utils.view.ImageButtonExt;
 import com.penglab.hi5.basic.utils.xpopupExt.ConfirmPopupViewExt;
@@ -180,13 +181,13 @@ public class QualityInspectionActivity extends AppCompatActivity {
 
                     case DOWNLOAD_IMAGE_FINISH:
                         Log.e(TAG,"downloadImageFinished");
-                        qualityInspectionViewModel.openFileWithNoIndex();
-//                        hideDownloadingProgressBar();
-//                        qualityInspectionViewModel.openNewFile();
-//                        qualityInspectionViewModel.getSwc();
+//                        qualityInspectionViewModel.openFileWithNoIndex();
+                        hideDownloadingProgressBar();
+                        qualityInspectionViewModel.openNewFile();
+                        qualityInspectionViewModel.getSwc();
                         break;
                     case GET_SWC_SUCCESSFULLY:
-                        annotationGLSurfaceView.loadFile();
+//                        annotationGLSurfaceView.loadFile();
                         qualityInspectionViewModel.getArborMarkerList();
                         Log.e(TAG,"get swc successfully");
                         break;
@@ -252,6 +253,18 @@ public class QualityInspectionActivity extends AppCompatActivity {
             }
         });
 
+        qualityInspectionViewModel.getSwcResult().observe(this, new Observer<NeuronTree>() {
+            @Override
+            public void onChanged(NeuronTree neuronTree) {
+                if(neuronTree == null){
+                    return;
+                }
+                annotationGLSurfaceView.syncNeuronTree(neuronTree);
+                qualityInspectionViewModel.getArborMarkerList();
+
+            }
+        });
+
         qualityInspectionViewModel.getImageResult().observe(this, new Observer<ResourceResult>() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
@@ -263,7 +276,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
                     Log.e(TAG,"getImageResultSuccessfully");
                     annotationGLSurfaceView.openFile();
                     qualityInspectionViewModel.getSwc();
-                    qualityInspectionViewModel.getArborMarkerList();
+//                    qualityInspectionViewModel.getArborMarkerList();
 //                    PotentialArborMarkerInfo arborMarkerInfo = qualityInspectionViewModel.getCurPotentialArborMarkerInfo();
 //                    imageIdLocationTextView.setText(arborMarkerInfo.getBrianId() + "_" + arborMarkerInfo.getLocation().toString());
 //                    annotationGLSurfaceView.setImageInfoInRender(arborMarkerInfo.getBrianId() + "_" + arborMarkerInfo.getLocation().toString());

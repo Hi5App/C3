@@ -7,6 +7,7 @@ import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.netease.nim.uikit.common.util.C;
 import com.penglab.hi5.basic.image.BasicSurfObj;
 import com.penglab.hi5.basic.image.ImageMarkerExt;
 import com.penglab.hi5.basic.image.XYZ;
@@ -122,17 +123,17 @@ public class NeuronTree extends BasicSurfObj {
         }
     }
 
-    public static NeuronTree covertLocalToGlobal(NeuronTree neuronTree,CoordinateConvert coordinateConvert)
-    {
+    public static NeuronTree convertGlobalToLocal(NeuronTree neuronTree,CoordinateConvert coordinateConvert) {
         NeuronTree neuronTreeLocal = new NeuronTree();
 
         for (int i =0;i<neuronTree.listNeuron.size();i++){
             NeuronSWC s = new NeuronSWC();
-            XYZ xyz = coordinateConvert.convertLocalToGlobal(neuronTree.listNeuron.get(i).x,neuronTree.listNeuron.get(i).y,neuronTree.listNeuron.get(i).z);
+            XYZ xyz = coordinateConvert.convertGlobalToLocal(neuronTree.listNeuron.get(i).x,neuronTree.listNeuron.get(i).y,neuronTree.listNeuron.get(i).z);
             s.n = neuronTree.listNeuron.get(i).n;
             s.x = xyz.x;
             s.y =xyz.y;
             s.z = xyz.z;
+            s.type = neuronTree.listNeuron.get(i).type;
             s.radius = neuronTree.listNeuron.get(i).radius;
             s.parent = neuronTree.listNeuron.get(i).parent;
             s.seg_id = neuronTree.listNeuron.get(i).seg_id;
@@ -141,7 +142,7 @@ public class NeuronTree extends BasicSurfObj {
             s.timestamp = neuronTree.listNeuron.get(i).timestamp;  // Timestamp LMG 27/9/2018
             s.tfresindex = neuronTree.listNeuron.get(i).tfresindex; // TeraFly resolution index LMG 13/12/2018
             s.fea_val =neuronTree.listNeuron.get(i).fea_val;
-            neuronTreeLocal.listNeuron.set(i,s);
+            neuronTreeLocal.listNeuron.add(s);
 
         }
         return neuronTreeLocal;
@@ -766,6 +767,33 @@ public class NeuronTree extends BasicSurfObj {
 
         return nts;
     }
+
+
+//    public  NeuronTree convertLocalToGlobal(Vector<NeuronTree> neuronTree, CoordinateConvert coordinateConvert) {
+//        NeuronTree nts= new NeuronTree();
+//        int n = 0;
+//        for (int i = 0; i < neuronTree.size(); i++) {
+//            NeuronTree nt = neuronTree.get(i);
+//            ArrayList<NeuronSWC> listNeuron = nt.listNeuron;
+//            if (listNeuron.isEmpty()) {
+//                continue;
+//            }
+//
+//            for(int j=0; j<listNeuron.size(); j++){
+//                NeuronSWC v = new NeuronSWC();
+//                XYZ xyz = coordinateConvert.convertLocalToGlobal(listNeuron.get(i).x,listNeuron.get(i).y,listNeuron.get(i).z);
+//                v.x = listNeuron.get(j).x;
+//                v.y = listNeuron.get(j).y;
+//                v.z = listNeuron.get(j).z;
+//                v.radius = listNeuron.get(j).radius;
+//                v.type = listNeuron.get(j).type;
+//                v.parent = listNeuron.get(j).parent;
+//                nts.listNeuron.add(v);
+//            }
+//        }
+//
+//        return nts;
+//    }
 
     public static NeuronTree mergeNeuronTrees(Vector<NeuronTree> neuronTrees){
         NeuronTree merge = new NeuronTree();

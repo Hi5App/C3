@@ -20,6 +20,7 @@ import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.render.utils.AnnotationDataManager;
 import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.check.CheckArborInfoState;
+import com.penglab.hi5.core.ui.marker.CoordinateConvert;
 import com.penglab.hi5.data.AnnotationDataSource;
 import com.penglab.hi5.data.CheckArborDataSource;
 import com.penglab.hi5.data.ImageDataSource;
@@ -74,6 +75,7 @@ public class QualityInspectionViewModel extends ViewModel {
     private final MutableLiveData<ResourceResult> imageResult = new MutableLiveData<>();
     private final MutableLiveData<ResourceResult> uploadResult = new MutableLiveData<>();
     private MutableLiveData<ResourceResult> annotationResult = new MutableLiveData<>();
+    private MutableLiveData<NeuronTree> swcResult = new MutableLiveData<>();
 
     private final UserInfoRepository userInfoRepository;
     private final ImageInfoRepository imageInfoRepository;
@@ -83,7 +85,7 @@ public class QualityInspectionViewModel extends ViewModel {
     private QualityInspectionDataSource qualityInspectionDataSource;
 
     private final LoggedInUser loggedInUser;
-    private final com.penglab.hi5.core.ui.marker.CoordinateConvert coordinateConvert = new com.penglab.hi5.core.ui.marker.CoordinateConvert();
+    private final CoordinateConvert coordinateConvert = new CoordinateConvert();
     private final CoordinateConvert lastDownloadCoordinateConvert = new CoordinateConvert();
     private final HashMap<String, String> resMap = new HashMap<>();
     private final List<PotentialArborMarkerInfo> potentialArborMarkerInfoList = new ArrayList<>();
@@ -106,8 +108,8 @@ public class QualityInspectionViewModel extends ViewModel {
         lastDownloadCoordinateConvert.setResIndex(DEFAULT_RES_INDEX);
         lastDownloadCoordinateConvert.setImgSize(DEFAULT_IMAGE_SIZE);
 
-//        initPreDownloadThread();
-//        initCheckFreshThread();
+        initPreDownloadThread();
+        initCheckFreshThread();
     }
 
     public LiveData<AnnotationMode> getAnnotationMode(){
@@ -124,6 +126,10 @@ public class QualityInspectionViewModel extends ViewModel {
 
     public LiveData<ResourceResult> getImageResult() {
         return imageResult;
+    }
+
+    public LiveData<NeuronTree> getSwcResult() {
+        return swcResult;
     }
 
     public MutableLiveData<ResourceResult> getUploadResult() {
@@ -252,11 +258,11 @@ public class QualityInspectionViewModel extends ViewModel {
                 Log.e(TAG,"Download_Image_data"+data);
                 potentialArborMarkerInfoList.add(lastDownloadPotentialArborMarkerInfo);
                 isDownloading = false;
-//                if (workStatus.getValue() == WorkStatus.START_TO_DOWNLOAD_IMAGE) {
-//                    workStatus.setValue(WorkStatus.DOWNLOAD_IMAGE_FINISH);
-//                }
+                if (workStatus.getValue() == WorkStatus.START_TO_DOWNLOAD_IMAGE) {
+                    workStatus.setValue(WorkStatus.DOWNLOAD_IMAGE_FINISH);
+                }
 
-                workStatus.setValue(WorkStatus.DOWNLOAD_IMAGE_FINISH);
+//                workStatus.setValue(WorkStatus.DOWNLOAD_IMAGE_FINISH);
             } else {
 //                ToastEasy("Error when download image");
                 isDownloading = false;
@@ -275,9 +281,18 @@ public class QualityInspectionViewModel extends ViewModel {
                 String fileName = FileManager.getFileName((String) data);
                 FileType fileType =FileManager.getFileType((String) data);
                 imageInfoRepository.getBasicFile().setFileInfo(fileName,new FilePath<String>((String) data),fileType);
+
+                FilePath filePath = new FilePath(Myapplication.getContext().getExternalFilesDir(null) + "/swc" +fileName);
 //                Log.e(TAG,"SWC FILE PATH"+filePath);
-//                NeuronTree neuronTree = NeuronTree.parse(filePath);
-//                NeuronTree neuronTreeCoordinateConvert = neuronTree.covertLocalToGlobal(neuronTree,coordinateConvert);
+                NeuronTree neuronTree = NeuronTree.parse(filePath);
+                NeuronTree neuronTreeCoordinateConvert = NeuronTree.convertGlobalToLocal(neuronTree, coordinateConvert);
+                if (neuronTreeCoordinateConvert == null) {
+                    Log.e(TAG,"neuronTreeCoordinateConvert" + neuronTreeCoordinateConvert.listNeuron);
+                }
+                swcResult.setValue(neuronTreeCoordinateConvert);
+                if(swcResult == null){
+                    Log.e(TAG,"SWC RESULT IS NULL");
+                }
 //                if (neuronTree == null){
 //                    ToastEasy("Something wrong with this .swc/.eswc file, can't load it");
 //                } else {
@@ -285,7 +300,7 @@ public class QualityInspectionViewModel extends ViewModel {
 //                }
                 annotationResult.setValue( new ResourceResult(true));
                 annotationMode.setValue(AnnotationMode.BIG_DATA);
-                workStatus.setValue(WorkStatus.GET_SWC_SUCCESSFULLY);
+//                workStatus.setValue(WorkStatus.GET_SWC_SUCCESSFULLY);
             }
             else {
                 annotationResult.setValue(new ResourceResult(false,result.toString()));
@@ -421,23 +436,27 @@ public class QualityInspectionViewModel extends ViewModel {
 //        getPotentialLocation();
 //    }
 
+    public void getArbor(){
+        qualityInspectionDataSource.getArbor();
+    }
+
     public void openNewFile() {
-        getArbor();
-//        noFileLeft = false;
-//        while (lastIndex < potentialArborMarkerInfoList.size() - 1) {
-//            PotentialArborMarkerInfo arborMarkerInfo = potentialArborMarkerInfoList.get(lastIndex + 1);
-//            if (arborMarkerInfo.ifStillFresh()) {
-//                break;
-//            }
-//            lastIndex++;
-//        }
-//        if (lastIndex + 1 >= potentialArborMarkerInfoList.size()) {
-//            workStatus.setValue(WorkStatus.START_TO_DOWNLOAD_IMAGE);
-//        } else {
-//            lastIndex++;
-//            curIndex = lastIndex;
-//            openFileWithCurIndex();
-//        }
+//        getArbor();
+        noFileLeft = false;
+        while (lastIndex < potentialArborMarkerInfoList.size() - 1) {
+            PotentialArborMarkerInfo arborMarkerInfo = potentialArborMarkerInfoList.get(lastIndex + 1);
+            if (arborMarkerInfo.ifStillFresh()) {
+                break;
+            }
+            lastIndex++;
+        }
+        if (lastIndex + 1 >= potentialArborMarkerInfoList.size()) {
+            workStatus.setValue(WorkStatus.START_TO_DOWNLOAD_IMAGE);
+        } else {
+            lastIndex++;
+            curIndex = lastIndex;
+            openFileWithCurIndex();
+        }
     }
 
     void openFileWithNoIndex(){
@@ -531,9 +550,6 @@ public class QualityInspectionViewModel extends ViewModel {
         imageDataSource.getBrainList();
     }
 
-    private void getArbor() {
-        qualityInspectionDataSource.getArbor();
-    }
 
     public void downloadImage() {
         String brianId = lastDownloadPotentialArborMarkerInfo.getBrianId();
@@ -548,8 +564,8 @@ public class QualityInspectionViewModel extends ViewModel {
     }
 
     public void getArborMarkerList() {
-        String arborName = lastDownloadPotentialArborMarkerInfo.getArborName();
-//        String arborName = curPotentialArborMarkerInfo.getArborName();
+//        String arborName = lastDownloadPotentialArborMarkerInfo.getArborName();
+        String arborName = curPotentialArborMarkerInfo.getArborName();
         qualityInspectionDataSource.getArborMarkerList(arborName);
     }
 
@@ -581,11 +597,12 @@ public class QualityInspectionViewModel extends ViewModel {
 
     public void getSwc(){
         Log.e(TAG,"GET SWC");
-//        String arborName = curPotentialArborMarkerInfo.getArborName();
-//        XYZ loc =curPotentialArborMarkerInfo.getLocation();
-        String arborName =lastDownloadPotentialArborMarkerInfo.getArborName();
-        XYZ loc = lastDownloadPotentialArborMarkerInfo.getLocation();
-        String res ="/"+lastDownloadPotentialArborMarkerInfo.getBrianId()+"/"+lastDownloadPotentialArborMarkerInfo.getSomaId();
+        String arborName = curPotentialArborMarkerInfo.getArborName();
+        XYZ loc =curPotentialArborMarkerInfo.getLocation();
+        String res = "/"+curPotentialArborMarkerInfo.getBrianId()+"/"+curPotentialArborMarkerInfo.getSomaId();
+//        String arborName =lastDownloadPotentialArborMarkerInfo.getArborName();
+//        XYZ loc = lastDownloadPotentialArborMarkerInfo.getLocation();
+//        String res ="/"+lastDownloadPotentialArborMarkerInfo.getBrianId()+"/"+lastDownloadPotentialArborMarkerInfo.getSomaId();
         qualityInspectionDataSource.getSwc(res,(float)loc.x,(float)loc.y,(float) loc.z,DEFAULT_IMAGE_SIZE * (int) Math.pow(2, lastDownloadCoordinateConvert.getResIndex()-1),arborName);
     }
 

@@ -168,7 +168,7 @@ public class QualityInspectionDataSource {
                 }
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    Log.e(TAG,"receive response when upload marker");
+                    Log.e(TAG,"responseCode"+response.code());
                     int responseCode = response.code();
                     if (responseCode == 200) {
                         // process response
