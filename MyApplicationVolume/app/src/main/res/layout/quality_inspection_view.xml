@@ -36,25 +36,25 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
-<!--    <com.penglab.hi5.basic.utils.view.ImageButtonExt-->
-<!--        android:id="@+id/boring_file"-->
-<!--        android:layout_width="40dp"-->
-<!--        android:layout_height="40dp"-->
-<!--        android:background="@drawable/circle_normal"-->
-<!--        android:src="@drawable/ic_boring_box"-->
-<!--        android:layout_marginStart="10dp"-->
-<!--        android:layout_marginBottom="70dp"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent" />-->
+    <com.penglab.hi5.basic.utils.view.ImageButtonExt
+        android:id="@+id/boring_file"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/circle_normal"
+        android:src="@drawable/ic_boring_box"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="130dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <com.penglab.hi5.basic.utils.view.ImageButtonExt
         android:id="@+id/ignore_file"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:background="@drawable/circle_normal"
-        android:src="@drawable/ic_ignore_icon"
+        android:src="@drawable/ic_file_checkmark"
         android:layout_marginEnd="10dp"
-        android:layout_marginBottom="280dp"
+        android:layout_marginBottom="180dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
@@ -62,10 +62,10 @@
         android:id="@+id/switch_marker_mode"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="230dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="180dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         android:checked="true"
         android:textOff="stroke"
         android:textOn="point"
@@ -76,10 +76,10 @@
         android:id= "@+id/hide_swc"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginEnd = "10dp"
-        android:layout_marginBottom="180dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="130dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         android:background="@drawable/circle_normal"
         android:src = "@drawable/ic_not_hide"/>
 

@@ -157,5 +157,6 @@ dependencies {
     //noinspection GradleCompatible,GradleCompatible
 
     implementation 'com.h6ah4i.android.widget.verticalseekbar:verticalseekbar:1.0.0'
+    implementation 'com.github.GrenderG:Toasty:1.5.2'
 
 }

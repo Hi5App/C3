@@ -48,6 +48,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import es.dmoral.toasty.Toasty;
+
 /**
  * Created by Jackiexing on 01/10/21
  */
@@ -94,6 +96,8 @@ public class QualityInspectionViewModel extends ViewModel {
     private int lastIndex = -1;
     private boolean isDownloading = false;
     private boolean noFileLeft = false;
+
+
 
     public QualityInspectionViewModel(UserInfoRepository userInfoRepository, ImageInfoRepository imageInfoRepository, QualityInspectionDataSource qualityInspectionDataSource,ImageDataSource imageDataSource, AnnotationDataSource annotationDataSource) {
         this.userInfoRepository = userInfoRepository;
