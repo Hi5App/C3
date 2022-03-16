@@ -1,5 +1,7 @@
 package com.penglab.hi5.core.net;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -40,15 +42,23 @@ public class HttpUtilsQualityInspection extends HttpUtils{
     public static void UpdateCheckResultWithOkHttp(JSONObject userInfo, int arborId, String arborName,JSONArray insertList, JSONArray deleteList, String owner, Callback callback)
     {
         try {
+            JSONObject updateCheckInfo = new JSONObject()
+                    .put("arborid", arborId)
+                    .put("arborname",arborName)
+                    .put("insertlist", insertList)
+                    .put("deletelist", deleteList)
+                    .put("owner", owner);
             RequestBody body = RequestBody.create(JSON,String.valueOf(new JSONObject()
-
+                    .put("pa",updateCheckInfo)
+                    .put("user",userInfo)));
+            asyncPostRequest(URL_UPDATE_CHECK_RESULT, body, callback);
+            Log.e("body","updatecheckbody"+String.valueOf(new JSONObject()
                     .put("arborid", arborId)
                     .put("arborname",arborName)
                     .put("insertlist", insertList)
                     .put("deletelist", deleteList)
                     .put("owner", owner)
                     .put("user",userInfo)));
-            asyncPostRequest(URL_UPDATE_CHECK_RESULT, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
